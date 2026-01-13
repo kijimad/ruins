@@ -22,6 +22,7 @@ type EntitySpec struct {
 	Pools            *Pools
 	Attack           *Attack
 	Value            *Value
+	Weight           *Weight
 	Recipe           *Recipe
 	Wearable         *Wearable
 	Attributes       *Attributes
@@ -79,6 +80,7 @@ type Components struct {
 	Pools                  *ecs.SliceComponent `save:"true"`
 	Attack                 *ecs.SliceComponent `save:"true"`
 	Value                  *ecs.SliceComponent `save:"true"`
+	Weight                 *ecs.SliceComponent `save:"true"`
 	Recipe                 *ecs.SliceComponent `save:"true"`
 	Wearable               *ecs.SliceComponent `save:"true"`
 	Attributes             *ecs.SliceComponent `save:"true"`
@@ -260,6 +262,12 @@ type Stackable struct {
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される
 type Value struct {
 	Value int
+}
+
+// Weight はアイテムの重量(kg)
+// 所持重量の計算に使用される
+type Weight struct {
+	Kg float64 // 重量（キログラム）
 }
 
 // Recipe は合成に必要な素材

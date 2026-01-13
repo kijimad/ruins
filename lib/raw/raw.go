@@ -45,6 +45,7 @@ type Item struct {
 	SpriteKey         string
 	AnimKeys          []string
 	Value             *int
+	Weight            *float64 // 重量(kg)
 	InflictsDamage    *int
 	ProvidesNutrition *int  // 空腹度回復量
 	Stackable         *bool // スタック可能かどうか
@@ -351,6 +352,10 @@ func (rw *Master) NewItemSpec(name string, locationType *gc.ItemLocationType) (g
 		entitySpec.Value = &gc.Value{Value: *item.Value}
 	}
 
+	if item.Weight != nil {
+		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
+	}
+
 	if locationType != nil {
 		if _, ok := (*locationType).(gc.LocationOnField); ok {
 			entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
@@ -398,6 +403,9 @@ func (rw *Master) NewRecipeSpec(name string) (gc.EntitySpec, error) {
 	}
 	if itemSpec.Value != nil {
 		entitySpec.Value = itemSpec.Value
+	}
+	if itemSpec.Weight != nil {
+		entitySpec.Weight = itemSpec.Weight
 	}
 
 	return entitySpec, nil
