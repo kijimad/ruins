@@ -66,18 +66,14 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	isStackable := itemDef.Stackable != nil && *itemDef.Stackable
 
 	if isStackable {
-		// 既存のスタックがあるか確認して追加
+		// 既存のスタックに追加、または新規作成
 		err := AddStackableCount(world, itemName, 1)
 		if err != nil {
-			// スタックが存在しない場合は新規作成
-			_, err = SpawnStackable(world, itemName, 1, gc.ItemLocationInBackpack)
-			if err != nil {
-				// 購入失敗時は通貨を返金
-				if refundErr := AddCurrency(world, playerEntity, price); refundErr != nil {
-					return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
-				}
-				return fmt.Errorf("アイテムの生成に失敗しました: %w", err)
+			// 購入失敗時は通貨を返金
+			if refundErr := AddCurrency(world, playerEntity, price); refundErr != nil {
+				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
 			}
+			return fmt.Errorf("アイテムの生成に失敗しました: %w", err)
 		}
 	} else {
 		// 通常アイテムは新規作成
