@@ -223,10 +223,11 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 func SpawnItem(world w.World, name string, locationType gc.ItemLocationType) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	entitySpec, err := rawMaster.NewItemSpec(name, &locationType)
+	entitySpec, err := rawMaster.NewItemSpec(name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}
+	entitySpec.ItemLocationType = &locationType
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {
@@ -258,10 +259,11 @@ func SpawnStackable(world w.World, name string, count int, location gc.ItemLocat
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	entitySpec, err := rawMaster.NewItemSpec(name, &location)
+	entitySpec, err := rawMaster.NewItemSpec(name)
 	if err != nil {
 		return 0, fmt.Errorf("failed to spawn stackable item: %w", err)
 	}
+	entitySpec.ItemLocationType = &location
 
 	// Stackableコンポーネントを設定
 	entitySpec.Stackable = &gc.Stackable{Count: count}

@@ -214,7 +214,7 @@ func Load(entityMetadataContent string) (Master, error) {
 }
 
 // NewItemSpec は指定された名前のアイテムのEntitySpecを生成する
-func (rw *Master) NewItemSpec(name string, locationType *gc.ItemLocationType) (gc.EntitySpec, error) {
+func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	itemIdx, ok := rw.ItemIndex[name]
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "ItemIndex")
@@ -225,9 +225,6 @@ func (rw *Master) NewItemSpec(name string, locationType *gc.ItemLocationType) (g
 	item := rw.Raws.Items[itemIdx]
 
 	entitySpec := gc.EntitySpec{}
-	if locationType != nil {
-		entitySpec.ItemLocationType = locationType
-	}
 	entitySpec.Item = &gc.Item{}
 	entitySpec.Name = &gc.Name{Name: item.Name}
 	entitySpec.Description = &gc.Description{Description: item.Description}
@@ -356,11 +353,8 @@ func (rw *Master) NewItemSpec(name string, locationType *gc.ItemLocationType) (g
 		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
 	}
 
-	if locationType != nil {
-		if _, ok := (*locationType).(gc.LocationOnField); ok {
-			entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
-		}
-	}
+	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
+	entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
 
 	return entitySpec, nil
 }
@@ -384,7 +378,7 @@ func (rw *Master) NewRecipeSpec(name string) (gc.EntitySpec, error) {
 
 	// 説明文や分類のため、マッチしたitemの定義から持ってくる
 	// マスターデータのため位置を指定しない
-	itemSpec, err := rw.NewItemSpec(recipe.Name, nil)
+	itemSpec, err := rw.NewItemSpec(recipe.Name)
 	if err != nil {
 		return gc.EntitySpec{}, fmt.Errorf("%s: %w", "failed to generate item for recipe", err)
 	}
@@ -421,7 +415,7 @@ func (rw *Master) NewWeaponSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	// マスターデータのため位置を指定しない
-	itemSpec, err := rw.NewItemSpec(name, nil)
+	itemSpec, err := rw.NewItemSpec(name)
 	if err != nil {
 		return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
 	}
