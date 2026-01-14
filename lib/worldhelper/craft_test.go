@@ -21,7 +21,7 @@ func TestCanCraft(t *testing.T) {
 	assert.NoError(t, err, "十分な素材があるときはエラーが発生してはいけない")
 
 	// 素材が不足している場合のテスト
-	materialComp := world.Components.Stackable.Get(material).(*gc.Stackable)
+	materialComp := world.Components.Item.Get(material).(*gc.Item)
 	materialComp.Count = 1 // 木の棒の量を1にする（2個必要なので不足）
 
 	canCraft, err = CanCraft(world, "木刀")

@@ -524,15 +524,15 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	// 決定的なマテリアル追加（手動で作成）
 	material1 := world.Manager.NewEntity()
 	material1.AddComponent(world.Components.Name, &gc.Name{Name: "鉄"})
-	material1.AddComponent(world.Components.Item, &gc.Item{})
+	material1.AddComponent(world.Components.Item, &gc.Item{Count: 40})
 	material1.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-	material1.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 40})
+	material1.AddComponent(world.Components.Stackable, &gc.Stackable{})
 
 	material2 := world.Manager.NewEntity()
 	material2.AddComponent(world.Components.Name, &gc.Name{Name: "緑ハーブ"})
-	material2.AddComponent(world.Components.Item, &gc.Item{})
+	material2.AddComponent(world.Components.Item, &gc.Item{Count: 2})
 	material2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-	material2.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 2})
+	material2.AddComponent(world.Components.Stackable, &gc.Stackable{})
 
 	return world
 }

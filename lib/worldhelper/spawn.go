@@ -264,9 +264,7 @@ func SpawnStackable(world w.World, name string, count int, location gc.ItemLocat
 		return 0, fmt.Errorf("failed to spawn stackable item: %w", err)
 	}
 	entitySpec.ItemLocationType = &location
-
-	// Stackableコンポーネントを設定
-	entitySpec.Stackable = &gc.Stackable{Count: count}
+	entitySpec.Item.Count = count
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)

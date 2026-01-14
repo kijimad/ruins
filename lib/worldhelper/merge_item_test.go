@@ -28,7 +28,7 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	require.NoError(t, err)
 
 	// 既存のmaterialの数量が統合されていることを確認
-	updatedMat := world.Components.Stackable.Get(existingMaterial).(*gc.Stackable)
+	updatedMat := world.Components.Item.Get(existingMaterial).(*gc.Item)
 	assert.Equal(t, 8, updatedMat.Count, "数量が正しく統合されていない")
 
 	// 新しいmaterialエンティティが削除されていることを確認（コンポーネントが存在しない）
@@ -70,7 +70,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	assert.True(t, newMaterial.HasComponent(world.Components.Stackable), "新しいmaterialエンティティが生きているべき")
 
 	// 数量が維持されていることを確認
-	updatedMat := world.Components.Stackable.Get(newMaterial).(*gc.Stackable)
+	updatedMat := world.Components.Item.Get(newMaterial).(*gc.Item)
 	assert.Equal(t, 2, updatedMat.Count, "数量が維持されていない")
 }
 

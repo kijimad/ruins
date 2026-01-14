@@ -164,8 +164,8 @@ Stackable = true
 	// 基本コンポーネントの確認
 	assert.NotNil(t, entitySpec.Name)
 	assert.NotNil(t, entitySpec.Description)
-	// GenerateItemはStackableコンポーネントを付与しない
-	assert.Nil(t, entitySpec.Stackable)
+	// Stackable=trueのアイテムにはStackableコンポーネントが付与される
+	assert.NotNil(t, entitySpec.Stackable)
 
 	// SpriteRenderコンポーネントの確認
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")

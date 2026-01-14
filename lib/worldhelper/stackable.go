@@ -28,11 +28,11 @@ func MergeStackableIntoInventory(world w.World, newItemEntity ecs.Entity, itemNa
 // mergeStackables はStackableアイテムをマージする。数量を統合してnewItemエンティティは削除する
 func mergeStackables(world w.World, existingItem, newItem ecs.Entity) {
 	// 新しいアイテムの数量を既存のアイテムに追加
-	existingStackable := world.Components.Stackable.Get(existingItem).(*gc.Stackable)
-	newStackable := world.Components.Stackable.Get(newItem).(*gc.Stackable)
+	existingItemComp := world.Components.Item.Get(existingItem).(*gc.Item)
+	newItemComp := world.Components.Item.Get(newItem).(*gc.Item)
 
 	// 数量を統合
-	existingStackable.Count += newStackable.Count
+	existingItemComp.Count += newItemComp.Count
 
 	// 新しいアイテムエンティティを削除
 	world.Manager.DeleteEntity(newItem)
@@ -49,8 +49,8 @@ func AddStackableCount(world w.World, name string, amount int) error {
 	entity, found := FindStackableInInventory(world, name)
 	if found {
 		// 既存アイテムの数量を増やす
-		stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-		stackable.Count += amount
+		item := world.Components.Item.Get(entity).(*gc.Item)
+		item.Count += amount
 		return nil
 	}
 
@@ -71,11 +71,11 @@ func RemoveStackableCount(world w.World, name string, amount int) error {
 		return fmt.Errorf("stackable item not found: %s", name)
 	}
 
-	stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-	stackable.Count -= amount
+	item := world.Components.Item.Get(entity).(*gc.Item)
+	item.Count -= amount
 
 	// 0個以下になったらエンティティを削除
-	if stackable.Count <= 0 {
+	if item.Count <= 0 {
 		world.Manager.DeleteEntity(entity)
 	}
 

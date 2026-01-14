@@ -49,8 +49,8 @@ func CanCraft(world w.World, name string) (bool, error) {
 		if !found {
 			return false, nil
 		}
-		stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-		if stackable.Count < recipeInput.Amount {
+		item := world.Components.Item.Get(entity).(*gc.Item)
+		if item.Count < recipeInput.Amount {
 			return false, nil
 		}
 	}

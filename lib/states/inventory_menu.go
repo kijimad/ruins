@@ -267,8 +267,8 @@ func (st *InventoryMenuState) createMenuItems(world w.World, entities []ecs.Enti
 
 		// Stackableコンポーネントがあれば個数を表示する
 		if entity.HasComponent(world.Components.Stackable) {
-			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-			item.AdditionalLabels = []string{fmt.Sprintf("x%d", stackable.Count)}
+			itemComp := world.Components.Item.Get(entity).(*gc.Item)
+			item.AdditionalLabels = []string{fmt.Sprintf("x%d", itemComp.Count)}
 		}
 
 		items[i] = item

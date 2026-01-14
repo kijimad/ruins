@@ -299,9 +299,9 @@ func (st *ShopMenuState) createSellItems(world w.World) []tabmenu.Item {
 
 			// 個数がある場合は後に追加（オプション）
 			if entity.HasComponent(world.Components.Stackable) {
-				stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-				if stackable.Count > 1 {
-					additionalLabels = append(additionalLabels, fmt.Sprintf("x%d", stackable.Count))
+				itemComp := world.Components.Item.Get(entity).(*gc.Item)
+				if itemComp.Count > 1 {
+					additionalLabels = append(additionalLabels, fmt.Sprintf("x%d", itemComp.Count))
 				}
 			}
 

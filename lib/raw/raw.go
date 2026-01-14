@@ -225,7 +225,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	item := rw.Raws.Items[itemIdx]
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Item = &gc.Item{}
+	entitySpec.Item = &gc.Item{Count: 1}
 	entitySpec.Name = &gc.Name{Name: item.Name}
 	entitySpec.Description = &gc.Description{Description: item.Description}
 
@@ -351,6 +351,11 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 
 	if item.Weight != nil {
 		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
+	}
+
+	// Stackableフラグがtrueの場合は空のStackableコンポーネントを追加
+	if item.Stackable != nil && *item.Stackable {
+		entitySpec.Stackable = &gc.Stackable{}
 	}
 
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）

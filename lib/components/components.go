@@ -75,7 +75,7 @@ type Components struct {
 	Description *ecs.SliceComponent `save:"true"`
 
 	// item ================
-	Item                   *ecs.NullComponent  `save:"true"`
+	Item                   *ecs.SliceComponent `save:"true"`
 	Consumable             *ecs.SliceComponent `save:"true"`
 	Pools                  *ecs.SliceComponent `save:"true"`
 	Attack                 *ecs.SliceComponent `save:"true"`
@@ -171,7 +171,9 @@ type Camera struct {
 
 // Item はキャラクターが保持できるもの。フィールド上、装備上、インベントリ上など位置状態を持ち、1スロットを消費する
 // 装備品、武器、回復アイテム、売却アイテム、素材など
-type Item struct{}
+type Item struct {
+	Count int // 所持数。非スタックは常に1になる
+}
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
@@ -256,9 +258,11 @@ type InflictsDamage struct {
 	Amount int
 }
 
-// Stackable はスタック可能なアイテムを示すコンポーネント
+// Stackable はスタック可能なアイテムを示すマーカーコンポーネント
+// スタック可能性の判定に使用（HasComponentで判定）
+// 実際の所持数は Item.Count フィールドを使用する
 type Stackable struct {
-	Count int // 所持数
+	// 空でOK（存在自体がスタック可能性を示す）
 }
 
 // Value はアイテムの基本価値

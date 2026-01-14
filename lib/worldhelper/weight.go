@@ -37,13 +37,8 @@ func CalculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 {
 
 		// バックパック内のアイテム
 		if itemEntity.HasComponent(world.Components.ItemLocationInBackpack) {
-			count := 1
-			// スタック可能アイテムの場合は個数を考慮
-			if itemEntity.HasComponent(world.Components.Stackable) {
-				stackable := world.Components.Stackable.Get(itemEntity).(*gc.Stackable)
-				count = stackable.Count
-			}
-			totalWeight += weight.Kg * float64(count)
+			item := world.Components.Item.Get(itemEntity).(*gc.Item)
+			totalWeight += weight.Kg * float64(item.Count)
 		}
 
 		// 装備中のアイテム

@@ -102,9 +102,9 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 
 	// アイテムがStackableの場合は1個だけ減らす
 	if itemEntity.HasComponent(world.Components.Stackable) {
-		stackable := world.Components.Stackable.Get(itemEntity).(*gc.Stackable)
-		if stackable.Count > 1 {
-			stackable.Count--
+		item := world.Components.Item.Get(itemEntity).(*gc.Item)
+		if item.Count > 1 {
+			item.Count--
 		} else {
 			// 最後の1個の場合はエンティティを削除
 			world.Manager.DeleteEntity(itemEntity)

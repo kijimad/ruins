@@ -51,6 +51,6 @@ func TestInitDebugData(t *testing.T) {
 	// アイテムが生成されていることを確認
 	entity, found := FindStackableInInventory(world, "回復薬")
 	require.True(t, found, "回復薬のアイテムが生成されているべき")
-	stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-	assert.Greater(t, stackable.Count, 0, "回復薬の数量が0より大きいべき")
+	item := world.Components.Item.Get(entity).(*gc.Item)
+	assert.Greater(t, item.Count, 0, "回復薬の数量が0より大きいべき")
 }

@@ -16,7 +16,8 @@ func TestQueryOwnedStackable(t *testing.T) {
 
 	// テスト用スタック可能アイテムエンティティを作成
 	stackableEntity := world.Manager.NewEntity()
-	stackableEntity.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 5})
+	stackableEntity.AddComponent(world.Components.Item, &gc.Item{Count: 5})
+	stackableEntity.AddComponent(world.Components.Stackable, &gc.Stackable{})
 	stackableEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
 	stackableEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストスタック可能アイテム"})
 
