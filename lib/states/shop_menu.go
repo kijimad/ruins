@@ -374,7 +374,7 @@ func (st *ShopMenuState) handleItemChange(world w.World, item tabmenu.Item) erro
 
 	// アイテムの情報を取得する
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	spec, err := rawMaster.NewItemSpec(itemName, nil)
+	spec, err := rawMaster.NewItemSpec(itemName)
 	if err != nil {
 		st.itemDesc.Label = TextNoDescription
 		return err

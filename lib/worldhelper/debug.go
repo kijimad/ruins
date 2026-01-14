@@ -43,28 +43,27 @@ func InitDebugData(world w.World) {
 	_ = AddStackableCount(world, "回復薬", 1)
 	_ = AddStackableCount(world, "回復スプレー", 1)
 	_ = AddStackableCount(world, "手榴弾", 1)
-	_ = AddStackableCount(world, "パン", 30)
-	_ = AddStackableCount(world, "鉄", 100)
+	_ = AddStackableCount(world, "パン", 10)
+	_ = AddStackableCount(world, "鉄", 10)
 
-	// 大量アイテム生成（デバッグ用）
-	for i := 0; i < 10; i++ {
+	// アイテム生成
+	for i := 0; i < 2; i++ {
 		_, _ = SpawnItem(world, "木刀", gc.ItemLocationInBackpack)
 		_, _ = SpawnItem(world, "ハンドガン", gc.ItemLocationInBackpack)
 		_, _ = SpawnItem(world, "レイガン", gc.ItemLocationInBackpack)
-	}
-	for i := 0; i < 10; i++ {
 		_, _ = SpawnItem(world, "西洋鎧", gc.ItemLocationInBackpack)
 		_, _ = SpawnItem(world, "作業用ヘルメット", gc.ItemLocationInBackpack)
 		_, _ = SpawnItem(world, "革のブーツ", gc.ItemLocationInBackpack)
 	}
 
 	// プレイヤー生成
-	celestine, _ := SpawnPlayer(world, 5, 5, "セレスティン")
+	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
 
 	// 木刀は近接武器スロットに装備
-	Equip(world, weapon1, celestine, gc.SlotMeleeWeapon)
+	Equip(world, weapon1, player, gc.SlotMeleeWeapon)
 	// ハンドガンは遠距離武器スロットに装備
-	Equip(world, weapon2, celestine, gc.SlotRangedWeapon)
+	Equip(world, weapon2, player, gc.SlotRangedWeapon)
 	// 西洋鎧は胴体スロットに装備
-	Equip(world, armor, celestine, gc.SlotTorso)
+	Equip(world, armor, player, gc.SlotTorso)
+
 }

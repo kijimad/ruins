@@ -24,6 +24,8 @@ type GameInfoData struct {
 	PlayerMaxSP       int              // プレイヤーの最大SP
 	PlayerEP          int              // プレイヤーの現在EP
 	PlayerMaxEP       int              // プレイヤーの最大EP
+	PlayerWeight      float64          // プレイヤーの現在所持重量（kg）
+	PlayerMaxWeight   float64          // プレイヤーの所持可能重量（kg）
 	PlayerHunger      int              // プレイヤーの空腹度
 	HungerLevel       gc.HungerLevel   // 空腹度のレベル
 	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）

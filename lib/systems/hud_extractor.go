@@ -38,8 +38,9 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		}
 	}
 
-	// プレイヤーのHP・SP・EP情報を抽出
+	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP, playerSP, playerMaxSP, playerEP, playerMaxEP int
+	var playerWeight, playerMaxWeight float64
 	world.Manager.Join(
 		world.Components.Player,
 		world.Components.Pools,
@@ -52,6 +53,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 			playerMaxSP = pools.SP.Max
 			playerEP = pools.EP.Current
 			playerMaxEP = pools.EP.Max
+			playerWeight = pools.Weight.Current
+			playerMaxWeight = pools.Weight.Max
 		}
 	}))
 
@@ -86,6 +89,8 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		PlayerMaxSP:       playerMaxSP,
 		PlayerEP:          playerEP,
 		PlayerMaxEP:       playerMaxEP,
+		PlayerWeight:      playerWeight,
+		PlayerMaxWeight:   playerMaxWeight,
 		PlayerHunger:      playerHunger,
 		HungerLevel:       hungerLevel,
 		MessageAreaHeight: messageAreaHeight,
