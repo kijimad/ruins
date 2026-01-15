@@ -134,7 +134,7 @@ func TestChangeItemCount(t *testing.T) {
 		assert.Contains(t, err.Error(), "does not have Item component")
 	})
 
-	t.Run("プレイヤーがいる場合は重量が再計算される", func(t *testing.T) {
+	t.Run("プレイヤーがいる場合はInventoryChangedフラグが立つ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -146,31 +146,16 @@ func TestChangeItemCount(t *testing.T) {
 			Strength: gc.Attribute{Base: 10},
 		})
 
-		// 重いアイテムを作成
+		// アイテムを作成
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 5.0})
 		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-
-		// 初期重量を計算
-		UpdateCarryingWeight(world, player)
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		initialWeight := pools.Weight.Current
-		assert.Equal(t, 10.0, initialWeight) // 5kg × 2個
 
 		// 1個消費
 		err := ChangeItemCount(world, item, -1)
 		require.NoError(t, err)
 
-		// アイテムのCountが1に減っていることを確認
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 1, itemComp.Count, "Count should be 1 after consuming 1 item")
-
-		// 手動で再計算して確認（ChangeItemCount内で自動的に呼ばれているはず）
-		UpdateCarryingWeight(world, player)
-
-		// 重量が自動的に再計算されていることを確認
-		pools = world.Components.Pools.Get(player).(*gc.Pools)
-		assert.Equal(t, 5.0, pools.Weight.Current) // 5kg × 1個
+		// InventoryChangedフラグが立っていることを確認
+		assert.True(t, player.HasComponent(world.Components.InventoryChanged), "InventoryChangedフラグが立つべき")
 	})
 }

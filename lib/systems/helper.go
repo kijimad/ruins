@@ -25,6 +25,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	autoInteractionSystem := &AutoInteractionSystem{}
 	updaters[autoInteractionSystem.String()] = autoInteractionSystem
 
+	inventoryChangedSystem := &InventoryChangedSystem{}
+	updaters[inventoryChangedSystem.String()] = inventoryChangedSystem
+
 	// Renderers（描画システム） ================
 	renderSpriteSystem := NewRenderSpriteSystem()
 	renderers[renderSpriteSystem.String()] = renderSpriteSystem

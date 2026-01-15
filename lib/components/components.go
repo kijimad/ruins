@@ -119,6 +119,7 @@ type Components struct {
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent
+	InventoryChanged  *ecs.NullComponent
 	ProvidesHealing   *ecs.SliceComponent `save:"true"`
 	ProvidesNutrition *ecs.SliceComponent `save:"true"`
 	InflictsDamage    *ecs.SliceComponent `save:"true"`
@@ -283,7 +284,12 @@ type Recipe struct {
 }
 
 // EquipmentChanged は装備変更が行われたことを示すダーティーフラグ
+// フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
 type EquipmentChanged struct{}
+
+// InventoryChanged はインベントリ変動が行われたことを示すダーティーフラグ
+// フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
+type InventoryChanged struct{}
 
 // Weapon は戦闘中に選択する武器コマンド
 type Weapon struct {

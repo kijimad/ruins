@@ -141,14 +141,11 @@ func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error {
 		world.Manager.DeleteEntity(itemEntity)
 	}
 
-	// インベントリ変動後の自動再計算
-	var playerEntity ecs.Entity
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
-		playerEntity = e
+	// インベントリ変動フラグを立てる
+	// TODO(kijima): プレイヤーに固定しているが、持ち主にフラグを立てるべき
+	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
+		playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 	}))
-	if playerEntity != 0 {
-		UpdateCarryingWeight(world, playerEntity)
-	}
 
 	return nil
 }

@@ -108,12 +108,15 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err != nil {
 		return ecs.Entity(0), err
 	}
-	if len(entitiesSlice) == 0 {
-		return ecs.Entity(0), fmt.Errorf("プレイヤーエンティティの生成に失敗しました")
+	if len(entitiesSlice) != 1 {
+		return ecs.Entity(0), fmt.Errorf("プレイヤーエンティティの生成に失敗しました: 予期しないエンティティ数=%d", len(entitiesSlice))
 	}
-	fullRecover(world, entitiesSlice[len(entitiesSlice)-1])
+	playerEntity := entitiesSlice[0]
 
-	return entitiesSlice[len(entitiesSlice)-1], nil
+	fullRecover(world, playerEntity)
+	playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+
+	return playerEntity, nil
 }
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
