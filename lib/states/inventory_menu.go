@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/lib/input"
 	"github.com/kijimaD/ruins/lib/inputmapper"
 	"github.com/kijimaD/ruins/lib/logger"
+	gs "github.com/kijimaD/ruins/lib/systems"
 	"github.com/kijimaD/ruins/lib/widgets/styled"
 	"github.com/kijimaD/ruins/lib/widgets/tabmenu"
 	"github.com/kijimaD/ruins/lib/widgets/views"
@@ -68,6 +69,17 @@ func (st *InventoryMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// InventoryChangedSystemを実行して所持重量を更新
+	for _, updater := range []w.Updater{
+		&gs.InventoryChangedSystem{},
+	} {
+		if sys, ok := world.Updaters[updater.String()]; ok {
+			if err := sys.Update(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+		}
+	}
+
 	// キー入力をActionに変換
 	var action inputmapper.ActionID
 	var ok bool
@@ -425,7 +437,10 @@ func (st *InventoryMenuState) executeActionItem(world w.World) {
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
 		st.updateCategoryDisplay(world)
 	case "捨てる":
-		world.Manager.DeleteEntity(st.selectedItem)
+		// TODO(kijima): 捨てるもActivityにするべき?
+		if err := worldhelper.ChangeItemCount(world, st.selectedItem, -1); err != nil {
+			log.Printf("アイテム破棄エラー: %v", err)
+		}
 		st.closeActionWindow()
 		st.reloadTabs(world)
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
