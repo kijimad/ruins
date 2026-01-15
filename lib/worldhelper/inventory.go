@@ -8,15 +8,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// RemoveFromInventory はインベントリからアイテムを削除する
-func RemoveFromInventory(world w.World, itemEntity ecs.Entity) {
-	if !itemEntity.HasComponent(world.Components.ItemLocationInBackpack) {
-		return // バックパックにないアイテムは何もしない
-	}
-
-	world.Manager.DeleteEntity(itemEntity)
-}
-
 // TransferItem はアイテムの位置を変更する
 func TransferItem(world w.World, itemEntity ecs.Entity, fromLocation, toLocation gc.ItemLocationType) {
 	// 現在の位置コンポーネントを削除
