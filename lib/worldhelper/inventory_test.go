@@ -70,7 +70,7 @@ func TestChangeItemCount(t *testing.T) {
 		assert.False(t, item.HasComponent(world.Components.Item), "アイテムが削除されているべき")
 	})
 
-	t.Run("所持数を超えて消費すると削除される", func(t *testing.T) {
+	t.Run("所持数を超えて消費しようとするとエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -82,10 +82,13 @@ func TestChangeItemCount(t *testing.T) {
 
 		// 5個消費（所持数を超える）
 		err := ChangeItemCount(world, item, -5)
-		require.NoError(t, err)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "アイテム数が不足しています")
 
-		// エンティティが削除されていることを確認
-		assert.False(t, item.HasComponent(world.Components.Item), "アイテムが削除されているべき")
+		// エンティティは削除されていない
+		assert.True(t, item.HasComponent(world.Components.Item), "アイテムは残っているべき")
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 2, itemComp.Count, "個数は変更されていないべき")
 	})
 
 	t.Run("正の値で個数を増やせる", func(t *testing.T) {

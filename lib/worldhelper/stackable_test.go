@@ -69,9 +69,13 @@ func TestPlusMinusAmount(t *testing.T) {
 	item = world.Components.Item.Get(entity).(*gc.Item)
 	assert.Equal(t, 1012, item.Count, "数量が正しく加算されない")
 
-	// 0以下になるとエンティティが削除される
+	// 所持数を超えて減らそうとするとエラー
 	err = ChangeStackableCount(world, "鉄", -1500)
-	require.NoError(t, err)
-	_, found = FindStackableInInventory(world, "鉄")
-	assert.False(t, found, "0以下になったらエンティティが削除されるべき")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "アイテム数が不足しています")
+	// エンティティは残っている
+	entity, found = FindStackableInInventory(world, "鉄")
+	require.True(t, found)
+	item = world.Components.Item.Get(entity).(*gc.Item)
+	assert.Equal(t, 1012, item.Count, "個数は変更されていないべき")
 }

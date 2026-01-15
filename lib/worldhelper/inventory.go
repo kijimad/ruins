@@ -116,7 +116,7 @@ func FindItemInInventory(world w.World, itemName string) (ecs.Entity, bool) {
 
 // ChangeItemCount は対象アイテムの個数を変更する。Stackable/非Stackableに関わらず使用できる。
 // 使用、売却、破棄、拾得など、個数を変更する全ての用途で使用する。
-// 個数が0以下になった場合はエンティティを削除する
+// 個数が0以下になった場合はエンティティを削除する。
 func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error {
 	if delta == 0 {
 		return fmt.Errorf("delta must not be zero")
@@ -127,10 +127,17 @@ func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error {
 	}
 
 	item := world.Components.Item.Get(itemEntity).(*gc.Item)
-	item.Count += delta
+	newCount := item.Count + delta
 
-	// 個数が0以下になったらエンティティを削除
-	if item.Count <= 0 {
+	// 減少の場合、結果がマイナスになるならエラー
+	if newCount < 0 {
+		return fmt.Errorf("アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d", item.Count, delta, newCount)
+	}
+
+	item.Count = newCount
+
+	// 個数が0になったらエンティティを削除
+	if item.Count == 0 {
 		world.Manager.DeleteEntity(itemEntity)
 	}
 
