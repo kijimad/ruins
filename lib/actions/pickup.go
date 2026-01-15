@@ -173,11 +173,6 @@ func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntit
 		itemEntity.RemoveComponent(world.Components.GridElement)
 	}
 
-	// スプライト表示コンポーネントを削除（フィールドから消す）
-	if itemEntity.HasComponent(world.Components.SpriteRender) {
-		itemEntity.RemoveComponent(world.Components.SpriteRender)
-	}
-
 	// 既存のバックパック内の同じアイテムと統合する処理
 	if err := worldhelper.MergeStackableIntoInventory(world, itemEntity, itemName); err != nil {
 		return fmt.Errorf("インベントリ統合エラー: %w", err)
