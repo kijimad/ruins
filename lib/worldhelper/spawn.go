@@ -374,53 +374,29 @@ func SpawnFieldItem(world w.World, itemName string, x gc.Tile, y gc.Tile) (ecs.E
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
-// GridElement、SpriteRender、Cameraコンポーネントがない場合は追加する（ロード時に対応）
 func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
-	// 既存のプレイヤーエンティティを検索
 	var playerEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
+	world.Manager.Join(
+		world.Components.Player,
+		world.Components.GridElement,
+		world.Components.SpriteRender,
+		world.Components.Camera,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if !found {
 			playerEntity = entity
 			found = true
 		}
 	}))
-
 	if !found {
-		return errors.New("プレイヤーエンティティが見つかりません")
+		return errors.New("必須コンポーネントを持つプレイヤーエンティティが見つかりません")
 	}
 
-	// GridElementがない場合は追加
-	if !playerEntity.HasComponent(world.Components.GridElement) {
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{})
-	}
-
-	// プレイヤーの位置を更新
+	// プレイヤーの位置を更新する
 	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 	gridElement.X = gc.Tile(tileX)
 	gridElement.Y = gc.Tile(tileY)
-
-	// SpriteRenderがない場合は追加
-	if !playerEntity.HasComponent(world.Components.SpriteRender) {
-		// プレイヤー名から正しいスプライト情報を取得
-		rawMaster := world.Resources.RawMaster.(*raw.Master)
-		nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
-		playerSpec, err := rawMaster.NewPlayerSpec(nameComp.Name)
-		if err != nil {
-			return fmt.Errorf("プレイヤーのスプライト情報取得に失敗: %w", err)
-		}
-
-		playerEntity.AddComponent(world.Components.SpriteRender, playerSpec.SpriteRender)
-	}
-
-	// Cameraがない場合は追加（通常スケールで初期化）
-	if !playerEntity.HasComponent(world.Components.Camera) {
-		playerEntity.AddComponent(world.Components.Camera, &gc.Camera{
-			Scale:   cameraNormalScale,
-			ScaleTo: cameraNormalScale,
-		})
-	}
 
 	return nil
 }
