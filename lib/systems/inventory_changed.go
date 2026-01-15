@@ -15,9 +15,9 @@ func (sys InventoryChangedSystem) String() string {
 	return "InventoryChangedSystem"
 }
 
-// Update はインベントリ変動フラグをチェックし、必要に応じて所持重量を再計算する
-// w.Updater interfaceを実装する
-func (sys *InventoryChangedSystem) Update(world w.World) error {
+// ShouldRun はインベントリ変動フラグをチェックし、フラグをクリアする
+// ShouldRunner interfaceを実装する
+func (sys *InventoryChangedSystem) ShouldRun(world w.World) bool {
 	running := false
 	world.Manager.Join(
 		world.Components.InventoryChanged,
@@ -25,8 +25,13 @@ func (sys *InventoryChangedSystem) Update(world w.World) error {
 		running = true
 		entity.RemoveComponent(world.Components.InventoryChanged)
 	}))
+	return running
+}
 
-	if !running {
+// Update はインベントリ変動フラグをチェックし、必要に応じて所持重量を再計算する
+// w.Updater interfaceを実装する
+func (sys *InventoryChangedSystem) Update(world w.World) error {
+	if !sys.ShouldRun(world) {
 		return nil
 	}
 

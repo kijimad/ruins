@@ -75,27 +75,27 @@ func (st *EquipMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// EquipmentChangedSystemの実行状態を取得するために実行前にフラグをチェックする
-	equipChanged := false
-	world.Manager.Join(
-		world.Components.EquipmentChanged,
-	).Visit(ecs.Visit(func(_ ecs.Entity) {
-		equipChanged = true
-	}))
-
 	for _, updater := range []w.Updater{
 		&gs.EquipmentChangedSystem{},
 		&gs.InventoryChangedSystem{},
 	} {
+		changed := false
+
 		if sys, ok := world.Updaters[updater.String()]; ok {
+			if shouldRunner, ok := sys.(gs.ShouldRunner); ok {
+				if shouldRunner.ShouldRun(world) {
+					changed = true
+				}
+			}
+
 			if err := sys.Update(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-		}
-	}
 
-	if equipChanged {
-		st.reloadAbilityContainer(world)
+			if changed {
+				st.reloadAbilityContainer(world)
+			}
+		}
 	}
 
 	// キー入力をActionに変換
