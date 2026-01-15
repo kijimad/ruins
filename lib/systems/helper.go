@@ -25,6 +25,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	autoInteractionSystem := &AutoInteractionSystem{}
 	updaters[autoInteractionSystem.String()] = autoInteractionSystem
 
+	equipmentChangedSystem := &EquipmentChangedSystem{}
+	updaters[equipmentChangedSystem.String()] = equipmentChangedSystem
+
 	inventoryChangedSystem := &InventoryChangedSystem{}
 	updaters[inventoryChangedSystem.String()] = inventoryChangedSystem
 

@@ -2,6 +2,7 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/lib/components"
+	"github.com/kijimaD/ruins/lib/turns"
 	w "github.com/kijimaD/ruins/lib/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -9,7 +10,18 @@ import (
 // EquipmentChangedSystem は装備変更のダーティフラグが立ったら、ステータス補正まわりを再計算する
 // TODO: 最大HP/SPの更新はここでやったほうがよさそう
 // TODO: マイナスにならないようにする
-func EquipmentChangedSystem(world w.World) bool {
+// TODO: 現状全員更新しているので、EquipmentChangedが付与された持ち主だけを更新する
+type EquipmentChangedSystem struct{}
+
+// String はシステム名を返す
+// w.Updater interfaceを実装
+func (sys EquipmentChangedSystem) String() string {
+	return "EquipmentChangedSystem"
+}
+
+// Update は装備変更フラグをチェックし、必要に応じてステータスを再計算する
+// w.Updater interfaceを実装
+func (sys *EquipmentChangedSystem) Update(world w.World) error {
 	running := false
 	world.Manager.Join(
 		world.Components.EquipmentChanged,
@@ -19,7 +31,7 @@ func EquipmentChangedSystem(world w.World) bool {
 	}))
 
 	if !running {
-		return false
+		return nil
 	}
 
 	// 初期化
@@ -78,9 +90,33 @@ func EquipmentChangedSystem(world w.World) bool {
 		pools.HP.Current = min(pools.HP.Max, pools.HP.Current)
 		pools.SP.Max = maxSP(attrs)
 		pools.SP.Current = min(pools.SP.Max, pools.SP.Current)
+
+		// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
+		entity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 	}))
 
-	return true
+	// ステータスが変更されたのでAPを再計算
+	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
+	world.Manager.Join(
+		world.Components.TurnBased,
+		world.Components.Attributes,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		maxAP, err := turnManager.CalculateMaxActionPoints(world, entity)
+		if err != nil {
+			return
+		}
+		turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+
+		// 最大APを更新
+		turnBased.AP.Max = maxAP
+
+		// 現在APが最大APを超えている場合は切り詰める
+		if turnBased.AP.Current > maxAP {
+			turnBased.AP.Current = maxAP
+		}
+	}))
+
+	return nil
 }
 
 // 30+(体力*8+力+感覚)

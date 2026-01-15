@@ -156,6 +156,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.TurnSystem{},
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
+		&gs.EquipmentChangedSystem{},
 		&gs.InventoryChangedSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
