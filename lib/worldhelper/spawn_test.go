@@ -229,6 +229,69 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
+func TestSpawnItem(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Stackableなアイテムに複数個指定できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		item, err := SpawnItem(world, "回復薬", 5, gc.ItemLocationInBackpack)
+		require.NoError(t, err)
+
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 5, itemComp.Count)
+	})
+
+	t.Run("Stackableでないアイテムにcount=1を指定できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		item, err := SpawnItem(world, "木刀", 1, gc.ItemLocationInBackpack)
+		require.NoError(t, err)
+
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 1, itemComp.Count)
+	})
+
+	t.Run("Stackableでないアイテムにcount>1を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "木刀", 2, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "is not stackable")
+		assert.Contains(t, err.Error(), "count must be 1")
+	})
+
+	t.Run("count=0を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "木刀", 0, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "count must be positive")
+	})
+
+	t.Run("負のcountを指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "木刀", -1, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "count must be positive")
+	})
+
+	t.Run("存在しないアイテム名を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "item not found")
+	})
+}
+
 func TestSpawnDoor(t *testing.T) {
 	t.Parallel()
 

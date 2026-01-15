@@ -102,12 +102,8 @@ func (u *UseItemActivity) DoTurn(act *Activity, world w.World) error {
 
 	// 消費可能アイテムの場合は削除または個数を減らす
 	if item.HasComponent(world.Components.Consumable) {
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		itemComp.Count--
-		// 個数が0以下になったら削除
-		// TODO(kijima): 数を減らす処理は「使う」だけではない。helperで共通してやりたい
-		if itemComp.Count <= 0 {
-			world.Manager.DeleteEntity(item)
+		if err := worldhelper.ChangeItemCount(world, item, -1); err != nil {
+			return fmt.Errorf("アイテムの消費に失敗: %w", err)
 		}
 	}
 

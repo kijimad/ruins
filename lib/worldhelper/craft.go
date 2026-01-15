@@ -23,7 +23,7 @@ func Craft(world w.World, name string) (*ecs.Entity, error) {
 		return nil, fmt.Errorf("必要素材が足りません")
 	}
 
-	resultEntity, err := SpawnItem(world, name, gc.ItemLocationInBackpack)
+	resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInBackpack)
 	if err != nil {
 		return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}
@@ -61,7 +61,7 @@ func CanCraft(world w.World, name string) (bool, error) {
 // consumeMaterials はアイテム合成に必要な素材を消費する
 func consumeMaterials(world w.World, goal string) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
-		err := RemoveStackableCount(world, recipeInput.Name, recipeInput.Amount)
+		err := ChangeStackableCount(world, recipeInput.Name, -recipeInput.Amount)
 		if err != nil {
 			return err
 		}

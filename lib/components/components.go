@@ -362,6 +362,7 @@ var (
 )
 
 // LocationInBackpack はバックパック内位置
+// TODO(kijima): owner をつけるべきかもしれない
 type LocationInBackpack struct{}
 
 func (c LocationInBackpack) String() string {

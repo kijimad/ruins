@@ -67,7 +67,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 
 	if isStackable {
 		// 既存のスタックに追加、または新規作成
-		err := AddStackableCount(world, itemName, 1)
+		err := ChangeStackableCount(world, itemName, 1)
 		if err != nil {
 			// 購入失敗時は通貨を返金
 			if refundErr := AddCurrency(world, playerEntity, price); refundErr != nil {
@@ -77,7 +77,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 		}
 	} else {
 		// 通常アイテムは新規作成
-		_, err := SpawnItem(world, itemName, gc.ItemLocationInBackpack)
+		_, err := SpawnItem(world, itemName, 1, gc.ItemLocationInBackpack)
 		if err != nil {
 			// 購入失敗時は通貨を返金
 			if refundErr := AddCurrency(world, playerEntity, price); refundErr != nil {
@@ -97,24 +97,12 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 	if baseValue == 0 {
 		return fmt.Errorf("このアイテムは売却できません")
 	}
-
 	price := CalculateSellPrice(baseValue)
 
-	// アイテムがStackableの場合は1個だけ減らす
-	if itemEntity.HasComponent(world.Components.Stackable) {
-		item := world.Components.Item.Get(itemEntity).(*gc.Item)
-		if item.Count > 1 {
-			item.Count--
-		} else {
-			// 最後の1個の場合はエンティティを削除
-			world.Manager.DeleteEntity(itemEntity)
-		}
-	} else {
-		// 通常アイテムはエンティティを削除
-		world.Manager.DeleteEntity(itemEntity)
+	if err := ChangeItemCount(world, itemEntity, -1); err != nil {
+		return fmt.Errorf("アイテムの売却に失敗した: %w", err)
 	}
 
-	// 通貨を追加
 	if err := AddCurrency(world, playerEntity, price); err != nil {
 		return fmt.Errorf("通貨の追加に失敗しました: %w", err)
 	}

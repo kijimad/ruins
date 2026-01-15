@@ -2273,7 +2273,7 @@ Agility   = 5
 Defense   = 0
 
 [Members.LightSource]
-Radius  = 5
+Radius  = 10
 Enabled = true
 
 [Members.LightSource.Color]

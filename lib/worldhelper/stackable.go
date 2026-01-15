@@ -19,65 +19,40 @@ func MergeStackableIntoInventory(world w.World, newItemEntity ecs.Entity, itemNa
 	// 既存の同名Stackableアイテムを探してマージ
 	existingEntity, found := FindStackableInInventory(world, itemName)
 	if found && existingEntity != newItemEntity {
-		mergeStackables(world, existingEntity, newItemEntity)
+		// 新しいアイテムの数量を既存のアイテムに追加する
+		existingItemComp := world.Components.Item.Get(existingEntity).(*gc.Item)
+		newItemComp := world.Components.Item.Get(newItemEntity).(*gc.Item)
+
+		// 数量を統合
+		existingItemComp.Count += newItemComp.Count
+
+		// 新しいアイテムエンティティを削除
+		world.Manager.DeleteEntity(newItemEntity)
 	}
 
 	return nil
 }
 
-// mergeStackables はStackableアイテムをマージする。数量を統合してnewItemエンティティは削除する
-func mergeStackables(world w.World, existingItem, newItem ecs.Entity) {
-	// 新しいアイテムの数量を既存のアイテムに追加
-	existingItemComp := world.Components.Item.Get(existingItem).(*gc.Item)
-	newItemComp := world.Components.Item.Get(newItem).(*gc.Item)
-
-	// 数量を統合
-	existingItemComp.Count += newItemComp.Count
-
-	// 新しいアイテムエンティティを削除
-	world.Manager.DeleteEntity(newItem)
-}
-
-// AddStackableCount は指定した名前のStackableアイテムの数量を増やす
-// アイテムが存在しない場合は新規作成する
-func AddStackableCount(world w.World, name string, amount int) error {
-	if amount <= 0 {
-		return fmt.Errorf("amount must be positive: %d", amount)
+// ChangeStackableCount は指定した名前のStackableアイテムの数量を変更する
+// amount が正の場合は増加、負の場合は減少する
+func ChangeStackableCount(world w.World, name string, amount int) error {
+	if amount == 0 {
+		return fmt.Errorf("amount must not be zero")
 	}
 
-	// 既存のアイテムを検索
+	// 既存のアイテムを検索する
 	entity, found := FindStackableInInventory(world, name)
 	if found {
-		// 既存アイテムの数量を増やす
-		item := world.Components.Item.Get(entity).(*gc.Item)
-		item.Count += amount
-		return nil
+		return ChangeItemCount(world, entity, amount)
 	}
 
-	// 存在しない場合は新規作成
-	_, err := SpawnStackable(world, name, amount, gc.ItemLocationInBackpack)
-	return err
-}
-
-// RemoveStackableCount は指定した名前のStackableアイテムの数量を減らす
-// 0個以下になった場合はエンティティを削除する
-func RemoveStackableCount(world w.World, name string, amount int) error {
-	if amount <= 0 {
-		return fmt.Errorf("amount must be positive: %d", amount)
-	}
-
-	entity, found := FindStackableInInventory(world, name)
-	if !found {
+	// 存在しない場合
+	if amount < 0 {
+		// 減らす操作で存在しない場合はエラー
 		return fmt.Errorf("stackable item not found: %s", name)
 	}
 
-	item := world.Components.Item.Get(entity).(*gc.Item)
-	item.Count -= amount
-
-	// 0個以下になったらエンティティを削除
-	if item.Count <= 0 {
-		world.Manager.DeleteEntity(entity)
-	}
-
-	return nil
+	// 増やす操作で存在しない場合は新規作成する
+	_, err := SpawnItem(world, name, amount, gc.ItemLocationInBackpack)
+	return err
 }

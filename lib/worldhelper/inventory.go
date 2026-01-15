@@ -1,6 +1,8 @@
 package worldhelper
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/lib/components"
 	w "github.com/kijimaD/ruins/lib/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -110,4 +112,36 @@ func FindItemInInventory(world w.World, itemName string) (ecs.Entity, bool) {
 	}))
 
 	return foundEntity, found
+}
+
+// ChangeItemCount は対象アイテムの個数を変更する。Stackable/非Stackableに関わらず使用できる。
+// 使用、売却、破棄、拾得など、個数を変更する全ての用途で使用する。
+// 個数が0以下になった場合はエンティティを削除する
+func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error {
+	if delta == 0 {
+		return fmt.Errorf("delta must not be zero")
+	}
+
+	if !itemEntity.HasComponent(world.Components.Item) {
+		return fmt.Errorf("entity does not have Item component")
+	}
+
+	item := world.Components.Item.Get(itemEntity).(*gc.Item)
+	item.Count += delta
+
+	// 個数が0以下になったらエンティティを削除
+	if item.Count <= 0 {
+		world.Manager.DeleteEntity(itemEntity)
+	}
+
+	// インベントリ変動後の自動再計算
+	var playerEntity ecs.Entity
+	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
+		playerEntity = e
+	}))
+	if playerEntity != 0 {
+		UpdateCarryingWeight(world, playerEntity)
+	}
+
+	return nil
 }

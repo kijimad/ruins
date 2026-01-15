@@ -219,15 +219,36 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 // Items
 // ================
 
-// SpawnItem はアイテムを生成する（Stackableコンポーネントは付与しない）
-func SpawnItem(world w.World, name string, locationType gc.ItemLocationType) (ecs.Entity, error) {
-	componentList := entities.ComponentList[gc.EntitySpec]{}
+// SpawnItem はアイテムを生成する
+func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocationType) (ecs.Entity, error) {
+	if count <= 0 {
+		return 0, fmt.Errorf("count must be positive: %d", count)
+	}
+
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
+
+	{
+		// アイテム定義を取得してStackable対応かチェック
+		itemIdx, ok := rawMaster.ItemIndex[name]
+		if !ok {
+			return 0, fmt.Errorf("item not found: %s", name)
+		}
+		itemDef := rawMaster.Raws.Items[itemIdx]
+		isStackable := itemDef.Stackable != nil && *itemDef.Stackable
+
+		// Stackableでないアイテムにcount > 1を指定した場合はエラー
+		if !isStackable && count > 1 {
+			return 0, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
+		}
+	}
+
+	componentList := entities.ComponentList[gc.EntitySpec]{}
 	entitySpec, err := rawMaster.NewItemSpec(name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}
 	entitySpec.ItemLocationType = &locationType
+	entitySpec.Item.Count = count
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {
@@ -237,45 +258,20 @@ func SpawnItem(world w.World, name string, locationType gc.ItemLocationType) (ec
 		return ecs.Entity(0), fmt.Errorf("アイテムエンティティの生成に失敗しました")
 	}
 
-	return entitiesSlice[len(entitiesSlice)-1], nil
-}
+	entity := entitiesSlice[len(entitiesSlice)-1]
 
-// SpawnStackable はStackableアイテムを生成する
-// countは1以上である必要がある（0以下の場合はエラー）
-func SpawnStackable(world w.World, name string, count int, location gc.ItemLocationType) (ecs.Entity, error) {
-	if count <= 0 {
-		return 0, fmt.Errorf("count must be positive: %d", count)
+	// バックパックに追加した場合はインベントリ重量を再計算する
+	if locationType == gc.ItemLocationInBackpack {
+		var playerEntity ecs.Entity
+		world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
+			playerEntity = e
+		}))
+		if playerEntity != 0 {
+			UpdateCarryingWeight(world, playerEntity)
+		}
 	}
 
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-
-	itemIdx, ok := rawMaster.ItemIndex[name]
-	if !ok {
-		return 0, fmt.Errorf("item not found: %s", name)
-	}
-	itemDef := rawMaster.Raws.Items[itemIdx]
-	if itemDef.Stackable == nil || !*itemDef.Stackable {
-		return 0, fmt.Errorf("item %s is not stackable", name)
-	}
-
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	entitySpec, err := rawMaster.NewItemSpec(name)
-	if err != nil {
-		return 0, fmt.Errorf("failed to spawn stackable item: %w", err)
-	}
-	entitySpec.ItemLocationType = &location
-	entitySpec.Item.Count = count
-
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return ecs.Entity(0), err
-	}
-	if len(entitiesSlice) == 0 {
-		return ecs.Entity(0), fmt.Errorf("Stackableアイテムエンティティの生成に失敗しました")
-	}
-
-	return entitiesSlice[len(entitiesSlice)-1], nil
+	return entity, nil
 }
 
 // 完全回復させる
@@ -365,29 +361,10 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 
 // SpawnFieldItem はフィールド上にアイテムを生成する
 func SpawnFieldItem(world w.World, itemName string, x gc.Tile, y gc.Tile) (ecs.Entity, error) {
-	// TOMLの定義を取得してStackable対応かどうかを確認
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	itemIdx, ok := rawMaster.ItemIndex[itemName]
-	if !ok {
-		return ecs.Entity(0), fmt.Errorf("item not found: %s", itemName)
-	}
-	itemDef := rawMaster.Raws.Items[itemIdx]
-	isStackable := itemDef.Stackable != nil && *itemDef.Stackable
-
-	var item ecs.Entity
-	var err error
-	if isStackable {
-		// Stackable対応アイテムはCount=1で生成
-		item, err = SpawnStackable(world, itemName, 1, gc.ItemLocationOnField)
-		if err != nil {
-			return ecs.Entity(0), err
-		}
-	} else {
-		// 通常アイテムは通常通り生成
-		item, err = SpawnItem(world, itemName, gc.ItemLocationOnField)
-		if err != nil {
-			return ecs.Entity(0), err
-		}
+	// すべてのアイテムはcount=1で生成
+	item, err := SpawnItem(world, itemName, 1, gc.ItemLocationOnField)
+	if err != nil {
+		return ecs.Entity(0), err
 	}
 
 	// フィールド表示用のコンポーネントを追加
