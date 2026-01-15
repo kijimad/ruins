@@ -81,7 +81,9 @@ func TestPlusMinusAmount(t *testing.T) {
 }
 
 func TestMergeStackableIntoInventory(t *testing.T) {
+	t.Parallel()
 	t.Run("Stackableアイテムを既存アイテムにマージする（LocationなしからLocationありへ）", func(t *testing.T) {
+		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		// 既存のアイテム（パン3個）をバックパックに追加
@@ -111,6 +113,7 @@ func TestMergeStackableIntoInventory(t *testing.T) {
 	})
 
 	t.Run("既存アイテムがない場合はマージしない", func(t *testing.T) {
+		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		// 新しいアイテム（パン2個）を追加（まだLocationなし）
@@ -130,6 +133,7 @@ func TestMergeStackableIntoInventory(t *testing.T) {
 	})
 
 	t.Run("非Stackableアイテムはマージしない", func(t *testing.T) {
+		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		// 既存のアイテム（剣）をバックパックに追加
@@ -154,6 +158,7 @@ func TestMergeStackableIntoInventory(t *testing.T) {
 	})
 
 	t.Run("新しいアイテムがItemLocationInBackpackを持っている場合でもマージされる", func(t *testing.T) {
+		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		// 既存のアイテム（パン3個）をバックパックに追加
