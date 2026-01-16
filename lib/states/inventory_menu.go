@@ -137,7 +137,9 @@ func (st *InventoryMenuState) DoAction(world w.World, action inputmapper.ActionI
 			}
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		case inputmapper.ActionWindowConfirm:
-			st.executeActionItem(world)
+			if err := st.executeActionItem(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		case inputmapper.ActionWindowCancel:
 			st.closeActionWindow()
@@ -359,9 +361,7 @@ func (st *InventoryMenuState) showActionWindow(world w.World, entity ecs.Entity)
 	if entity.HasComponent(world.Components.Consumable) {
 		st.actionItems = append(st.actionItems, "使う")
 	}
-	if !entity.HasComponent(world.Components.Stackable) {
-		st.actionItems = append(st.actionItems, "捨てる")
-	}
+	st.actionItems = append(st.actionItems, "捨てる")
 	st.actionItems = append(st.actionItems, TextClose)
 
 	st.actionFocusIndex = 0
@@ -404,9 +404,9 @@ func (st *InventoryMenuState) updateActionWindowDisplay(world w.World) {
 }
 
 // executeActionItem は選択されたアクション項目を実行する
-func (st *InventoryMenuState) executeActionItem(world w.World) {
+func (st *InventoryMenuState) executeActionItem(world w.World) error {
 	if st.actionFocusIndex >= len(st.actionItems) {
-		return
+		return nil
 	}
 
 	selectedAction := st.actionItems[st.actionFocusIndex]
@@ -415,9 +415,8 @@ func (st *InventoryMenuState) executeActionItem(world w.World) {
 	case "使う":
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
-			log.Printf("プレイヤーエンティティの取得に失敗: %v", err)
 			st.closeActionWindow()
-			return
+			return err
 		}
 
 		manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
@@ -425,11 +424,10 @@ func (st *InventoryMenuState) executeActionItem(world w.World) {
 			Actor:  playerEntity,
 			Target: &st.selectedItem,
 		}
-		result, err := manager.Execute(&actions.UseItemActivity{}, params, world)
+		_, err = manager.Execute(&actions.UseItemActivity{}, params, world)
 		if err != nil {
-			log.Printf("アイテム使用エラー: %v", err)
-		} else if !result.Success {
-			log.Printf("アイテム使用失敗: %s", result.Message)
+			st.closeActionWindow()
+			return err
 		}
 
 		st.closeActionWindow()
@@ -437,10 +435,26 @@ func (st *InventoryMenuState) executeActionItem(world w.World) {
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
 		st.updateCategoryDisplay(world)
 	case "捨てる":
-		// TODO(kijima): 捨てるもActivityにするべき?
-		if err := worldhelper.ChangeItemCount(world, st.selectedItem, -1); err != nil {
-			log.Printf("アイテム破棄エラー: %v", err)
+		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		if err != nil {
+			st.closeActionWindow()
+			return err
 		}
+
+		dropActivity := &actions.DropActivity{
+			Target: st.selectedItem,
+		}
+
+		manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
+		params := actions.ActionParams{
+			Actor: playerEntity,
+		}
+		_, err = manager.Execute(dropActivity, params, world)
+		if err != nil {
+			st.closeActionWindow()
+			return err
+		}
+
 		st.closeActionWindow()
 		st.reloadTabs(world)
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
@@ -448,6 +462,8 @@ func (st *InventoryMenuState) executeActionItem(world w.World) {
 	case TextClose:
 		st.closeActionWindow()
 	}
+
+	return nil
 }
 
 // reloadTabs はタブの内容を再読み込みする

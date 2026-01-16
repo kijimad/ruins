@@ -81,6 +81,7 @@ func (pa *PickupActivity) DoTurn(act *Activity, world w.World) error {
 
 	// 拾得処理完了
 	act.Complete()
+
 	return nil
 }
 
@@ -163,18 +164,21 @@ func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntit
 	}
 
 	// フィールドからバックパックに移動
-	// ItemLocationOnFieldコンポーネントを削除
 	itemEntity.RemoveComponent(world.Components.ItemLocationOnField)
-	// ItemLocationInBackpackコンポーネントを追加
-	itemEntity.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	itemEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
 	// グリッド表示コンポーネントを削除（フィールドから消す）
 	if itemEntity.HasComponent(world.Components.GridElement) {
 		itemEntity.RemoveComponent(world.Components.GridElement)
 	}
 
-	// 既存のバックパック内の同じアイテムと統合する処理
-	if err := worldhelper.MergeStackableIntoInventory(world, itemEntity, itemName); err != nil {
+	// インベントリ変動フラグを立てる
+	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
+		playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+	}))
+
+	// 既存のバックパック内の同名Stackableアイテムを統合する処理
+	if err := worldhelper.MergeInventoryItem(world, itemName); err != nil {
 		return fmt.Errorf("インベントリ統合エラー: %w", err)
 	}
 
