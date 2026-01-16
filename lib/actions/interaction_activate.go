@@ -87,11 +87,6 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 		act.Cancel(fmt.Sprintf("相互作用発動エラー: %s", interactionErr.Error()))
 	}
 
-	// Consumableコンポーネントがある場合はエンティティを削除（エラーがあっても削除する）
-	if ia.InteractableEntity.HasComponent(world.Components.Consumable) {
-		world.Manager.DeleteEntity(ia.InteractableEntity)
-	}
-
 	if interactionErr != nil {
 		return interactionErr
 	}
