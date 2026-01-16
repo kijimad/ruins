@@ -145,8 +145,9 @@ func TestFullRecover(t *testing.T) {
 		SP: gc.Pool{Current: 0, Max: 0},
 	})
 
-	// fullRecoverを実行
-	fullRecover(world, entity)
+	// FullRecoverを実行
+	err := FullRecover(world, entity)
+	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
 	// 結果を検証
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)

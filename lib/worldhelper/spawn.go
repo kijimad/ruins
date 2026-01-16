@@ -8,7 +8,6 @@ import (
 	"github.com/kijimaD/ruins/lib/config"
 	"github.com/kijimaD/ruins/lib/engine/entities"
 	"github.com/kijimaD/ruins/lib/raw"
-	"github.com/kijimaD/ruins/lib/turns"
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	gc "github.com/kijimaD/ruins/lib/components"
@@ -140,7 +139,9 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	}
 	playerEntity := entitiesSlice[0]
 
-	fullRecover(world, playerEntity)
+	if err := FullRecover(world, playerEntity); err != nil {
+		return ecs.Entity(0), fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
+	}
 	playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 
 	return playerEntity, nil
@@ -182,7 +183,9 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	fullRecover(world, npcEntity)
+	if err := FullRecover(world, npcEntity); err != nil {
+		return ecs.Entity(0), fmt.Errorf("NPCの回復処理エラー: %w", err)
+	}
 
 	return npcEntity, nil
 }
@@ -225,7 +228,9 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	fullRecover(world, npcEntity)
+	if err := FullRecover(world, npcEntity); err != nil {
+		return ecs.Entity(0), fmt.Errorf("敵の回復処理エラー: %w", err)
+	}
 
 	// ActionPointsを初期化
 	if npcEntity.HasComponent(world.Components.TurnBased) {
@@ -300,15 +305,17 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	return entity, nil
 }
 
-// 完全回復させる
-func fullRecover(world w.World, entity ecs.Entity) {
+// FullRecover はエンティティのHP/SP/EP/APを全回復する
+func FullRecover(world w.World, entity ecs.Entity) error {
 	// 新しく生成されたエンティティの最大HP/SPを設定
-	_ = setMaxHPSP(world, entity) // エラーが発生した場合もリカバリーは続行する
+	if err := setMaxHPSP(world, entity); err != nil {
+		return fmt.Errorf("最大HP/SP設定エラー: %w", err)
+	}
 
 	// Poolsコンポーネントを取得
 	poolsComponent := world.Components.Pools.Get(entity)
 	if poolsComponent == nil {
-		return // Poolsがない場合は何もしない
+		return fmt.Errorf("Poolsコンポーネントがありません")
 	}
 
 	pools := poolsComponent.(*gc.Pools)
@@ -322,22 +329,18 @@ func fullRecover(world w.World, entity ecs.Entity) {
 	// EP全回復
 	pools.EP.Current = pools.EP.Max
 
-	// ActionPointsコンポーネントがある場合は最大APに設定
+	// TurnBasedコンポーネントがある場合は最大APに設定
 	if entity.HasComponent(world.Components.TurnBased) {
-		if world.Resources.TurnManager != nil {
-			if turnManager, ok := world.Resources.TurnManager.(*turns.TurnManager); ok {
-				actionPoints := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
-				maxAP, err := turnManager.CalculateMaxActionPoints(world, entity)
-				if err != nil {
-					// FullRecoverはエラーを返さないので、ログに記録してデフォルト値を設定
-					fmt.Printf("AP計算エラー: %v\n", err)
-					maxAP = 100 // デフォルト値
-				}
-				actionPoints.AP.Current = maxAP
-				actionPoints.AP.Max = maxAP
-			}
+		maxAP, err := CalculateMaxActionPoints(world, entity)
+		if err != nil {
+			return fmt.Errorf("AP計算エラー: %w", err)
 		}
+		turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+		turnBased.AP.Current = maxAP
+		turnBased.AP.Max = maxAP
 	}
+
+	return nil
 }
 
 // 指定したエンティティの最大HP/SPを設定する
