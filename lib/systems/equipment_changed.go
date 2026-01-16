@@ -2,8 +2,8 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/lib/components"
-	"github.com/kijimaD/ruins/lib/turns"
 	w "github.com/kijimaD/ruins/lib/world"
+	"github.com/kijimaD/ruins/lib/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -101,12 +101,11 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 	}))
 
 	// ステータスが変更されたのでAPを再計算
-	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 	world.Manager.Join(
 		world.Components.TurnBased,
 		world.Components.Attributes,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		maxAP, err := turnManager.CalculateMaxActionPoints(world, entity)
+		maxAP, err := worldhelper.CalculateMaxActionPoints(world, entity)
 		if err != nil {
 			return
 		}

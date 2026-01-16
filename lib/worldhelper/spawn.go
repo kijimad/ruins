@@ -47,6 +47,33 @@ var (
 // raw: 共通なところに関してコンポーネント群を付与する
 // worldhelper: 頻繁に変わる部分に関して引数を受け取れるようにする。エンティティを発行するところまでやる
 
+// CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
+// CDDAスタイルで敏捷性を重視したAP計算式
+func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
+	// Attributesコンポーネントがない場合はエラー
+	attributesComponent := world.Components.Attributes.Get(entity)
+	if attributesComponent == nil {
+		return 0, fmt.Errorf("attributesが設定されていない")
+	}
+
+	attrs := attributesComponent.(*gc.Attributes)
+
+	// AP計算式: 基本値 + 敏捷性の重要度を高くした式
+	// 敏捷性 * 3 + 器用性 * 1
+	baseAP := 100
+	agilityMultiplier := 3
+	dexterityMultiplier := 1
+
+	calculatedAP := baseAP + attrs.Agility.Total*agilityMultiplier + attrs.Dexterity.Total*dexterityMultiplier
+
+	// 最小値制限（20以上）
+	if calculatedAP < 20 {
+		calculatedAP = 20
+	}
+
+	return calculatedAP, nil
+}
+
 // ================
 // Field
 // ================
@@ -201,18 +228,14 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 	fullRecover(world, npcEntity)
 
 	// ActionPointsを初期化
-	if world.Resources.TurnManager != nil {
-		if turnManager, ok := world.Resources.TurnManager.(*turns.TurnManager); ok {
-			if npcEntity.HasComponent(world.Components.TurnBased) {
-				actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
-				maxAP, err := turnManager.CalculateMaxActionPoints(world, npcEntity)
-				if err != nil {
-					return ecs.Entity(0), fmt.Errorf("AP計算エラー: %w", err)
-				}
-				actionPoints.AP.Current = maxAP
-				actionPoints.AP.Max = maxAP
-			}
+	if npcEntity.HasComponent(world.Components.TurnBased) {
+		actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
+		maxAP, err := CalculateMaxActionPoints(world, npcEntity)
+		if err != nil {
+			return ecs.Entity(0), fmt.Errorf("AP計算エラー: %w", err)
 		}
+		actionPoints.AP.Current = maxAP
+		actionPoints.AP.Max = maxAP
 	}
 
 	return npcEntity, nil

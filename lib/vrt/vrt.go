@@ -11,7 +11,6 @@ import (
 
 	"github.com/kijimaD/ruins/lib/config"
 	gs "github.com/kijimaD/ruins/lib/systems"
-	"github.com/kijimaD/ruins/lib/turns"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	es "github.com/kijimaD/ruins/lib/engine/states"
@@ -100,9 +99,6 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	if err != nil {
 		return fmt.Errorf("InitWorld failed: %w", err)
 	}
-
-	// TurnManagerを初期化
-	world.Resources.TurnManager = turns.NewTurnManager()
 
 	// デバッグデータを初期化
 	worldhelper.InitDebugData(world)
