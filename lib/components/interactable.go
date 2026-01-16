@@ -84,6 +84,20 @@ func (t MeleeInteraction) Config() InteractionConfig {
 	}
 }
 
+// TestTriggerInteraction はテスト用のトリガー相互作用
+// テストで実行されたことを確認するためのフラグを持つ
+type TestTriggerInteraction struct {
+	Executed *bool // 実行されたかを記録するフラグ
+}
+
+// Config は相互作用設定を返す
+func (t TestTriggerInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayAuto,
+	}
+}
+
 // ActivationRange は相互作用の発動範囲を表す
 type ActivationRange string
 
