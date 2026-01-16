@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/lib/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestGetAmount(t *testing.T) {
@@ -80,111 +81,92 @@ func TestPlusMinusAmount(t *testing.T) {
 	assert.Equal(t, 1012, item.Count, "個数は変更されていないべき")
 }
 
-func TestMergeStackableIntoInventory(t *testing.T) {
+func TestMergeInventoryItem(t *testing.T) {
 	t.Parallel()
-	t.Run("Stackableアイテムを既存アイテムにマージする（LocationなしからLocationありへ）", func(t *testing.T) {
+	t.Run("バックパック内の同名Stackableアイテムを統合する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 既存のアイテム（パン3個）をバックパックに追加
-		existingItem := world.Manager.NewEntity()
-		existingItem.AddComponent(world.Components.Item, &gc.Item{Count: 3})
-		existingItem.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
-		existingItem.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		existingItem.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		// バックパック内にパンを3個追加
+		item1 := world.Manager.NewEntity()
+		item1.AddComponent(world.Components.Item, &gc.Item{Count: 3})
+		item1.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
+		item1.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		item1.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
-		// 新しいアイテム（パン2個）をフィールドに追加（フィールドから拾った直後の状態）
-		newItem := world.Manager.NewEntity()
-		newItem.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-		newItem.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
-		newItem.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		newItem.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+		// バックパック内にパンを2個追加
+		item2 := world.Manager.NewEntity()
+		item2.AddComponent(world.Components.Item, &gc.Item{Count: 2})
+		item2.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
+		item2.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		item2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := MergeStackableIntoInventory(world, newItem, "パン")
+		err := MergeInventoryItem(world, "パン")
 		require.NoError(t, err)
 
-		// 既存アイテムの個数が5個になっているか確認
-		existingItemComp := world.Components.Item.Get(existingItem).(*gc.Item)
-		assert.Equal(t, 5, existingItemComp.Count, "既存アイテムに新しいアイテムの個数が追加される")
+		// バックパック内のパンは1つだけになっている
+		var breadCount int
+		var totalCount int
+		world.Manager.Join(
+			world.Components.Stackable,
+			world.Components.ItemLocationInBackpack,
+			world.Components.Name,
+		).Visit(ecs.Visit(func(entity ecs.Entity) {
+			name := world.Components.Name.Get(entity).(*gc.Name)
+			if name.Name == "パン" {
+				breadCount++
+				item := world.Components.Item.Get(entity).(*gc.Item)
+				totalCount += item.Count
+			}
+		}))
 
-		// 新しいアイテムが削除されているか確認
-		assert.False(t, newItem.HasComponent(world.Components.Item), "新しいアイテムエンティティは削除される")
+		assert.Equal(t, 1, breadCount, "パンは1つにまとめられる")
+		assert.Equal(t, 5, totalCount, "合計個数は5個")
 	})
 
-	t.Run("既存アイテムがない場合はマージしない", func(t *testing.T) {
+	t.Run("1個しかない場合はマージしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 新しいアイテム（パン2個）を追加（まだLocationなし）
-		newItem := world.Manager.NewEntity()
-		newItem.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-		newItem.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
-		newItem.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		// バックパック内にパンを1個だけ追加
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
+		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := MergeStackableIntoInventory(world, newItem, "パン")
+		err := MergeInventoryItem(world, "パン")
 		require.NoError(t, err)
 
-		// 新しいアイテムがそのまま残っているか確認
-		assert.True(t, newItem.HasComponent(world.Components.Item), "既存アイテムがない場合は新しいアイテムがそのまま残る")
-		newItemComp := world.Components.Item.Get(newItem).(*gc.Item)
-		assert.Equal(t, 2, newItemComp.Count, "個数は変わらない")
+		// アイテムがそのまま残っている
+		assert.True(t, item.HasComponent(world.Components.Item), "アイテムがそのまま残る")
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 2, itemComp.Count, "個数は変わらない")
 	})
 
-	t.Run("非Stackableアイテムはマージしない", func(t *testing.T) {
+	t.Run("非Stackableアイテムは統合しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 既存のアイテム（剣）をバックパックに追加
-		existingItem := world.Manager.NewEntity()
-		existingItem.AddComponent(world.Components.Item, &gc.Item{Count: 1})
-		existingItem.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-		existingItem.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-		// Stackableコンポーネントなし
+		// バックパック内に剣を2つ追加（Stackableなし）
+		item1 := world.Manager.NewEntity()
+		item1.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+		item1.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
+		item1.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
-		// 新しいアイテム（剣）を追加
-		newItem := world.Manager.NewEntity()
-		newItem.AddComponent(world.Components.Item, &gc.Item{Count: 1})
-		newItem.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-		// Stackableコンポーネントなし
+		item2 := world.Manager.NewEntity()
+		item2.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+		item2.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
+		item2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := MergeStackableIntoInventory(world, newItem, "剣")
+		err := MergeInventoryItem(world, "剣")
 		require.NoError(t, err)
 
-		// 新しいアイテムがそのまま残っているか確認
-		assert.True(t, newItem.HasComponent(world.Components.Item), "非Stackableアイテムはマージされない")
-	})
-
-	t.Run("新しいアイテムがItemLocationInBackpackを持っている場合でもマージされる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// 既存のアイテム（パン3個）をバックパックに追加
-		existingItem := world.Manager.NewEntity()
-		existingItem.AddComponent(world.Components.Item, &gc.Item{Count: 3})
-		existingItem.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
-		existingItem.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		existingItem.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-
-		// 新しいアイテム（パン2個）を追加（ItemLocationInBackpackあり）
-		newItem := world.Manager.NewEntity()
-		newItem.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-		newItem.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
-		newItem.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		newItem.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-
-		// マージ実行
-		err := MergeStackableIntoInventory(world, newItem, "パン")
-		require.NoError(t, err)
-
-		// FindStackableInInventoryが既存アイテムを見つけてマージが実行される
-		// 既存アイテムの個数が5個になっているか確認
-		existingItemComp := world.Components.Item.Get(existingItem).(*gc.Item)
-		assert.Equal(t, 5, existingItemComp.Count, "既存アイテムに新しいアイテムの個数が追加される")
-
-		// 新しいアイテムが削除されているか確認
-		assert.False(t, newItem.HasComponent(world.Components.Item), "新しいアイテムエンティティは削除される")
+		// 両方のアイテムがそのまま残っている
+		assert.True(t, item1.HasComponent(world.Components.Item), "item1がそのまま残る")
+		assert.True(t, item2.HasComponent(world.Components.Item), "item2がそのまま残る")
 	})
 }

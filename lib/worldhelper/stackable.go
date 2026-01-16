@@ -8,26 +8,38 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MergeStackableIntoInventory は既存のバックパック内Stackableアイテムと統合するか新規追加する
-// Stackableコンポーネントを持つ場合は既存と数量統合、それ以外は個別アイテムとして追加
-func MergeStackableIntoInventory(world w.World, newItemEntity ecs.Entity, itemName string) error {
-	// Stackableコンポーネントがない場合は何もしない（個別アイテムとして扱う）
-	if !newItemEntity.HasComponent(world.Components.Stackable) {
+// MergeInventoryItem はバックパック内の指定された名前のStackableアイテムをすべて1つに統合する
+func MergeInventoryItem(world w.World, itemName string) error {
+	// 同名のStackableアイテムをすべて取得
+	var stackableItems []ecs.Entity
+	world.Manager.Join(
+		world.Components.Stackable,
+		world.Components.ItemLocationInBackpack,
+		world.Components.Name,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == itemName {
+			stackableItems = append(stackableItems, entity)
+		}
+	}))
+
+	// 0個または1個の場合は統合不要
+	if len(stackableItems) <= 1 {
 		return nil
 	}
 
-	// 既存の同名Stackableアイテムを探してマージ
-	existingEntity, found := FindStackableInInventory(world, itemName)
-	if found && existingEntity != newItemEntity {
-		// 新しいアイテムの数量を既存のアイテムに追加する
-		existingItemComp := world.Components.Item.Get(existingEntity).(*gc.Item)
-		newItemComp := world.Components.Item.Get(newItemEntity).(*gc.Item)
+	// 最初のアイテムに統合する
+	targetEntity := stackableItems[0]
+	for i := 1; i < len(stackableItems); i++ {
+		itemToMerge := stackableItems[i]
+		itemComp := world.Components.Item.Get(itemToMerge).(*gc.Item)
 
-		// 数量を統合
-		existingItemComp.Count += newItemComp.Count
+		if err := ChangeItemCount(world, targetEntity, itemComp.Count); err != nil {
+			return fmt.Errorf("数量統合エラー: %w", err)
+		}
 
-		// 新しいアイテムエンティティを削除
-		world.Manager.DeleteEntity(newItemEntity)
+		// 統合元のアイテムエンティティを削除
+		world.Manager.DeleteEntity(itemToMerge)
 	}
 
 	return nil
