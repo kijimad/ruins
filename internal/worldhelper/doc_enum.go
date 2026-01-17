@@ -25,50 +25,32 @@
 //	    // バックパック内処理
 //	}
 //
-//	// ✅ 型取得してswitch分岐
-//	locType, ok := worldhelper.GetItemLocationType(world, item)
-//	if ok {
-//	    switch locType {
-//	    case worldhelper.ItemLocationInPlayerBackpack:
-//	        // バックパック処理
-//	    case worldhelper.ItemLocationEquipped:
-//	        equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
-//	        // 装備処理（equipped.Owner, equipped.EquipmentSlotにアクセス可能）
-//	    case worldhelper.ItemLocationOnField:
-//	        // フィールド処理
-//	    }
+//	// ✅ 複数の可能性を判定する場合はHasComponentで分岐
+//	if item.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+//	    // バックパック処理
+//	} else if item.HasComponent(world.Components.ItemLocationEquipped) {
+//	    equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+//	    // 装備処理（equipped.Owner, equipped.EquipmentSlotにアクセス可能）
+//	} else if item.HasComponent(world.Components.ItemLocationOnField) {
+//	    // フィールド処理
 //	}
 //
 // # Faction の使用例
 //
-// エンティティの派閥を管理する際も、helper関数を使用します：
-//
-//	// ✅ 推奨: 具体的なHelper関数を使用（排他制御あり）
-//	worldhelper.MakeAlly(world, entity)
-//	worldhelper.MakeEnemy(world, entity)
-//	worldhelper.MakeNeutral(world, entity)
-//
-//	// ❌ 非推奨: 直接操作（排他制御なし）
-//	entity.AddComponent(world.Components.FactionAlly, &gc.FactionAllyData{})
-//
-// 派閥の判定は型取得してswitch分岐、またはHasComponentで判定します：
+// エンティティの派閥は、対応するコンポーネントの有無で判定します：
 //
 //	// ✅ HasComponentで直接判定
 //	if entity.HasComponent(world.Components.FactionAlly) {
 //	    // 味方処理
 //	}
 //
-//	// ✅ 型取得してswitch分岐
-//	factionType, ok := worldhelper.GetFactionType(world, entity)
-//	if ok {
-//	    switch factionType {
-//	    case worldhelper.FactionAlly:
-//	        // 味方処理
-//	    case worldhelper.FactionEnemy:
-//	        // 敵処理
-//	    case worldhelper.FactionNeutral:
-//	        // 中立処理
-//	    }
+//	// ✅ 複数の可能性を判定する場合はHasComponentで分岐
+//	if entity.HasComponent(world.Components.FactionAlly) {
+//	    // 味方処理
+//	} else if entity.HasComponent(world.Components.FactionEnemy) {
+//	    // 敵処理
+//	} else if entity.HasComponent(world.Components.FactionNeutral) {
+//	    // 中立処理
 //	}
 //
 // # 設計原則
