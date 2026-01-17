@@ -1,8 +1,6 @@
 package states
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/lib/actions"
 	gc "github.com/kijimaD/ruins/lib/components"
 	"github.com/kijimaD/ruins/lib/gamelog"
@@ -264,26 +262,11 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			Append("脱出ゲートがある。Enterキーで移動。").
 			Log()
 	case gc.ItemInteraction:
-		// アイテムの名前と個数を取得して表示
-		if interactableEntity.HasComponent(world.Components.Name) {
-			nameComp := world.Components.Name.Get(interactableEntity).(*gc.Name)
-			itemName := nameComp.Name
-
-			// 個数を取得
-			countText := ""
-			if interactableEntity.HasComponent(world.Components.Item) {
-				itemComp := world.Components.Item.Get(interactableEntity).(*gc.Item)
-				if itemComp.Count > 1 {
-					countText = fmt.Sprintf("(%d個)", itemComp.Count)
-				}
-			}
-
-			gamelog.New(gamelog.FieldLog).
-				ItemName(itemName).
-				Append(countText).
-				Append(" がある。").
-				Log()
-		}
+		formattedName := worldhelper.FormatItemName(world, interactableEntity)
+		gamelog.New(gamelog.FieldLog).
+			Append(formattedName).
+			Append(" がある。").
+			Log()
 	}
 }
 
@@ -341,14 +324,12 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		}
 	case gc.ItemInteraction:
 		// アイテム拾得アクションを生成
-		if interactableEntity.HasComponent(world.Components.Name) {
-			name := world.Components.Name.Get(interactableEntity).(*gc.Name)
-			result = append(result, InteractionAction{
-				Label:    "拾う(" + name.Name + ")",
-				Activity: &actions.PickupActivity{},
-				Target:   interactableEntity,
-			})
-		}
+		formattedName := worldhelper.FormatItemName(world, interactableEntity)
+		result = append(result, InteractionAction{
+			Label:    "拾う(" + formattedName + ")",
+			Activity: &actions.PickupActivity{},
+			Target:   interactableEntity,
+		})
 	}
 
 	return result

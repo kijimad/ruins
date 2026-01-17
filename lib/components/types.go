@@ -7,6 +7,7 @@ type Pool struct {
 }
 
 // PoolFloat はPoolのfloat64精度版
+// TODO(kijima): ジェネリクスを検討すべきかもしれない
 type PoolFloat struct {
 	Max     float64 // 計算式で算出される
 	Current float64 // 現在値

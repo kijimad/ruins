@@ -163,6 +163,8 @@ func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntit
 		itemName = name.Name
 	}
 
+	formattedName := worldhelper.FormatItemName(world, itemEntity)
+
 	// フィールドからバックパックに移動
 	itemEntity.RemoveComponent(world.Components.ItemLocationOnField)
 	itemEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
@@ -183,7 +185,7 @@ func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntit
 	}
 
 	gamelog.New(gamelog.FieldLog).
-		ItemName(itemName).
+		Append(formattedName).
 		Append(" を入手した。").
 		Log()
 

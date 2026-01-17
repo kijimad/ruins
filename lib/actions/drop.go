@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/lib/components"
 	"github.com/kijimaD/ruins/lib/gamelog"
 	w "github.com/kijimaD/ruins/lib/world"
+	"github.com/kijimaD/ruins/lib/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -95,11 +96,7 @@ func (da *DropActivity) performDropActivity(act *Activity, world w.World) error 
 	playerGrid := gridElement.(*gc.GridElement)
 
 	// アイテム情報を取得
-	itemName := "Unknown Item"
-	if nameComp := world.Components.Name.Get(da.Target); nameComp != nil {
-		name := nameComp.(*gc.Name)
-		itemName = name.Name
-	}
+	formattedName := worldhelper.FormatItemName(world, da.Target)
 
 	// バックパックから削除してフィールドに移動
 	da.Target.RemoveComponent(world.Components.ItemLocationInBackpack)
@@ -115,7 +112,7 @@ func (da *DropActivity) performDropActivity(act *Activity, world w.World) error 
 	act.Actor.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 
 	gamelog.New(gamelog.FieldLog).
-		ItemName(itemName).
+		Append(formattedName).
 		Append(" を捨てた。").
 		Log()
 
