@@ -1,7 +1,7 @@
 ローグライク。
 
 - [play](https://kijimad.github.io/ruins/)
-- [godoc](https://kijimad.github.io/ruins/godoc/pkg/github.com/kijimaD/ruins/lib/)
+- [godoc](https://kijimad.github.io/ruins/godoc/pkg/github.com/kijimaD/ruins/internal/)
 
 ## Play Images
 
