@@ -53,11 +53,10 @@ func TestSaveLoadItemTypes(t *testing.T) {
 
 	// 素材アイテムを作成
 	materialItem := w.Manager.NewEntity()
+	materialItem.AddComponent(w.Components.Item, &gc.Item{Count: 5})
 	materialItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト素材"})
 	materialItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
-	materialItem.AddComponent(w.Components.Stackable, &gc.Stackable{
-		Count: 5,
-	})
+	materialItem.AddComponent(w.Components.Stackable, &gc.Stackable{})
 
 	// 消費アイテムを作成
 	consumableItem := w.Manager.NewEntity()
@@ -163,8 +162,8 @@ func TestSaveLoadItemTypes(t *testing.T) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト素材", name.Name)
 
-		material := newWorld.Components.Stackable.Get(entity).(*gc.Stackable)
-		assert.Equal(t, 5, material.Count)
+		item := newWorld.Components.Item.Get(entity).(*gc.Item)
+		assert.Equal(t, 5, item.Count)
 
 		materialCount++
 	}))

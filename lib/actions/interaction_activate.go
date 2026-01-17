@@ -82,14 +82,11 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 		ia.executeItem(act, world, content)
 	case gc.MeleeInteraction:
 		ia.executeMelee(act, world, content)
+	case gc.TestTriggerInteraction:
+		ia.executeTestTrigger(act, world, content)
 	default:
 		interactionErr = fmt.Errorf("未知の相互作用タイプ: %T", interactable)
 		act.Cancel(fmt.Sprintf("相互作用発動エラー: %s", interactionErr.Error()))
-	}
-
-	// Consumableコンポーネントがある場合はエンティティを削除（エラーがあっても削除する）
-	if ia.InteractableEntity.HasComponent(world.Components.Consumable) {
-		world.Manager.DeleteEntity(ia.InteractableEntity)
 	}
 
 	if interactionErr != nil {
@@ -225,5 +222,14 @@ func (ia *InteractionActivateActivity) executeMelee(act *Activity, world w.World
 	_, err := manager.Execute(&AttackActivity{}, params, world)
 	if err != nil {
 		act.Logger.Warn("近接攻撃アクション失敗", "error", err)
+	}
+}
+
+// executeTestTrigger はテスト用トリガー相互作用を実行する
+func (ia *InteractionActivateActivity) executeTestTrigger(act *Activity, _ w.World, content gc.TestTriggerInteraction) {
+	act.Logger.Debug("テストトリガー実行", "actor", act.Actor, "trigger", ia.InteractableEntity)
+	// Executedフラグをtrueに設定
+	if content.Executed != nil {
+		*content.Executed = true
 	}
 }

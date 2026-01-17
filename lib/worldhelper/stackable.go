@@ -8,76 +8,63 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MergeStackableIntoInventory は既存のバックパック内Stackableアイテムと統合するか新規追加する
-// Stackableコンポーネントを持つ場合は既存と数量統合、それ以外は個別アイテムとして追加
-func MergeStackableIntoInventory(world w.World, newItemEntity ecs.Entity, itemName string) error {
-	// Stackableコンポーネントがない場合は何もしない（個別アイテムとして扱う）
-	if !newItemEntity.HasComponent(world.Components.Stackable) {
+// MergeInventoryItem はバックパック内の指定された名前のStackableアイテムをすべて1つに統合する
+func MergeInventoryItem(world w.World, itemName string) error {
+	// 同名のStackableアイテムをすべて取得
+	var stackableItems []ecs.Entity
+	world.Manager.Join(
+		world.Components.Stackable,
+		world.Components.ItemLocationInBackpack,
+		world.Components.Name,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == itemName {
+			stackableItems = append(stackableItems, entity)
+		}
+	}))
+
+	// 0個または1個の場合は統合不要
+	if len(stackableItems) <= 1 {
 		return nil
 	}
 
-	// 既存の同名Stackableアイテムを探してマージ
-	existingEntity, found := FindStackableInInventory(world, itemName)
-	if found && existingEntity != newItemEntity {
-		mergeStackables(world, existingEntity, newItemEntity)
+	// 最初のアイテムに統合する
+	targetEntity := stackableItems[0]
+	for i := 1; i < len(stackableItems); i++ {
+		itemToMerge := stackableItems[i]
+		itemComp := world.Components.Item.Get(itemToMerge).(*gc.Item)
+
+		if err := ChangeItemCount(world, targetEntity, itemComp.Count); err != nil {
+			return fmt.Errorf("数量統合エラー: %w", err)
+		}
+
+		// 統合元のアイテムエンティティを削除
+		world.Manager.DeleteEntity(itemToMerge)
 	}
 
 	return nil
 }
 
-// mergeStackables はStackableアイテムをマージする。数量を統合してnewItemエンティティは削除する
-func mergeStackables(world w.World, existingItem, newItem ecs.Entity) {
-	// 新しいアイテムの数量を既存のアイテムに追加
-	existingStackable := world.Components.Stackable.Get(existingItem).(*gc.Stackable)
-	newStackable := world.Components.Stackable.Get(newItem).(*gc.Stackable)
-
-	// 数量を統合
-	existingStackable.Count += newStackable.Count
-
-	// 新しいアイテムエンティティを削除
-	world.Manager.DeleteEntity(newItem)
-}
-
-// AddStackableCount は指定した名前のStackableアイテムの数量を増やす
-// アイテムが存在しない場合は新規作成する
-func AddStackableCount(world w.World, name string, amount int) error {
-	if amount <= 0 {
-		return fmt.Errorf("amount must be positive: %d", amount)
+// ChangeStackableCount は指定した名前のStackableアイテムの数量を変更する
+// amount が正の場合は増加、負の場合は減少する
+func ChangeStackableCount(world w.World, name string, amount int) error {
+	if amount == 0 {
+		return fmt.Errorf("amount must not be zero")
 	}
 
-	// 既存のアイテムを検索
+	// 既存のアイテムを検索する
 	entity, found := FindStackableInInventory(world, name)
 	if found {
-		// 既存アイテムの数量を増やす
-		stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-		stackable.Count += amount
-		return nil
+		return ChangeItemCount(world, entity, amount)
 	}
 
-	// 存在しない場合は新規作成
-	_, err := SpawnStackable(world, name, amount, gc.ItemLocationInBackpack)
-	return err
-}
-
-// RemoveStackableCount は指定した名前のStackableアイテムの数量を減らす
-// 0個以下になった場合はエンティティを削除する
-func RemoveStackableCount(world w.World, name string, amount int) error {
-	if amount <= 0 {
-		return fmt.Errorf("amount must be positive: %d", amount)
-	}
-
-	entity, found := FindStackableInInventory(world, name)
-	if !found {
+	// 存在しない場合
+	if amount < 0 {
+		// 減らす操作で存在しない場合はエラー
 		return fmt.Errorf("stackable item not found: %s", name)
 	}
 
-	stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-	stackable.Count -= amount
-
-	// 0個以下になったらエンティティを削除
-	if stackable.Count <= 0 {
-		world.Manager.DeleteEntity(entity)
-	}
-
-	return nil
+	// 増やす操作で存在しない場合は新規作成する
+	_, err := SpawnItem(world, name, amount, gc.ItemLocationInBackpack)
+	return err
 }

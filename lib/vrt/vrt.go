@@ -103,9 +103,15 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	// デバッグデータを初期化
 	worldhelper.InitDebugData(world)
 
-	// 装備変更後にステータスを更新
-	if changed := gs.EquipmentChangedSystem(world); !changed {
-		log.Println("Equipment change was not detected")
+	for _, updater := range []w.Updater{
+		&gs.EquipmentChangedSystem{},
+		&gs.InventoryChangedSystem{},
+	} {
+		if sys, ok := world.Updaters[updater.String()]; ok {
+			if err := sys.Update(world); err != nil {
+				return err
+			}
+		}
 	}
 
 	// 複数のstateがある場合はラッパーstateを使用

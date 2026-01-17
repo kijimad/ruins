@@ -16,23 +16,35 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
-	existingMaterial, err := SpawnStackable(world, "鉄くず", 5, gc.ItemLocationInBackpack)
+	_, err := SpawnItem(world, "鉄くず", 5, gc.ItemLocationInBackpack)
 	require.NoError(t, err)
 
 	// 新しいmaterialを作成（数量3）
-	newMaterial, err := SpawnStackable(world, "鉄くず", 3, gc.ItemLocationInBackpack)
+	_, err = SpawnItem(world, "鉄くず", 3, gc.ItemLocationInBackpack)
 	require.NoError(t, err)
 
-	// MergeStackableIntoInventoryを実行
-	err = MergeStackableIntoInventory(world, newMaterial, "鉄くず")
+	// MergeInventoryItemを実行
+	err = MergeInventoryItem(world, "鉄くず")
 	require.NoError(t, err)
 
-	// 既存のmaterialの数量が統合されていることを確認
-	updatedMat := world.Components.Stackable.Get(existingMaterial).(*gc.Stackable)
-	assert.Equal(t, 8, updatedMat.Count, "数量が正しく統合されていない")
+	// バックパック内の鉄くずは1つだけになっている
+	var ironCount int
+	var totalCount int
+	world.Manager.Join(
+		world.Components.Stackable,
+		world.Components.ItemLocationInBackpack,
+		world.Components.Name,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == "鉄くず" {
+			ironCount++
+			item := world.Components.Item.Get(entity).(*gc.Item)
+			totalCount += item.Count
+		}
+	}))
 
-	// 新しいmaterialエンティティが削除されていることを確認（コンポーネントが存在しない）
-	assert.False(t, newMaterial.HasComponent(world.Components.Stackable), "新しいmaterialエンティティが削除されていない")
+	assert.Equal(t, 1, ironCount, "鉄くずは1つにまとめられる")
+	assert.Equal(t, 8, totalCount, "合計個数は8個")
 }
 
 func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
@@ -40,7 +52,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 新しいmaterialを作成（既存のものはなし）
-	newMaterial, err := SpawnStackable(world, "緑ハーブ", 2, gc.ItemLocationInBackpack)
+	_, err := SpawnItem(world, "緑ハーブ", 2, gc.ItemLocationInBackpack)
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合前）
@@ -52,8 +64,8 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 		materialCountBefore++
 	}))
 
-	// MergeStackableIntoInventoryを実行
-	err = MergeStackableIntoInventory(world, newMaterial, "緑ハーブ")
+	// MergeInventoryItemを実行（1個しかないので統合されない）
+	err = MergeInventoryItem(world, "緑ハーブ")
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合後）
@@ -65,13 +77,9 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 		materialCountAfter++
 	}))
 
-	// 新しいmaterialとして追加されていることを確認
-	assert.Equal(t, materialCountBefore, materialCountAfter, "新しいmaterialが正しく追加されていない")
-	assert.True(t, newMaterial.HasComponent(world.Components.Stackable), "新しいmaterialエンティティが生きているべき")
-
-	// 数量が維持されていることを確認
-	updatedMat := world.Components.Stackable.Get(newMaterial).(*gc.Stackable)
-	assert.Equal(t, 2, updatedMat.Count, "数量が維持されていない")
+	// 数は変わっていない（1個だけなので統合不要）
+	assert.Equal(t, materialCountBefore, materialCountAfter, "material数は変わらない")
+	assert.Equal(t, 1, materialCountAfter, "緑ハーブは1個のまま")
 }
 
 func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
@@ -79,11 +87,11 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
-	existingItem, err := SpawnItem(world, "西洋鎧", gc.ItemLocationInBackpack)
+	_, err := SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInBackpack)
 	require.NoError(t, err)
 
 	// 新しい同じアイテムを作成
-	newItem, err := SpawnItem(world, "西洋鎧", gc.ItemLocationInBackpack)
+	_, err = SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInBackpack)
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合前）
@@ -95,8 +103,8 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 		itemCountBefore++
 	}))
 
-	// MergeStackableIntoInventoryを実行
-	err = MergeStackableIntoInventory(world, newItem, "西洋鎧")
+	// MergeInventoryItemを実行（Stackableを持たないので統合されない）
+	err = MergeInventoryItem(world, "西洋鎧")
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合後）
@@ -110,8 +118,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 
 	// Stackableを持たないアイテムは統合されず、2つのアイテムが存在することを確認
 	assert.Equal(t, itemCountBefore, itemCountAfter, "Stackableを持たないアイテムは統合されないべき")
-	assert.True(t, existingItem.HasComponent(world.Components.Item), "既存のアイテムエンティティが生きているべき")
-	assert.True(t, newItem.HasComponent(world.Components.Item), "新しいアイテムエンティティが生きているべき")
+	assert.Equal(t, 2, itemCountAfter, "西洋鎧は2つのまま")
 }
 
 func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) {
@@ -123,11 +130,10 @@ func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) 
 	componentList.Entities = append(componentList.Entities, gc.EntitySpec{
 		Name: &gc.Name{Name: "テスト"},
 	})
-	entities, err := entities.AddEntities(world, componentList)
+	_, err := entities.AddEntities(world, componentList)
 	require.NoError(t, err)
-	nonStackableEntity := entities[0]
 
-	// MergeStackableIntoInventoryを実行しても何もしない（エラーなし）
-	err = MergeStackableIntoInventory(world, nonStackableEntity, "テスト")
+	// MergeInventoryItemを実行しても何もしない（エラーなし）
+	err = MergeInventoryItem(world, "テスト")
 	require.NoError(t, err, "Stackableコンポーネントを持たないエンティティは個別アイテムとして扱われ、マージ不要")
 }

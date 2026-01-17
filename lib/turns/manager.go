@@ -1,11 +1,10 @@
 package turns
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/lib/components"
 	"github.com/kijimaD/ruins/lib/logger"
 	w "github.com/kijimaD/ruins/lib/world"
+	"github.com/kijimaD/ruins/lib/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -106,33 +105,6 @@ func (tm *TurnManager) IsAITurn() bool {
 	return tm.TurnPhase == AITurn
 }
 
-// CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
-// CDDAスタイルで敏捷性を重視したAP計算式
-func (tm *TurnManager) CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
-	// Attributesコンポーネントがない場合はエラー
-	attributesComponent := world.Components.Attributes.Get(entity)
-	if attributesComponent == nil {
-		return 0, fmt.Errorf("attributesが設定されていない")
-	}
-
-	attrs := attributesComponent.(*gc.Attributes)
-
-	// AP計算式: 基本値 + 敏捷性の重要度を高くした式
-	// 敏捷性 * 3 + 器用性 * 1
-	baseAP := 100
-	agilityMultiplier := 3
-	dexterityMultiplier := 1
-
-	calculatedAP := baseAP + attrs.Agility.Total*agilityMultiplier + attrs.Dexterity.Total*dexterityMultiplier
-
-	// 最小値制限（20以上）
-	if calculatedAP < 20 {
-		calculatedAP = 20
-	}
-
-	return calculatedAP, nil
-}
-
 // ConsumeActionPoints はエンティティのアクションポイントを消費する
 // CDDAスタイルの共通AP管理システム
 func (tm *TurnManager) ConsumeActionPoints(world w.World, entity ecs.Entity, actionName string, cost int) bool {
@@ -192,7 +164,7 @@ func (tm *TurnManager) RestoreAllActionPoints(world w.World) error {
 	// ActionPointsコンポーネントを持つ全エンティティのAP回復
 	world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {
 		actionPoints := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
-		maxAP, calcErr := tm.CalculateMaxActionPoints(world, entity)
+		maxAP, calcErr := worldhelper.CalculateMaxActionPoints(world, entity)
 		err = calcErr
 
 		actionPoints.AP.Current = maxAP

@@ -56,9 +56,10 @@ SpriteKey = "repair_item"
 `
 	raw, err := Load(str)
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
-	entitySpec, err := raw.NewItemSpec("リペア", &loc)
+	entitySpec, err := raw.NewItemSpec("リペア")
 	assert.NoError(t, err)
+	loc := gc.ItemLocationInBackpack
+	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.Name)
 	assert.NotNil(t, entitySpec.Item)
 	assert.NotNil(t, entitySpec.Description)
@@ -76,8 +77,10 @@ Description = "スプライトなしアイテム"
 	assert.NoError(t, err)
 
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
+	entitySpec, err := raw.NewItemSpec("テストアイテム")
+	assert.NoError(t, err)
 	loc := gc.ItemLocationInBackpack
-	entitySpec, err := raw.NewItemSpec("テストアイテム", &loc)
+	entitySpec.ItemLocationType = &loc
 	assert.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
@@ -153,15 +156,16 @@ Stackable = true
 `
 	raw, err := Load(str)
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
-	entitySpec, err := raw.NewItemSpec("テスト素材", &loc)
+	entitySpec, err := raw.NewItemSpec("テスト素材")
 	assert.NoError(t, err)
+	loc := gc.ItemLocationInBackpack
+	entitySpec.ItemLocationType = &loc
 
 	// 基本コンポーネントの確認
 	assert.NotNil(t, entitySpec.Name)
 	assert.NotNil(t, entitySpec.Description)
-	// GenerateItemはStackableコンポーネントを付与しない
-	assert.Nil(t, entitySpec.Stackable)
+	// Stackable=trueのアイテムにはStackableコンポーネントが付与される
+	assert.NotNil(t, entitySpec.Stackable)
 
 	// SpriteRenderコンポーネントの確認
 	assert.NotNil(t, entitySpec.SpriteRender, "SpriteRenderコンポーネントが設定されていない")
@@ -181,9 +185,10 @@ Description = "スプライトなし素材"
 	assert.NoError(t, err)
 
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
-	loc := gc.ItemLocationInBackpack
-	entitySpec, err := raw.NewItemSpec("スプライトなし素材", &loc)
+	entitySpec, err := raw.NewItemSpec("スプライトなし素材")
 	assert.NoError(t, err)
+	loc := gc.ItemLocationInBackpack
+	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
 	assert.Equal(t, "field_item", entitySpec.SpriteRender.SpriteKey)
@@ -411,9 +416,10 @@ AnimKeys = ["item_0", "item_1"]
 	assert.Equal(t, []string{"item_0", "item_1"}, item.AnimKeys)
 
 	// NewItemSpecでAnimKeysがSpriteRenderに設定されることを確認
-	loc := gc.ItemLocationInBackpack
-	entitySpec, err := raw.NewItemSpec("アニメーションアイテム", &loc)
+	entitySpec, err := raw.NewItemSpec("アニメーションアイテム")
 	assert.NoError(t, err)
+	loc := gc.ItemLocationInBackpack
+	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, []string{"item_0", "item_1"}, entitySpec.SpriteRender.AnimKeys)
 }
@@ -435,9 +441,10 @@ SpriteKey = "static_item"
 	assert.Nil(t, item.AnimKeys)
 
 	// NewItemSpecでもAnimKeysはnil
-	loc := gc.ItemLocationInBackpack
-	entitySpec, err := raw.NewItemSpec("静的アイテム", &loc)
+	entitySpec, err := raw.NewItemSpec("静的アイテム")
 	assert.NoError(t, err)
+	loc := gc.ItemLocationInBackpack
+	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }

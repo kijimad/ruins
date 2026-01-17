@@ -75,9 +75,27 @@ func (st *EquipMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	changed := gs.EquipmentChangedSystem(world)
-	if changed {
-		st.reloadAbilityContainer(world)
+	for _, updater := range []w.Updater{
+		&gs.EquipmentChangedSystem{},
+		&gs.InventoryChangedSystem{},
+	} {
+		changed := false
+
+		if sys, ok := world.Updaters[updater.String()]; ok {
+			if shouldRunner, ok := sys.(gs.ShouldRunner); ok {
+				if shouldRunner.ShouldRun(world) {
+					changed = true
+				}
+			}
+
+			if err := sys.Update(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+
+			if changed {
+				st.reloadAbilityContainer(world)
+			}
+		}
 	}
 
 	// キー入力をActionに変換
@@ -182,7 +200,7 @@ func (st *EquipMenuState) initUI(world w.World) *ebitenui.UI {
 		},
 		OnTabChange: func(_, _ int, _ tabmenu.TabItem) {
 			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-			st.updateAbilityDisplay(world)
+			st.reloadAbilityContainer(world)
 		},
 		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
 			if err := st.handleItemChange(world, item); err != nil {
@@ -384,7 +402,7 @@ func (st *EquipMenuState) handleItemChange(world w.World, item tabmenu.Item) err
 
 		// プレイヤー情報を更新
 		if _, ok := userData["member"].(ecs.Entity); ok {
-			st.updateAbilityDisplay(world)
+			st.reloadAbilityContainer(world)
 		}
 	}
 	return nil
@@ -409,12 +427,7 @@ func (st *EquipMenuState) updateInitialItemDisplay(world w.World) error {
 	return nil
 }
 
-// updateAbilityDisplay はメンバー能力表示を更新する
-func (st *EquipMenuState) updateAbilityDisplay(world w.World) {
-	st.reloadAbilityContainer(world)
-}
-
-// メンバーの能力表示コンテナを更新する
+// reloadAbilityContainer はメンバーの能力表示コンテナを更新する
 func (st *EquipMenuState) reloadAbilityContainer(world w.World) {
 	st.abilityContainer.RemoveChildren()
 
@@ -686,7 +699,7 @@ func (st *EquipMenuState) unequipItem(world w.World, userData map[string]interfa
 		worldhelper.Disarm(world, *slotEntity)
 		st.reloadTabs(world)
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-		st.updateAbilityDisplay(world)
+		st.reloadAbilityContainer(world)
 	}
 	st.closeActionWindow()
 }
@@ -710,7 +723,7 @@ func (st *EquipMenuState) exitEquipMode(world w.World) error {
 	}
 
 	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-	st.updateAbilityDisplay(world)
+	st.reloadAbilityContainer(world)
 	return nil
 }
 

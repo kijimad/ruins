@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/lib/components"
 	"github.com/kijimaD/ruins/lib/testutil"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestAddCurrency(t *testing.T) {
@@ -19,7 +18,7 @@ func TestAddCurrency(t *testing.T) {
 
 	// 通貨を追加
 	err := AddCurrency(world, player, 50)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 
 	// 結果を検証
 	currency := GetCurrency(world, player)
@@ -49,26 +48,6 @@ func TestGetCurrency(t *testing.T) {
 	// クリーンアップ
 	world.Manager.DeleteEntity(player)
 	world.Manager.DeleteEntity(playerWithoutWallet)
-}
-
-func TestSetCurrency(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	// プレイヤーを作成してWalletを追加
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 100})
-
-	// 通貨を設定
-	err := SetCurrency(world, player, 500)
-	require.NoError(t, err)
-
-	// 結果を検証
-	currency := GetCurrency(world, player)
-	assert.Equal(t, 500, currency, "通貨が500に設定されるべき")
-
-	// クリーンアップ
-	world.Manager.DeleteEntity(player)
 }
 
 func TestHasCurrency(t *testing.T) {
@@ -124,10 +103,6 @@ func TestCurrencyOperationsWithoutWallet(t *testing.T) {
 
 	// 各操作がエラーを返すことを確認
 	err := AddCurrency(world, entity, 100)
-	assert.Error(t, err, "Walletがない場合はエラーを返すべき")
-	assert.Equal(t, 0, GetCurrency(world, entity), "Walletがないので0")
-
-	err = SetCurrency(world, entity, 200)
 	assert.Error(t, err, "Walletがない場合はエラーを返すべき")
 	assert.Equal(t, 0, GetCurrency(world, entity), "Walletがないので0")
 

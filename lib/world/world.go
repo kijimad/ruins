@@ -10,6 +10,7 @@ import (
 )
 
 // Updater はロジック更新を行うシステム
+// Systemを再利用して状態を保持するのに使う
 type Updater interface {
 	// String はシステム名を返す
 	String() string

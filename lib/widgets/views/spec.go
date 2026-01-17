@@ -44,6 +44,10 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 		v := world.Components.Value.Get(entity).(*gc.Value)
 		addValueInfo(targetContainer, v, world)
 	}
+	if entity.HasComponent(world.Components.Weight) {
+		w := world.Components.Weight.Get(entity).(*gc.Weight)
+		addWeightInfo(targetContainer, w, world)
+	}
 }
 
 // UpdateSpecFromSpec はEntitySpecから性能表示コンテナを更新する
@@ -68,6 +72,9 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 	}
 	if spec.Value != nil {
 		addValueInfo(targetContainer, spec.Value, world)
+	}
+	if spec.Weight != nil {
+		addWeightInfo(targetContainer, spec.Weight, world)
 	}
 }
 
@@ -107,7 +114,7 @@ func addWeaponInfo(targetContainer *widget.Container, weapon *gc.Weapon, world w
 
 // addValueInfo はValueコンポーネントの情報を追加する
 func addValueInfo(targetContainer *widget.Container, value *gc.Value, world w.World) {
-	valueText := worldhelper.FormatCurrency(value.Value)
+	valueText := fmt.Sprintf("変換 %s", worldhelper.FormatCurrency(value.Value))
 	targetContainer.AddChild(styled.NewBodyText(valueText, consts.TextColor, world.Resources.UIResources))
 }
 
@@ -129,6 +136,12 @@ func addHealingInfo(targetContainer *widget.Container, healing *gc.ProvidesHeali
 func addNutritionInfo(targetContainer *widget.Container, nutrition *gc.ProvidesNutrition, world w.World) {
 	nutritionText := fmt.Sprintf("栄養 %d", nutrition.Amount)
 	targetContainer.AddChild(styled.NewBodyText(nutritionText, consts.TextColor, world.Resources.UIResources))
+}
+
+// addWeightInfo はWeightコンポーネントの情報を追加する
+func addWeightInfo(targetContainer *widget.Container, weight *gc.Weight, world w.World) {
+	weightText := fmt.Sprintf("重量 %.2fkg", weight.Kg)
+	targetContainer.AddChild(styled.NewBodyText(weightText, consts.TextColor, world.Resources.UIResources))
 }
 
 // damageAttrText は属性によって色付けする

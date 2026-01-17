@@ -56,6 +56,9 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 	// ステータス表示（左下）
 	info.drawStatusEffects(screen, data)
 
+	// 所持重量表示（右下）
+	info.drawWeightDisplay(screen, data)
+
 	// フロア情報（最後に描画して最前面に表示）
 	info.drawFloorNumber(screen, data)
 }
@@ -312,4 +315,47 @@ func getHungerColor(hungerLevel gc.HungerLevel) color.RGBA {
 	default:
 		return color.RGBA{255, 255, 255, 255} // 白（通常）
 	}
+}
+
+// drawWeightDisplay はプレイヤーの所持重量を右下に描画する
+func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {
+	const (
+		marginRight  = 10.0 // 右マージン
+		marginBottom = 10.0 // 下マージン
+	)
+
+	// 所持重量テキストを作成
+	weightText := fmt.Sprintf("%.2f / %.2f kg", data.PlayerWeight, data.PlayerMaxWeight)
+
+	// テキストの幅を測定
+	textWidth, _ := text.Measure(weightText, info.bodyFace, 0)
+
+	// メッセージエリアの高さを取得
+	messageAreaHeight := float64(data.MessageAreaHeight)
+
+	// 画面右下に配置（メッセージエリアの上）
+	screenWidth := float64(data.ScreenDimensions.Width)
+	screenHeight := float64(data.ScreenDimensions.Height)
+	x := screenWidth - textWidth - marginRight
+	y := screenHeight - messageAreaHeight - marginBottom
+
+	// 重量比率を計算して色を決定
+	var textColor color.RGBA
+	if data.PlayerMaxWeight > 0 {
+		ratio := data.PlayerWeight / data.PlayerMaxWeight
+		if ratio > 1.0 {
+			// 超過: 赤
+			textColor = color.RGBA{255, 50, 50, 255}
+		} else if ratio > 0.8 {
+			// 80%以上: 黄色
+			textColor = color.RGBA{255, 200, 0, 255}
+		} else {
+			// 通常: 白
+			textColor = color.RGBA{255, 255, 255, 255}
+		}
+	} else {
+		textColor = color.RGBA{255, 255, 255, 255}
+	}
+
+	drawOutlinedText(screen, weightText, info.bodyFace, x, y, textColor)
 }

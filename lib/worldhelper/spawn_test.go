@@ -145,8 +145,9 @@ func TestFullRecover(t *testing.T) {
 		SP: gc.Pool{Current: 0, Max: 0},
 	})
 
-	// fullRecoverを実行
-	fullRecover(world, entity)
+	// FullRecoverを実行
+	err := FullRecover(world, entity)
+	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
 	// 結果を検証
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)
@@ -229,6 +230,69 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
+func TestSpawnItem(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Stackableなアイテムに複数個指定できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		item, err := SpawnItem(world, "回復薬", 5, gc.ItemLocationInBackpack)
+		require.NoError(t, err)
+
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 5, itemComp.Count)
+	})
+
+	t.Run("Stackableでないアイテムにcount=1を指定できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		item, err := SpawnItem(world, "木刀", 1, gc.ItemLocationInBackpack)
+		require.NoError(t, err)
+
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 1, itemComp.Count)
+	})
+
+	t.Run("Stackableでないアイテムにcount>1を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "木刀", 2, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "is not stackable")
+		assert.Contains(t, err.Error(), "count must be 1")
+	})
+
+	t.Run("count=0を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "木刀", 0, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "count must be positive")
+	})
+
+	t.Run("負のcountを指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "木刀", -1, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "count must be positive")
+	})
+
+	t.Run("存在しないアイテム名を指定するとエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.ItemLocationInBackpack)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "item not found")
+	})
+}
+
 func TestSpawnDoor(t *testing.T) {
 	t.Parallel()
 
@@ -271,5 +335,55 @@ func TestSpawnDoor(t *testing.T) {
 		// Doorコンポーネントを確認
 		doorComp := world.Components.Door.Get(door).(*gc.Door)
 		assert.Equal(t, gc.DoorOrientationHorizontal, doorComp.Orientation)
+	})
+}
+
+func TestMovePlayerToPosition(t *testing.T) {
+	t.Parallel()
+
+	t.Run("正常にプレイヤーの位置を更新できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// プレイヤーを作成
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		player.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
+		player.AddComponent(world.Components.Camera, &gc.Camera{})
+
+		// プレイヤーを移動
+		err := MovePlayerToPosition(world, 10, 15)
+		require.NoError(t, err)
+
+		// 位置が更新されていることを確認
+		gridElement := world.Components.GridElement.Get(player).(*gc.GridElement)
+		assert.Equal(t, gc.Tile(10), gridElement.X)
+		assert.Equal(t, gc.Tile(15), gridElement.Y)
+	})
+
+	t.Run("プレイヤーが存在しない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// プレイヤーなしで実行
+		err := MovePlayerToPosition(world, 10, 15)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "必須コンポーネントを持つプレイヤーエンティティが見つかりません")
+	})
+
+	t.Run("必須コンポーネントが欠けている場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// GridElementなしのプレイヤーを作成
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
+		player.AddComponent(world.Components.Camera, &gc.Camera{})
+
+		err := MovePlayerToPosition(world, 10, 15)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "必須コンポーネントを持つプレイヤーエンティティが見つかりません")
 	})
 }

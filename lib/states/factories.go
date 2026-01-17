@@ -66,7 +66,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 	messageState.messageData = messagedata.NewSystemMessage("").
 		WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "回復薬", gc.ItemLocationInBackpack)
+			_, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.ItemLocationInBackpack)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -74,7 +74,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("手榴弾スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "手榴弾", gc.ItemLocationInBackpack)
+			_, err := worldhelper.SpawnItem(world, "手榴弾", 1, gc.ItemLocationInBackpack)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -128,9 +128,9 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("アイテム入手イベント", func(world w.World) error {
 			// アイテムを実際にインベントリに追加
-			_ = worldhelper.AddStackableCount(world, "鉄", 1)
-			_ = worldhelper.AddStackableCount(world, "木の棒", 1)
-			_ = worldhelper.AddStackableCount(world, "フェライトコア", 2)
+			_ = worldhelper.ChangeStackableCount(world, "鉄", 1)
+			_ = worldhelper.ChangeStackableCount(world, "木の棒", 1)
+			_ = worldhelper.ChangeStackableCount(world, "フェライトコア", 2)
 
 			// アイテム入手完了後の表示用メッセージを生成
 			messageText := "宝箱を発見した。\n\n" +

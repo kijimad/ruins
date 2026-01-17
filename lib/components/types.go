@@ -6,6 +6,13 @@ type Pool struct {
 	Current int // 現在値
 }
 
+// PoolFloat はPoolのfloat64精度版
+// TODO(kijima): ジェネリクスを検討すべきかもしれない
+type PoolFloat struct {
+	Max     float64 // 計算式で算出される
+	Current float64 // 現在値
+}
+
 // TurnBased はエンティティのアクションポイント管理コンポーネント
 // ターン制戦闘で、プレイヤー・敵共通で使用される
 type TurnBased struct {

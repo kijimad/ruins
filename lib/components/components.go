@@ -22,6 +22,7 @@ type EntitySpec struct {
 	Pools            *Pools
 	Attack           *Attack
 	Value            *Value
+	Weight           *Weight
 	Recipe           *Recipe
 	Wearable         *Wearable
 	Attributes       *Attributes
@@ -74,11 +75,12 @@ type Components struct {
 	Description *ecs.SliceComponent `save:"true"`
 
 	// item ================
-	Item                   *ecs.NullComponent  `save:"true"`
+	Item                   *ecs.SliceComponent `save:"true"`
 	Consumable             *ecs.SliceComponent `save:"true"`
 	Pools                  *ecs.SliceComponent `save:"true"`
 	Attack                 *ecs.SliceComponent `save:"true"`
 	Value                  *ecs.SliceComponent `save:"true"`
+	Weight                 *ecs.SliceComponent `save:"true"`
 	Recipe                 *ecs.SliceComponent `save:"true"`
 	Wearable               *ecs.SliceComponent `save:"true"`
 	Attributes             *ecs.SliceComponent `save:"true"`
@@ -117,6 +119,7 @@ type Components struct {
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent
+	InventoryChanged  *ecs.NullComponent
 	ProvidesHealing   *ecs.SliceComponent `save:"true"`
 	ProvidesNutrition *ecs.SliceComponent `save:"true"`
 	InflictsDamage    *ecs.SliceComponent `save:"true"`
@@ -167,9 +170,14 @@ type Camera struct {
 	ScaleTo float64
 }
 
-// Item はキャラクターが保持できるもの。フィールド上、装備上、インベントリ上など位置状態を持ち、1スロットを消費する
+// Item はキャラクターが保持できるもの
 // 装備品、武器、回復アイテム、売却アイテム、素材など
-type Item struct{}
+type Item struct {
+	Count int // 所持数。非スタックは常に1になる
+	// TODO(kijima): ここにStackableフィールドをもたせるべきか検討する
+	// 所持上限と所持個数は密接に関連しておりコンポーネントとして分離させる意味があまりない
+	// また、読み取り上すべてcountを持っていたほうが処理がシンプルになる。読み取りの箇所すべてでスタック可能/スタック不可を区別するのはややこしい。書き込みは限られた箇所にしか登場しないが、読み取りは多くの場所で登場する
+}
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
@@ -222,6 +230,9 @@ type Pools struct {
 	// 電力 Electricity point
 	// 機能のトグルで消費量が変わる
 	EP Pool
+	// 所持重量 Weight
+	// 超過量に応じたペナルティが発生する
+	Weight PoolFloat
 }
 
 // Attributes はエンティティが持つステータス値。各種計算式で使う
@@ -251,15 +262,20 @@ type InflictsDamage struct {
 	Amount int
 }
 
-// Stackable はスタック可能なアイテムを示すコンポーネント
-type Stackable struct {
-	Count int // 所持数
-}
+// Stackable はスタック可能なアイテムを示すマーカーコンポーネント
+// 実際の所持数は Item.Count フィールドを使用する
+type Stackable struct{}
 
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される
 type Value struct {
 	Value int
+}
+
+// Weight はアイテムの重量(kg)
+// 所持重量の計算に使用される
+type Weight struct {
+	Kg float64 // 重量（キログラム）
 }
 
 // Recipe は合成に必要な素材
@@ -268,7 +284,12 @@ type Recipe struct {
 }
 
 // EquipmentChanged は装備変更が行われたことを示すダーティーフラグ
+// フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
 type EquipmentChanged struct{}
+
+// InventoryChanged はインベントリ変動が行われたことを示すダーティーフラグ
+// フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
+type InventoryChanged struct{}
 
 // Weapon は戦闘中に選択する武器コマンド
 type Weapon struct {
@@ -347,6 +368,7 @@ var (
 )
 
 // LocationInBackpack はバックパック内位置
+// TODO(kijima): owner をつけるべきかもしれない。誰のバックパックかが明示的ではないので
 type LocationInBackpack struct{}
 
 func (c LocationInBackpack) String() string {

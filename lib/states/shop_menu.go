@@ -299,9 +299,9 @@ func (st *ShopMenuState) createSellItems(world w.World) []tabmenu.Item {
 
 			// 個数がある場合は後に追加（オプション）
 			if entity.HasComponent(world.Components.Stackable) {
-				stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
-				if stackable.Count > 1 {
-					additionalLabels = append(additionalLabels, fmt.Sprintf("x%d", stackable.Count))
+				itemComp := world.Components.Item.Get(entity).(*gc.Item)
+				if itemComp.Count > 1 {
+					additionalLabels = append(additionalLabels, fmt.Sprintf("x%d", itemComp.Count))
 				}
 			}
 
@@ -374,7 +374,7 @@ func (st *ShopMenuState) handleItemChange(world w.World, item tabmenu.Item) erro
 
 	// アイテムの情報を取得する
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	spec, err := rawMaster.NewItemSpec(itemName, nil)
+	spec, err := rawMaster.NewItemSpec(itemName)
 	if err != nil {
 		st.itemDesc.Label = TextNoDescription
 		return err
@@ -401,6 +401,7 @@ func (st *ShopMenuState) handlePurchase(world w.World, item tabmenu.Item) {
 		err := worldhelper.BuyItem(world, playerEntity, itemName)
 		if err != nil {
 			// エラーの場合は何もしない（通貨不足など）
+			// TODO(kijima): error を返すようにする
 			return
 		}
 		// タブを再読み込み

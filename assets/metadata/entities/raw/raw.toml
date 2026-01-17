@@ -5,6 +5,7 @@ Name            = "回復薬"
 Stackable       = true
 Description     = "体力を半分程度回復する"
 Value           = 100
+Weight          = 0.1
 SpriteSheetName = "field"
 SpriteKey       = "heal_item"
 
@@ -22,6 +23,7 @@ Name        = "回復スプレー"
 Stackable   = true
 Description = "全員の体力を半分程度回復する"
 Value       = 250
+Weight      = 0.15
 
 [Items.Consumable]
 UsableScene = "ANY"
@@ -37,6 +39,7 @@ Name           = "手榴弾"
 Stackable      = true
 Description    = "敵全体にダメージを与える"
 Value          = 150
+Weight         = 0.4
 InflictsDamage = 20
 
 [Items.Consumable]
@@ -49,6 +52,7 @@ Name            = "上級回復薬"
 Stackable       = true
 Description     = "体力を完全回復する高級な薬"
 Value           = 300
+Weight          = 0.12
 SpriteSheetName = "field"
 SpriteKey       = "heal_item"
 
@@ -66,6 +70,7 @@ Name            = "古代の秘薬"
 Stackable       = true
 Description     = "失われた錬金術で作られた万能薬。全員を完全回復する"
 Value           = 800
+Weight          = 0.2
 SpriteSheetName = "field"
 SpriteKey       = "heal_item"
 
@@ -83,6 +88,7 @@ Name        = "毒消し"
 Stackable   = true
 Description = "毒や状態異常を治す薬草の煎じ薬"
 Value       = 80
+Weight      = 0.08
 
 [Items.Consumable]
 UsableScene = "ANY"
@@ -94,6 +100,7 @@ Name           = "爆裂弾"
 Stackable      = true
 Description    = "強力な爆発で敵全体に大ダメージを与える"
 Value          = 400
+Weight         = 0.5
 InflictsDamage = 50
 
 [Items.Consumable]
@@ -106,6 +113,7 @@ Name        = "閃光弾"
 Stackable   = true
 Description = "強烈な光で敵の動きを封じる"
 Value       = 180
+Weight      = 0.3
 
 [Items.Consumable]
 UsableScene = "BATTLE"
@@ -117,6 +125,7 @@ Name        = "煙幕弾"
 Stackable   = true
 Description = "煙で味方の回避率を上げる"
 Value       = 200
+Weight      = 0.35
 
 [Items.Consumable]
 UsableScene = "BATTLE"
@@ -128,6 +137,7 @@ Name        = "霊薬"
 Stackable   = true
 Description = "精神力を回復する神秘的な薬"
 Value       = 150
+Weight      = 0.1
 
 [Items.Consumable]
 UsableScene = "ANY"
@@ -139,6 +149,7 @@ Name        = "狂戦士の薬"
 Stackable   = true
 Description = "攻撃力を一時的に大幅に上昇させる"
 Value       = 250
+Weight      = 0.15
 
 [Items.Consumable]
 UsableScene = "BATTLE"
@@ -150,6 +161,7 @@ Name        = "守護の香"
 Stackable   = true
 Description = "防御力を一時的に上昇させる神聖な香"
 Value       = 220
+Weight      = 0.05
 
 [Items.Consumable]
 UsableScene = "BATTLE"
@@ -163,6 +175,7 @@ Name            = "ルビー原石"
 Stackable       = true
 Description     = "赤く光る鉱物。高く売れる"
 Value           = 500
+Weight          = 0.05
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -171,72 +184,84 @@ Name        = "星の欠片"
 Stackable   = true
 Description = "夜空から落ちた神秘的な鉱石。非常に高価"
 Value       = 2000
+Weight      = 0.02
 
 [[Items]]
 Name        = "古代金貨"
 Stackable   = true
 Description = "失われた文明の通貨。コレクター垂涎の品"
 Value       = 1500
+Weight      = 0.01
 
 [[Items]]
 Name        = "血染めのルビー"
 Stackable   = true
 Description = "暗い歴史を持つ美しい宝石。高額で取引される"
 Value       = 3000
+Weight      = 0.03
 
 [[Items]]
 Name        = "教会の聖杯"
 Stackable   = true
 Description = "聖別された銀製の杯。古美術品として価値が高い"
 Value       = 2500
+Weight      = 1.5
 
 [[Items]]
 Name        = "竜の鱗"
 Stackable   = true
 Description = "伝説の竜から剥がれたとされる鱗。幻の素材"
 Value       = 5000
+Weight      = 0.1
 
 [[Items]]
 Name        = "王家の印章"
 Stackable   = true
 Description = "滅んだ王朝の公式印章。歴史的価値は計り知れない"
 Value       = 4000
+Weight      = 0.3
 
 [[Items]]
 Name        = "黒真珠"
 Stackable   = true
 Description = "深海から取れる漆黒の真珠。極めて稀少"
 Value       = 3500
+Weight      = 0.02
 
 [[Items]]
 Name        = "魔導書の断片"
 Stackable   = true
 Description = "禁断の魔術書の一部。研究者が高値で買い取る"
 Value       = 2800
+Weight      = 0.2
 
 [[Items]]
 Name        = "天使の羽根"
 Stackable   = true
 Description = "純白に輝く美しい羽根。神聖な力を宿すとされる"
 Value       = 3200
+Weight      = 0.005
 
 [[Items]]
 Name        = "古代の壺"
 Stackable   = true
 Description = "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
 Value       = 1800
+Weight      = 2.5
 
 [[Items]]
 Name        = "狩人の記章"
 Stackable   = true
 Description = "名高い狩人が身に着けていた誇りの証。記念品として珍重される"
 Value       = 1200
+Weight      = 0.1
 
 [[Items]]
 Name        = "月の石"
 Stackable   = true
 Description = "満月の夜にのみ光る不思議な石。占い師に重宝される"
 Value       = 1600
+Weight      = 0.5
 
 # foods ================
 
@@ -245,6 +270,7 @@ Name              = "パン"
 Stackable         = true
 Description       = "焼きたてのパン。空腹を満たす"
 Value             = 30
+Weight            = 0.3
 ProvidesNutrition = 100
 SpriteSheetName   = "field"
 SpriteKey         = "food_item"
@@ -259,6 +285,7 @@ Name              = "乾肉"
 Stackable         = true
 Description       = "保存用の肉。栄養価が高い"
 Value             = 50
+Weight            = 0.2
 ProvidesNutrition = 150
 SpriteSheetName   = "field"
 SpriteKey         = "food_item"
@@ -273,6 +300,7 @@ Name              = "コーラ"
 Stackable         = true
 Description       = "炭酸飲料。爽快感がある"
 Value             = 25
+Weight            = 0.35
 ProvidesNutrition = 80
 SpriteSheetName   = "field"
 SpriteKey         = "food_item"
@@ -287,6 +315,7 @@ Name              = "チーズ"
 Stackable         = true
 Description       = "熟成されたチーズ。栄養満点"
 Value             = 40
+Weight            = 0.25
 ProvidesNutrition = 120
 SpriteSheetName   = "field"
 SpriteKey         = "food_item"
@@ -301,6 +330,7 @@ Name              = "ビスケット"
 Stackable         = true
 Description       = "固いビスケット。保存食として優秀"
 Value             = 25
+Weight            = 0.2
 ProvidesNutrition = 90
 SpriteSheetName   = "field"
 SpriteKey         = "food_item"
@@ -315,6 +345,7 @@ Name              = "豪華な食事"
 Stackable         = true
 Description       = "温かい料理の詰め合わせ。完全に空腹を満たす"
 Value             = 100
+Weight            = 0.8
 ProvidesNutrition = 300
 SpriteSheetName   = "field"
 SpriteKey         = "food_item"
@@ -330,6 +361,7 @@ TargetNum   = "SINGLE"
 Name        = "素手"
 Description = "素手による打撃"
 Value       = 0
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 1
@@ -347,6 +379,7 @@ AttackCategory = "FIST"
 Name        = "体当たり"
 Description = "勢いをつけて体を接触させてダメージを与える"
 Value       = 50
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 0
@@ -364,6 +397,7 @@ AttackCategory = "FIST"
 Name        = "木刀"
 Description = "旅行の土産でおなじみの、木でできた刃のない刀"
 Value       = 80
+Weight      = 1.2
 
 [Items.Weapon]
 Cost        = 2
@@ -381,6 +415,7 @@ AttackCategory = "SWORD"
 Name        = "鉄のナイフ"
 Description = "鉄で作られた軽いナイフ"
 Value       = 90
+Weight      = 0.3
 
 [Items.Weapon]
 Cost        = 2
@@ -398,6 +433,7 @@ AttackCategory = "SWORD"
 Name        = "ハンドガン"
 Description = "樹脂素材を多用した自動拳銃"
 Value       = 150
+Weight      = 0.8
 
 [Items.Weapon]
 Cost        = 2
@@ -415,6 +451,7 @@ AttackCategory = "HANDGUN"
 Name        = "レイガン"
 Description = "光線を発射する拳銃"
 Value       = 280
+Weight      = 1.0
 
 [Items.Weapon]
 Cost        = 2
@@ -432,6 +469,7 @@ AttackCategory = "HANDGUN"
 Name        = "電撃グレネード"
 Description = "放電物質を投射する擲弾銃"
 Value       = 350
+Weight      = 2.0
 
 [Items.Weapon]
 Cost        = 3
@@ -449,6 +487,7 @@ AttackCategory = "RIFLE"
 Name        = "冷凍グレネード"
 Description = "極低温物質を投射する擲弾銃"
 Value       = 340
+Weight      = 2.0
 
 [Items.Weapon]
 Cost        = 3
@@ -466,6 +505,7 @@ AttackCategory = "RIFLE"
 Name        = "M72 LAW"
 Description = "成形炸薬弾を投射する対戦車ロケット弾発射機"
 Value       = 480
+Weight      = 5.0
 
 [Items.Weapon]
 Cost        = 14
@@ -483,6 +523,7 @@ AttackCategory = "CANON"
 Name        = "50ミリ砲"
 Description = "取り回しがよい車両用の大砲"
 Value       = 480
+Weight      = 8.0
 
 [Items.Weapon]
 Cost        = 14
@@ -500,6 +541,7 @@ AttackCategory = "CANON"
 Name        = "M1919重機関銃"
 Description = "車載型の空冷式機関銃"
 Value       = 420
+Weight      = 14.0
 
 [Items.Weapon]
 Cost        = 10
@@ -517,6 +559,7 @@ AttackCategory = "CANON"
 Name        = "溶解液"
 Description = "濃度の高い強酸性の液体"
 Value       = 150
+Weight      = 1.0
 
 [Items.Weapon]
 Cost        = 8
@@ -534,6 +577,7 @@ AttackCategory = "CANON"
 Name        = "聖なる刃"
 Description = "聖別された銀の短剣"
 Value       = 130
+Weight      = 0.5
 
 [Items.Weapon]
 Cost        = 3
@@ -551,6 +595,7 @@ AttackCategory = "SWORD"
 Name        = "鉄槌の一撃"
 Description = "重い鉄槌による強打"
 Value       = 200
+Weight      = 3.0
 
 [Items.Weapon]
 Cost        = 4
@@ -568,6 +613,7 @@ AttackCategory = "FIST"
 Name        = "血の呪文"
 Description = "古い血の魔術を込めた攻撃"
 Value       = 300
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 5
@@ -585,6 +631,7 @@ AttackCategory = "CANON"
 Name        = "月光の矢"
 Description = "月光に祝福された矢"
 Value       = 120
+Weight      = 0.4
 
 [Items.Weapon]
 Cost        = 2
@@ -602,6 +649,7 @@ AttackCategory = "HANDGUN"
 Name        = "狩人の銃弾"
 Description = "獣を狩るための特製弾丸"
 Value       = 180
+Weight      = 0.7
 
 [Items.Weapon]
 Cost        = 3
@@ -619,6 +667,7 @@ AttackCategory = "HANDGUN"
 Name        = "古代の雷撃"
 Description = "古代文明の雷の力を宿す"
 Value       = 380
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 6
@@ -636,6 +685,7 @@ AttackCategory = "RIFLE"
 Name        = "氷の槍"
 Description = "氷の結晶で作られた槍"
 Value       = 250
+Weight      = 1.8
 
 [Items.Weapon]
 Cost        = 4
@@ -653,6 +703,7 @@ AttackCategory = "SPEAR"
 Name        = "炎の拳"
 Description = "炎を纏った拳による連続攻撃"
 Value       = 270
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 5
@@ -670,6 +721,7 @@ AttackCategory = "FIST"
 Name        = "星の破片"
 Description = "流れ星の欠片を投射する"
 Value       = 320
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 7
@@ -687,6 +739,7 @@ AttackCategory = "CANON"
 Name        = "影の短剣"
 Description = "影に隠れながら放つ暗殺技"
 Value       = 280
+Weight      = 0.4
 
 [Items.Weapon]
 Cost        = 4
@@ -704,6 +757,7 @@ AttackCategory = "SWORD"
 Name        = "聖水の祝福"
 Description = "聖なる水による浄化攻撃"
 Value       = 200
+Weight      = 0.5
 
 [Items.Weapon]
 Cost        = 3
@@ -721,6 +775,7 @@ AttackCategory = "CANON"
 Name        = "獣の爪"
 Description = "野生の獣の爪による引き裂き攻撃"
 Value       = 110
+Weight      = 0.2
 
 [Items.Weapon]
 Cost        = 2
@@ -738,6 +793,7 @@ AttackCategory = "FIST"
 Name        = "鋼鉄の盾撃"
 Description = "重い盾による渾身の一撃"
 Value       = 330
+Weight      = 6.0
 
 [Items.Weapon]
 Cost        = 5
@@ -755,6 +811,7 @@ AttackCategory = "FIST"
 Name        = "毒の霧"
 Description = "毒性の霧を散布する"
 Value       = 250
+Weight      = 1.0
 
 [Items.Weapon]
 Cost        = 6
@@ -772,6 +829,7 @@ AttackCategory = "CANON"
 Name        = "光の剣"
 Description = "光を纏った剣による神聖な攻撃"
 Value       = 420
+Weight      = 1.5
 
 [Items.Weapon]
 Cost        = 8
@@ -789,6 +847,7 @@ AttackCategory = "SWORD"
 Name        = "連射砲"
 Description = "小型砲弾の連続射撃"
 Value       = 380
+Weight      = 4.0
 
 [Items.Weapon]
 Cost        = 9
@@ -806,6 +865,7 @@ AttackCategory = "CANON"
 Name        = "暗黒の矢"
 Description = "闇の力を込めた矢"
 Value       = 200
+Weight      = 0.3
 
 [Items.Weapon]
 Cost        = 4
@@ -823,6 +883,7 @@ AttackCategory = "HANDGUN"
 Name        = "狂戦士の斧"
 Description = "狂気に駆られた戦士の斧撃"
 Value       = 450
+Weight      = 4.5
 
 [Items.Weapon]
 Cost        = 6
@@ -840,6 +901,7 @@ AttackCategory = "SWORD"
 Name        = "治癒の光"
 Description = "回復の光を放つ"
 Value       = 200
+Weight      = 0
 
 [Items.Weapon]
 Cost        = 4
@@ -856,6 +918,7 @@ Ratio     = 0.7
 Name        = "作業用ヘルメット"
 Description = "衝撃吸収性に優れた産業用の帽子"
 Value       = 150
+Weight      = 1.5
 
 [Items.Wearable]
 Defense           = 4
@@ -869,6 +932,7 @@ Agility  = -2
 Name        = "西洋鎧"
 Description = "伝統的な意匠が施されたずっしりと重い鎧"
 Value       = 400
+Weight      = 15.0
 
 [Items.Wearable]
 Defense           = 8
@@ -881,6 +945,7 @@ Agility = -4
 Name        = "革のブーツ"
 Description = "よくなめされた革で成形された長靴"
 Value       = 120
+Weight      = 1.0
 
 [Items.Wearable]
 Defense           = 3
@@ -893,6 +958,7 @@ Agility = -2
 Name        = "機械の指輪"
 Description = "指輪型の小さな機械"
 Value       = 250
+Weight      = 0.05
 
 [Items.Wearable]
 Defense           = 1
@@ -909,6 +975,7 @@ Agility   = 1
 Name        = "狩人の帽子"
 Description = "獣狩りの伝統的な帽子"
 Value       = 180
+Weight      = 0.3
 
 [Items.Wearable]
 Defense           = 3
@@ -922,6 +989,7 @@ Agility   = 1
 Name        = "古い騎士兜"
 Description = "錆びついた騎士の兜"
 Value       = 300
+Weight      = 3.0
 
 [Items.Wearable]
 Defense           = 6
@@ -935,6 +1003,7 @@ Agility  = -3
 Name        = "聖職者の冠"
 Description = "聖なる力を宿す冠"
 Value       = 350
+Weight      = 0.5
 
 [Items.Wearable]
 Defense           = 2
@@ -948,6 +1017,7 @@ Vitality  = 1
 Name        = "影の頭巾"
 Description = "暗殺者が愛用する頭巾"
 Value       = 280
+Weight      = 0.2
 
 [Items.Wearable]
 Defense           = 1
@@ -961,6 +1031,7 @@ Dexterity = 2
 Name        = "鉄の胸当て"
 Description = "簡素な鉄製の胸当て"
 Value       = 220
+Weight      = 5.0
 
 [Items.Wearable]
 Defense           = 5
@@ -974,6 +1045,7 @@ Agility  = -1
 Name        = "狩人の外套"
 Description = "獣の血で染まった外套"
 Value       = 260
+Weight      = 2.0
 
 [Items.Wearable]
 Defense           = 4
@@ -987,6 +1059,7 @@ Sensation = 1
 Name        = "聖騎士の鎧"
 Description = "聖なる力で祝福された鎧"
 Value       = 800
+Weight      = 20.0
 
 [Items.Wearable]
 Defense           = 12
@@ -1001,6 +1074,7 @@ Agility  = -5
 Name        = "古代の法衣"
 Description = "古代の魔術師が着ていた法衣"
 Value       = 380
+Weight      = 1.5
 
 [Items.Wearable]
 Defense           = 3
@@ -1014,6 +1088,7 @@ Dexterity = 2
 Name        = "影の外套"
 Description = "闇に溶け込む特殊な外套"
 Value       = 450
+Weight      = 1.0
 
 [Items.Wearable]
 Defense           = 2
@@ -1027,6 +1102,7 @@ Sensation = 2
 Name        = "鉄の脛当て"
 Description = "頑丈な鉄製の脛当て"
 Value       = 160
+Weight      = 2.5
 
 [Items.Wearable]
 Defense           = 4
@@ -1040,6 +1116,7 @@ Agility  = -2
 Name        = "狩人の脚絆"
 Description = "動きやすさを重視した脚絆"
 Value       = 180
+Weight      = 0.8
 
 [Items.Wearable]
 Defense           = 2
@@ -1053,6 +1130,7 @@ Dexterity = 1
 Name        = "騎士の脚鎧"
 Description = "重装騎士の脚部防具"
 Value       = 350
+Weight      = 8.0
 
 [Items.Wearable]
 Defense           = 7
@@ -1066,6 +1144,7 @@ Agility  = -4
 Name        = "魔術師の靴"
 Description = "魔力を高める特殊な靴"
 Value       = 220
+Weight      = 0.5
 
 [Items.Wearable]
 Defense           = 1
@@ -1079,6 +1158,7 @@ Dexterity = 2
 Name        = "影の足袋"
 Description = "音を立てずに歩ける足袋"
 Value       = 240
+Weight      = 0.3
 
 [Items.Wearable]
 Defense           = 1
@@ -1092,6 +1172,7 @@ Dexterity = 1
 Name        = "血の指輪"
 Description = "血赤石で作られた指輪"
 Value       = 280
+Weight      = 0.02
 
 [Items.Wearable]
 Defense           = 0
@@ -1105,6 +1186,7 @@ Vitality = 2
 Name        = "月光の首飾り"
 Description = "月光草の力を宿した首飾り"
 Value       = 320
+Weight      = 0.03
 
 [Items.Wearable]
 Defense           = 0
@@ -1160,6 +1242,7 @@ Sensation = 3
 Name            = "鉄くず"
 Stackable       = true
 Description     = "鉄を多く含む金属の塊"
+Weight          = 1.0
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1167,6 +1250,7 @@ SpriteKey       = "field_item"
 Name            = "緑ハーブ"
 Stackable       = true
 Description     = "よい香りに鎮静・興奮などの作用がある植物"
+Weight          = 0.05
 SpriteSheetName = "field"
 SpriteKey       = "heal_item"
 
@@ -1174,6 +1258,7 @@ SpriteKey       = "heal_item"
 Name            = "黄ハーブ"
 Stackable       = true
 Description     = "体力を増強させる作用がある植物"
+Weight          = 0.05
 SpriteSheetName = "field"
 SpriteKey       = "heal_item"
 
@@ -1181,6 +1266,7 @@ SpriteKey       = "heal_item"
 Name            = "木の棒"
 Stackable       = true
 Description     = "滑らかな表面を持ち、軽くて持ちやすい棒"
+Weight          = 0.3
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1188,6 +1274,7 @@ SpriteKey       = "field_item"
 Name            = "フェライトコア"
 Stackable       = true
 Description     = "フェライト製の磁性体"
+Weight          = 0.5
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1195,6 +1282,7 @@ SpriteKey       = "field_item"
 Name            = "鉄"
 Stackable       = true
 Description     = "加工しやすく産業の中核をなす金属"
+Weight          = 2.0
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1202,6 +1290,7 @@ SpriteKey       = "field_item"
 Name            = "銀の欠片"
 Stackable       = true
 Description     = "淡く光る銀色の金属片。不浄なものを退ける力があるとされる"
+Weight          = 0.2
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1209,6 +1298,7 @@ SpriteKey       = "field_item"
 Name            = "古い歯車"
 Stackable       = true
 Description     = "錆びついた真鍮の歯車。精巧な工芸技術で作られている"
+Weight          = 0.3
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1216,6 +1306,7 @@ SpriteKey       = "field_item"
 Name            = "水晶の粉"
 Stackable       = true
 Description     = "透明な結晶を砕いた粉末。微かに光を放っている"
+Weight          = 0.1
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1223,6 +1314,7 @@ SpriteKey       = "field_item"
 Name            = "黒曜石"
 Stackable       = true
 Description     = "漆黒に輝く火山ガラス。鋭い刃を作るのに適している"
+Weight          = 0.5
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1230,6 +1322,7 @@ SpriteKey       = "field_item"
 Name            = "血赤石"
 Stackable       = true
 Description     = "深紅に染まった鉱石。触れると温かい"
+Weight          = 0.8
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1237,6 +1330,7 @@ SpriteKey       = "field_item"
 Name            = "月光草"
 Stackable       = true
 Description     = "夜に青白く光る神秘的な植物。薬草として珍重される"
+Weight          = 0.05
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1244,6 +1338,7 @@ SpriteKey       = "field_item"
 Name            = "古代の骨"
 Stackable       = true
 Description     = "長い年月を経た動物の骨。異様に硬く軽い"
+Weight          = 0.2
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1251,6 +1346,7 @@ SpriteKey       = "field_item"
 Name            = "星鉄"
 Stackable       = true
 Description     = "隕石から取れる特殊な金属。普通の鉄より遥かに硬い"
+Weight          = 1.5
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1258,6 +1354,7 @@ SpriteKey       = "field_item"
 Name            = "霧の結晶"
 Stackable       = true
 Description     = "霧が結晶化したような不思議な物質。触れると冷たい"
+Weight          = 0.3
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1265,6 +1362,7 @@ SpriteKey       = "field_item"
 Name            = "古布の切れ端"
 Stackable       = true
 Description     = "古い祭服の断片。聖別された布と思われる"
+Weight          = 0.05
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1272,6 +1370,7 @@ SpriteKey       = "field_item"
 Name            = "琥珀"
 Stackable       = true
 Description     = "太古の樹液が化石化した宝石。中に小さな虫が閉じ込められている"
+Weight          = 0.1
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1279,6 +1378,7 @@ SpriteKey       = "field_item"
 Name            = "深海の塩"
 Stackable       = true
 Description     = "深海から採取された特殊な塩。普通の塩とは違う効能がある"
+Weight          = 0.2
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1286,6 +1386,7 @@ SpriteKey       = "field_item"
 Name            = "雷光石"
 Stackable       = true
 Description     = "雷に打たれて生まれた石。微かに電気を帯びている"
+Weight          = 0.6
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1293,6 +1394,7 @@ SpriteKey       = "field_item"
 Name            = "灰"
 Stackable       = true
 Description     = "何かが燃え尽きた後の灰。神聖な儀式に使われていたようだ"
+Weight          = 0.05
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1300,6 +1402,7 @@ SpriteKey       = "field_item"
 Name            = "蒼鉛"
 Stackable       = true
 Description     = "青みがかった重い金属。魔除けの効果があるとされる"
+Weight          = 2.5
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1307,6 +1410,7 @@ SpriteKey       = "field_item"
 Name            = "獣の毛皮"
 Stackable       = true
 Description     = "未知の獣から剥いだ毛皮。非常に丈夫で防水性に優れる"
+Weight          = 1.0
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1314,6 +1418,7 @@ SpriteKey       = "field_item"
 Name            = "朽ちた羊皮紙"
 Stackable       = true
 Description     = "古い文書の断片。文字は読めないが重要そうな内容"
+Weight          = 0.02
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1321,6 +1426,7 @@ SpriteKey       = "field_item"
 Name            = "紫水晶"
 Stackable       = true
 Description     = "美しい紫色の水晶。精神を集中させる効果があるという"
+Weight          = 0.4
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1328,6 +1434,7 @@ SpriteKey       = "field_item"
 Name            = "錆びた鎖"
 Stackable       = true
 Description     = "古い鎖の一部。何かを繋ぎ止めていた痕跡がある"
+Weight          = 1.2
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1335,6 +1442,7 @@ SpriteKey       = "field_item"
 Name            = "聖油"
 Stackable       = true
 Description     = "聖別された油。武器や防具の祝福に使用される"
+Weight          = 0.3
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -2165,7 +2273,7 @@ Agility   = 5
 Defense   = 0
 
 [Members.LightSource]
-Radius  = 5
+Radius  = 10
 Enabled = true
 
 [Members.LightSource.Color]

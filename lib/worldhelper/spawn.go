@@ -8,7 +8,6 @@ import (
 	"github.com/kijimaD/ruins/lib/config"
 	"github.com/kijimaD/ruins/lib/engine/entities"
 	"github.com/kijimaD/ruins/lib/raw"
-	"github.com/kijimaD/ruins/lib/turns"
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	gc "github.com/kijimaD/ruins/lib/components"
@@ -46,6 +45,33 @@ var (
 //
 // raw: 共通なところに関してコンポーネント群を付与する
 // worldhelper: 頻繁に変わる部分に関して引数を受け取れるようにする。エンティティを発行するところまでやる
+
+// CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
+// CDDAスタイルで敏捷性を重視したAP計算式
+func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
+	// Attributesコンポーネントがない場合はエラー
+	attributesComponent := world.Components.Attributes.Get(entity)
+	if attributesComponent == nil {
+		return 0, fmt.Errorf("attributesが設定されていない")
+	}
+
+	attrs := attributesComponent.(*gc.Attributes)
+
+	// AP計算式: 基本値 + 敏捷性の重要度を高くした式
+	// 敏捷性 * 3 + 器用性 * 1
+	baseAP := 100
+	agilityMultiplier := 3
+	dexterityMultiplier := 1
+
+	calculatedAP := baseAP + attrs.Agility.Total*agilityMultiplier + attrs.Dexterity.Total*dexterityMultiplier
+
+	// 最小値制限（20以上）
+	if calculatedAP < 20 {
+		calculatedAP = 20
+	}
+
+	return calculatedAP, nil
+}
 
 // ================
 // Field
@@ -108,12 +134,17 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err != nil {
 		return ecs.Entity(0), err
 	}
-	if len(entitiesSlice) == 0 {
-		return ecs.Entity(0), fmt.Errorf("プレイヤーエンティティの生成に失敗しました")
+	if len(entitiesSlice) != 1 {
+		return ecs.Entity(0), fmt.Errorf("プレイヤーエンティティの生成に失敗しました: 予期しないエンティティ数=%d", len(entitiesSlice))
 	}
-	fullRecover(world, entitiesSlice[len(entitiesSlice)-1])
+	playerEntity := entitiesSlice[0]
 
-	return entitiesSlice[len(entitiesSlice)-1], nil
+	if err := FullRecover(world, playerEntity); err != nil {
+		return ecs.Entity(0), fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
+	}
+	playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+
+	return playerEntity, nil
 }
 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
@@ -152,7 +183,9 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	fullRecover(world, npcEntity)
+	if err := FullRecover(world, npcEntity); err != nil {
+		return ecs.Entity(0), fmt.Errorf("NPCの回復処理エラー: %w", err)
+	}
 
 	return npcEntity, nil
 }
@@ -195,21 +228,19 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	fullRecover(world, npcEntity)
+	if err := FullRecover(world, npcEntity); err != nil {
+		return ecs.Entity(0), fmt.Errorf("敵の回復処理エラー: %w", err)
+	}
 
 	// ActionPointsを初期化
-	if world.Resources.TurnManager != nil {
-		if turnManager, ok := world.Resources.TurnManager.(*turns.TurnManager); ok {
-			if npcEntity.HasComponent(world.Components.TurnBased) {
-				actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
-				maxAP, err := turnManager.CalculateMaxActionPoints(world, npcEntity)
-				if err != nil {
-					return ecs.Entity(0), fmt.Errorf("AP計算エラー: %w", err)
-				}
-				actionPoints.AP.Current = maxAP
-				actionPoints.AP.Max = maxAP
-			}
+	if npcEntity.HasComponent(world.Components.TurnBased) {
+		actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
+		maxAP, err := CalculateMaxActionPoints(world, npcEntity)
+		if err != nil {
+			return ecs.Entity(0), fmt.Errorf("AP計算エラー: %w", err)
 		}
+		actionPoints.AP.Current = maxAP
+		actionPoints.AP.Max = maxAP
 	}
 
 	return npcEntity, nil
@@ -219,14 +250,36 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 // Items
 // ================
 
-// SpawnItem はアイテムを生成する（Stackableコンポーネントは付与しない）
-func SpawnItem(world w.World, name string, locationType gc.ItemLocationType) (ecs.Entity, error) {
-	componentList := entities.ComponentList[gc.EntitySpec]{}
+// SpawnItem はアイテムを生成する
+func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocationType) (ecs.Entity, error) {
+	if count <= 0 {
+		return 0, fmt.Errorf("count must be positive: %d", count)
+	}
+
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	entitySpec, err := rawMaster.NewItemSpec(name, &locationType)
+
+	{
+		// アイテム定義を取得してStackable対応かチェック
+		itemIdx, ok := rawMaster.ItemIndex[name]
+		if !ok {
+			return 0, fmt.Errorf("item not found: %s", name)
+		}
+		itemDef := rawMaster.Raws.Items[itemIdx]
+		isStackable := itemDef.Stackable != nil && *itemDef.Stackable
+
+		// Stackableでないアイテムにcount > 1を指定した場合はエラー
+		if !isStackable && count > 1 {
+			return 0, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
+		}
+	}
+
+	componentList := entities.ComponentList[gc.EntitySpec]{}
+	entitySpec, err := rawMaster.NewItemSpec(name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}
+	entitySpec.ItemLocationType = &locationType
+	entitySpec.Item.Count = count
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {
@@ -236,57 +289,33 @@ func SpawnItem(world w.World, name string, locationType gc.ItemLocationType) (ec
 		return ecs.Entity(0), fmt.Errorf("アイテムエンティティの生成に失敗しました")
 	}
 
-	return entitiesSlice[len(entitiesSlice)-1], nil
+	entity := entitiesSlice[len(entitiesSlice)-1]
+
+	// バックパックに追加した場合はインベントリ重量を再計算する
+	if locationType == gc.ItemLocationInBackpack {
+		var playerEntity ecs.Entity
+		world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
+			playerEntity = e
+		}))
+		if playerEntity != 0 {
+			UpdateCarryingWeight(world, playerEntity)
+		}
+	}
+
+	return entity, nil
 }
 
-// SpawnStackable はStackableアイテムを生成する
-// countは1以上である必要がある（0以下の場合はエラー）
-func SpawnStackable(world w.World, name string, count int, location gc.ItemLocationType) (ecs.Entity, error) {
-	if count <= 0 {
-		return 0, fmt.Errorf("count must be positive: %d", count)
-	}
-
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-
-	itemIdx, ok := rawMaster.ItemIndex[name]
-	if !ok {
-		return 0, fmt.Errorf("item not found: %s", name)
-	}
-	itemDef := rawMaster.Raws.Items[itemIdx]
-	if itemDef.Stackable == nil || !*itemDef.Stackable {
-		return 0, fmt.Errorf("item %s is not stackable", name)
-	}
-
-	componentList := entities.ComponentList[gc.EntitySpec]{}
-	entitySpec, err := rawMaster.NewItemSpec(name, &location)
-	if err != nil {
-		return 0, fmt.Errorf("failed to spawn stackable item: %w", err)
-	}
-
-	// Stackableコンポーネントを設定
-	entitySpec.Stackable = &gc.Stackable{Count: count}
-
-	componentList.Entities = append(componentList.Entities, entitySpec)
-	entitiesSlice, err := entities.AddEntities(world, componentList)
-	if err != nil {
-		return ecs.Entity(0), err
-	}
-	if len(entitiesSlice) == 0 {
-		return ecs.Entity(0), fmt.Errorf("Stackableアイテムエンティティの生成に失敗しました")
-	}
-
-	return entitiesSlice[len(entitiesSlice)-1], nil
-}
-
-// 完全回復させる
-func fullRecover(world w.World, entity ecs.Entity) {
+// FullRecover はエンティティのHP/SP/EP/APを全回復する
+func FullRecover(world w.World, entity ecs.Entity) error {
 	// 新しく生成されたエンティティの最大HP/SPを設定
-	_ = setMaxHPSP(world, entity) // エラーが発生した場合もリカバリーは続行する
+	if err := setMaxHPSP(world, entity); err != nil {
+		return fmt.Errorf("最大HP/SP設定エラー: %w", err)
+	}
 
 	// Poolsコンポーネントを取得
 	poolsComponent := world.Components.Pools.Get(entity)
 	if poolsComponent == nil {
-		return // Poolsがない場合は何もしない
+		return fmt.Errorf("Poolsコンポーネントがありません")
 	}
 
 	pools := poolsComponent.(*gc.Pools)
@@ -300,22 +329,18 @@ func fullRecover(world w.World, entity ecs.Entity) {
 	// EP全回復
 	pools.EP.Current = pools.EP.Max
 
-	// ActionPointsコンポーネントがある場合は最大APに設定
+	// TurnBasedコンポーネントがある場合は最大APに設定
 	if entity.HasComponent(world.Components.TurnBased) {
-		if world.Resources.TurnManager != nil {
-			if turnManager, ok := world.Resources.TurnManager.(*turns.TurnManager); ok {
-				actionPoints := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
-				maxAP, err := turnManager.CalculateMaxActionPoints(world, entity)
-				if err != nil {
-					// FullRecoverはエラーを返さないので、ログに記録してデフォルト値を設定
-					fmt.Printf("AP計算エラー: %v\n", err)
-					maxAP = 100 // デフォルト値
-				}
-				actionPoints.AP.Current = maxAP
-				actionPoints.AP.Max = maxAP
-			}
+		maxAP, err := CalculateMaxActionPoints(world, entity)
+		if err != nil {
+			return fmt.Errorf("AP計算エラー: %w", err)
 		}
+		turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+		turnBased.AP.Current = maxAP
+		turnBased.AP.Max = maxAP
 	}
+
+	return nil
 }
 
 // 指定したエンティティの最大HP/SPを設定する
@@ -365,29 +390,10 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 
 // SpawnFieldItem はフィールド上にアイテムを生成する
 func SpawnFieldItem(world w.World, itemName string, x gc.Tile, y gc.Tile) (ecs.Entity, error) {
-	// TOMLの定義を取得してStackable対応かどうかを確認
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	itemIdx, ok := rawMaster.ItemIndex[itemName]
-	if !ok {
-		return ecs.Entity(0), fmt.Errorf("item not found: %s", itemName)
-	}
-	itemDef := rawMaster.Raws.Items[itemIdx]
-	isStackable := itemDef.Stackable != nil && *itemDef.Stackable
-
-	var item ecs.Entity
-	var err error
-	if isStackable {
-		// Stackable対応アイテムはCount=1で生成
-		item, err = SpawnStackable(world, itemName, 1, gc.ItemLocationOnField)
-		if err != nil {
-			return ecs.Entity(0), err
-		}
-	} else {
-		// 通常アイテムは通常通り生成
-		item, err = SpawnItem(world, itemName, gc.ItemLocationOnField)
-		if err != nil {
-			return ecs.Entity(0), err
-		}
+	// すべてのアイテムはcount=1で生成
+	item, err := SpawnItem(world, itemName, 1, gc.ItemLocationOnField)
+	if err != nil {
+		return ecs.Entity(0), err
 	}
 
 	// フィールド表示用のコンポーネントを追加
@@ -397,53 +403,29 @@ func SpawnFieldItem(world w.World, itemName string, x gc.Tile, y gc.Tile) (ecs.E
 }
 
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
-// GridElement、SpriteRender、Cameraコンポーネントがない場合は追加する（ロード時に対応）
 func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
-	// 既存のプレイヤーエンティティを検索
 	var playerEntity ecs.Entity
 	var found bool
 
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
+	world.Manager.Join(
+		world.Components.Player,
+		world.Components.GridElement,
+		world.Components.SpriteRender,
+		world.Components.Camera,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if !found {
 			playerEntity = entity
 			found = true
 		}
 	}))
-
 	if !found {
-		return errors.New("プレイヤーエンティティが見つかりません")
+		return errors.New("必須コンポーネントを持つプレイヤーエンティティが見つかりません")
 	}
 
-	// GridElementがない場合は追加
-	if !playerEntity.HasComponent(world.Components.GridElement) {
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{})
-	}
-
-	// プレイヤーの位置を更新
+	// プレイヤーの位置を更新する
 	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 	gridElement.X = gc.Tile(tileX)
 	gridElement.Y = gc.Tile(tileY)
-
-	// SpriteRenderがない場合は追加
-	if !playerEntity.HasComponent(world.Components.SpriteRender) {
-		// プレイヤー名から正しいスプライト情報を取得
-		rawMaster := world.Resources.RawMaster.(*raw.Master)
-		nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
-		playerSpec, err := rawMaster.NewPlayerSpec(nameComp.Name)
-		if err != nil {
-			return fmt.Errorf("プレイヤーのスプライト情報取得に失敗: %w", err)
-		}
-
-		playerEntity.AddComponent(world.Components.SpriteRender, playerSpec.SpriteRender)
-	}
-
-	// Cameraがない場合は追加（通常スケールで初期化）
-	if !playerEntity.HasComponent(world.Components.Camera) {
-		playerEntity.AddComponent(world.Components.Camera, &gc.Camera{
-			Scale:   cameraNormalScale,
-			ScaleTo: cameraNormalScale,
-		})
-	}
 
 	return nil
 }

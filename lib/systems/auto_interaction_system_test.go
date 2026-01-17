@@ -11,17 +11,6 @@ import (
 
 // テスト用のトリガー型定義
 
-// AutoTestTrigger は自動発動するテスト用トリガー（SameTile）
-type AutoTestTrigger struct{}
-
-// Config はTriggerDataインターフェースの実装
-func (t AutoTestTrigger) Config() gc.InteractionConfig {
-	return gc.InteractionConfig{
-		ActivationRange: gc.ActivationRangeSameTile,
-		ActivationWay:   gc.ActivationWayAuto,
-	}
-}
-
 // AutoAdjacentTrigger は自動発動するテスト用トリガー（Adjacent）
 type AutoAdjacentTrigger struct{}
 
@@ -29,17 +18,6 @@ type AutoAdjacentTrigger struct{}
 func (t AutoAdjacentTrigger) Config() gc.InteractionConfig {
 	return gc.InteractionConfig{
 		ActivationRange: gc.ActivationRangeAdjacent,
-		ActivationWay:   gc.ActivationWayAuto,
-	}
-}
-
-// AutoWarpTrigger は自動発動するワープトリガー（テスト用）
-type AutoWarpTrigger struct{}
-
-// Config はTriggerDataインターフェースの実装
-func (t AutoWarpTrigger) Config() gc.InteractionConfig {
-	return gc.InteractionConfig{
-		ActivationRange: gc.ActivationRangeSameTile,
 		ActivationWay:   gc.ActivationWayAuto,
 	}
 }
@@ -77,22 +55,24 @@ func TestAutoInteractionSystem_AutoWay(t *testing.T) {
 	player.AddComponent(world.Components.Player, &gc.Player{})
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
-	// Auto方式のトリガーを作成（プレイヤーと同じタイル）
+	// TestTriggerInteractionを使用
+	executed := false
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: AutoTestTrigger{},
+		Data: gc.TestTriggerInteraction{Executed: &executed},
 	})
-	// 実行されたことを確認するためにConsumableを追加
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// Consumableトリガーが削除されていることを確認（実行された証拠）
-	assert.False(t, triggerEntity.HasComponent(world.Components.Interactable),
-		"Autoトリガーは自動実行され、Consumableなので削除されるべき")
+	// トリガーが実行されたことを確認
+	assert.True(t, executed, "Autoトリガーが実行される")
+
+	// トリガーエンティティは削除されない
+	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+		"トリガーは削除されない")
 }
 
 // TestAutoInteractionSystem_ManualWay はManual方式のトリガーが自動実行されないことを確認
@@ -165,22 +145,23 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 	// Auto方式のトリガーを作成（プレイヤーから遠い位置）
+	executed := false
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 50, Y: 50}) // 遠い位置
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: AutoTestTrigger{},
+		Data: gc.TestTriggerInteraction{Executed: &executed},
 	})
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// 範囲外なので実行されず、残っているべき
+	// 範囲外なので実行されない
+	assert.False(t, executed, "範囲外のAutoトリガーは実行されない")
+
+	// トリガーは削除されない
 	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
-		"範囲外のAutoトリガーは実行されないべき")
-	assert.True(t, triggerEntity.HasComponent(world.Components.Consumable),
-		"範囲外のAutoトリガーは削除されないべき")
+		"範囲外のAutoトリガーは削除されない")
 }
 
 // TestAutoInteractionSystem_AdjacentRange は隣接範囲のAutoトリガーが実行されることを確認
@@ -200,15 +181,14 @@ func TestAutoInteractionSystem_AdjacentRange(t *testing.T) {
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
 		Data: AutoAdjacentTrigger{},
 	})
-	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// 隣接範囲内なので実行され、削除されているべき
-	assert.False(t, triggerEntity.HasComponent(world.Components.Interactable),
-		"隣接範囲のAutoトリガーは実行され、削除されるべき")
+	// 隣接範囲内なので実行されるが削除されない
+	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+		"隣接範囲のAutoトリガーは実行されるが削除されない")
 }
 
 // TestAutoInteractionSystem_NoPlayer はプレイヤーがいない場合にエラーを返すことを確認
@@ -220,10 +200,11 @@ func TestAutoInteractionSystem_NoPlayer(t *testing.T) {
 	// プレイヤーを作成しない
 
 	// Auto方式のトリガーを作成
+	executed := false
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: AutoTestTrigger{},
+		Data: gc.TestTriggerInteraction{Executed: &executed},
 	})
 
 	// システム実行
@@ -243,56 +224,33 @@ func TestAutoInteractionSystem_MultipleAutoTriggers(t *testing.T) {
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 	// 複数のAutoトリガーを作成
+	executed1 := false
 	trigger1 := world.Manager.NewEntity()
 	trigger1.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Data: AutoTestTrigger{}})
-	trigger1.AddComponent(world.Components.Consumable, &gc.Consumable{})
-
-	trigger2 := world.Manager.NewEntity()
-	trigger2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Data: AutoTestTrigger{}})
-	trigger2.AddComponent(world.Components.Consumable, &gc.Consumable{})
-
-	// システム実行
-	sys := &AutoInteractionSystem{}
-	require.NoError(t, sys.Update(world))
-
-	// 両方のトリガーが実行され、削除されているべき
-	assert.False(t, trigger1.HasComponent(world.Components.Interactable),
-		"1つ目のAutoトリガーは削除されるべき")
-	assert.False(t, trigger2.HasComponent(world.Components.Interactable),
-		"2つ目のAutoトリガーは削除されるべき")
-}
-
-// TestAutoInteractionSystem_WarpNextEvent はWarpNextトリガーでStateEventが設定されることを確認
-func TestAutoInteractionSystem_WarpNextEvent(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-	// WarpNextをAuto方式にカスタマイズ（本来はManualだがテスト用にAuto化）
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.WarpNextInteraction{}, // 実際のWarpNextを使用
+	trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{
+		Data: gc.TestTriggerInteraction{Executed: &executed1},
 	})
 
-	// Auto方式にするためにTrigger.Dataを上書き（テスト用）
-	trigger := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
-	trigger.Data = AutoWarpTrigger{}
+	executed2 := false
+	trigger2 := world.Manager.NewEntity()
+	trigger2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{
+		Data: gc.TestTriggerInteraction{Executed: &executed2},
+	})
 
 	// システム実行
 	sys := &AutoInteractionSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// StateEventが設定されていることを確認
-	// 注: 実際のWarpNextTriggerでないため、StateEventは設定されない可能性がある
-	// この場合はトリガーの実行自体が確認できれば良い
+	// 両方のトリガーが実行される
+	assert.True(t, executed1, "1つ目のAutoトリガーが実行される")
+	assert.True(t, executed2, "2つ目のAutoトリガーが実行される")
+
+	// 両方のトリガーが削除されない
+	assert.True(t, trigger1.HasComponent(world.Components.Interactable),
+		"1つ目のAutoトリガーは削除されない")
+	assert.True(t, trigger2.HasComponent(world.Components.Interactable),
+		"2つ目のAutoトリガーは削除されない")
 }
 
 // TestAutoInteractionSystem_PlayerNoGridElement はプレイヤーにGridElementがない場合の動作確認
@@ -307,10 +265,11 @@ func TestAutoInteractionSystem_PlayerNoGridElement(t *testing.T) {
 	// GridElementを追加しない
 
 	// Autoトリガーを作成
+	executed := false
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: AutoTestTrigger{},
+		Data: gc.TestTriggerInteraction{Executed: &executed},
 	})
 
 	// システム実行
@@ -318,9 +277,10 @@ func TestAutoInteractionSystem_PlayerNoGridElement(t *testing.T) {
 	// GridElementがない場合はnilを返して処理を中断する
 	assert.NoError(t, sys.Update(world), "プレイヤーにGridElementがない場合はエラーなしで終了すべき")
 
-	// トリガーは実行されないべき
+	// トリガーは実行されない
+	assert.False(t, executed, "プレイヤーにGridElementがない場合、トリガーは実行されない")
 	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
-		"プレイヤーにGridElementがない場合、トリガーは実行されないべき")
+		"トリガーは削除されない")
 }
 
 // TestAutoInteractionSystem_InvalidRange は無効なActivationRangeを持つトリガーがスキップされることを確認

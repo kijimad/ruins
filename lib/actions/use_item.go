@@ -102,17 +102,8 @@ func (u *UseItemActivity) DoTurn(act *Activity, world w.World) error {
 
 	// 消費可能アイテムの場合は削除または個数を減らす
 	if item.HasComponent(world.Components.Consumable) {
-		// スタック可能なアイテムの場合は個数を1減らす
-		if stackable := world.Components.Stackable.Get(item); stackable != nil {
-			s := stackable.(*gc.Stackable)
-			s.Count--
-			// 個数が0以下になったら削除
-			if s.Count <= 0 {
-				world.Manager.DeleteEntity(item)
-			}
-		} else {
-			// スタック不可能なアイテムは削除
-			world.Manager.DeleteEntity(item)
+		if err := worldhelper.ChangeItemCount(world, item, -1); err != nil {
+			return fmt.Errorf("アイテムの消費に失敗: %w", err)
 		}
 	}
 
