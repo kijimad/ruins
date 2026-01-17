@@ -27,10 +27,14 @@ fmt: ## フォーマットする
 lint: ## Linterを実行する
 	@go build -o /dev/null . # buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@golangci-lint run -v ./...
+	@if deadcode -test ./... 2>&1 | grep -q "unreachable func"; then \
+		exit 1; \
+	fi
 
 .PHONY: toolsinstall
 toolsinstall: ## 開発ツールをインストールする
 	@go install golang.org/x/tools/cmd/goimports@latest
+	@go install golang.org/x/tools/cmd/deadcode@latest
 	@which golangci-lint > /dev/null || (echo "Installing golangci-lint..." && \
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v2.2.2)
 	@npm install

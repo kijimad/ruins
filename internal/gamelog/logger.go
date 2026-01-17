@@ -148,36 +148,6 @@ func (l *Logger) Money(amount interface{}) *Logger {
 	return l
 }
 
-// Encounter は敵との遭遇を赤色で追加
-func (l *Logger) Encounter(text interface{}) *Logger {
-	textStr := fmt.Sprintf("%v", text)
-	l.fragments = append(l.fragments, LogFragment{
-		Color: consts.ColorRed,
-		Text:  textStr,
-	})
-	return l
-}
-
-// Victory は勝利メッセージを緑色で追加
-func (l *Logger) Victory(text interface{}) *Logger {
-	textStr := fmt.Sprintf("%v", text)
-	l.fragments = append(l.fragments, LogFragment{
-		Color: consts.ColorGreen,
-		Text:  textStr,
-	})
-	return l
-}
-
-// Defeat は敗北メッセージを赤色で追加
-func (l *Logger) Defeat(text interface{}) *Logger {
-	textStr := fmt.Sprintf("%v", text)
-	l.fragments = append(l.fragments, LogFragment{
-		Color: consts.ColorRed,
-		Text:  textStr,
-	})
-	return l
-}
-
 // Magic は魔法関連を紫色で追加
 func (l *Logger) Magic(text interface{}) *Logger {
 	textStr := fmt.Sprintf("%v", text)

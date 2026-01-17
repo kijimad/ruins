@@ -177,16 +177,6 @@ func NewTitleText(text string, res *resources.UIResources) *widget.Text {
 	)
 }
 
-// NewSubtitleText はサブタイトル用テキストを作成する（中サイズ）
-func NewSubtitleText(text string, res *resources.UIResources) *widget.Text {
-	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.Face, consts.TextColor),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-		),
-	)
-}
-
 // NewDescriptionText は説明文用テキストを作成する（小さめ、補助的）
 func NewDescriptionText(text string, res *resources.UIResources) *widget.Text {
 	return widget.NewText(
@@ -406,78 +396,6 @@ func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...
 	allOpts := append(defaultOpts, opts...)
 
 	return widget.NewWindow(allOpts...)
-}
-
-// list ================
-
-// NewMessageList はメッセージ表示用のリストウィジェットを作成する（戦闘ログなど用）
-func NewMessageList(entries []any, res *resources.UIResources, screenWidth int, opts ...widget.ListOpt) *widget.List {
-	// メッセージ表示用のデフォルトオプション
-	defaultOpts := []widget.ListOpt{
-		widget.ListOpts.ContainerOpts(widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(screenWidth-100, 280),
-			widget.WidgetOpts.LayoutData(widget.GridLayoutData{
-				HorizontalPosition: widget.GridLayoutPositionCenter,
-				VerticalPosition:   widget.GridLayoutPositionEnd,
-				MaxHeight:          280,
-			}),
-		)),
-		widget.ListOpts.SliderParams(&widget.SliderParams{
-			MinHandleSize: func() *int { i := 5; return &i }(),
-			TrackImage:    res.List.Track,
-			HandleImage:   res.List.Handle,
-			TrackPadding:  widget.NewInsetsSimple(4),
-		}),
-		widget.ListOpts.Entries(entries),
-		widget.ListOpts.EntryLabelFunc(func(e any) string {
-			if str, ok := e.(string); ok {
-				return str
-			}
-			return ""
-		}),
-		widget.ListOpts.EntrySelectedHandler(func(_ *widget.ListEntrySelectedEventArgs) {}),
-		widget.ListOpts.EntryColor(&widget.ListEntryColor{
-			Selected:                  consts.TextColor,
-			Unselected:                consts.TextColor,
-			SelectedBackground:        consts.ButtonHoverColor,
-			SelectedFocusedBackground: consts.ButtonHoverColor,
-		}),
-		widget.ListOpts.EntryFontFace(&res.Text.Face),
-		widget.ListOpts.EntryTextPosition(widget.TextPositionStart, widget.TextPositionCenter),
-		widget.ListOpts.EntryTextPadding(&widget.Insets{
-			Top:    4,
-			Bottom: 4,
-			Left:   16,
-			Right:  16,
-		}),
-		widget.ListOpts.ScrollContainerImage(res.List.ImageTrans),
-		widget.ListOpts.HideHorizontalSlider(),
-	}
-
-	// カスタムオプションを追加
-	allOpts := append(defaultOpts, opts...)
-
-	return widget.NewList(allOpts...)
-}
-
-// button ================
-
-// NewButton はボタンウィジェットを作成する
-func NewButton(text string, res *resources.UIResources, opts ...widget.ButtonOpt) *widget.Button {
-	return widget.NewButton(
-		append([]widget.ButtonOpt{
-			widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Stretch: true,
-			})),
-			widget.ButtonOpts.Image(res.Button.Image),
-			widget.ButtonOpts.Text(
-				text,
-				&res.Button.Face,
-				res.Button.Text,
-			),
-			widget.ButtonOpts.TextPadding(&res.Button.Padding),
-		}, opts...)...,
-	)
 }
 
 // opts ================

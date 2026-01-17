@@ -244,15 +244,6 @@ func (r *ComponentRegistry) registerNullComponent(typ reflect.Type, fieldName st
 	r.nameToType[elemType.Name()] = elemType
 }
 
-// GetTypeInfo は型情報を取得
-func (r *ComponentRegistry) GetTypeInfo(typ reflect.Type) (*ComponentTypeInfo, bool) {
-	r.mutex.RLock()
-	defer r.mutex.RUnlock()
-
-	info, exists := r.types[typ]
-	return info, exists
-}
-
 // GetTypeInfoByName は名前から型情報を取得
 func (r *ComponentRegistry) GetTypeInfoByName(name string) (*ComponentTypeInfo, bool) {
 	r.mutex.RLock()
