@@ -44,13 +44,7 @@
 //   - Action(action): 紫色 - アクション名
 //   - Money(amount): 黄色 - 金額
 //   - Damage(num): 赤色 - ダメージ数値
-//
-// ## 戦闘専用プリセット
-//
-//   - Encounter(text): 赤色 - 敵との遭遇
-//   - Victory(text): 緑色 - 勝利メッセージ
-//   - Defeat(text): 赤色 - 敗北メッセージ
-//   - Magic(text): 紫色 - 魔法関連
+//   - Magic(text): マゼンタ色 - 魔法関連
 //
 // # ログストレージ
 //
