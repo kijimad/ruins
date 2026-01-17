@@ -17,7 +17,7 @@ func TestAddCurrency(t *testing.T) {
 	player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 100})
 
 	// 通貨を追加
-	err := AddCurrency(world, player, 50)
+	err := addCurrency(world, player, 50)
 	assert.NoError(t, err)
 
 	// 結果を検証
@@ -102,7 +102,7 @@ func TestCurrencyOperationsWithoutWallet(t *testing.T) {
 	entity := world.Manager.NewEntity()
 
 	// 各操作がエラーを返すことを確認
-	err := AddCurrency(world, entity, 100)
+	err := addCurrency(world, entity, 100)
 	assert.Error(t, err, "Walletがない場合はエラーを返すべき")
 	assert.Equal(t, 0, GetCurrency(world, entity), "Walletがないので0")
 

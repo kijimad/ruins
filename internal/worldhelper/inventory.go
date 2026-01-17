@@ -8,34 +8,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetInventoryItems はバックパック内のアイテム一覧を取得する
-func GetInventoryItems(world w.World) []ecs.Entity {
-	var items []ecs.Entity
-
-	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		items = append(items, entity)
-	}))
-
-	return items
-}
-
-// GetInventoryStackables はバックパック内のスタック可能アイテム一覧を取得する
-func GetInventoryStackables(world w.World) []ecs.Entity {
-	var stackables []ecs.Entity
-
-	world.Manager.Join(
-		world.Components.Stackable,
-		world.Components.ItemLocationInPlayerBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		stackables = append(stackables, entity)
-	}))
-
-	return stackables
-}
-
 // FindStackableInInventory は名前でバックパック内のStackableアイテムを検索する
 func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 	var foundEntity ecs.Entity
@@ -51,29 +23,6 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 		}
 		itemName := world.Components.Name.Get(entity).(*gc.Name)
 		if itemName.Name == name {
-			foundEntity = entity
-			found = true
-		}
-	}))
-
-	return foundEntity, found
-}
-
-// FindItemInInventory は名前でバックパック内のアイテムを検索する
-func FindItemInInventory(world w.World, itemName string) (ecs.Entity, bool) {
-	var foundEntity ecs.Entity
-	var found bool
-
-	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
-		world.Components.Name,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if found {
-			return
-		}
-		name := world.Components.Name.Get(entity).(*gc.Name)
-		if name.Name == itemName {
 			foundEntity = entity
 			found = true
 		}
