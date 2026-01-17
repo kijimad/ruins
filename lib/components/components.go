@@ -170,10 +170,13 @@ type Camera struct {
 	ScaleTo float64
 }
 
-// Item はキャラクターが保持できるもの。フィールド上、装備上、インベントリ上など位置状態を持ち、1スロットを消費する
+// Item はキャラクターが保持できるもの
 // 装備品、武器、回復アイテム、売却アイテム、素材など
 type Item struct {
 	Count int // 所持数。非スタックは常に1になる
+	// TODO(kijima): ここにStackableフィールドをもたせるべきか検討する
+	// 所持上限と所持個数は密接に関連しておりコンポーネントとして分離させる意味があまりない
+	// また、読み取り上すべてcountを持っていたほうが処理がシンプルになる。読み取りの箇所すべてでスタック可能/スタック不可を区別するのはややこしい。書き込みは限られた箇所にしか登場しないが、読み取りは多くの場所で登場する
 }
 
 // Consumable は消耗品。一度使うとなくなる
@@ -260,11 +263,8 @@ type InflictsDamage struct {
 }
 
 // Stackable はスタック可能なアイテムを示すマーカーコンポーネント
-// スタック可能性の判定に使用（HasComponentで判定）
 // 実際の所持数は Item.Count フィールドを使用する
-type Stackable struct {
-	// 空でOK（存在自体がスタック可能性を示す）
-}
+type Stackable struct{}
 
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される
@@ -368,7 +368,7 @@ var (
 )
 
 // LocationInBackpack はバックパック内位置
-// TODO(kijima): owner をつけるべきかもしれない
+// TODO(kijima): owner をつけるべきかもしれない。誰のバックパックかが明示的ではないので
 type LocationInBackpack struct{}
 
 func (c LocationInBackpack) String() string {
