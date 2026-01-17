@@ -7,7 +7,7 @@ import (
 
 	_ "net/http/pprof"
 
-	"github.com/kijimaD/ruins/lib/cmd"
+	"github.com/kijimaD/ruins/internal/cmd"
 )
 
 func main() {
