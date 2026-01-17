@@ -187,7 +187,6 @@ func TestAutoInteractionSystem_AdjacentRange(t *testing.T) {
 	require.NoError(t, sys.Update(world))
 
 	// 隣接範囲内なので実行されるが削除されない
-	// NOTE: 将来的にOneShotトリガーコンポーネントを実装したら、そちらで削除を確認する
 	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
 		"隣接範囲のAutoトリガーは実行されるが削除されない")
 }

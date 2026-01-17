@@ -401,6 +401,7 @@ func (st *ShopMenuState) handlePurchase(world w.World, item tabmenu.Item) {
 		err := worldhelper.BuyItem(world, playerEntity, itemName)
 		if err != nil {
 			// エラーの場合は何もしない（通貨不足など）
+			// TODO(kijima): error を返すようにする
 			return
 		}
 		// タブを再読み込み

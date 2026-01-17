@@ -33,18 +33,13 @@ func InitDebugData(world w.World) {
 	_, _ = SpawnItem(world, "作業用ヘルメット", 1, gc.ItemLocationInBackpack)
 	_, _ = SpawnItem(world, "革のブーツ", 1, gc.ItemLocationInBackpack)
 	_, _ = SpawnItem(world, "レイガン", 1, gc.ItemLocationInBackpack)
-	// Stackableアイテムは数量管理
-	_, _ = SpawnItem(world, "ルビー原石", 1, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "回復薬", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "回復スプレー", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "手榴弾", 4, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "鉄", 4, gc.ItemLocationInBackpack)
-	_ = ChangeStackableCount(world, "ルビー原石", 1)
-	_ = ChangeStackableCount(world, "回復薬", 1)
-	_ = ChangeStackableCount(world, "回復スプレー", 1)
-	_ = ChangeStackableCount(world, "手榴弾", 1)
-	_ = ChangeStackableCount(world, "パン", 10)
-	_ = ChangeStackableCount(world, "鉄", 10)
+	// Stackableアイテム
+	_, _ = SpawnItem(world, "ルビー原石", 2, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "回復薬", 3, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "回復スプレー", 3, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "手榴弾", 5, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "パン", 10, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "鉄", 14, gc.ItemLocationInBackpack)
 
 	// アイテム生成
 	_, _ = SpawnItem(world, "木刀", 2, gc.ItemLocationInBackpack)
