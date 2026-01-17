@@ -191,9 +191,6 @@ if turnManager.IsAITurn() {
 					<dd>&nbsp; &nbsp; <a href="index.html#TurnManager.AdvanceToTurnEnd">func (tm *TurnManager) AdvanceToTurnEnd()</a></dd>
 				
 					
-					<dd>&nbsp; &nbsp; <a href="index.html#TurnManager.CalculateMaxActionPoints">func (tm *TurnManager) CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error)</a></dd>
-				
-					
 					<dd>&nbsp; &nbsp; <a href="index.html#TurnManager.CanEntityAct">func (tm *TurnManager) CanEntityAct(world w.World, entity ecs.Entity, cost int) bool</a></dd>
 				
 					
@@ -255,7 +252,7 @@ if turnManager.IsAITurn() {
 		
 			
 			
-			<h2 id="TurnManager">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=723:946#L28">TurnManager</a>
+			<h2 id="TurnManager">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=759:982#L27">TurnManager</a>
 				<a class="permalink" href="index.html#TurnManager">&#xb6;</a>
 				
 				
@@ -280,7 +277,7 @@ if turnManager.IsAITurn() {
 
 			
 				
-				<h3 id="NewTurnManager">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1005:1039#L36">NewTurnManager</a>
+				<h3 id="NewTurnManager">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1041:1075#L35">NewTurnManager</a>
 					<a class="permalink" href="index.html#NewTurnManager">&#xb6;</a>
 					
 					
@@ -294,7 +291,7 @@ if turnManager.IsAITurn() {
 
 			
 				
-				<h3 id="TurnManager.AdvanceToAITurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1942:1982#L67">AdvanceToAITurn</a>
+				<h3 id="TurnManager.AdvanceToAITurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1978:2018#L66">AdvanceToAITurn</a>
 					<a class="permalink" href="index.html#TurnManager.AdvanceToAITurn">&#xb6;</a>
 					
 					
@@ -307,7 +304,7 @@ if turnManager.IsAITurn() {
 				
 			
 				
-				<h3 id="TurnManager.AdvanceToTurnEnd">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2135:2176#L73">AdvanceToTurnEnd</a>
+				<h3 id="TurnManager.AdvanceToTurnEnd">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2171:2212#L72">AdvanceToTurnEnd</a>
 					<a class="permalink" href="index.html#TurnManager.AdvanceToTurnEnd">&#xb6;</a>
 					
 					
@@ -320,21 +317,7 @@ if turnManager.IsAITurn() {
 				
 			
 				
-				<h3 id="TurnManager.CalculateMaxActionPoints">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2968:3062#L101">CalculateMaxActionPoints</a>
-					<a class="permalink" href="index.html#TurnManager.CalculateMaxActionPoints">&#xb6;</a>
-					
-					
-				</h3>
-				<pre>func (tm *<a href="index.html#TurnManager">TurnManager</a>) CalculateMaxActionPoints(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>) (<a href="http://localhost:8888/pkg/builtin/#int">int</a>, <a href="http://localhost:8888/pkg/builtin/#error">error</a>)</pre>
-				<p>CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
-CDDAスタイルで敏捷性を重視したAP計算式
-
-				
-				
-				
-			
-				
-				<h3 id="TurnManager.CanEntityAct">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=4781:4865#L161">CanEntityAct</a>
+				<h3 id="TurnManager.CanEntityAct">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=3896:3980#L133">CanEntityAct</a>
 					<a class="permalink" href="index.html#TurnManager.CanEntityAct">&#xb6;</a>
 					
 					
@@ -347,7 +330,7 @@ CDDAスタイルで敏捷性を重視したAP計算式
 				
 			
 				
-				<h3 id="TurnManager.CanPlayerAct">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1272:1314#L46">CanPlayerAct</a>
+				<h3 id="TurnManager.CanPlayerAct">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1308:1350#L45">CanPlayerAct</a>
 					<a class="permalink" href="index.html#TurnManager.CanPlayerAct">&#xb6;</a>
 					
 					
@@ -360,7 +343,7 @@ CDDAスタイルで敏捷性を重視したAP計算式
 				
 			
 				
-				<h3 id="TurnManager.ConsumeActionPoints">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=3869:3979#L128">ConsumeActionPoints</a>
+				<h3 id="TurnManager.ConsumeActionPoints">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2984:3094#L100">ConsumeActionPoints</a>
 					<a class="permalink" href="index.html#TurnManager.ConsumeActionPoints">&#xb6;</a>
 					
 					
@@ -374,7 +357,7 @@ CDDAスタイルの共通AP管理システム
 				
 			
 				
-				<h3 id="TurnManager.ConsumePlayerMoves">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1454:1524#L51">ConsumePlayerMoves</a>
+				<h3 id="TurnManager.ConsumePlayerMoves">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=1490:1560#L50">ConsumePlayerMoves</a>
 					<a class="permalink" href="index.html#TurnManager.ConsumePlayerMoves">&#xb6;</a>
 					
 					
@@ -387,7 +370,7 @@ CDDAスタイルの共通AP管理システム
 				
 			
 				
-				<h3 id="TurnManager.IsAITurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2734:2772#L95">IsAITurn</a>
+				<h3 id="TurnManager.IsAITurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2770:2808#L94">IsAITurn</a>
 					<a class="permalink" href="index.html#TurnManager.IsAITurn">&#xb6;</a>
 					
 					
@@ -400,7 +383,7 @@ CDDAスタイルの共通AP管理システム
 				
 			
 				
-				<h3 id="TurnManager.IsPlayerTurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2600:2642#L90">IsPlayerTurn</a>
+				<h3 id="TurnManager.IsPlayerTurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2636:2678#L89">IsPlayerTurn</a>
 					<a class="permalink" href="index.html#TurnManager.IsPlayerTurn">&#xb6;</a>
 					
 					
@@ -413,7 +396,7 @@ CDDAスタイルの共通AP管理システム
 				
 			
 				
-				<h3 id="TurnManager.RestoreAllActionPoints">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=5407:5473#L179">RestoreAllActionPoints</a>
+				<h3 id="TurnManager.RestoreAllActionPoints">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=4522:4588#L151">RestoreAllActionPoints</a>
 					<a class="permalink" href="index.html#TurnManager.RestoreAllActionPoints">&#xb6;</a>
 					
 					
@@ -426,7 +409,7 @@ CDDAスタイルの共通AP管理システム
 				
 			
 				
-				<h3 id="TurnManager.StartNewTurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2324:2361#L79">StartNewTurn</a>
+				<h3 id="TurnManager.StartNewTurn">func (*TurnManager) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=2360:2397#L78">StartNewTurn</a>
 					<a class="permalink" href="index.html#TurnManager.StartNewTurn">&#xb6;</a>
 					
 					
@@ -441,7 +424,7 @@ CDDAスタイルの共通AP管理システム
 		
 			
 			
-			<h2 id="TurnPhase">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=239:257#L3">TurnPhase</a>
+			<h2 id="TurnPhase">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=275:293#L2">TurnPhase</a>
 				<a class="permalink" href="index.html#TurnPhase">&#xb6;</a>
 				
 				
@@ -472,7 +455,7 @@ CDDAスタイルの共通AP管理システム
 
 			
 				
-				<h3 id="TurnPhase.String">func (TurnPhase) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=485:520#L14">String</a>
+				<h3 id="TurnPhase.String">func (TurnPhase) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/turns/manager.go?s=521:556#L13">String</a>
 					<a class="permalink" href="index.html#TurnPhase.String">&#xb6;</a>
 					
 					

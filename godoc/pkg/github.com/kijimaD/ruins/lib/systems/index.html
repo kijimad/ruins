@@ -180,9 +180,6 @@ func TileInputSystem(world w.World) {
 				<dd><a href="index.html#CreatePlayerEntity">func CreatePlayerEntity(t *testing.T, world w.World, x, y float64)</a></dd>
 			
 				
-				<dd><a href="index.html#EquipmentChangedSystem">func EquipmentChangedSystem(world w.World) bool</a></dd>
-			
-				
 				<dd><a href="index.html#ExtractHUDData">func ExtractHUDData(world w.World) hud.Data</a></dd>
 			
 				
@@ -243,6 +240,20 @@ func TileInputSystem(world w.World) {
 				
 			
 				
+				<dd><a href="index.html#EquipmentChangedSystem">type EquipmentChangedSystem</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#EquipmentChangedSystem.ShouldRun">func (sys *EquipmentChangedSystem) ShouldRun(world w.World) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#EquipmentChangedSystem.String">func (sys EquipmentChangedSystem) String() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#EquipmentChangedSystem.Update">func (sys *EquipmentChangedSystem) Update(world w.World) error</a></dd>
+				
+			
+				
 				<dd><a href="index.html#HUDRenderingSystem">type HUDRenderingSystem</a></dd>
 				
 					
@@ -263,6 +274,20 @@ func TileInputSystem(world w.World) {
 				
 			
 				
+				<dd><a href="index.html#InventoryChangedSystem">type InventoryChangedSystem</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#InventoryChangedSystem.ShouldRun">func (sys *InventoryChangedSystem) ShouldRun(world w.World) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#InventoryChangedSystem.String">func (sys InventoryChangedSystem) String() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#InventoryChangedSystem.Update">func (sys *InventoryChangedSystem) Update(world w.World) error</a></dd>
+				
+			
+				
 				<dd><a href="index.html#LightInfo">type LightInfo</a></dd>
 				
 				
@@ -279,6 +304,11 @@ func TileInputSystem(world w.World) {
 				
 					
 					<dd>&nbsp; &nbsp; <a href="index.html#RenderSpriteSystem.String">func (sys RenderSpriteSystem) String() string</a></dd>
+				
+			
+				
+				<dd><a href="index.html#ShouldRunner">type ShouldRunner</a></dd>
+				
 				
 			
 				
@@ -341,6 +371,8 @@ func TileInputSystem(world w.World) {
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/hud_extractor.go">hud_extractor.go</a>
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/hud_rendering.go">hud_rendering.go</a>
+			
+				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/inventory_changed.go">inventory_changed.go</a>
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/render_sprite.go">render_sprite.go</a>
 			
@@ -457,22 +489,6 @@ func TileInputSystem(world w.World) {
 		
 			
 			
-			<h2 id="EquipmentChangedSystem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/equipment_changed.go?s=406:453#L2">EquipmentChangedSystem</a>
-				<a class="permalink" href="index.html#EquipmentChangedSystem">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func EquipmentChangedSystem(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#bool">bool</a></pre>
-			<p>EquipmentChangedSystem は装備変更のダーティフラグが立ったら、ステータス補正まわりを再計算する
-TODO: 最大HP/SPの更新はここでやったほうがよさそう
-TODO: マイナスにならないようにする
-
-			
-			
-
-		
-			
-			
 			<h2 id="ExtractHUDData">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/hud_extractor.go?s=479:522#L8">ExtractHUDData</a>
 				<a class="permalink" href="index.html#ExtractHUDData">&#xb6;</a>
 				
@@ -501,7 +517,7 @@ TODO: マイナスにならないようにする
 		
 			
 			
-			<h2 id="InitializeSystems">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/helper.go?s=172:255#L1">InitializeSystems</a>
+			<h2 id="InitializeSystems">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/helper.go?s=574:657#L6">InitializeSystems</a>
 				<a class="permalink" href="index.html#InitializeSystems">&#xb6;</a>
 				
 				
@@ -754,6 +770,75 @@ w.Updater interfaceを実装
 		
 			
 			
+			<h2 id="EquipmentChangedSystem">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/equipment_changed.go?s=563:599#L4">EquipmentChangedSystem</a>
+				<a class="permalink" href="index.html#EquipmentChangedSystem">&#xb6;</a>
+				
+				
+			</h2>
+			<p>EquipmentChangedSystem は装備変更のダーティフラグが立ったら、ステータス補正まわりを再計算する
+TODO: 最大HP/SPの更新はここでやったほうがよさそう
+TODO: マイナスにならないようにする
+TODO: 現状全員更新しているので、EquipmentChangedが付与された持ち主だけを更新する
+
+			<pre>type EquipmentChangedSystem struct{}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="EquipmentChangedSystem.ShouldRun">func (*EquipmentChangedSystem) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/equipment_changed.go?s=880:944#L14">ShouldRun</a>
+					<a class="permalink" href="index.html#EquipmentChangedSystem.ShouldRun">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (sys *<a href="index.html#EquipmentChangedSystem">EquipmentChangedSystem</a>) ShouldRun(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#bool">bool</a></pre>
+				<p>ShouldRun は装備変更フラグをチェックし、フラグをクリアする
+ShouldRunner interfaceを実装
+
+				
+				
+				
+			
+				
+				<h3 id="EquipmentChangedSystem.String">func (EquipmentChangedSystem) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/equipment_changed.go?s=671:720#L8">String</a>
+					<a class="permalink" href="index.html#EquipmentChangedSystem.String">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (sys <a href="index.html#EquipmentChangedSystem">EquipmentChangedSystem</a>) String() <a href="http://localhost:8888/pkg/builtin/#string">string</a></pre>
+				<p>String はシステム名を返す
+w.Updater interfaceを実装
+
+				
+				
+				
+			
+				
+				<h3 id="EquipmentChangedSystem.Update">func (*EquipmentChangedSystem) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/equipment_changed.go?s=1308:1370#L27">Update</a>
+					<a class="permalink" href="index.html#EquipmentChangedSystem.Update">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (sys *<a href="index.html#EquipmentChangedSystem">EquipmentChangedSystem</a>) Update(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>Update は装備変更フラグをチェックし、必要に応じてステータスを再計算する
+w.Updater interfaceを実装
+
+				
+				
+				
+			
+		
+			
+			
 			<h2 id="HUDRenderingSystem">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/hud_rendering.go?s=228:452#L1">HUDRenderingSystem</a>
 				<a class="permalink" href="index.html#HUDRenderingSystem">&#xb6;</a>
 				
@@ -840,6 +925,72 @@ w.Updater と w.Renderer のインターフェースを実装する
 				<pre>func (sys *<a href="index.html#HUDRenderingSystem">HUDRenderingSystem</a>) Update(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
 				<p>Update はHUDシステム全体を更新する
 w.Updater interfaceを実装
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="InventoryChangedSystem">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/inventory_changed.go?s=274:310#L1">InventoryChangedSystem</a>
+				<a class="permalink" href="index.html#InventoryChangedSystem">&#xb6;</a>
+				
+				
+			</h2>
+			<p>InventoryChangedSystem はインベントリ変動のダーティフラグが立ったら、所持重量を再計算する
+
+			<pre>type InventoryChangedSystem struct{}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="InventoryChangedSystem.ShouldRun">func (*InventoryChangedSystem) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/inventory_changed.go?s=615:679#L10">ShouldRun</a>
+					<a class="permalink" href="index.html#InventoryChangedSystem.ShouldRun">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (sys *<a href="index.html#InventoryChangedSystem">InventoryChangedSystem</a>) ShouldRun(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#bool">bool</a></pre>
+				<p>ShouldRun はインベントリ変動フラグをチェックし、フラグをクリアする
+ShouldRunner interfaceを実装する
+
+				
+				
+				
+			
+				
+				<h3 id="InventoryChangedSystem.String">func (InventoryChangedSystem) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/inventory_changed.go?s=388:437#L4">String</a>
+					<a class="permalink" href="index.html#InventoryChangedSystem.String">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (sys <a href="index.html#InventoryChangedSystem">InventoryChangedSystem</a>) String() <a href="http://localhost:8888/pkg/builtin/#string">string</a></pre>
+				<p>String はシステム名を返す
+w.Updater interfaceを実装する
+
+				
+				
+				
+			
+				
+				<h3 id="InventoryChangedSystem.Update">func (*InventoryChangedSystem) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/inventory_changed.go?s=1058:1120#L23">Update</a>
+					<a class="permalink" href="index.html#InventoryChangedSystem.Update">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (sys *<a href="index.html#InventoryChangedSystem">InventoryChangedSystem</a>) Update(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>Update はインベントリ変動フラグをチェックし、必要に応じて所持重量を再計算する
+w.Updater interfaceを実装する
 
 				
 				
@@ -942,7 +1093,35 @@ w.Renderer interfaceを実装
 		
 			
 			
-			<h2 id="TileColorInfo">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/hud_extractor.go?s=4488:4526#L131">TileColorInfo</a>
+			<h2 id="ShouldRunner">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/helper.go?s=254:469#L1">ShouldRunner</a>
+				<a class="permalink" href="index.html#ShouldRunner">&#xb6;</a>
+				
+				
+			</h2>
+			<p>ShouldRunner はシステムの実行判定を行うインターフェース
+イベント駆動型システムがフラグをチェックし、UI更新判定などに使用する
+
+			<pre>type ShouldRunner interface {
+    <span class="comment">// ShouldRun はシステムを実行する必要があるかチェックし、フラグをクリアする</span>
+    <span class="comment">// 実行が必要な場合はtrueを返す</span>
+    ShouldRun(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#bool">bool</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="TileColorInfo">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/systems/hud_extractor.go?s=4672:4710#L136">TileColorInfo</a>
 				<a class="permalink" href="index.html#TileColorInfo">&#xb6;</a>
 				
 				

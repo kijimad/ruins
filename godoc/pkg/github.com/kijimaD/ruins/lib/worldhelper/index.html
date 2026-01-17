@@ -143,9 +143,6 @@
 				<dd><a href="index.html#AddCurrency">func AddCurrency(world w.World, entity ecs.Entity, amount int) error</a></dd>
 			
 				
-				<dd><a href="index.html#AddStackableCount">func AddStackableCount(world w.World, name string, amount int) error</a></dd>
-			
-				
 				<dd><a href="index.html#AppendNameWithColor">func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World)</a></dd>
 			
 				
@@ -161,10 +158,19 @@
 				<dd><a href="index.html#CalculateBuyPrice">func CalculateBuyPrice(baseValue int) int</a></dd>
 			
 				
+				<dd><a href="index.html#CalculateMaxActionPoints">func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error)</a></dd>
+			
+				
 				<dd><a href="index.html#CalculateSellPrice">func CalculateSellPrice(baseValue int) int</a></dd>
 			
 				
 				<dd><a href="index.html#CanCraft">func CanCraft(world w.World, name string) (bool, error)</a></dd>
+			
+				
+				<dd><a href="index.html#ChangeItemCount">func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error</a></dd>
+			
+				
+				<dd><a href="index.html#ChangeStackableCount">func ChangeStackableCount(world w.World, name string, amount int) error</a></dd>
 			
 				
 				<dd><a href="index.html#ConsumeCurrency">func ConsumeCurrency(world w.World, entity ecs.Entity, amount int) bool</a></dd>
@@ -186,6 +192,12 @@
 			
 				
 				<dd><a href="index.html#FormatCurrency">func FormatCurrency(amount int) string</a></dd>
+			
+				
+				<dd><a href="index.html#FormatItemName">func FormatItemName(world w.World, itemEntity ecs.Entity) string</a></dd>
+			
+				
+				<dd><a href="index.html#FullRecover">func FullRecover(world w.World, entity ecs.Entity) error</a></dd>
 			
 				
 				<dd><a href="index.html#GetArmorEquipments">func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity</a></dd>
@@ -236,7 +248,7 @@
 				<dd><a href="index.html#IsPlayerEntity">func IsPlayerEntity(entity ecs.Entity, world w.World) bool</a></dd>
 			
 				
-				<dd><a href="index.html#MergeStackableIntoInventory">func MergeStackableIntoInventory(world w.World, newItemEntity ecs.Entity, itemName string) error</a></dd>
+				<dd><a href="index.html#MergeInventoryItem">func MergeInventoryItem(world w.World, itemName string) error</a></dd>
 			
 				
 				<dd><a href="index.html#MovePlayerToPosition">func MovePlayerToPosition(world w.World, tileX int, tileY int) error</a></dd>
@@ -248,16 +260,7 @@
 				<dd><a href="index.html#QueryPlayer">func QueryPlayer(world w.World, f func(entity ecs.Entity))</a></dd>
 			
 				
-				<dd><a href="index.html#RemoveFromInventory">func RemoveFromInventory(world w.World, itemEntity ecs.Entity)</a></dd>
-			
-				
-				<dd><a href="index.html#RemoveStackableCount">func RemoveStackableCount(world w.World, name string, amount int) error</a></dd>
-			
-				
 				<dd><a href="index.html#SellItem">func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) error</a></dd>
-			
-				
-				<dd><a href="index.html#SetCurrency">func SetCurrency(world w.World, entity ecs.Entity, amount int) error</a></dd>
 			
 				
 				<dd><a href="index.html#SortEntities">func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity</a></dd>
@@ -272,7 +275,7 @@
 				<dd><a href="index.html#SpawnFieldItem">func SpawnFieldItem(world w.World, itemName string, x gc.Tile, y gc.Tile) (ecs.Entity, error)</a></dd>
 			
 				
-				<dd><a href="index.html#SpawnItem">func SpawnItem(world w.World, name string, locationType gc.ItemLocationType) (ecs.Entity, error)</a></dd>
+				<dd><a href="index.html#SpawnItem">func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocationType) (ecs.Entity, error)</a></dd>
 			
 				
 				<dd><a href="index.html#SpawnNeutralNPC">func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Entity, error)</a></dd>
@@ -284,13 +287,13 @@
 				<dd><a href="index.html#SpawnProp">func SpawnProp(world w.World, propName string, x gc.Tile, y gc.Tile) (ecs.Entity, error)</a></dd>
 			
 				
-				<dd><a href="index.html#SpawnStackable">func SpawnStackable(world w.World, name string, count int, location gc.ItemLocationType) (ecs.Entity, error)</a></dd>
-			
-				
 				<dd><a href="index.html#SpawnTile">func SpawnTile(world w.World, tileName string, x gc.Tile, y gc.Tile, autoTileIndex *int) (ecs.Entity, error)</a></dd>
 			
 				
 				<dd><a href="index.html#TransferItem">func TransferItem(world w.World, itemEntity ecs.Entity, fromLocation, toLocation gc.ItemLocationType)</a></dd>
+			
+				
+				<dd><a href="index.html#UpdateCarryingWeight">func UpdateCarryingWeight(world w.World, entity ecs.Entity)</a></dd>
 			
 			
 			
@@ -322,6 +325,8 @@
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go">inventory.go</a>
 			
+				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/item_format.go">item_format.go</a>
+			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/query.go">query.go</a>
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/shop.go">shop.go</a>
@@ -333,6 +338,8 @@
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn_prop.go">spawn_prop.go</a>
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/stackable.go">stackable.go</a>
+			
+				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/weight.go">weight.go</a>
 			
 			</span>
 			</p>
@@ -377,21 +384,6 @@
 			<pre>func AddCurrency(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
 			<p>AddCurrency はエンティティに所持金を追加する
 Walletコンポーネントがない場合はエラーを返す
-
-			
-			
-
-		
-			
-			
-			<h2 id="AddStackableCount">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/stackable.go?s=1678:1746#L33">AddStackableCount</a>
-				<a class="permalink" href="index.html#AddStackableCount">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func AddStackableCount(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, name <a href="http://localhost:8888/pkg/builtin/#string">string</a>, amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
-			<p>AddStackableCount は指定した名前のStackableアイテムの数量を増やす
-アイテムが存在しない場合は新規作成する
 
 			
 			
@@ -473,6 +465,21 @@ target に amount 分のHPを回復させる
 		
 			
 			
+			<h2 id="CalculateMaxActionPoints">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=1796:1872#L41">CalculateMaxActionPoints</a>
+				<a class="permalink" href="index.html#CalculateMaxActionPoints">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func CalculateMaxActionPoints(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>) (<a href="http://localhost:8888/pkg/builtin/#int">int</a>, <a href="http://localhost:8888/pkg/builtin/#error">error</a>)</pre>
+			<p>CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
+CDDAスタイルで敏捷性を重視したAP計算式
+
+			
+			
+
+		
+			
+			
 			<h2 id="CalculateSellPrice">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/shop.go?s=590:632#L14">CalculateSellPrice</a>
 				<a class="permalink" href="index.html#CalculateSellPrice">&#xb6;</a>
 				
@@ -487,7 +494,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="CanCraft">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/craft.go?s=968:1023#L29">CanCraft</a>
+			<h2 id="CanCraft">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/craft.go?s=971:1026#L29">CanCraft</a>
 				<a class="permalink" href="index.html#CanCraft">&#xb6;</a>
 				
 				
@@ -501,7 +508,38 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="ConsumeCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=1563:1634#L41">ConsumeCurrency</a>
+			<h2 id="ChangeItemCount">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=3265:3340#L101">ChangeItemCount</a>
+				<a class="permalink" href="index.html#ChangeItemCount">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func ChangeItemCount(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, itemEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, delta <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+			<p>ChangeItemCount は対象アイテムの個数を変更する。Stackable/非Stackableに関わらず使用できる。
+使用、売却、破棄、拾得など、個数を変更する全ての用途で使用する。
+個数が0以下になった場合はエンティティを削除する。
+
+			
+			
+
+		
+			
+			
+			<h2 id="ChangeStackableCount">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/stackable.go?s=1477:1548#L40">ChangeStackableCount</a>
+				<a class="permalink" href="index.html#ChangeStackableCount">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func ChangeStackableCount(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, name <a href="http://localhost:8888/pkg/builtin/#string">string</a>, amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+			<p>ChangeStackableCount は指定した名前のStackableアイテムの数量を変更する
+amount が正の場合は増加、負の場合は減少する
+
+			
+			
+
+		
+			
+			
+			<h2 id="ConsumeCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=1184:1255#L30">ConsumeCurrency</a>
 				<a class="permalink" href="index.html#ConsumeCurrency">&#xb6;</a>
 				
 				
@@ -509,6 +547,7 @@ target に amount 分のHPを回復させる
 			<pre>func ConsumeCurrency(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#bool">bool</a></pre>
 			<p>ConsumeCurrency はエンティティの所持金を消費する
 所持金が足りない場合はfalseを返す
+TODO(kijima): 使いにくいのを直す
 
 			
 			
@@ -558,7 +597,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="FindItemInInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=2816:2891#L83">FindItemInInventory</a>
+			<h2 id="FindItemInInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=2492:2567#L76">FindItemInInventory</a>
 				<a class="permalink" href="index.html#FindItemInInventory">&#xb6;</a>
 				
 				
@@ -572,7 +611,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="FindStackableInInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=2246:2322#L60">FindStackableInInventory</a>
+			<h2 id="FindStackableInInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=1922:1998#L53">FindStackableInInventory</a>
 				<a class="permalink" href="index.html#FindStackableInInventory">&#xb6;</a>
 				
 				
@@ -586,7 +625,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="FormatCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=1973:2011#L56">FormatCurrency</a>
+			<h2 id="FormatCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=1594:1632#L45">FormatCurrency</a>
 				<a class="permalink" href="index.html#FormatCurrency">&#xb6;</a>
 				
 				
@@ -594,6 +633,36 @@ target に amount 分のHPを回復させる
 			<pre>func FormatCurrency(amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#string">string</a></pre>
 			<p>FormatCurrency は金額を CZ 形式でフォーマットする
 3桁ごとにカンマで区切る（例: CZ 100,204）
+
+			
+			
+
+		
+			
+			
+			<h2 id="FormatItemName">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/item_format.go?s=484:548#L4">FormatItemName</a>
+				<a class="permalink" href="index.html#FormatItemName">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func FormatItemName(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, itemEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>) <a href="http://localhost:8888/pkg/builtin/#string">string</a></pre>
+			<p>FormatItemName はアイテムエンティティから名前と個数を取得してフォーマットする
+名前はNameコンポーネントから取得し、見つからない場合は &quot;Unknown Item&quot; を返す
+個数が1以下の場合は名前のみ、2以上の場合は &quot;名前(個数)&quot; の形式で返す
+
+			
+			
+
+		
+			
+			
+			<h2 id="FullRecover">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=10654:10710#L299">FullRecover</a>
+				<a class="permalink" href="index.html#FullRecover">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func FullRecover(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+			<p>FullRecover はエンティティのHP/SP/EP/APを全回復する
 
 			
 			
@@ -674,7 +743,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="GetInventoryItems">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=1476:1526#L32">GetInventoryItems</a>
+			<h2 id="GetInventoryItems">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=1152:1202#L25">GetInventoryItems</a>
 				<a class="permalink" href="index.html#GetInventoryItems">&#xb6;</a>
 				
 				
@@ -688,7 +757,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="GetInventoryStackables">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=1848:1903#L46">GetInventoryStackables</a>
+			<h2 id="GetInventoryStackables">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=1524:1579#L39">GetInventoryStackables</a>
 				<a class="permalink" href="index.html#GetInventoryStackables">&#xb6;</a>
 				
 				
@@ -759,7 +828,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="GetShopInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/shop.go?s=4279:4311#L120">GetShopInventory</a>
+			<h2 id="GetShopInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/shop.go?s=3778:3810#L104">GetShopInventory</a>
 				<a class="permalink" href="index.html#GetShopInventory">&#xb6;</a>
 				
 				
@@ -773,7 +842,7 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="HasCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=1326:1393#L35">HasCurrency</a>
+			<h2 id="HasCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=902:969#L23">HasCurrency</a>
 				<a class="permalink" href="index.html#HasCurrency">&#xb6;</a>
 				
 				
@@ -831,14 +900,13 @@ target に amount 分のHPを回復させる
 		
 			
 			
-			<h2 id="MergeStackableIntoInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/stackable.go?s=408:504#L3">MergeStackableIntoInventory</a>
-				<a class="permalink" href="index.html#MergeStackableIntoInventory">&#xb6;</a>
+			<h2 id="MergeInventoryItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/stackable.go?s=288:349#L2">MergeInventoryItem</a>
+				<a class="permalink" href="index.html#MergeInventoryItem">&#xb6;</a>
 				
 				
 			</h2>
-			<pre>func MergeStackableIntoInventory(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, newItemEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, itemName <a href="http://localhost:8888/pkg/builtin/#string">string</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
-			<p>MergeStackableIntoInventory は既存のバックパック内Stackableアイテムと統合するか新規追加する
-Stackableコンポーネントを持つ場合は既存と数量統合、それ以外は個別アイテムとして追加
+			<pre>func MergeInventoryItem(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, itemName <a href="http://localhost:8888/pkg/builtin/#string">string</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+			<p>MergeInventoryItem はバックパック内の指定された名前のStackableアイテムをすべて1つに統合する
 
 			
 			
@@ -846,14 +914,13 @@ Stackableコンポーネントを持つ場合は既存と数量統合、それ�
 		
 			
 			
-			<h2 id="MovePlayerToPosition">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=13992:14060#L391">MovePlayerToPosition</a>
+			<h2 id="MovePlayerToPosition">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=13883:13951#L396">MovePlayerToPosition</a>
 				<a class="permalink" href="index.html#MovePlayerToPosition">&#xb6;</a>
 				
 				
 			</h2>
 			<pre>func MovePlayerToPosition(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, tileX <a href="http://localhost:8888/pkg/builtin/#int">int</a>, tileY <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
 			<p>MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
-GridElement、SpriteRender、Cameraコンポーネントがない場合は追加する（ロード時に対応）
 
 			
 			
@@ -889,57 +956,13 @@ GridElement、SpriteRender、Cameraコンポーネントがない場合は追加
 		
 			
 			
-			<h2 id="RemoveFromInventory">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=232:294#L1">RemoveFromInventory</a>
-				<a class="permalink" href="index.html#RemoveFromInventory">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func RemoveFromInventory(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, itemEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>)</pre>
-			<p>RemoveFromInventory はインベントリからアイテムを削除する
-
-			
-			
-
-		
-			
-			
-			<h2 id="RemoveStackableCount">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/stackable.go?s=2382:2453#L54">RemoveStackableCount</a>
-				<a class="permalink" href="index.html#RemoveStackableCount">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func RemoveStackableCount(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, name <a href="http://localhost:8888/pkg/builtin/#string">string</a>, amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
-			<p>RemoveStackableCount は指定した名前のStackableアイテムの数量を減らす
-0個以下になった場合はエンティティを削除する
-
-			
-			
-
-		
-			
-			
-			<h2 id="SellItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/shop.go?s=3262:3344#L88">SellItem</a>
+			<h2 id="SellItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/shop.go?s=3110:3192#L84">SellItem</a>
 				<a class="permalink" href="index.html#SellItem">&#xb6;</a>
 				
 				
 			</h2>
 			<pre>func SellItem(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, playerEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, itemEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
 			<p>SellItem はプレイヤーがアイテムを売却する
-
-			
-			
-
-		
-			
-			
-			<h2 id="SetCurrency">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/currency.go?s=960:1028#L24">SetCurrency</a>
-				<a class="permalink" href="index.html#SetCurrency">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func SetCurrency(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, amount <a href="http://localhost:8888/pkg/builtin/#int">int</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
-			<p>SetCurrency はエンティティの所持金を設定する
-Walletコンポーネントがない場合はエラーを返す
 
 			
 			
@@ -977,7 +1000,7 @@ Nameコンポーネントを持っていないエンティティはスキップ�
 		
 			
 			
-			<h2 id="SpawnEnemy">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=5627:5712#L151">SpawnEnemy</a>
+			<h2 id="SpawnEnemy">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=6844:6929#L184">SpawnEnemy</a>
 				<a class="permalink" href="index.html#SpawnEnemy">&#xb6;</a>
 				
 				
@@ -991,7 +1014,7 @@ Nameコンポーネントを持っていないエンティティはスキップ�
 		
 			
 			
-			<h2 id="SpawnFieldItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=12754:12847#L357">SpawnFieldItem</a>
+			<h2 id="SpawnFieldItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=13357:13450#L382">SpawnFieldItem</a>
 				<a class="permalink" href="index.html#SpawnFieldItem">&#xb6;</a>
 				
 				
@@ -1005,13 +1028,13 @@ Nameコンポーネントを持っていないエンティティはスキップ�
 		
 			
 			
-			<h2 id="SpawnItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=7716:7812#L213">SpawnItem</a>
+			<h2 id="SpawnItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=8824:8931#L244">SpawnItem</a>
 				<a class="permalink" href="index.html#SpawnItem">&#xb6;</a>
 				
 				
 			</h2>
-			<pre>func SpawnItem(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, name <a href="http://localhost:8888/pkg/builtin/#string">string</a>, locationType <a href="../components/index.html">gc</a>.<a href="../components/index.html#ItemLocationType">ItemLocationType</a>) (<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, <a href="http://localhost:8888/pkg/builtin/#error">error</a>)</pre>
-			<p>SpawnItem はアイテムを生成する（Stackableコンポーネントは付与しない）
+			<pre>func SpawnItem(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, name <a href="http://localhost:8888/pkg/builtin/#string">string</a>, count <a href="http://localhost:8888/pkg/builtin/#int">int</a>, locationType <a href="../components/index.html">gc</a>.<a href="../components/index.html#ItemLocationType">ItemLocationType</a>) (<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, <a href="http://localhost:8888/pkg/builtin/#error">error</a>)</pre>
+			<p>SpawnItem はアイテムを生成する
 
 			
 			
@@ -1019,7 +1042,7 @@ Nameコンポーネントを持っていないエンティティはスキップ�
 		
 			
 			
-			<h2 id="SpawnNeutralNPC">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=4144:4234#L110">SpawnNeutralNPC</a>
+			<h2 id="SpawnNeutralNPC">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=5259:5349#L141">SpawnNeutralNPC</a>
 				<a class="permalink" href="index.html#SpawnNeutralNPC">&#xb6;</a>
 				
 				
@@ -1033,7 +1056,7 @@ Nameコンポーネントを持っていないエンティティはスキップ�
 		
 			
 			
-			<h2 id="SpawnPlayer">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=2666:2752#L71">SpawnPlayer</a>
+			<h2 id="SpawnPlayer">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=3531:3617#L97">SpawnPlayer</a>
 				<a class="permalink" href="index.html#SpawnPlayer">&#xb6;</a>
 				
 				
@@ -1061,22 +1084,7 @@ Nameコンポーネントを持っていないエンティティはスキップ�
 		
 			
 			
-			<h2 id="SpawnStackable">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=8582:8690#L234">SpawnStackable</a>
-				<a class="permalink" href="index.html#SpawnStackable">&#xb6;</a>
-				
-				
-			</h2>
-			<pre>func SpawnStackable(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, name <a href="http://localhost:8888/pkg/builtin/#string">string</a>, count <a href="http://localhost:8888/pkg/builtin/#int">int</a>, location <a href="../components/index.html">gc</a>.<a href="../components/index.html#ItemLocationType">ItemLocationType</a>) (<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, <a href="http://localhost:8888/pkg/builtin/#error">error</a>)</pre>
-			<p>SpawnStackable はStackableアイテムを生成する
-countは1以上である必要がある（0以下の場合はエラー）
-
-			
-			
-
-		
-			
-			
-			<h2 id="SpawnTile">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=1862:1970#L46">SpawnTile</a>
+			<h2 id="SpawnTile">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/spawn.go?s=2727:2835#L72">SpawnTile</a>
 				<a class="permalink" href="index.html#SpawnTile">&#xb6;</a>
 				
 				
@@ -1091,13 +1099,28 @@ autoTileIndexが指定された場合、spriteKeyを動的に生成する（例:
 		
 			
 			
-			<h2 id="TransferItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=542:643#L9">TransferItem</a>
+			<h2 id="TransferItem">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/inventory.go?s=218:319#L2">TransferItem</a>
 				<a class="permalink" href="index.html#TransferItem">&#xb6;</a>
 				
 				
 			</h2>
 			<pre>func TransferItem(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, itemEntity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>, fromLocation, toLocation <a href="../components/index.html">gc</a>.<a href="../components/index.html#ItemLocationType">ItemLocationType</a>)</pre>
 			<p>TransferItem はアイテムの位置を変更する
+
+			
+			
+
+		
+			
+			
+			<h2 id="UpdateCarryingWeight">func <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/worldhelper/weight.go?s=549:608#L8">UpdateCarryingWeight</a>
+				<a class="permalink" href="index.html#UpdateCarryingWeight">&#xb6;</a>
+				
+				
+			</h2>
+			<pre>func UpdateCarryingWeight(world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>, entity <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>)</pre>
+			<p>UpdateCarryingWeight はエンティティの所持重量プールを更新する
+現在の所持重量と所持可能重量を再計算してPoolsコンポーネントに反映する
 
 			
 			

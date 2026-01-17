@@ -410,6 +410,32 @@ manager.ProcessTurn(world)
 				
 			
 				
+				<dd><a href="index.html#DropActivity">type DropActivity</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.Canceled">func (da *DropActivity) Canceled(act *Activity, _ w.World) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.DoTurn">func (da *DropActivity) DoTurn(act *Activity, world w.World) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.Finish">func (da *DropActivity) Finish(act *Activity, _ w.World) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.Info">func (da *DropActivity) Info() ActivityInfo</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.Start">func (da *DropActivity) Start(act *Activity, _ w.World) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.String">func (da *DropActivity) String() string</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="index.html#DropActivity.Validate">func (da *DropActivity) Validate(act *Activity, world w.World) error</a></dd>
+				
+			
+				
 				<dd><a href="index.html#InteractionActivateActivity">type InteractionActivateActivity</a></dd>
 				
 				
@@ -665,6 +691,8 @@ manager.ProcessTurn(world)
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/doc.go">doc.go</a>
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/door.go">door.go</a>
+			
+				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go">drop.go</a>
 			
 				<a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/errors.go">errors.go</a>
 			
@@ -1673,6 +1701,124 @@ Validate はActivityInterfaceの実装
 		
 			
 			
+			<h2 id="DropActivity">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=288:392#L4">DropActivity</a>
+				<a class="permalink" href="index.html#DropActivity">&#xb6;</a>
+				
+				
+			</h2>
+			<p>DropActivity はActivityInterfaceの実装
+
+			<pre>type DropActivity struct {
+<span id="DropActivity.Target"></span>    <span class="comment">// Target は捨てるアイテムのエンティティ</span>
+    Target <a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/">ecs</a>.<a href="http://localhost:8888/pkg/github.com/x-hgg-x/goecs/v2/#Entity">Entity</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="DropActivity.Canceled">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=2500:2564#L73">Canceled</a>
+					<a class="permalink" href="index.html#DropActivity.Canceled">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) Canceled(act *<a href="index.html#Activity">Activity</a>, _ <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>Canceled はアイテムドロップキャンセル時の処理を実行する
+
+				
+				
+				
+			
+				
+				<h3 id="DropActivity.DoTurn">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=1844:1910#L54">DoTurn</a>
+					<a class="permalink" href="index.html#DropActivity.DoTurn">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) DoTurn(act *<a href="index.html#Activity">Activity</a>, world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
+
+				
+				
+				
+			
+				
+				<h3 id="DropActivity.Finish">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=2245:2307#L67">Finish</a>
+					<a class="permalink" href="index.html#DropActivity.Finish">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) Finish(act *<a href="index.html#Activity">Activity</a>, _ <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>Finish はアイテムドロップ完了時の処理を実行する
+
+				
+				
+				
+			
+				
+				<h3 id="DropActivity.Info">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=432:475#L10">Info</a>
+					<a class="permalink" href="index.html#DropActivity.Info">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) Info() <a href="index.html#ActivityInfo">ActivityInfo</a></pre>
+				<p>Info はActivityInterfaceの実装
+
+				
+				
+				
+			
+				
+				<h3 id="DropActivity.Start">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=1573:1634#L48">Start</a>
+					<a class="permalink" href="index.html#DropActivity.Start">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) Start(act *<a href="index.html#Activity">Activity</a>, _ <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>Start はアイテムドロップ開始時の処理を実行する
+
+				
+				
+				
+			
+				
+				<h3 id="DropActivity.String">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=732:771#L22">String</a>
+					<a class="permalink" href="index.html#DropActivity.String">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) String() <a href="http://localhost:8888/pkg/builtin/#string">string</a></pre>
+				<p>String はActivityInterfaceの実装
+
+				
+				
+				
+			
+				
+				<h3 id="DropActivity.Validate">func (*DropActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/drop.go?s=871:939#L27">Validate</a>
+					<a class="permalink" href="index.html#DropActivity.Validate">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (da *<a href="index.html#DropActivity">DropActivity</a>) Validate(act *<a href="index.html#Activity">Activity</a>, world <a href="../world/index.html">w</a>.<a href="../world/index.html#World">World</a>) <a href="http://localhost:8888/pkg/builtin/#error">error</a></pre>
+				<p>Validate はアイテムドロップアクティビティの検証を行う
+
+				
+				
+				
+			
+		
+			
+			
 			<h2 id="InteractionActivateActivity">type <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/interaction_activate.go?s=349:423#L5">InteractionActivateActivity</a>
 				<a class="permalink" href="index.html#InteractionActivateActivity">&#xb6;</a>
 				
@@ -1697,7 +1843,7 @@ Validate はActivityInterfaceの実装
 
 			
 				
-				<h3 id="InteractionActivateActivity.Canceled">func (*InteractionActivateActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/interaction_activate.go?s=3640:3719#L100">Canceled</a>
+				<h3 id="InteractionActivateActivity.Canceled">func (*InteractionActivateActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/interaction_activate.go?s=3469:3548#L97">Canceled</a>
 					<a class="permalink" href="index.html#InteractionActivateActivity.Canceled">&#xb6;</a>
 					
 					
@@ -1723,7 +1869,7 @@ Validate はActivityInterfaceの実装
 				
 			
 				
-				<h3 id="InteractionActivateActivity.Finish">func (*InteractionActivateActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/interaction_activate.go?s=3382:3459#L94">Finish</a>
+				<h3 id="InteractionActivateActivity.Finish">func (*InteractionActivateActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/interaction_activate.go?s=3211:3288#L91">Finish</a>
 					<a class="permalink" href="index.html#InteractionActivateActivity.Finish">&#xb6;</a>
 					
 					
@@ -2042,7 +2188,7 @@ Validate はActivityInterfaceの実装
 
 			
 				
-				<h3 id="PickupActivity.Canceled">func (*PickupActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/pickup.go?s=2837:2903#L86">Canceled</a>
+				<h3 id="PickupActivity.Canceled">func (*PickupActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/pickup.go?s=2838:2904#L87">Canceled</a>
 					<a class="permalink" href="index.html#PickupActivity.Canceled">&#xb6;</a>
 					
 					
@@ -2070,7 +2216,7 @@ DoTurn はActivityInterfaceの実装
 				
 			
 				
-				<h3 id="PickupActivity.Finish">func (*PickupActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/pickup.go?s=2550:2614#L79">Finish</a>
+				<h3 id="PickupActivity.Finish">func (*PickupActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/pickup.go?s=2551:2615#L80">Finish</a>
 					<a class="permalink" href="index.html#PickupActivity.Finish">&#xb6;</a>
 					
 					
@@ -2517,7 +2663,7 @@ Validate はActivityInterfaceの実装
 
 			
 				
-				<h3 id="UseItemActivity.Canceled">func (*UseItemActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/use_item.go?s=3789:3855#L120">Canceled</a>
+				<h3 id="UseItemActivity.Canceled">func (*UseItemActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/use_item.go?s=3526:3592#L111">Canceled</a>
 					<a class="permalink" href="index.html#UseItemActivity.Canceled">&#xb6;</a>
 					
 					
@@ -2543,7 +2689,7 @@ Validate はActivityInterfaceの実装
 				
 			
 				
-				<h3 id="UseItemActivity.Finish">func (*UseItemActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/use_item.go?s=3599:3663#L114">Finish</a>
+				<h3 id="UseItemActivity.Finish">func (*UseItemActivity) <a href="http://localhost:8888/src/github.com/kijimaD/ruins/lib/actions/use_item.go?s=3336:3400#L105">Finish</a>
 					<a class="permalink" href="index.html#UseItemActivity.Finish">&#xb6;</a>
 					
 					
