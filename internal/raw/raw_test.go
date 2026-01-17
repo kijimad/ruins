@@ -58,7 +58,7 @@ SpriteKey = "repair_item"
 	assert.NoError(t, err)
 	entitySpec, err := raw.NewItemSpec("リペア")
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
+	loc := gc.ItemLocationInPlayerBackpack
 	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.Name)
 	assert.NotNil(t, entitySpec.Item)
@@ -79,7 +79,7 @@ Description = "スプライトなしアイテム"
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := raw.NewItemSpec("テストアイテム")
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
+	loc := gc.ItemLocationInPlayerBackpack
 	entitySpec.ItemLocationType = &loc
 	assert.NoError(t, err)
 	assert.NotNil(t, entitySpec.SpriteRender)
@@ -158,7 +158,7 @@ Stackable = true
 	assert.NoError(t, err)
 	entitySpec, err := raw.NewItemSpec("テスト素材")
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
+	loc := gc.ItemLocationInPlayerBackpack
 	entitySpec.ItemLocationType = &loc
 
 	// 基本コンポーネントの確認
@@ -187,7 +187,7 @@ Description = "スプライトなし素材"
 	// 現在の実装ではスプライト情報なしでも生成される（デフォルト値が設定される）
 	entitySpec, err := raw.NewItemSpec("スプライトなし素材")
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
+	loc := gc.ItemLocationInPlayerBackpack
 	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, "field", entitySpec.SpriteRender.SpriteSheetName)
@@ -418,7 +418,7 @@ AnimKeys = ["item_0", "item_1"]
 	// NewItemSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := raw.NewItemSpec("アニメーションアイテム")
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
+	loc := gc.ItemLocationInPlayerBackpack
 	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Equal(t, []string{"item_0", "item_1"}, entitySpec.SpriteRender.AnimKeys)
@@ -443,7 +443,7 @@ SpriteKey = "static_item"
 	// NewItemSpecでもAnimKeysはnil
 	entitySpec, err := raw.NewItemSpec("静的アイテム")
 	assert.NoError(t, err)
-	loc := gc.ItemLocationInBackpack
+	loc := gc.ItemLocationInPlayerBackpack
 	entitySpec.ItemLocationType = &loc
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)

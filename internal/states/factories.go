@@ -66,7 +66,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 	messageState.messageData = messagedata.NewSystemMessage("").
 		WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.ItemLocationInBackpack)
+			_, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.ItemLocationInPlayerBackpack)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -74,7 +74,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("手榴弾スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "手榴弾", 1, gc.ItemLocationInBackpack)
+			_, err := worldhelper.SpawnItem(world, "手榴弾", 1, gc.ItemLocationInPlayerBackpack)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}

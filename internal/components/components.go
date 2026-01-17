@@ -75,20 +75,20 @@ type Components struct {
 	Description *ecs.SliceComponent `save:"true"`
 
 	// item ================
-	Item                   *ecs.SliceComponent `save:"true"`
-	Consumable             *ecs.SliceComponent `save:"true"`
-	Pools                  *ecs.SliceComponent `save:"true"`
-	Attack                 *ecs.SliceComponent `save:"true"`
-	Value                  *ecs.SliceComponent `save:"true"`
-	Weight                 *ecs.SliceComponent `save:"true"`
-	Recipe                 *ecs.SliceComponent `save:"true"`
-	Wearable               *ecs.SliceComponent `save:"true"`
-	Attributes             *ecs.SliceComponent `save:"true"`
-	Weapon                 *ecs.SliceComponent `save:"true"`
-	Stackable              *ecs.SliceComponent `save:"true"`
-	ItemLocationInBackpack *ecs.NullComponent  `save:"true"`
-	ItemLocationEquipped   *ecs.SliceComponent `save:"true"`
-	ItemLocationOnField    *ecs.NullComponent
+	Item                         *ecs.SliceComponent `save:"true"`
+	Consumable                   *ecs.SliceComponent `save:"true"`
+	Pools                        *ecs.SliceComponent `save:"true"`
+	Attack                       *ecs.SliceComponent `save:"true"`
+	Value                        *ecs.SliceComponent `save:"true"`
+	Weight                       *ecs.SliceComponent `save:"true"`
+	Recipe                       *ecs.SliceComponent `save:"true"`
+	Wearable                     *ecs.SliceComponent `save:"true"`
+	Attributes                   *ecs.SliceComponent `save:"true"`
+	Weapon                       *ecs.SliceComponent `save:"true"`
+	Stackable                    *ecs.SliceComponent `save:"true"`
+	ItemLocationInPlayerBackpack *ecs.NullComponent  `save:"true"`
+	ItemLocationEquipped         *ecs.SliceComponent `save:"true"`
+	ItemLocationOnField          *ecs.NullComponent
 
 	// field ================
 	AIMoveFSM    *ecs.SliceComponent
@@ -359,20 +359,19 @@ func (c FactionNeutralData) String() string {
 type ItemLocationType fmt.Stringer
 
 var (
-	// ItemLocationInBackpack はバックパック内
-	ItemLocationInBackpack ItemLocationType = LocationInBackpack{}
+	// ItemLocationInPlayerBackpack はプレイヤーのバックパック内
+	ItemLocationInPlayerBackpack ItemLocationType = LocationInPlayerBackpack{}
 	// ItemLocationEquipped は味方が装備中
 	ItemLocationEquipped ItemLocationType = LocationEquipped{}
 	// ItemLocationOnField はフィールド上
 	ItemLocationOnField ItemLocationType = LocationOnField{}
 )
 
-// LocationInBackpack はバックパック内位置
-// TODO(kijima): owner をつけるべきかもしれない。誰のバックパックかが明示的ではないので
-type LocationInBackpack struct{}
+// LocationInPlayerBackpack はプレイヤーのバックパック内位置
+type LocationInPlayerBackpack struct{}
 
-func (c LocationInBackpack) String() string {
-	return "ItemLocationInBackpack"
+func (c LocationInPlayerBackpack) String() string {
+	return "ItemLocationInPlayerBackpack"
 }
 
 // LocationEquipped は装備中位置

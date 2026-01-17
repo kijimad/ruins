@@ -28,7 +28,7 @@ func TestSaveLoadItemLocations(t *testing.T) {
 	item1 := w.Manager.NewEntity()
 	item1.AddComponent(w.Components.Item, &gc.Item{})
 	item1.AddComponent(w.Components.Name, &gc.Name{Name: "テストアイテム1"})
-	item1.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	item1.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 	// アイテムエンティティを作成してフィールドに配置
 	item2 := w.Manager.NewEntity()
@@ -74,7 +74,7 @@ func TestSaveLoadItemLocations(t *testing.T) {
 	backpackItemCount := 0
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テストアイテム1", name.Name)

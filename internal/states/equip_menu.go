@@ -464,7 +464,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	if slotNumber == gc.SlotMeleeWeapon || slotNumber == gc.SlotRangedWeapon {
 		world.Manager.Join(
 			world.Components.Item,
-			world.Components.ItemLocationInBackpack,
+			world.Components.ItemLocationInPlayerBackpack,
 			world.Components.Weapon,
 			world.Components.Attack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -497,7 +497,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 
 		world.Manager.Join(
 			world.Components.Item,
-			world.Components.ItemLocationInBackpack,
+			world.Components.ItemLocationInPlayerBackpack,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
 			wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)

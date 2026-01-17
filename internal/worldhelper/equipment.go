@@ -9,13 +9,13 @@ import (
 // Equip は装備する
 func Equip(world w.World, item ecs.Entity, owner ecs.Entity, slotNumber gc.EquipmentSlotNumber) {
 	item.AddComponent(world.Components.ItemLocationEquipped, &gc.LocationEquipped{Owner: owner, EquipmentSlot: slotNumber})
-	item.RemoveComponent(world.Components.ItemLocationInBackpack)
+	item.RemoveComponent(world.Components.ItemLocationInPlayerBackpack)
 	item.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
 }
 
 // Disarm は装備を外す
 func Disarm(world w.World, item ecs.Entity) {
-	item.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
+	item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	item.RemoveComponent(world.Components.ItemLocationEquipped)
 	item.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
 }

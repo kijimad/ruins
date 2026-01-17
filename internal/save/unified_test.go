@@ -447,7 +447,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	sword := world.Manager.NewEntity()
 	sword.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
 	sword.AddComponent(world.Components.Item, &gc.Item{})
-	sword.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	sword.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	sword.AddComponent(world.Components.Attack, &gc.Attack{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
@@ -458,7 +458,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	handgun := world.Manager.NewEntity()
 	handgun.AddComponent(world.Components.Name, &gc.Name{Name: "ハンドガン"})
 	handgun.AddComponent(world.Components.Item, &gc.Item{})
-	handgun.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	handgun.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	handgun.AddComponent(world.Components.Attack, &gc.Attack{
 		Accuracy: 85, Damage: 12, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
@@ -469,7 +469,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	armor := world.Manager.NewEntity()
 	armor.AddComponent(world.Components.Name, &gc.Name{Name: "西洋鎧"})
 	armor.AddComponent(world.Components.Item, &gc.Item{})
-	armor.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	armor.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	armor.AddComponent(world.Components.Wearable, &gc.Wearable{
 		Defense:           15,
 		EquipmentCategory: gc.EquipmentTorso,
@@ -483,7 +483,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	potion := world.Manager.NewEntity()
 	potion.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 	potion.AddComponent(world.Components.Item, &gc.Item{})
-	potion.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	potion.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	potion.AddComponent(world.Components.Consumable, &gc.Consumable{
 		UsableScene: gc.UsableSceneAny,
 		TargetType: gc.TargetType{
@@ -525,13 +525,13 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	material1 := world.Manager.NewEntity()
 	material1.AddComponent(world.Components.Name, &gc.Name{Name: "鉄"})
 	material1.AddComponent(world.Components.Item, &gc.Item{Count: 40})
-	material1.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	material1.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	material1.AddComponent(world.Components.Stackable, &gc.Stackable{})
 
 	material2 := world.Manager.NewEntity()
 	material2.AddComponent(world.Components.Name, &gc.Name{Name: "緑ハーブ"})
 	material2.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-	material2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	material2.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	material2.AddComponent(world.Components.Stackable, &gc.Stackable{})
 
 	return world

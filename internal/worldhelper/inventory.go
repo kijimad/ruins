@@ -12,9 +12,9 @@ import (
 func TransferItem(world w.World, itemEntity ecs.Entity, fromLocation, toLocation gc.ItemLocationType) {
 	// 現在の位置コンポーネントを削除
 	switch fromLocation {
-	case gc.ItemLocationInBackpack:
-		if itemEntity.HasComponent(world.Components.ItemLocationInBackpack) {
-			itemEntity.RemoveComponent(world.Components.ItemLocationInBackpack)
+	case gc.ItemLocationInPlayerBackpack:
+		if itemEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+			itemEntity.RemoveComponent(world.Components.ItemLocationInPlayerBackpack)
 		}
 	case gc.ItemLocationOnField:
 		if itemEntity.HasComponent(world.Components.ItemLocationOnField) {
@@ -24,8 +24,8 @@ func TransferItem(world w.World, itemEntity ecs.Entity, fromLocation, toLocation
 
 	// 新しい位置コンポーネントを追加
 	switch toLocation {
-	case gc.ItemLocationInBackpack:
-		itemEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	case gc.ItemLocationInPlayerBackpack:
+		itemEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	case gc.ItemLocationOnField:
 		itemEntity.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
 	}
@@ -37,7 +37,7 @@ func GetInventoryItems(world w.World) []ecs.Entity {
 
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInBackpack,
+		world.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		items = append(items, entity)
 	}))
@@ -51,7 +51,7 @@ func GetInventoryStackables(world w.World) []ecs.Entity {
 
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInBackpack,
+		world.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		stackables = append(stackables, entity)
 	}))
@@ -66,7 +66,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInBackpack,
+		world.Components.ItemLocationInPlayerBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if found {
@@ -89,7 +89,7 @@ func FindItemInInventory(world w.World, itemName string) (ecs.Entity, bool) {
 
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInBackpack,
+		world.Components.ItemLocationInPlayerBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if found {
@@ -133,7 +133,7 @@ func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error {
 	}
 
 	// インベントリ変動フラグを立てる
-	// TODO(kijima): プレイヤーに固定しているが、持ち主にフラグを立てるべき
+	// TODO(kijima): 移動ヘルパーで書くようにしたい
 	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
 		playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 	}))

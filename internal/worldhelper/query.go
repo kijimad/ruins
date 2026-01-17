@@ -11,7 +11,7 @@ import (
 func QueryOwnedStackable(world w.World, f func(entity ecs.Entity)) {
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInBackpack,
+		world.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(f))
 }
 

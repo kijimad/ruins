@@ -47,9 +47,9 @@ func getComponentTypeMap() map[string]reflect.Type {
 		"FactionAlly": reflect.TypeOf(&gc.FactionAllyData{}),
 
 		// アイテム
-		"Item":                   reflect.TypeOf(&gc.Item{}),
-		"ItemLocationInBackpack": reflect.TypeOf(&gc.LocationInBackpack{}),
-		"ItemLocationEquipped":   reflect.TypeOf(&gc.LocationEquipped{}),
+		"Item":                         reflect.TypeOf(&gc.Item{}),
+		"ItemLocationInPlayerBackpack": reflect.TypeOf(&gc.LocationInPlayerBackpack{}),
+		"ItemLocationEquipped":         reflect.TypeOf(&gc.LocationEquipped{}),
 
 		// イベント
 		"EquipmentChanged": reflect.TypeOf(&gc.EquipmentChanged{}),
@@ -212,8 +212,8 @@ func (r *ComponentRegistry) registerNullComponent(typ reflect.Type, fieldName st
 				return struct{}{}, entity.HasComponent(world.Components.FactionAlly)
 			case "Item":
 				return struct{}{}, entity.HasComponent(world.Components.Item)
-			case "LocationInBackpack":
-				return struct{}{}, entity.HasComponent(world.Components.ItemLocationInBackpack)
+			case "LocationInPlayerBackpack":
+				return struct{}{}, entity.HasComponent(world.Components.ItemLocationInPlayerBackpack)
 			case "EquipmentChanged":
 				return struct{}{}, entity.HasComponent(world.Components.EquipmentChanged)
 			}
@@ -228,10 +228,12 @@ func (r *ComponentRegistry) registerNullComponent(typ reflect.Type, fieldName st
 				entity.AddComponent(world.Components.FactionAlly, &gc.FactionAllyData{})
 			case "Item":
 				entity.AddComponent(world.Components.Item, &gc.Item{})
-			case "LocationInBackpack":
-				entity.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+			case "LocationInPlayerBackpack":
+				entity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 			case "EquipmentChanged":
 				entity.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+			default:
+				return fmt.Errorf("unknown NullComponent type: %s", elemType.Name())
 			}
 			return nil
 		},

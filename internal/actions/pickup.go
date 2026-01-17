@@ -167,7 +167,7 @@ func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntit
 
 	// フィールドからバックパックに移動
 	itemEntity.RemoveComponent(world.Components.ItemLocationOnField)
-	itemEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	itemEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 	// グリッド表示コンポーネントを削除（フィールドから消す）
 	if itemEntity.HasComponent(world.Components.GridElement) {

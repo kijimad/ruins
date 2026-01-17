@@ -183,7 +183,7 @@ func (sm *SerializationManager) extractWorldData(world w.World) WorldSaveData {
 	}))
 
 	// 2. バックパック内のアイテムを保存
-	world.Manager.Join(world.Components.ItemLocationInBackpack).Visit(ecs.Visit(func(entity ecs.Entity) {
+	world.Manager.Join(world.Components.ItemLocationInPlayerBackpack).Visit(ecs.Visit(func(entity ecs.Entity) {
 		sm.processEntityForSave(entity, world, &entities, processedEntities)
 	}))
 

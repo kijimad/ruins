@@ -18,7 +18,7 @@ func TestGetAmount(t *testing.T) {
 	materialEntity := world.Manager.NewEntity()
 	materialEntity.AddComponent(world.Components.Item, &gc.Item{Count: 10})
 	materialEntity.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	materialEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
+	materialEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.ItemLocationInPlayerBackpack)
 	materialEntity.AddComponent(world.Components.Name, &gc.Name{Name: "鉄"})
 
 	// 素材の数量を取得
@@ -43,7 +43,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	materialEntity := world.Manager.NewEntity()
 	materialEntity.AddComponent(world.Components.Item, &gc.Item{Count: 10})
 	materialEntity.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	materialEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
+	materialEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.ItemLocationInPlayerBackpack)
 	materialEntity.AddComponent(world.Components.Name, &gc.Name{Name: "鉄"})
 
 	// 数量を増加
@@ -92,14 +92,14 @@ func TestMergeInventoryItem(t *testing.T) {
 		item1.AddComponent(world.Components.Item, &gc.Item{Count: 3})
 		item1.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item1.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		item1.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item1.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		// バックパック内にパンを2個追加
 		item2 := world.Manager.NewEntity()
 		item2.AddComponent(world.Components.Item, &gc.Item{Count: 2})
 		item2.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item2.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		item2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item2.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		// マージ実行
 		err := MergeInventoryItem(world, "パン")
@@ -110,7 +110,7 @@ func TestMergeInventoryItem(t *testing.T) {
 		var totalCount int
 		world.Manager.Join(
 			world.Components.Stackable,
-			world.Components.ItemLocationInBackpack,
+			world.Components.ItemLocationInPlayerBackpack,
 			world.Components.Name,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
 			name := world.Components.Name.Get(entity).(*gc.Name)
@@ -134,7 +134,7 @@ func TestMergeInventoryItem(t *testing.T) {
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		// マージ実行
 		err := MergeInventoryItem(world, "パン")
@@ -154,12 +154,12 @@ func TestMergeInventoryItem(t *testing.T) {
 		item1 := world.Manager.NewEntity()
 		item1.AddComponent(world.Components.Item, &gc.Item{Count: 1})
 		item1.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-		item1.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item1.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		item2 := world.Manager.NewEntity()
 		item2.AddComponent(world.Components.Item, &gc.Item{Count: 1})
 		item2.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-		item2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item2.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		// マージ実行
 		err := MergeInventoryItem(world, "剣")

@@ -292,7 +292,7 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	entity := entitiesSlice[len(entitiesSlice)-1]
 
 	// バックパックに追加した場合はインベントリ重量を再計算する
-	if locationType == gc.ItemLocationInBackpack {
+	if locationType == gc.ItemLocationInPlayerBackpack {
 		var playerEntity ecs.Entity
 		world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
 			playerEntity = e

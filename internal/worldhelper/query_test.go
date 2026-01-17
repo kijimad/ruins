@@ -18,12 +18,12 @@ func TestQueryOwnedStackable(t *testing.T) {
 	stackableEntity := world.Manager.NewEntity()
 	stackableEntity.AddComponent(world.Components.Item, &gc.Item{Count: 5})
 	stackableEntity.AddComponent(world.Components.Stackable, &gc.Stackable{})
-	stackableEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
+	stackableEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.ItemLocationInPlayerBackpack)
 	stackableEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストスタック可能アイテム"})
 
 	// スタック不可アイテムを作成（除外されることを確認）
 	nonStackableEntity := world.Manager.NewEntity()
-	nonStackableEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
+	nonStackableEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.ItemLocationInPlayerBackpack)
 	nonStackableEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 
 	// クエリを実行
