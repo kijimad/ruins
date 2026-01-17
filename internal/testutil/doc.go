@@ -71,8 +71,8 @@
 // 3. InitTestWorld()を作成 → 速度と安全性を両立
 //
 // これにより、以下のような多数のテストで安全に並行実行できるようになりました：
-//   - lib/worldhelper/craft_test.go
-//   - lib/worldhelper/currency_test.go
-//   - lib/worldhelper/equipment_test.go
+//   - worldhelper/craft_test.go
+//   - worldhelper/currency_test.go
+//   - worldhelper/equipment_test.go
 //   - その他、UIを使わない全てのテスト
 package testutil

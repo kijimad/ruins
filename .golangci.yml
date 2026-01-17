@@ -38,13 +38,13 @@ linters:
         engine_guard:
           list-mode: lax
           files:
-            - "**/lib/engine/**"
+            - "**/internal/engine/**"
             - "!$test"
           deny:
             # 正確にmodule名である必要がある。ワイルドカードは使えない
-            - pkg: "github.com/kijimaD/ruins/lib/world"
+            - pkg: "github.com/kijimaD/ruins/internal/world"
               desc: engineはworldに依存しない
-            - pkg: "github.com/kijimaD/ruins/lib/components"
+            - pkg: "github.com/kijimaD/ruins/internal/components"
               desc: engineはcomponentsに依存しない
-            - pkg: "github.com/kijimaD/ruins/lib/resources"
+            - pkg: "github.com/kijimaD/ruins/internal/resources"
               desc: engineはresourcesに依存しない

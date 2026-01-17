@@ -3,7 +3,7 @@ package resources
 import "fmt"
 
 // ResourceProvider は抽象的なリソースプロバイダインターフェース
-// 具体的な実装は lib/resources パッケージに移動
+// 具体的な実装は internal/resources パッケージに移動
 type ResourceProvider interface {
 	GetScreenDimensions() (width, height int)
 	SetScreenDimensions(width, height int)
