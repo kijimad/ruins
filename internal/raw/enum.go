@@ -26,6 +26,7 @@ func (enum ValueType) Valid() error {
 	switch enum {
 	case PercentageType, NumeralType:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }

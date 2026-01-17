@@ -1,6 +1,7 @@
 package messagewindow
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 
@@ -520,6 +521,8 @@ func (w *Window) DoAction(action inputmapper.ActionID) {
 	switch action {
 	case inputmapper.ActionConfirm, inputmapper.ActionSkip:
 		w.Close()
+	default:
+		panic(fmt.Sprintf("invalid action: %s", action))
 	}
 }
 

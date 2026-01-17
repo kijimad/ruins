@@ -93,6 +93,8 @@ func (sm *StateMachine[T]) Update(world T) error {
 	states := sm.createStatesFromFunc()
 
 	switch sm.lastTransition.Type {
+	case TransNone:
+		// 何もしない
 	case TransPop:
 		if err := sm.pop(world); err != nil {
 			return err

@@ -276,6 +276,8 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 			entitySpec.ProvidesHealing = &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: item.ProvidesHealing.Ratio}}
 		case NumeralType:
 			entitySpec.ProvidesHealing = &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: item.ProvidesHealing.Amount}}
+		default:
+			return gc.EntitySpec{}, fmt.Errorf("不明なValueType: %v", item.ProvidesHealing.ValueType)
 		}
 	}
 	if item.ProvidesNutrition != nil {

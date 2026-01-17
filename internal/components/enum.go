@@ -25,9 +25,9 @@ func (enum TargetNumType) Valid() error {
 	switch enum {
 	case TargetSingle, TargetAll:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }
 
 // ================
@@ -51,9 +51,9 @@ func (enum TargetGroupType) Valid() error {
 	switch enum {
 	case TargetGroupAlly, TargetGroupEnemy, TargetGroupWeapon, TargetGroupNone:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }
 
 // ================
@@ -75,9 +75,9 @@ func (enum UsableSceneType) Valid() error {
 	switch enum {
 	case UsableSceneBattle, UsableSceneField, UsableSceneAny:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }
 
 // ================
@@ -167,26 +167,23 @@ func (enum EquipmentType) Valid() error {
 	switch enum {
 	case EquipmentHead, EquipmentTorso, EquipmentLegs, EquipmentJewelry:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }
 
 func (enum EquipmentType) String() string {
-	var result string
 	switch enum {
 	case EquipmentHead:
-		result = "頭部"
+		return "頭部"
 	case EquipmentTorso:
-		result = "胴体"
+		return "胴体"
 	case EquipmentLegs:
-		result = "脚部"
+		return "脚部"
 	case EquipmentJewelry:
-		result = "装飾"
-	default:
-		panic("invalid equiment slot type")
+		return "装飾"
 	}
-	return result
+	panic(fmt.Sprintf("invalid equipment slot type: %s", string(enum)))
 }
 
 // ================
@@ -212,25 +209,23 @@ func (enum ElementType) Valid() error {
 	switch enum {
 	case ElementTypeNone, ElementTypeFire, ElementTypeThunder, ElementTypeChill, ElementTypePhoton:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }
 
 func (enum ElementType) String() string {
-	var result string
 	switch enum {
 	case ElementTypeNone:
-		result = "無"
+		return "無"
 	case ElementTypeFire:
-		result = "火"
+		return "火"
 	case ElementTypeThunder:
-		result = "電"
+		return "電"
 	case ElementTypeChill:
-		result = "冷"
+		return "冷"
 	case ElementTypePhoton:
-		result = "光"
-	default:
-		panic("invalid element type")
+		return "光"
 	}
-	return result
+	panic(fmt.Sprintf("invalid element type: %s", string(enum)))
 }

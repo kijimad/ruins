@@ -247,6 +247,8 @@ func (am *ActivityManager) GetActivitySummary() map[string]interface{} {
 			activeCount++
 		case ActivityStatePaused:
 			pausedCount++
+		case ActivityStateCompleted, ActivityStateCanceled:
+			// 完了/キャンセル状態はカウントしない
 		}
 	}
 
