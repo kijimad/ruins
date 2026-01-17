@@ -26,21 +26,6 @@ type WidgetConfig struct {
 	Padding    Insets // 内部パディング
 }
 
-// DefaultConfig はデフォルト設定を返す
-func DefaultConfig() WidgetConfig {
-	return WidgetConfig{
-		MaxLines:   5,
-		LineHeight: 20,
-		Spacing:    3,
-		Padding: Insets{
-			Top:    2,
-			Bottom: 2,
-			Left:   2,
-			Right:  2,
-		},
-	}
-}
-
 // Widget はメッセージログ表示ウィジェット
 type Widget struct {
 	ui        *ebitenui.UI

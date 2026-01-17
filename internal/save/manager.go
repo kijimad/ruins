@@ -446,16 +446,6 @@ func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time
 	return saveData.Timestamp, nil
 }
 
-// GetStableIDManager は安定IDマネージャーを取得
-func (sm *SerializationManager) GetStableIDManager() *StableIDManager {
-	return sm.stableIDManager
-}
-
-// GetComponentRegistry はコンポーネントレジストリを取得
-func (sm *SerializationManager) GetComponentRegistry() *ComponentRegistry {
-	return sm.componentRegistry
-}
-
 // calculateChecksum はセーブデータのチェックサムを計算する
 // 決定的な順序でハッシュ計算を行うため、エンティティとコンポーネントをソートする
 func (sm *SerializationManager) calculateChecksum(data *Data) string {

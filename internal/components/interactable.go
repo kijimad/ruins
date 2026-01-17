@@ -113,8 +113,9 @@ func (enum ActivationRange) Valid() error {
 	switch enum {
 	case ActivationRangeSameTile, ActivationRangeAdjacent:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }
 
 // ================
@@ -136,6 +137,7 @@ func (enum ActivationWay) Valid() error {
 	switch enum {
 	case ActivationWayAuto, ActivationWayManual, ActivationWayOnCollision:
 		return nil
+	default:
+		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 	}
-	return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
 }

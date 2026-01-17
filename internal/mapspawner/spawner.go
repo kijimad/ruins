@@ -64,6 +64,8 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			propName = "warp_next"
 		case mapplanner.WarpPortalEscape:
 			propName = "warp_escape"
+		default:
+			return resources.Level{}, fmt.Errorf("不明なワープポータルタイプ: %v", portal.Type)
 		}
 
 		_, err := worldhelper.SpawnProp(world, propName, tileX, tileY)

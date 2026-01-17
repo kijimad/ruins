@@ -18,10 +18,15 @@ linters:
     - paralleltest   # テストの並列実行（t.Parallel()）推奨
     - tparallel      # t.Parallel()の不適切な使用検出
     - depguard       # 依存関係制御（禁止パッケージの使用防止）
+    - exhaustive     # enum switch文の網羅性チェック（バグ防止）
     # 現状と乖離が大きいので追加しない
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
   settings:
+    exhaustive:
+      check:
+        - switch
+      default-signifies-exhaustive: true # default句があれば網羅性を満たす
     depguard:
       rules:
         deprecated_packages:

@@ -20,19 +20,9 @@ func NewMockKeyboardInput() *MockKeyboardInput {
 	}
 }
 
-// IsKeyJustPressed はキーが今フレームだけ押されたかを返す
-func (m *MockKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool {
-	return m.justPressedKeys[key]
-}
-
 // IsKeyPressed はキーが現在押されているかを返す
 func (m *MockKeyboardInput) IsKeyPressed(key ebiten.Key) bool {
 	return m.pressedKeys[key]
-}
-
-// SetKeyJustPressed はテスト用にキーの状態を設定する
-func (m *MockKeyboardInput) SetKeyJustPressed(key ebiten.Key, pressed bool) {
-	m.justPressedKeys[key] = pressed
 }
 
 // SetKeyPressed はテスト用にキーの状態を設定する

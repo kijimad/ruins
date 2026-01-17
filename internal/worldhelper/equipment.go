@@ -1,6 +1,8 @@
 package worldhelper
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -64,6 +66,8 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 				entities[2] = &entity
 			case gc.SlotJewelry:
 				entities[3] = &entity
+			default:
+				panic(fmt.Sprintf("invalid equipment slot: %v", equipped.EquipmentSlot))
 			}
 		}
 	}))

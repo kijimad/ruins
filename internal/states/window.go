@@ -43,6 +43,7 @@ func UpdateFocusIndex(action inputmapper.ActionID, focusIndex *int, itemCount in
 			*focusIndex = 0
 		}
 		return true
+	default:
+		return false
 	}
-	return false
 }
