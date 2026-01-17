@@ -8,29 +8,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// TransferItem はアイテムの位置を変更する
-func TransferItem(world w.World, itemEntity ecs.Entity, fromLocation, toLocation gc.ItemLocationType) {
-	// 現在の位置コンポーネントを削除
-	switch fromLocation {
-	case gc.ItemLocationInPlayerBackpack:
-		if itemEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
-			itemEntity.RemoveComponent(world.Components.ItemLocationInPlayerBackpack)
-		}
-	case gc.ItemLocationOnField:
-		if itemEntity.HasComponent(world.Components.ItemLocationOnField) {
-			itemEntity.RemoveComponent(world.Components.ItemLocationOnField)
-		}
-	}
-
-	// 新しい位置コンポーネントを追加
-	switch toLocation {
-	case gc.ItemLocationInPlayerBackpack:
-		itemEntity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
-	case gc.ItemLocationOnField:
-		itemEntity.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
-	}
-}
-
 // GetInventoryItems はバックパック内のアイテム一覧を取得する
 func GetInventoryItems(world w.World) []ecs.Entity {
 	var items []ecs.Entity

@@ -53,10 +53,10 @@ func InitDebugData(world w.World) {
 	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
 
 	// 木刀は近接武器スロットに装備
-	Equip(world, weapon1, player, gc.SlotMeleeWeapon)
+	MoveToEquip(world, weapon1, player, gc.SlotMeleeWeapon)
 	// ハンドガンは遠距離武器スロットに装備
-	Equip(world, weapon2, player, gc.SlotRangedWeapon)
+	MoveToEquip(world, weapon2, player, gc.SlotRangedWeapon)
 	// 西洋鎧は胴体スロットに装備
-	Equip(world, armor, player, gc.SlotTorso)
+	MoveToEquip(world, armor, player, gc.SlotTorso)
 
 }

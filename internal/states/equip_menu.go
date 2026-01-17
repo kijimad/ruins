@@ -682,11 +682,11 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.I
 
 	// 前の装備を外す
 	if st.previousEquipment != nil {
-		worldhelper.Disarm(world, *st.previousEquipment)
+		worldhelper.MoveToBackpack(world, *st.previousEquipment, st.equipTargetMember)
 	}
 
 	// 保存されたメンバーに新しい装備を装着
-	worldhelper.Equip(world, entity, st.equipTargetMember, slotNumber)
+	worldhelper.MoveToEquip(world, entity, st.equipTargetMember, slotNumber)
 
 	// 装備モードを終了して元の表示に戻る
 	return st.exitEquipMode(world)
@@ -695,8 +695,9 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.I
 // unequipItem は装備を外す
 func (st *EquipMenuState) unequipItem(world w.World, userData map[string]interface{}) {
 	slotEntity, hasEquipment := userData["entity"].(*ecs.Entity)
+	member := userData["member"].(ecs.Entity)
 	if hasEquipment && slotEntity != nil {
-		worldhelper.Disarm(world, *slotEntity)
+		worldhelper.MoveToBackpack(world, *slotEntity, member)
 		st.reloadTabs(world)
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
 		st.reloadAbilityContainer(world)

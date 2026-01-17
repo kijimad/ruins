@@ -19,7 +19,7 @@ func (sys EquipmentChangedSystem) String() string {
 	return "EquipmentChangedSystem"
 }
 
-// ShouldRun は装備変更フラグをチェックし、フラグをクリアする
+// ShouldRun は装備変更フラグをチェックする（フラグ削除は Update で行う）
 // ShouldRunner interfaceを実装
 func (sys *EquipmentChangedSystem) ShouldRun(world w.World) bool {
 	running := false
@@ -27,7 +27,6 @@ func (sys *EquipmentChangedSystem) ShouldRun(world w.World) bool {
 		world.Components.EquipmentChanged,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		running = true
-		entity.RemoveComponent(world.Components.EquipmentChanged)
 	}))
 	return running
 }
@@ -35,7 +34,16 @@ func (sys *EquipmentChangedSystem) ShouldRun(world w.World) bool {
 // Update は装備変更フラグをチェックし、必要に応じてステータスを再計算する
 // w.Updater interfaceを実装
 func (sys *EquipmentChangedSystem) Update(world w.World) error {
-	if !sys.ShouldRun(world) {
+	// フラグをチェックしてクリアする
+	hasChanged := false
+	world.Manager.Join(
+		world.Components.EquipmentChanged,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		hasChanged = true
+		entity.RemoveComponent(world.Components.EquipmentChanged)
+	}))
+
+	if !hasChanged {
 		return nil
 	}
 
