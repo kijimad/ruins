@@ -26,37 +26,37 @@ func InitDebugData(world w.World) {
 	}
 
 	// 基本アイテムの生成
-	weapon1, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInBackpack)
-	weapon2, _ := SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "M72 LAW", 1, gc.ItemLocationInBackpack)
-	armor, _ := SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "作業用ヘルメット", 1, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "革のブーツ", 1, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "レイガン", 1, gc.ItemLocationInBackpack)
+	weapon1, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+	weapon2, _ := SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "M72 LAW", 1, gc.ItemLocationInPlayerBackpack)
+	armor, _ := SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "作業用ヘルメット", 1, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "革のブーツ", 1, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "レイガン", 1, gc.ItemLocationInPlayerBackpack)
 	// Stackableアイテム
-	_, _ = SpawnItem(world, "ルビー原石", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "回復薬", 3, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "回復スプレー", 3, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "手榴弾", 5, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "パン", 10, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "鉄", 14, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "ルビー原石", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "回復薬", 3, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "回復スプレー", 3, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "手榴弾", 5, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "パン", 10, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "鉄", 14, gc.ItemLocationInPlayerBackpack)
 
 	// アイテム生成
-	_, _ = SpawnItem(world, "木刀", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "ハンドガン", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "レイガン", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "西洋鎧", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "作業用ヘルメット", 2, gc.ItemLocationInBackpack)
-	_, _ = SpawnItem(world, "革のブーツ", 2, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "木刀", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "ハンドガン", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "レイガン", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "西洋鎧", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "作業用ヘルメット", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "革のブーツ", 2, gc.ItemLocationInPlayerBackpack)
 
 	// プレイヤー生成
 	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
 
 	// 木刀は近接武器スロットに装備
-	Equip(world, weapon1, player, gc.SlotMeleeWeapon)
+	MoveToEquip(world, weapon1, player, gc.SlotMeleeWeapon)
 	// ハンドガンは遠距離武器スロットに装備
-	Equip(world, weapon2, player, gc.SlotRangedWeapon)
+	MoveToEquip(world, weapon2, player, gc.SlotRangedWeapon)
 	// 西洋鎧は胴体スロットに装備
-	Equip(world, armor, player, gc.SlotTorso)
+	MoveToEquip(world, armor, player, gc.SlotTorso)
 
 }

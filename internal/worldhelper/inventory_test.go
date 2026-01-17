@@ -19,7 +19,7 @@ func TestChangeItemCount(t *testing.T) {
 		// Count=1のアイテムを作成
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 1})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 
 		// 1個消費（負の値で減少）
@@ -38,7 +38,7 @@ func TestChangeItemCount(t *testing.T) {
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 5})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 
 		// 2個消費
@@ -59,7 +59,7 @@ func TestChangeItemCount(t *testing.T) {
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 3})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 
 		// 3個全て消費
@@ -77,7 +77,7 @@ func TestChangeItemCount(t *testing.T) {
 		// Count=2のアイテムを作成
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 
 		// 5個消費（所持数を超える）
@@ -98,7 +98,7 @@ func TestChangeItemCount(t *testing.T) {
 		// Count=3のアイテムを作成
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 3})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		// 2個追加
 		err := ChangeItemCount(world, item, 2)
@@ -149,7 +149,7 @@ func TestChangeItemCount(t *testing.T) {
 		// アイテムを作成
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
-		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 
 		// 1個消費
 		err := ChangeItemCount(world, item, -1)

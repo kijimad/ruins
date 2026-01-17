@@ -99,7 +99,7 @@ func TestSellItem(t *testing.T) {
 	player.AddComponent(world.Components.Wallet, &gc.Wallet{Currency: 0})
 
 	// アイテムを生成
-	item, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInBackpack)
+	item, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 
 	t.Run("アイテムの売却成功", func(t *testing.T) {
 		t.Parallel()

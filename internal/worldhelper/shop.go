@@ -70,17 +70,17 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 		err := ChangeStackableCount(world, itemName, 1)
 		if err != nil {
 			// 購入失敗時は通貨を返金
-			if refundErr := AddCurrency(world, playerEntity, price); refundErr != nil {
+			if refundErr := addCurrency(world, playerEntity, price); refundErr != nil {
 				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
 			}
 			return fmt.Errorf("アイテムの生成に失敗しました: %w", err)
 		}
 	} else {
 		// 通常アイテムは新規作成
-		_, err := SpawnItem(world, itemName, 1, gc.ItemLocationInBackpack)
+		_, err := SpawnItem(world, itemName, 1, gc.ItemLocationInPlayerBackpack)
 		if err != nil {
 			// 購入失敗時は通貨を返金
-			if refundErr := AddCurrency(world, playerEntity, price); refundErr != nil {
+			if refundErr := addCurrency(world, playerEntity, price); refundErr != nil {
 				return fmt.Errorf("アイテムの生成に失敗し、返金も失敗しました: %w (返金エラー: %v)", err, refundErr)
 			}
 			return fmt.Errorf("アイテムの生成に失敗しました: %w", err)
@@ -103,7 +103,7 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 		return fmt.Errorf("アイテムの売却に失敗した: %w", err)
 	}
 
-	if err := AddCurrency(world, playerEntity, price); err != nil {
+	if err := addCurrency(world, playerEntity, price); err != nil {
 		return fmt.Errorf("通貨の追加に失敗しました: %w", err)
 	}
 

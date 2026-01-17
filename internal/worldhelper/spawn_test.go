@@ -146,7 +146,7 @@ func TestFullRecover(t *testing.T) {
 	})
 
 	// FullRecoverを実行
-	err := FullRecover(world, entity)
+	err := fullRecover(world, entity)
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
 	// 結果を検証
@@ -237,7 +237,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "回復薬", 5, gc.ItemLocationInBackpack)
+		item, err := SpawnItem(world, "回復薬", 5, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 
 		itemComp := world.Components.Item.Get(item).(*gc.Item)
@@ -248,7 +248,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "木刀", 1, gc.ItemLocationInBackpack)
+		item, err := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 
 		itemComp := world.Components.Item.Get(item).(*gc.Item)
@@ -259,7 +259,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 2, gc.ItemLocationInBackpack)
+		_, err := SpawnItem(world, "木刀", 2, gc.ItemLocationInPlayerBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "is not stackable")
 		assert.Contains(t, err.Error(), "count must be 1")
@@ -269,7 +269,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 0, gc.ItemLocationInBackpack)
+		_, err := SpawnItem(world, "木刀", 0, gc.ItemLocationInPlayerBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -278,7 +278,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", -1, gc.ItemLocationInBackpack)
+		_, err := SpawnItem(world, "木刀", -1, gc.ItemLocationInPlayerBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -287,7 +287,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.ItemLocationInBackpack)
+		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.ItemLocationInPlayerBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "item not found")
 	})

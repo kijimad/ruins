@@ -13,7 +13,7 @@ func TestCanCraft(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 必要な素材を作成（木刀レシピは木の棒2個が必要）
-	material, _ := SpawnItem(world, "木の棒", 5, gc.ItemLocationInBackpack)
+	material, _ := SpawnItem(world, "木の棒", 5, gc.ItemLocationInPlayerBackpack)
 
 	// クラフト可能かテスト
 	canCraft, err := CanCraft(world, "木刀")
@@ -55,7 +55,7 @@ func TestCraft(t *testing.T) {
 	assert.Contains(t, err.Error(), "必要素材が足りません", "エラーメッセージに素材不足の内容が含まれるべき")
 
 	// 素材を用意してクラフト成功
-	_, _ = SpawnItem(world, "木の棒", 5, gc.ItemLocationInBackpack)
+	_, _ = SpawnItem(world, "木の棒", 5, gc.ItemLocationInPlayerBackpack)
 	result, err = Craft(world, "木刀")
 	assert.NotNil(t, result, "素材が十分ならば結果が返されるべき")
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")

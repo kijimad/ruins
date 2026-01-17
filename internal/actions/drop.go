@@ -41,7 +41,7 @@ func (da *DropActivity) Validate(act *Activity, world w.World) error {
 	}
 
 	// Targetがバックパック内にあることを確認
-	if !da.Target.HasComponent(world.Components.ItemLocationInBackpack) {
+	if !da.Target.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 
@@ -99,17 +99,13 @@ func (da *DropActivity) performDropActivity(act *Activity, world w.World) error 
 	formattedName := worldhelper.FormatItemName(world, da.Target)
 
 	// バックパックから削除してフィールドに移動
-	da.Target.RemoveComponent(world.Components.ItemLocationInBackpack)
-	da.Target.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+	worldhelper.MoveToField(world, da.Target, act.Actor)
 
 	// グリッド位置を設定
 	da.Target.AddComponent(world.Components.GridElement, &gc.GridElement{
 		X: playerGrid.X,
 		Y: playerGrid.Y,
 	})
-
-	// インベントリ変動フラグを立てる
-	act.Actor.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 
 	gamelog.New(gamelog.FieldLog).
 		Append(formattedName).

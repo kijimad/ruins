@@ -19,19 +19,19 @@ func TestEquipMenuWearSortIntegration(t *testing.T) {
 	wearable1 := world.Manager.NewEntity()
 	wearable1.AddComponent(world.Components.Name, &gc.Name{Name: "Shield"})
 	wearable1.AddComponent(world.Components.Item, &gc.Item{})
-	wearable1.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	wearable1.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	wearable1.AddComponent(world.Components.Wearable, &gc.Wearable{EquipmentCategory: gc.EquipmentHead})
 
 	wearable2 := world.Manager.NewEntity()
 	wearable2.AddComponent(world.Components.Name, &gc.Name{Name: "Armor"})
 	wearable2.AddComponent(world.Components.Item, &gc.Item{})
-	wearable2.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	wearable2.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	wearable2.AddComponent(world.Components.Wearable, &gc.Wearable{EquipmentCategory: gc.EquipmentHead})
 
 	wearable3 := world.Manager.NewEntity()
 	wearable3.AddComponent(world.Components.Name, &gc.Name{Name: "Helmet"})
 	wearable3.AddComponent(world.Components.Item, &gc.Item{})
-	wearable3.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	wearable3.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	wearable3.AddComponent(world.Components.Wearable, &gc.Wearable{EquipmentCategory: gc.EquipmentHead})
 
 	// queryEquipableItemsForSlotのテスト（頭部装備）
@@ -63,21 +63,21 @@ func TestEquipMenuWeaponSortIntegration(t *testing.T) {
 	weapon1 := world.Manager.NewEntity()
 	weapon1.AddComponent(world.Components.Name, &gc.Name{Name: "Thunder Weapon"})
 	weapon1.AddComponent(world.Components.Item, &gc.Item{})
-	weapon1.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	weapon1.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	weapon1.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon1.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackSword})
 
 	weapon2 := world.Manager.NewEntity()
 	weapon2.AddComponent(world.Components.Name, &gc.Name{Name: "Fire Weapon"})
 	weapon2.AddComponent(world.Components.Item, &gc.Item{})
-	weapon2.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	weapon2.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	weapon2.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon2.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackSpear})
 
 	weapon3 := world.Manager.NewEntity()
 	weapon3.AddComponent(world.Components.Name, &gc.Name{Name: "Ice Weapon"})
 	weapon3.AddComponent(world.Components.Item, &gc.Item{})
-	weapon3.AddComponent(world.Components.ItemLocationInBackpack, gc.LocationInBackpack{})
+	weapon3.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	weapon3.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon3.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackFist})
 

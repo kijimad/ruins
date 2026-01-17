@@ -45,7 +45,7 @@ func (ra *ReadActivity) Validate(act *Activity, world w.World) error {
 	}
 
 	// バックパック内にあるかチェック
-	if !targetEntity.HasComponent(world.Components.ItemLocationInBackpack) {
+	if !targetEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
 		return fmt.Errorf("本がバックパック内にありません")
 	}
 

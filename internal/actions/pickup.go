@@ -156,7 +156,7 @@ func (pa *PickupActivity) performPickupActivity(act *Activity, world w.World) er
 }
 
 // collectFieldItem はフィールドアイテムを収集してバックパックに移動する
-func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntity ecs.Entity) error {
+func (pa *PickupActivity) collectFieldItem(act *Activity, world w.World, itemEntity ecs.Entity) error {
 	itemName := "Unknown Item"
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
 		name := nameComp.(*gc.Name)
@@ -166,18 +166,12 @@ func (pa *PickupActivity) collectFieldItem(_ *Activity, world w.World, itemEntit
 	formattedName := worldhelper.FormatItemName(world, itemEntity)
 
 	// フィールドからバックパックに移動
-	itemEntity.RemoveComponent(world.Components.ItemLocationOnField)
-	itemEntity.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	worldhelper.MoveToBackpack(world, itemEntity, act.Actor)
 
 	// グリッド表示コンポーネントを削除（フィールドから消す）
 	if itemEntity.HasComponent(world.Components.GridElement) {
 		itemEntity.RemoveComponent(world.Components.GridElement)
 	}
-
-	// インベントリ変動フラグを立てる
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
-		playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
-	}))
 
 	// 既存のバックパック内の同名Stackableアイテムを統合する処理
 	if err := worldhelper.MergeInventoryItem(world, itemName); err != nil {

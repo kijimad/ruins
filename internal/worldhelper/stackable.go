@@ -14,7 +14,7 @@ func MergeInventoryItem(world w.World, itemName string) error {
 	var stackableItems []ecs.Entity
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInBackpack,
+		world.Components.ItemLocationInPlayerBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
@@ -65,6 +65,6 @@ func ChangeStackableCount(world w.World, name string, amount int) error {
 	}
 
 	// 増やす操作で存在しない場合は新規作成する
-	_, err := SpawnItem(world, name, amount, gc.ItemLocationInBackpack)
+	_, err := SpawnItem(world, name, amount, gc.ItemLocationInPlayerBackpack)
 	return err
 }

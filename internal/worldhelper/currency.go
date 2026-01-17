@@ -8,9 +8,8 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// AddCurrency はエンティティに所持金を追加する
-// Walletコンポーネントがない場合はエラーを返す
-func AddCurrency(world w.World, entity ecs.Entity, amount int) error {
+// addCurrency はエンティティに所持金を追加する（内部用）
+func addCurrency(world w.World, entity ecs.Entity, amount int) error {
 	wallet := world.Components.Wallet.Get(entity)
 	if wallet == nil {
 		return fmt.Errorf("エンティティにWalletコンポーネントがありません")

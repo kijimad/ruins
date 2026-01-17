@@ -21,7 +21,7 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	}
 
 	// ダメージログ出力（プレイヤー関連の場合のみ）
-	if IsPlayerEntity(source, world) || IsPlayerEntity(target, world) {
+	if isPlayerEntity(source, world) || isPlayerEntity(target, world) {
 		logDamageDealt(world, source, target, damage)
 	}
 
@@ -48,7 +48,7 @@ func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage 
 // logDeath は死亡ログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	// プレイヤー関連の場合のみログ出力
-	if !IsPlayerEntity(source, world) && !IsPlayerEntity(target, world) {
+	if !isPlayerEntity(source, world) && !isPlayerEntity(target, world) {
 		return
 	}
 
@@ -82,8 +82,8 @@ func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string,
 	}
 }
 
-// IsPlayerEntity はエンティティがプレイヤーかを判定する
-func IsPlayerEntity(entity ecs.Entity, world w.World) bool {
+// isPlayerEntity はエンティティがプレイヤーかを判定する
+func isPlayerEntity(entity ecs.Entity, world w.World) bool {
 	return entity.HasComponent(world.Components.Player)
 }
 

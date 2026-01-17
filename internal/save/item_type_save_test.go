@@ -29,7 +29,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	wearableItem.AddComponent(w.Components.Item, &gc.Item{})
 	wearableItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト防具"})
 	wearableItem.AddComponent(w.Components.Description, &gc.Description{Description: "テスト用の防具です"})
-	wearableItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	wearableItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	wearableItem.AddComponent(w.Components.Wearable, &gc.Wearable{
 		Defense:           10,
 		EquipmentCategory: gc.EquipmentTorso,
@@ -42,7 +42,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	weaponItem := w.Manager.NewEntity()
 	weaponItem.AddComponent(w.Components.Item, &gc.Item{})
 	weaponItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト武器"})
-	weaponItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	weaponItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	weaponItem.AddComponent(w.Components.Weapon, &gc.Weapon{
 		TargetType: gc.TargetType{
 			TargetGroup: gc.TargetGroupAlly,
@@ -55,14 +55,14 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	materialItem := w.Manager.NewEntity()
 	materialItem.AddComponent(w.Components.Item, &gc.Item{Count: 5})
 	materialItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト素材"})
-	materialItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	materialItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	materialItem.AddComponent(w.Components.Stackable, &gc.Stackable{})
 
 	// 消費アイテムを作成
 	consumableItem := w.Manager.NewEntity()
 	consumableItem.AddComponent(w.Components.Item, &gc.Item{})
 	consumableItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト消費アイテム"})
-	consumableItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	consumableItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	consumableItem.AddComponent(w.Components.Consumable, &gc.Consumable{
 		TargetType: gc.TargetType{
 			TargetGroup: gc.TargetGroupAlly,
@@ -74,7 +74,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	attackItem := w.Manager.NewEntity()
 	attackItem.AddComponent(w.Components.Item, &gc.Item{})
 	attackItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト武器"})
-	attackItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	attackItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	attackItem.AddComponent(w.Components.Attack, &gc.Attack{
 		Damage:      50,
 		Accuracy:    90,
@@ -86,7 +86,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	recipeItem := w.Manager.NewEntity()
 	recipeItem.AddComponent(w.Components.Item, &gc.Item{})
 	recipeItem.AddComponent(w.Components.Name, &gc.Name{Name: "合成可能アイテム"})
-	recipeItem.AddComponent(w.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
+	recipeItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
 	recipeItem.AddComponent(w.Components.Recipe, &gc.Recipe{
 		Inputs: []gc.RecipeInput{
 			{Name: "素材A", Amount: 2},
@@ -117,7 +117,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
 		newWorld.Components.Wearable,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト防具", name.Name)
@@ -139,7 +139,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
 		newWorld.Components.Weapon,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト武器", name.Name)
@@ -157,7 +157,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	materialCount := 0
 	newWorld.Manager.Join(
 		newWorld.Components.Stackable,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト素材", name.Name)
@@ -174,7 +174,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
 		newWorld.Components.Consumable,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト消費アイテム", name.Name)
@@ -192,7 +192,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
 		newWorld.Components.Attack,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト武器", name.Name)
@@ -212,7 +212,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
 		newWorld.Components.Recipe,
-		newWorld.Components.ItemLocationInBackpack,
+		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "合成可能アイテム", name.Name)

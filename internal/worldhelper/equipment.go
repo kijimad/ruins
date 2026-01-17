@@ -6,20 +6,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// Equip は装備する
-func Equip(world w.World, item ecs.Entity, owner ecs.Entity, slotNumber gc.EquipmentSlotNumber) {
-	item.AddComponent(world.Components.ItemLocationEquipped, &gc.LocationEquipped{Owner: owner, EquipmentSlot: slotNumber})
-	item.RemoveComponent(world.Components.ItemLocationInBackpack)
-	item.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
-}
-
-// Disarm は装備を外す
-func Disarm(world w.World, item ecs.Entity) {
-	item.AddComponent(world.Components.ItemLocationInBackpack, &gc.ItemLocationInBackpack)
-	item.RemoveComponent(world.Components.ItemLocationEquipped)
-	item.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
-}
-
 // GetMeleeWeapon は近接武器を取得する
 func GetMeleeWeapon(world w.World, owner ecs.Entity) *ecs.Entity {
 	var result *ecs.Entity

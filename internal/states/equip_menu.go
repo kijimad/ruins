@@ -75,27 +75,24 @@ func (st *EquipMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// UI更新が必要かチェック
+	needsUIUpdate := worldhelper.HasEquipmentChanged(world) || worldhelper.HasInventoryChanged(world)
+
+	// システム更新（フラグをクリアして処理実行）
 	for _, updater := range []w.Updater{
 		&gs.EquipmentChangedSystem{},
 		&gs.InventoryChangedSystem{},
 	} {
-		changed := false
-
 		if sys, ok := world.Updaters[updater.String()]; ok {
-			if shouldRunner, ok := sys.(gs.ShouldRunner); ok {
-				if shouldRunner.ShouldRun(world) {
-					changed = true
-				}
-			}
-
 			if err := sys.Update(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-
-			if changed {
-				st.reloadAbilityContainer(world)
-			}
 		}
+	}
+
+	// UI更新
+	if needsUIUpdate {
+		st.reloadAbilityContainer(world)
 	}
 
 	// キー入力をActionに変換
@@ -464,7 +461,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	if slotNumber == gc.SlotMeleeWeapon || slotNumber == gc.SlotRangedWeapon {
 		world.Manager.Join(
 			world.Components.Item,
-			world.Components.ItemLocationInBackpack,
+			world.Components.ItemLocationInPlayerBackpack,
 			world.Components.Weapon,
 			world.Components.Attack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -497,7 +494,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 
 		world.Manager.Join(
 			world.Components.Item,
-			world.Components.ItemLocationInBackpack,
+			world.Components.ItemLocationInPlayerBackpack,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
 			wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
@@ -682,11 +679,11 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.I
 
 	// 前の装備を外す
 	if st.previousEquipment != nil {
-		worldhelper.Disarm(world, *st.previousEquipment)
+		worldhelper.MoveToBackpack(world, *st.previousEquipment, st.equipTargetMember)
 	}
 
 	// 保存されたメンバーに新しい装備を装着
-	worldhelper.Equip(world, entity, st.equipTargetMember, slotNumber)
+	worldhelper.MoveToEquip(world, entity, st.equipTargetMember, slotNumber)
 
 	// 装備モードを終了して元の表示に戻る
 	return st.exitEquipMode(world)
@@ -695,8 +692,9 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.I
 // unequipItem は装備を外す
 func (st *EquipMenuState) unequipItem(world w.World, userData map[string]interface{}) {
 	slotEntity, hasEquipment := userData["entity"].(*ecs.Entity)
+	member := userData["member"].(ecs.Entity)
 	if hasEquipment && slotEntity != nil {
-		worldhelper.Disarm(world, *slotEntity)
+		worldhelper.MoveToBackpack(world, *slotEntity, member)
 		st.reloadTabs(world)
 		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
 		st.reloadAbilityContainer(world)

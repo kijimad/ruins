@@ -23,7 +23,7 @@ func Craft(world w.World, name string) (*ecs.Entity, error) {
 		return nil, fmt.Errorf("必要素材が足りません")
 	}
 
-	resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInBackpack)
+	resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInPlayerBackpack)
 	if err != nil {
 		return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}
