@@ -18,42 +18,42 @@ func TestCalculateMaxCarryingWeight(t *testing.T) {
 		{
 			name:       "nil attributes",
 			attributes: nil,
-			expected:   BaseCarryingWeight,
+			expected:   baseCarryingWeight,
 		},
 		{
 			name: "strength 0",
 			attributes: &gc.Attributes{
 				Strength: gc.Attribute{Base: 0},
 			},
-			expected: BaseCarryingWeight, // 10.0
+			expected: baseCarryingWeight, // 10.0
 		},
 		{
 			name: "strength 5",
 			attributes: &gc.Attributes{
 				Strength: gc.Attribute{Base: 5},
 			},
-			expected: BaseCarryingWeight + 5*StrengthWeightMultiplier, // 10 + 10 = 20
+			expected: baseCarryingWeight + 5*strengthWeightMultiplier, // 10 + 10 = 20
 		},
 		{
 			name: "strength 10",
 			attributes: &gc.Attributes{
 				Strength: gc.Attribute{Base: 10},
 			},
-			expected: BaseCarryingWeight + 10*StrengthWeightMultiplier, // 10 + 20 = 30
+			expected: baseCarryingWeight + 10*strengthWeightMultiplier, // 10 + 20 = 30
 		},
 		{
 			name: "strength with modifier",
 			attributes: &gc.Attributes{
 				Strength: gc.Attribute{Base: 5, Modifier: 3}, // Total: 8
 			},
-			expected: BaseCarryingWeight + 8*StrengthWeightMultiplier, // 10 + 16 = 26
+			expected: baseCarryingWeight + 8*strengthWeightMultiplier, // 10 + 16 = 26
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := CalculateMaxCarryingWeight(tt.attributes)
+			result := calculateMaxCarryingWeight(tt.attributes)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -72,7 +72,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 1.0})
 		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
-		weight := CalculateCurrentCarryingWeight(world, player)
+		weight := calculateCurrentCarryingWeight(world, player)
 		assert.Equal(t, 1.0, weight)
 	})
 
@@ -92,7 +92,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 		item2.AddComponent(world.Components.Weight, &gc.Weight{Kg: 2.0})
 		item2.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
-		weight := CalculateCurrentCarryingWeight(world, player)
+		weight := calculateCurrentCarryingWeight(world, player)
 		assert.Equal(t, 3.0, weight)
 	})
 
@@ -108,7 +108,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
 		item.AddComponent(world.Components.ItemLocationInBackpack, &gc.LocationInBackpack{})
 
-		weight := CalculateCurrentCarryingWeight(world, player)
+		weight := calculateCurrentCarryingWeight(world, player)
 		assert.Equal(t, 2.5, weight)
 	})
 
@@ -126,7 +126,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 			EquipmentSlot: gc.SlotHead,
 		})
 
-		weight := CalculateCurrentCarryingWeight(world, player)
+		weight := calculateCurrentCarryingWeight(world, player)
 		assert.Equal(t, 3.0, weight)
 	})
 
@@ -150,7 +150,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 			EquipmentSlot: gc.SlotHead,
 		})
 
-		weight := CalculateCurrentCarryingWeight(world, player)
+		weight := calculateCurrentCarryingWeight(world, player)
 		assert.Equal(t, 4.0, weight)
 	})
 
@@ -170,7 +170,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 		})
 
 		// player1の所持重量は0であるべき
-		weight := CalculateCurrentCarryingWeight(world, player1)
+		weight := calculateCurrentCarryingWeight(world, player1)
 		assert.Equal(t, 0.0, weight)
 	})
 
@@ -185,7 +185,7 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 5.0})
 		item.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
 
-		weight := CalculateCurrentCarryingWeight(world, player)
+		weight := calculateCurrentCarryingWeight(world, player)
 		assert.Equal(t, 0.0, weight)
 	})
 }
