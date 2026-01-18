@@ -44,6 +44,8 @@ const (
 	CategoryEntity Category = "entity" // エンティティ操作
 	// CategoryComponent はコンポーネント操作のログカテゴリ
 	CategoryComponent Category = "component" // コンポーネント操作
+	// CategorySystem はシステム処理のログカテゴリ
+	CategorySystem Category = "system" // システム処理
 
 	// CategoryPerf はパフォーマンス計測のログカテゴリ
 	CategoryPerf Category = "perf" // パフォーマンス計測

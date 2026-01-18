@@ -28,7 +28,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		initialY := int(gridBefore.Y)
 
 		// 北に移動
-		ExecuteMoveAction(world, gc.DirectionUp)
+		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
 
 		// 移動後の座標を確認
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
@@ -40,9 +40,8 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーなしで移動を試みる（パニックしないことを確認）
-		ExecuteMoveAction(world, gc.DirectionUp)
-		// エラーにならず何も起きないべき
+		// プレイヤーなしで移動を試みる（エラーが返ることを確認）
+		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
 	})
 
 	t.Run("GridElementがない場合", func(t *testing.T) {
@@ -54,7 +53,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
 		// 移動を試みる（パニックしないことを確認）
-		ExecuteMoveAction(world, gc.DirectionUp)
+		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
 		// エラーにならず何も起きないべき
 	})
 
@@ -87,7 +86,7 @@ func TestExecuteMoveAction(t *testing.T) {
 				player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 				player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-				ExecuteMoveAction(world, tt.direction)
+				assert.NoError(t, ExecuteMoveAction(world, tt.direction))
 
 				gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 				assert.Equal(t, tt.expectedX, int(gridAfter.X), "X座標が正しく移動するべき")
@@ -109,10 +108,9 @@ func TestExecuteWaitAction(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-		// 待機アクションを実行（パニックしないことを確認）
-		ExecuteWaitAction(world)
+		// 待機アクションを実行
+		assert.NoError(t, ExecuteWaitAction(world))
 
-		// プレイヤーエンティティが存在することを確認
 		assert.True(t, player.HasComponent(world.Components.Player), "プレイヤーが存在するべき")
 	})
 
@@ -120,9 +118,8 @@ func TestExecuteWaitAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーなしで待機を試みる（パニックしないことを確認）
-		ExecuteWaitAction(world)
-		// エラーにならず何も起きないべき
+		// プレイヤーなしで待機を試みる（エラーが返ることを確認）
+		assert.Error(t, ExecuteWaitAction(world))
 	})
 }
 
@@ -147,7 +144,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 
 		// Enterアクションを実行
-		ExecuteEnterAction(world)
+		assert.NoError(t, ExecuteEnterAction(world))
 
 		// Enterアクションが実行されることを確認（パニックしない）
 		assert.True(t, player.HasComponent(world.Components.Player), "プレイヤーが存在するべき")
@@ -169,7 +166,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		warp.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// Enterアクションを実行（ワープ処理が呼ばれることを期待）
-		ExecuteEnterAction(world)
+		assert.NoError(t, ExecuteEnterAction(world))
 
 		// ワープ処理が実行されたかは、実装によって検証方法が異なる
 		// ここではパニックしないことを確認
@@ -179,9 +176,8 @@ func TestExecuteEnterAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーなしでEnterを試みる（パニックしないことを確認）
-		ExecuteEnterAction(world)
-		// エラーにならず何も起きないべき
+		// プレイヤーなしでEnterを試みる（エラーが返ることを確認）
+		assert.Error(t, ExecuteEnterAction(world))
 	})
 
 	t.Run("GridElementがない場合", func(t *testing.T) {
@@ -193,7 +189,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
 		// Enterを試みる（パニックしないことを確認）
-		ExecuteEnterAction(world)
+		assert.NoError(t, ExecuteEnterAction(world))
 		// エラーにならず何も起きないべき
 	})
 
@@ -208,7 +204,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// Enterアクションを実行
-		ExecuteEnterAction(world)
+		assert.NoError(t, ExecuteEnterAction(world))
 
 		// 何も起きないことを確認（パニックしない）
 		assert.True(t, player.HasComponent(world.Components.Player), "プレイヤーが存在するべき")
@@ -249,7 +245,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		initialPlayerY := int(world.Components.GridElement.Get(player).(*gc.GridElement).Y)
 
 		// 北に移動（敵がいる方向）
-		ExecuteMoveAction(world, gc.DirectionUp)
+		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
 
 		// プレイヤーが移動していないことを確認（攻撃したため）
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)

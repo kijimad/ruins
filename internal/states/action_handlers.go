@@ -13,14 +13,14 @@ import (
 )
 
 // ExecuteMoveAction は移動アクションを実行する
-func ExecuteMoveAction(world w.World, direction gc.Direction) {
+func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	entity, err := worldhelper.GetPlayerEntity(world)
 	if err != nil {
-		return
+		return err
 	}
 
 	if !entity.HasComponent(world.Components.GridElement) {
-		return
+		return nil
 	}
 
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -42,16 +42,14 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) {
 				if !door.IsOpen {
 					// 閉じているドアは開く相互作用を実行
 					params := actions.ActionParams{Actor: entity}
-					executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
-					return
+					return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
 				}
 				// 開いているドアは通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
 		} else {
 			// ドア以外のOnCollision相互作用（会話など）は常に実行
 			params := actions.ActionParams{Actor: entity}
-			executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
-			return
+			return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
 		}
 	}
 
@@ -62,18 +60,20 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) {
 			Actor:       entity,
 			Destination: &destination,
 		}
-		executeActivity(world, &actions.MoveActivity{}, params)
+		return executeActivity(world, &actions.MoveActivity{}, params)
 	}
+
+	return nil
 }
 
 // executeActivity はアクティビティ実行関数
-func executeActivity(world w.World, actorImpl actions.ActivityInterface, params actions.ActionParams) {
-	manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
+func executeActivity(world w.World, actorImpl actions.ActivityInterface, params actions.ActionParams) error {
+	log := logger.New(logger.CategoryAction)
+	manager := actions.NewActivityManager(log)
 
 	result, err := manager.Execute(actorImpl, params, world)
 	if err != nil {
-		_ = result // エラーの場合は結果を使用しない
-		return
+		return err
 	}
 
 	// 会話の場合は会話メッセージを表示するStateEventを設定
@@ -92,13 +92,15 @@ func executeActivity(world w.World, actorImpl actions.ActivityInterface, params 
 	if _, isMoveActivity := actorImpl.(*actions.MoveActivity); isMoveActivity && result != nil && result.Success && params.Destination != nil {
 		checkTileEvents(world, params.Actor, int(params.Destination.X), int(params.Destination.Y))
 	}
+
+	return nil
 }
 
 // ExecuteWaitAction は待機アクションを実行する
-func ExecuteWaitAction(world w.World) {
+func ExecuteWaitAction(world w.World) error {
 	entity, err := worldhelper.GetPlayerEntity(world)
 	if err != nil {
-		return
+		return err
 	}
 
 	params := actions.ActionParams{
@@ -106,18 +108,18 @@ func ExecuteWaitAction(world w.World) {
 		Duration: 1,
 		Reason:   "プレイヤー待機",
 	}
-	executeActivity(world, &actions.WaitActivity{}, params)
+	return executeActivity(world, &actions.WaitActivity{}, params)
 }
 
 // ExecuteEnterAction は直上タイルの相互作用を実行する
-func ExecuteEnterAction(world w.World) {
+func ExecuteEnterAction(world w.World) error {
 	entity, err := worldhelper.GetPlayerEntity(world)
 	if err != nil {
-		return
+		return err
 	}
 
 	if !entity.HasComponent(world.Components.GridElement) {
-		return
+		return nil
 	}
 
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -125,8 +127,10 @@ func ExecuteEnterAction(world w.World) {
 	interactable, interactableEntity := getInteractableAtSameTile(world, gridElement)
 	if interactable != nil && interactable.Data.Config().ActivationRange == gc.ActivationRangeSameTile {
 		params := actions.ActionParams{Actor: entity}
-		executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
+		return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
 	}
+
+	return nil
 }
 
 // checkTileEvents はタイル上のイベントをチェックする

@@ -300,36 +300,56 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 移動系アクション（World状態を変更）
 	case inputmapper.ActionMoveNorth:
-		ExecuteMoveAction(world, gc.DirectionUp)
+		if err := ExecuteMoveAction(world, gc.DirectionUp); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouth:
-		ExecuteMoveAction(world, gc.DirectionDown)
+		if err := ExecuteMoveAction(world, gc.DirectionDown); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveEast:
-		ExecuteMoveAction(world, gc.DirectionRight)
+		if err := ExecuteMoveAction(world, gc.DirectionRight); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveWest:
-		ExecuteMoveAction(world, gc.DirectionLeft)
+		if err := ExecuteMoveAction(world, gc.DirectionLeft); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveNorthEast:
-		ExecuteMoveAction(world, gc.DirectionUpRight)
+		if err := ExecuteMoveAction(world, gc.DirectionUpRight); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveNorthWest:
-		ExecuteMoveAction(world, gc.DirectionUpLeft)
+		if err := ExecuteMoveAction(world, gc.DirectionUpLeft); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouthEast:
-		ExecuteMoveAction(world, gc.DirectionDownRight)
+		if err := ExecuteMoveAction(world, gc.DirectionDownRight); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouthWest:
-		ExecuteMoveAction(world, gc.DirectionDownLeft)
+		if err := ExecuteMoveAction(world, gc.DirectionDownLeft); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionWait:
-		ExecuteWaitAction(world)
+		if err := ExecuteWaitAction(world); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	// 相互作用系アクション
 	case inputmapper.ActionInteract:
-		ExecuteEnterAction(world)
+		if err := ExecuteEnterAction(world); err != nil {
+			return es.Transition[w.World]{Type: es.TransNone}, err
+		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:

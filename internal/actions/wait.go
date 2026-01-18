@@ -33,11 +33,6 @@ func (wa *WaitActivity) Validate(act *Activity, _ w.World) error {
 	// 待機は基本的に常に実行可能
 	// ただし、最低限のチェックは行う
 
-	// アクターが存在するかチェック
-	if act.Actor == 0 {
-		return fmt.Errorf("待機するエンティティが指定されていません")
-	}
-
 	// 待機時間が妥当かチェック
 	if act.TurnsTotal <= 0 {
 		return fmt.Errorf("待機時間が無効です")
