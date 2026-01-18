@@ -209,19 +209,24 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 
-	// メニューキー（M）でダンジョンメニューを開く
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {
-		return inputmapper.ActionOpenDungeonMenu, true
-	}
-
 	cfg := config.MustGet()
 	if cfg.Debug && keyboardInput.IsKeyJustPressed(ebiten.KeySlash) {
 		return inputmapper.ActionOpenDebugMenu, true
 	}
 
-	// インタラクションメニュー（Space）
+	// ダンジョンメニュー
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {
+		return inputmapper.ActionOpenDungeonMenu, true
+	}
+
+	// インタラクションメニュー
 	if keyboardInput.IsKeyJustPressed(ebiten.KeySpace) {
 		return inputmapper.ActionOpenInteractionMenu, true
+	}
+
+	// 敵表示メニュー
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
+		return inputmapper.ActionOpenEnemySelectMenu, true
 	}
 
 	// 8方向移動キー入力（キーリピート対応）
@@ -273,7 +278,7 @@ func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenEnemySelectMenu:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -296,6 +301,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	case inputmapper.ActionOpenInteractionMenu:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return NewInteractionMenuState(world) },
+		}}, nil
+	case inputmapper.ActionOpenEnemySelectMenu:
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return &FieldInfoState{} },
 		}}, nil
 
 	// 移動系アクション（World状態を変更）

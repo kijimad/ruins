@@ -25,6 +25,7 @@ const (
 	ActionOpenDungeonMenu     ActionID = "open_dungeon_menu"
 	ActionOpenDebugMenu       ActionID = "open_debug_menu"
 	ActionOpenInteractionMenu ActionID = "open_interaction_menu"
+	ActionOpenEnemySelectMenu ActionID = "open_enemy_select_menu"
 	ActionCloseMenu           ActionID = "close_menu"
 )
 
