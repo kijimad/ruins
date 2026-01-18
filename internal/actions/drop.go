@@ -35,11 +35,6 @@ func (da *DropActivity) String() string {
 
 // Validate はアイテムドロップアクティビティの検証を行う
 func (da *DropActivity) Validate(act *Activity, world w.World) error {
-	// Targetがnilでないことを確認
-	if da.Target == 0 {
-		return fmt.Errorf("捨てるアイテムが指定されていません")
-	}
-
 	// Targetがバックパック内にあることを確認
 	if !da.Target.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")

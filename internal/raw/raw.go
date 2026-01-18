@@ -464,7 +464,6 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		Defense:   gc.Attribute{Base: member.Attributes.Defense},
 	}
 	entitySpec.Pools = &gc.Pools{}
-	entitySpec.EquipmentChanged = &gc.EquipmentChanged{}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}

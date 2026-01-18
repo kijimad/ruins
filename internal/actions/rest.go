@@ -149,11 +149,6 @@ func (ra *RestActivity) Canceled(act *Activity, world w.World) error {
 
 // performHealing はHP回復処理を実行する
 func (ra *RestActivity) performHealing(act *Activity, world w.World) error {
-	// アクターの有効性チェック
-	if act.Actor == 0 {
-		return fmt.Errorf("休息するエンティティが指定されていません")
-	}
-
 	// Poolsコンポーネントを取得
 	poolsComponent := world.Components.Pools.Get(act.Actor)
 	if poolsComponent == nil {
@@ -161,7 +156,10 @@ func (ra *RestActivity) performHealing(act *Activity, world w.World) error {
 		return nil
 	}
 
-	pools := poolsComponent.(*gc.Pools)
+	pools, ok := poolsComponent.(*gc.Pools)
+	if !ok {
+		return fmt.Errorf("Poolsコンポーネントの型変換に失敗しました")
+	}
 	if pools.HP.Current >= pools.HP.Max {
 		// 既に満タンの場合は早期完了
 		act.Complete()

@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // MoveActivity はActivityInterfaceの実装
@@ -49,6 +49,23 @@ func (ma *MoveActivity) Validate(act *Activity, world w.World) error {
 		return ErrMoveTargetInvalid
 	}
 
+	// APが足りるかチェック
+	// TODO(kijima): 装備時に俊敏性が下がりAPが足りなくなって動けなくなるが、所持重量は変わっていないし最大重量を超えるわけでもないのに動けなくなるのはおかしい
+	if act.Actor.HasComponent(world.Components.TurnBased) {
+		turnBased := world.Components.TurnBased.Get(act.Actor).(*gc.TurnBased)
+		moveCost := ma.Info().ActionPointCost
+
+		if turnBased.AP.Max < moveCost {
+			if act.Actor.HasComponent(world.Components.Player) {
+				gamelog.New(gamelog.FieldLog).
+					Warning("重すぎて動けない").
+					Log()
+			}
+			// エラーではない
+			return nil
+		}
+	}
+
 	return nil
 }
 
@@ -65,7 +82,15 @@ func (ma *MoveActivity) DoTurn(act *Activity, world w.World) error {
 		return ErrMoveTargetNotSet
 	}
 
-	if !ma.canMove(act, world) {
+	// GridElementの存在確認
+	gridElement := world.Components.GridElement.Get(act.Actor)
+	if gridElement == nil {
+		act.Cancel("移動できません（位置情報なし）")
+		return ErrMoveTargetInvalid
+	}
+
+	// 移動可能かチェック
+	if !movement.CanMoveTo(world, int(act.Position.X), int(act.Position.Y), act.Actor) {
 		act.Cancel("移動できません")
 		return ErrMoveTargetInvalid
 	}
@@ -103,8 +128,13 @@ func (ma *MoveActivity) performMove(act *Activity, world w.World) error {
 	grid.X = gc.Tile(act.Position.X)
 	grid.Y = gc.Tile(act.Position.Y)
 
-	// TODO: 移動だけでなく、ターンを消費するすべての操作で空腹度を上げる必要がする気もする
-	ma.increasePlayerHunger(act.Actor, world)
+	// TODO: 移動だけでなく、ターンを消費するすべての操作で空腹度を上げる必要がある
+	if act.Actor.HasComponent(world.Components.Player) {
+		if hungerComponent := world.Components.Hunger.Get(act.Actor); hungerComponent != nil {
+			hunger := hungerComponent.(*gc.Hunger)
+			hunger.Decrease(1)
+		}
+	}
 
 	act.Logger.Debug("移動完了",
 		"actor", act.Actor,
@@ -112,28 +142,4 @@ func (ma *MoveActivity) performMove(act *Activity, world w.World) error {
 		"to", fmt.Sprintf("(%.1f,%.1f)", act.Position.X, act.Position.Y))
 
 	return nil
-}
-
-func (ma *MoveActivity) increasePlayerHunger(entity ecs.Entity, world w.World) {
-	if !entity.HasComponent(world.Components.Player) {
-		return
-	}
-
-	if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
-		hunger := hungerComponent.(*gc.Hunger)
-		hunger.Decrease(1)
-	}
-}
-
-func (ma *MoveActivity) canMove(act *Activity, world w.World) bool {
-	gridElement := world.Components.GridElement.Get(act.Actor)
-	if gridElement == nil {
-		return false
-	}
-
-	if act.Position == nil {
-		return false
-	}
-
-	return movement.CanMoveTo(world, int(act.Position.X), int(act.Position.Y), act.Actor)
 }

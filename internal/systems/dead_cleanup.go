@@ -25,7 +25,7 @@ func (sys DeadCleanupSystem) String() string {
 // Update はDeadコンポーネントを持つ敵エンティティを削除する
 // w.Updater interfaceを実装
 func (sys *DeadCleanupSystem) Update(world w.World) error {
-	logger := logger.New(logger.CategoryEntity)
+	logger := logger.New(logger.CategorySystem)
 
 	// Deadコンポーネントを持つエンティティを検索
 	var toDelete []ecs.Entity
