@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image/color"
 	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -137,12 +136,6 @@ func (st *FieldInfoState) Update(_ w.World) (es.Transition[w.World], error) {
 
 // Draw はステートの描画処理
 func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
-	// 半透明の背景を描画
-	overlay := ebiten.NewImage(screen.Bounds().Dx(), screen.Bounds().Dy())
-	overlay.Fill(color.RGBA{0, 0, 0, 180})
-	screen.DrawImage(overlay, nil)
-
-	// フォントを取得
 	face := world.Resources.UIResources.Text.Face
 
 	const (
