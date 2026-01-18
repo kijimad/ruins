@@ -7,7 +7,7 @@ Description     = "体力を半分程度回復する"
 Value           = 100
 Weight          = 0.1
 SpriteSheetName = "field"
-SpriteKey       = "heal_item"
+SpriteKey       = "healing_potion"
 
 [Items.Consumable]
 UsableScene = "ANY"
@@ -303,7 +303,7 @@ Value             = 25
 Weight            = 0.35
 ProvidesNutrition = 80
 SpriteSheetName   = "field"
-SpriteKey         = "food_item"
+SpriteKey         = "bottled_cola"
 
 [Items.Consumable]
 UsableScene = "ANY"
@@ -394,10 +394,12 @@ Element        = "NONE"
 AttackCategory = "FIST"
 
 [[Items]]
-Name        = "木刀"
-Description = "旅行の土産でおなじみの、木でできた刃のない刀"
-Value       = 80
-Weight      = 1.2
+Name            = "木刀"
+Description     = "旅行の土産でおなじみの、木でできた刃のない刀"
+Value           = 80
+Weight          = 1.2
+SpriteSheetName = "field"
+SpriteKey       = "wooden_sword"
 
 [Items.Weapon]
 Cost        = 2
@@ -430,10 +432,12 @@ Element        = "NONE"
 AttackCategory = "SWORD"
 
 [[Items]]
-Name        = "ハンドガン"
-Description = "樹脂素材を多用した自動拳銃"
-Value       = 150
-Weight      = 0.8
+Name            = "ハンドガン"
+Description     = "樹脂素材を多用した自動拳銃"
+Value           = 150
+Weight          = 0.8
+SpriteSheetName = "field"
+SpriteKey       = "handgun"
 
 [Items.Weapon]
 Cost        = 2
@@ -1244,7 +1248,7 @@ Stackable       = true
 Description     = "鉄を多く含む金属の塊"
 Weight          = 1.0
 SpriteSheetName = "field"
-SpriteKey       = "field_item"
+SpriteKey       = "scrap_metal"
 
 [[Items]]
 Name            = "緑ハーブ"

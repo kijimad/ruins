@@ -9,7 +9,7 @@
     "duration": 100
    },
    {
-    "filename": "dark_doctor_0_",
+    "filename": "bottled_cola_",
     "frame": { "x": 0, "y": 96, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -18,7 +18,7 @@
     "duration": 100
    },
    {
-    "filename": "dark_doctor_1_",
+    "filename": "dark_doctor_0_",
     "frame": { "x": 32, "y": 96, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -27,7 +27,7 @@
     "duration": 100
    },
    {
-    "filename": "doctor_0_",
+    "filename": "dark_doctor_1_",
     "frame": { "x": 64, "y": 96, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -36,7 +36,7 @@
     "duration": 100
    },
    {
-    "filename": "doctor_1_",
+    "filename": "doctor_0_",
     "frame": { "x": 96, "y": 96, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -45,7 +45,7 @@
     "duration": 100
    },
    {
-    "filename": "door_horizontal_closed_",
+    "filename": "doctor_1_",
     "frame": { "x": 128, "y": 96, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -54,8 +54,17 @@
     "duration": 100
    },
    {
-    "filename": "door_horizontal_open_",
+    "filename": "door_horizontal_closed_",
     "frame": { "x": 160, "y": 96, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "door_horizontal_open_",
+    "frame": { "x": 192, "y": 96, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -82,7 +91,7 @@
    },
    {
     "filename": "exterior_",
-    "frame": { "x": 160, "y": 64, "w": 32, "h": 32 },
+    "frame": { "x": 192, "y": 64, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -108,7 +117,7 @@
     "duration": 100
    },
    {
-    "filename": "heal_item_",
+    "filename": "handgun_",
     "frame": { "x": 160, "y": 128, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -117,7 +126,16 @@
     "duration": 100
    },
    {
-    "filename": "light_tank_0_",
+    "filename": "healing_potion_",
+    "frame": { "x": 192, "y": 128, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "heal_item_",
     "frame": { "x": 0, "y": 160, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -126,7 +144,7 @@
     "duration": 100
    },
    {
-    "filename": "light_tank_1_",
+    "filename": "iron_sword_",
     "frame": { "x": 32, "y": 160, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -135,7 +153,7 @@
     "duration": 100
    },
    {
-    "filename": "melee_weapon_",
+    "filename": "light_tank_0_",
     "frame": { "x": 64, "y": 160, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -144,7 +162,7 @@
     "duration": 100
    },
    {
-    "filename": "merchant_0_",
+    "filename": "light_tank_1_",
     "frame": { "x": 96, "y": 160, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -153,7 +171,7 @@
     "duration": 100
    },
    {
-    "filename": "merchant_1_",
+    "filename": "merchant_0_",
     "frame": { "x": 96, "y": 32, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -162,7 +180,7 @@
     "duration": 100
    },
    {
-    "filename": "old_soldier_0_",
+    "filename": "merchant_1_",
     "frame": { "x": 32, "y": 0, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -171,7 +189,7 @@
     "duration": 100
    },
    {
-    "filename": "old_soldier_1_",
+    "filename": "old_soldier_0_",
     "frame": { "x": 64, "y": 0, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -180,7 +198,7 @@
     "duration": 100
    },
    {
-    "filename": "player_0_",
+    "filename": "old_soldier_1_",
     "frame": { "x": 96, "y": 0, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -189,7 +207,7 @@
     "duration": 100
    },
    {
-    "filename": "player_1_",
+    "filename": "player_0_",
     "frame": { "x": 128, "y": 0, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -198,8 +216,17 @@
     "duration": 100
    },
    {
-    "filename": "prop_barrel_",
+    "filename": "player_1_",
     "frame": { "x": 160, "y": 0, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "prop_barrel_",
+    "frame": { "x": 192, "y": 0, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
@@ -262,6 +289,15 @@
    },
    {
     "filename": "red_ball_1_",
+    "frame": { "x": 192, "y": 32, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "scrap_metal_",
     "frame": { "x": 0, "y": 64, "w": 32, "h": 32 },
     "rotated": false,
     "trimmed": false,
@@ -304,6 +340,15 @@
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
     "sourceSize": { "w": 32, "h": 32 },
     "duration": 100
+   },
+   {
+    "filename": "wooden_sword_",
+    "frame": { "x": 160, "y": 64, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 100
    }
  ],
  "meta": {
@@ -311,7 +356,7 @@
   "version": "1.3.13-x64",
   "image": "single.png",
   "format": "RGBA8888",
-  "size": { "w": 192, "h": 192 },
+  "size": { "w": 224, "h": 192 },
   "scale": "1"
  }
 }
