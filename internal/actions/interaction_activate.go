@@ -218,12 +218,8 @@ func (ia *InteractionActivateActivity) executeMelee(act *Activity, world w.World
 		Target: &ia.InteractableEntity, // 相互作用可能エンティティを攻撃対象とする
 	}
 
-	// 選択中の武器スロット番号（1-5）からEquipmentSlotNumberに変換
-	selectedSlot := world.Resources.SelectedWeaponSlot
-	weaponSlot := gc.EquipmentSlotNumber(int(gc.SlotWeapon1) + selectedSlot - 1)
-
 	manager := NewActivityManager(act.Logger)
-	_, err := manager.Execute(&AttackActivity{WeaponSlot: weaponSlot}, params, world)
+	_, err := manager.Execute(&AttackActivity{}, params, world)
 	if err != nil {
 		act.Logger.Warn("近接攻撃アクション失敗", "error", err)
 	}

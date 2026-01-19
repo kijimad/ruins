@@ -36,9 +36,7 @@ const (
 )
 
 // AttackActivity はActivityInterfaceの実装
-type AttackActivity struct {
-	WeaponSlot gc.EquipmentSlotNumber
-}
+type AttackActivity struct{}
 
 // Info はActivityInterfaceの実装
 func (aa *AttackActivity) Info() ActivityInfo {
@@ -298,10 +296,11 @@ func (aa *AttackActivity) getBareHandsAttack(world w.World) (*gc.Attack, string,
 func (aa *AttackActivity) getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.Player) {
-		// 武器スロット番号から配列インデックスに変換（SlotWeapon1=4 -> index 0）
-		weaponIndex := int(aa.WeaponSlot) - int(gc.SlotWeapon1)
+		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
+		selectedSlot := world.Resources.SelectedWeaponSlot
+		weaponIndex := selectedSlot - 1 // 1-based to 0-based
 		if weaponIndex < 0 || weaponIndex >= 5 {
-			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", aa.WeaponSlot)
+			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
 		}
 
 		weapons := worldhelper.GetWeapons(world, attacker)
