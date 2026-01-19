@@ -38,7 +38,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		// 探索済みタイルに設定
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 12, Y: 12}] = true
 
-		enemies := GetVisibleEnemies(world)
+		enemies, err := GetVisibleEnemies(world)
+		require.NoError(t, err)
 
 		require.Len(t, enemies, 1, "視界内の敵が見つからない")
 		assert.Equal(t, "ゴブリン", enemies[0].Name)
@@ -62,7 +63,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
-		enemies := GetVisibleEnemies(world)
+		enemies, err := GetVisibleEnemies(world)
+		require.NoError(t, err)
 
 		assert.Empty(t, enemies, "視界外の敵は取得されないべき")
 	})
@@ -91,7 +93,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 15, Y: 10}] = true
 
-		enemies := GetVisibleEnemies(world)
+		enemies, err := GetVisibleEnemies(world)
+		require.NoError(t, err)
 
 		require.Len(t, enemies, 2)
 		assert.Equal(t, "近い敵", enemies[0].Name, "最初は近い敵であるべき")
@@ -110,9 +113,10 @@ func TestGetVisibleEnemies(t *testing.T) {
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
-		enemies := GetVisibleEnemies(world)
+		enemies, err := GetVisibleEnemies(world)
 
-		assert.Nil(t, enemies, "プレイヤーがいない場合はnilを返すべき")
+		assert.Error(t, err, "プレイヤーがいない場合はエラーを返すべき")
+		assert.Nil(t, enemies)
 	})
 
 	t.Run("SpawnEnemyで生成された敵は名前を持つ", func(t *testing.T) {
@@ -131,7 +135,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
 
-		enemies := GetVisibleEnemies(world)
+		enemies, err := GetVisibleEnemies(world)
+		require.NoError(t, err)
 
 		require.Len(t, enemies, 1)
 		assert.NotEmpty(t, enemies[0].Name, "SpawnEnemyで生成された敵は名前を持つべき")
@@ -157,7 +162,8 @@ func TestGetVisibleItems(t *testing.T) {
 		// 探索済みタイルに設定
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 12, Y: 12}] = true
 
-		items := GetVisibleItems(world)
+		items, err := GetVisibleItems(world)
+		require.NoError(t, err)
 
 		require.Len(t, items, 1)
 		assert.Equal(t, "回復薬", items[0].Name)
@@ -181,7 +187,8 @@ func TestGetVisibleItems(t *testing.T) {
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
-		items := GetVisibleItems(world)
+		items, err := GetVisibleItems(world)
+		require.NoError(t, err)
 
 		assert.Empty(t, items, "視界外のアイテムは取得されないべき")
 	})
@@ -210,7 +217,8 @@ func TestGetVisibleItems(t *testing.T) {
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 15, Y: 10}] = true
 
-		items := GetVisibleItems(world)
+		items, err := GetVisibleItems(world)
+		require.NoError(t, err)
 
 		require.Len(t, items, 2)
 		assert.Equal(t, "近いアイテム", items[0].Name, "最初は近いアイテムであるべき")
@@ -234,7 +242,8 @@ func TestGetVisibleItems(t *testing.T) {
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
 
-		items := GetVisibleItems(world)
+		items, err := GetVisibleItems(world)
+		require.NoError(t, err)
 
 		require.Len(t, items, 1)
 		assert.NotEmpty(t, items[0].Name, "SpawnFieldItemで生成されたアイテムは名前を持つべき")

@@ -1,6 +1,7 @@
 package worldhelper
 
 import (
+	"fmt"
 	"math"
 	"sort"
 
@@ -32,15 +33,15 @@ type ItemInfo struct {
 }
 
 // GetVisibleEnemies は視界内の敵をすべて取得し、距離順にソートして返す
-func GetVisibleEnemies(world w.World) []EnemyInfo {
+func GetVisibleEnemies(world w.World) ([]EnemyInfo, error) {
 	// プレイヤー位置を取得
 	playerEntity, err := GetPlayerEntity(world)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	if !playerEntity.HasComponent(world.Components.GridElement) {
-		return nil
+		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
@@ -94,7 +95,7 @@ func GetVisibleEnemies(world w.World) []EnemyInfo {
 		return enemies[i].Distance < enemies[j].Distance
 	})
 
-	return enemies
+	return enemies, nil
 }
 
 // isInVision はプレイヤーから指定座標が見えるかをチェックする
@@ -103,7 +104,7 @@ func isInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	dx := targetX - playerX
 	dy := targetY - playerY
 	distanceInPixels := math.Sqrt(float64(dx*dx+dy*dy)) * float64(consts.TileSize)
-	visionRadius := 16 * float64(consts.TileSize) // VisionSystemと同じ視界半径
+	visionRadius := consts.VisionRadiusTiles * float64(consts.TileSize)
 
 	if distanceInPixels > visionRadius {
 		return false
@@ -115,15 +116,15 @@ func isInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 }
 
 // GetVisibleItems は視界内のアイテムをすべて取得し、距離順にソートして返す
-func GetVisibleItems(world w.World) []ItemInfo {
+func GetVisibleItems(world w.World) ([]ItemInfo, error) {
 	// プレイヤー位置を取得
 	playerEntity, err := GetPlayerEntity(world)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	if !playerEntity.HasComponent(world.Components.GridElement) {
-		return nil
+		return nil, fmt.Errorf("プレイヤーがGridElementを持っていません")
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
@@ -180,5 +181,5 @@ func GetVisibleItems(world w.World) []ItemInfo {
 		return items[i].Distance < items[j].Distance
 	})
 
-	return items
+	return items, nil
 }

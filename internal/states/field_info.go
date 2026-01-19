@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -49,7 +48,10 @@ func (st *FieldInfoState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *FieldInfoState) OnStart(world w.World) error {
 	// 視界内の敵を取得
-	enemies := worldhelper.GetVisibleEnemies(world)
+	enemies, err := worldhelper.GetVisibleEnemies(world)
+	if err != nil {
+		return err
+	}
 	for _, enemy := range enemies {
 		st.entries = append(st.entries, FieldEntry{
 			Type:     "enemy",
@@ -64,7 +66,10 @@ func (st *FieldInfoState) OnStart(world w.World) error {
 	}
 
 	// 視界内のアイテムを取得
-	items := worldhelper.GetVisibleItems(world)
+	items, err := worldhelper.GetVisibleItems(world)
+	if err != nil {
+		return err
+	}
 	for _, item := range items {
 		st.entries = append(st.entries, FieldEntry{
 			Type:        "item",
@@ -76,11 +81,6 @@ func (st *FieldInfoState) OnStart(world w.World) error {
 			GridY:       item.GridY,
 		})
 	}
-
-	// 距離順にソート
-	sort.Slice(st.entries, func(i, j int) bool {
-		return st.entries[i].Distance < st.entries[j].Distance
-	})
 
 	st.selectedIndex = 0
 
@@ -186,6 +186,11 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 	y += sectionMargin
 	st.drawText(screen, face, "================================", marginX, y)
 	y += lineHeight
+
+	// インデックスが範囲内かチェック
+	if st.selectedIndex < 0 || st.selectedIndex >= len(st.entries) {
+		return fmt.Errorf("選択インデックスが範囲外です: %d (範囲: 0-%d)", st.selectedIndex, len(st.entries)-1)
+	}
 
 	selected := st.entries[st.selectedIndex]
 	st.drawText(screen, face, fmt.Sprintf("名前: %s", selected.Name), marginX, y)
