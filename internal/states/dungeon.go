@@ -142,9 +142,6 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
-	// 武器スロット切り替え入力処理（1-5キー）
-	st.handleWeaponSlotInput(world)
-
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -274,10 +271,29 @@ func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 		return inputmapper.ActionInteract, true
 	}
 
+	// 武器スロット切り替え（1-5キー）
+	if keyboardInput.IsKeyJustPressed(ebiten.Key1) {
+		return inputmapper.ActionSwitchWeaponSlot1, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key2) {
+		return inputmapper.ActionSwitchWeaponSlot2, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key3) {
+		return inputmapper.ActionSwitchWeaponSlot3, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key4) {
+		return inputmapper.ActionSwitchWeaponSlot4, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key5) {
+		return inputmapper.ActionSwitchWeaponSlot5, true
+	}
+
 	return "", false
 }
 
 // DoAction はActionを実行する
+//
+//nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
@@ -364,6 +380,23 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
+	// 武器スロット切り替え系アクション
+	case inputmapper.ActionSwitchWeaponSlot1:
+		st.switchWeaponSlot(world, 1)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot2:
+		st.switchWeaponSlot(world, 2)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot3:
+		st.switchWeaponSlot(world, 3)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot4:
+		st.switchWeaponSlot(world, 4)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot5:
+		st.switchWeaponSlot(world, 5)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
 	}
@@ -429,33 +462,25 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
-// handleWeaponSlotInput は1-5キーによる武器スロット切り替えを処理する
-func (st *DungeonState) handleWeaponSlotInput(world w.World) {
-	keyboardInput := input.GetSharedKeyboardInput()
+// switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
+func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
+	world.Resources.SelectedWeaponSlot = slotNumber
 
-	// 1-5キーで武器スロットを選択
-	for i := 0; i < 5; i++ {
-		key := ebiten.Key(int(ebiten.Key1) + i)
-		if keyboardInput.IsKeyJustPressed(key) {
-			world.Resources.SelectedWeaponSlot = i + 1 // 1-5の番号
+	// プレイヤーの武器スロット情報を取得してログメッセージを出力
+	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
+		weapons := worldhelper.GetWeapons(world, playerEntity)
+		weaponIndex := slotNumber - 1 // 1-based to 0-based
+		weapon := weapons[weaponIndex]
 
-			// プレイヤーの武器スロット情報を取得してログメッセージを出力
-			worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-				weapons := worldhelper.GetWeapons(world, playerEntity)
-				weapon := weapons[i]
-
-				if weapon != nil {
-					// 武器が装備されている場合は武器名を表示
-					if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
-						weaponName := nameComp.(*gc.Name).Name
-						gamelog.New(gamelog.FieldLog).
-							ItemName(weaponName).
-							Append("を構えた").
-							Log()
-					}
-				}
-			})
-			break
+		if weapon != nil {
+			// 武器が装備されている場合は武器名を表示
+			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
+				weaponName := nameComp.(*gc.Name).Name
+				gamelog.New(gamelog.FieldLog).
+					ItemName(weaponName).
+					Append("を構えた").
+					Log()
+			}
 		}
-	}
+	})
 }

@@ -45,7 +45,12 @@ const (
 
 // 戦闘系アクション
 const (
-	ActionAttack ActionID = "attack"
+	ActionAttack            ActionID = "attack"
+	ActionSwitchWeaponSlot1 ActionID = "switch_weapon_slot_1"
+	ActionSwitchWeaponSlot2 ActionID = "switch_weapon_slot_2"
+	ActionSwitchWeaponSlot3 ActionID = "switch_weapon_slot_3"
+	ActionSwitchWeaponSlot4 ActionID = "switch_weapon_slot_4"
+	ActionSwitchWeaponSlot5 ActionID = "switch_weapon_slot_5"
 )
 
 // メニュー操作アクション

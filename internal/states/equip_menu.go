@@ -459,7 +459,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	items := []ecs.Entity{}
 
 	// 武器スロットの場合
-	if slotNumber >= gc.SlotWeapon1 && slotNumber <= gc.SlotWeapon5 {
+	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
 		world.Manager.Join(
 			world.Components.Item,
 			world.Components.ItemLocationInPlayerBackpack,
