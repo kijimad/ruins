@@ -119,7 +119,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 
 	if needsUpdate {
 		// タイルの可視性マップを更新
-		visionRadius := gc.Pixel(16 * consts.TileSize)
+		visionRadius := gc.Pixel(consts.VisionRadiusTiles * consts.TileSize)
 		visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius)
 
 		// 光源情報キャッシュをクリア（更新前）

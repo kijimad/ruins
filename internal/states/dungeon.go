@@ -227,9 +227,9 @@ func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 		return inputmapper.ActionOpenInteractionMenu, true
 	}
 
-	// 敵表示メニュー
+	// 視界情報表示
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
-		return inputmapper.ActionOpenEnemySelectMenu, true
+		return inputmapper.ActionOpenFieldInfo, true
 	}
 
 	// 8方向移動キー入力（キーリピート対応）
@@ -281,7 +281,7 @@ func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenEnemySelectMenu:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -305,7 +305,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return NewInteractionMenuState(world) },
 		}}, nil
-	case inputmapper.ActionOpenEnemySelectMenu:
+	case inputmapper.ActionOpenFieldInfo:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return &FieldInfoState{} },
 		}}, nil
