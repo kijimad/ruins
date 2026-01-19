@@ -19,71 +19,6 @@ ValueType = "PERCENTAGE"
 Ratio     = 0.5
 
 [[Items]]
-Name        = "回復スプレー"
-Stackable   = true
-Description = "全員の体力を半分程度回復する"
-Value       = 250
-Weight      = 0.15
-
-[Items.Consumable]
-UsableScene = "ANY"
-TargetGroup = "ALLY"
-TargetNum   = "ALL"
-
-[Items.ProvidesHealing]
-ValueType = "PERCENTAGE"
-Ratio     = 0.5
-
-[[Items]]
-Name           = "手榴弾"
-Stackable      = true
-Description    = "敵全体にダメージを与える"
-Value          = 150
-Weight         = 0.4
-InflictsDamage = 20
-
-[Items.Consumable]
-UsableScene = "BATTLE"
-TargetGroup = "ENEMY"
-TargetNum   = "ALL"
-
-[[Items]]
-Name            = "上級回復薬"
-Stackable       = true
-Description     = "体力を完全回復する高級な薬"
-Value           = 300
-Weight          = 0.12
-SpriteSheetName = "field"
-SpriteKey       = "heal_item"
-
-[Items.Consumable]
-UsableScene = "ANY"
-TargetGroup = "ALLY"
-TargetNum   = "SINGLE"
-
-[Items.ProvidesHealing]
-ValueType = "PERCENTAGE"
-Ratio     = 1.0
-
-[[Items]]
-Name            = "古代の秘薬"
-Stackable       = true
-Description     = "失われた錬金術で作られた万能薬。全員を完全回復する"
-Value           = 800
-Weight          = 0.2
-SpriteSheetName = "field"
-SpriteKey       = "heal_item"
-
-[Items.Consumable]
-UsableScene = "ANY"
-TargetGroup = "ALLY"
-TargetNum   = "ALL"
-
-[Items.ProvidesHealing]
-ValueType = "PERCENTAGE"
-Ratio     = 1.0
-
-[[Items]]
 Name        = "毒消し"
 Stackable   = true
 Description = "毒や状態異常を治す薬草の煎じ薬"
@@ -96,12 +31,12 @@ TargetGroup = "ALLY"
 TargetNum   = "SINGLE"
 
 [[Items]]
-Name           = "爆裂弾"
+Name           = "手榴弾"
 Stackable      = true
-Description    = "強力な爆発で敵全体に大ダメージを与える"
-Value          = 400
-Weight         = 0.5
-InflictsDamage = 50
+Description    = "爆発と破片で被害を与える手投げ弾"
+Value          = 150
+Weight         = 0.4
+InflictsDamage = 20
 
 [Items.Consumable]
 UsableScene = "BATTLE"
@@ -111,7 +46,7 @@ TargetNum   = "ALL"
 [[Items]]
 Name        = "閃光弾"
 Stackable   = true
-Description = "強烈な光で敵の動きを封じる"
+Description = "強烈な光と音でショック状態にする手投げ弾"
 Value       = 180
 Weight      = 0.3
 
@@ -123,45 +58,9 @@ TargetNum   = "ALL"
 [[Items]]
 Name        = "煙幕弾"
 Stackable   = true
-Description = "煙で味方の回避率を上げる"
+Description = "視界を遮る煙を発生させる手投げ弾"
 Value       = 200
 Weight      = 0.35
-
-[Items.Consumable]
-UsableScene = "BATTLE"
-TargetGroup = "ALLY"
-TargetNum   = "ALL"
-
-[[Items]]
-Name        = "霊薬"
-Stackable   = true
-Description = "精神力を回復する神秘的な薬"
-Value       = 150
-Weight      = 0.1
-
-[Items.Consumable]
-UsableScene = "ANY"
-TargetGroup = "ALLY"
-TargetNum   = "SINGLE"
-
-[[Items]]
-Name        = "狂戦士の薬"
-Stackable   = true
-Description = "攻撃力を一時的に大幅に上昇させる"
-Value       = 250
-Weight      = 0.15
-
-[Items.Consumable]
-UsableScene = "BATTLE"
-TargetGroup = "ALLY"
-TargetNum   = "SINGLE"
-
-[[Items]]
-Name        = "守護の香"
-Stackable   = true
-Description = "防御力を一時的に上昇させる神聖な香"
-Value       = 220
-Weight      = 0.05
 
 [Items.Consumable]
 UsableScene = "BATTLE"
@@ -173,7 +72,7 @@ TargetNum   = "ALL"
 [[Items]]
 Name            = "ルビー原石"
 Stackable       = true
-Description     = "赤く光る鉱物。高く売れる"
+Description     = "赤く光る鉱物。高価な装飾用に加工される"
 Value           = 500
 Weight          = 0.05
 SpriteSheetName = "field"
@@ -182,44 +81,23 @@ SpriteKey       = "field_item"
 [[Items]]
 Name        = "星の欠片"
 Stackable   = true
-Description = "夜空から落ちた神秘的な鉱石。非常に高価"
+Description = "夜空から落ちた神秘的な鉱石"
 Value       = 2000
 Weight      = 0.02
 
 [[Items]]
 Name        = "古代金貨"
 Stackable   = true
-Description = "失われた文明の通貨。コレクター垂涎の品"
+Description = "失われた文明の通貨"
 Value       = 1500
 Weight      = 0.01
 
 [[Items]]
 Name        = "血染めのルビー"
 Stackable   = true
-Description = "暗い歴史を持つ美しい宝石。高額で取引される"
+Description = "特に美しい輝きをもつ宝石。高額で取引される"
 Value       = 3000
 Weight      = 0.03
-
-[[Items]]
-Name        = "教会の聖杯"
-Stackable   = true
-Description = "聖別された銀製の杯。古美術品として価値が高い"
-Value       = 2500
-Weight      = 1.5
-
-[[Items]]
-Name        = "竜の鱗"
-Stackable   = true
-Description = "伝説の竜から剥がれたとされる鱗。幻の素材"
-Value       = 5000
-Weight      = 0.1
-
-[[Items]]
-Name        = "王家の印章"
-Stackable   = true
-Description = "滅んだ王朝の公式印章。歴史的価値は計り知れない"
-Value       = 4000
-Weight      = 0.3
 
 [[Items]]
 Name        = "黒真珠"
@@ -229,16 +107,9 @@ Value       = 3500
 Weight      = 0.02
 
 [[Items]]
-Name        = "魔導書の断片"
-Stackable   = true
-Description = "禁断の魔術書の一部。研究者が高値で買い取る"
-Value       = 2800
-Weight      = 0.2
-
-[[Items]]
 Name        = "天使の羽根"
 Stackable   = true
-Description = "純白に輝く美しい羽根。神聖な力を宿すとされる"
+Description = "純白に輝く美しい羽根"
 Value       = 3200
 Weight      = 0.005
 
@@ -248,20 +119,6 @@ Stackable   = true
 Description = "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
 Value       = 1800
 Weight      = 2.5
-
-[[Items]]
-Name        = "狩人の記章"
-Stackable   = true
-Description = "名高い狩人が身に着けていた誇りの証。記念品として珍重される"
-Value       = 1200
-Weight      = 0.1
-
-[[Items]]
-Name        = "月の石"
-Stackable   = true
-Description = "満月の夜にのみ光る不思議な石。占い師に重宝される"
-Value       = 1600
-Weight      = 0.5
 
 # foods ================
 
@@ -313,7 +170,7 @@ TargetNum   = "SINGLE"
 [[Items]]
 Name              = "チーズ"
 Stackable         = true
-Description       = "熟成されたチーズ。栄養満点"
+Description       = "熟成したチーズ。栄養満点"
 Value             = 40
 Weight            = 0.25
 ProvidesNutrition = 120
@@ -333,22 +190,7 @@ Value             = 25
 Weight            = 0.2
 ProvidesNutrition = 90
 SpriteSheetName   = "field"
-SpriteKey         = "food_item"
-
-[Items.Consumable]
-UsableScene = "ANY"
-TargetGroup = "ALLY"
-TargetNum   = "SINGLE"
-
-[[Items]]
-Name              = "豪華な食事"
-Stackable         = true
-Description       = "温かい料理の詰め合わせ。完全に空腹を満たす"
-Value             = 100
-Weight            = 0.8
-ProvidesNutrition = 300
-SpriteSheetName   = "field"
-SpriteKey         = "food_item"
+SpriteKey         = "biscuit"
 
 [Items.Consumable]
 UsableScene = "ANY"
@@ -397,7 +239,7 @@ AttackCategory = "FIST"
 Name            = "木刀"
 Description     = "旅行の土産でおなじみの、木でできた刃のない刀"
 Value           = 80
-Weight          = 1.2
+Weight          = 2.0
 SpriteSheetName = "field"
 SpriteKey       = "wooden_sword"
 
@@ -415,9 +257,9 @@ AttackCategory = "SWORD"
 
 [[Items]]
 Name        = "鉄のナイフ"
-Description = "鉄で作られた軽いナイフ"
+Description = "鉄で作られたナイフ"
 Value       = 90
-Weight      = 0.3
+Weight      = 1.0
 
 [Items.Weapon]
 Cost        = 2
@@ -435,7 +277,7 @@ AttackCategory = "SWORD"
 Name            = "ハンドガン"
 Description     = "樹脂素材を多用した自動拳銃"
 Value           = 150
-Weight          = 0.8
+Weight          = 2.0
 SpriteSheetName = "field"
 SpriteKey       = "handgun"
 
@@ -452,10 +294,12 @@ Element        = "NONE"
 AttackCategory = "HANDGUN"
 
 [[Items]]
-Name        = "レイガン"
-Description = "光線を発射する拳銃"
-Value       = 280
-Weight      = 1.0
+Name            = "レイガン"
+Description     = "光線を発射する拳銃"
+Value           = 280
+Weight          = 2.0
+SpriteSheetName = "field"
+SpriteKey       = "laser_gun"
 
 [Items.Weapon]
 Cost        = 2
@@ -473,7 +317,7 @@ AttackCategory = "HANDGUN"
 Name        = "電撃グレネード"
 Description = "放電物質を投射する擲弾銃"
 Value       = 350
-Weight      = 2.0
+Weight      = 10.0
 
 [Items.Weapon]
 Cost        = 3
@@ -491,7 +335,7 @@ AttackCategory = "RIFLE"
 Name        = "冷凍グレネード"
 Description = "極低温物質を投射する擲弾銃"
 Value       = 340
-Weight      = 2.0
+Weight      = 10.0
 
 [Items.Weapon]
 Cost        = 3
@@ -509,7 +353,7 @@ AttackCategory = "RIFLE"
 Name        = "M72 LAW"
 Description = "成形炸薬弾を投射する対戦車ロケット弾発射機"
 Value       = 480
-Weight      = 5.0
+Weight      = 20.0
 
 [Items.Weapon]
 Cost        = 14
@@ -527,7 +371,7 @@ AttackCategory = "CANON"
 Name        = "50ミリ砲"
 Description = "取り回しがよい車両用の大砲"
 Value       = 480
-Weight      = 8.0
+Weight      = 120.0
 
 [Items.Weapon]
 Cost        = 14
@@ -545,7 +389,7 @@ AttackCategory = "CANON"
 Name        = "M1919重機関銃"
 Description = "車載型の空冷式機関銃"
 Value       = 420
-Weight      = 14.0
+Weight      = 140.0
 
 [Items.Weapon]
 Cost        = 10
@@ -578,114 +422,6 @@ Element        = "NONE"
 AttackCategory = "CANON"
 
 [[Items]]
-Name        = "聖なる刃"
-Description = "聖別された銀の短剣"
-Value       = 130
-Weight      = 0.5
-
-[Items.Weapon]
-Cost        = 3
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 95
-Damage         = 12
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "SWORD"
-
-[[Items]]
-Name        = "鉄槌の一撃"
-Description = "重い鉄槌による強打"
-Value       = 200
-Weight      = 3.0
-
-[Items.Weapon]
-Cost        = 4
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 85
-Damage         = 18
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "FIST"
-
-[[Items]]
-Name        = "血の呪文"
-Description = "古い血の魔術を込めた攻撃"
-Value       = 300
-Weight      = 0
-
-[Items.Weapon]
-Cost        = 5
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 75
-Damage         = 22
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "CANON"
-
-[[Items]]
-Name        = "月光の矢"
-Description = "月光に祝福された矢"
-Value       = 120
-Weight      = 0.4
-
-[Items.Weapon]
-Cost        = 2
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 90
-Damage         = 10
-AttackCount    = 2
-Element        = "NONE"
-AttackCategory = "HANDGUN"
-
-[[Items]]
-Name        = "狩人の銃弾"
-Description = "獣を狩るための特製弾丸"
-Value       = 180
-Weight      = 0.7
-
-[Items.Weapon]
-Cost        = 3
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 88
-Damage         = 16
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "HANDGUN"
-
-[[Items]]
-Name        = "古代の雷撃"
-Description = "古代文明の雷の力を宿す"
-Value       = 380
-Weight      = 0
-
-[Items.Weapon]
-Cost        = 6
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 70
-Damage         = 28
-AttackCount    = 1
-Element        = "THUNDER"
-AttackCategory = "RIFLE"
-
-[[Items]]
 Name        = "氷の槍"
 Description = "氷の結晶で作られた槍"
 Value       = 250
@@ -704,152 +440,8 @@ Element        = "CHILL"
 AttackCategory = "SPEAR"
 
 [[Items]]
-Name        = "炎の拳"
-Description = "炎を纏った拳による連続攻撃"
-Value       = 270
-Weight      = 0
-
-[Items.Weapon]
-Cost        = 5
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 85
-Damage         = 8
-AttackCount    = 3
-Element        = "FIRE"
-AttackCategory = "FIST"
-
-[[Items]]
-Name        = "星の破片"
-Description = "流れ星の欠片を投射する"
-Value       = 320
-Weight      = 0
-
-[Items.Weapon]
-Cost        = 7
-TargetGroup = "ENEMY"
-TargetNum   = "ALL"
-
-[Items.Attack]
-Accuracy       = 65
-Damage         = 12
-AttackCount    = 1
-Element        = "PHOTON"
-AttackCategory = "CANON"
-
-[[Items]]
-Name        = "影の短剣"
-Description = "影に隠れながら放つ暗殺技"
-Value       = 280
-Weight      = 0.4
-
-[Items.Weapon]
-Cost        = 4
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 95
-Damage         = 20
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "SWORD"
-
-[[Items]]
-Name        = "聖水の祝福"
-Description = "聖なる水による浄化攻撃"
-Value       = 200
-Weight      = 0.5
-
-[Items.Weapon]
-Cost        = 3
-TargetGroup = "ENEMY"
-TargetNum   = "ALL"
-
-[Items.Attack]
-Accuracy       = 75
-Damage         = 8
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "CANON"
-
-[[Items]]
-Name        = "獣の爪"
-Description = "野生の獣の爪による引き裂き攻撃"
-Value       = 110
-Weight      = 0.2
-
-[Items.Weapon]
-Cost        = 2
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 90
-Damage         = 6
-AttackCount    = 4
-Element        = "NONE"
-AttackCategory = "FIST"
-
-[[Items]]
-Name        = "鋼鉄の盾撃"
-Description = "重い盾による渾身の一撃"
-Value       = 330
-Weight      = 6.0
-
-[Items.Weapon]
-Cost        = 5
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 80
-Damage         = 24
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "FIST"
-
-[[Items]]
-Name        = "毒の霧"
-Description = "毒性の霧を散布する"
-Value       = 250
-Weight      = 1.0
-
-[Items.Weapon]
-Cost        = 6
-TargetGroup = "ENEMY"
-TargetNum   = "ALL"
-
-[Items.Attack]
-Accuracy       = 70
-Damage         = 10
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "CANON"
-
-[[Items]]
-Name        = "光の剣"
-Description = "光を纏った剣による神聖な攻撃"
-Value       = 420
-Weight      = 1.5
-
-[Items.Weapon]
-Cost        = 8
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 85
-Damage         = 30
-AttackCount    = 1
-Element        = "PHOTON"
-AttackCategory = "SWORD"
-
-[[Items]]
 Name        = "連射砲"
-Description = "小型砲弾の連続射撃"
+Description = "高速に射出する砲"
 Value       = 380
 Weight      = 4.0
 
@@ -865,64 +457,15 @@ AttackCount    = 3
 Element        = "NONE"
 AttackCategory = "CANON"
 
-[[Items]]
-Name        = "暗黒の矢"
-Description = "闇の力を込めた矢"
-Value       = 200
-Weight      = 0.3
-
-[Items.Weapon]
-Cost        = 4
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 85
-Damage         = 18
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "HANDGUN"
-
-[[Items]]
-Name        = "狂戦士の斧"
-Description = "狂気に駆られた戦士の斧撃"
-Value       = 450
-Weight      = 4.5
-
-[Items.Weapon]
-Cost        = 6
-TargetGroup = "ENEMY"
-TargetNum   = "SINGLE"
-
-[Items.Attack]
-Accuracy       = 70
-Damage         = 32
-AttackCount    = 1
-Element        = "NONE"
-AttackCategory = "SWORD"
-
-[[Items]]
-Name        = "治癒の光"
-Description = "回復の光を放つ"
-Value       = 200
-Weight      = 0
-
-[Items.Weapon]
-Cost        = 4
-TargetGroup = "ALLY"
-TargetNum   = "SINGLE"
-
-[Items.ProvidesHealing]
-ValueType = "PERCENTAGE"
-Ratio     = 0.7
-
 # wearable ================
 
 [[Items]]
-Name        = "作業用ヘルメット"
-Description = "衝撃吸収性に優れた産業用の帽子"
-Value       = 150
-Weight      = 1.5
+Name            = "作業用ヘルメット"
+Description     = "衝撃吸収性に優れた産業用の帽子"
+Value           = 150
+Weight          = 1.5
+SpriteSheetName = "field"
+SpriteKey       = "construction_helmet"
 
 [Items.Wearable]
 Defense           = 4
@@ -1145,34 +688,6 @@ Vitality = 3
 Agility  = -4
 
 [[Items]]
-Name        = "魔術師の靴"
-Description = "魔力を高める特殊な靴"
-Value       = 220
-Weight      = 0.5
-
-[Items.Wearable]
-Defense           = 1
-EquipmentCategory = "LEGS"
-
-[Items.EquipBonus]
-Sensation = 3
-Dexterity = 2
-
-[[Items]]
-Name        = "影の足袋"
-Description = "音を立てずに歩ける足袋"
-Value       = 240
-Weight      = 0.3
-
-[Items.Wearable]
-Defense           = 1
-EquipmentCategory = "LEGS"
-
-[Items.EquipBonus]
-Agility   = 4
-Dexterity = 1
-
-[[Items]]
 Name        = "血の指輪"
 Description = "血赤石で作られた指輪"
 Value       = 280
@@ -1187,33 +702,6 @@ Strength = 3
 Vitality = 2
 
 [[Items]]
-Name        = "月光の首飾り"
-Description = "月光草の力を宿した首飾り"
-Value       = 320
-Weight      = 0.03
-
-[Items.Wearable]
-Defense           = 0
-EquipmentCategory = "JEWELRY"
-
-[Items.EquipBonus]
-Sensation = 4
-Agility   = 1
-
-[[Items]]
-Name        = "古代の腕輪"
-Description = "古代文明の遺物である腕輪"
-Value       = 350
-
-[Items.Wearable]
-Defense           = 2
-EquipmentCategory = "JEWELRY"
-
-[Items.EquipBonus]
-Dexterity = 3
-Sensation = 2
-
-[[Items]]
 Name        = "星鉄の指輪"
 Description = "隕石の金属で作られた指輪"
 Value       = 380
@@ -1226,19 +714,6 @@ EquipmentCategory = "JEWELRY"
 Strength = 2
 Vitality = 2
 Agility  = 1
-
-[[Items]]
-Name        = "聖者の護符"
-Description = "聖なる力で守護する護符"
-Value       = 420
-
-[Items.Wearable]
-Defense           = 0
-EquipmentCategory = "JEWELRY"
-
-[Items.EquipBonus]
-Vitality  = 4
-Sensation = 3
 
 # material ================
 
@@ -1256,7 +731,7 @@ Stackable       = true
 Description     = "よい香りに鎮静・興奮などの作用がある植物"
 Weight          = 0.05
 SpriteSheetName = "field"
-SpriteKey       = "heal_item"
+SpriteKey       = "green_herb"
 
 [[Items]]
 Name            = "黄ハーブ"
@@ -1331,14 +806,6 @@ SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
 [[Items]]
-Name            = "月光草"
-Stackable       = true
-Description     = "夜に青白く光る神秘的な植物。薬草として珍重される"
-Weight          = 0.05
-SpriteSheetName = "field"
-SpriteKey       = "field_item"
-
-[[Items]]
 Name            = "古代の骨"
 Stackable       = true
 Description     = "長い年月を経た動物の骨。異様に硬く軽い"
@@ -1363,26 +830,10 @@ SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
 [[Items]]
-Name            = "古布の切れ端"
-Stackable       = true
-Description     = "古い祭服の断片。聖別された布と思われる"
-Weight          = 0.05
-SpriteSheetName = "field"
-SpriteKey       = "field_item"
-
-[[Items]]
 Name            = "琥珀"
 Stackable       = true
 Description     = "太古の樹液が化石化した宝石。中に小さな虫が閉じ込められている"
 Weight          = 0.1
-SpriteSheetName = "field"
-SpriteKey       = "field_item"
-
-[[Items]]
-Name            = "深海の塩"
-Stackable       = true
-Description     = "深海から採取された特殊な塩。普通の塩とは違う効能がある"
-Weight          = 0.2
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1397,39 +848,23 @@ SpriteKey       = "field_item"
 [[Items]]
 Name            = "灰"
 Stackable       = true
-Description     = "何かが燃え尽きた後の灰。神聖な儀式に使われていたようだ"
+Description     = "何かが燃え尽きた後の灰"
 Weight          = 0.05
-SpriteSheetName = "field"
-SpriteKey       = "field_item"
-
-[[Items]]
-Name            = "蒼鉛"
-Stackable       = true
-Description     = "青みがかった重い金属。魔除けの効果があるとされる"
-Weight          = 2.5
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
 [[Items]]
 Name            = "獣の毛皮"
 Stackable       = true
-Description     = "未知の獣から剥いだ毛皮。非常に丈夫で防水性に優れる"
+Description     = "獣から剥いだ毛皮。丈夫で防水性に優れる"
 Weight          = 1.0
-SpriteSheetName = "field"
-SpriteKey       = "field_item"
-
-[[Items]]
-Name            = "朽ちた羊皮紙"
-Stackable       = true
-Description     = "古い文書の断片。文字は読めないが重要そうな内容"
-Weight          = 0.02
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
 [[Items]]
 Name            = "紫水晶"
 Stackable       = true
-Description     = "美しい紫色の水晶。精神を集中させる効果があるという"
+Description     = "美しい紫色の水晶"
 Weight          = 0.4
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
@@ -1439,14 +874,6 @@ Name            = "錆びた鎖"
 Stackable       = true
 Description     = "古い鎖の一部。何かを繋ぎ止めていた痕跡がある"
 Weight          = 1.2
-SpriteSheetName = "field"
-SpriteKey       = "field_item"
-
-[[Items]]
-Name            = "聖油"
-Stackable       = true
-Description     = "聖別された油。武器や防具の祝福に使用される"
-Weight          = 0.3
 SpriteSheetName = "field"
 SpriteKey       = "field_item"
 
@@ -1499,219 +926,6 @@ Name = "冷凍グレネード"
 Name   = "鉄"
 Amount = 3
 
-[[Recipes]]
-Name = "聖なる刃"
-
-[[Recipes.Inputs]]
-Name   = "銀の欠片"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes]]
-Name = "鉄槌の一撃"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "古代の骨"
-Amount = 1
-
-[[Recipes]]
-Name = "血の呪文"
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "朽ちた羊皮紙"
-Amount = 1
-
-[[Recipes]]
-Name = "月光の矢"
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "木の棒"
-Amount = 2
-
-[[Recipes]]
-Name = "狩人の銃弾"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes]]
-Name = "古代の雷撃"
-
-[[Recipes.Inputs]]
-Name   = "雷光石"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "古い歯車"
-Amount = 1
-
-[[Recipes]]
-Name = "氷の槍"
-
-[[Recipes.Inputs]]
-Name   = "霧の結晶"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 1
-
-[[Recipes]]
-Name = "炎の拳"
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "灰"
-Amount = 2
-
-[[Recipes]]
-Name = "星の破片"
-
-[[Recipes.Inputs]]
-Name   = "星鉄"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "水晶の粉"
-Amount = 3
-
-[[Recipes]]
-Name = "影の短剣"
-
-[[Recipes.Inputs]]
-Name   = "黒曜石"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes]]
-Name = "聖水の祝福"
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "深海の塩"
-Amount = 2
-
-[[Recipes]]
-Name = "獣の爪"
-
-[[Recipes.Inputs]]
-Name   = "古代の骨"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes]]
-Name = "鋼鉄の盾撃"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "蒼鉛"
-Amount = 1
-
-[[Recipes]]
-Name = "毒の霧"
-
-[[Recipes.Inputs]]
-Name   = "緑ハーブ"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "深海の塩"
-Amount = 1
-
-[[Recipes]]
-Name = "光の剣"
-
-[[Recipes.Inputs]]
-Name   = "星鉄"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "琥珀"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes]]
-Name = "連射砲"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 4
-
-[[Recipes.Inputs]]
-Name   = "フェライトコア"
-Amount = 1
-
-[[Recipes]]
-Name = "暗黒の矢"
-
-[[Recipes.Inputs]]
-Name   = "黒曜石"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "錆びた鎖"
-Amount = 1
-
-[[Recipes]]
-Name = "狂戦士の斧"
-
-[[Recipes.Inputs]]
-Name   = "星鉄"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 2
-
-[[Recipes]]
-Name = "治癒の光"
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 1
-
 # 防具のレシピ ================
 
 [[Recipes]]
@@ -1742,227 +956,6 @@ Name = "機械の指輪"
 Name   = "鉄"
 Amount = 1
 
-[[Recipes]]
-Name = "狩人の帽子"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
-[[Recipes]]
-Name = "古い騎士兜"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 4
-
-[[Recipes.Inputs]]
-Name   = "錆びた鎖"
-Amount = 1
-
-[[Recipes]]
-Name = "聖職者の冠"
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 2
-
-[[Recipes]]
-Name = "影の頭巾"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "灰"
-Amount = 1
-
-[[Recipes]]
-Name = "鉄の胸当て"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
-[[Recipes]]
-Name = "狩人の外套"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 1
-
-[[Recipes]]
-Name = "聖騎士の鎧"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 6
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "銀の欠片"
-Amount = 1
-
-[[Recipes]]
-Name = "古代の法衣"
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 1
-
-[[Recipes]]
-Name = "影の外套"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "霧の結晶"
-Amount = 2
-
-[[Recipes]]
-Name = "鉄の脛当て"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
-[[Recipes]]
-Name = "狩人の脚絆"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "錆びた鎖"
-Amount = 1
-
-[[Recipes]]
-Name = "騎士の脚鎧"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 4
-
-[[Recipes.Inputs]]
-Name   = "蒼鉛"
-Amount = 1
-
-[[Recipes]]
-Name = "魔術師の靴"
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "水晶の粉"
-Amount = 2
-
-[[Recipes]]
-Name = "影の足袋"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "霧の結晶"
-Amount = 1
-
-[[Recipes]]
-Name = "血の指輪"
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "銀の欠片"
-Amount = 1
-
-[[Recipes]]
-Name = "月光の首飾り"
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "琥珀"
-Amount = 1
-
-[[Recipes]]
-Name = "古代の腕輪"
-
-[[Recipes.Inputs]]
-Name   = "古い歯車"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "蒼鉛"
-Amount = 2
-
-[[Recipes]]
-Name = "星鉄の指輪"
-
-[[Recipes.Inputs]]
-Name   = "星鉄"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "水晶の粉"
-Amount = 1
-
-[[Recipes]]
-Name = "聖者の護符"
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
 # 道具のレシピ ================
 
 [[Recipes]]
@@ -1977,36 +970,6 @@ Name   = "黄ハーブ"
 Amount = 1
 
 [[Recipes]]
-Name = "上級回復薬"
-
-[[Recipes.Inputs]]
-Name   = "緑ハーブ"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "黄ハーブ"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 1
-
-[[Recipes]]
-Name = "古代の秘薬"
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "水晶の粉"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "深海の塩"
-Amount = 1
-
-[[Recipes]]
 Name = "毒消し"
 
 [[Recipes.Inputs]]
@@ -2015,21 +978,6 @@ Amount = 1
 
 [[Recipes.Inputs]]
 Name   = "深海の塩"
-Amount = 1
-
-[[Recipes]]
-Name = "爆裂弾"
-
-[[Recipes.Inputs]]
-Name   = "鉄"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "雷光石"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
 Amount = 1
 
 [[Recipes]]
@@ -2053,211 +1001,6 @@ Amount = 1
 [[Recipes.Inputs]]
 Name   = "灰"
 Amount = 2
-
-[[Recipes]]
-Name = "霊薬"
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 1
-
-[[Recipes]]
-Name = "狂戦士の薬"
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes]]
-Name = "守護の香"
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
-[[Recipes]]
-Name = "星の欠片"
-
-[[Recipes.Inputs]]
-Name   = "星鉄"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "水晶の粉"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 1
-
-[[Recipes]]
-Name = "古代金貨"
-
-[[Recipes.Inputs]]
-Name   = "蒼鉛"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "古い歯車"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "朽ちた羊皮紙"
-Amount = 1
-
-[[Recipes]]
-Name = "血染めのルビー"
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "琥珀"
-Amount = 1
-
-[[Recipes]]
-Name = "教会の聖杯"
-
-[[Recipes.Inputs]]
-Name   = "銀の欠片"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 1
-
-[[Recipes]]
-Name = "竜の鱗"
-
-[[Recipes.Inputs]]
-Name   = "古代の骨"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "血赤石"
-Amount = 1
-
-[[Recipes]]
-Name = "王家の印章"
-
-[[Recipes.Inputs]]
-Name   = "蒼鉛"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "琥珀"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "朽ちた羊皮紙"
-Amount = 2
-
-[[Recipes]]
-Name = "黒真珠"
-
-[[Recipes.Inputs]]
-Name   = "深海の塩"
-Amount = 3
-
-[[Recipes.Inputs]]
-Name   = "霧の結晶"
-Amount = 2
-
-[[Recipes]]
-Name = "魔導書の断片"
-
-[[Recipes.Inputs]]
-Name   = "朽ちた羊皮紙"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "灰"
-Amount = 1
-
-[[Recipes]]
-Name = "天使の羽根"
-
-[[Recipes.Inputs]]
-Name   = "聖油"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "古布の切れ端"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 2
-
-[[Recipes]]
-Name = "古代の壺"
-
-[[Recipes.Inputs]]
-Name   = "古い歯車"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "深海の塩"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "灰"
-Amount = 2
-
-[[Recipes]]
-Name = "狩人の記章"
-
-[[Recipes.Inputs]]
-Name   = "獣の毛皮"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "銀の欠片"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "錆びた鎖"
-Amount = 1
-
-[[Recipes]]
-Name = "月の石"
-
-[[Recipes.Inputs]]
-Name   = "月光草"
-Amount = 2
-
-[[Recipes.Inputs]]
-Name   = "紫水晶"
-Amount = 1
-
-[[Recipes.Inputs]]
-Name   = "水晶の粉"
-Amount = 1
 
 # member ================
 
@@ -2664,11 +1407,6 @@ Weight   = 1.0
 MinDepth = 1
 MaxDepth = 20
 [[ItemTables.Entries]]
-ItemName = "回復スプレー"
-Weight   = 0.8
-MinDepth = 10
-MaxDepth = 50
-[[ItemTables.Entries]]
 ItemName = "上級回復薬"
 Weight   = 0.6
 MinDepth = 15
@@ -2819,11 +1557,6 @@ ItemName = "回復薬"
 Weight   = 1.0
 MinDepth = 1
 MaxDepth = 15
-[[ItemTables.Entries]]
-ItemName = "回復スプレー"
-Weight   = 0.6
-MinDepth = 10
-MaxDepth = 20
 [[ItemTables.Entries]]
 ItemName = "緑ハーブ"
 Weight   = 1.2
