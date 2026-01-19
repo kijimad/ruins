@@ -119,6 +119,5 @@ func GetShopInventory() []string {
 		"作業用ヘルメット",
 		"革のブーツ",
 		"回復薬",
-		"回復スプレー",
 	}
 }

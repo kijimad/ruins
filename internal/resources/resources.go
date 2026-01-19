@@ -11,15 +11,16 @@ import (
 // ゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
 type Resources struct {
-	ScreenDimensions *ScreenDimensions
-	SpriteSheets     *map[string]components.SpriteSheet
-	Fonts            *map[string]Font
-	Faces            *map[string]text.Face
-	Dungeon          *Dungeon
-	RawMaster        interface{}
-	UIResources      *UIResources
-	TurnManager      interface{}
-	RNG              *rand.Rand // ゲーム全体で使う乱数生成器
+	ScreenDimensions   *ScreenDimensions
+	SpriteSheets       *map[string]components.SpriteSheet
+	Fonts              *map[string]Font
+	Faces              *map[string]text.Face
+	Dungeon            *Dungeon
+	RawMaster          interface{}
+	UIResources        *UIResources
+	TurnManager        interface{}
+	RNG                *rand.Rand // ゲーム全体で使う乱数生成器
+	SelectedWeaponSlot int        // 選択中の武器スロット番号（1-5）
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -60,11 +61,12 @@ func (r *Resources) InitializeResources() error {
 // InitGameResources はゲームリソースを初期化する
 func InitGameResources() *Resources {
 	return &Resources{
-		ScreenDimensions: &ScreenDimensions{},
-		SpriteSheets:     &map[string]components.SpriteSheet{},
-		Fonts:            &map[string]Font{},
-		Faces:            &map[string]text.Face{},
-		UIResources:      &UIResources{},
-		RNG:              nil,
+		ScreenDimensions:   &ScreenDimensions{},
+		SpriteSheets:       &map[string]components.SpriteSheet{},
+		Fonts:              &map[string]Font{},
+		Faces:              &map[string]text.Face{},
+		UIResources:        &UIResources{},
+		RNG:                nil,
+		SelectedWeaponSlot: 1, // デフォルトで武器スロット1を選択
 	}
 }

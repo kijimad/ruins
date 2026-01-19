@@ -31,6 +31,10 @@ lint: ## Linterを実行する
 		exit 1; \
 	fi
 
+.PHONY: aseprite
+aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する
+	@./scripts/pack.sh
+
 .PHONY: toolsinstall
 toolsinstall: ## 開発ツールをインストールする
 	@go install golang.org/x/tools/cmd/goimports@latest

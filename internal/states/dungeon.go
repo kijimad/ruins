@@ -209,19 +209,24 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 
-	// メニューキー（M）でダンジョンメニューを開く
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {
-		return inputmapper.ActionOpenDungeonMenu, true
-	}
-
 	cfg := config.MustGet()
 	if cfg.Debug && keyboardInput.IsKeyJustPressed(ebiten.KeySlash) {
 		return inputmapper.ActionOpenDebugMenu, true
 	}
 
-	// インタラクションメニュー（Space）
+	// ダンジョンメニュー
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyM) {
+		return inputmapper.ActionOpenDungeonMenu, true
+	}
+
+	// インタラクションメニュー
 	if keyboardInput.IsKeyJustPressed(ebiten.KeySpace) {
 		return inputmapper.ActionOpenInteractionMenu, true
+	}
+
+	// 視界情報表示
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
+		return inputmapper.ActionOpenFieldInfo, true
 	}
 
 	// 8方向移動キー入力（キーリピート対応）
@@ -266,14 +271,33 @@ func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
 		return inputmapper.ActionInteract, true
 	}
 
+	// 武器スロット切り替え（1-5キー）
+	if keyboardInput.IsKeyJustPressed(ebiten.Key1) {
+		return inputmapper.ActionSwitchWeaponSlot1, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key2) {
+		return inputmapper.ActionSwitchWeaponSlot2, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key3) {
+		return inputmapper.ActionSwitchWeaponSlot3, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key4) {
+		return inputmapper.ActionSwitchWeaponSlot4, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.Key5) {
+		return inputmapper.ActionSwitchWeaponSlot5, true
+	}
+
 	return "", false
 }
 
 // DoAction はActionを実行する
+//
+//nolint:gocyclo // 多くのアクションを処理するためswitch文が大きくなる
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -296,6 +320,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	case inputmapper.ActionOpenInteractionMenu:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return NewInteractionMenuState(world) },
+		}}, nil
+	case inputmapper.ActionOpenFieldInfo:
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return &FieldInfoState{} },
 		}}, nil
 
 	// 移動系アクション（World状態を変更）
@@ -350,6 +378,23 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		if err := ExecuteEnterAction(world); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+
+	// 武器スロット切り替え系アクション
+	case inputmapper.ActionSwitchWeaponSlot1:
+		st.switchWeaponSlot(world, 1)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot2:
+		st.switchWeaponSlot(world, 2)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot3:
+		st.switchWeaponSlot(world, 3)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot4:
+		st.switchWeaponSlot(world, 4)
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	case inputmapper.ActionSwitchWeaponSlot5:
+		st.switchWeaponSlot(world, 5)
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	default:
@@ -415,4 +460,27 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 
 	// NoneEventまたは未知のイベントの場合は何もしない
 	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
+// switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
+func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
+	world.Resources.SelectedWeaponSlot = slotNumber
+
+	// プレイヤーの武器スロット情報を取得してログメッセージを出力
+	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
+		weapons := worldhelper.GetWeapons(world, playerEntity)
+		weaponIndex := slotNumber - 1 // 1-based to 0-based
+		weapon := weapons[weaponIndex]
+
+		if weapon != nil {
+			// 武器が装備されている場合は武器名を表示
+			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
+				weaponName := nameComp.(*gc.Name).Name
+				gamelog.New(gamelog.FieldLog).
+					ItemName(weaponName).
+					Append("を構えた").
+					Log()
+			}
+		}
+	})
 }

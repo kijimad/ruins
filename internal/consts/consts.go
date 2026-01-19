@@ -24,4 +24,6 @@ const (
 	MapTileHeight = 50
 	// GameClearDepth はゲームクリアとなる深度
 	GameClearDepth = 100
+	// VisionRadiusTiles は視界半径（タイル単位）
+	VisionRadiusTiles = 16
 )

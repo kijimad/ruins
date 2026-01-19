@@ -13,6 +13,7 @@ type HUDRenderingSystem struct {
 	debugOverlay    *hud.DebugOverlay
 	messageArea     *hud.MessageArea
 	currencyDisplay *hud.CurrencyDisplay
+	weaponSlots     *hud.WeaponSlots
 	enabled         bool
 }
 
@@ -28,6 +29,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 		debugOverlay:    hud.NewDebugOverlay(defaultFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(hudFace),
+		weaponSlots:     hud.NewWeaponSlots(defaultFace),
 		enabled:         true,
 	}
 }
@@ -93,6 +95,9 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 	}
 	if sys.currencyDisplay != nil {
 		sys.currencyDisplay.Draw(screen, hudData.CurrencyData)
+	}
+	if sys.weaponSlots != nil {
+		sys.weaponSlots.Draw(screen, hudData.WeaponSlotsData, world)
 	}
 	if sys.gameInfo != nil {
 		sys.gameInfo.Draw(screen, hudData.GameInfo)

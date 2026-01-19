@@ -17,11 +17,12 @@ import (
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
 	return hud.Data{
-		GameInfo:     extractGameInfo(world),
-		MinimapData:  extractMinimapData(world),
-		DebugOverlay: extractDebugOverlay(world),
-		MessageData:  extractMessageData(world, gamelog.FieldLog),
-		CurrencyData: extractCurrencyData(world),
+		GameInfo:        extractGameInfo(world),
+		MinimapData:     extractMinimapData(world),
+		DebugOverlay:    extractDebugOverlay(world),
+		MessageData:     extractMessageData(world, gamelog.FieldLog),
+		CurrencyData:    extractCurrencyData(world),
+		WeaponSlotsData: extractWeaponSlotsData(world),
 	}
 }
 
@@ -365,4 +366,61 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 	}
 
 	return tileColors
+}
+
+// extractWeaponSlotsData は武器スロットデータを抽出する
+func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
+	screenDimensions := hud.ScreenDimensions{
+		Width:  world.Resources.ScreenDimensions.Width,
+		Height: world.Resources.ScreenDimensions.Height,
+	}
+
+	var slots []hud.WeaponSlotInfo
+	var selectedSlot int
+
+	// プレイヤーの武器スロット情報を取得
+	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
+		weapons := worldhelper.GetWeapons(world, playerEntity)
+
+		// 5つの武器スロット情報を作成
+		for i := 0; i < 5; i++ {
+			slotNumber := gc.EquipmentSlotNumber(int(gc.SlotWeapon1) + i)
+			weapon := weapons[i]
+
+			var weaponName string
+			var spriteSheet, spriteName string
+
+			if weapon != nil {
+				// 武器名を取得
+				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
+					weaponName = nameComp.(*gc.Name).Name
+				} else {
+					weaponName = "???"
+				}
+
+				// スプライト情報を取得
+				if spriteRender := world.Components.SpriteRender.Get(*weapon); spriteRender != nil {
+					sprite := spriteRender.(*gc.SpriteRender)
+					spriteSheet = sprite.SpriteSheetName
+					spriteName = sprite.SpriteKey
+				}
+			}
+
+			slots = append(slots, hud.WeaponSlotInfo{
+				SlotNumber:  slotNumber,
+				WeaponName:  weaponName,
+				SpriteSheet: spriteSheet,
+				SpriteName:  spriteName,
+			})
+		}
+
+		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
+		selectedSlot = world.Resources.SelectedWeaponSlot - 1
+	})
+
+	return hud.WeaponSlotsData{
+		Slots:            slots,
+		SelectedSlot:     selectedSlot,
+		ScreenDimensions: screenDimensions,
+	}
 }

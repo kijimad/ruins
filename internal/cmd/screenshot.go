@@ -44,6 +44,14 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 			Seed:        seedVal,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
 		})
+	case gs.FieldInfoState{}.String():
+		// 固定seed値を使用したダンジョンの上に視界情報画面を重ねる
+		const seedVal = 1
+		return vrt.RunTestGame(mode, &gs.DungeonState{
+			Depth:       1,
+			Seed:        seedVal,
+			BuilderType: mapplanner.PlannerTypeSmallRoom,
+		}, &gs.FieldInfoState{})
 	case gs.EquipMenuState{}.String():
 		return vrt.RunTestGame(mode, townStateFactory(), &gs.EquipMenuState{})
 	case "GameOver":

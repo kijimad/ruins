@@ -10,9 +10,9 @@ import (
 // アイテム配置用の定数
 const (
 	// アイテム配置関連
-	baseItemCount     = 2 // アイテム配置の基本数
-	randomItemCount   = 3 // アイテム配置のランダム追加数（0-2の範囲）
-	itemIncreaseDepth = 5 // アイテム数増加の深度しきい値
+	baseItemCount     = 15 // アイテム配置の基本数
+	randomItemCount   = 9  // アイテム配置のランダム追加数（0-8の範囲）
+	itemIncreaseDepth = 5  // アイテム数増加の深度しきい値
 
 	// 配置処理関連
 	maxItemPlacementAttempts = 200 // アイテム配置処理の最大試行回数

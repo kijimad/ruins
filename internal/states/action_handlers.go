@@ -268,7 +268,7 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	case gc.ItemInteraction:
 		formattedName := worldhelper.FormatItemName(world, interactableEntity)
 		gamelog.New(gamelog.FieldLog).
-			Append(formattedName).
+			ItemName(formattedName).
 			Append(" がある。").
 			Log()
 	}

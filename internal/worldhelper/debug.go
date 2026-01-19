@@ -36,10 +36,11 @@ func InitDebugData(world w.World) {
 	// Stackableアイテム
 	_, _ = SpawnItem(world, "ルビー原石", 2, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "回復薬", 3, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "回復スプレー", 3, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "手榴弾", 5, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "パン", 10, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "鉄", 14, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "コーラ", 2, gc.ItemLocationInPlayerBackpack)
+	_, _ = SpawnItem(world, "緑ハーブ", 2, gc.ItemLocationInPlayerBackpack)
 
 	// アイテム生成
 	_, _ = SpawnItem(world, "木刀", 2, gc.ItemLocationInPlayerBackpack)
@@ -52,10 +53,10 @@ func InitDebugData(world w.World) {
 	// プレイヤー生成
 	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
 
-	// 木刀は近接武器スロットに装備
-	MoveToEquip(world, weapon1, player, gc.SlotMeleeWeapon)
-	// ハンドガンは遠距離武器スロットに装備
-	MoveToEquip(world, weapon2, player, gc.SlotRangedWeapon)
+	// 木刀は武器スロット1に装備
+	MoveToEquip(world, weapon1, player, gc.SlotWeapon1)
+	// ハンドガンは武器スロット2に装備
+	MoveToEquip(world, weapon2, player, gc.SlotWeapon2)
 	// 西洋鎧は胴体スロットに装備
 	MoveToEquip(world, armor, player, gc.SlotTorso)
 

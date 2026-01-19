@@ -296,18 +296,24 @@ func (aa *AttackActivity) getBareHandsAttack(world w.World) (*gc.Attack, string,
 func (aa *AttackActivity) getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.Player) {
-		// 近接武器スロットから武器を取得
-		meleeWeapon := worldhelper.GetMeleeWeapon(world, attacker)
+		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
+		selectedSlot := world.Resources.SelectedWeaponSlot
+		weaponIndex := selectedSlot - 1 // 1-based to 0-based
+		if weaponIndex < 0 || weaponIndex >= 5 {
+			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
+		}
 
-		if meleeWeapon != nil {
+		weapons := worldhelper.GetWeapons(world, attacker)
+		weapon := weapons[weaponIndex]
+		if weapon != nil {
 			// 装備している武器から攻撃パラメータを取得
-			attack, weaponName, err := worldhelper.GetAttackFromWeapon(world, *meleeWeapon)
+			attack, weaponName, err := worldhelper.GetAttackFromWeapon(world, *weapon)
 			if err == nil && attack != nil {
 				return attack, weaponName, nil
 			}
 		}
 
-		// 装備していない場合は素手武器を使用
+		// 武器が装備されていない場合は素手武器を使用
 		return aa.getBareHandsAttack(world)
 	}
 

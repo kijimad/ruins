@@ -11,8 +11,8 @@ import (
 // 敵NPC配置用の定数
 const (
 	// 敵NPC生成関連
-	baseHostileNPCCount    = 5   // 敵NPC生成の基本数
-	randomHostileNPCCount  = 5   // 敵NPC生成のランダム追加数（0-4の範囲）
+	baseHostileNPCCount    = 10  // 敵NPC生成の基本数
+	randomHostileNPCCount  = 6   // 敵NPC生成のランダム追加数（0-5の範囲）
 	maxHostileNPCFailCount = 200 // 敵NPC生成の最大失敗回数
 )
 

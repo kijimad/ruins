@@ -414,3 +414,56 @@ func TestInteractionActivateActivity_Melee(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, result)
 }
+
+// TestInteractionActivateActivity_Melee_BareHands は武器がない場合の素手攻撃を確認
+func TestInteractionActivateActivity_Melee_BareHands(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// プレイヤーを作成（武器なし、素手で攻撃）
+	player := world.Manager.NewEntity()
+	player.AddComponent(world.Components.Player, &gc.Player{})
+	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	player.AddComponent(world.Components.Attributes, &gc.Attributes{
+		Strength:  gc.Attribute{Base: 5, Total: 5},
+		Dexterity: gc.Attribute{Base: 5, Total: 5},
+		Agility:   gc.Attribute{Base: 5, Total: 5},
+		Defense:   gc.Attribute{Base: 0, Total: 0},
+	})
+
+	// 敵を作成
+	enemyEntity := world.Manager.NewEntity()
+	enemyEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+	enemyEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		Data: gc.MeleeInteraction{},
+	})
+	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
+	enemyEntity.AddComponent(world.Components.Attributes, &gc.Attributes{
+		Strength:  gc.Attribute{Base: 1, Total: 1},
+		Dexterity: gc.Attribute{Base: 1, Total: 1},
+		Agility:   gc.Attribute{Base: 1, Total: 1},
+		Defense:   gc.Attribute{Base: 0, Total: 0},
+	})
+	enemyEntity.AddComponent(world.Components.Pools, &gc.Pools{
+		HP: gc.Pool{Max: 10, Current: 10},
+	})
+
+	// SelectedWeaponSlotを設定（武器スロット1を選択）
+	world.Resources.SelectedWeaponSlot = 1
+
+	// InteractionActivateActivityを実行（素手で攻撃）
+	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	params := ActionParams{
+		Actor: player,
+	}
+	result, err := manager.Execute(&InteractionActivateActivity{InteractableEntity: enemyEntity}, params, world)
+
+	// 素手攻撃が成功すること
+	require.NoError(t, err)
+	require.NotNil(t, result)
+
+	// 敵のHPが減少していることを確認
+	pools := world.Components.Pools.Get(enemyEntity).(*gc.Pools)
+	assert.Less(t, pools.HP.Current, 10, "素手攻撃でダメージが入るべき")
+}

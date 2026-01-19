@@ -21,6 +21,7 @@ cmd CraftMenu
 cmd DebugMenu
 cmd Dungeon
 cmd EquipMenu
+cmd FieldInfo
 cmd GameOver
 cmd InventoryMenu
 cmd LoadMenu

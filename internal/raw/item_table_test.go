@@ -30,7 +30,7 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 		Name: "通常",
 		Entries: []ItemTableEntry{
 			{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-			{ItemName: "回復スプレー", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
+			{ItemName: "毒消し", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
 			{ItemName: "手榴弾", Weight: 0.5, MinDepth: 1, MaxDepth: 20},
 		},
 	}
@@ -47,7 +47,7 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 
 	// 全てのアイテムが選択されているはず
 	assert.Greater(t, results["回復薬"], 0, "回復薬が選択されるべき")
-	assert.Greater(t, results["回復スプレー"], 0, "回復スプレーが選択されるべき")
+	assert.Greater(t, results["毒消し"], 0, "毒消しが選択されるべき")
 	assert.Greater(t, results["手榴弾"], 0, "手榴弾が選択されるべき")
 
 	// 重みに応じた確率になっているはず
@@ -57,11 +57,11 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	expectedRatio3 := 0.5 / totalWeight
 
 	ratio1 := float64(results["回復薬"]) / float64(iterations)
-	ratio2 := float64(results["回復スプレー"]) / float64(iterations)
+	ratio2 := float64(results["毒消し"]) / float64(iterations)
 	ratio3 := float64(results["手榴弾"]) / float64(iterations)
 
 	assert.InDelta(t, expectedRatio1, ratio1, 0.05, "回復薬の確率が期待値から外れている")
-	assert.InDelta(t, expectedRatio2, ratio2, 0.05, "回復スプレーの確率が期待値から外れている")
+	assert.InDelta(t, expectedRatio2, ratio2, 0.05, "毒消しの確率が期待値から外れている")
 	assert.InDelta(t, expectedRatio3, ratio3, 0.05, "手榴弾の確率が期待値から外れている")
 }
 
