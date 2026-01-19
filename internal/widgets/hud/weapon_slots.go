@@ -11,16 +11,16 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// WeaponSlotsConfig は武器スロット表示の設定
-type WeaponSlotsConfig struct {
+// weaponSlotsConfig は武器スロット表示の設定
+type weaponSlotsConfig struct {
 	SlotSize    int // 各スロットのサイズ（ピクセル）
 	SlotSpacing int // スロット間の間隔（ピクセル）
 	BorderWidth int // 枠線の幅（ピクセル）
 	YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
-// DefaultWeaponSlotsConfig はデフォルトの武器スロット設定
-var DefaultWeaponSlotsConfig = WeaponSlotsConfig{
+// defaultWeaponSlotsConfig はデフォルトの武器スロット設定
+var defaultWeaponSlotsConfig = weaponSlotsConfig{
 	SlotSize:    48,
 	SlotSpacing: 8,
 	BorderWidth: 2,
@@ -45,7 +45,7 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 		return
 	}
 
-	config := DefaultWeaponSlotsConfig
+	config := defaultWeaponSlotsConfig
 
 	// 全体の幅を計算
 	totalWidth := len(data.Slots)*config.SlotSize + (len(data.Slots)-1)*config.SlotSpacing

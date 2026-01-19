@@ -16,7 +16,7 @@ import (
 // 視界内の敵やアイテムの情報を表示し、特性や距離を確認できる
 type FieldInfoState struct {
 	es.BaseState[w.World]
-	entries       []FieldEntry
+	entries       []fieldEntry
 	selectedIndex int
 }
 
@@ -40,7 +40,7 @@ func (st *FieldInfoState) OnStart(world w.World) error {
 		return err
 	}
 	for _, enemy := range enemies {
-		st.entries = append(st.entries, FieldEntry{
+		st.entries = append(st.entries, fieldEntry{
 			Type:     "enemy",
 			Entity:   enemy.Entity,
 			Name:     enemy.Name,
@@ -58,7 +58,7 @@ func (st *FieldInfoState) OnStart(world w.World) error {
 		return err
 	}
 	for _, item := range items {
-		st.entries = append(st.entries, FieldEntry{
+		st.entries = append(st.entries, fieldEntry{
 			Type:        "item",
 			Entity:      item.Entity,
 			Name:        item.Name,
@@ -211,8 +211,8 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// FieldEntry は視界内のエンティティ情報
-type FieldEntry struct {
+// fieldEntry は視界内のエンティティ情報
+type fieldEntry struct {
 	Type        string // "enemy" or "item"
 	Entity      ecs.Entity
 	Name        string
