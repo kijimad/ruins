@@ -145,15 +145,22 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 		sectionMargin = 16
 	)
 
+	// drawText はテキストを描画するヘルパー関数
+	drawText := func(str string, y int) {
+		op := &text.DrawOptions{}
+		op.GeoM.Translate(float64(marginX), float64(y))
+		text.Draw(screen, str, face, op)
+	}
+
 	y := marginY
 
 	if len(st.entries) == 0 {
-		st.drawText(screen, face, "視界内に何もありません", marginX, y)
+		drawText("視界内に何もありません", y)
 		return nil
 	}
 
 	// エントリリスト
-	st.drawText(screen, face, "視界内の情報 (距離順):", marginX, y)
+	drawText("視界内の情報 (距離順):", y)
 	y += lineHeight + 8
 
 	for i, entry := range st.entries {
@@ -178,13 +185,13 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 			line = fmt.Sprintf("%s%d. %s %-12s  距離:%2d",
 				prefix, i+1, typeStr, entry.Name, entry.Distance)
 		}
-		st.drawText(screen, face, line, marginX, y)
+		drawText(line, y)
 		y += lineHeight
 	}
 
 	// 選択中のエントリの詳細情報
 	y += sectionMargin
-	st.drawText(screen, face, "================================", marginX, y)
+	drawText("================================", y)
 	y += lineHeight
 
 	// インデックスが範囲内かチェック
@@ -193,33 +200,26 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 	}
 
 	selected := st.entries[st.selectedIndex]
-	st.drawText(screen, face, fmt.Sprintf("名前: %s", selected.Name), marginX, y)
+	drawText(fmt.Sprintf("名前: %s", selected.Name), y)
 	y += lineHeight
 	if selected.Type == "enemy" {
-		st.drawText(screen, face, fmt.Sprintf("HP: %d/%d", selected.HP, selected.MaxHP), marginX, y)
+		drawText(fmt.Sprintf("HP: %d/%d", selected.HP, selected.MaxHP), y)
 		y += lineHeight
 	} else if selected.Type == "item" && selected.Description != "" {
-		st.drawText(screen, face, fmt.Sprintf("説明: %s", selected.Description), marginX, y)
+		drawText(fmt.Sprintf("説明: %s", selected.Description), y)
 		y += lineHeight
 	}
-	st.drawText(screen, face, fmt.Sprintf("距離: %d タイル", selected.Distance), marginX, y)
+	drawText(fmt.Sprintf("距離: %d タイル", selected.Distance), y)
 	y += lineHeight
-	st.drawText(screen, face, fmt.Sprintf("座標: (%d, %d)", selected.GridX, selected.GridY), marginX, y)
+	drawText(fmt.Sprintf("座標: (%d, %d)", selected.GridX, selected.GridY), y)
 
 	// 操作説明
 	y = screen.Bounds().Dy() - 80
-	st.drawText(screen, face, "--- 操作 ---", marginX, y)
+	drawText("--- 操作 ---", y)
 	y += lineHeight
-	st.drawText(screen, face, "↑↓/WS: 移動  1-9: 直接選択", marginX, y)
+	drawText("↑↓/WS: 移動  1-9: 直接選択", y)
 	y += lineHeight
-	st.drawText(screen, face, "Esc: 閉じる（攻撃はShift+方向キー）", marginX, y)
+	drawText("Esc: 閉じる（攻撃はShift+方向キー）", y)
 
 	return nil
-}
-
-// drawText はテキストを描画するヘルパー関数
-func (st *FieldInfoState) drawText(screen *ebiten.Image, face text.Face, str string, x, y int) {
-	op := &text.DrawOptions{}
-	op.GeoM.Translate(float64(x), float64(y))
-	text.Draw(screen, str, face, op)
 }
