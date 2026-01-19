@@ -69,13 +69,6 @@ func (st *FieldInfoState) OnStart(world w.World) error {
 		})
 	}
 
-	st.selectedIndex = 0
-
-	if len(st.entries) == 0 {
-		// 何もない場合は前のステートに戻る
-		st.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-	}
-
 	return nil
 }
 
@@ -106,14 +99,6 @@ func (st *FieldInfoState) Update(_ w.World) (es.Transition[w.World], error) {
 		st.selectedIndex++
 		if st.selectedIndex >= len(st.entries) {
 			st.selectedIndex = 0
-		}
-	}
-
-	// 数字キー(1-9)で直接選択
-	for i := 1; i <= 9 && i <= len(st.entries); i++ {
-		key := ebiten.Key(int(ebiten.Key1) + i - 1)
-		if keyboardInput.IsKeyJustPressed(key) {
-			st.selectedIndex = i - 1
 		}
 	}
 
@@ -204,9 +189,9 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 	y = screen.Bounds().Dy() - 80
 	drawText("--- 操作 ---", y)
 	y += lineHeight
-	drawText("↑↓/WS: 移動  1-9: 直接選択", y)
+	drawText("↑↓/WS: 移動", y)
 	y += lineHeight
-	drawText("Esc: 閉じる（攻撃はShift+方向キー）", y)
+	drawText("Esc: 閉じる", y)
 
 	return nil
 }
