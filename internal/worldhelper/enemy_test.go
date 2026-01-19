@@ -42,9 +42,15 @@ func TestGetVisibleEnemies(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Len(t, enemies, 1, "視界内の敵が見つからない")
-		assert.Equal(t, "ゴブリン", enemies[0].Name)
-		assert.Equal(t, 12, enemies[0].GridX)
-		assert.Equal(t, 12, enemies[0].GridY)
+
+		// エンティティから情報を取得
+		enemyEntity := enemies[0]
+		name := GetEntityName(enemyEntity, world)
+		grid := world.Components.GridElement.Get(enemyEntity).(*gc.GridElement)
+
+		assert.Equal(t, "ゴブリン", name)
+		assert.Equal(t, gc.Tile(12), grid.X)
+		assert.Equal(t, gc.Tile(12), grid.Y)
 	})
 
 	t.Run("視界外の敵は取得されない", func(t *testing.T) {
@@ -57,9 +63,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界外に敵を配置（探索済みでない）
-		enemy, err := SpawnEnemy(world, 50, 50, "火の玉")
+		_, err := SpawnEnemy(world, 50, 50, "火の玉")
 		require.NoError(t, err)
-		_ = enemy
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
@@ -69,47 +74,13 @@ func TestGetVisibleEnemies(t *testing.T) {
 		assert.Empty(t, enemies, "視界外の敵は取得されないべき")
 	})
 
-	t.Run("複数の敵を距離順にソートして取得できる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-		// 遠い敵
-		enemy1, err := SpawnEnemy(world, 15, 10, "火の玉")
-		require.NoError(t, err)
-		enemy1.AddComponent(world.Components.Name, &gc.Name{Name: "遠い敵"})
-
-		// 近い敵
-		enemy2, err := SpawnEnemy(world, 11, 10, "火の玉")
-		require.NoError(t, err)
-		enemy2.AddComponent(world.Components.Name, &gc.Name{Name: "近い敵"})
-
-		// 探索済みタイルに設定
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 15, Y: 10}] = true
-
-		enemies, err := GetVisibleEnemies(world)
-		require.NoError(t, err)
-
-		require.Len(t, enemies, 2)
-		assert.Equal(t, "近い敵", enemies[0].Name, "最初は近い敵であるべき")
-		assert.Equal(t, "遠い敵", enemies[1].Name, "次は遠い敵であるべき")
-		assert.Less(t, enemies[0].Distance, enemies[1].Distance, "距離順にソートされているべき")
-	})
-
 	t.Run("プレイヤーがいない場合は空を返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーなし、敵のみ
-		enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
+		_, err := SpawnEnemy(world, 5, 5, "火の玉")
 		require.NoError(t, err)
-		_ = enemy
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
@@ -139,7 +110,10 @@ func TestGetVisibleEnemies(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Len(t, enemies, 1)
-		assert.NotEmpty(t, enemies[0].Name, "SpawnEnemyで生成された敵は名前を持つべき")
+
+		// エンティティから名前を取得
+		name := GetEntityName(enemies[0], world)
+		assert.NotEmpty(t, name, "SpawnEnemyで生成された敵は名前を持つべき")
 	})
 }
 
@@ -166,10 +140,20 @@ func TestGetVisibleItems(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Len(t, items, 1)
-		assert.Equal(t, "回復薬", items[0].Name)
-		assert.NotEmpty(t, items[0].Description, "アイテムは説明を持つべき")
-		assert.Equal(t, 12, items[0].GridX)
-		assert.Equal(t, 12, items[0].GridY)
+
+		// エンティティから情報を取得
+		itemEntity := items[0]
+		name := GetEntityName(itemEntity, world)
+		grid := world.Components.GridElement.Get(itemEntity).(*gc.GridElement)
+		desc := world.Components.Description.Get(itemEntity)
+
+		assert.Equal(t, "回復薬", name)
+		assert.NotNil(t, desc, "アイテムは説明を持つべき")
+		if desc != nil {
+			assert.NotEmpty(t, desc.(*gc.Description).Description)
+		}
+		assert.Equal(t, gc.Tile(12), grid.X)
+		assert.Equal(t, gc.Tile(12), grid.Y)
 	})
 
 	t.Run("視界外のアイテムは取得されない", func(t *testing.T) {
@@ -193,39 +177,6 @@ func TestGetVisibleItems(t *testing.T) {
 		assert.Empty(t, items, "視界外のアイテムは取得されないべき")
 	})
 
-	t.Run("複数のアイテムを距離順にソートして取得できる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを配置
-		playerEntity := world.Manager.NewEntity()
-		playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-		// 遠いアイテム
-		item1, err := SpawnFieldItem(world, "回復薬", gc.Tile(15), gc.Tile(10))
-		require.NoError(t, err)
-		item1.AddComponent(world.Components.Name, &gc.Name{Name: "遠いアイテム"})
-
-		// 近いアイテム
-		item2, err2 := SpawnFieldItem(world, "回復薬", gc.Tile(11), gc.Tile(10))
-		require.NoError(t, err2)
-		item2.AddComponent(world.Components.Name, &gc.Name{Name: "近いアイテム"})
-
-		// 探索済みタイルに設定
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 15, Y: 10}] = true
-
-		items, err := GetVisibleItems(world)
-		require.NoError(t, err)
-
-		require.Len(t, items, 2)
-		assert.Equal(t, "近いアイテム", items[0].Name, "最初は近いアイテムであるべき")
-		assert.Equal(t, "遠いアイテム", items[1].Name, "次は遠いアイテムであるべき")
-		assert.Less(t, items[0].Distance, items[1].Distance, "距離順にソートされているべき")
-	})
-
 	t.Run("SpawnFieldItemで生成されたアイテムは名前を持つ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -246,7 +197,10 @@ func TestGetVisibleItems(t *testing.T) {
 		require.NoError(t, err)
 
 		require.Len(t, items, 1)
-		assert.NotEmpty(t, items[0].Name, "SpawnFieldItemで生成されたアイテムは名前を持つべき")
+
+		// エンティティから名前を取得
+		name := GetEntityName(items[0], world)
+		assert.NotEmpty(t, name, "SpawnFieldItemで生成されたアイテムは名前を持つべき")
 	})
 }
 

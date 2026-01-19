@@ -2,9 +2,11 @@ package states
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -34,40 +36,23 @@ func (st *FieldInfoState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *FieldInfoState) OnStart(world w.World) error {
-	// 視界内の敵を取得
-	enemies, err := worldhelper.GetVisibleEnemies(world)
+	playerEntity, err := worldhelper.GetPlayerEntity(world)
 	if err != nil {
 		return err
-	}
-	for _, enemy := range enemies {
-		st.entries = append(st.entries, fieldEntry{
-			Type:     "enemy",
-			Entity:   enemy.Entity,
-			Name:     enemy.Name,
-			HP:       enemy.HP,
-			MaxHP:    enemy.MaxHP,
-			Distance: enemy.Distance,
-			GridX:    enemy.GridX,
-			GridY:    enemy.GridY,
-		})
 	}
 
-	// 視界内のアイテムを取得
-	items, err := worldhelper.GetVisibleItems(world)
-	if err != nil {
+	if err := st.collectEnemyEntries(world, playerEntity); err != nil {
 		return err
 	}
-	for _, item := range items {
-		st.entries = append(st.entries, fieldEntry{
-			Type:        "item",
-			Entity:      item.Entity,
-			Name:        item.Name,
-			Description: item.Description,
-			Distance:    item.Distance,
-			GridX:       item.GridX,
-			GridY:       item.GridY,
-		})
+
+	if err := st.collectItemEntries(world, playerEntity); err != nil {
+		return err
 	}
+
+	// 距離順にソート
+	sort.Slice(st.entries, func(i, j int) bool {
+		return st.entries[i].Distance < st.entries[j].Distance
+	})
 
 	return nil
 }
@@ -207,4 +192,84 @@ type fieldEntry struct {
 	Distance    int
 	GridX       int
 	GridY       int
+}
+
+// collectEnemyEntries は視界内の敵エントリを収集する
+func (st *FieldInfoState) collectEnemyEntries(world w.World, playerEntity ecs.Entity) error {
+	enemies, err := worldhelper.GetVisibleEnemies(world)
+	if err != nil {
+		return err
+	}
+
+	for _, enemyEntity := range enemies {
+		// エンティティから必要な情報を取得
+		name := worldhelper.GetEntityName(enemyEntity, world)
+		distance := worldhelper.CalculateDistance(world, playerEntity, enemyEntity)
+
+		var hp, maxHP int
+		if enemyEntity.HasComponent(world.Components.Pools) {
+			pools := world.Components.Pools.Get(enemyEntity).(*gc.Pools)
+			hp = pools.HP.Current
+			maxHP = pools.HP.Max
+		}
+
+		var gridX, gridY int
+		if enemyEntity.HasComponent(world.Components.GridElement) {
+			grid := world.Components.GridElement.Get(enemyEntity).(*gc.GridElement)
+			gridX = int(grid.X)
+			gridY = int(grid.Y)
+		}
+
+		st.entries = append(st.entries, fieldEntry{
+			Type:     "enemy",
+			Entity:   enemyEntity,
+			Name:     name,
+			HP:       hp,
+			MaxHP:    maxHP,
+			Distance: distance,
+			GridX:    gridX,
+			GridY:    gridY,
+		})
+	}
+
+	return nil
+}
+
+// collectItemEntries は視界内のアイテムエントリを収集する
+func (st *FieldInfoState) collectItemEntries(world w.World, playerEntity ecs.Entity) error {
+	items, err := worldhelper.GetVisibleItems(world)
+	if err != nil {
+		return err
+	}
+
+	for _, itemEntity := range items {
+		// エンティティから必要な情報を取得
+		name := worldhelper.GetEntityName(itemEntity, world)
+		distance := worldhelper.CalculateDistance(world, playerEntity, itemEntity)
+
+		var description string
+		if itemEntity.HasComponent(world.Components.Description) {
+			desc := world.Components.Description.Get(itemEntity).(*gc.Description)
+			description = desc.Description
+		}
+
+		var gridX, gridY int
+		if itemEntity.HasComponent(world.Components.GridElement) {
+			grid := world.Components.GridElement.Get(itemEntity).(*gc.GridElement)
+			gridX = int(grid.X)
+			gridY = int(grid.Y)
+		}
+
+		st.entries = append(st.entries, fieldEntry{
+			Type:        "item",
+			Entity:      itemEntity,
+			Name:        name,
+			Description: description,
+			Distance:    distance,
+			GridX:       gridX,
+			GridY:       gridY,
+		})
+	}
+
+	return nil
 }

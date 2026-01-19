@@ -3,7 +3,6 @@ package worldhelper
 import (
 	"fmt"
 	"math"
-	"sort"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -11,29 +10,8 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// EnemyInfo は視界内の敵情報
-type EnemyInfo struct {
-	Entity   ecs.Entity
-	Name     string
-	HP       int
-	MaxHP    int
-	Distance int // タイル単位の距離
-	GridX    int
-	GridY    int
-}
-
-// ItemInfo は視界内のアイテム情報
-type ItemInfo struct {
-	Entity      ecs.Entity
-	Name        string
-	Description string
-	Distance    int // タイル単位の距離
-	GridX       int
-	GridY       int
-}
-
-// GetVisibleEnemies は視界内の敵をすべて取得し、距離順にソートして返す
-func GetVisibleEnemies(world w.World) ([]EnemyInfo, error) {
+// GetVisibleEnemies は視界内の敵エンティティをすべて取得して返す
+func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	// プレイヤー位置を取得
 	playerEntity, err := GetPlayerEntity(world)
 	if err != nil {
@@ -48,13 +26,12 @@ func GetVisibleEnemies(world w.World) ([]EnemyInfo, error) {
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
-	var enemies []EnemyInfo
+	var enemies []ecs.Entity
 
 	// 視界内の敵を収集
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.FactionEnemy,
-		world.Components.Pools,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		enemyX := int(gridElement.X)
@@ -65,35 +42,8 @@ func GetVisibleEnemies(world w.World) ([]EnemyInfo, error) {
 			return
 		}
 
-		pools := world.Components.Pools.Get(entity).(*gc.Pools)
-
-		// 名前を取得
-		name := "敵"
-		if entity.HasComponent(world.Components.Name) {
-			nameComp := world.Components.Name.Get(entity).(*gc.Name)
-			name = nameComp.Name
-		}
-
-		// 距離を計算（タイル単位）
-		dx := enemyX - playerX
-		dy := enemyY - playerY
-		distance := int(math.Sqrt(float64(dx*dx + dy*dy)))
-
-		enemies = append(enemies, EnemyInfo{
-			Entity:   entity,
-			Name:     name,
-			HP:       pools.HP.Current,
-			MaxHP:    pools.HP.Max,
-			Distance: distance,
-			GridX:    enemyX,
-			GridY:    enemyY,
-		})
+		enemies = append(enemies, entity)
 	}))
-
-	// 距離順にソート（近い順）
-	sort.Slice(enemies, func(i, j int) bool {
-		return enemies[i].Distance < enemies[j].Distance
-	})
 
 	return enemies, nil
 }
@@ -115,8 +65,8 @@ func isInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	return world.Resources.Dungeon.ExploredTiles[gridElement]
 }
 
-// GetVisibleItems は視界内のアイテムをすべて取得し、距離順にソートして返す
-func GetVisibleItems(world w.World) ([]ItemInfo, error) {
+// GetVisibleItems は視界内のアイテムエンティティをすべて取得して返す
+func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	// プレイヤー位置を取得
 	playerEntity, err := GetPlayerEntity(world)
 	if err != nil {
@@ -131,7 +81,7 @@ func GetVisibleItems(world w.World) ([]ItemInfo, error) {
 	playerX := int(playerGrid.X)
 	playerY := int(playerGrid.Y)
 
-	var items []ItemInfo
+	var items []ecs.Entity
 
 	// 視界内のアイテムを収集
 	world.Manager.Join(
@@ -147,39 +97,23 @@ func GetVisibleItems(world w.World) ([]ItemInfo, error) {
 			return
 		}
 
-		// 名前を取得
-		name := "アイテム"
-		if entity.HasComponent(world.Components.Name) {
-			nameComp := world.Components.Name.Get(entity).(*gc.Name)
-			name = nameComp.Name
-		}
-
-		// 説明を取得
-		description := ""
-		if entity.HasComponent(world.Components.Description) {
-			descComp := world.Components.Description.Get(entity).(*gc.Description)
-			description = descComp.Description
-		}
-
-		// 距離を計算（タイル単位）
-		dx := itemX - playerX
-		dy := itemY - playerY
-		distance := int(math.Sqrt(float64(dx*dx + dy*dy)))
-
-		items = append(items, ItemInfo{
-			Entity:      entity,
-			Name:        name,
-			Description: description,
-			Distance:    distance,
-			GridX:       itemX,
-			GridY:       itemY,
-		})
+		items = append(items, entity)
 	}))
 
-	// 距離順にソート（近い順）
-	sort.Slice(items, func(i, j int) bool {
-		return items[i].Distance < items[j].Distance
-	})
-
 	return items, nil
+}
+
+// CalculateDistance は2つのエンティティ間の距離をタイル単位で計算する
+func CalculateDistance(world w.World, entity1, entity2 ecs.Entity) int {
+	if !entity1.HasComponent(world.Components.GridElement) || !entity2.HasComponent(world.Components.GridElement) {
+		return 0
+	}
+
+	grid1 := world.Components.GridElement.Get(entity1).(*gc.GridElement)
+	grid2 := world.Components.GridElement.Get(entity2).(*gc.GridElement)
+
+	dx := int(grid1.X) - int(grid2.X)
+	dy := int(grid1.Y) - int(grid2.Y)
+
+	return int(math.Sqrt(float64(dx*dx + dy*dy)))
 }
