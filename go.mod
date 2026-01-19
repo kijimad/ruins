@@ -10,7 +10,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.2
 	github.com/pkg/profile v1.7.0
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.6.1
+	github.com/urfave/cli/v3 v3.6.2
 	github.com/x-hgg-x/goecs/v2 v2.0.5
 )
 
