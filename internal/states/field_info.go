@@ -20,19 +20,6 @@ type FieldInfoState struct {
 	selectedIndex int
 }
 
-// FieldEntry は視界内のエンティティ情報
-type FieldEntry struct {
-	Type        string // "enemy" or "item"
-	Entity      ecs.Entity
-	Name        string
-	Description string
-	HP          int
-	MaxHP       int
-	Distance    int
-	GridX       int
-	GridY       int
-}
-
 func (st FieldInfoState) String() string {
 	return "FieldInfo"
 }
@@ -222,4 +209,17 @@ func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
 	drawText("Esc: 閉じる（攻撃はShift+方向キー）", y)
 
 	return nil
+}
+
+// FieldEntry は視界内のエンティティ情報
+type FieldEntry struct {
+	Type        string // "enemy" or "item"
+	Entity      ecs.Entity
+	Name        string
+	Description string
+	HP          int
+	MaxHP       int
+	Distance    int
+	GridX       int
+	GridY       int
 }

@@ -117,8 +117,7 @@ type WeaponSlotsData struct {
 // WeaponSlotInfo は武器スロットの情報
 type WeaponSlotInfo struct {
 	SlotNumber  gc.EquipmentSlotNumber // スロット番号
-	WeaponName  string                 // 武器名（空なら"-"）
-	HasWeapon   bool                   // 武器が装備されているか
+	WeaponName  string                 // 武器名（空文字列なら武器なし）
 	SpriteSheet string                 // スプライトシート名
 	SpriteName  string                 // スプライト名
 }

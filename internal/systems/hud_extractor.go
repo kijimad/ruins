@@ -389,9 +389,8 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 
 			var weaponName string
 			var spriteSheet, spriteName string
-			hasWeapon := weapon != nil
 
-			if hasWeapon {
+			if weapon != nil {
 				// 武器名を取得
 				if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
 					weaponName = nameComp.(*gc.Name).Name
@@ -410,7 +409,6 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 			slots = append(slots, hud.WeaponSlotInfo{
 				SlotNumber:  slotNumber,
 				WeaponName:  weaponName,
-				HasWeapon:   hasWeapon,
 				SpriteSheet: spriteSheet,
 				SpriteName:  spriteName,
 			})

@@ -11,18 +11,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// WeaponSlots は武器スロット表示ウィジェット
-type WeaponSlots struct {
-	face text.Face
-}
-
-// NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face) *WeaponSlots {
-	return &WeaponSlots{
-		face: face,
-	}
-}
-
 // WeaponSlotsConfig は武器スロット表示の設定
 type WeaponSlotsConfig struct {
 	SlotSize    int // 各スロットのサイズ（ピクセル）
@@ -37,6 +25,18 @@ var DefaultWeaponSlotsConfig = WeaponSlotsConfig{
 	SlotSpacing: 8,
 	BorderWidth: 2,
 	YOffset:     20,
+}
+
+// WeaponSlots は武器スロット表示ウィジェット
+type WeaponSlots struct {
+	face text.Face
+}
+
+// NewWeaponSlots は新しいWeaponSlotsを作成する
+func NewWeaponSlots(face text.Face) *WeaponSlots {
+	return &WeaponSlots{
+		face: face,
+	}
 }
 
 // Draw は武器スロットを画面上部中央に描画する
@@ -71,9 +71,7 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 		drawSlotBackground(screen, x, y, config.SlotSize, isSelected, config.BorderWidth)
 
 		// 武器スプライトを描画
-		if slot.HasWeapon {
-			drawWeaponSprite(screen, x, y, config.SlotSize, slot, spriteSheets)
-		}
+		drawWeaponSprite(screen, x, y, config.SlotSize, slot, spriteSheets)
 
 		// スロット番号を描画
 		drawSlotNumber(screen, ws.face, x, y, config.SlotSize, i+1)
@@ -120,6 +118,11 @@ func drawSlotNumber(screen *ebiten.Image, face text.Face, x, y, _ int, number in
 
 // drawWeaponSprite は武器スプライトを中央に描画
 func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotInfo, spriteSheets *map[string]gc.SpriteSheet) {
+	// 武器が装備されていない場合は何も描画しない
+	if slot.WeaponName == "" {
+		return
+	}
+
 	if spriteSheets == nil {
 		return
 	}
