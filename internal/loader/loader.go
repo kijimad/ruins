@@ -93,22 +93,22 @@ func (rl *DefaultResourceLoader) LoadSpriteSheets() (map[string]components.Sprit
 		return rl.cache.SpriteSheets, nil
 	}
 
-	spriteSheets := make(map[string]components.SpriteSheet)
-
-	// JSON形式のスプライトシート（Aseprite出力）
-	jsonFiles := map[string]string{
-		"field": "file/textures/dist/single.json",
-		"tile":  "file/textures/dist/tiles.json",
-		"bg":    "file/textures/dist/bg.json",
+	// raw.tomlからSpriteSheet定義を読み込む
+	rawMaster, err := rl.LoadRaws()
+	if err != nil {
+		return nil, fmt.Errorf("raw.tomlの読み込みに失敗: %w", err)
 	}
 
-	for name, path := range jsonFiles {
-		sheet, err := LoadSpriteSheetFromAseprite(path)
+	spriteSheets := make(map[string]components.SpriteSheet)
+
+	// raw.tomlの定義に基づいてJSONファイルを読み込む
+	for _, spriteSheetDef := range rawMaster.Raws.SpriteSheets {
+		sheet, err := LoadSpriteSheetFromAseprite(spriteSheetDef.Path)
 		if err != nil {
-			return nil, fmt.Errorf("スプライトシート '%s' の読み込みに失敗: %w", name, err)
+			return nil, fmt.Errorf("スプライトシート '%s' の読み込みに失敗: %w", spriteSheetDef.Name, err)
 		}
-		sheet.Name = name
-		spriteSheets[name] = sheet
+		sheet.Name = spriteSheetDef.Name
+		spriteSheets[spriteSheetDef.Name] = sheet
 	}
 
 	rl.cache.SpriteSheets = spriteSheets
