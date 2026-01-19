@@ -286,21 +286,22 @@ func (st *EquipMenuState) createTabs(world w.World) []tabmenu.TabItem {
 func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _ int) []tabmenu.Item {
 	items := []tabmenu.Item{}
 
-	// 武器スロットを追加（近接武器、遠距離武器）
-	weaponSlots := []struct {
-		entity     *ecs.Entity
-		label      string
-		slotNumber gc.EquipmentSlotNumber
-	}{
-		{worldhelper.GetMeleeWeapon(world, member), "近接武器", gc.SlotMeleeWeapon},
-		{worldhelper.GetRangedWeapon(world, member), "遠距離武器", gc.SlotRangedWeapon},
+	// 武器スロットを追加する
+	weapons := worldhelper.GetWeapons(world, member)
+	weaponLabels := []string{"武器1", "武器2", "武器3", "武器4", "武器5"}
+	weaponSlotNumbers := []gc.EquipmentSlotNumber{
+		gc.SlotWeapon1,
+		gc.SlotWeapon2,
+		gc.SlotWeapon3,
+		gc.SlotWeapon4,
+		gc.SlotWeapon5,
 	}
-	for i, slot := range weaponSlots {
+	for i, weapon := range weapons {
 		var name string
-		if slot.entity != nil {
-			name = fmt.Sprintf("%s: %s", slot.label, world.Components.Name.Get(*slot.entity).(*gc.Name).Name)
+		if weapon != nil {
+			name = fmt.Sprintf("%s: %s", weaponLabels[i], world.Components.Name.Get(*weapon).(*gc.Name).Name)
 		} else {
-			name = fmt.Sprintf("%s: -", slot.label)
+			name = fmt.Sprintf("%s: -", weaponLabels[i])
 		}
 
 		items = append(items, tabmenu.Item{
@@ -308,15 +309,15 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _
 			Label: name,
 			UserData: map[string]interface{}{
 				"member":     member,
-				"slotNumber": slot.slotNumber,
-				"entity":     slot.entity,
+				"slotNumber": weaponSlotNumbers[i],
+				"entity":     weapon,
 			},
 		})
 	}
 
 	// 防具スロットを追加
 	armorSlots := worldhelper.GetArmorEquipments(world, member)
-	armorLabels := []string{"防具1", "防具2", "防具3", "防具4"}
+	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(脚)", "防具(装飾)"}
 	armorSlotNumbers := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotLegs, gc.SlotJewelry}
 	for i, slot := range armorSlots {
 		var name string
@@ -458,22 +459,13 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	items := []ecs.Entity{}
 
 	// 武器スロットの場合
-	if slotNumber == gc.SlotMeleeWeapon || slotNumber == gc.SlotRangedWeapon {
+	if slotNumber >= gc.SlotWeapon1 && slotNumber <= gc.SlotWeapon5 {
 		world.Manager.Join(
 			world.Components.Item,
 			world.Components.ItemLocationInPlayerBackpack,
 			world.Components.Weapon,
-			world.Components.Attack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			attack := world.Components.Attack.Get(entity).(*gc.Attack)
-			if attack != nil {
-				// スロット番号に応じた武器種別のみ追加
-				if slotNumber == gc.SlotMeleeWeapon && attack.AttackCategory.Range == gc.AttackRangeMelee {
-					items = append(items, entity)
-				} else if slotNumber == gc.SlotRangedWeapon && attack.AttackCategory.Range == gc.AttackRangeRanged {
-					items = append(items, entity)
-				}
-			}
+			items = append(items, entity)
 		}))
 	} else {
 		// 防具スロットの場合
@@ -659,31 +651,13 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.I
 		return fmt.Errorf("unexpected item UserData")
 	}
 
-	// 装備するスロット番号を決定
-	slotNumber := st.equipSlotNumber
-
-	// 武器の場合、攻撃タイプに応じてスロット番号を決定
-	if entity.HasComponent(world.Components.Weapon) {
-		attack := world.Components.Attack.Get(entity).(*gc.Attack)
-		if attack != nil {
-			switch attack.AttackCategory.Range {
-			case gc.AttackRangeMelee:
-				slotNumber = gc.SlotMeleeWeapon
-			case gc.AttackRangeRanged:
-				slotNumber = gc.SlotRangedWeapon
-			default:
-				return fmt.Errorf("unexpected attack range")
-			}
-		}
-	}
-
 	// 前の装備を外す
 	if st.previousEquipment != nil {
 		worldhelper.MoveToBackpack(world, *st.previousEquipment, st.equipTargetMember)
 	}
 
 	// 保存されたメンバーに新しい装備を装着
-	worldhelper.MoveToEquip(world, entity, st.equipTargetMember, slotNumber)
+	worldhelper.MoveToEquip(world, entity, st.equipTargetMember, st.equipSlotNumber)
 
 	// 装備モードを終了して元の表示に戻る
 	return st.exitEquipMode(world)

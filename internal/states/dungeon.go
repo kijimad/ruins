@@ -142,6 +142,9 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
+	// 武器スロット切り替え入力処理（1-5キー）
+	st.handleWeaponSlotInput(world)
+
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -424,4 +427,35 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 
 	// NoneEventまたは未知のイベントの場合は何もしない
 	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
+// handleWeaponSlotInput は1-5キーによる武器スロット切り替えを処理する
+func (st *DungeonState) handleWeaponSlotInput(world w.World) {
+	keyboardInput := input.GetSharedKeyboardInput()
+
+	// 1-5キーで武器スロットを選択
+	for i := 0; i < 5; i++ {
+		key := ebiten.Key(int(ebiten.Key1) + i)
+		if keyboardInput.IsKeyJustPressed(key) {
+			world.Resources.SelectedWeaponSlot = i + 1 // 1-5の番号
+
+			// プレイヤーの武器スロット情報を取得してログメッセージを出力
+			worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
+				weapons := worldhelper.GetWeapons(world, playerEntity)
+				weapon := weapons[i]
+
+				if weapon != nil {
+					// 武器が装備されている場合は武器名を表示
+					if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
+						weaponName := nameComp.(*gc.Name).Name
+						gamelog.New(gamelog.FieldLog).
+							ItemName(weaponName).
+							Append("を構えた").
+							Log()
+					}
+				}
+			})
+			break
+		}
+	}
 }

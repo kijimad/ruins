@@ -103,7 +103,7 @@ func (da *DropActivity) performDropActivity(act *Activity, world w.World) error 
 	})
 
 	gamelog.New(gamelog.FieldLog).
-		Append(formattedName).
+		ItemName(formattedName).
 		Append(" を捨てた。").
 		Log()
 

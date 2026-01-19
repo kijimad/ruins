@@ -81,8 +81,8 @@ func TestEquipMenuWeaponSortIntegration(t *testing.T) {
 	weapon3.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon3.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackFist})
 
-	// queryEquipableItemsForSlotのテスト（近接武器）
-	weapons := state.queryEquipableItemsForSlot(world, gc.SlotMeleeWeapon)
+	// queryEquipableItemsForSlotのテスト（武器スロット1）
+	weapons := state.queryEquipableItemsForSlot(world, gc.SlotWeapon1)
 	require.Len(t, weapons, 3, "武器が3つ見つかるべき")
 
 	// ソート順を確認（名前順）

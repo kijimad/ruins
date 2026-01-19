@@ -179,7 +179,7 @@ func (pa *PickupActivity) collectFieldItem(act *Activity, world w.World, itemEnt
 	}
 
 	gamelog.New(gamelog.FieldLog).
-		Append(formattedName).
+		ItemName(formattedName).
 		Append(" を入手した。").
 		Log()
 

@@ -18,7 +18,6 @@ func CreateTestRawMaster() *raw.Master {
 			Name: "通常",
 			Entries: []raw.ItemTableEntry{
 				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{ItemName: "回復スプレー", Weight: 0.8, MinDepth: 3, MaxDepth: 50},
 				{ItemName: "手榴弾", Weight: 0.5, MinDepth: 8, MaxDepth: 40},
 			},
 		},

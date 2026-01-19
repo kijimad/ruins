@@ -6,11 +6,12 @@ import (
 
 // Data はすべてのHUDウィジェットが必要とするデータを統合する
 type Data struct {
-	GameInfo     GameInfoData
-	MinimapData  MinimapData
-	DebugOverlay DebugOverlayData
-	MessageData  MessageData
-	CurrencyData CurrencyData
+	GameInfo        GameInfoData
+	MinimapData     MinimapData
+	DebugOverlay    DebugOverlayData
+	MessageData     MessageData
+	CurrencyData    CurrencyData
+	WeaponSlotsData WeaponSlotsData
 }
 
 // GameInfoData はゲーム基本情報のデータ
@@ -104,4 +105,20 @@ type CurrencyData struct {
 	Currency         int               // プレイヤーの所持地髄
 	ScreenDimensions ScreenDimensions  // 画面サイズ
 	Config           MessageAreaConfig // 位置計算にメッセージエリアの情報が必要
+}
+
+// WeaponSlotsData は武器スロット表示に必要なデータ
+type WeaponSlotsData struct {
+	Slots            []WeaponSlotInfo // 5つの武器スロット情報
+	SelectedSlot     int              // 選択中のスロット番号（0-4）
+	ScreenDimensions ScreenDimensions // 画面サイズ
+}
+
+// WeaponSlotInfo は武器スロットの情報
+type WeaponSlotInfo struct {
+	SlotNumber  gc.EquipmentSlotNumber // スロット番号
+	WeaponName  string                 // 武器名（空なら"-"）
+	HasWeapon   bool                   // 武器が装備されているか
+	SpriteSheet string                 // スプライトシート名
+	SpriteName  string                 // スプライト名
 }

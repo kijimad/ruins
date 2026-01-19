@@ -8,9 +8,10 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetMeleeWeapon は近接武器を取得する
-func GetMeleeWeapon(world w.World, owner ecs.Entity) *ecs.Entity {
-	var result *ecs.Entity
+// GetWeapons は武器一覧を取得する（スロット1〜5）
+// 必ず長さ5のスライスを返す
+func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
+	weapons := make([]*ecs.Entity, 5)
 
 	world.Manager.Join(
 		world.Components.Item,
@@ -18,30 +19,16 @@ func GetMeleeWeapon(world w.World, owner ecs.Entity) *ecs.Entity {
 		world.Components.Weapon,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
-		if owner == equipped.Owner && equipped.EquipmentSlot == gc.SlotMeleeWeapon {
-			result = &entity
+		if owner == equipped.Owner {
+			// 武器スロットの場合は配列インデックスに変換（SlotWeapon1=4 -> index 0）
+			if equipped.EquipmentSlot >= gc.SlotWeapon1 && equipped.EquipmentSlot <= gc.SlotWeapon5 {
+				index := int(equipped.EquipmentSlot) - int(gc.SlotWeapon1)
+				weapons[index] = &entity
+			}
 		}
 	}))
 
-	return result
-}
-
-// GetRangedWeapon は遠距離武器を取得する
-func GetRangedWeapon(world w.World, owner ecs.Entity) *ecs.Entity {
-	var result *ecs.Entity
-
-	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationEquipped,
-		world.Components.Weapon,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
-		if owner == equipped.Owner && equipped.EquipmentSlot == gc.SlotRangedWeapon {
-			result = &entity
-		}
-	}))
-
-	return result
+	return weapons
 }
 
 // GetArmorEquipments は防具一覧を取得する（HEAD, TORSO, LEGS, JEWELRY）
