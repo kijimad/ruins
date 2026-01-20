@@ -1951,24 +1951,24 @@ BlockView   = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
-SpriteKey = "warp_escape"
+SpriteKey = "warp_escape_0"
 AnimKeys = [
-  "warp_escape_0",
-  "warp_escape_1",
-  "warp_escape_2",
-  "warp_escape_3",
-  "warp_escape_4",
-  "warp_escape_5",
-  "warp_escape_6",
-  "warp_escape_7",
-  "warp_escape_8",
-  "warp_escape_9",
-  "warp_escape_10",
-  "warp_escape_11",
-  "warp_escape_12",
-  "warp_escape_13",
-  "warp_escape_14",
-  "warp_escape_15",
+  "warp_escape_0_",
+  "warp_escape_1_",
+  "warp_escape_2_",
+  "warp_escape_3_",
+  "warp_escape_4_",
+  "warp_escape_5_",
+  "warp_escape_6_",
+  "warp_escape_7_",
+  "warp_escape_8_",
+  "warp_escape_9_",
+  "warp_escape_10_",
+  "warp_escape_11_",
+  "warp_escape_12_",
+  "warp_escape_13_",
+  "warp_escape_14_",
+  "warp_escape_15_",
 ]
 Depth = 1
 
