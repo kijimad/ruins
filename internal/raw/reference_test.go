@@ -2,6 +2,7 @@ package raw
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -301,6 +302,35 @@ func TestRawDuplicateNames(t *testing.T) {
 	})
 }
 
+// buildSpriteSheetSprites はSpriteSheetからスプライトキー一覧を構築する
+func buildSpriteSheetSprites(t *testing.T, master Master) map[string]map[string]bool {
+	t.Helper()
+	spriteSheetSprites := make(map[string]map[string]bool)
+
+	for _, sheet := range master.Raws.SpriteSheets {
+		data, err := assets.FS.ReadFile(sheet.Path)
+		require.NoError(t, err)
+
+		// Aseprite JSON形式をパース
+		var aseData struct {
+			Frames []struct {
+				Filename string `json:"filename"`
+			} `json:"frames"`
+		}
+		require.NoError(t, json.Unmarshal(data, &aseData))
+
+		// スプライトキーのマップを構築（末尾の_を削除）
+		sprites := make(map[string]bool)
+		for _, frame := range aseData.Frames {
+			key := strings.TrimSuffix(frame.Filename, "_")
+			sprites[key] = true
+		}
+		spriteSheetSprites[sheet.Name] = sprites
+	}
+
+	return spriteSheetSprites
+}
+
 // TestSpriteSheetFiles はSpriteSheetのJSONファイルが実在し、読み込めることを検証する
 func TestSpriteSheetFiles(t *testing.T) {
 	t.Parallel()
@@ -322,28 +352,7 @@ func TestSpriteSheetFiles(t *testing.T) {
 		t.Parallel()
 
 		// 各SpriteSheetのスプライト一覧を構築
-		spriteSheetSprites := make(map[string]map[string]bool)
-
-		for _, sheet := range master.Raws.SpriteSheets {
-			data, err := assets.FS.ReadFile(sheet.Path)
-			require.NoError(t, err)
-
-			// Aseprite JSON形式をパース
-			var aseData struct {
-				Frames []struct {
-					Filename string `json:"filename"`
-				} `json:"frames"`
-			}
-			require.NoError(t, json.Unmarshal(data, &aseData))
-
-			// スプライトキーのマップを構築（末尾の_を削除）
-			sprites := make(map[string]bool)
-			for _, frame := range aseData.Frames {
-				key := strings.TrimSuffix(frame.Filename, "_")
-				sprites[key] = true
-			}
-			spriteSheetSprites[sheet.Name] = sprites
-		}
+		spriteSheetSprites := buildSpriteSheetSprites(t, master)
 
 		// 各アイテムが参照するSpriteKeyが存在するか確認
 		for _, item := range master.Raws.Items {
@@ -356,6 +365,55 @@ func TestSpriteSheetFiles(t *testing.T) {
 
 			assert.True(t, sprites[item.SpriteKey], "アイテム '%s' が参照するSpriteKey '%s' がSpriteSheet '%s' 内に存在しません",
 				item.Name, item.SpriteKey, item.SpriteSheetName)
+		}
+	})
+
+	t.Run("Propが参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
+		t.Parallel()
+
+		// 各SpriteSheetのスプライト一覧を構築
+		spriteSheetSprites := buildSpriteSheetSprites(t, master)
+
+		// 各Propが参照するSpriteKeyが存在するか確認
+		for _, prop := range master.Raws.Props {
+			if prop.SpriteRender.SpriteSheetName == "" || prop.SpriteRender.SpriteKey == "" {
+				continue
+			}
+
+			sprites, ok := spriteSheetSprites[prop.SpriteRender.SpriteSheetName]
+			require.True(t, ok, "Prop '%s' が参照するSpriteSheet '%s' が存在しません", prop.Name, prop.SpriteRender.SpriteSheetName)
+
+			assert.True(t, sprites[prop.SpriteRender.SpriteKey], "Prop '%s' が参照するSpriteKey '%s' がSpriteSheet '%s' 内に存在しません",
+				prop.Name, prop.SpriteRender.SpriteKey, prop.SpriteRender.SpriteSheetName)
+		}
+	})
+
+	t.Run("Tileが参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
+		t.Parallel()
+
+		// 各SpriteSheetのスプライト一覧を構築
+		spriteSheetSprites := buildSpriteSheetSprites(t, master)
+
+		// 各Tileが参照するSpriteKeyが存在するか確認
+		// Tileは特殊で、実行時にautoTileIndexが付加される場合がある（例: wall_0, wall_1）
+		// 基本キーそのまま、または基本キー + "_0" のいずれかが存在するかチェックする
+		for _, tile := range master.Raws.Tiles {
+			if tile.SpriteRender.SpriteSheetName == "" || tile.SpriteRender.SpriteKey == "" {
+				continue
+			}
+
+			sprites, ok := spriteSheetSprites[tile.SpriteRender.SpriteSheetName]
+			require.True(t, ok, "Tile '%s' が参照するSpriteSheet '%s' が存在しません", tile.Name, tile.SpriteRender.SpriteSheetName)
+
+			// 基本キーそのまま、またはautoTileIndex付き（_0）のいずれかが存在すればOK
+			baseKey := tile.SpriteRender.SpriteKey
+			baseKeyWithIndex := fmt.Sprintf("%s_0", tile.SpriteRender.SpriteKey)
+			hasBaseKey := sprites[baseKey]
+			hasIndexedKey := sprites[baseKeyWithIndex]
+
+			assert.True(t, hasBaseKey || hasIndexedKey,
+				"Tile '%s' が参照するSpriteKey '%s' または '%s' がSpriteSheet '%s' 内に存在しません",
+				tile.Name, baseKey, baseKeyWithIndex, tile.SpriteRender.SpriteSheetName)
 		}
 	})
 }

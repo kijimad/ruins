@@ -1839,7 +1839,7 @@ BlockView   = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
-SpriteKey       = "prop_bed"
+SpriteKey       = "prop_crate"
 Depth           = 1
 
 [[Props]]
