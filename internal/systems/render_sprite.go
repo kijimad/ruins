@@ -257,6 +257,13 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			return
 		}
 
+		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+
+		// 高さのあるものだけが影を落とす
+		if spriteRender.Depth <= gc.DepthNumRug {
+			return
+		}
+
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 		// 視界チェック
@@ -308,7 +315,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
 
 		// 高さのあるものだけが影を落とす
-		if spriteRender.Depth > gc.DepthNumTaller {
+		if spriteRender.Depth <= gc.DepthNumRug {
 			return
 		}
 
