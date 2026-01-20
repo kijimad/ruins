@@ -1785,18 +1785,18 @@ BlockView   = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey       = "prop_table"
-Depth           = 1
+Depth           = 2
 
 [[Props]]
 Name        = "chair"
-Description = "座り心地の良さそうな椅子"
+Description = "座り心地の良い椅子"
 BlockPass   = true
 BlockView   = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey       = "prop_chair"
-Depth           = 1
+Depth           = 2
 
 [[Props]]
 Name        = "bookshelf"
@@ -1806,8 +1806,8 @@ BlockView   = true
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
-SpriteKey       = "prop_bookshelf"
-Depth           = 1
+SpriteKey       = "wooden_bookshelf"
+Depth           = 2
 
 [[Props]]
 Name        = "barrel"
@@ -1818,7 +1818,7 @@ BlockView   = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey       = "prop_barrel"
-Depth           = 1
+Depth           = 2
 
 [[Props]]
 Name        = "crate"
@@ -1828,8 +1828,8 @@ BlockView   = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
-SpriteKey       = "prop_crate"
-Depth           = 1
+SpriteKey       = "wooden_crate"
+Depth           = 2
 
 [[Props]]
 Name        = "bed"
@@ -1839,8 +1839,30 @@ BlockView   = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
-SpriteKey       = "prop_crate"
+SpriteKey       = "bed"
+Depth           = 2
+
+[[Props]]
+Name        = "bonfire"
+Description = "焚き火"
+BlockPass   = true
+BlockView   = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey       = "bonfire_0"
+AnimKeys        = [ "bonfire_0", "bonfire_1", "bonfire_2", "bonfire_3", "bonfire_4", "bonfire_5", "bonfire_6", "bonfire_7", "bonfire_8", "bonfire_9", "bonfire_10", "bonfire_11", "bonfire_12", "bonfire_13", "bonfire_14", "bonfire_15",  ]
 Depth           = 1
+
+[Props.LightSource]
+Radius  = 7
+Enabled = true
+
+[Props.LightSource.Color]
+R = 255
+G = 200
+B = 150
+A = 255
 
 [[Props]]
 Name        = "lantern"
@@ -1851,7 +1873,7 @@ BlockView   = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey       = "prop_lantern"
-Depth           = 1
+Depth           = 2
 
 [Props.LightSource]
 Radius  = 7
@@ -1871,7 +1893,8 @@ BlockView   = false
 
 [Props.SpriteRender]
 SpriteSheetName = "field"
-SpriteKey       = "warp_next"
+SpriteKey       = "warp_next_0"
+AnimKeys        = [ "warp_next_0", "warp_next_1", "warp_next_2", "warp_next_3", "warp_next_4", "warp_next_5", "warp_next_6", "warp_next_7", "warp_next_8", "warp_next_9", "warp_next_10", "warp_next_11", "warp_next_12", "warp_next_13", "warp_next_14", "warp_next_15",  ]
 Depth           = 1
 
 [Props.WarpNextInteraction]
@@ -1895,6 +1918,7 @@ BlockView   = false
 [Props.SpriteRender]
 SpriteSheetName = "field"
 SpriteKey       = "warp_escape"
+AnimKeys        = [ "warp_escape_0", "warp_escape_1", "warp_escape_2", "warp_escape_3", "warp_escape_4", "warp_escape_5", "warp_escape_6", "warp_escape_7", "warp_escape_8", "warp_escape_9", "warp_escape_10", "warp_escape_11", "warp_escape_12", "warp_escape_13", "warp_escape_14", "warp_escape_15",  ]
 Depth           = 1
 
 [Props.WarpEscapeInteraction]

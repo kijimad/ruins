@@ -82,6 +82,11 @@ func (w *WarpPortalPlanner) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 
+	// 0階（町）では帰還ワープポータルを配置しない
+	if w.world.Resources.Dungeon.Depth == 0 {
+		return nil
+	}
+
 	if !hasEscapePortal && w.world.Resources.Dungeon != nil && w.world.Resources.Dungeon.Depth%escapePortalInterval == 0 {
 		if w.plannerType.UseFixedPortalPos {
 			centerX := int(planData.Level.TileWidth) / 2

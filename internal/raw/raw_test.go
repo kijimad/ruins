@@ -510,3 +510,61 @@ Defense = 0
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
+
+func TestPropWithAnimKeys(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "アニメーションProp"
+Description = "2フレームアニメーションする置物"
+BlockPass = false
+BlockView = false
+AnimKeys = ["fire_0_", "fire_1_"]
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "fire_0_"
+Depth = 1
+`
+	raw, err := Load(str)
+	assert.NoError(t, err)
+
+	// AnimKeysが正しく読み込まれていることを確認
+	assert.Equal(t, 1, len(raw.Raws.Props))
+	prop := raw.Raws.Props[0]
+	assert.Equal(t, []string{"fire_0_", "fire_1_"}, prop.AnimKeys)
+
+	// NewPropSpecでAnimKeysがSpriteRenderに設定されることを確認
+	entitySpec, err := raw.NewPropSpec("アニメーションProp")
+	assert.NoError(t, err)
+	assert.NotNil(t, entitySpec.SpriteRender)
+	assert.Equal(t, []string{"fire_0_", "fire_1_"}, entitySpec.SpriteRender.AnimKeys)
+}
+
+func TestPropWithoutAnimKeys(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "静的Prop"
+Description = "アニメーションしない置物"
+BlockPass = true
+BlockView = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raw, err := Load(str)
+	assert.NoError(t, err)
+
+	// AnimKeysが指定されていない場合はnil
+	prop := raw.Raws.Props[0]
+	assert.Nil(t, prop.AnimKeys)
+
+	// NewPropSpecでもAnimKeysはnil
+	entitySpec, err := raw.NewPropSpec("静的Prop")
+	assert.NoError(t, err)
+	assert.NotNil(t, entitySpec.SpriteRender)
+	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
+}
