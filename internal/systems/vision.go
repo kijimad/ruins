@@ -380,12 +380,17 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 
 		// 光源範囲内かチェック
 		if distance <= float64(lightSource.Radius) {
+			// 光源中心（距離0-1タイル）も周囲と同じ明るさにする
+			if distance < 1.0 {
+				distance = 1.0
+			}
+
 			// 距離の正規化
 			normalizedDistance := distance / float64(lightSource.Radius)
 
 			// 光源中心から滑らかに暗くなる
-			// 中心(0.0)は完全に明るく、範囲端(1.0)で暗闇レベル0.9
-			darkness := math.Pow(normalizedDistance, 1.5) * 0.9
+			// 中心付近も少し暗くする（最小暗闇レベル0.3）
+			darkness := math.Pow(normalizedDistance, 1.5)*0.6 + 0.3
 
 			// 暗闇レベルは最も明るい光源を採用
 			if darkness < minDarkness {
