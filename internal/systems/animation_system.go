@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	// AnimationFrameInterval はアニメーションフレーム切替間隔（フレーム数）
-	// 30フレームごとに切り替え（60FPSで0.5秒）
-	AnimationFrameInterval = 30
+	// TotalAnimationDuration はアニメーション全体の時間（フレーム数）
+	// 120フレーム = 60FPSで2秒
+	TotalAnimationDuration = 120
 )
 
 // AnimationSystem は全エンティティのスプライトアニメーションを更新する
@@ -49,8 +49,12 @@ func (sys *AnimationSystem) Update(world w.World) error {
 			return
 		}
 
+		// アニメーション速度を計算（総時間を固定してフレーム数で割る）
+		numFrames := int64(len(spriteRender.AnimKeys))
+		frameInterval := TotalAnimationDuration / numFrames
+
 		// フレームインデックスを計算
-		frameIndex := (sys.animationCounter / AnimationFrameInterval) % int64(len(spriteRender.AnimKeys))
+		frameIndex := (sys.animationCounter / frameInterval) % numFrames
 
 		// SpriteKeyを更新
 		spriteRender.SpriteKey = spriteRender.AnimKeys[frameIndex]
