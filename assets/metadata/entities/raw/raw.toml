@@ -233,7 +233,7 @@ TargetGroup = "ENEMY"
 TargetNum   = "SINGLE"
 
 [Items.Attack]
-Accuracy       = 80
+Accuracy       = 100
 Damage         = 3
 AttackCount    = 1
 Element        = "NONE"
