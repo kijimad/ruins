@@ -8,7 +8,6 @@ func CreateTestRawMaster() *raw.Master {
 	testTiles := []raw.TileRaw{
 		{Name: "Wall", Walkable: false},
 		{Name: "Floor", Walkable: true},
-		{Name: "Empty", Walkable: false},
 		{Name: "Dirt", Walkable: true},
 	}
 

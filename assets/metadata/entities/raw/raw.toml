@@ -1742,20 +1742,10 @@ MaxDepth = 15
 # tile ================
 
 [[Tiles]]
-Name        = "Empty"
-Description = "空虚"
-Walkable    = false
-BlocksView  = true
-
-[Tiles.SpriteRender]
-SpriteSheetName = "tile"
-SpriteKey       = "empty"
-Depth           = 0
-
-[[Tiles]]
 Name        = "Floor"
 Description = "床"
 Walkable    = true
+BlocksView  = false
 
 [Tiles.SpriteRender]
 SpriteSheetName = "tile"
@@ -1777,6 +1767,7 @@ Depth           = 2
 Name        = "Dirt"
 Description = "土"
 Walkable    = true
+BlocksView  = false
 
 [Tiles.SpriteRender]
 SpriteSheetName = "tile"

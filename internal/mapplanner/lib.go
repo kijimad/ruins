@@ -131,7 +131,8 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
-		return bm.GetTile("Empty")
+		// 境界外は通行不可のゼロ値を返す
+		return raw.TileRaw{Walkable: false}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -141,7 +142,8 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
-		return bm.GetTile("Empty")
+		// 境界外は通行不可のゼロ値を返す
+		return raw.TileRaw{Walkable: false}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -151,7 +153,8 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := idx - 1
 	if targetIdx < 0 {
-		return bm.GetTile("Empty")
+		// 境界外は通行不可のゼロ値を返す
+		return raw.TileRaw{Walkable: false}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -161,7 +164,8 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := idx + 1
 	if int(targetIdx) > len(bm.Tiles)-1 {
-		return bm.GetTile("Empty")
+		// 境界外は通行不可のゼロ値を返す
+		return raw.TileRaw{Walkable: false}
 	}
 
 	return bm.Tiles[targetIdx]

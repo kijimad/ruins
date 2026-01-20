@@ -338,7 +338,7 @@ func TestLoadFromRealTileFile(t *testing.T) {
 	require.NoError(t, err, "実際のraw.tomlファイルの読み込みに失敗")
 
 	// 基本的なタイルが定義されていることを確認
-	expectedTiles := []string{"Empty", "Floor", "Wall"}
+	expectedTiles := []string{"Floor", "Wall", "Dirt"}
 	for _, tileName := range expectedTiles {
 		_, ok := master.TileIndex[tileName]
 		assert.True(t, ok, "タイル '%s' が実際のファイルで見つかりません", tileName)
