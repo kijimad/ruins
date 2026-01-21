@@ -11,19 +11,13 @@ import (
 // プレイヤーが存在しない場合のみ実行される
 // テスト、VRT、デバッグで使用される共通のエンティティセットを生成する
 func InitDebugData(world w.World) {
-	// 既にプレイヤーが存在するかチェック
-	{
-		count := 0
-		world.Manager.Join(
-			world.Components.Player,
-			world.Components.FactionAlly,
-		).Visit(ecs.Visit(func(_ ecs.Entity) {
-			count++
-		}))
-		// 既にプレイヤーがいる場合は何もしない
-		if count > 0 {
-			return
-		}
+	// 既にプレイヤーが存在する場合は何もしない
+	hasPlayer := false
+	world.Manager.Join(world.Components.Player, world.Components.FactionAlly).Visit(ecs.Visit(func(_ ecs.Entity) {
+		hasPlayer = true
+	}))
+	if hasPlayer {
+		return
 	}
 
 	// 新しいゲーム開始時のみゲームログをクリア
