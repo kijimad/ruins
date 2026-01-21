@@ -56,6 +56,11 @@ func (game *MainGame) Update() error {
 		return err
 	}
 
+	// ステートが空になったらゲームを終了
+	if game.StateMachine.GetStateCount() == 0 {
+		return ebiten.Termination
+	}
+
 	return nil
 }
 
