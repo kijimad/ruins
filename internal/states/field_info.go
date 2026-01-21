@@ -93,7 +93,7 @@ func (st *FieldInfoState) Update(_ w.World) (es.Transition[w.World], error) {
 
 // Draw はステートの描画処理
 func (st *FieldInfoState) Draw(world w.World, screen *ebiten.Image) error {
-	face := world.Resources.UIResources.Text.Face
+	face := world.Resources.UIResources.Text.BodyFace
 
 	const (
 		marginX       = 40

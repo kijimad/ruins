@@ -64,13 +64,9 @@ type UIResources struct {
 
 // TextResources はテキストリソースを管理する
 type TextResources struct {
-	IdleColor     color.Color
-	DisabledColor color.Color
-	Face          text.Face
-	TitleFace     text.Face
-	BigTitleFace  text.Face
-	HugeTitleFace text.Face
 	SmallFace     text.Face
+	BodyFace      text.Face
+	TitleFontFace text.Face
 }
 
 // ButtonResources はボタンリソースを管理する
@@ -245,13 +241,9 @@ func NewUIResources(tfs *text.GoTextFaceSource) (*UIResources, error) {
 		SeparatorColor: hexToColor(separatorColor),
 
 		Text: &TextResources{
-			IdleColor:     hexToColor(textIdleColor),
-			DisabledColor: hexToColor(textDisabledColor),
-			Face:          fonts.face,
-			TitleFace:     fonts.titleFace,
-			BigTitleFace:  fonts.bigTitleFace,
-			HugeTitleFace: fonts.hugeTitleFace,
-			SmallFace:     fonts.toolTipFace,
+			SmallFace:     fonts.smallFace,
+			BodyFace:      fonts.bodyFace,
+			TitleFontFace: fonts.titleFontFace,
 		},
 
 		Button:      button,
@@ -310,7 +302,7 @@ func newButtonResources(fonts *fonts) (*ButtonResources, error) {
 			Disabled: hexToColor(buttonDisabledColor),
 		},
 
-		Face: fonts.face,
+		Face: fonts.bodyFace,
 
 		Padding: widget.Insets{
 			Left:  30,
@@ -393,7 +385,7 @@ func newLabelResources(fonts *fonts) *LabelResources {
 			Disabled: hexToColor(labelDisabledColor),
 		},
 
-		Face: fonts.face,
+		Face: fonts.bodyFace,
 	}
 }
 
@@ -438,7 +430,7 @@ func newComboButtonResources(fonts *fonts) (*ComboButtonResources, error) {
 			Disabled: hexToColor(buttonDisabledColor),
 		},
 
-		Face:    fonts.face,
+		Face:    fonts.bodyFace,
 		Graphic: arrowDown,
 
 		Padding: widget.Insets{
@@ -521,7 +513,7 @@ func newListResources(fonts *fonts) (*ListResources, error) {
 		},
 
 		HandleSize: 5,
-		Face:       fonts.face,
+		Face:       fonts.bodyFace,
 
 		Entry: &widget.ListEntryColor{
 			Unselected:         hexToColor(textIdleColor),
@@ -644,7 +636,7 @@ func newPanelResources() *PanelResources {
 
 func newTabBookResources(fonts *fonts) *TabBookResources {
 	return &TabBookResources{
-		ButtonFace: fonts.face,
+		ButtonFace: fonts.bodyFace,
 
 		ButtonText: &widget.ButtonTextColor{
 			Idle:     hexToColor(buttonIdleColor),
@@ -674,7 +666,7 @@ func newHeaderResources(fonts *fonts) (*HeaderResources, error) {
 			Bottom: 4,
 		},
 
-		Face:  fonts.bigTitleFace,
+		Face:  fonts.bodyFace,
 		Color: hexToColor(headerColor),
 	}, nil
 }
@@ -703,7 +695,7 @@ func newTextInputResources(fonts *fonts) (*TextInputResources, error) {
 			Bottom: 4,
 		},
 
-		Face: fonts.face,
+		Face: fonts.bodyFace,
 
 		Color: &widget.TextInputColor{
 			Idle:          hexToColor(textIdleColor),
@@ -776,7 +768,7 @@ func newTextAreaResources(fonts *fonts) (*TextAreaResources, error) {
 		},
 
 		HandleSize: 5,
-		Face:       fonts.face,
+		Face:       fonts.bodyFace,
 
 		EntryPadding: widget.Insets{
 			Left:   30,
@@ -803,7 +795,7 @@ func newToolTipResources(fonts *fonts) (*ToolTipResources, error) {
 			Bottom: 10,
 		},
 
-		Face:  fonts.toolTipFace,
+		Face:  fonts.smallFace,
 		Color: hexToColor(toolTipColor),
 	}, nil
 }

@@ -690,7 +690,7 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 		// 空行の場合は固定高さのスペーサーを追加
 		if isEmptyLine {
 			spacer := widget.NewText(
-				widget.TextOpts.Text(" ", &res.Text.Face, w.config.TextStyle.Color),
+				widget.TextOpts.Text(" ", &res.Text.BodyFace, w.config.TextStyle.Color),
 				widget.TextOpts.WidgetOpts(
 					widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 				),
@@ -743,7 +743,7 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 
 			// テキストウィジェット
 			textWidget := widget.NewText(
-				widget.TextOpts.Text(segment.Text, &res.Text.Face, segmentColor),
+				widget.TextOpts.Text(segment.Text, &res.Text.BodyFace, segmentColor),
 				widget.TextOpts.WidgetOpts(
 					widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 				),
@@ -781,7 +781,7 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 
 	// テキストウィジェット
 	textWidget := widget.NewText(
-		widget.TextOpts.Text(choiceText, &res.Text.Face, w.config.TextStyle.Color),
+		widget.TextOpts.Text(choiceText, &res.Text.BodyFace, w.config.TextStyle.Color),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,

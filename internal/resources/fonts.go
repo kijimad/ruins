@@ -5,26 +5,20 @@ import (
 )
 
 type fonts struct {
-	face          text.Face
-	titleFace     text.Face
-	bigTitleFace  text.Face
-	hugeTitleFace text.Face
-	toolTipFace   text.Face
+	smallFace     text.Face
+	bodyFace      text.Face
+	titleFontFace text.Face
 }
 
 func loadFonts(tfs *text.GoTextFaceSource) *fonts {
-	fontFace := loadFont(tfs, 20)
-	titleFontFace := loadFont(tfs, 24)
-	bigTitleFontFace := loadFont(tfs, 28)
-	hugeTitleFontFace := loadFont(tfs, 256)
-	toolTipFace := loadFont(tfs, 15)
+	smallFace := loadFont(tfs, 16)
+	bodyFace := loadFont(tfs, 20)
+	titleFontFace := loadFont(tfs, 28)
 
 	return &fonts{
-		face:          fontFace,
-		titleFace:     titleFontFace,
-		bigTitleFace:  bigTitleFontFace,
-		hugeTitleFace: hugeTitleFontFace,
-		toolTipFace:   toolTipFace,
+		smallFace:     smallFace,
+		bodyFace:      bodyFace,
+		titleFontFace: titleFontFace,
 	}
 }
 
