@@ -95,10 +95,10 @@ type Components struct {
 	AIRoaming    *ecs.SliceComponent
 	AIVision     *ecs.SliceComponent
 	AIChasing    *ecs.SliceComponent
-	Camera       *ecs.SliceComponent
+	Camera       *ecs.SliceComponent `save:"true"`
 	Position     *ecs.SliceComponent
-	GridElement  *ecs.SliceComponent
-	SpriteRender *ecs.SliceComponent
+	GridElement  *ecs.SliceComponent `save:"true"`
+	SpriteRender *ecs.SliceComponent `save:"true"`
 	BlockView    *ecs.NullComponent
 	BlockPass    *ecs.NullComponent
 	Door         *ecs.SliceComponent
