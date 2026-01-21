@@ -7,10 +7,9 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// InitDebugData はデバッグ用の初期データを設定する
+// InitNewGameData は新規ゲーム開始時の初期データを設定する
 // プレイヤーが存在しない場合のみ実行される
-// テスト、VRT、デバッグで使用される共通のエンティティセットを生成する
-func InitDebugData(world w.World) {
+func InitNewGameData(world w.World) {
 	// 既にプレイヤーが存在する場合は何もしない
 	hasPlayer := false
 	world.Manager.Join(world.Components.Player, world.Components.FactionAlly).Visit(ecs.Visit(func(_ ecs.Entity) {
@@ -34,6 +33,16 @@ func InitDebugData(world w.World) {
 		System("Spaceキー: アクションメニューを開く。").
 		Log()
 
+	// プレイヤー生成
+	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
+
+	// デバッグ用の初期インベントリを設定
+	initDebugData(world, player)
+}
+
+// initDebugData はデバッグ用の初期インベントリを設定する
+// テスト、VRT、デバッグで使用される共通のアイテムセットを生成する
+func initDebugData(world w.World, player ecs.Entity) {
 	// 基本アイテムの生成
 	weapon1, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 	weapon2, _ := SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
@@ -58,9 +67,6 @@ func InitDebugData(world w.World) {
 	_, _ = SpawnItem(world, "西洋鎧", 2, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "作業用ヘルメット", 2, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "革のブーツ", 2, gc.ItemLocationInPlayerBackpack)
-
-	// プレイヤー生成
-	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
 
 	// 木刀は武器スロット1に装備
 	MoveToEquip(world, weapon1, player, gc.SlotWeapon1)

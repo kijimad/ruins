@@ -58,7 +58,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// メインメニューからの新規開始: 実行
 	// セーブデータロード後の再開: 無視
 	// 階層移動: 無視
-	worldhelper.InitDebugData(world)
+	worldhelper.InitNewGameData(world)
 
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
