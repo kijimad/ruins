@@ -54,6 +54,9 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
+	// デバッグデータを初期化する。プレイヤーが存在しない場合のみ実行される
+	worldhelper.InitDebugData(world)
+
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
@@ -96,18 +99,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 視界キャッシュをクリア（新しい階のために）
 	gs.ClearVisionCaches()
 
-	// 初回の冒険開始時のみ操作ガイドを表示
-	if st.BuilderType.Name == mapplanner.PlannerTypeTown.Name {
-		gamelog.New(gamelog.FieldLog).
-			System("WASD: 移動する。").
-			Log()
-		gamelog.New(gamelog.FieldLog).
-			System("Mキー: 拠点メニューを開く。").
-			Log()
-		gamelog.New(gamelog.FieldLog).
-			System("Spaceキー: アクションメニューを開く。").
-			Log()
-	}
 	return nil
 }
 

@@ -2,6 +2,7 @@ package worldhelper
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -24,6 +25,20 @@ func InitDebugData(world w.World) {
 			return
 		}
 	}
+
+	// 新しいゲーム開始時のみゲームログをクリア
+	gamelog.FieldLog.Clear()
+	gamelog.SceneLog.Clear()
+	// 操作ガイドを表示
+	gamelog.New(gamelog.FieldLog).
+		System("WASD: 移動する。").
+		Log()
+	gamelog.New(gamelog.FieldLog).
+		System("Mキー: 拠点メニューを開く。").
+		Log()
+	gamelog.New(gamelog.FieldLog).
+		System("Spaceキー: アクションメニューを開く。").
+		Log()
 
 	// 基本アイテムの生成
 	weapon1, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
@@ -59,5 +74,4 @@ func InitDebugData(world w.World) {
 	MoveToEquip(world, weapon2, player, gc.SlotWeapon2)
 	// 西洋鎧は胴体スロットに装備
 	MoveToEquip(world, armor, player, gc.SlotTorso)
-
 }

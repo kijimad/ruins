@@ -11,7 +11,6 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/maingame"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/pkg/profile"
 	"github.com/urfave/cli/v3"
 
@@ -95,9 +94,6 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	if err != nil {
 		return err
 	}
-
-	// デバッグ用データ初期化
-	worldhelper.InitDebugData(world)
 
 	// 開始ステートの決定
 	var initialState es.State[w.World]

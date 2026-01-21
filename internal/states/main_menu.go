@@ -39,6 +39,9 @@ func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
 func (st *MainMenuState) OnStart(world w.World) error {
+	// ワールドをクリアする。前のゲーム状態を削除する
+	world.Manager.DeleteAllEntities()
+
 	st.initMenu(world)
 	st.ui = st.initUI(world)
 	return nil
