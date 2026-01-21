@@ -152,15 +152,15 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			"エンティティ作成順序による差異")
 	})
 
-	t.Run("InitDebugDataの決定性確認", func(t *testing.T) {
+	t.Run("InitNewGameDataの決定性確認", func(t *testing.T) {
 		t.Parallel()
 		var jsonStrings []string
 
 		for session := 0; session < 3; session++ {
 			world := testutil.InitTestWorld(t)
 
-			// InitDebugDataを使用してリアルなゲームデータを作成
-			worldhelper.InitDebugData(world)
+			// InitNewGameDataを使用してリアルなゲームデータを作成
+			worldhelper.InitNewGameData(world)
 
 			sm := createTestSerializationManager(t)
 			jsonStr, err := sm.GenerateWorldJSON(world)
@@ -168,13 +168,13 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			jsonStrings = append(jsonStrings, jsonStr)
 		}
 
-		// InitDebugDataが決定的であることを確認
+		// InitNewGameDataが決定的であることを確認
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
 
 			if baseJSON != normalizedJSON {
-				t.Errorf("InitDebugDataセッション %d のJSONが一致しません（修正後も非決定的）", i+1)
+				t.Errorf("InitNewGameDataセッション %d のJSONが一致しません（修正後も非決定的）", i+1)
 
 				// 差分の詳細を表示
 				baseLines := strings.Split(baseJSON, "\n")
@@ -201,7 +201,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
 			assert.Equal(t, baseJSON, normalizedJSON,
-				"InitDebugDataセッション %d のJSONが初回と異なります", i+1)
+				"InitNewGameDataセッション %d のJSONが初回と異なります", i+1)
 		}
 	})
 
@@ -415,7 +415,7 @@ func createTestSerializationManager(t *testing.T) *SerializationManager {
 	return NewSerializationManager(tempDir)
 }
 
-// createComplexDeterministicWorld InitDebugDataのような複雑だが決定的なワールドを作成
+// createComplexDeterministicWorld InitNewGameDataのような複雑だが決定的なワールドを作成
 func createComplexDeterministicWorld(t *testing.T) w.World {
 	t.Helper()
 	world := testutil.InitTestWorld(t)

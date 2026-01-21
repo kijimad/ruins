@@ -101,7 +101,7 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	}
 
 	// デバッグデータを初期化
-	worldhelper.InitDebugData(world)
+	worldhelper.InitNewGameData(world)
 
 	for _, updater := range []w.Updater{
 		&gs.EquipmentChangedSystem{},

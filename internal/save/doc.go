@@ -115,11 +115,10 @@ InitializeFromWorld関数に登録を追加してください：
 
 ### サポートされるコンポーネント型
 現在サポートされているコンポーネント：
-- Camera (カメラのみPositionコンポーネントを使用)
-- GridElement (タイルベースの位置情報)
-- AIVision, AIRoaming, AIChasing
-- SpriteRender
-- NullComponent (Player, BlockView, BlockPass)
+- プレイヤー情報: Player, Name, Pools, Attributes, TurnBased, Wallet
+- 位置・表示: Camera, GridElement, SpriteRender, LightSource
+- アイテム: Item, Weapon, Wearable, Consumable, Stackable等
+- アイテム位置: ItemLocationInPlayerBackpack, ItemLocationEquipped
 
 ### エンティティ参照
 現在、AIVision.TargetEntityのみ自動処理されます。
@@ -140,10 +139,18 @@ InitializeFromWorld関数に登録を追加してください：
 	      {
 	        "stable_id": {"index": 1, "generation": 0},
 	        "components": {
-	          "GridElement": {
-	            "type": "GridElement",
-	            "data": {"x": 5, "y": 10}
-	          }
+	          "Name": {"Name": "主人公"},
+	          "Camera": {"Scale": 1.0, "ScaleTo": 1.0},
+	          "GridElement": {"X": 5, "Y": 10},
+	          "SpriteRender": {
+	            "SpriteSheetName": "character",
+	            "SpriteKey": "player"
+	          },
+	          "Pools": {
+	            "HP": {"Current": 80, "Max": 100},
+	            "SP": {"Current": 50, "Max": 100}
+	          },
+	          "Wallet": {"Currency": 1500}
 	        }
 	      }
 	    ]

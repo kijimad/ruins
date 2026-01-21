@@ -62,6 +62,8 @@ func getComponentTypeMap() map[string]reflect.Type {
 		"Attributes":  reflect.TypeOf(&gc.Attributes{}),
 
 		// 表示
+		"Camera":       reflect.TypeOf(&gc.Camera{}),
+		"GridElement":  reflect.TypeOf(&gc.GridElement{}),
 		"SpriteRender": reflect.TypeOf(&gc.SpriteRender{}),
 		"LightSource":  reflect.TypeOf(&gc.LightSource{}),
 
