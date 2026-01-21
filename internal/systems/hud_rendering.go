@@ -19,17 +19,16 @@ type HUDRenderingSystem struct {
 
 // NewHUDRenderingSystem は新しいHUD描画システムを作成する
 func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
-	hudFace := (*world.Resources.Faces)["dougenzaka"]
-	defaultFace := world.Resources.UIResources.Text.Face
-	bigTitleFace := world.Resources.UIResources.Text.BigTitleFace
+	smallFace := world.Resources.UIResources.Text.SmallFace
+	titleFace := world.Resources.UIResources.Text.TitleFontFace
 
 	return &HUDRenderingSystem{
-		gameInfo:        hud.NewGameInfo(hudFace, bigTitleFace),
-		minimap:         hud.NewMinimap(defaultFace),
-		debugOverlay:    hud.NewDebugOverlay(defaultFace),
+		gameInfo:        hud.NewGameInfo(smallFace, titleFace),
+		minimap:         hud.NewMinimap(titleFace),
+		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
-		currencyDisplay: hud.NewCurrencyDisplay(hudFace),
-		weaponSlots:     hud.NewWeaponSlots(defaultFace),
+		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
+		weaponSlots:     hud.NewWeaponSlots(smallFace),
 		enabled:         true,
 	}
 }

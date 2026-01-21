@@ -137,7 +137,7 @@ func NewWindowHeaderContainer(title string, res *resources.UIResources) *widget.
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.Face, consts.TextColor),
+		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionCenter,
 			VerticalPosition:   widget.AnchorLayoutPositionCenter,
@@ -158,7 +158,7 @@ func NewWindowHeaderContainer(title string, res *resources.UIResources) *widget.
 // NewMenuText は汎用メニューテキストを作成する
 func NewMenuText(title string, res *resources.UIResources) *widget.Text {
 	text := widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.Face, consts.TextColor),
+		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -170,7 +170,7 @@ func NewMenuText(title string, res *resources.UIResources) *widget.Text {
 // NewTitleText はタイトル用テキストを作成する（大きめ、目立つ）
 func NewTitleText(text string, res *resources.UIResources) *widget.Text {
 	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.TitleFace, consts.TextColor),
+		widget.TextOpts.Text(text, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -227,7 +227,7 @@ func NewPageIndicator(text string, res *resources.UIResources) *widget.Container
 // NewBodyText は本文用テキストを作成する
 func NewBodyText(title string, _ color.RGBA, res *resources.UIResources) *widget.Text {
 	text := widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.Face, consts.TextColor),
+		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -324,7 +324,7 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *re
 	mainTextContainer := widget.NewContainer(mainTextContainerOpts...)
 
 	mainText := widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.Face, textColor),
+		widget.TextOpts.Text(text, &res.Text.BodyFace, textColor),
 		widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -349,7 +349,7 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *re
 		)
 
 		labelText := widget.NewText(
-			widget.TextOpts.Text(label, &res.Text.Face, textColor),
+			widget.TextOpts.Text(label, &res.Text.BodyFace, textColor),
 			widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -368,7 +368,7 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *re
 // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）
 func NewFragmentText(text string, textColor color.RGBA, res *resources.UIResources) *widget.Text {
 	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.Face, textColor),
+		widget.TextOpts.Text(text, &res.Text.BodyFace, textColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: false, // 横幅を伸ばさない
