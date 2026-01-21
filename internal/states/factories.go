@@ -34,7 +34,10 @@ func NewDungeonMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("終了", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
+			persistentState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState},
+			})
 			return nil
 		}).
 		WithChoice("閉じる", func(_ w.World) error {
@@ -380,7 +383,9 @@ func NewGameOverMessageState() es.State[w.World] {
 	messageData := messagedata.NewSystemMessage("死亡した。").
 		WithChoice("メインメニューに戻る", func(_ w.World) error {
 			// メインメニューに遷移
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState}})
 			return nil
 		})
 
@@ -408,7 +413,10 @@ func NewDungeonCompleteEndingState() es.State[w.World] {
 ━━━━━━━━━━`).
 		WithChoice("閉じる", func(_ w.World) error {
 			// 町に遷移
-			messageState.SetTransition(es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+			})
 			return nil
 		})
 
@@ -465,13 +473,25 @@ func NewCZCollectionEndingState() es.StateFactory[w.World] {
 ━━━━━━━━━━━━
 [NORMAL END]
 ━━━━━━━━━━━━`)
+		messageState := NewMessageState(ending1, WithBackgroundKey("bg", "hospital1"))
+
+		// 最後のメッセージに街への遷移を追加
+		ending5.WithChoice("閉じる", func(_ w.World) error {
+			if ms, ok := messageState.(*MessageState); ok {
+				ms.SetTransition(es.Transition[w.World]{
+					Type:          es.TransReplace,
+					NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+				})
+			}
+			return nil
+		})
 
 		ending1.NextMessages = []*messagedata.MessageData{ending2}
 		ending2.NextMessages = []*messagedata.MessageData{ending3}
 		ending3.NextMessages = []*messagedata.MessageData{ending4}
 		ending4.NextMessages = []*messagedata.MessageData{ending5}
 
-		return NewMessageState(ending1, WithBackgroundKey("bg", "hospital1"))
+		return messageState
 	}
 }
 
@@ -571,7 +591,9 @@ func NewLoadMenuState() es.State[w.World] {
 				}
 				// 遷移（街マップを生成してプレイヤーを配置）
 				stateFactory := NewTownState()
-				messageState.SetTransition(es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{stateFactory}})
+				messageState.SetTransition(es.Transition[w.World]{
+					Type:          es.TransReplace,
+					NewStateFuncs: []es.StateFactory[w.World]{stateFactory}})
 				return nil
 			})
 		}
