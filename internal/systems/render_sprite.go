@@ -106,7 +106,6 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return err
 	}
 	renderDistanceBasedDarkness(world, screen, visibilityData)               // 床タイルに暗闇オーバーレイ
-	sys.renderLightSourceGlow(world, screen, visibilityData)                 // 床タイルに光源グロー
 	sys.renderShadows(world, screen, visibilityData)                         // 影を描画
 	if err := sys.renderSprites(world, screen, visibilityData); err != nil { // 物体を描画
 		return err
@@ -188,83 +187,6 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	return nil
 }
 
-// renderLightSourceGlow は光源タイルに明るいオーバーレイを描画する
-func (sys *RenderSpriteSystem) renderLightSourceGlow(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) {
-	// カメラ位置とスケールを取得
-	var cameraPos gc.Position
-	cameraScale := 1.0
-
-	world.Manager.Join(
-		world.Components.Camera,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		cameraGridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		cameraPos = gc.Position{
-			X: gc.Pixel(int(cameraGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: gc.Pixel(int(cameraGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
-		}
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
-		cameraScale = camera.Scale
-	}))
-
-	screenWidth := world.Resources.ScreenDimensions.Width
-	screenHeight := world.Resources.ScreenDimensions.Height
-	tileSize := int(consts.TileSize)
-
-	// 光源エンティティに明るいオーバーレイを描画
-	world.Manager.Join(
-		world.Components.LightSource,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		lightSource := world.Components.LightSource.Get(entity).(*gc.LightSource)
-		if !lightSource.Enabled {
-			return
-		}
-
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-		// 視界チェック - 視界内のもののみ描画
-		if visibilityData != nil {
-			tileKey := fmt.Sprintf("%d,%d", gridElement.X, gridElement.Y)
-			if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {
-				return
-			}
-		}
-
-		// タイルの画面座標を計算
-		worldX := float64(int(gridElement.X) * tileSize)
-		worldY := float64(int(gridElement.Y) * tileSize)
-		screenX := (worldX-float64(cameraPos.X))*cameraScale + float64(screenWidth)/2
-		screenY := (worldY-float64(cameraPos.Y))*cameraScale + float64(screenHeight)/2
-
-		// 光源色で明るいオーバーレイを作成
-		// 光源グローのキャッシュキーを作成
-		cacheKey := spriteImageCacheKey{
-			SpriteSheetName: "glow",
-			SpriteKey:       fmt.Sprintf("%d,%d,%d", lightSource.Color.R, lightSource.Color.G, lightSource.Color.B),
-		}
-		glowImg, exists := sys.spriteImageCache[cacheKey]
-		if !exists {
-			glowImg = ebiten.NewImage(tileSize, tileSize)
-			glowColor := color.RGBA{
-				R: uint8(float64(lightSource.Color.R) * 0.6),
-				G: uint8(float64(lightSource.Color.G) * 0.5),
-				B: uint8(float64(lightSource.Color.B) * 0.3),
-				A: 80,
-			}
-			glowImg.Fill(glowColor)
-			if len(sys.spriteImageCache) < 1000 {
-				sys.spriteImageCache[cacheKey] = glowImg
-			}
-		}
-
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(cameraScale, cameraScale)
-		op.GeoM.Translate(screenX, screenY)
-		screen.DrawImage(glowImg, op)
-	}))
-}
-
 // renderSprites はスプライトを描画する
 func (sys *RenderSpriteSystem) renderSprites(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) error {
 	var entities []ecs.Entity
@@ -335,6 +257,13 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			return
 		}
 
+		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+
+		// 高さのあるものだけが影を落とす
+		if spriteRender.Depth <= gc.DepthNumRug {
+			return
+		}
+
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 		// 視界チェック
@@ -386,7 +315,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
 
 		// 高さのあるものだけが影を落とす
-		if spriteRender.Depth > gc.DepthNumTaller {
+		if spriteRender.Depth <= gc.DepthNumRug {
 			return
 		}
 

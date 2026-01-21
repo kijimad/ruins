@@ -22,7 +22,7 @@
 //
 // ### 基本タイルタイプ
 // マップ生成で使用される標準タイルタイプ：
-//   - planData.GenerateTile("Empty"): 空のタイル（デフォルト状態）
+//   - ゼロ値: 空のタイル（デフォルト状態、通行不可）
 //   - planData.GenerateTile("Floor"): 床タイル（通行可能）
 //   - planData.GenerateTile("Wall"): 壁タイル（通行不可）
 //   - TileWater: 水タイル（通行可能だが特殊）
@@ -50,12 +50,12 @@
 //
 // マップ生成時にはタイルの Walkable フィールドで通行可否を判定します：
 //   - 通行可能: planData.GenerateTile("Floor")（Walkable=true）
-//   - 通行不可: planData.GenerateTile("Wall")（Walkable=false）, planData.GenerateTile("Empty")（Walkable=false）
+//   - 通行不可: planData.GenerateTile("Wall")（Walkable=false）、ゼロ値（Walkable=false）
 //
 // ## マップ生成の流れ
 //
 // ### MetaPlan統一方式
-// 1. タイル配列の初期化（全てplanData.GenerateTile("Empty")）
+// 1. タイル配列の初期化（全てゼロ値、通行不可）
 // 2. PlannerChainによる段階的タイル配置（MetaPlan）
 // 3. mapspawner.SpawnFromMetaPlanで直接ECSエンティティ生成
 //   - タイルタイプに応じて対応するエンティティ（床、壁、ワープホールなど）を配置

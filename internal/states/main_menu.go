@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 	"image"
-	"image/color"
 	"strings"
 
 	"github.com/ebitenui/ebitenui"
@@ -166,23 +165,6 @@ func (st *MainMenuState) initUI(world w.World) *ebitenui.UI {
 	// TabMenuView を使ってメニューUIを構築
 	menuContainer := st.menuView.BuildUI()
 
-	// 深い金色/琥珀色
-	amberColor := color.NRGBA{R: 255, G: 191, B: 0, A: 255}
-
-	// ゲームタイトル「Ruins」のテキストを作成
-	titleText := widget.NewText(
-		widget.TextOpts.Text("Ruins", &world.Resources.UIResources.Text.HugeTitleFace, amberColor),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionStart,
-				Padding: &widget.Insets{
-					Top: 100, // 画面上部から100ピクセル下に配置
-				},
-			}),
-		),
-	)
-
 	// バージョン表示テキストを作成
 	versionInfo := []string{}
 	if consts.AppVersion != "v0.0.0" {
@@ -227,8 +209,7 @@ func (st *MainMenuState) initUI(world w.World) *ebitenui.UI {
 	// メニューコンテナをラッパーに追加
 	wrapperContainer.AddChild(menuContainer)
 
-	// タイトルテキスト、メニュー、バージョンテキストをrootContainerに追加
-	rootContainer.AddChild(titleText)
+	// メニュー、バージョンテキストをrootContainerに追加
 	rootContainer.AddChild(wrapperContainer)
 	rootContainer.AddChild(versionText)
 

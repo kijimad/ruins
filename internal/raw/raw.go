@@ -607,6 +607,7 @@ type PropRaw struct {
 	Name                  string
 	Description           string
 	SpriteRender          gc.SpriteRender
+	AnimKeys              []string
 	BlockPass             bool
 	BlockView             bool
 	LightSource           *gc.LightSource
@@ -682,7 +683,13 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.Prop = &gc.Prop{}
 	entitySpec.Name = &gc.Name{Name: propRaw.Name}
 	entitySpec.Description = &gc.Description{Description: propRaw.Description}
-	entitySpec.SpriteRender = &propRaw.SpriteRender
+
+	// SpriteRenderの設定（AnimKeysを含む）
+	spriteRender := propRaw.SpriteRender
+	if len(propRaw.AnimKeys) > 0 {
+		spriteRender.AnimKeys = propRaw.AnimKeys
+	}
+	entitySpec.SpriteRender = &spriteRender
 
 	if propRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}

@@ -464,6 +464,13 @@ func TestInteractionActivateActivity_Melee_BareHands(t *testing.T) {
 	require.NotNil(t, result)
 
 	// 敵のHPが減少していることを確認
+	// 注意: 攻撃には命中判定があり、稀に外れる可能性があるため、外れた場合は再試行する
 	pools := world.Components.Pools.Get(enemyEntity).(*gc.Pools)
+	maxRetries := 20 // 統計的に十分な試行回数
+	for i := 0; i < maxRetries && pools.HP.Current >= 10; i++ {
+		result, err = manager.Execute(&InteractionActivateActivity{InteractableEntity: enemyEntity}, params, world)
+		require.NoError(t, err)
+		require.NotNil(t, result)
+	}
 	assert.Less(t, pools.HP.Current, 10, "素手攻撃でダメージが入るべき")
 }

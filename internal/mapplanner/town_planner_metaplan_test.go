@@ -122,11 +122,6 @@ Description = "壁タイル"
 Walkable = false
 
 [[Tiles]]
-Name = "Empty"
-Description = "空のタイル"
-Walkable = false
-
-[[Tiles]]
 Name = "Dirt"
 Description = "土タイル"
 Walkable = true
