@@ -2,26 +2,26 @@
 # https://taplo.tamasfe.dev/configuration/formatter-options.html
 
 # 全てのTOMLファイルを対象にする
-include = [ "**/*.toml" ]
+include=["*.toml", "**/*.toml"]
 
 # フォーマットオプション
 [formatting]
-align_comments        = true  # 要素の後のコメントを揃える
-align_entries         = true  # 配列内の要素を揃える
-allowed_blank_lines   = 1     # エントリ間で許可する空行数
-array_auto_collapse   = true  # 配列が短い場合に自動的に1行に圧縮
-array_auto_expand     = true  # 配列が長い場合に自動的に複数行に展開
-array_trailing_comma  = true  # 配列に末尾カンマを追加
-column_width          = 100   # 折り返す前の最大列幅
-compact_arrays        = false # 配列を圧縮
-compact_entries       = false # エントリを圧縮しない
-compact_inline_tables = false # インラインテーブルを圧縮
-crlf                  = false # 改行にLFを使用（CRLFを使用しない）
-indent_entries        = false # エントリをインデントしない
-indent_string         = "  "  # インデントにスペースを使用
-indent_tables         = false # テーブルをインデントしない
-inline_table_expand   = true  # インラインテーブルを展開
-reorder_arrays        = false # 配列の順序を並び替えない
-reorder_inline_tables = false # インラインテーブルのキー順序を並び替えない
-reorder_keys          = false # キーをアルファベット順に並び替える（falseで順序を保持）
-trailing_newline      = true  # ファイル末尾に改行を追加
+  align_comments       = true  # 要素の後のコメントを揃える
+  align_entries        = true  # 配列内の要素を揃える
+  allowed_blank_lines  = 1     # エントリ間で許可する空行数
+  array_auto_collapse  = true  # 配列が短い場合に自動的に1行に圧縮
+  array_auto_expand    = true  # 配列が長い場合に自動的に複数行に展開
+  array_trailing_comma = true  # 配列に末尾カンマを追加
+  column_width         = 100   # 折り返す前の最大列幅
+  compact_arrays       = true  # 配列を圧縮する
+  compact_entries      = false # エントリを圧縮しない
+  compact_inline_tables= true  # インラインテーブルを圧縮する
+  crlf                 = false # 改行にLFを使用（CRLFを使用しない）
+  indent_entries       = true  # エントリをインデントする
+  indent_string        = "  "  # インデントにスペースを使用
+  indent_tables        = true  # テーブルをインデントする
+  inline_table_expand  = true  # インラインテーブルを展開
+  reorder_arrays       = false # 配列の順序を並び替えない(数字順で意味を持つ項目があるので)
+  reorder_inline_tables= false # インラインテーブルのキー順序を並び替えない
+  reorder_keys         = true  # キーをアルファベット順に並び替える
+  trailing_newline     = true  # ファイル末尾に改行を追加
