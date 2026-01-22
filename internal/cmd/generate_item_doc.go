@@ -31,7 +31,7 @@ func runGenerateItemDoc(_ context.Context, _ *cli.Command) error {
 	}
 
 	// Markdownファイルを開く
-	file, err := os.Create("docs/item_tables.md")
+	file, err := os.Create("docs/gen/item_tables.md")
 	if err != nil {
 		return fmt.Errorf("error creating file: %w", err)
 	}
