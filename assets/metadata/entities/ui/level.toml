@@ -1,12 +1,12 @@
 [[entity]]
 
-[entity.components.Text]
-id        = "level"
-text      = "1F"
-font_face = { font = "kappa", options.size = 25.0 }
-color     = [ 255, 255, 255, 255 ]
+  [entity.components.Text]
+    color     = [255, 255, 255, 255]
+    font_face = {font = "kappa", options.size = 25.0}
+    id        = "level"
+    text      = "1F"
 
-[entity.components.UITransform]
-translation = { x = 10, y = -68 }
-origin      = "TopLeft"
-pivot       = "Dot"
+  [entity.components.UITransform]
+    origin      = "TopLeft"
+    pivot       = "Dot"
+    translation = {x = 10, y = -68}
