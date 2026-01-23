@@ -14,7 +14,6 @@ type FacilityTemplate struct {
 	Name     string   `toml:"name"`     // 表示名（例: "軍需工場・小型"）
 	Weight   int      `toml:"weight"`   // 出現確率の重み
 	Size     [2]int   `toml:"size"`     // [幅, 高さ]
-	Entrance [2]int   `toml:"entrance"` // 入口座標 [x, y]
 	Palettes []string `toml:"palettes"` // 使用するパレットID
 	Map      string   `toml:"map"`      // ASCIIマップ
 }
