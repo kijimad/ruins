@@ -7,25 +7,23 @@
 
   # 地形の定義
   [palette.terrain]
-    "." = "floor_concrete" # コンクリート床
-    " " = "air"            # 空気（通行不可）
-    "#" = "wall_concrete"  # コンクリート壁
-    "+" = "door_closed"    # 閉じたドア
-    "," = "floor_wood"     # 木製床
-    "-" = "wall_metal"     # 金属壁
-    ";" = "window"         # 窓
-    "^" = "rubble"         # 瓦礫
-    "_" = "floor_metal"    # 金属床
-    "|" = "wall_wood"      # 木製壁
-    "~" = "floor_dirt"     # 土の床
+    "." = "Floor" # 床
+    "#" = "Wall"  # 壁
+    "~" = "Dirt"  # 土
 
-  # 家具の定義
+    # 家具文字の下の地形。家具と同じ文字に地形も定義する
+    "B" = "Floor" # ベッドの下は床
+    "C" = "Floor" # 椅子の下は床
+    "D" = "Floor" # 机の下は床
+    "T" = "Floor" # テーブルの下は床
+    "X" = "Floor" # 木箱の下は床
+
+  # 家具の定義（既存のスプライトがあるもののみ使用）
+  # 同じ文字に地形と家具の両方を定義できる
+  # 例: "T" には地形として "Floor"、家具として "table" を定義
   [palette.furniture]
-    "B" = "bed"     # ベッド
-    "C" = "chair"   # 椅子
-    "D" = "desk"    # 机
-    "L" = "locker"  # ロッカー
-    "M" = "machine" # 機械
-    "S" = "shelf"   # 棚
-    "T" = "table"   # テーブル
-    "X" = "crate"   # 木箱
+    "B" = "bed"   # ベッド
+    "C" = "chair" # 椅子
+    "D" = "desk"  # 机
+    "T" = "table" # テーブル
+    "X" = "crate" # 木箱

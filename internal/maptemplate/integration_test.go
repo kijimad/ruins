@@ -19,8 +19,8 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Equal(t, "standard", palette.ID)
 
 		// 地形の確認
-		assert.Equal(t, "wall_concrete", palette.Terrain["#"])
-		assert.Equal(t, "floor_concrete", palette.Terrain["."])
+		assert.Equal(t, "Wall", palette.Terrain["#"])
+		assert.Equal(t, "Floor", palette.Terrain["."])
 
 		// 家具の確認
 		assert.Equal(t, "table", palette.Furniture["T"])

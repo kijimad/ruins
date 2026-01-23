@@ -1845,6 +1845,17 @@
 [[Props]]
   BlockPass   = true
   BlockView   = false
+  Description = "書類や文具が置かれた机"
+  Name        = "desk"
+
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "prop_table"
+    SpriteSheetName = "field"
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
   Description = "焚き火"
   Name        = "bonfire"
 

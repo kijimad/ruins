@@ -469,6 +469,17 @@ var (
 		EnemyTableName:    "",    // 街では敵をスポーンしないので空
 		PlannerFunc:       NewTownPlanner,
 	}
+
+	// PlannerTypeTemplate はテンプレートベースのプランナータイプ
+	PlannerTypeTemplate = PlannerType{
+		Name:              "テンプレート",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc:       NewTemplateDebugPlanner,
+	}
 )
 
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
