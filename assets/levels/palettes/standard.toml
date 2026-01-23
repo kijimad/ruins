@@ -1,0 +1,31 @@
+# 標準的な建物パレット
+# 昭和5年の日本の建築物で使用する基本的な地形と家具の定義
+
+[palette]
+  description = "標準的な建物パレット"
+  id          = "standard"
+
+  # 地形の定義
+  [palette.terrain]
+    "." = "floor_concrete" # コンクリート床
+    " " = "air"            # 空気（通行不可）
+    "#" = "wall_concrete"  # コンクリート壁
+    "+" = "door_closed"    # 閉じたドア
+    "," = "floor_wood"     # 木製床
+    "-" = "wall_metal"     # 金属壁
+    ";" = "window"         # 窓
+    "^" = "rubble"         # 瓦礫
+    "_" = "floor_metal"    # 金属床
+    "|" = "wall_wood"      # 木製壁
+    "~" = "floor_dirt"     # 土の床
+
+  # 家具の定義
+  [palette.furniture]
+    "B" = "bed"     # ベッド
+    "C" = "chair"   # 椅子
+    "D" = "desk"    # 机
+    "L" = "locker"  # ロッカー
+    "M" = "machine" # 機械
+    "S" = "shelf"   # 棚
+    "T" = "table"   # テーブル
+    "X" = "crate"   # 木箱

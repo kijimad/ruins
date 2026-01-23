@@ -21,7 +21,6 @@ type = "test_facility"
 name = "テスト施設"
 weight = 100
 size = [5, 3]
-entrance = [2, 0]
 palettes = ["standard"]
 map = """
 #####
@@ -42,7 +41,6 @@ map = """
 		assert.Equal(t, "テスト施設", template.Name)
 		assert.Equal(t, 100, template.Weight)
 		assert.Equal(t, [2]int{5, 3}, template.Size)
-		assert.Equal(t, [2]int{2, 0}, template.Entrance)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
 	})
 
@@ -56,7 +54,6 @@ type = "small"
 name = "小型施設"
 weight = 50
 size = [3, 3]
-entrance = [1, 0]
 palettes = ["standard"]
 map = """
 ###
@@ -69,7 +66,6 @@ type = "large"
 name = "大型施設"
 weight = 30
 size = [5, 5]
-entrance = [2, 0]
 palettes = ["standard"]
 map = """
 #####
@@ -100,7 +96,6 @@ type = ""
 name = "無効な施設"
 weight = 100
 size = [3, 3]
-entrance = [1, 0]
 palettes = ["standard"]
 map = """
 ###
@@ -127,7 +122,6 @@ type = "test"
 name = "無効な重み"
 weight = 0
 size = [3, 3]
-entrance = [1, 0]
 palettes = ["standard"]
 map = """
 ###
@@ -154,7 +148,6 @@ type = "test"
 name = "サイズ不一致"
 weight = 100
 size = [5, 3]
-entrance = [1, 0]
 palettes = ["standard"]
 map = """
 ###
@@ -182,7 +175,6 @@ type = "test"
 name = "不規則マップ"
 weight = 100
 size = [5, 3]
-entrance = [1, 0]
 palettes = ["standard"]
 map = """
 #####
