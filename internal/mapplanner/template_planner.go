@@ -1,6 +1,8 @@
 package mapplanner
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -40,14 +42,12 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 			charStr := string(char)
 
 			// パレットから地形を取得
-			if terrainName, ok := p.Palette.GetTerrain(charStr); ok {
-				tile := metaPlan.GetTile(terrainName)
-				metaPlan.Tiles[idx] = tile
-			} else {
-				// パレットに定義がない場合はデフォルトで壁
-				tile := metaPlan.GetTile("Wall")
-				metaPlan.Tiles[idx] = tile
+			terrainName, ok := p.Palette.GetTerrain(charStr)
+			if !ok {
+				return fmt.Errorf("パレットに文字 '%s' の地形定義がありません (位置: %d, %d)", charStr, x, y)
 			}
+			tile := metaPlan.GetTile(terrainName)
+			metaPlan.Tiles[idx] = tile
 		}
 	}
 
