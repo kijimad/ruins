@@ -205,11 +205,11 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 			t.Parallel()
 
 			parentTemplate := &ChunkTemplate{
-				Name:        "parent",
-				Size:        tt.parentSize,
-				Weight:      100,
-				Map:         tt.parentMap,
-				PlaceNested: []ChunkPlacement{tt.placement},
+				Name:       "parent",
+				Size:       tt.parentSize,
+				Weight:     100,
+				Map:        tt.parentMap,
+				Placements: []ChunkPlacement{tt.placement},
 			}
 
 			err := parentTemplate.validatePlaceholders(loader)
@@ -226,7 +226,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 	}
 }
 
-func TestExpandWithPlaceNested_WithID(t *testing.T) {
+func TestExpandWithPlacements_WithID(t *testing.T) {
 	t.Parallel()
 
 	loader := NewTemplateLoader()
@@ -248,7 +248,7 @@ func TestExpandWithPlaceNested_WithID(t *testing.T) {
 .@@@...
 .@@A...
 .......`,
-		PlaceNested: []ChunkPlacement{
+		Placements: []ChunkPlacement{
 			{
 				Chunks: []string{"child"},
 				ID:     "A",
@@ -258,7 +258,7 @@ func TestExpandWithPlaceNested_WithID(t *testing.T) {
 
 	loader.chunkCache["parent"] = []*ChunkTemplate{parentTemplate}
 
-	expanded, err := parentTemplate.ExpandWithPlaceNested(loader, 12345)
+	expanded, err := parentTemplate.ExpandWithPlacements(loader, 12345)
 	require.NoError(t, err)
 
 	expected := `.......

@@ -93,14 +93,14 @@ func TestLoadRealFiles(t *testing.T) {
 		// 小規模オフィスをチャンク展開
 		smallOffice := templates[0]
 		assert.Equal(t, "13x8_small_office", smallOffice.Name)
-		assert.Len(t, smallOffice.PlaceNested, 2)
+		assert.Len(t, smallOffice.Placements, 2)
 
-		expandedMap, err := smallOffice.ExpandWithPlaceNested(loader, 12345)
+		expandedMap, err := smallOffice.ExpandWithPlacements(loader, 12345)
 		require.NoError(t, err)
 		assert.NotEmpty(t, expandedMap)
 
 		// 展開後のマップにチャンクが配置されていることを確認
-		// place_nested方式では元のマップには特殊な文字は使われていない
+		// placements方式では元のマップには特殊な文字は使われていない
 		assert.Contains(t, expandedMap, "T") // meeting_roomのテーブル
 		assert.Contains(t, expandedMap, "X") // storageのX
 

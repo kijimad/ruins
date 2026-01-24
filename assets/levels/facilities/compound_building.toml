@@ -16,11 +16,11 @@
 ...........
 """
 
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["5x5_meeting_room"]
     id     = "A"
 
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["4x4_storage"]
     id     = "B"
 
@@ -43,18 +43,18 @@
 @@@@C#...#.@@D.
 """
 
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["5x5_meeting_room"]
     id     = "A"
 
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["5x5_meeting_room"]
     id     = "B"
 
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["5x4_office"]
     id     = "C"
 
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["3x3_bedroom"]
     id     = "D"

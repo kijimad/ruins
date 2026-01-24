@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestExpandWithPlaceNestedRecursive は再帰的なチャンク展開をテストする
-func TestExpandWithPlaceNestedRecursive(t *testing.T) {
+// TestExpandWithPlacementsRecursive は再帰的なチャンク展開をテストする
+func TestExpandWithPlacementsRecursive(t *testing.T) {
 	t.Parallel()
 
 	t.Run("2階層のチャンク展開", func(t *testing.T) {
@@ -35,7 +35,7 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 			Map: `@@@.@@B
 @@@.@@@
 @@A.@@@`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"room"}, ID: "A"},
 				{Chunks: []string{"room"}, ID: "B"},
 			},
@@ -50,13 +50,13 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 			Map: `@@@@@@C
 @@@@@@@
 @@@@@@@`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"building"}, ID: "C"},
 			},
 		}
 
 		// 展開実行
-		expanded, err := blockTemplate.ExpandWithPlaceNested(loader, 0)
+		expanded, err := blockTemplate.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
 
 		// 期待される結果
@@ -82,7 +82,7 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 				Weight: 100,
 				Map: `@A
 @@`,
-				PlaceNested: []ChunkPlacement{
+				Placements: []ChunkPlacement{
 					{Chunks: []string{nextType}, ID: "A"},
 				},
 			}
@@ -104,13 +104,13 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 			Weight: 100,
 			Map: `@A
 @@`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"level0"}, ID: "A"},
 			},
 		}
 
 		// 深度制限を超えるのでエラーになるはず
-		_, err := rootTemplate.ExpandWithPlaceNested(loader, 0)
+		_, err := rootTemplate.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "深度が制限")
 	})
@@ -126,7 +126,7 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 			Weight: 100,
 			Map: `@A
 @@`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"chunk_b"}, ID: "A"},
 			},
 		}
@@ -139,14 +139,14 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 			Weight: 100,
 			Map: `@A
 @@`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"chunk_a"}, ID: "A"},
 			},
 		}
 		loader.chunkCache["chunk_b"] = []*ChunkTemplate{chunkB}
 
 		// 循環参照を検出するはず
-		_, err := chunkA.ExpandWithPlaceNested(loader, 0)
+		_, err := chunkA.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "循環参照")
 	})
@@ -164,7 +164,7 @@ func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 ###`,
 		}
 
-		expanded, err := template.ExpandWithPlaceNested(loader, 0)
+		expanded, err := template.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
 
 		expected := strings.TrimSpace(template.Map)

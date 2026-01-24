@@ -196,7 +196,7 @@ map = """
 		assert.Empty(t, templates[0].Palettes)
 	})
 
-	t.Run("PlaceNestedを持つテンプレートを読み込める", func(t *testing.T) {
+	t.Run("Placementsを持つテンプレートを読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
 name = "with_nested"
@@ -211,7 +211,7 @@ map = """
 #####
 """
 
-[[chunk.place_nested]]
+[[chunk.placements]]
 chunks = ["room"]
 id = "A"
 `
@@ -220,9 +220,9 @@ id = "A"
 
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
-		assert.Len(t, templates[0].PlaceNested, 1)
-		assert.Equal(t, []string{"room"}, templates[0].PlaceNested[0].Chunks)
-		assert.Equal(t, "A", templates[0].PlaceNested[0].ID)
+		assert.Len(t, templates[0].Placements, 1)
+		assert.Equal(t, []string{"room"}, templates[0].Placements[0].Chunks)
+		assert.Equal(t, "A", templates[0].Placements[0].ID)
 	})
 
 	t.Run("サイズ0はエラー", func(t *testing.T) {
@@ -660,10 +660,10 @@ map = """
 	})
 }
 
-func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
+func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 	t.Parallel()
 
-	t.Run("place_nestedなしではそのまま返す", func(t *testing.T) {
+	t.Run("placementsなしではそのまま返す", func(t *testing.T) {
 		t.Parallel()
 		template := ChunkTemplate{
 			Map: `###
@@ -674,7 +674,7 @@ func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 		}
 
 		loader := NewTemplateLoader()
-		result, err := template.ExpandWithPlaceNested(loader, 0)
+		result, err := template.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
 		assert.Equal(t, template.Map, result)
 	})
@@ -704,12 +704,12 @@ func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 #@@A#
 #@@@#
 #####`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"room"}, ID: "A"},
 			},
 		}
 
-		result, err := template.ExpandWithPlaceNested(loader, 0)
+		result, err := template.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
 
 		expected := `#####
@@ -756,13 +756,13 @@ func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 #@@@#.#@@@
 #@@A#.#@@B
 #####.####`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"room"}, ID: "A"},
 				{Chunks: []string{"storage"}, ID: "B"},
 			},
 		}
 
-		result, err := template.ExpandWithPlaceNested(loader, 0)
+		result, err := template.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
 
 		expected := `###+####+#
@@ -797,12 +797,12 @@ func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 .@A.
 .@@.
 ....`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"room"}, ID: "A"}, // 2x2のプレースホルダーに3x3のチャンクは配置できない
 			},
 		}
 
-		_, err := template.ExpandWithPlaceNested(loader, 0)
+		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "サイズが不一致")
 	})
@@ -820,12 +820,12 @@ func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 #@@A#
 #@@@#
 #####`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"nonexistent"}, ID: "A"},
 			},
 		}
 
-		_, err := template.ExpandWithPlaceNested(loader, 0)
+		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "見つかりません")
 	})
@@ -877,22 +877,22 @@ func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 #@@A#
 #@@@#
 #####`,
-			PlaceNested: []ChunkPlacement{
+			Placements: []ChunkPlacement{
 				{Chunks: []string{"room1", "room2", "room3"}, ID: "A"},
 			},
 		}
 
 		// 同じシードで複数回実行すると同じ結果になることを確認
-		result1, err := template.ExpandWithPlaceNested(loader, 12345)
+		result1, err := template.ExpandWithPlacements(loader, 12345)
 		require.NoError(t, err)
 
-		result2, err := template.ExpandWithPlaceNested(loader, 12345)
+		result2, err := template.ExpandWithPlacements(loader, 12345)
 		require.NoError(t, err)
 
 		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")
 
 		// 異なるシードで実行すると異なる可能性がある（確率的）
-		result3, err := template.ExpandWithPlaceNested(loader, 99999)
+		result3, err := template.ExpandWithPlacements(loader, 99999)
 		require.NoError(t, err)
 
 		// いずれかのチャンクが選択されていることを確認

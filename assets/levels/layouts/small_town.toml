@@ -61,16 +61,16 @@
 """
 
   # 13x8_small_office を左上に配置（外壁は親が担当）
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["13x8_small_office"]
     id     = "A"
 
   # 15x12_office_building を中央に配置（外壁は親が担当）
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["15x12_office_building"]
     id     = "B"
 
   # 13x8_small_office を左下に配置（外壁は親が担当）
-  [[chunk.place_nested]]
+  [[chunk.placements]]
     chunks = ["13x8_small_office"]
     id     = "C"

@@ -20,12 +20,13 @@ type ChunkPlacement struct {
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name        string           `toml:"name"`         // キー
-	Weight      int              `toml:"weight"`       // 出現確率の重み
-	Size        [2]int           `toml:"size"`         // [幅, 高さ]
-	Palettes    []string         `toml:"palettes"`     // 使用するパレットID
-	Map         string           `toml:"map"`          // ASCIIマップ
-	PlaceNested []ChunkPlacement `toml:"place_nested"` // ネストされたチャンクの配置
+	Name   string `toml:"name"`   // キー
+	Weight int    `toml:"weight"` // 出現確率の重み
+	// TODO: わかりやすいように長さ用の構造体を作る {W: int, H: int}
+	Size       [2]int           `toml:"size"`       // [幅, 高さ]
+	Palettes   []string         `toml:"palettes"`   // 使用するパレットID
+	Map        string           `toml:"map"`        // ASCIIマップ
+	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
@@ -250,8 +251,8 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 
 	mergedPalette := MergePalettes(palettes...)
 
-	if len(templateCopy.PlaceNested) > 0 {
-		expandedMap, err := templateCopy.ExpandWithPlaceNested(l, seed)
+	if len(templateCopy.Placements) > 0 {
+		expandedMap, err := templateCopy.ExpandWithPlacements(l, seed)
 		if err != nil {
 			return nil, nil, fmt.Errorf("チャンク展開エラー: %w", err)
 		}
@@ -309,9 +310,9 @@ func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate
 	return candidates[len(candidates)-1], nil
 }
 
-// ExpandWithPlaceNested はplace_nested方式でチャンクを展開したマップ文字列を返す（CDDA方式）
-func (t *ChunkTemplate) ExpandWithPlaceNested(loader *TemplateLoader, seed uint64) (string, error) {
-	if len(t.PlaceNested) == 0 {
+// ExpandWithPlacements はplacements方式でチャンクを展開したマップ文字列を返す（CDDA方式）
+func (t *ChunkTemplate) ExpandWithPlacements(loader *TemplateLoader, seed uint64) (string, error) {
+	if len(t.Placements) == 0 {
 		return t.Map, nil
 	}
 
@@ -321,11 +322,11 @@ func (t *ChunkTemplate) ExpandWithPlaceNested(loader *TemplateLoader, seed uint6
 	}
 
 	visiting := make(map[string]bool)
-	return t.expandWithPlaceNestedRecursive(loader, seed, 0, visiting)
+	return t.expandWithPlacementsRecursive(loader, seed, 0, visiting)
 }
 
-// expandWithPlaceNestedRecursive はチャンクを再帰的に展開する
-func (t *ChunkTemplate) expandWithPlaceNestedRecursive(loader *TemplateLoader, seed uint64, depth int, visiting map[string]bool) (string, error) {
+// expandWithPlacementsRecursive はチャンクを再帰的に展開する
+func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, seed uint64, depth int, visiting map[string]bool) (string, error) {
 	const maxDepth = 10
 
 	if depth > maxDepth {
@@ -336,7 +337,7 @@ func (t *ChunkTemplate) expandWithPlaceNestedRecursive(loader *TemplateLoader, s
 		return "", fmt.Errorf("チャンクの循環参照を検出しました: %s", t.Name)
 	}
 
-	if len(t.PlaceNested) == 0 {
+	if len(t.Placements) == 0 {
 		return t.Map, nil
 	}
 
@@ -353,9 +354,9 @@ func (t *ChunkTemplate) expandWithPlaceNestedRecursive(loader *TemplateLoader, s
 	type placementInfo struct {
 		x, y, width, height int
 	}
-	placementPositions := make([]placementInfo, len(t.PlaceNested))
+	placementPositions := make([]placementInfo, len(t.Placements))
 
-	for idx, placement := range t.PlaceNested {
+	for idx, placement := range t.Placements {
 		if placement.ID == "" {
 			return "", fmt.Errorf("placement %d: ID が指定されていません", idx)
 		}
@@ -368,8 +369,8 @@ func (t *ChunkTemplate) expandWithPlaceNestedRecursive(loader *TemplateLoader, s
 		placementPositions[idx] = placementInfo{x: x, y: y, width: width, height: height}
 	}
 
-	// 各place_nested定義を処理
-	for idx, placement := range t.PlaceNested {
+	// 各placements定義を処理
+	for idx, placement := range t.Placements {
 		// チャンクを重み付き選択
 		selectedChunk, err := loader.selectChunkByWeight(placement.Chunks, rng)
 		if err != nil {
@@ -377,7 +378,7 @@ func (t *ChunkTemplate) expandWithPlaceNestedRecursive(loader *TemplateLoader, s
 		}
 
 		// 再帰的に展開
-		expandedChunkMap, err := selectedChunk.expandWithPlaceNestedRecursive(loader, seed+uint64(idx)*1000, depth+1, visiting)
+		expandedChunkMap, err := selectedChunk.expandWithPlacementsRecursive(loader, seed+uint64(idx)*1000, depth+1, visiting)
 		if err != nil {
 			return "", err
 		}
@@ -586,12 +587,12 @@ func validateRectangle(lines []string, id string, startX, startY, width, height 
 	return nil
 }
 
-// validatePlaceholders はプレースホルダ(@)とplace_nestedの整合性を検証する
+// validatePlaceholders はプレースホルダ(@)とplacementsの整合性を検証する
 func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 	lines := t.GetMapLines()
 
-	// 各place_nested定義をチェック
-	for idx, placement := range t.PlaceNested {
+	// 各placements定義をチェック
+	for idx, placement := range t.Placements {
 		// チャンクの最初のバリエーションからサイズを取得（すべて同じサイズのはず）
 		chunks, err := loader.GetChunks(placement.Chunks[0])
 		if err != nil {
