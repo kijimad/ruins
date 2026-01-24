@@ -79,7 +79,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// NPCを生成
+	// NPCを生成する
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
 	for _, npc := range metaPlan.NPCs {
 		// NPCが中立かどうかを判断
@@ -104,7 +104,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// アイテムを生成
+	// アイテムを生成する
 	for _, item := range metaPlan.Items {
 		tileX, tileY := gc.Tile(item.X), gc.Tile(item.Y)
 		_, err := worldhelper.SpawnFieldItem(world, item.ItemName, tileX, tileY)
@@ -113,26 +113,28 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// Propsを生成
+	// Propsを生成する
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := gc.Tile(prop.X), gc.Tile(prop.Y)
-		_, err := worldhelper.SpawnProp(world, prop.PropKey, tileX, tileY)
+
+		propRaw, err := metaPlan.RawMaster.GetProp(prop.PropKey)
+		if err != nil {
+			return resources.Level{}, fmt.Errorf("props取得エラー (%s): %w", prop.PropKey, err)
+		}
+
+		propEntity, err := worldhelper.SpawnProp(world, prop.PropKey, tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("props生成エラー (%d, %d): %w", prop.X, prop.Y, err)
 		}
-	}
 
-	// ドアを生成
-	// TODO: Doorsフィールドを消して、Door Componentで判断させる
-	for _, door := range metaPlan.Doors {
-		tileX, tileY := gc.Tile(door.X), gc.Tile(door.Y)
-
-		// 隣接タイルからドアの向きを判定
-		orientation := detectDoorOrientation(metaPlan, door.X, door.Y)
-
-		_, err := worldhelper.SpawnDoor(world, tileX, tileY, orientation)
-		if err != nil {
-			return resources.Level{}, fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
+		// Door componentがあれば向きを設定して閉じた状態で初期化
+		if propRaw.Door != nil {
+			orientation := detectDoorOrientation(metaPlan, prop.X, prop.Y)
+			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
+			doorComp.Orientation = orientation
+			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
+				return resources.Level{}, fmt.Errorf("ドア初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
+			}
 		}
 	}
 

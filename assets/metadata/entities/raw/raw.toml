@@ -1914,6 +1914,19 @@
       R = 255
 
 [[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "ドア"
+  Name        = "door"
+
+  [Props.SpriteRender]
+    Depth           = 1
+    SpriteKey       = "door_horizontal_closed"
+    SpriteSheetName = "field"
+
+  [Props.Door]
+
+[[Props]]
   BlockPass   = false
   BlockView   = false
   Description = "次のフロアへ進むワープポータル"

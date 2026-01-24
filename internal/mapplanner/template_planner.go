@@ -54,7 +54,7 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 	return nil
 }
 
-// PlanMeta はテンプレートからメタ情報（家具、Props等）を配置する
+// PlanMeta はテンプレートからメタ情報を配置する
 func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 	lines := p.Template.GetMapLines()
 
@@ -63,23 +63,13 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 		for x, char := range line {
 			charStr := string(char)
 
-			// パレットから家具を取得
 			if furnitureName, ok := p.Palette.GetFurniture(charStr); ok {
-				// ドアの場合はDoorSpecに追加（向きはspawn時に判定）
-				// TODO: ドアを文字列判定するのを消す
-				if furnitureName == "door" {
-					metaPlan.Doors = append(metaPlan.Doors, DoorSpec{
-						X: x,
-						Y: y,
-					})
-				} else {
-					// その他の家具はPropsとして配置予定リストに追加
-					metaPlan.Props = append(metaPlan.Props, PropsSpec{
-						X:       x,
-						Y:       y,
-						PropKey: furnitureName,
-					})
-				}
+				// 配置予定リストに追加
+				metaPlan.Props = append(metaPlan.Props, PropsSpec{
+					X:       x,
+					Y:       y,
+					PropKey: furnitureName,
+				})
 			}
 		}
 	}

@@ -44,7 +44,15 @@ func TestTownPlannerIntegration(t *testing.T) {
 	// Propsとワープポータルが配置されているか確認
 	require.Greater(t, len(metaPlan.Props), 0, "Should have Props")
 	require.Greater(t, len(metaPlan.WarpPortals), 0, "Should have at least one warp portal")
-	require.Greater(t, len(metaPlan.Doors), 0, "Should have Doors")
+
+	// Doorsが配置されているか確認
+	plannedDoorCount := 0
+	for _, prop := range metaPlan.Props {
+		if prop.PropKey == "door" {
+			plannedDoorCount++
+		}
+	}
+	require.Greater(t, plannedDoorCount, 0, "Should have Doors")
 	// NPCは現在スキップ中
 
 	// GridElementコンポーネントを持つエンティティ数を確認
@@ -53,7 +61,7 @@ func TestTownPlannerIntegration(t *testing.T) {
 
 	// ドアエンティティの数を確認
 	doorCount := world.Manager.Join(world.Components.Door).Size()
-	require.Equal(t, len(metaPlan.Doors), doorCount, "Spawned door count should match planned door count")
+	require.Equal(t, plannedDoorCount, doorCount, "Spawned door count should match planned door count")
 
 	t.Logf("街マップ統合テスト成功: エンティティ数=%d, ドア数=%d, プレイヤー位置=(%d,%d)",
 		entityCount, doorCount, playerX, playerY)

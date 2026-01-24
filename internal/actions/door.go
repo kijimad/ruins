@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // OpenDoorActivity はActivityInterfaceの実装
@@ -62,24 +63,9 @@ func (oda *OpenDoorActivity) DoTurn(act *Activity, world w.World) error {
 
 	// ドアを開く
 	if !doorComp.IsOpen {
-		doorComp.IsOpen = true
-
-		// BlockPass と BlockView を削除（通行可能・視線が通るようになる）
-		if targetEntity.HasComponent(world.Components.BlockPass) {
-			targetEntity.RemoveComponent(world.Components.BlockPass)
-		}
-		if targetEntity.HasComponent(world.Components.BlockView) {
-			targetEntity.RemoveComponent(world.Components.BlockView)
-		}
-
-		// スプライトを開いた状態に変更
-		if targetEntity.HasComponent(world.Components.SpriteRender) {
-			spriteRender := world.Components.SpriteRender.Get(targetEntity).(*gc.SpriteRender)
-			if doorComp.Orientation == gc.DoorOrientationHorizontal {
-				spriteRender.SpriteKey = "door_horizontal_open"
-			} else {
-				spriteRender.SpriteKey = "door_vertical_open"
-			}
+		if err := worldhelper.OpenDoor(world, targetEntity); err != nil {
+			act.Cancel(fmt.Sprintf("ドアを開けません: %v", err))
+			return err
 		}
 
 		act.Logger.Debug("ドアを開きました", "door", targetEntity)
@@ -166,24 +152,9 @@ func (cda *CloseDoorActivity) DoTurn(act *Activity, world w.World) error {
 
 	// ドアを閉じる
 	if doorComp.IsOpen {
-		doorComp.IsOpen = false
-
-		// BlockPass と BlockView を追加（通行不可・視線が通らなくなる）
-		if !targetEntity.HasComponent(world.Components.BlockPass) {
-			targetEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		}
-		if !targetEntity.HasComponent(world.Components.BlockView) {
-			targetEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
-		}
-
-		// スプライトを閉じた状態に変更
-		if targetEntity.HasComponent(world.Components.SpriteRender) {
-			spriteRender := world.Components.SpriteRender.Get(targetEntity).(*gc.SpriteRender)
-			if doorComp.Orientation == gc.DoorOrientationHorizontal {
-				spriteRender.SpriteKey = "door_horizontal_closed"
-			} else {
-				spriteRender.SpriteKey = "door_vertical_closed"
-			}
+		if err := worldhelper.CloseDoor(world, targetEntity); err != nil {
+			act.Cancel(fmt.Sprintf("ドアを閉じられません: %v", err))
+			return err
 		}
 
 		act.Logger.Debug("ドアを閉じました", "door", targetEntity)

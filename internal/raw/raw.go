@@ -613,7 +613,11 @@ type PropRaw struct {
 	LightSource           *gc.LightSource
 	WarpNextInteraction   *WarpNextInteractionRaw
 	WarpEscapeInteraction *WarpEscapeInteractionRaw
+	Door                  *DoorRaw
 }
+
+// DoorRaw はドアのローデータ
+type DoorRaw struct{}
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
@@ -708,6 +712,16 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 
 	if propRaw.WarpEscapeInteraction != nil {
 		entitySpec.Interactable = &gc.Interactable{Data: gc.WarpEscapeInteraction{}}
+	}
+
+	if propRaw.Door != nil {
+		// Door componentを追加（向きは初期値、spawn時に設定される）
+		entitySpec.Door = &gc.Door{
+			IsOpen:      false,
+			Orientation: gc.DoorOrientationHorizontal,
+		}
+		// ドアは相互作用可能
+		entitySpec.Interactable = &gc.Interactable{Data: gc.DoorInteraction{}}
 	}
 
 	return entitySpec, nil

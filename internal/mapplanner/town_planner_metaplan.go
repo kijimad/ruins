@@ -137,8 +137,8 @@ func (p *MetaTownPlanner) PlanInitial(planData *MetaPlan) error {
 					Y:    y,
 					Type: WarpPortalNext, // 次の階層への移動
 				})
-			case 'C', 'T', 'S', 'M', 'R', 'L', 'B':
-				// Props（家具類）
+			case 'C', 'T', 'S', 'M', 'R', 'L', 'B', 'D':
+				// Props
 				var propKey string
 				switch char {
 				case 'C':
@@ -155,18 +155,14 @@ func (p *MetaTownPlanner) PlanInitial(planData *MetaPlan) error {
 					propKey = "lantern"
 				case 'B':
 					propKey = "bonfire"
+				case 'D':
+					propKey = "door"
 				}
 
 				planData.Props = append(planData.Props, PropsSpec{
 					X:       x,
 					Y:       y,
 					PropKey: propKey,
-				})
-			case 'D':
-				// ドア（向きはspawn時に判定）
-				planData.Doors = append(planData.Doors, DoorSpec{
-					X: x,
-					Y: y,
 				})
 			default:
 				return fmt.Errorf("無効なエンティティ指定子が存在する: %s", string(char))
