@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestExpandWithChunksRecursive は再帰的なチャンク展開をテストする
-func TestExpandWithChunksRecursive(t *testing.T) {
+// TestExpandWithPlaceNestedRecursive は再帰的なチャンク展開をテストする
+func TestExpandWithPlaceNestedRecursive(t *testing.T) {
 	t.Parallel()
 
 	t.Run("2階層のチャンク展開", func(t *testing.T) {
@@ -25,41 +25,44 @@ func TestExpandWithChunksRecursive(t *testing.T) {
 #.#
 ###`,
 		}
-		loader.chunkCache["room"] = roomChunk
+		loader.chunkCache["room"] = []*ChunkTemplate{roomChunk}
 
-		// Level 1: 建物（2つの部屋を含む 6x3）
+		// Level 1: 建物（2つの部屋を含む 7x3）
 		buildingChunk := &ChunkTemplate{
-			Name:         "building",
-			Size:         [2]int{6, 3},
-			Weight:       100,
-			Chunks:       []string{"room"},
-			ChunkMapping: map[string][]string{"A": {"room"}, "B": {"room"}},
-			Map: `AAABBB
-AAABBB
-AAABBB`,
+			Name:   "building",
+			Size:   [2]int{7, 3},
+			Weight: 100,
+			Map: `@@@.@@B
+@@@.@@@
+@@A.@@@`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"room"}, ID: "A"},
+				{Chunks: []string{"room"}, ID: "B"},
+			},
 		}
-		loader.chunkCache["building"] = buildingChunk
+		loader.chunkCache["building"] = []*ChunkTemplate{buildingChunk}
 
-		// Level 2: 街区（建物を含む 6x3）
+		// Level 2: 街区（建物を含む 7x3）
 		blockTemplate := &ChunkTemplate{
-			Name:         "block",
-			Size:         [2]int{6, 3},
-			Weight:       100,
-			Chunks:       []string{"building"},
-			ChunkMapping: map[string][]string{"X": {"building"}},
-			Map: `XXXXXX
-XXXXXX
-XXXXXX`,
+			Name:   "block",
+			Size:   [2]int{7, 3},
+			Weight: 100,
+			Map: `@@@@@@C
+@@@@@@@
+@@@@@@@`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"building"}, ID: "C"},
+			},
 		}
 
 		// 展開実行
-		expanded, err := blockTemplate.ExpandWithChunks(loader, 0)
+		expanded, err := blockTemplate.ExpandWithPlaceNested(loader, 0)
 		require.NoError(t, err)
 
 		// 期待される結果
-		expected := `######
-#.##.#
-######`
+		expected := `###.###
+#.#.#.#
+###.###`
 
 		assert.Equal(t, expected, expanded)
 	})
@@ -74,38 +77,40 @@ XXXXXX`,
 			nextType := "level" + string(rune('1'+i))
 
 			chunk := &ChunkTemplate{
-				Name:         chunkType,
-				Size:         [2]int{2, 2},
-				Weight:       100,
-				Chunks:       []string{nextType},
-				ChunkMapping: map[string][]string{"X": {nextType}},
-				Map: `XX
-XX`,
+				Name:   chunkType,
+				Size:   [2]int{2, 2},
+				Weight: 100,
+				Map: `@A
+@@`,
+				PlaceNested: []ChunkPlacement{
+					{Chunks: []string{nextType}, ID: "A"},
+				},
 			}
-			loader.chunkCache[chunkType] = chunk
+			loader.chunkCache[chunkType] = []*ChunkTemplate{chunk}
 		}
 
 		// 最終レベル
-		loader.chunkCache["level11"] = &ChunkTemplate{
+		loader.chunkCache["level11"] = []*ChunkTemplate{&ChunkTemplate{
 			Name:   "level11",
 			Size:   [2]int{2, 2},
 			Weight: 100,
 			Map: `..
 ..`,
-		}
+		}}
 
 		rootTemplate := &ChunkTemplate{
-			Name:         "root",
-			Size:         [2]int{2, 2},
-			Weight:       100,
-			Chunks:       []string{"level0"},
-			ChunkMapping: map[string][]string{"X": {"level0"}},
-			Map: `XX
-XX`,
+			Name:   "root",
+			Size:   [2]int{2, 2},
+			Weight: 100,
+			Map: `@A
+@@`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"level0"}, ID: "A"},
+			},
 		}
 
 		// 深度制限を超えるのでエラーになるはず
-		_, err := rootTemplate.ExpandWithChunks(loader, 0)
+		_, err := rootTemplate.ExpandWithPlaceNested(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "深度が制限")
 	})
@@ -116,30 +121,32 @@ XX`,
 
 		// チャンクAがチャンクBを参照
 		chunkA := &ChunkTemplate{
-			Name:         "chunk_a",
-			Size:         [2]int{2, 2},
-			Weight:       100,
-			Chunks:       []string{"chunk_b"},
-			ChunkMapping: map[string][]string{"B": {"chunk_b"}},
-			Map: `BB
-BB`,
+			Name:   "chunk_a",
+			Size:   [2]int{2, 2},
+			Weight: 100,
+			Map: `@A
+@@`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"chunk_b"}, ID: "A"},
+			},
 		}
-		loader.chunkCache["chunk_a"] = chunkA
+		loader.chunkCache["chunk_a"] = []*ChunkTemplate{chunkA}
 
 		// チャンクBがチャンクAを参照（循環）
 		chunkB := &ChunkTemplate{
-			Name:         "chunk_b",
-			Size:         [2]int{2, 2},
-			Weight:       100,
-			Chunks:       []string{"chunk_a"},
-			ChunkMapping: map[string][]string{"A": {"chunk_a"}},
-			Map: `AA
-AA`,
+			Name:   "chunk_b",
+			Size:   [2]int{2, 2},
+			Weight: 100,
+			Map: `@A
+@@`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"chunk_a"}, ID: "A"},
+			},
 		}
-		loader.chunkCache["chunk_b"] = chunkB
+		loader.chunkCache["chunk_b"] = []*ChunkTemplate{chunkB}
 
 		// 循環参照を検出するはず
-		_, err := chunkA.ExpandWithChunks(loader, 0)
+		_, err := chunkA.ExpandWithPlaceNested(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "循環参照")
 	})
@@ -157,7 +164,7 @@ AA`,
 ###`,
 		}
 
-		expanded, err := template.ExpandWithChunks(loader, 0)
+		expanded, err := template.ExpandWithPlaceNested(loader, 0)
 		require.NoError(t, err)
 
 		expected := strings.TrimSpace(template.Map)

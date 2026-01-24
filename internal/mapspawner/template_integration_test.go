@@ -47,10 +47,10 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		assert.Equal(t, 10, int(metaPlan.Level.TileHeight))
 		assert.Len(t, metaPlan.Tiles, 100) // 10x10=100
 
-		// 外周は壁で通行不可
-		assert.False(t, metaPlan.Tiles[0].Walkable, "外周は壁")
+		// テンプレートは内部のみを定義しているので、全て床で通行可能
+		assert.True(t, metaPlan.Tiles[0].Walkable, "テンプレートは内部のみ")
 
-		// 中央は床で通行可能
+		// 中央も床で通行可能
 		centerIdx := 5*10 + 5
 		assert.True(t, metaPlan.Tiles[centerIdx].Walkable, "中央は床")
 

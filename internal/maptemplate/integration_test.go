@@ -37,7 +37,7 @@ func TestLoadRealFiles(t *testing.T) {
 		require.Len(t, templates, 1)
 
 		template := templates[0]
-		assert.Equal(t, "small_room", template.Name)
+		assert.Equal(t, "10x10_small_room", template.Name)
 		assert.Equal(t, 100, template.Weight)
 		assert.Equal(t, [2]int{10, 10}, template.Size)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
@@ -52,25 +52,29 @@ func TestLoadRealFiles(t *testing.T) {
 		require.NoError(t, err)
 
 		// 各チャンクが読み込まれているか確認
-		bedroom, err := loader.GetChunk("bedroom")
+		bedroomChunks, err := loader.GetChunks("3x3_bedroom")
 		require.NoError(t, err)
-		assert.Equal(t, "bedroom", bedroom.Name)
-		assert.Equal(t, [2]int{3, 3}, bedroom.Size)
+		require.NotEmpty(t, bedroomChunks)
+		assert.Equal(t, "3x3_bedroom", bedroomChunks[0].Name)
+		assert.Equal(t, [2]int{3, 3}, bedroomChunks[0].Size)
 
-		meetingRoom, err := loader.GetChunk("meeting_room")
+		meetingRoomChunks, err := loader.GetChunks("5x5_meeting_room")
 		require.NoError(t, err)
-		assert.Equal(t, "meeting_room", meetingRoom.Name)
-		assert.Equal(t, [2]int{5, 5}, meetingRoom.Size)
+		require.NotEmpty(t, meetingRoomChunks)
+		assert.Equal(t, "5x5_meeting_room", meetingRoomChunks[0].Name)
+		assert.Equal(t, [2]int{5, 5}, meetingRoomChunks[0].Size)
 
-		storage, err := loader.GetChunk("storage")
+		storageChunks, err := loader.GetChunks("4x4_storage")
 		require.NoError(t, err)
-		assert.Equal(t, "storage", storage.Name)
-		assert.Equal(t, [2]int{4, 4}, storage.Size)
+		require.NotEmpty(t, storageChunks)
+		assert.Equal(t, "4x4_storage", storageChunks[0].Name)
+		assert.Equal(t, [2]int{4, 4}, storageChunks[0].Size)
 
-		office, err := loader.GetChunk("office")
+		officeChunks, err := loader.GetChunks("5x4_office")
 		require.NoError(t, err)
-		assert.Equal(t, "office", office.Name)
-		assert.Equal(t, [2]int{5, 4}, office.Size)
+		require.NotEmpty(t, officeChunks)
+		assert.Equal(t, "5x4_office", officeChunks[0].Name)
+		assert.Equal(t, [2]int{5, 4}, officeChunks[0].Size)
 	})
 
 	t.Run("複合施設テンプレートを読み込んでチャンク展開できる", func(t *testing.T) {
@@ -88,17 +92,17 @@ func TestLoadRealFiles(t *testing.T) {
 
 		// 小規模オフィスをチャンク展開
 		smallOffice := templates[0]
-		assert.Equal(t, "small_office", smallOffice.Name)
-		assert.Len(t, smallOffice.Chunks, 2)
+		assert.Equal(t, "13x8_small_office", smallOffice.Name)
+		assert.Len(t, smallOffice.PlaceNested, 2)
 
-		expandedMap, err := smallOffice.ExpandWithChunks(loader, 12345)
+		expandedMap, err := smallOffice.ExpandWithPlaceNested(loader, 12345)
 		require.NoError(t, err)
 		assert.NotEmpty(t, expandedMap)
 
-		// 展開後のマップが元のマップより情報量が増えていることを確認
-		// チャンク領域('A', 'B')が実際の内容で置き換えられている
-		assert.NotContains(t, expandedMap, "A")
-		assert.NotContains(t, expandedMap, "B")
+		// 展開後のマップにチャンクが配置されていることを確認
+		// place_nested方式では元のマップには特殊な文字は使われていない
+		assert.Contains(t, expandedMap, "T") // meeting_roomのテーブル
+		assert.Contains(t, expandedMap, "X") // storageのX
 
 		// 展開後のマップサイズが維持されていることを確認
 		lines := splitMapLines(expandedMap)

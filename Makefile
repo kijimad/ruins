@@ -31,10 +31,12 @@ lint: ## Linterを実行する
 		exit 1; \
 	fi
 
-.PHONY: gendatatable
-gendatatable: ## 現在の設定でデータテーブルを生成する
+.PHONY: gendata
+gendata: ## 現在の設定でデータファイルを生成する
 	go run . generate-item-doc
 	go run . generate-enemy-doc
+	UPDATE_GOLDEN=1 RUINS_LOG_LEVEL=ignore \
+	go test ./... -run Golden -v
 
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する

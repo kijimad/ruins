@@ -2,51 +2,59 @@
 # 複数の部屋を組み合わせた大きな建物
 
 [[chunk]]
-  chunks   = ["meeting_room", "storage"]
-  name     = "small_office"
+  name     = "13x8_small_office"
   palettes = ["standard"]
-  size     = [13, 8]
+  size     = [11, 6]
   weight   = 80
 
   map = """
-.............
-.############
-.#AAAAA.BBBB#
-.#AAAAA.BBBB#
-.#AAAAA.BBBB#
-.#AAAAA.BBBB#
-.#AAAAA.....#
-.#######+####
+@@@@@#.....
+@@@@@#@@@@.
+@@@@@#@@@@.
+@@@@@#@@@@.
+@@@@A#@@@B.
+...........
 """
 
-  [chunk.chunk_mapping]
-    "A" = ["meeting_room"] # 5x5 会議室
-    "B" = ["storage"]      # 4x4 倉庫
+  [[chunk.place_nested]]
+    chunks = ["5x5_meeting_room"]
+    id     = "A"
+
+  [[chunk.place_nested]]
+    chunks = ["4x4_storage"]
+    id     = "B"
 
 [[chunk]]
-  chunks   = ["office", "meeting_room", "bedroom"]
-  name     = "office_building"
+  name     = "15x12_office_building"
   palettes = ["standard"]
-  size     = [15, 12]
+  size     = [15, 10]
   weight   = 60
 
   map = """
-.BBBBB#.#CCCCC.
-.BBBBB#.#CCCCC.
-.BBBBB+.+CCCCC.
-.BBBBB#.#CCCCC.
-.BBBBB#.#CCCCC.
-#######.#######
-...............
-#######.#######
-.AAAAA#.#.DDD..
-.AAAAA+.+.DDD..
-.AAAAA#.#.DDD..
-.AAAAA#.#......
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@A.....@@@@B
+######...######
+@@@@@#...#.....
+@@@@@+...+.@@@.
+@@@@@#...#.@@@.
+@@@@C#...#.@@D.
 """
 
-  [chunk.chunk_mapping]
-    "A" = ["office"]       # 5x4 事務室
-    "B" = ["meeting_room"] # 5x5 会議室
-    "C" = ["meeting_room"] # 5x5 会議室（別の場所）
-    "D" = ["bedroom"]      # 3x3 寝室
+  [[chunk.place_nested]]
+    chunks = ["5x5_meeting_room"]
+    id     = "A"
+
+  [[chunk.place_nested]]
+    chunks = ["5x5_meeting_room"]
+    id     = "B"
+
+  [[chunk.place_nested]]
+    chunks = ["5x4_office"]
+    id     = "C"
+
+  [[chunk.place_nested]]
+    chunks = ["3x3_bedroom"]
+    id     = "D"

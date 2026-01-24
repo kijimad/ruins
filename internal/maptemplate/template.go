@@ -9,16 +9,21 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// ChunkPlacement はネストされたチャンクの配置情報
+type ChunkPlacement struct {
+	Chunks []string `toml:"chunks"` // チャンク名の配列（重み付き選択）
+	ID     string   `toml:"id"`     // プレースホルダ識別子（右下に配置される1文字）
+}
+
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name         string              `toml:"name"`          // キー（例: "bedroom", "office_building", "small_town"）
-	Weight       int                 `toml:"weight"`        // 出現確率の重み
-	Size         [2]int              `toml:"size"`          // [幅, 高さ]
-	Palettes     []string            `toml:"palettes"`      // 使用するパレットID
-	Map          string              `toml:"map"`           // ASCIIマップ
-	Chunks       []string            `toml:"chunks"`        // 使用するチャンク名一覧
-	ChunkMapping map[string][]string `toml:"chunk_mapping"` // マップ文字 -> チャンク名の配列（重みづけランダム選択）
+	Name        string           `toml:"name"`         // キー
+	Weight      int              `toml:"weight"`       // 出現確率の重み
+	Size        [2]int           `toml:"size"`         // [幅, 高さ]
+	Palettes    []string         `toml:"palettes"`     // 使用するパレットID
+	Map         string           `toml:"map"`          // ASCIIマップ
+	PlaceNested []ChunkPlacement `toml:"place_nested"` // ネストされたチャンクの配置
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
@@ -28,19 +33,20 @@ type ChunkTemplateFile struct {
 
 // TemplateLoader はテンプレート定義の読み込みを担当する
 type TemplateLoader struct {
-	chunkCache   map[string]*ChunkTemplate
+	chunkCache   map[string][]*ChunkTemplate // 同じ名前で複数のバリエーションをサポート
 	paletteCache map[string]*Palette
 }
 
 // NewTemplateLoader はTemplateLoaderを生成する
 func NewTemplateLoader() *TemplateLoader {
 	return &TemplateLoader{
-		chunkCache:   make(map[string]*ChunkTemplate),
+		chunkCache:   make(map[string][]*ChunkTemplate),
 		paletteCache: make(map[string]*Palette),
 	}
 }
 
 // LoadFromFile はTOMLファイルからチャンクテンプレート定義を読み込む
+// TODO: []os.Readerにする
 func (l *TemplateLoader) LoadFromFile(path string) ([]ChunkTemplate, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -127,6 +133,7 @@ func (t *ChunkTemplate) GetCharAt(x, y int) (string, error) {
 }
 
 // LoadChunk はチャンク定義を読み込んでキャッシュする
+// 同じ名前のチャンクが複数ある場合、すべて登録される（バリエーション）
 func (l *TemplateLoader) LoadChunk(path string) error {
 	templates, err := l.LoadFromFile(path)
 	if err != nil {
@@ -134,19 +141,20 @@ func (l *TemplateLoader) LoadChunk(path string) error {
 	}
 
 	for i := range templates {
-		l.chunkCache[templates[i].Name] = &templates[i]
+		name := templates[i].Name
+		l.chunkCache[name] = append(l.chunkCache[name], &templates[i])
 	}
 
 	return nil
 }
 
-// GetChunk はキャッシュからチャンクを取得する
-func (l *TemplateLoader) GetChunk(chunkName string) (*ChunkTemplate, error) {
-	chunk, ok := l.chunkCache[chunkName]
-	if !ok {
+// GetChunks はキャッシュから指定名のすべてのチャンクバリエーションを取得する
+func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
+	chunks, ok := l.chunkCache[chunkName]
+	if !ok || len(chunks) == 0 {
 		return nil, fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
 	}
-	return chunk, nil
+	return chunks, nil
 }
 
 // RegisterAllChunks は指定されたディレクトリ配下のすべての.tomlファイルをチャンクとして登録する
@@ -201,8 +209,16 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error {
 }
 
 // LoadTemplateByName はテンプレート名で展開済みテンプレートとパレットを取得する
+// 同じ名前のバリエーションが複数ある場合、重み付きランダム選択する
 func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTemplate, *Palette, error) {
-	template, err := l.GetChunk(name)
+	chunks, err := l.GetChunks(name)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	// 重み付きランダム選択
+	rng := rand.New(rand.NewPCG(seed, seed))
+	template, err := l.selectChunkByWeightFromList(chunks, rng)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -220,8 +236,8 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 
 	mergedPalette := MergePalettes(palettes...)
 
-	if len(templateCopy.ChunkMapping) > 0 {
-		expandedMap, err := templateCopy.ExpandWithChunks(l, seed)
+	if len(templateCopy.PlaceNested) > 0 {
+		expandedMap, err := templateCopy.ExpandWithPlaceNested(l, seed)
 		if err != nil {
 			return nil, nil, fmt.Errorf("チャンク展開エラー: %w", err)
 		}
@@ -232,21 +248,35 @@ func (l *TemplateLoader) LoadTemplateByName(name string, seed uint64) (*ChunkTem
 }
 
 // selectChunkByWeight は重みづけランダム選択でチャンクを選択する
+// 各チャンク名に複数のバリエーションがある場合、すべてを候補に含める
 func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand) (*ChunkTemplate, error) {
 	if len(chunkNames) == 0 {
 		return nil, fmt.Errorf("チャンク候補が空です")
 	}
 
-	candidates := make([]*ChunkTemplate, 0, len(chunkNames))
-	totalWeight := 0
+	candidates := make([]*ChunkTemplate, 0)
 
+	// 各チャンク名のすべてのバリエーションを候補に追加
 	for _, name := range chunkNames {
-		chunk, err := l.GetChunk(name)
+		chunks, err := l.GetChunks(name)
 		if err != nil {
 			return nil, err
 		}
-		candidates = append(candidates, chunk)
-		totalWeight += chunk.Weight
+		candidates = append(candidates, chunks...)
+	}
+
+	return l.selectChunkByWeightFromList(candidates, rng)
+}
+
+// selectChunkByWeightFromList はChunkTemplateのリストから重み付きランダム選択する
+func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate, rng *rand.Rand) (*ChunkTemplate, error) {
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("チャンク候補が空です")
+	}
+
+	totalWeight := 0
+	for _, candidate := range candidates {
+		totalWeight += candidate.Weight
 	}
 
 	if totalWeight == 0 {
@@ -265,18 +295,23 @@ func (l *TemplateLoader) selectChunkByWeight(chunkNames []string, rng *rand.Rand
 	return candidates[len(candidates)-1], nil
 }
 
-// ExpandWithChunks はチャンクを展開したマップ文字列を返す
-func (t *ChunkTemplate) ExpandWithChunks(loader *TemplateLoader, seed uint64) (string, error) {
-	if len(t.ChunkMapping) == 0 {
+// ExpandWithPlaceNested はplace_nested方式でチャンクを展開したマップ文字列を返す（CDDA方式）
+func (t *ChunkTemplate) ExpandWithPlaceNested(loader *TemplateLoader, seed uint64) (string, error) {
+	if len(t.PlaceNested) == 0 {
 		return t.Map, nil
 	}
 
+	// プレースホルダ検証を実行
+	if err := t.validatePlaceholders(loader); err != nil {
+		return "", fmt.Errorf("プレースホルダ検証エラー: %w", err)
+	}
+
 	visiting := make(map[string]bool)
-	return t.expandWithChunksRecursive(loader, seed, 0, visiting)
+	return t.expandWithPlaceNestedRecursive(loader, seed, 0, visiting)
 }
 
-// expandWithChunksRecursive はチャンクを再帰的に展開する
-func (t *ChunkTemplate) expandWithChunksRecursive(loader *TemplateLoader, seed uint64, depth int, visiting map[string]bool) (string, error) {
+// expandWithPlaceNestedRecursive はチャンクを再帰的に展開する
+func (t *ChunkTemplate) expandWithPlaceNestedRecursive(loader *TemplateLoader, seed uint64, depth int, visiting map[string]bool) (string, error) {
 	const maxDepth = 10
 
 	if depth > maxDepth {
@@ -287,7 +322,7 @@ func (t *ChunkTemplate) expandWithChunksRecursive(loader *TemplateLoader, seed u
 		return "", fmt.Errorf("チャンクの循環参照を検出しました: %s", t.Name)
 	}
 
-	if len(t.ChunkMapping) == 0 {
+	if len(t.PlaceNested) == 0 {
 		return t.Map, nil
 	}
 
@@ -295,118 +330,284 @@ func (t *ChunkTemplate) expandWithChunksRecursive(loader *TemplateLoader, seed u
 	defer delete(visiting, t.Name)
 
 	lines := t.GetMapLines()
-
-	rng := rand.New(rand.NewPCG(seed, seed))
-
-	// フェーズ1: チャンク領域を元のマップから検出し、展開したチャンクを準備
-	type chunkPlacement struct {
-		x, y          int
-		width, height int
-		expandedLines []string
-	}
-	var placements []chunkPlacement
-
-	processedRegions := make(map[string]bool)
-
-	for y := 0; y < len(lines); y++ {
-		for x := 0; x < len(lines[y]); x++ {
-			char := string(lines[y][x])
-
-			chunkNames, ok := t.ChunkMapping[char]
-			if !ok {
-				continue
-			}
-
-			regionKey := fmt.Sprintf("%d,%d,%s", x, y, char)
-			if processedRegions[regionKey] {
-				continue
-			}
-
-			width, height := t.detectChunkRegion(lines, x, y, char)
-
-			selectedChunk, err := loader.selectChunkByWeight(chunkNames, rng)
-			if err != nil {
-				return "", fmt.Errorf("チャンク選択エラー (%s): %w", char, err)
-			}
-
-			if selectedChunk.Size[0] != width || selectedChunk.Size[1] != height {
-				return "", fmt.Errorf("チャンク '%s' のサイズ%vが配置領域[%d, %d]と一致しません (文字='%s', 座標=(%d,%d))", selectedChunk.Name, selectedChunk.Size, width, height, char, x, y)
-			}
-
-			expandedChunkMap, err := selectedChunk.expandWithChunksRecursive(loader, seed+uint64(x)+uint64(y)*1000, depth+1, visiting)
-			if err != nil {
-				return "", err
-			}
-
-			chunkLines := strings.Split(strings.TrimSpace(expandedChunkMap), "\n")
-			placements = append(placements, chunkPlacement{
-				x:             x,
-				y:             y,
-				width:         width,
-				height:        height,
-				expandedLines: chunkLines,
-			})
-
-			// この領域を処理済みとしてマーク
-			for cy := 0; cy < height; cy++ {
-				for cx := 0; cx < width; cx++ {
-					regionKey := fmt.Sprintf("%d,%d,%s", x+cx, y+cy, char)
-					processedRegions[regionKey] = true
-				}
-			}
-		}
-	}
-
-	// フェーズ2: 展開されたチャンクを配置
 	result := make([]string, len(lines))
 	copy(result, lines)
 
-	for _, placement := range placements {
-		for cy := 0; cy < placement.height; cy++ {
-			for cx := 0; cx < placement.width; cx++ {
-				targetX := placement.x + cx
-				targetY := placement.y + cy
+	rng := rand.New(rand.NewPCG(seed, seed))
+
+	// 最初に全ての識別子の位置を検出（元のマップから）
+	type placementInfo struct {
+		x, y, width, height int
+	}
+	placementPositions := make([]placementInfo, len(t.PlaceNested))
+
+	for idx, placement := range t.PlaceNested {
+		if placement.ID == "" {
+			return "", fmt.Errorf("placement %d: ID が指定されていません", idx)
+		}
+
+		x, y, width, height, err := findPlaceholderRegionByID(lines, placement.ID)
+		if err != nil {
+			return "", fmt.Errorf("placement %d (ID='%s'): %w", idx, placement.ID, err)
+		}
+
+		placementPositions[idx] = placementInfo{x: x, y: y, width: width, height: height}
+	}
+
+	// 各place_nested定義を処理
+	for idx, placement := range t.PlaceNested {
+		// チャンクを重み付き選択
+		selectedChunk, err := loader.selectChunkByWeight(placement.Chunks, rng)
+		if err != nil {
+			return "", fmt.Errorf("チャンク選択エラー (placement %d): %w", idx, err)
+		}
+
+		// 再帰的に展開
+		expandedChunkMap, err := selectedChunk.expandWithPlaceNestedRecursive(loader, seed+uint64(idx)*1000, depth+1, visiting)
+		if err != nil {
+			return "", err
+		}
+
+		chunkLines := strings.Split(strings.TrimSpace(expandedChunkMap), "\n")
+
+		// サイズチェック
+		if len(chunkLines) != selectedChunk.Size[1] {
+			return "", fmt.Errorf("チャンク '%s' の高さが不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size[1], len(chunkLines))
+		}
+		if len(chunkLines) > 0 && len(chunkLines[0]) != selectedChunk.Size[0] {
+			return "", fmt.Errorf("チャンク '%s' の幅が不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size[0], len(chunkLines[0]))
+		}
+
+		// 事前に検出した位置情報を取得
+		pos := placementPositions[idx]
+		placementX, placementY := pos.x, pos.y
+		width, height := pos.width, pos.height
+
+		// サイズの完全一致を検証
+		if width != selectedChunk.Size[0] || height != selectedChunk.Size[1] {
+			return "", fmt.Errorf(
+				"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域[%d,%d] (位置[%d,%d])とチャンクサイズ[%d,%d]が不一致",
+				t.Name, idx, placement.ID, selectedChunk.Name, width, height, placementX, placementY, selectedChunk.Size[0], selectedChunk.Size[1],
+			)
+		}
+
+		// チャンクを配置
+		for cy := 0; cy < selectedChunk.Size[1]; cy++ {
+			for cx := 0; cx < selectedChunk.Size[0]; cx++ {
+				targetX := placementX + cx
+				targetY := placementY + cy
 
 				if targetY < len(result) && targetX < len(result[targetY]) {
 					oldLine := result[targetY]
-					newLine := oldLine[:targetX] + string(placement.expandedLines[cy][cx]) + oldLine[targetX+1:]
+					newLine := oldLine[:targetX] + string(chunkLines[cy][cx]) + oldLine[targetX+1:]
 					result[targetY] = newLine
 				}
 			}
 		}
 	}
 
-	return strings.Join(result, "\n"), nil
+	expandedMap := strings.Join(result, "\n")
+
+	// 展開後にプレースホルダが残っていないか検証
+	if err := validateNoPlaceholdersRemaining(expandedMap); err != nil {
+		return "", err
+	}
+
+	return expandedMap, nil
 }
 
-// detectChunkRegion はチャンク領域のサイズを検出する
-func (t *ChunkTemplate) detectChunkRegion(lines []string, startX, startY int, targetChar string) (width, height int) {
-	if startY >= len(lines) || startX >= len(lines[startY]) {
-		return 0, 0
+// validateNoPlaceholdersRemaining は展開後のマップにプレースホルダが残っていないか検証する
+func validateNoPlaceholdersRemaining(mapStr string) error {
+	const placeholder = '@'
+	lines := strings.Split(strings.TrimSpace(mapStr), "\n")
+
+	for y, line := range lines {
+		for x, ch := range line {
+			if ch == placeholder {
+				return fmt.Errorf("展開後のマップに未展開のプレースホルダ '@' が残っています (位置: x=%d, y=%d)", x, y)
+			}
+		}
 	}
 
-	// 幅を検出
-	width = 0
-	for x := startX; x < len(lines[startY]) && string(lines[startY][x]) == targetChar; x++ {
-		width++
+	return nil
+}
+
+// findPlaceholderRegionByID は識別子からプレースホルダ領域(矩形)を検出する
+// 識別子はプレースホルダ領域の右下に配置されている
+// 戻り値: (左上X, 左上Y, 幅, 高さ, エラー)
+func findPlaceholderRegionByID(lines []string, id string) (int, int, int, int, error) {
+	if len(id) != 1 {
+		return 0, 0, 0, 0, fmt.Errorf("識別子は1文字である必要があります: %q", id)
 	}
 
-	// 高さを検出（各行で幅全体が同じ文字であることを確認）
-	height = 0
-	for y := startY; y < len(lines); y++ {
-		// この行の幅全体をチェック
-		valid := true
-		for x := startX; x < startX+width && x < len(lines[y]); x++ {
-			if string(lines[y][x]) != targetChar {
-				valid = false
+	idChar := rune(id[0])
+	const placeholder = '@'
+
+	// 識別子の位置を探す
+	idX, idY, err := findIdentifierPosition(lines, idChar)
+	if err != nil {
+		return 0, 0, 0, 0, fmt.Errorf("識別子 '%s' が見つかりません", id)
+	}
+
+	// 左端を探す
+	startX := findLeftEdge(lines, idY, idX, placeholder, idChar)
+
+	// 上端を探す
+	tempWidth := calculateRowWidth(lines[idY], startX, placeholder, idChar)
+	startY := findTopEdge(lines, idY, startX, tempWidth, placeholder, idChar)
+
+	// 幅を計算
+	width := calculateRowWidth(lines[startY], startX, placeholder, idChar)
+
+	// 高さを計算
+	height := calculateHeight(lines, startY, startX, placeholder, idChar)
+
+	// 矩形領域全体が@または識別子で埋まっているか検証
+	if err := validateRectangle(lines, id, startX, startY, width, height, placeholder, idChar); err != nil {
+		return 0, 0, 0, 0, err
+	}
+
+	return startX, startY, width, height, nil
+}
+
+// findIdentifierPosition は識別子の位置を探す
+func findIdentifierPosition(lines []string, idChar rune) (int, int, error) {
+	for y, line := range lines {
+		for x, ch := range line {
+			if ch == idChar {
+				return x, y, nil
+			}
+		}
+	}
+	return 0, 0, fmt.Errorf("not found")
+}
+
+// findLeftEdge は左端を探す
+func findLeftEdge(lines []string, idY, idX int, placeholder, idChar rune) int {
+	startX := idX
+	for startX > 0 {
+		ch := rune(lines[idY][startX-1])
+		if ch == placeholder || ch == idChar {
+			startX--
+		} else {
+			break
+		}
+	}
+	return startX
+}
+
+// calculateRowWidth は行の幅を計算
+func calculateRowWidth(line string, startX int, placeholder, idChar rune) int {
+	width := 0
+	for x := startX; x < len(line); x++ {
+		ch := rune(line[x])
+		if ch == placeholder || ch == idChar {
+			width++
+		} else {
+			break
+		}
+	}
+	return width
+}
+
+// findTopEdge は上端を探す
+func findTopEdge(lines []string, idY, startX, tempWidth int, placeholder, idChar rune) int {
+	startY := idY
+	for startY > 0 {
+		if startX+tempWidth > len(lines[startY-1]) {
+			break
+		}
+		allMatch := true
+		for x := startX; x < startX+tempWidth; x++ {
+			ch := rune(lines[startY-1][x])
+			if ch != placeholder && ch != idChar {
+				allMatch = false
 				break
 			}
 		}
-		if !valid || startX+width > len(lines[y]) {
+		if allMatch {
+			startY--
+		} else {
 			break
 		}
-		height++
+	}
+	return startY
+}
+
+// calculateHeight は高さを計算
+func calculateHeight(lines []string, startY, startX int, placeholder, idChar rune) int {
+	height := 0
+	for y := startY; y < len(lines) && startX < len(lines[y]); y++ {
+		ch := rune(lines[y][startX])
+		if ch == placeholder || ch == idChar {
+			height++
+		} else {
+			break
+		}
+	}
+	return height
+}
+
+// validateRectangle は矩形領域全体が@または識別子で埋まっているか検証
+func validateRectangle(lines []string, id string, startX, startY, width, height int, placeholder, idChar rune) error {
+	for dy := 0; dy < height; dy++ {
+		y := startY + dy
+		if y >= len(lines) {
+			return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (y=%d が範囲外)", id, y)
+		}
+		for dx := 0; dx < width; dx++ {
+			x := startX + dx
+			if x >= len(lines[y]) {
+				return fmt.Errorf("識別子 '%s': 矩形領域が不完全です (x=%d, y=%d が範囲外)", id, x, y)
+			}
+			ch := rune(lines[y][x])
+			if ch != placeholder && ch != idChar {
+				return fmt.Errorf(
+					"識別子 '%s': プレースホルダ領域[%d,%d]に不正な文字 '%c' があります（期待: '@' または '%s'）",
+					id, x, y, ch, id,
+				)
+			}
+		}
+	}
+	return nil
+}
+
+// validatePlaceholders はプレースホルダ(@)とplace_nestedの整合性を検証する
+func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
+	lines := t.GetMapLines()
+
+	// 各place_nested定義をチェック
+	for idx, placement := range t.PlaceNested {
+		// チャンクの最初のバリエーションからサイズを取得（すべて同じサイズのはず）
+		chunks, err := loader.GetChunks(placement.Chunks[0])
+		if err != nil {
+			return fmt.Errorf("placement %d: %w", idx, err)
+		}
+		if len(chunks) == 0 {
+			return fmt.Errorf("placement %d: チャンク '%s' が見つかりません", idx, placement.Chunks[0])
+		}
+
+		expectedWidth := chunks[0].Size[0]
+		expectedHeight := chunks[0].Size[1]
+
+		// 識別子から位置を検出して検証
+		if placement.ID == "" {
+			return fmt.Errorf("placement %d (%s): ID が指定されていません", idx, placement.Chunks[0])
+		}
+
+		x, y, width, height, err := findPlaceholderRegionByID(lines, placement.ID)
+		if err != nil {
+			return fmt.Errorf("placement %d (%s): %w", idx, placement.Chunks[0], err)
+		}
+
+		// サイズの完全一致を検証
+		if width != expectedWidth || height != expectedHeight {
+			return fmt.Errorf(
+				"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域のサイズが不一致: 領域[%d,%d] (位置[%d,%d])、チャンクサイズ[%d,%d]",
+				t.Name, idx, placement.ID, placement.Chunks[0], width, height, x, y, expectedWidth, expectedHeight,
+			)
+		}
 	}
 
-	return width, height
+	return nil
 }

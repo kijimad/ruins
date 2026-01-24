@@ -51,11 +51,11 @@ func NewTemplateDebugPlannerWithType(templateType TemplateType, seed uint64) (*P
 	var templateName string
 	switch templateType {
 	case TemplateTypeSmallRoom:
-		templateName = "small_room"
+		templateName = "10x10_small_room"
 	case TemplateTypeOfficeBuilding:
-		templateName = "office_building"
+		templateName = "15x12_office_building"
 	case TemplateTypeSmallTown:
-		templateName = "small_town"
+		templateName = "50x50_small_town"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}

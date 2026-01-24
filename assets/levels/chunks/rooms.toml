@@ -3,7 +3,7 @@
 
 # 寝室 3x3
 [[chunk]]
-  name     = "bedroom"
+  name     = "3x3_bedroom"
   palettes = ["standard"]
   size     = [3, 3]
   weight   = 100
@@ -16,7 +16,7 @@
 
 # 会議室 5x5
 [[chunk]]
-  name     = "meeting_room"
+  name     = "5x5_meeting_room"
   palettes = ["standard"]
   size     = [5, 5]
   weight   = 100
@@ -31,7 +31,7 @@
 
 # 倉庫 4x4
 [[chunk]]
-  name     = "storage"
+  name     = "4x4_storage"
   palettes = ["standard"]
   size     = [4, 4]
   weight   = 100
@@ -45,7 +45,7 @@
 
 # 事務室 5x4
 [[chunk]]
-  name     = "office"
+  name     = "5x4_office"
   palettes = ["standard"]
   size     = [5, 4]
   weight   = 100

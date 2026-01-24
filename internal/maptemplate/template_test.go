@@ -252,9 +252,9 @@ weight = 100
 size = [3, 3]
 palettes = ["standard"]
 map = """
-###
-#T#
-###
+...
+.T.
+...
 """
 `
 		require.NoError(t, os.WriteFile(chunkFile, []byte(content), 0644))
@@ -264,25 +264,86 @@ map = """
 		require.NoError(t, err)
 
 		// キャッシュから取得できるか確認
-		chunk, err := loader.GetChunk("test_chunk")
+		chunks, err := loader.GetChunks("test_chunk")
 		require.NoError(t, err)
-		assert.Equal(t, "test_chunk", chunk.Name)
-		assert.Equal(t, [2]int{3, 3}, chunk.Size)
+		require.Len(t, chunks, 1)
+		assert.Equal(t, "test_chunk", chunks[0].Name)
+		assert.Equal(t, [2]int{3, 3}, chunks[0].Size)
 	})
 
 	t.Run("存在しないチャンクはエラー", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
-		_, err := loader.GetChunk("nonexistent")
+		_, err := loader.GetChunks("nonexistent")
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "見つかりません")
 	})
+
+	t.Run("同じ名前で複数のバリエーションを登録できる", func(t *testing.T) {
+		t.Parallel()
+		tmpDir := t.TempDir()
+		chunkFile := filepath.Join(tmpDir, "variants.toml")
+
+		// 同じ名前で重みが異なる3つのバリエーション
+		content := `[[chunk]]
+name = "room"
+weight = 100
+size = [3, 3]
+palettes = ["standard"]
+map = """
+...
+.1.
+...
+"""
+
+[[chunk]]
+name = "room"
+weight = 50
+size = [3, 3]
+palettes = ["standard"]
+map = """
+...
+.2.
+...
+"""
+
+[[chunk]]
+name = "room"
+weight = 10
+size = [3, 3]
+palettes = ["standard"]
+map = """
+...
+.3.
+...
+"""
+`
+		require.NoError(t, os.WriteFile(chunkFile, []byte(content), 0644))
+
+		loader := NewTemplateLoader()
+		err := loader.LoadChunk(chunkFile)
+		require.NoError(t, err)
+
+		// GetChunksで3つのバリエーションを取得
+		chunks, err := loader.GetChunks("room")
+		require.NoError(t, err)
+		assert.Len(t, chunks, 3)
+
+		// 各バリエーションの確認
+		assert.Equal(t, 100, chunks[0].Weight)
+		assert.Equal(t, 50, chunks[1].Weight)
+		assert.Equal(t, 10, chunks[2].Weight)
+
+		// 最初のバリエーションを確認
+		assert.Equal(t, "room", chunks[0].Name)
+		assert.Contains(t, chunks[0].Map, "1")
+	})
 }
 
-func TestChunkTemplate_ExpandWithChunks(t *testing.T) {
+func TestChunkTemplate_ExpandWithPlaceNested(t *testing.T) {
 	t.Parallel()
 
-	t.Run("チャンクマッピングなしではそのまま返す", func(t *testing.T) {
+	t.Run("place_nestedなしではそのまま返す", func(t *testing.T) {
 		t.Parallel()
 		template := ChunkTemplate{
 			Map: `###
@@ -293,7 +354,7 @@ func TestChunkTemplate_ExpandWithChunks(t *testing.T) {
 		}
 
 		loader := NewTemplateLoader()
-		result, err := template.ExpandWithChunks(loader, 0)
+		result, err := template.ExpandWithPlaceNested(loader, 0)
 		require.NoError(t, err)
 		assert.Equal(t, template.Map, result)
 	})
@@ -302,37 +363,39 @@ func TestChunkTemplate_ExpandWithChunks(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		// チャンクを登録
+		// チャンクを登録（内部のみ、外壁なし）
 		chunk := &ChunkTemplate{
 			Name:   "room",
 			Weight: 100,
 			Size:   [2]int{3, 3},
-			Map: `###
-#T#
-###`,
+			Map: `...
+.T.
+...`,
 		}
-		loader.chunkCache["room"] = chunk
+		loader.chunkCache["room"] = []*ChunkTemplate{chunk}
 
-		// メインテンプレート
+		// メインテンプレート（外壁を提供）
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
 			Size:   [2]int{5, 5},
 			Map: `#####
-#AAA#
-#AAA#
-#AAA#
+#@@@#
+#@@A#
+#@@@#
 #####`,
-			ChunkMapping: map[string][]string{"A": {"room"}},
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"room"}, ID: "A"},
+			},
 		}
 
-		result, err := template.ExpandWithChunks(loader, 0)
+		result, err := template.ExpandWithPlaceNested(loader, 0)
 		require.NoError(t, err)
 
 		expected := `#####
-#####
-##T##
-#####
+#...#
+#.T.#
+#...#
 #####`
 		assert.Equal(t, expected, result)
 	})
@@ -341,82 +404,87 @@ func TestChunkTemplate_ExpandWithChunks(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		// 部屋チャンク
+		// 部屋チャンク（内部のみ、外壁なし）
 		room := &ChunkTemplate{
 			Name:   "room",
 			Weight: 100,
 			Size:   [2]int{3, 3},
-			Map: `###
-#T#
-###`,
+			Map: `...
+.T.
+...`,
 		}
-		loader.chunkCache["room"] = room
+		loader.chunkCache["room"] = []*ChunkTemplate{room}
 
-		// 倉庫チャンク
+		// 倉庫チャンク（内部のみ、外壁なし）
 		storage := &ChunkTemplate{
 			Name:   "storage",
 			Weight: 100,
 			Size:   [2]int{3, 3},
-			Map: `###
-#X#
-###`,
+			Map: `...
+.X.
+...`,
 		}
-		loader.chunkCache["storage"] = storage
+		loader.chunkCache["storage"] = []*ChunkTemplate{storage}
 
-		// メインテンプレート
+		// メインテンプレート（外壁と廊下を提供）
 		template := ChunkTemplate{
 			Name:   "compound",
 			Weight: 100,
-			Size:   [2]int{7, 3},
-			Map: `AAABBB#
-AAABBB#
-AAABBB#`,
-			ChunkMapping: map[string][]string{
-				"A": {"room"},
-				"B": {"storage"},
+			Size:   [2]int{9, 5},
+			Map: `###+####+#
+#@@@#.#@@@
+#@@@#.#@@@
+#@@A#.#@@B
+#####.####`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"room"}, ID: "A"},
+				{Chunks: []string{"storage"}, ID: "B"},
 			},
 		}
 
-		result, err := template.ExpandWithChunks(loader, 0)
+		result, err := template.ExpandWithPlaceNested(loader, 0)
 		require.NoError(t, err)
 
-		expected := `#######
-#T##X##
-#######`
+		expected := `###+####+#
+#...#.#...
+#.T.#.#.X.
+#...#.#...
+#####.####`
 		assert.Equal(t, expected, result)
 	})
 
-	t.Run("チャンクサイズ不一致はエラー", func(t *testing.T) {
+	t.Run("チャンクサイズが不一致の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		// 3x3のチャンク
+		// 3x3のチャンク（内部のみ）
 		chunk := &ChunkTemplate{
 			Name:   "room",
 			Weight: 100,
 			Size:   [2]int{3, 3},
-			Map: `###
-#T#
-###`,
+			Map: `...
+.T.
+...`,
 		}
-		loader.chunkCache["room"] = chunk
+		loader.chunkCache["room"] = []*ChunkTemplate{chunk}
 
-		// 2x2の領域を指定（サイズ不一致）
+		// 4x4のマップに2x2のプレースホルダーしかない（サイズ不一致）
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
 			Size:   [2]int{4, 4},
-			Map: `####
-#AA#
-#AA#
-####`,
-			ChunkMapping: map[string][]string{"A": {"room"}},
+			Map: `....
+.@A.
+.@@.
+....`,
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"room"}, ID: "A"}, // 2x2のプレースホルダーに3x3のチャンクは配置できない
+			},
 		}
 
-		_, err := template.ExpandWithChunks(loader, 0)
+		_, err := template.ExpandWithPlaceNested(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "サイズ")
-		assert.Contains(t, err.Error(), "一致しません")
+		assert.Contains(t, err.Error(), "サイズが不一致")
 	})
 
 	t.Run("未登録のチャンクはエラー", func(t *testing.T) {
@@ -428,14 +496,16 @@ AAABBB#`,
 			Weight: 100,
 			Size:   [2]int{5, 5},
 			Map: `#####
-#AAA#
-#AAA#
-#AAA#
+#@@@#
+#@@A#
+#@@@#
 #####`,
-			ChunkMapping: map[string][]string{"A": {"nonexistent"}},
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"nonexistent"}, ID: "A"},
+			},
 		}
 
-		_, err := template.ExpandWithChunks(loader, 0)
+		_, err := template.ExpandWithPlaceNested(loader, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "見つかりません")
 	})
@@ -444,81 +514,83 @@ AAABBB#`,
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		// 重み100の部屋
+		// 重み100の部屋（内部のみ）
 		room1 := &ChunkTemplate{
 			Name:   "room1",
 			Weight: 100,
 			Size:   [2]int{3, 3},
-			Map: `###
-#1#
-###`,
+			Map: `...
+.1.
+...`,
 		}
-		loader.chunkCache["room1"] = room1
+		loader.chunkCache["room1"] = []*ChunkTemplate{room1}
 
-		// 重み50の部屋
+		// 重み50の部屋（内部のみ）
 		room2 := &ChunkTemplate{
 			Name:   "room2",
 			Weight: 50,
 			Size:   [2]int{3, 3},
-			Map: `###
-#2#
-###`,
+			Map: `...
+.2.
+...`,
 		}
-		loader.chunkCache["room2"] = room2
+		loader.chunkCache["room2"] = []*ChunkTemplate{room2}
 
-		// 重み10の部屋
+		// 重み10の部屋（内部のみ）
 		room3 := &ChunkTemplate{
 			Name:   "room3",
 			Weight: 10,
 			Size:   [2]int{3, 3},
-			Map: `###
-#3#
-###`,
+			Map: `...
+.3.
+...`,
 		}
-		loader.chunkCache["room3"] = room3
+		loader.chunkCache["room3"] = []*ChunkTemplate{room3}
 
-		// メインテンプレート（複数候補を指定）
+		// メインテンプレート（外壁を提供）
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
 			Size:   [2]int{5, 5},
 			Map: `#####
-#AAA#
-#AAA#
-#AAA#
+#@@@#
+#@@A#
+#@@@#
 #####`,
-			ChunkMapping: map[string][]string{"A": {"room1", "room2", "room3"}},
+			PlaceNested: []ChunkPlacement{
+				{Chunks: []string{"room1", "room2", "room3"}, ID: "A"},
+			},
 		}
 
 		// 同じシードで複数回実行すると同じ結果になることを確認
-		result1, err := template.ExpandWithChunks(loader, 12345)
+		result1, err := template.ExpandWithPlaceNested(loader, 12345)
 		require.NoError(t, err)
 
-		result2, err := template.ExpandWithChunks(loader, 12345)
+		result2, err := template.ExpandWithPlaceNested(loader, 12345)
 		require.NoError(t, err)
 
 		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")
 
 		// 異なるシードで実行すると異なる可能性がある（確率的）
-		result3, err := template.ExpandWithChunks(loader, 99999)
+		result3, err := template.ExpandWithPlaceNested(loader, 99999)
 		require.NoError(t, err)
 
 		// いずれかのチャンクが選択されていることを確認
 		assert.True(t,
 			result3 == `#####
-#####
-##1##
-#####
+#...#
+#.1.#
+#...#
 #####` ||
 				result3 == `#####
-#####
-##2##
-#####
+#...#
+#.2.#
+#...#
 #####` ||
 				result3 == `#####
-#####
-##3##
-#####
+#...#
+#.3.#
+#...#
 #####`,
 			"いずれかのチャンクが選択されているべき")
 	})
@@ -538,9 +610,10 @@ func TestTemplateLoader_RegisterAllChunks(t *testing.T) {
 		require.NoError(t, err)
 
 		// 登録されたチャンクを確認
-		chunk, err := loader.GetChunk("bedroom")
+		chunks, err := loader.GetChunks("3x3_bedroom")
 		require.NoError(t, err)
-		assert.Equal(t, "bedroom", chunk.Name)
+		require.NotEmpty(t, chunks)
+		assert.Equal(t, "3x3_bedroom", chunks[0].Name)
 	})
 
 	t.Run("存在しないディレクトリはエラー", func(t *testing.T) {
@@ -573,8 +646,8 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// office_buildingを読み込み
-		template, palette, err := loader.LoadTemplateByName("office_building", 12345)
+		// 15x12_office_buildingを読み込み
+		template, palette, err := loader.LoadTemplateByName("15x12_office_building", 12345)
 		require.NoError(t, err)
 		require.NotNil(t, template)
 		require.NotNil(t, palette)
@@ -612,70 +685,16 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		template, palette, err := loader.LoadTemplateByName("small_room", 0)
+		template, palette, err := loader.LoadTemplateByName("10x10_small_room", 0)
 		require.NoError(t, err)
 		require.NotNil(t, template)
-		// small_roomはパレット指定がないのでnilの可能性がある
+		// 10x10_small_roomはパレット指定がないのでnilの可能性がある
 
-		assert.Equal(t, "small_room", template.Name)
+		assert.Equal(t, "10x10_small_room", template.Name)
 
 		// パレット指定がある場合のみチェック
 		if len(template.Palettes) > 0 {
 			require.NotNil(t, palette)
 		}
-	})
-}
-
-func TestChunkTemplate_detectChunkRegion(t *testing.T) {
-	t.Parallel()
-
-	t.Run("3x3の矩形を検出できる", func(t *testing.T) {
-		t.Parallel()
-		template := ChunkTemplate{
-			Map: `#####
-#AAA#
-#AAA#
-#AAA#
-#####`,
-		}
-
-		lines := template.GetMapLines()
-		width, height := template.detectChunkRegion(lines, 1, 1, "A")
-
-		assert.Equal(t, 3, width)
-		assert.Equal(t, 3, height)
-	})
-
-	t.Run("2x4の矩形を検出できる", func(t *testing.T) {
-		t.Parallel()
-		template := ChunkTemplate{
-			Map: `####
-#AA#
-#AA#
-#AA#
-#AA#
-####`,
-		}
-
-		lines := template.GetMapLines()
-		width, height := template.detectChunkRegion(lines, 1, 1, "A")
-
-		assert.Equal(t, 2, width)
-		assert.Equal(t, 4, height)
-	})
-
-	t.Run("単一セルも検出できる", func(t *testing.T) {
-		t.Parallel()
-		template := ChunkTemplate{
-			Map: `###
-#A#
-###`,
-		}
-
-		lines := template.GetMapLines()
-		width, height := template.detectChunkRegion(lines, 1, 1, "A")
-
-		assert.Equal(t, 1, width)
-		assert.Equal(t, 1, height)
 	})
 }
