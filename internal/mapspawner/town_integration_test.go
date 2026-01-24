@@ -48,7 +48,7 @@ func TestTownPlannerIntegration(t *testing.T) {
 	// Doorsが配置されているか確認
 	plannedDoorCount := 0
 	for _, prop := range metaPlan.Props {
-		if prop.PropKey == "door" {
+		if prop.Name == "door" {
 			plannedDoorCount++
 		}
 	}

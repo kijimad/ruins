@@ -18,9 +18,9 @@ const (
 
 // NPCSpec はNPC配置仕様を表す
 type NPCSpec struct {
-	X       int    // X座標
-	Y       int    // Y座標
-	NPCType string // NPCタイプ
+	X    int    // X座標
+	Y    int    // Y座標
+	Name string // NPCタイプ
 }
 
 // HostileNPCPlanner は敵NPC配置を担当するプランナー
@@ -78,9 +78,9 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		}
 
 		planData.NPCs = append(planData.NPCs, NPCSpec{
-			X:       int(tx),
-			Y:       int(ty),
-			NPCType: npcType,
+			X:    int(tx),
+			Y:    int(ty),
+			Name: npcType,
 		})
 
 		successCount++

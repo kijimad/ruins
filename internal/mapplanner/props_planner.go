@@ -8,9 +8,9 @@ import (
 
 // PropsSpec はProps配置仕様を表す
 type PropsSpec struct {
-	X       int    // X座標
-	Y       int    // Y座標
-	PropKey string // Prop名
+	X    int    // X座標
+	Y    int    // Y座標
+	Name string // Prop名
 }
 
 // PropsPlanner はProps配置を担当するプランナー
@@ -62,9 +62,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}
@@ -89,9 +89,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}
@@ -113,9 +113,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}
@@ -136,9 +136,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}
@@ -160,9 +160,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}
@@ -184,9 +184,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}
@@ -207,9 +207,9 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		y := centerY + prop.offsetY
 		if p.isValidPropPosition(planData, gc.Tile(x), gc.Tile(y)) {
 			planData.Props = append(planData.Props, PropsSpec{
-				X:       x,
-				Y:       y,
-				PropKey: prop.propKey,
+				X:    x,
+				Y:    y,
+				Name: prop.propKey,
 			})
 		}
 	}

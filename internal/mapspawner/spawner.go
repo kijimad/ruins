@@ -83,21 +83,21 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
 	for _, npc := range metaPlan.NPCs {
 		// NPCが中立かどうかを判断
-		memberIdx, ok := rawMaster.MemberIndex[npc.NPCType]
+		memberIdx, ok := rawMaster.MemberIndex[npc.Name]
 		if !ok {
-			return resources.Level{}, fmt.Errorf("NPC '%s' が見つかりません", npc.NPCType)
+			return resources.Level{}, fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
 		member := rawMaster.Raws.Members[memberIdx]
 
-		// 中立NPCの場合
 		if member.FactionType == gc.FactionNeutral.String() {
-			_, err := worldhelper.SpawnNeutralNPC(world, npc.X, npc.Y, npc.NPCType)
+			// 中立NPCの場合
+			_, err := worldhelper.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
 			if err != nil {
 				return resources.Level{}, fmt.Errorf("中立NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
 		} else {
 			// 敵NPCの場合
-			_, err := worldhelper.SpawnEnemy(world, npc.X, npc.Y, npc.NPCType)
+			_, err := worldhelper.SpawnEnemy(world, npc.X, npc.Y, npc.Name)
 			if err != nil {
 				return resources.Level{}, fmt.Errorf("敵NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
@@ -107,7 +107,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	// アイテムを生成する
 	for _, item := range metaPlan.Items {
 		tileX, tileY := gc.Tile(item.X), gc.Tile(item.Y)
-		_, err := worldhelper.SpawnFieldItem(world, item.ItemName, tileX, tileY)
+		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
 		}
@@ -117,12 +117,12 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := gc.Tile(prop.X), gc.Tile(prop.Y)
 
-		propRaw, err := metaPlan.RawMaster.GetProp(prop.PropKey)
+		propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("props取得エラー (%s): %w", prop.PropKey, err)
+			return resources.Level{}, fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
 		}
 
-		propEntity, err := worldhelper.SpawnProp(world, prop.PropKey, tileX, tileY)
+		propEntity, err := worldhelper.SpawnProp(world, prop.Name, tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("props生成エラー (%d, %d): %w", prop.X, prop.Y, err)
 		}

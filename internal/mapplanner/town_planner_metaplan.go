@@ -105,30 +105,30 @@ func (p *MetaTownPlanner) PlanInitial(planData *MetaPlan) error {
 			case '1':
 				// 老兵NPC
 				planData.NPCs = append(planData.NPCs, NPCSpec{
-					X:       x,
-					Y:       y,
-					NPCType: "老兵",
+					X:    x,
+					Y:    y,
+					Name: "老兵",
 				})
 			case '$':
 				// 商人NPC
 				planData.NPCs = append(planData.NPCs, NPCSpec{
-					X:       x,
-					Y:       y,
-					NPCType: "商人",
+					X:    x,
+					Y:    y,
+					Name: "商人",
 				})
 			case '2':
 				// 怪しい科学者NPC
 				planData.NPCs = append(planData.NPCs, NPCSpec{
-					X:       x,
-					Y:       y,
-					NPCType: "怪しい科学者",
+					X:    x,
+					Y:    y,
+					Name: "怪しい科学者",
 				})
 			case '3':
 				// 闇医者NPC
 				planData.NPCs = append(planData.NPCs, NPCSpec{
-					X:       x,
-					Y:       y,
-					NPCType: "闇医者",
+					X:    x,
+					Y:    y,
+					Name: "闇医者",
 				})
 			case 'w':
 				// ワープホール
@@ -160,9 +160,9 @@ func (p *MetaTownPlanner) PlanInitial(planData *MetaPlan) error {
 				}
 
 				planData.Props = append(planData.Props, PropsSpec{
-					X:       x,
-					Y:       y,
-					PropKey: propKey,
+					X:    x,
+					Y:    y,
+					Name: propKey,
 				})
 			default:
 				return fmt.Errorf("無効なエンティティ指定子が存在する: %s", string(char))

@@ -111,6 +111,31 @@ func TestLoadRealFiles(t *testing.T) {
 			assert.Len(t, line, smallOffice.Size[0])
 		}
 	})
+
+	t.Run("町の広場レイアウトを読み込める", func(t *testing.T) {
+		t.Parallel()
+		loader := NewTemplateLoader()
+		templates, err := loader.LoadFromFile("../../assets/levels/layouts/town_plaza.toml")
+		require.NoError(t, err)
+		require.NotEmpty(t, templates)
+
+		plaza := templates[0]
+		assert.Equal(t, "20x20_town_plaza", plaza.Name)
+		assert.Equal(t, [2]int{20, 20}, plaza.Size)
+		assert.Contains(t, plaza.Palettes, "standard")
+		assert.Contains(t, plaza.Palettes, "town")
+
+		// マップに焚き火とランタンが含まれているか確認
+		assert.Contains(t, plaza.Map, "F") // 焚き火
+		assert.Contains(t, plaza.Map, "L") // ランタン
+
+		// マップサイズが正しいか確認
+		lines := splitMapLines(plaza.Map)
+		assert.Len(t, lines, 20)
+		for _, line := range lines {
+			assert.Len(t, line, 20)
+		}
+	})
 }
 
 // splitMapLines はマップ文字列を行の配列に分割する

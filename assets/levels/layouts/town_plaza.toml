@@ -1,0 +1,32 @@
+# NPC広場チャンク
+# 町の中央に配置する20x20の広場
+# 中央に焚き火、周囲にランタンを配置
+
+[[chunk]]
+  name     = "20x20_town_plaza"
+  palettes = ["standard", "town"]
+  size     = [20, 20]
+  weight   = 1
+
+  map = """
+####################
+#rrr....rrr.....rrr#
+#rLr....rrr.....rLr#
+#rrr....rrr.....rrr#
+#.......rrr........#
+#..$...rrrrr.......#
+#.....rrrrrrr...3..#
+#....rrrrrrrrr.....#
+#rrrrrrrrrrrrrrrrrr#
+#rrrrrrrrFrrrrrrrrr#
+#rrrrrrrrrrrrrrrrrr#
+#....rrrrrrrrr.....#
+#.....rrrrrrr......#
+#...1..rrrrr.......#
+#.......rrr...2....#
+#.......rrr........#
+#rrr....rrr.....rrr#
+#rLr....rrr.....rLr#
+#rrr....rrr.....rrr#
+####################
+"""

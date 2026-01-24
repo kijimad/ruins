@@ -58,17 +58,27 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 	lines := p.Template.GetMapLines()
 
-	// テンプレートマップを走査してPropsを配置
+	// テンプレートマップを走査してPropsとNPCとワープホールを配置
 	for y, line := range lines {
 		for x, char := range line {
 			charStr := string(char)
 
+			// Props配置
 			if propName, ok := p.Palette.GetProp(charStr); ok {
-				// 配置予定リストに追加
 				metaPlan.Props = append(metaPlan.Props, PropsSpec{
-					X:       x,
-					Y:       y,
-					PropKey: propName,
+					X:    x,
+					Y:    y,
+					Name: propName,
+				})
+			}
+
+			// NPC配置
+			if npcType, ok := p.Palette.GetNPC(charStr); ok {
+				// 通常のNPC
+				metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
+					X:    x,
+					Y:    y,
+					Name: npcType,
 				})
 			}
 		}

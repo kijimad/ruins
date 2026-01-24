@@ -15,8 +15,10 @@ const (
 	TemplateTypeSmallRoom TemplateType = iota
 	// TemplateTypeOfficeBuilding は事務所ビルテンプレート
 	TemplateTypeOfficeBuilding
-	// TemplateTypeSmallTown は小さな町（複数の建物を配置）
+	// TemplateTypeSmallTown は小さな町
 	TemplateTypeSmallTown
+	// TemplateTypeTownPlaza は町の広場
+	TemplateTypeTownPlaza
 )
 
 // NewTemplateDebugPlanner はデバッグ用のテンプレートマップを生成するプランナーを返す
@@ -56,6 +58,8 @@ func NewTemplateDebugPlannerWithType(templateType TemplateType, seed uint64) (*P
 		templateName = "15x12_office_building"
 	case TemplateTypeSmallTown:
 		templateName = "50x50_small_town"
+	case TemplateTypeTownPlaza:
+		templateName = "20x20_town_plaza"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}

@@ -130,7 +130,7 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 		// テーブルの確認（1, 1の位置）
 		foundTable := false
 		for _, prop := range metaPlan.Props {
-			if prop.X == 1 && prop.Y == 1 && prop.PropKey == "table" {
+			if prop.X == 1 && prop.Y == 1 && prop.Name == "table" {
 				foundTable = true
 			}
 		}
@@ -139,7 +139,7 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 		// 機械の確認（3, 1の位置）
 		foundMachine := false
 		for _, prop := range metaPlan.Props {
-			if prop.X == 3 && prop.Y == 1 && prop.PropKey == "machine" {
+			if prop.X == 3 && prop.Y == 1 && prop.Name == "machine" {
 				foundMachine = true
 			}
 		}

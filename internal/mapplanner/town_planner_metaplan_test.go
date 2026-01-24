@@ -53,7 +53,7 @@ func TestNewTownPlannerMetaPlan(t *testing.T) {
 	// Doorsが配置されているか確認
 	doorCount := 0
 	for _, prop := range metaPlan.Props {
-		if prop.PropKey == doorPropKey {
+		if prop.Name == doorPropKey {
 			doorCount++
 		}
 	}
@@ -79,7 +79,7 @@ func TestNewTownPlannerMetaPlan(t *testing.T) {
 	// ドアが床の位置に配置されているか確認
 	doorIndex := 0
 	for _, prop := range metaPlan.Props {
-		if prop.PropKey == doorPropKey {
+		if prop.Name == doorPropKey {
 			doorIndex++
 			idx := metaPlan.Level.XYTileIndex(gc.Tile(prop.X), gc.Tile(prop.Y))
 			tile := metaPlan.Tiles[idx]

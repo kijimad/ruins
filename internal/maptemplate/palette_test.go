@@ -65,7 +65,7 @@ description = "無効なパレット"
 		assert.Contains(t, err.Error(), "パレットIDが空です")
 	})
 
-	t.Run("地形とPropsが両方空の場合はエラー", func(t *testing.T) {
+	t.Run("地形とPropsとNPCsが全て空の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		tmpDir := t.TempDir()
 		paletteFile := filepath.Join(tmpDir, "empty_palette.toml")
@@ -80,7 +80,7 @@ description = "空のパレット"
 		_, err := loader.LoadFromFile(paletteFile)
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "地形またはPropsの定義が必要です")
+		assert.Contains(t, err.Error(), "地形、Props、またはNPCsの定義が必要です")
 	})
 
 	t.Run("2文字以上のキーはエラー", func(t *testing.T) {

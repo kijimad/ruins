@@ -16,6 +16,8 @@
     "B" = "Floor" # ベッドの下は床
     "C" = "Floor" # 椅子の下は床
     "D" = "Floor" # 机の下は床
+    "F" = "Floor" # 焚き火の下は床
+    "L" = "Floor" # ランタンの下は床
     "T" = "Floor" # テーブルの下は床
     "X" = "Floor" # 木箱の下は床
 
@@ -23,9 +25,11 @@
   # 同じ文字に地形とPropsの両方を定義できる
   # 例: "T" には地形として "Floor"、Propsとして "table" を定義
   [palette.props]
-    "+" = "door"  # ドア
-    "B" = "bed"   # ベッド
-    "C" = "chair" # 椅子
-    "D" = "desk"  # 机
-    "T" = "table" # テーブル
-    "X" = "crate" # 木箱
+    "+" = "door"    # ドア
+    "B" = "bed"     # ベッド
+    "C" = "chair"   # 椅子
+    "D" = "desk"    # 机
+    "F" = "bonfire" # 焚き火
+    "L" = "lantern" # ランタン
+    "T" = "table"   # テーブル
+    "X" = "crate"   # 木箱

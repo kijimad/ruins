@@ -490,6 +490,19 @@ var (
 			return NewTemplateDebugPlannerWithType(TemplateTypeSmallTown, seed)
 		},
 	}
+
+	// PlannerTypeTownPlaza は町の広場
+	PlannerTypeTownPlaza = PlannerType{
+		Name:              "広場",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewTemplateDebugPlannerWithType(TemplateTypeTownPlaza, seed)
+		},
+	}
 )
 
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する

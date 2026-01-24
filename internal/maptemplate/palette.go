@@ -8,12 +8,13 @@ import (
 )
 
 // Palette はマップ生成用のパレット定義
-// 地形とPropsの文字マッピングを提供する
+// 地形とPropsとNPCの文字マッピングを提供する
 type Palette struct {
 	ID          string            `toml:"id"`
 	Description string            `toml:"description"`
 	Terrain     map[string]string `toml:"terrain"` // {文字: 地形名}
 	Props       map[string]string `toml:"props"`   // {文字: Prop名（ドア、テーブルなど）}
+	NPCs        map[string]string `toml:"npcs"`    // {文字: NPC種別}
 }
 
 // PaletteFile はTOMLファイルのルート構造
@@ -54,11 +55,11 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		return fmt.Errorf("パレットIDが空です")
 	}
 
-	if len(p.Terrain) == 0 && len(p.Props) == 0 {
-		return fmt.Errorf("地形またはPropsの定義が必要です")
+	if len(p.Terrain) == 0 && len(p.Props) == 0 && len(p.NPCs) == 0 {
+		return fmt.Errorf("地形、Props、またはNPCsの定義が必要です")
 	}
 
-	// 文字の重複チェック（地形とPropsで同じ文字を使うのはOK）
+	// 文字の重複チェック
 	for char := range p.Terrain {
 		if len(char) != 1 {
 			return fmt.Errorf("地形のキーは1文字である必要があります: %q", char)
@@ -68,6 +69,12 @@ func (l *PaletteLoader) validate(p *Palette) error {
 	for char := range p.Props {
 		if len(char) != 1 {
 			return fmt.Errorf("Propsのキーは1文字である必要があります: %q", char)
+		}
+	}
+
+	for char := range p.NPCs {
+		if len(char) != 1 {
+			return fmt.Errorf("NPCsのキーは1文字である必要があります: %q", char)
 		}
 	}
 
@@ -82,6 +89,7 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		Description: "マージされたパレット",
 		Terrain:     make(map[string]string),
 		Props:       make(map[string]string),
+		NPCs:        make(map[string]string),
 	}
 
 	for _, p := range palettes {
@@ -90,6 +98,9 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		}
 		for k, v := range p.Props {
 			merged.Props[k] = v
+		}
+		for k, v := range p.NPCs {
+			merged.NPCs[k] = v
 		}
 	}
 
@@ -106,4 +117,10 @@ func (p *Palette) GetTerrain(char string) (string, bool) {
 func (p *Palette) GetProp(char string) (string, bool) {
 	prop, ok := p.Props[char]
 	return prop, ok
+}
+
+// GetNPC は文字からNPC種別を取得する
+func (p *Palette) GetNPC(char string) (string, bool) {
+	npc, ok := p.NPCs[char]
+	return npc, ok
 }
