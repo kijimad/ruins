@@ -142,14 +142,6 @@ func NewDebugMenuState() es.State[w.World] {
 				}})
 			return nil
 		}).
-		WithChoice("ダンジョン開始(テンプレート)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeTemplate)),
-				}})
-			return nil
-		}).
 		WithChoice("ダンジョン開始(事務所ビル)", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,

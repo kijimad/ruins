@@ -3,11 +3,10 @@ package mapplanner
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 )
 
-// TemplateType はデバッグで使用するテンプレートの種類を表す
+// TemplateType はテンプレートの種類を表す
 type TemplateType int
 
 const (
@@ -21,15 +20,8 @@ const (
 	TemplateTypeTownPlaza
 )
 
-// NewTemplateDebugPlanner はデバッグ用のテンプレートマップを生成するプランナーを返す
-// 固定のテンプレート（small_room.toml）を使用する
-// width, heightパラメータはPlannerFuncインターフェースに合わせるために存在するが、テンプレートサイズはTOMLファイルで定義されるため使用しない
-func NewTemplateDebugPlanner(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
-	return NewTemplateDebugPlannerWithType(TemplateTypeSmallRoom, seed)
-}
-
-// NewTemplateDebugPlannerWithType は指定されたテンプレートタイプでプランナーを作成する
-func NewTemplateDebugPlannerWithType(templateType TemplateType, seed uint64) (*PlannerChain, error) {
+// NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
+func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*PlannerChain, error) {
 	// テンプレートローダーを作成
 	templateLoader := maptemplate.NewTemplateLoader()
 

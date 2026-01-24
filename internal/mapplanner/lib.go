@@ -451,18 +451,9 @@ var (
 		UseFixedPortalPos: true,  // ポータル位置を固定
 		ItemTableName:     "",    // 街ではアイテムをスポーンしないので空
 		EnemyTableName:    "",    // 街では敵をスポーンしないので空
-		PlannerFunc:       NewTownPlanner,
-	}
-
-	// PlannerTypeTemplate はテンプレートベースのプランナータイプ
-	PlannerTypeTemplate = PlannerType{
-		Name:              "テンプレート",
-		SpawnEnemies:      false,
-		SpawnItems:        false,
-		UseFixedPortalPos: false,
-		ItemTableName:     "",
-		EnemyTableName:    "",
-		PlannerFunc:       NewTemplateDebugPlanner,
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
+		},
 	}
 
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
@@ -474,7 +465,7 @@ var (
 		ItemTableName:     "",
 		EnemyTableName:    "",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
-			return NewTemplateDebugPlannerWithType(TemplateTypeOfficeBuilding, seed)
+			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
 		},
 	}
 
@@ -487,7 +478,7 @@ var (
 		ItemTableName:     "",
 		EnemyTableName:    "",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
-			return NewTemplateDebugPlannerWithType(TemplateTypeSmallTown, seed)
+			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
 		},
 	}
 
@@ -500,7 +491,7 @@ var (
 		ItemTableName:     "",
 		EnemyTableName:    "",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
-			return NewTemplateDebugPlannerWithType(TemplateTypeTownPlaza, seed)
+			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},
 	}
 )
