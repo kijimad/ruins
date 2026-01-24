@@ -2,9 +2,11 @@ package maptemplate
 
 import (
 	"fmt"
+	"io"
 	"math/rand/v2"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -32,6 +34,7 @@ type ChunkTemplateFile struct {
 }
 
 // TemplateLoader はテンプレート定義の読み込みを担当する
+// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する
 type TemplateLoader struct {
 	chunkCache   map[string][]*ChunkTemplate // 同じ名前で複数のバリエーションをサポート
 	paletteCache map[string]*Palette
@@ -45,12 +48,11 @@ func NewTemplateLoader() *TemplateLoader {
 	}
 }
 
-// LoadFromFile はTOMLファイルからチャンクテンプレート定義を読み込む
-// TODO: []os.Readerにする
-func (l *TemplateLoader) LoadFromFile(path string) ([]ChunkTemplate, error) {
-	data, err := os.ReadFile(path)
+// Load はio.Readerからチャンクテンプレート定義を読み込む
+func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
+	data, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("テンプレートファイル読み込みエラー: %w", err)
+		return nil, fmt.Errorf("テンプレート読み込みエラー: %w", err)
 	}
 
 	var file ChunkTemplateFile
@@ -65,6 +67,17 @@ func (l *TemplateLoader) LoadFromFile(path string) ([]ChunkTemplate, error) {
 	}
 
 	return file.Chunks, nil
+}
+
+// LoadFile はTOMLファイルからチャンクテンプレート定義を読み込む
+func (l *TemplateLoader) LoadFile(path string) ([]ChunkTemplate, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("テンプレートファイル読み込みエラー: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	return l.Load(f)
 }
 
 // validate はテンプレート定義の妥当性を検証する
@@ -95,14 +108,15 @@ func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
 		return fmt.Errorf("マップが空です")
 	}
 
-	expectedWidth := len(lines[0])
+	expectedWidth := utf8.RuneCountInString(lines[0])
 	if expectedWidth == 0 {
 		return fmt.Errorf("マップの行が空です")
 	}
 
 	for i, line := range lines {
-		if len(line) != expectedWidth {
-			return fmt.Errorf("マップの行%dの長さが不一致です: 期待%d、実際%d", i, expectedWidth, len(line))
+		lineWidth := utf8.RuneCountInString(line)
+		if lineWidth != expectedWidth {
+			return fmt.Errorf("マップの行%dの長さが不一致です: 期待%d、実際%d", i, expectedWidth, lineWidth)
 		}
 	}
 
@@ -135,7 +149,7 @@ func (t *ChunkTemplate) GetCharAt(x, y int) (string, error) {
 // LoadChunk はチャンク定義を読み込んでキャッシュする
 // 同じ名前のチャンクが複数ある場合、すべて登録される（バリエーション）
 func (l *TemplateLoader) LoadChunk(path string) error {
-	templates, err := l.LoadFromFile(path)
+	templates, err := l.LoadFile(path)
 	if err != nil {
 		return fmt.Errorf("チャンク読み込みエラー: %w", err)
 	}
@@ -196,7 +210,7 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error {
 			}
 
 			path := dir + "/" + entry.Name()
-			palette, err := paletteLoader.LoadFromFile(path)
+			palette, err := paletteLoader.LoadFile(path)
 			if err != nil {
 				return fmt.Errorf("パレット読み込みエラー %s: %w", path, err)
 			}

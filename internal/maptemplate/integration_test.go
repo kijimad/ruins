@@ -14,7 +14,7 @@ func TestLoadRealFiles(t *testing.T) {
 	t.Run("標準パレットを読み込める", func(t *testing.T) {
 		t.Parallel()
 		loader := NewPaletteLoader()
-		palette, err := loader.LoadFromFile("../../assets/levels/palettes/standard.toml")
+		palette, err := loader.LoadFile("../../assets/levels/palettes/standard.toml")
 
 		require.NoError(t, err)
 		assert.Equal(t, "standard", palette.ID)
@@ -31,7 +31,7 @@ func TestLoadRealFiles(t *testing.T) {
 	t.Run("小部屋テンプレートを読み込める", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
-		templates, err := loader.LoadFromFile("../../assets/levels/facilities/small_room.toml")
+		templates, err := loader.LoadFile("../../assets/levels/facilities/small_room.toml")
 
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
@@ -86,7 +86,7 @@ func TestLoadRealFiles(t *testing.T) {
 		require.NoError(t, err)
 
 		// 複合施設テンプレートを読み込む
-		templates, err := loader.LoadFromFile("../../assets/levels/facilities/compound_building.toml")
+		templates, err := loader.LoadFile("../../assets/levels/facilities/compound_building.toml")
 		require.NoError(t, err)
 		require.NotEmpty(t, templates)
 
@@ -115,7 +115,7 @@ func TestLoadRealFiles(t *testing.T) {
 	t.Run("町の広場レイアウトを読み込める", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
-		templates, err := loader.LoadFromFile("../../assets/levels/layouts/town_plaza.toml")
+		templates, err := loader.LoadFile("../../assets/levels/layouts/town_plaza.toml")
 		require.NoError(t, err)
 		require.NotEmpty(t, templates)
 

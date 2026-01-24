@@ -3,13 +3,333 @@ package maptemplate
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestTemplateLoader_LoadFromFile(t *testing.T) {
+func TestTemplateLoader_Load(t *testing.T) {
+	t.Parallel()
+	t.Run("正常なテンプレート定義を読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "test_facility"
+weight = 100
+size = [5, 3]
+palettes = ["standard"]
+map = """
+#####
+#...#
+#####
+"""
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+
+		template := templates[0]
+		assert.Equal(t, "test_facility", template.Name)
+		assert.Equal(t, 100, template.Weight)
+		assert.Equal(t, [2]int{5, 3}, template.Size)
+		assert.Equal(t, []string{"standard"}, template.Palettes)
+	})
+
+	t.Run("複数のテンプレートを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "small"
+weight = 50
+size = [3, 3]
+palettes = ["standard"]
+map = """
+###
+#.#
+###
+"""
+
+[[chunk]]
+name = "large"
+weight = 30
+size = [5, 5]
+palettes = ["standard"]
+map = """
+#####
+#...#
+#...#
+#...#
+#####
+"""
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 2)
+		assert.Equal(t, "small", templates[0].Name)
+		assert.Equal(t, "large", templates[1].Name)
+	})
+
+	t.Run("nameが空の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = ""
+weight = 100
+size = [3, 3]
+palettes = ["standard"]
+map = """
+###
+#.#
+###
+"""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "チャンク名（キー）が空です")
+	})
+
+	t.Run("weightが0以下の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "無効な重み"
+weight = 0
+size = [3, 3]
+palettes = ["standard"]
+map = """
+###
+#.#
+###
+"""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "重みは正の整数である必要があります")
+	})
+
+	t.Run("マップサイズが定義と一致しない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "サイズ不一致"
+weight = 100
+size = [5, 3]
+palettes = ["standard"]
+map = """
+###
+#.#
+###
+"""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "実サイズ")
+		assert.Contains(t, err.Error(), "定義サイズ")
+	})
+
+	t.Run("マップの行長が不一致の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "不規則マップ"
+weight = 100
+size = [5, 3]
+palettes = ["standard"]
+map = """
+#####
+#..#
+#####
+"""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "行")
+		assert.Contains(t, err.Error(), "長さが不一致")
+	})
+
+	t.Run("複数パレットを指定できる", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "multi_palette"
+weight = 100
+size = [3, 3]
+palettes = ["standard", "town", "dungeon"]
+map = """
+###
+#.#
+###
+"""
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+		assert.Equal(t, []string{"standard", "town", "dungeon"}, templates[0].Palettes)
+	})
+
+	t.Run("パレット指定なしでも読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "no_palette"
+weight = 100
+size = [3, 3]
+map = """
+###
+#.#
+###
+"""
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+		assert.Empty(t, templates[0].Palettes)
+	})
+
+	t.Run("PlaceNestedを持つテンプレートを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "with_nested"
+weight = 100
+size = [5, 5]
+palettes = ["standard"]
+map = """
+#####
+#@@@#
+#@@A#
+#@@@#
+#####
+"""
+
+[[chunk.place_nested]]
+chunks = ["room"]
+id = "A"
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+		assert.Len(t, templates[0].PlaceNested, 1)
+		assert.Equal(t, []string{"room"}, templates[0].PlaceNested[0].Chunks)
+		assert.Equal(t, "A", templates[0].PlaceNested[0].ID)
+	})
+
+	t.Run("サイズ0はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "zero_size"
+weight = 100
+size = [0, 3]
+palettes = ["standard"]
+map = """
+"""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "サイズは正の整数である必要があります")
+	})
+
+	t.Run("負の重みはエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "negative_weight"
+weight = -10
+size = [3, 3]
+palettes = ["standard"]
+map = """
+###
+#.#
+###
+"""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "重みは正の整数である必要があります")
+	})
+
+	t.Run("マップが空の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "empty_map"
+weight = 100
+size = [3, 3]
+palettes = ["standard"]
+map = ""
+`
+		loader := NewTemplateLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "マップが空です")
+	})
+
+	t.Run("大きなマップを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "large_map"
+weight = 100
+size = [10, 10]
+palettes = ["standard"]
+map = """
+##########
+#........#
+#........#
+#........#
+#........#
+#........#
+#........#
+#........#
+#........#
+##########
+"""
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+		assert.Equal(t, [2]int{10, 10}, templates[0].Size)
+	})
+
+	t.Run("マルチバイト文字を含むマップを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[[chunk]]
+name = "japanese_map"
+weight = 100
+size = [5, 3]
+palettes = ["standard"]
+map = """
+壁壁壁壁壁
+壁床床床壁
+壁壁壁壁壁
+"""
+`
+		loader := NewTemplateLoader()
+		templates, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		require.Len(t, templates, 1)
+		assert.Contains(t, templates[0].Map, "壁")
+		assert.Contains(t, templates[0].Map, "床")
+	})
+}
+
+func TestTemplateLoader_LoadFile(t *testing.T) {
 	t.Parallel()
 	t.Run("正常なテンプレート定義を読み込める", func(t *testing.T) {
 		t.Parallel()
@@ -30,7 +350,7 @@ map = """
 		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
 
 		loader := NewTemplateLoader()
-		templates, err := loader.LoadFromFile(templateFile)
+		templates, err := loader.LoadFile(templateFile)
 
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
@@ -74,7 +394,7 @@ map = """
 		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
 
 		loader := NewTemplateLoader()
-		templates, err := loader.LoadFromFile(templateFile)
+		templates, err := loader.LoadFile(templateFile)
 
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
@@ -101,7 +421,7 @@ map = """
 		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
 
 		loader := NewTemplateLoader()
-		_, err := loader.LoadFromFile(templateFile)
+		_, err := loader.LoadFile(templateFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "チャンク名（キー）が空です")
@@ -127,7 +447,7 @@ map = """
 		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
 
 		loader := NewTemplateLoader()
-		_, err := loader.LoadFromFile(templateFile)
+		_, err := loader.LoadFile(templateFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "重みは正の整数である必要があります")
@@ -153,7 +473,7 @@ map = """
 		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
 
 		loader := NewTemplateLoader()
-		_, err := loader.LoadFromFile(templateFile)
+		_, err := loader.LoadFile(templateFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "実サイズ")
@@ -180,7 +500,7 @@ map = """
 		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
 
 		loader := NewTemplateLoader()
-		_, err := loader.LoadFromFile(templateFile)
+		_, err := loader.LoadFile(templateFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "行")

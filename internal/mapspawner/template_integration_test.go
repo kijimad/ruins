@@ -19,12 +19,12 @@ func TestTemplateToMapIntegration(t *testing.T) {
 
 		// 1. パレットを読み込む
 		paletteLoader := maptemplate.NewPaletteLoader()
-		palette, err := paletteLoader.LoadFromFile("../../assets/levels/palettes/standard.toml")
+		palette, err := paletteLoader.LoadFile("../../assets/levels/palettes/standard.toml")
 		require.NoError(t, err)
 
 		// 2. 施設テンプレートを読み込む
 		templateLoader := maptemplate.NewTemplateLoader()
-		templates, err := templateLoader.LoadFromFile("../../assets/levels/facilities/small_room.toml")
+		templates, err := templateLoader.LoadFile("../../assets/levels/facilities/small_room.toml")
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
 

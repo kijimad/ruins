@@ -2,7 +2,9 @@ package maptemplate
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"unicode/utf8"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -30,11 +32,11 @@ func NewPaletteLoader() *PaletteLoader {
 	return &PaletteLoader{}
 }
 
-// LoadFromFile はTOMLファイルからパレット定義を読み込む
-func (l *PaletteLoader) LoadFromFile(path string) (*Palette, error) {
-	data, err := os.ReadFile(path)
+// Load はio.Readerからパレット定義を読み込む
+func (l *PaletteLoader) Load(r io.Reader) (*Palette, error) {
+	data, err := io.ReadAll(r)
 	if err != nil {
-		return nil, fmt.Errorf("パレットファイル読み込みエラー: %w", err)
+		return nil, fmt.Errorf("パレット読み込みエラー: %w", err)
 	}
 
 	var file PaletteFile
@@ -49,6 +51,17 @@ func (l *PaletteLoader) LoadFromFile(path string) (*Palette, error) {
 	return &file.Palette, nil
 }
 
+// LoadFile はTOMLファイルからパレット定義を読み込む
+func (l *PaletteLoader) LoadFile(path string) (*Palette, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("パレットファイル読み込みエラー: %w", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	return l.Load(f)
+}
+
 // validate はパレット定義の妥当性を検証する
 func (l *PaletteLoader) validate(p *Palette) error {
 	if p.ID == "" {
@@ -61,19 +74,19 @@ func (l *PaletteLoader) validate(p *Palette) error {
 
 	// 文字の重複チェック
 	for char := range p.Terrain {
-		if len(char) != 1 {
+		if utf8.RuneCountInString(char) != 1 {
 			return fmt.Errorf("地形のキーは1文字である必要があります: %q", char)
 		}
 	}
 
 	for char := range p.Props {
-		if len(char) != 1 {
+		if utf8.RuneCountInString(char) != 1 {
 			return fmt.Errorf("Propsのキーは1文字である必要があります: %q", char)
 		}
 	}
 
 	for char := range p.NPCs {
-		if len(char) != 1 {
+		if utf8.RuneCountInString(char) != 1 {
 			return fmt.Errorf("NPCsのキーは1文字である必要があります: %q", char)
 		}
 	}

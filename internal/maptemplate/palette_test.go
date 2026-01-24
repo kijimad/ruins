@@ -3,13 +3,204 @@ package maptemplate
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestPaletteLoader_LoadFromFile(t *testing.T) {
+func TestPaletteLoader_Load(t *testing.T) {
+	t.Parallel()
+	t.Run("正常なパレット定義を読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "test"
+description = "テスト用パレット"
+
+[palette.terrain]
+"#" = "wall"
+"." = "floor"
+
+[palette.props]
+"T" = "table"
+"C" = "chair"
+`
+		loader := NewPaletteLoader()
+		palette, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		assert.Equal(t, "test", palette.ID)
+		assert.Equal(t, "テスト用パレット", palette.Description)
+		assert.Equal(t, "wall", palette.Terrain["#"])
+		assert.Equal(t, "floor", palette.Terrain["."])
+		assert.Equal(t, "table", palette.Props["T"])
+		assert.Equal(t, "chair", palette.Props["C"])
+	})
+
+	t.Run("IDが空の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = ""
+description = "無効なパレット"
+
+[palette.terrain]
+"#" = "wall"
+`
+		loader := NewPaletteLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "パレットIDが空です")
+	})
+
+	t.Run("地形とPropsとNPCsが全て空の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "empty"
+description = "空のパレット"
+`
+		loader := NewPaletteLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "地形、Props、またはNPCsの定義が必要です")
+	})
+
+	t.Run("2文字以上のキーはエラー", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "invalid"
+description = "無効なキー"
+
+[palette.terrain]
+"##" = "wall"
+`
+		loader := NewPaletteLoader()
+		_, err := loader.Load(strings.NewReader(content))
+
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "1文字である必要があります")
+	})
+
+	t.Run("NPCsを含むパレットを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "with_npcs"
+description = "NPC付きパレット"
+
+[palette.terrain]
+"." = "floor"
+
+[palette.npcs]
+"G" = "guard"
+"M" = "merchant"
+`
+		loader := NewPaletteLoader()
+		palette, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		assert.Equal(t, "with_npcs", palette.ID)
+		assert.Equal(t, "guard", palette.NPCs["G"])
+		assert.Equal(t, "merchant", palette.NPCs["M"])
+	})
+
+	t.Run("地形のみのパレットを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "terrain_only"
+description = "地形のみ"
+
+[palette.terrain]
+"#" = "wall"
+"." = "floor"
+"~" = "water"
+`
+		loader := NewPaletteLoader()
+		palette, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		assert.Len(t, palette.Terrain, 3)
+		assert.Equal(t, "wall", palette.Terrain["#"])
+		assert.Equal(t, "floor", palette.Terrain["."])
+		assert.Equal(t, "water", palette.Terrain["~"])
+		assert.Empty(t, palette.Props)
+		assert.Empty(t, palette.NPCs)
+	})
+
+	t.Run("Propsのみのパレットを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "props_only"
+description = "Propsのみ"
+
+[palette.props]
+"T" = "table"
+"C" = "chair"
+"B" = "bed"
+`
+		loader := NewPaletteLoader()
+		palette, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		assert.Len(t, palette.Props, 3)
+		assert.Equal(t, "table", palette.Props["T"])
+		assert.Equal(t, "chair", palette.Props["C"])
+		assert.Equal(t, "bed", palette.Props["B"])
+		assert.Empty(t, palette.Terrain)
+		assert.Empty(t, palette.NPCs)
+	})
+
+	t.Run("全種類を含むパレットを読み込める", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "complete"
+description = "完全なパレット"
+
+[palette.terrain]
+"#" = "wall"
+"." = "floor"
+
+[palette.props]
+"T" = "table"
+"D" = "door"
+
+[palette.npcs]
+"G" = "guard"
+"V" = "villager"
+`
+		loader := NewPaletteLoader()
+		palette, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		assert.Len(t, palette.Terrain, 2)
+		assert.Len(t, palette.Props, 2)
+		assert.Len(t, palette.NPCs, 2)
+		assert.Equal(t, "wall", palette.Terrain["#"])
+		assert.Equal(t, "table", palette.Props["T"])
+		assert.Equal(t, "guard", palette.NPCs["G"])
+	})
+
+	t.Run("マルチバイト文字のキーは1文字と判定される", func(t *testing.T) {
+		t.Parallel()
+		content := `[palette]
+id = "japanese"
+description = "日本語キー"
+
+[palette.terrain]
+"壁" = "wall"
+"床" = "floor"
+`
+		loader := NewPaletteLoader()
+		palette, err := loader.Load(strings.NewReader(content))
+
+		require.NoError(t, err)
+		assert.Equal(t, "wall", palette.Terrain["壁"])
+		assert.Equal(t, "floor", palette.Terrain["床"])
+	})
+}
+
+func TestPaletteLoader_LoadFile(t *testing.T) {
 	t.Parallel()
 	t.Run("正常なパレット定義を読み込める", func(t *testing.T) {
 		t.Parallel()
@@ -33,7 +224,7 @@ description = "テスト用パレット"
 
 		// 読み込みテスト
 		loader := NewPaletteLoader()
-		palette, err := loader.LoadFromFile(paletteFile)
+		palette, err := loader.LoadFile(paletteFile)
 
 		require.NoError(t, err)
 		assert.Equal(t, "test", palette.ID)
@@ -59,7 +250,7 @@ description = "無効なパレット"
 		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
 
 		loader := NewPaletteLoader()
-		_, err := loader.LoadFromFile(paletteFile)
+		_, err := loader.LoadFile(paletteFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "パレットIDが空です")
@@ -77,7 +268,7 @@ description = "空のパレット"
 		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
 
 		loader := NewPaletteLoader()
-		_, err := loader.LoadFromFile(paletteFile)
+		_, err := loader.LoadFile(paletteFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "地形、Props、またはNPCsの定義が必要です")
@@ -98,7 +289,7 @@ description = "無効なキー"
 		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
 
 		loader := NewPaletteLoader()
-		_, err := loader.LoadFromFile(paletteFile)
+		_, err := loader.LoadFile(paletteFile)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "1文字である必要があります")
