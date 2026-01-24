@@ -29,7 +29,7 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 			"#": "Wall",
 			".": "Floor",
 		},
-		Furniture: map[string]string{},
+		Props: map[string]string{},
 	}
 
 	planner := NewTemplatePlanner(template, palette)
@@ -102,7 +102,7 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 			"T": "Floor",
 			"M": "Floor",
 		},
-		Furniture: map[string]string{
+		Props: map[string]string{
 			"T": "table",
 			"M": "machine",
 		},
@@ -110,7 +110,7 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 
 	planner := NewTemplatePlanner(template, palette)
 
-	t.Run("家具が正しく配置予定リストに追加される", func(t *testing.T) {
+	t.Run("Propsが正しく配置予定リストに追加される", func(t *testing.T) {
 		t.Parallel()
 		chain, err := NewTemplatePlannerChain(template, palette, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
@@ -174,7 +174,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 			"#": "Wall",
 			".": "Floor",
 		},
-		Furniture: map[string]string{},
+		Props: map[string]string{},
 	}
 
 	t.Run("PlannerChainが正常に作成される", func(t *testing.T) {
@@ -224,7 +224,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 				"#": "Wall",
 				// "X"の定義がない
 			},
-			Furniture: map[string]string{},
+			Props: map[string]string{},
 		}
 
 		chain, err := NewTemplatePlannerChain(invalidTemplate, invalidPalette, 12345)

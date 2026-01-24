@@ -23,9 +23,9 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Equal(t, "Wall", palette.Terrain["#"])
 		assert.Equal(t, "Floor", palette.Terrain["."])
 
-		// 家具の確認
-		assert.Equal(t, "table", palette.Furniture["T"])
-		assert.Equal(t, "chair", palette.Furniture["C"])
+		// Propsの確認
+		assert.Equal(t, "table", palette.Props["T"])
+		assert.Equal(t, "chair", palette.Props["C"])
 	})
 
 	t.Run("小部屋テンプレートを読み込める", func(t *testing.T) {

@@ -54,8 +54,8 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		centerIdx := 5*10 + 5
 		assert.True(t, metaPlan.Tiles[centerIdx].Walkable, "中央は床")
 
-		// 家具（Props）が配置されている
-		assert.NotEmpty(t, metaPlan.Props, "家具が配置されているはず")
+		// Props（Props）が配置されている
+		assert.NotEmpty(t, metaPlan.Props, "Propsが配置されているはず")
 
 		// 6. mapspawnerでスポーンを実行
 		level, err := Spawn(world, metaPlan)

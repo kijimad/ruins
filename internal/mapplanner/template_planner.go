@@ -58,17 +58,17 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 	lines := p.Template.GetMapLines()
 
-	// テンプレートマップを走査して家具を配置
+	// テンプレートマップを走査してPropsを配置
 	for y, line := range lines {
 		for x, char := range line {
 			charStr := string(char)
 
-			if furnitureName, ok := p.Palette.GetFurniture(charStr); ok {
+			if propName, ok := p.Palette.GetProp(charStr); ok {
 				// 配置予定リストに追加
 				metaPlan.Props = append(metaPlan.Props, PropsSpec{
 					X:       x,
 					Y:       y,
-					PropKey: furnitureName,
+					PropKey: propName,
 				})
 			}
 		}

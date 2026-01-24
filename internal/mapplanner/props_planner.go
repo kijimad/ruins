@@ -44,7 +44,7 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 	centerX := int(planData.Level.TileWidth) / 2
 	centerY := int(planData.Level.TileHeight) / 2
 
-	// 図書館の家具配置
+	// 図書館のProps配置
 	libraryProps := []struct {
 		propKey string
 		offsetX int
@@ -69,7 +69,7 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		}
 	}
 
-	// 学校の家具配置
+	// 学校のProps配置
 	schoolProps := []struct {
 		propKey string
 		offsetX int
@@ -96,7 +96,7 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		}
 	}
 
-	// 住民の家1の家具配置
+	// 住民の家1のProps配置
 	house1Props := []struct {
 		propKey string
 		offsetX int
@@ -120,7 +120,7 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		}
 	}
 
-	// 住民の家2の家具配置
+	// 住民の家2のProps配置
 	house2Props := []struct {
 		propKey string
 		offsetX int
@@ -167,7 +167,7 @@ func (p *PropsPlanner) addTownProps(planData *MetaPlan) {
 		}
 	}
 
-	// 事務所の家具配置
+	// 事務所のProps配置
 	officeProps := []struct {
 		propKey string
 		offsetX int

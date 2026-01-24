@@ -25,7 +25,7 @@ description = "テスト用パレット"
 "#" = "wall"
 "." = "floor"
 
-[palette.furniture]
+[palette.props]
 "T" = "table"
 "C" = "chair"
 `
@@ -40,8 +40,8 @@ description = "テスト用パレット"
 		assert.Equal(t, "テスト用パレット", palette.Description)
 		assert.Equal(t, "wall", palette.Terrain["#"])
 		assert.Equal(t, "floor", palette.Terrain["."])
-		assert.Equal(t, "table", palette.Furniture["T"])
-		assert.Equal(t, "chair", palette.Furniture["C"])
+		assert.Equal(t, "table", palette.Props["T"])
+		assert.Equal(t, "chair", palette.Props["C"])
 	})
 
 	t.Run("IDが空の場合はエラー", func(t *testing.T) {
@@ -65,7 +65,7 @@ description = "無効なパレット"
 		assert.Contains(t, err.Error(), "パレットIDが空です")
 	})
 
-	t.Run("地形と家具が両方空の場合はエラー", func(t *testing.T) {
+	t.Run("地形とPropsが両方空の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		tmpDir := t.TempDir()
 		paletteFile := filepath.Join(tmpDir, "empty_palette.toml")
@@ -80,7 +80,7 @@ description = "空のパレット"
 		_, err := loader.LoadFromFile(paletteFile)
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "地形または家具の定義が必要です")
+		assert.Contains(t, err.Error(), "地形またはPropsの定義が必要です")
 	})
 
 	t.Run("2文字以上のキーはエラー", func(t *testing.T) {
@@ -116,7 +116,7 @@ func TestMergePalettes(t *testing.T) {
 				"#": "wall",
 				".": "floor",
 			},
-			Furniture: map[string]string{
+			Props: map[string]string{
 				"T": "table",
 			},
 		}
@@ -128,7 +128,7 @@ func TestMergePalettes(t *testing.T) {
 				"#": "wall_metal", // 上書き
 				"~": "dirt",       // 追加
 			},
-			Furniture: map[string]string{
+			Props: map[string]string{
 				"M": "machine", // 追加
 			},
 		}
@@ -138,8 +138,8 @@ func TestMergePalettes(t *testing.T) {
 		assert.Equal(t, "wall_metal", merged.Terrain["#"]) // palette2で上書きされている
 		assert.Equal(t, "floor", merged.Terrain["."])
 		assert.Equal(t, "dirt", merged.Terrain["~"])
-		assert.Equal(t, "table", merged.Furniture["T"])
-		assert.Equal(t, "machine", merged.Furniture["M"])
+		assert.Equal(t, "table", merged.Props["T"])
+		assert.Equal(t, "machine", merged.Props["M"])
 	})
 
 	t.Run("空のパレットリストでもエラーにならない", func(t *testing.T) {
@@ -149,11 +149,11 @@ func TestMergePalettes(t *testing.T) {
 		assert.NotNil(t, merged)
 		assert.Equal(t, "merged", merged.ID)
 		assert.Empty(t, merged.Terrain)
-		assert.Empty(t, merged.Furniture)
+		assert.Empty(t, merged.Props)
 	})
 }
 
-func TestPalette_GetTerrainAndFurniture(t *testing.T) {
+func TestPalette_GetTerrainAndProp(t *testing.T) {
 	t.Parallel()
 	palette := &Palette{
 		ID: "test",
@@ -161,7 +161,7 @@ func TestPalette_GetTerrainAndFurniture(t *testing.T) {
 			"#": "wall",
 			".": "floor",
 		},
-		Furniture: map[string]string{
+		Props: map[string]string{
 			"T": "table",
 		},
 	}
@@ -179,16 +179,16 @@ func TestPalette_GetTerrainAndFurniture(t *testing.T) {
 		assert.False(t, ok)
 	})
 
-	t.Run("存在する家具を取得できる", func(t *testing.T) {
+	t.Run("存在するPropsを取得できる", func(t *testing.T) {
 		t.Parallel()
-		furniture, ok := palette.GetFurniture("T")
+		prop, ok := palette.GetProp("T")
 		assert.True(t, ok)
-		assert.Equal(t, "table", furniture)
+		assert.Equal(t, "table", prop)
 	})
 
-	t.Run("存在しない家具はfalseを返す", func(t *testing.T) {
+	t.Run("存在しないPropsはfalseを返す", func(t *testing.T) {
 		t.Parallel()
-		_, ok := palette.GetFurniture("X")
+		_, ok := palette.GetProp("X")
 		assert.False(t, ok)
 	})
 }

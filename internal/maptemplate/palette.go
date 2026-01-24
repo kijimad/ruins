@@ -8,13 +8,12 @@ import (
 )
 
 // Palette はマップ生成用のパレット定義
-// 地形と家具の文字マッピングを提供する
+// 地形とPropsの文字マッピングを提供する
 type Palette struct {
 	ID          string            `toml:"id"`
 	Description string            `toml:"description"`
 	Terrain     map[string]string `toml:"terrain"` // {文字: 地形名}
-	// TODO(kijima): 家具に限らない。Prop とかのほうがいいかも
-	Furniture map[string]string `toml:"furniture"` // {文字: 家具名（ドアも含む）}
+	Props       map[string]string `toml:"props"`   // {文字: Prop名（ドア、テーブルなど）}
 }
 
 // PaletteFile はTOMLファイルのルート構造
@@ -55,20 +54,20 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		return fmt.Errorf("パレットIDが空です")
 	}
 
-	if len(p.Terrain) == 0 && len(p.Furniture) == 0 {
-		return fmt.Errorf("地形または家具の定義が必要です")
+	if len(p.Terrain) == 0 && len(p.Props) == 0 {
+		return fmt.Errorf("地形またはPropsの定義が必要です")
 	}
 
-	// 文字の重複チェック（地形と家具で同じ文字を使うのはOK）
+	// 文字の重複チェック（地形とPropsで同じ文字を使うのはOK）
 	for char := range p.Terrain {
 		if len(char) != 1 {
 			return fmt.Errorf("地形のキーは1文字である必要があります: %q", char)
 		}
 	}
 
-	for char := range p.Furniture {
+	for char := range p.Props {
 		if len(char) != 1 {
-			return fmt.Errorf("家具のキーは1文字である必要があります: %q", char)
+			return fmt.Errorf("Propsのキーは1文字である必要があります: %q", char)
 		}
 	}
 
@@ -82,15 +81,15 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		ID:          "merged",
 		Description: "マージされたパレット",
 		Terrain:     make(map[string]string),
-		Furniture:   make(map[string]string),
+		Props:       make(map[string]string),
 	}
 
 	for _, p := range palettes {
 		for k, v := range p.Terrain {
 			merged.Terrain[k] = v
 		}
-		for k, v := range p.Furniture {
-			merged.Furniture[k] = v
+		for k, v := range p.Props {
+			merged.Props[k] = v
 		}
 	}
 
@@ -103,8 +102,8 @@ func (p *Palette) GetTerrain(char string) (string, bool) {
 	return terrain, ok
 }
 
-// GetFurniture は文字から家具名を取得する
-func (p *Palette) GetFurniture(char string) (string, bool) {
-	furniture, ok := p.Furniture[char]
-	return furniture, ok
+// GetProp は文字からProp名を取得する
+func (p *Palette) GetProp(char string) (string, bool) {
+	prop, ok := p.Props[char]
+	return prop, ok
 }
