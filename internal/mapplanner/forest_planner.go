@@ -52,7 +52,7 @@ type ForestTerrain struct{}
 func (f ForestTerrain) PlanMeta(planData *MetaPlan) error {
 	// まず全体を床で埋める（森の地面）
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile("Floor")
+		planData.Tiles[i] = planData.GetTile("floor")
 	}
 
 	// 空き地を床として確保
@@ -76,7 +76,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 
 			if distance <= radius {
 				idx := planData.Level.XYTileIndex(x, y)
-				planData.Tiles[idx] = planData.GetTile("Floor")
+				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
 	}
@@ -101,7 +101,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 
 				if planData.RNG.Float64() < treeDensity {
 					// TODO: 木エンティティとして追加する
-					planData.Tiles[idx] = planData.GetTile("Wall")
+					planData.Tiles[idx] = planData.GetTile("wall")
 
 					// 大きな木の場合、周囲にも追加の木を配置
 					if planData.RNG.Float64() < 0.2 { // 20%の確率で大木
@@ -159,7 +159,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
 				if planData.Tiles[idx].Walkable && planData.RNG.Float64() < 0.7 {
-					planData.Tiles[idx] = planData.GetTile("Wall")
+					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
 		}
@@ -244,7 +244,7 @@ func (f ForestPaths) createNaturalPath(planData *MetaPlan, room1, room2 gc.Rect)
 
 					// 70%の確率で通路を作成（自然な感じに）
 					if planData.RNG.Float64() < 0.7 {
-						planData.Tiles[idx] = planData.GetTile("Floor")
+						planData.Tiles[idx] = planData.GetTile("floor")
 					}
 				}
 			}
@@ -280,7 +280,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 					distance := math.Sqrt(float64(dx*dx + dy*dy))
 					if distance <= float64(radius) {
 						idx := planData.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
-						planData.Tiles[idx] = planData.GetTile("Floor")
+						planData.Tiles[idx] = planData.GetTile("floor")
 					}
 				}
 			}
@@ -297,7 +297,7 @@ func NewForestPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain
 	chain.With(ForestTrees{})           // 木を配置
 	chain.With(ForestPaths{})           // 自然な通路を作成
 	chain.With(ForestWildlife{})        // 野生動物の痕跡を追加
-	chain.With(NewBoundaryWall("Wall")) // 最外周を壁で囲む
+	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
 
 	return chain, nil
 }

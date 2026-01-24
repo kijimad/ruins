@@ -7,23 +7,23 @@
 
   # 地形の定義
   [palette.terrain]
-    "." = "Floor" # 床
-    "#" = "Wall"  # 壁
-    "~" = "Dirt"  # 土
+    "." = "floor" # 床
+    "#" = "wall"  # 壁
+    "~" = "dirt"  # 土
 
     # Props文字の下の地形。Propsと同じ文字に地形も定義する
-    "+" = "Floor" # ドアの下は床
-    "B" = "Floor" # ベッドの下は床
-    "C" = "Floor" # 椅子の下は床
-    "D" = "Floor" # 机の下は床
-    "F" = "Floor" # 焚き火の下は床
-    "L" = "Floor" # ランタンの下は床
-    "T" = "Floor" # テーブルの下は床
-    "X" = "Floor" # 木箱の下は床
+    "+" = "floor" # ドアの下は床
+    "B" = "floor" # ベッドの下は床
+    "C" = "floor" # 椅子の下は床
+    "D" = "floor" # 机の下は床
+    "F" = "floor" # 焚き火の下は床
+    "L" = "floor" # ランタンの下は床
+    "T" = "floor" # テーブルの下は床
+    "X" = "floor" # 木箱の下は床
 
   # Propsの定義
   # 同じ文字に地形とPropsの両方を定義できる
-  # 例: "T" には地形として "Floor"、Propsとして "table" を定義
+  # 例: "T" には地形として "floor"、Propsとして "table" を定義
   [palette.props]
     "+" = "door"    # ドア
     "B" = "bed"     # ベッド

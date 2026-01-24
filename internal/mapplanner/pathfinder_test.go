@@ -25,7 +25,7 @@ func createTestPlanData(width, height int) *MetaPlan {
 
 	// デフォルトで全て壁にする
 	for i := range tiles {
-		tiles[i] = tempPlan.GetTile("Wall")
+		tiles[i] = tempPlan.GetTile("wall")
 	}
 
 	return tempPlan
@@ -57,21 +57,21 @@ func TestPathFinder_IsWalkable(t *testing.T) {
 
 	// 床タイルに変更してテスト
 	idx := planData.Level.XYTileIndex(1, 1)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 	if !pf.IsWalkable(1, 1) {
 		t.Error("Expected floor tile to be walkable")
 	}
 
 	// ワープタイルテスト
 	idx = planData.Level.XYTileIndex(2, 2)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 	if !pf.IsWalkable(2, 2) {
 		t.Error("Expected warp next tile to be walkable")
 	}
 
 	// 脱出タイルテスト
 	idx = planData.Level.XYTileIndex(3, 3)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 	if !pf.IsWalkable(3, 3) {
 		t.Error("Expected warp escape tile to be walkable")
 	}
@@ -86,7 +86,7 @@ func TestPathFinder_FindPath_SimplePath(t *testing.T) {
 	// (1,1) -> (1,2) -> (1,3)
 	for y := 1; y <= 3; y++ {
 		idx := planData.Level.XYTileIndex(1, gc.Tile(y))
-		planData.Tiles[idx] = planData.GetTile("Floor")
+		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
 	path := pf.FindPath(1, 1, 1, 3)
@@ -113,7 +113,7 @@ func TestPathFinder_FindPath_NoPath(t *testing.T) {
 
 	// スタート地点のみ床にする（ゴールは壁のまま）
 	idx := planData.Level.XYTileIndex(1, 1)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 
 	path := pf.FindPath(1, 1, 3, 3)
 
@@ -132,7 +132,7 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 	positions := []Position{{1, 1}, {1, 2}, {2, 2}, {3, 2}}
 	for _, pos := range positions {
 		idx := planData.Level.XYTileIndex(gc.Tile(pos.X), gc.Tile(pos.Y))
-		planData.Tiles[idx] = planData.GetTile("Floor")
+		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
 	path := pf.FindPath(1, 1, 3, 2)
@@ -160,7 +160,7 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	positions := []Position{{1, 1}, {1, 2}, {2, 2}}
 	for _, pos := range positions {
 		idx := planData.Level.XYTileIndex(gc.Tile(pos.X), gc.Tile(pos.Y))
-		planData.Tiles[idx] = planData.GetTile("Floor")
+		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
 	// 到達可能なテスト
@@ -182,13 +182,13 @@ func TestPathFinder_ValidateConnectivity(t *testing.T) {
 	// プレイヤースタート地点
 	playerX, playerY := 1, 1
 	idx := planData.Level.XYTileIndex(gc.Tile(playerX), gc.Tile(playerY))
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 
 	// 到達可能なワープポータル
 	idx = planData.Level.XYTileIndex(1, 2)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 	idx = planData.Level.XYTileIndex(1, 3)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 	// ワープポータルエンティティを追加
 	planData.WarpPortals = append(planData.WarpPortals, WarpPortal{
 		X:    1,
@@ -210,7 +210,7 @@ func TestPathFinder_ValidateConnectivity(t *testing.T) {
 	// エラーケース: ワープポータルに到達不可能
 	// 到達不可能なワープポータル（孤立している）を追加
 	idx = planData.Level.XYTileIndex(4, 4)
-	planData.Tiles[idx] = planData.GetTile("Floor")
+	planData.Tiles[idx] = planData.GetTile("floor")
 	planData.WarpPortals = []WarpPortal{{
 		X:    4,
 		Y:    4,

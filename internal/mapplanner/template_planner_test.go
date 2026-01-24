@@ -26,8 +26,8 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 	palette := &maptemplate.Palette{
 		ID: "standard",
 		Terrain: map[string]string{
-			"#": "Wall",
-			".": "Floor",
+			"#": "wall",
+			".": "floor",
 		},
 		Props: map[string]string{},
 	}
@@ -97,10 +97,10 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 	palette := &maptemplate.Palette{
 		ID: "standard",
 		Terrain: map[string]string{
-			"#": "Wall",
-			".": "Floor",
-			"T": "Floor",
-			"M": "Floor",
+			"#": "wall",
+			".": "floor",
+			"T": "floor",
+			"M": "floor",
 		},
 		Props: map[string]string{
 			"T": "table",
@@ -171,8 +171,8 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 	palette := &maptemplate.Palette{
 		ID: "standard",
 		Terrain: map[string]string{
-			"#": "Wall",
-			".": "Floor",
+			"#": "wall",
+			".": "floor",
 		},
 		Props: map[string]string{},
 	}
@@ -221,7 +221,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		invalidPalette := &maptemplate.Palette{
 			ID: "standard",
 			Terrain: map[string]string{
-				"#": "Wall",
+				"#": "wall",
 				// "X"の定義がない
 			},
 			Props: map[string]string{},

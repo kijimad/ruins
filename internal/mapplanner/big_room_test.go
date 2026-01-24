@@ -123,7 +123,7 @@ func TestBigRoomVariations(t *testing.T) {
 func TestBigRoomPlannerBoundaries(t *testing.T) {
 	t.Parallel()
 
-	const testWallTileType = "Wall"
+	const testWallTileType = "wall"
 
 	// 境界の処理が正しいかを確認
 	width, height := gc.Tile(10), gc.Tile(10)

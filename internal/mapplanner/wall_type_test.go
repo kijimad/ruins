@@ -25,7 +25,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 
 	// 全体を壁で埋める
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile("Wall")
+		planData.Tiles[i] = planData.GetTile("wall")
 	}
 
 	// テストケース1: WallTypeTop（下に床がある壁）
@@ -37,7 +37,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 	centerWallIdx := planData.Level.XYTileIndex(centerWallX, centerWallY)
 	bottomFloorIdx := planData.Level.XYTileIndex(bottomFloorX, bottomFloorY)
 
-	planData.Tiles[bottomFloorIdx] = planData.GetTile("Floor")
+	planData.Tiles[bottomFloorIdx] = planData.GetTile("floor")
 
 	// デバッグ情報を追加
 	upFloor := planData.isFloorOrWarp(planData.UpTile(centerWallIdx))
@@ -55,8 +55,8 @@ func TestPlanData_GetWallType(t *testing.T) {
 	leftFloorX, leftFloorY := centerWallX-1, centerWallY // 左の床（X座標が小さくなる）
 	leftFloorIdx := planData.Level.XYTileIndex(leftFloorX, leftFloorY)
 
-	planData.Tiles[leftFloorIdx] = planData.GetTile("Floor")
-	planData.Tiles[bottomFloorIdx] = planData.GetTile("Wall") // 前のテストケースをリセット
+	planData.Tiles[leftFloorIdx] = planData.GetTile("floor")
+	planData.Tiles[bottomFloorIdx] = planData.GetTile("wall") // 前のテストケースをリセット
 
 	wallType = planData.GetWallType(centerWallIdx)
 	if wallType != WallTypeRight {
@@ -70,9 +70,9 @@ func TestPlanData_GetWallType(t *testing.T) {
 	rightFloorIdx := planData.Level.XYTileIndex(rightFloorX, rightFloorY)
 	downFloorIdx := planData.Level.XYTileIndex(downFloorX, downFloorY)
 
-	planData.Tiles[rightFloorIdx] = planData.GetTile("Floor")
-	planData.Tiles[downFloorIdx] = planData.GetTile("Floor")
-	planData.Tiles[leftFloorIdx] = planData.GetTile("Wall") // リセット
+	planData.Tiles[rightFloorIdx] = planData.GetTile("floor")
+	planData.Tiles[downFloorIdx] = planData.GetTile("floor")
+	planData.Tiles[leftFloorIdx] = planData.GetTile("wall") // リセット
 
 	wallType = planData.GetWallType(centerWallIdx)
 	if wallType != WallTypeTopLeft {
@@ -82,7 +82,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 	// テストケース4: WallTypeGeneric（複雑なパターン）
 	upFloorX, upFloorY := centerWallX, centerWallY-1 // 上の床（Y座標が小さくなる）
 	upFloorIdx := planData.Level.XYTileIndex(upFloorX, upFloorY)
-	planData.Tiles[upFloorIdx] = planData.GetTile("Floor")
+	planData.Tiles[upFloorIdx] = planData.GetTile("floor")
 
 	wallType = planData.GetWallType(centerWallIdx) // 今は上、右、下に床がある状態
 	if wallType != WallTypeGeneric {
@@ -107,7 +107,7 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 
 	// 全体を壁で埋める
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile("Wall")
+		planData.Tiles[i] = planData.GetTile("wall")
 	}
 
 	// ワープポータルを配置
@@ -116,7 +116,7 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 
 	warpNextIdx := planData.Level.XYTileIndex(warpX, warpY)
 	wallIdx := planData.Level.XYTileIndex(wallX, wallY)
-	planData.Tiles[warpNextIdx] = planData.GetTile("Floor")
+	planData.Tiles[warpNextIdx] = planData.GetTile("floor")
 	planData.WarpPortals = append(planData.WarpPortals, WarpPortal{
 		X:    int(warpX),
 		Y:    int(warpY),

@@ -254,20 +254,20 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RuinsPlanner{})
-	chain.With(NewFillAll("Wall")) // 全体を壁で埋める
+	chain.With(NewFillAll("wall")) // 全体を壁で埋める
 	chain.With(RuinsDraw{
-		FloorTile: "Floor",
-		WallTile:  "Wall",
+		FloorTile: "floor",
+		WallTile:  "wall",
 	}) // 廃墟構造を描画
 	chain.With(RuinsDebris{
-		FloorTile: "Floor",
-		WallTile:  "Wall",
+		FloorTile: "floor",
+		WallTile:  "wall",
 	}) // 瓦礫を配置
 	chain.With(RuinsCorridors{
-		FloorTile: "Floor",
-		WallTile:  "Wall",
+		FloorTile: "floor",
+		WallTile:  "wall",
 	}) // 通路を作成
-	chain.With(NewBoundaryWall("Wall")) // 最外周を壁で囲む
+	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
 
 	return chain, nil
 }

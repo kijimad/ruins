@@ -30,12 +30,12 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		if tile.Walkable {
 			// 歩行可能タイルを生成
 			switch tile.Name {
-			case "Dirt":
-				index := int(metaPlan.CalculateAutoTileIndex(i, "Dirt"))
-				_, err = worldhelper.SpawnTile(world, "Dirt", tileX, tileY, &index)
-			case "Floor":
-				index := int(metaPlan.CalculateAutoTileIndex(i, "Floor"))
-				_, err = worldhelper.SpawnTile(world, "Floor", tileX, tileY, &index)
+			case "dirt":
+				index := int(metaPlan.CalculateAutoTileIndex(i, "dirt"))
+				_, err = worldhelper.SpawnTile(world, "dirt", tileX, tileY, &index)
+			case "floor":
+				index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
+				_, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
 			default:
 				// 未知のタイル名はエラーとして処理
 				return resources.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
@@ -43,11 +43,11 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		} else {
 			// 通行不可タイルを生成
 			switch tile.Name {
-			case "Wall":
+			case "wall":
 				// 隣接に床がある場合のみ壁エンティティを生成
 				if metaPlan.AdjacentAnyFloor(i) {
-					index := int(metaPlan.CalculateAutoTileIndex(i, "Wall"))
-					_, err = worldhelper.SpawnTile(world, "Wall", tileX, tileY, &index)
+					index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
+					_, err = worldhelper.SpawnTile(world, "wall", tileX, tileY, &index)
 				}
 			default:
 				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))

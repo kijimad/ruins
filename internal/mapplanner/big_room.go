@@ -122,7 +122,7 @@ func (b BigRoomDraw) applyPillars(planData *MetaPlan) {
 		for x := startX; x < int(room.X2); x += spacing + 1 {
 			for y := startY; y < int(room.Y2); y += spacing + 1 {
 				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-				planData.Tiles[idx] = planData.GetTile("Wall")
+				planData.Tiles[idx] = planData.GetTile("wall")
 			}
 		}
 	}
@@ -145,7 +145,7 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {
 			y := int(room.Y1) + 1 + planData.RNG.IntN(maxYRange)
 
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-			planData.Tiles[idx] = planData.GetTile("Wall")
+			planData.Tiles[idx] = planData.GetTile("wall")
 		}
 	}
 }
@@ -159,7 +159,7 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 				// 縦の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
 					idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-					planData.Tiles[idx] = planData.GetTile("Wall")
+					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
 		}
@@ -169,7 +169,7 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 				// 横の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
 					idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-					planData.Tiles[idx] = planData.GetTile("Wall")
+					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
 		}
@@ -197,7 +197,7 @@ func (b BigRoomDraw) applyCenterPlatform(planData *MetaPlan) {
 						idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 						// 外周は壁、内部は床のまま
 						if distance >= (platformSize-1)*(platformSize-1) {
-							planData.Tiles[idx] = planData.GetTile("Wall")
+							planData.Tiles[idx] = planData.GetTile("wall")
 						}
 					}
 				}
