@@ -12,8 +12,9 @@ import (
 type Palette struct {
 	ID          string            `toml:"id"`
 	Description string            `toml:"description"`
-	Terrain     map[string]string `toml:"terrain"`   // {文字: 地形名}
-	Furniture   map[string]string `toml:"furniture"` // {文字: 家具名}
+	Terrain     map[string]string `toml:"terrain"` // {文字: 地形名}
+	// TODO(kijima): 家具に限らない。Prop とかのほうがいいかも
+	Furniture map[string]string `toml:"furniture"` // {文字: 家具名（ドアも含む）}
 }
 
 // PaletteFile はTOMLファイルのルート構造

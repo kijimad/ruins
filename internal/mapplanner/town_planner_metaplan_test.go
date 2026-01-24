@@ -73,7 +73,7 @@ func TestNewTownPlannerMetaPlan(t *testing.T) {
 		idx := metaPlan.Level.XYTileIndex(gc.Tile(door.X), gc.Tile(door.Y))
 		tile := metaPlan.Tiles[idx]
 		assert.True(t, tile.Walkable, "ドア%d (%d, %d) は歩行可能タイル上にあるべき", i+1, door.X, door.Y)
-		t.Logf("ドア%d: (%d, %d) - タイル: %s, 向き: %d", i+1, door.X, door.Y, tile.Name, door.Orientation)
+		t.Logf("ドア%d: (%d, %d) - タイル: %s", i+1, door.X, door.Y, tile.Name)
 	}
 }
 

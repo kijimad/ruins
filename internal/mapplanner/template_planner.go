@@ -10,12 +10,12 @@ import (
 
 // TemplatePlanner はテンプレートベースのマップ生成プランナー
 type TemplatePlanner struct {
-	Template *maptemplate.FacilityTemplate
+	Template *maptemplate.ChunkTemplate
 	Palette  *maptemplate.Palette
 }
 
 // NewTemplatePlanner はTemplatePlannerを生成する
-func NewTemplatePlanner(template *maptemplate.FacilityTemplate, palette *maptemplate.Palette) *TemplatePlanner {
+func NewTemplatePlanner(template *maptemplate.ChunkTemplate, palette *maptemplate.Palette) *TemplatePlanner {
 	return &TemplatePlanner{
 		Template: template,
 		Palette:  palette,
@@ -65,12 +65,21 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 
 			// パレットから家具を取得
 			if furnitureName, ok := p.Palette.GetFurniture(charStr); ok {
-				// 家具をPropsとして配置予定リストに追加
-				metaPlan.Props = append(metaPlan.Props, PropsSpec{
-					X:       x,
-					Y:       y,
-					PropKey: furnitureName,
-				})
+				// ドアの場合はDoorSpecに追加（向きはspawn時に判定）
+				// TODO: ドアを文字列判定するのを消す
+				if furnitureName == "door" {
+					metaPlan.Doors = append(metaPlan.Doors, DoorSpec{
+						X: x,
+						Y: y,
+					})
+				} else {
+					// その他の家具はPropsとして配置予定リストに追加
+					metaPlan.Props = append(metaPlan.Props, PropsSpec{
+						X:       x,
+						Y:       y,
+						PropKey: furnitureName,
+					})
+				}
 			}
 		}
 	}
@@ -79,7 +88,7 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 }
 
 // NewTemplatePlannerChain はテンプレートベースのPlannerChainを作成する
-func NewTemplatePlannerChain(template *maptemplate.FacilityTemplate, palette *maptemplate.Palette, seed uint64) (*PlannerChain, error) {
+func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, palette *maptemplate.Palette, seed uint64) (*PlannerChain, error) {
 	width := gc.Tile(template.Size[0])
 	height := gc.Tile(template.Size[1])
 

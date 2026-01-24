@@ -163,13 +163,10 @@ func (p *MetaTownPlanner) PlanInitial(planData *MetaPlan) error {
 					PropKey: propKey,
 				})
 			case 'D':
-				// ドア
-				// 周囲の壁配置からドアの向きを判定
-				orientation := p.determineDoorOrientation(x, y)
+				// ドア（向きはspawn時に判定）
 				planData.Doors = append(planData.Doors, DoorSpec{
-					X:           x,
-					Y:           y,
-					Orientation: orientation,
+					X: x,
+					Y: y,
 				})
 			default:
 				return fmt.Errorf("無効なエンティティ指定子が存在する: %s", string(char))
@@ -291,29 +288,6 @@ func getTownLayout() ([]string, []string) {
 	}
 
 	return tileMap, entityMap
-}
-
-// determineDoorOrientation はドアの向きを周囲の壁配置から判定する
-func (p *MetaTownPlanner) determineDoorOrientation(x, y int) gc.DoorOrientation {
-	height := len(p.TileMap)
-	width := len(p.TileMap[0])
-
-	// 上下左右のタイルをチェック
-	hasWallUp := y > 0 && p.TileMap[y-1][x] == '#'
-	hasWallDown := y < height-1 && p.TileMap[y+1][x] == '#'
-	hasWallLeft := x > 0 && p.TileMap[y][x-1] == '#'
-	hasWallRight := x < width-1 && p.TileMap[y][x+1] == '#'
-
-	// 上下に壁がある場合は横向き、左右に壁がある場合は縦向き
-	if hasWallUp && hasWallDown {
-		return gc.DoorOrientationHorizontal
-	}
-	if hasWallLeft && hasWallRight {
-		return gc.DoorOrientationVertical
-	}
-
-	// デフォルトは縦向き
-	return gc.DoorOrientationVertical
 }
 
 // validateTownLayout は街レイアウトの基本整合性を検証する（接続性を除く）

@@ -1,0 +1,58 @@
+# 再利用可能な小部屋チャンク定義
+# 他のチャンク内に配置できる小さな部屋のパーツ
+
+# 寝室 3x3
+[[chunk]]
+  name     = "bedroom"
+  palettes = ["standard"]
+  size     = [3, 3]
+  weight   = 100
+
+  map = """
+...
+.B.
+...
+"""
+
+# 会議室 5x5
+[[chunk]]
+  name     = "meeting_room"
+  palettes = ["standard"]
+  size     = [5, 5]
+  weight   = 100
+
+  map = """
+.....
+.....
+.TCT.
+.....
+.....
+"""
+
+# 倉庫 4x4
+[[chunk]]
+  name     = "storage"
+  palettes = ["standard"]
+  size     = [4, 4]
+  weight   = 100
+
+  map = """
+....
+.XX.
+.XX.
+....
+"""
+
+# 事務室 5x4
+[[chunk]]
+  name     = "office"
+  palettes = ["standard"]
+  size     = [5, 4]
+  weight   = 100
+
+  map = """
+.....
+.D.C.
+.....
+.....
+"""

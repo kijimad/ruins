@@ -32,9 +32,8 @@ type WarpPortal struct {
 
 // DoorSpec はドアエンティティの配置情報
 type DoorSpec struct {
-	X           int                // X座標
-	Y           int                // Y座標
-	Orientation gc.DoorOrientation // ドアの向き（横/縦）
+	X int // X座標
+	Y int // Y座標
 }
 
 // MetaPlan は階層のタイルを作る元になる概念の集合体
@@ -479,6 +478,32 @@ var (
 		ItemTableName:     "",
 		EnemyTableName:    "",
 		PlannerFunc:       NewTemplateDebugPlanner,
+	}
+
+	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
+	PlannerTypeOfficeBuilding = PlannerType{
+		Name:              "事務所ビル",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewTemplateDebugPlannerWithType(TemplateTypeOfficeBuilding, seed)
+		},
+	}
+
+	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
+	PlannerTypeSmallTown = PlannerType{
+		Name:              "小さな町",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewTemplateDebugPlannerWithType(TemplateTypeSmallTown, seed)
+		},
 	}
 )
 

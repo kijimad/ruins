@@ -123,13 +123,55 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	}
 
 	// ドアを生成
+	// TODO: Doorsフィールドを消して、Door Componentで判断させる
 	for _, door := range metaPlan.Doors {
 		tileX, tileY := gc.Tile(door.X), gc.Tile(door.Y)
-		_, err := worldhelper.SpawnDoor(world, tileX, tileY, door.Orientation)
+
+		// 隣接タイルからドアの向きを判定
+		orientation := detectDoorOrientation(metaPlan, door.X, door.Y)
+
+		_, err := worldhelper.SpawnDoor(world, tileX, tileY, orientation)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
 		}
 	}
 
 	return level, nil
+}
+
+// detectDoorOrientation は隣接タイルからドアの向きを判定する
+// 左右が壁の場合は縦向き、上下が壁の場合は横向き
+func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {
+	width := int(metaPlan.Level.TileWidth)
+	height := int(metaPlan.Level.TileHeight)
+
+	// 範囲外チェック
+	if x <= 0 || x >= width-1 || y <= 0 || y >= height-1 {
+		// デフォルトは横向き
+		return gc.DoorOrientationHorizontal
+	}
+
+	// 隣接タイルを取得
+	leftIdx := y*width + (x - 1)
+	rightIdx := y*width + (x + 1)
+	topIdx := (y-1)*width + x
+	bottomIdx := (y+1)*width + x
+
+	leftTile := metaPlan.Tiles[leftIdx]
+	rightTile := metaPlan.Tiles[rightIdx]
+	topTile := metaPlan.Tiles[topIdx]
+	bottomTile := metaPlan.Tiles[bottomIdx]
+
+	// 左右が壁（通行不可）の場合は縦向き
+	if !leftTile.Walkable && !rightTile.Walkable {
+		return gc.DoorOrientationVertical
+	}
+
+	// 上下が壁（通行不可）の場合は横向き
+	if !topTile.Walkable && !bottomTile.Walkable {
+		return gc.DoorOrientationHorizontal
+	}
+
+	// どちらでもない場合はデフォルト（横向き）
+	return gc.DoorOrientationHorizontal
 }

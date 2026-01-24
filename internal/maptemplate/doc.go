@@ -1,13 +1,20 @@
 // Package maptemplate はマップテンプレートの読み込み機能を提供します。
 //
-// このパッケージはTOMLファイルから施設テンプレートとパレット定義を読み込み、
+// このパッケージはTOMLファイルからチャンクテンプレートとパレット定義を読み込み、
 // マップ生成システム（mapplanner）で使用可能なデータ構造に変換します。
+//
+// ## チャンクとは
+//
+// チャンクは再利用可能なマップの部品です。小さな部屋から大きな建物、
+// さらには複数の建物を配置したレイアウトまで、すべて同じChunkTemplate型で表現されます。
+// チャンクは他のチャンクを含むことができ、再帰的に組み合わせて複雑なマップを構築します。
 //
 // ## 責務
 //
 // - パレット定義の読み込み（地形・家具のマッピング定義）
-// - 施設テンプレート定義の読み込み（ASCIIマップ、配置ルール）
+// - チャンクテンプレート定義の読み込み（ASCIIマップ、配置ルール）
 // - 複数パレットのマージ処理
+// - チャンクの再帰的展開
 // - バリデーション（マップサイズ、文字の妥当性）
 //
 // ## 使い分け
@@ -18,16 +25,13 @@
 //
 // ## 基本的な使用例
 //
-//	// パレットの読み込み
-//	paletteLoader := maptemplate.NewPaletteLoader()
-//	palette, err := paletteLoader.LoadFromFile("assets/mapgen/palettes/standard.toml")
+//	// ローダーの作成
+//	loader := maptemplate.NewTemplateLoader()
 //
-//	// 施設テンプレートの読み込み
-//	templateLoader := maptemplate.NewTemplateLoader()
-//	templates, err := templateLoader.LoadFromFile("assets/mapgen/facilities/military_factory.toml")
+//	// すべてのチャンクとパレットを事前登録
+//	loader.RegisterAllChunks([]string{"assets/levels/chunks", "assets/levels/facilities"})
+//	loader.RegisterAllPalettes([]string{"assets/levels/palettes"})
 //
-//	// パレットの適用
-//	merged := maptemplate.MergePalettes(palette, militaryPalette)
-//	facility := templates[0]
-//	facility.ApplyPalette(merged)
+//	// テンプレート名で展開済みチャンクとパレットを取得
+//	chunk, palette, err := loader.LoadTemplateByName("office_building", 12345)
 package maptemplate

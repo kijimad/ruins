@@ -150,6 +150,22 @@ func NewDebugMenuState() es.State[w.World] {
 				}})
 			return nil
 		}).
+		WithChoice("ダンジョン開始(事務所ビル)", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeOfficeBuilding)),
+				}})
+			return nil
+		}).
+		WithChoice("ダンジョン開始(小さな町)", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallTown)),
+				}})
+			return nil
+		}).
 		WithChoice("市街地開始", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,

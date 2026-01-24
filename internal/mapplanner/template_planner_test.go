@@ -12,9 +12,8 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 	t.Parallel()
 
 	// テスト用のテンプレート
-	template := &maptemplate.FacilityTemplate{
-		Type:     "test",
-		Name:     "テスト施設",
+	template := &maptemplate.ChunkTemplate{
+		Name:     "test",
 		Weight:   100,
 		Size:     [2]int{5, 3},
 		Palettes: []string{"standard"},
@@ -84,9 +83,8 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 	t.Parallel()
 
 	// テスト用のテンプレート
-	template := &maptemplate.FacilityTemplate{
-		Type:     "test",
-		Name:     "テスト施設",
+	template := &maptemplate.ChunkTemplate{
+		Name:     "test",
 		Weight:   100,
 		Size:     [2]int{5, 3},
 		Palettes: []string{"standard"},
@@ -153,9 +151,8 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 func TestNewTemplatePlannerChain(t *testing.T) {
 	t.Parallel()
 
-	template := &maptemplate.FacilityTemplate{
-		Type:     "test",
-		Name:     "テスト施設",
+	template := &maptemplate.ChunkTemplate{
+		Name:     "test",
 		Weight:   100,
 		Size:     [2]int{10, 10},
 		Palettes: []string{"standard"},
@@ -211,9 +208,8 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 
 	t.Run("パレットに定義がない文字はエラー", func(t *testing.T) {
 		t.Parallel()
-		invalidTemplate := &maptemplate.FacilityTemplate{
-			Type:     "test",
-			Name:     "無効なテンプレート",
+		invalidTemplate := &maptemplate.ChunkTemplate{
+			Name:     "test",
 			Weight:   100,
 			Size:     [2]int{3, 3},
 			Palettes: []string{"standard"},

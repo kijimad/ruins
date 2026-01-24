@@ -1,0 +1,12 @@
+# 街用パレット
+# 道路、空き地などの地形定義
+
+[palette]
+  description = "街用の地形パレット"
+  id          = "town"
+
+  # 地形の定義
+  [palette.terrain]
+    "." = "Dirt"  # 空き地/土
+    "r" = "Floor" # 道路
+    "~" = "Dirt"  # 土（代替）
