@@ -5,6 +5,7 @@ import (
 	"io"
 	"math/rand/v2"
 	"os"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -23,7 +24,7 @@ type ChunkTemplate struct {
 	Name   string `toml:"name"`   // キー
 	Weight int    `toml:"weight"` // 出現確率の重み
 	// TODO: わかりやすいように長さ用の構造体を作る {W: int, H: int}
-	Size       [2]int           `toml:"size"`       // [幅, 高さ]
+	Size       [2]int           // [幅, 高さ] (名前から自動パース)
 	Palettes   []string         `toml:"palettes"`   // 使用するパレットID
 	Map        string           `toml:"map"`        // ASCIIマップ
 	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
@@ -62,6 +63,11 @@ func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
 	}
 
 	for i := range file.Chunks {
+		// 名前からサイズを自動設定
+		if err := l.parseSizeFromName(&file.Chunks[i]); err != nil {
+			return nil, fmt.Errorf("テンプレート%d名前パースエラー: %w", i, err)
+		}
+
 		if err := l.validate(&file.Chunks[i]); err != nil {
 			return nil, fmt.Errorf("テンプレート%d検証エラー: %w", i, err)
 		}
@@ -79,6 +85,36 @@ func (l *TemplateLoader) LoadFile(path string) ([]ChunkTemplate, error) {
 	defer func() { _ = f.Close() }()
 
 	return l.Load(f)
+}
+
+// parseSizeFromName は名前から "{幅}x{高さ}_" 形式のサイズをパースする
+// 例: "5x5_meeting_room" -> Size = [5, 5]
+func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error {
+	// 名前から "{幅}x{高さ}_" 形式を探す
+	parts := strings.Split(t.Name, "_")
+	if len(parts) == 0 {
+		return fmt.Errorf("チャンク名が空です")
+	}
+
+	// 最初の部分が "{幅}x{高さ}" 形式かチェック
+	sizePart := parts[0]
+	dimensions := strings.Split(sizePart, "x")
+	if len(dimensions) != 2 {
+		return fmt.Errorf("チャンク名は '{幅}x{高さ}_名前' 形式である必要があります: %s", t.Name)
+	}
+
+	width, err := strconv.Atoi(dimensions[0])
+	if err != nil {
+		return fmt.Errorf("幅のパースに失敗: %s", dimensions[0])
+	}
+
+	height, err := strconv.Atoi(dimensions[1])
+	if err != nil {
+		return fmt.Errorf("高さのパースに失敗: %s", dimensions[1])
+	}
+
+	t.Size = [2]int{width, height}
+	return nil
 }
 
 // validate はテンプレート定義の妥当性を検証する

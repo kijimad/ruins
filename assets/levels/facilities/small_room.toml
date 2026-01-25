@@ -4,7 +4,6 @@
 [[chunk]]
   name     = "10x10_small_room"
   palettes = ["standard"]
-  size     = [10, 10]
   weight   = 100
 
   map = """

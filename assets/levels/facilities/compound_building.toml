@@ -2,9 +2,8 @@
 # 複数の部屋を組み合わせた大きな建物
 
 [[chunk]]
-  name     = "13x8_small_office"
+  name     = "11x6_small_office"
   palettes = ["standard"]
-  size     = [11, 6]
   weight   = 80
 
   map = """
@@ -25,9 +24,8 @@
     id     = "B"
 
 [[chunk]]
-  name     = "15x12_office_building"
+  name     = "15x10_office_building"
   palettes = ["standard"]
-  size     = [15, 10]
   weight   = 60
 
   map = """

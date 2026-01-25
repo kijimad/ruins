@@ -92,7 +92,7 @@ func TestLoadRealFiles(t *testing.T) {
 
 		// 小規模オフィスをチャンク展開
 		smallOffice := templates[0]
-		assert.Equal(t, "13x8_small_office", smallOffice.Name)
+		assert.Equal(t, "11x6_small_office", smallOffice.Name)
 		assert.Len(t, smallOffice.Placements, 2)
 
 		expandedMap, err := smallOffice.ExpandWithPlacements(loader, 12345)

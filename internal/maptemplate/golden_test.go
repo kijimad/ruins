@@ -21,15 +21,15 @@ func TestChunkExpansionGolden(t *testing.T) {
 		needsPalette bool // パレット登録が必要かどうか
 	}{
 		{
-			name:         "13x8_small_office",
-			chunkName:    "13x8_small_office",
+			name:         "11x6_small_office",
+			chunkName:    "11x6_small_office",
 			seed:         12345,
 			needsChunks:  true,
 			needsPalette: true,
 		},
 		{
-			name:         "15x12_office_building",
-			chunkName:    "15x12_office_building",
+			name:         "15x10_office_building",
+			chunkName:    "15x10_office_building",
 			seed:         12345,
 			needsChunks:  true,
 			needsPalette: true,
@@ -70,7 +70,7 @@ func TestChunkExpansionGolden(t *testing.T) {
 
 			// 各チャンクタイプごとにファイルを読み込む
 			switch tt.chunkName {
-			case "13x8_small_office", "15x12_office_building":
+			case "11x6_small_office", "15x10_office_building":
 				err := loader.LoadChunk("../../assets/levels/facilities/compound_building.toml")
 				require.NoError(t, err)
 			case "10x10_small_room":

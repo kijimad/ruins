@@ -4,7 +4,6 @@
 [[chunk]]
   name     = "50x50_small_town"
   palettes = ["town", "standard"]
-  size     = [50, 50]
   weight   = 100
 
   map = """
@@ -60,17 +59,17 @@
 ..................................................
 """
 
-  # 13x8_small_office を左上に配置（外壁は親が担当）
+  # 11x6_small_office を左上に配置（外壁は親が担当）
   [[chunk.placements]]
-    chunks = ["13x8_small_office"]
+    chunks = ["11x6_small_office"]
     id     = "A"
 
-  # 15x12_office_building を中央に配置（外壁は親が担当）
+  # 15x10_office_building を中央に配置（外壁は親が担当）
   [[chunk.placements]]
-    chunks = ["15x12_office_building"]
+    chunks = ["15x10_office_building"]
     id     = "B"
 
-  # 13x8_small_office を左下に配置（外壁は親が担当）
+  # 11x6_small_office を左下に配置（外壁は親が担当）
   [[chunk.placements]]
-    chunks = ["13x8_small_office"]
+    chunks = ["11x6_small_office"]
     id     = "C"

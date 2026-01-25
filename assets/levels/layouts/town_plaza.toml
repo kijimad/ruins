@@ -5,7 +5,6 @@
 [[chunk]]
   name     = "20x20_town_plaza"
   palettes = ["standard", "town"]
-  size     = [20, 20]
   weight   = 1
 
   map = """

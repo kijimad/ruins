@@ -15,9 +15,8 @@ func TestTemplateLoader_Load(t *testing.T) {
 	t.Run("正常なテンプレート定義を読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "test_facility"
+name = "5x3_test_facility"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 #####
@@ -32,7 +31,7 @@ map = """
 		require.Len(t, templates, 1)
 
 		template := templates[0]
-		assert.Equal(t, "test_facility", template.Name)
+		assert.Equal(t, "5x3_test_facility", template.Name)
 		assert.Equal(t, 100, template.Weight)
 		assert.Equal(t, [2]int{5, 3}, template.Size)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
@@ -41,9 +40,8 @@ map = """
 	t.Run("複数のテンプレートを読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "small"
+name = "3x3_small"
 weight = 50
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -52,9 +50,8 @@ map = """
 """
 
 [[chunk]]
-name = "large"
+name = "5x5_large"
 weight = 30
-size = [5, 5]
 palettes = ["standard"]
 map = """
 #####
@@ -69,8 +66,8 @@ map = """
 
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
-		assert.Equal(t, "small", templates[0].Name)
-		assert.Equal(t, "large", templates[1].Name)
+		assert.Equal(t, "3x3_small", templates[0].Name)
+		assert.Equal(t, "5x5_large", templates[1].Name)
 	})
 
 	t.Run("nameが空の場合はエラー", func(t *testing.T) {
@@ -78,7 +75,6 @@ map = """
 		content := `[[chunk]]
 name = ""
 weight = 100
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -90,15 +86,14 @@ map = """
 		_, err := loader.Load(strings.NewReader(content))
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "チャンク名（キー）が空です")
+		assert.Contains(t, err.Error(), "名前パースエラー")
 	})
 
 	t.Run("weightが0以下の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "無効な重み"
+name = "3x3_無効な重み"
 weight = 0
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -116,9 +111,8 @@ map = """
 	t.Run("マップサイズが定義と一致しない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "サイズ不一致"
+name = "5x3_サイズ不一致"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -137,9 +131,8 @@ map = """
 	t.Run("マップの行長が不一致の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "不規則マップ"
+name = "5x3_不規則マップ"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 #####
@@ -158,9 +151,8 @@ map = """
 	t.Run("複数パレットを指定できる", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "multi_palette"
+name = "3x3_multi_palette"
 weight = 100
-size = [3, 3]
 palettes = ["standard", "town", "dungeon"]
 map = """
 ###
@@ -179,9 +171,8 @@ map = """
 	t.Run("パレット指定なしでも読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "no_palette"
+name = "3x3_no_palette"
 weight = 100
-size = [3, 3]
 map = """
 ###
 #.#
@@ -199,9 +190,8 @@ map = """
 	t.Run("Placementsを持つテンプレートを読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "with_nested"
+name = "5x5_with_nested"
 weight = 100
-size = [5, 5]
 palettes = ["standard"]
 map = """
 #####
@@ -228,9 +218,8 @@ id = "A"
 	t.Run("サイズ0はエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "zero_size"
+name = "0x0_zero_size"
 weight = 100
-size = [0, 3]
 palettes = ["standard"]
 map = """
 """
@@ -245,9 +234,8 @@ map = """
 	t.Run("負の重みはエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "negative_weight"
+name = "3x3_negative_weight"
 weight = -10
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -265,9 +253,8 @@ map = """
 	t.Run("マップが空の場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "empty_map"
+name = "1x1_empty_map"
 weight = 100
-size = [3, 3]
 palettes = ["standard"]
 map = ""
 `
@@ -281,9 +268,8 @@ map = ""
 	t.Run("大きなマップを読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "large_map"
+name = "10x10_large_map"
 weight = 100
-size = [10, 10]
 palettes = ["standard"]
 map = """
 ##########
@@ -309,9 +295,8 @@ map = """
 	t.Run("マルチバイト文字を含むマップを読み込める", func(t *testing.T) {
 		t.Parallel()
 		content := `[[chunk]]
-name = "japanese_map"
+name = "5x3_japanese_map"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 壁壁壁壁壁
@@ -337,9 +322,8 @@ func TestTemplateLoader_LoadFile(t *testing.T) {
 		templateFile := filepath.Join(tmpDir, "test_template.toml")
 
 		content := `[[chunk]]
-name = "test_facility"
+name = "5x3_test_facility"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 #####
@@ -356,7 +340,7 @@ map = """
 		require.Len(t, templates, 1)
 
 		template := templates[0]
-		assert.Equal(t, "test_facility", template.Name)
+		assert.Equal(t, "5x3_test_facility", template.Name)
 		assert.Equal(t, 100, template.Weight)
 		assert.Equal(t, [2]int{5, 3}, template.Size)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
@@ -368,9 +352,8 @@ map = """
 		templateFile := filepath.Join(tmpDir, "multi_template.toml")
 
 		content := `[[chunk]]
-name = "small"
+name = "3x3_small"
 weight = 50
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -379,9 +362,8 @@ map = """
 """
 
 [[chunk]]
-name = "large"
+name = "5x5_large"
 weight = 30
-size = [5, 5]
 palettes = ["standard"]
 map = """
 #####
@@ -398,8 +380,8 @@ map = """
 
 		require.NoError(t, err)
 		require.Len(t, templates, 2)
-		assert.Equal(t, "small", templates[0].Name)
-		assert.Equal(t, "large", templates[1].Name)
+		assert.Equal(t, "3x3_small", templates[0].Name)
+		assert.Equal(t, "5x5_large", templates[1].Name)
 	})
 
 	t.Run("nameが空の場合はエラー", func(t *testing.T) {
@@ -410,7 +392,6 @@ map = """
 		content := `[[chunk]]
 name = ""
 weight = 100
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -424,7 +405,7 @@ map = """
 		_, err := loader.LoadFile(templateFile)
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "チャンク名（キー）が空です")
+		assert.Contains(t, err.Error(), "名前パースエラー")
 	})
 
 	t.Run("weightが0以下の場合はエラー", func(t *testing.T) {
@@ -434,9 +415,8 @@ map = """
 
 		content := `[[chunk]]
 type = "test"
-name = "無効な重み"
+name = "3x3_無効な重み"
 weight = 0
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -460,9 +440,8 @@ map = """
 
 		content := `[[chunk]]
 type = "test"
-name = "サイズ不一致"
+name = "5x3_サイズ不一致"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 ###
@@ -487,9 +466,8 @@ map = """
 
 		content := `[[chunk]]
 type = "test"
-name = "不規則マップ"
+name = "5x3_不規則マップ"
 weight = 100
-size = [5, 3]
 palettes = ["standard"]
 map = """
 #####
@@ -567,9 +545,8 @@ func TestTemplateLoader_ChunkOperations(t *testing.T) {
 		chunkFile := filepath.Join(tmpDir, "chunk.toml")
 
 		content := `[[chunk]]
-name = "test_chunk"
+name = "3x3_test_chunk"
 weight = 100
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ...
@@ -584,10 +561,10 @@ map = """
 		require.NoError(t, err)
 
 		// キャッシュから取得できるか確認
-		chunks, err := loader.GetChunks("test_chunk")
+		chunks, err := loader.GetChunks("3x3_test_chunk")
 		require.NoError(t, err)
 		require.Len(t, chunks, 1)
-		assert.Equal(t, "test_chunk", chunks[0].Name)
+		assert.Equal(t, "3x3_test_chunk", chunks[0].Name)
 		assert.Equal(t, [2]int{3, 3}, chunks[0].Size)
 	})
 
@@ -606,9 +583,8 @@ map = """
 
 		// 同じ名前で重みが異なる3つのバリエーション
 		content := `[[chunk]]
-name = "room"
+name = "3x3_room"
 weight = 100
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ...
@@ -617,9 +593,8 @@ map = """
 """
 
 [[chunk]]
-name = "room"
+name = "3x3_room"
 weight = 50
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ...
@@ -628,9 +603,8 @@ map = """
 """
 
 [[chunk]]
-name = "room"
+name = "3x3_room"
 weight = 10
-size = [3, 3]
 palettes = ["standard"]
 map = """
 ...
@@ -645,7 +619,7 @@ map = """
 		require.NoError(t, err)
 
 		// GetChunksで3つのバリエーションを取得
-		chunks, err := loader.GetChunks("room")
+		chunks, err := loader.GetChunks("3x3_room")
 		require.NoError(t, err)
 		assert.Len(t, chunks, 3)
 
@@ -655,7 +629,7 @@ map = """
 		assert.Equal(t, 10, chunks[2].Weight)
 
 		// 最初のバリエーションを確認
-		assert.Equal(t, "room", chunks[0].Name)
+		assert.Equal(t, "3x3_room", chunks[0].Name)
 		assert.Contains(t, chunks[0].Map, "1")
 	})
 }
@@ -966,8 +940,8 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		// 15x12_office_buildingを読み込み
-		template, palette, err := loader.LoadTemplateByName("15x12_office_building", 12345)
+		// 15x10_office_buildingを読み込み
+		template, palette, err := loader.LoadTemplateByName("15x10_office_building", 12345)
 		require.NoError(t, err)
 		require.NotNil(t, template)
 		require.NotNil(t, palette)
