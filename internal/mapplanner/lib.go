@@ -101,7 +101,7 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 		}
 	}
 
-	// Propsをチェック（Doorも含む）
+	// Propsをチェック
 	for _, prop := range bm.Props {
 		if prop.X == x && prop.Y == y {
 			return true
