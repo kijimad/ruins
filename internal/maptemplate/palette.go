@@ -15,7 +15,7 @@ type Palette struct {
 	ID          string            `toml:"id"`
 	Description string            `toml:"description"`
 	Terrain     map[string]string `toml:"terrain"` // {文字: 地形名}
-	Props       map[string]string `toml:"props"`   // {文字: Prop名（ドア、テーブルなど）}
+	Props       map[string]string `toml:"props"`   // {文字: Prop名}
 	NPCs        map[string]string `toml:"npcs"`    // {文字: NPC種別}
 }
 

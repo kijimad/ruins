@@ -23,21 +23,27 @@ type ChunkTemplate struct {
 	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
 }
 
-// Size はマップのサイズ（幅×高さ）を表す。
+// Size はマップのサイズ（幅×高さ）を表す
 type Size struct {
 	W int // 幅
 	H int // 高さ
 }
 
-// String はサイズを "{幅}x{高さ}" 形式の文字列として返す。
+// String はサイズを "{幅}x{高さ}" 形式の文字列として返す
 func (s Size) String() string {
 	return fmt.Sprintf("%dx%d", s.W, s.H)
 }
 
 // ChunkPlacement はネストされたチャンクの配置情報
 type ChunkPlacement struct {
-	Chunks []string `toml:"chunks"` // チャンク名の配列（重み付き選択）
-	ID     string   `toml:"id"`     // プレースホルダ識別子（右下に配置される1文字）
+	// チャンク名の配列（重み付き選択）
+	// バリエーションの出し方には2つある
+	// - マイナーな違い（内装配置の違いなど）: 同じ名前で複数ファイルを作成し、1つの名前を指定
+	//   例: chunks = ["11x6_convenience_store"] → 11x6_convenience_store_1.toml, 11x6_convenience_store_2.toml から選択
+	// - メジャーな違い（異なる用途の建物など）: 異なる名前を配列で列挙
+	//   例: chunks = ["11x6_convenience_store", "11x6_clinic"] → コンビニか整骨院のどちらかが選ばれる
+	Chunks []string `toml:"chunks"`
+	ID     string   `toml:"id"` // プレースホルダ識別子（右下に配置される1文字）
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
