@@ -202,7 +202,7 @@ description = "日本語キー"
 
 func TestPaletteLoader_LoadFile(t *testing.T) {
 	t.Parallel()
-	t.Run("正常なパレット定義を読み込める", func(t *testing.T) {
+	t.Run("ファイルからパレット定義を読み込める", func(t *testing.T) {
 		t.Parallel()
 		// テスト用のTOMLファイルを作成
 		tmpDir := t.TempDir()
@@ -235,64 +235,12 @@ description = "テスト用パレット"
 		assert.Equal(t, "chair", palette.Props["C"])
 	})
 
-	t.Run("IDが空の場合はエラー", func(t *testing.T) {
+	t.Run("存在しないファイルはエラー", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := t.TempDir()
-		paletteFile := filepath.Join(tmpDir, "invalid_palette.toml")
-
-		content := `[palette]
-id = ""
-description = "無効なパレット"
-
-[palette.terrain]
-"#" = "wall"
-`
-		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
-
 		loader := NewPaletteLoader()
-		_, err := loader.LoadFile(paletteFile)
+		_, err := loader.LoadFile("/nonexistent/path/palette.toml")
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "パレットIDが空です")
-	})
-
-	t.Run("地形とPropsとNPCsが全て空の場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		tmpDir := t.TempDir()
-		paletteFile := filepath.Join(tmpDir, "empty_palette.toml")
-
-		content := `[palette]
-id = "empty"
-description = "空のパレット"
-`
-		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
-
-		loader := NewPaletteLoader()
-		_, err := loader.LoadFile(paletteFile)
-
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "地形、Props、またはNPCsの定義が必要です")
-	})
-
-	t.Run("2文字以上のキーはエラー", func(t *testing.T) {
-		t.Parallel()
-		tmpDir := t.TempDir()
-		paletteFile := filepath.Join(tmpDir, "invalid_key.toml")
-
-		content := `[palette]
-id = "invalid"
-description = "無効なキー"
-
-[palette.terrain]
-"##" = "wall"
-`
-		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
-
-		loader := NewPaletteLoader()
-		_, err := loader.LoadFile(paletteFile)
-
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "1文字である必要があります")
 	})
 }
 
