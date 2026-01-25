@@ -53,6 +53,8 @@ type MetaPlan struct {
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
+	// Bridges は配置予定の橋リスト
+	Bridges []BridgeSpec
 	// PlayerStartPosition はプレイヤー開始位置（'@'文字で指定された場合に使用する）
 	PlayerStartPosition *struct {
 		X int
@@ -336,10 +338,10 @@ type MetaMapPlanner interface {
 func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll("wall"))      // 全体を壁で埋める
-	chain.With(RoomDraw{})              // 部屋を描画
-	chain.With(LineCorridorPlanner{})   // 廊下を作成
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
+	chain.With(NewFillAll("wall"))    // 全体を壁で埋める
+	chain.With(RoomDraw{})            // 部屋を描画
+	chain.With(LineCorridorPlanner{}) // 廊下を作成
+	chain.With(NewBridgeConnection()) // 橋facilityとの接続のため最上列・最下列を床にする
 
 	return chain, nil
 }
@@ -354,7 +356,7 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 		FloorTile: "floor",
 		WallTile:  "wall",
 	}) // 大部屋を描画（バリエーション込み）
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
+	chain.With(NewBridgeConnection()) // 橋facilityとの接続のため最上列・最下列を床にする
 
 	return chain, nil
 }
@@ -492,6 +494,19 @@ var (
 		EnemyTableName:    "",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
+		},
+	}
+
+	// PlannerTypeBridge は橋テストマップ
+	PlannerTypeBridge = PlannerType{
+		Name:              "橋",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeBridge, seed)
 		},
 	}
 )

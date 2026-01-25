@@ -15,12 +15,13 @@ import (
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name       string           `toml:"name"`   // キー
-	Weight     int              `toml:"weight"` // 出現確率の重み
-	Size       Size             // マップサイズ（名前から自動パース）
-	Palettes   []string         `toml:"palettes"`   // 使用するパレットID
-	Map        string           `toml:"map"`        // ASCIIマップ
-	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
+	Name       string            `toml:"name"`   // キー
+	Weight     int               `toml:"weight"` // 出現確率の重み
+	Size       Size              // マップサイズ（名前から自動パース）
+	Palettes   []string          `toml:"palettes"`   // 使用するパレットID
+	Map        string            `toml:"map"`        // ASCIIマップ
+	Placements []ChunkPlacement  `toml:"placements"` // ネストされたチャンクの配置
+	Bridges    []BridgePlacement `toml:"bridges"`    // 橋の配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -44,6 +45,13 @@ type ChunkPlacement struct {
 	//   例: chunks = ["11x6_convenience_store", "11x6_clinic"] → コンビニか整骨院のどちらかが選ばれる
 	Chunks []string `toml:"chunks"`
 	ID     string   `toml:"id"` // プレースホルダ識別子（右下に配置される1文字）
+}
+
+// BridgePlacement は橋の配置情報
+type BridgePlacement struct {
+	BridgeID string `toml:"bridge_id"` // 橋ID（"A", "B", "C", "D"）
+	X        int    `toml:"x"`         // X座標
+	Y        int    `toml:"y"`         // Y座標
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造

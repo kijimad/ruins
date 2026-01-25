@@ -3,6 +3,7 @@ package mapplanner
 
 import (
 	"fmt"
+	"log"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -89,7 +90,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 
 	if failCount > maxHostileNPCFailCount {
 		// エラーは記録するが、エラーを返さずに部分的な配置で続行
-		fmt.Printf("敵NPC配置の試行回数が上限に達しました。配置数: %d/%d\n", successCount, total)
+		log.Printf("HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d", successCount, total)
 	}
 	return nil
 }

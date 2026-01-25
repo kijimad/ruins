@@ -1774,6 +1774,63 @@
     SpriteKey       = "dirt"
     SpriteSheetName = "tile"
 
+    # 橋タイル ================
+
+[[Tiles]]
+  BlocksView  = false
+  Description = "橋A"
+  Name        = "bridge_a"
+  Walkable    = true
+
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "floor"
+    SpriteSheetName = "tile"
+
+[[Tiles]]
+  BlocksView  = false
+  Description = "橋B"
+  Name        = "bridge_b"
+  Walkable    = true
+
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "floor"
+    SpriteSheetName = "tile"
+
+[[Tiles]]
+  BlocksView  = false
+  Description = "橋C"
+  Name        = "bridge_c"
+  Walkable    = true
+
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "floor"
+    SpriteSheetName = "tile"
+
+[[Tiles]]
+  BlocksView  = false
+  Description = "橋D（帰還）"
+  Name        = "bridge_d"
+  Walkable    = true
+
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "floor"
+    SpriteSheetName = "tile"
+
+[[Tiles]]
+  BlocksView  = true
+  Description = "暗闇"
+  Name        = "void"
+  Walkable    = false
+
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "wall"
+    SpriteSheetName = "tile"
+
     # Props ================
 
 [[Props]]

@@ -40,6 +40,20 @@ func (t WarpEscapeInteraction) Config() InteractionConfig {
 	}
 }
 
+// BridgeInteraction は橋を渡る相互作用
+type BridgeInteraction struct {
+	BridgeID      string // 橋の識別子（"A", "B", "C", "D"）
+	NextFloorSeed uint64 // 次階層生成用のシード値
+}
+
+// Config は相互作用設定を返す
+func (b BridgeInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayAuto, // 橋の端に到達したら自動遷移
+	}
+}
+
 // DoorInteraction はドアの相互作用
 type DoorInteraction struct{}
 

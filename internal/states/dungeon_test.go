@@ -289,6 +289,10 @@ func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
 	turnManager := turns.NewTurnManager()
 	world.Resources.TurnManager = turnManager
 
+	// マップサイズを設定（移動判定に必要）
+	world.Resources.Dungeon.Level.TileWidth = 50
+	world.Resources.Dungeon.Level.TileHeight = 50
+
 	// プレイヤーエンティティを作成
 	playerEntity := world.Manager.NewEntity()
 	playerEntity.AddComponent(world.Components.Player, &gc.Player{})

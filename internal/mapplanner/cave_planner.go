@@ -21,6 +21,7 @@ func (c CavePlanner) PlanInitial(planData *MetaPlan) error {
 			planData.Tiles[i] = planData.GetTile("floor")
 		}
 	}
+
 	return nil
 }
 
@@ -48,7 +49,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 			for y := 0; y < height; y++ {
 				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-				// 境界は常に壁
+				// 境界は壁にする
 				if x == 0 || x == width-1 || y == 0 || y == height-1 {
 					newTiles[idx] = planData.GetTile("wall")
 					continue
@@ -346,7 +347,7 @@ func NewCavePlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, 
 	chain.With(CavePathWidener{})                   // 通路を広げる
 	chain.With(CaveConnector{})                     // 隔離領域を接続
 	chain.With(CaveStalactites{})                   // 鍾乳石配置
-	chain.With(NewBoundaryWall("wall"))             // 最外周を壁で囲む
+	chain.With(NewBridgeConnection())               // 橋facilityとの接続のため最上列・最下列を床にする
 
 	return chain, nil
 }

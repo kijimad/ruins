@@ -36,6 +36,10 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			case "floor":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
 				_, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
+			case "bridge_a", "bridge_b", "bridge_c", "bridge_d":
+				// 橋タイルは通常の床タイルとして生成（見た目は同じ）
+				index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
+				_, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
 			default:
 				// 未知のタイル名はエラーとして処理
 				return resources.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
@@ -49,6 +53,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 					index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
 					_, err = worldhelper.SpawnTile(world, "wall", tileX, tileY, &index)
 				}
+			case "void":
+				// voidタイルは何も生成しない（暗闇エリア）
+				// エンティティを生成せず、通行不可として扱う
 			default:
 				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}
@@ -135,6 +142,30 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
 				return resources.Level{}, fmt.Errorf("ドア初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
+		}
+	}
+
+	// 橋エンティティを生成する
+	dungeonResource := world.Resources.Dungeon
+	for _, bridge := range metaPlan.Bridges {
+		// 橋D（入口）はワープ機能を持たないため、エンティティを生成しない
+		if bridge.BridgeID == "D" {
+			continue
+		}
+
+		tileX, tileY := gc.Tile(bridge.X), gc.Tile(bridge.Y)
+
+		// gameSeedとdepthを取得（Dungeonリソースから）
+		// 新規ゲームの場合はdepthが0なので、metaPlanのシードを使用
+		gameSeed := uint64(0)
+		if dungeonResource != nil {
+			gameSeed = dungeonResource.NextFloorSeed
+		}
+		currentDepth := dungeonResource.Depth
+
+		_, err := worldhelper.SpawnBridge(world, bridge.BridgeID, tileX, tileY, currentDepth, gameSeed)
+		if err != nil {
+			return resources.Level{}, fmt.Errorf("橋エンティティ生成エラー (%d, %d): %w", bridge.X, bridge.Y, err)
 		}
 	}
 

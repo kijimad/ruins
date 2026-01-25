@@ -110,6 +110,13 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	if err := sys.renderSprites(world, screen, visibilityData); err != nil { // 物体を描画
 		return err
 	}
+
+	// デバッグモード: 橋エンティティの位置を色付きで表示
+	cfg := config.Get()
+	if cfg.ShowMapDebug {
+		sys.renderBridgeDebug(world, screen, visibilityData)
+	}
+
 	return nil
 }
 
@@ -478,4 +485,63 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 
 	return nil
+}
+
+// renderBridgeDebug はデバッグモードで橋エンティティの位置を色付きで表示する
+func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) {
+	// 橋エンティティを検索
+	world.Manager.Join(
+		world.Components.Interactable,
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
+		// BridgeInteractionのみを対象
+		bridgeInteraction, ok := interactable.Data.(gc.BridgeInteraction)
+		if !ok {
+			return
+		}
+
+		// 視界チェック
+		if visibilityData != nil {
+			tileKey := fmt.Sprintf("%d,%d", gridElement.X, gridElement.Y)
+			if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {
+				return
+			}
+		}
+
+		// グリッド座標をピクセル座標に変換
+		pixelX := float64(int(gridElement.X) * int(consts.TileSize))
+		pixelY := float64(int(gridElement.Y) * int(consts.TileSize))
+
+		// 橋IDによって色を変える
+		var debugColor color.RGBA
+		switch bridgeInteraction.BridgeID {
+		case "A":
+			debugColor = color.RGBA{255, 0, 0, 128} // 赤（半透明）
+		case "B":
+			debugColor = color.RGBA{0, 255, 0, 128} // 緑（半透明）
+		case "C":
+			debugColor = color.RGBA{0, 0, 255, 128} // 青（半透明）
+		default:
+			debugColor = color.RGBA{255, 255, 0, 128} // 黄（半透明）
+		}
+
+		// タイルサイズの色付き矩形を描画
+		debugImage := ebiten.NewImage(int(consts.TileSize), int(consts.TileSize))
+		debugImage.Fill(debugColor)
+
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(pixelX, pixelY)
+		SetTranslate(world, op)
+		screen.DrawImage(debugImage, op)
+
+		// 橋IDをテキストで表示
+		textOp := &ebiten.DrawImageOptions{}
+		textOp.GeoM.Translate(pixelX+float64(consts.TileSize)/2-4, pixelY+float64(consts.TileSize)/2-4)
+		SetTranslate(world, textOp)
+		screenX, screenY := textOp.GeoM.Apply(0, 0)
+		ebitenutil.DebugPrintAt(screen, bridgeInteraction.BridgeID, int(screenX), int(screenY))
+	}))
 }

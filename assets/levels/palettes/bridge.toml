@@ -1,0 +1,17 @@
+# 橋パレット
+# 橋を含むダンジョンで使用する地形定義
+
+[palette]
+  description = "橋パレット"
+  id          = "bridge"
+
+  # 地形の定義
+  [palette.terrain]
+    "." = "floor"    # 床
+    "#" = "wall"     # 壁
+    "-" = "void"     # 暗闇
+    "@" = "floor"    # プレイヤー開始位置（床として扱う）
+    "A" = "bridge_a" # 橋A
+    "B" = "bridge_b" # 橋B
+    "C" = "bridge_c" # 橋C
+    "D" = "bridge_d" # 橋D（帰還）

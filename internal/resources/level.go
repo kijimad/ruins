@@ -20,6 +20,10 @@ type Dungeon struct {
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
 	NeedsForceUpdate bool
+	// 次階層のシード値（橋選択で決定）
+	NextFloorSeed uint64
+	// 選択された橋のID（ログ用）
+	SelectedBridgeID string
 }
 
 // SetStateEvent はStateEventを設定する

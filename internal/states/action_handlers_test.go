@@ -16,6 +16,10 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// マップサイズを設定（移動判定に必要）
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
+
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -80,6 +84,10 @@ func TestExecuteMoveAction(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
+
+				// マップサイズを設定（移動判定に必要）
+				world.Resources.Dungeon.Level.TileWidth = 50
+				world.Resources.Dungeon.Level.TileHeight = 50
 
 				player := world.Manager.NewEntity()
 				player.AddComponent(world.Components.Player, &gc.Player{})

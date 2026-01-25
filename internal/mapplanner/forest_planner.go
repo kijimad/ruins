@@ -293,11 +293,10 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 func NewForestPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(ForestPlanner{})
-	chain.With(ForestTerrain{})         // 基本地形を生成
-	chain.With(ForestTrees{})           // 木を配置
-	chain.With(ForestPaths{})           // 自然な通路を作成
-	chain.With(ForestWildlife{})        // 野生動物の痕跡を追加
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
+	chain.With(ForestTerrain{})  // 基本地形を生成
+	chain.With(ForestTrees{})    // 木を配置
+	chain.With(ForestPaths{})    // 自然な通路を作成
+	chain.With(ForestWildlife{}) // 野生動物の痕跡を追加
 
 	return chain, nil
 }

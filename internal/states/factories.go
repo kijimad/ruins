@@ -280,6 +280,7 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("デバッグ表示切り替え", func(_ w.World) error {
 			cfg := config.Get()
+			cfg.ShowMapDebug = !cfg.ShowMapDebug
 			cfg.ShowAIDebug = !cfg.ShowAIDebug
 			cfg.NoEncounter = !cfg.NoEncounter
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})

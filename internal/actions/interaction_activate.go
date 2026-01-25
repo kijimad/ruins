@@ -74,6 +74,8 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 		ia.executeWarpNext(act, world, content)
 	case gc.WarpEscapeInteraction:
 		ia.executeWarpEscape(act, world, content)
+	case gc.BridgeInteraction:
+		ia.executeBridge(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
@@ -137,6 +139,25 @@ func (ia *InteractionActivateActivity) executeWarpEscape(act *Activity, world w.
 	} else {
 		world.Resources.Dungeon.SetStateEvent(resources.WarpEscapeEvent{})
 		act.Logger.Debug("脱出ワープ", "actor", act.Actor, "depth", currentDepth)
+	}
+}
+
+// executeBridge は橋を渡る相互作用を実行する
+func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
+	// NextFloorSeed を Dungeon リソースに保存
+	world.Resources.Dungeon.NextFloorSeed = bridge.NextFloorSeed
+	world.Resources.Dungeon.SelectedBridgeID = bridge.BridgeID
+
+	// WarpNextEvent を発行
+	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{})
+
+	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextSeed", bridge.NextFloorSeed)
+
+	// ログ出力
+	if isPlayerActivity(act, world) {
+		gamelog.New(gamelog.FieldLog).
+			Magic(fmt.Sprintf("橋%sを渡った。", bridge.BridgeID)).
+			Log()
 	}
 }
 

@@ -16,6 +16,10 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// マップサイズを設定（移動判定に必要）
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
+
 		// プレイヤーを(10, 10)にスポーン
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
@@ -41,6 +45,10 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// マップサイズを設定（移動判定に必要）
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
+
 		// プレイヤーを(10, 10)にスポーン
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
@@ -65,6 +73,10 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 	t.Run("プレイヤーが壁に完全に囲まれた場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+
+		// マップサイズを設定（移動判定に必要）
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
 
 		// プレイヤーを(10, 10)にスポーン
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")

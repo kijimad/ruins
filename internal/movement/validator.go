@@ -8,15 +8,16 @@ package movement
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // CanMoveTo は指定位置に移動可能かチェックする
 func CanMoveTo(world w.World, tileX, tileY int, movingEntity ecs.Entity) bool {
-	// 基本的な境界チェック
-	if tileX < 0 || tileY < 0 || tileX >= consts.MapTileWidth || tileY >= consts.MapTileHeight {
+	// 基本的な境界チェック（実際のマップサイズを使用）
+	mapWidth := int(world.Resources.Dungeon.Level.TileWidth)
+	mapHeight := int(world.Resources.Dungeon.Level.TileHeight)
+	if tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight {
 		return false
 	}
 

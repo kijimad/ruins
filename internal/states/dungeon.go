@@ -35,6 +35,8 @@ type DungeonState struct {
 	Seed uint64
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
+	// SpawnAtBridgeD が true の場合、プレイヤーを橋D（入口）に配置する
+	SpawnAtBridgeD bool
 }
 
 func (st DungeonState) String() string {
@@ -87,9 +89,29 @@ func (st *DungeonState) OnStart(world w.World) error {
 	world.Resources.Dungeon.Level = level
 
 	// プレイヤー位置を取得する
-	playerX, playerY, hasPlayerPos := plan.GetPlayerStartPosition()
-	if !hasPlayerPos {
-		return fmt.Errorf("プレイヤー開始位置が設定されていません")
+	var playerX, playerY int
+	if st.SpawnAtBridgeD {
+		// 橋Dの下に配置（橋から遷移してきた場合）
+		// シームレスな遷移のため、橋の下側にスポーンする
+		foundBridgeD := false
+		for _, bridge := range plan.Bridges {
+			if bridge.BridgeID == "D" {
+				playerX = bridge.X
+				playerY = bridge.Y + 8 // 橋の下側にスポーン（橋はy=3、+8でy=11、橋の下部）
+				foundBridgeD = true
+				break
+			}
+		}
+		if !foundBridgeD {
+			return fmt.Errorf("橋D（入口）が見つかりません")
+		}
+	} else {
+		// 通常の開始位置に配置
+		hasPlayerPos := false
+		playerX, playerY, hasPlayerPos = plan.GetPlayerStartPosition()
+		if !hasPlayerPos {
+			return fmt.Errorf("プレイヤー開始位置が設定されていません")
+		}
 	}
 	// プレイヤーを配置する
 	if err := worldhelper.MovePlayerToPosition(world, playerX, playerY); err != nil {
@@ -101,6 +123,13 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// 視界キャッシュをクリア（新しい階のために）
 	gs.ClearVisionCaches()
+
+	// NextFloorSeed と SelectedBridgeID をリセット（次の階層で再利用されないように）
+	world.Resources.Dungeon.NextFloorSeed = 0
+	world.Resources.Dungeon.SelectedBridgeID = ""
+
+	// StateEvent をリセット（橋遷移後のイベントが残らないように）
+	world.Resources.Dungeon.SetStateEvent(resources.NoneEvent{})
 
 	return nil
 }
@@ -136,6 +165,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
+	// デバッグ: Update が呼ばれているか確認（橋遷移後の最初の数フレームのみ）
+
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -297,7 +328,8 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
 		if world.Resources.TurnManager != nil {
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			if !turnManager.CanPlayerAct() {
+			canAct := turnManager.CanPlayerAct()
+			if !canAct {
 				return es.Transition[w.World]{Type: es.TransNone}, nil
 			}
 		}
@@ -445,7 +477,23 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			}}, nil
 		}
 	case resources.WarpNextEvent:
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(world.Resources.Dungeon.Depth + 1)}}, nil
+		// 橋を渡って次のフロアへ遷移（橋D位置にスポーン）
+		nextDepth := world.Resources.Dungeon.Depth + 1
+		seed := world.Resources.Dungeon.NextFloorSeed
+
+		return es.Transition[w.World]{
+			Type: es.TransSwitch,
+			NewStateFuncs: []es.StateFactory[w.World]{
+				func() es.State[w.World] {
+					return &DungeonState{
+						Depth:          nextDepth,
+						Seed:           seed,
+						BuilderType:    mapplanner.PlannerTypeRandom,
+						SpawnAtBridgeD: true, // 橋Dに配置
+					}
+				},
+			},
+		}, nil
 	case resources.WarpEscapeEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}}, nil
 	case resources.GameClearEvent:
