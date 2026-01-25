@@ -128,7 +128,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 	// 3x2のチャンクを登録
 	child := &ChunkTemplate{
 		Name:   "child",
-		Size:   [2]int{3, 2},
+		Size:   Size{W: 3, H: 2},
 		Weight: 100,
 		Map:    "...\n...",
 	}
@@ -137,7 +137,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 	tests := []struct {
 		name        string
 		parentMap   string
-		parentSize  [2]int
+		parentSize  Size
 		placement   ChunkPlacement
 		shouldError bool
 		errorMsg    string
@@ -148,7 +148,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 .@@@.....
 .@@A.....
 .........`,
-			parentSize: [2]int{9, 4},
+			parentSize: Size{W: 9, H: 4},
 			placement: ChunkPlacement{
 				Chunks: []string{"child"},
 				ID:     "A",
@@ -161,7 +161,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 .@@@@....
 .@@@A....
 .........`,
-			parentSize: [2]int{9, 4},
+			parentSize: Size{W: 9, H: 4},
 			placement: ChunkPlacement{
 				Chunks: []string{"child"},
 				ID:     "A",
@@ -176,7 +176,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 .@@@.....
 .@@A.....
 .........`,
-			parentSize: [2]int{9, 5},
+			parentSize: Size{W: 9, H: 5},
 			placement: ChunkPlacement{
 				Chunks: []string{"child"},
 				ID:     "A",
@@ -190,7 +190,7 @@ func TestValidatePlaceholders_WithID(t *testing.T) {
 .@@@.....
 .@@@.....
 .........`,
-			parentSize: [2]int{9, 4},
+			parentSize: Size{W: 9, H: 4},
 			placement: ChunkPlacement{
 				Chunks: []string{"child"},
 				ID:     "Z",
@@ -234,7 +234,7 @@ func TestExpandWithPlacements_WithID(t *testing.T) {
 	// 3x2のチャンクを登録
 	child := &ChunkTemplate{
 		Name:   "child",
-		Size:   [2]int{3, 2},
+		Size:   Size{W: 3, H: 2},
 		Weight: 100,
 		Map:    "ABC\nDEF",
 	}
@@ -242,7 +242,7 @@ func TestExpandWithPlacements_WithID(t *testing.T) {
 
 	parentTemplate := &ChunkTemplate{
 		Name:   "parent",
-		Size:   [2]int{7, 4},
+		Size:   Size{W: 7, H: 4},
 		Weight: 100,
 		Map: `.......
 .@@@...

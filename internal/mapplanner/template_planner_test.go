@@ -15,7 +15,7 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 	template := &maptemplate.ChunkTemplate{
 		Name:     "test",
 		Weight:   100,
-		Size:     [2]int{5, 3},
+		Size:     maptemplate.Size{W: 5, H: 3},
 		Palettes: []string{"standard"},
 		Map: `#####
 #...#
@@ -86,7 +86,7 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 	template := &maptemplate.ChunkTemplate{
 		Name:     "test",
 		Weight:   100,
-		Size:     [2]int{5, 3},
+		Size:     maptemplate.Size{W: 5, H: 3},
 		Palettes: []string{"standard"},
 		Map: `#####
 #T.M#
@@ -154,7 +154,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 	template := &maptemplate.ChunkTemplate{
 		Name:     "test",
 		Weight:   100,
-		Size:     [2]int{10, 10},
+		Size:     maptemplate.Size{W: 10, H: 10},
 		Palettes: []string{"standard"},
 		Map: `##########
 #........#
@@ -211,7 +211,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		invalidTemplate := &maptemplate.ChunkTemplate{
 			Name:     "test",
 			Weight:   100,
-			Size:     [2]int{3, 3},
+			Size:     maptemplate.Size{W: 3, H: 3},
 			Palettes: []string{"standard"},
 			Map: `###
 #X#

@@ -19,7 +19,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// Level 0: 基本的な部屋（3x3）
 		roomChunk := &ChunkTemplate{
 			Name:   "room",
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Weight: 100,
 			Map: `###
 #.#
@@ -30,7 +30,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// Level 1: 建物（2つの部屋を含む 7x3）
 		buildingChunk := &ChunkTemplate{
 			Name:   "building",
-			Size:   [2]int{7, 3},
+			Size:   Size{W: 7, H: 3},
 			Weight: 100,
 			Map: `@@@.@@B
 @@@.@@@
@@ -45,7 +45,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// Level 2: 街区（建物を含む 7x3）
 		blockTemplate := &ChunkTemplate{
 			Name:   "block",
-			Size:   [2]int{7, 3},
+			Size:   Size{W: 7, H: 3},
 			Weight: 100,
 			Map: `@@@@@@C
 @@@@@@@
@@ -78,7 +78,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 
 			chunk := &ChunkTemplate{
 				Name:   chunkType,
-				Size:   [2]int{2, 2},
+				Size:   Size{W: 2, H: 2},
 				Weight: 100,
 				Map: `@A
 @@`,
@@ -92,7 +92,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// 最終レベル
 		loader.chunkCache["level11"] = []*ChunkTemplate{&ChunkTemplate{
 			Name:   "level11",
-			Size:   [2]int{2, 2},
+			Size:   Size{W: 2, H: 2},
 			Weight: 100,
 			Map: `..
 ..`,
@@ -100,7 +100,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 
 		rootTemplate := &ChunkTemplate{
 			Name:   "root",
-			Size:   [2]int{2, 2},
+			Size:   Size{W: 2, H: 2},
 			Weight: 100,
 			Map: `@A
 @@`,
@@ -122,7 +122,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// チャンクAがチャンクBを参照
 		chunkA := &ChunkTemplate{
 			Name:   "chunk_a",
-			Size:   [2]int{2, 2},
+			Size:   Size{W: 2, H: 2},
 			Weight: 100,
 			Map: `@A
 @@`,
@@ -135,7 +135,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		// チャンクBがチャンクAを参照（循環）
 		chunkB := &ChunkTemplate{
 			Name:   "chunk_b",
-			Size:   [2]int{2, 2},
+			Size:   Size{W: 2, H: 2},
 			Weight: 100,
 			Map: `@A
 @@`,
@@ -157,7 +157,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 
 		template := &ChunkTemplate{
 			Name:   "simple",
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Weight: 100,
 			Map: `###
 #.#

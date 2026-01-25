@@ -39,7 +39,7 @@ func TestLoadRealFiles(t *testing.T) {
 		template := templates[0]
 		assert.Equal(t, "10x10_small_room", template.Name)
 		assert.Equal(t, 100, template.Weight)
-		assert.Equal(t, [2]int{10, 10}, template.Size)
+		assert.Equal(t, Size{W: 10, H: 10}, template.Size)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
 		assert.NotEmpty(t, template.Map)
 	})
@@ -56,25 +56,25 @@ func TestLoadRealFiles(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, bedroomChunks)
 		assert.Equal(t, "3x3_bedroom", bedroomChunks[0].Name)
-		assert.Equal(t, [2]int{3, 3}, bedroomChunks[0].Size)
+		assert.Equal(t, Size{W: 3, H: 3}, bedroomChunks[0].Size)
 
 		meetingRoomChunks, err := loader.GetChunks("5x5_meeting_room")
 		require.NoError(t, err)
 		require.NotEmpty(t, meetingRoomChunks)
 		assert.Equal(t, "5x5_meeting_room", meetingRoomChunks[0].Name)
-		assert.Equal(t, [2]int{5, 5}, meetingRoomChunks[0].Size)
+		assert.Equal(t, Size{W: 5, H: 5}, meetingRoomChunks[0].Size)
 
 		storageChunks, err := loader.GetChunks("4x4_storage")
 		require.NoError(t, err)
 		require.NotEmpty(t, storageChunks)
 		assert.Equal(t, "4x4_storage", storageChunks[0].Name)
-		assert.Equal(t, [2]int{4, 4}, storageChunks[0].Size)
+		assert.Equal(t, Size{W: 4, H: 4}, storageChunks[0].Size)
 
 		officeChunks, err := loader.GetChunks("5x4_office")
 		require.NoError(t, err)
 		require.NotEmpty(t, officeChunks)
 		assert.Equal(t, "5x4_office", officeChunks[0].Name)
-		assert.Equal(t, [2]int{5, 4}, officeChunks[0].Size)
+		assert.Equal(t, Size{W: 5, H: 4}, officeChunks[0].Size)
 	})
 
 	t.Run("複合施設テンプレートを読み込んでチャンク展開できる", func(t *testing.T) {
@@ -106,9 +106,9 @@ func TestLoadRealFiles(t *testing.T) {
 
 		// 展開後のマップサイズが維持されていることを確認
 		lines := splitMapLines(expandedMap)
-		assert.Len(t, lines, smallOffice.Size[1])
+		assert.Len(t, lines, smallOffice.Size.H)
 		for _, line := range lines {
-			assert.Len(t, line, smallOffice.Size[0])
+			assert.Len(t, line, smallOffice.Size.W)
 		}
 	})
 
@@ -121,7 +121,7 @@ func TestLoadRealFiles(t *testing.T) {
 
 		plaza := templates[0]
 		assert.Equal(t, "20x20_town_plaza", plaza.Name)
-		assert.Equal(t, [2]int{20, 20}, plaza.Size)
+		assert.Equal(t, Size{W: 20, H: 20}, plaza.Size)
 		assert.Contains(t, plaza.Palettes, "standard")
 		assert.Contains(t, plaza.Palettes, "town")
 

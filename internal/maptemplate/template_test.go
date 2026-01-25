@@ -33,7 +33,7 @@ map = """
 		template := templates[0]
 		assert.Equal(t, "5x3_test_facility", template.Name)
 		assert.Equal(t, 100, template.Weight)
-		assert.Equal(t, [2]int{5, 3}, template.Size)
+		assert.Equal(t, Size{W: 5, H: 3}, template.Size)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
 	})
 
@@ -289,7 +289,7 @@ map = """
 
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
-		assert.Equal(t, [2]int{10, 10}, templates[0].Size)
+		assert.Equal(t, Size{W: 10, H: 10}, templates[0].Size)
 	})
 
 	t.Run("マルチバイト文字を含むマップを読み込める", func(t *testing.T) {
@@ -342,7 +342,7 @@ map = """
 		template := templates[0]
 		assert.Equal(t, "5x3_test_facility", template.Name)
 		assert.Equal(t, 100, template.Weight)
-		assert.Equal(t, [2]int{5, 3}, template.Size)
+		assert.Equal(t, Size{W: 5, H: 3}, template.Size)
 		assert.Equal(t, []string{"standard"}, template.Palettes)
 	})
 
@@ -565,7 +565,7 @@ map = """
 		require.NoError(t, err)
 		require.Len(t, chunks, 1)
 		assert.Equal(t, "3x3_test_chunk", chunks[0].Name)
-		assert.Equal(t, [2]int{3, 3}, chunks[0].Size)
+		assert.Equal(t, Size{W: 3, H: 3}, chunks[0].Size)
 	})
 
 	t.Run("存在しないチャンクはエラー", func(t *testing.T) {
@@ -644,7 +644,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 #.#
 ###`,
 			Weight: 100,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 		}
 
 		loader := NewTemplateLoader()
@@ -661,7 +661,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		chunk := &ChunkTemplate{
 			Name:   "room",
 			Weight: 100,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .T.
 ...`,
@@ -672,7 +672,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
-			Size:   [2]int{5, 5},
+			Size:   Size{W: 5, H: 5},
 			Map: `#####
 #@@@#
 #@@A#
@@ -702,7 +702,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		room := &ChunkTemplate{
 			Name:   "room",
 			Weight: 100,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .T.
 ...`,
@@ -713,7 +713,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		storage := &ChunkTemplate{
 			Name:   "storage",
 			Weight: 100,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .X.
 ...`,
@@ -724,7 +724,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		template := ChunkTemplate{
 			Name:   "compound",
 			Weight: 100,
-			Size:   [2]int{9, 5},
+			Size:   Size{W: 9, H: 5},
 			Map: `###+####+#
 #@@@#.#@@@
 #@@@#.#@@@
@@ -755,7 +755,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		chunk := &ChunkTemplate{
 			Name:   "room",
 			Weight: 100,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .T.
 ...`,
@@ -766,7 +766,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
-			Size:   [2]int{4, 4},
+			Size:   Size{W: 4, H: 4},
 			Map: `....
 .@A.
 .@@.
@@ -788,7 +788,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
-			Size:   [2]int{5, 5},
+			Size:   Size{W: 5, H: 5},
 			Map: `#####
 #@@@#
 #@@A#
@@ -812,7 +812,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		room1 := &ChunkTemplate{
 			Name:   "room1",
 			Weight: 100,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .1.
 ...`,
@@ -823,7 +823,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		room2 := &ChunkTemplate{
 			Name:   "room2",
 			Weight: 50,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .2.
 ...`,
@@ -834,7 +834,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		room3 := &ChunkTemplate{
 			Name:   "room3",
 			Weight: 10,
-			Size:   [2]int{3, 3},
+			Size:   Size{W: 3, H: 3},
 			Map: `...
 .3.
 ...`,
@@ -845,7 +845,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		template := ChunkTemplate{
 			Name:   "building",
 			Weight: 100,
-			Size:   [2]int{5, 5},
+			Size:   Size{W: 5, H: 5},
 			Map: `#####
 #@@@#
 #@@A#

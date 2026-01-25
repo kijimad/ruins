@@ -12,22 +12,32 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// ChunkTemplate はチャンクテンプレート定義
+// すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
+type ChunkTemplate struct {
+	Name       string           `toml:"name"`   // キー
+	Weight     int              `toml:"weight"` // 出現確率の重み
+	Size       Size             // マップサイズ（名前から自動パース）
+	Palettes   []string         `toml:"palettes"`   // 使用するパレットID
+	Map        string           `toml:"map"`        // ASCIIマップ
+	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
+}
+
+// Size はマップのサイズ（幅×高さ）を表す。
+type Size struct {
+	W int // 幅
+	H int // 高さ
+}
+
+// String はサイズを "{幅}x{高さ}" 形式の文字列として返す。
+func (s Size) String() string {
+	return fmt.Sprintf("%dx%d", s.W, s.H)
+}
+
 // ChunkPlacement はネストされたチャンクの配置情報
 type ChunkPlacement struct {
 	Chunks []string `toml:"chunks"` // チャンク名の配列（重み付き選択）
 	ID     string   `toml:"id"`     // プレースホルダ識別子（右下に配置される1文字）
-}
-
-// ChunkTemplate はチャンクテンプレート定義
-// すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
-type ChunkTemplate struct {
-	Name   string `toml:"name"`   // キー
-	Weight int    `toml:"weight"` // 出現確率の重み
-	// TODO: わかりやすいように長さ用の構造体を作る {W: int, H: int}
-	Size       [2]int           // [幅, 高さ] (名前から自動パース)
-	Palettes   []string         `toml:"palettes"`   // 使用するパレットID
-	Map        string           `toml:"map"`        // ASCIIマップ
-	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
@@ -113,7 +123,7 @@ func (l *TemplateLoader) parseSizeFromName(t *ChunkTemplate) error {
 		return fmt.Errorf("高さのパースに失敗: %s", dimensions[1])
 	}
 
-	t.Size = [2]int{width, height}
+	t.Size = Size{W: width, H: height}
 	return nil
 }
 
@@ -127,8 +137,8 @@ func (l *TemplateLoader) validate(t *ChunkTemplate) error {
 		return fmt.Errorf("重みは正の整数である必要があります: %d", t.Weight)
 	}
 
-	if t.Size[0] <= 0 || t.Size[1] <= 0 {
-		return fmt.Errorf("サイズは正の整数である必要があります: %v", t.Size)
+	if t.Size.W <= 0 || t.Size.H <= 0 {
+		return fmt.Errorf("サイズは正の整数である必要があります: %s", t.Size)
 	}
 
 	return l.validateMap(t)
@@ -159,8 +169,8 @@ func (l *TemplateLoader) validateMap(t *ChunkTemplate) error {
 
 	actualWidth := expectedWidth
 	actualHeight := len(lines)
-	if actualWidth != t.Size[0] || actualHeight != t.Size[1] {
-		return fmt.Errorf("マップの実サイズ[%d, %d]が定義サイズ%vと一致しません", actualWidth, actualHeight, t.Size)
+	if actualWidth != t.Size.W || actualHeight != t.Size.H {
+		return fmt.Errorf("マップの実サイズ[%d, %d]が定義サイズ%sと一致しません", actualWidth, actualHeight, t.Size)
 	}
 
 	return nil
@@ -422,11 +432,11 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 		chunkLines := strings.Split(strings.TrimSpace(expandedChunkMap), "\n")
 
 		// サイズチェック
-		if len(chunkLines) != selectedChunk.Size[1] {
-			return "", fmt.Errorf("チャンク '%s' の高さが不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size[1], len(chunkLines))
+		if len(chunkLines) != selectedChunk.Size.H {
+			return "", fmt.Errorf("チャンク '%s' の高さが不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size.H, len(chunkLines))
 		}
-		if len(chunkLines) > 0 && len(chunkLines[0]) != selectedChunk.Size[0] {
-			return "", fmt.Errorf("チャンク '%s' の幅が不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size[0], len(chunkLines[0]))
+		if len(chunkLines) > 0 && len(chunkLines[0]) != selectedChunk.Size.W {
+			return "", fmt.Errorf("チャンク '%s' の幅が不一致: 期待%d、実際%d", selectedChunk.Name, selectedChunk.Size.W, len(chunkLines[0]))
 		}
 
 		// 事前に検出した位置情報を取得
@@ -435,16 +445,16 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 		width, height := pos.width, pos.height
 
 		// サイズの完全一致を検証
-		if width != selectedChunk.Size[0] || height != selectedChunk.Size[1] {
+		if width != selectedChunk.Size.W || height != selectedChunk.Size.H {
 			return "", fmt.Errorf(
-				"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域[%d,%d] (位置[%d,%d])とチャンクサイズ[%d,%d]が不一致",
-				t.Name, idx, placement.ID, selectedChunk.Name, width, height, placementX, placementY, selectedChunk.Size[0], selectedChunk.Size[1],
+				"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域[%d,%d] (位置[%d,%d])とチャンクサイズ%s が不一致",
+				t.Name, idx, placement.ID, selectedChunk.Name, width, height, placementX, placementY, selectedChunk.Size,
 			)
 		}
 
 		// チャンクを配置
-		for cy := 0; cy < selectedChunk.Size[1]; cy++ {
-			for cx := 0; cx < selectedChunk.Size[0]; cx++ {
+		for cy := 0; cy < selectedChunk.Size.H; cy++ {
+			for cx := 0; cx < selectedChunk.Size.W; cx++ {
 				targetX := placementX + cx
 				targetY := placementY + cy
 
@@ -638,8 +648,8 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 			return fmt.Errorf("placement %d: チャンク '%s' が見つかりません", idx, placement.Chunks[0])
 		}
 
-		expectedWidth := chunks[0].Size[0]
-		expectedHeight := chunks[0].Size[1]
+		expectedWidth := chunks[0].Size.W
+		expectedHeight := chunks[0].Size.H
 
 		// 識別子から位置を検出して検証
 		if placement.ID == "" {
@@ -654,8 +664,8 @@ func (t *ChunkTemplate) validatePlaceholders(loader *TemplateLoader) error {
 		// サイズの完全一致を検証
 		if width != expectedWidth || height != expectedHeight {
 			return fmt.Errorf(
-				"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域のサイズが不一致: 領域[%d,%d] (位置[%d,%d])、チャンクサイズ[%d,%d]",
-				t.Name, idx, placement.ID, placement.Chunks[0], width, height, x, y, expectedWidth, expectedHeight,
+				"親チャンク '%s': placement %d (ID='%s', 子チャンク='%s'): プレースホルダ領域のサイズが不一致: 領域[%d,%d] (位置[%d,%d])、チャンクサイズ%s",
+				t.Name, idx, placement.ID, placement.Chunks[0], width, height, x, y, chunks[0].Size,
 			)
 		}
 	}

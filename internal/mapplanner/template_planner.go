@@ -25,8 +25,8 @@ func NewTemplatePlanner(template *maptemplate.ChunkTemplate, palette *maptemplat
 // PlanInitial はテンプレートから初期マップを生成する
 func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 	// マップサイズを設定
-	width := p.Template.Size[0]
-	height := p.Template.Size[1]
+	width := p.Template.Size.W
+	height := p.Template.Size.H
 	metaPlan.Level.TileWidth = gc.Tile(width)
 	metaPlan.Level.TileHeight = gc.Tile(height)
 
@@ -89,8 +89,8 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 
 // NewTemplatePlannerChain はテンプレートベースのPlannerChainを作成する
 func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, palette *maptemplate.Palette, seed uint64) (*PlannerChain, error) {
-	width := gc.Tile(template.Size[0])
-	height := gc.Tile(template.Size[1])
+	width := gc.Tile(template.Size.W)
+	height := gc.Tile(template.Size.H)
 
 	chain := NewPlannerChain(width, height, seed)
 	planner := NewTemplatePlanner(template, palette)
