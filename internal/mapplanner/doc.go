@@ -23,8 +23,8 @@
 // ### 基本タイルタイプ
 // マップ生成で使用される標準タイルタイプ：
 //   - ゼロ値: 空のタイル（デフォルト状態、通行不可）
-//   - planData.GenerateTile("Floor"): 床タイル（通行可能）
-//   - planData.GenerateTile("Wall"): 壁タイル（通行不可）
+//   - planData.GenerateTile("floor"): 床タイル（通行可能）
+//   - planData.GenerateTile("wall"): 壁タイル（通行不可）
 //   - TileWater: 水タイル（通行可能だが特殊）
 //   - TileDoor: 扉タイル（開閉可能な通路）
 //   - TilePit: 落とし穴タイル（歩くと落下）
@@ -33,7 +33,7 @@
 // 新しいタイル定義システムでは、TOMLファイルでタイルの種類と属性を定義できます：
 //
 //	[[Tiles]]
-//	Name = "Floor"
+//	Name = "floor"
 //	Description = "床タイル - 移動可能な基本的なタイル"
 //	Walkable = true
 //
@@ -49,8 +49,8 @@
 // ## 通行可否判定
 //
 // マップ生成時にはタイルの Walkable フィールドで通行可否を判定します：
-//   - 通行可能: planData.GenerateTile("Floor")（Walkable=true）
-//   - 通行不可: planData.GenerateTile("Wall")（Walkable=false）、ゼロ値（Walkable=false）
+//   - 通行可能: planData.GenerateTile("floor")（Walkable=true）
+//   - 通行不可: planData.GenerateTile("wall")（Walkable=false）、ゼロ値（Walkable=false）
 //
 // ## マップ生成の流れ
 //

@@ -30,13 +30,6 @@ type WarpPortal struct {
 	Type WarpPortalType // ポータルの種別
 }
 
-// DoorSpec はドアエンティティの配置情報
-type DoorSpec struct {
-	X           int                // X座標
-	Y           int                // Y座標
-	Orientation gc.DoorOrientation // ドアの向き（横/縦）
-}
-
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
 	// 階層情報
@@ -60,8 +53,6 @@ type MetaPlan struct {
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
-	// Doors は配置予定のドアリスト
-	Doors []DoorSpec
 	// PlayerStartPosition はプレイヤー開始位置（'@'文字で指定された場合に使用する）
 	PlayerStartPosition *struct {
 		X int
@@ -113,13 +104,6 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 	// Propsをチェック
 	for _, prop := range bm.Props {
 		if prop.X == x && prop.Y == y {
-			return true
-		}
-	}
-
-	// Doorsをチェック
-	for _, door := range bm.Doors {
-		if door.X == x && door.Y == y {
 			return true
 		}
 	}
@@ -352,10 +336,10 @@ type MetaMapPlanner interface {
 func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll("Wall"))      // 全体を壁で埋める
+	chain.With(NewFillAll("wall"))      // 全体を壁で埋める
 	chain.With(RoomDraw{})              // 部屋を描画
 	chain.With(LineCorridorPlanner{})   // 廊下を作成
-	chain.With(NewBoundaryWall("Wall")) // 最外周を壁で囲む
+	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
 
 	return chain, nil
 }
@@ -365,12 +349,12 @@ func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerCh
 func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(BigRoomPlanner{})
-	chain.With(NewFillAll("Wall")) // 全体を壁で埋める
+	chain.With(NewFillAll("wall")) // 全体を壁で埋める
 	chain.With(BigRoomDraw{
-		FloorTile: "Floor",
-		WallTile:  "Wall",
+		FloorTile: "floor",
+		WallTile:  "wall",
 	}) // 大部屋を描画（バリエーション込み）
-	chain.With(NewBoundaryWall("Wall")) // 最外周を壁で囲む
+	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
 
 	return chain, nil
 }
@@ -467,7 +451,48 @@ var (
 		UseFixedPortalPos: true,  // ポータル位置を固定
 		ItemTableName:     "",    // 街ではアイテムをスポーンしないので空
 		EnemyTableName:    "",    // 街では敵をスポーンしないので空
-		PlannerFunc:       NewTownPlanner,
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
+		},
+	}
+
+	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
+	PlannerTypeOfficeBuilding = PlannerType{
+		Name:              "事務所ビル",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
+		},
+	}
+
+	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
+	PlannerTypeSmallTown = PlannerType{
+		Name:              "小さな町",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
+		},
+	}
+
+	// PlannerTypeTownPlaza は町の広場
+	PlannerTypeTownPlaza = PlannerType{
+		Name:              "広場",
+		SpawnEnemies:      false,
+		SpawnItems:        false,
+		UseFixedPortalPos: false,
+		ItemTableName:     "",
+		EnemyTableName:    "",
+		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
+		},
 	}
 )
 

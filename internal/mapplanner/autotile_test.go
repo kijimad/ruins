@@ -13,8 +13,8 @@ import (
 func TestCalculateAutoTileIndex(t *testing.T) {
 	t.Parallel()
 
-	const dirtTileType = "Dirt"
-	const floorTileType = "Floor"
+	const dirtTileType = "dirt"
+	const floorTileType = "floor"
 
 	// テスト用の5x5マップを作成
 	width, height := gc.Tile(5), gc.Tile(5)
@@ -169,17 +169,17 @@ func createTestRawMaster(t *testing.T) *raw.Master {
 
 	rawData := `
 [[Tiles]]
-Name = "Floor"
+Name = "floor"
 Description = "床タイル"
 Walkable = true
 
 [[Tiles]]
-Name = "Dirt"
+Name = "dirt"
 Description = "土タイル"
 Walkable = true
 
 [[Tiles]]
-Name = "Wall"
+Name = "wall"
 Description = "壁タイル"
 Walkable = false
 `

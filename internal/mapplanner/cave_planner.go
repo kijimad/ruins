@@ -16,9 +16,9 @@ func (c CavePlanner) PlanInitial(planData *MetaPlan) error {
 	// 初期状態をランダムに設定（30%の確率で壁、より広い空間を確保）
 	for i := range planData.Tiles {
 		if planData.RNG.Float64() < 0.30 {
-			planData.Tiles[i] = planData.GetTile("Wall")
+			planData.Tiles[i] = planData.GetTile("wall")
 		} else {
-			planData.Tiles[i] = planData.GetTile("Floor")
+			planData.Tiles[i] = planData.GetTile("floor")
 		}
 	}
 	return nil
@@ -50,7 +50,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 
 				// 境界は常に壁
 				if x == 0 || x == width-1 || y == 0 || y == height-1 {
-					newTiles[idx] = planData.GetTile("Wall")
+					newTiles[idx] = planData.GetTile("wall")
 					continue
 				}
 
@@ -59,9 +59,9 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 
 				// ルール：周囲に6つ以上の壁があれば壁、そうでなければ床（より通路を確保）
 				if wallCount >= 6 {
-					newTiles[idx] = planData.GetTile("Wall")
+					newTiles[idx] = planData.GetTile("wall")
 				} else {
-					newTiles[idx] = planData.GetTile("Floor")
+					newTiles[idx] = planData.GetTile("floor")
 				}
 			}
 		}
@@ -211,7 +211,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
 
 				// 隣接する床が2個以上ある場合、30%の確率で床にする
 				if adjacentFloorCount >= 2 && planData.RNG.Float64() < 0.3 {
-					newTiles[idx] = planData.GetTile("Floor")
+					newTiles[idx] = planData.GetTile("floor")
 				}
 			}
 		}
@@ -260,7 +260,7 @@ func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {
 			if planData.Tiles[idx].Walkable {
 				// 2%の確率で鍾乳石を配置（確率を下げてより通行可能に）
 				if planData.RNG.Float64() < 0.02 {
-					planData.Tiles[idx] = planData.GetTile("Wall")
+					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
 		}
@@ -314,7 +314,7 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 			y := currentY + dy
 			if y >= 1 && y < height-1 && currentX >= 1 && currentX < width-1 {
 				idx := planData.Level.XYTileIndex(gc.Tile(currentX), gc.Tile(y))
-				planData.Tiles[idx] = planData.GetTile("Floor")
+				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
 	}
@@ -332,7 +332,7 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 			x := currentX + dx
 			if x >= 1 && x < width-1 && currentY >= 1 && currentY < height-1 {
 				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(currentY))
-				planData.Tiles[idx] = planData.GetTile("Floor")
+				planData.Tiles[idx] = planData.GetTile("floor")
 			}
 		}
 	}
@@ -346,7 +346,7 @@ func NewCavePlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, 
 	chain.With(CavePathWidener{})                   // 通路を広げる
 	chain.With(CaveConnector{})                     // 隔離領域を接続
 	chain.With(CaveStalactites{})                   // 鍾乳石配置
-	chain.With(NewBoundaryWall("Wall"))             // 最外周を壁で囲む
+	chain.With(NewBoundaryWall("wall"))             // 最外周を壁で囲む
 
 	return chain, nil
 }

@@ -31,7 +31,7 @@ func TestPlannerChain_ValidateConnectivity(t *testing.T) {
 
 		// プレイヤーのスタート位置を確実に床にする
 		idx := chain.PlanData.Level.XYTileIndex(gc.Tile(playerStartX), gc.Tile(playerStartY))
-		chain.PlanData.Tiles[idx] = chain.PlanData.GetTile("Floor")
+		chain.PlanData.Tiles[idx] = chain.PlanData.GetTile("floor")
 	}
 
 	// 接続性を検証（ワープポータルがない場合はErrNoWarpPortalが期待される）
@@ -96,7 +96,7 @@ func TestPathFinder_WithPortals(t *testing.T) {
 
 	// ワープポータルを配置（垂直通路上、到達可能な位置）
 	warpIdx := chain.PlanData.Level.XYTileIndex(5, 2)
-	chain.PlanData.Tiles[warpIdx] = chain.PlanData.GetTile("Floor")
+	chain.PlanData.Tiles[warpIdx] = chain.PlanData.GetTile("floor")
 	// ワープポータルエンティティを追加
 	chain.PlanData.WarpPortals = append(chain.PlanData.WarpPortals, WarpPortal{
 		X:    5,
@@ -106,7 +106,7 @@ func TestPathFinder_WithPortals(t *testing.T) {
 
 	// 脱出ポータルを配置（到達不可能な位置：壁の中）
 	escapeIdx := chain.PlanData.Level.XYTileIndex(1, 1)
-	chain.PlanData.Tiles[escapeIdx] = chain.PlanData.GetTile("Floor")
+	chain.PlanData.Tiles[escapeIdx] = chain.PlanData.GetTile("floor")
 	// 脱出ポータルエンティティを追加
 	chain.PlanData.WarpPortals = append(chain.PlanData.WarpPortals, WarpPortal{
 		X:    1,
@@ -134,19 +134,19 @@ func (t *TestRoomPlanner) PlanInitial(planData *MetaPlan) error {
 
 	// 全体を壁で埋める
 	for i := range planData.Tiles {
-		planData.Tiles[i] = planData.GetTile("Wall")
+		planData.Tiles[i] = planData.GetTile("wall")
 	}
 
 	// 垂直方向の通路
 	for y := 1; y < height-1; y++ {
 		idx := planData.Level.XYTileIndex(gc.Tile(width/2), gc.Tile(y))
-		planData.Tiles[idx] = planData.GetTile("Floor")
+		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
 	// 水平方向の通路
 	for x := 1; x < width-1; x++ {
 		idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(height/2))
-		planData.Tiles[idx] = planData.GetTile("Floor")
+		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
 	return nil

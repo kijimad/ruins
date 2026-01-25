@@ -1,0 +1,58 @@
+# チャンクを使った複合チャンクのテンプレート
+# 複数の部屋を組み合わせた大きな建物
+
+[[chunk]]
+  name     = "11x6_small_office"
+  palettes = ["standard"]
+  weight   = 80
+
+  map = """
+@@@@@#.....
+@@@@@#@@@@.
+@@@@@#@@@@.
+@@@@@#@@@@.
+@@@@A#@@@B.
+...........
+"""
+
+  [[chunk.placements]]
+    chunks = ["5x5_meeting_room"]
+    id     = "A"
+
+  [[chunk.placements]]
+    chunks = ["4x4_storage"]
+    id     = "B"
+
+[[chunk]]
+  name     = "15x10_office_building"
+  palettes = ["standard"]
+  weight   = 60
+
+  map = """
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@A.....@@@@B
+######...######
+@@@@@#...#.....
+@@@@@+...+.@@@.
+@@@@@#...#.@@@.
+@@@@C#...#.@@D.
+"""
+
+  [[chunk.placements]]
+    chunks = ["5x5_meeting_room"]
+    id     = "A"
+
+  [[chunk.placements]]
+    chunks = ["5x5_meeting_room"]
+    id     = "B"
+
+  [[chunk.placements]]
+    chunks = ["5x4_office"]
+    id     = "C"
+
+  [[chunk.placements]]
+    chunks = ["3x3_bedroom"]
+    id     = "D"

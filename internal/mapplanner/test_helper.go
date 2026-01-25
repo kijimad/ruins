@@ -6,9 +6,9 @@ import "github.com/kijimaD/ruins/internal/raw"
 func CreateTestRawMaster() *raw.Master {
 	// テスト用の基本的なタイルデータを定義
 	testTiles := []raw.TileRaw{
-		{Name: "Wall", Walkable: false},
-		{Name: "Floor", Walkable: true},
-		{Name: "Dirt", Walkable: true},
+		{Name: "wall", Walkable: false},
+		{Name: "floor", Walkable: true},
+		{Name: "dirt", Walkable: true},
 	}
 
 	// テスト用のアイテムテーブルを定義

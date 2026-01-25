@@ -1,0 +1,35 @@
+# 標準的な建物パレット
+# 昭和5年の日本の建築物で使用する基本的な地形とPropsの定義
+
+[palette]
+  description = "標準的な建物パレット"
+  id          = "standard"
+
+  # 地形の定義
+  [palette.terrain]
+    "." = "floor" # 床
+    "#" = "wall"  # 壁
+    "~" = "dirt"  # 土
+
+    # Props文字の下の地形。Propsと同じ文字に地形も定義する
+    "+" = "floor" # ドアの下は床
+    "B" = "floor" # ベッドの下は床
+    "C" = "floor" # 椅子の下は床
+    "D" = "floor" # 机の下は床
+    "F" = "floor" # 焚き火の下は床
+    "L" = "floor" # ランタンの下は床
+    "T" = "floor" # テーブルの下は床
+    "X" = "floor" # 木箱の下は床
+
+  # Propsの定義
+  # 同じ文字に地形とPropsの両方を定義できる
+  # 例: "T" には地形として "floor"、Propsとして "table" を定義
+  [palette.props]
+    "+" = "door"    # ドア
+    "B" = "bed"     # ベッド
+    "C" = "chair"   # 椅子
+    "D" = "desk"    # 机
+    "F" = "bonfire" # 焚き火
+    "L" = "lantern" # ランタン
+    "T" = "table"   # テーブル
+    "X" = "crate"   # 木箱

@@ -21,11 +21,11 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "Wall", 11, 10, nil)
+		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil)
 		require.NoError(t, err)
 
 		// プレイヤーの上側(10, 9)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "Wall", 10, 9, nil)
+		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
 		// 左側(9, 10)への移動は可能なはず
@@ -46,11 +46,11 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "Wall", 11, 10, nil)
+		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil)
 		require.NoError(t, err)
 
 		// プレイヤーの上側(10, 9)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "Wall", 10, 9, nil)
+		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
 		// 右側(11, 10)への移動は壁によってブロックされるはず
@@ -71,13 +71,13 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		require.NoError(t, err)
 
 		// 全方向に壁を配置
-		_, err = worldhelper.SpawnTile(world, "Wall", 11, 10, nil) // 右
+		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil) // 右
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "Wall", 10, 9, nil) // 上
+		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil) // 上
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "Wall", 9, 10, nil) // 左
+		_, err = worldhelper.SpawnTile(world, "wall", 9, 10, nil) // 左
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "Wall", 10, 11, nil) // 下
+		_, err = worldhelper.SpawnTile(world, "wall", 10, 11, nil) // 下
 		require.NoError(t, err)
 
 		// 全方向への移動が不可能になるはず
