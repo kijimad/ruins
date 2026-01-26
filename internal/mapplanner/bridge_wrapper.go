@@ -79,10 +79,6 @@ func (bw BridgeFacilityWrapper) PlanMeta(metaPlan *MetaPlan) error {
 	metaPlan.Level.TileWidth = gc.Tile(newWidth)
 	metaPlan.Level.TileHeight = gc.Tile(newHeight)
 
-	// デバッグ用のマップ表示
-	// TODO: この段階でログ表示するのは最終結果を反映してないので微妙である。また、保守が面倒である
-	bw.logFinalMap(metaPlan, newTiles, newWidth, newHeight)
-
 	// テンプレートから橋とプレイヤー位置を配置
 	bw.placeBridgesFromTemplate(metaPlan, topTemplate, 0)
 	bw.placeBridgesFromTemplate(metaPlan, bottomTemplate, bottomStartY)
@@ -123,55 +119,6 @@ func (bw BridgeFacilityWrapper) placeTemplate(
 			}
 		}
 	}
-}
-
-// logFinalMap はデバッグ用に最終マップをログ出力する
-func (bw BridgeFacilityWrapper) logFinalMap(metaPlan *MetaPlan, tiles []raw.TileRaw, width, height int) {
-	// Propsの位置をマップ化
-	propMap := make(map[int]string) // index -> prop名
-	for _, prop := range metaPlan.Props {
-		idx := prop.Y*width + prop.X
-		propMap[idx] = prop.Name
-	}
-
-	var mapLines []string
-	for y := 0; y < height; y++ {
-		line := ""
-		for x := 0; x < width; x++ {
-			idx := y*width + x
-
-			// Propsがある場合は優先的に表示
-			if propName, hasProp := propMap[idx]; hasProp {
-				if propName == "stone_pillar" {
-					line += "I"
-					continue
-				}
-			}
-
-			// タイルを表示
-			tile := tiles[idx]
-			switch tile.Name {
-			case "bridge_a":
-				line += "A"
-			case "bridge_b":
-				line += "B"
-			case "bridge_c":
-				line += "C"
-			case "bridge_d":
-				line += "D"
-			case "floor":
-				line += "."
-			case "wall":
-				line += "#"
-			case "void":
-				line += "-"
-			default:
-				line += "?"
-			}
-		}
-		mapLines = append(mapLines, fmt.Sprintf("%3d: %s", y, line))
-	}
-	log.Printf("BridgeFacilityWrapper: Final map (width=%d, height=%d):\n%s", width, height, strings.Join(mapLines, "\n"))
 }
 
 // shiftExistingEntities は既存エンティティの座標をシフトする
