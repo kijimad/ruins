@@ -82,14 +82,7 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	propsPlanner := NewPropsPlanner(world, plannerType)
 	chain.With(propsPlanner)
 
-	// 橋facilityを追加（全ダンジョンタイプに必須）
-	// テスト環境ではassetsがない場合があるため、エラー時はスキップする
-	bridgeWrapper, err := NewBridgeFacilityWrapper()
-	if err == nil {
-		chain.With(bridgeWrapper)
-	}
-
-	// プランナーチェーンを実行
+	// プランナーチェーンを実行（BridgeFacilityWrapper含まず）
 	if err := chain.Plan(); err != nil {
 		return nil, err
 	}
@@ -100,11 +93,23 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		return nil, ErrPlayerPlacement
 	}
 
-	// 橋システムの接続性検証
-	// 上部橋エリアと下部橋エリアが接続されているかをチェックする
+	// 接続性検証: 最上列と最下列が接続されているかをチェックする
+	// 各plannerでBridgeConnectionが実行された後、BridgeFacilityWrapper実行前に検証
 	pathFinder := NewPathFinder(&chain.PlanData)
 	if err := pathFinder.ValidateConnectivity(); err != nil {
 		return nil, err
+	}
+
+	// 橋facilityを追加（接続性検証後に実行）
+	// テスト環境ではassetsディレクトリが存在しない場合があるため、
+	// NewBridgeFacilityWrapperのエラー（パレット・チャンク登録エラー）のみスキップする
+	// PlanMetaのエラー（実際のマップ生成エラー）は返す
+	// TODO: Resourcesにもたせて、testWorldで初期化させればよさそう
+	bridgeWrapper, err := NewBridgeFacilityWrapper()
+	if err == nil {
+		if err := bridgeWrapper.PlanMeta(&chain.PlanData); err != nil {
+			return nil, err
+		}
 	}
 
 	return &chain.PlanData, nil

@@ -35,8 +35,6 @@ type DungeonState struct {
 	Seed uint64
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
-	// SpawnAtBridgeD が true の場合、プレイヤーを橋D（入口）に配置する
-	SpawnAtBridgeD bool
 }
 
 func (st DungeonState) String() string {
@@ -88,31 +86,21 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	world.Resources.Dungeon.Level = level
 
-	// プレイヤー位置を取得する
+	// プレイヤー位置を設定する
 	var playerX, playerY int
-	if st.SpawnAtBridgeD {
-		// 橋Dの下に配置（橋から遷移してきた場合）
-		// シームレスな遷移のため、橋の下側にスポーンする
-		foundBridgeD := false
-		for _, bridge := range plan.Bridges {
-			if bridge.BridgeID == "D" {
-				playerX = bridge.X
-				playerY = bridge.Y + 8 // 橋の下側にスポーン（橋はy=3、+8でy=11、橋の下部）
-				foundBridgeD = true
-				break
-			}
-		}
-		if !foundBridgeD {
-			return fmt.Errorf("橋D（入口）が見つかりません")
-		}
-	} else {
-		// 通常の開始位置に配置
-		hasPlayerPos := false
-		playerX, playerY, hasPlayerPos = plan.GetPlayerStartPosition()
-		if !hasPlayerPos {
-			return fmt.Errorf("プレイヤー開始位置が設定されていません")
+	foundBridgeD := false
+	for _, bridge := range plan.Bridges {
+		if bridge.BridgeID == "D" {
+			playerX = bridge.X
+			playerY = bridge.Y
+			foundBridgeD = true
+			break
 		}
 	}
+	if !foundBridgeD {
+		return fmt.Errorf("橋D（入口）が見つかりません")
+	}
+
 	// プレイヤーを配置する
 	if err := worldhelper.MovePlayerToPosition(world, playerX, playerY); err != nil {
 		return err
@@ -486,10 +474,9 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			NewStateFuncs: []es.StateFactory[w.World]{
 				func() es.State[w.World] {
 					return &DungeonState{
-						Depth:          nextDepth,
-						Seed:           seed,
-						BuilderType:    mapplanner.PlannerTypeRandom,
-						SpawnAtBridgeD: true, // 橋Dに配置
+						Depth:       nextDepth,
+						Seed:        seed,
+						BuilderType: mapplanner.PlannerTypeRandom,
 					}
 				},
 			},

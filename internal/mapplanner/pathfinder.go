@@ -128,30 +128,20 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
 	return len(path) > 0
 }
 
-// ValidateConnectivity は上部橋エリアと下部橋エリアの接続性を検証する
-// BridgeConnectionが作成する上部・下部の橋エリアが接続されているかをチェックする
+// ValidateConnectivity は最上列と最下列の接続性を検証する
+// マップの上端と下端が接続されているかをチェックする
+// BridgeConnection実行前に呼び出すことで、マップ自体の品質を保証する
 func (pf *PathFinder) ValidateConnectivity() error {
 	width := int(pf.planData.Level.TileWidth)
 	height := int(pf.planData.Level.TileHeight)
 
-	// マップサイズに応じて橋エリアの行数を決定（BridgeConnectionと同じロジック）
-	rowsToFloor := 1
-	if height > 15 {
-		rowsToFloor = 2
-	}
-
-	// 上部橋エリアから歩行可能な開始点を探す
+	// 最上列（y=0）から歩行可能な開始点を探す
 	var topStartX, topStartY int
 	foundTopStart := false
-	for y := 0; y < rowsToFloor && y < height; y++ {
-		for x := 0; x < width; x++ {
-			if pf.IsWalkable(x, y) {
-				topStartX, topStartY = x, y
-				foundTopStart = true
-				break
-			}
-		}
-		if foundTopStart {
+	for x := 0; x < width; x++ {
+		if pf.IsWalkable(x, 0) {
+			topStartX, topStartY = x, 0
+			foundTopStart = true
 			break
 		}
 	}
@@ -160,19 +150,14 @@ func (pf *PathFinder) ValidateConnectivity() error {
 		return ErrConnectivity
 	}
 
-	// 下部橋エリアの歩行可能な点をすべて探し、上部から到達可能かチェック
+	// 最下列（y=height-1）の歩行可能な点をすべて探し、最上列から到達可能かチェック
 	hasReachableBottomTile := false
-	for y := height - rowsToFloor; y < height && y >= 0; y++ {
-		for x := 0; x < width; x++ {
-			if pf.IsWalkable(x, y) {
-				if pf.IsReachable(topStartX, topStartY, x, y) {
-					hasReachableBottomTile = true
-					break
-				}
+	for x := 0; x < width; x++ {
+		if pf.IsWalkable(x, height-1) {
+			if pf.IsReachable(topStartX, topStartY, x, height-1) {
+				hasReachableBottomTile = true
+				break
 			}
-		}
-		if hasReachableBottomTile {
-			break
 		}
 	}
 

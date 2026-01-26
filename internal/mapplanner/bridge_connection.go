@@ -4,11 +4,6 @@ package mapplanner
 // BridgeFacilityWrapperと組み合わせて使用する
 type BridgeConnection struct{}
 
-// NewBridgeConnection は新しいBridgeConnectionを作成する
-func NewBridgeConnection() BridgeConnection {
-	return BridgeConnection{}
-}
-
 // PlanMeta はマップの最上列と最下列を床タイルに変更する
 // 橋facilityとの接続をスムーズにするため、境界付近の行を床にする
 func (b BridgeConnection) PlanMeta(planData *MetaPlan) error {
