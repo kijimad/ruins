@@ -81,15 +81,6 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 		}
 	}
 
-	// 橋の配置情報を追加
-	for _, bridgePlacement := range p.Template.Bridges {
-		metaPlan.Bridges = append(metaPlan.Bridges, BridgeSpec{
-			X:        bridgePlacement.X,
-			Y:        bridgePlacement.Y,
-			BridgeID: maptemplate.BridgeID(bridgePlacement.BridgeID),
-		})
-	}
-
 	return nil
 }
 
