@@ -35,8 +35,7 @@
   palettes = ["standard"]
   weight = 1
 
-  # 入口橋
-  [[chunk.bridges]]
-    bridge_id = "entrance"
-    x         = 25
-    y         = 14
+  # スポーン地点(入)
+  [[chunk.spawn_points]]
+    x = 25
+    y = 14

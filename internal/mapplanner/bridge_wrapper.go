@@ -137,18 +137,27 @@ func (bw BridgeFacilityWrapper) shiftExistingEntities(metaPlan *MetaPlan, offset
 	}
 }
 
-// collectBridgesFromTemplate はテンプレートから橋情報を収集してMetaPlanに記録する
-// 実際の橋エンティティの配置はmapspawner.Spawn()で行われる
+// collectBridgesFromTemplate はテンプレートから出口とスポーン地点情報を収集してMetaPlanに記録する
+// 実際のエンティティ配置はmapspawner.Spawn()で行われる
 func (bw BridgeFacilityWrapper) collectBridgesFromTemplate(
 	metaPlan *MetaPlan,
 	template *maptemplate.ChunkTemplate,
 	offsetY int,
 ) {
-	for _, bridgePlacement := range template.Bridges {
-		metaPlan.Bridges = append(metaPlan.Bridges, BridgeSpec{
-			X:        bridgePlacement.X,
-			Y:        bridgePlacement.Y + offsetY,
-			BridgeID: maptemplate.BridgeID(bridgePlacement.BridgeID),
+	// 出口情報を収集
+	for _, exitPlacement := range template.Exits {
+		metaPlan.Exits = append(metaPlan.Exits, ExitSpec{
+			X:      exitPlacement.X,
+			Y:      exitPlacement.Y + offsetY,
+			ExitID: maptemplate.ExitID(exitPlacement.ExitID),
+		})
+	}
+
+	// スポーン地点情報を収集
+	for _, spawnPoint := range template.SpawnPoints {
+		metaPlan.SpawnPoints = append(metaPlan.SpawnPoints, SpawnPointSpec{
+			X: spawnPoint.X,
+			Y: spawnPoint.Y + offsetY,
 		})
 	}
 }

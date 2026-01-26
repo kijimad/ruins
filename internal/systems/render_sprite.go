@@ -516,21 +516,19 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 		pixelX := float64(int(gridElement.X) * int(consts.TileSize))
 		pixelY := float64(int(gridElement.Y) * int(consts.TileSize))
 
-		// 橋IDによって色を変える
+		// 出口IDによって色を変える
 		var debugColor color.RGBA
 		switch bridgeInteraction.BridgeID {
-		case maptemplate.BridgeIDExitLeft:
+		case maptemplate.ExitIDLeft:
 			debugColor = color.RGBA{255, 0, 0, 128} // 赤（半透明）
-		case maptemplate.BridgeIDExitCenter:
+		case maptemplate.ExitIDCenter:
 			debugColor = color.RGBA{0, 255, 0, 128} // 緑（半透明）
-		case maptemplate.BridgeIDExitRight:
+		case maptemplate.ExitIDRight:
 			debugColor = color.RGBA{0, 0, 255, 128} // 青（半透明）
-		case maptemplate.BridgeIDExit:
+		case maptemplate.ExitIDMain:
 			debugColor = color.RGBA{255, 165, 0, 128} // オレンジ（半透明）
-		case maptemplate.BridgeIDEntrance:
-			debugColor = color.RGBA{255, 255, 0, 128} // 黄（半透明）
 		default:
-			panic(fmt.Sprintf("未知の橋ID: %v", bridgeInteraction.BridgeID))
+			panic(fmt.Sprintf("未知の出口ID: %v", bridgeInteraction.BridgeID))
 		}
 
 		// タイルサイズの色付き矩形を描画

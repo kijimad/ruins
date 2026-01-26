@@ -22,16 +22,16 @@ type InteractionData interface {
 	Config() InteractionConfig
 }
 
-// BridgeInteraction は橋を渡る相互作用
+// BridgeInteraction は出口を通る相互作用
 type BridgeInteraction struct {
-	BridgeID maptemplate.BridgeID // 橋の識別子
+	BridgeID maptemplate.ExitID // 出口の識別子
 }
 
 // Config は相互作用設定を返す
 func (b BridgeInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayAuto, // 橋の端に到達したら自動遷移
+		ActivationWay:   ActivationWayAuto, // 出口に到達したら自動遷移
 	}
 }
 

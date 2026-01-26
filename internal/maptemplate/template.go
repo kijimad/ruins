@@ -15,13 +15,14 @@ import (
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name       string            `toml:"name"`   // キー
-	Weight     int               `toml:"weight"` // 出現確率の重み
-	Size       Size              // マップサイズ（名前から自動パース）
-	Palettes   []string          `toml:"palettes"`   // 使用するパレットID
-	Map        string            `toml:"map"`        // ASCIIマップ
-	Placements []ChunkPlacement  `toml:"placements"` // ネストされたチャンクの配置
-	Bridges    []BridgePlacement `toml:"bridges"`    // 橋の配置
+	Name        string           `toml:"name"`   // キー
+	Weight      int              `toml:"weight"` // 出現確率の重み
+	Size        Size             // マップサイズ（名前から自動パース）
+	Palettes    []string         `toml:"palettes"`     // 使用するパレットID
+	Map         string           `toml:"map"`          // ASCIIマップ
+	Placements  []ChunkPlacement `toml:"placements"`   // ネストされたチャンクの配置
+	Exits       []ExitPlacement  `toml:"exits"`        // 出口の配置
+	SpawnPoints []SpawnPoint     `toml:"spawn_points"` // スポーン地点の配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -47,37 +48,31 @@ type ChunkPlacement struct {
 	ID     string   `toml:"id"` // プレースホルダ識別子（右下に配置される1文字）
 }
 
-// BridgeID は橋の役割を表す識別子
-type BridgeID string
+// ExitID は出口の識別子
+type ExitID string
 
 const (
-	// BridgeIDExit は次のフロアへの出口橋を表す
-	BridgeIDExit BridgeID = "exit"
-	// BridgeIDExitLeft は次のフロアへの出口橋（左側）を表す
-	BridgeIDExitLeft BridgeID = "exit_left"
-	// BridgeIDExitCenter は次のフロアへの出口橋（中央）を表す
-	BridgeIDExitCenter BridgeID = "exit_center"
-	// BridgeIDExitRight は次のフロアへの出口橋（右側）を表す
-	BridgeIDExitRight BridgeID = "exit_right"
-	// BridgeIDEntrance は前のフロアからの入口橋を表す
-	BridgeIDEntrance BridgeID = "entrance"
+	// ExitIDMain は次のフロアへのメイン出口を表す
+	ExitIDMain ExitID = "exit"
+	// ExitIDLeft は次のフロアへの出口（左側）を表す
+	ExitIDLeft ExitID = "exit_left"
+	// ExitIDCenter は次のフロアへの出口（中央）を表す
+	ExitIDCenter ExitID = "exit_center"
+	// ExitIDRight は次のフロアへの出口（右側）を表す
+	ExitIDRight ExitID = "exit_right"
 )
 
-// IsExit は出口橋かどうかを判定する
-func (b BridgeID) IsExit() bool {
-	return b == BridgeIDExit || b == BridgeIDExitLeft || b == BridgeIDExitCenter || b == BridgeIDExitRight
+// ExitPlacement は出口の配置情報
+type ExitPlacement struct {
+	ExitID string `toml:"exit_id"` // 出口ID
+	X      int    `toml:"x"`       // X座標
+	Y      int    `toml:"y"`       // Y座標
 }
 
-// IsEntrance は入口橋かどうかを判定する
-func (b BridgeID) IsEntrance() bool {
-	return b == BridgeIDEntrance
-}
-
-// BridgePlacement は橋の配置情報
-type BridgePlacement struct {
-	BridgeID string `toml:"bridge_id"` // 橋ID
-	X        int    `toml:"x"`         // X座標
-	Y        int    `toml:"y"`         // Y座標
+// SpawnPoint はスポーン地点の配置情報
+type SpawnPoint struct {
+	X int `toml:"x"` // X座標
+	Y int `toml:"y"` // Y座標
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造

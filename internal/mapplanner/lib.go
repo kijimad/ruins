@@ -9,7 +9,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -36,8 +35,10 @@ type MetaPlan struct {
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
-	// Bridges は配置予定の橋リスト
-	Bridges []BridgeSpec
+	// Exits は配置予定の出口リスト
+	Exits []ExitSpec
+	// SpawnPoints はスポーン地点リスト
+	SpawnPoints []SpawnPointSpec
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
 }
@@ -549,14 +550,12 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
-	// 入口橋を検索してプレイヤー開始位置とする
-	for _, bridge := range bm.Bridges {
-		if bridge.BridgeID == maptemplate.BridgeIDEntrance {
-			return bridge.X, bridge.Y, nil
-		}
+	// SpawnPointsからプレイヤー開始位置を取得
+	if len(bm.SpawnPoints) > 0 {
+		return bm.SpawnPoints[0].X, bm.SpawnPoints[0].Y, nil
 	}
 
-	// 入口橋が見つからない場合は移動可能タイルを探す（テスト用フォールバック）
+	// SpawnPointsが見つからない場合は移動可能タイルを探す（テスト用フォールバック）
 	// TODO: どうにかする
 	for _i, tile := range bm.Tiles {
 		if tile.Walkable {
@@ -566,5 +565,5 @@ func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
 		}
 	}
 
-	return 0, 0, fmt.Errorf("入口橋が見つかりません")
+	return 0, 0, fmt.Errorf("スポーン地点が見つかりません")
 }

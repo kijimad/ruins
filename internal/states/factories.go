@@ -421,18 +421,16 @@ func NewDebugMenuState() es.State[w.World] {
 				world.Components.GridElement,
 			).Visit(ecs.Visit(func(entity ecs.Entity) {
 				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-				bridgeInteraction, ok := interactable.Data.(gc.BridgeInteraction)
+				_, ok := interactable.Data.(gc.BridgeInteraction)
 				if !ok {
 					return
 				}
 
 				// 出口橋を発見
-				if bridgeInteraction.BridgeID.IsExit() {
-					bridgeGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-					targetX = bridgeGrid.X
-					targetY = bridgeGrid.Y
-					found = true
-				}
+				bridgeGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				targetX = bridgeGrid.X
+				targetY = bridgeGrid.Y
+				found = true
 			}))
 
 			if !found {

@@ -35,20 +35,20 @@
   palettes = ["standard"]
   weight = 1
 
-  # 出口橋（左側）- 中央1マスのみ
-  [[chunk.bridges]]
-    bridge_id = "exit_left"
-    x         = 2
-    y         = 14
+  # スポーン地点(出)
+  [[chunk.exits]]
+    exit_id = "exit_left"
+    x       = 2
+    y       = 14
 
-  # 出口橋（中央）- 中央1マスのみ
-  [[chunk.bridges]]
-    bridge_id = "exit_center"
-    x         = 16
-    y         = 14
+  # スポーン地点(出)
+  [[chunk.exits]]
+    exit_id = "exit_center"
+    x       = 16
+    y       = 14
 
-  # 出口橋（右側）- 中央1マスのみ
-  [[chunk.bridges]]
-    bridge_id = "exit_right"
-    x         = 30
-    y         = 14
+  # スポーン地点(出)
+  [[chunk.exits]]
+    exit_id = "exit_right"
+    x       = 30
+    y       = 14

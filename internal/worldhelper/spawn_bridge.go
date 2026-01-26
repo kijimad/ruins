@@ -10,35 +10,34 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// SpawnBridge は橋の作用エンティティを生成する
-// 橋エンティティは橋の端に配置され、橋を渡る相互作用を提供する
-// 5の倍数の階層かつ出口橋の場合、街広場へのワープInteractionを設定する
+// SpawnBridge は出口操作エンティティを生成する
+// 出口は階層間の遷移ポイントに配置され、次階層への移動相互作用を提供する
+// 5の倍数の階層の場合、街広場へのワープInteractionを設定する
 func SpawnBridge(
 	world w.World,
-	bridgeID maptemplate.BridgeID,
+	exitID maptemplate.ExitID,
 	x gc.Tile,
 	y gc.Tile,
 	currentDepth int,
 ) (ecs.Entity, error) {
-	// 橋名を構築（例: "出口橋"）
-	bridgeName := fmt.Sprintf("橋%s", bridgeID)
+	exitName := fmt.Sprintf("出口(%s)", exitID)
 
-	// 5の倍数の階層かつ出口橋の場合、街広場へのワープInteractionを設定
+	// 5の倍数の階層の場合、街広場へのワープInteractionを設定
 	var interactionData gc.InteractionData
-	if currentDepth%5 == 0 && currentDepth > 0 && bridgeID.IsExit() {
+	if currentDepth%5 == 0 && currentDepth > 0 {
 		interactionData = gc.PlazaWarpInteraction{}
 	} else {
-		// 通常の橋Interaction（次階層へ）
+		// 通常の出口Interaction(次階層へ)
 		interactionData = gc.BridgeInteraction{
-			BridgeID: bridgeID,
+			BridgeID: exitID,
 		}
 	}
 
 	// EntitySpecを直接構築
 	entitySpec := gc.EntitySpec{
-		Name: &gc.Name{Name: bridgeName},
+		Name: &gc.Name{Name: exitName},
 		Description: &gc.Description{
-			Description: fmt.Sprintf("次の階層へと続く%s", bridgeName),
+			Description: fmt.Sprintf("次の階層へと続く%s", exitName),
 		},
 		GridElement: &gc.GridElement{X: x, Y: y},
 		Interactable: &gc.Interactable{
@@ -55,7 +54,7 @@ func SpawnBridge(
 		return ecs.Entity(0), err
 	}
 	if len(entitiesSlice) == 0 {
-		return ecs.Entity(0), fmt.Errorf("橋エンティティの生成に失敗しました")
+		return ecs.Entity(0), fmt.Errorf("出口エンティティの生成に失敗しました")
 	}
 
 	return entitiesSlice[0], nil

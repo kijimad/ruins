@@ -109,15 +109,8 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 	return nil
 }
 
-// executeBridge は橋を渡る相互作用を実行する
+// executeBridge は出口を通る相互作用を実行する
 func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
-	// 入口橋の場合は何もしない
-	// TODO: 入口はinteractionとして何もしないのが変だが、ワープ先位置の検索用に使っているので入口にも付与されている...
-	if bridge.BridgeID.IsEntrance() {
-		act.Logger.Debug("入口橋に到達", "actor", act.Actor, "bridgeID", bridge.BridgeID)
-		return
-	}
-
 	// 次フロアへの遷移を実行
 	// resources.Dungeonから次のPlannerTypeNameを取得
 	var nextPlannerTypeName consts.PlannerTypeName

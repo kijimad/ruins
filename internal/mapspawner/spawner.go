@@ -125,20 +125,15 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// 橋エンティティを生成する
+	// 出口エンティティを生成する
 	dungeonResource := world.Resources.Dungeon
-	for _, bridge := range metaPlan.Bridges {
-		// 橋D（入口）はワープ機能を持たないため、エンティティを生成しない
-		if bridge.BridgeID == "D" {
-			continue
-		}
-
-		tileX, tileY := gc.Tile(bridge.X), gc.Tile(bridge.Y)
+	for _, exit := range metaPlan.Exits {
+		tileX, tileY := gc.Tile(exit.X), gc.Tile(exit.Y)
 		currentDepth := dungeonResource.Depth
 
-		_, err := worldhelper.SpawnBridge(world, bridge.BridgeID, tileX, tileY, currentDepth)
+		_, err := worldhelper.SpawnBridge(world, exit.ExitID, tileX, tileY, currentDepth)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("橋エンティティ生成エラー (%d, %d): %w", bridge.X, bridge.Y, err)
+			return resources.Level{}, fmt.Errorf("出口エンティティ生成エラー (%d, %d): %w", exit.X, exit.Y, err)
 		}
 	}
 
