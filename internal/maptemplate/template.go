@@ -39,9 +39,9 @@ func (s Size) String() string {
 type ChunkPlacement struct {
 	// チャンク名の配列（重み付き選択）
 	// バリエーションの出し方には2つある
-	// - マイナーな違い（内装配置の違いなど）: 同じ名前で複数ファイルを作成し、1つの名前を指定
-	//   例: chunks = ["11x6_convenience_store"] → 11x6_convenience_store_1.toml, 11x6_convenience_store_2.toml から選択
-	// - メジャーな違い（異なる用途の建物など）: 異なる名前を配列で列挙
+	// - マイナーな違い（内装配置の違いなど）: 同じ名前で作成する
+	//   例: chunks = ["11x6_convenience_store"] → 2つの11x6_convenience_store, 11x6_convenience_store から選択する
+	// - メジャーな違い（異なる用途の建物など）: 異なる名前を配列で列挙する
 	//   例: chunks = ["11x6_convenience_store", "11x6_clinic"] → コンビニか整骨院のどちらかが選ばれる
 	Chunks []string `toml:"chunks"`
 	ID     string   `toml:"id"` // プレースホルダ識別子（右下に配置される1文字）
@@ -60,7 +60,7 @@ type ChunkTemplateFile struct {
 }
 
 // TemplateLoader はテンプレート定義の読み込みを担当する
-// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する
+// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する。が、依存が大きくなるのも微妙である。TemplatePlanner以外じゃ使わないしな...
 type TemplateLoader struct {
 	chunkCache   map[string][]*ChunkTemplate // 同じ名前で複数のバリエーションをサポート
 	paletteCache map[string]*Palette

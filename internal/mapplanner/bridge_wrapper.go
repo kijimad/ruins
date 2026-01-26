@@ -32,7 +32,7 @@ func (bw BridgeFacilityWrapper) PlanMeta(metaPlan *MetaPlan) error {
 		bottomTemplateName = "50x20_dungeon_bridge_bottom"
 	}
 
-	// テンプレートを読み込む
+	// テンプレートとパレットを読み込む
 	topTemplate, palette, err := bw.Loader.LoadTemplateByName(topTemplateName, 0)
 	if err != nil {
 		return err

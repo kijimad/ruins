@@ -9,6 +9,7 @@
   [palette.terrain]
     "." = "floor" # 床
     "#" = "wall"  # 壁
+    "-" = "void"  # 暗闇
     "~" = "dirt"  # 土
 
     # Props文字の下の地形。Propsと同じ文字に地形も定義する
