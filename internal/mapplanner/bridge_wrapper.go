@@ -24,12 +24,12 @@ func (bw BridgeFacilityWrapper) PlanMeta(metaPlan *MetaPlan) error {
 	// マップ幅に応じて適切なテンプレートを選択
 	var topTemplateName, bottomTemplateName string
 	if oldWidth == 20 {
-		topTemplateName = "20x15_town_bridge_top"
-		bottomTemplateName = "20x20_town_bridge_bottom"
+		topTemplateName = "20x28_town_bridge_top"
+		bottomTemplateName = "20x28_town_bridge_bottom"
 	} else {
 		// デフォルトは幅50用
-		topTemplateName = "50x15_dungeon_bridge_top"
-		bottomTemplateName = "50x20_dungeon_bridge_bottom"
+		topTemplateName = "50x28_dungeon_bridge_top"
+		bottomTemplateName = "50x28_dungeon_bridge_bottom"
 	}
 
 	// テンプレートとパレットを読み込む
