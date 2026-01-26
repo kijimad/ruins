@@ -553,6 +553,7 @@ func generateNextBridgeTypes(seed uint64, currentDepth int) map[maptemplate.Brid
 
 	// 各出口橋にランダムにPlannerTypeNameを割り当て
 	bridgeIDs := []maptemplate.BridgeID{
+		maptemplate.BridgeIDExit,
 		maptemplate.BridgeIDExitLeft,
 		maptemplate.BridgeIDExitCenter,
 		maptemplate.BridgeIDExitRight,

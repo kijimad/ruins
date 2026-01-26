@@ -117,6 +117,8 @@ func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.Worl
 		act.Logger.Debug("入口橋に到達", "actor", act.Actor, "bridgeID", bridge.BridgeID)
 		return
 	}
+
+	// 次フロアへの遷移を実行
 	// resources.Dungeonから次のPlannerTypeNameを取得
 	var nextPlannerTypeName consts.PlannerTypeName
 	var nextStageName string
@@ -136,17 +138,11 @@ func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.Worl
 
 	// ログ出力
 	if isPlayerActivity(act, world) {
-		if nextStageName != "" {
-			gamelog.New(gamelog.FieldLog).
-				Append("橋を渡った。").
-				Magic(nextStageName).
-				Append("が見える。").
-				Log()
-		} else {
-			gamelog.New(gamelog.FieldLog).
-				Append(fmt.Sprintf("橋%sを渡った。", bridge.BridgeID)).
-				Log()
-		}
+		gamelog.New(gamelog.FieldLog).
+			Append("橋を渡った。").
+			Magic(nextStageName).
+			Append("が見える。").
+			Log()
 	}
 }
 
