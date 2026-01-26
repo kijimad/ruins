@@ -501,8 +501,6 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 				},
 			},
 		}, nil
-	case resources.WarpEscapeEvent:
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
 	}

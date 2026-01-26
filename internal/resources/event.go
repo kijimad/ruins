@@ -13,8 +13,6 @@ const (
 	StateEventTypeNone = StateEventType("NONE")
 	// StateEventTypeWarpNext は次の階層への移動を表す
 	StateEventTypeWarpNext = StateEventType("WARP_NEXT")
-	// StateEventTypeWarpEscape は脱出を表す
-	StateEventTypeWarpEscape = StateEventType("WARP_ESCAPE")
 	// StateEventTypeWarpPlaza は街広場への移動を表す（5の倍数の階層用）
 	StateEventTypeWarpPlaza = StateEventType("WARP_PLAZA")
 	// StateEventTypeGameClear はゲームクリアを表す
@@ -44,14 +42,6 @@ type WarpNextEvent struct {
 // Type はイベントタイプを返す
 func (e WarpNextEvent) Type() StateEventType {
 	return StateEventTypeWarpNext
-}
-
-// WarpEscapeEvent は脱出を表す
-type WarpEscapeEvent struct{}
-
-// Type はイベントタイプを返す
-func (e WarpEscapeEvent) Type() StateEventType {
-	return StateEventTypeWarpEscape
 }
 
 // WarpPlazaEvent は街広場への移動を表す
