@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -394,6 +395,56 @@ func NewDebugMenuState() es.State[w.World] {
 				NewStateFuncs: []es.StateFactory[w.World]{
 					NewDungeonState(currentDepth + 1),
 				},
+			})
+			return nil
+		}).
+		WithChoice("ステージ上部の橋にワープ", func(world w.World) error {
+			// プレイヤーエンティティを取得
+			player, err := worldhelper.GetPlayerEntity(world)
+			if err != nil {
+				return fmt.Errorf("プレイヤーが見つかりません: %w", err)
+			}
+
+			// GridElementコンポーネントを取得
+			gridComp := world.Components.GridElement.Get(player)
+			if gridComp == nil {
+				return fmt.Errorf("プレイヤーのGridElementコンポーネントが見つかりません")
+			}
+			grid := gridComp.(*gc.GridElement)
+
+			// 出口橋エンティティを検索
+			var targetX, targetY gc.Tile
+			found := false
+
+			world.Manager.Join(
+				world.Components.Interactable,
+				world.Components.GridElement,
+			).Visit(ecs.Visit(func(entity ecs.Entity) {
+				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+				bridgeInteraction, ok := interactable.Data.(gc.BridgeInteraction)
+				if !ok {
+					return
+				}
+
+				// 出口橋を発見
+				if bridgeInteraction.BridgeID.IsExit() {
+					bridgeGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+					targetX = bridgeGrid.X
+					targetY = bridgeGrid.Y
+					found = true
+				}
+			}))
+
+			if !found {
+				return fmt.Errorf("出口橋が見つかりません")
+			}
+
+			// プレイヤーの座標を更新（橋の1マス下にワープ）
+			grid.X = targetX
+			grid.Y = targetY + 1
+
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransPop,
 			})
 			return nil
 		}).
