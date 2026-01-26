@@ -186,7 +186,7 @@ func NewBridgeFacilityWrapper() (*BridgeFacilityWrapper, error) {
 	}
 
 	// チャンクテンプレートを登録
-	if err := loader.RegisterAllChunks([]string{"assets/levels/layouts"}); err != nil {
+	if err := loader.RegisterAllChunks([]string{"assets/levels/chunks"}); err != nil {
 		return nil, err
 	}
 
