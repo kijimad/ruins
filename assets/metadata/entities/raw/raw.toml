@@ -1939,6 +1939,17 @@
 
   [Props.Door]
 
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "石の柱"
+  Name        = "stone_pillar"
+
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "stone_pillar"
+    SpriteSheetName = "field"
+
     # enemy tables ================
 
 [[EnemyTables]]
