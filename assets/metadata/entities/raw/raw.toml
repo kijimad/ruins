@@ -1774,51 +1774,7 @@
     SpriteKey       = "dirt"
     SpriteSheetName = "tile"
 
-    # 橋タイル ================
-
-[[Tiles]]
-  BlocksView  = false
-  Description = "橋A"
-  Name        = "bridge_a"
-  Walkable    = true
-
-  [Tiles.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "floor"
-    SpriteSheetName = "tile"
-
-[[Tiles]]
-  BlocksView  = false
-  Description = "橋B"
-  Name        = "bridge_b"
-  Walkable    = true
-
-  [Tiles.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "floor"
-    SpriteSheetName = "tile"
-
-[[Tiles]]
-  BlocksView  = false
-  Description = "橋C"
-  Name        = "bridge_c"
-  Walkable    = true
-
-  [Tiles.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "floor"
-    SpriteSheetName = "tile"
-
-[[Tiles]]
-  BlocksView  = false
-  Description = "橋D（帰還）"
-  Name        = "bridge_d"
-  Walkable    = true
-
-  [Tiles.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "floor"
-    SpriteSheetName = "tile"
+    # 暗闇タイル ================
 
 [[Tiles]]
   BlocksView  = true
@@ -1983,89 +1939,7 @@
 
   [Props.Door]
 
-[[Props]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "次のフロアへ進むワープポータル"
-  Name        = "warp_next"
-
-  [Props.SpriteRender]
-    AnimKeys = [
-      "warp_next_0",
-      "warp_next_1",
-      "warp_next_2",
-      "warp_next_3",
-      "warp_next_4",
-      "warp_next_5",
-      "warp_next_6",
-      "warp_next_7",
-      "warp_next_8",
-      "warp_next_9",
-      "warp_next_10",
-      "warp_next_11",
-      "warp_next_12",
-      "warp_next_13",
-      "warp_next_14",
-      "warp_next_15",
-    ]
-    Depth = 1
-    SpriteKey = "warp_next_0"
-    SpriteSheetName = "field"
-
-  [Props.WarpNextInteraction]
-
-  [Props.LightSource]
-    Enabled = true
-    Radius  = 5
-
-    [Props.LightSource.Color]
-      A = 255
-      B = 0
-      G = 0
-      R = 50
-
-[[Props]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "脱出用ワープポータル"
-  Name        = "warp_escape"
-
-  [Props.SpriteRender]
-    AnimKeys = [
-      "warp_escape_0",
-      "warp_escape_1",
-      "warp_escape_2",
-      "warp_escape_3",
-      "warp_escape_4",
-      "warp_escape_5",
-      "warp_escape_6",
-      "warp_escape_7",
-      "warp_escape_8",
-      "warp_escape_9",
-      "warp_escape_10",
-      "warp_escape_11",
-      "warp_escape_12",
-      "warp_escape_13",
-      "warp_escape_14",
-      "warp_escape_15",
-    ]
-    Depth = 1
-    SpriteKey = "warp_escape_0"
-    SpriteSheetName = "field"
-
-  [Props.WarpEscapeInteraction]
-
-  [Props.LightSource]
-    Enabled = true
-    Radius  = 4
-
-    [Props.LightSource.Color]
-      A = 255
-      B = 255
-      G = 0
-      R = 0
-
-      # enemy tables ================
+    # enemy tables ================
 
 [[EnemyTables]]
   Name = "通常"

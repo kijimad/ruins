@@ -16,11 +16,9 @@ const (
 
 var (
 	// ErrConnectivity は接続性エラーを表す
-	ErrConnectivity = errors.New("マップ接続性エラー: プレイヤーからワープホールに到達できません")
+	ErrConnectivity = errors.New("マップ接続性エラー")
 	// ErrPlayerPlacement はプレイヤー配置エラーを表す
 	ErrPlayerPlacement = errors.New("プレイヤー配置可能な床タイルが見つかりません")
-	// ErrNoWarpPortal はワープポータルが存在しないエラーを表す
-	ErrNoWarpPortal = errors.New("マップにワープポータルが配置されていません")
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
@@ -68,12 +66,6 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		}
 	}
 
-	// ワープポータルプランナーを追加する
-	if len(chain.PlanData.WarpPortals) == 0 {
-		warpPlanner := NewWarpPortalPlanner(world, plannerType)
-		chain.With(warpPlanner)
-	}
-
 	// 敵NPCプランナーを追加
 	if plannerType.SpawnEnemies {
 		hostileNPCPlanner := NewHostileNPCPlanner(world, plannerType)
@@ -108,18 +100,17 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		return nil, ErrPlayerPlacement
 	}
 
-	// MetaPlan用の接続性検証（一時的に無効化）
-	// TODO: 橋システムの接続性を修正後に有効化する
-	// playerX, playerY, _ := chain.PlanData.GetPlayerStartPosition()
-	// pathFinder := NewPathFinder(&chain.PlanData)
-	// if err := pathFinder.ValidateConnectivity(playerX, playerY); err != nil {
-	// 	return nil, err
-	// }
+	// 橋システムの接続性検証
+	// 上部橋エリアと下部橋エリアが接続されているかをチェックする
+	pathFinder := NewPathFinder(&chain.PlanData)
+	if err := pathFinder.ValidateConnectivity(); err != nil {
+		return nil, err
+	}
 
 	return &chain.PlanData, nil
 }
 
 // isConnectivityError は接続性エラーかどうかを判定する
 func isConnectivityError(err error) bool {
-	return errors.Is(err, ErrConnectivity) || errors.Is(err, ErrPlayerPlacement) || errors.Is(err, ErrNoWarpPortal)
+	return errors.Is(err, ErrConnectivity) || errors.Is(err, ErrPlayerPlacement)
 }

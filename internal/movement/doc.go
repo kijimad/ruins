@@ -13,7 +13,7 @@
 //
 // マップ生成フェーズで使用される論理的な通行可否判定です。
 //
-//   - TileFloor, TileWarpNext, TileWarpEscape: 通行可能
+//   - TileFloor: 通行可能
 //   - TileWall: 通行不可
 //   - mapplanner.PathFinder.IsWalkable() で判定
 //   - 用途: 接続性検証、部屋配置、コリドー生成
@@ -31,7 +31,7 @@
 // マップ生成時にタイルからエンティティへの変換が行われ、一貫性が保たれます：
 //
 //   - TileWall → BlockPass付きエンティティ (通行不可)
-//   - TileFloor/TileWarpNext/TileWarpEscape → 通行可能エンティティ
+//   - TileFloor → 通行可能エンティティ
 //
 // この設計により、マップ生成の柔軟性と実行時のパフォーマンスを両立しています。
 //

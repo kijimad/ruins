@@ -7,11 +7,11 @@
 
   # 地形の定義
   [palette.terrain]
-    "." = "floor"    # 床
-    "#" = "wall"     # 壁
-    "-" = "void"     # 暗闇
-    "@" = "floor"    # プレイヤー開始位置（床として扱う）
-    "A" = "bridge_a" # 橋A
-    "B" = "bridge_b" # 橋B
-    "C" = "bridge_c" # 橋C
-    "D" = "bridge_d" # 橋D（帰還）
+    "." = "floor" # 床
+    "#" = "wall"  # 壁
+    "-" = "void"  # 暗闇
+    "@" = "floor" # プレイヤー開始位置（床として扱う）
+    "A" = "floor" # 橋A
+    "B" = "floor" # 橋B
+    "C" = "floor" # 橋C
+    "D" = "floor" # 橋D

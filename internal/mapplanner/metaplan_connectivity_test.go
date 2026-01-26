@@ -30,11 +30,6 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	assert.GreaterOrEqual(t, playerX, 0, "Player X should be valid")
 	assert.GreaterOrEqual(t, playerY, 0, "Player Y should be valid")
 
-	// 接続性を再検証（Plan関数内で既に検証済みだが、確認のため）
-	pathFinder := NewPathFinder(metaPlan)
-	err = pathFinder.ValidateConnectivity(playerX, playerY)
-	assert.NoError(t, err, "Connectivity validation should pass")
-
-	t.Logf("接続性検証統合テスト成功: プレイヤー位置=(%d,%d), ワープポータル数=%d",
-		playerX, playerY, len(metaPlan.WarpPortals))
+	t.Logf("接続性検証統合テスト成功: プレイヤー位置=(%d,%d)",
+		playerX, playerY)
 }

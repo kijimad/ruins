@@ -128,30 +128,55 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
 	return len(path) > 0
 }
 
-// ValidateConnectivity はマップの接続性を検証する
-// プレイヤーのスタート位置からワープポータルへの到達可能性をチェックし、問題があればエラーを返す
-func (pf *PathFinder) ValidateConnectivity(playerStartX, playerStartY int) error {
-	// プレイヤー開始位置が歩行可能かチェック
-	if !pf.IsWalkable(playerStartX, playerStartY) {
-		return ErrPlayerPlacement
+// ValidateConnectivity は上部橋エリアと下部橋エリアの接続性を検証する
+// BridgeConnectionが作成する上部・下部の橋エリアが接続されているかをチェックする
+func (pf *PathFinder) ValidateConnectivity() error {
+	width := int(pf.planData.Level.TileWidth)
+	height := int(pf.planData.Level.TileHeight)
+
+	// マップサイズに応じて橋エリアの行数を決定（BridgeConnectionと同じロジック）
+	rowsToFloor := 1
+	if height > 15 {
+		rowsToFloor = 2
 	}
 
-	// ワープポータルが存在することを確認
-	if len(pf.planData.WarpPortals) == 0 {
-		return ErrNoWarpPortal
-	}
-
-	// ワープポータルへの到達可能性をチェック
-	hasReachablePortal := false
-	for _, portal := range pf.planData.WarpPortals {
-		if pf.IsReachable(playerStartX, playerStartY, portal.X, portal.Y) {
-			hasReachablePortal = true
+	// 上部橋エリアから歩行可能な開始点を探す
+	var topStartX, topStartY int
+	foundTopStart := false
+	for y := 0; y < rowsToFloor && y < height; y++ {
+		for x := 0; x < width; x++ {
+			if pf.IsWalkable(x, y) {
+				topStartX, topStartY = x, y
+				foundTopStart = true
+				break
+			}
+		}
+		if foundTopStart {
 			break
 		}
 	}
 
-	// ワープポータルがあるのに到達できない場合はエラー
-	if !hasReachablePortal {
+	if !foundTopStart {
+		return ErrConnectivity
+	}
+
+	// 下部橋エリアの歩行可能な点をすべて探し、上部から到達可能かチェック
+	hasReachableBottomTile := false
+	for y := height - rowsToFloor; y < height && y >= 0; y++ {
+		for x := 0; x < width; x++ {
+			if pf.IsWalkable(x, y) {
+				if pf.IsReachable(topStartX, topStartY, x, y) {
+					hasReachableBottomTile = true
+					break
+				}
+			}
+		}
+		if hasReachableBottomTile {
+			break
+		}
+	}
+
+	if !hasReachableBottomTile {
 		return ErrConnectivity
 	}
 

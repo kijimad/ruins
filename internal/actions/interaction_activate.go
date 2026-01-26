@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -70,10 +69,6 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	// 相互作用の種類に応じた処理を実行
 	var interactionErr error
 	switch content := interactable.Data.(type) {
-	case gc.WarpNextInteraction:
-		ia.executeWarpNext(act, world, content)
-	case gc.WarpEscapeInteraction:
-		ia.executeWarpEscape(act, world, content)
 	case gc.BridgeInteraction:
 		ia.executeBridge(act, world, content)
 	case gc.DoorInteraction:
@@ -109,37 +104,6 @@ func (ia *InteractionActivateActivity) Finish(act *Activity, _ w.World) error {
 func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error {
 	act.Logger.Debug("相互作用発動キャンセル", "actor", act.Actor, "reason", act.CancelReason)
 	return nil
-}
-
-// executeWarpNext は次の階へワープする相互作用を実行する
-func (ia *InteractionActivateActivity) executeWarpNext(act *Activity, world w.World, _ gc.WarpNextInteraction) {
-	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{})
-	act.Logger.Debug("次の階へワープ", "actor", act.Actor)
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Magic("空間移動した。").
-			Log()
-	}
-}
-
-// executeWarpEscape は脱出ワープする相互作用を実行する
-func (ia *InteractionActivateActivity) executeWarpEscape(act *Activity, world w.World, _ gc.WarpEscapeInteraction) {
-	currentDepth := world.Resources.Dungeon.Depth
-
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Magic("脱出した。").
-			Log()
-	}
-
-	// クリア深度から脱出した場合はゲームクリアイベントを発行
-	if currentDepth >= consts.GameClearDepth {
-		world.Resources.Dungeon.SetStateEvent(resources.GameClearEvent{})
-		act.Logger.Debug("ゲームクリア", "actor", act.Actor, "depth", currentDepth)
-	} else {
-		world.Resources.Dungeon.SetStateEvent(resources.WarpEscapeEvent{})
-		act.Logger.Debug("脱出ワープ", "actor", act.Actor, "depth", currentDepth)
-	}
 }
 
 // executeBridge は橋を渡る相互作用を実行する

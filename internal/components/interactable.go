@@ -18,30 +18,9 @@ type InteractionData interface {
 	Config() InteractionConfig
 }
 
-// WarpNextInteraction は次の階層へワープする相互作用
-type WarpNextInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t WarpNextInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
-// WarpEscapeInteraction は脱出ワープする相互作用
-type WarpEscapeInteraction struct{}
-
-// Config は相互作用設定を返す
-func (t WarpEscapeInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
-	}
-}
-
 // BridgeInteraction は橋を渡る相互作用
 type BridgeInteraction struct {
+	// TODO: 橋の名前がわかりにくいのを直す
 	BridgeID      string // 橋の識別子（"A", "B", "C", "D"）
 	NextFloorSeed uint64 // 次階層生成用のシード値
 }

@@ -90,7 +90,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.WarpNextInteraction{}, // Manual 方式
+		Data: gc.ItemInteraction{}, // Manual 方式
 	})
 	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 

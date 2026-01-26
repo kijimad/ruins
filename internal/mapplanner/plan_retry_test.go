@@ -114,16 +114,6 @@ func TestIsConnectivityError(t *testing.T) {
 			expected: true,
 		},
 		{
-			name:     "ワープポータルなしエラー（直接）",
-			err:      ErrNoWarpPortal,
-			expected: true,
-		},
-		{
-			name:     "ワープポータルなしエラー（計画検証エラー経由）",
-			err:      fmt.Errorf("計画検証エラー: %w", ErrNoWarpPortal),
-			expected: true,
-		},
-		{
 			name:     "その他のエラー",
 			err:      fmt.Errorf("MetaPlan構築エラー: 何らかの問題"),
 			expected: false,

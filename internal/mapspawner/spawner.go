@@ -66,26 +66,6 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// ワープポータルを生成
-	for _, portal := range metaPlan.WarpPortals {
-		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
-
-		var propName string
-		switch portal.Type {
-		case mapplanner.WarpPortalNext:
-			propName = "warp_next"
-		case mapplanner.WarpPortalEscape:
-			propName = "warp_escape"
-		default:
-			return resources.Level{}, fmt.Errorf("不明なワープポータルタイプ: %v", portal.Type)
-		}
-
-		_, err := worldhelper.SpawnProp(world, propName, tileX, tileY)
-		if err != nil {
-			return resources.Level{}, fmt.Errorf("ワープポータル生成エラー (%d, %d): %w", portal.X, portal.Y, err)
-		}
-	}
-
 	// NPCを生成する
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
 	for _, npc := range metaPlan.NPCs {

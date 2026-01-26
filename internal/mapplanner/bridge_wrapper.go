@@ -149,10 +149,6 @@ func (bw BridgeFacilityWrapper) shiftExistingEntities(metaPlan *MetaPlan, offset
 		metaPlan.Rooms[i].Y2 += gc.Tile(offsetY)
 	}
 
-	for i := range metaPlan.WarpPortals {
-		metaPlan.WarpPortals[i].Y += offsetY
-	}
-
 	for i := range metaPlan.NPCs {
 		metaPlan.NPCs[i].Y += offsetY
 	}

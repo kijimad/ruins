@@ -13,23 +13,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// WarpPortalType はワープポータルの種別
-type WarpPortalType uint8
-
-const (
-	// WarpPortalNext は次の階に向かうワープポータル
-	WarpPortalNext WarpPortalType = iota
-	// WarpPortalEscape は脱出用ワープポータル
-	WarpPortalEscape
-)
-
-// WarpPortal はワープポータルエンティティの配置情報
-type WarpPortal struct {
-	X    int            // X座標
-	Y    int            // Y座標
-	Type WarpPortalType // ポータルの種別
-}
-
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
 	// 階層情報
@@ -45,8 +28,6 @@ type MetaPlan struct {
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []raw.TileRaw
-	// WarpPortals は配置予定のワープポータルリスト
-	WarpPortals []WarpPortal
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
@@ -82,13 +63,6 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
-	// ワープポータルをチェック
-	for _, portal := range bm.WarpPortals {
-		if portal.X == x && portal.Y == y {
-			return true
-		}
-	}
-
 	// NPCをチェック
 	for _, npc := range bm.NPCs {
 		if npc.X == x && npc.Y == y {
@@ -280,7 +254,6 @@ func NewPlannerChain(width gc.Tile, height gc.Tile, seed uint64) *PlannerChain {
 			Rooms:               []gc.Rect{},
 			Corridors:           [][]resources.TileIdx{},
 			RNG:                 rand.New(rand.NewPCG(seed, seed+1)),
-			WarpPortals:         []WarpPortal{},
 			NPCs:                []NPCSpec{},
 			Items:               []ItemSpec{},
 			Props:               []PropsSpec{},
@@ -314,13 +287,6 @@ func (b *PlannerChain) Plan() error {
 		}
 	}
 	return nil
-}
-
-// ValidateConnectivity はマップの接続性を検証する
-// プレイヤーのスタート位置からワープポータルへの到達可能性をチェックし、問題があればエラーを返す
-func (b *PlannerChain) ValidateConnectivity(playerStartX, playerStartY int) error {
-	pf := NewPathFinder(&b.PlanData)
-	return pf.ValidateConnectivity(playerStartX, playerStartY)
 }
 
 // InitialMapPlanner は初期マップをプランするインターフェース
