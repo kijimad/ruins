@@ -413,7 +413,7 @@ type DungeonStateOption func(*DungeonState)
 // WithSeed はシード値を設定するオプション
 func WithSeed(seed uint64) DungeonStateOption {
 	return func(ds *DungeonState) {
-		ds.Seed = seed
+		ds.Seed = &seed
 	}
 }
 

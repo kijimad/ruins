@@ -25,8 +25,8 @@ func TestPlan_ConnectivityValidation(t *testing.T) {
 			assert.NotNil(t, plan)
 
 			// プレイヤー位置が設定されていることを確認
-			_, _, hasPlayer := plan.GetPlayerStartPosition()
-			assert.True(t, hasPlayer, "シード %d でプレイヤー位置なし", seed)
+			_, _, err = plan.GetPlayerStartPosition()
+			assert.NoError(t, err, "シード %d でプレイヤー位置なし", seed)
 		}
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -36,11 +37,6 @@ type MetaPlan struct {
 	Props []PropsSpec
 	// Bridges は配置予定の橋リスト
 	Bridges []BridgeSpec
-	// PlayerStartPosition はプレイヤー開始位置（'@'文字で指定された場合に使用する）
-	PlayerStartPosition *struct {
-		X int
-		Y int
-	}
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
 }
@@ -250,14 +246,13 @@ func NewPlannerChain(width gc.Tile, height gc.Tile, seed uint64) *PlannerChain {
 				TileWidth:  width,
 				TileHeight: height,
 			},
-			Tiles:               tiles,
-			Rooms:               []gc.Rect{},
-			Corridors:           [][]resources.TileIdx{},
-			RNG:                 rand.New(rand.NewPCG(seed, seed+1)),
-			NPCs:                []NPCSpec{},
-			Items:               []ItemSpec{},
-			Props:               []PropsSpec{},
-			PlayerStartPosition: nil,
+			Tiles:     tiles,
+			Rooms:     []gc.Rect{},
+			Corridors: [][]resources.TileIdx{},
+			RNG:       rand.New(rand.NewPCG(seed, seed+1)),
+			NPCs:      []NPCSpec{},
+			Items:     []ItemSpec{},
+			Props:     []PropsSpec{},
 		},
 	}
 }
@@ -477,6 +472,38 @@ var (
 	}
 )
 
+// ToName はPlannerTypeをconsts.PlannerTypeNameに変換する
+func (pt PlannerType) ToName() consts.PlannerTypeName {
+	return consts.PlannerTypeName(pt.Name)
+}
+
+// PlannerTypeFromName はconsts.PlannerTypeNameからPlannerTypeを取得する
+func PlannerTypeFromName(name consts.PlannerTypeName) PlannerType {
+	switch name {
+	case consts.PlannerTypeNameRandom:
+		return PlannerTypeRandom
+	case consts.PlannerTypeNameSmallRoom:
+		return PlannerTypeSmallRoom
+	case consts.PlannerTypeNameBigRoom:
+		return PlannerTypeBigRoom
+	case consts.PlannerTypeNameCave:
+		return PlannerTypeCave
+	case consts.PlannerTypeNameRuins:
+		return PlannerTypeRuins
+	case consts.PlannerTypeNameForest:
+		return PlannerTypeForest
+	case consts.PlannerTypeNameTown:
+		return PlannerTypeTown
+	case consts.PlannerTypeNameOfficeBuilding:
+		return PlannerTypeOfficeBuilding
+	case consts.PlannerTypeNameSmallTown:
+		return PlannerTypeSmallTown
+	default:
+		// デフォルトはランダム
+		return PlannerTypeRandom
+	}
+}
+
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
 func NewRandomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	// シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される
@@ -520,47 +547,23 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 }
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
-func (bm *MetaPlan) GetPlayerStartPosition() (int, int, bool) {
-	// '@'文字で指定されたプレイヤー開始位置があればそれを使用する
-	if bm.PlayerStartPosition != nil {
-		x, y := bm.PlayerStartPosition.X, bm.PlayerStartPosition.Y
-		// 指定位置が有効かチェック
-		tileIdx := bm.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-		if int(tileIdx) < len(bm.Tiles) && bm.Tiles[tileIdx].Walkable {
-			return x, y, true
+func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
+	// 橋Dを検索してプレイヤー開始位置とする
+	for _, bridge := range bm.Bridges {
+		if bridge.BridgeID == "D" {
+			return bridge.X, bridge.Y, nil
 		}
 	}
 
-	// 指定位置がない場合や無効な場合は適切な開始位置を探す
-	width := int(bm.Level.TileWidth)
-	height := int(bm.Level.TileHeight)
-
-	// 複数の候補位置を試す
-	attempts := []struct{ x, y int }{
-		{width / 2, height / 2},         // 中央
-		{width / 4, height / 4},         // 左上寄り
-		{3 * width / 4, height / 4},     // 右上寄り
-		{width / 4, 3 * height / 4},     // 左下寄り
-		{3 * width / 4, 3 * height / 4}, // 右下寄り
-	}
-
-	// 最適な位置を探す
-	for _, pos := range attempts {
-		tileIdx := bm.Level.XYTileIndex(gc.Tile(pos.x), gc.Tile(pos.y))
-		if int(tileIdx) < len(bm.Tiles) && bm.Tiles[tileIdx].Walkable {
-			return pos.x, pos.y, true
-		}
-	}
-
-	// 見つからない場合は全体をスキャン
+	// 橋Dが見つからない場合は移動可能タイルを探す（テスト用フォールバック）
+	// TODO: どうにかする
 	for _i, tile := range bm.Tiles {
 		if tile.Walkable {
 			i := resources.TileIdx(_i)
 			x, y := bm.Level.XYTileCoord(i)
-			return int(x), int(y), true
+			return int(x), int(y), nil
 		}
 	}
 
-	// 見つからない場合
-	return 0, 0, false
+	return 0, 0, fmt.Errorf("橋D（入口）が見つかりません")
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -110,18 +111,36 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 
 // executeBridge は橋を渡る相互作用を実行する
 func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
+	// resources.Dungeonから次のPlannerTypeNameを取得
+	var nextPlannerTypeName consts.PlannerTypeName
+	var nextStageName string
+	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
+		if ptName, ok := nextBridgeTypes[bridge.BridgeID]; ok {
+			nextPlannerTypeName = ptName
+			nextStageName = string(ptName)
+		}
+	}
+
 	// WarpNextEvent を発行
 	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{
-		BridgeID: bridge.BridgeID,
+		NextPlannerType: nextPlannerTypeName,
 	})
 
-	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID)
+	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", nextStageName)
 
 	// ログ出力
 	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Magic(fmt.Sprintf("橋%sを渡った。", bridge.BridgeID)).
-			Log()
+		if nextStageName != "" {
+			gamelog.New(gamelog.FieldLog).
+				Append("橋を渡った。").
+				Magic(nextStageName).
+				Append("が見える。").
+				Log()
+		} else {
+			gamelog.New(gamelog.FieldLog).
+				Append(fmt.Sprintf("橋%sを渡った。", bridge.BridgeID)).
+				Log()
+		}
 	}
 }
 

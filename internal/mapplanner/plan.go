@@ -24,25 +24,34 @@ var (
 // Plan はPlannerChainを初期化してMetaPlanを返す
 func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
 	var lastErr error
+	var lastSeed uint64
 
 	// 最大再試行回数まで繰り返す
 	for attempt := 0; attempt < MaxPlanRetries; attempt++ {
 		// 再試行時は異なるシードを使用
 		currentSeed := seed + uint64(attempt*1000)
+		lastSeed = currentSeed
 
 		plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)
 		if err == nil {
+			// 成功時にリトライがあった場合は警告ログを出力
+			if attempt > 0 {
+				fmt.Printf("マップ生成成功（試行回数: %d回, PlannerType: %s, 最終seed: %d）\n", attempt+1, plannerType.Name, currentSeed)
+			}
 			return plan, nil
 		}
 
 		lastErr = err
+
 		// 接続性エラー以外は即座に失敗
 		if !isConnectivityError(err) {
-			return nil, err
+			return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
 		}
 	}
 
-	return nil, fmt.Errorf("プラン生成に%d回失敗しました。最後のエラー: %w", MaxPlanRetries, lastErr)
+	// 全試行失敗時のエラーメッセージ（最後の試行のみ表示）
+	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, baseSeed=%d, 最終試行seed=%d)。最後のエラー: %w",
+		MaxPlanRetries, plannerType.Name, seed, lastSeed, lastErr)
 }
 
 // attemptMetaPlan は単一回のメタプラン生成を試行する
@@ -88,8 +97,8 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	}
 
 	// 基本的な検証: プレイヤー開始位置があるか確認
-	_, _, hasPlayer := chain.PlanData.GetPlayerStartPosition()
-	if !hasPlayer {
+	_, _, playerErr := chain.PlanData.GetPlayerStartPosition()
+	if playerErr != nil {
 		return nil, ErrPlayerPlacement
 	}
 

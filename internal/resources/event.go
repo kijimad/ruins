@@ -1,6 +1,7 @@
 package resources
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -37,7 +38,7 @@ func (e NoneEvent) Type() StateEventType {
 
 // WarpNextEvent は次の階層への移動を表す
 type WarpNextEvent struct {
-	BridgeID string // 選択された橋のID
+	NextPlannerType consts.PlannerTypeName // 次階層のマップ生成タイプ名
 }
 
 // Type はイベントタイプを返す

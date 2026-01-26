@@ -60,4 +60,33 @@ func TestBridgeIntegration(t *testing.T) {
 		// 同じタイルで発動することを確認
 		assert.Equal(t, gc.ActivationRangeSameTile, config.ActivationRange)
 	})
+
+	t.Run("橋にはBridgeIDのみが設定される", func(t *testing.T) {
+		t.Parallel()
+		testWorld := testutil.InitTestWorld(t)
+
+		// 通常の階層（5の倍数でない）
+		bridgeEntity, err := SpawnBridge(testWorld, "A", 10, 5, 1)
+		require.NoError(t, err)
+
+		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
+		bridgeInteraction, ok := interactable.Data.(gc.BridgeInteraction)
+		require.True(t, ok, "Interactable.DataはBridgeInteractionである必要があります")
+
+		// BridgeIDが正しく設定されていることを確認
+		assert.Equal(t, "A", bridgeInteraction.BridgeID)
+	})
+
+	t.Run("5の倍数の階層ではPlazaWarpInteractionが設定される", func(t *testing.T) {
+		t.Parallel()
+		testWorld := testutil.InitTestWorld(t)
+
+		// 5の倍数の階層の橋A
+		bridgeEntity, err := SpawnBridge(testWorld, "A", 10, 5, 5)
+		require.NoError(t, err)
+
+		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
+		_, ok := interactable.Data.(gc.PlazaWarpInteraction)
+		assert.True(t, ok, "5の倍数の階層ではPlazaWarpInteractionが設定される")
+	})
 }

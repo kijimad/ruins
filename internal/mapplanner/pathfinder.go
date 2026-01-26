@@ -1,6 +1,8 @@
 package mapplanner
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 )
 
@@ -138,22 +140,27 @@ func (pf *PathFinder) ValidateConnectivity() error {
 	// 最上列（y=0）から歩行可能な開始点を探す
 	var topStartX, topStartY int
 	foundTopStart := false
+	topWalkableCount := 0
 	for x := 0; x < width; x++ {
 		if pf.IsWalkable(x, 0) {
-			topStartX, topStartY = x, 0
-			foundTopStart = true
-			break
+			topWalkableCount++
+			if !foundTopStart {
+				topStartX, topStartY = x, 0
+				foundTopStart = true
+			}
 		}
 	}
 
 	if !foundTopStart {
-		return ErrConnectivity
+		return fmt.Errorf("%w: 最上列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
 	}
 
 	// 最下列（y=height-1）の歩行可能な点をすべて探し、最上列から到達可能かチェック
+	bottomWalkableCount := 0
 	hasReachableBottomTile := false
 	for x := 0; x < width; x++ {
 		if pf.IsWalkable(x, height-1) {
+			bottomWalkableCount++
 			if pf.IsReachable(topStartX, topStartY, x, height-1) {
 				hasReachableBottomTile = true
 				break
@@ -162,7 +169,8 @@ func (pf *PathFinder) ValidateConnectivity() error {
 	}
 
 	if !hasReachableBottomTile {
-		return ErrConnectivity
+		return fmt.Errorf("%w: 最上列(%d,%d)から最下列への到達不可 (width=%d, height=%d, 最上列歩行可能タイル数=%d, 最下列歩行可能タイル数=%d)",
+			ErrConnectivity, topStartX, topStartY, width, height, topWalkableCount, bottomWalkableCount)
 	}
 
 	return nil

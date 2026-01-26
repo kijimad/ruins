@@ -20,6 +20,9 @@ type Dungeon struct {
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
 	NeedsForceUpdate bool
+	// 次階層の各橋に割り当てられたPlannerTypeName
+	// 橋を渡る際に参照される
+	Bridges map[string]consts.PlannerTypeName
 }
 
 // SetStateEvent はStateEventを設定する

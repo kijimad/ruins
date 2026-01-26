@@ -134,7 +134,6 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 
 		tileX, tileY := gc.Tile(bridge.X), gc.Tile(bridge.Y)
-
 		currentDepth := dungeonResource.Depth
 
 		_, err := worldhelper.SpawnBridge(world, bridge.BridgeID, tileX, tileY, currentDepth)

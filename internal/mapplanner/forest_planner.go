@@ -169,8 +169,14 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 // ForestPaths は森の中に自然な通路を作成する
 type ForestPaths struct{}
 
-// PlanMeta は空き地間に自然な通路を作成する
+// PlanMeta は自然な通路を作成する
 func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
+	width := int(planData.Level.TileWidth)
+	height := int(planData.Level.TileHeight)
+
+	// 最上列から最下列への確実な通路を1本作成（接続性保証）
+	f.createGuaranteedVerticalPath(planData, width, height)
+
 	if len(planData.Rooms) < 2 {
 		return nil
 	}
@@ -185,6 +191,46 @@ func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
 		}
 	}
 	return nil
+}
+
+// createGuaranteedVerticalPath は最上列から最下列への確実な通路を作成する
+func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, height int) {
+	// ランダムなX位置を選択（中央付近を優先）
+	centerX := width / 2
+	offsetRange := width / 4
+	if offsetRange < 1 {
+		offsetRange = 1
+	}
+	pathX := centerX + planData.RNG.IntN(offsetRange*2+1) - offsetRange
+
+	// 境界チェック
+	if pathX < 1 {
+		pathX = 1
+	}
+	if pathX >= width-1 {
+		pathX = width - 2
+	}
+
+	// 上から下まで確実に通路を作る
+	for y := 0; y < height; y++ {
+		// 通路とその左右1タイルを床にする（幅3の通路）
+		for dx := -1; dx <= 1; dx++ {
+			x := pathX + dx
+			if x >= 0 && x < width {
+				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+				planData.Tiles[idx] = planData.GetTile("floor")
+			}
+		}
+
+		// 通路に自然な蛇行を追加（20%の確率で左右に移動）
+		if y > 0 && y < height-1 && planData.RNG.Float64() < 0.2 {
+			if planData.RNG.Float64() < 0.5 {
+				pathX = min(pathX+1, width-2)
+			} else {
+				pathX = max(pathX-1, 1)
+			}
+		}
+	}
 }
 
 // shouldCreatePath は通路を作成するかどうかを判定する

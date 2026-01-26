@@ -111,7 +111,6 @@ func (bw BridgeFacilityWrapper) PlanMeta(metaPlan *MetaPlan) error {
 	// テンプレートから橋とプレイヤー位置を配置
 	bw.placeBridgesFromTemplate(metaPlan, topTemplate, 0)
 	bw.placeBridgesFromTemplate(metaPlan, bottomTemplate, bottomStartY)
-	bw.setPlayerStartFromTemplate(metaPlan, bottomTemplate, bottomStartY)
 
 	return nil
 }
@@ -174,26 +173,6 @@ func (bw BridgeFacilityWrapper) placeBridgesFromTemplate(
 			Y:        bridge.Y + offsetY,
 			BridgeID: bridge.BridgeID,
 		})
-	}
-}
-
-// setPlayerStartFromTemplate はテンプレートからプレイヤー開始位置を設定する
-func (bw BridgeFacilityWrapper) setPlayerStartFromTemplate(
-	metaPlan *MetaPlan,
-	template *maptemplate.ChunkTemplate,
-	offsetY int,
-) {
-	lines := template.GetMapLines()
-	for y, line := range lines {
-		for x, char := range line {
-			if char == '@' {
-				metaPlan.PlayerStartPosition = &struct{ X, Y int }{
-					X: x,
-					Y: y + offsetY,
-				}
-				return
-			}
-		}
 	}
 }
 

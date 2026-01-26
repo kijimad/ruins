@@ -25,8 +25,8 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	assert.NotNil(t, metaPlan, "MetaPlan should not be nil")
 
 	// プレイヤー開始位置が設定されていることを確認
-	playerX, playerY, hasPlayer := metaPlan.GetPlayerStartPosition()
-	assert.True(t, hasPlayer, "Should have player start position")
+	playerX, playerY, err := metaPlan.GetPlayerStartPosition()
+	assert.NoError(t, err, "Should have player start position")
 	assert.GreaterOrEqual(t, playerX, 0, "Player X should be valid")
 	assert.GreaterOrEqual(t, playerY, 0, "Player Y should be valid")
 
