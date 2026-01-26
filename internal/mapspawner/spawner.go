@@ -135,15 +135,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		tileX, tileY := gc.Tile(bridge.X), gc.Tile(bridge.Y)
 
-		// gameSeedとdepthを取得（Dungeonリソースから）
-		// 新規ゲームの場合はdepthが0なので、metaPlanのシードを使用
-		gameSeed := uint64(0)
-		if dungeonResource != nil {
-			gameSeed = dungeonResource.NextFloorSeed
-		}
 		currentDepth := dungeonResource.Depth
 
-		_, err := worldhelper.SpawnBridge(world, bridge.BridgeID, tileX, tileY, currentDepth, gameSeed)
+		_, err := worldhelper.SpawnBridge(world, bridge.BridgeID, tileX, tileY, currentDepth)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("橋エンティティ生成エラー (%d, %d): %w", bridge.X, bridge.Y, err)
 		}

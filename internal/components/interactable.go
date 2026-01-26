@@ -21,12 +21,22 @@ type InteractionData interface {
 // BridgeInteraction は橋を渡る相互作用
 type BridgeInteraction struct {
 	// TODO: 橋の名前がわかりにくいのを直す
-	BridgeID      string // 橋の識別子（"A", "B", "C", "D"）
-	NextFloorSeed uint64 // 次階層生成用のシード値
+	BridgeID string // 橋の識別子（"A", "B", "C", "D"）
 }
 
 // Config は相互作用設定を返す
 func (b BridgeInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayAuto, // 橋の端に到達したら自動遷移
+	}
+}
+
+// PlazaWarpInteraction は街広場へのワープ相互作用（5の倍数の階層用）
+type PlazaWarpInteraction struct{}
+
+// Config は相互作用設定を返す
+func (p PlazaWarpInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
 		ActivationWay:   ActivationWayAuto, // 橋の端に到達したら自動遷移

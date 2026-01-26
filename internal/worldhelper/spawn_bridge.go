@@ -9,41 +9,29 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// CalculateBridgeSeed は橋固有のシード値を計算する
-func CalculateBridgeSeed(baseDepth int, gameSeed uint64, bridgeID string) uint64 {
-	// 橋ごとのオフセット
-	offsets := map[string]uint64{
-		"A": 1000,
-		"B": 2000,
-		"C": 3000,
-		"D": 4000,
-	}
-
-	baseSeed := uint64(baseDepth) + gameSeed
-	offset, ok := offsets[bridgeID]
-	if !ok {
-		// 未知のbridgeIDの場合はデフォルトオフセット
-		offset = 9999
-	}
-
-	return baseSeed + offset
-}
-
 // SpawnBridge は橋エンティティを生成する
 // 橋エンティティは橋の端に配置され、橋を渡る相互作用を提供する
+// 5の倍数の階層かつ橋Aの場合、街広場へのワープInteractionを設定する
 func SpawnBridge(
 	world w.World,
 	bridgeID string,
 	x gc.Tile,
 	y gc.Tile,
 	currentDepth int,
-	gameSeed uint64,
 ) (ecs.Entity, error) {
-	// NextFloorSeed を計算
-	nextFloorSeed := CalculateBridgeSeed(currentDepth, gameSeed, bridgeID)
-
 	// 橋名を構築（例: "橋A"）
 	bridgeName := fmt.Sprintf("橋%s", bridgeID)
+
+	// 5の倍数の階層かつ橋Aの場合、街広場へのワープInteractionを設定
+	var interactionData gc.InteractionData
+	if currentDepth%5 == 0 && currentDepth > 0 && bridgeID == "A" {
+		interactionData = gc.PlazaWarpInteraction{}
+	} else {
+		// 通常の橋Interaction（次階層へ）
+		interactionData = gc.BridgeInteraction{
+			BridgeID: bridgeID,
+		}
+	}
 
 	// EntitySpecを直接構築
 	entitySpec := gc.EntitySpec{
@@ -53,10 +41,7 @@ func SpawnBridge(
 		},
 		GridElement: &gc.GridElement{X: x, Y: y},
 		Interactable: &gc.Interactable{
-			Data: gc.BridgeInteraction{
-				BridgeID:      bridgeID,
-				NextFloorSeed: nextFloorSeed,
-			},
+			Data: interactionData,
 		},
 	}
 

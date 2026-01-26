@@ -71,6 +71,8 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	switch content := interactable.Data.(type) {
 	case gc.BridgeInteraction:
 		ia.executeBridge(act, world, content)
+	case gc.PlazaWarpInteraction:
+		ia.executePlazaWarp(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
@@ -108,19 +110,32 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 
 // executeBridge は橋を渡る相互作用を実行する
 func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
-	// NextFloorSeed を Dungeon リソースに保存
-	world.Resources.Dungeon.NextFloorSeed = bridge.NextFloorSeed
-	world.Resources.Dungeon.SelectedBridgeID = bridge.BridgeID
-
 	// WarpNextEvent を発行
-	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{})
+	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{
+		BridgeID: bridge.BridgeID,
+	})
 
-	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextSeed", bridge.NextFloorSeed)
+	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID)
 
 	// ログ出力
 	if isPlayerActivity(act, world) {
 		gamelog.New(gamelog.FieldLog).
 			Magic(fmt.Sprintf("橋%sを渡った。", bridge.BridgeID)).
+			Log()
+	}
+}
+
+// executePlazaWarp は街広場へのワープ相互作用を実行する
+func (ia *InteractionActivateActivity) executePlazaWarp(act *Activity, world w.World, _ gc.PlazaWarpInteraction) {
+	// WarpPlazaEvent を発行
+	world.Resources.Dungeon.SetStateEvent(resources.WarpPlazaEvent{})
+
+	act.Logger.Debug("街広場へワープ", "actor", act.Actor)
+
+	// ログ出力
+	if isPlayerActivity(act, world) {
+		gamelog.New(gamelog.FieldLog).
+			Magic("街広場へ移動した。").
 			Log()
 	}
 }

@@ -31,7 +31,7 @@ var (
 type DungeonState struct {
 	es.BaseState[w.World]
 	Depth int
-	// Seed はマップ生成用のシード値（0の場合はDungeonリソースのシード値を使用）
+	// Seed はマップ生成用のシード値
 	Seed uint64
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
@@ -111,10 +111,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// 視界キャッシュをクリア（新しい階のために）
 	gs.ClearVisionCaches()
-
-	// NextFloorSeed と SelectedBridgeID をリセット（次の階層で再利用されないように）
-	world.Resources.Dungeon.NextFloorSeed = 0
-	world.Resources.Dungeon.SelectedBridgeID = ""
 
 	// StateEvent をリセット（橋遷移後のイベントが残らないように）
 	world.Resources.Dungeon.SetStateEvent(resources.NoneEvent{})
@@ -467,7 +463,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 	case resources.WarpNextEvent:
 		// 橋を渡って次のフロアへ遷移（橋D位置にスポーン）
 		nextDepth := world.Resources.Dungeon.Depth + 1
-		seed := world.Resources.Dungeon.NextFloorSeed
+		seed := st.Seed + uint64(nextDepth)
 
 		return es.Transition[w.World]{
 			Type: es.TransSwitch,
@@ -477,6 +473,20 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 						Depth:       nextDepth,
 						Seed:        seed,
 						BuilderType: mapplanner.PlannerTypeRandom,
+					}
+				},
+			},
+		}, nil
+	case resources.WarpPlazaEvent:
+		// 街広場へワープ（5の倍数の階層の橋A用）
+		return es.Transition[w.World]{
+			Type: es.TransSwitch,
+			NewStateFuncs: []es.StateFactory[w.World]{
+				func() es.State[w.World] {
+					return &DungeonState{
+						Depth:       0,
+						Seed:        st.Seed,
+						BuilderType: mapplanner.PlannerTypeTownPlaza,
 					}
 				},
 			},

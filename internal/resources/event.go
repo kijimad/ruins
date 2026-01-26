@@ -14,6 +14,8 @@ const (
 	StateEventTypeWarpNext = StateEventType("WARP_NEXT")
 	// StateEventTypeWarpEscape は脱出を表す
 	StateEventTypeWarpEscape = StateEventType("WARP_ESCAPE")
+	// StateEventTypeWarpPlaza は街広場への移動を表す（5の倍数の階層用）
+	StateEventTypeWarpPlaza = StateEventType("WARP_PLAZA")
 	// StateEventTypeGameClear はゲームクリアを表す
 	StateEventTypeGameClear = StateEventType("GAME_CLEAR")
 	// StateEventTypeShowDialog は会話メッセージの表示を表す
@@ -34,7 +36,9 @@ func (e NoneEvent) Type() StateEventType {
 }
 
 // WarpNextEvent は次の階層への移動を表す
-type WarpNextEvent struct{}
+type WarpNextEvent struct {
+	BridgeID string // 選択された橋のID
+}
 
 // Type はイベントタイプを返す
 func (e WarpNextEvent) Type() StateEventType {
@@ -47,6 +51,14 @@ type WarpEscapeEvent struct{}
 // Type はイベントタイプを返す
 func (e WarpEscapeEvent) Type() StateEventType {
 	return StateEventTypeWarpEscape
+}
+
+// WarpPlazaEvent は街広場への移動を表す
+type WarpPlazaEvent struct{}
+
+// Type はイベントタイプを返す
+func (e WarpPlazaEvent) Type() StateEventType {
+	return StateEventTypeWarpPlaza
 }
 
 // GameClearEvent はゲームクリアを表す
