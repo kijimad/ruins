@@ -35,8 +35,8 @@
   palettes = ["standard"]
   weight = 1
 
-  # 橋A - 中央1マスのみ
+  # 出口橋 - 中央1マスのみ
   [[chunk.bridges]]
-    bridge_id = "A"
+    bridge_id = "exit"
     x         = 9
     y         = 14

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -18,14 +19,14 @@ func TestBridgeIntegration(t *testing.T) {
 		testWorld := testutil.InitTestWorld(t)
 
 		// 橋エンティティを生成
-		bridgeEntity, err := SpawnBridge(testWorld, "A", 10, 5, 1)
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.BridgeIDExit, 10, 5, 1)
 		require.NoError(t, err)
 
 		// Nameコンポーネントを確認
 		nameComp := testWorld.Components.Name.Get(bridgeEntity)
 		require.NotNil(t, nameComp)
 		name := nameComp.(*gc.Name)
-		assert.Equal(t, "橋A", name.Name)
+		assert.Equal(t, "橋exit", name.Name)
 
 		// GridElementコンポーネントを確認
 		gridComp := testWorld.Components.GridElement.Get(bridgeEntity)
@@ -42,14 +43,14 @@ func TestBridgeIntegration(t *testing.T) {
 		// BridgeInteractionであることを確認
 		bridgeInteraction, ok := interactable.Data.(gc.BridgeInteraction)
 		require.True(t, ok, "Interactable.DataはBridgeInteractionである必要があります")
-		assert.Equal(t, "A", bridgeInteraction.BridgeID)
+		assert.Equal(t, maptemplate.BridgeIDExit, bridgeInteraction.BridgeID)
 	})
 
 	t.Run("橋の自動発動設定が正しい", func(t *testing.T) {
 		t.Parallel()
 		testWorld := testutil.InitTestWorld(t)
 
-		bridgeEntity, err := SpawnBridge(testWorld, "A", 10, 5, 1)
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.BridgeIDExit, 10, 5, 1)
 		require.NoError(t, err)
 
 		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
@@ -66,7 +67,7 @@ func TestBridgeIntegration(t *testing.T) {
 		testWorld := testutil.InitTestWorld(t)
 
 		// 通常の階層（5の倍数でない）
-		bridgeEntity, err := SpawnBridge(testWorld, "A", 10, 5, 1)
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.BridgeIDExit, 10, 5, 1)
 		require.NoError(t, err)
 
 		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
@@ -74,15 +75,15 @@ func TestBridgeIntegration(t *testing.T) {
 		require.True(t, ok, "Interactable.DataはBridgeInteractionである必要があります")
 
 		// BridgeIDが正しく設定されていることを確認
-		assert.Equal(t, "A", bridgeInteraction.BridgeID)
+		assert.Equal(t, maptemplate.BridgeIDExit, bridgeInteraction.BridgeID)
 	})
 
 	t.Run("5の倍数の階層ではPlazaWarpInteractionが設定される", func(t *testing.T) {
 		t.Parallel()
 		testWorld := testutil.InitTestWorld(t)
 
-		// 5の倍数の階層の橋A
-		bridgeEntity, err := SpawnBridge(testWorld, "A", 10, 5, 5)
+		// 5の倍数の階層の出口橋
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.BridgeIDExit, 10, 5, 5)
 		require.NoError(t, err)
 
 		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)

@@ -5,26 +5,27 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/engine/entities"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// SpawnBridge は橋エンティティを生成する
+// SpawnBridge は橋の作用エンティティを生成する
 // 橋エンティティは橋の端に配置され、橋を渡る相互作用を提供する
-// 5の倍数の階層かつ橋Aの場合、街広場へのワープInteractionを設定する
+// 5の倍数の階層かつ出口橋の場合、街広場へのワープInteractionを設定する
 func SpawnBridge(
 	world w.World,
-	bridgeID string,
+	bridgeID maptemplate.BridgeID,
 	x gc.Tile,
 	y gc.Tile,
 	currentDepth int,
 ) (ecs.Entity, error) {
-	// 橋名を構築（例: "橋A"）
+	// 橋名を構築（例: "出口橋"）
 	bridgeName := fmt.Sprintf("橋%s", bridgeID)
 
-	// 5の倍数の階層かつ橋Aの場合、街広場へのワープInteractionを設定
+	// 5の倍数の階層かつ出口橋の場合、街広場へのワープInteractionを設定
 	var interactionData gc.InteractionData
-	if currentDepth%5 == 0 && currentDepth > 0 && bridgeID == "A" {
+	if currentDepth%5 == 0 && currentDepth > 0 && bridgeID.IsExit() {
 		interactionData = gc.PlazaWarpInteraction{}
 	} else {
 		// 通常の橋Interaction（次階層へ）

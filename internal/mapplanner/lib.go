@@ -9,6 +9,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -548,14 +549,14 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
-	// 橋Dを検索してプレイヤー開始位置とする
+	// 入口橋を検索してプレイヤー開始位置とする
 	for _, bridge := range bm.Bridges {
-		if bridge.BridgeID == "D" {
+		if bridge.BridgeID == maptemplate.BridgeIDEntrance {
 			return bridge.X, bridge.Y, nil
 		}
 	}
 
-	// 橋Dが見つからない場合は移動可能タイルを探す（テスト用フォールバック）
+	// 入口橋が見つからない場合は移動可能タイルを探す（テスト用フォールバック）
 	// TODO: どうにかする
 	for _i, tile := range bm.Tiles {
 		if tile.Walkable {
@@ -565,5 +566,5 @@ func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
 		}
 	}
 
-	return 0, 0, fmt.Errorf("橋D（入口）が見つかりません")
+	return 0, 0, fmt.Errorf("入口橋が見つかりません")
 }

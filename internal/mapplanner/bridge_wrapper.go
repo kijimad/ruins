@@ -200,11 +200,11 @@ func (bw BridgeFacilityWrapper) placeBridgesFromTemplate(
 	template *maptemplate.ChunkTemplate,
 	offsetY int,
 ) {
-	for _, bridge := range template.Bridges {
+	for _, bridgePlacement := range template.Bridges {
 		metaPlan.Bridges = append(metaPlan.Bridges, BridgeSpec{
-			X:        bridge.X,
-			Y:        bridge.Y + offsetY,
-			BridgeID: bridge.BridgeID,
+			X:        bridgePlacement.X,
+			Y:        bridgePlacement.Y + offsetY,
+			BridgeID: maptemplate.BridgeID(bridgePlacement.BridgeID),
 		})
 	}
 }

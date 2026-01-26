@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/maptemplate"
+)
 
 // Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー
 type Interactable struct {
@@ -20,8 +24,7 @@ type InteractionData interface {
 
 // BridgeInteraction は橋を渡る相互作用
 type BridgeInteraction struct {
-	// TODO: 橋の名前がわかりにくいのを直す
-	BridgeID string // 橋の識別子（"A", "B", "C", "D"）
+	BridgeID maptemplate.BridgeID // 橋の識別子
 }
 
 // Config は相互作用設定を返す

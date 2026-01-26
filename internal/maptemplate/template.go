@@ -47,9 +47,35 @@ type ChunkPlacement struct {
 	ID     string   `toml:"id"` // プレースホルダ識別子（右下に配置される1文字）
 }
 
+// BridgeID は橋の役割を表す識別子
+type BridgeID string
+
+const (
+	// BridgeIDExit は次のフロアへの出口橋を表す
+	BridgeIDExit BridgeID = "exit"
+	// BridgeIDExitLeft は次のフロアへの出口橋（左側）を表す
+	BridgeIDExitLeft BridgeID = "exit_left"
+	// BridgeIDExitCenter は次のフロアへの出口橋（中央）を表す
+	BridgeIDExitCenter BridgeID = "exit_center"
+	// BridgeIDExitRight は次のフロアへの出口橋（右側）を表す
+	BridgeIDExitRight BridgeID = "exit_right"
+	// BridgeIDEntrance は前のフロアからの入口橋を表す
+	BridgeIDEntrance BridgeID = "entrance"
+)
+
+// IsExit は出口橋かどうかを判定する
+func (b BridgeID) IsExit() bool {
+	return b == BridgeIDExit || b == BridgeIDExitLeft || b == BridgeIDExitCenter || b == BridgeIDExitRight
+}
+
+// IsEntrance は入口橋かどうかを判定する
+func (b BridgeID) IsEntrance() bool {
+	return b == BridgeIDEntrance
+}
+
 // BridgePlacement は橋の配置情報
 type BridgePlacement struct {
-	BridgeID string `toml:"bridge_id"` // 橋ID（"A", "B", "C", "D"）
+	BridgeID string `toml:"bridge_id"` // 橋ID
 	X        int    `toml:"x"`         // X座標
 	Y        int    `toml:"y"`         // Y座標
 }

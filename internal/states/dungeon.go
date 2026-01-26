@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -534,9 +535,9 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 }
 
 // generateNextBridgeTypes は次階層の各橋に割り当てるPlannerTypeNameを生成する
-func generateNextBridgeTypes(seed uint64, currentDepth int) map[string]consts.PlannerTypeName {
+func generateNextBridgeTypes(seed uint64, currentDepth int) map[maptemplate.BridgeID]consts.PlannerTypeName {
 	nextDepth := currentDepth + 1
-	bridgeTypes := make(map[string]consts.PlannerTypeName)
+	bridgeTypes := make(map[maptemplate.BridgeID]consts.PlannerTypeName)
 
 	// 利用可能なPlannerTypeNameのリスト
 	availableTypes := []consts.PlannerTypeName{
@@ -550,8 +551,12 @@ func generateNextBridgeTypes(seed uint64, currentDepth int) map[string]consts.Pl
 	// RNGを初期化
 	rng := rand.New(rand.NewPCG(seed+uint64(nextDepth), 0))
 
-	// 各橋（A, B, C）にランダムにPlannerTypeNameを割り当て
-	bridgeIDs := []string{"A", "B", "C"}
+	// 各出口橋にランダムにPlannerTypeNameを割り当て
+	bridgeIDs := []maptemplate.BridgeID{
+		maptemplate.BridgeIDExitLeft,
+		maptemplate.BridgeIDExitCenter,
+		maptemplate.BridgeIDExitRight,
+	}
 	for _, bridgeID := range bridgeIDs {
 		bridgeTypes[bridgeID] = availableTypes[rng.IntN(len(availableTypes))]
 	}

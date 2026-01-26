@@ -86,7 +86,7 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 		metaPlan.Bridges = append(metaPlan.Bridges, BridgeSpec{
 			X:        bridgePlacement.X,
 			Y:        bridgePlacement.Y,
-			BridgeID: bridgePlacement.BridgeID,
+			BridgeID: maptemplate.BridgeID(bridgePlacement.BridgeID),
 		})
 	}
 

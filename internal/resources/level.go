@@ -3,6 +3,7 @@ package resources
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 )
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
@@ -22,7 +23,7 @@ type Dungeon struct {
 	NeedsForceUpdate bool
 	// 次階層の各橋に割り当てられたPlannerTypeName
 	// 橋を渡る際に参照される
-	Bridges map[string]consts.PlannerTypeName
+	Bridges map[maptemplate.BridgeID]consts.PlannerTypeName
 }
 
 // SetStateEvent はStateEventを設定する

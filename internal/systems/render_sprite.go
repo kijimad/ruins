@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -518,14 +519,18 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 		// 橋IDによって色を変える
 		var debugColor color.RGBA
 		switch bridgeInteraction.BridgeID {
-		case "A":
+		case maptemplate.BridgeIDExitLeft:
 			debugColor = color.RGBA{255, 0, 0, 128} // 赤（半透明）
-		case "B":
+		case maptemplate.BridgeIDExitCenter:
 			debugColor = color.RGBA{0, 255, 0, 128} // 緑（半透明）
-		case "C":
+		case maptemplate.BridgeIDExitRight:
 			debugColor = color.RGBA{0, 0, 255, 128} // 青（半透明）
-		default:
+		case maptemplate.BridgeIDExit:
+			debugColor = color.RGBA{255, 165, 0, 128} // オレンジ（半透明）
+		case maptemplate.BridgeIDEntrance:
 			debugColor = color.RGBA{255, 255, 0, 128} // 黄（半透明）
+		default:
+			panic(fmt.Sprintf("未知の橋ID: %v", bridgeInteraction.BridgeID))
 		}
 
 		// タイルサイズの色付き矩形を描画
@@ -542,6 +547,6 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 		textOp.GeoM.Translate(pixelX+float64(consts.TileSize)/2-4, pixelY+float64(consts.TileSize)/2-4)
 		SetTranslate(world, textOp)
 		screenX, screenY := textOp.GeoM.Apply(0, 0)
-		ebitenutil.DebugPrintAt(screen, bridgeInteraction.BridgeID, int(screenX), int(screenY))
+		ebitenutil.DebugPrintAt(screen, string(bridgeInteraction.BridgeID), int(screenX), int(screenY))
 	}))
 }
