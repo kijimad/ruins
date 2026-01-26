@@ -145,17 +145,17 @@ func (bw BridgeFacilityWrapper) collectBridgesFromTemplate(
 	offsetY int,
 ) {
 	// 出口情報を収集
-	for _, exitPlacement := range template.Exits {
-		metaPlan.Exits = append(metaPlan.Exits, ExitSpec{
+	for _, exitPlacement := range template.ExitPlacements {
+		metaPlan.Exits = append(metaPlan.Exits, maptemplate.ExitPlacement{
 			X:      exitPlacement.X,
 			Y:      exitPlacement.Y + offsetY,
-			ExitID: maptemplate.ExitID(exitPlacement.ExitID),
+			ExitID: exitPlacement.ExitID,
 		})
 	}
 
 	// スポーン地点情報を収集
 	for _, spawnPoint := range template.SpawnPoints {
-		metaPlan.SpawnPoints = append(metaPlan.SpawnPoints, SpawnPointSpec{
+		metaPlan.SpawnPoints = append(metaPlan.SpawnPoints, maptemplate.SpawnPoint{
 			X: spawnPoint.X,
 			Y: spawnPoint.Y + offsetY,
 		})

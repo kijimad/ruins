@@ -15,14 +15,14 @@ import (
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name        string           `toml:"name"`   // キー
-	Weight      int              `toml:"weight"` // 出現確率の重み
-	Size        Size             // マップサイズ（名前から自動パース）
-	Palettes    []string         `toml:"palettes"`     // 使用するパレットID
-	Map         string           `toml:"map"`          // ASCIIマップ
-	Placements  []ChunkPlacement `toml:"placements"`   // ネストされたチャンクの配置
-	Exits       []ExitPlacement  `toml:"exits"`        // 出口の配置
-	SpawnPoints []SpawnPoint     `toml:"spawn_points"` // スポーン地点の配置
+	Name           string           `toml:"name"`   // キー
+	Weight         int              `toml:"weight"` // 出現確率の重み
+	Size           Size             // マップサイズ（名前から自動パース）
+	Palettes       []string         `toml:"palettes"`     // 使用するパレットID
+	Map            string           `toml:"map"`          // ASCIIマップ
+	Placements     []ChunkPlacement `toml:"placements"`   // ネストされたチャンクの配置
+	ExitPlacements []ExitPlacement  `toml:"exits"`        // 出口の配置
+	SpawnPoints    []SpawnPoint     `toml:"spawn_points"` // スポーン地点の配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -63,13 +63,15 @@ const (
 )
 
 // ExitPlacement は出口の配置情報
+// TOMLから読み込んだ後、mapplannerで使用される
 type ExitPlacement struct {
-	ExitID string `toml:"exit_id"` // 出口ID
+	ExitID ExitID `toml:"exit_id"` // 出口ID
 	X      int    `toml:"x"`       // X座標
 	Y      int    `toml:"y"`       // Y座標
 }
 
 // SpawnPoint はスポーン地点の配置情報
+// TOMLから読み込んだ後、mapplannerで使用される
 type SpawnPoint struct {
 	X int `toml:"x"` // X座標
 	Y int `toml:"y"` // Y座標

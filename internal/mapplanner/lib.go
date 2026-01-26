@@ -9,6 +9,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -36,9 +37,9 @@ type MetaPlan struct {
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
 	// Exits は配置予定の出口リスト
-	Exits []ExitSpec
+	Exits []maptemplate.ExitPlacement
 	// SpawnPoints はスポーン地点リスト
-	SpawnPoints []SpawnPointSpec
+	SpawnPoints []maptemplate.SpawnPoint
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
 }
