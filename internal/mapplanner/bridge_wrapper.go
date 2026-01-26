@@ -1,10 +1,6 @@
 package mapplanner
 
 import (
-	"fmt"
-	"log"
-	"strings"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -79,9 +75,9 @@ func (bw BridgeFacilityWrapper) PlanMeta(metaPlan *MetaPlan) error {
 	metaPlan.Level.TileWidth = gc.Tile(newWidth)
 	metaPlan.Level.TileHeight = gc.Tile(newHeight)
 
-	// テンプレートから橋とプレイヤー位置を配置
-	bw.placeBridgesFromTemplate(metaPlan, topTemplate, 0)
-	bw.placeBridgesFromTemplate(metaPlan, bottomTemplate, bottomStartY)
+	// テンプレートから橋情報を収集
+	bw.collectBridgesFromTemplate(metaPlan, topTemplate, 0)
+	bw.collectBridgesFromTemplate(metaPlan, bottomTemplate, bottomStartY)
 
 	return nil
 }
@@ -141,8 +137,9 @@ func (bw BridgeFacilityWrapper) shiftExistingEntities(metaPlan *MetaPlan, offset
 	}
 }
 
-// placeBridgesFromTemplate はテンプレートから橋を配置する
-func (bw BridgeFacilityWrapper) placeBridgesFromTemplate(
+// collectBridgesFromTemplate はテンプレートから橋情報を収集してMetaPlanに記録する
+// 実際の橋エンティティの配置はmapspawner.Spawn()で行われる
+func (bw BridgeFacilityWrapper) collectBridgesFromTemplate(
 	metaPlan *MetaPlan,
 	template *maptemplate.ChunkTemplate,
 	offsetY int,
