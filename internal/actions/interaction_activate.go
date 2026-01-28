@@ -70,10 +70,10 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	// 相互作用の種類に応じた処理を実行
 	var interactionErr error
 	switch content := interactable.Data.(type) {
-	case gc.WarpNextInteraction:
-		ia.executeWarpNext(act, world, content)
-	case gc.WarpEscapeInteraction:
-		ia.executeWarpEscape(act, world, content)
+	case gc.BridgeInteraction:
+		ia.executeBridge(act, world, content)
+	case gc.BridgeHintInteraction:
+		ia.executeBridgeHint(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
@@ -109,34 +109,47 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 	return nil
 }
 
-// executeWarpNext は次の階へワープする相互作用を実行する
-func (ia *InteractionActivateActivity) executeWarpNext(act *Activity, world w.World, _ gc.WarpNextInteraction) {
-	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{})
-	act.Logger.Debug("次の階へワープ", "actor", act.Actor)
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Magic("空間移動した。").
-			Log()
+// executeBridge は出口を通る相互作用を実行する
+func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
+	// resources.Dungeonから次のPlannerTypeNameを取得
+	var nextPlannerTypeName consts.PlannerTypeName
+	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
+		if ptName, ok := nextBridgeTypes[bridge.BridgeID]; ok {
+			nextPlannerTypeName = ptName
+		}
+	}
+
+	// 街広場へのワープか、次フロアへの遷移かを判定
+	if nextPlannerTypeName == consts.PlannerTypeNameTownPlaza {
+		world.Resources.Dungeon.SetStateEvent(resources.WarpPlazaEvent{})
+		act.Logger.Debug("街広場へワープ", "actor", act.Actor, "bridgeID", bridge.BridgeID)
+	} else {
+		world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{
+			NextPlannerType: nextPlannerTypeName,
+		})
+		act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", string(nextPlannerTypeName))
 	}
 }
 
-// executeWarpEscape は脱出ワープする相互作用を実行する
-func (ia *InteractionActivateActivity) executeWarpEscape(act *Activity, world w.World, _ gc.WarpEscapeInteraction) {
-	currentDepth := world.Resources.Dungeon.Depth
-
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Magic("脱出した。").
-			Log()
+// executeBridgeHint は橋のヒント表示相互作用を実行する
+func (ia *InteractionActivateActivity) executeBridgeHint(act *Activity, world w.World, bridgeHint gc.BridgeHintInteraction) {
+	// resources.Dungeonから次のPlannerTypeNameを取得
+	var nextStageName string
+	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
+		if ptName, ok := nextBridgeTypes[bridgeHint.ExitID]; ok {
+			nextStageName = string(ptName)
+		}
 	}
 
-	// クリア深度から脱出した場合はゲームクリアイベントを発行
-	if currentDepth >= consts.GameClearDepth {
-		world.Resources.Dungeon.SetStateEvent(resources.GameClearEvent{})
-		act.Logger.Debug("ゲームクリア", "actor", act.Actor, "depth", currentDepth)
-	} else {
-		world.Resources.Dungeon.SetStateEvent(resources.WarpEscapeEvent{})
-		act.Logger.Debug("脱出ワープ", "actor", act.Actor, "depth", currentDepth)
+	act.Logger.Debug("橋のヒント表示", "actor", act.Actor, "exitID", bridgeHint.ExitID, "nextStageType", nextStageName)
+
+	// ログ出力（プレイヤーのみ）
+	if isPlayerActivity(act, world) {
+		gamelog.New(gamelog.FieldLog).
+			Append("橋の先には").
+			Magic(nextStageName).
+			Append("が見える。").
+			Log()
 	}
 }
 

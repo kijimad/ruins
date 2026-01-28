@@ -7,32 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestWarpNextInteraction_Config はWarpNextInteractionの設定が正しいことを確認
-func TestWarpNextInteraction_Config(t *testing.T) {
-	t.Parallel()
-
-	trigger := WarpNextInteraction{}
-	config := trigger.Config()
-
-	assert.Equal(t, ActivationRangeSameTile, config.ActivationRange,
-		"WarpNextは直上タイルで発動する")
-	assert.Equal(t, ActivationWayManual, config.ActivationWay,
-		"WarpNextは手動発動する")
-}
-
-// TestWarpEscapeInteraction_Config はWarpEscapeInteractionの設定が正しいことを確認
-func TestWarpEscapeInteraction_Config(t *testing.T) {
-	t.Parallel()
-
-	trigger := WarpEscapeInteraction{}
-	config := trigger.Config()
-
-	assert.Equal(t, ActivationRangeSameTile, config.ActivationRange,
-		"WarpEscapeは直上タイルで発動する")
-	assert.Equal(t, ActivationWayManual, config.ActivationWay,
-		"WarpEscapeは手動発動する")
-}
-
 // TestDoorInteraction_Config はDoorInteractionの設定が正しいことを確認
 func TestDoorInteraction_Config(t *testing.T) {
 	t.Parallel()
@@ -183,8 +157,6 @@ func TestTriggerInterfaceImplementation(t *testing.T) {
 	t.Parallel()
 
 	// 全てのトリガータイプがInteractionDataインターフェースを実装していることを確認
-	var _ InteractionData = WarpNextInteraction{}
-	var _ InteractionData = WarpEscapeInteraction{}
 	var _ InteractionData = DoorInteraction{}
 	var _ InteractionData = TalkInteraction{}
 	var _ InteractionData = ItemInteraction{}
@@ -200,8 +172,6 @@ func TestTriggerConfigConsistency(t *testing.T) {
 		name    string
 		trigger InteractionData
 	}{
-		{"WarpNext", WarpNextInteraction{}},
-		{"WarpEscape", WarpEscapeInteraction{}},
 		{"Door", DoorInteraction{}},
 		{"Talk", TalkInteraction{}},
 		{"Item", ItemInteraction{}},
@@ -230,10 +200,8 @@ func TestTriggerDesignConstraints(t *testing.T) {
 
 	t.Run("SameTileトリガーはManual方式", func(t *testing.T) {
 		t.Parallel()
-		// 仕様: 直上タイルトリガー（WarpNext, WarpEscape, Item）は手動発動
+		// 仕様: 直上タイルトリガー（Item）は手動発動
 		sameTileTriggers := []InteractionData{
-			WarpNextInteraction{},
-			WarpEscapeInteraction{},
 			ItemInteraction{},
 		}
 

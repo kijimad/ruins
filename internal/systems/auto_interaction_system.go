@@ -46,6 +46,12 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 			return
 		}
 
+		logger.New(logger.CategoryAction).Debug("Found interactable in range",
+			"entity", entity,
+			"playerPos", playerGrid,
+			"interactablePos", interactableGrid,
+			"range", interactable.Data.Config().ActivationRange)
+
 		interactablesToProcess = append(interactablesToProcess, entity)
 	}))
 

@@ -11,13 +11,11 @@ type BigRoomPlanner struct{}
 // PlanInitial は初期マップをプランする
 func (b BigRoomPlanner) PlanInitial(planData *MetaPlan) error {
 	// マップの境界を考慮して大きな部屋を1つ作成
-	// 外周に1タイル分の壁を残す
-	margin := 2
 	room := gc.Rect{
-		X1: gc.Tile(margin),
-		Y1: gc.Tile(margin),
-		X2: gc.Tile(int(planData.Level.TileWidth) - margin - 1),
-		Y2: gc.Tile(int(planData.Level.TileHeight) - margin - 1),
+		X1: gc.Tile(0),
+		Y1: gc.Tile(0),
+		X2: gc.Tile(int(planData.Level.TileWidth) - 1),
+		Y2: gc.Tile(int(planData.Level.TileHeight) - 1),
 	}
 
 	// 部屋をリストに追加
@@ -70,25 +68,6 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 		}
 
 		// 部屋の境界を壁で囲む
-		// 上辺と下辺
-		for x := room.X1 - 1; x <= room.X2+1; x++ {
-			// 上辺
-			if y := room.Y1 - 1; y >= 0 {
-				idx := planData.Level.XYTileIndex(x, y)
-				if planData.Tiles[idx].Name != b.FloorTile {
-					planData.Tiles[idx] = planData.GetTile(b.WallTile)
-				}
-			}
-			// 下辺
-			if y := room.Y2 + 1; int(y) < int(planData.Level.TileHeight) {
-				idx := planData.Level.XYTileIndex(x, y)
-				if planData.Tiles[idx].Name != b.FloorTile {
-					planData.Tiles[idx] = planData.GetTile(b.WallTile)
-				}
-			}
-		}
-
-		// 左辺と右辺
 		for y := room.Y1; y <= room.Y2; y++ {
 			// 左辺
 			if x := room.X1 - 1; x >= 0 {
@@ -99,6 +78,23 @@ func (b BigRoomDraw) drawBasicBigRoom(planData *MetaPlan) {
 			}
 			// 右辺
 			if x := room.X2 + 1; int(x) < int(planData.Level.TileWidth) {
+				idx := planData.Level.XYTileIndex(x, y)
+				if planData.Tiles[idx].Name != b.FloorTile {
+					planData.Tiles[idx] = planData.GetTile(b.WallTile)
+				}
+			}
+		}
+		// 上辺と下辺
+		for x := room.X1; x <= room.X2; x++ {
+			// 上辺
+			if y := room.Y1 - 1; y >= 0 {
+				idx := planData.Level.XYTileIndex(x, y)
+				if planData.Tiles[idx].Name != b.FloorTile {
+					planData.Tiles[idx] = planData.GetTile(b.WallTile)
+				}
+			}
+			// 下辺
+			if y := room.Y2 + 1; int(y) < int(planData.Level.TileHeight) {
 				idx := planData.Level.XYTileIndex(x, y)
 				if planData.Tiles[idx].Name != b.FloorTile {
 					planData.Tiles[idx] = planData.GetTile(b.WallTile)
@@ -154,8 +150,10 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {
 func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 	for _, room := range planData.Rooms {
 		// 格子状に壁を配置し、ランダムに開口部を作る
-		for x := int(room.X1) + 2; x < int(room.X2)-1; x += 3 {
-			for y := int(room.Y1) + 1; y < int(room.Y2); y++ {
+		// 上端行・下端行には壁を配置しない。上下端への接続性を保証するため
+		// 縦の壁を部屋の右端から逆向きに配置
+		for x := int(room.X2); x >= int(room.X1)+2; x -= 3 {
+			for y := int(room.Y1) + 1; y <= int(room.Y2)-1; y++ {
 				// 縦の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
 					idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
@@ -164,8 +162,9 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 			}
 		}
 
-		for y := int(room.Y1) + 2; y < int(room.Y2)-1; y += 3 {
-			for x := int(room.X1) + 1; x < int(room.X2); x++ {
+		// 横の壁を部屋の下端から逆向きに配置
+		for y := int(room.Y2) - 1; y >= int(room.Y1)+2; y -= 3 {
+			for x := int(room.X1); x <= int(room.X2); x++ {
 				// 横の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
 					idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))

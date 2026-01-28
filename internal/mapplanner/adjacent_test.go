@@ -97,23 +97,9 @@ func TestPlanData_AdjacentAnyFloor_WithWarpTiles(t *testing.T) {
 		planData.Tiles[i] = planData.GetTile("wall")
 	}
 
-	// ワープポータルを配置（床 + エンティティ）
-	warpNextIdx := planData.Level.XYTileIndex(2, 2)
-	warpEscapeIdx := planData.Level.XYTileIndex(2, 3)
-	planData.Tiles[warpNextIdx] = planData.GetTile("floor")
-	planData.Tiles[warpEscapeIdx] = planData.GetTile("floor")
-
-	// ワープポータルエンティティを追加
-	planData.WarpPortals = append(planData.WarpPortals, WarpPortal{
-		X:    2,
-		Y:    2,
-		Type: WarpPortalNext,
-	})
-	planData.WarpPortals = append(planData.WarpPortals, WarpPortal{
-		X:    2,
-		Y:    3,
-		Type: WarpPortalEscape,
-	})
+	// 床タイルを配置
+	floorIdx := planData.Level.XYTileIndex(2, 2)
+	planData.Tiles[floorIdx] = planData.GetTile("floor")
 
 	// 床タイルに隣接する場所から床の検出をテスト
 	adjacentIdx := planData.Level.XYTileIndex(1, 2) // (2,2)の床タイルの左隣

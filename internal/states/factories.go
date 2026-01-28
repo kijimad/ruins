@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -139,14 +140,6 @@ func NewDebugMenuState() es.State[w.World] {
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
 					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeForest)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(事務所ビル)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeOfficeBuilding)),
 				}})
 			return nil
 		}).
@@ -280,6 +273,7 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("デバッグ表示切り替え", func(_ w.World) error {
 			cfg := config.Get()
+			cfg.ShowMapDebug = !cfg.ShowMapDebug
 			cfg.ShowAIDebug = !cfg.ShowAIDebug
 			cfg.NoEncounter = !cfg.NoEncounter
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
@@ -404,6 +398,54 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("ステージ上部の橋にワープ", func(world w.World) error {
+			// プレイヤーエンティティを取得
+			player, err := worldhelper.GetPlayerEntity(world)
+			if err != nil {
+				return fmt.Errorf("プレイヤーが見つかりません: %w", err)
+			}
+
+			// GridElementコンポーネントを取得
+			gridComp := world.Components.GridElement.Get(player)
+			if gridComp == nil {
+				return fmt.Errorf("プレイヤーのGridElementコンポーネントが見つかりません")
+			}
+			grid := gridComp.(*gc.GridElement)
+
+			// 出口橋エンティティを検索
+			var targetX, targetY gc.Tile
+			found := false
+
+			world.Manager.Join(
+				world.Components.Interactable,
+				world.Components.GridElement,
+			).Visit(ecs.Visit(func(entity ecs.Entity) {
+				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+				_, ok := interactable.Data.(gc.BridgeInteraction)
+				if !ok {
+					return
+				}
+
+				// 出口橋を発見
+				bridgeGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				targetX = bridgeGrid.X
+				targetY = bridgeGrid.Y
+				found = true
+			}))
+
+			if !found {
+				return fmt.Errorf("出口橋が見つかりません")
+			}
+
+			// プレイヤーの座標を更新（橋の1マス下にワープ）
+			grid.X = targetX
+			grid.Y = targetY + 1
+
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransPop,
+			})
+			return nil
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -420,7 +462,7 @@ type DungeonStateOption func(*DungeonState)
 // WithSeed はシード値を設定するオプション
 func WithSeed(seed uint64) DungeonStateOption {
 	return func(ds *DungeonState) {
-		ds.Seed = seed
+		ds.Seed = &seed
 	}
 }
 

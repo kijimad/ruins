@@ -596,24 +596,16 @@ type TileRaw struct {
 	BlocksView   *bool // 視界を遮断するか。nilの場合はfalse
 }
 
-// WarpNextInteractionRaw は次の階へワープする相互作用のローデータ
-type WarpNextInteractionRaw struct{}
-
-// WarpEscapeInteractionRaw は脱出ワープする相互作用のローデータ
-type WarpEscapeInteractionRaw struct{}
-
 // PropRaw は置物のローデータ定義
 type PropRaw struct {
-	Name                  string
-	Description           string
-	SpriteRender          gc.SpriteRender
-	AnimKeys              []string
-	BlockPass             bool
-	BlockView             bool
-	LightSource           *gc.LightSource
-	WarpNextInteraction   *WarpNextInteractionRaw
-	WarpEscapeInteraction *WarpEscapeInteractionRaw
-	Door                  *DoorRaw
+	Name         string
+	Description  string
+	SpriteRender gc.SpriteRender
+	AnimKeys     []string
+	BlockPass    bool
+	BlockView    bool
+	LightSource  *gc.LightSource
+	Door         *DoorRaw
 }
 
 // DoorRaw はドアのローデータ
@@ -704,14 +696,6 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 
 	if propRaw.LightSource != nil {
 		entitySpec.LightSource = propRaw.LightSource
-	}
-
-	if propRaw.WarpNextInteraction != nil {
-		entitySpec.Interactable = &gc.Interactable{Data: gc.WarpNextInteraction{}}
-	}
-
-	if propRaw.WarpEscapeInteraction != nil {
-		entitySpec.Interactable = &gc.Interactable{Data: gc.WarpEscapeInteraction{}}
 	}
 
 	if propRaw.Door != nil {

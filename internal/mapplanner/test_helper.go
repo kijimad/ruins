@@ -9,6 +9,11 @@ func CreateTestRawMaster() *raw.Master {
 		{Name: "wall", Walkable: false},
 		{Name: "floor", Walkable: true},
 		{Name: "dirt", Walkable: true},
+		{Name: "void", Walkable: false},
+		{Name: "bridge_a", Walkable: true},
+		{Name: "bridge_b", Walkable: true},
+		{Name: "bridge_c", Walkable: true},
+		{Name: "bridge_d", Walkable: true},
 	}
 
 	// テスト用のアイテムテーブルを定義

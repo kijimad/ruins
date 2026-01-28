@@ -18,7 +18,7 @@
 //
 // Interactableコンポーネント:
 // - エンティティがプレイヤーと相互作用できることを示すマーカー
-// - 相互作用の種類はInteractionData（WarpNext, Door, Talk, Item, Melee等）で定義
+// - 相互作用の種類はInteractionData（Door, Talk, Item, Melee等）で定義
 // - 発動範囲はActivationRange（SameTile, Adjacent）で制御
 // - 発動方式はActivationWay（Auto, Manual, OnCollision）で制御
 //   - Auto: 範囲内に入ったら即座に発動

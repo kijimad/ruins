@@ -3,9 +3,9 @@ package maptemplate
 import (
 	"fmt"
 	"io"
-	"os"
 	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/assets"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -53,7 +53,7 @@ func (l *PaletteLoader) Load(r io.Reader) (*Palette, error) {
 
 // LoadFile はTOMLファイルからパレット定義を読み込む
 func (l *PaletteLoader) LoadFile(path string) (*Palette, error) {
-	f, err := os.Open(path)
+	f, err := assets.FS.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("パレットファイル読み込みエラー: %w", err)
 	}

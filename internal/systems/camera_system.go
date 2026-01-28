@@ -3,7 +3,6 @@ package systems
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -38,7 +37,7 @@ func (sys *CameraSystem) Update(world w.World) error {
 		camera := world.Components.Camera.Get(entity).(*gc.Camera)
 		cameraGridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		// カメラの追従（プレイヤー位置に更新）
+		// カメラの追従（プレイヤー位置に即座に更新）
 		if playerGridElement != nil {
 			cameraGridElement.X = playerGridElement.X
 			cameraGridElement.Y = playerGridElement.Y
@@ -69,19 +68,19 @@ func (sys *CameraSystem) Update(world w.World) error {
 		}
 
 		// Smooth zoom transition.
-		cfg := config.MustGet()
-		if cfg.DisableAnimation {
-			// アニメーション無効時は即座にズーム
-			camera.Scale = camera.ScaleTo
-		} else {
-			// 通常時はスムーズにズーム
-			div := 10.0
-			if camera.ScaleTo > camera.Scale {
-				camera.Scale += (camera.ScaleTo - camera.Scale) / div
-			} else if camera.ScaleTo < camera.Scale {
-				camera.Scale -= (camera.Scale - camera.ScaleTo) / div
-			}
-		}
+		// cfg := config.MustGet()
+		// if cfg.DisableAnimation {
+		// 	// アニメーション無効時は即座にズーム
+		camera.Scale = camera.ScaleTo
+		// } else {
+		// 	// 通常時はスムーズにズーム
+		// 	div := 10.0
+		// 	if camera.ScaleTo > camera.Scale {
+		// 		camera.Scale += (camera.ScaleTo - camera.Scale) / div
+		// 	} else if camera.ScaleTo < camera.Scale {
+		// 		camera.Scale -= (camera.Scale - camera.ScaleTo) / div
+		// 	}
+		// }
 	}))
 	return nil
 }

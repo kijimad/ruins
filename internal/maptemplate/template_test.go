@@ -1,8 +1,6 @@
 package maptemplate
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -316,80 +314,46 @@ map = """
 
 func TestTemplateLoader_LoadFile(t *testing.T) {
 	t.Parallel()
-	t.Run("正常なテンプレート定義を読み込める", func(t *testing.T) {
+	t.Run("実ファイルからテンプレート定義を読み込める", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := t.TempDir()
-		templateFile := filepath.Join(tmpDir, "test_template.toml")
-
-		content := `[[chunk]]
-name = "5x3_test_facility"
-weight = 100
-palettes = ["standard"]
-map = """
-#####
-#...#
-#####
-"""
-`
-		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
-
 		loader := NewTemplateLoader()
-		templates, err := loader.LoadFile(templateFile)
+		templates, err := loader.LoadFile("levels/facilities/small_room.toml")
 
 		require.NoError(t, err)
 		require.Len(t, templates, 1)
-
-		template := templates[0]
-		assert.Equal(t, "5x3_test_facility", template.Name)
-		assert.Equal(t, 100, template.Weight)
-		assert.Equal(t, Size{W: 5, H: 3}, template.Size)
-		assert.Equal(t, []string{"standard"}, template.Palettes)
+		assert.Equal(t, "10x10_small_room", templates[0].Name)
+		assert.Equal(t, 100, templates[0].Weight)
+		assert.NotEmpty(t, templates[0].Map)
 	})
 
-	t.Run("複数のテンプレートを読み込める", func(t *testing.T) {
+	t.Run("複数テンプレートを含むファイルを読み込める", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := t.TempDir()
-		templateFile := filepath.Join(tmpDir, "multi_template.toml")
-
-		content := `[[chunk]]
-name = "3x3_small"
-weight = 50
-palettes = ["standard"]
-map = """
-###
-#.#
-###
-"""
-
-[[chunk]]
-name = "5x5_large"
-weight = 30
-palettes = ["standard"]
-map = """
-#####
-#...#
-#...#
-#...#
-#####
-"""
-`
-		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
-
 		loader := NewTemplateLoader()
-		templates, err := loader.LoadFile(templateFile)
+		templates, err := loader.LoadFile("levels/facilities/compound_building.toml")
 
 		require.NoError(t, err)
-		require.Len(t, templates, 2)
-		assert.Equal(t, "3x3_small", templates[0].Name)
-		assert.Equal(t, "5x5_large", templates[1].Name)
+		assert.True(t, len(templates) >= 2, "複合施設ファイルは複数テンプレートを含む")
 	})
 
-	t.Run("nameが空の場合はエラー", func(t *testing.T) {
+	t.Run("存在しないファイルはエラー", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := t.TempDir()
-		templateFile := filepath.Join(tmpDir, "invalid_name.toml")
+		loader := NewTemplateLoader()
+		_, err := loader.LoadFile("nonexistent.toml")
 
-		content := `[[chunk]]
+		require.Error(t, err)
+	})
+
+	t.Run("バリデーションエラーのテスト用TOMLを読み込む", func(t *testing.T) {
+		t.Parallel()
+
+		tests := []struct {
+			name    string
+			content string
+			errMsg  string
+		}{
+			{
+				name: "nameが空の場合はエラー",
+				content: `[[chunk]]
 name = ""
 weight = 100
 palettes = ["standard"]
@@ -398,23 +362,12 @@ map = """
 #.#
 ###
 """
-`
-		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
-
-		loader := NewTemplateLoader()
-		_, err := loader.LoadFile(templateFile)
-
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "名前パースエラー")
-	})
-
-	t.Run("weightが0以下の場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		tmpDir := t.TempDir()
-		templateFile := filepath.Join(tmpDir, "invalid_weight.toml")
-
-		content := `[[chunk]]
-type = "test"
+`,
+				errMsg: "名前パースエラー",
+			},
+			{
+				name: "weightが0以下の場合はエラー",
+				content: `[[chunk]]
 name = "3x3_無効な重み"
 weight = 0
 palettes = ["standard"]
@@ -423,23 +376,12 @@ map = """
 #.#
 ###
 """
-`
-		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
-
-		loader := NewTemplateLoader()
-		_, err := loader.LoadFile(templateFile)
-
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "重みは正の整数である必要があります")
-	})
-
-	t.Run("マップサイズが定義と一致しない場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		tmpDir := t.TempDir()
-		templateFile := filepath.Join(tmpDir, "size_mismatch.toml")
-
-		content := `[[chunk]]
-type = "test"
+`,
+				errMsg: "重みは正の整数である必要があります",
+			},
+			{
+				name: "マップサイズが定義と一致しない場合はエラー",
+				content: `[[chunk]]
 name = "5x3_サイズ不一致"
 weight = 100
 palettes = ["standard"]
@@ -448,24 +390,12 @@ map = """
 #.#
 ###
 """
-`
-		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
-
-		loader := NewTemplateLoader()
-		_, err := loader.LoadFile(templateFile)
-
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "実サイズ")
-		assert.Contains(t, err.Error(), "定義サイズ")
-	})
-
-	t.Run("マップの行長が不一致の場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		tmpDir := t.TempDir()
-		templateFile := filepath.Join(tmpDir, "irregular_map.toml")
-
-		content := `[[chunk]]
-type = "test"
+`,
+				errMsg: "実サイズ",
+			},
+			{
+				name: "マップの行長が不一致の場合はエラー",
+				content: `[[chunk]]
 name = "5x3_不規則マップ"
 weight = 100
 palettes = ["standard"]
@@ -474,17 +404,21 @@ map = """
 #..#
 #####
 """
-`
-		require.NoError(t, os.WriteFile(templateFile, []byte(content), 0644))
+`,
+				errMsg: "長さが不一致",
+			},
+		}
 
-		loader := NewTemplateLoader()
-		_, err := loader.LoadFile(templateFile)
-
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "行")
-		assert.Contains(t, err.Error(), "長さが不一致")
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				t.Parallel()
+				loader := NewTemplateLoader()
+				_, err := loader.Load(strings.NewReader(tt.content))
+				require.Error(t, err)
+				assert.Contains(t, err.Error(), tt.errMsg)
+			})
+		}
 	})
-
 }
 
 func TestChunkTemplate_GetMapLines(t *testing.T) {
@@ -539,32 +473,17 @@ func TestChunkTemplate_GetCharAt(t *testing.T) {
 func TestTemplateLoader_ChunkOperations(t *testing.T) {
 	t.Parallel()
 
-	t.Run("チャンク定義を読み込んでキャッシュできる", func(t *testing.T) {
+	t.Run("実ファイルからチャンク定義を読み込んでキャッシュできる", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := t.TempDir()
-		chunkFile := filepath.Join(tmpDir, "chunk.toml")
-
-		content := `[[chunk]]
-name = "3x3_test_chunk"
-weight = 100
-palettes = ["standard"]
-map = """
-...
-.T.
-...
-"""
-`
-		require.NoError(t, os.WriteFile(chunkFile, []byte(content), 0644))
-
 		loader := NewTemplateLoader()
-		err := loader.LoadChunk(chunkFile)
+		err := loader.LoadChunk("levels/chunks/rooms.toml")
 		require.NoError(t, err)
 
 		// キャッシュから取得できるか確認
-		chunks, err := loader.GetChunks("3x3_test_chunk")
+		chunks, err := loader.GetChunks("3x3_bedroom")
 		require.NoError(t, err)
-		require.Len(t, chunks, 1)
-		assert.Equal(t, "3x3_test_chunk", chunks[0].Name)
+		require.NotEmpty(t, chunks)
+		assert.Equal(t, "3x3_bedroom", chunks[0].Name)
 		assert.Equal(t, Size{W: 3, H: 3}, chunks[0].Size)
 	})
 
@@ -578,10 +497,6 @@ map = """
 
 	t.Run("同じ名前で複数のバリエーションを登録できる", func(t *testing.T) {
 		t.Parallel()
-		tmpDir := t.TempDir()
-		chunkFile := filepath.Join(tmpDir, "variants.toml")
-
-		// 同じ名前で重みが異なる3つのバリエーション
 		content := `[[chunk]]
 name = "3x3_room"
 weight = 100
@@ -612,11 +527,14 @@ map = """
 ...
 """
 `
-		require.NoError(t, os.WriteFile(chunkFile, []byte(content), 0644))
-
 		loader := NewTemplateLoader()
-		err := loader.LoadChunk(chunkFile)
+		templates, err := loader.Load(strings.NewReader(content))
 		require.NoError(t, err)
+
+		// 各テンプレートをキャッシュに登録
+		for i := range templates {
+			loader.chunkCache[templates[i].Name] = append(loader.chunkCache[templates[i].Name], &templates[i])
+		}
 
 		// GetChunksで3つのバリエーションを取得
 		chunks, err := loader.GetChunks("3x3_room")
@@ -899,7 +817,7 @@ func TestTemplateLoader_RegisterAllChunks(t *testing.T) {
 
 		// 実際のディレクトリから読み込む
 		err := loader.RegisterAllChunks([]string{
-			"../../assets/levels/chunks",
+			"levels/chunks",
 		})
 		require.NoError(t, err)
 
@@ -929,14 +847,14 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 
 		// すべてのチャンクを登録
 		err := loader.RegisterAllChunks([]string{
-			"../../assets/levels/chunks",
-			"../../assets/levels/facilities",
+			"levels/chunks",
+			"levels/facilities",
 		})
 		require.NoError(t, err)
 
 		// すべてのパレットを登録
 		err = loader.RegisterAllPalettes([]string{
-			"../../assets/levels/palettes",
+			"levels/palettes",
 		})
 		require.NoError(t, err)
 
@@ -970,12 +888,12 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		loader := NewTemplateLoader()
 
 		err := loader.RegisterAllChunks([]string{
-			"../../assets/levels/facilities",
+			"levels/facilities",
 		})
 		require.NoError(t, err)
 
 		err = loader.RegisterAllPalettes([]string{
-			"../../assets/levels/palettes",
+			"levels/palettes",
 		})
 		require.NoError(t, err)
 

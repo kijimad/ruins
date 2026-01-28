@@ -4,9 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -46,7 +44,7 @@ func TestInteractionActivateActivity_Validate_Success(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.WarpNextInteraction{},
+		Data: gc.DoorInteraction{},
 	})
 
 	activity := &InteractionActivateActivity{InteractableEntity: triggerEntity}
@@ -125,117 +123,6 @@ func TestInteractionActivateActivity_Validate_InvalidWay(t *testing.T) {
 	err := activity.Validate(act, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "無効なActivationWay")
-}
-
-// TestInteractionActivateActivity_WarpNext はWarpNextTriggerの動作を確認
-func TestInteractionActivateActivity_WarpNext(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-	// WarpNextトリガーを作成
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.WarpNextInteraction{},
-	})
-
-	// InteractionActivateActivityを実行
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
-	params := ActionParams{
-		Actor: player,
-	}
-	result, err := manager.Execute(&InteractionActivateActivity{InteractableEntity: triggerEntity}, params, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "WarpNextトリガーが成功するべき")
-
-	// StateEventが設定されていることを確認
-	event := world.Resources.Dungeon.ConsumeStateEvent()
-	require.NotNil(t, event, "StateEventが設定されているべき")
-	_, ok := event.(resources.WarpNextEvent)
-	assert.True(t, ok, "WarpNextEventが設定されているべき")
-}
-
-// TestInteractionActivateActivity_WarpEscape はWarpEscapeTriggerの動作を確認
-func TestInteractionActivateActivity_WarpEscape(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-	// WarpEscapeトリガーを作成
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.WarpEscapeInteraction{},
-	})
-
-	// InteractionActivateActivityを実行
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
-	params := ActionParams{
-		Actor: player,
-	}
-	result, err := manager.Execute(&InteractionActivateActivity{InteractableEntity: triggerEntity}, params, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "WarpEscapeトリガーが成功するべき")
-
-	// StateEventが設定されていることを確認
-	event := world.Resources.Dungeon.ConsumeStateEvent()
-	require.NotNil(t, event, "StateEventが設定されているべき")
-	_, ok := event.(resources.WarpEscapeEvent)
-	assert.True(t, ok, "WarpEscapeEventが設定されているべき")
-}
-
-// TestInteractionActivateActivity_GameClear はゲームクリア条件を満たした脱出の動作を確認
-func TestInteractionActivateActivity_GameClear(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// ゲームクリア深度以上を設定
-	world.Resources.Dungeon.Depth = consts.GameClearDepth
-
-	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-	// WarpEscapeトリガーを作成
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.WarpEscapeInteraction{},
-	})
-
-	// InteractionActivateActivityを実行
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
-	params := ActionParams{
-		Actor: player,
-	}
-	result, err := manager.Execute(&InteractionActivateActivity{InteractableEntity: triggerEntity}, params, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "WarpEscapeトリガーが成功するべき")
-
-	// GameClearEventが設定されていることを確認
-	event := world.Resources.Dungeon.ConsumeStateEvent()
-	require.NotNil(t, event, "StateEventが設定されているべき")
-	_, ok := event.(resources.GameClearEvent)
-	assert.True(t, ok, "GameClearEventが設定されているべき")
 }
 
 // TestInteractionActivateActivity_Door はDoorTriggerの動作を確認

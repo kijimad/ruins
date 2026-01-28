@@ -16,6 +16,10 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		// マップサイズを設定（移動判定に必要）
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
+
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -80,6 +84,10 @@ func TestExecuteMoveAction(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
+
+				// マップサイズを設定（移動判定に必要）
+				world.Resources.Dungeon.Level.TileWidth = 50
+				world.Resources.Dungeon.Level.TileHeight = 50
 
 				player := world.Manager.NewEntity()
 				player.AddComponent(world.Components.Player, &gc.Player{})
@@ -195,16 +203,10 @@ func TestExecuteEnterAction(t *testing.T) {
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-		// 同じ位置にワープホールを作成
-		warp := world.Manager.NewEntity()
-		warp.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.WarpNextInteraction{}})
-		warp.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-		// Enterアクションを実行（ワープ処理が呼ばれることを期待）
+		// Enterアクションを実行（処理が呼ばれることを期待）
 		assert.NoError(t, ExecuteEnterAction(world))
 
-		// ワープ処理が実行されたかは、実装によって検証方法が異なる
-		// ここではパニックしないことを確認
+		// パニックしないことを確認
 	})
 
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {

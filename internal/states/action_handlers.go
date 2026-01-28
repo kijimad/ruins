@@ -257,14 +257,6 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	}
 
 	switch interactable.Data.(type) {
-	case gc.WarpNextInteraction:
-		gamelog.New(gamelog.FieldLog).
-			Append("転移ゲートがある。Enterキーで移動。").
-			Log()
-	case gc.WarpEscapeInteraction:
-		gamelog.New(gamelog.FieldLog).
-			Append("脱出ゲートがある。Enterキーで移動。").
-			Log()
 	case gc.ItemInteraction:
 		formattedName := worldhelper.FormatItemName(world, interactableEntity)
 		gamelog.New(gamelog.FieldLog).
@@ -286,18 +278,6 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 	var result []InteractionAction
 
 	switch interactable.Data.(type) {
-	case gc.WarpNextInteraction:
-		result = append(result, InteractionAction{
-			Label:    "転移(" + dirLabel + ")",
-			Activity: &actions.InteractionActivateActivity{InteractableEntity: interactableEntity},
-			Target:   interactableEntity,
-		})
-	case gc.WarpEscapeInteraction:
-		result = append(result, InteractionAction{
-			Label:    "脱出(" + dirLabel + ")",
-			Activity: &actions.InteractionActivateActivity{InteractableEntity: interactableEntity},
-			Target:   interactableEntity,
-		})
 	case gc.DoorInteraction:
 		// ドアの状態に応じたアクションを生成
 		if interactableEntity.HasComponent(world.Components.Door) {

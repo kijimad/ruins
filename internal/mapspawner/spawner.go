@@ -36,6 +36,10 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			case "floor":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
 				_, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
+			case "bridge_a", "bridge_b", "bridge_c", "bridge_d":
+				// 橋タイルは通常の床タイルとして生成（見た目は同じ）
+				index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
+				_, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
 			default:
 				// 未知のタイル名はエラーとして処理
 				return resources.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
@@ -49,6 +53,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 					index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
 					_, err = worldhelper.SpawnTile(world, "wall", tileX, tileY, &index)
 				}
+			case "void":
+				// voidタイルは何も生成しない（暗闇エリア）
+				// エンティティを生成せず、通行不可として扱う
 			default:
 				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}
@@ -56,26 +63,6 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
-		}
-	}
-
-	// ワープポータルを生成
-	for _, portal := range metaPlan.WarpPortals {
-		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
-
-		var propName string
-		switch portal.Type {
-		case mapplanner.WarpPortalNext:
-			propName = "warp_next"
-		case mapplanner.WarpPortalEscape:
-			propName = "warp_escape"
-		default:
-			return resources.Level{}, fmt.Errorf("不明なワープポータルタイプ: %v", portal.Type)
-		}
-
-		_, err := worldhelper.SpawnProp(world, propName, tileX, tileY)
-		if err != nil {
-			return resources.Level{}, fmt.Errorf("ワープポータル生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
 	}
 
@@ -135,6 +122,25 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
 				return resources.Level{}, fmt.Errorf("ドア初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
+		}
+	}
+
+	// 出口エンティティを生成する
+	for _, exit := range metaPlan.Exits {
+		tileX, tileY := gc.Tile(exit.X), gc.Tile(exit.Y)
+
+		_, err := worldhelper.SpawnBridge(world, exit.ExitID, tileX, tileY)
+		if err != nil {
+			return resources.Level{}, fmt.Errorf("出口エンティティ生成エラー (%d, %d): %w", exit.X, exit.Y, err)
+		}
+	}
+
+	// 橋ヒントエンティティを生成する
+	for _, hint := range metaPlan.BridgeHints {
+		tileX, tileY := gc.Tile(hint.X), gc.Tile(hint.Y)
+		_, err := worldhelper.SpawnBridgeHint(world, hint.ExitID, tileX, tileY)
+		if err != nil {
+			return resources.Level{}, fmt.Errorf("橋ヒントエンティティ生成エラー (%d, %d): %w", hint.X, hint.Y, err)
 		}
 	}
 

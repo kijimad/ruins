@@ -1,6 +1,10 @@
 package components
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kijimaD/ruins/internal/maptemplate"
+)
 
 // Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー
 type Interactable struct {
@@ -18,25 +22,29 @@ type InteractionData interface {
 	Config() InteractionConfig
 }
 
-// WarpNextInteraction は次の階層へワープする相互作用
-type WarpNextInteraction struct{}
+// BridgeInteraction は出口を通る相互作用
+type BridgeInteraction struct {
+	BridgeID maptemplate.ExitID // 出口の識別子
+}
 
 // Config は相互作用設定を返す
-func (t WarpNextInteraction) Config() InteractionConfig {
+func (b BridgeInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
+		ActivationWay:   ActivationWayAuto, // 出口に到達したら自動遷移
 	}
 }
 
-// WarpEscapeInteraction は脱出ワープする相互作用
-type WarpEscapeInteraction struct{}
+// BridgeHintInteraction は橋のヒント表示相互作用
+type BridgeHintInteraction struct {
+	ExitID maptemplate.ExitID // 関連する出口ID
+}
 
 // Config は相互作用設定を返す
-func (t WarpEscapeInteraction) Config() InteractionConfig {
+func (b BridgeHintInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual,
+		ActivationWay:   ActivationWayAuto, // タイルに入ったら自動表示
 	}
 }
 

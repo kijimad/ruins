@@ -34,9 +34,11 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 		}
 
 		if len(roomDistances) > 0 {
-			var closestIdx int
+			closestIdx := -1
+			closestDist := math.MaxFloat64
 			for k, v := range roomDistances {
-				if roomDistances[closestIdx] < v {
+				if v < closestDist {
+					closestDist = v
 					closestIdx = k
 				}
 			}

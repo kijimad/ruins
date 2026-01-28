@@ -38,18 +38,18 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 		return vrt.RunTestGame(mode, townStateFactory(), gs.NewDebugMenuState())
 	case gs.DungeonState{}.String():
 		// 固定seed値を使用する
-		const seedVal = 1
+		seedVal := uint64(1)
 		return vrt.RunTestGame(mode, &gs.DungeonState{
 			Depth:       1,
-			Seed:        seedVal,
+			Seed:        &seedVal,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
 		})
 	case gs.FieldInfoState{}.String():
 		// 固定seed値を使用したダンジョンの上に視界情報画面を重ねる
-		const seedVal = 1
+		seedVal := uint64(1)
 		return vrt.RunTestGame(mode, &gs.DungeonState{
 			Depth:       1,
-			Seed:        seedVal,
+			Seed:        &seedVal,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
 		}, &gs.FieldInfoState{})
 	case gs.EquipMenuState{}.String():

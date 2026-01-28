@@ -15,12 +15,12 @@ func TestChunkExpansionGolden(t *testing.T) {
 
 	// 全アセットを一度にロード
 	loader := NewTemplateLoader()
-	err := loader.RegisterAllPalettes([]string{"../../assets/levels/palettes"})
+	err := loader.RegisterAllPalettes([]string{"levels/palettes"})
 	require.NoError(t, err)
 	err = loader.RegisterAllChunks([]string{
-		"../../assets/levels/chunks",
-		"../../assets/levels/facilities",
-		"../../assets/levels/layouts",
+		"levels/chunks",
+		"levels/facilities",
+		"levels/layouts",
 	})
 	require.NoError(t, err)
 
