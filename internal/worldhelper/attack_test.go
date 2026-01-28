@@ -110,34 +110,21 @@ func TestAttackUnification(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	rawMaster.Raws.CommandTables = []raw.CommandTable{
-		{
-			Name: "enemy_attacks",
-			Entries: []raw.CommandTableEntry{
-				{Weapon: "木刀", Weight: 1.0},
-			},
-		},
-	}
-	rawMaster.CommandTableIndex = map[string]int{
-		"enemy_attacks": 0,
-	}
-
 	// 敵の攻撃取得
 	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.CommandTable, &gc.CommandTable{Name: "enemy_attacks"})
+	enemy.AddComponent(world.Components.CommandTable, &gc.CommandTable{Name: "スライム"})
 	enemyAttack, enemyWeaponName, err := GetAttackFromCommandTable(world, enemy)
 	require.NoError(t, err)
 
-	// プレイヤーの武器攻撃取得
+	// プレイヤーの武器攻撃取得（同じ体当たりのパラメータを武器エンティティとして検証）
 	playerWeapon := world.Manager.NewEntity()
-	playerWeapon.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
+	playerWeapon.AddComponent(world.Components.Name, &gc.Name{Name: "体当たり"})
 	playerWeapon.AddComponent(world.Components.Attack, &gc.Attack{
-		Damage:         8, // 木刀の実際のダメージ値
+		Damage:         4,
 		Accuracy:       100,
 		AttackCount:    1,
 		Element:        gc.ElementTypeNone,
-		AttackCategory: gc.AttackSword,
+		AttackCategory: gc.AttackFist,
 	})
 	playerAttack, playerWeaponName, err := GetAttackFromWeapon(world, playerWeapon)
 	require.NoError(t, err)
