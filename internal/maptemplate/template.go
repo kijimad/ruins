@@ -15,15 +15,15 @@ import (
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name           string           `toml:"name"`   // キー
-	Weight         int              `toml:"weight"` // 出現確率の重み
-	Size           Size             // マップサイズ（名前から自動パース）
-	Palettes       []string         `toml:"palettes"`     // 使用するパレットID
-	Map            string           `toml:"map"`          // ASCIIマップ
-	Placements     []ChunkPlacement `toml:"placements"`   // ネストされたチャンクの配置
-	ExitPlacements []ExitPlacement  `toml:"exits"`        // 出口の配置
-	SpawnPoints    []SpawnPoint     `toml:"spawn_points"` // スポーン地点の配置
-	HintPlacements []HintPlacement  `toml:"hints"`        // ヒントの配置
+	Name                 string                `toml:"name"`   // キー
+	Weight               int                   `toml:"weight"` // 出現確率の重み
+	Size                 Size                  // マップサイズ（名前から自動パース）
+	Palettes             []string              `toml:"palettes"`     // 使用するパレットID
+	Map                  string                `toml:"map"`          // ASCIIマップ
+	Placements           []ChunkPlacement      `toml:"placements"`   // ネストされたチャンクの配置
+	ExitPlacements       []ExitPlacement       `toml:"exits"`        // 出口の配置
+	SpawnPoints          []SpawnPoint          `toml:"spawn_points"` // スポーン地点の配置
+	BridgeHintPlacements []BridgeHintPlacement `toml:"bridge_hints"` // 橋ヒントの配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -78,20 +78,12 @@ type SpawnPoint struct {
 	Y int `toml:"y"` // Y座標
 }
 
-// HintType はヒントのタイプを表す
-type HintType string
-
-const (
-	HintTypeBridgeHint HintType = "bridge_hint" // 橋の先の階層情報を表示
-)
-
-// HintPlacement はヒントの配置情報
+// BridgeHintPlacement は橋ヒント（次フロア情報表示）の配置情報
 // TOMLから読み込んだ後、mapplannerで使用される
-type HintPlacement struct {
-	HintType HintType `toml:"hint_type"` // ヒントのタイプ
-	ExitID   ExitID   `toml:"exit_id"`   // 関連する出口ID（bridge_hintの場合）
-	X        int      `toml:"x"`         // X座標
-	Y        int      `toml:"y"`         // Y座標
+type BridgeHintPlacement struct {
+	ExitID ExitID `toml:"exit_id"` // 関連する出口ID
+	X      int    `toml:"x"`       // X座標
+	Y      int    `toml:"y"`       // Y座標
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造

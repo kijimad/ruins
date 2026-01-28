@@ -40,8 +40,8 @@ type MetaPlan struct {
 	Exits []maptemplate.ExitPlacement
 	// SpawnPoints はスポーン地点リスト
 	SpawnPoints []maptemplate.SpawnPoint
-	// Hints は配置予定のヒントリスト
-	Hints []maptemplate.HintPlacement
+	// BridgeHints は配置予定の橋ヒントリスト
+	BridgeHints []maptemplate.BridgeHintPlacement
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
 }

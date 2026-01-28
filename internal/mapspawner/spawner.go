@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -138,16 +137,12 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// ヒントエンティティを生成する
-	for _, hint := range metaPlan.Hints {
+	// 橋ヒントエンティティを生成する
+	for _, hint := range metaPlan.BridgeHints {
 		tileX, tileY := gc.Tile(hint.X), gc.Tile(hint.Y)
-
-		if hint.HintType == maptemplate.HintTypeBridgeHint {
-			// 橋ヒントエンティティを生成
-			_, err := worldhelper.SpawnBridgeHint(world, hint.ExitID, tileX, tileY)
-			if err != nil {
-				return resources.Level{}, fmt.Errorf("橋ヒントエンティティ生成エラー (%d, %d): %w", hint.X, hint.Y, err)
-			}
+		_, err := worldhelper.SpawnBridgeHint(world, hint.ExitID, tileX, tileY)
+		if err != nil {
+			return resources.Level{}, fmt.Errorf("橋ヒントエンティティ生成エラー (%d, %d): %w", hint.X, hint.Y, err)
 		}
 	}
 

@@ -161,13 +161,12 @@ func (bw BridgeFacilityWrapper) collectBridgesFromTemplate(
 		})
 	}
 
-	// ヒント情報を収集
-	for _, hint := range template.HintPlacements {
-		metaPlan.Hints = append(metaPlan.Hints, maptemplate.HintPlacement{
-			HintType: hint.HintType,
-			ExitID:   hint.ExitID,
-			X:        hint.X,
-			Y:        hint.Y + offsetY,
+	// 橋ヒント情報を収集
+	for _, hint := range template.BridgeHintPlacements {
+		metaPlan.BridgeHints = append(metaPlan.BridgeHints, maptemplate.BridgeHintPlacement{
+			ExitID: hint.ExitID,
+			X:      hint.X,
+			Y:      hint.Y + offsetY,
 		})
 	}
 }
