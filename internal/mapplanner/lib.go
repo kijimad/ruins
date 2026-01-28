@@ -501,6 +501,8 @@ func PlannerTypeFromName(name consts.PlannerTypeName) PlannerType {
 		return PlannerTypeOfficeBuilding
 	case consts.PlannerTypeNameSmallTown:
 		return PlannerTypeSmallTown
+	case consts.PlannerTypeNameTownPlaza:
+		return PlannerTypeTownPlaza
 	default:
 		// デフォルトはランダム
 		return PlannerTypeRandom

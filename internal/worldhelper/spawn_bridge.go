@@ -22,9 +22,9 @@ func SpawnBridge(
 ) (ecs.Entity, error) {
 	exitName := fmt.Sprintf("出口(%s)", exitID)
 
-	// 5の倍数の階層の場合、街広場へのワープInteractionを設定
+	// 5の倍数の階層の場合、ExitIDLeftのみを街広場へのワープに設定
 	var interactionData gc.InteractionData
-	if currentDepth%5 == 0 && currentDepth > 0 {
+	if currentDepth%5 == 0 && currentDepth > 0 && exitID == maptemplate.ExitIDLeft {
 		interactionData = gc.PlazaWarpInteraction{}
 	} else {
 		// 通常の出口Interaction(次階層へ)

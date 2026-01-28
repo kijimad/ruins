@@ -78,16 +78,22 @@ func TestBridgeIntegration(t *testing.T) {
 		assert.Equal(t, maptemplate.ExitIDMain, bridgeInteraction.BridgeID)
 	})
 
-	t.Run("5の倍数の階層ではPlazaWarpInteractionが設定される", func(t *testing.T) {
+	t.Run("5の倍数の階層ではExitIDLeftのみPlazaWarpInteractionが設定される", func(t *testing.T) {
 		t.Parallel()
 		testWorld := testutil.InitTestWorld(t)
 
-		// 5の倍数の階層の出口橋
-		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5, 5)
+		// ExitIDLeftは街広場へのワープ
+		leftBridge, err := SpawnBridge(testWorld, maptemplate.ExitIDLeft, 10, 5, 5)
 		require.NoError(t, err)
-
-		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
+		interactable := testWorld.Components.Interactable.Get(leftBridge).(*gc.Interactable)
 		_, ok := interactable.Data.(gc.PlazaWarpInteraction)
-		assert.True(t, ok, "5の倍数の階層ではPlazaWarpInteractionが設定される")
+		assert.True(t, ok, "ExitIDLeftは街広場へのワープ")
+
+		// それ以外は通常のBridgeInteraction
+		otherBridge, err := SpawnBridge(testWorld, maptemplate.ExitIDCenter, 12, 5, 5)
+		require.NoError(t, err)
+		interactable = testWorld.Components.Interactable.Get(otherBridge).(*gc.Interactable)
+		_, ok = interactable.Data.(gc.BridgeInteraction)
+		assert.True(t, ok, "ExitIDCenter以外は通常の橋")
 	})
 }

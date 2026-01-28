@@ -23,4 +23,6 @@ const (
 	PlannerTypeNameOfficeBuilding PlannerTypeName = "事務所ビル"
 	// PlannerTypeNameSmallTown は小さな町
 	PlannerTypeNameSmallTown PlannerTypeName = "小さな町"
+	// PlannerTypeNameTownPlaza は街広場
+	PlannerTypeNameTownPlaza PlannerTypeName = "街広場"
 )

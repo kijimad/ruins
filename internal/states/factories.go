@@ -421,8 +421,10 @@ func NewDebugMenuState() es.State[w.World] {
 				world.Components.GridElement,
 			).Visit(ecs.Visit(func(entity ecs.Entity) {
 				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-				_, ok := interactable.Data.(gc.BridgeInteraction)
-				if !ok {
+				switch interactable.Data.(type) {
+				// TODO: 2つにする必要はあるだろうか?
+				case gc.BridgeInteraction, gc.PlazaWarpInteraction:
+				default:
 					return
 				}
 

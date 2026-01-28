@@ -532,6 +532,18 @@ func generateNextBridgeTypes(seed uint64, currentDepth int) map[maptemplate.Exit
 	nextDepth := currentDepth + 1
 	bridgeTypes := make(map[maptemplate.ExitID]consts.PlannerTypeName)
 
+	bridgeIDs := []maptemplate.ExitID{
+		maptemplate.ExitIDMain,
+		maptemplate.ExitIDLeft,
+		maptemplate.ExitIDCenter,
+		maptemplate.ExitIDRight,
+	}
+
+	// 現在の階が5の倍数なら ExitIDLeft を街広場へのワープに固定する
+	if currentDepth%5 == 0 && currentDepth > 0 {
+		bridgeTypes[maptemplate.ExitIDLeft] = consts.PlannerTypeNameTownPlaza
+	}
+
 	// 利用可能なPlannerTypeNameのリスト
 	availableTypes := []consts.PlannerTypeName{
 		consts.PlannerTypeNameSmallRoom,
@@ -545,13 +557,11 @@ func generateNextBridgeTypes(seed uint64, currentDepth int) map[maptemplate.Exit
 	rng := rand.New(rand.NewPCG(seed+uint64(nextDepth), 0))
 
 	// 各出口橋にランダムにPlannerTypeNameを割り当て
-	bridgeIDs := []maptemplate.ExitID{
-		maptemplate.ExitIDMain,
-		maptemplate.ExitIDLeft,
-		maptemplate.ExitIDCenter,
-		maptemplate.ExitIDRight,
-	}
 	for _, bridgeID := range bridgeIDs {
+		if _, ok := bridgeTypes[bridgeID]; ok {
+			// 既に固定済みの橋はスキップする
+			continue
+		}
 		bridgeTypes[bridgeID] = availableTypes[rng.IntN(len(availableTypes))]
 	}
 

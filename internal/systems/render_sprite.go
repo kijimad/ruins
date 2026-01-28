@@ -498,9 +498,28 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		// BridgeInteractionのみを対象
-		bridgeInteraction, ok := interactable.Data.(gc.BridgeInteraction)
-		if !ok {
+		// 出口の色とラベルを決定する
+		var debugColor color.RGBA
+		var label string
+		switch v := interactable.Data.(type) {
+		case gc.BridgeInteraction:
+			label = string(v.BridgeID)
+			switch v.BridgeID {
+			case maptemplate.ExitIDLeft:
+				debugColor = color.RGBA{255, 0, 0, 128} // 赤（半透明）
+			case maptemplate.ExitIDCenter:
+				debugColor = color.RGBA{0, 255, 0, 128} // 緑（半透明）
+			case maptemplate.ExitIDRight:
+				debugColor = color.RGBA{0, 0, 255, 128} // 青（半透明）
+			case maptemplate.ExitIDMain:
+				debugColor = color.RGBA{255, 165, 0, 128} // オレンジ（半透明）
+			default:
+				return
+			}
+		case gc.PlazaWarpInteraction:
+			label = "plaza"
+			debugColor = color.RGBA{255, 255, 0, 128} // 黄（半透明）
+		default:
 			return
 		}
 
@@ -516,21 +535,6 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 		pixelX := float64(int(gridElement.X) * int(consts.TileSize))
 		pixelY := float64(int(gridElement.Y) * int(consts.TileSize))
 
-		// 出口IDによって色を変える
-		var debugColor color.RGBA
-		switch bridgeInteraction.BridgeID {
-		case maptemplate.ExitIDLeft:
-			debugColor = color.RGBA{255, 0, 0, 128} // 赤（半透明）
-		case maptemplate.ExitIDCenter:
-			debugColor = color.RGBA{0, 255, 0, 128} // 緑（半透明）
-		case maptemplate.ExitIDRight:
-			debugColor = color.RGBA{0, 0, 255, 128} // 青（半透明）
-		case maptemplate.ExitIDMain:
-			debugColor = color.RGBA{255, 165, 0, 128} // オレンジ（半透明）
-		default:
-			panic(fmt.Sprintf("未知の出口ID: %v", bridgeInteraction.BridgeID))
-		}
-
 		// タイルサイズの色付き矩形を描画
 		debugImage := ebiten.NewImage(int(consts.TileSize), int(consts.TileSize))
 		debugImage.Fill(debugColor)
@@ -540,11 +544,11 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 		SetTranslate(world, op)
 		screen.DrawImage(debugImage, op)
 
-		// 橋IDをテキストで表示
+		// 出口ラベルをテキストで表示
 		textOp := &ebiten.DrawImageOptions{}
 		textOp.GeoM.Translate(pixelX+float64(consts.TileSize)/2-4, pixelY+float64(consts.TileSize)/2-4)
 		SetTranslate(world, textOp)
 		screenX, screenY := textOp.GeoM.Apply(0, 0)
-		ebitenutil.DebugPrintAt(screen, string(bridgeInteraction.BridgeID), int(screenX), int(screenY))
+		ebitenutil.DebugPrintAt(screen, label, int(screenX), int(screenY))
 	}))
 }
