@@ -267,7 +267,6 @@ func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain,
 		FloorTile: "floor",
 		WallTile:  "wall",
 	}) // 通路を作成
-	chain.With(BridgeConnection{}) // 橋facilityとの接続のため最上列・最下列を床にする
 
 	return chain, nil
 }

@@ -307,7 +307,6 @@ func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerCh
 	chain.With(NewFillAll("wall"))    // 全体を壁で埋める
 	chain.With(RoomDraw{})            // 部屋を描画
 	chain.With(LineCorridorPlanner{}) // 廊下を作成
-	chain.With(BridgeConnection{})    // 橋facilityとの接続のため最上列・最下列を床にする
 
 	return chain, nil
 }
@@ -322,7 +321,6 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 		FloorTile: "floor",
 		WallTile:  "wall",
 	}) // 大部屋を描画（バリエーション込み）
-	chain.With(BridgeConnection{}) // 橋facilityとの接続のため最上列・最下列を床にする
 
 	return chain, nil
 }

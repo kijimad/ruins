@@ -103,7 +103,6 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	}
 
 	// 接続性検証: 最上列と最下列が接続されているかをチェックする
-	// 各plannerでBridgeConnectionが実行された後、BridgeFacilityWrapper実行前に検証
 	pathFinder := NewPathFinder(&chain.PlanData)
 	if err := pathFinder.ValidateConnectivity(); err != nil {
 		return nil, err

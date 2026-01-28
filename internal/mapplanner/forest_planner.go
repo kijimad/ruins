@@ -177,16 +177,14 @@ func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
 	// 最上列から最下列への確実な通路を1本作成（接続性保証）
 	f.createGuaranteedVerticalPath(planData, width, height)
 
-	if len(planData.Rooms) < 2 {
-		return nil
-	}
-
-	// 各空き地を他の空き地と繋ぐ
-	for i := 0; i < len(planData.Rooms); i++ {
-		for j := i + 1; j < len(planData.Rooms); j++ {
-			// 距離が近い空き地のみ繋ぐ（50%の確率）
-			if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {
-				f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])
+	if len(planData.Rooms) >= 2 {
+		// 各空き地を他の空き地と繋ぐ
+		for i := 0; i < len(planData.Rooms); i++ {
+			for j := i + 1; j < len(planData.Rooms); j++ {
+				// 距離が近い空き地のみ繋ぐ（50%の確率）
+				if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {
+					f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])
+				}
 			}
 		}
 	}
@@ -322,7 +320,8 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 		for dx := -radius; dx <= radius; dx++ {
 			for dy := -radius; dy <= radius; dy++ {
 				nx, ny := x+dx, y+dy
-				if nx >= 0 && nx < width && ny >= 0 && ny < height {
+				// 上端・下端行には描画しない（ForestPathsで保証した接続性を壊さないため）
+				if nx >= 0 && nx < width && ny > 0 && ny < height-1 {
 					distance := math.Sqrt(float64(dx*dx + dy*dy))
 					if distance <= float64(radius) {
 						idx := planData.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
@@ -339,11 +338,10 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 func NewForestPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(ForestPlanner{})
-	chain.With(ForestTerrain{})    // 基本地形を生成
-	chain.With(ForestTrees{})      // 木を配置
-	chain.With(ForestPaths{})      // 自然な通路を作成
-	chain.With(ForestWildlife{})   // 野生動物の痕跡を追加
-	chain.With(BridgeConnection{}) // 橋facilityとの接続のため最上列・最下列を床にする
+	chain.With(ForestTerrain{})  // 基本地形を生成
+	chain.With(ForestTrees{})    // 木を配置
+	chain.With(ForestPaths{})    // 自然な通路を作成
+	chain.With(ForestWildlife{}) // 野生動物の痕跡を追加
 
 	return chain, nil
 }

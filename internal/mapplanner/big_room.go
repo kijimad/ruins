@@ -150,9 +150,10 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {
 func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 	for _, room := range planData.Rooms {
 		// 格子状に壁を配置し、ランダムに開口部を作る
-		// 縦の壁を部屋の右端から逆向きに配置（橋接続エリアまでカバー）
+		// 上端行・下端行には壁を配置しない。上下端への接続性を保証するため
+		// 縦の壁を部屋の右端から逆向きに配置
 		for x := int(room.X2); x >= int(room.X1)+2; x -= 3 {
-			for y := int(room.Y1); y <= int(room.Y2); y++ {
+			for y := int(room.Y1) + 1; y <= int(room.Y2)-1; y++ {
 				// 縦の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {
 					idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
@@ -161,8 +162,8 @@ func (b BigRoomDraw) applyMazePattern(planData *MetaPlan) {
 			}
 		}
 
-		// 横の壁を部屋の下端から逆向きに配置（橋接続エリアまでカバー）
-		for y := int(room.Y2); y >= int(room.Y1)+2; y -= 3 {
+		// 横の壁を部屋の下端から逆向きに配置
+		for y := int(room.Y2) - 1; y >= int(room.Y1)+2; y -= 3 {
 			for x := int(room.X1); x <= int(room.X2); x++ {
 				// 横の壁を配置（ランダムに開口部を作る）
 				if planData.RNG.Float64() > 0.3 {

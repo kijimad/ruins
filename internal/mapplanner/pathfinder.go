@@ -131,47 +131,46 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
 }
 
 // ValidateConnectivity は最上列と最下列の接続性を検証する
-// マップの上端と下端が接続されているかをチェックする
-// BridgeConnection実行前に呼び出すことで、マップ自体の品質を保証する
+// 最上列の歩行可能なタイルのいずれかから最下列に到達できるかをチェックする
+// 橋の結合前に呼ばれる
 func (pf *PathFinder) ValidateConnectivity() error {
 	width := int(pf.planData.Level.TileWidth)
 	height := int(pf.planData.Level.TileHeight)
 
-	// 最上列（y=0）から歩行可能な開始点を探す
-	var topStartX, topStartY int
-	foundTopStart := false
+	// 最上列と最下列の歩行可能タイル数を数える
 	topWalkableCount := 0
+	bottomWalkableCount := 0
 	for x := 0; x < width; x++ {
 		if pf.IsWalkable(x, 0) {
 			topWalkableCount++
-			if !foundTopStart {
-				topStartX, topStartY = x, 0
-				foundTopStart = true
-			}
 		}
-	}
-
-	if !foundTopStart {
-		return fmt.Errorf("%w: 最上列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
-	}
-
-	// 最下列（y=height-1）の歩行可能な点をすべて探し、最上列から到達可能かチェック
-	bottomWalkableCount := 0
-	hasReachableBottomTile := false
-	for x := 0; x < width; x++ {
 		if pf.IsWalkable(x, height-1) {
 			bottomWalkableCount++
-			if pf.IsReachable(topStartX, topStartY, x, height-1) {
-				hasReachableBottomTile = true
-				break
+		}
+	}
+
+	if topWalkableCount == 0 {
+		return fmt.Errorf("%w: 最上列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
+	}
+	if bottomWalkableCount == 0 {
+		return fmt.Errorf("%w: 最下列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
+	}
+
+	// 最上列の歩行可能なタイルを全て試し、いずれかから最下列に到達できるかチェック
+	for topX := 0; topX < width; topX++ {
+		if !pf.IsWalkable(topX, 0) {
+			continue
+		}
+		for bottomX := 0; bottomX < width; bottomX++ {
+			if !pf.IsWalkable(bottomX, height-1) {
+				continue
+			}
+			if pf.IsReachable(topX, 0, bottomX, height-1) {
+				return nil
 			}
 		}
 	}
 
-	if !hasReachableBottomTile {
-		return fmt.Errorf("%w: 最上列(%d,%d)から最下列への到達不可 (width=%d, height=%d, 最上列歩行可能タイル数=%d, 最下列歩行可能タイル数=%d)",
-			ErrConnectivity, topStartX, topStartY, width, height, topWalkableCount, bottomWalkableCount)
-	}
-
-	return nil
+	return fmt.Errorf("%w: 最上列から最下列への到達不可 (width=%d, height=%d, 最上列歩行可能タイル数=%d, 最下列歩行可能タイル数=%d)",
+		ErrConnectivity, width, height, topWalkableCount, bottomWalkableCount)
 }
