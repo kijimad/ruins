@@ -461,6 +461,13 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 	case resources.WarpNextEvent:
 		// 次のフロアへ遷移
 		nextDepth := world.Resources.Dungeon.Depth + 1
+
+		// 10階を超えたらゲームクリアイベントを発行
+		if nextDepth > 10 {
+			world.Resources.Dungeon.SetStateEvent(resources.GameClearEvent{})
+			return es.Transition[w.World]{Type: es.TransNone}, nil
+		}
+
 		baseSeed := *st.Seed
 		nextSeed := baseSeed + uint64(nextDepth)
 
