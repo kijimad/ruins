@@ -59,3 +59,37 @@ func SpawnBridge(
 
 	return entitiesSlice[0], nil
 }
+
+// SpawnBridgeHint は橋のヒント表示エンティティを生成する
+// 指定位置に到達すると、関連する橋の先の階層情報をgamelogに表示する
+func SpawnBridgeHint(
+	world w.World,
+	exitID maptemplate.ExitID,
+	x gc.Tile,
+	y gc.Tile,
+) (ecs.Entity, error) {
+	entitySpec := gc.EntitySpec{
+		GridElement: &gc.GridElement{X: x, Y: y},
+		Interactable: &gc.Interactable{
+			Data: gc.BridgeHintInteraction{
+				ExitID: exitID,
+			},
+		},
+	}
+
+	// エンティティを追加
+	componentList := entities.ComponentList[gc.EntitySpec]{}
+	componentList.Entities = append(componentList.Entities, entitySpec)
+
+	entitiesSlice, err := entities.AddEntities(world, componentList)
+	if err != nil {
+		return ecs.Entity(0), err
+	}
+	if len(entitiesSlice) == 0 {
+		return ecs.Entity(0), fmt.Errorf("橋ヒントエンティティの生成に失敗しました")
+	}
+
+	entity := entitiesSlice[0]
+
+	return entity, nil
+}

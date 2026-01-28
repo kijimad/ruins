@@ -52,3 +52,22 @@
     exit_id = "exit_right"
     x       = 30
     y       = 14
+
+  # 橋のヒント表示位置
+  [[chunk.hints]]
+    exit_id   = "exit_left"
+    hint_type = "bridge_hint"
+    x         = 12
+    y         = 27
+
+  [[chunk.hints]]
+    exit_id   = "exit_center"
+    hint_type = "bridge_hint"
+    x         = 16
+    y         = 27
+
+  [[chunk.hints]]
+    exit_id   = "exit_right"
+    hint_type = "bridge_hint"
+    x         = 20
+    y         = 27

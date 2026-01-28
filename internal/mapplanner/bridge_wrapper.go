@@ -160,6 +160,16 @@ func (bw BridgeFacilityWrapper) collectBridgesFromTemplate(
 			Y: spawnPoint.Y + offsetY,
 		})
 	}
+
+	// ヒント情報を収集
+	for _, hint := range template.HintPlacements {
+		metaPlan.Hints = append(metaPlan.Hints, maptemplate.HintPlacement{
+			HintType: hint.HintType,
+			ExitID:   hint.ExitID,
+			X:        hint.X,
+			Y:        hint.Y + offsetY,
+		})
+	}
 }
 
 // NewBridgeFacilityWrapper は橋facilityラッパーを作成する

@@ -46,6 +46,19 @@ func (p PlazaWarpInteraction) Config() InteractionConfig {
 	}
 }
 
+// BridgeHintInteraction は橋のヒント表示相互作用
+type BridgeHintInteraction struct {
+	ExitID maptemplate.ExitID // 関連する出口ID
+}
+
+// Config は相互作用設定を返す
+func (b BridgeHintInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayAuto, // タイルに入ったら自動表示
+	}
+}
+
 // DoorInteraction はドアの相互作用
 type DoorInteraction struct{}
 

@@ -74,6 +74,8 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 		ia.executeBridge(act, world, content)
 	case gc.PlazaWarpInteraction:
 		ia.executePlazaWarp(act, world, content)
+	case gc.BridgeHintInteraction:
+		ia.executeBridgeHint(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
@@ -128,15 +130,6 @@ func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.Worl
 	})
 
 	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", nextStageName)
-
-	// ログ出力
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Append("橋を渡った。").
-			Magic(nextStageName).
-			Append("が見える。").
-			Log()
-	}
 }
 
 // executePlazaWarp は街広場へのワープ相互作用を実行する
@@ -150,6 +143,28 @@ func (ia *InteractionActivateActivity) executePlazaWarp(act *Activity, world w.W
 	if isPlayerActivity(act, world) {
 		gamelog.New(gamelog.FieldLog).
 			Magic("街広場へ移動した。").
+			Log()
+	}
+}
+
+// executeBridgeHint は橋のヒント表示相互作用を実行する
+func (ia *InteractionActivateActivity) executeBridgeHint(act *Activity, world w.World, bridgeHint gc.BridgeHintInteraction) {
+	// resources.Dungeonから次のPlannerTypeNameを取得
+	var nextStageName string
+	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
+		if ptName, ok := nextBridgeTypes[bridgeHint.ExitID]; ok {
+			nextStageName = string(ptName)
+		}
+	}
+
+	act.Logger.Debug("橋のヒント表示", "actor", act.Actor, "exitID", bridgeHint.ExitID, "nextStageType", nextStageName)
+
+	// ログ出力（プレイヤーのみ）
+	if isPlayerActivity(act, world) {
+		gamelog.New(gamelog.FieldLog).
+			Append("橋の先には").
+			Magic(nextStageName).
+			Append("が見える。").
 			Log()
 	}
 }

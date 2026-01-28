@@ -23,6 +23,7 @@ type ChunkTemplate struct {
 	Placements     []ChunkPlacement `toml:"placements"`   // ネストされたチャンクの配置
 	ExitPlacements []ExitPlacement  `toml:"exits"`        // 出口の配置
 	SpawnPoints    []SpawnPoint     `toml:"spawn_points"` // スポーン地点の配置
+	HintPlacements []HintPlacement  `toml:"hints"`        // ヒントの配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -75,6 +76,22 @@ type ExitPlacement struct {
 type SpawnPoint struct {
 	X int `toml:"x"` // X座標
 	Y int `toml:"y"` // Y座標
+}
+
+// HintType はヒントのタイプを表す
+type HintType string
+
+const (
+	HintTypeBridgeHint HintType = "bridge_hint" // 橋の先の階層情報を表示
+)
+
+// HintPlacement はヒントの配置情報
+// TOMLから読み込んだ後、mapplannerで使用される
+type HintPlacement struct {
+	HintType HintType `toml:"hint_type"` // ヒントのタイプ
+	ExitID   ExitID   `toml:"exit_id"`   // 関連する出口ID（bridge_hintの場合）
+	X        int      `toml:"x"`         // X座標
+	Y        int      `toml:"y"`         // Y座標
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
