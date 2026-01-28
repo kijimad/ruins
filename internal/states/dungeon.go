@@ -115,9 +115,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 視界キャッシュをクリア（新しい階のために）
 	gs.ClearVisionCaches()
 
-	// StateEvent をリセット（橋遷移後のイベントが残らないように）
-	world.Resources.Dungeon.SetStateEvent(resources.NoneEvent{})
-
 	return nil
 }
 
@@ -152,8 +149,6 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
-	// デバッグ: Update が呼ばれているか確認（橋遷移後の最初の数フレームのみ）
-
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -464,7 +459,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			}}, nil
 		}
 	case resources.WarpNextEvent:
-		// 次のフロアへ遷移（橋D位置にスポーン）
+		// 次のフロアへ遷移
 		nextDepth := world.Resources.Dungeon.Depth + 1
 		baseSeed := *st.Seed
 		nextSeed := baseSeed + uint64(nextDepth)
@@ -488,7 +483,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			},
 		}, nil
 	case resources.WarpPlazaEvent:
-		// 街広場へ遷移（5の倍数の階層の橋A用）
+		// 街広場へ遷移
 		return es.Transition[w.World]{
 			Type: es.TransSwitch,
 			NewStateFuncs: []es.StateFactory[w.World]{
