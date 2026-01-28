@@ -34,7 +34,7 @@ type Config struct {
 	PProfPort     int    `env:"RUINS_PPROF_PORT"`
 	ShowMonitor   bool   `env:"RUINS_SHOW_MONITOR"`
 	ShowAIDebug   bool   `env:"RUINS_SHOW_AI_DEBUG"`
-	ShowMapDebug  bool   `env:"RUINS_SHOW_MAP_DEBUG"` // 橋のハイライト表示など
+	ShowMapDebug  bool   `env:"RUINS_SHOW_MAP_DEBUG"`
 	NoEncounter   bool   `env:"RUINS_NO_ENCOUNTER"`
 
 	// ゲーム設定

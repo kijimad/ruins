@@ -11,14 +11,11 @@ type BigRoomPlanner struct{}
 // PlanInitial は初期マップをプランする
 func (b BigRoomPlanner) PlanInitial(planData *MetaPlan) error {
 	// マップの境界を考慮して大きな部屋を1つ作成
-	// 上下のmarginは0（BridgeConnectionが境界を処理するため）
-	marginX := 0
-	marginY := 0
 	room := gc.Rect{
-		X1: gc.Tile(marginX),
-		Y1: gc.Tile(marginY),
-		X2: gc.Tile(int(planData.Level.TileWidth) - marginX - 1),
-		Y2: gc.Tile(int(planData.Level.TileHeight) - marginY - 1),
+		X1: gc.Tile(0),
+		Y1: gc.Tile(0),
+		X2: gc.Tile(int(planData.Level.TileWidth) - 1),
+		Y2: gc.Tile(int(planData.Level.TileHeight) - 1),
 	}
 
 	// 部屋をリストに追加
