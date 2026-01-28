@@ -126,12 +126,10 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	}
 
 	// 出口エンティティを生成する
-	dungeonResource := world.Resources.Dungeon
 	for _, exit := range metaPlan.Exits {
 		tileX, tileY := gc.Tile(exit.X), gc.Tile(exit.Y)
-		currentDepth := dungeonResource.Depth
 
-		_, err := worldhelper.SpawnBridge(world, exit.ExitID, tileX, tileY, currentDepth)
+		_, err := worldhelper.SpawnBridge(world, exit.ExitID, tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("出口エンティティ生成エラー (%d, %d): %w", exit.X, exit.Y, err)
 		}

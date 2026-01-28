@@ -12,25 +12,16 @@ import (
 
 // SpawnBridge は出口操作エンティティを生成する
 // 出口は階層間の遷移ポイントに配置され、次階層への移動相互作用を提供する
-// 5の倍数の階層の場合、街広場へのワープInteractionを設定する
 func SpawnBridge(
 	world w.World,
 	exitID maptemplate.ExitID,
 	x gc.Tile,
 	y gc.Tile,
-	currentDepth int,
 ) (ecs.Entity, error) {
 	exitName := fmt.Sprintf("出口(%s)", exitID)
 
-	// 5の倍数の階層の場合、ExitIDLeftのみを街広場へのワープに設定
-	var interactionData gc.InteractionData
-	if currentDepth%5 == 0 && currentDepth > 0 && exitID == maptemplate.ExitIDLeft {
-		interactionData = gc.PlazaWarpInteraction{}
-	} else {
-		// 通常の出口Interaction(次階層へ)
-		interactionData = gc.BridgeInteraction{
-			BridgeID: exitID,
-		}
+	interactionData := gc.BridgeInteraction{
+		BridgeID: exitID,
 	}
 
 	// EntitySpecを直接構築

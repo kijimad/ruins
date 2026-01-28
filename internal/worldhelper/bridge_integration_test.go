@@ -19,7 +19,7 @@ func TestBridgeIntegration(t *testing.T) {
 		testWorld := testutil.InitTestWorld(t)
 
 		// 橋エンティティを生成
-		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5, 1)
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5)
 		require.NoError(t, err)
 
 		// Nameコンポーネントを確認
@@ -50,7 +50,7 @@ func TestBridgeIntegration(t *testing.T) {
 		t.Parallel()
 		testWorld := testutil.InitTestWorld(t)
 
-		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5, 1)
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5)
 		require.NoError(t, err)
 
 		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
@@ -67,7 +67,7 @@ func TestBridgeIntegration(t *testing.T) {
 		testWorld := testutil.InitTestWorld(t)
 
 		// 通常の階層（5の倍数でない）
-		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5, 1)
+		bridgeEntity, err := SpawnBridge(testWorld, maptemplate.ExitIDMain, 10, 5)
 		require.NoError(t, err)
 
 		interactable := testWorld.Components.Interactable.Get(bridgeEntity).(*gc.Interactable)
@@ -78,22 +78,22 @@ func TestBridgeIntegration(t *testing.T) {
 		assert.Equal(t, maptemplate.ExitIDMain, bridgeInteraction.BridgeID)
 	})
 
-	t.Run("5の倍数の階層ではExitIDLeftのみPlazaWarpInteractionが設定される", func(t *testing.T) {
+	t.Run("全てのExitIDがBridgeInteractionを返す", func(t *testing.T) {
 		t.Parallel()
 		testWorld := testutil.InitTestWorld(t)
 
-		// ExitIDLeftは街広場へのワープ
-		leftBridge, err := SpawnBridge(testWorld, maptemplate.ExitIDLeft, 10, 5, 5)
+		leftBridge, err := SpawnBridge(testWorld, maptemplate.ExitIDLeft, 10, 5)
 		require.NoError(t, err)
 		interactable := testWorld.Components.Interactable.Get(leftBridge).(*gc.Interactable)
-		_, ok := interactable.Data.(gc.PlazaWarpInteraction)
-		assert.True(t, ok, "ExitIDLeftは街広場へのワープ")
+		bridgeLeft, ok := interactable.Data.(gc.BridgeInteraction)
+		require.True(t, ok, "ExitIDLeftもBridgeInteractionである")
+		assert.Equal(t, maptemplate.ExitIDLeft, bridgeLeft.BridgeID)
 
-		// それ以外は通常のBridgeInteraction
-		otherBridge, err := SpawnBridge(testWorld, maptemplate.ExitIDCenter, 12, 5, 5)
+		otherBridge, err := SpawnBridge(testWorld, maptemplate.ExitIDCenter, 12, 5)
 		require.NoError(t, err)
 		interactable = testWorld.Components.Interactable.Get(otherBridge).(*gc.Interactable)
-		_, ok = interactable.Data.(gc.BridgeInteraction)
-		assert.True(t, ok, "ExitIDCenter以外は通常の橋")
+		bridgeCenter, ok := interactable.Data.(gc.BridgeInteraction)
+		require.True(t, ok, "ExitIDCenterもBridgeInteractionである")
+		assert.Equal(t, maptemplate.ExitIDCenter, bridgeCenter.BridgeID)
 	})
 }

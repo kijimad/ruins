@@ -516,9 +516,6 @@ func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.I
 			default:
 				return
 			}
-		case gc.PlazaWarpInteraction:
-			label = "plaza"
-			debugColor = color.RGBA{255, 255, 0, 128} // 黄（半透明）
 		default:
 			return
 		}

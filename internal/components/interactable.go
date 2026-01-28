@@ -35,17 +35,6 @@ func (b BridgeInteraction) Config() InteractionConfig {
 	}
 }
 
-// PlazaWarpInteraction は街広場へのワープ相互作用（5の倍数の階層用）
-type PlazaWarpInteraction struct{}
-
-// Config は相互作用設定を返す
-func (p PlazaWarpInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayAuto, // 橋の端に到達したら自動遷移
-	}
-}
-
 // BridgeHintInteraction は橋のヒント表示相互作用
 type BridgeHintInteraction struct {
 	ExitID maptemplate.ExitID // 関連する出口ID

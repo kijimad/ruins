@@ -72,8 +72,6 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	switch content := interactable.Data.(type) {
 	case gc.BridgeInteraction:
 		ia.executeBridge(act, world, content)
-	case gc.PlazaWarpInteraction:
-		ia.executePlazaWarp(act, world, content)
 	case gc.BridgeHintInteraction:
 		ia.executeBridgeHint(act, world, content)
 	case gc.DoorInteraction:
@@ -113,37 +111,23 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 
 // executeBridge は出口を通る相互作用を実行する
 func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
-	// 次フロアへの遷移を実行
 	// resources.Dungeonから次のPlannerTypeNameを取得
 	var nextPlannerTypeName consts.PlannerTypeName
-	var nextStageName string
 	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
 		if ptName, ok := nextBridgeTypes[bridge.BridgeID]; ok {
 			nextPlannerTypeName = ptName
-			nextStageName = string(ptName)
 		}
 	}
 
-	// WarpNextEvent を発行
-	world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{
-		NextPlannerType: nextPlannerTypeName,
-	})
-
-	act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", nextStageName)
-}
-
-// executePlazaWarp は街広場へのワープ相互作用を実行する
-func (ia *InteractionActivateActivity) executePlazaWarp(act *Activity, world w.World, _ gc.PlazaWarpInteraction) {
-	// WarpPlazaEvent を発行
-	world.Resources.Dungeon.SetStateEvent(resources.WarpPlazaEvent{})
-
-	act.Logger.Debug("街広場へワープ", "actor", act.Actor)
-
-	// ログ出力
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Magic("街広場へ移動した。").
-			Log()
+	// 街広場へのワープか、次フロアへの遷移かを判定
+	if nextPlannerTypeName == consts.PlannerTypeNameTownPlaza {
+		world.Resources.Dungeon.SetStateEvent(resources.WarpPlazaEvent{})
+		act.Logger.Debug("街広場へワープ", "actor", act.Actor, "bridgeID", bridge.BridgeID)
+	} else {
+		world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{
+			NextPlannerType: nextPlannerTypeName,
+		})
+		act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", string(nextPlannerTypeName))
 	}
 }
 
