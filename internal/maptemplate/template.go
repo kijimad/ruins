@@ -3,12 +3,13 @@ package maptemplate
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"math/rand/v2"
-	"os"
 	"strconv"
 	"strings"
 	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/assets"
 	"github.com/pelletier/go-toml/v2"
 )
 
@@ -134,7 +135,7 @@ func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
 
 // LoadFile はTOMLファイルからチャンクテンプレート定義を読み込む
 func (l *TemplateLoader) LoadFile(path string) ([]ChunkTemplate, error) {
-	f, err := os.Open(path)
+	f, err := assets.FS.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("テンプレートファイル読み込みエラー: %w", err)
 	}
@@ -267,7 +268,7 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 // RegisterAllChunks は指定されたディレクトリ配下のすべての.tomlファイルをチャンクとして登録する
 func (l *TemplateLoader) RegisterAllChunks(directories []string) error {
 	for _, dir := range directories {
-		entries, err := os.ReadDir(dir)
+		entries, err := fs.ReadDir(assets.FS, dir)
 		if err != nil {
 			return fmt.Errorf("ディレクトリ読み込みエラー %s: %w", dir, err)
 		}
@@ -292,7 +293,7 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error {
 	paletteLoader := NewPaletteLoader()
 
 	for _, dir := range directories {
-		entries, err := os.ReadDir(dir)
+		entries, err := fs.ReadDir(assets.FS, dir)
 		if err != nil {
 			return fmt.Errorf("ディレクトリ読み込みエラー %s: %w", dir, err)
 		}

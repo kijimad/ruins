@@ -108,16 +108,13 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		return nil, err
 	}
 
-	// 橋facilityを追加（接続性検証後に実行）
-	// テスト環境ではassetsディレクトリが存在しない場合があるため、
-	// NewBridgeFacilityWrapperのエラー（パレット・チャンク登録エラー）のみスキップする
-	// PlanMetaのエラー（実際のマップ生成エラー）は返す
-	// TODO: Resourcesにもたせて、testWorldで初期化させればよさそう
+	// 接続性検証後に、橋facilityを追加する
 	bridgeWrapper, err := NewBridgeFacilityWrapper()
-	if err == nil {
-		if err := bridgeWrapper.PlanMeta(&chain.PlanData); err != nil {
-			return nil, err
-		}
+	if err != nil {
+		return nil, err
+	}
+	if err := bridgeWrapper.PlanMeta(&chain.PlanData); err != nil {
+		return nil, err
 	}
 
 	return &chain.PlanData, nil

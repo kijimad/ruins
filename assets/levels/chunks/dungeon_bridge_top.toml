@@ -57,14 +57,14 @@
   [[chunk.bridge_hints]]
     exit_id = "exit_left"
     x       = 12
-    y       = 27
+    y       = 26
 
   [[chunk.bridge_hints]]
     exit_id = "exit_center"
     x       = 16
-    y       = 27
+    y       = 26
 
   [[chunk.bridge_hints]]
     exit_id = "exit_right"
     x       = 20
-    y       = 27
+    y       = 26

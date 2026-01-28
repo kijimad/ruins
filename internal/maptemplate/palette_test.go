@@ -1,8 +1,6 @@
 package maptemplate
 
 import (
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -202,43 +200,20 @@ description = "日本語キー"
 
 func TestPaletteLoader_LoadFile(t *testing.T) {
 	t.Parallel()
-	t.Run("ファイルからパレット定義を読み込める", func(t *testing.T) {
+	t.Run("実ファイルからパレット定義を読み込める", func(t *testing.T) {
 		t.Parallel()
-		// テスト用のTOMLファイルを作成
-		tmpDir := t.TempDir()
-		paletteFile := filepath.Join(tmpDir, "test_palette.toml")
-
-		content := `[palette]
-id = "test"
-description = "テスト用パレット"
-
-[palette.terrain]
-"#" = "wall"
-"." = "floor"
-
-[palette.props]
-"T" = "table"
-"C" = "chair"
-`
-		require.NoError(t, os.WriteFile(paletteFile, []byte(content), 0644))
-
-		// 読み込みテスト
 		loader := NewPaletteLoader()
-		palette, err := loader.LoadFile(paletteFile)
+		palette, err := loader.LoadFile("levels/palettes/standard.toml")
 
 		require.NoError(t, err)
-		assert.Equal(t, "test", palette.ID)
-		assert.Equal(t, "テスト用パレット", palette.Description)
-		assert.Equal(t, "wall", palette.Terrain["#"])
-		assert.Equal(t, "floor", palette.Terrain["."])
-		assert.Equal(t, "table", palette.Props["T"])
-		assert.Equal(t, "chair", palette.Props["C"])
+		assert.Equal(t, "standard", palette.ID)
+		assert.NotEmpty(t, palette.Terrain)
 	})
 
 	t.Run("存在しないファイルはエラー", func(t *testing.T) {
 		t.Parallel()
 		loader := NewPaletteLoader()
-		_, err := loader.LoadFile("/nonexistent/path/palette.toml")
+		_, err := loader.LoadFile("nonexistent.toml")
 
 		require.Error(t, err)
 	})

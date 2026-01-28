@@ -176,12 +176,12 @@ func NewBridgeFacilityWrapper() (*BridgeFacilityWrapper, error) {
 	loader := maptemplate.NewTemplateLoader()
 
 	// パレットを登録
-	if err := loader.RegisterAllPalettes([]string{"assets/levels/palettes"}); err != nil {
+	if err := loader.RegisterAllPalettes([]string{"levels/palettes"}); err != nil {
 		return nil, err
 	}
 
 	// チャンクテンプレートを登録
-	if err := loader.RegisterAllChunks([]string{"assets/levels/chunks"}); err != nil {
+	if err := loader.RegisterAllChunks([]string{"levels/chunks"}); err != nil {
 		return nil, err
 	}
 
