@@ -91,7 +91,7 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	propsPlanner := NewPropsPlanner(world, plannerType)
 	chain.With(propsPlanner)
 
-	// プランナーチェーンを実行（BridgeFacilityWrapper含まず）
+	// プランナーチェーンを実行（BridgeAreaExtender含まず）
 	if err := chain.Plan(); err != nil {
 		return nil, err
 	}
@@ -108,12 +108,12 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		return nil, err
 	}
 
-	// 接続性検証後に、橋facilityを追加する
-	bridgeWrapper, err := NewBridgeFacilityWrapper()
+	// 接続性検証後に、橋エリアを拡張する
+	bridgeExtender, err := NewBridgeAreaExtender()
 	if err != nil {
 		return nil, err
 	}
-	if err := bridgeWrapper.PlanMeta(&chain.PlanData); err != nil {
+	if err := bridgeExtender.Extend(&chain.PlanData); err != nil {
 		return nil, err
 	}
 
