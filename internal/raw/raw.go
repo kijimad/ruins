@@ -646,10 +646,13 @@ func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc
 	}
 	entitySpec.SpriteRender = &sprite
 
-	// BlocksViewがtrueの場合は視界と通行を遮断
+	// TODO: 名前の不一致を直す
+	if !tileRaw.Walkable {
+		entitySpec.BlockPass = &gc.BlockPass{}
+	}
+
 	if tileRaw.BlocksView != nil && *tileRaw.BlocksView {
 		entitySpec.BlockView = &gc.BlockView{}
-		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 
 	return entitySpec, nil

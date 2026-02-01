@@ -27,6 +27,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		var err error
 
+		// TODO: タイル名直指定だと忘れやすいので直したい
 		if tile.Walkable {
 			// 歩行可能タイルを生成
 			switch tile.Name {
@@ -54,8 +55,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 					_, err = worldhelper.SpawnTile(world, "wall", tileX, tileY, &index)
 				}
 			case "void":
-				// voidタイルは何も生成しない（暗闇エリア）
-				// エンティティを生成せず、通行不可として扱う
+				_, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
 			default:
 				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}

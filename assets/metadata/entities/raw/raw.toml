@@ -1777,14 +1777,14 @@
     # 暗闇タイル ================
 
 [[Tiles]]
-  BlocksView  = true
+  BlocksView  = false
   Description = "暗闇"
   Name        = "void"
   Walkable    = false
 
   [Tiles.SpriteRender]
     Depth           = 0
-    SpriteKey       = "wall"
+    SpriteKey       = "exterior"
     SpriteSheetName = "tile"
 
     # Props ================
@@ -1897,7 +1897,7 @@
 
   [Props.LightSource]
     Enabled = true
-    Radius  = 7
+    Radius  = 3
 
     [Props.LightSource.Color]
       A = 255
@@ -1918,7 +1918,7 @@
 
   [Props.LightSource]
     Enabled = true
-    Radius  = 7
+    Radius  = 3
 
     [Props.LightSource.Color]
       A = 255
