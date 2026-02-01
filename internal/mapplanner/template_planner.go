@@ -81,7 +81,7 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 		}
 	}
 
-	// 橋ヒント配置を追加
+	// 橋ヒントを配置する
 	metaPlan.BridgeHints = append(metaPlan.BridgeHints, p.Template.BridgeHintPlacements...)
 
 	return nil

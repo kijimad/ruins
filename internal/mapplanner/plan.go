@@ -24,13 +24,11 @@ var (
 // Plan はPlannerChainを初期化してMetaPlanを返す
 func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
 	var lastErr error
-	var lastSeed uint64
 
 	// 最大再試行回数まで繰り返す
 	for attempt := 0; attempt < MaxPlanRetries; attempt++ {
 		// 再試行時は異なるシードを使用
 		currentSeed := seed + uint64(attempt*1000)
-		lastSeed = currentSeed
 
 		plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)
 		if err == nil {
@@ -50,8 +48,8 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
 	}
 
 	// 全試行失敗時のエラーメッセージ（最後の試行のみ表示）
-	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, baseSeed=%d, 最終試行seed=%d)。最後のエラー: %w",
-		MaxPlanRetries, plannerType.Name, seed, lastSeed, lastErr)
+	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, baseSeed=%d)。最後のエラー: %w",
+		MaxPlanRetries, plannerType.Name, seed, lastErr)
 }
 
 // attemptMetaPlan は単一回のメタプラン生成を試行する
