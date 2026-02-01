@@ -8,27 +8,12 @@ import (
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 )
-
-// WarpPortalType はワープポータルの種別
-type WarpPortalType uint8
-
-const (
-	// WarpPortalNext は次の階に向かうワープポータル
-	WarpPortalNext WarpPortalType = iota
-	// WarpPortalEscape は脱出用ワープポータル
-	WarpPortalEscape
-)
-
-// WarpPortal はワープポータルエンティティの配置情報
-type WarpPortal struct {
-	X    int            // X座標
-	Y    int            // Y座標
-	Type WarpPortalType // ポータルの種別
-}
 
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
@@ -45,19 +30,18 @@ type MetaPlan struct {
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []raw.TileRaw
-	// WarpPortals は配置予定のワープポータルリスト
-	WarpPortals []WarpPortal
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
-	// PlayerStartPosition はプレイヤー開始位置（'@'文字で指定された場合に使用する）
-	PlayerStartPosition *struct {
-		X int
-		Y int
-	}
+	// Exits は配置予定の出口リスト
+	Exits []maptemplate.ExitPlacement
+	// SpawnPoints はスポーン地点リスト
+	SpawnPoints []maptemplate.SpawnPoint
+	// BridgeHints は配置予定の橋ヒントリスト
+	BridgeHints []maptemplate.BridgeHintPlacement
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
 }
@@ -66,7 +50,8 @@ type MetaPlan struct {
 func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
 	idx := bm.Level.XYTileIndex(tx, ty)
 	tile := bm.Tiles[idx]
-	if !tile.Walkable {
+	// 通行不可なのでスポーン不可
+	if tile.BlockPass {
 		return false
 	}
 
@@ -80,13 +65,6 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
-	// ワープポータルをチェック
-	for _, portal := range bm.WarpPortals {
-		if portal.X == x && portal.Y == y {
-			return true
-		}
-	}
-
 	// NPCをチェック
 	for _, npc := range bm.NPCs {
 		if npc.X == x && npc.Y == y {
@@ -116,7 +94,7 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -127,7 +105,7 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -138,7 +116,7 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := idx - 1
 	if targetIdx < 0 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -149,7 +127,7 @@ func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := idx + 1
 	if int(targetIdx) > len(bm.Tiles)-1 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -179,7 +157,8 @@ func (bm MetaPlan) AdjacentAnyFloor(idx resources.TileIdx) bool {
 		neighborIdx := bm.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
 		tile := bm.Tiles[neighborIdx]
 
-		if tile.Walkable {
+		// 歩行可能
+		if !tile.BlockPass {
 			return true
 		}
 	}
@@ -245,7 +224,8 @@ func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bo
 
 // isFloorOrWarp は移動可能タイルかを判定する
 func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
-	return tile.Walkable
+	// 歩行可能
+	return !tile.BlockPass
 }
 
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体
@@ -274,15 +254,13 @@ func NewPlannerChain(width gc.Tile, height gc.Tile, seed uint64) *PlannerChain {
 				TileWidth:  width,
 				TileHeight: height,
 			},
-			Tiles:               tiles,
-			Rooms:               []gc.Rect{},
-			Corridors:           [][]resources.TileIdx{},
-			RNG:                 rand.New(rand.NewPCG(seed, seed+1)),
-			WarpPortals:         []WarpPortal{},
-			NPCs:                []NPCSpec{},
-			Items:               []ItemSpec{},
-			Props:               []PropsSpec{},
-			PlayerStartPosition: nil,
+			Tiles:     tiles,
+			Rooms:     []gc.Rect{},
+			Corridors: [][]resources.TileIdx{},
+			RNG:       rand.New(rand.NewPCG(seed, seed+1)),
+			NPCs:      []NPCSpec{},
+			Items:     []ItemSpec{},
+			Props:     []PropsSpec{},
 		},
 	}
 }
@@ -314,13 +292,6 @@ func (b *PlannerChain) Plan() error {
 	return nil
 }
 
-// ValidateConnectivity はマップの接続性を検証する
-// プレイヤーのスタート位置からワープポータルへの到達可能性をチェックし、問題があればエラーを返す
-func (b *PlannerChain) ValidateConnectivity(playerStartX, playerStartY int) error {
-	pf := NewPathFinder(&b.PlanData)
-	return pf.ValidateConnectivity(playerStartX, playerStartY)
-}
-
 // InitialMapPlanner は初期マップをプランするインターフェース
 // タイルへの描画は行わず、構造体フィールドの値を初期化するだけ
 type InitialMapPlanner interface {
@@ -336,10 +307,9 @@ type MetaMapPlanner interface {
 func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll("wall"))      // 全体を壁で埋める
-	chain.With(RoomDraw{})              // 部屋を描画
-	chain.With(LineCorridorPlanner{})   // 廊下を作成
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
+	chain.With(NewFillAll("wall"))    // 全体を壁で埋める
+	chain.With(RoomDraw{})            // 部屋を描画
+	chain.With(LineCorridorPlanner{}) // 廊下を作成
 
 	return chain, nil
 }
@@ -354,7 +324,6 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 		FloorTile: "floor",
 		WallTile:  "wall",
 	}) // 大部屋を描画（バリエーション込み）
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
 
 	return chain, nil
 }
@@ -496,6 +465,40 @@ var (
 	}
 )
 
+// ToName はPlannerTypeをconsts.PlannerTypeNameに変換する
+func (pt PlannerType) ToName() consts.PlannerTypeName {
+	return consts.PlannerTypeName(pt.Name)
+}
+
+// PlannerTypeFromName はconsts.PlannerTypeNameからPlannerTypeを取得する
+func PlannerTypeFromName(name consts.PlannerTypeName) PlannerType {
+	switch name {
+	case consts.PlannerTypeNameRandom:
+		return PlannerTypeRandom
+	case consts.PlannerTypeNameSmallRoom:
+		return PlannerTypeSmallRoom
+	case consts.PlannerTypeNameBigRoom:
+		return PlannerTypeBigRoom
+	case consts.PlannerTypeNameCave:
+		return PlannerTypeCave
+	case consts.PlannerTypeNameRuins:
+		return PlannerTypeRuins
+	case consts.PlannerTypeNameForest:
+		return PlannerTypeForest
+	case consts.PlannerTypeNameTown:
+		return PlannerTypeTown
+	case consts.PlannerTypeNameOfficeBuilding:
+		return PlannerTypeOfficeBuilding
+	case consts.PlannerTypeNameSmallTown:
+		return PlannerTypeSmallTown
+	case consts.PlannerTypeNameTownPlaza:
+		return PlannerTypeTownPlaza
+	default:
+		// デフォルトはランダム
+		return PlannerTypeRandom
+	}
+}
+
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
 func NewRandomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	// シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される
@@ -539,47 +542,22 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 }
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
-func (bm *MetaPlan) GetPlayerStartPosition() (int, int, bool) {
-	// '@'文字で指定されたプレイヤー開始位置があればそれを使用する
-	if bm.PlayerStartPosition != nil {
-		x, y := bm.PlayerStartPosition.X, bm.PlayerStartPosition.Y
-		// 指定位置が有効かチェック
-		tileIdx := bm.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-		if int(tileIdx) < len(bm.Tiles) && bm.Tiles[tileIdx].Walkable {
-			return x, y, true
-		}
+func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
+	// SpawnPointsからプレイヤー開始位置を取得
+	if len(bm.SpawnPoints) > 0 {
+		return bm.SpawnPoints[0].X, bm.SpawnPoints[0].Y, nil
 	}
 
-	// 指定位置がない場合や無効な場合は適切な開始位置を探す
-	width := int(bm.Level.TileWidth)
-	height := int(bm.Level.TileHeight)
-
-	// 複数の候補位置を試す
-	attempts := []struct{ x, y int }{
-		{width / 2, height / 2},         // 中央
-		{width / 4, height / 4},         // 左上寄り
-		{3 * width / 4, height / 4},     // 右上寄り
-		{width / 4, 3 * height / 4},     // 左下寄り
-		{3 * width / 4, 3 * height / 4}, // 右下寄り
-	}
-
-	// 最適な位置を探す
-	for _, pos := range attempts {
-		tileIdx := bm.Level.XYTileIndex(gc.Tile(pos.x), gc.Tile(pos.y))
-		if int(tileIdx) < len(bm.Tiles) && bm.Tiles[tileIdx].Walkable {
-			return pos.x, pos.y, true
-		}
-	}
-
-	// 見つからない場合は全体をスキャン
+	// SpawnPointsが見つからない場合は移動可能タイルを探す（テスト用フォールバック）
+	// TODO: どうにかする
 	for _i, tile := range bm.Tiles {
-		if tile.Walkable {
+		// 歩行可能
+		if !tile.BlockPass {
 			i := resources.TileIdx(_i)
 			x, y := bm.Level.XYTileCoord(i)
-			return int(x), int(y), true
+			return int(x), int(y), nil
 		}
 	}
 
-	// 見つからない場合
-	return 0, 0, false
+	return 0, 0, fmt.Errorf("スポーン地点が見つかりません")
 }

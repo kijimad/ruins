@@ -267,7 +267,6 @@ func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain,
 		FloorTile: "floor",
 		WallTile:  "wall",
 	}) // 通路を作成
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
 
 	return chain, nil
 }

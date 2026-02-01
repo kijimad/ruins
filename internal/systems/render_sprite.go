@@ -11,6 +11,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -110,6 +111,13 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	if err := sys.renderSprites(world, screen, visibilityData); err != nil { // 物体を描画
 		return err
 	}
+
+	cfg := config.Get()
+	if cfg.ShowMapDebug {
+		// 橋エンティティの位置を色付きで表示
+		sys.renderBridgeDebug(world, screen, visibilityData)
+	}
+
 	return nil
 }
 
@@ -478,4 +486,66 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 
 	return nil
+}
+
+// renderBridgeDebug はデバッグモードで橋エンティティの位置を色付きで表示する
+func (sys *RenderSpriteSystem) renderBridgeDebug(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) {
+	// 橋エンティティを検索
+	world.Manager.Join(
+		world.Components.Interactable,
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
+		// 出口の色とラベルを決定する
+		var debugColor color.RGBA
+		var label string
+		switch v := interactable.Data.(type) {
+		case gc.BridgeInteraction:
+			label = string(v.BridgeID)
+			switch v.BridgeID {
+			case maptemplate.ExitIDLeft:
+				debugColor = color.RGBA{255, 0, 0, 128} // 赤（半透明）
+			case maptemplate.ExitIDCenter:
+				debugColor = color.RGBA{0, 255, 0, 128} // 緑（半透明）
+			case maptemplate.ExitIDRight:
+				debugColor = color.RGBA{0, 0, 255, 128} // 青（半透明）
+			case maptemplate.ExitIDMain:
+				debugColor = color.RGBA{255, 165, 0, 128} // オレンジ（半透明）
+			default:
+				return
+			}
+		default:
+			return
+		}
+
+		// 視界チェック
+		if visibilityData != nil {
+			tileKey := fmt.Sprintf("%d,%d", gridElement.X, gridElement.Y)
+			if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {
+				return
+			}
+		}
+
+		// グリッド座標をピクセル座標に変換
+		pixelX := float64(int(gridElement.X) * int(consts.TileSize))
+		pixelY := float64(int(gridElement.Y) * int(consts.TileSize))
+
+		// タイルサイズの色付き矩形を描画
+		debugImage := ebiten.NewImage(int(consts.TileSize), int(consts.TileSize))
+		debugImage.Fill(debugColor)
+
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(pixelX, pixelY)
+		SetTranslate(world, op)
+		screen.DrawImage(debugImage, op)
+
+		// 出口ラベルをテキストで表示
+		textOp := &ebiten.DrawImageOptions{}
+		textOp.GeoM.Translate(pixelX+float64(consts.TileSize)/2-4, pixelY+float64(consts.TileSize)/2-4)
+		SetTranslate(world, textOp)
+		screenX, screenY := textOp.GeoM.Apply(0, 0)
+		ebitenutil.DebugPrintAt(screen, label, int(screenX), int(screenY))
+	}))
 }

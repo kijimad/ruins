@@ -5,8 +5,10 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -289,6 +291,10 @@ func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
 	turnManager := turns.NewTurnManager()
 	world.Resources.TurnManager = turnManager
 
+	// マップサイズを設定（移動判定に必要）
+	world.Resources.Dungeon.Level.TileWidth = 50
+	world.Resources.Dungeon.Level.TileHeight = 50
+
 	// プレイヤーエンティティを作成
 	playerEntity := world.Manager.NewEntity()
 	playerEntity.AddComponent(world.Components.Player, &gc.Player{})
@@ -298,4 +304,128 @@ func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
 	})
 
 	return world, playerEntity
+}
+
+func TestGenerateNextBridgeTypes(t *testing.T) {
+	t.Parallel()
+
+	t.Run("5の倍数でない階層では全橋がランダム", func(t *testing.T) {
+		t.Parallel()
+
+		seed := uint64(12345)
+		currentDepth := 3 // 5の倍数でない
+
+		bridgeTypes := generateNextBridgeTypes(seed, currentDepth)
+
+		// 4つの橋全てに値が設定される
+		require.Len(t, bridgeTypes, 4)
+		assert.Contains(t, bridgeTypes, maptemplate.ExitIDMain)
+		assert.Contains(t, bridgeTypes, maptemplate.ExitIDLeft)
+		assert.Contains(t, bridgeTypes, maptemplate.ExitIDCenter)
+		assert.Contains(t, bridgeTypes, maptemplate.ExitIDRight)
+
+		// 全て利用可能なタイプのいずれか
+		availableTypes := []consts.PlannerTypeName{
+			consts.PlannerTypeNameSmallRoom,
+			consts.PlannerTypeNameBigRoom,
+			consts.PlannerTypeNameCave,
+			consts.PlannerTypeNameRuins,
+			consts.PlannerTypeNameForest,
+		}
+
+		for _, bridgeType := range bridgeTypes {
+			assert.Contains(t, availableTypes, bridgeType)
+		}
+	})
+
+	t.Run("5の倍数の階層ではExitIDLeftが街広場に固定", func(t *testing.T) {
+		t.Parallel()
+
+		seed := uint64(12345)
+		currentDepth := 5 // 5の倍数
+
+		bridgeTypes := generateNextBridgeTypes(seed, currentDepth)
+
+		// 4つの橋全てに値が設定される
+		require.Len(t, bridgeTypes, 4)
+
+		// ExitIDLeftは街広場固定
+		assert.Equal(t, consts.PlannerTypeNameTownPlaza, bridgeTypes[maptemplate.ExitIDLeft])
+
+		// 他の橋はランダム
+		availableTypes := []consts.PlannerTypeName{
+			consts.PlannerTypeNameSmallRoom,
+			consts.PlannerTypeNameBigRoom,
+			consts.PlannerTypeNameCave,
+			consts.PlannerTypeNameRuins,
+			consts.PlannerTypeNameForest,
+		}
+
+		assert.Contains(t, availableTypes, bridgeTypes[maptemplate.ExitIDMain])
+		assert.Contains(t, availableTypes, bridgeTypes[maptemplate.ExitIDCenter])
+		assert.Contains(t, availableTypes, bridgeTypes[maptemplate.ExitIDRight])
+	})
+
+	t.Run("0階では街広場固定にならない", func(t *testing.T) {
+		t.Parallel()
+
+		seed := uint64(12345)
+		currentDepth := 0 // 5の倍数だが0階
+
+		bridgeTypes := generateNextBridgeTypes(seed, currentDepth)
+
+		// ExitIDLeftは街広場ではない（ランダム）
+		assert.NotEqual(t, consts.PlannerTypeNameTownPlaza, bridgeTypes[maptemplate.ExitIDLeft])
+	})
+
+	t.Run("同じseedと階層で同じ結果を返す", func(t *testing.T) {
+		t.Parallel()
+
+		seed := uint64(99999)
+		currentDepth := 7
+
+		bridgeTypes1 := generateNextBridgeTypes(seed, currentDepth)
+		bridgeTypes2 := generateNextBridgeTypes(seed, currentDepth)
+
+		// 同じ結果が得られる
+		assert.Equal(t, bridgeTypes1, bridgeTypes2)
+	})
+
+	t.Run("異なるseedで異なる結果を返す可能性がある", func(t *testing.T) {
+		t.Parallel()
+
+		currentDepth := 3
+
+		bridgeTypes1 := generateNextBridgeTypes(111, currentDepth)
+		bridgeTypes2 := generateNextBridgeTypes(222, currentDepth)
+
+		// 少なくとも1つは異なる可能性が高い（確率的テスト）
+		// 完全一致しない確率は非常に高い
+		assert.NotEqual(t, bridgeTypes1, bridgeTypes2)
+	})
+
+	t.Run("10の倍数でもExitIDLeftのみ街広場固定", func(t *testing.T) {
+		t.Parallel()
+
+		seed := uint64(12345)
+		currentDepth := 10 // 10の倍数
+
+		bridgeTypes := generateNextBridgeTypes(seed, currentDepth)
+
+		// ExitIDLeftのみ街広場固定
+		assert.Equal(t, consts.PlannerTypeNameTownPlaza, bridgeTypes[maptemplate.ExitIDLeft])
+
+		// 他の橋はランダム
+		availableTypes := []consts.PlannerTypeName{
+			consts.PlannerTypeNameSmallRoom,
+			consts.PlannerTypeNameBigRoom,
+			consts.PlannerTypeNameCave,
+			consts.PlannerTypeNameRuins,
+			consts.PlannerTypeNameForest,
+		}
+
+		assert.Contains(t, availableTypes, bridgeTypes[maptemplate.ExitIDMain])
+		assert.Contains(t, availableTypes, bridgeTypes[maptemplate.ExitIDCenter])
+		assert.Contains(t, availableTypes, bridgeTypes[maptemplate.ExitIDRight])
+	})
 }

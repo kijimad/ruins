@@ -1,6 +1,8 @@
 package mapplanner
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 )
 
@@ -27,7 +29,8 @@ func (pf *PathFinder) IsWalkable(x, y int) bool {
 	idx := pf.planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 	tile := pf.planData.Tiles[idx]
 
-	return tile.Walkable
+	// 歩行可能
+	return !tile.BlockPass
 }
 
 // FindPath はBFSを使ってスタート地点からゴールまでのパスを探索する
@@ -128,32 +131,47 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
 	return len(path) > 0
 }
 
-// ValidateConnectivity はマップの接続性を検証する
-// プレイヤーのスタート位置からワープポータルへの到達可能性をチェックし、問題があればエラーを返す
-func (pf *PathFinder) ValidateConnectivity(playerStartX, playerStartY int) error {
-	// プレイヤー開始位置が歩行可能かチェック
-	if !pf.IsWalkable(playerStartX, playerStartY) {
-		return ErrPlayerPlacement
-	}
+// ValidateConnectivity は最上列と最下列の接続性を検証する
+// 最上列の歩行可能なタイルのいずれかから最下列に到達できるかをチェックする
+// 橋の結合前に呼ばれる
+func (pf *PathFinder) ValidateConnectivity() error {
+	width := int(pf.planData.Level.TileWidth)
+	height := int(pf.planData.Level.TileHeight)
 
-	// ワープポータルが存在することを確認
-	if len(pf.planData.WarpPortals) == 0 {
-		return ErrNoWarpPortal
-	}
-
-	// ワープポータルへの到達可能性をチェック
-	hasReachablePortal := false
-	for _, portal := range pf.planData.WarpPortals {
-		if pf.IsReachable(playerStartX, playerStartY, portal.X, portal.Y) {
-			hasReachablePortal = true
-			break
+	// 最上列と最下列の歩行可能タイル数を数える
+	topWalkableCount := 0
+	bottomWalkableCount := 0
+	for x := 0; x < width; x++ {
+		if pf.IsWalkable(x, 0) {
+			topWalkableCount++
+		}
+		if pf.IsWalkable(x, height-1) {
+			bottomWalkableCount++
 		}
 	}
 
-	// ワープポータルがあるのに到達できない場合はエラー
-	if !hasReachablePortal {
-		return ErrConnectivity
+	if topWalkableCount == 0 {
+		return fmt.Errorf("%w: 最上列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
+	}
+	if bottomWalkableCount == 0 {
+		return fmt.Errorf("%w: 最下列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
 	}
 
-	return nil
+	// 最上列の歩行可能なタイルを全て試し、いずれかから最下列に到達できるかチェック
+	for topX := 0; topX < width; topX++ {
+		if !pf.IsWalkable(topX, 0) {
+			continue
+		}
+		for bottomX := 0; bottomX < width; bottomX++ {
+			if !pf.IsWalkable(bottomX, height-1) {
+				continue
+			}
+			if pf.IsReachable(topX, 0, bottomX, height-1) {
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("%w: 最上列から最下列への到達不可 (width=%d, height=%d, 最上列歩行可能タイル数=%d, 最下列歩行可能タイル数=%d)",
+		ErrConnectivity, width, height, topWalkableCount, bottomWalkableCount)
 }

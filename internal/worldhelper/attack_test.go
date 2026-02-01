@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,24 +14,11 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// テスト用のCommandTableを作成
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	rawMaster.Raws.CommandTables = []raw.CommandTable{
-		{
-			Name: "test_goblin_attacks",
-			Entries: []raw.CommandTableEntry{
-				{Weapon: "木刀", Weight: 1.0},
-			},
-		},
-	}
-	rawMaster.CommandTableIndex = map[string]int{
-		"test_goblin_attacks": 0,
-	}
-
-	// 敵エンティティを作成
+	// 既存の「スライム」コマンドテーブル（武器: 体当たり）を使用する
+	// 共有RawMasterを書き換えないことでレース条件を回避する
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.CommandTable, &gc.CommandTable{
-		Name: "test_goblin_attacks",
+		Name: "スライム",
 	})
 
 	// テスト実行
@@ -40,9 +26,9 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 
 	// 検証
 	require.NoError(t, err)
-	assert.Equal(t, "木刀", weaponName)
+	assert.Equal(t, "体当たり", weaponName)
 	assert.NotNil(t, attack)
-	assert.Equal(t, 8, attack.Damage) // 木刀の実際のダメージ値
+	assert.Equal(t, 4, attack.Damage) // 体当たりのダメージ値
 }
 
 func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
@@ -110,34 +96,21 @@ func TestAttackUnification(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
-	rawMaster.Raws.CommandTables = []raw.CommandTable{
-		{
-			Name: "enemy_attacks",
-			Entries: []raw.CommandTableEntry{
-				{Weapon: "木刀", Weight: 1.0},
-			},
-		},
-	}
-	rawMaster.CommandTableIndex = map[string]int{
-		"enemy_attacks": 0,
-	}
-
 	// 敵の攻撃取得
 	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.CommandTable, &gc.CommandTable{Name: "enemy_attacks"})
+	enemy.AddComponent(world.Components.CommandTable, &gc.CommandTable{Name: "スライム"})
 	enemyAttack, enemyWeaponName, err := GetAttackFromCommandTable(world, enemy)
 	require.NoError(t, err)
 
-	// プレイヤーの武器攻撃取得
+	// プレイヤーの武器攻撃取得（同じ体当たりのパラメータを武器エンティティとして検証）
 	playerWeapon := world.Manager.NewEntity()
-	playerWeapon.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
+	playerWeapon.AddComponent(world.Components.Name, &gc.Name{Name: "体当たり"})
 	playerWeapon.AddComponent(world.Components.Attack, &gc.Attack{
-		Damage:         8, // 木刀の実際のダメージ値
+		Damage:         4,
 		Accuracy:       100,
 		AttackCount:    1,
 		Element:        gc.ElementTypeNone,
-		AttackCategory: gc.AttackSword,
+		AttackCategory: gc.AttackFist,
 	})
 	playerAttack, playerWeaponName, err := GetAttackFromWeapon(world, playerWeapon)
 	require.NoError(t, err)

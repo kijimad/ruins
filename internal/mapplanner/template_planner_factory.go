@@ -27,16 +27,16 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 
 	// すべてのチャンクを事前登録
 	if err := templateLoader.RegisterAllChunks([]string{
-		"assets/levels/chunks",
-		"assets/levels/facilities",
-		"assets/levels/layouts",
+		"levels/chunks",
+		"levels/facilities",
+		"levels/layouts",
 	}); err != nil {
 		return nil, fmt.Errorf("チャンク登録エラー: %w", err)
 	}
 
 	// すべてのパレットを事前登録
 	if err := templateLoader.RegisterAllPalettes([]string{
-		"assets/levels/palettes",
+		"levels/palettes",
 	}); err != nil {
 		return nil, fmt.Errorf("パレット登録エラー: %w", err)
 	}
@@ -63,5 +63,10 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 	}
 
 	// テンプレートプランナーチェーンを作成
-	return NewTemplatePlannerChain(template, palette, seed)
+	chain, err := NewTemplatePlannerChain(template, palette, seed)
+	if err != nil {
+		return nil, err
+	}
+
+	return chain, nil
 }

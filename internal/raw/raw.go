@@ -591,29 +591,21 @@ func (rw *Master) GetEnemyTable(name string) (EnemyTable, error) {
 type TileRaw struct {
 	Name         string
 	Description  string
-	Walkable     bool
+	BlockPass    bool // 通行を遮断するか
 	SpriteRender gc.SpriteRender
-	BlocksView   *bool // 視界を遮断するか。nilの場合はfalse
+	BlockView    bool // 視界を遮断するか
 }
-
-// WarpNextInteractionRaw は次の階へワープする相互作用のローデータ
-type WarpNextInteractionRaw struct{}
-
-// WarpEscapeInteractionRaw は脱出ワープする相互作用のローデータ
-type WarpEscapeInteractionRaw struct{}
 
 // PropRaw は置物のローデータ定義
 type PropRaw struct {
-	Name                  string
-	Description           string
-	SpriteRender          gc.SpriteRender
-	AnimKeys              []string
-	BlockPass             bool
-	BlockView             bool
-	LightSource           *gc.LightSource
-	WarpNextInteraction   *WarpNextInteractionRaw
-	WarpEscapeInteraction *WarpEscapeInteractionRaw
-	Door                  *DoorRaw
+	Name         string
+	Description  string
+	SpriteRender gc.SpriteRender
+	AnimKeys     []string
+	BlockPass    bool
+	BlockView    bool
+	LightSource  *gc.LightSource
+	Door         *DoorRaw
 }
 
 // DoorRaw はドアのローデータ
@@ -654,10 +646,14 @@ func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc
 	}
 	entitySpec.SpriteRender = &sprite
 
-	// BlocksViewがtrueの場合は視界と通行を遮断
-	if tileRaw.BlocksView != nil && *tileRaw.BlocksView {
-		entitySpec.BlockView = &gc.BlockView{}
+	// BlockPassがtrueの場合は通行を遮断
+	if tileRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}
+	}
+
+	// BlockViewがtrueの場合は視界を遮断
+	if tileRaw.BlockView {
+		entitySpec.BlockView = &gc.BlockView{}
 	}
 
 	return entitySpec, nil
@@ -704,14 +700,6 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 
 	if propRaw.LightSource != nil {
 		entitySpec.LightSource = propRaw.LightSource
-	}
-
-	if propRaw.WarpNextInteraction != nil {
-		entitySpec.Interactable = &gc.Interactable{Data: gc.WarpNextInteraction{}}
-	}
-
-	if propRaw.WarpEscapeInteraction != nil {
-		entitySpec.Interactable = &gc.Interactable{Data: gc.WarpEscapeInteraction{}}
 	}
 
 	if propRaw.Door != nil {

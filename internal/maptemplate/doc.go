@@ -29,8 +29,8 @@
 //	loader := maptemplate.NewTemplateLoader()
 //
 //	// すべてのチャンクとパレットを事前登録
-//	loader.RegisterAllChunks([]string{"assets/levels/chunks", "assets/levels/facilities"})
-//	loader.RegisterAllPalettes([]string{"assets/levels/palettes"})
+//	loader.RegisterAllChunks([]string{"levels/chunks", "levels/facilities"})
+//	loader.RegisterAllPalettes([]string{"levels/palettes"})
 //
 //	// テンプレート名で展開済みチャンクとパレットを取得
 //	chunk, palette, err := loader.LoadTemplateByName("office_building", 12345)

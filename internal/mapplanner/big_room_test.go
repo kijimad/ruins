@@ -45,7 +45,7 @@ func TestBigRoomPlanner(t *testing.T) {
 	floorCount := 0
 	wallCount := 0
 	for _, tile := range chain.PlanData.Tiles {
-		if tile.Walkable {
+		if !tile.BlockPass {
 			floorCount++
 		} else {
 			wallCount++
@@ -87,7 +87,7 @@ func TestBigRoomVariations(t *testing.T) {
 		floorCount := 0
 
 		for _, tile := range chain.PlanData.Tiles {
-			if tile.Walkable {
+			if !tile.BlockPass {
 				floorCount++
 			} else {
 				wallCount++
@@ -98,9 +98,9 @@ func TestBigRoomVariations(t *testing.T) {
 		ratio := float64(wallCount) / float64(wallCount+floorCount)
 		variantType := ""
 
-		if ratio <= 0.36 {
+		if ratio <= 0.25 {
 			variantType = "basic"
-		} else if ratio <= 0.45 {
+		} else if ratio <= 0.35 {
 			variantType = "pillars_obstacles_platform"
 		} else {
 			variantType = "maze"
@@ -123,10 +123,8 @@ func TestBigRoomVariations(t *testing.T) {
 func TestBigRoomPlannerBoundaries(t *testing.T) {
 	t.Parallel()
 
-	const testWallTileType = "wall"
-
-	// 境界の処理が正しいかを確認
-	width, height := gc.Tile(10), gc.Tile(10)
+	// 部屋の内部が床、部屋の四周が壁になっているか確認
+	width, height := gc.Tile(20), gc.Tile(20)
 	seed := uint64(11111)
 
 	chain, err := NewBigRoomPlanner(width, height, seed)
@@ -134,33 +132,49 @@ func TestBigRoomPlannerBoundaries(t *testing.T) {
 	chain.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain.Plan()
 	require.NoError(t, err)
+	require.Len(t, chain.PlanData.Rooms, 1)
 
-	// マップの境界が壁になっていることを確認
-	for x := 0; x < int(width); x++ {
-		// 上端
-		idx := chain.PlanData.Level.XYTileIndex(gc.Tile(x), gc.Tile(0))
-		if chain.PlanData.Tiles[idx].Name != testWallTileType {
-			t.Errorf("上端の境界[%d,0]が壁になっていません: %v", x, chain.PlanData.Tiles[idx])
-		}
+	room := chain.PlanData.Rooms[0]
 
-		// 下端
-		idx = chain.PlanData.Level.XYTileIndex(gc.Tile(x), height-1)
-		if chain.PlanData.Tiles[idx].Name != testWallTileType {
-			t.Errorf("下端の境界[%d,%d]が壁になっていません: %v", x, height-1, chain.PlanData.Tiles[idx])
+	// 部屋の内部が床になっているか
+	for x := room.X1; x <= room.X2; x++ {
+		for y := room.Y1; y <= room.Y2; y++ {
+			idx := chain.PlanData.Level.XYTileIndex(x, y)
+			require.Equal(t, "floor", chain.PlanData.Tiles[idx].Name,
+				"部屋内部[%d,%d]が床でない", x, y)
 		}
 	}
 
-	for y := 0; y < int(height); y++ {
-		// 左端
-		idx := chain.PlanData.Level.XYTileIndex(gc.Tile(0), gc.Tile(y))
-		if chain.PlanData.Tiles[idx].Name != testWallTileType {
-			t.Errorf("左端の境界[0,%d]が壁になっていません: %v", y, chain.PlanData.Tiles[idx])
+	// 部屋の四周（コーナー含む）が壁になっているか
+	for y := room.Y1 - 1; y <= room.Y2+1; y++ {
+		if y < 0 || int(y) >= int(height) {
+			continue
 		}
-
-		// 右端
-		idx = chain.PlanData.Level.XYTileIndex(width-1, gc.Tile(y))
-		if chain.PlanData.Tiles[idx].Name != testWallTileType {
-			t.Errorf("右端の境界[%d,%d]が壁になっていません: %v", width-1, y, chain.PlanData.Tiles[idx])
+		// 左辺
+		if x := room.X1 - 1; x >= 0 {
+			idx := chain.PlanData.Level.XYTileIndex(x, y)
+			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
+				"部屋左辺壁[%d,%d]が壁でない", x, y)
+		}
+		// 右辺
+		if x := room.X2 + 1; int(x) < int(width) {
+			idx := chain.PlanData.Level.XYTileIndex(x, y)
+			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
+				"部屋右辺壁[%d,%d]が壁でない", x, y)
+		}
+	}
+	for x := room.X1; x <= room.X2; x++ {
+		// 上辺
+		if y := room.Y1 - 1; y >= 0 {
+			idx := chain.PlanData.Level.XYTileIndex(x, y)
+			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
+				"部屋上辺壁[%d,%d]が壁でない", x, y)
+		}
+		// 下辺
+		if y := room.Y2 + 1; int(y) < int(height) {
+			idx := chain.PlanData.Level.XYTileIndex(x, y)
+			require.Equal(t, "wall", chain.PlanData.Tiles[idx].Name,
+				"部屋下辺壁[%d,%d]が壁でない", x, y)
 		}
 	}
 }

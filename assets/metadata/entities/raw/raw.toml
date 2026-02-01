@@ -1742,10 +1742,10 @@
     # tile ================
 
 [[Tiles]]
-  BlocksView  = false
+  BlockPass   = false
+  BlockView   = false
   Description = "床"
   Name        = "floor"
-  Walkable    = true
 
   [Tiles.SpriteRender]
     Depth           = 0
@@ -1753,10 +1753,10 @@
     SpriteSheetName = "tile"
 
 [[Tiles]]
-  BlocksView  = true
+  BlockPass   = true
+  BlockView   = true
   Description = "壁"
   Name        = "wall"
-  Walkable    = false
 
   [Tiles.SpriteRender]
     Depth           = 2
@@ -1764,14 +1764,25 @@
     SpriteSheetName = "tile"
 
 [[Tiles]]
-  BlocksView  = false
+  BlockPass   = false
+  BlockView   = false
   Description = "土"
   Name        = "dirt"
-  Walkable    = true
 
   [Tiles.SpriteRender]
     Depth           = 0
     SpriteKey       = "dirt"
+    SpriteSheetName = "tile"
+
+[[Tiles]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "暗闇"
+  Name        = "void"
+
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "void"
     SpriteSheetName = "tile"
 
     # Props ================
@@ -1884,7 +1895,7 @@
 
   [Props.LightSource]
     Enabled = true
-    Radius  = 7
+    Radius  = 3
 
     [Props.LightSource.Color]
       A = 255
@@ -1905,7 +1916,7 @@
 
   [Props.LightSource]
     Enabled = true
-    Radius  = 7
+    Radius  = 3
 
     [Props.LightSource.Color]
       A = 255
@@ -1927,88 +1938,17 @@
   [Props.Door]
 
 [[Props]]
-  BlockPass   = false
+  BlockPass   = true
   BlockView   = false
-  Description = "次のフロアへ進むワープポータル"
-  Name        = "warp_next"
+  Description = "石の柱"
+  Name        = "stone_pillar"
 
   [Props.SpriteRender]
-    AnimKeys = [
-      "warp_next_0",
-      "warp_next_1",
-      "warp_next_2",
-      "warp_next_3",
-      "warp_next_4",
-      "warp_next_5",
-      "warp_next_6",
-      "warp_next_7",
-      "warp_next_8",
-      "warp_next_9",
-      "warp_next_10",
-      "warp_next_11",
-      "warp_next_12",
-      "warp_next_13",
-      "warp_next_14",
-      "warp_next_15",
-    ]
-    Depth = 1
-    SpriteKey = "warp_next_0"
+    Depth           = 2
+    SpriteKey       = "stone_pillar"
     SpriteSheetName = "field"
 
-  [Props.WarpNextInteraction]
-
-  [Props.LightSource]
-    Enabled = true
-    Radius  = 5
-
-    [Props.LightSource.Color]
-      A = 255
-      B = 0
-      G = 0
-      R = 50
-
-[[Props]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "脱出用ワープポータル"
-  Name        = "warp_escape"
-
-  [Props.SpriteRender]
-    AnimKeys = [
-      "warp_escape_0",
-      "warp_escape_1",
-      "warp_escape_2",
-      "warp_escape_3",
-      "warp_escape_4",
-      "warp_escape_5",
-      "warp_escape_6",
-      "warp_escape_7",
-      "warp_escape_8",
-      "warp_escape_9",
-      "warp_escape_10",
-      "warp_escape_11",
-      "warp_escape_12",
-      "warp_escape_13",
-      "warp_escape_14",
-      "warp_escape_15",
-    ]
-    Depth = 1
-    SpriteKey = "warp_escape_0"
-    SpriteSheetName = "field"
-
-  [Props.WarpEscapeInteraction]
-
-  [Props.LightSource]
-    Enabled = true
-    Radius  = 4
-
-    [Props.LightSource.Color]
-      A = 255
-      B = 255
-      G = 0
-      R = 0
-
-      # enemy tables ================
+    # enemy tables ================
 
 [[EnemyTables]]
   Name = "通常"

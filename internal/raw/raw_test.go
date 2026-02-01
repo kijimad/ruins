@@ -204,12 +204,11 @@ func TestLoadTilesFromRaw(t *testing.T) {
 [[Tiles]]
 Name = "TestFloor"
 Description = "テスト用床タイル"
-Walkable = true
 
 [[Tiles]]
 Name = "TestWall"
 Description = "テスト用壁タイル"
-Walkable = false
+BlockPass = true
 
 [[Items]]
 Name = "テストアイテム"
@@ -234,12 +233,11 @@ func TestGenerateTileFromRaw(t *testing.T) {
 [[Tiles]]
 Name = "GenerateTestFloor"
 Description = "生成テスト用床タイル"
-Walkable = true
 
 [[Tiles]]
 Name = "GenerateTestWall"
 Description = "生成テスト用壁タイル"
-Walkable = false
+BlockPass = true
 `
 
 	master, err := Load(tomlData)
@@ -248,12 +246,12 @@ Walkable = false
 	// 床タイルの取得をテスト
 	floorTile, err := master.GetTile("GenerateTestFloor")
 	require.NoError(t, err, "床タイルの取得に失敗")
-	assert.True(t, floorTile.Walkable)
+	assert.False(t, floorTile.BlockPass)
 
 	// 壁タイルの取得をテスト
 	wallTile, err := master.GetTile("GenerateTestWall")
 	require.NoError(t, err, "壁タイルの取得に失敗")
-	assert.False(t, wallTile.Walkable)
+	assert.True(t, wallTile.BlockPass)
 
 	// 存在しないタイルのテスト（エラーが発生する）
 	_, err = master.GetTile("NonExistent")
@@ -269,12 +267,11 @@ func TestTileHelperFunctionsFromRaw(t *testing.T) {
 [[Tiles]]
 Name = "Helper1"
 Description = "ヘルパー関数テスト1"
-Walkable = true
 
 [[Tiles]]
 Name = "Helper2"
 Description = "ヘルパー関数テスト2"
-Walkable = false
+BlockPass = true
 `
 
 	master, err := Load(tomlData)
@@ -283,7 +280,7 @@ Walkable = false
 	// GetTile のテスト（存在するタイル）
 	tileRaw, err := master.GetTile("Helper1")
 	require.NoError(t, err, "タイル取得に失敗")
-	assert.True(t, tileRaw.Walkable)
+	assert.False(t, tileRaw.BlockPass)
 
 	// GetTile のテスト（存在しないタイル）
 	_, err = master.GetTile("NonExistent")
@@ -298,17 +295,16 @@ func TestTilePropertiesFromRaw(t *testing.T) {
 [[Tiles]]
 Name = "EmptyLike"
 Description = "空のような性質"
-Walkable = false
+BlockPass = true
 
 [[Tiles]]
 Name = "FloorLike"
 Description = "床のような性質"
-Walkable = true
 
 [[Tiles]]
 Name = "WallLike"
 Description = "壁のような性質"
-Walkable = false
+BlockPass = true
 `
 
 	master, err := Load(tomlData)
@@ -326,7 +322,8 @@ Walkable = false
 	for _, tc := range testCases {
 		tile, err := master.GetTile(tc.name)
 		require.NoError(t, err, "タイル取得に失敗: %s", tc.name)
-		assert.Equal(t, tc.expectedWalk, tile.Walkable, "Walkableが期待値と一致しない: %s", tc.name)
+		actualWalk := !tile.BlockPass
+		assert.Equal(t, tc.expectedWalk, actualWalk, "Walkableが期待値と一致しない: %s", tc.name)
 	}
 }
 
@@ -347,12 +344,12 @@ func TestLoadFromRealTileFile(t *testing.T) {
 	// 実際のタイル取得テスト
 	floorTile, err := master.GetTile("floor")
 	require.NoError(t, err, "床タイル取得に失敗")
-	assert.True(t, floorTile.Walkable)
+	assert.False(t, floorTile.BlockPass)
 
 	// 壁タイルテスト
 	wallTile, err := master.GetTile("wall")
 	require.NoError(t, err, "壁タイル取得に失敗")
-	assert.False(t, wallTile.Walkable)
+	assert.True(t, wallTile.BlockPass)
 }
 
 func TestLoadWithUnknownFields(t *testing.T) {
@@ -388,7 +385,6 @@ SpriteKey = "test_key"
 [[Tiles]]
 Name = "テストタイル"
 Description = "正常なタイル"
-Walkable = true
 `
 
 	master, err := Load(validToml)

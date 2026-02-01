@@ -15,7 +15,7 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	world.Resources.RawMaster = CreateTestRawMaster()
 
 	// 接続性検証が組み込まれたPlan関数をテスト
-	width, height := 10, 10
+	width, height := 50, 50
 	seed := uint64(42)
 	plannerType := PlannerTypeSmallRoom
 
@@ -25,16 +25,11 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	assert.NotNil(t, metaPlan, "MetaPlan should not be nil")
 
 	// プレイヤー開始位置が設定されていることを確認
-	playerX, playerY, hasPlayer := metaPlan.GetPlayerStartPosition()
-	assert.True(t, hasPlayer, "Should have player start position")
+	playerX, playerY, err := metaPlan.GetPlayerStartPosition()
+	assert.NoError(t, err, "Should have player start position")
 	assert.GreaterOrEqual(t, playerX, 0, "Player X should be valid")
 	assert.GreaterOrEqual(t, playerY, 0, "Player Y should be valid")
 
-	// 接続性を再検証（Plan関数内で既に検証済みだが、確認のため）
-	pathFinder := NewPathFinder(metaPlan)
-	err = pathFinder.ValidateConnectivity(playerX, playerY)
-	assert.NoError(t, err, "Connectivity validation should pass")
-
-	t.Logf("接続性検証統合テスト成功: プレイヤー位置=(%d,%d), ワープポータル数=%d",
-		playerX, playerY, len(metaPlan.WarpPortals))
+	t.Logf("接続性検証統合テスト成功: プレイヤー位置=(%d,%d)",
+		playerX, playerY)
 }

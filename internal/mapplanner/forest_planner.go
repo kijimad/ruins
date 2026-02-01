@@ -95,7 +95,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 		for y := 1; y < height-1; y++ {
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-			if planData.Tiles[idx].Walkable {
+			if !planData.Tiles[idx].BlockPass {
 				// 空き地の近くでは木の密度を下げる
 				treeDensity := f.calculateTreeDensity(planData, x, y)
 
@@ -158,7 +158,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 			if x >= 0 && x < width && y >= 0 && y < height {
 				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-				if planData.Tiles[idx].Walkable && planData.RNG.Float64() < 0.7 {
+				if !planData.Tiles[idx].BlockPass && planData.RNG.Float64() < 0.7 {
 					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}
@@ -169,22 +169,66 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 // ForestPaths は森の中に自然な通路を作成する
 type ForestPaths struct{}
 
-// PlanMeta は空き地間に自然な通路を作成する
+// PlanMeta は自然な通路を作成する
 func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
-	if len(planData.Rooms) < 2 {
-		return nil
-	}
+	width := int(planData.Level.TileWidth)
+	height := int(planData.Level.TileHeight)
 
-	// 各空き地を他の空き地と繋ぐ
-	for i := 0; i < len(planData.Rooms); i++ {
-		for j := i + 1; j < len(planData.Rooms); j++ {
-			// 距離が近い空き地のみ繋ぐ（50%の確率）
-			if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {
-				f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])
+	// 最上列から最下列への確実な通路を1本作成（接続性保証）
+	f.createGuaranteedVerticalPath(planData, width, height)
+
+	if len(planData.Rooms) >= 2 {
+		// 各空き地を他の空き地と繋ぐ
+		for i := 0; i < len(planData.Rooms); i++ {
+			for j := i + 1; j < len(planData.Rooms); j++ {
+				// 距離が近い空き地のみ繋ぐ（50%の確率）
+				if f.shouldCreatePath(planData, planData.Rooms[i], planData.Rooms[j]) {
+					f.createNaturalPath(planData, planData.Rooms[i], planData.Rooms[j])
+				}
 			}
 		}
 	}
 	return nil
+}
+
+// createGuaranteedVerticalPath は最上列から最下列への確実な通路を作成する
+func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, height int) {
+	// ランダムなX位置を選択（中央付近を優先）
+	centerX := width / 2
+	offsetRange := width / 4
+	if offsetRange < 1 {
+		offsetRange = 1
+	}
+	pathX := centerX + planData.RNG.IntN(offsetRange*2+1) - offsetRange
+
+	// 境界チェック
+	if pathX < 1 {
+		pathX = 1
+	}
+	if pathX >= width-1 {
+		pathX = width - 2
+	}
+
+	// 上から下まで確実に通路を作る
+	for y := 0; y < height; y++ {
+		// 通路とその左右1タイルを床にする（幅3の通路）
+		for dx := -1; dx <= 1; dx++ {
+			x := pathX + dx
+			if x >= 0 && x < width {
+				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+				planData.Tiles[idx] = planData.GetTile("floor")
+			}
+		}
+
+		// 通路に自然な蛇行を追加（20%の確率で左右に移動）
+		if y > 0 && y < height-1 && planData.RNG.Float64() < 0.2 {
+			if planData.RNG.Float64() < 0.5 {
+				pathX = min(pathX+1, width-2)
+			} else {
+				pathX = max(pathX-1, 1)
+			}
+		}
+	}
 }
 
 // shouldCreatePath は通路を作成するかどうかを判定する
@@ -276,7 +320,8 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 		for dx := -radius; dx <= radius; dx++ {
 			for dy := -radius; dy <= radius; dy++ {
 				nx, ny := x+dx, y+dy
-				if nx >= 0 && nx < width && ny >= 0 && ny < height {
+				// 上端・下端行には描画しない（ForestPathsで保証した接続性を壊さないため）
+				if nx >= 0 && nx < width && ny > 0 && ny < height-1 {
 					distance := math.Sqrt(float64(dx*dx + dy*dy))
 					if distance <= float64(radius) {
 						idx := planData.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
@@ -293,11 +338,10 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 func NewForestPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(ForestPlanner{})
-	chain.With(ForestTerrain{})         // 基本地形を生成
-	chain.With(ForestTrees{})           // 木を配置
-	chain.With(ForestPaths{})           // 自然な通路を作成
-	chain.With(ForestWildlife{})        // 野生動物の痕跡を追加
-	chain.With(NewBoundaryWall("wall")) // 最外周を壁で囲む
+	chain.With(ForestTerrain{})  // 基本地形を生成
+	chain.With(ForestTrees{})    // 木を配置
+	chain.With(ForestPaths{})    // 自然な通路を作成
+	chain.With(ForestWildlife{}) // 野生動物の痕跡を追加
 
 	return chain, nil
 }

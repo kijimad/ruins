@@ -3,24 +3,28 @@ package maptemplate
 import (
 	"fmt"
 	"io"
+	"io/fs"
 	"math/rand/v2"
-	"os"
 	"strconv"
 	"strings"
 	"unicode/utf8"
 
+	"github.com/kijimaD/ruins/assets"
 	"github.com/pelletier/go-toml/v2"
 )
 
 // ChunkTemplate はチャンクテンプレート定義
 // すべてのマップ要素（小さな部品から大きなレイアウトまで）を表す
 type ChunkTemplate struct {
-	Name       string           `toml:"name"`   // キー
-	Weight     int              `toml:"weight"` // 出現確率の重み
-	Size       Size             // マップサイズ（名前から自動パース）
-	Palettes   []string         `toml:"palettes"`   // 使用するパレットID
-	Map        string           `toml:"map"`        // ASCIIマップ
-	Placements []ChunkPlacement `toml:"placements"` // ネストされたチャンクの配置
+	Name                 string                `toml:"name"`   // キー
+	Weight               int                   `toml:"weight"` // 出現確率の重み
+	Size                 Size                  // マップサイズ（名前から自動パース）
+	Palettes             []string              `toml:"palettes"`     // 使用するパレットID
+	Map                  string                `toml:"map"`          // ASCIIマップ
+	Placements           []ChunkPlacement      `toml:"placements"`   // ネストされたチャンクの配置
+	ExitPlacements       []ExitPlacement       `toml:"exits"`        // 出口の配置
+	SpawnPoints          []SpawnPoint          `toml:"spawn_points"` // スポーン地点の配置
+	BridgeHintPlacements []BridgeHintPlacement `toml:"bridge_hints"` // 橋ヒントの配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す
@@ -38,12 +42,49 @@ func (s Size) String() string {
 type ChunkPlacement struct {
 	// チャンク名の配列（重み付き選択）
 	// バリエーションの出し方には2つある
-	// - マイナーな違い（内装配置の違いなど）: 同じ名前で複数ファイルを作成し、1つの名前を指定
-	//   例: chunks = ["11x6_convenience_store"] → 11x6_convenience_store_1.toml, 11x6_convenience_store_2.toml から選択
-	// - メジャーな違い（異なる用途の建物など）: 異なる名前を配列で列挙
+	// - マイナーな違い（内装配置の違いなど）: 同じ名前で作成する
+	//   例: chunks = ["11x6_convenience_store"] → 2つの11x6_convenience_store, 11x6_convenience_store から選択する
+	// - メジャーな違い（異なる用途の建物など）: 異なる名前を配列で列挙する
 	//   例: chunks = ["11x6_convenience_store", "11x6_clinic"] → コンビニか整骨院のどちらかが選ばれる
 	Chunks []string `toml:"chunks"`
 	ID     string   `toml:"id"` // プレースホルダ識別子（右下に配置される1文字）
+}
+
+// ExitID は出口の識別子
+type ExitID string
+
+const (
+	// ExitIDMain は次のフロアへのメイン出口を表す
+	ExitIDMain ExitID = "exit"
+	// ExitIDLeft は次のフロアへの出口（左側）を表す
+	ExitIDLeft ExitID = "exit_left"
+	// ExitIDCenter は次のフロアへの出口（中央）を表す
+	ExitIDCenter ExitID = "exit_center"
+	// ExitIDRight は次のフロアへの出口（右側）を表す
+	ExitIDRight ExitID = "exit_right"
+)
+
+// ExitPlacement は出口の配置情報
+// TOMLから読み込んだ後、mapplannerで使用される
+type ExitPlacement struct {
+	ExitID ExitID `toml:"exit_id"` // 出口ID
+	X      int    `toml:"x"`       // X座標
+	Y      int    `toml:"y"`       // Y座標
+}
+
+// SpawnPoint はスポーン地点の配置情報
+// TOMLから読み込んだ後、mapplannerで使用される
+type SpawnPoint struct {
+	X int `toml:"x"` // X座標
+	Y int `toml:"y"` // Y座標
+}
+
+// BridgeHintPlacement は橋ヒント（次フロア情報表示）の配置情報
+// TOMLから読み込んだ後、mapplannerで使用される
+type BridgeHintPlacement struct {
+	ExitID ExitID `toml:"exit_id"` // 関連する出口ID
+	X      int    `toml:"x"`       // X座標
+	Y      int    `toml:"y"`       // Y座標
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
@@ -52,7 +93,7 @@ type ChunkTemplateFile struct {
 }
 
 // TemplateLoader はテンプレート定義の読み込みを担当する
-// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する
+// TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する。が、依存が大きくなるのも微妙である。TemplatePlanner以外じゃ使わないしな...
 type TemplateLoader struct {
 	chunkCache   map[string][]*ChunkTemplate // 同じ名前で複数のバリエーションをサポート
 	paletteCache map[string]*Palette
@@ -94,7 +135,7 @@ func (l *TemplateLoader) Load(r io.Reader) ([]ChunkTemplate, error) {
 
 // LoadFile はTOMLファイルからチャンクテンプレート定義を読み込む
 func (l *TemplateLoader) LoadFile(path string) ([]ChunkTemplate, error) {
-	f, err := os.Open(path)
+	f, err := assets.FS.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("テンプレートファイル読み込みエラー: %w", err)
 	}
@@ -227,7 +268,7 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 // RegisterAllChunks は指定されたディレクトリ配下のすべての.tomlファイルをチャンクとして登録する
 func (l *TemplateLoader) RegisterAllChunks(directories []string) error {
 	for _, dir := range directories {
-		entries, err := os.ReadDir(dir)
+		entries, err := fs.ReadDir(assets.FS, dir)
 		if err != nil {
 			return fmt.Errorf("ディレクトリ読み込みエラー %s: %w", dir, err)
 		}
@@ -252,7 +293,7 @@ func (l *TemplateLoader) RegisterAllPalettes(directories []string) error {
 	paletteLoader := NewPaletteLoader()
 
 	for _, dir := range directories {
-		entries, err := os.ReadDir(dir)
+		entries, err := fs.ReadDir(assets.FS, dir)
 		if err != nil {
 			return fmt.Errorf("ディレクトリ読み込みエラー %s: %w", dir, err)
 		}

@@ -16,11 +16,9 @@ const (
 
 var (
 	// ErrConnectivity は接続性エラーを表す
-	ErrConnectivity = errors.New("マップ接続性エラー: プレイヤーからワープホールに到達できません")
+	ErrConnectivity = errors.New("マップ接続性エラー")
 	// ErrPlayerPlacement はプレイヤー配置エラーを表す
 	ErrPlayerPlacement = errors.New("プレイヤー配置可能な床タイルが見つかりません")
-	// ErrNoWarpPortal はワープポータルが存在しないエラーを表す
-	ErrNoWarpPortal = errors.New("マップにワープポータルが配置されていません")
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
@@ -34,17 +32,24 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
 
 		plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)
 		if err == nil {
+			// 成功時にリトライがあった場合は警告ログを出力
+			if attempt > 0 {
+				fmt.Printf("マップ生成成功（試行回数: %d回, PlannerType: %s, 最終seed: %d）\n", attempt+1, plannerType.Name, currentSeed)
+			}
 			return plan, nil
 		}
 
 		lastErr = err
+
 		// 接続性エラー以外は即座に失敗
 		if !isConnectivityError(err) {
-			return nil, err
+			return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
 		}
 	}
 
-	return nil, fmt.Errorf("プラン生成に%d回失敗しました。最後のエラー: %w", MaxPlanRetries, lastErr)
+	// 全試行失敗時のエラーメッセージ（最後の試行のみ表示）
+	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, baseSeed=%d)。最後のエラー: %w",
+		MaxPlanRetries, plannerType.Name, seed, lastErr)
 }
 
 // attemptMetaPlan は単一回のメタプラン生成を試行する
@@ -68,12 +73,6 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		}
 	}
 
-	// ワープポータルプランナーを追加する
-	if len(chain.PlanData.WarpPortals) == 0 {
-		warpPlanner := NewWarpPortalPlanner(world, plannerType)
-		chain.With(warpPlanner)
-	}
-
 	// 敵NPCプランナーを追加
 	if plannerType.SpawnEnemies {
 		hostileNPCPlanner := NewHostileNPCPlanner(world, plannerType)
@@ -90,20 +89,29 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	propsPlanner := NewPropsPlanner(world, plannerType)
 	chain.With(propsPlanner)
 
-	// プランナーチェーンを実行
+	// プランナーチェーンを実行（BridgeAreaExtender含まず）
 	if err := chain.Plan(); err != nil {
 		return nil, err
 	}
 
 	// 基本的な検証: プレイヤー開始位置があるか確認
-	playerX, playerY, hasPlayer := chain.PlanData.GetPlayerStartPosition()
-	if !hasPlayer {
+	_, _, playerErr := chain.PlanData.GetPlayerStartPosition()
+	if playerErr != nil {
 		return nil, ErrPlayerPlacement
 	}
 
-	// MetaPlan用の接続性検証
+	// 接続性検証: 最上列と最下列が接続されているかをチェックする
 	pathFinder := NewPathFinder(&chain.PlanData)
-	if err := pathFinder.ValidateConnectivity(playerX, playerY); err != nil {
+	if err := pathFinder.ValidateConnectivity(); err != nil {
+		return nil, err
+	}
+
+	// 接続性検証後に、橋エリアを拡張する
+	bridgeExtender, err := NewBridgeAreaExtender()
+	if err != nil {
+		return nil, err
+	}
+	if err := bridgeExtender.Extend(&chain.PlanData); err != nil {
 		return nil, err
 	}
 
@@ -112,5 +120,5 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 
 // isConnectivityError は接続性エラーかどうかを判定する
 func isConnectivityError(err error) bool {
-	return errors.Is(err, ErrConnectivity) || errors.Is(err, ErrPlayerPlacement) || errors.Is(err, ErrNoWarpPortal)
+	return errors.Is(err, ErrConnectivity) || errors.Is(err, ErrPlayerPlacement)
 }
