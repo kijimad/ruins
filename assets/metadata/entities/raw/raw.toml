@@ -1742,6 +1742,7 @@
     # tile ================
 
 [[Tiles]]
+  BlockPass   = false
   BlockView   = false
   Description = "床"
   Name        = "floor"
@@ -1763,6 +1764,7 @@
     SpriteSheetName = "tile"
 
 [[Tiles]]
+  BlockPass   = false
   BlockView   = false
   Description = "土"
   Name        = "dirt"
@@ -1771,8 +1773,6 @@
     Depth           = 0
     SpriteKey       = "dirt"
     SpriteSheetName = "tile"
-
-    # 暗闇タイル ================
 
 [[Tiles]]
   BlockPass   = true
