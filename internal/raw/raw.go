@@ -593,8 +593,7 @@ type TileRaw struct {
 	Description  string
 	BlockPass    bool // 通行を遮断するか
 	SpriteRender gc.SpriteRender
-	// TODO: BlockViewにする
-	BlocksView bool // 視界を遮断するか
+	BlockView    bool // 視界を遮断するか
 }
 
 // PropRaw は置物のローデータ定義
@@ -652,8 +651,8 @@ func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc
 		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 
-	// BlocksViewがtrueの場合は視界を遮断
-	if tileRaw.BlocksView {
+	// BlockViewがtrueの場合は視界を遮断
+	if tileRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
 	}
 

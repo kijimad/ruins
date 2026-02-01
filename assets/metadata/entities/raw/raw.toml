@@ -1742,7 +1742,7 @@
     # tile ================
 
 [[Tiles]]
-  BlocksView  = false
+  BlockView   = false
   Description = "床"
   Name        = "floor"
 
@@ -1753,7 +1753,7 @@
 
 [[Tiles]]
   BlockPass   = true
-  BlocksView  = true
+  BlockView   = true
   Description = "壁"
   Name        = "wall"
 
@@ -1763,7 +1763,7 @@
     SpriteSheetName = "tile"
 
 [[Tiles]]
-  BlocksView  = false
+  BlockView   = false
   Description = "土"
   Name        = "dirt"
 
@@ -1776,7 +1776,7 @@
 
 [[Tiles]]
   BlockPass   = true
-  BlocksView  = false
+  BlockView   = false
   Description = "暗闇"
   Name        = "void"
 
