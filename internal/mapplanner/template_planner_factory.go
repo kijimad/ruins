@@ -18,8 +18,6 @@ const (
 	TemplateTypeSmallTown
 	// TemplateTypeTownPlaza は町の広場
 	TemplateTypeTownPlaza
-	// TemplateTypeBridge は橋テストマップ
-	TemplateTypeBridge
 )
 
 // NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
@@ -54,8 +52,6 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		templateName = "50x50_small_town"
 	case TemplateTypeTownPlaza:
 		templateName = "20x20_town_plaza"
-	case TemplateTypeBridge:
-		templateName = "50x50_test_bridge"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}

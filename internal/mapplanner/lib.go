@@ -463,19 +463,6 @@ var (
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},
 	}
-
-	// PlannerTypeBridge は橋テストマップ
-	PlannerTypeBridge = PlannerType{
-		Name:              "橋",
-		SpawnEnemies:      false,
-		SpawnItems:        false,
-		UseFixedPortalPos: false,
-		ItemTableName:     "",
-		EnemyTableName:    "",
-		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
-			return NewPlannerChainByTemplateType(TemplateTypeBridge, seed)
-		},
-	}
 )
 
 // ToName はPlannerTypeをconsts.PlannerTypeNameに変換する
