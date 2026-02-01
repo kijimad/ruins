@@ -112,9 +112,9 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return err
 	}
 
-	// デバッグモード: 橋エンティティの位置を色付きで表示
 	cfg := config.Get()
 	if cfg.ShowMapDebug {
+		// 橋エンティティの位置を色付きで表示
 		sys.renderBridgeDebug(world, screen, visibilityData)
 	}
 

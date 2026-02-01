@@ -27,7 +27,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		var err error
 
-		// TODO: タイル名直指定だと忘れやすいので直したい
+		// TODO: タイル名直判定だと忘れやすいので直したい
 		if !tile.BlockPass {
 			// 歩行可能タイルを生成
 			switch tile.Name {

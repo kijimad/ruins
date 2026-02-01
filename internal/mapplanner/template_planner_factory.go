@@ -68,7 +68,5 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		return nil, err
 	}
 
-	// 橋facilityはPlan関数で統一的に追加されるため、ここでは追加しない
-
 	return chain, nil
 }

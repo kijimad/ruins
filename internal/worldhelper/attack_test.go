@@ -14,8 +14,8 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// 既存の「スライム」コマンドテーブル（武器: 体当たり）を使用
-	// 共有RawMasterを書き換えないことでレース条件を回避
+	// 既存の「スライム」コマンドテーブル（武器: 体当たり）を使用する
+	// 共有RawMasterを書き換えないことでレース条件を回避する
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.CommandTable, &gc.CommandTable{
 		Name: "スライム",

@@ -110,9 +110,9 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 		planData.Tiles[i] = planData.GetTile("wall")
 	}
 
-	// ワープポータルを配置
+	// 壁と床を配置
 	wallX, wallY := gc.Tile(2), gc.Tile(2)
-	floorX, floorY := wallX, wallY+1 // 下に床タイル（Y座標が大きくなる）
+	floorX, floorY := wallX, wallY+1 // 下に床を配置（Y座標が大きくなる）
 
 	floorIdx := planData.Level.XYTileIndex(floorX, floorY)
 	wallIdx := planData.Level.XYTileIndex(wallX, wallY)
