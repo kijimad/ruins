@@ -178,7 +178,7 @@ func TestSpawnNPCHasAIMoveFSM(t *testing.T) {
 	spriteSheets := make(map[string]gc.SpriteSheet)
 	spriteSheets["field"] = gc.SpriteSheet{
 		Sprites: map[string]gc.Sprite{
-			"exterior":     {Width: 32, Height: 32},
+			"void":         {Width: 32, Height: 32},
 			"wall_generic": {Width: 32, Height: 32},
 			"floor":        {Width: 32, Height: 32},
 			"player":       {Width: 32, Height: 32},

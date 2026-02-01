@@ -591,9 +591,10 @@ func (rw *Master) GetEnemyTable(name string) (EnemyTable, error) {
 type TileRaw struct {
 	Name         string
 	Description  string
-	Walkable     bool
+	BlockPass    bool // 通行を遮断するか
 	SpriteRender gc.SpriteRender
-	BlocksView   *bool // 視界を遮断するか。nilの場合はfalse
+	// TODO: BlockViewにする
+	BlocksView bool // 視界を遮断するか
 }
 
 // PropRaw は置物のローデータ定義
@@ -646,12 +647,13 @@ func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc
 	}
 	entitySpec.SpriteRender = &sprite
 
-	// TODO: 名前の不一致を直す
-	if !tileRaw.Walkable {
+	// BlockPassがtrueの場合は通行を遮断
+	if tileRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 
-	if tileRaw.BlocksView != nil && *tileRaw.BlocksView {
+	// BlocksViewがtrueの場合は視界を遮断
+	if tileRaw.BlocksView {
 		entitySpec.BlockView = &gc.BlockView{}
 	}
 

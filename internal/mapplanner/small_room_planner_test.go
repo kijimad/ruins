@@ -51,7 +51,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		floorCount := 0
 		wallCount := 0
 		for _, tile := range chain.PlanData.Tiles {
-			if tile.Walkable {
+			if !tile.BlockPass {
 				floorCount++
 			} else {
 				wallCount++
@@ -112,7 +112,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 				for y := room.Y1; y <= room.Y2 && !hasFloor; y++ {
 					idx := chain.PlanData.Level.XYTileIndex(x, y)
 					if idx >= 0 && int(idx) < len(chain.PlanData.Tiles) {
-						if chain.PlanData.Tiles[idx].Walkable {
+						if !chain.PlanData.Tiles[idx].BlockPass {
 							hasFloor = true
 						}
 					}
@@ -163,7 +163,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 				voidCount := 0
 				bridgeCount := 0
 				for _, tile := range chain.PlanData.Tiles {
-					if tile.Walkable {
+					if !tile.BlockPass {
 						floorCount++
 					} else {
 						wallCount++

@@ -71,11 +71,11 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 
 		// 0,0は'#'なのでWall（通行不可）
 		tile00 := metaPlan.Tiles[0]
-		assert.False(t, tile00.Walkable, "Wall should not be walkable")
+		assert.True(t, tile00.BlockPass, "Wall should not be walkable")
 
 		// 1,1は'.'なのでFloor（通行可能）
 		tile11 := metaPlan.Tiles[1*5+1]
-		assert.True(t, tile11.Walkable, "Floor should be walkable")
+		assert.False(t, tile11.BlockPass, "Floor should be walkable")
 	})
 }
 
@@ -200,10 +200,10 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 
 		// 中央は床で通行可能
 		centerIdx := 5*10 + 5
-		assert.True(t, metaPlan.Tiles[centerIdx].Walkable)
+		assert.False(t, metaPlan.Tiles[centerIdx].BlockPass)
 
 		// 外周は壁で通行不可
-		assert.False(t, metaPlan.Tiles[0].Walkable)
+		assert.True(t, metaPlan.Tiles[0].BlockPass)
 	})
 
 	t.Run("パレットに定義がない文字はエラー", func(t *testing.T) {

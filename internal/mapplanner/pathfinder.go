@@ -29,7 +29,8 @@ func (pf *PathFinder) IsWalkable(x, y int) bool {
 	idx := pf.planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 	tile := pf.planData.Tiles[idx]
 
-	return tile.Walkable
+	// 歩行可能
+	return !tile.BlockPass
 }
 
 // FindPath はBFSを使ってスタート地点からゴールまでのパスを探索する

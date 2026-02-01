@@ -84,7 +84,7 @@ func TestRandomPlannerTypes(t *testing.T) {
 		floorCount := 0
 		wallCount := 0
 		for _, tile := range chain.PlanData.Tiles {
-			if tile.Walkable {
+			if !tile.BlockPass {
 				floorCount++
 			} else {
 				wallCount++

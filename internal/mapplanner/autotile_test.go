@@ -171,17 +171,15 @@ func createTestRawMaster(t *testing.T) *raw.Master {
 [[Tiles]]
 Name = "floor"
 Description = "床タイル"
-Walkable = true
 
 [[Tiles]]
 Name = "dirt"
 Description = "土タイル"
-Walkable = true
 
 [[Tiles]]
 Name = "wall"
 Description = "壁タイル"
-Walkable = false
+BlockPass = true
 `
 
 	master, err := raw.Load(rawData)

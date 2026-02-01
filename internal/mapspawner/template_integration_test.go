@@ -48,11 +48,11 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		assert.Len(t, metaPlan.Tiles, 100) // 10x10=100
 
 		// テンプレートは内部のみを定義しているので、全て床で通行可能
-		assert.True(t, metaPlan.Tiles[0].Walkable, "テンプレートは内部のみ")
+		assert.False(t, metaPlan.Tiles[0].BlockPass, "テンプレートは内部のみ")
 
 		// 中央も床で通行可能
 		centerIdx := 5*10 + 5
-		assert.True(t, metaPlan.Tiles[centerIdx].Walkable, "中央は床")
+		assert.False(t, metaPlan.Tiles[centerIdx].BlockPass, "中央は床")
 
 		// Props（Props）が配置されている
 		assert.NotEmpty(t, metaPlan.Props, "Propsが配置されているはず")

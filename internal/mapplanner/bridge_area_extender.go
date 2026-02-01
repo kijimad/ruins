@@ -8,7 +8,7 @@ import (
 
 // BridgeAreaExtender は既存マップを拡張し、上部と下部に橋エリアテンプレートを配置する
 type BridgeAreaExtender struct {
-	Loader *maptemplate.TemplateLoader // テンプレートローダー
+	Loader *maptemplate.TemplateLoader
 }
 
 // Extend は既存マップを拡張して上部と下部に橋エリアを配置する
@@ -17,6 +17,7 @@ func (e BridgeAreaExtender) Extend(metaPlan *MetaPlan) error {
 	oldHeight := int(metaPlan.Level.TileHeight)
 
 	// マップ幅に応じて適切なテンプレートを選択
+	// TODO: 全部幅50にする。奥行きだけ可変にすればよさそう
 	var topTemplateName, bottomTemplateName string
 	if oldWidth == 20 {
 		topTemplateName = "20x28_town_bridge_top"
@@ -136,7 +137,6 @@ func (e BridgeAreaExtender) shiftExistingEntities(metaPlan *MetaPlan, offsetY in
 }
 
 // collectBridgesFromTemplate はテンプレートから出口とスポーン地点情報を収集してMetaPlanに記録する
-// 実際のエンティティ配置はmapspawner.Spawn()で行われる
 func (e BridgeAreaExtender) collectBridgesFromTemplate(
 	metaPlan *MetaPlan,
 	template *maptemplate.ChunkTemplate,

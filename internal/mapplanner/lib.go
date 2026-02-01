@@ -50,7 +50,8 @@ type MetaPlan struct {
 func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
 	idx := bm.Level.XYTileIndex(tx, ty)
 	tile := bm.Tiles[idx]
-	if !tile.Walkable {
+	// 通行不可なのでスポーン不可
+	if tile.BlockPass {
 		return false
 	}
 
@@ -93,7 +94,7 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -104,7 +105,7 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -115,7 +116,7 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := idx - 1
 	if targetIdx < 0 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -126,7 +127,7 @@ func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := idx + 1
 	if int(targetIdx) > len(bm.Tiles)-1 {
 		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{Walkable: false}
+		return raw.TileRaw{BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -156,7 +157,8 @@ func (bm MetaPlan) AdjacentAnyFloor(idx resources.TileIdx) bool {
 		neighborIdx := bm.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
 		tile := bm.Tiles[neighborIdx]
 
-		if tile.Walkable {
+		// 歩行可能
+		if !tile.BlockPass {
 			return true
 		}
 	}
@@ -222,7 +224,8 @@ func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bo
 
 // isFloorOrWarp は移動可能タイルかを判定する
 func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
-	return tile.Walkable
+	// 歩行可能
+	return !tile.BlockPass
 }
 
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体
@@ -561,7 +564,8 @@ func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
 	// SpawnPointsが見つからない場合は移動可能タイルを探す（テスト用フォールバック）
 	// TODO: どうにかする
 	for _i, tile := range bm.Tiles {
-		if tile.Walkable {
+		// 歩行可能
+		if !tile.BlockPass {
 			i := resources.TileIdx(_i)
 			x, y := bm.Level.XYTileCoord(i)
 			return int(x), int(y), nil

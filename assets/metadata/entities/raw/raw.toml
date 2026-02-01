@@ -1745,7 +1745,6 @@
   BlocksView  = false
   Description = "床"
   Name        = "floor"
-  Walkable    = true
 
   [Tiles.SpriteRender]
     Depth           = 0
@@ -1753,10 +1752,10 @@
     SpriteSheetName = "tile"
 
 [[Tiles]]
+  BlockPass   = true
   BlocksView  = true
   Description = "壁"
   Name        = "wall"
-  Walkable    = false
 
   [Tiles.SpriteRender]
     Depth           = 2
@@ -1767,7 +1766,6 @@
   BlocksView  = false
   Description = "土"
   Name        = "dirt"
-  Walkable    = true
 
   [Tiles.SpriteRender]
     Depth           = 0
@@ -1777,14 +1775,14 @@
     # 暗闇タイル ================
 
 [[Tiles]]
+  BlockPass   = true
   BlocksView  = false
   Description = "暗闇"
   Name        = "void"
-  Walkable    = false
 
   [Tiles.SpriteRender]
     Depth           = 0
-    SpriteKey       = "exterior"
+    SpriteKey       = "void"
     SpriteSheetName = "tile"
 
     # Props ================

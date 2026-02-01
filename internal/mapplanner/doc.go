@@ -35,7 +35,11 @@
 //	[[Tiles]]
 //	Name = "floor"
 //	Description = "床タイル - 移動可能な基本的なタイル"
-//	Walkable = true
+//
+//	[[Tiles]]
+//	Name = "wall"
+//	Description = "壁タイル - 移動不可能なタイル"
+//	BlockPass = true
 //
 // TileMasterクラスを使用してタイル定義を読み込み・管理：
 //   - LoadTileFromFile(): TOMLファイルからタイル定義を読み込み
@@ -48,9 +52,9 @@
 //
 // ## 通行可否判定
 //
-// マップ生成時にはタイルの Walkable フィールドで通行可否を判定します：
-//   - 通行可能: planData.GenerateTile("floor")（Walkable=true）
-//   - 通行不可: planData.GenerateTile("wall")（Walkable=false）、ゼロ値（Walkable=false）
+// マップ生成時にはタイルの BlockPass フィールドで通行可否を判定します：
+//   - 通行可能: planData.GenerateTile("floor")（BlockPass=false）
+//   - 通行不可: planData.GenerateTile("wall")（BlockPass=true）
 //
 // ## マップ生成の流れ
 //

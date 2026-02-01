@@ -91,7 +91,7 @@ func (c CaveCellularAutomata) countWallsInRadius(planData *MetaPlan, centerX, ce
 			}
 
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-			if !planData.Tiles[idx].Walkable {
+			if planData.Tiles[idx].BlockPass {
 				wallCount++
 			}
 		}
@@ -111,7 +111,7 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 		for y := 0; y < height; y++ {
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-			if planData.Tiles[idx].Walkable && !visited[idx] {
+			if !planData.Tiles[idx].BlockPass && !visited[idx] {
 				// 洪水塗りつぶしで連結領域を見つける
 				floorTiles := c.floodFill(planData, x, y, visited)
 
@@ -180,7 +180,7 @@ func (c CaveCellularAutomata) floodFill(planData *MetaPlan, startX, startY int, 
 			if nx >= 0 && nx < width && ny >= 0 && ny < height {
 				nIdx := planData.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
 
-				if !visited[nIdx] && planData.Tiles[nIdx].Walkable {
+				if !visited[nIdx] && !planData.Tiles[nIdx].BlockPass {
 					visited[nIdx] = true
 					queue = append(queue, [2]int{nx, ny})
 				}
@@ -208,7 +208,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
 			// 現在が壁で、隣接に床がある場合
-			if !planData.Tiles[idx].Walkable {
+			if planData.Tiles[idx].BlockPass {
 				adjacentFloorCount := c.countAdjacentFloors(planData, x, y)
 
 				// 隣接する床が2個以上ある場合、30%の確率で床にする
@@ -237,7 +237,7 @@ func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, center
 
 		if x >= 0 && x < width && y >= 0 && y < height {
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
-			if planData.Tiles[idx].Walkable {
+			if !planData.Tiles[idx].BlockPass {
 				count++
 			}
 		}
@@ -259,7 +259,7 @@ func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {
 		for y := 2; y < height-2; y++ {
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-			if planData.Tiles[idx].Walkable {
+			if !planData.Tiles[idx].BlockPass {
 				// 2%の確率で鍾乳石を配置（確率を下げてより通行可能に）
 				if planData.RNG.Float64() < 0.02 {
 					planData.Tiles[idx] = planData.GetTile("wall")

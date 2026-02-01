@@ -116,5 +116,5 @@ func (i *ItemPlanner) isValidItemPosition(planData *MetaPlan, x, y gc.Tile) bool
 
 	tile := planData.Tiles[tileIdx]
 	// 歩行可能なタイルに配置可能
-	return tile.Walkable
+	return !tile.BlockPass
 }

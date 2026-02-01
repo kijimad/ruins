@@ -95,7 +95,7 @@ func (f ForestTrees) PlanMeta(planData *MetaPlan) error {
 		for y := 1; y < height-1; y++ {
 			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-			if planData.Tiles[idx].Walkable {
+			if !planData.Tiles[idx].BlockPass {
 				// 空き地の近くでは木の密度を下げる
 				treeDensity := f.calculateTreeDensity(planData, x, y)
 
@@ -158,7 +158,7 @@ func (f ForestTrees) placeLargeTree(planData *MetaPlan, centerX, centerY int) {
 			if x >= 0 && x < width && y >= 0 && y < height {
 				idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
 
-				if planData.Tiles[idx].Walkable && planData.RNG.Float64() < 0.7 {
+				if !planData.Tiles[idx].BlockPass && planData.RNG.Float64() < 0.7 {
 					planData.Tiles[idx] = planData.GetTile("wall")
 				}
 			}

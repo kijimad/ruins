@@ -28,7 +28,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		var err error
 
 		// TODO: タイル名直指定だと忘れやすいので直したい
-		if tile.Walkable {
+		if !tile.BlockPass {
 			// 歩行可能タイルを生成
 			switch tile.Name {
 			case "dirt":
@@ -171,12 +171,12 @@ func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrien
 	bottomTile := metaPlan.Tiles[bottomIdx]
 
 	// 左右が壁（通行不可）の場合は縦向き
-	if !leftTile.Walkable && !rightTile.Walkable {
+	if leftTile.BlockPass && rightTile.BlockPass {
 		return gc.DoorOrientationVertical
 	}
 
 	// 上下が壁（通行不可）の場合は横向き
-	if !topTile.Walkable && !bottomTile.Walkable {
+	if topTile.BlockPass && bottomTile.BlockPass {
 		return gc.DoorOrientationHorizontal
 	}
 
