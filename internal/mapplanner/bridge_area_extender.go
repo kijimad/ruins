@@ -1,6 +1,8 @@
 package mapplanner
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -17,15 +19,18 @@ func (e BridgeAreaExtender) Extend(metaPlan *MetaPlan) error {
 	oldHeight := int(metaPlan.Level.TileHeight)
 
 	// マップ幅に応じて適切なテンプレートを選択
-	// TODO: 全部幅50にする。奥行きだけ可変にすればよさそう
+	// TODO: 幅は50固定にする。奥行きだけ可変にすればよさそう
 	var topTemplateName, bottomTemplateName string
-	if oldWidth == 20 {
+	switch oldWidth {
+	case 20:
 		topTemplateName = "20x28_town_bridge_top"
 		bottomTemplateName = "20x28_town_bridge_bottom"
-	} else {
-		// デフォルトは幅50用
+	case 50:
 		topTemplateName = "50x28_dungeon_bridge_top"
 		bottomTemplateName = "50x28_dungeon_bridge_bottom"
+	default:
+		// 対応していないマップ幅の場合はエラーにする
+		return fmt.Errorf("対応していないマップ幅です (width=%d, 対応幅: 20 or 50)", oldWidth)
 	}
 
 	// テンプレートとパレットを読み込む
@@ -42,6 +47,16 @@ func (e BridgeAreaExtender) Extend(metaPlan *MetaPlan) error {
 	// 上部と下部のテンプレートサイズを取得
 	topHeight := topTemplate.Size.H
 	bottomHeight := bottomTemplate.Size.H
+	topWidth := topTemplate.Size.W
+	bottomWidth := bottomTemplate.Size.W
+
+	// テンプレート幅がマップ幅を超える場合はエラー
+	if topWidth > oldWidth {
+		return fmt.Errorf("上部テンプレート幅 %d がマップ幅 %d を超えています (template=%s)", topWidth, oldWidth, topTemplateName)
+	}
+	if bottomWidth > oldWidth {
+		return fmt.Errorf("下部テンプレート幅 %d がマップ幅 %d を超えています (template=%s)", bottomWidth, oldWidth, bottomTemplateName)
+	}
 
 	// 新しいマップサイズ: 上部橋エリア + 既存マップ + 下部橋エリア
 	newHeight := topHeight + oldHeight + bottomHeight
@@ -54,7 +69,9 @@ func (e BridgeAreaExtender) Extend(metaPlan *MetaPlan) error {
 	newTiles := make([]raw.TileRaw, newWidth*newHeight)
 
 	// 上部: 橋エリアテンプレートを配置
-	e.placeTemplate(newTiles, topTemplate, palette, newWidth, 0, metaPlan)
+	if err := e.placeTemplate(newTiles, topTemplate, palette, newWidth, 0, metaPlan); err != nil {
+		return fmt.Errorf("上部テンプレート配置エラー: %w", err)
+	}
 
 	// 中央部分: 既存マップをコピー
 	for y := 0; y < oldHeight; y++ {
@@ -67,7 +84,9 @@ func (e BridgeAreaExtender) Extend(metaPlan *MetaPlan) error {
 
 	// 下部: 橋エリアテンプレートを配置
 	bottomStartY := topHeight + oldHeight
-	e.placeTemplate(newTiles, bottomTemplate, palette, newWidth, bottomStartY, metaPlan)
+	if err := e.placeTemplate(newTiles, bottomTemplate, palette, newWidth, bottomStartY, metaPlan); err != nil {
+		return fmt.Errorf("下部テンプレート配置エラー: %w", err)
+	}
 
 	// MetaPlanを更新
 	metaPlan.Tiles = newTiles
@@ -88,13 +107,24 @@ func (e BridgeAreaExtender) placeTemplate(
 	palette *maptemplate.Palette,
 	mapWidth, offsetY int,
 	metaPlan *MetaPlan,
-) {
+) error {
+	if mapWidth <= 0 {
+		return fmt.Errorf("テンプレート配置エラー: マップ幅が不正です (mapWidth=%d)", mapWidth)
+	}
+
 	lines := template.GetMapLines()
+	mapHeight := len(tiles) / mapWidth
+
 	for y, line := range lines {
 		for x, char := range line {
+			// 境界チェック
 			if x >= mapWidth {
-				continue // マップ幅を超える部分は無視
+				return fmt.Errorf("テンプレート配置エラー: x座標 %d がマップ幅 %d を超えています (template=%s)", x, mapWidth, template.Name)
 			}
+			if y+offsetY >= mapHeight {
+				return fmt.Errorf("テンプレート配置エラー: y座標 %d (offsetY=%d) がマップ高さ %d を超えています (template=%s)", y+offsetY, offsetY, mapHeight, template.Name)
+			}
+
 			idx := (y+offsetY)*mapWidth + x
 			charStr := string(char)
 
@@ -114,6 +144,8 @@ func (e BridgeAreaExtender) placeTemplate(
 			}
 		}
 	}
+
+	return nil
 }
 
 // shiftExistingEntities は既存エンティティの座標をシフトする

@@ -174,3 +174,87 @@ func TestBridgeAreaExtender_CollectsBridgeInfo(t *testing.T) {
 		assert.NotEmpty(t, exit.ExitID, "ExitIDが設定される")
 	}
 }
+
+func TestBridgeAreaExtender_NilMetaPlan(t *testing.T) {
+	t.Parallel()
+
+	extender, err := NewBridgeAreaExtender()
+	require.NoError(t, err)
+
+	// nilのMetaPlanを渡すとパニックするはず
+	assert.Panics(t, func() {
+		_ = extender.Extend(nil)
+	}, "nilのMetaPlanでパニックする")
+}
+
+func TestBridgeAreaExtender_EmptyTiles(t *testing.T) {
+	t.Parallel()
+
+	extender, err := NewBridgeAreaExtender()
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+
+	// Tilesが空のMetaPlan（サイズとタイル配列が不一致）
+	metaPlan := &MetaPlan{
+		Level: resources.Level{
+			TileWidth:  50,
+			TileHeight: 30,
+		},
+		Tiles:     []raw.TileRaw{}, // 空（不正な状態）
+		RawMaster: world.Resources.RawMaster.(*raw.Master),
+	}
+
+	// 拡張実行（空のタイル配列ではパニックする）
+	assert.Panics(t, func() {
+		_ = extender.Extend(metaPlan)
+	}, "空のタイル配列でパニックする")
+}
+
+func TestBridgeAreaExtender_ZeroSize(t *testing.T) {
+	t.Parallel()
+
+	extender, err := NewBridgeAreaExtender()
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+
+	// サイズ0のMetaPlan（不正な状態）
+	metaPlan := &MetaPlan{
+		Level: resources.Level{
+			TileWidth:  0,
+			TileHeight: 0,
+		},
+		Tiles:     []raw.TileRaw{},
+		RawMaster: world.Resources.RawMaster.(*raw.Master),
+	}
+
+	// 拡張実行（幅0は対応していないのでエラーになる）
+	err = extender.Extend(metaPlan)
+	assert.Error(t, err, "対応していないマップ幅の場合はエラーになる")
+	assert.Contains(t, err.Error(), "対応していないマップ幅です", "エラーメッセージに未対応幅が含まれる")
+}
+
+func TestBridgeAreaExtender_UnsupportedWidth(t *testing.T) {
+	t.Parallel()
+
+	extender, err := NewBridgeAreaExtender()
+	require.NoError(t, err)
+
+	world := testutil.InitTestWorld(t)
+
+	// 幅30のマップ（20でも50でもない）
+	metaPlan := &MetaPlan{
+		Level: resources.Level{
+			TileWidth:  30,
+			TileHeight: 20,
+		},
+		Tiles:     make([]raw.TileRaw, 30*20),
+		RawMaster: world.Resources.RawMaster.(*raw.Master),
+	}
+
+	// 拡張実行（幅30は対応していないのでエラーになる）
+	err = extender.Extend(metaPlan)
+	assert.Error(t, err, "対応していないマップ幅の場合はエラーになる")
+	assert.Contains(t, err.Error(), "対応していないマップ幅です", "エラーメッセージに未対応幅が含まれる")
+}

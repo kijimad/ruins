@@ -15,7 +15,7 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	world.Resources.RawMaster = CreateTestRawMaster()
 
 	// 接続性検証が組み込まれたPlan関数をテスト
-	width, height := 10, 10
+	width, height := 50, 50
 	seed := uint64(42)
 	plannerType := PlannerTypeSmallRoom
 

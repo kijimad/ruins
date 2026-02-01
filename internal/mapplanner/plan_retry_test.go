@@ -20,7 +20,7 @@ func TestPlan_ConnectivityValidation(t *testing.T) {
 		// 複数の異なるシードでテストして、すべて接続性チェックをパス
 		seeds := []uint64{1, 100, 1000, 10000, 50000}
 		for _, seed := range seeds {
-			plan, err := Plan(w, 15, 15, seed, PlannerTypeSmallRoom)
+			plan, err := Plan(w, 50, 50, seed, PlannerTypeSmallRoom)
 			assert.NoError(t, err, "シード %d で失敗", seed)
 			assert.NotNil(t, plan)
 
