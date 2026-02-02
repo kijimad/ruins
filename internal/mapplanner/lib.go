@@ -332,9 +332,10 @@ type MetaMapPlanner interface {
 func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll("wall"))    // 全体を壁で埋める
-	chain.With(RoomDraw{})            // 部屋を描画
-	chain.With(LineCorridorPlanner{}) // 廊下を作成
+	chain.With(NewFillAll("wall"))               // 全体を壁で埋める
+	chain.With(RoomDraw{})                       // 部屋を描画
+	chain.With(LineCorridorPlanner{})            // 廊下を作成
+	chain.With(NewConvertIsolatedWallsToFloor()) // 床に隣接しない壁をfloorに変換
 
 	return chain, nil
 }
@@ -349,6 +350,7 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 		FloorTile: "floor",
 		WallTile:  "wall",
 	}) // 大部屋を描画（バリエーション込み）
+	chain.With(NewConvertIsolatedWallsToFloor()) // 床に隣接しない壁をfloorに変換
 
 	return chain, nil
 }
