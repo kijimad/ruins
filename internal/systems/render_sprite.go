@@ -469,27 +469,30 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 	screen.DrawImage(img, op)
 
-	// デバッグ用：スプライト番号表示(dirt, dwall)
-	if spriteRender.SpriteSheetName == "tile" {
-		var number string
-		var prefix string
-		if strings.HasPrefix(spriteRender.SpriteKey, "dirt_") {
-			number = strings.TrimPrefix(spriteRender.SpriteKey, "dirt_")
-			prefix = "d"
-		} else if strings.HasPrefix(spriteRender.SpriteKey, "dwall_") {
-			number = strings.TrimPrefix(spriteRender.SpriteKey, "dwall_")
-			prefix = "w"
-		}
+	cfg := config.Get()
+	if cfg.ShowMapDebug {
+		// デバッグ用：スプライト番号表示(dirt, dwall)
+		if spriteRender.SpriteSheetName == "tile" {
+			var number string
+			var prefix string
+			if strings.HasPrefix(spriteRender.SpriteKey, "dirt_") {
+				number = strings.TrimPrefix(spriteRender.SpriteKey, "dirt_")
+				prefix = "d"
+			} else if strings.HasPrefix(spriteRender.SpriteKey, "dwall_") {
+				number = strings.TrimPrefix(spriteRender.SpriteKey, "dwall_")
+				prefix = "w"
+			}
 
-		if number != "" {
-			// カメラ変換を考慮したテキスト位置を計算
-			textOp := &ebiten.DrawImageOptions{}
-			textOp.GeoM.Translate(float64(pos.X-8), float64(pos.Y-8)) // タイルの左上付近に表示
-			SetTranslate(world, textOp)
+			if number != "" {
+				// カメラ変換を考慮したテキスト位置を計算
+				textOp := &ebiten.DrawImageOptions{}
+				textOp.GeoM.Translate(float64(pos.X-8), float64(pos.Y-8)) // タイルの左上付近に表示
+				SetTranslate(world, textOp)
 
-			// テキスト表示位置を逆変換で求める
-			screenX, screenY := textOp.GeoM.Apply(0, 0)
-			ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))
+				// テキスト表示位置を逆変換で求める
+				screenX, screenY := textOp.GeoM.Apply(0, 0)
+				ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))
+			}
 		}
 	}
 
