@@ -1,34 +1,50 @@
 package mapplanner
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 )
 
-// ConvertIsolatedWallsToFloor は床に隣接しない壁をfloorに変換するプランナー
+// ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
 // オートタイル計算前に実行することで、正しい接続パターンで壁タイルを生成する
-type ConvertIsolatedWallsToFloor struct{}
-
-// NewConvertIsolatedWallsToFloor は新しいConvertIsolatedWallsToFloorプランナーを作成する
-func NewConvertIsolatedWallsToFloor() ConvertIsolatedWallsToFloor {
-	return ConvertIsolatedWallsToFloor{}
+type ConvertIsolatedWalls struct {
+	// ReplacementTile は孤立した壁を置き換えるタイル名
+	ReplacementTile string
 }
 
-// PlanMeta は床に隣接しない壁タイルをfloorタイルに変換する
-func (c ConvertIsolatedWallsToFloor) PlanMeta(planData *MetaPlan) error {
+// NewConvertIsolatedWalls は新しいConvertIsolatedWallsプランナーを作成する
+// replacementTile: 孤立した壁を置き換えるタイル名（例: "void", "floor"）
+func NewConvertIsolatedWalls(replacementTile string) ConvertIsolatedWalls {
+	return ConvertIsolatedWalls{
+		ReplacementTile: replacementTile,
+	}
+}
+
+// PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
+func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
+	width := int(planData.Level.TileWidth)
+	height := int(planData.Level.TileHeight)
+
 	// 変換が他のタイルの判定に影響しないように、まず変換すべきタイルを特定
 	tilesToConvert := make([]int, 0)
 	for i := range planData.Tiles {
 		tile := planData.Tiles[i]
 
+		// マップの端にあるタイルは変換対象外（境界として残す）
+		x, y := planData.Level.XYTileCoord(resources.TileIdx(i))
+		if int(x) == 0 || int(x) == width-1 || int(y) == 0 || int(y) == height-1 {
+			continue
+		}
+
 		// wallタイルで床に隣接していない場合、変換対象とする
-		if tile.Name == "wall" && !planData.AdjacentAnyFloor(resources.TileIdx(i)) {
+		if tile.Name == consts.TileNameWall && !planData.AdjacentAnyFloor(resources.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}
 
 	// 特定したタイルを変換
 	for _, i := range tilesToConvert {
-		planData.Tiles[i] = planData.GetTile("floor")
+		planData.Tiles[i] = planData.GetTile(c.ReplacementTile)
 	}
 
 	return nil

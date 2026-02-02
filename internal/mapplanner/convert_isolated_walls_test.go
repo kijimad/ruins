@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConvertIsolatedWallsToFloor(t *testing.T) {
+func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	t.Parallel()
 
 	// テスト用のマップを作成（7x7）
@@ -50,8 +50,8 @@ func TestConvertIsolatedWallsToFloor(t *testing.T) {
 	centerIdx := planData.Level.XYTileIndex(3, 3)
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
-	// プランナーを実行
-	converter := NewConvertIsolatedWallsToFloor()
+	// プランナーを実行（floorに変換）
+	converter := NewConvertIsolatedWalls("floor")
 	err := converter.PlanMeta(planData)
 	assert.NoError(t, err)
 
@@ -86,11 +86,11 @@ func TestConvertIsolatedWallsToFloor(t *testing.T) {
 	assert.Equal(t, "floor", planData.Tiles[floorIdx].Name, "床タイルはそのまま")
 }
 
-func TestConvertIsolatedWallsToFloor_AllWalls(t *testing.T) {
+func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	t.Parallel()
 
 	// 全て壁のマップ（床が無い）
-	width, height := gc.Tile(3), gc.Tile(3)
+	width, height := gc.Tile(5), gc.Tile(5)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,
@@ -107,18 +107,25 @@ func TestConvertIsolatedWallsToFloor_AllWalls(t *testing.T) {
 		planData.Tiles[i] = planData.GetTile("wall")
 	}
 
-	// プランナーを実行
-	converter := NewConvertIsolatedWallsToFloor()
+	// プランナーを実行（voidに変換）
+	converter := NewConvertIsolatedWalls("void")
 	err := converter.PlanMeta(planData)
 	assert.NoError(t, err)
 
-	// 全てfloorに変換されるべき
+	// 検証: 端の壁はwallのまま、内側の壁はvoidに変換される
 	for i, tile := range planData.Tiles {
-		assert.Equal(t, "floor", tile.Name, "タイル%dは床に隣接しないためfloorに変換されるべき", i)
+		x, y := planData.Level.XYTileCoord(resources.TileIdx(i))
+		isEdge := int(x) == 0 || int(x) == int(width)-1 || int(y) == 0 || int(y) == int(height)-1
+
+		if isEdge {
+			assert.Equal(t, "wall", tile.Name, "端のタイル(%d, %d)は境界として壁のまま", x, y)
+		} else {
+			assert.Equal(t, "void", tile.Name, "内側のタイル(%d, %d)は床に隣接しないためvoidに変換", x, y)
+		}
 	}
 }
 
-func TestConvertIsolatedWallsToFloor_NoWalls(t *testing.T) {
+func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	t.Parallel()
 
 	// 壁が無いマップ（全て床）
@@ -140,7 +147,7 @@ func TestConvertIsolatedWallsToFloor_NoWalls(t *testing.T) {
 	}
 
 	// プランナーを実行
-	converter := NewConvertIsolatedWallsToFloor()
+	converter := NewConvertIsolatedWalls("void")
 	err := converter.PlanMeta(planData)
 	assert.NoError(t, err)
 

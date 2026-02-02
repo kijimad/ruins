@@ -4,6 +4,7 @@ import (
 	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // ForestPlanner は森風レイアウトを生成するビルダー
@@ -338,11 +339,11 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 func NewForestPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(ForestPlanner{})
-	chain.With(ForestTerrain{})                  // 基本地形を生成
-	chain.With(ForestTrees{})                    // 木を配置
-	chain.With(ForestPaths{})                    // 自然な通路を作成
-	chain.With(ForestWildlife{})                 // 野生動物の痕跡を追加
-	chain.With(NewConvertIsolatedWallsToFloor()) // 床に隣接しない壁をfloorに変換
+	chain.With(ForestTerrain{})                               // 基本地形を生成
+	chain.With(ForestTrees{})                                 // 木を配置
+	chain.With(ForestPaths{})                                 // 自然な通路を作成
+	chain.With(ForestWildlife{})                              // 野生動物の痕跡を追加
+	chain.With(NewConvertIsolatedWalls(consts.TileNameFloor)) // 床に隣接しない壁をfloorに変換
 
 	return chain, nil
 }

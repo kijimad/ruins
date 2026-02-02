@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // RuinsPlanner は廃墟風レイアウトを生成するビルダー
@@ -254,20 +255,20 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RuinsPlanner{})
-	chain.With(NewFillAll("wall")) // 全体を壁で埋める
+	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
 	chain.With(RuinsDraw{
-		FloorTile: "floor",
-		WallTile:  "wall",
+		FloorTile: consts.TileNameFloor,
+		WallTile:  consts.TileNameWall,
 	}) // 廃墟構造を描画
 	chain.With(RuinsDebris{
-		FloorTile: "floor",
-		WallTile:  "wall",
+		FloorTile: consts.TileNameFloor,
+		WallTile:  consts.TileNameWall,
 	}) // 瓦礫を配置
 	chain.With(RuinsCorridors{
-		FloorTile: "floor",
-		WallTile:  "wall",
+		FloorTile: consts.TileNameFloor,
+		WallTile:  consts.TileNameWall,
 	}) // 通路を作成
-	chain.With(NewConvertIsolatedWallsToFloor()) // 床に隣接しない壁をfloorに変換
+	chain.With(NewConvertIsolatedWalls(consts.TileNameVoid)) // 床に隣接しない壁をvoidに変換
 
 	return chain, nil
 }

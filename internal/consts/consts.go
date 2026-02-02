@@ -27,3 +27,14 @@ const (
 	// VisionRadiusTiles は視界半径（タイル単位）
 	VisionRadiusTiles = 16
 )
+
+// ========== タイル名 ==========
+
+const (
+	// TileNameWall は壁タイル名
+	TileNameWall = "wall"
+	// TileNameFloor は床タイル名
+	TileNameFloor = "floor"
+	// TileNameVoid は虚空タイル名
+	TileNameVoid = "void"
+)

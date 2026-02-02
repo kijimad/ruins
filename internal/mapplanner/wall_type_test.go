@@ -302,6 +302,7 @@ func TestCalculateWallAutoTileIndexMapping(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			width, height := gc.Tile(7), gc.Tile(7)
 			mp := &MetaPlan{
 				Level: resources.Level{
