@@ -148,3 +148,181 @@ func TestWallType_String(t *testing.T) {
 		}
 	}
 }
+
+// TestCalculateWallAutoTileIndexMapping は壁用の13タイルマッピングをテストする
+func TestCalculateWallAutoTileIndexMapping(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		setup    func(*MetaPlan) resources.TileIdx
+		expected AutoTileIndex
+	}{
+		{
+			name: "全方向が壁の場合は9（右下コーナー、全方向と接続）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 全て壁（デフォルト）
+				return mp.Level.XYTileIndex(3, 3)
+			},
+			expected: 9,
+		},
+		{
+			name: "上だけ床の場合は1（上辺、下左右と接続）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				centerIdx := mp.Level.XYTileIndex(3, 3)
+				x, y := mp.Level.XYTileCoord(centerIdx)
+				upIdx := mp.Level.XYTileIndex(gc.Tile(x), gc.Tile(y-1))
+				mp.Tiles[upIdx] = mp.GetTile("floor")
+				return centerIdx
+			},
+			expected: 1,
+		},
+		{
+			name: "下だけ床の場合は1（上辺、左右上と接続）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				centerIdx := mp.Level.XYTileIndex(3, 3)
+				x, y := mp.Level.XYTileCoord(centerIdx)
+				downIdx := mp.Level.XYTileIndex(gc.Tile(x), gc.Tile(y+1))
+				mp.Tiles[downIdx] = mp.GetTile("floor")
+				return centerIdx
+			},
+			expected: 1,
+		},
+		{
+			name: "左と右と下が床の場合は6（横縞+左右枠）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				centerIdx := mp.Level.XYTileIndex(3, 3)
+				x, y := mp.Level.XYTileCoord(centerIdx)
+				downIdx := mp.Level.XYTileIndex(gc.Tile(x), gc.Tile(y+1))
+				leftIdx := mp.Level.XYTileIndex(gc.Tile(x-1), gc.Tile(y))
+				rightIdx := mp.Level.XYTileIndex(gc.Tile(x+1), gc.Tile(y))
+				mp.Tiles[downIdx] = mp.GetTile("floor")
+				mp.Tiles[leftIdx] = mp.GetTile("floor")
+				mp.Tiles[rightIdx] = mp.GetTile("floor")
+				return centerIdx
+			},
+			expected: 6,
+		},
+		{
+			name: "左端の壁（左が範囲外=壁以外、右が床）は5（縦棒）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 左端の壁を選択
+				leftEdgeIdx := mp.Level.XYTileIndex(0, 3)
+				// 右に床を配置
+				rightIdx := mp.Level.XYTileIndex(1, 3)
+				mp.Tiles[rightIdx] = mp.GetTile("floor")
+				return leftEdgeIdx
+			},
+			expected: 5, // 左が範囲外（壁以外）、右も床（ビットマスク10）→縦棒
+		},
+		{
+			name: "右端の壁（右が範囲外=壁以外、左が床）は5（縦棒）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 右端の壁を選択
+				rightEdgeIdx := mp.Level.XYTileIndex(6, 3)
+				// 左に床を配置
+				leftIdx := mp.Level.XYTileIndex(5, 3)
+				mp.Tiles[leftIdx] = mp.GetTile("floor")
+				return rightEdgeIdx
+			},
+			expected: 5, // 右が範囲外（壁以外）、左も床（ビットマスク10）→縦棒
+		},
+		{
+			name: "上下が壁、右がvoid、左が床の場合は5（縦棒）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 右端の壁を選択（右側はvoid）
+				centerIdx := mp.Level.XYTileIndex(6, 3)
+				// 左に床を配置
+				leftIdx := mp.Level.XYTileIndex(5, 3)
+				mp.Tiles[leftIdx] = mp.GetTile("floor")
+				// 上下は壁のまま（デフォルト）
+				return centerIdx
+			},
+			expected: 5, // 上下が壁、右がvoid（壁以外）、左が床（ビットマスク10）→縦棒
+		},
+		{
+			name: "voidタイルは壁として扱わない",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 中央に壁を配置
+				centerIdx := mp.Level.XYTileIndex(3, 3)
+				// 上下左右にvoidタイルを明示的に配置
+				upIdx := mp.Level.XYTileIndex(3, 2)
+				downIdx := mp.Level.XYTileIndex(3, 4)
+				leftIdx := mp.Level.XYTileIndex(2, 3)
+				rightIdx := mp.Level.XYTileIndex(4, 3)
+				mp.Tiles[upIdx] = raw.TileRaw{Name: "void", BlockPass: false}
+				mp.Tiles[downIdx] = raw.TileRaw{Name: "void", BlockPass: false}
+				mp.Tiles[leftIdx] = raw.TileRaw{Name: "void", BlockPass: false}
+				mp.Tiles[rightIdx] = raw.TileRaw{Name: "void", BlockPass: false}
+				return centerIdx
+			},
+			expected: 6, // 全方向がvoid（壁ではない）→ ビットマスク15 → タイル6
+		},
+		{
+			name: "範囲外は壁として扱わない（左端）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 左端の壁を選択（左は範囲外）
+				leftEdgeIdx := mp.Level.XYTileIndex(0, 3)
+				// 上下右は壁のまま（デフォルト）
+				return leftEdgeIdx
+			},
+			expected: 5, // 左が範囲外（壁ではない）、右が壁 → ビットマスク8 → タイル5
+		},
+		{
+			name: "範囲外は壁として扱わない（右端）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 右端の壁を選択（右は範囲外）
+				rightEdgeIdx := mp.Level.XYTileIndex(6, 3)
+				// 上下左は壁のまま（デフォルト）
+				return rightEdgeIdx
+			},
+			expected: 5, // 右が範囲外（壁ではない）、左が壁 → ビットマスク2 → タイル5
+		},
+		{
+			name: "範囲外は壁として扱わない（上端）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 上端の壁を選択（上は範囲外）
+				topEdgeIdx := mp.Level.XYTileIndex(3, 0)
+				// 下左右は壁のまま（デフォルト）
+				return topEdgeIdx
+			},
+			expected: 1, // 上が範囲外（壁ではない）、下左右が壁 → ビットマスク1 → タイル1
+		},
+		{
+			name: "範囲外は壁として扱わない（下端）",
+			setup: func(mp *MetaPlan) resources.TileIdx {
+				// 下端の壁を選択（下は範囲外）
+				bottomEdgeIdx := mp.Level.XYTileIndex(3, 6)
+				// 上左右は壁のまま（デフォルト）
+				return bottomEdgeIdx
+			},
+			expected: 1, // 下が範囲外（壁ではない）、上左右が壁 → ビットマスク4 → タイル1
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			width, height := gc.Tile(7), gc.Tile(7)
+			mp := &MetaPlan{
+				Level: resources.Level{
+					TileWidth:  width,
+					TileHeight: height,
+				},
+				Tiles:     make([]raw.TileRaw, int(width)*int(height)),
+				RawMaster: CreateTestRawMaster(),
+			}
+
+			for i := range mp.Tiles {
+				mp.Tiles[i] = mp.GetTile("wall")
+			}
+
+			testIdx := tt.setup(mp)
+
+			actual := mp.CalculateWallAutoTileIndex(testIdx)
+
+			if actual != tt.expected {
+				t.Errorf("期待値: %d, 実際: %d", tt.expected, actual)
+			}
+		})
+	}
+}

@@ -1774,6 +1774,21 @@
     SpriteKey       = "dirt"
     SpriteSheetName = "tile"
 
+    # ダンジョン壁タイル（13タイル、斜め上視点用） ================
+
+[[Tiles]]
+  BlockPass   = true
+  BlockView   = true
+  Description = "ダンジョン壁"
+  Name        = "dwall"
+
+  [Tiles.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "dwall"
+    SpriteSheetName = "tile"
+
+    # 暗闇タイル ================
+
 [[Tiles]]
   BlockPass   = true
   BlockView   = false

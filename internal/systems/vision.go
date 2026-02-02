@@ -87,67 +87,67 @@ func (sys VisionSystem) String() string {
 // w.Renderer interfaceを実装
 func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 	// プレイヤー位置を取得
-	var playerGridElement *gc.GridElement
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Player,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
-	}))
+	// var playerGridElement *gc.GridElement
+	// world.Manager.Join(
+	// 	world.Components.GridElement,
+	// 	world.Components.Player,
+	// ).Visit(ecs.Visit(func(entity ecs.Entity) {
+	// 	playerGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
+	// }))
 
-	if playerGridElement == nil {
-		return nil
-	}
+	// if playerGridElement == nil {
+	// 	return nil
+	// }
 
-	// タイル座標をピクセル座標に変換
-	playerPos := &gc.Position{
-		X: gc.Pixel(int(playerGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-		Y: gc.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
-	}
+	// // タイル座標をピクセル座標に変換
+	// playerPos := &gc.Position{
+	// 	X: gc.Pixel(int(playerGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
+	// 	Y: gc.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
+	// }
 
-	// 移動ごとの視界更新判定（移動ごとに更新）
-	const updateThreshold = int(consts.TileSize)
-	needsUpdate := !playerPositionCache.isInitialized ||
-		abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
-		abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
+	// // 移動ごとの視界更新判定（移動ごとに更新）
+	// const updateThreshold = int(consts.TileSize)
+	// needsUpdate := !playerPositionCache.isInitialized ||
+	// 	abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
+	// 	abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
 
-	// 外部から設定された視界更新フラグをチェックする(ドア開閉時など)
-	if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
-		needsUpdate = true
-		world.Resources.Dungeon.NeedsForceUpdate = false
-	}
+	// // 外部から設定された視界更新フラグをチェックする(ドア開閉時など)
+	// if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
+	// 	needsUpdate = true
+	// 	world.Resources.Dungeon.NeedsForceUpdate = false
+	// }
 
-	if needsUpdate {
-		// タイルの可視性マップを更新
-		visionRadius := gc.Pixel(consts.VisionRadiusTiles * consts.TileSize)
-		visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius)
+	// if needsUpdate {
+	// 	// タイルの可視性マップを更新
+	// 	visionRadius := gc.Pixel(consts.VisionRadiusTiles * consts.TileSize)
+	// 	visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius)
 
-		// 光源情報キャッシュをクリア（更新前）
-		lightSourceCache = make(map[gc.GridElement]LightInfo)
+	// 	// 光源情報キャッシュをクリア（更新前）
+	// 	lightSourceCache = make(map[gc.GridElement]LightInfo)
 
-		// 視界内かつ光源があるタイルを探索済みとしてマーク
-		for _, tileData := range visibilityData {
-			if tileData.Visible {
-				// 光源チェック
-				lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
-				gridElement := gc.GridElement{X: gc.Tile(tileData.Col), Y: gc.Tile(tileData.Row)}
+	// 	// 視界内かつ光源があるタイルを探索済みとしてマーク
+	// 	for _, tileData := range visibilityData {
+	// 		if tileData.Visible {
+	// 			// 光源チェック
+	// 			lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
+	// 			gridElement := gc.GridElement{X: gc.Tile(tileData.Col), Y: gc.Tile(tileData.Row)}
 
-				// 光源情報をキャッシュに保存
-				lightSourceCache[gridElement] = lightInfo
+	// 			// 光源情報をキャッシュに保存
+	// 			lightSourceCache[gridElement] = lightInfo
 
-				// 光源範囲内（暗闇レベルが1.0未満）のみ探索済み
-				if lightInfo.Darkness < 1.0 {
-					world.Resources.Dungeon.ExploredTiles[gridElement] = true
-				}
-			}
-		}
+	// 			// 光源範囲内（暗闇レベルが1.0未満）のみ探索済み
+	// 			if lightInfo.Darkness < 1.0 {
+	// 				world.Resources.Dungeon.ExploredTiles[gridElement] = true
+	// 			}
+	// 		}
+	// 	}
 
-		// キャッシュ更新
-		playerPositionCache.lastPlayerX = playerPos.X
-		playerPositionCache.lastPlayerY = playerPos.Y
-		playerPositionCache.visibilityData = visibilityData
-		playerPositionCache.isInitialized = true
-	}
+	// 	// キャッシュ更新
+	// 	playerPositionCache.lastPlayerX = playerPos.X
+	// 	playerPositionCache.lastPlayerY = playerPos.Y
+	// 	playerPositionCache.visibilityData = visibilityData
+	// 	playerPositionCache.isInitialized = true
+	// }
 	// 距離に応じた段階的暗闇の描画はRenderSpriteSystemで行う
 	return nil
 }

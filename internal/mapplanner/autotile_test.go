@@ -180,6 +180,11 @@ Description = "土タイル"
 Name = "wall"
 Description = "壁タイル"
 BlockPass = true
+
+[[Tiles]]
+Name = "void"
+Description = "暗闇"
+BlockPass = true
 `
 
 	master, err := raw.Load(rawData)

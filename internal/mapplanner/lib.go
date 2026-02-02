@@ -93,8 +93,8 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+		// 境界外（マップ外＝暗闇）として扱う
+		return raw.TileRaw{Name: "void", BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -104,8 +104,8 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+		// 境界外（マップ外＝暗闇）として扱う
+		return raw.TileRaw{Name: "void", BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -113,10 +113,18 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 
 // LeftTile は左にあるタイルを調べる
 func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
+	x, y := bm.Level.XYTileCoord(idx)
+	// 左端の場合は境界外（マップ外＝暗闇）
+	if x == 0 {
+		return raw.TileRaw{Name: "void", BlockPass: true}
+	}
+
+	// 左のタイルが同じ行であることを確認
 	targetIdx := idx - 1
-	if targetIdx < 0 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+	_, targetY := bm.Level.XYTileCoord(targetIdx)
+	if targetY != y {
+		// 前の行にラップアラウンドしている（境界外）
+		return raw.TileRaw{Name: "void", BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -124,10 +132,18 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 
 // RightTile は右にあるタイルを調べる
 func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
+	x, y := bm.Level.XYTileCoord(idx)
+	// 右端の場合は境界外（マップ外＝暗闇）
+	if int(x) == int(bm.Level.TileWidth)-1 {
+		return raw.TileRaw{Name: "void", BlockPass: true}
+	}
+
+	// 右のタイルが同じ行であることを確認
 	targetIdx := idx + 1
-	if int(targetIdx) > len(bm.Tiles)-1 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+	_, targetY := bm.Level.XYTileCoord(targetIdx)
+	if targetY != y {
+		// 次の行にラップアラウンドしている（境界外）
+		return raw.TileRaw{Name: "void", BlockPass: true}
 	}
 
 	return bm.Tiles[targetIdx]
@@ -222,10 +238,19 @@ func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bo
 	return WallTypeGeneric
 }
 
-// isFloorOrWarp は移動可能タイルかを判定する
+// isFloorOrWarp は移動可能タイルかを判定する（壁オートタイル用）
+// voidタイルと境界外は床として扱わない（壁として扱う）
 func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
-	// 歩行可能
+	// voidタイル（暗闇・境界外）は壁として扱う
+	if tile.Name == "void" {
+		return false
+	}
 	return !tile.BlockPass
+}
+
+// isWall は壁タイルかを判定する
+func (bm MetaPlan) isWall(tile raw.TileRaw) bool {
+	return tile.Name == "wall"
 }
 
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体

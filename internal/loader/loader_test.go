@@ -112,8 +112,8 @@ func TestLoadSpriteSheets(t *testing.T) {
 		_, exists := tileSheet.Sprites["void"]
 		assert.True(t, exists, "void が存在すること")
 
-		// 合計49個のスプライトがあることを確認(dirt:16 + floor:16 + wall:16 + void:1)
-		assert.Equal(t, 49, len(tileSheet.Sprites), "49個のタイルスプライトが存在すること")
+		// 合計65個のスプライトがあることを確認（dirt: 16, floor: 16, wall: 16, dwall: 16, void: 1）
+		assert.Equal(t, 65, len(tileSheet.Sprites), "65個のタイルスプライトが存在すること")
 	})
 }
 
@@ -159,8 +159,8 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, sheet)
 
-		// 49個のタイルスプライトが存在することを確認(dirt:16 + floor:16 + wall:16 + void:1)
-		assert.Equal(t, 49, len(sheet.Sprites), "49個のタイルスプライトが存在すること")
+		// 65個のタイルスプライトが存在することを確認（dirt: 16, floor: 16, wall: 16, dwall: 16, void: 1）
+		assert.Equal(t, 65, len(sheet.Sprites), "65個のタイルスプライトが存在すること")
 	})
 
 	t.Run("singleスプライトシートを正常に読み込める", func(t *testing.T) {
