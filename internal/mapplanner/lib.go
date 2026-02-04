@@ -94,7 +94,7 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
 		// 境界外（マップ外＝暗闇）として扱う
-		return raw.TileRaw{Name: "void", BlockPass: true}
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -105,7 +105,7 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
 		// 境界外（マップ外＝暗闇）として扱う
-		return raw.TileRaw{Name: "void", BlockPass: true}
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -116,7 +116,7 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 	x, y := bm.Level.XYTileCoord(idx)
 	// 左端の場合は境界外（マップ外＝暗闇）
 	if x == 0 {
-		return raw.TileRaw{Name: "void", BlockPass: true}
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	// 左のタイルが同じ行であることを確認
@@ -124,7 +124,7 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 	_, targetY := bm.Level.XYTileCoord(targetIdx)
 	if targetY != y {
 		// 前の行にラップアラウンドしている（境界外）
-		return raw.TileRaw{Name: "void", BlockPass: true}
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -135,7 +135,7 @@ func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
 	x, y := bm.Level.XYTileCoord(idx)
 	// 右端の場合は境界外（マップ外＝暗闇）
 	if int(x) == int(bm.Level.TileWidth)-1 {
-		return raw.TileRaw{Name: "void", BlockPass: true}
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	// 右のタイルが同じ行であることを確認
@@ -143,7 +143,7 @@ func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
 	_, targetY := bm.Level.XYTileCoord(targetIdx)
 	if targetY != y {
 		// 次の行にラップアラウンドしている（境界外）
-		return raw.TileRaw{Name: "void", BlockPass: true}
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -239,12 +239,8 @@ func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bo
 }
 
 // isFloorOrWarp は移動可能タイルかを判定する（壁オートタイル用）
-// voidタイルと境界外は床として扱わない（壁として扱う）
+// BlockPassがtrueのタイルは床として扱わない
 func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
-	// voidタイル（暗闇・境界外）は壁として扱う
-	if tile.Name == "void" {
-		return false
-	}
 	return !tile.BlockPass
 }
 
@@ -555,7 +551,7 @@ func NewRandomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain
 }
 
 // GetTile はタイルを生成する
-// エラーを潰しているだけ
+// TODO: エラーを潰しているだけなので直す
 func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 	if bm.RawMaster == nil {
 		panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -168,7 +169,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 					} else {
 						wallCount++
 					}
-					if tile.Name == "void" {
+					if tile.Name == consts.TileNameVoid {
 						voidCount++
 					}
 					if tile.Name == "bridge_a" || tile.Name == "bridge_b" || tile.Name == "bridge_c" || tile.Name == "bridge_d" {
