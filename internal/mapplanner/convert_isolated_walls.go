@@ -12,14 +12,6 @@ type ConvertIsolatedWalls struct {
 	ReplacementTile string
 }
 
-// NewConvertIsolatedWalls は新しいConvertIsolatedWallsプランナーを作成する
-// replacementTile: 孤立した壁を置き換えるタイル名（例: "void", "floor"）
-func NewConvertIsolatedWalls(replacementTile string) ConvertIsolatedWalls {
-	return ConvertIsolatedWalls{
-		ReplacementTile: replacementTile,
-	}
-}
-
 // PlanMeta は床に隣接しない壁タイルを指定したタイルに変換する
 func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 	width := int(planData.Level.TileWidth)

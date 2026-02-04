@@ -46,9 +46,11 @@ func (r *Rect) Center() (Tile, Tile) {
 }
 
 // BlockPass はフィールド上で通過できない
+// TODO: 能動態のほうがわかりやすそう
 type BlockPass struct{}
 
 // BlockView はフィールド上で視界を遮る
+// TODO: 能動態のほうがわかりやすそう
 type BlockView struct{}
 
 // Renderable はフィールド上で描画できる

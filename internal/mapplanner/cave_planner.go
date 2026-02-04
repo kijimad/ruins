@@ -345,11 +345,13 @@ func (c CaveConnector) createCaveTunnel(planData *MetaPlan, room1, room2 gc.Rect
 func NewCavePlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(CavePlanner{})
-	chain.With(CaveCellularAutomata{Iterations: 3})          // セルラーオートマトン
-	chain.With(CavePathWidener{})                            // 通路を広げる
-	chain.With(CaveConnector{})                              // 隔離領域を接続
-	chain.With(CaveStalactites{})                            // 鍾乳石配置
-	chain.With(NewConvertIsolatedWalls(consts.TileNameVoid)) // 床に隣接しない壁をvoidに変換
+	chain.With(CaveCellularAutomata{Iterations: 3}) // セルラーオートマトン
+	chain.With(CavePathWidener{})                   // 通路を広げる
+	chain.With(CaveConnector{})                     // 隔離領域を接続
+	chain.With(CaveStalactites{})                   // 鍾乳石配置
+	chain.With(ConvertIsolatedWalls{                // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }

@@ -248,11 +248,6 @@ func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
 	return !tile.BlockPass
 }
 
-// isWall は壁タイルかを判定する
-func (bm MetaPlan) isWall(tile raw.TileRaw) bool {
-	return tile.Name == consts.TileNameWall
-}
-
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体
 type PlannerChain struct {
 	Starter  *InitialMapPlanner
@@ -332,10 +327,12 @@ type MetaMapPlanner interface {
 func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll(consts.TileNameWall))              // 全体を壁で埋める
-	chain.With(RoomDraw{})                                   // 部屋を描画
-	chain.With(LineCorridorPlanner{})                        // 廊下を作成
-	chain.With(NewConvertIsolatedWalls(consts.TileNameVoid)) // 床に隣接しない壁をvoidに変換
+	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
+	chain.With(RoomDraw{})                      // 部屋を描画
+	chain.With(LineCorridorPlanner{})           // 廊下を作成
+	chain.With(ConvertIsolatedWalls{            // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }
@@ -350,7 +347,9 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 		FloorTile: consts.TileNameFloor,
 		WallTile:  consts.TileNameWall,
 	}) // 大部屋を描画（バリエーション込み）
-	chain.With(NewConvertIsolatedWalls(consts.TileNameVoid)) // 床に隣接しない壁をvoidに変換
+	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }

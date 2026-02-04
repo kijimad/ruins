@@ -268,7 +268,9 @@ func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain,
 		FloorTile: consts.TileNameFloor,
 		WallTile:  consts.TileNameWall,
 	}) // 通路を作成
-	chain.With(NewConvertIsolatedWalls(consts.TileNameVoid)) // 床に隣接しない壁をvoidに変換
+	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }

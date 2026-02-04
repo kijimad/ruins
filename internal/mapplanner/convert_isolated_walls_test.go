@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/stretchr/testify/assert"
@@ -51,7 +52,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	planData.Tiles[centerIdx] = planData.GetTile("wall")
 
 	// プランナーを実行（floorに変換）
-	converter := NewConvertIsolatedWalls("floor")
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameFloor}
 	err := converter.PlanMeta(planData)
 	assert.NoError(t, err)
 
@@ -108,7 +109,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	}
 
 	// プランナーを実行（voidに変換）
-	converter := NewConvertIsolatedWalls("void")
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	assert.NoError(t, err)
 
@@ -147,7 +148,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	}
 
 	// プランナーを実行
-	converter := NewConvertIsolatedWalls("void")
+	converter := ConvertIsolatedWalls{ReplacementTile: consts.TileNameVoid}
 	err := converter.PlanMeta(planData)
 	assert.NoError(t, err)
 
