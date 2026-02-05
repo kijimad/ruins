@@ -49,11 +49,8 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			// 通行不可タイルを生成
 			switch tile.Name {
 			case "wall":
-				// 隣接に床がある場合のみ壁エンティティを生成
-				if metaPlan.AdjacentAnyFloor(i) {
-					index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
-					_, err = worldhelper.SpawnTile(world, "wall", tileX, tileY, &index)
-				}
+				index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
+				_, err = worldhelper.SpawnTile(world, "dwall", tileX, tileY, &index)
 			case "void":
 				_, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
 			default:

@@ -93,8 +93,8 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+		// 境界外（マップ外＝暗闇）として扱う
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -104,8 +104,8 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+		// 境界外（マップ外＝暗闇）として扱う
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -113,10 +113,18 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 
 // LeftTile は左にあるタイルを調べる
 func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
+	x, y := bm.Level.XYTileCoord(idx)
+	// 左端の場合は境界外（マップ外＝暗闇）
+	if x == 0 {
+		return bm.GetTile(consts.TileNameVoid)
+	}
+
+	// 左のタイルが同じ行であることを確認
 	targetIdx := idx - 1
-	if targetIdx < 0 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+	_, targetY := bm.Level.XYTileCoord(targetIdx)
+	if targetY != y {
+		// 前の行にラップアラウンドしている（境界外）
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -124,10 +132,18 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 
 // RightTile は右にあるタイルを調べる
 func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
+	x, y := bm.Level.XYTileCoord(idx)
+	// 右端の場合は境界外（マップ外＝暗闇）
+	if int(x) == int(bm.Level.TileWidth)-1 {
+		return bm.GetTile(consts.TileNameVoid)
+	}
+
+	// 右のタイルが同じ行であることを確認
 	targetIdx := idx + 1
-	if int(targetIdx) > len(bm.Tiles)-1 {
-		// 境界外は通行不可のゼロ値を返す
-		return raw.TileRaw{BlockPass: true}
+	_, targetY := bm.Level.XYTileCoord(targetIdx)
+	if targetY != y {
+		// 次の行にラップアラウンドしている（境界外）
+		return bm.GetTile(consts.TileNameVoid)
 	}
 
 	return bm.Tiles[targetIdx]
@@ -222,9 +238,9 @@ func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bo
 	return WallTypeGeneric
 }
 
-// isFloorOrWarp は移動可能タイルかを判定する
+// isFloorOrWarp は移動可能タイルかを判定する（壁オートタイル用）
+// BlockPassがtrueのタイルは床として扱わない
 func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
-	// 歩行可能
 	return !tile.BlockPass
 }
 
@@ -307,9 +323,12 @@ type MetaMapPlanner interface {
 func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
-	chain.With(NewFillAll("wall"))    // 全体を壁で埋める
-	chain.With(RoomDraw{})            // 部屋を描画
-	chain.With(LineCorridorPlanner{}) // 廊下を作成
+	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
+	chain.With(RoomDraw{})                      // 部屋を描画
+	chain.With(LineCorridorPlanner{})           // 廊下を作成
+	chain.With(ConvertIsolatedWalls{            // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }
@@ -319,11 +338,14 @@ func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerCh
 func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(BigRoomPlanner{})
-	chain.With(NewFillAll("wall")) // 全体を壁で埋める
+	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
 	chain.With(BigRoomDraw{
-		FloorTile: "floor",
-		WallTile:  "wall",
+		FloorTile: consts.TileNameFloor,
+		WallTile:  consts.TileNameWall,
 	}) // 大部屋を描画（バリエーション込み）
+	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }
@@ -529,7 +551,7 @@ func NewRandomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain
 }
 
 // GetTile はタイルを生成する
-// エラーを潰しているだけ
+// TODO: エラーを潰しているだけなので直す
 func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 	if bm.RawMaster == nil {
 		panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")

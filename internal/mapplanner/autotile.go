@@ -73,12 +73,18 @@ func (ati AutoTileIndex) String() string {
 }
 
 // CalculateAutoTileIndex は4方向の隣接情報からオートタイルインデックスを計算
+// 同じタイル名のタイルとのみ接続する
 func (mp *MetaPlan) CalculateAutoTileIndex(idx resources.TileIdx, tileType string) AutoTileIndex {
-	// 4方向の隣接チェック - 既存のメソッドはTileRawを返すので直接比較
-	up := mp.UpTile(idx).Name == tileType
-	down := mp.DownTile(idx).Name == tileType
-	left := mp.LeftTile(idx).Name == tileType
-	right := mp.RightTile(idx).Name == tileType
+	// 4方向の隣接チェック - 同じタイル名の場合のみ接続
+	upTile := mp.UpTile(idx)
+	downTile := mp.DownTile(idx)
+	leftTile := mp.LeftTile(idx)
+	rightTile := mp.RightTile(idx)
+
+	up := upTile.Name == tileType
+	down := downTile.Name == tileType
+	left := leftTile.Name == tileType
+	right := rightTile.Name == tileType
 
 	// ビットマスク計算（標準16タイルパターン）
 	bitmask := 0

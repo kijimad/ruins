@@ -8,7 +8,7 @@
   weight   = 1
 
   map = """
-........rrr.........
+##......rrr.......##
 #rrr....rrr.....rrr#
 #rrr....rrr.....rrr#
 #rrL....rrr.....Lrr#
@@ -19,13 +19,13 @@
 #rrrrrrrrrrrrrrrrrr#
 #rrrrrrrrFrrrrrrrrr#
 #rrrrrrrrrrrrrrrrrr#
-#....rrrrrrrrr.....#
-#.....rrrrrrr......#
-#...1..rrrrr.......#
-#.......rrr...2....#
-#.......rrr........#
+#....rrrrrrrrr###..#
+#.....rrrrrrr.###..#
+#...1..rrrrr..###..#
+#.#.....rrr...2....#
+#.##....rrr........#
 #rrL....rrr.....Lrr#
 #rrr....rrr.....rrr#
 #rrr....rrr.....rrr#
-........rrr.........
+##......rrr.......##
 """

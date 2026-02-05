@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 )
@@ -348,6 +349,9 @@ func NewCavePlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, 
 	chain.With(CavePathWidener{})                   // 通路を広げる
 	chain.With(CaveConnector{})                     // 隔離領域を接続
 	chain.With(CaveStalactites{})                   // 鍾乳石配置
+	chain.With(ConvertIsolatedWalls{                // 床に隣接しない壁をvoidに変換
+		ReplacementTile: consts.TileNameVoid,
+	})
 
 	return chain, nil
 }
