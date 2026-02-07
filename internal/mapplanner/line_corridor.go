@@ -55,7 +55,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 					points = append(points, corridorPoints...)
 				}
 			}
-			corridor := []resources.TileIdx{}
+			corridor := make([]resources.TileIdx, 0, len(points))
 			for _, p := range points {
 				idx := planData.Level.XYTileIndex(p.x, p.y)
 				if 0 < int(idx) && int(idx) < int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 && planData.Tiles[idx].Name == "wall" {

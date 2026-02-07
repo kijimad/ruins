@@ -68,16 +68,16 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	interactable := world.Components.Interactable.Get(ia.InteractableEntity).(*gc.Interactable)
 
 	// 相互作用の種類に応じた処理を実行
-	var interactionErr error
+	var err error
 	switch content := interactable.Data.(type) {
 	case gc.BridgeInteraction:
-		ia.executeBridge(act, world, content)
+		err = ia.executeBridge(act, world, content)
 	case gc.BridgeHintInteraction:
 		ia.executeBridgeHint(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
-		ia.executeTalk(act, world, content)
+		err = ia.executeTalk(act, world, content)
 	case gc.ItemInteraction:
 		ia.executeItem(act, world, content)
 	case gc.MeleeInteraction:
@@ -85,12 +85,12 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	case gc.TestTriggerInteraction:
 		ia.executeTestTrigger(act, world, content)
 	default:
-		interactionErr = fmt.Errorf("未知の相互作用タイプ: %T", interactable)
-		act.Cancel(fmt.Sprintf("相互作用発動エラー: %s", interactionErr.Error()))
+		err = fmt.Errorf("未知の相互作用タイプ: %T", interactable)
+		act.Cancel(fmt.Sprintf("相互作用発動エラー: %s", err.Error()))
 	}
 
-	if interactionErr != nil {
-		return interactionErr
+	if err != nil {
+		return err
 	}
 
 	act.Complete()
@@ -110,7 +110,7 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 }
 
 // executeBridge は出口を通る相互作用を実行する
-func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) {
+func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) error {
 	// resources.Dungeonから次のPlannerTypeNameを取得
 	var nextPlannerTypeName consts.PlannerTypeName
 	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
@@ -121,14 +121,19 @@ func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.Worl
 
 	// 街広場へのワープか、次フロアへの遷移かを判定
 	if nextPlannerTypeName == consts.PlannerTypeNameTownPlaza {
-		world.Resources.Dungeon.SetStateEvent(resources.WarpPlazaEvent{})
+		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpPlazaEvent{}); err != nil {
+			return fmt.Errorf("街広場ワープ状態変更要求エラー: %w", err)
+		}
 		act.Logger.Debug("街広場へワープ", "actor", act.Actor, "bridgeID", bridge.BridgeID)
 	} else {
-		world.Resources.Dungeon.SetStateEvent(resources.WarpNextEvent{
+		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpNextEvent{
 			NextPlannerType: nextPlannerTypeName,
-		})
+		}); err != nil {
+			return fmt.Errorf("次フロアワープ状態変更要求エラー: %w", err)
+		}
 		act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", string(nextPlannerTypeName))
 	}
+	return nil
 }
 
 // executeBridgeHint は橋のヒント表示相互作用を実行する
@@ -183,10 +188,9 @@ func (ia *InteractionActivateActivity) executeDoor(act *Activity, world w.World,
 }
 
 // executeTalk は会話相互作用を実行する
-func (ia *InteractionActivateActivity) executeTalk(act *Activity, world w.World, _ gc.TalkInteraction) {
+func (ia *InteractionActivateActivity) executeTalk(act *Activity, world w.World, _ gc.TalkInteraction) error {
 	if !ia.InteractableEntity.HasComponent(world.Components.Dialog) {
-		act.Logger.Warn("TalkInteractionだがDialogコンポーネントがない", "entity", ia.InteractableEntity)
-		return
+		return fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません: entity=%v", ia.InteractableEntity)
 	}
 
 	params := ActionParams{
@@ -197,18 +201,20 @@ func (ia *InteractionActivateActivity) executeTalk(act *Activity, world w.World,
 	manager := NewActivityManager(act.Logger)
 	result, err := manager.Execute(&TalkActivity{}, params, world)
 	if err != nil {
-		act.Logger.Warn("会話アクション失敗", "error", err)
-		return
+		return fmt.Errorf("会話アクション失敗: %w", err)
 	}
 
-	// 会話成功時は会話メッセージを表示するStateEventを設定
+	// 会話成功時は会話メッセージを表示する状態変更を要求
 	if result != nil && result.Success {
 		dialog := world.Components.Dialog.Get(ia.InteractableEntity).(*gc.Dialog)
-		world.Resources.Dungeon.SetStateEvent(resources.ShowDialogEvent{
+		if err := world.Resources.Dungeon.RequestStateChange(resources.ShowDialogEvent{
 			MessageKey:    dialog.MessageKey,
 			SpeakerEntity: ia.InteractableEntity,
-		})
+		}); err != nil {
+			return fmt.Errorf("会話状態変更要求エラー: %w", err)
+		}
 	}
+	return nil
 }
 
 // executeItem はアイテム拾得相互作用を実行する

@@ -184,7 +184,9 @@ func InitWorld(minGameWidth int, minGameHeight int) (w.World, error) {
 			Scale:   3,
 		},
 	}
-	gameResource.SetStateEvent(gr.NoneEvent{})
+	if err := gameResource.RequestStateChange(gr.NoneEvent{}); err != nil {
+		return w.World{}, fmt.Errorf("初期化時の状態変更要求エラー: %w", err)
+	}
 	world.Resources.Dungeon = gameResource
 
 	// initialize systems

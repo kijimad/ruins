@@ -140,7 +140,9 @@ func (st *DungeonState) OnStop(world w.World) error {
 	}))
 
 	// reset
-	world.Resources.Dungeon.SetStateEvent(resources.NoneEvent{})
+	if err := world.Resources.Dungeon.RequestStateChange(resources.NoneEvent{}); err != nil {
+		return fmt.Errorf("状態変更のリセットエラー: %w", err)
+	}
 
 	// 視界キャッシュをクリア
 	gs.ClearVisionCaches()
@@ -424,9 +426,9 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	return playerDead
 }
 
-// handleStateEvent はStateEventを処理し、対応する遷移を返す
+// handleStateEvent は状態変更イベントを処理し、対応する遷移を返す
 func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World], error) {
-	event := world.Resources.Dungeon.ConsumeStateEvent()
+	event := world.Resources.Dungeon.ConsumeStateChange()
 
 	switch e := event.(type) {
 	case resources.ShowDialogEvent:
@@ -464,7 +466,9 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 
 		// 10階を超えたらゲームクリアイベントを発行
 		if nextDepth > 10 {
-			world.Resources.Dungeon.SetStateEvent(resources.GameClearEvent{})
+			if err := world.Resources.Dungeon.RequestStateChange(resources.GameClearEvent{}); err != nil {
+				return es.Transition[w.World]{}, fmt.Errorf("ゲームクリア状態変更要求エラー: %w", err)
+			}
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 
