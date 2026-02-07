@@ -58,7 +58,8 @@ func InitTestWorld(t *testing.T) w.World {
 			Scale:   3,
 		},
 	}
-	gameResource.SetStateEvent(gr.NoneEvent{})
+	err = gameResource.RequestStateChange(gr.NoneEvent{})
+	require.NoError(t, err, "テスト初期化時の状態変更要求に失敗しました")
 	world.Resources.Dungeon = gameResource
 
 	return world

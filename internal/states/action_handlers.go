@@ -1,6 +1,8 @@
 package states
 
 import (
+	"fmt"
+
 	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -76,15 +78,17 @@ func executeActivity(world w.World, actorImpl actions.ActivityInterface, params 
 		return err
 	}
 
-	// 会話の場合は会話メッセージを表示するStateEventを設定
+	// 会話の場合は会話メッセージを表示する状態変更を要求
 	if _, isTalkActivity := actorImpl.(*actions.TalkActivity); isTalkActivity && result != nil && result.Success && params.Target != nil {
 		targetEntity := *params.Target
 		if targetEntity.HasComponent(world.Components.Dialog) {
 			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			world.Resources.Dungeon.SetStateEvent(resources.ShowDialogEvent{
+			if err := world.Resources.Dungeon.RequestStateChange(resources.ShowDialogEvent{
 				MessageKey:    dialog.MessageKey,
 				SpeakerEntity: targetEntity,
-			})
+			}); err != nil {
+				return fmt.Errorf("会話状態変更要求エラー: %w", err)
+			}
 		}
 	}
 

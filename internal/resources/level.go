@@ -1,6 +1,8 @@
 package resources
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -26,13 +28,18 @@ type Dungeon struct {
 	Bridges map[maptemplate.ExitID]consts.PlannerTypeName
 }
 
-// SetStateEvent はStateEventを設定する
-func (d *Dungeon) SetStateEvent(event StateEvent) {
+// RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す
+func (d *Dungeon) RequestStateChange(event StateEvent) error {
+	if d.stateEvent != nil && d.stateEvent.Type() != StateEventTypeNone {
+		return fmt.Errorf("イベントがすでに設定されています: %s → %s を設定しようとしました",
+			d.stateEvent.Type(), event.Type())
+	}
 	d.stateEvent = event
+	return nil
 }
 
-// ConsumeStateEvent はStateEventを一度だけ読み取り、読み取り後にNoneEventで自動クリアする
-func (d *Dungeon) ConsumeStateEvent() StateEvent {
+// ConsumeStateChange は状態変更イベントを読み取り、読み取り後にNoneEventでクリアする
+func (d *Dungeon) ConsumeStateChange() StateEvent {
 	event := d.stateEvent
 	d.stateEvent = NoneEvent{}
 	return event
