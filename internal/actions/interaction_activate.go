@@ -68,16 +68,16 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	interactable := world.Components.Interactable.Get(ia.InteractableEntity).(*gc.Interactable)
 
 	// 相互作用の種類に応じた処理を実行
-	var interactionErr error
+	var err error
 	switch content := interactable.Data.(type) {
 	case gc.BridgeInteraction:
-		interactionErr = ia.executeBridge(act, world, content)
+		err = ia.executeBridge(act, world, content)
 	case gc.BridgeHintInteraction:
 		ia.executeBridgeHint(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
-		interactionErr = ia.executeTalk(act, world, content)
+		err = ia.executeTalk(act, world, content)
 	case gc.ItemInteraction:
 		ia.executeItem(act, world, content)
 	case gc.MeleeInteraction:
@@ -85,12 +85,12 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	case gc.TestTriggerInteraction:
 		ia.executeTestTrigger(act, world, content)
 	default:
-		interactionErr = fmt.Errorf("未知の相互作用タイプ: %T", interactable)
-		act.Cancel(fmt.Sprintf("相互作用発動エラー: %s", interactionErr.Error()))
+		err = fmt.Errorf("未知の相互作用タイプ: %T", interactable)
+		act.Cancel(fmt.Sprintf("相互作用発動エラー: %s", err.Error()))
 	}
 
-	if interactionErr != nil {
-		return interactionErr
+	if err != nil {
+		return err
 	}
 
 	act.Complete()
@@ -190,8 +190,7 @@ func (ia *InteractionActivateActivity) executeDoor(act *Activity, world w.World,
 // executeTalk は会話相互作用を実行する
 func (ia *InteractionActivateActivity) executeTalk(act *Activity, world w.World, _ gc.TalkInteraction) error {
 	if !ia.InteractableEntity.HasComponent(world.Components.Dialog) {
-		act.Logger.Warn("TalkInteractionだがDialogコンポーネントがない", "entity", ia.InteractableEntity)
-		return nil
+		return fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません: entity=%v", ia.InteractableEntity)
 	}
 
 	params := ActionParams{
@@ -202,8 +201,7 @@ func (ia *InteractionActivateActivity) executeTalk(act *Activity, world w.World,
 	manager := NewActivityManager(act.Logger)
 	result, err := manager.Execute(&TalkActivity{}, params, world)
 	if err != nil {
-		act.Logger.Warn("会話アクション失敗", "error", err)
-		return nil
+		return fmt.Errorf("会話アクション失敗: %w", err)
 	}
 
 	// 会話成功時は会話メッセージを表示する状態変更を要求
