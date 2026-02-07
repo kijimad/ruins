@@ -491,9 +491,8 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 // NewTownState は街のステートを作成するファクトリー関数
 // 街は常に深度0、BuilderTypeはTown固定
 func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
-	allOpts := []DungeonStateOption{
-		WithBuilderType(mapplanner.PlannerTypeTown),
-	}
+	allOpts := make([]DungeonStateOption, 0, 1+len(opts))
+	allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))
 	allOpts = append(allOpts, opts...)
 
 	return NewDungeonState(0, allOpts...)

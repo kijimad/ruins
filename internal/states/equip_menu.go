@@ -284,7 +284,8 @@ func (st *EquipMenuState) createTabs(world w.World) []tabmenu.TabItem {
 
 // createAllSlotItems は武器と防具の全スロットのMenuItemを作成する
 func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _ int) []tabmenu.Item {
-	items := []tabmenu.Item{}
+	// 武器スロット5つ + 防具スロット4つ = 9つ
+	items := make([]tabmenu.Item, 0, 9)
 
 	// 武器スロットを追加する
 	weapons := worldhelper.GetWeapons(world, member)
