@@ -44,47 +44,25 @@ func NewRenderSpriteSystem() *RenderSpriteSystem {
 }
 
 // SetTranslate はカメラを考慮した画像配置オプションをセットする
-// TODO: ズーム率を追加する
 func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	var camera *gc.Camera
-	var cPos *gc.Position
-	var cGridElement *gc.GridElement
 
-	// ピクセル座標のカメラを先に確認
+	// カメラコンポーネントを取得
 	world.Manager.Join(
 		world.Components.Camera,
-		world.Components.Position,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		camera = world.Components.Camera.Get(entity).(*gc.Camera)
-		cPos = world.Components.Position.Get(entity).(*gc.Position)
-	}))
-
-	// グリッド座標のカメラを確認
-	world.Manager.Join(
-		world.Components.Camera,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera = world.Components.Camera.Get(entity).(*gc.Camera)
-		cGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
 	}))
 
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
-	// カメラ位置の設定
-	if cGridElement != nil {
-		// グリッド座標をピクセル座標に変換
-		tilePixelX := float64(int(cGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
-		tilePixelY := float64(int(cGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
-		op.GeoM.Translate(-tilePixelX, -tilePixelY)
-	} else if cPos != nil {
-		op.GeoM.Translate(float64(-cPos.X), float64(-cPos.Y))
-	}
-
+	// カメラ位置の設定（Camera.X/Yを直接使用）
 	if camera != nil {
+		op.GeoM.Translate(-camera.X, -camera.Y)
 		op.GeoM.Scale(camera.Scale, camera.Scale)
 	}
 	// 画面の中央
-	op.GeoM.Translate(float64(cx), float64(cy))
+	op.GeoM.Translate(cx, cy)
 }
 
 // String はシステム名を返す

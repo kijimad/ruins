@@ -3,9 +3,14 @@ package systems
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
+
+// CameraFollowSpeed はカメラ追従の速度を制御する
+// 値が大きいほど追従が速くなる。0.0〜1.0の範囲で、1.0なら即座に追従する
+const CameraFollowSpeed = 0.15
 
 // CameraSystem はカメラの追従とズーム処理を行う
 type CameraSystem struct{}
@@ -32,16 +37,19 @@ func (sys *CameraSystem) Update(world w.World) error {
 	// カメラのズーム処理と追従処理
 	world.Manager.Join(
 		world.Components.Camera,
-		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		camera := world.Components.Camera.Get(entity).(*gc.Camera)
-		cameraGridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		// カメラの追従（プレイヤー位置に即座に更新）
+		// プレイヤー位置をピクセル座標に変換してカメラの目標位置に設定
 		if playerGridElement != nil {
-			cameraGridElement.X = playerGridElement.X
-			cameraGridElement.Y = playerGridElement.Y
+			tileSize := float64(consts.TileSize)
+			camera.TargetX = float64(playerGridElement.X)*tileSize + tileSize/2
+			camera.TargetY = float64(playerGridElement.Y)*tileSize + tileSize/2
 		}
+
+		// カメラ位置を目標位置に向けて滑らかに補間
+		camera.X += (camera.TargetX - camera.X) * CameraFollowSpeed
+		camera.Y += (camera.TargetY - camera.Y) * CameraFollowSpeed
 
 		// ズーム率変更
 		// 参考: https://ebitengine.org/ja/examples/isometric.html
@@ -60,27 +68,15 @@ func (sys *CameraSystem) Update(world w.World) error {
 		}
 		camera.ScaleTo += scrollY * (camera.ScaleTo / 7)
 
-		// Clamp target zoom level.
+		// ズーム率の範囲制限
 		if camera.ScaleTo < 0.8 {
 			camera.ScaleTo = 0.8
 		} else if camera.ScaleTo > 10 {
 			camera.ScaleTo = 10
 		}
 
-		// Smooth zoom transition.
-		// cfg := config.MustGet()
-		// if cfg.DisableAnimation {
-		// 	// アニメーション無効時は即座にズーム
+		// ズームも滑らかに追従
 		camera.Scale = camera.ScaleTo
-		// } else {
-		// 	// 通常時はスムーズにズーム
-		// 	div := 10.0
-		// 	if camera.ScaleTo > camera.Scale {
-		// 		camera.Scale += (camera.ScaleTo - camera.Scale) / div
-		// 	} else if camera.ScaleTo < camera.Scale {
-		// 		camera.Scale -= (camera.Scale - camera.ScaleTo) / div
-		// 	}
-		// }
 	}))
 	return nil
 }

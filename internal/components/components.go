@@ -164,10 +164,16 @@ func (c *Components) InitializeComponents(manager *ecs.Manager) error {
 }
 
 // Camera はカメラ
-// 滑らかなズームの変更のため実際のズーム率と対象ズーム率を持つ
+// 滑らかなズームと追従のため、実際値と目標値を別々に持つ
 type Camera struct {
+	// ズーム率
 	Scale   float64
 	ScaleTo float64
+	// カメラ位置。ピクセル単位
+	X       float64
+	Y       float64
+	TargetX float64
+	TargetY float64
 }
 
 // Item はキャラクターが保持できるもの
