@@ -260,6 +260,12 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			}
 		}
 
+		// 光源範囲外では影を描画しない
+		lightInfo := getCachedLightInfo(world, int(gridElement.X), int(gridElement.Y))
+		if lightInfo.Darkness >= 1.0 {
+			return
+		}
+
 		// グリッド座標をピクセル座標に変換
 		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2 - 12)
 		pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
@@ -327,6 +333,11 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		belowX := int(belowPos.X)
 		belowY := int(belowPos.Y)
 		lightInfo := getCachedLightInfo(world, belowX, belowY)
+
+		// 光源範囲外では影を描画しない
+		if lightInfo.Darkness >= 1.0 {
+			return
+		}
 
 		// 光源の明るさに応じて影の透明度を調整
 		// Darkness: 0.0(明るい) → 影薄い、1.0(暗い) → 影濃い
