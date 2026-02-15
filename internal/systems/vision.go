@@ -398,7 +398,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 				minDarkness = darkness
 			}
 
-			// 光の強さを重みとして使用（近いほど強い）
+			// 光の強さを重みとして使用する。近いほど強い
 			weight := 1.0 - normalizedDistance
 
 			// 加重平均のための累積
@@ -522,7 +522,7 @@ func initializeDarknessCache(tileSize int) {
 		return
 	}
 
-	// 暗闇レベルの画像を作成（4段階: 0%, 33%, 66%, 100%）
+	// 暗闇レベルの画像を作成する。4段階: 0%, 33%, 66%, 100%
 	darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
 
 	// 各暗闇レベルの画像を作成
@@ -574,7 +574,7 @@ func drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, 
 		return // 暗闇なし
 	}
 
-	// 暗闇レベルを離散化（DarknessLevels段階）
+	// 暗闇レベルを離散化
 	// 連続値を離散化することでグラデーションの段階を減らす
 	darknessLevel := int(math.Ceil(darkness * float64(DarknessLevels)))
 	if darknessLevel > DarknessLevels {

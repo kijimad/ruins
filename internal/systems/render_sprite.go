@@ -56,7 +56,7 @@ func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
-	// カメラ位置の設定（Camera.X/Yを直接使用）
+	// カメラ位置の設定
 	if camera != nil {
 		op.GeoM.Translate(-camera.X, -camera.Y)
 		op.GeoM.Scale(camera.Scale, camera.Scale)

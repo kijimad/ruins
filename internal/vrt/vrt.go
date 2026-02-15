@@ -51,7 +51,6 @@ const dirPerm = 0o755
 
 // Draw はゲームの描画処理を行う
 func (g *TestGame) Draw(screen *ebiten.Image) {
-	// MainGameのDrawを呼び出してscreenPipelineを使用する
 	g.MainGame.Draw(screen)
 
 	// テストでは保存しない
