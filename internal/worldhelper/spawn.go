@@ -439,5 +439,13 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	gridElement.X = gc.Tile(tileX)
 	gridElement.Y = gc.Tile(tileY)
 
+	// カメラ位置も同期する
+	camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)
+	tileSize := float64(consts.TileSize)
+	camera.X = float64(tileX)*tileSize + tileSize/2
+	camera.Y = float64(tileY)*tileSize + tileSize/2
+	camera.TargetX = camera.X
+	camera.TargetY = camera.Y
+
 	return nil
 }
