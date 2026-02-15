@@ -29,15 +29,20 @@ type MainGame struct {
 }
 
 // NewMainGame はMainGameを初期化する
-func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) *MainGame {
+func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
 	// オーバーレイ描画フックを設定
 	stateMachine.AfterDrawHook = afterDrawHook
+
+	retroFilter, err := screeneffect.NewRetroFilter()
+	if err != nil {
+		return nil, fmt.Errorf("レトロフィルタの初期化に失敗: %w", err)
+	}
 
 	return &MainGame{
 		World:          world,
 		StateMachine:   stateMachine,
-		screenPipeline: screeneffect.NewPipeline(screeneffect.NewRetroFilter()),
-	}
+		screenPipeline: screeneffect.NewPipeline(retroFilter),
+	}, nil
 }
 
 // Layout はinterface methodのため、シグネチャは変更できない

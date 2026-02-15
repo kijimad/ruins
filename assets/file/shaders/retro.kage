@@ -2,13 +2,11 @@
 
 package main
 
-var Time float
 var ScreenSize vec2
 
 const CurvatureStrength = 0.2
 const ChromaticAberration = 0.6
 const VignetteStrength = 0.2
-const FlickerStrength = 0.02
 const GlowStrength = 0.1
 const ScanlineStrength = 0.1
 
@@ -62,10 +60,6 @@ func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
 	// ビネット
 	v := 1.0 - distance(curvedUV, center) * VignetteStrength * 2.0
 	c.rgb *= clamp(v, 0.0, 1.0)
-
-	// フリッカー
-	f := 1.0 - FlickerStrength * sin(Time*6.0) * sin(Time*2.0)
-	c.rgb *= f
 
 	return c
 }

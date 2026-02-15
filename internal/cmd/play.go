@@ -112,9 +112,11 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		return err
 	}
 
-	game := maingame.NewMainGame(world, stateMachine)
-	err = ebiten.RunGame(game)
+	game, err := maingame.NewMainGame(world, stateMachine)
 	if err != nil {
+		return err
+	}
+	if err := ebiten.RunGame(game); err != nil {
 		return err
 	}
 

@@ -11,14 +11,16 @@ import (
 func TestNewRetroFilter(t *testing.T) {
 	t.Parallel()
 
-	filter := NewRetroFilter()
+	filter, err := NewRetroFilter()
+	require.NoError(t, err, "フィルタの作成に失敗")
 	require.NotNil(t, filter, "フィルタがnilではないこと")
 }
 
 func TestRetroFilter_Apply(t *testing.T) {
 	t.Parallel()
 
-	filter := NewRetroFilter()
+	filter, err := NewRetroFilter()
+	require.NoError(t, err)
 
 	src := ebiten.NewImage(100, 100)
 	dst := ebiten.NewImage(100, 100)
@@ -32,7 +34,10 @@ func TestRetroFilter_Apply(t *testing.T) {
 func TestPipeline_BeginEnd(t *testing.T) {
 	t.Parallel()
 
-	pipeline := NewPipeline(NewRetroFilter())
+	filter, err := NewRetroFilter()
+	require.NoError(t, err)
+
+	pipeline := NewPipeline(filter)
 
 	// Beginでオフスクリーンバッファを取得
 	offscreen := pipeline.Begin(100, 100)
@@ -50,7 +55,10 @@ func TestPipeline_BeginEnd(t *testing.T) {
 func TestPipeline_ResizeBuffer(t *testing.T) {
 	t.Parallel()
 
-	pipeline := NewPipeline(NewRetroFilter())
+	filter, err := NewRetroFilter()
+	require.NoError(t, err)
+
+	pipeline := NewPipeline(filter)
 
 	// 最初のサイズ
 	offscreen1 := pipeline.Begin(100, 100)

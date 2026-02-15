@@ -129,7 +129,10 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		return fmt.Errorf("StateMachine Init failed: %w", err)
 	}
 
-	mainGame := maingame.NewMainGame(world, stateMachine)
+	mainGame, err := maingame.NewMainGame(world, stateMachine)
+	if err != nil {
+		return fmt.Errorf("MainGame Init failed: %w", err)
+	}
 
 	g := &TestGame{
 		MainGame:   *mainGame,

@@ -1,7 +1,7 @@
 package screeneffect
 
 import (
-	"time"
+	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/assets"
@@ -9,46 +9,42 @@ import (
 
 // RetroFilter はレトロゲーム風のエフェクトを適用するフィルタ
 type RetroFilter struct {
-	shader    *ebiten.Shader
-	startTime time.Time
-	enabled   bool
+	shader *ebiten.Shader
 }
 
 // NewRetroFilter は新しいレトロフィルタを作成する
-func NewRetroFilter() *RetroFilter {
-	filter := &RetroFilter{
-		enabled:   true,
-		startTime: time.Now(),
+func NewRetroFilter() (*RetroFilter, error) {
+	filter := &RetroFilter{}
+	if err := filter.initShader(); err != nil {
+		return nil, err
 	}
-	filter.initShader()
-	return filter
+	return filter, nil
 }
 
 // initShader はシェーダーを初期化する
-func (f *RetroFilter) initShader() {
+func (f *RetroFilter) initShader() error {
 	if f.shader != nil {
-		return
+		return nil
 	}
 
 	shaderSrc, err := assets.FS.ReadFile("file/shaders/retro.kage")
 	if err != nil {
-		f.enabled = false
-		return
+		return fmt.Errorf("シェーダーファイルの読み込みに失敗: %w", err)
 	}
 
 	shader, err := ebiten.NewShader(shaderSrc)
 	if err != nil {
-		f.enabled = false
-		return
+		return fmt.Errorf("シェーダーのコンパイルに失敗: %w", err)
 	}
 
 	f.shader = shader
+	return nil
 }
 
 // Apply はFilterインターフェースの実装
 // ソース画像にエフェクトを適用して描画先に出力する
 func (f *RetroFilter) Apply(dst, src *ebiten.Image) {
-	if !f.enabled || f.shader == nil {
+	if f.shader == nil {
 		dst.DrawImage(src, nil)
 		return
 	}
@@ -56,11 +52,9 @@ func (f *RetroFilter) Apply(dst, src *ebiten.Image) {
 	bounds := src.Bounds()
 	width := float32(bounds.Dx())
 	height := float32(bounds.Dy())
-	elapsed := float32(time.Since(f.startTime).Seconds())
 
 	op := &ebiten.DrawRectShaderOptions{}
 	op.Uniforms = map[string]interface{}{
-		"Time":       elapsed,
 		"ScreenSize": []float32{width, height},
 	}
 	op.Images[0] = src
