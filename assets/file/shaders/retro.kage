@@ -7,7 +7,6 @@ var ScreenSize vec2
 const CurvatureStrength = 0.2
 const ChromaticAberration = 0.6
 const VignetteStrength = 0.2
-const GlowStrength = 0.1
 const ScanlineStrength = 0.1
 
 func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
@@ -39,18 +38,6 @@ func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
 	a := imageSrc0At(pos).a
 
 	c := vec4(r, g, b, a)
-
-	// グロー
-	var glow vec4
-	glow += imageSrc0At(pos + vec2(-1, -1))
-	glow += imageSrc0At(pos + vec2(0, -1))
-	glow += imageSrc0At(pos + vec2(1, -1))
-	glow += imageSrc0At(pos + vec2(-1, 0))
-	glow += imageSrc0At(pos + vec2(1, 0))
-	glow += imageSrc0At(pos + vec2(-1, 1))
-	glow += imageSrc0At(pos + vec2(0, 1))
-	glow += imageSrc0At(pos + vec2(1, 1))
-	c.rgb += glow.rgb / 8.0 * GlowStrength
 
 	// 走査線
 	if int(dstPos.y)%2 == 0 {
