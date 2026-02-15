@@ -356,8 +356,9 @@ func getCachedLightInfo(world w.World, tileX, tileY int) LightInfo {
 func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 	minDarkness := 1.0 // 完全に暗い状態からスタート
 
-	// 色の最大値を保持
-	var maxR, maxG, maxB float64
+	// 加重平均用の累積値
+	var totalR, totalG, totalB float64
+	var totalWeight float64
 
 	// 全ての光源をチェック
 	world.Manager.Join(
@@ -397,30 +398,24 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 				minDarkness = darkness
 			}
 
-			// 光の強さ（1.0 = 中心、0.0 = 範囲端）
-			lightStrength := 1.0 - normalizedDistance
+			// 光の強さを重みとして使用（近いほど強い）
+			weight := 1.0 - normalizedDistance
 
-			// 色は最大値を採用して元の光源より明るくならないようにする
-			colorR := float64(lightSource.Color.R) * lightStrength
-			colorG := float64(lightSource.Color.G) * lightStrength
-			colorB := float64(lightSource.Color.B) * lightStrength
-
-			if colorR > maxR {
-				maxR = colorR
-			}
-			if colorG > maxG {
-				maxG = colorG
-			}
-			if colorB > maxB {
-				maxB = colorB
-			}
+			// 加重平均のための累積
+			totalR += float64(lightSource.Color.R) * weight
+			totalG += float64(lightSource.Color.G) * weight
+			totalB += float64(lightSource.Color.B) * weight
+			totalWeight += weight
 		}
 	}))
 
-	// 色をクランプ（0-255）
-	finalR := uint8(math.Min(255, maxR))
-	finalG := uint8(math.Min(255, maxG))
-	finalB := uint8(math.Min(255, maxB))
+	// 加重平均を計算
+	var finalR, finalG, finalB uint8
+	if totalWeight > 0 {
+		finalR = uint8(math.Min(255, totalR/totalWeight))
+		finalG = uint8(math.Min(255, totalG/totalWeight))
+		finalB = uint8(math.Min(255, totalB/totalWeight))
+	}
 
 	return LightInfo{
 		Darkness: minDarkness,
@@ -431,20 +426,16 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 // renderDistanceBasedDarkness は距離に応じた段階的暗闇を描画する
 func renderDistanceBasedDarkness(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) {
 	// カメラ位置とスケールを取得
-	var cameraPos gc.Position
+	var cameraX, cameraY float64
 	cameraScale := 1.0 // デフォルトスケール
 
-	// カメラのGridElementから位置を取得
+	// カメラコンポーネントから位置を取得
 	world.Manager.Join(
 		world.Components.Camera,
-		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		cameraGridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		cameraPos = gc.Position{
-			X: gc.Pixel(int(cameraGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: gc.Pixel(int(cameraGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
-		}
 		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+		cameraX = camera.X
+		cameraY = camera.Y
 		cameraScale = camera.Scale
 	}))
 
@@ -462,10 +453,10 @@ func renderDistanceBasedDarkness(world w.World, screen *ebiten.Image, visibility
 	actualScreenHeight := int(float64(screenHeight) / cameraScale)
 
 	// カメラオフセットを考慮した画面範囲
-	leftEdge := int(cameraPos.X) - actualScreenWidth/2
-	rightEdge := int(cameraPos.X) + actualScreenWidth/2
-	topEdge := int(cameraPos.Y) - actualScreenHeight/2
-	bottomEdge := int(cameraPos.Y) + actualScreenHeight/2
+	leftEdge := int(cameraX) - actualScreenWidth/2
+	rightEdge := int(cameraX) + actualScreenWidth/2
+	topEdge := int(cameraY) - actualScreenHeight/2
+	bottomEdge := int(cameraY) + actualScreenHeight/2
 
 	// タイル範囲に変換
 	startTileX := leftEdge/int(consts.TileSize) - 1
@@ -484,69 +475,65 @@ func renderDistanceBasedDarkness(world w.World, screen *ebiten.Image, visibility
 			// 視界データをチェック
 			if tileData, exists := visibilityData[tileKey]; exists {
 				if tileData.Visible {
-					// 視界内: 光源のみで暗さを決定（視界の暗闇は無視）
-					lightInfo = calculateLightSourceDarkness(world, tileX, tileY)
+					// 視界内: 光源の有無で効果を決定
+					info := calculateLightSourceDarkness(world, tileX, tileY)
+					if info.Darkness < 1.0 {
+						// 光源範囲内: 光源の色味を薄く表示
+						lightInfo = LightInfo{Darkness: 0.15, Color: info.Color}
+					} else {
+						// 光源範囲外: 薄い黒フィルター
+						lightInfo = LightInfo{Darkness: 0.3, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
+					}
 				} else {
-					// 視界範囲内だが見えないタイル: 完全に暗い（壁で遮られている）
+					// 視界範囲内だが見えないタイル（壁で遮蔽）: 完全に暗い
 					lightInfo = LightInfo{Darkness: 1.0, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
 				}
 			} else {
 				// 視界範囲外
-				if explored := world.Resources.Dungeon.ExploredTiles[gridElement]; explored {
-					// 探索済み視界外タイル: 完全に暗い（記憶として表示）
-					lightInfo = LightInfo{Darkness: 1.0, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
-				} else {
-					// 未探索タイル: 描画しない（完全に隠れる）
+				if !world.Resources.Dungeon.ExploredTiles[gridElement] {
+					// 未探索タイル: 描画しない
 					continue
 				}
+				// 探索済み視界外タイル: 完全に暗い
+				lightInfo = LightInfo{Darkness: 1.0, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
 			}
 
 			// 暗闇レベルが0より大きい場合のみ描画
 			if lightInfo.Darkness > 0.0 {
-				// タイルの画面座標を計算（スケールを考慮）
 				worldX := float64(tileX * int(consts.TileSize))
 				worldY := float64(tileY * int(consts.TileSize))
-				screenX := (worldX-float64(cameraPos.X))*cameraScale + float64(screenWidth)/2
-				screenY := (worldY-float64(cameraPos.Y))*cameraScale + float64(screenHeight)/2
+				screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
+				screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
 
-				// 暗闇レベルに応じた画像を描画
 				drawDarknessAtLevelWithColor(screen, screenX, screenY, lightInfo.Darkness, lightInfo.Color, cameraScale, int(consts.TileSize))
 			}
 		}
 	}
 }
 
-// initializeDarknessCache は段階的暗闃用の画像キャッシュを初期化する
+// DarknessLevels は暗闇の段階数を定義する
+// 少ない段階数のほうが見た目が自然になる
+const DarknessLevels = 4
+
+// initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
 func initializeDarknessCache(tileSize int) {
 	// tileSizeが0以下の場合は初期化しない
 	if tileSize <= 0 {
 		return
 	}
 
-	// より多くの暗闇レベルの画像を作成（10段階）
-	darknessCacheImages = make([]*ebiten.Image, 11)
+	// 暗闇レベルの画像を作成（4段階: 0%, 33%, 66%, 100%）
+	darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
 
 	// 各暗闇レベルの画像を作成
-	darknessCacheImages[0] = nil // 0.0: 暗闇なし
+	darknessCacheImages[0] = nil // 0: 暗闇なし
 
-	// 0.1から1.0まで0.1刻みで10段階作成
-	for i := 1; i <= 10; i++ {
-		darkness := float64(i) * 0.1
+	for i := 1; i <= DarknessLevels; i++ {
+		darkness := float64(i) / float64(DarknessLevels)
 		alpha := uint8(darkness * 255) // 透明度を0-255に変換
 
 		darknessCacheImages[i] = ebiten.NewImage(tileSize, tileSize)
-
-		// 最外側（80%以上の暗さ）は真っ黒、それ以外は暖色系
-		if darkness >= 0.8 {
-			// 最外側は純黒
-			darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
-		} else {
-			// 内側は暖色系の暗闇（微かな茶色がかった暗闇）
-			r := uint8(float64(alpha) * 0.15) // 透明度の15%の赤成分
-			g := uint8(float64(alpha) * 0.10) // 透明度の10%の緑成分
-			b := uint8(float64(alpha) * 0.05) // 透明度の5%の青成分
-			darknessCacheImages[i].Fill(color.RGBA{r, g, b, alpha})
-		}
+		darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
 	}
 }
 
@@ -587,8 +574,18 @@ func drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, 
 		return // 暗闇なし
 	}
 
-	// 暗闇レベルを0-10の範囲にクランプ
-	darknessLevel := int(math.Max(0, math.Min(10, darkness*10+0.5)))
+	// 暗闇レベルを離散化（DarknessLevels段階）
+	// 連続値を離散化することでグラデーションの段階を減らす
+	darknessLevel := int(math.Ceil(darkness * float64(DarknessLevels)))
+	if darknessLevel > DarknessLevels {
+		darknessLevel = DarknessLevels
+	}
+	if darknessLevel < 1 {
+		darknessLevel = 1
+	}
+
+	// 離散化した暗闇値を計算
+	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
 
 	// キャッシュキーを生成
 	cacheKey := coloredDarknessCacheKey{
@@ -601,16 +598,15 @@ func drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, 
 	// キャッシュから画像を取得、なければ生成
 	darknessImg, exists := coloredDarknessCache[cacheKey]
 	if !exists {
-		// 暗闇の強さに応じた透明度
-		alpha := uint8(darkness * 255)
+		// 離散化した暗闇の強さに応じた透明度
+		alpha := uint8(quantizedDarkness * 255)
 
-		// 光源の色を使った暗闇を作る
-		// 明るい部分（darknessが小さい）はランタンの色が強く、暗い部分は黒に近づく
-		lightStrength := 1.0 - darkness // 0.0(暗い) ~ 1.0(明るい)
+		// 光源の色味を控えめに反映した暗闇オーバーレイ
+		colorStrength := 0.1
 		darknessColor := color.RGBA{
-			R: uint8(float64(lightColor.R) * lightStrength * 0.6), // 明るい部分でランタンの色
-			G: uint8(float64(lightColor.G) * lightStrength * 0.5),
-			B: uint8(float64(lightColor.B) * lightStrength * 0.3),
+			R: uint8(float64(lightColor.R) * colorStrength),
+			G: uint8(float64(lightColor.G) * colorStrength),
+			B: uint8(float64(lightColor.B) * colorStrength),
 			A: alpha,
 		}
 
