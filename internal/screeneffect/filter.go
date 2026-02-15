@@ -24,7 +24,7 @@ func NewPipeline(filter Filter) *Pipeline {
 }
 
 // Begin はオフスクリーンバッファを準備して返す
-// nilレシーバの場合はnilを返す
+// nilレシーバの場合は何もせずnilを返す
 func (p *Pipeline) Begin(width, height int) *ebiten.Image {
 	if p == nil {
 		return nil
