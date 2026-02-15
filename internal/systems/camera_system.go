@@ -3,6 +3,7 @@ package systems
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -47,9 +48,17 @@ func (sys *CameraSystem) Update(world w.World) error {
 			camera.TargetY = float64(playerGridElement.Y)*tileSize + tileSize/2
 		}
 
-		// カメラ位置を目標位置に向けて滑らかに補間
-		camera.X += (camera.TargetX - camera.X) * CameraFollowSpeed
-		camera.Y += (camera.TargetY - camera.Y) * CameraFollowSpeed
+		// カメラ位置を目標位置に向けて補間
+		cfg := config.Get()
+		if cfg.DisableAnimation {
+			// アニメーション無効時は即座にスナップ
+			camera.X = camera.TargetX
+			camera.Y = camera.TargetY
+		} else {
+			// 滑らかに補間
+			camera.X += (camera.TargetX - camera.X) * CameraFollowSpeed
+			camera.Y += (camera.TargetY - camera.Y) * CameraFollowSpeed
+		}
 
 		// ズーム率変更
 		// 参考: https://ebitengine.org/ja/examples/isometric.html

@@ -51,9 +51,8 @@ const dirPerm = 0o755
 
 // Draw はゲームの描画処理を行う
 func (g *TestGame) Draw(screen *ebiten.Image) {
-	if err := g.StateMachine.Draw(g.World, screen); err != nil {
-		log.Printf("Draw error: %v", err)
-	}
+	// MainGameのDrawを呼び出してscreenPipelineを使用する
+	g.MainGame.Draw(screen)
 
 	// テストでは保存しない
 	if flag.Lookup("test.v") != nil {
