@@ -1,0 +1,52 @@
+//kage:unit pixels
+
+package main
+
+var ScreenSize vec2
+
+const CurvatureStrength = 0.2
+const ChromaticAberration = 0.6
+const VignetteStrength = 0.2
+const ScanlineStrength = 0.1
+
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	// ソース画像の原点とサイズを取得
+	origin := imageSrc0Origin()
+	size := imageSrc0Size()
+
+	// 正規化UV座標 (0-1)
+	uv := (srcPos - origin) / size
+	center := vec2(0.5, 0.5)
+
+	// CRTカーブ
+	offset := uv - center
+	dist := dot(offset, offset)
+	curvedUV := uv + offset * dist * CurvatureStrength
+
+	// 範囲外は黒
+	if curvedUV.x < 0.0 || curvedUV.x > 1.0 || curvedUV.y < 0.0 || curvedUV.y > 1.0 {
+		return vec4(0.0, 0.0, 0.0, 1.0)
+	}
+
+	// ソース画像の座標に戻す
+	pos := curvedUV * size + origin
+
+	// 色収差
+	r := imageSrc0At(pos + vec2(ChromaticAberration, 0)).r
+	g := imageSrc0At(pos).g
+	b := imageSrc0At(pos - vec2(ChromaticAberration, 0)).b
+	a := imageSrc0At(pos).a
+
+	c := vec4(r, g, b, a)
+
+	// 走査線
+	if int(dstPos.y)%2 == 0 {
+		c.rgb *= 1.0 - ScanlineStrength
+	}
+
+	// ビネット
+	v := 1.0 - distance(curvedUV, center) * VignetteStrength * 2.0
+	c.rgb *= clamp(v, 0.0, 1.0)
+
+	return c
+}

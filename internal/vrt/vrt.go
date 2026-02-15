@@ -51,9 +51,7 @@ const dirPerm = 0o755
 
 // Draw はゲームの描画処理を行う
 func (g *TestGame) Draw(screen *ebiten.Image) {
-	if err := g.StateMachine.Draw(g.World, screen); err != nil {
-		log.Printf("Draw error: %v", err)
-	}
+	g.MainGame.Draw(screen)
 
 	// テストでは保存しない
 	if flag.Lookup("test.v") != nil {
@@ -129,7 +127,10 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		return fmt.Errorf("StateMachine Init failed: %w", err)
 	}
 
-	mainGame := maingame.NewMainGame(world, stateMachine)
+	mainGame, err := maingame.NewMainGame(world, stateMachine)
+	if err != nil {
+		return fmt.Errorf("MainGame Init failed: %w", err)
+	}
 
 	g := &TestGame{
 		MainGame:   *mainGame,

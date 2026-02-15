@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/raw"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -126,7 +127,18 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 			scale = cameraInitialScale
 			scaleTo = cameraNormalScale
 		}
-		entitySpec.Camera = &gc.Camera{Scale: scale, ScaleTo: scaleTo}
+		// カメラ初期位置をプレイヤー位置に設定
+		tileSize := float64(consts.TileSize)
+		initialX := float64(tileX)*tileSize + tileSize/2
+		initialY := float64(tileY)*tileSize + tileSize/2
+		entitySpec.Camera = &gc.Camera{
+			Scale:   scale,
+			ScaleTo: scaleTo,
+			X:       initialX,
+			Y:       initialY,
+			TargetX: initialX,
+			TargetY: initialY,
+		}
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 1000}
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -426,6 +438,14 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 	gridElement.X = gc.Tile(tileX)
 	gridElement.Y = gc.Tile(tileY)
+
+	// カメラ位置も同期する
+	camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)
+	tileSize := float64(consts.TileSize)
+	camera.X = float64(tileX)*tileSize + tileSize/2
+	camera.Y = float64(tileY)*tileSize + tileSize/2
+	camera.TargetX = camera.X
+	camera.TargetY = camera.Y
 
 	return nil
 }

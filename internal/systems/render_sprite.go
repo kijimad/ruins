@@ -44,47 +44,25 @@ func NewRenderSpriteSystem() *RenderSpriteSystem {
 }
 
 // SetTranslate はカメラを考慮した画像配置オプションをセットする
-// TODO: ズーム率を追加する
 func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {
 	var camera *gc.Camera
-	var cPos *gc.Position
-	var cGridElement *gc.GridElement
 
-	// ピクセル座標のカメラを先に確認
+	// カメラコンポーネントを取得
 	world.Manager.Join(
 		world.Components.Camera,
-		world.Components.Position,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		camera = world.Components.Camera.Get(entity).(*gc.Camera)
-		cPos = world.Components.Position.Get(entity).(*gc.Position)
-	}))
-
-	// グリッド座標のカメラを確認
-	world.Manager.Join(
-		world.Components.Camera,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera = world.Components.Camera.Get(entity).(*gc.Camera)
-		cGridElement = world.Components.GridElement.Get(entity).(*gc.GridElement)
 	}))
 
 	cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)
 
 	// カメラ位置の設定
-	if cGridElement != nil {
-		// グリッド座標をピクセル座標に変換
-		tilePixelX := float64(int(cGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
-		tilePixelY := float64(int(cGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
-		op.GeoM.Translate(-tilePixelX, -tilePixelY)
-	} else if cPos != nil {
-		op.GeoM.Translate(float64(-cPos.X), float64(-cPos.Y))
-	}
-
 	if camera != nil {
+		op.GeoM.Translate(-camera.X, -camera.Y)
 		op.GeoM.Scale(camera.Scale, camera.Scale)
 	}
 	// 画面の中央
-	op.GeoM.Translate(float64(cx), float64(cy))
+	op.GeoM.Translate(cx, cy)
 }
 
 // String はシステム名を返す
@@ -282,6 +260,12 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			}
 		}
 
+		// 光源範囲外では影を描画しない
+		lightInfo := getCachedLightInfo(world, int(gridElement.X), int(gridElement.Y))
+		if lightInfo.Darkness >= 1.0 {
+			return
+		}
+
 		// グリッド座標をピクセル座標に変換
 		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2 - 12)
 		pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
@@ -349,6 +333,11 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 		belowX := int(belowPos.X)
 		belowY := int(belowPos.Y)
 		lightInfo := getCachedLightInfo(world, belowX, belowY)
+
+		// 光源範囲外では影を描画しない
+		if lightInfo.Darkness >= 1.0 {
+			return
+		}
 
 		// 光源の明るさに応じて影の透明度を調整
 		// Darkness: 0.0(明るい) → 影薄い、1.0(暗い) → 影濃い

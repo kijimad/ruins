@@ -91,12 +91,9 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	playerMapX := float32(centerX)
 	playerMapY := float32(centerY)
 	vector.FillCircle(screen, playerMapX, playerMapY, 2, color.RGBA{255, 0, 0, 255}, false)
-
-	// ミニマップの枠を描画
-	minimap.drawFrame(screen, minimapX, minimapY, minimapWidth, minimapHeight)
 }
 
-// drawEmpty は空のミニマップ（枠のみ）を描画する
+// drawEmpty は空のミニマップを描画する
 func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 	minimapWidth := data.MinimapConfig.Width
 	minimapHeight := data.MinimapConfig.Height
@@ -113,24 +110,10 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 		screen.DrawImage(minimapBg, op)
 	}
 
-	// ミニマップの枠を描画
-	minimap.drawFrame(screen, minimapX, minimapY, minimapWidth, minimapHeight)
-
 	// 中央に"No Data"テキストを表示（枠線付き）
 	textX := float64(minimapX + 50)
 	textY := float64(minimapY + 70)
 	noDataText := "No Data"
 
 	drawOutlinedText(screen, noDataText, minimap.face, textX, textY, color.White)
-}
-
-// drawFrame はミニマップの枠を描画する
-func (minimap *Minimap) drawFrame(screen *ebiten.Image, x, y, width, height int) {
-	whiteColor := color.RGBA{255, 255, 255, 255}
-
-	// 枠線を描画
-	vector.FillRect(screen, float32(x-1), float32(y-1), 1, float32(height+2), whiteColor, false)     // 左
-	vector.FillRect(screen, float32(x+width), float32(y-1), 1, float32(height+2), whiteColor, false) // 右
-	vector.FillRect(screen, float32(x-1), float32(y-1), float32(width+2), 1, whiteColor, false)      // 上
-	vector.FillRect(screen, float32(x-1), float32(y+height), float32(width+2), 1, whiteColor, false) // 下
 }

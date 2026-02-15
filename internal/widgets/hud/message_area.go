@@ -1,6 +1,8 @@
 package hud
 
 import (
+	"image/color"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
@@ -89,6 +91,15 @@ func (area *MessageArea) Update(_ w.World) {
 	area.widget.Update()
 }
 
+// messageBackgroundStyle はメッセージエリアの背景スタイル
+func messageBackgroundStyle() styled.BackgroundStyle {
+	return styled.BackgroundStyle{
+		BorderColor:     color.RGBA{0, 0, 0, 0},   // 透明（枠線なし）
+		BackgroundColor: color.RGBA{0, 0, 0, 150}, // 半透明の黒背景
+		BorderWidth:     0,                        // 枠線なし
+	}
+}
+
 // Draw はメッセージエリアを描画する
 func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	if !area.enabled || area.widget == nil {
@@ -108,7 +119,7 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaY := screenHeight - fixedHeight
 
 	// 背景を描画
-	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, styled.DefaultMessageBackgroundStyle())
+	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, messageBackgroundStyle())
 
 	// オフスクリーンサイズ
 	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2

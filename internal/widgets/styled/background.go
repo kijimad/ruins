@@ -14,15 +14,6 @@ type BackgroundStyle struct {
 	BorderWidth     float32    // 枠線の太さ
 }
 
-// DefaultMessageBackgroundStyle はデフォルトのメッセージ背景スタイルを返す
-func DefaultMessageBackgroundStyle() BackgroundStyle {
-	return BackgroundStyle{
-		BorderColor:     color.RGBA{255, 255, 255, 255}, // 白色の枠線
-		BackgroundColor: color.RGBA{0, 0, 0, 200},       // 半透明の黒背景
-		BorderWidth:     2,                              // 線の太さ
-	}
-}
-
 // DrawFramedBackground は枠線付きの背景を描画する
 func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style BackgroundStyle) {
 	// 枠線を描画

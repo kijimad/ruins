@@ -1094,7 +1094,7 @@
 
   [Members.LightSource]
     Enabled = true
-    Radius  = 10
+    Radius  = 4
 
     [Members.LightSource.Color]
       A = 255
@@ -1913,9 +1913,9 @@
     Radius  = 3
 
     [Props.LightSource.Color]
-      A = 255
-      B = 150
-      G = 200
+      A = 200
+      B = 40
+      G = 40
       R = 255
 
 [[Props]]
@@ -1931,7 +1931,7 @@
 
   [Props.LightSource]
     Enabled = true
-    Radius  = 3
+    Radius  = 4
 
     [Props.LightSource.Color]
       A = 255
