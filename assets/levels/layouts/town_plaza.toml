@@ -1,31 +1,30 @@
-# NPC広場チャンク
-# 町の中央に配置する20x20の広場
+# 広場チャンク
 # 中央に焚き火、周囲にランタンを配置
 
 [[chunk]]
-  name     = "20x20_town_plaza"
+  name     = "50x20_town_plaza"
   palettes = ["standard", "town"]
   weight   = 1
 
   map = """
-##......rrr.......##
-#rrr....rrr.....rrr#
-#rrr....rrr.....rrr#
-#rrL....rrr.....Lrr#
-#.......rrr........#
-#..$...rrrrr.......#
-#.....rrrrrrr...3..#
-#....rrrrrrrrr.....#
-#rrrrrrrrrrrrrrrrrr#
-#rrrrrrrrFrrrrrrrrr#
-#rrrrrrrrrrrrrrrrrr#
-#....rrrrrrrrr###..#
-#.....rrrrrrr.###..#
-#...1..rrrrr..###..#
-#.#.....rrr...2....#
-#.##....rrr........#
-#rrL....rrr.....Lrr#
-#rrr....rrr.....rrr#
-#rrr....rrr.....rrr#
-##......rrr.......##
+##..........rrr........rrr........rrr...........##
+#rrr........rrr........rrr........rrr.........rrr#
+#rrr........rrr........rrr........rrr.........rrr#
+#rrL........rrr........rrr........rrr.........Lrr#
+#...........rrr........rrr........rrr............#
+#..$........rrrrr.....rrrrr.....rrrrr............#
+#..........rrrrrrr...rrrrrrr...rrrrrrr........3..#
+#.........rrrrrrrrr.rrrrrrrrr.rrrrrrrrr..........#
+#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
+#rrrrrrrrrrFrrrrrrrrrrrrFrrrrrrrrrrrrFrrrrrrrrrrr#
+#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
+#.........rrrrrrrrr.rrrrrrrrr.rrrrrrrrr..........#
+#..........rrrrrrr...rrrrrrr...rrrrrrr...........#
+#...1.......rrrrr.....rrrrr.....rrrrr............#
+#...........rrr...2....rrr.......rrr.............#
+#..##.......rrr........rrr.......rrr.............#
+#rrL........rrr........rrr........rrr.........Lrr#
+#rrr........rrr........rrr........rrr.........rrr#
+#rrr........rrr........rrr........rrr.........rrr#
+##..........rrr........rrr........rrr...........##
 """

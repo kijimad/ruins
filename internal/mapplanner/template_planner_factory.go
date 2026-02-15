@@ -51,7 +51,7 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 	case TemplateTypeSmallTown:
 		templateName = "50x50_small_town"
 	case TemplateTypeTownPlaza:
-		templateName = "20x20_town_plaza"
+		templateName = "50x20_town_plaza"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}
