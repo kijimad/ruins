@@ -1094,7 +1094,7 @@
 
   [Members.LightSource]
     Enabled = true
-    Radius  = 6
+    Radius  = 4
 
     [Members.LightSource.Color]
       A = 255

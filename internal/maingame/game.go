@@ -16,14 +16,16 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
 	gr "github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/screeneffect"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // MainGame はebiten.Game interfaceを満たす
 type MainGame struct {
-	World        w.World
-	StateMachine es.StateMachine[w.World]
+	World          w.World
+	StateMachine   es.StateMachine[w.World]
+	screenPipeline *screeneffect.Pipeline
 }
 
 // NewMainGame はMainGameを初期化する
@@ -32,8 +34,9 @@ func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) *MainGame
 	stateMachine.AfterDrawHook = afterDrawHook
 
 	return &MainGame{
-		World:        world,
-		StateMachine: stateMachine,
+		World:          world,
+		StateMachine:   stateMachine,
+		screenPipeline: screeneffect.NewPipeline(screeneffect.NewRetroFilter()),
 	}
 }
 
@@ -66,15 +69,26 @@ func (game *MainGame) Update() error {
 
 // Draw はゲームの描画処理を行う
 func (game *MainGame) Draw(screen *ebiten.Image) {
-	if err := game.StateMachine.Draw(game.World, screen); err != nil {
+	bounds := screen.Bounds()
+	offscreen := game.screenPipeline.Begin(bounds.Dx(), bounds.Dy())
+
+	// パイプラインが未設定の場合は直接screenに描画する
+	target := offscreen
+	if target == nil {
+		target = screen
+	}
+
+	if err := game.StateMachine.Draw(game.World, target); err != nil {
 		log.Fatal(err)
 	}
 
 	cfg := config.Get()
 	if cfg.ShowMonitor {
 		msg := getPerformanceInfo()
-		ebitenutil.DebugPrint(screen, msg)
+		ebitenutil.DebugPrint(target, msg)
 	}
+
+	game.screenPipeline.End(screen)
 }
 
 // getPerformanceInfo はパフォーマンス情報を文字列として返す
