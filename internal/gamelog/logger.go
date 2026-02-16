@@ -148,16 +148,6 @@ func (l *Logger) Money(amount interface{}) *Logger {
 	return l
 }
 
-// Magic は魔法関連を紫色で追加
-func (l *Logger) Magic(text interface{}) *Logger {
-	textStr := fmt.Sprintf("%v", text)
-	l.fragments = append(l.fragments, LogFragment{
-		Color: consts.ColorMagenta,
-		Text:  textStr,
-	})
-	return l
-}
-
 // System はシステムメッセージを水色で追加
 func (l *Logger) System(text interface{}) *Logger {
 	textStr := fmt.Sprintf("%v", text)

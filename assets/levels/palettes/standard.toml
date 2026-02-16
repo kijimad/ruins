@@ -14,6 +14,7 @@
 
     # Props文字の下の地形。Propsと同じ文字に地形も定義する
     "+" = "floor" # ドアの下は床
+    ">" = "floor" # 次階層ポータルの下は床
     "B" = "floor" # ベッドの下は床
     "C" = "floor" # 椅子の下は床
     "D" = "floor" # 机の下は床
@@ -28,6 +29,7 @@
   # 例: "T" には地形として "floor"、Propsとして "table" を定義
   [palette.props]
     "+" = "door"         # ドア
+    ">" = "warp_next"    # 次階層ポータル
     "B" = "bed"          # ベッド
     "C" = "chair"        # 椅子
     "D" = "desk"         # 机

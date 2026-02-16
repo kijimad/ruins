@@ -120,8 +120,8 @@ func TestLoadRealFiles(t *testing.T) {
 		require.NotEmpty(t, templates)
 
 		plaza := templates[0]
-		assert.Equal(t, "20x20_town_plaza", plaza.Name)
-		assert.Equal(t, Size{W: 20, H: 20}, plaza.Size)
+		assert.Equal(t, "50x20_town_plaza", plaza.Name)
+		assert.Equal(t, Size{W: 50, H: 20}, plaza.Size)
 		assert.Contains(t, plaza.Palettes, "standard")
 		assert.Contains(t, plaza.Palettes, "town")
 
@@ -133,7 +133,7 @@ func TestLoadRealFiles(t *testing.T) {
 		lines := splitMapLines(plaza.Map)
 		assert.Len(t, lines, 20)
 		for _, line := range lines {
-			assert.Len(t, line, 20)
+			assert.Len(t, line, 50)
 		}
 	})
 }

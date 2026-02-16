@@ -129,9 +129,13 @@ func ExecuteEnterAction(world w.World) error {
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	interactable, interactableEntity := getInteractableAtSameTile(world, gridElement)
-	if interactable != nil && interactable.Data.Config().ActivationRange == gc.ActivationRangeSameTile {
-		params := actions.ActionParams{Actor: entity}
-		return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
+	if interactable != nil {
+		config := interactable.Data.Config()
+		// 手動発動（Enterキー）かつ同タイルのみ実行
+		if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
+			params := actions.ActionParams{Actor: entity}
+			return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
+		}
 	}
 
 	return nil
@@ -260,13 +264,24 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 		return
 	}
 
-	switch interactable.Data.(type) {
+	switch data := interactable.Data.(type) {
 	case gc.ItemInteraction:
 		formattedName := worldhelper.FormatItemName(world, interactableEntity)
 		gamelog.New(gamelog.FieldLog).
 			ItemName(formattedName).
 			Append(" がある。").
 			Log()
+	case gc.PortalInteraction:
+		switch data.PortalType {
+		case gc.PortalTypeNext:
+			gamelog.New(gamelog.FieldLog).
+				Append("転移ゲートがある。Enterキーで移動。").
+				Log()
+		case gc.PortalTypeTown:
+			gamelog.New(gamelog.FieldLog).
+				Append("帰還ゲートがある。Enterキーで脱出。").
+				Log()
+		}
 	}
 }
 
@@ -281,7 +296,7 @@ type InteractionAction struct {
 func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {
 	var result []InteractionAction
 
-	switch interactable.Data.(type) {
+	switch portalData := interactable.Data.(type) {
 	case gc.DoorInteraction:
 		// ドアの状態に応じたアクションを生成
 		if interactableEntity.HasComponent(world.Components.Door) {
@@ -316,6 +331,20 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		result = append(result, InteractionAction{
 			Label:    "拾う(" + formattedName + ")",
 			Activity: &actions.PickupActivity{},
+			Target:   interactableEntity,
+		})
+	case gc.PortalInteraction:
+		// ポータル移動アクションを生成
+		var label string
+		switch portalData.PortalType {
+		case gc.PortalTypeNext:
+			label = "転移する(次階)"
+		case gc.PortalTypeTown:
+			label = "転移する(帰還)"
+		}
+		result = append(result, InteractionAction{
+			Label:    label,
+			Activity: &actions.InteractionActivateActivity{InteractableEntity: interactableEntity},
 			Target:   interactableEntity,
 		})
 	}

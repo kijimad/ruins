@@ -73,3 +73,8 @@
   [[chunk.placements]]
     chunks = ["11x6_small_office"]
     id     = "C"
+
+  # プレイヤーの開始位置（道路の中央付近）
+  [[chunk.spawn_points]]
+    x = 20
+    y = 28

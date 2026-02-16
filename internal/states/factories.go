@@ -412,7 +412,7 @@ func NewDebugMenuState() es.State[w.World] {
 			}
 			grid := gridComp.(*gc.GridElement)
 
-			// 出口橋エンティティを検索
+			// ポータルエンティティを検索
 			var targetX, targetY gc.Tile
 			found := false
 
@@ -421,23 +421,23 @@ func NewDebugMenuState() es.State[w.World] {
 				world.Components.GridElement,
 			).Visit(ecs.Visit(func(entity ecs.Entity) {
 				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-				_, ok := interactable.Data.(gc.BridgeInteraction)
+				_, ok := interactable.Data.(gc.PortalInteraction)
 				if !ok {
 					return
 				}
 
-				// 出口橋を発見
-				bridgeGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-				targetX = bridgeGrid.X
-				targetY = bridgeGrid.Y
+				// ポータルを発見
+				portalGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+				targetX = portalGrid.X
+				targetY = portalGrid.Y
 				found = true
 			}))
 
 			if !found {
-				return fmt.Errorf("出口橋が見つかりません")
+				return fmt.Errorf("ポータルが見つかりません")
 			}
 
-			// プレイヤーの座標を更新（橋の1マス下にワープ）
+			// プレイヤーの座標を更新（ポータルの1マス下にワープ）
 			grid.X = targetX
 			grid.Y = targetY + 1
 

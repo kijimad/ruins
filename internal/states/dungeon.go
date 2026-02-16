@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 	"image/color"
-	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -15,7 +14,6 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
-	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -33,7 +31,7 @@ var (
 type DungeonState struct {
 	es.BaseState[w.World]
 	Depth int
-	// Seed はマップ生成用のシード値（nilの場合はランダムに生成される）
+	// Seed はマップ生成用のシード値（nilの場合はランダム生成）
 	Seed *uint64
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
@@ -76,20 +74,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 		world.Resources.TurnManager = turns.NewTurnManager()
 	}
 
-	// Seedが未設定の場合はランダムなseedを生成する
-	var seed uint64
-	if st.Seed == nil {
-		seed = rand.Uint64()
-		st.Seed = &seed
-	} else {
-		seed = *st.Seed
-	}
-
-	// 次階層の橋タイプを生成してDungeonリソースに設定
-	world.Resources.Dungeon.Bridges = generateNextBridgeTypes(seed, st.Depth)
-
 	// 計画作成する
-	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.BuilderType)
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, st.Seed, st.BuilderType)
 	if err != nil {
 		return err
 	}
@@ -462,51 +448,10 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 		}
 	case resources.WarpNextEvent:
 		// 次のフロアへ遷移
-		nextDepth := world.Resources.Dungeon.Depth + 1
-
-		// 10階を超えたらゲームクリアイベントを発行
-		if nextDepth > 10 {
-			if err := world.Resources.Dungeon.RequestStateChange(resources.GameClearEvent{}); err != nil {
-				return es.Transition[w.World]{}, fmt.Errorf("ゲームクリア状態変更要求エラー: %w", err)
-			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
-		}
-
-		baseSeed := *st.Seed
-		nextSeed := baseSeed + uint64(nextDepth)
-
-		// イベントからPlannerTypeNameを取得してPlannerTypeに変換
-		plannerType := mapplanner.PlannerTypeRandom
-		if e.NextPlannerType != "" {
-			plannerType = mapplanner.PlannerTypeFromName(e.NextPlannerType)
-		}
-
-		return es.Transition[w.World]{
-			Type: es.TransSwitch,
-			NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] {
-					return &DungeonState{
-						Depth:       nextDepth,
-						Seed:        &nextSeed,
-						BuilderType: plannerType,
-					}
-				},
-			},
-		}, nil
-	case resources.WarpPlazaEvent:
-		// 街広場へ遷移
-		return es.Transition[w.World]{
-			Type: es.TransSwitch,
-			NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] {
-					return &DungeonState{
-						Depth:       0,
-						Seed:        st.Seed,
-						BuilderType: mapplanner.PlannerTypeTownPlaza,
-					}
-				},
-			},
-		}, nil
+		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(world.Resources.Dungeon.Depth + 1)}}, nil
+	case resources.WarpEscapeEvent:
+		// 街へ帰還
+		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
 	}
@@ -536,45 +481,4 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			}
 		}
 	})
-}
-
-// generateNextBridgeTypes は次階層の各橋に割り当てるPlannerTypeNameを生成する
-func generateNextBridgeTypes(seed uint64, currentDepth int) map[maptemplate.ExitID]consts.PlannerTypeName {
-	nextDepth := currentDepth + 1
-	bridgeTypes := make(map[maptemplate.ExitID]consts.PlannerTypeName)
-
-	bridgeIDs := []maptemplate.ExitID{
-		maptemplate.ExitIDMain,
-		maptemplate.ExitIDLeft,
-		maptemplate.ExitIDCenter,
-		maptemplate.ExitIDRight,
-	}
-
-	// 現在の階が5の倍数なら ExitIDLeft を街広場へのワープに固定する
-	if currentDepth%5 == 0 && currentDepth > 0 {
-		bridgeTypes[maptemplate.ExitIDLeft] = consts.PlannerTypeNameTownPlaza
-	}
-
-	// 利用可能なPlannerTypeNameのリスト
-	availableTypes := []consts.PlannerTypeName{
-		consts.PlannerTypeNameSmallRoom,
-		consts.PlannerTypeNameBigRoom,
-		consts.PlannerTypeNameCave,
-		consts.PlannerTypeNameRuins,
-		consts.PlannerTypeNameForest,
-	}
-
-	// RNGを初期化
-	rng := rand.New(rand.NewPCG(seed+uint64(nextDepth), 0))
-
-	// 各出口橋にランダムにPlannerTypeNameを割り当て
-	for _, bridgeID := range bridgeIDs {
-		if _, ok := bridgeTypes[bridgeID]; ok {
-			// 既に固定済みの橋はスキップする
-			continue
-		}
-		bridgeTypes[bridgeID] = availableTypes[rng.IntN(len(availableTypes))]
-	}
-
-	return bridgeTypes
 }

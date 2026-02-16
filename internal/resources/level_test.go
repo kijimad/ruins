@@ -3,7 +3,6 @@ package resources
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -15,9 +14,7 @@ func TestRequestStateChange(t *testing.T) {
 		t.Parallel()
 		dungeon := &Dungeon{}
 
-		err := dungeon.RequestStateChange(WarpNextEvent{
-			NextPlannerType: consts.PlannerTypeNameSmallRoom,
-		})
+		err := dungeon.RequestStateChange(WarpNextEvent{})
 		require.NoError(t, err)
 
 		event := dungeon.ConsumeStateChange()
@@ -29,17 +26,15 @@ func TestRequestStateChange(t *testing.T) {
 		dungeon := &Dungeon{}
 
 		// 最初の状態変更要求は成功
-		err := dungeon.RequestStateChange(WarpNextEvent{
-			NextPlannerType: consts.PlannerTypeNameSmallRoom,
-		})
+		err := dungeon.RequestStateChange(WarpNextEvent{})
 		require.NoError(t, err)
 
 		// 2回目の状態変更要求はエラー
-		err = dungeon.RequestStateChange(WarpPlazaEvent{})
+		err = dungeon.RequestStateChange(WarpEscapeEvent{})
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "イベントがすでに設定されています")
 		assert.Contains(t, err.Error(), string(StateEventTypeWarpNext))
-		assert.Contains(t, err.Error(), string(StateEventTypeWarpPlaza))
+		assert.Contains(t, err.Error(), string(StateEventTypeWarpEscape))
 	})
 
 	t.Run("NoneEventは上書き可能", func(t *testing.T) {
@@ -63,9 +58,7 @@ func TestRequestStateChange(t *testing.T) {
 		dungeon := &Dungeon{}
 
 		// 状態変更要求
-		err := dungeon.RequestStateChange(WarpNextEvent{
-			NextPlannerType: consts.PlannerTypeNameSmallRoom,
-		})
+		err := dungeon.RequestStateChange(WarpNextEvent{})
 		require.NoError(t, err)
 
 		// イベント消費
@@ -73,10 +66,10 @@ func TestRequestStateChange(t *testing.T) {
 		assert.Equal(t, StateEventTypeWarpNext, event.Type())
 
 		// 消費後は新しいイベントを設定可能
-		err = dungeon.RequestStateChange(WarpPlazaEvent{})
+		err = dungeon.RequestStateChange(WarpEscapeEvent{})
 		assert.NoError(t, err)
 
 		event = dungeon.ConsumeStateChange()
-		assert.Equal(t, StateEventTypeWarpPlaza, event.Type())
+		assert.Equal(t, StateEventTypeWarpEscape, event.Type())
 	})
 }

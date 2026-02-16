@@ -4,8 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -70,10 +68,8 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	// 相互作用の種類に応じた処理を実行
 	var err error
 	switch content := interactable.Data.(type) {
-	case gc.BridgeInteraction:
-		err = ia.executeBridge(act, world, content)
-	case gc.BridgeHintInteraction:
-		ia.executeBridgeHint(act, world, content)
+	case gc.PortalInteraction:
+		err = ia.executePortal(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
@@ -109,53 +105,25 @@ func (ia *InteractionActivateActivity) Canceled(act *Activity, _ w.World) error 
 	return nil
 }
 
-// executeBridge は出口を通る相互作用を実行する
-func (ia *InteractionActivateActivity) executeBridge(act *Activity, world w.World, bridge gc.BridgeInteraction) error {
-	// resources.Dungeonから次のPlannerTypeNameを取得
-	var nextPlannerTypeName consts.PlannerTypeName
-	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
-		if ptName, ok := nextBridgeTypes[bridge.BridgeID]; ok {
-			nextPlannerTypeName = ptName
-		}
-	}
-
-	// 街広場へのワープか、次フロアへの遷移かを判定
-	if nextPlannerTypeName == consts.PlannerTypeNameTownPlaza {
-		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpPlazaEvent{}); err != nil {
-			return fmt.Errorf("街広場ワープ状態変更要求エラー: %w", err)
-		}
-		act.Logger.Debug("街広場へワープ", "actor", act.Actor, "bridgeID", bridge.BridgeID)
-	} else {
-		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpNextEvent{
-			NextPlannerType: nextPlannerTypeName,
-		}); err != nil {
+// executePortal はポータルを通る相互作用を実行する
+func (ia *InteractionActivateActivity) executePortal(act *Activity, world w.World, portal gc.PortalInteraction) error {
+	switch portal.PortalType {
+	case gc.PortalTypeNext:
+		// 次フロアへ遷移
+		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpNextEvent{}); err != nil {
 			return fmt.Errorf("次フロアワープ状態変更要求エラー: %w", err)
 		}
-		act.Logger.Debug("橋を渡る", "actor", act.Actor, "bridgeID", bridge.BridgeID, "nextStageType", string(nextPlannerTypeName))
+		act.Logger.Debug("次フロアへポータル移動", "actor", act.Actor)
+	case gc.PortalTypeTown:
+		// 街へ帰還
+		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpEscapeEvent{}); err != nil {
+			return fmt.Errorf("街帰還状態変更要求エラー: %w", err)
+		}
+		act.Logger.Debug("街へポータル移動", "actor", act.Actor)
+	default:
+		return fmt.Errorf("未知のポータルタイプ: %s", portal.PortalType)
 	}
 	return nil
-}
-
-// executeBridgeHint は橋のヒント表示相互作用を実行する
-func (ia *InteractionActivateActivity) executeBridgeHint(act *Activity, world w.World, bridgeHint gc.BridgeHintInteraction) {
-	// resources.Dungeonから次のPlannerTypeNameを取得
-	var nextStageName string
-	if nextBridgeTypes := world.Resources.Dungeon.Bridges; nextBridgeTypes != nil {
-		if ptName, ok := nextBridgeTypes[bridgeHint.ExitID]; ok {
-			nextStageName = string(ptName)
-		}
-	}
-
-	act.Logger.Debug("橋のヒント表示", "actor", act.Actor, "exitID", bridgeHint.ExitID, "nextStageType", nextStageName)
-
-	// ログ出力（プレイヤーのみ）
-	if isPlayerActivity(act, world) {
-		gamelog.New(gamelog.FieldLog).
-			Append("橋の先には").
-			Magic(nextStageName).
-			Append("が見える。").
-			Log()
-	}
 }
 
 // executeDoor はドア相互作用を実行する

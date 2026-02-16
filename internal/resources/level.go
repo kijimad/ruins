@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/maptemplate"
 )
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
@@ -23,9 +22,6 @@ type Dungeon struct {
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
 	NeedsForceUpdate bool
-	// 次階層の各出口に割り当てられたPlannerTypeName
-	// 出口を通る際に参照される
-	Bridges map[maptemplate.ExitID]consts.PlannerTypeName
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

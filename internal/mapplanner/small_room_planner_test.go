@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -39,7 +38,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		err = chain.Plan()
 		require.NoError(t, err)
 
-		// 実際のマップサイズを取得（BridgeWrapperで拡張されている: +7行上, +8行下 = 合計15行追加）
+		// 実際のマップサイズを取得
 		actualWidth := chain.PlanData.Level.TileWidth
 		actualHeight := chain.PlanData.Level.TileHeight
 		expectedCount := int(actualWidth) * int(actualHeight)
@@ -77,7 +76,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 		err = chain.Plan()
 		require.NoError(t, err)
 
-		// 実際のマップサイズを取得（BridgeWrapperで拡張されている）
+		// 実際のマップサイズを取得
 		actualWidth := chain.PlanData.Level.TileWidth
 		actualHeight := chain.PlanData.Level.TileHeight
 
@@ -147,7 +146,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 				err = chain.Plan()
 				require.NoError(t, err)
 
-				// 実際のマップサイズを取得（BridgeWrapperで拡張されている）
+				// 実際のマップサイズを取得
 				actualWidth := chain.PlanData.Level.TileWidth
 				actualHeight := chain.PlanData.Level.TileHeight
 				expectedCount := int(actualWidth) * int(actualHeight)
@@ -161,19 +160,11 @@ func TestSmallRoomPlanner(t *testing.T) {
 				// 床タイルと壁タイルの両方が存在することを確認
 				floorCount := 0
 				wallCount := 0
-				voidCount := 0
-				bridgeCount := 0
 				for _, tile := range chain.PlanData.Tiles {
 					if !tile.BlockPass {
 						floorCount++
 					} else {
 						wallCount++
-					}
-					if tile.Name == consts.TileNameVoid {
-						voidCount++
-					}
-					if tile.Name == "bridge_a" || tile.Name == "bridge_b" || tile.Name == "bridge_c" || tile.Name == "bridge_d" {
-						bridgeCount++
 					}
 				}
 				assert.Greater(t, floorCount, 0,
@@ -181,7 +172,7 @@ func TestSmallRoomPlanner(t *testing.T) {
 				assert.Greater(t, wallCount, 0,
 					"%sで壁タイルが生成されていない", tc.name)
 
-				// 床+壁+voidでタイル総数と一致することを確認（橋タイルは歩行可能なので床カウントに含まれる）
+				// 床+壁でタイル総数と一致することを確認
 				assert.Equal(t, expectedCount, floorCount+wallCount,
 					"%sで床+壁がタイル総数と一致しない", tc.name)
 			})

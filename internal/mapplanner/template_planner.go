@@ -64,11 +64,25 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 			charStr := string(char)
 
 			if propName, ok := p.Palette.GetProp(charStr); ok {
-				metaPlan.Props = append(metaPlan.Props, PropsSpec{
-					X:    x,
-					Y:    y,
-					Name: propName,
-				})
+				// ポータルは専用フィールドに追加する
+				switch propName {
+				case "warp_next":
+					metaPlan.NextPortals = append(metaPlan.NextPortals, Portal{
+						X: x,
+						Y: y,
+					})
+				case "warp_escape":
+					metaPlan.EscapePortals = append(metaPlan.EscapePortals, Portal{
+						X: x,
+						Y: y,
+					})
+				default:
+					metaPlan.Props = append(metaPlan.Props, PropsSpec{
+						X:    x,
+						Y:    y,
+						Name: propName,
+					})
+				}
 			}
 
 			if npcName, ok := p.Palette.GetNPC(charStr); ok {
@@ -81,8 +95,8 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 		}
 	}
 
-	// 橋ヒントを配置する
-	metaPlan.BridgeHints = append(metaPlan.BridgeHints, p.Template.BridgeHintPlacements...)
+	// スポーン地点をコピー
+	metaPlan.SpawnPoints = append(metaPlan.SpawnPoints, p.Template.SpawnPoints...)
 
 	return nil
 }

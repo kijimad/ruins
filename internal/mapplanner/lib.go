@@ -15,6 +15,19 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
+// Portal はポータルの配置情報
+type Portal struct {
+	X int // X座標
+	Y int // Y座標
+}
+
+// PropsSpec はProps配置仕様を表す
+type PropsSpec struct {
+	X    int    // X座標
+	Y    int    // Y座標
+	Name string // Prop名
+}
+
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
 	// 階層情報
@@ -30,18 +43,18 @@ type MetaPlan struct {
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []raw.TileRaw
+	// NextPortals は次の階へ進むポータルリスト
+	NextPortals []Portal
+	// EscapePortals は脱出用ポータルリスト
+	EscapePortals []Portal
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
-	// Exits は配置予定の出口リスト
-	Exits []maptemplate.ExitPlacement
-	// SpawnPoints はスポーン地点リスト
+	// SpawnPoints はプレイヤーのスポーン地点リスト
 	SpawnPoints []maptemplate.SpawnPoint
-	// BridgeHints は配置予定の橋ヒントリスト
-	BridgeHints []maptemplate.BridgeHintPlacement
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
 }
@@ -65,6 +78,18 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
+	for _, portal := range bm.NextPortals {
+		if portal.X == x && portal.Y == y {
+			return true
+		}
+	}
+
+	for _, portal := range bm.EscapePortals {
+		if portal.X == x && portal.Y == y {
+			return true
+		}
+	}
+
 	// NPCをチェック
 	for _, npc := range bm.NPCs {
 		if npc.X == x && npc.Y == y {
@@ -270,13 +295,15 @@ func NewPlannerChain(width gc.Tile, height gc.Tile, seed uint64) *PlannerChain {
 				TileWidth:  width,
 				TileHeight: height,
 			},
-			Tiles:     tiles,
-			Rooms:     []gc.Rect{},
-			Corridors: [][]resources.TileIdx{},
-			RNG:       rand.New(rand.NewPCG(seed, seed+1)),
-			NPCs:      []NPCSpec{},
-			Items:     []ItemSpec{},
-			Props:     []PropsSpec{},
+			Tiles:         tiles,
+			Rooms:         []gc.Rect{},
+			Corridors:     [][]resources.TileIdx{},
+			RNG:           rand.New(rand.NewPCG(seed, seed+1)),
+			NextPortals:   []Portal{},
+			EscapePortals: []Portal{},
+			NPCs:          []NPCSpec{},
+			Items:         []ItemSpec{},
+			Props:         []PropsSpec{},
 		},
 	}
 }
@@ -478,7 +505,7 @@ var (
 		Name:              "広場",
 		SpawnEnemies:      false,
 		SpawnItems:        false,
-		UseFixedPortalPos: false,
+		UseFixedPortalPos: true, // テンプレートでポータル位置が固定されている
 		ItemTableName:     "",
 		EnemyTableName:    "",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
@@ -486,40 +513,6 @@ var (
 		},
 	}
 )
-
-// ToName はPlannerTypeをconsts.PlannerTypeNameに変換する
-func (pt PlannerType) ToName() consts.PlannerTypeName {
-	return consts.PlannerTypeName(pt.Name)
-}
-
-// PlannerTypeFromName はconsts.PlannerTypeNameからPlannerTypeを取得する
-func PlannerTypeFromName(name consts.PlannerTypeName) PlannerType {
-	switch name {
-	case consts.PlannerTypeNameRandom:
-		return PlannerTypeRandom
-	case consts.PlannerTypeNameSmallRoom:
-		return PlannerTypeSmallRoom
-	case consts.PlannerTypeNameBigRoom:
-		return PlannerTypeBigRoom
-	case consts.PlannerTypeNameCave:
-		return PlannerTypeCave
-	case consts.PlannerTypeNameRuins:
-		return PlannerTypeRuins
-	case consts.PlannerTypeNameForest:
-		return PlannerTypeForest
-	case consts.PlannerTypeNameTown:
-		return PlannerTypeTown
-	case consts.PlannerTypeNameOfficeBuilding:
-		return PlannerTypeOfficeBuilding
-	case consts.PlannerTypeNameSmallTown:
-		return PlannerTypeSmallTown
-	case consts.PlannerTypeNameTownPlaza:
-		return PlannerTypeTownPlaza
-	default:
-		// デフォルトはランダム
-		return PlannerTypeRandom
-	}
-}
 
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
 func NewRandomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
@@ -564,22 +557,70 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 }
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
+// ポータルへの到達性も確認し、到達可能な位置を返す
+// TODO: 座標構造体で返す
 func (bm *MetaPlan) GetPlayerStartPosition() (int, int, error) {
-	// SpawnPointsからプレイヤー開始位置を取得
+	// SpawnPointsが設定されていればそれを使用（テンプレートマップ用）
 	if len(bm.SpawnPoints) > 0 {
 		return bm.SpawnPoints[0].X, bm.SpawnPoints[0].Y, nil
 	}
 
-	// SpawnPointsが見つからない場合は移動可能タイルを探す（テスト用フォールバック）
-	// TODO: どうにかする
-	for _i, tile := range bm.Tiles {
-		// 歩行可能
-		if !tile.BlockPass {
-			i := resources.TileIdx(_i)
-			x, y := bm.Level.XYTileCoord(i)
-			return int(x), int(y), nil
+	// プロシージャルマップ用: 自動的に歩行可能でポータルに到達可能な位置を探す
+	width := int(bm.Level.TileWidth)
+	height := int(bm.Level.TileHeight)
+
+	// 到達性チェック用のPathFinderを作成
+	pf := NewPathFinder(bm)
+
+	// 候補位置を試す（中央から外側へ）
+	attempts := []struct{ x, y int }{
+		{width / 2, height / 2},         // 中央
+		{width / 4, height / 4},         // 左上寄り
+		{3 * width / 4, height / 4},     // 右上寄り
+		{width / 4, 3 * height / 4},     // 左下寄り
+		{3 * width / 4, 3 * height / 4}, // 右下寄り
+	}
+
+	for _, pos := range attempts {
+		if bm.isValidSpawnPosition(pf, pos.x, pos.y) {
+			return pos.x, pos.y, nil
 		}
 	}
 
-	return 0, 0, fmt.Errorf("スポーン地点が見つかりません")
+	// 見つからない場合は全体をスキャン
+	for _i, tile := range bm.Tiles {
+		if !tile.BlockPass {
+			i := resources.TileIdx(_i)
+			x, y := bm.Level.XYTileCoord(i)
+			if bm.isValidSpawnPosition(pf, int(x), int(y)) {
+				return int(x), int(y), nil
+			}
+		}
+	}
+
+	return 0, 0, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
+}
+
+// isValidSpawnPosition は指定位置がスポーン可能かつポータルに到達可能かを判定する
+func (bm *MetaPlan) isValidSpawnPosition(pf *PathFinder, x, y int) bool {
+	idx := bm.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+	if int(idx) >= len(bm.Tiles) || bm.Tiles[idx].BlockPass {
+		return false
+	}
+
+	// NextPortalsへの到達性をチェック
+	for _, portal := range bm.NextPortals {
+		if !pf.IsReachable(x, y, portal.X, portal.Y) {
+			return false
+		}
+	}
+
+	// EscapePortalsへの到達性をチェック
+	for _, portal := range bm.EscapePortals {
+		if !pf.IsReachable(x, y, portal.X, portal.Y) {
+			return false
+		}
+	}
+
+	return true
 }
