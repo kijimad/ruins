@@ -53,7 +53,7 @@ type MetaPlan struct {
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
-	// SpawnPoints はスポーン地点リスト
+	// SpawnPoints はプレイヤーのスポーン地点リスト
 	SpawnPoints []maptemplate.SpawnPoint
 	// RawMaster はタイル生成に使用するマスターデータ
 	RawMaster *raw.Master
@@ -78,7 +78,6 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
 
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
-	// NextPortalsをチェック
 	for _, portal := range bm.NextPortals {
 		if portal.X == x && portal.Y == y {
 			return true

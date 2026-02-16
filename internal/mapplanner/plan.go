@@ -26,11 +26,9 @@ var (
 // seedがnilの場合は現在時刻からランダムシードを生成する
 func Plan(world w.World, width, height int, seed *uint64, plannerType PlannerType) (*MetaPlan, error) {
 	// シード値を決定
-	var baseSeed uint64
+	seedValue := uint64(time.Now().UnixNano())
 	if seed != nil {
-		baseSeed = *seed
-	} else {
-		baseSeed = uint64(time.Now().UnixNano())
+		seedValue = *seed
 	}
 
 	var lastErr error
@@ -38,7 +36,7 @@ func Plan(world w.World, width, height int, seed *uint64, plannerType PlannerTyp
 	// 最大再試行回数まで繰り返す
 	for attempt := 0; attempt < MaxPlanRetries; attempt++ {
 		// 再試行時は異なるシードを使用
-		currentSeed := baseSeed + uint64(attempt*1000)
+		currentSeed := seedValue + uint64(attempt*1000)
 
 		plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)
 		if err == nil {
@@ -53,13 +51,13 @@ func Plan(world w.World, width, height int, seed *uint64, plannerType PlannerTyp
 
 		// 接続性エラー以外は即座に失敗
 		if !isConnectivityError(err) {
-			return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, baseSeed, err)
+			return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, seedValue, err)
 		}
 	}
 
 	// 全試行失敗時のエラーメッセージ（最後の試行のみ表示）
-	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, baseSeed=%d)。最後のエラー: %w",
-		MaxPlanRetries, plannerType.Name, baseSeed, lastErr)
+	return nil, fmt.Errorf("プラン生成に%d回失敗しました (PlannerType=%s, seed=%d)。最後のエラー: %w",
+		MaxPlanRetries, plannerType.Name, seedValue, lastErr)
 }
 
 // attemptMetaPlan は単一回のメタプラン生成を試行する

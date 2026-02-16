@@ -296,7 +296,7 @@ type InteractionAction struct {
 func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {
 	var result []InteractionAction
 
-	switch interactable.Data.(type) {
+	switch portalData := interactable.Data.(type) {
 	case gc.DoorInteraction:
 		// ドアの状態に応じたアクションを生成
 		if interactableEntity.HasComponent(world.Components.Door) {
@@ -331,6 +331,20 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		result = append(result, InteractionAction{
 			Label:    "拾う(" + formattedName + ")",
 			Activity: &actions.PickupActivity{},
+			Target:   interactableEntity,
+		})
+	case gc.PortalInteraction:
+		// ポータル移動アクションを生成
+		var label string
+		switch portalData.PortalType {
+		case gc.PortalTypeNext:
+			label = "転移する(次階)"
+		case gc.PortalTypeTown:
+			label = "転移する(帰還)"
+		}
+		result = append(result, InteractionAction{
+			Label:    label,
+			Activity: &actions.InteractionActivateActivity{InteractableEntity: interactableEntity},
 			Target:   interactableEntity,
 		})
 	}
