@@ -122,22 +122,21 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 	}
 
-	// 出口エンティティを生成する
-	for _, exit := range metaPlan.Exits {
-		tileX, tileY := gc.Tile(exit.X), gc.Tile(exit.Y)
-
-		_, err := worldhelper.SpawnBridge(world, exit.ExitID, tileX, tileY)
+	// NextPortalsを生成する
+	for _, portal := range metaPlan.NextPortals {
+		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
+		_, err := worldhelper.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("出口エンティティ生成エラー (%d, %d): %w", exit.X, exit.Y, err)
+			return resources.Level{}, fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
 	}
 
-	// 橋ヒントエンティティを生成する
-	for _, hint := range metaPlan.BridgeHints {
-		tileX, tileY := gc.Tile(hint.X), gc.Tile(hint.Y)
-		_, err := worldhelper.SpawnBridgeHint(world, hint.ExitID, tileX, tileY)
+	// EscapePortalsを生成する
+	for _, portal := range metaPlan.EscapePortals {
+		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
+		_, err := worldhelper.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("橋ヒントエンティティ生成エラー (%d, %d): %w", hint.X, hint.Y, err)
+			return resources.Level{}, fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
 	}
 

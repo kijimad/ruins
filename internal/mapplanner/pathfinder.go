@@ -175,3 +175,30 @@ func (pf *PathFinder) ValidateConnectivity() error {
 	return fmt.Errorf("%w: 最上列から最下列への到達不可 (width=%d, height=%d, 最上列歩行可能タイル数=%d, 最下列歩行可能タイル数=%d)",
 		ErrConnectivity, width, height, topWalkableCount, bottomWalkableCount)
 }
+
+// ValidatePortalReachability はプレイヤー開始位置から全ポータルへの到達性を検証する
+func (pf *PathFinder) ValidatePortalReachability() error {
+	// プレイヤー開始位置を取得
+	playerX, playerY, err := pf.planData.GetPlayerStartPosition()
+	if err != nil {
+		return fmt.Errorf("%w: プレイヤー開始位置が設定されていません", ErrConnectivity)
+	}
+
+	// NextPortalsの到達性をチェック
+	for i, portal := range pf.planData.NextPortals {
+		if !pf.IsReachable(playerX, playerY, portal.X, portal.Y) {
+			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可",
+				ErrConnectivity, playerX, playerY, i, portal.X, portal.Y)
+		}
+	}
+
+	// EscapePortalsの到達性をチェック
+	for i, portal := range pf.planData.EscapePortals {
+		if !pf.IsReachable(playerX, playerY, portal.X, portal.Y) {
+			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からEscapePortal[%d](%d,%d)への到達不可",
+				ErrConnectivity, playerX, playerY, i, portal.X, portal.Y)
+		}
+	}
+
+	return nil
+}

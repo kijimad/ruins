@@ -1,7 +1,6 @@
 package resources
 
 import (
-	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -13,8 +12,8 @@ const (
 	StateEventTypeNone = StateEventType("NONE")
 	// StateEventTypeWarpNext は次の階層への移動を表す
 	StateEventTypeWarpNext = StateEventType("WARP_NEXT")
-	// StateEventTypeWarpPlaza は街広場への移動を表す（5の倍数の階層用）
-	StateEventTypeWarpPlaza = StateEventType("WARP_PLAZA")
+	// StateEventTypeWarpEscape は脱出ポータルによる帰還を表す
+	StateEventTypeWarpEscape = StateEventType("WARP_ESCAPE")
 	// StateEventTypeGameClear はゲームクリアを表す
 	StateEventTypeGameClear = StateEventType("GAME_CLEAR")
 	// StateEventTypeShowDialog は会話メッセージの表示を表す
@@ -35,21 +34,19 @@ func (e NoneEvent) Type() StateEventType {
 }
 
 // WarpNextEvent は次の階層への移動を表す
-type WarpNextEvent struct {
-	NextPlannerType consts.PlannerTypeName // 次階層のマップ生成タイプ名
-}
+type WarpNextEvent struct{}
 
 // Type はイベントタイプを返す
 func (e WarpNextEvent) Type() StateEventType {
 	return StateEventTypeWarpNext
 }
 
-// WarpPlazaEvent は街広場への移動を表す
-type WarpPlazaEvent struct{}
+// WarpEscapeEvent は脱出ポータルによる帰還を表す
+type WarpEscapeEvent struct{}
 
 // Type はイベントタイプを返す
-func (e WarpPlazaEvent) Type() StateEventType {
-	return StateEventTypeWarpPlaza
+func (e WarpEscapeEvent) Type() StateEventType {
+	return StateEventTypeWarpEscape
 }
 
 // GameClearEvent はゲームクリアを表す

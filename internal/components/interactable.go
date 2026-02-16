@@ -2,8 +2,6 @@ package components
 
 import (
 	"fmt"
-
-	"github.com/kijimaD/ruins/internal/maptemplate"
 )
 
 // Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー
@@ -22,29 +20,26 @@ type InteractionData interface {
 	Config() InteractionConfig
 }
 
-// BridgeInteraction は出口を通る相互作用
-type BridgeInteraction struct {
-	BridgeID maptemplate.ExitID // 出口の識別子
+// PortalType はポータルの種類を表す
+type PortalType string
+
+const (
+	// PortalTypeNext は次の階層へのポータル
+	PortalTypeNext PortalType = "NEXT"
+	// PortalTypeTown は街への帰還ポータル
+	PortalTypeTown PortalType = "TOWN"
+)
+
+// PortalInteraction はポータルを通る相互作用
+type PortalInteraction struct {
+	PortalType PortalType // ポータルの種類
 }
 
 // Config は相互作用設定を返す
-func (b BridgeInteraction) Config() InteractionConfig {
+func (p PortalInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayAuto, // 出口に到達したら自動遷移
-	}
-}
-
-// BridgeHintInteraction は橋のヒント表示相互作用
-type BridgeHintInteraction struct {
-	ExitID maptemplate.ExitID // 関連する出口ID
-}
-
-// Config は相互作用設定を返す
-func (b BridgeHintInteraction) Config() InteractionConfig {
-	return InteractionConfig{
-		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayAuto, // タイルに入ったら自動表示
+		ActivationWay:   ActivationWayManual, // Enterキーで発動
 	}
 }
 

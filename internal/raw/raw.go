@@ -598,18 +598,26 @@ type TileRaw struct {
 
 // PropRaw は置物のローデータ定義
 type PropRaw struct {
-	Name         string
-	Description  string
-	SpriteRender gc.SpriteRender
-	AnimKeys     []string
-	BlockPass    bool
-	BlockView    bool
-	LightSource  *gc.LightSource
-	Door         *DoorRaw
+	Name              string
+	Description       string
+	SpriteRender      gc.SpriteRender
+	AnimKeys          []string
+	BlockPass         bool
+	BlockView         bool
+	LightSource       *gc.LightSource
+	Door              *DoorRaw
+	WarpNextTrigger   *WarpNextTriggerRaw   // 次階層ワープのトリガー
+	WarpEscapeTrigger *WarpEscapeTriggerRaw // 脱出ワープのトリガー
 }
 
 // DoorRaw はドアのローデータ
 type DoorRaw struct{}
+
+// WarpNextTriggerRaw は次階層ワープトリガーのローデータ
+type WarpNextTriggerRaw struct{}
+
+// WarpEscapeTriggerRaw は脱出ワープトリガーのローデータ
+type WarpEscapeTriggerRaw struct{}
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
@@ -710,6 +718,20 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 		}
 		// ドアは相互作用可能
 		entitySpec.Interactable = &gc.Interactable{Data: gc.DoorInteraction{}}
+	}
+
+	// 次階層ワープトリガー
+	if propRaw.WarpNextTrigger != nil {
+		entitySpec.Interactable = &gc.Interactable{
+			Data: gc.PortalInteraction{PortalType: gc.PortalTypeNext},
+		}
+	}
+
+	// 脱出ワープトリガー
+	if propRaw.WarpEscapeTrigger != nil {
+		entitySpec.Interactable = &gc.Interactable{
+			Data: gc.PortalInteraction{PortalType: gc.PortalTypeTown},
+		}
 	}
 
 	return entitySpec, nil

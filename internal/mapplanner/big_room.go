@@ -10,16 +10,20 @@ type BigRoomPlanner struct{}
 
 // PlanInitial は初期マップをプランする
 func (b BigRoomPlanner) PlanInitial(planData *MetaPlan) error {
+	width := int(planData.Level.TileWidth)
+	height := int(planData.Level.TileHeight)
+
 	// マップの境界を考慮して大きな部屋を1つ作成
 	room := gc.Rect{
 		X1: gc.Tile(0),
 		Y1: gc.Tile(0),
-		X2: gc.Tile(int(planData.Level.TileWidth) - 1),
-		Y2: gc.Tile(int(planData.Level.TileHeight) - 1),
+		X2: gc.Tile(width - 1),
+		Y2: gc.Tile(height - 1),
 	}
 
 	// 部屋をリストに追加
 	planData.Rooms = append(planData.Rooms, room)
+
 	return nil
 }
 

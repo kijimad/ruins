@@ -129,9 +129,13 @@ func ExecuteEnterAction(world w.World) error {
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	interactable, interactableEntity := getInteractableAtSameTile(world, gridElement)
-	if interactable != nil && interactable.Data.Config().ActivationRange == gc.ActivationRangeSameTile {
-		params := actions.ActionParams{Actor: entity}
-		return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
+	if interactable != nil {
+		config := interactable.Data.Config()
+		// 手動発動（Enterキー）かつ同タイルのみ実行
+		if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
+			params := actions.ActionParams{Actor: entity}
+			return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
+		}
 	}
 
 	return nil
@@ -260,13 +264,24 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 		return
 	}
 
-	switch interactable.Data.(type) {
+	switch data := interactable.Data.(type) {
 	case gc.ItemInteraction:
 		formattedName := worldhelper.FormatItemName(world, interactableEntity)
 		gamelog.New(gamelog.FieldLog).
 			ItemName(formattedName).
 			Append(" がある。").
 			Log()
+	case gc.PortalInteraction:
+		switch data.PortalType {
+		case gc.PortalTypeNext:
+			gamelog.New(gamelog.FieldLog).
+				Append("転移ゲートがある。Enterキーで移動。").
+				Log()
+		case gc.PortalTypeTown:
+			gamelog.New(gamelog.FieldLog).
+				Append("帰還ゲートがある。Enterキーで脱出。").
+				Log()
+		}
 	}
 }
 

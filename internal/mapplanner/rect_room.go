@@ -21,7 +21,8 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 	rooms := []gc.Rect{}
 
 	// 上端に必ず1つの部屋を配置（y=0から開始）
-	rooms = append(rooms, b.createRoom(planData, width, height, 0))
+	topRoom := b.createRoom(planData, width, height, 0)
+	rooms = append(rooms, topRoom)
 
 	// 下端に必ず1つの部屋を配置（Y2=heightに密着）
 	bottomW := 2 + planData.RNG.IntN(8)

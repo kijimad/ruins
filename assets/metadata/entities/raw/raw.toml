@@ -1963,6 +1963,88 @@
     SpriteKey       = "stone_pillar"
     SpriteSheetName = "field"
 
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "次の階層へと続くポータル"
+  Name        = "warp_next"
+
+  [Props.SpriteRender]
+    AnimKeys = [
+      "warp_next_0",
+      "warp_next_1",
+      "warp_next_2",
+      "warp_next_3",
+      "warp_next_4",
+      "warp_next_5",
+      "warp_next_6",
+      "warp_next_7",
+      "warp_next_8",
+      "warp_next_9",
+      "warp_next_10",
+      "warp_next_11",
+      "warp_next_12",
+      "warp_next_13",
+      "warp_next_14",
+      "warp_next_15",
+    ]
+    Depth = 1
+    SpriteKey = "warp_next_0"
+    SpriteSheetName = "field"
+
+  [Props.LightSource]
+    Enabled = true
+    Radius  = 2
+
+    [Props.LightSource.Color]
+      A = 200
+      B = 255
+      G = 200
+      R = 100
+
+  [Props.WarpNextTrigger]
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "街へと繋がる帰還ポータル"
+  Name        = "warp_escape"
+
+  [Props.SpriteRender]
+    AnimKeys = [
+      "warp_escape_0",
+      "warp_escape_1",
+      "warp_escape_2",
+      "warp_escape_3",
+      "warp_escape_4",
+      "warp_escape_5",
+      "warp_escape_6",
+      "warp_escape_7",
+      "warp_escape_8",
+      "warp_escape_9",
+      "warp_escape_10",
+      "warp_escape_11",
+      "warp_escape_12",
+      "warp_escape_13",
+      "warp_escape_14",
+      "warp_escape_15",
+    ]
+    Depth = 1
+    SpriteKey = "warp_escape_0"
+    SpriteSheetName = "field"
+
+  [Props.LightSource]
+    Enabled = true
+    Radius  = 2
+
+    [Props.LightSource.Color]
+      A = 200
+      B = 100
+      G = 255
+      R = 200
+
+  [Props.WarpEscapeTrigger]
+
     # enemy tables ================
 
 [[EnemyTables]]

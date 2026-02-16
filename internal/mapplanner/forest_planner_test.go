@@ -126,7 +126,8 @@ func TestForestPlannerConnectivityIntegration(t *testing.T) {
 	world.Resources.RawMaster = CreateTestRawMaster()
 
 	for seed := uint64(0); seed < 20; seed++ {
-		metaPlan, err := Plan(world, 50, 50, seed, PlannerTypeForest)
+		s := seed
+		metaPlan, err := Plan(world, 50, 50, &s, PlannerTypeForest)
 		assert.NoError(t, err, "seed=%dで森プラン生成に失敗した", seed)
 		if err != nil {
 			continue
