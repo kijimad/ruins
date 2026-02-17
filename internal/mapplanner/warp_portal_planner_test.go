@@ -142,21 +142,21 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		err = planner.PlanMeta(&chain.PlanData)
 		require.NoError(t, err)
 
-		playerX, playerY, err := chain.PlanData.GetPlayerStartPosition()
+		playerPos, err := chain.PlanData.GetPlayerStartPosition()
 		require.NoError(t, err)
 
 		pathFinder := NewPathFinder(&chain.PlanData)
 
 		// NextPortalsが到達可能であることを確認
 		for _, portal := range chain.PlanData.NextPortals {
-			assert.True(t, pathFinder.IsReachable(playerX, playerY, portal.X, portal.Y),
-				"NextPortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerX, playerY)
+			assert.True(t, pathFinder.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y),
+				"NextPortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 
 		// EscapePortalsが到達可能であることを確認
 		for _, portal := range chain.PlanData.EscapePortals {
-			assert.True(t, pathFinder.IsReachable(playerX, playerY, portal.X, portal.Y),
-				"EscapePortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerX, playerY)
+			assert.True(t, pathFinder.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y),
+				"EscapePortal(%d,%d)がプレイヤー位置(%d,%d)から到達不能", portal.X, portal.Y, playerPos.X, playerPos.Y)
 		}
 	})
 }

@@ -87,11 +87,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 	world.Resources.Dungeon.Level = level
 
 	// プレイヤーを配置する
-	playerX, playerY, err := plan.GetPlayerStartPosition()
+	playerPos, err := plan.GetPlayerStartPosition()
 	if err != nil {
 		return err
 	}
-	if err := worldhelper.MovePlayerToPosition(world, playerX, playerY); err != nil {
+	if err := worldhelper.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
 		return err
 	}
 

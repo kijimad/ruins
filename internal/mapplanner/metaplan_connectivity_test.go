@@ -25,11 +25,11 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	assert.NotNil(t, metaPlan, "MetaPlan should not be nil")
 
 	// プレイヤー開始位置が設定されていることを確認
-	playerX, playerY, err := metaPlan.GetPlayerStartPosition()
+	playerPos, err := metaPlan.GetPlayerStartPosition()
 	assert.NoError(t, err, "Should have player start position")
-	assert.GreaterOrEqual(t, playerX, 0, "Player X should be valid")
-	assert.GreaterOrEqual(t, playerY, 0, "Player Y should be valid")
+	assert.GreaterOrEqual(t, playerPos.X, 0, "Player X should be valid")
+	assert.GreaterOrEqual(t, playerPos.Y, 0, "Player Y should be valid")
 
 	t.Logf("接続性検証統合テスト成功: プレイヤー位置=(%d,%d)",
-		playerX, playerY)
+		playerPos.X, playerPos.Y)
 }

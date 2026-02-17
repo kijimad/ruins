@@ -179,24 +179,24 @@ func (pf *PathFinder) ValidateConnectivity() error {
 // ValidatePortalReachability はプレイヤー開始位置から全ポータルへの到達性を検証する
 func (pf *PathFinder) ValidatePortalReachability() error {
 	// プレイヤー開始位置を取得
-	playerX, playerY, err := pf.planData.GetPlayerStartPosition()
+	playerPos, err := pf.planData.GetPlayerStartPosition()
 	if err != nil {
 		return fmt.Errorf("%w: プレイヤー開始位置が設定されていません", ErrConnectivity)
 	}
 
 	// NextPortalsの到達性をチェック
 	for i, portal := range pf.planData.NextPortals {
-		if !pf.IsReachable(playerX, playerY, portal.X, portal.Y) {
+		if !pf.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からNextPortal[%d](%d,%d)への到達不可",
-				ErrConnectivity, playerX, playerY, i, portal.X, portal.Y)
+				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}
 	}
 
 	// EscapePortalsの到達性をチェック
 	for i, portal := range pf.planData.EscapePortals {
-		if !pf.IsReachable(playerX, playerY, portal.X, portal.Y) {
+		if !pf.IsReachable(playerPos.X, playerPos.Y, portal.X, portal.Y) {
 			return fmt.Errorf("%w: プレイヤー開始位置(%d,%d)からEscapePortal[%d](%d,%d)への到達不可",
-				ErrConnectivity, playerX, playerY, i, portal.X, portal.Y)
+				ErrConnectivity, playerPos.X, playerPos.Y, i, portal.X, portal.Y)
 		}
 	}
 
