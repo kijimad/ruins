@@ -12,7 +12,6 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -395,54 +394,6 @@ func NewDebugMenuState() es.State[w.World] {
 				NewStateFuncs: []es.StateFactory[w.World]{
 					NewDungeonState(currentDepth + 1),
 				},
-			})
-			return nil
-		}).
-		WithChoice("ステージ上部の橋にワープ", func(world w.World) error {
-			// プレイヤーエンティティを取得
-			player, err := worldhelper.GetPlayerEntity(world)
-			if err != nil {
-				return fmt.Errorf("プレイヤーが見つかりません: %w", err)
-			}
-
-			// GridElementコンポーネントを取得
-			gridComp := world.Components.GridElement.Get(player)
-			if gridComp == nil {
-				return fmt.Errorf("プレイヤーのGridElementコンポーネントが見つかりません")
-			}
-			grid := gridComp.(*gc.GridElement)
-
-			// ポータルエンティティを検索
-			var targetX, targetY gc.Tile
-			found := false
-
-			world.Manager.Join(
-				world.Components.Interactable,
-				world.Components.GridElement,
-			).Visit(ecs.Visit(func(entity ecs.Entity) {
-				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-				_, ok := interactable.Data.(gc.PortalInteraction)
-				if !ok {
-					return
-				}
-
-				// ポータルを発見
-				portalGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-				targetX = portalGrid.X
-				targetY = portalGrid.Y
-				found = true
-			}))
-
-			if !found {
-				return fmt.Errorf("ポータルが見つかりません")
-			}
-
-			// プレイヤーの座標を更新（ポータルの1マス下にワープ）
-			grid.X = targetX
-			grid.Y = targetY + 1
-
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransPop,
 			})
 			return nil
 		}).
