@@ -67,29 +67,21 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 				// ポータルは専用フィールドに追加する
 				switch propName {
 				case "warp_next":
-					metaPlan.NextPortals = append(metaPlan.NextPortals, Portal{
-						X: x,
-						Y: y,
-					})
+					metaPlan.NextPortals = append(metaPlan.NextPortals, Coord{X: x, Y: y})
 				case "warp_escape":
-					metaPlan.EscapePortals = append(metaPlan.EscapePortals, Portal{
-						X: x,
-						Y: y,
-					})
+					metaPlan.EscapePortals = append(metaPlan.EscapePortals, Coord{X: x, Y: y})
 				default:
 					metaPlan.Props = append(metaPlan.Props, PropsSpec{
-						X:    x,
-						Y:    y,
-						Name: propName,
+						Coord: Coord{X: x, Y: y},
+						Name:  propName,
 					})
 				}
 			}
 
 			if npcName, ok := p.Palette.GetNPC(charStr); ok {
 				metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
-					X:    x,
-					Y:    y,
-					Name: npcName,
+					Coord: Coord{X: x, Y: y},
+					Name:  npcName,
 				})
 			}
 		}

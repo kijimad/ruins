@@ -99,7 +99,7 @@ func TestPathFinder_FindPath_SimplePath(t *testing.T) {
 	}
 
 	// パスの内容を検証
-	expected := []Position{{1, 1}, {1, 2}, {1, 3}}
+	expected := []Coord{{1, 1}, {1, 2}, {1, 3}}
 	for i, pos := range expected {
 		if i >= len(path) || path[i].X != pos.X || path[i].Y != pos.Y {
 			t.Errorf("Expected position %d to be (%d, %d), got (%d, %d)",
@@ -131,7 +131,7 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 
 	// L字型のパスを作成
 	// (1,1) -> (1,2) -> (2,2) -> (3,2)
-	positions := []Position{{1, 1}, {1, 2}, {2, 2}, {3, 2}}
+	positions := []Coord{{1, 1}, {1, 2}, {2, 2}, {3, 2}}
 	for _, pos := range positions {
 		idx := planData.Level.XYTileIndex(gc.Tile(pos.X), gc.Tile(pos.Y))
 		planData.Tiles[idx] = planData.GetTile("floor")
@@ -159,7 +159,7 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	pf := NewPathFinder(planData)
 
 	// パスを作成
-	positions := []Position{{1, 1}, {1, 2}, {2, 2}}
+	positions := []Coord{{1, 1}, {1, 2}, {2, 2}}
 	for _, pos := range positions {
 		idx := planData.Level.XYTileIndex(gc.Tile(pos.X), gc.Tile(pos.Y))
 		planData.Tiles[idx] = planData.GetTile("floor")

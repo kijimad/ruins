@@ -35,7 +35,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	// プロシージャルマップの場合はランダム配置（到達可能な位置のみ）
-	playerX, playerY, _ := planData.GetPlayerStartPosition()
+	playerPos, _ := planData.GetPlayerStartPosition()
 	pathFinder := NewPathFinder(planData)
 
 	// 次の階へ進むポータルを配置する
@@ -43,11 +43,8 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		x := planData.RNG.IntN(int(planData.Level.TileWidth))
 		y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
-		if planData.IsSpawnableTile(p.world, gc.Tile(x), gc.Tile(y)) && pathFinder.IsReachable(playerX, playerY, x, y) {
-			planData.NextPortals = append(planData.NextPortals, Portal{
-				X: x,
-				Y: y,
-			})
+		if planData.IsSpawnableTile(p.world, gc.Tile(x), gc.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
+			planData.NextPortals = append(planData.NextPortals, Coord{X: x, Y: y})
 			break
 		}
 	}
@@ -61,11 +58,8 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 			x := planData.RNG.IntN(int(planData.Level.TileWidth))
 			y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
-			if planData.IsSpawnableTile(p.world, gc.Tile(x), gc.Tile(y)) && pathFinder.IsReachable(playerX, playerY, x, y) {
-				planData.EscapePortals = append(planData.EscapePortals, Portal{
-					X: x,
-					Y: y,
-				})
+			if planData.IsSpawnableTile(p.world, gc.Tile(x), gc.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
+				planData.EscapePortals = append(planData.EscapePortals, Coord{X: x, Y: y})
 				break
 			}
 		}

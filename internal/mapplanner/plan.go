@@ -103,8 +103,7 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	}
 
 	// 基本的な検証: プレイヤー開始位置があるか確認
-	_, _, playerErr := chain.PlanData.GetPlayerStartPosition()
-	if playerErr != nil {
+	if _, playerErr := chain.PlanData.GetPlayerStartPosition(); playerErr != nil {
 		return nil, ErrPlayerPlacement
 	}
 
