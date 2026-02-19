@@ -41,6 +41,9 @@ type Config struct {
 	StartingState    string `env:"RUINS_STARTING_STATE"`
 	DisableAnimation bool   `env:"RUINS_DISABLE_ANIMATION"`
 
+	// テスト用固定シード。デバッグ時に指定して再現するのに使う
+	TestSeed *uint64
+
 	// パフォーマンス設定
 	TargetFPS     int    `env:"RUINS_TARGET_FPS"`
 	ProfileMemory bool   `env:"RUINS_PROFILE_MEMORY"`

@@ -84,10 +84,12 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		return fmt.Errorf("RunTestGame: at least one state is required")
 	}
 
-	// VRT用にアニメーションを無効化（シングルトンインスタンスを直接変更）
+	// VRT用に設定を変更する
 	cfg := config.Get()
 	originalConfig := *cfg
-	cfg.DisableAnimation = true
+	cfg.DisableAnimation = true // アニメーション無効化
+	testSeed := uint64(1)
+	cfg.TestSeed = &testSeed // シード設定
 	// テスト終了後に設定を復元
 	defer func() {
 		*cfg = originalConfig

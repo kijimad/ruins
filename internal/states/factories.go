@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -102,6 +103,13 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("ダンジョン選択", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState},
+			})
+			return nil
+		}).
 		WithChoice("ダンジョン開始(大部屋)", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
@@ -147,14 +155,6 @@ func NewDebugMenuState() es.State[w.World] {
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
 					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallTown)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(広場)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeTownPlaza)),
 				}})
 			return nil
 		}).
@@ -410,17 +410,17 @@ func NewDebugMenuState() es.State[w.World] {
 // DungeonStateOption はDungeonStateのオプション設定関数
 type DungeonStateOption func(*DungeonState)
 
-// WithSeed はシード値を設定するオプション
-func WithSeed(seed uint64) DungeonStateOption {
-	return func(ds *DungeonState) {
-		ds.Seed = &seed
-	}
-}
-
 // WithBuilderType はマップビルダータイプを設定するオプション
 func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {
 	return func(ds *DungeonState) {
 		ds.BuilderType = builderType
+	}
+}
+
+// WithDefinitionName はダンジョン定義名を設定するオプション
+func WithDefinitionName(name string) DungeonStateOption {
+	return func(ds *DungeonState) {
+		ds.DefinitionName = name
 	}
 }
 
@@ -440,12 +440,13 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 }
 
 // NewTownState は街のステートを作成するファクトリー関数
-// 街は常に深度0、BuilderTypeはTown固定
 func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
-	allOpts := make([]DungeonStateOption, 0, 1+len(opts))
+	allOpts := make([]DungeonStateOption, 0, 2+len(opts))
 	allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))
+	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonTown.Name))
 	allOpts = append(allOpts, opts...)
 
+	// 街は常に深度0
 	return NewDungeonState(0, allOpts...)
 }
 
@@ -672,10 +673,9 @@ func NewLoadMenuState() es.State[w.World] {
 					return err
 				}
 				// 遷移（街マップを生成してプレイヤーを配置）
-				stateFactory := NewTownState()
 				messageState.SetTransition(es.Transition[w.World]{
 					Type:          es.TransReplace,
-					NewStateFuncs: []es.StateFactory[w.World]{stateFactory}})
+					NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
 				return nil
 			})
 		}
@@ -842,4 +842,34 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 	})
 
 	return persistentState
+}
+
+// NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
+func NewDungeonSelectState() es.State[w.World] {
+	messageState := &MessageState{}
+
+	// ダンジョン一覧を取得
+	dungeons := dungeon.GetAllDungeons()
+
+	// 選択肢を動的に生成
+	msg := messagedata.NewSystemMessage("どのダンジョンに挑戦しますか？")
+
+	for i := range dungeons {
+		dungeonDef := dungeons[i]
+		msg = msg.WithChoice(dungeonDef.Name, func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(dungeonDef.Name))},
+			})
+			return nil
+		})
+	}
+
+	msg = msg.WithChoice("戻る", func(_ w.World) error {
+		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+		return nil
+	})
+
+	messageState.messageData = msg
+	return messageState
 }

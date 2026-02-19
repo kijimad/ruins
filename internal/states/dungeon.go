@@ -3,11 +3,13 @@ package states
 import (
 	"fmt"
 	"image/color"
+	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
@@ -31,10 +33,10 @@ var (
 type DungeonState struct {
 	es.BaseState[w.World]
 	Depth int
-	// Seed はマップ生成用のシード値（nilの場合はランダム生成）
-	Seed *uint64
 	// BuilderType は使用するマップビルダーのタイプ（BuilderTypeRandom の場合はランダム選択）
 	BuilderType mapplanner.PlannerType
+	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
+	DefinitionName string
 }
 
 func (st DungeonState) String() string {
@@ -74,8 +76,41 @@ func (st *DungeonState) OnStart(world w.World) error {
 		world.Resources.TurnManager = turns.NewTurnManager()
 	}
 
+	// TestSeedが設定されている場合は固定シードを使用する（テスト用）
+	// それ以外は毎回新しいシードを生成する
+	cfg := config.Get()
+	var seed uint64
+	if cfg.TestSeed != nil {
+		seed = *cfg.TestSeed
+	} else {
+		seed = rand.Uint64()
+	}
+
+	// 設定されていればリソースに反映する
+	if st.DefinitionName != "" {
+		world.Resources.Dungeon.DefinitionName = st.DefinitionName
+	}
+	// ダンジョン定義を取得する
+	def, found := dungeon.GetDungeon(world.Resources.Dungeon.DefinitionName)
+	if !found {
+		return fmt.Errorf("ダンジョン定義が見つかりません: %s", world.Resources.Dungeon.DefinitionName)
+	}
+
+	// ビルダータイプを決定
+	// st.BuilderTypeが直接指定されている場合はそれを使用、それ以外はプールから選択する
+	var builderType mapplanner.PlannerType
+	if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name {
+		var err error
+		builderType, err = dungeon.SelectPlanner(def, seed)
+		if err != nil {
+			return err
+		}
+	} else {
+		builderType = st.BuilderType
+	}
+
 	// 計画作成する
-	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, st.Seed, st.BuilderType)
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, builderType)
 	if err != nil {
 		return err
 	}
@@ -447,8 +482,9 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			}}, nil
 		}
 	case resources.WarpNextEvent:
-		// 次のフロアへ遷移
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(world.Resources.Dungeon.Depth + 1)}}, nil
+		// 次のフロアへ遷移する
+		nextDepth := world.Resources.Dungeon.Depth + 1
+		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(nextDepth)}}, nil
 	case resources.WarpEscapeEvent:
 		// 街へ帰還
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}}, nil

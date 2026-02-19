@@ -20,7 +20,7 @@ func TestMetaPlanConnectivityIntegration(t *testing.T) {
 	plannerType := PlannerTypeSmallRoom
 
 	// MetaPlanを生成（接続性検証込み）
-	metaPlan, err := Plan(world, width, height, &seed, plannerType)
+	metaPlan, err := Plan(world, width, height, seed, plannerType)
 	assert.NoError(t, err, "Plan with connectivity validation failed")
 	assert.NotNil(t, metaPlan, "MetaPlan should not be nil")
 

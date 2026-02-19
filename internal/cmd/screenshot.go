@@ -27,9 +27,7 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("引数が不足している。ステート名が必要")
 	}
 
-	// 固定seed値を使用したtown dungeon state
-	const townSeedVal = 1
-	townStateFactory := gs.NewTownState(gs.WithSeed(townSeedVal))
+	townStateFactory := gs.NewTownState()
 
 	switch mode {
 	case gs.CraftMenuState{}.String():
@@ -37,19 +35,13 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 	case "DebugMenu":
 		return vrt.RunTestGame(mode, townStateFactory(), gs.NewDebugMenuState())
 	case gs.DungeonState{}.String():
-		// 固定seed値を使用する
-		seedVal := uint64(1)
 		return vrt.RunTestGame(mode, &gs.DungeonState{
 			Depth:       1,
-			Seed:        &seedVal,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
 		})
 	case gs.FieldInfoState{}.String():
-		// 固定seed値を使用したダンジョンの上に視界情報画面を重ねる
-		seedVal := uint64(1)
 		return vrt.RunTestGame(mode, &gs.DungeonState{
 			Depth:       1,
-			Seed:        &seedVal,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
 		}, &gs.FieldInfoState{})
 	case gs.EquipMenuState{}.String():

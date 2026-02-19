@@ -22,6 +22,8 @@ type Dungeon struct {
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
 	NeedsForceUpdate bool
+	// DefinitionName はダンジョン定義名
+	DefinitionName string
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

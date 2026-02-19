@@ -13,6 +13,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
 	gr "github.com/kijimaD/ruins/internal/resources"
@@ -194,7 +195,8 @@ func InitWorld(minGameWidth int, minGameHeight int) (w.World, error) {
 	world.Resources.RawMaster = rw
 
 	gameResource := &gr.Dungeon{
-		ExploredTiles: make(map[gc.GridElement]bool),
+		ExploredTiles:  make(map[gc.GridElement]bool),
+		DefinitionName: dungeon.DungeonDebug.Name,
 		MinimapSettings: gr.MinimapSettings{
 			Width:   150,
 			Height:  150,
