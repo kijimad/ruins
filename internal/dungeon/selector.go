@@ -8,7 +8,6 @@ import (
 )
 
 // SelectPlanner はPlannerPoolから重み付き抽選でPlannerTypeを選択する
-// 選択されたPlannerTypeにDefinitionのEnemyTableNameとItemTableNameを設定して返す
 func SelectPlanner(def Definition, seed uint64) (mapplanner.PlannerType, error) {
 	pool := def.PlannerPool
 	if len(pool) == 0 {
@@ -35,7 +34,5 @@ func SelectPlanner(def Definition, seed uint64) (mapplanner.PlannerType, error) 
 		}
 	}
 
-	selected.EnemyTableName = def.EnemyTableName
-	selected.ItemTableName = def.ItemTableName
 	return selected, nil
 }

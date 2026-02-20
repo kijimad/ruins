@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	"fmt"
+	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -40,19 +41,13 @@ func NewItemPlanner(world w.World, plannerType PlannerType) *ItemPlanner {
 
 // PlanMeta はアイテム配置情報をMetaPlanに追加する
 func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
-	if !i.plannerType.SpawnItems {
-		return nil // アイテムをスポーンしない設定の場合は何もしない
+	if len(i.plannerType.ItemEntries) == 0 {
+		return nil // エントリがない場合は何もしない
 	}
 
 	// Itemsフィールドが存在しない場合は初期化
 	if planData.Items == nil {
 		planData.Items = []ItemSpec{}
-	}
-
-	// アイテムテーブルを取得
-	itemTable, err := planData.RawMaster.GetItemTable(i.plannerType.ItemTableName)
-	if err != nil {
-		return fmt.Errorf("'%s'アイテムテーブルが見つかりません: %w", i.plannerType.ItemTableName, err)
 	}
 
 	depth := i.world.Resources.Dungeon.Depth
@@ -65,7 +60,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 
 	// アイテムを配置
 	for j := 0; j < itemCount; j++ {
-		itemName := itemTable.SelectByWeight(planData.RNG, depth)
+		itemName := selectByWeight(i.plannerType.ItemEntries, planData.RNG)
 		if itemName != "" {
 			if err := i.addItem(planData, itemName); err != nil {
 				return err
@@ -74,6 +69,34 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	return nil
+}
+
+// selectByWeight はエントリから重み付き抽選で名前を選択する
+func selectByWeight(entries []SpawnEntry, rng *rand.Rand) string {
+	if len(entries) == 0 {
+		return ""
+	}
+
+	var totalWeight float64
+	for _, entry := range entries {
+		totalWeight += entry.Weight
+	}
+
+	if totalWeight == 0 {
+		return ""
+	}
+
+	randomValue := rng.Float64() * totalWeight
+
+	var cumulativeWeight float64
+	for _, entry := range entries {
+		cumulativeWeight += entry.Weight
+		if randomValue < cumulativeWeight {
+			return entry.Name
+		}
+	}
+
+	return ""
 }
 
 // addItem は単一のアイテムをMetaPlanに追加する

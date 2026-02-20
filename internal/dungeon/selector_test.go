@@ -27,14 +27,10 @@ func TestSelectPlanner(t *testing.T) {
 			PlannerPool: []PlannerWeight{
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 			},
-			EnemyTableName: "洞窟敵",
-			ItemTableName:  "洞窟アイテム",
 		}
 		result, err := SelectPlanner(def, 12345)
 		require.NoError(t, err)
 		assert.Equal(t, mapplanner.PlannerTypeCave.Name, result.Name)
-		assert.Equal(t, "洞窟敵", result.EnemyTableName)
-		assert.Equal(t, "洞窟アイテム", result.ItemTableName)
 	})
 
 	t.Run("重みに応じて選択される", func(t *testing.T) {
@@ -44,8 +40,6 @@ func TestSelectPlanner(t *testing.T) {
 				{PlannerType: mapplanner.PlannerTypeForest, Weight: 100},
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 			},
-			EnemyTableName: "森",
-			ItemTableName:  "森",
 		}
 
 		forestCount := 0

@@ -17,6 +17,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	"github.com/kijimaD/ruins/internal/messagedata"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/turns"
@@ -107,6 +108,23 @@ func (st *DungeonState) OnStart(world w.World) error {
 		}
 	} else {
 		builderType = st.BuilderType
+	}
+
+	// スポーンエントリを設定する
+	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	if def.ItemTableName != "" {
+		itemTable, err := rawMaster.GetItemTable(def.ItemTableName)
+		if err != nil {
+			return fmt.Errorf("アイテムテーブルが見つかりません: %s: %w", def.ItemTableName, err)
+		}
+		builderType.ItemEntries = filterItemEntries(itemTable.Entries, st.Depth)
+	}
+	if def.EnemyTableName != "" {
+		enemyTable, err := rawMaster.GetEnemyTable(def.EnemyTableName)
+		if err != nil {
+			return fmt.Errorf("敵テーブルが見つかりません: %s: %w", def.EnemyTableName, err)
+		}
+		builderType.EnemyEntries = filterEnemyEntries(enemyTable.Entries, st.Depth)
 	}
 
 	// 計画作成する
@@ -517,4 +535,44 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			}
 		}
 	})
+}
+
+// filterItemEntries はアイテムテーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
+func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.SpawnEntry {
+	result := make([]mapplanner.SpawnEntry, 0, len(entries))
+	for _, entry := range entries {
+		// MinDepthチェック（0は制限なし）
+		if entry.MinDepth > 0 && depth < entry.MinDepth {
+			continue
+		}
+		// MaxDepthチェック（0は制限なし）
+		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
+			continue
+		}
+		result = append(result, mapplanner.SpawnEntry{
+			Name:   entry.ItemName,
+			Weight: entry.Weight,
+		})
+	}
+	return result
+}
+
+// filterEnemyEntries は敵テーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
+func filterEnemyEntries(entries []raw.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {
+	result := make([]mapplanner.SpawnEntry, 0, len(entries))
+	for _, entry := range entries {
+		// MinDepthチェック（0は制限なし）
+		if entry.MinDepth > 0 && depth < entry.MinDepth {
+			continue
+		}
+		// MaxDepthチェック（0は制限なし）
+		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
+			continue
+		}
+		result = append(result, mapplanner.SpawnEntry{
+			Name:   entry.EnemyName,
+			Weight: entry.Weight,
+		})
+	}
+	return result
 }

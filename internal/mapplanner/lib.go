@@ -376,20 +376,22 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 	return chain, nil
 }
 
+// SpawnEntry はスポーン対象のエントリを表す
+type SpawnEntry struct {
+	Name   string
+	Weight float64
+}
+
 // PlannerType はマップ生成の設定を表す構造体
 type PlannerType struct {
 	// プランナー名
 	Name string
-	// 敵をスポーンするか
-	SpawnEnemies bool
-	// アイテムをスポーンするか
-	SpawnItems bool
 	// ポータル位置を固定するか
 	UseFixedPortalPos bool
-	// アイテムテーブル名
-	ItemTableName string
-	// 敵テーブル名
-	EnemyTableName string
+	// スポーンするアイテムのエントリ（階層でフィルタリング済み）
+	ItemEntries []SpawnEntry
+	// スポーンする敵のエントリ（階層でフィルタリング済み）
+	EnemyEntries []SpawnEntry
 	// プランナー関数
 	PlannerFunc func(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -397,77 +399,43 @@ type PlannerType struct {
 var (
 	// PlannerTypeRandom はランダム選択用のプランナータイプ
 	PlannerTypeRandom = PlannerType{
-		Name:              "ランダム",
-		SpawnEnemies:      true,
-		SpawnItems:        true,
-		UseFixedPortalPos: false,
-		ItemTableName:     "通常",
-		EnemyTableName:    "通常",
+		Name: "ランダム",
 	}
 
 	// PlannerTypeSmallRoom は小部屋ダンジョンのプランナータイプ
 	PlannerTypeSmallRoom = PlannerType{
-		Name:              "小部屋",
-		SpawnEnemies:      true,
-		SpawnItems:        true,
-		UseFixedPortalPos: false,
-		ItemTableName:     "通常",
-		EnemyTableName:    "通常",
-		PlannerFunc:       NewSmallRoomPlanner,
+		Name:        "小部屋",
+		PlannerFunc: NewSmallRoomPlanner,
 	}
 
 	// PlannerTypeBigRoom は大部屋ダンジョンのプランナータイプ
 	PlannerTypeBigRoom = PlannerType{
-		Name:              "大部屋",
-		SpawnEnemies:      true,
-		SpawnItems:        true,
-		UseFixedPortalPos: false,
-		ItemTableName:     "通常",
-		EnemyTableName:    "通常",
-		PlannerFunc:       NewBigRoomPlanner,
+		Name:        "大部屋",
+		PlannerFunc: NewBigRoomPlanner,
 	}
 
 	// PlannerTypeCave は洞窟ダンジョンのプランナータイプ
 	PlannerTypeCave = PlannerType{
-		Name:              "洞窟",
-		SpawnEnemies:      true,
-		SpawnItems:        true,
-		UseFixedPortalPos: false,
-		ItemTableName:     "洞窟",
-		EnemyTableName:    "洞窟",
-		PlannerFunc:       NewCavePlanner,
+		Name:        "洞窟",
+		PlannerFunc: NewCavePlanner,
 	}
 
 	// PlannerTypeRuins は廃墟ダンジョンのプランナータイプ
 	PlannerTypeRuins = PlannerType{
-		Name:              "廃墟",
-		SpawnEnemies:      true,
-		SpawnItems:        true,
-		UseFixedPortalPos: false,
-		ItemTableName:     "廃墟",
-		EnemyTableName:    "廃墟",
-		PlannerFunc:       NewRuinsPlanner,
+		Name:        "廃墟",
+		PlannerFunc: NewRuinsPlanner,
 	}
 
 	// PlannerTypeForest は森ダンジョンのプランナータイプ
 	PlannerTypeForest = PlannerType{
-		Name:              "森",
-		SpawnEnemies:      true,
-		SpawnItems:        true,
-		UseFixedPortalPos: false,
-		ItemTableName:     "森",
-		EnemyTableName:    "森",
-		PlannerFunc:       NewForestPlanner,
+		Name:        "森",
+		PlannerFunc: NewForestPlanner,
 	}
 
 	// PlannerTypeTown は市街地のプランナータイプ
 	PlannerTypeTown = PlannerType{
 		Name:              "市街地",
-		SpawnEnemies:      false, // 街では敵をスポーンしない
-		SpawnItems:        false, // 街ではフィールドアイテムをスポーンしない
-		UseFixedPortalPos: true,  // ポータル位置を固定
-		ItemTableName:     "",    // 街ではアイテムをスポーンしないので空
-		EnemyTableName:    "",    // 街では敵をスポーンしないので空
+		UseFixedPortalPos: true,
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},
@@ -475,12 +443,7 @@ var (
 
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
-		Name:              "事務所ビル",
-		SpawnEnemies:      false,
-		SpawnItems:        false,
-		UseFixedPortalPos: false,
-		ItemTableName:     "",
-		EnemyTableName:    "",
+		Name: "事務所ビル",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
 		},
@@ -488,12 +451,7 @@ var (
 
 	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
 	PlannerTypeSmallTown = PlannerType{
-		Name:              "小さな町",
-		SpawnEnemies:      false,
-		SpawnItems:        false,
-		UseFixedPortalPos: false,
-		ItemTableName:     "",
-		EnemyTableName:    "",
+		Name: "小さな町",
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
 		},
@@ -502,11 +460,7 @@ var (
 	// PlannerTypeTownPlaza は町の広場
 	PlannerTypeTownPlaza = PlannerType{
 		Name:              "広場",
-		SpawnEnemies:      false,
-		SpawnItems:        false,
-		UseFixedPortalPos: true, // テンプレートでポータル位置が固定されている
-		ItemTableName:     "",
-		EnemyTableName:    "",
+		UseFixedPortalPos: true,
 		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},

@@ -74,16 +74,12 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	}
 
 	// 敵NPCプランナーを追加
-	if plannerType.SpawnEnemies {
-		hostileNPCPlanner := NewHostileNPCPlanner(world, plannerType)
-		chain.With(hostileNPCPlanner)
-	}
+	hostileNPCPlanner := NewHostileNPCPlanner(world, plannerType)
+	chain.With(hostileNPCPlanner)
 
 	// アイテムプランナーを追加
-	if plannerType.SpawnItems {
-		itemPlanner := NewItemPlanner(world, plannerType)
-		chain.With(itemPlanner)
-	}
+	itemPlanner := NewItemPlanner(world, plannerType)
+	chain.With(itemPlanner)
 
 	// ポータルプランナーを追加
 	portalPlanner := NewPortalPlanner(world, plannerType)
