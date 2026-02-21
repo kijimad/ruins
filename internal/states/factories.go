@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
@@ -270,11 +269,10 @@ func NewDebugMenuState() es.State[w.World] {
 				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(testMessageData) }}})
 			return nil
 		}).
-		WithChoice("デバッグ表示切り替え", func(_ w.World) error {
-			cfg := config.Get()
-			cfg.ShowMapDebug = !cfg.ShowMapDebug
-			cfg.ShowAIDebug = !cfg.ShowAIDebug
-			cfg.NoEncounter = !cfg.NoEncounter
+		WithChoice("デバッグ表示切り替え", func(world w.World) error {
+			world.Config.ShowMapDebug = !world.Config.ShowMapDebug
+			world.Config.ShowAIDebug = !world.Config.ShowAIDebug
+			world.Config.NoEncounter = !world.Config.NoEncounter
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
 		}).

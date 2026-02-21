@@ -5,6 +5,7 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -60,7 +61,10 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 
 	// アイテムを配置
 	for j := 0; j < itemCount; j++ {
-		itemName := selectByWeight(i.plannerType.ItemEntries, planData.RNG)
+		itemName, err := selectByWeight(i.plannerType.ItemEntries, planData.RNG)
+		if err != nil {
+			return err
+		}
 		if itemName != "" {
 			if err := i.addItem(planData, itemName); err != nil {
 				return err
@@ -72,31 +76,12 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 }
 
 // selectByWeight はエントリから重み付き抽選で名前を選択する
-func selectByWeight(entries []SpawnEntry, rng *rand.Rand) string {
-	if len(entries) == 0 {
-		return ""
+func selectByWeight(entries []SpawnEntry, rng *rand.Rand) (string, error) {
+	items := make([]raw.WeightedItem, len(entries))
+	for i, entry := range entries {
+		items[i] = raw.WeightedItem{Value: entry.Name, Weight: entry.Weight}
 	}
-
-	var totalWeight float64
-	for _, entry := range entries {
-		totalWeight += entry.Weight
-	}
-
-	if totalWeight == 0 {
-		return ""
-	}
-
-	randomValue := rng.Float64() * totalWeight
-
-	var cumulativeWeight float64
-	for _, entry := range entries {
-		cumulativeWeight += entry.Weight
-		if randomValue < cumulativeWeight {
-			return entry.Name
-		}
-	}
-
-	return ""
+	return raw.SelectByWeight(items, rng)
 }
 
 // addItem は単一のアイテムをMetaPlanに追加する

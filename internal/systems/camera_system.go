@@ -3,7 +3,6 @@ package systems
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -49,8 +48,7 @@ func (sys *CameraSystem) Update(world w.World) error {
 		}
 
 		// カメラ位置を目標位置に向けて補間
-		cfg := config.Get()
-		if cfg.DisableAnimation {
+		if world.Config.DisableAnimation {
 			// アニメーション無効時は即座にスナップ
 			camera.X = camera.TargetX
 			camera.Y = camera.TargetY

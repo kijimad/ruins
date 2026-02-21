@@ -1,9 +1,6 @@
 package systems
 
 import (
-	"math/rand/v2"
-	"time"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -39,20 +36,18 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	// ドロップアイテム生成
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
 
-	// 乱数生成器を取得（テスト用に注入可能）
-	rng := world.Resources.RNG
-	if rng == nil {
-		// 本番環境では現在時刻をシードにする
-		rng = rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), 0))
-	}
-
 	for _, entity := range toDelete {
-		// ドロップテーブルコンポーネントをチェック
+		// ドロップに必要なコンポーネントをチェック
 		if !entity.HasComponent(world.Components.DropTable) {
+			continue
+		}
+		if !entity.HasComponent(world.Components.GridElement) {
 			continue
 		}
 
 		dropTableComp := world.Components.DropTable.Get(entity).(*gc.DropTable)
+		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
 		dropTable, err := rawMaster.GetDropTable(dropTableComp.Name)
 		if err != nil {
 			logger.Debug("ドロップテーブル取得失敗", "error", err, "table_name", dropTableComp.Name)
@@ -60,16 +55,14 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 
 		// アイテム選択
-		materialName := dropTable.SelectByWeight(rng)
+		materialName, err := dropTable.SelectByWeight(world.Config.RNG)
+		if err != nil {
+			return err
+		}
+		// ドロップしない
 		if materialName == "" {
 			continue
 		}
-
-		// エンティティの位置を取得（GridElementはタイル座標を保持）
-		if !entity.HasComponent(world.Components.GridElement) {
-			continue
-		}
-		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 		// フィールドにアイテムをスポーン
 		_, err = worldhelper.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y)

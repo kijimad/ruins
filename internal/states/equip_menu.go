@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
@@ -101,7 +102,7 @@ func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) 
 	if st.isWindowMode {
 		action, ok = HandleWindowInput()
 	} else {
-		action, ok = st.HandleInput()
+		action, ok = st.HandleInput(world.Config)
 	}
 
 	if ok {
@@ -132,7 +133,7 @@ func (st *EquipMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 // ================
 
 // HandleInput はキー入力をActionに変換する
-func (st *EquipMenuState) HandleInput() (inputmapper.ActionID, bool) {
+func (st *EquipMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
 		return inputmapper.ActionMenuCancel, true

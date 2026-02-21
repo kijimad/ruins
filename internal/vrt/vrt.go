@@ -84,18 +84,15 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		return fmt.Errorf("RunTestGame: at least one state is required")
 	}
 
-	// VRT用に設定を変更する
-	cfg := config.Get()
-	originalConfig := *cfg
+	// VRT用に設定を作成する
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("config.Load failed: %w", err)
+	}
 	cfg.DisableAnimation = true // アニメーション無効化
-	testSeed := uint64(1)
-	cfg.TestSeed = &testSeed // シード設定
-	// テスト終了後に設定を復元
-	defer func() {
-		*cfg = originalConfig
-	}()
+	cfg.Seed = 1                // 再現性のための固定シード
 
-	world, err := maingame.InitWorld(960, 720)
+	world, err := maingame.InitWorld(cfg)
 	if err != nil {
 		return fmt.Errorf("InitWorld failed: %w", err)
 	}

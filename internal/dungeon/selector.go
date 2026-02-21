@@ -8,7 +8,7 @@ import (
 )
 
 // SelectPlanner はPlannerPoolから重み付き抽選でPlannerTypeを選択する
-func SelectPlanner(def Definition, seed uint64) (mapplanner.PlannerType, error) {
+func SelectPlanner(def Definition, rng *rand.Rand) (mapplanner.PlannerType, error) {
 	pool := def.PlannerPool
 	if len(pool) == 0 {
 		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPoolが空です: %s", def.Name)
@@ -22,7 +22,6 @@ func SelectPlanner(def Definition, seed uint64) (mapplanner.PlannerType, error) 
 		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPoolの総重みが0です: %s", def.Name)
 	}
 
-	rng := rand.New(rand.NewPCG(seed, seed))
 	r := rng.IntN(totalWeight)
 	cumulative := 0
 	for _, pw := range pool {

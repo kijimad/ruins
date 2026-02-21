@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
 	gr "github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -34,6 +35,9 @@ func InitTestWorld(t *testing.T) w.World {
 	world, err := w.InitWorld(&gc.Components{})
 	require.NoError(t, err)
 
+	// テスト用configを設定（固定シード含む）
+	world.Config = &config.Config{Profile: config.ProfileTesting}
+	world.Config.ApplyProfileDefaults()
 	world.Resources.SetScreenDimensions(960, 720)
 
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）

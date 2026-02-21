@@ -77,16 +77,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 		world.Resources.TurnManager = turns.NewTurnManager()
 	}
 
-	// TestSeedが設定されている場合は固定シードを使用する（テスト用）
-	// それ以外は毎回新しいシードを生成する
-	cfg := config.Get()
-	var seed uint64
-	if cfg.TestSeed != nil {
-		seed = *cfg.TestSeed
-	} else {
-		seed = rand.Uint64()
-	}
-
 	// 設定されていればリソースに反映する
 	if st.DefinitionName != "" {
 		world.Resources.Dungeon.DefinitionName = st.DefinitionName
@@ -97,12 +87,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 		return fmt.Errorf("ダンジョン定義が見つかりません: %s", world.Resources.Dungeon.DefinitionName)
 	}
 
+	// ステージ用シードを生成する
+	stageSeed := world.Config.RNG.Uint64()
+	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
+
 	// ビルダータイプを決定
 	// st.BuilderTypeが直接指定されている場合はそれを使用、それ以外はプールから選択する
 	var builderType mapplanner.PlannerType
 	if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name {
 		var err error
-		builderType, err = dungeon.SelectPlanner(def, seed)
+		builderType, err = dungeon.SelectPlanner(def, stageRNG)
 		if err != nil {
 			return err
 		}
@@ -128,7 +122,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 
 	// 計画作成する
-	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, seed, builderType)
+	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
 	if err != nil {
 		return err
 	}
@@ -191,7 +185,7 @@ func (st *DungeonState) OnStop(world w.World) error {
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// キー入力をActionに変換
-	if action, ok := st.HandleInput(); ok {
+	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
@@ -254,10 +248,9 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 // ================
 
 // HandleInput はキー入力をActionに変換する
-func (st *DungeonState) HandleInput() (inputmapper.ActionID, bool) {
+func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, bool) {
 	keyboardInput := input.GetSharedKeyboardInput()
 
-	cfg := config.MustGet()
 	if cfg.Debug && keyboardInput.IsKeyJustPressed(ebiten.KeySlash) {
 		return inputmapper.ActionOpenDebugMenu, true
 	}

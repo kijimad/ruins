@@ -17,9 +17,9 @@ type EnemyTableEntry struct {
 }
 
 // SelectByWeight は重みで選択する
-func (et EnemyTable) SelectByWeight(rng *rand.Rand, depth int) string {
+func (et EnemyTable) SelectByWeight(rng *rand.Rand, depth int) (string, error) {
 	// 深度範囲内のエントリのみをフィルタリング
-	validEntries := make([]EnemyTableEntry, 0, len(et.Entries))
+	var items []WeightedItem
 	for _, entry := range et.Entries {
 		// MinDepthチェック（0は制限なし）
 		if entry.MinDepth > 0 && depth < entry.MinDepth {
@@ -29,34 +29,8 @@ func (et EnemyTable) SelectByWeight(rng *rand.Rand, depth int) string {
 		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
 			continue
 		}
-		validEntries = append(validEntries, entry)
+		items = append(items, WeightedItem{Value: entry.EnemyName, Weight: entry.Weight})
 	}
 
-	// 有効なエントリがない場合
-	if len(validEntries) == 0 {
-		return ""
-	}
-
-	// 総重みを計算
-	var totalWeight float64
-	for _, entry := range validEntries {
-		totalWeight += entry.Weight
-	}
-
-	if totalWeight == 0 {
-		return ""
-	}
-
-	randomValue := rng.Float64() * totalWeight
-
-	// 累積ウェイトで判定
-	var cumulativeWeight float64
-	for _, entry := range validEntries {
-		cumulativeWeight += entry.Weight
-		if randomValue < cumulativeWeight {
-			return entry.EnemyName
-		}
-	}
-
-	return ""
+	return SelectByWeight(items, rng)
 }

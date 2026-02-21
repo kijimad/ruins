@@ -62,7 +62,10 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		}
 
 		// エントリから重み付き抽選で敵を選択
-		enemyName := selectByWeight(n.plannerType.EnemyEntries, planData.RNG)
+		enemyName, err := selectByWeight(n.plannerType.EnemyEntries, planData.RNG)
+		if err != nil {
+			return err
+		}
 		if enemyName == "" {
 			failCount++
 			continue

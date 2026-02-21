@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/rand/v2"
 
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -115,10 +114,8 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	entitySpec.GridElement = &gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
 	// カメラ
 	{
-		// config設定を確認
-		cfg := config.Get()
 		var scale, scaleTo float64
-		if cfg.DisableAnimation {
+		if world.Config.DisableAnimation {
 			// アニメーション無効時は初期スケールを通常値に設定
 			scale = cameraNormalScale
 			scaleTo = cameraNormalScale

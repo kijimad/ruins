@@ -8,6 +8,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -86,7 +87,7 @@ func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 // ================
 
 // HandleInput はキー入力をActionに変換する
-func (st *MainMenuState) HandleInput() (inputmapper.ActionID, bool) {
+func (st *MainMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	// 未使用
 	return "", false
 }

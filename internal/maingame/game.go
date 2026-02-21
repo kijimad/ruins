@@ -55,10 +55,9 @@ func (game *MainGame) Layout(_, _ int) (int, int) {
 // Update はゲームの更新処理を行う
 func (game *MainGame) Update() error {
 	// デバッグ表示をトグルする
-	cfg := config.Get()
 	if ebiten.IsKeyPressed(ebiten.KeyShift) && inpututil.IsKeyJustPressed(ebiten.KeyTab) {
 		// パフォーマンスモニターは攻略に関係ないのでトグルできてよい
-		cfg.ShowMonitor = !cfg.ShowMonitor
+		game.World.Config.ShowMonitor = !game.World.Config.ShowMonitor
 	}
 
 	if err := game.StateMachine.Update(game.World); err != nil {
@@ -88,8 +87,7 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 		log.Fatal(err)
 	}
 
-	cfg := config.Get()
-	if cfg.ShowMonitor {
+	if game.World.Config.ShowMonitor {
 		msg := getPerformanceInfo()
 		ebitenutil.DebugPrint(target, msg)
 	}
@@ -143,13 +141,14 @@ Goroutines: %d
 }
 
 // InitWorld はゲームワールドを初期化する
-func InitWorld(minGameWidth int, minGameHeight int) (w.World, error) {
+func InitWorld(cfg *config.Config) (w.World, error) {
 	world, err := w.InitWorld(&gc.Components{})
 	if err != nil {
 		return w.World{}, err
 	}
 
-	world.Resources.SetScreenDimensions(minGameWidth, minGameHeight)
+	world.Config = cfg
+	world.Resources.SetScreenDimensions(cfg.WindowWidth, cfg.WindowHeight)
 
 	// ResourceLoaderを使用してリソースを読み込む
 	resourceLoader := loader.NewResourceLoader()

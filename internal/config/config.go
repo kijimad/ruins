@@ -1,6 +1,7 @@
 package config
 
 import (
+	"math/rand/v2"
 	"os"
 
 	"github.com/caarlos0/env/v11"
@@ -14,6 +15,8 @@ const (
 	ProfileProduction Profile = "production"
 	// ProfileDevelopment は開発環境プロファイル
 	ProfileDevelopment Profile = "development"
+	// ProfileTesting はテスト環境プロファイル
+	ProfileTesting Profile = "testing"
 )
 
 // Config はアプリケーションの設定を管理する
@@ -41,8 +44,12 @@ type Config struct {
 	StartingState    string `env:"RUINS_STARTING_STATE"`
 	DisableAnimation bool   `env:"RUINS_DISABLE_ANIMATION"`
 
-	// テスト用固定シード。デバッグ時に指定して再現するのに使う
-	TestSeed *uint64
+	// 乱数シード。環境変数で指定すると再現可能になる
+	// 未指定の場合は自動生成される
+	Seed uint64 `env:"RUINS_SEED"`
+
+	// 乱数生成器。Seedから生成される
+	RNG *rand.Rand
 
 	// パフォーマンス設定
 	TargetFPS     int    `env:"RUINS_TARGET_FPS"`
@@ -66,7 +73,7 @@ func load() (*Config, error) {
 	}
 
 	// プロファイルに基づくデフォルト値を設定
-	cfg.applyProfileDefaults()
+	cfg.ApplyProfileDefaults()
 
 	// 環境変数で明示的に設定された値で上書き
 	if err := env.Parse(cfg); err != nil {
@@ -76,13 +83,15 @@ func load() (*Config, error) {
 	return cfg, nil
 }
 
-// applyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
-func (c *Config) applyProfileDefaults() {
+// ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
+func (c *Config) ApplyProfileDefaults() {
 	switch c.Profile {
-	case ProfileDevelopment:
-		c.applyDevelopmentDefaults()
 	case ProfileProduction:
 		c.applyProductionDefaults()
+	case ProfileDevelopment:
+		c.applyDevelopmentDefaults()
+	case ProfileTesting:
+		c.applyTestingDefaults()
 	default:
 		// デフォルトは本番設定
 		c.applyProductionDefaults()
@@ -226,6 +235,17 @@ func (c *Config) applyDevelopmentDefaults() {
 	if os.Getenv("RUINS_PROFILE_PATH") == "" {
 		c.ProfilePath = "./profiles" // 開発時は専用フォルダ
 	}
+}
+
+// applyTestingDefaults はテスト環境のデフォルト値を設定する
+// 開発設定をベースに、テスト固有の設定を上書きする
+func (c *Config) applyTestingDefaults() {
+	c.applyDevelopmentDefaults()
+
+	// テスト固有の設定
+	c.LogLevel = "ignore"
+	c.Seed = 12345
+	c.RNG = rand.New(rand.NewPCG(c.Seed, 0))
 }
 
 // Validate は設定値の妥当性を検証する

@@ -4,7 +4,6 @@ import (
 	"image/color"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/turns"
@@ -148,8 +147,7 @@ type TileColorInfo = hud.TileColorInfo
 
 // extractDebugOverlay はデバッグオーバーレイデータを抽出する
 func extractDebugOverlay(world w.World) hud.DebugOverlayData {
-	cfg := config.Get()
-	if !cfg.ShowAIDebug {
+	if !world.Config.ShowAIDebug {
 		return hud.DebugOverlayData{Enabled: false}
 	}
 

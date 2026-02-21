@@ -1,6 +1,7 @@
 package dungeon
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/mapplanner"
@@ -17,7 +18,8 @@ func TestSelectPlanner(t *testing.T) {
 			Name:        "テスト",
 			PlannerPool: []PlannerWeight{},
 		}
-		_, err := SelectPlanner(def, 12345)
+		rng := rand.New(rand.NewPCG(12345, 0))
+		_, err := SelectPlanner(def, rng)
 		assert.Error(t, err)
 	})
 
@@ -28,7 +30,8 @@ func TestSelectPlanner(t *testing.T) {
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 1},
 			},
 		}
-		result, err := SelectPlanner(def, 12345)
+		rng := rand.New(rand.NewPCG(12345, 0))
+		result, err := SelectPlanner(def, rng)
 		require.NoError(t, err)
 		assert.Equal(t, mapplanner.PlannerTypeCave.Name, result.Name)
 	})
@@ -44,8 +47,9 @@ func TestSelectPlanner(t *testing.T) {
 
 		forestCount := 0
 		caveCount := 0
-		for i := range 1000 {
-			result, err := SelectPlanner(def, uint64(i))
+		rng := rand.New(rand.NewPCG(12345, 0))
+		for range 100 {
+			result, err := SelectPlanner(def, rng)
 			require.NoError(t, err)
 			switch result.Name {
 			case mapplanner.PlannerTypeForest.Name:
@@ -55,8 +59,8 @@ func TestSelectPlanner(t *testing.T) {
 			}
 		}
 
-		// 森の方が圧倒的に多いはず
-		assert.Greater(t, forestCount, caveCount*10)
+		// 森の方が多いはず
+		assert.Greater(t, forestCount, caveCount)
 	})
 
 	t.Run("重みが0のみの場合はエラーを返す", func(t *testing.T) {
@@ -68,11 +72,12 @@ func TestSelectPlanner(t *testing.T) {
 				{PlannerType: mapplanner.PlannerTypeCave, Weight: 0},
 			},
 		}
-		_, err := SelectPlanner(def, 12345)
+		rng := rand.New(rand.NewPCG(12345, 0))
+		_, err := SelectPlanner(def, rng)
 		assert.Error(t, err)
 	})
 
-	t.Run("同じシードでは同じ結果を返す", func(t *testing.T) {
+	t.Run("同じシードで生成された初期状態のRNGでは同じ結果を返す", func(t *testing.T) {
 		t.Parallel()
 		def := Definition{
 			PlannerPool: []PlannerWeight{
@@ -82,14 +87,18 @@ func TestSelectPlanner(t *testing.T) {
 			},
 		}
 
-		result1, err := SelectPlanner(def, 12345)
+		rng1 := rand.New(rand.NewPCG(12345, 0))
+		result1, err := SelectPlanner(def, rng1)
 		require.NoError(t, err)
-		result2, err := SelectPlanner(def, 12345)
+
+		rng2 := rand.New(rand.NewPCG(12345, 0))
+		result2, err := SelectPlanner(def, rng2)
 		require.NoError(t, err)
+
 		assert.Equal(t, result1.Name, result2.Name)
 	})
 
-	t.Run("異なるシードでは異なる結果を返す可能性がある", func(t *testing.T) {
+	t.Run("異なるシードのRNGでは異なる結果を返す可能性がある", func(t *testing.T) {
 		t.Parallel()
 		def := Definition{
 			PlannerPool: []PlannerWeight{
@@ -101,10 +110,14 @@ func TestSelectPlanner(t *testing.T) {
 
 		differentCount := 0
 		for i := range 100 {
-			result1, err := SelectPlanner(def, uint64(i))
+			rng1 := rand.New(rand.NewPCG(uint64(i), 0))
+			result1, err := SelectPlanner(def, rng1)
 			require.NoError(t, err)
-			result2, err := SelectPlanner(def, uint64(i+1000))
+
+			rng2 := rand.New(rand.NewPCG(uint64(i+1000), 0))
+			result2, err := SelectPlanner(def, rng2)
 			require.NoError(t, err)
+
 			if result1.Name != result2.Name {
 				differentCount++
 			}

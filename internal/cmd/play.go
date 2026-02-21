@@ -32,7 +32,10 @@ var CmdPlay = &cli.Command{
 
 func runPlay(_ context.Context, _ *cli.Command) error {
 	// 設定を読み込み
-	cfg := config.Get()
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("設定の読み込みに失敗: %w", err)
+	}
 
 	// ログ設定を読み込み
 	logger.LoadFromConfig(cfg.LogLevel, cfg.LogCategories)
@@ -90,7 +93,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		}()
 	}
 
-	world, err := maingame.InitWorld(cfg.WindowWidth, cfg.WindowHeight)
+	world, err := maingame.InitWorld(cfg)
 	if err != nil {
 		return err
 	}

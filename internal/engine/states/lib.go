@@ -2,6 +2,7 @@ package states
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 )
 
@@ -50,7 +51,7 @@ type State[T any] interface {
 //   - DoAction でActionIDを受け取ってステート遷移を返す
 type ActionHandler[T any] interface {
 	// HandleInput はキー入力をActionIDに変換する
-	HandleInput() (inputmapper.ActionID, bool)
+	HandleInput(cfg *config.Config) (inputmapper.ActionID, bool)
 
 	// DoAction はActionを実行してステート遷移を返す
 	DoAction(world T, action inputmapper.ActionID) (Transition[T], error)

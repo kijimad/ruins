@@ -2,7 +2,6 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -32,8 +31,7 @@ func (sys AnimationSystem) String() string {
 // Update は全エンティティのスプライトアニメーションを更新する
 // w.Updater interfaceを実装
 func (sys *AnimationSystem) Update(world w.World) error {
-	cfg := config.Get()
-	if cfg.DisableAnimation {
+	if world.Config.DisableAnimation {
 		return nil
 	}
 

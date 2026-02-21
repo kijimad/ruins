@@ -15,26 +15,10 @@ type DropTableEntry struct {
 }
 
 // SelectByWeight は重みで選択する
-func (dt DropTable) SelectByWeight(rng *rand.Rand) string {
-	var totalWeight float64
-	for _, entry := range dt.Entries {
-		totalWeight += entry.Weight
+func (dt DropTable) SelectByWeight(rng *rand.Rand) (string, error) {
+	items := make([]WeightedItem, len(dt.Entries))
+	for i, entry := range dt.Entries {
+		items[i] = WeightedItem{Value: entry.Material, Weight: entry.Weight}
 	}
-
-	if totalWeight == 0 {
-		return ""
-	}
-
-	randomValue := rng.Float64() * totalWeight
-
-	// 累積ウェイトで判定
-	var cumulativeWeight float64
-	for _, entry := range dt.Entries {
-		cumulativeWeight += entry.Weight
-		if randomValue < cumulativeWeight {
-			return entry.Material
-		}
-	}
-
-	return ""
+	return SelectByWeight(items, rng)
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
@@ -26,7 +27,8 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result := dropTable.SelectByWeight(rng)
+		result, err := dropTable.SelectByWeight(rng)
+		require.NoError(t, err)
 		switch result {
 		case "":
 			emptyCount++
@@ -58,7 +60,8 @@ func TestDropTable_SelectByWeight_AllEmptyWeight(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result := dropTable.SelectByWeight(rng)
+	result, err := dropTable.SelectByWeight(rng)
+	require.NoError(t, err)
 
 	// 重みが全て0の場合は空文字列を返すべき
 	assert.Equal(t, "", result, "重みが0の場合は空文字列を返すべき")
@@ -76,7 +79,8 @@ func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result := dropTable.SelectByWeight(rng)
+	result, err := dropTable.SelectByWeight(rng)
+	require.NoError(t, err)
 
 	assert.Equal(t, "確定アイテム", result, "エントリが1つの場合はそれが選択されるべき")
 }
@@ -93,7 +97,8 @@ func TestDropTable_SelectByWeight_OnlyEmpty(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result := dropTable.SelectByWeight(rng)
+	result, err := dropTable.SelectByWeight(rng)
+	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "空文字列エントリのみの場合は空文字列を返すべき")
 }
@@ -117,7 +122,8 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result := dropTable.SelectByWeight(rng)
+		result, err := dropTable.SelectByWeight(rng)
+		require.NoError(t, err)
 		results[result]++
 	}
 

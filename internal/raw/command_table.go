@@ -17,21 +17,10 @@ type CommandTableEntry struct {
 }
 
 // SelectByWeight は重みで選択する
-func (ct CommandTable) SelectByWeight() string {
-	var totalWeight float64
-	for _, entry := range ct.Entries {
-		totalWeight += entry.Weight
+func (ct CommandTable) SelectByWeight(rng *rand.Rand) (string, error) {
+	items := make([]WeightedItem, len(ct.Entries))
+	for i, entry := range ct.Entries {
+		items[i] = WeightedItem{Value: entry.Weapon, Weight: entry.Weight}
 	}
-	randomValue := rand.Float64() * totalWeight
-
-	// 累積ウェイトで判定
-	var cumulativeWeight float64
-	for _, entry := range ct.Entries {
-		cumulativeWeight += entry.Weight
-		if randomValue < cumulativeWeight {
-			return entry.Weapon
-		}
-	}
-
-	return ""
+	return SelectByWeight(items, rng)
 }
