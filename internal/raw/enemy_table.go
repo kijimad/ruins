@@ -19,7 +19,7 @@ type EnemyTableEntry struct {
 // SelectByWeight は重みで選択する
 func (et EnemyTable) SelectByWeight(rng *rand.Rand, depth int) (string, error) {
 	// 深度範囲内のエントリのみをフィルタリング
-	var filtered []EnemyTableEntry
+	filtered := make([]EnemyTableEntry, 0, len(et.Entries))
 	for _, entry := range et.Entries {
 		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
