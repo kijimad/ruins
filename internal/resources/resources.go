@@ -1,8 +1,6 @@
 package resources
 
 import (
-	"math/rand/v2"
-
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
 )
@@ -19,8 +17,7 @@ type Resources struct {
 	RawMaster          interface{}
 	UIResources        *UIResources
 	TurnManager        interface{}
-	RNG                *rand.Rand // ゲーム全体で使う乱数生成器
-	SelectedWeaponSlot int        // 選択中の武器スロット番号（1-5）
+	SelectedWeaponSlot int // 選択中の武器スロット番号（1-5）
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -66,7 +63,6 @@ func InitGameResources() *Resources {
 		Fonts:              &map[string]Font{},
 		Faces:              &map[string]text.Face{},
 		UIResources:        &UIResources{},
-		RNG:                nil,
 		SelectedWeaponSlot: 1, // デフォルトで武器スロット1を選択
 	}
 }

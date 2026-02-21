@@ -19,7 +19,7 @@
 //
 // 2. HandleInput メソッドを実装（インターフェース要求）
 //
-//	func (st *YourState) HandleInput() (inputmapper.ActionID, bool) {
+//	func (st *YourState) HandleInput(cfg *config.Config) (inputmapper.ActionID, bool) {
 //	    if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
 //	        return inputmapper.ActionMenuCancel, true
 //	    }
@@ -48,7 +48,7 @@
 //
 //	func (st *YourState) Update(world w.World) (es.Transition[w.World], error) {
 //	    // キー入力をActionに変換
-//	    if action, ok := st.HandleInput(); ok {
+//	    if action, ok := st.HandleInput(world.Config); ok {
 //	        if transition, err := st.DoAction(world, action); err != nil {
 //	            return es.Transition[w.World]{}, err
 //	        } else if transition.Type != es.TransNone {

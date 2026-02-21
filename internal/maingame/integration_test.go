@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	gs "github.com/kijimaD/ruins/internal/states"
@@ -22,7 +23,9 @@ func TestGameInitializationIntegration(t *testing.T) {
 		initialMemStats := getMemoryStats()
 
 		// 1. ワールドの初期化
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(t, err)
 
 		// 2. ワールドの基本検証
@@ -39,12 +42,6 @@ func TestGameInitializationIntegration(t *testing.T) {
 
 		// 6. メモリリーク検証
 		validateMemoryUsage(t, initialMemStats)
-	})
-
-	t.Run("リソース読み込みエラーハンドリング", func(t *testing.T) {
-		// 存在しないアセットパスでの初期化テスト
-		// 注意: 実際のファイルシステムに依存するため、モックが必要な場合がある
-		t.Skip("実装予定: リソース読み込みエラーのテスト")
 	})
 
 	t.Run("部分的な初期化テスト", func(t *testing.T) {
@@ -66,7 +63,9 @@ func TestGameInitializationIntegration(t *testing.T) {
 func TestMainGameLifecycle(t *testing.T) {
 	t.Run("ゲームループの基本動作", func(t *testing.T) {
 		// 完全なワールドを使用（テスト用の最小限ワールドではUIリソースが不足）
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(t, err)
 		stateMachine, err := es.Init(&gs.MainMenuState{}, world)
 		require.NoError(t, err)
@@ -93,7 +92,9 @@ func TestMainGameLifecycle(t *testing.T) {
 
 	t.Run("状態遷移の動作確認", func(t *testing.T) {
 		// 完全なワールドを使用
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(t, err)
 		initialState := &gs.MainMenuState{}
 		stateMachine, err := es.Init(initialState, world)
@@ -133,7 +134,9 @@ func TestMainGameLifecycle(t *testing.T) {
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestResourceIntegration(t *testing.T) {
 	t.Run("全リソースタイプの読み込み確認", func(t *testing.T) {
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(t, err)
 
 		// リソースの基本構造確認
@@ -165,7 +168,9 @@ func TestResourceIntegration(t *testing.T) {
 	})
 
 	t.Run("リソースの整合性確認", func(t *testing.T) {
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(t, err)
 
 		// フォントとフェイスの整合性
@@ -303,14 +308,18 @@ func BenchmarkGameInitialization(b *testing.B) {
 	b.Run("InitWorld", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			_, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+			cfg := &config.Config{Profile: config.ProfileDevelopment}
+			cfg.ApplyProfileDefaults()
+			_, err := InitWorld(cfg)
 			require.NoError(b, err)
 		}
 	})
 
 	b.Run("StateMachineCreation", func(b *testing.B) {
 		// 完全なワールドを使用（テスト用最小限ワールドではUIリソース不足）
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(b, err)
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
@@ -320,7 +329,9 @@ func BenchmarkGameInitialization(b *testing.B) {
 
 	b.Run("MainGameCreation", func(b *testing.B) {
 		// 完全なワールドを使用
-		world, err := InitWorld(consts.MinGameWidth, consts.MinGameHeight)
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
+		cfg.ApplyProfileDefaults()
+		world, err := InitWorld(cfg)
 		require.NoError(b, err)
 		stateMachine, err := es.Init(&gs.MainMenuState{}, world)
 		require.NoError(b, err)

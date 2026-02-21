@@ -2,10 +2,10 @@
 package mapplanner
 
 import (
-	"fmt"
 	"log"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -45,17 +45,9 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	// 敵NPCの配置
-	if !n.plannerType.SpawnEnemies {
-		return nil // 敵をスポーンしない設定の場合は何もしない
+	if len(n.plannerType.EnemyEntries) == 0 {
+		return nil // エントリがない場合は何もしない
 	}
-
-	// 敵テーブルを取得
-	enemyTable, err := planData.RawMaster.GetEnemyTable(n.plannerType.EnemyTableName)
-	if err != nil {
-		return fmt.Errorf("'%s'敵テーブルが見つかりません: %w", n.plannerType.EnemyTableName, err)
-	}
-
-	depth := n.world.Resources.Dungeon.Depth
 
 	failCount := 0
 	total := baseHostileNPCCount + planData.RNG.IntN(randomHostileNPCCount)
@@ -70,8 +62,16 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 			continue
 		}
 
-		// 敵テーブルから深度に応じた敵を選択
-		enemyName := enemyTable.SelectByWeight(planData.RNG, depth)
+		// エントリから重み付き抽選で敵を選択
+		enemyName, err := raw.SelectByWeightFunc(
+			n.plannerType.EnemyEntries,
+			func(e SpawnEntry) float64 { return e.Weight },
+			func(e SpawnEntry) string { return e.Name },
+			planData.RNG,
+		)
+		if err != nil {
+			return err
+		}
 		if enemyName == "" {
 			failCount++
 			continue

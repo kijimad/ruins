@@ -137,12 +137,7 @@ func calculateProbabilities(table raw.ItemTable, depth int) map[string]float64 {
 	// 深度範囲内のエントリをフィルタリング
 	validEntries := make([]raw.ItemTableEntry, 0, len(table.Entries))
 	for _, entry := range table.Entries {
-		// MinDepthチェック（0は制限なし）
-		if entry.MinDepth > 0 && depth < entry.MinDepth {
-			continue
-		}
-		// MaxDepthチェック（0は制限なし）
-		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		validEntries = append(validEntries, entry)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image/png"
 	"log"
+	"math/rand/v2"
 	"os"
 	"path"
 
@@ -84,16 +85,18 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		return fmt.Errorf("RunTestGame: at least one state is required")
 	}
 
-	// VRT用にアニメーションを無効化（シングルトンインスタンスを直接変更）
-	cfg := config.Get()
-	originalConfig := *cfg
+	// VRT用に設定を作成する
+	cfg := &config.Config{Profile: config.ProfileDevelopment}
+	cfg.ApplyProfileDefaults()
+	cfg.LogLevel = "ignore"
+	cfg.Seed = 12345
+	cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
 	cfg.DisableAnimation = true
-	// テスト終了後に設定を復元
-	defer func() {
-		*cfg = originalConfig
-	}()
+	if err := cfg.Validate(); err != nil {
+		return fmt.Errorf("config.Validate failed: %w", err)
+	}
 
-	world, err := maingame.InitWorld(960, 720)
+	world, err := maingame.InitWorld(cfg)
 	if err != nil {
 		return fmt.Errorf("InitWorld failed: %w", err)
 	}

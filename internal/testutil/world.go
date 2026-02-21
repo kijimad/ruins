@@ -2,10 +2,12 @@
 package testutil
 
 import (
+	"math/rand/v2"
 	"sync"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
 	gr "github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -34,6 +36,12 @@ func InitTestWorld(t *testing.T) w.World {
 	world, err := w.InitWorld(&gc.Components{})
 	require.NoError(t, err)
 
+	// テスト用configを設定
+	world.Config = &config.Config{Profile: config.ProfileDevelopment}
+	world.Config.ApplyProfileDefaults()
+	world.Config.LogLevel = "ignore"
+	world.Config.Seed = rand.Uint64()
+	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
 	world.Resources.SetScreenDimensions(960, 720)
 
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）

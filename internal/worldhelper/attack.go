@@ -28,7 +28,10 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (*gc.Attac
 	}
 
 	// 重み付きランダムで武器名を選択
-	weaponName := commandTable.SelectByWeight()
+	weaponName, err := commandTable.SelectByWeight(world.Config.RNG)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to select weapon: %w", err)
+	}
 	if weaponName == "" {
 		return nil, "", fmt.Errorf("no weapon selected from command table")
 	}

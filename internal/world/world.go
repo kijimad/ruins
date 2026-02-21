@@ -4,6 +4,7 @@ package world
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/resources"
 
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -33,6 +34,7 @@ type World struct {
 	Manager    *ecs.Manager
 	Components *gc.Components
 	Resources  *resources.Resources
+	Config     *config.Config
 	Updaters   map[string]Updater
 	Renderers  map[string]Renderer
 }

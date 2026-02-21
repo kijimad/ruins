@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEnemyTable_SelectByWeight_SingleEntry(t *testing.T) {
@@ -18,7 +19,8 @@ func TestEnemyTable_SelectByWeight_SingleEntry(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result := enemyTable.SelectByWeight(rng, 5)
+	result, err := enemyTable.SelectByWeight(rng, 5)
+	require.NoError(t, err)
 
 	assert.Equal(t, "スライム", result, "エントリが1つの場合はそれが選択されるべき")
 }
@@ -41,7 +43,8 @@ func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result := enemyTable.SelectByWeight(rng, 5)
+		result, err := enemyTable.SelectByWeight(rng, 5)
+		require.NoError(t, err)
 		results[result]++
 	}
 
@@ -77,7 +80,8 @@ func TestEnemyTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result := enemyTable.SelectByWeight(rng, 5)
+	result, err := enemyTable.SelectByWeight(rng, 5)
+	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "重みが全て0の場合は空文字列を返すべき")
 }
@@ -91,7 +95,8 @@ func TestEnemyTable_SelectByWeight_EmptyEntries(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result := enemyTable.SelectByWeight(rng, 1)
+	result, err := enemyTable.SelectByWeight(rng, 1)
+	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "エントリが空の場合は空文字列を返すべき")
 }
@@ -114,8 +119,10 @@ func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
 	rng2 := rand.New(rand.NewPCG(seed, seed+1))
 
 	for i := 0; i < 100; i++ {
-		result1 := enemyTable.SelectByWeight(rng1, 5)
-		result2 := enemyTable.SelectByWeight(rng2, 5)
+		result1, err1 := enemyTable.SelectByWeight(rng1, 5)
+		result2, err2 := enemyTable.SelectByWeight(rng2, 5)
+		require.NoError(t, err1)
+		require.NoError(t, err2)
 		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")
 	}
 }
@@ -137,7 +144,8 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 	// 深度1: 弱い敵のみ選択可能
 	results := make(map[string]int)
 	for i := 0; i < 1000; i++ {
-		result := enemyTable.SelectByWeight(rng, 1)
+		result, err := enemyTable.SelectByWeight(rng, 1)
+		require.NoError(t, err)
 		if result != "" {
 			results[result]++
 		}
@@ -149,7 +157,8 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 	// 深度5: 弱い敵と中級の敵が選択可能
 	results = make(map[string]int)
 	for i := 0; i < 1000; i++ {
-		result := enemyTable.SelectByWeight(rng, 5)
+		result, err := enemyTable.SelectByWeight(rng, 5)
+		require.NoError(t, err)
 		if result != "" {
 			results[result]++
 		}
@@ -161,7 +170,8 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 	// 深度15: 強い敵のみ選択可能
 	results = make(map[string]int)
 	for i := 0; i < 1000; i++ {
-		result := enemyTable.SelectByWeight(rng, 15)
+		result, err := enemyTable.SelectByWeight(rng, 15)
+		require.NoError(t, err)
 		if result != "" {
 			results[result]++
 		}
@@ -185,79 +195,12 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_NoMatch(t *testing.T) {
 	rng := rand.New(rand.NewPCG(12345, 67890))
 
 	// 深度5: 全ての敵が範囲外
-	result := enemyTable.SelectByWeight(rng, 5)
+	result, err := enemyTable.SelectByWeight(rng, 5)
+	require.NoError(t, err)
 	assert.Equal(t, "", result, "深度範囲外の場合は空文字列を返すべき")
 
 	// 深度50: 全ての敵が範囲外
-	result = enemyTable.SelectByWeight(rng, 50)
+	result, err = enemyTable.SelectByWeight(rng, 50)
+	require.NoError(t, err)
 	assert.Equal(t, "", result, "深度範囲外の場合は空文字列を返すべき")
-}
-
-func TestEnemyTable_SelectByWeight_DepthFiltering_NoRestriction(t *testing.T) {
-	t.Parallel()
-
-	enemyTable := EnemyTable{
-		Name: "制限なし",
-		Entries: []EnemyTableEntry{
-			{EnemyName: "常に出現", Weight: 1.0, MinDepth: 0, MaxDepth: 0},
-		},
-	}
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-
-	// MinDepth=0, MaxDepth=0は深度制限なし
-	result1 := enemyTable.SelectByWeight(rng, 1)
-	assert.Equal(t, "常に出現", result1, "深度1で選択可能")
-
-	result100 := enemyTable.SelectByWeight(rng, 100)
-	assert.Equal(t, "常に出現", result100, "深度100でも選択可能")
-
-	result1000 := enemyTable.SelectByWeight(rng, 1000)
-	assert.Equal(t, "常に出現", result1000, "深度1000でも選択可能")
-}
-
-func TestEnemyTable_SelectByWeight_DepthFiltering_MaxDepthOnly(t *testing.T) {
-	t.Parallel()
-
-	enemyTable := EnemyTable{
-		Name: "最大深度のみ",
-		Entries: []EnemyTableEntry{
-			{EnemyName: "序盤限定", Weight: 1.0, MinDepth: 0, MaxDepth: 10},
-		},
-	}
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-
-	// MaxDepthのみ設定 (MinDepth=0は制限なし)
-	result1 := enemyTable.SelectByWeight(rng, 1)
-	assert.Equal(t, "序盤限定", result1, "深度1で選択可能")
-
-	result10 := enemyTable.SelectByWeight(rng, 10)
-	assert.Equal(t, "序盤限定", result10, "深度10で選択可能")
-
-	result11 := enemyTable.SelectByWeight(rng, 11)
-	assert.Equal(t, "", result11, "深度11では選択不可")
-}
-
-func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepthOnly(t *testing.T) {
-	t.Parallel()
-
-	enemyTable := EnemyTable{
-		Name: "最小深度のみ",
-		Entries: []EnemyTableEntry{
-			{EnemyName: "後半限定", Weight: 1.0, MinDepth: 20, MaxDepth: 0},
-		},
-	}
-
-	rng := rand.New(rand.NewPCG(12345, 67890))
-
-	// MinDepthのみ設定 (MaxDepth=0は制限なし)
-	result10 := enemyTable.SelectByWeight(rng, 10)
-	assert.Equal(t, "", result10, "深度10では選択不可")
-
-	result20 := enemyTable.SelectByWeight(rng, 20)
-	assert.Equal(t, "後半限定", result20, "深度20で選択可能")
-
-	result100 := enemyTable.SelectByWeight(rng, 100)
-	assert.Equal(t, "後半限定", result100, "深度100でも選択可能")
 }

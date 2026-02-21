@@ -10,7 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -451,8 +450,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 	screen.DrawImage(img, op)
 
-	cfg := config.Get()
-	if cfg.ShowMapDebug {
+	if world.Config.ShowMapDebug {
 		// デバッグ用：スプライト番号表示(dirt, dwall)
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string

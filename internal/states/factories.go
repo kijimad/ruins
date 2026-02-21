@@ -5,14 +5,13 @@ import (
 
 	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -103,6 +102,13 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("ダンジョン選択", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState},
+			})
+			return nil
+		}).
 		WithChoice("ダンジョン開始(大部屋)", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
@@ -148,14 +154,6 @@ func NewDebugMenuState() es.State[w.World] {
 				Type: es.TransReplace,
 				NewStateFuncs: []es.StateFactory[w.World]{
 					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeSmallTown)),
-				}})
-			return nil
-		}).
-		WithChoice("ダンジョン開始(広場)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeTownPlaza)),
 				}})
 			return nil
 		}).
@@ -271,11 +269,10 @@ func NewDebugMenuState() es.State[w.World] {
 				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMessageState(testMessageData) }}})
 			return nil
 		}).
-		WithChoice("デバッグ表示切り替え", func(_ w.World) error {
-			cfg := config.Get()
-			cfg.ShowMapDebug = !cfg.ShowMapDebug
-			cfg.ShowAIDebug = !cfg.ShowAIDebug
-			cfg.NoEncounter = !cfg.NoEncounter
+		WithChoice("デバッグ表示切り替え", func(world w.World) error {
+			world.Config.ShowMapDebug = !world.Config.ShowMapDebug
+			world.Config.ShowAIDebug = !world.Config.ShowAIDebug
+			world.Config.NoEncounter = !world.Config.NoEncounter
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
 		}).
@@ -398,54 +395,6 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
-		WithChoice("ステージ上部の橋にワープ", func(world w.World) error {
-			// プレイヤーエンティティを取得
-			player, err := worldhelper.GetPlayerEntity(world)
-			if err != nil {
-				return fmt.Errorf("プレイヤーが見つかりません: %w", err)
-			}
-
-			// GridElementコンポーネントを取得
-			gridComp := world.Components.GridElement.Get(player)
-			if gridComp == nil {
-				return fmt.Errorf("プレイヤーのGridElementコンポーネントが見つかりません")
-			}
-			grid := gridComp.(*gc.GridElement)
-
-			// ポータルエンティティを検索
-			var targetX, targetY gc.Tile
-			found := false
-
-			world.Manager.Join(
-				world.Components.Interactable,
-				world.Components.GridElement,
-			).Visit(ecs.Visit(func(entity ecs.Entity) {
-				interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-				_, ok := interactable.Data.(gc.PortalInteraction)
-				if !ok {
-					return
-				}
-
-				// ポータルを発見
-				portalGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-				targetX = portalGrid.X
-				targetY = portalGrid.Y
-				found = true
-			}))
-
-			if !found {
-				return fmt.Errorf("ポータルが見つかりません")
-			}
-
-			// プレイヤーの座標を更新（ポータルの1マス下にワープ）
-			grid.X = targetX
-			grid.Y = targetY + 1
-
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransPop,
-			})
-			return nil
-		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -459,17 +408,17 @@ func NewDebugMenuState() es.State[w.World] {
 // DungeonStateOption はDungeonStateのオプション設定関数
 type DungeonStateOption func(*DungeonState)
 
-// WithSeed はシード値を設定するオプション
-func WithSeed(seed uint64) DungeonStateOption {
-	return func(ds *DungeonState) {
-		ds.Seed = &seed
-	}
-}
-
 // WithBuilderType はマップビルダータイプを設定するオプション
 func WithBuilderType(builderType mapplanner.PlannerType) DungeonStateOption {
 	return func(ds *DungeonState) {
 		ds.BuilderType = builderType
+	}
+}
+
+// WithDefinitionName はダンジョン定義名を設定するオプション
+func WithDefinitionName(name string) DungeonStateOption {
+	return func(ds *DungeonState) {
+		ds.DefinitionName = name
 	}
 }
 
@@ -489,12 +438,13 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 }
 
 // NewTownState は街のステートを作成するファクトリー関数
-// 街は常に深度0、BuilderTypeはTown固定
 func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
-	allOpts := make([]DungeonStateOption, 0, 1+len(opts))
+	allOpts := make([]DungeonStateOption, 0, 2+len(opts))
 	allOpts = append(allOpts, WithBuilderType(mapplanner.PlannerTypeTown))
+	allOpts = append(allOpts, WithDefinitionName(dungeon.DungeonTown.Name))
 	allOpts = append(allOpts, opts...)
 
+	// 街は常に深度0
 	return NewDungeonState(0, allOpts...)
 }
 
@@ -721,10 +671,9 @@ func NewLoadMenuState() es.State[w.World] {
 					return err
 				}
 				// 遷移（街マップを生成してプレイヤーを配置）
-				stateFactory := NewTownState()
 				messageState.SetTransition(es.Transition[w.World]{
 					Type:          es.TransReplace,
-					NewStateFuncs: []es.StateFactory[w.World]{stateFactory}})
+					NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
 				return nil
 			})
 		}
@@ -891,4 +840,34 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 	})
 
 	return persistentState
+}
+
+// NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
+func NewDungeonSelectState() es.State[w.World] {
+	messageState := &MessageState{}
+
+	// ダンジョン一覧を取得
+	dungeons := dungeon.GetAllDungeons()
+
+	// 選択肢を動的に生成
+	msg := messagedata.NewSystemMessage("どのダンジョンに挑戦しますか？")
+
+	for i := range dungeons {
+		dungeonDef := dungeons[i]
+		msg = msg.WithChoice(dungeonDef.Name, func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(dungeonDef.Name))},
+			})
+			return nil
+		})
+	}
+
+	msg = msg.WithChoice("戻る", func(_ w.World) error {
+		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+		return nil
+	})
+
+	messageState.messageData = msg
+	return messageState
 }

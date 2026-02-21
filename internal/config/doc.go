@@ -1,8 +1,8 @@
 // Package config はアプリケーションの設定管理を提供する
 //
 // このパッケージは github.com/caarlos0/env/v11 を使用して環境変数からの
-// 設定読み込みを行う。設定はシングルトンパターンで管理され、
-// アプリケーション全体で一貫した設定値へのアクセスを提供する。
+// 設定読み込みを行う。設定はworld.Configに保持され、
+// world経由でアクセスする。
 //
 // # 使用可能な環境変数
 //
@@ -29,7 +29,8 @@
 //   - "main_menu": メインメニュー
 //   - "debug_menu": デバッグメニュー
 //   - "dungeon": ダンジョン
-//   - RUINS_SKIP_INTRO: イントロスキップ (デフォルト: false)
+//   - RUINS_SEED: 乱数シード (デフォルト: ランダム生成)
+//   - 指定すると同じシードで再現可能なゲームプレイが可能
 //
 // ## パフォーマンス設定
 //   - RUINS_TARGET_FPS: 目標フレームレート (デフォルト: 60)
@@ -41,20 +42,24 @@
 //
 // # 使用例
 //
-//	// 設定の取得
-//	cfg := config.Get()
+//	// 設定の読み込み（起動時）
+//	cfg, err := config.Load()
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	world, _ := maingame.InitWorld(cfg)
 //
-//	// プロファイルに基づく設定確認
-//	if cfg.Profile == config.ProfileDevelopment {
+//	// world経由での設定アクセス
+//	if world.Config.Profile == config.ProfileDevelopment {
 //		log.Println("Development mode")
 //	}
 //
 //	// ウィンドウサイズの取得
-//	width := cfg.WindowWidth
-//	height := cfg.WindowHeight
+//	width := world.Config.WindowWidth
+//	height := world.Config.WindowHeight
 //
 //	// デバッグモードの確認
-//	if cfg.Debug {
+//	if world.Config.Debug {
 //		log.Println("Debug mode enabled")
 //	}
 //
