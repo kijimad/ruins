@@ -4,13 +4,28 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"os"
+
+	"github.com/caarlos0/env/v11"
 )
 
 // Load は環境変数から設定を読み込み、新しいConfigインスタンスを返す
 // Seedが環境変数で指定されていない場合は、ランダム値を生成する
 func Load() (*Config, error) {
-	cfg, err := load()
-	if err != nil {
+	cfg := &Config{}
+
+	// プロファイルを最初に決定(デフォルトはproduction)
+	profile := os.Getenv("RUINS_PROFILE")
+	if profile == "" {
+		cfg.Profile = ProfileProduction
+	} else {
+		cfg.Profile = Profile(profile)
+	}
+
+	// プロファイルに基づくデフォルト値を設定
+	cfg.ApplyProfileDefaults()
+
+	// 環境変数で明示的に設定された値で上書き
+	if err := env.Parse(cfg); err != nil {
 		return nil, fmt.Errorf("設定の読み込みに失敗しました: %w", err)
 	}
 

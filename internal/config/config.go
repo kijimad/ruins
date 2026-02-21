@@ -3,8 +3,6 @@ package config
 import (
 	"math/rand/v2"
 	"os"
-
-	"github.com/caarlos0/env/v11"
 )
 
 // Profile は設定プロファイルを表す
@@ -58,29 +56,6 @@ type Config struct {
 	ProfileMutex  bool   `env:"RUINS_PROFILE_MUTEX"`
 	ProfileTrace  bool   `env:"RUINS_PROFILE_TRACE"`
 	ProfilePath   string `env:"RUINS_PROFILE_PATH"`
-}
-
-// load は環境変数から設定を読み込む
-func load() (*Config, error) {
-	cfg := &Config{}
-
-	// プロファイルを最初に決定(デフォルトはproduction)
-	profile := os.Getenv("RUINS_PROFILE")
-	if profile == "" {
-		cfg.Profile = ProfileProduction
-	} else {
-		cfg.Profile = Profile(profile)
-	}
-
-	// プロファイルに基づくデフォルト値を設定
-	cfg.ApplyProfileDefaults()
-
-	// 環境変数で明示的に設定された値で上書き
-	if err := env.Parse(cfg); err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
 }
 
 // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
