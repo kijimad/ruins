@@ -10,13 +10,12 @@ import (
 
 // SelectPlanner はPlannerPoolから重み付き抽選でPlannerTypeを選択する
 func SelectPlanner(def Definition, rng *rand.Rand) (mapplanner.PlannerType, error) {
-	pool := def.PlannerPool
-	if len(pool) == 0 {
+	if len(def.PlannerPool) == 0 {
 		return mapplanner.PlannerType{}, fmt.Errorf("PlannerPoolが空です: %s", def.Name)
 	}
 
 	result, err := raw.SelectByWeightFunc(
-		pool,
+		def.PlannerPool,
 		func(pw PlannerWeight) float64 { return float64(pw.Weight) },
 		func(pw PlannerWeight) mapplanner.PlannerType { return pw.PlannerType },
 		rng,
