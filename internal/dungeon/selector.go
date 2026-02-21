@@ -25,14 +25,12 @@ func SelectPlanner(def Definition, seed uint64) (mapplanner.PlannerType, error) 
 	rng := rand.New(rand.NewPCG(seed, seed))
 	r := rng.IntN(totalWeight)
 	cumulative := 0
-	var selected mapplanner.PlannerType
 	for _, pw := range pool {
 		cumulative += pw.Weight
 		if r < cumulative {
-			selected = pw.PlannerType
-			break
+			return pw.PlannerType, nil
 		}
 	}
 
-	return selected, nil
+	return mapplanner.PlannerType{}, fmt.Errorf("PlannerTypeの選択に失敗しました（到達不可能）: %s", def.Name)
 }
