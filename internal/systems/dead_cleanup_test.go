@@ -215,3 +215,54 @@ func TestDeadCleanupSystem_WithDropTableNoDrops(t *testing.T) {
 	// シード1ではドロップしない
 	assert.Equal(t, itemCountBefore, itemCountAfter, "シード1ではドロップしないはず")
 }
+
+func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// SpriteRenderを持つ敵エンティティを作成
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "スライム"})
+	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	enemy.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{
+		SpriteSheetName: "character",
+		SpriteKey:       "slime_0",
+	})
+
+	// 実行前のVisualEffectエンティティ数
+	effectCountBefore := 0
+	world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+		effectCountBefore++
+	}))
+
+	// DeadCleanupSystemを実行
+	sys := &DeadCleanupSystem{}
+	require.NoError(t, sys.Update(world))
+
+	// 敵エンティティは削除されているべき
+	assert.False(t, enemy.HasComponent(world.Components.Name), "敵エンティティは削除されるべき")
+
+	// スプライトフェードアウトエフェクトが生成されているべき
+	effectCountAfter := 0
+	world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+		effectCountAfter++
+	}))
+	assert.Equal(t, effectCountBefore+1, effectCountAfter, "スプライトフェードアウトエフェクトが生成されているべき")
+
+	// エフェクトの内容を確認
+	world.Manager.Join(world.Components.VisualEffect, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
+		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffect)
+		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
+		require.Len(t, ve.Effects, 1)
+		effect := ve.Effects[0]
+
+		assert.Equal(t, gc.EffectTypeSpriteFadeout, effect.Type)
+		assert.Equal(t, "character", effect.SpriteSheetName)
+		assert.Equal(t, "slime_0", effect.SpriteKey)
+		assert.Equal(t, gc.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
+		assert.Equal(t, gc.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
+	}))
+}

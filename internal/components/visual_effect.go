@@ -28,6 +28,10 @@ type EffectInstance struct {
 	FadeOutMs float64 // フェードアウト時間（ミリ秒）
 	TotalMs   float64 // 合計時間（初期化時に計算）
 	Alpha     float64 // 現在の透明度（0.0-1.0）
+
+	// スプライトエフェクト用
+	SpriteSheetName string // スプライトシート名
+	SpriteKey       string // スプライトキー
 }
 
 // EffectType はエフェクトの種類
@@ -44,6 +48,8 @@ const (
 	EffectTypeMiss
 	// EffectTypeScreenText は画面テキスト表示エフェクト
 	EffectTypeScreenText
+	// EffectTypeSpriteFadeout はスプライトフェードアウトエフェクト
+	EffectTypeSpriteFadeout
 )
 
 // NewScreenTextEffect は画面中央にフェード表示するテキストエフェクトを作成する
@@ -126,5 +132,25 @@ func NewHealEffect(amount int) EffectInstance {
 		FadeOutMs:   200,
 		TotalMs:     800,
 		Alpha:       0.0,
+	}
+}
+
+// NewSpriteFadeoutEffect はスプライトフェードアウトエフェクトを作成する
+// 敵撃破時などにスプライトを表示してフェードアウトする
+func NewSpriteFadeoutEffect(spriteSheetName, spriteKey string) EffectInstance {
+	totalMs := 400.0
+	return EffectInstance{
+		Type:            EffectTypeSpriteFadeout,
+		RemainingMs:     totalMs,
+		OffsetX:         0,
+		OffsetY:         0,
+		Color:           color.RGBA{255, 255, 255, 255},
+		FadeInMs:        0,
+		HoldMs:          100,
+		FadeOutMs:       300,
+		TotalMs:         totalMs,
+		Alpha:           1.0,
+		SpriteSheetName: spriteSheetName,
+		SpriteKey:       spriteKey,
 	}
 }

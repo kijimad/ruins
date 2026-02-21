@@ -145,18 +145,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// フロア移動時に探索済みマップをリセット
 	world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
-	// 視界キャッシュをクリア（新しい階のために）
+	// 新しい階のために視界キャッシュをクリアする
 	gs.ClearVisionCaches()
 
-	// ダンジョンタイトルエフェクト用エンティティを作成
-	if !world.Config.DisableAnimation {
-		screenW, screenH := world.Resources.GetScreenDimensions()
-		titleEffect := gc.NewDungeonTitleEffect(def.Name, st.Depth, screenW, screenH)
-		titleEntity := world.Manager.NewEntity()
-		titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
-			Effects: []gc.EffectInstance{titleEffect},
-		})
-	}
+	// ダンジョンタイトルエフェクト用エンティティを作成する
+	screenW, screenH := world.Resources.GetScreenDimensions()
+	titleEffect := gc.NewDungeonTitleEffect(def.Name, st.Depth, screenW, screenH)
+	titleEntity := world.Manager.NewEntity()
+	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
+		Effects: []gc.EffectInstance{titleEffect},
+	})
 
 	return nil
 }

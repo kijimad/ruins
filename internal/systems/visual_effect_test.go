@@ -51,3 +51,43 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	assert.Greater(t, effect.Alpha, 0.0, "Update後はAlphaが0より大きいべき")
 	t.Logf("Alpha after update: %f", effect.Alpha)
 }
+
+func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// シルエットエフェクトを作成
+	spriteFadeoutEffect := gc.NewSpriteFadeoutEffect("character", "slime_0")
+	effectEntity := world.Manager.NewEntity()
+	effectEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
+		Effects: []gc.EffectInstance{spriteFadeoutEffect},
+	})
+
+	// エフェクトが作成されたことを確認
+	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	assert.Equal(t, 1, count)
+
+	// エフェクトの初期値を確認
+	ve := world.Components.VisualEffect.Get(effectEntity).(*gc.VisualEffect)
+	require.Len(t, ve.Effects, 1)
+	effect := ve.Effects[0]
+
+	assert.Equal(t, gc.EffectTypeSpriteFadeout, effect.Type)
+	assert.Equal(t, "character", effect.SpriteSheetName)
+	assert.Equal(t, "slime_0", effect.SpriteKey)
+	assert.Equal(t, 1.0, effect.Alpha, "初期Alphaは1.0")
+	assert.Equal(t, 400.0, effect.TotalMs)
+
+	// Update実行後のAlphaを確認（フェードアウトが進む）
+	sys := &VisualEffectSystem{}
+	err := sys.Update(world)
+	require.NoError(t, err)
+
+	ve = world.Components.VisualEffect.Get(effectEntity).(*gc.VisualEffect)
+	require.Len(t, ve.Effects, 1)
+	effect = ve.Effects[0]
+
+	// ホールド期間中なのでまだ1.0のはず
+	assert.Equal(t, 1.0, effect.Alpha, "ホールド期間中はAlphaが1.0")
+}

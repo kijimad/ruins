@@ -1,15 +1,19 @@
 package systems
 
 import (
+	"image"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
+
+var whiteSilhouetteShader *ebiten.Shader
 
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
 type VisualEffectSystem struct{}
@@ -21,10 +25,25 @@ func (sys VisualEffectSystem) String() string {
 
 // Update はエフェクトを更新する
 func (sys *VisualEffectSystem) Update(world w.World) error {
-	// 1フレームあたりの時間（60FPS想定）
-	const deltaMs = 1000.0 / 60.0
-
 	var entitiesToDelete []ecs.Entity
+
+	world.Manager.Join(
+		world.Components.VisualEffect,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		entitiesToDelete = append(entitiesToDelete, entity)
+	}))
+
+	// アニメーション無効時は即座に削除
+	if world.Config.DisableAnimation {
+		for _, entity := range entitiesToDelete {
+			world.Manager.DeleteEntity(entity)
+		}
+		return nil
+	}
+
+	// アニメーション有効時は通常の更新処理
+	const deltaMs = 1000.0 / 60.0 // 1フレームあたりの時間（60FPS想定）
+	entitiesToDelete = entitiesToDelete[:0]
 
 	world.Manager.Join(
 		world.Components.VisualEffect,
@@ -95,6 +114,12 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 					sys.drawEntityEffect(world, screen, smallFace, gridElement, &effect)
+				}
+			case gc.EffectTypeSpriteFadeout:
+				// スプライトフェードアウトエフェクトを描画
+				if entity.HasComponent(world.Components.GridElement) {
+					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+					sys.drawSpriteFadeoutEffect(world, screen, gridElement, &effect)
 				}
 			}
 		}
@@ -191,4 +216,72 @@ func drawOutlinedTextWithAlpha(screen *ebiten.Image, str string, face text.Face,
 	op.ColorScale.Reset()
 	op.ColorScale.ScaleWithColor(textColor)
 	text.Draw(screen, str, face, op)
+}
+
+// drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
+func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.EffectInstance) {
+	if effect.Alpha <= 0 {
+		return
+	}
+	if world.Resources.SpriteSheets == nil {
+		return
+	}
+
+	// シェーダーを初期化（初回のみ）
+	if whiteSilhouetteShader == nil {
+		shaderSource, err := assets.FS.ReadFile("file/shaders/white_silhouette.kage")
+		if err != nil {
+			return
+		}
+		whiteSilhouetteShader, err = ebiten.NewShader(shaderSource)
+		if err != nil {
+			return
+		}
+	}
+
+	// スプライトシートを取得
+	spriteSheet, exists := (*world.Resources.SpriteSheets)[effect.SpriteSheetName]
+	if !exists {
+		return
+	}
+
+	// スプライトを取得
+	sprite, exists := spriteSheet.Sprites[effect.SpriteKey]
+	if !exists {
+		return
+	}
+
+	// スプライト画像を切り出す
+	texture := spriteSheet.Texture
+	textureWidth := texture.Image.Bounds().Dx()
+	textureHeight := texture.Image.Bounds().Dy()
+	left := max(0, sprite.X)
+	right := min(textureWidth, sprite.X+sprite.Width)
+	top := max(0, sprite.Y)
+	bottom := min(textureHeight, sprite.Y+sprite.Height)
+	img := texture.Image.SubImage(image.Rect(left, top, right, bottom)).(*ebiten.Image)
+
+	// グリッド座標をピクセル座標に変換
+	pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
+	pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
+
+	// シェーダー描画オプションを設定
+	op := &ebiten.DrawRectShaderOptions{}
+	op.GeoM.Translate(float64(-sprite.Width/2), float64(-sprite.Height/2))
+	op.GeoM.Translate(pixelX, pixelY)
+
+	// カメラ変換を適用
+	imgOp := &ebiten.DrawImageOptions{}
+	imgOp.GeoM = op.GeoM
+	SetTranslate(world, imgOp)
+	op.GeoM = imgOp.GeoM
+
+	// ソース画像を設定
+	op.Images[0] = img
+
+	// 透明度をシェーダーに渡す（ColorScaleのAlphaを使用）
+	op.ColorScale.ScaleAlpha(float32(effect.Alpha))
+
+	// シェーダーで白シルエットを描画
+	screen.DrawRectShader(sprite.Width, sprite.Height, whiteSilhouetteShader, op)
 }

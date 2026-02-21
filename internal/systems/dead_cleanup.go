@@ -73,8 +73,24 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
-	// エンティティを削除
+	// エンティティを削除する
 	for _, entity := range toDelete {
+		// スプライトフェードアウトエフェクトを生成
+		if entity.HasComponent(world.Components.SpriteRender) && entity.HasComponent(world.Components.GridElement) {
+			spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
+			gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
+			effect := gc.NewSpriteFadeoutEffect(spriteRender.SpriteSheetName, spriteRender.SpriteKey)
+			effectEntity := world.Manager.NewEntity()
+			effectEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
+				X: gridElement.X,
+				Y: gridElement.Y,
+			})
+			effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
+				Effects: []gc.EffectInstance{effect},
+			})
+		}
+
 		world.Manager.DeleteEntity(entity)
 	}
 
