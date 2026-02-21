@@ -16,7 +16,7 @@ func SelectPlanner(def Definition, rng *rand.Rand) (mapplanner.PlannerType, erro
 
 	result, err := raw.SelectByWeightFunc(
 		def.PlannerPool,
-		func(pw PlannerWeight) float64 { return float64(pw.Weight) },
+		func(pw PlannerWeight) float64 { return pw.Weight },
 		func(pw PlannerWeight) mapplanner.PlannerType { return pw.PlannerType },
 		rng,
 	)

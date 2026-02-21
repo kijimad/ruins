@@ -14,5 +14,5 @@ type Definition struct {
 // PlannerWeight はマップ種類と出現重みのペアを表す
 type PlannerWeight struct {
 	PlannerType mapplanner.PlannerType
-	Weight      int
+	Weight      float64
 }
