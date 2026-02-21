@@ -12,25 +12,25 @@ type EnemyTable struct {
 type EnemyTableEntry struct {
 	EnemyName string
 	Weight    float64
-	MinDepth  int // 最小出現深度（0は制限なし）
-	MaxDepth  int // 最大出現深度（0は制限なし）
+	MinDepth  int
+	MaxDepth  int
 }
 
 // SelectByWeight は重みで選択する
 func (et EnemyTable) SelectByWeight(rng *rand.Rand, depth int) (string, error) {
 	// 深度範囲内のエントリのみをフィルタリング
-	var items []WeightedItem
+	var filtered []EnemyTableEntry
 	for _, entry := range et.Entries {
-		// MinDepthチェック（0は制限なし）
-		if entry.MinDepth > 0 && depth < entry.MinDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
-		// MaxDepthチェック（0は制限なし）
-		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
-			continue
-		}
-		items = append(items, WeightedItem{Value: entry.EnemyName, Weight: entry.Weight})
+		filtered = append(filtered, entry)
 	}
 
-	return SelectByWeight(items, rng)
+	return SelectByWeightFunc(
+		filtered,
+		func(e EnemyTableEntry) float64 { return e.Weight },
+		func(e EnemyTableEntry) string { return e.EnemyName },
+		rng,
+	)
 }

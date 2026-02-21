@@ -18,9 +18,10 @@ type CommandTableEntry struct {
 
 // SelectByWeight は重みで選択する
 func (ct CommandTable) SelectByWeight(rng *rand.Rand) (string, error) {
-	items := make([]WeightedItem, len(ct.Entries))
-	for i, entry := range ct.Entries {
-		items[i] = WeightedItem{Value: entry.Weapon, Weight: entry.Weight}
-	}
-	return SelectByWeight(items, rng)
+	return SelectByWeightFunc(
+		ct.Entries,
+		func(e CommandTableEntry) float64 { return e.Weight },
+		func(e CommandTableEntry) string { return e.Weapon },
+		rng,
+	)
 }

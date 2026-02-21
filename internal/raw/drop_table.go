@@ -16,9 +16,10 @@ type DropTableEntry struct {
 
 // SelectByWeight は重みで選択する
 func (dt DropTable) SelectByWeight(rng *rand.Rand) (string, error) {
-	items := make([]WeightedItem, len(dt.Entries))
-	for i, entry := range dt.Entries {
-		items[i] = WeightedItem{Value: entry.Material, Weight: entry.Weight}
-	}
-	return SelectByWeight(items, rng)
+	return SelectByWeightFunc(
+		dt.Entries,
+		func(e DropTableEntry) float64 { return e.Weight },
+		func(e DropTableEntry) string { return e.Material },
+		rng,
+	)
 }

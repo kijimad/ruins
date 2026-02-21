@@ -221,7 +221,6 @@ func (c *Config) applyTestingDefaults() {
 	c.LogLevel = "ignore"
 	c.Seed = 12345
 	c.RNG = rand.New(rand.NewPCG(c.Seed, 0))
-	c.DisableAnimation = true
 }
 
 // Validate は設定値の妥当性を検証する

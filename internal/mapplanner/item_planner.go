@@ -2,7 +2,6 @@ package mapplanner
 
 import (
 	"fmt"
-	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -61,7 +60,12 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 
 	// アイテムを配置
 	for j := 0; j < itemCount; j++ {
-		itemName, err := selectByWeight(i.plannerType.ItemEntries, planData.RNG)
+		itemName, err := raw.SelectByWeightFunc(
+			i.plannerType.ItemEntries,
+			func(e SpawnEntry) float64 { return e.Weight },
+			func(e SpawnEntry) string { return e.Name },
+			planData.RNG,
+		)
 		if err != nil {
 			return err
 		}
@@ -73,15 +77,6 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	return nil
-}
-
-// selectByWeight はエントリから重み付き抽選で名前を選択する
-func selectByWeight(entries []SpawnEntry, rng *rand.Rand) (string, error) {
-	items := make([]raw.WeightedItem, len(entries))
-	for i, entry := range entries {
-		items[i] = raw.WeightedItem{Value: entry.Name, Weight: entry.Weight}
-	}
-	return raw.SelectByWeight(items, rng)
 }
 
 // addItem は単一のアイテムをMetaPlanに追加する

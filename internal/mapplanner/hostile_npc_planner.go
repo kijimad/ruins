@@ -5,6 +5,7 @@ import (
 	"log"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -62,7 +63,12 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		}
 
 		// エントリから重み付き抽選で敵を選択
-		enemyName, err := selectByWeight(n.plannerType.EnemyEntries, planData.RNG)
+		enemyName, err := raw.SelectByWeightFunc(
+			n.plannerType.EnemyEntries,
+			func(e SpawnEntry) float64 { return e.Weight },
+			func(e SpawnEntry) string { return e.Name },
+			planData.RNG,
+		)
 		if err != nil {
 			return err
 		}

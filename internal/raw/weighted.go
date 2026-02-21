@@ -1,40 +1,36 @@
 package raw
 
 import (
-	"fmt"
 	"math/rand/v2"
 )
 
-// WeightedItem は重み付き選択の共通構造体
-type WeightedItem struct {
-	Value  string
-	Weight float64
-}
-
-// SelectByWeight は重み付き抽選で値を選択する
-func SelectByWeight(items []WeightedItem, rng *rand.Rand) (string, error) {
+// SelectByWeightFunc は重み付き抽選で値を選択する汎用関数
+// getWeight: 各要素から重みを取得する関数
+// getValue: 各要素から戻り値を取得する関数
+func SelectByWeightFunc[T any, V any](items []T, getWeight func(T) float64, getValue func(T) V, rng *rand.Rand) (V, error) {
+	var zero V
 	if len(items) == 0 {
-		return "", nil
+		return zero, nil
 	}
 
 	var totalWeight float64
 	for _, item := range items {
-		totalWeight += item.Weight
+		totalWeight += getWeight(item)
 	}
 
 	if totalWeight == 0 {
-		return "", nil
+		return zero, nil
 	}
 
 	randomValue := rng.Float64() * totalWeight
 
 	var cumulativeWeight float64
 	for _, item := range items {
-		cumulativeWeight += item.Weight
+		cumulativeWeight += getWeight(item)
 		if randomValue < cumulativeWeight {
-			return item.Value, nil
+			return getValue(item), nil
 		}
 	}
 
-	return "", fmt.Errorf("重み付き選択に失敗しました（到達不可能）")
+	return zero, nil
 }
