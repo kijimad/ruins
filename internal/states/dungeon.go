@@ -534,12 +534,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.SpawnEntry {
 	result := make([]mapplanner.SpawnEntry, 0, len(entries))
 	for _, entry := range entries {
-		// MinDepthチェック（0は制限なし）
-		if entry.MinDepth > 0 && depth < entry.MinDepth {
-			continue
-		}
-		// MaxDepthチェック（0は制限なし）
-		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		result = append(result, mapplanner.SpawnEntry{
@@ -554,12 +549,7 @@ func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.Spa
 func filterEnemyEntries(entries []raw.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {
 	result := make([]mapplanner.SpawnEntry, 0, len(entries))
 	for _, entry := range entries {
-		// MinDepthチェック（0は制限なし）
-		if entry.MinDepth > 0 && depth < entry.MinDepth {
-			continue
-		}
-		// MaxDepthチェック（0は制限なし）
-		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		result = append(result, mapplanner.SpawnEntry{

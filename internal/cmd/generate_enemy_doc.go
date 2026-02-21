@@ -137,12 +137,7 @@ func calculateEnemyProbabilities(table raw.EnemyTable, depth int) map[string]flo
 	// 深度範囲内のエントリをフィルタリング
 	validEntries := make([]raw.EnemyTableEntry, 0, len(table.Entries))
 	for _, entry := range table.Entries {
-		// MinDepthチェック（0は制限なし）
-		if entry.MinDepth > 0 && depth < entry.MinDepth {
-			continue
-		}
-		// MaxDepthチェック（0は制限なし）
-		if entry.MaxDepth > 0 && depth > entry.MaxDepth {
+		if depth < entry.MinDepth || depth > entry.MaxDepth {
 			continue
 		}
 		validEntries = append(validEntries, entry)
