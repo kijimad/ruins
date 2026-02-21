@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"image/png"
 	"log"
+	"math/rand/v2"
 	"os"
 	"path"
 
@@ -85,8 +86,12 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	}
 
 	// VRT用に設定を作成する
-	cfg := &config.Config{Profile: config.ProfileTesting}
+	cfg := &config.Config{Profile: config.ProfileDevelopment}
 	cfg.ApplyProfileDefaults()
+	cfg.LogLevel = "ignore"
+	cfg.Seed = 12345
+	cfg.RNG = rand.New(rand.NewPCG(cfg.Seed, 0))
+	cfg.DisableAnimation = true
 	if err := cfg.Validate(); err != nil {
 		return fmt.Errorf("config.Validate failed: %w", err)
 	}

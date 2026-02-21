@@ -63,11 +63,6 @@
 //		log.Println("Debug mode enabled")
 //	}
 //
-//	// テスト用設定の作成
-//	testCfg := &config.Config{Profile: config.ProfileTesting}
-//	testCfg.ApplyProfileDefaults()
-//	world.Config = testCfg
-//
 // # 設定値の妥当性検証
 //
 // 設定値は自動的に妥当性検証され、無効な値は安全なデフォルト値に

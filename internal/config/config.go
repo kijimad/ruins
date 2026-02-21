@@ -13,8 +13,6 @@ const (
 	ProfileProduction Profile = "production"
 	// ProfileDevelopment は開発環境プロファイル
 	ProfileDevelopment Profile = "development"
-	// ProfileTesting はテスト環境プロファイル
-	ProfileTesting Profile = "testing"
 )
 
 // Config はアプリケーションの設定を管理する
@@ -65,8 +63,6 @@ func (c *Config) ApplyProfileDefaults() {
 		c.applyProductionDefaults()
 	case ProfileDevelopment:
 		c.applyDevelopmentDefaults()
-	case ProfileTesting:
-		c.applyTestingDefaults()
 	default:
 		// デフォルトは本番設定
 		c.applyProductionDefaults()
@@ -210,17 +206,6 @@ func (c *Config) applyDevelopmentDefaults() {
 	if os.Getenv("RUINS_PROFILE_PATH") == "" {
 		c.ProfilePath = "./profiles" // 開発時は専用フォルダ
 	}
-}
-
-// applyTestingDefaults はテスト環境のデフォルト値を設定する
-// 開発設定をベースに、テスト固有の設定を上書きする
-func (c *Config) applyTestingDefaults() {
-	c.applyDevelopmentDefaults()
-
-	// テスト固有の設定
-	c.LogLevel = "ignore"
-	c.Seed = 12345
-	c.RNG = rand.New(rand.NewPCG(c.Seed, 0))
 }
 
 // Validate は設定値の妥当性を検証する

@@ -23,7 +23,7 @@ func TestGameInitializationIntegration(t *testing.T) {
 		initialMemStats := getMemoryStats()
 
 		// 1. ワールドの初期化
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
@@ -63,7 +63,7 @@ func TestGameInitializationIntegration(t *testing.T) {
 func TestMainGameLifecycle(t *testing.T) {
 	t.Run("ゲームループの基本動作", func(t *testing.T) {
 		// 完全なワールドを使用（テスト用の最小限ワールドではUIリソースが不足）
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestMainGameLifecycle(t *testing.T) {
 
 	t.Run("状態遷移の動作確認", func(t *testing.T) {
 		// 完全なワールドを使用
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
@@ -134,7 +134,7 @@ func TestMainGameLifecycle(t *testing.T) {
 //nolint:paralleltest // ebitenui内部のrace conditionのためt.Parallel()を使用しない
 func TestResourceIntegration(t *testing.T) {
 	t.Run("全リソースタイプの読み込み確認", func(t *testing.T) {
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
@@ -168,7 +168,7 @@ func TestResourceIntegration(t *testing.T) {
 	})
 
 	t.Run("リソースの整合性確認", func(t *testing.T) {
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(t, err)
@@ -308,7 +308,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 	b.Run("InitWorld", func(b *testing.B) {
 		b.ResetTimer()
 		for i := 0; i < b.N; i++ {
-			cfg := &config.Config{Profile: config.ProfileTesting}
+			cfg := &config.Config{Profile: config.ProfileDevelopment}
 			cfg.ApplyProfileDefaults()
 			_, err := InitWorld(cfg)
 			require.NoError(b, err)
@@ -317,7 +317,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 
 	b.Run("StateMachineCreation", func(b *testing.B) {
 		// 完全なワールドを使用（テスト用最小限ワールドではUIリソース不足）
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(b, err)
@@ -329,7 +329,7 @@ func BenchmarkGameInitialization(b *testing.B) {
 
 	b.Run("MainGameCreation", func(b *testing.B) {
 		// 完全なワールドを使用
-		cfg := &config.Config{Profile: config.ProfileTesting}
+		cfg := &config.Config{Profile: config.ProfileDevelopment}
 		cfg.ApplyProfileDefaults()
 		world, err := InitWorld(cfg)
 		require.NoError(b, err)
