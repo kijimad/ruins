@@ -85,12 +85,11 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	}
 
 	// VRT用に設定を作成する
-	cfg, err := config.Load()
-	if err != nil {
-		return fmt.Errorf("config.Load failed: %w", err)
+	cfg := &config.Config{Profile: config.ProfileTesting}
+	cfg.ApplyProfileDefaults()
+	if err := cfg.Validate(); err != nil {
+		return fmt.Errorf("config.Validate failed: %w", err)
 	}
-	cfg.DisableAnimation = true // アニメーション無効化
-	cfg.Seed = 1                // 再現性のための固定シード
 
 	world, err := maingame.InitWorld(cfg)
 	if err != nil {
