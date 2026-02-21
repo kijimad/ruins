@@ -141,6 +141,7 @@ func (aa *AttackActivity) performAttack(act *Activity, world w.World) error {
 	hit, criticalHit := aa.rollHitCheck(attacker, target, world)
 	if !hit {
 		aa.logAttackResult(attacker, target, world, false, false, 0, attackMethodName)
+		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
 		return nil
 	}
 
@@ -159,6 +160,9 @@ func (aa *AttackActivity) performAttack(act *Activity, world w.World) error {
 
 	// 攻撃とダメージを1行でログ出力
 	aa.logAttackResult(attacker, target, world, true, criticalHit, damage, attackMethodName)
+
+	// ダメージエフェクトを生成
+	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 
 	// 死亡チェックと死亡ログ
 	if pools.HP.Current <= 0 && beforeHP > 0 {

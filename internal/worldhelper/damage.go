@@ -100,5 +100,28 @@ func ApplyHealing(world w.World, target ecs.Entity, amount int) int {
 	}
 	actualHealing := pools.HP.Current - beforeHP
 
+	// 回復エフェクトを生成
+	if actualHealing > 0 {
+		SpawnVisualEffect(target, gc.NewHealEffect(actualHealing), world)
+	}
+
 	return actualHealing
+}
+
+// SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する
+func SpawnVisualEffect(target ecs.Entity, effect gc.EffectInstance, world w.World) {
+	if !target.HasComponent(world.Components.GridElement) {
+		return
+	}
+
+	gridElement := world.Components.GridElement.Get(target).(*gc.GridElement)
+
+	effectEntity := world.Manager.NewEntity()
+	effectEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
+		X: gridElement.X,
+		Y: gridElement.Y,
+	})
+	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
+		Effects: []gc.EffectInstance{effect},
+	})
 }

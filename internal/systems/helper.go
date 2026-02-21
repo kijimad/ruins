@@ -43,5 +43,10 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	updaters[hudRenderingSystem.String()] = hudRenderingSystem
 	renderers[hudRenderingSystem.String()] = hudRenderingSystem
 
+	// VisualEffectSystem は Updater と Renderer の両方を実装
+	visualEffectSystem := &VisualEffectSystem{}
+	updaters[visualEffectSystem.String()] = visualEffectSystem
+	renderers[visualEffectSystem.String()] = visualEffectSystem
+
 	return updaters, renderers
 }

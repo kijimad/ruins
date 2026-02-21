@@ -148,6 +148,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 視界キャッシュをクリア（新しい階のために）
 	gs.ClearVisionCaches()
 
+	// ダンジョンタイトルエフェクト用エンティティを作成
+	if !world.Config.DisableAnimation {
+		screenW, screenH := world.Resources.GetScreenDimensions()
+		titleEffect := gc.NewDungeonTitleEffect(def.Name, st.Depth, screenW, screenH)
+		titleEntity := world.Manager.NewEntity()
+		titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
+			Effects: []gc.EffectInstance{titleEffect},
+		})
+	}
+
 	return nil
 }
 
@@ -200,6 +210,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.HUDRenderingSystem{},
 		&gs.EquipmentChangedSystem{},
 		&gs.InventoryChangedSystem{},
+		&gs.VisualEffectSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {
@@ -234,6 +245,7 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 		&gs.RenderSpriteSystem{},
 		&gs.VisionSystem{},
 		&gs.HUDRenderingSystem{},
+		&gs.VisualEffectSystem{},
 	} {
 		if sys, ok := world.Renderers[renderer.String()]; ok {
 			if err := sys.Draw(world, screen); err != nil {
