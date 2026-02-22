@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/widgets/render"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -160,7 +161,7 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	drawOutlinedTextWithAlpha(screen, effect.Text, face, x, y, textColor, outlineColor)
+	render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
 // drawEntityEffect はエンティティ座標でエフェクトを描画する
@@ -190,32 +191,7 @@ func (sys *VisualEffectSystem) drawEntityEffect(world w.World, screen *ebiten.Im
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	drawOutlinedTextWithAlpha(screen, effect.Text, face, x, y, textColor, outlineColor)
-}
-
-// TODO: HUDで同じようなコードがある
-// drawOutlinedTextWithAlpha は透明度付きの枠線付きテキストを描画する
-func drawOutlinedTextWithAlpha(screen *ebiten.Image, str string, face text.Face, x, y float64, textColor, outlineColor color.RGBA) {
-	offsets := []struct{ dx, dy float64 }{
-		{-1, -1}, {0, -1}, {1, -1},
-		{-1, 0}, {1, 0},
-		{-1, 1}, {0, 1}, {1, 1},
-	}
-
-	op := &text.DrawOptions{}
-	for _, offset := range offsets {
-		op.GeoM.Reset()
-		op.GeoM.Translate(x+offset.dx, y+offset.dy)
-		op.ColorScale.Reset()
-		op.ColorScale.ScaleWithColor(outlineColor)
-		text.Draw(screen, str, face, op)
-	}
-
-	op.GeoM.Reset()
-	op.GeoM.Translate(x, y)
-	op.ColorScale.Reset()
-	op.ColorScale.ScaleWithColor(textColor)
-	text.Draw(screen, str, face, op)
+	render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
