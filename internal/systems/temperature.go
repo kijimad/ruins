@@ -37,23 +37,49 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		return nil
 	}
 
-	// 環境気温を計算
-	envTemp := calculateEnvironmentTemperature(def)
+	// 基本環境気温
+	baseTemp := def.BaseTemperature
 
-	// BodyTemperatureを持つエンティティを処理
+	// 時間帯による修正
+	timeModifier := 0
+	if world.Resources.GameTime != nil {
+		timeModifier = world.Resources.GameTime.GetTemperatureModifier()
+	}
+
+	// BodyTemperatureとGridElementを持つエンティティを処理
 	world.Manager.Join(
 		world.Components.BodyTemperature,
+		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		bt := world.Components.BodyTemperature.Get(entity).(*gc.BodyTemperature)
+		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
+		// エンティティの位置のタイル気温修正を取得
+		tileModifier := getTileTemperatureAt(world, gridElement.X, gridElement.Y)
+
+		// 環境気温 = 基本気温 + タイル修正 + 時間帯修正
+		envTemp := baseTemp + tileModifier + timeModifier
+
 		updateBodyTemperature(bt, envTemp)
 	}))
 
 	return nil
 }
 
-// calculateEnvironmentTemperature は環境気温を計算する
-func calculateEnvironmentTemperature(def dungeon.Definition) int {
-	return def.BaseTemperature
+// getTileTemperatureAt は指定座標のタイル気温修正値を取得する
+func getTileTemperatureAt(world w.World, x, y gc.Tile) int {
+	var modifier int
+	world.Manager.Join(
+		world.Components.GridElement,
+		world.Components.TileTemperature,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if grid.X == x && grid.Y == y {
+			tileTemp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
+			modifier = tileTemp.Total()
+		}
+	}))
+	return modifier
 }
 
 // updateBodyTemperature は体温を更新する

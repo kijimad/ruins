@@ -664,6 +664,9 @@ func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc
 		entitySpec.BlockView = &gc.BlockView{}
 	}
 
+	// タイル種別によらないので、ここでは初期化するだけ
+	entitySpec.TileTemperature = &gc.TileTemperature{}
+
 	return entitySpec, nil
 }
 

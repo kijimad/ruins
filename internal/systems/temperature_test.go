@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,38 +16,31 @@ func TestTemperatureSystem_String(t *testing.T) {
 	assert.Equal(t, "TemperatureSystem", sys.String())
 }
 
-func TestCalculateEnvironmentTemperature(t *testing.T) {
+func TestGetTileTemperatureAt(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name     string
-		def      dungeon.Definition
-		expected int
-	}{
-		{
-			name:     "街",
-			def:      dungeon.Definition{BaseTemperature: 20},
-			expected: 20,
-		},
-		{
-			name:     "森",
-			def:      dungeon.Definition{BaseTemperature: 10},
-			expected: 10,
-		},
-		{
-			name:     "洞窟",
-			def:      dungeon.Definition{BaseTemperature: 5},
-			expected: 5,
-		},
-	}
+	t.Run("タイルが存在する場合は気温修正を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			result := calculateEnvironmentTemperature(tt.def)
-			assert.Equal(t, tt.expected, result)
+		// タイルエンティティを作成
+		tile := world.Manager.NewEntity()
+		tile.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		tile.AddComponent(world.Components.TileTemperature, &gc.TileTemperature{
+			Shelter: gc.ShelterFull,
 		})
-	}
+
+		result := getTileTemperatureAt(world, 5, 5)
+		assert.Equal(t, 10, result) // ShelterFull = 10
+	})
+
+	t.Run("タイルが存在しない場合は0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		result := getTileTemperatureAt(world, 5, 5)
+		assert.Equal(t, 0, result)
+	})
 }
 
 func TestUpdateBodyTemperature(t *testing.T) {
@@ -211,18 +204,16 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		world.Resources.Dungeon.DefinitionName = "亡者の森"
 
 		// プレイヤーエンティティを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		bt := gc.NewBodyTemperature()
-		player.AddComponent(world.Components.BodyTemperature, bt)
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
 
 		sys := &TemperatureSystem{}
-		err := sys.Update(world)
+		err = sys.Update(world)
 
 		require.NoError(t, err)
 
-		// 亡者の森: 基本10°C
-		// 収束温度 = 50 + (10 - 20) * 2 = 50 - 20 = 30
+		// 環境気温 = 基本気温(10) + タイル修正(0) + 時間帯修正(0) = 10°C
+		// 収束温度 = 正常体温(50) + (環境気温(10) - 快適温度(20)) * 2 = 30
 		updatedBt := world.Components.BodyTemperature.Get(player).(*gc.BodyTemperature)
 		assert.Equal(t, 30, updatedBt.Parts[gc.BodyPartTorso].Convergent)
 	})

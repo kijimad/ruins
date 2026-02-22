@@ -31,22 +31,23 @@ type EntitySpec struct {
 	ItemLocationType *ItemLocationType
 
 	// field ================
-	AIMoveFSM    *AIMoveFSM
-	AIRoaming    *AIRoaming
-	AIVision     *AIVision
-	AIChasing    *AIChasing
-	Camera       *Camera
-	Position     *Position
-	GridElement  *GridElement
-	SpriteRender *SpriteRender
-	BlockView    *BlockView
-	BlockPass    *BlockPass
-	TurnBased    *TurnBased
-	Prop         *Prop
-	LightSource  *LightSource
-	Door         *Door
-	Interactable *Interactable
-	VisualEffect *VisualEffects
+	AIMoveFSM       *AIMoveFSM
+	AIRoaming       *AIRoaming
+	AIVision        *AIVision
+	AIChasing       *AIChasing
+	Camera          *Camera
+	Position        *Position
+	GridElement     *GridElement
+	SpriteRender    *SpriteRender
+	BlockView       *BlockView
+	BlockPass       *BlockPass
+	TurnBased       *TurnBased
+	Prop            *Prop
+	LightSource     *LightSource
+	Door            *Door
+	Interactable    *Interactable
+	VisualEffect    *VisualEffects
+	TileTemperature *TileTemperature
 
 	// member ================
 	Player          *Player
@@ -93,21 +94,22 @@ type Components struct {
 	ItemLocationOnField          *ecs.NullComponent
 
 	// field ================
-	AIMoveFSM    *ecs.SliceComponent
-	AIRoaming    *ecs.SliceComponent
-	AIVision     *ecs.SliceComponent
-	AIChasing    *ecs.SliceComponent
-	Camera       *ecs.SliceComponent `save:"true"`
-	Position     *ecs.SliceComponent
-	GridElement  *ecs.SliceComponent `save:"true"`
-	SpriteRender *ecs.SliceComponent `save:"true"`
-	BlockView    *ecs.NullComponent
-	BlockPass    *ecs.NullComponent
-	Door         *ecs.SliceComponent
-	Prop         *ecs.NullComponent
-	LightSource  *ecs.SliceComponent `save:"true"`
-	Interactable *ecs.SliceComponent
-	VisualEffect *ecs.SliceComponent
+	AIMoveFSM       *ecs.SliceComponent
+	AIRoaming       *ecs.SliceComponent
+	AIVision        *ecs.SliceComponent
+	AIChasing       *ecs.SliceComponent
+	Camera          *ecs.SliceComponent `save:"true"`
+	Position        *ecs.SliceComponent
+	GridElement     *ecs.SliceComponent `save:"true"`
+	SpriteRender    *ecs.SliceComponent `save:"true"`
+	BlockView       *ecs.NullComponent
+	BlockPass       *ecs.NullComponent
+	Door            *ecs.SliceComponent
+	Prop            *ecs.NullComponent
+	LightSource     *ecs.SliceComponent `save:"true"`
+	Interactable    *ecs.SliceComponent
+	VisualEffect    *ecs.SliceComponent
+	TileTemperature *ecs.SliceComponent
 
 	// member ================
 	Player          *ecs.NullComponent `save:"true"`
