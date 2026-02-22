@@ -35,7 +35,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 
 	assert.Equal(t, "テストダンジョン 1F", effect.Text)
 	assert.Equal(t, 400.0, effect.OffsetX, "画面中央X")
-	assert.Equal(t, 300.0, effect.OffsetY, "画面中央Y")
+	assert.Equal(t, 200.0, effect.OffsetY, "画面上部1/3")
 	assert.Equal(t, 0.0, effect.Alpha, "初期Alpha")
 	assert.Equal(t, 3000.0, effect.TotalMs, "合計時間")
 

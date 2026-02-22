@@ -82,7 +82,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	face := world.Resources.UIResources.Text.TitleFontFace
 	smallFace := world.Resources.UIResources.Text.SmallFace
-	if face == nil {
+	if face == nil || smallFace == nil {
 		return nil
 	}
 
