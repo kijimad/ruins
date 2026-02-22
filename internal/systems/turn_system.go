@@ -70,6 +70,7 @@ func processTurnEnd(world w.World) error {
 	for _, updater := range []w.Updater{
 		&DeadCleanupSystem{},
 		&AutoInteractionSystem{},
+		&TemperatureSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {

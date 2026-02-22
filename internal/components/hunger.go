@@ -33,7 +33,7 @@ func (h HungerLevel) String() string {
 	case HungerStarving:
 		return "飢餓"
 	default:
-		return "不明"
+		return unknownString
 	}
 }
 

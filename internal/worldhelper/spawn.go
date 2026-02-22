@@ -124,6 +124,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		TargetY: initialY,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 1000}
+	entitySpec.BodyTemperature = gc.NewBodyTemperature()
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {

@@ -1,5 +1,8 @@
 package components
 
+// 共通の文字列定数
+const unknownString = "不明"
+
 // Pool は最大値と現在値を持つようなパラメータ
 type Pool struct {
 	Max     int // 計算式で算出される

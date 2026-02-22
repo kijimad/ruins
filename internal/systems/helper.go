@@ -31,6 +31,9 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	inventoryChangedSystem := &InventoryChangedSystem{}
 	updaters[inventoryChangedSystem.String()] = inventoryChangedSystem
 
+	temperatureSystem := &TemperatureSystem{}
+	updaters[temperatureSystem.String()] = temperatureSystem
+
 	// Renderers（描画システム） ================
 	renderSpriteSystem := NewRenderSpriteSystem()
 	renderers[renderSpriteSystem.String()] = renderSpriteSystem
