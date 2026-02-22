@@ -505,10 +505,14 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 	case resources.WarpNextEvent:
 		// 次のフロアへ遷移する
 		nextDepth := world.Resources.Dungeon.Depth + 1
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(nextDepth)}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
+		}}, nil
 	case resources.WarpEscapeEvent:
 		// 街へ帰還
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeoutAnimationState(NewTownState()),
+		}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
 	}
