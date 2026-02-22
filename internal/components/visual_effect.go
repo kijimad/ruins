@@ -114,7 +114,7 @@ func NewScreenTextEffect(text string, screenW, screenH int) *ScreenTextEffect {
 
 	return &ScreenTextEffect{
 		OffsetX:     float64(screenW) / 2,
-		OffsetY:     float64(screenH) / 2,
+		OffsetY:     float64(screenH) / 3,
 		Text:        text,
 		Color:       color.RGBA{255, 255, 255, 255},
 		FadeInMs:    fadeInMs,
