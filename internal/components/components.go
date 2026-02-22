@@ -46,7 +46,7 @@ type EntitySpec struct {
 	LightSource  *LightSource
 	Door         *Door
 	Interactable *Interactable
-	VisualEffect *VisualEffect
+	VisualEffect *VisualEffects
 
 	// member ================
 	Player      *Player

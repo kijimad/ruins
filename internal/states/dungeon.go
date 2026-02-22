@@ -152,8 +152,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	screenW, screenH := world.Resources.GetScreenDimensions()
 	titleEffect := gc.NewDungeonTitleEffect(def.Name, st.Depth, screenW, screenH)
 	titleEntity := world.Manager.NewEntity()
-	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
-		Effects: []gc.EffectInstance{titleEffect},
+	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+		Effects: []gc.VisualEffect{titleEffect},
 	})
 
 	return nil

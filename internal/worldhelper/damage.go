@@ -109,7 +109,7 @@ func ApplyHealing(world w.World, target ecs.Entity, amount int) int {
 }
 
 // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する
-func SpawnVisualEffect(target ecs.Entity, effect gc.EffectInstance, world w.World) {
+func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {
 	if !target.HasComponent(world.Components.GridElement) {
 		return
 	}
@@ -121,7 +121,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.EffectInstance, world w.Worl
 		X: gridElement.X,
 		Y: gridElement.Y,
 	})
-	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffect{
-		Effects: []gc.EffectInstance{effect},
+	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+		Effects: []gc.VisualEffect{effect},
 	})
 }

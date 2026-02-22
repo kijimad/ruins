@@ -49,28 +49,14 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffect)
+		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
 
 		// エフェクトを更新
 		activeEffects := ve.Effects[:0]
-		for i := range ve.Effects {
-			effect := &ve.Effects[i]
-
-			// 残り時間を減少
-			effect.RemainingMs -= deltaMs
-
-			// 位置更新（浮かぶエフェクト用）
-			effect.OffsetY += effect.VelocityY
-
-			// フェードアニメーションのAlpha計算
-			if effect.TotalMs > 0 {
-				elapsed := effect.TotalMs - effect.RemainingMs
-				effect.Alpha = calculateFadeAlpha(elapsed, effect.FadeInMs, effect.HoldMs, effect.FadeOutMs)
-			}
-
-			// まだ残り時間があるエフェクトは保持
-			if effect.RemainingMs > 0 {
-				activeEffects = append(activeEffects, *effect)
+		for _, effect := range ve.Effects {
+			// まだ継続中のエフェクトは保持する
+			if effect.Update(deltaMs) {
+				activeEffects = append(activeEffects, effect)
 			}
 		}
 		ve.Effects = activeEffects
@@ -104,24 +90,24 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffect)
+		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
 
 		for _, effect := range ve.Effects {
-			switch effect.Type {
-			case gc.EffectTypeScreenText:
+			switch e := effect.(type) {
+			case *gc.ScreenTextEffect:
 				// 画面座標で描画（ダンジョンタイトルなど）
-				sys.drawScreenText(screen, face, &effect)
-			case gc.EffectTypeDamage, gc.EffectTypeHeal, gc.EffectTypeMiss, gc.EffectTypeHit:
+				sys.drawScreenText(screen, face, e)
+			case *gc.DamageTextEffect:
 				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-					sys.drawEntityEffect(world, screen, smallFace, gridElement, &effect)
+					sys.drawDamageText(world, screen, smallFace, gridElement, e)
 				}
-			case gc.EffectTypeSpriteFadeout:
+			case *gc.SpriteFadeoutEffect:
 				// スプライトフェードアウトエフェクトを描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, &effect)
+					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
 					if err != nil {
 						return
 					}
@@ -136,23 +122,8 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// calculateFadeAlpha はフェードシーケンスのAlpha値を計算する
-func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {
-	if elapsed < fadeInMs {
-		// フェードイン中
-		return elapsed / fadeInMs
-	}
-	if elapsed < fadeInMs+holdMs {
-		// ホールド中
-		return 1.0
-	}
-	// フェードアウト中
-	fadeOutElapsed := elapsed - fadeInMs - holdMs
-	return 1.0 - (fadeOutElapsed / fadeOutMs)
-}
-
 // drawScreenText は画面座標でテキストを描画する
-func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Face, effect *gc.EffectInstance) {
+func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Face, effect *gc.ScreenTextEffect) {
 	if effect.Alpha <= 0 {
 		return
 	}
@@ -171,8 +142,8 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 	render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
-// drawEntityEffect はエンティティ座標でエフェクトを描画する
-func (sys *VisualEffectSystem) drawEntityEffect(world w.World, screen *ebiten.Image, face text.Face, gridElement *gc.GridElement, effect *gc.EffectInstance) {
+// drawDamageText はエンティティ座標でダメージテキストを描画する
+func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Image, face text.Face, gridElement *gc.GridElement, effect *gc.DamageTextEffect) {
 	// グリッド座標をピクセル座標に変換
 	pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
 	pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
@@ -202,7 +173,7 @@ func (sys *VisualEffectSystem) drawEntityEffect(world w.World, screen *ebiten.Im
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
-func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.EffectInstance) error {
+func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
 	if effect.Alpha <= 0 {
 		return nil
 	}

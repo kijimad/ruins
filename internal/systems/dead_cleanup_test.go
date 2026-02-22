@@ -253,13 +253,13 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 
 	// エフェクトの内容を確認
 	world.Manager.Join(world.Components.VisualEffect, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
-		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffect)
+		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
 		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 		require.Len(t, ve.Effects, 1)
-		effect := ve.Effects[0]
+		effect, ok := ve.Effects[0].(*gc.SpriteFadeoutEffect)
+		require.True(t, ok, "SpriteFadeoutEffectであるべき")
 
-		assert.Equal(t, gc.EffectTypeSpriteFadeout, effect.Type)
 		assert.Equal(t, "character", effect.SpriteSheetName)
 		assert.Equal(t, "slime_0", effect.SpriteKey)
 		assert.Equal(t, gc.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
