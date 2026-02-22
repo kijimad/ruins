@@ -1,0 +1,14 @@
+//kage:unit pixels
+package main
+
+// 白いシルエットを描画するシェーダー
+// アルファチャンネルを保持しながら色を白に変更する
+func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
+	c := imageSrc0At(srcPos)
+	if c.a > 0 {
+		// 元のアルファ値を保持しつつ、色を白にする
+		// color.a でフェードアウトの透明度を制御
+		return vec4(color.a, color.a, color.a, c.a * color.a)
+	}
+	return vec4(0)
+}

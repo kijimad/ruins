@@ -9,6 +9,7 @@ const ChromaticAberration = 0.6
 const VignetteStrength = 0.2
 const ScanlineStrength = 0.1
 
+// レトロ効果を適用するフィルター
 func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
 	// ソース画像の原点とサイズを取得
 	origin := imageSrc0Origin()

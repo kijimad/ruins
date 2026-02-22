@@ -145,8 +145,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// フロア移動時に探索済みマップをリセット
 	world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
-	// 視界キャッシュをクリア（新しい階のために）
+	// 新しい階のために視界キャッシュをクリアする
 	gs.ClearVisionCaches()
+
+	// ダンジョンタイトルエフェクト用エンティティを作成する
+	screenW, screenH := world.Resources.GetScreenDimensions()
+	titleEffect := gc.NewDungeonTitleEffect(def.Name, st.Depth, screenW, screenH)
+	titleEntity := world.Manager.NewEntity()
+	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+		Effects: []gc.VisualEffect{titleEffect},
+	})
 
 	return nil
 }
@@ -200,6 +208,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.HUDRenderingSystem{},
 		&gs.EquipmentChangedSystem{},
 		&gs.InventoryChangedSystem{},
+		&gs.VisualEffectSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {
@@ -234,6 +243,7 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 		&gs.RenderSpriteSystem{},
 		&gs.VisionSystem{},
 		&gs.HUDRenderingSystem{},
+		&gs.VisualEffectSystem{},
 	} {
 		if sys, ok := world.Renderers[renderer.String()]; ok {
 			if err := sys.Draw(world, screen); err != nil {
@@ -495,10 +505,14 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 	case resources.WarpNextEvent:
 		// 次のフロアへ遷移する
 		nextDepth := world.Resources.Dungeon.Depth + 1
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(nextDepth)}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
+		}}, nil
 	case resources.WarpEscapeEvent:
 		// 街へ帰還
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}}, nil
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			NewFadeoutAnimationState(NewTownState()),
+		}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
 	}

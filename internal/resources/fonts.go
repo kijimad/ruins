@@ -13,7 +13,7 @@ type fonts struct {
 func loadFonts(tfs *text.GoTextFaceSource) *fonts {
 	smallFace := loadFont(tfs, 16)
 	bodyFace := loadFont(tfs, 20)
-	titleFontFace := loadFont(tfs, 28)
+	titleFontFace := loadFont(tfs, 32)
 
 	return &fonts{
 		smallFace:     smallFace,

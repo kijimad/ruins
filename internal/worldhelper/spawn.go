@@ -17,8 +17,7 @@ import (
 // 定数定義
 const (
 	// カメラスケール
-	cameraInitialScale = 0.1 // カメラの初期スケール（ズームアウト）
-	cameraNormalScale  = 1.0 // カメラの通常スケール
+	cameraNormalScale = 1.0 // カメラの通常スケール
 
 	// AI設定
 	aiVisionDistance = 160.0 // AIの視界距離（ピクセル）
@@ -112,30 +111,17 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
 	}
 	entitySpec.GridElement = &gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
-	// カメラ
-	{
-		var scale, scaleTo float64
-		if world.Config.DisableAnimation {
-			// アニメーション無効時は初期スケールを通常値に設定
-			scale = cameraNormalScale
-			scaleTo = cameraNormalScale
-		} else {
-			// アニメーション有効時はズームアウトアニメーション
-			scale = cameraInitialScale
-			scaleTo = cameraNormalScale
-		}
-		// カメラ初期位置をプレイヤー位置に設定
-		tileSize := float64(consts.TileSize)
-		initialX := float64(tileX)*tileSize + tileSize/2
-		initialY := float64(tileY)*tileSize + tileSize/2
-		entitySpec.Camera = &gc.Camera{
-			Scale:   scale,
-			ScaleTo: scaleTo,
-			X:       initialX,
-			Y:       initialY,
-			TargetX: initialX,
-			TargetY: initialY,
-		}
+	// カメラ初期位置をプレイヤー位置に設定
+	tileSize := float64(consts.TileSize)
+	initialX := float64(tileX)*tileSize + tileSize/2
+	initialY := float64(tileY)*tileSize + tileSize/2
+	entitySpec.Camera = &gc.Camera{
+		Scale:   cameraNormalScale,
+		ScaleTo: cameraNormalScale,
+		X:       initialX,
+		Y:       initialY,
+		TargetX: initialX,
+		TargetY: initialY,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 1000}
 	componentList.Entities = append(componentList.Entities, entitySpec)
