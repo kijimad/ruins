@@ -100,6 +100,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return nil
 	}
 
+	var err error
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -120,11 +121,17 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 				// スプライトフェードアウトエフェクトを描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-					sys.drawSpriteFadeoutEffect(world, screen, gridElement, &effect)
+					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, &effect)
+					if err != nil {
+						return
+					}
 				}
 			}
 		}
 	}))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -195,36 +202,36 @@ func (sys *VisualEffectSystem) drawEntityEffect(world w.World, screen *ebiten.Im
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
-func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.EffectInstance) {
+func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.EffectInstance) error {
 	if effect.Alpha <= 0 {
-		return
+		return nil
 	}
 	if world.Resources.SpriteSheets == nil {
-		return
+		return nil
 	}
 
 	// シェーダーを初期化（初回のみ）
 	if whiteSilhouetteShader == nil {
 		shaderSource, err := assets.FS.ReadFile("file/shaders/white_silhouette.kage")
 		if err != nil {
-			return
+			return err
 		}
 		whiteSilhouetteShader, err = ebiten.NewShader(shaderSource)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
 	// スプライトシートを取得
 	spriteSheet, exists := (*world.Resources.SpriteSheets)[effect.SpriteSheetName]
 	if !exists {
-		return
+		return nil
 	}
 
 	// スプライトを取得
 	sprite, exists := spriteSheet.Sprites[effect.SpriteKey]
 	if !exists {
-		return
+		return nil
 	}
 
 	// スプライト画像を切り出す
@@ -260,4 +267,5 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 
 	// シェーダーで白シルエットを描画
 	screen.DrawRectShader(sprite.Width, sprite.Height, whiteSilhouetteShader, op)
+	return nil
 }
