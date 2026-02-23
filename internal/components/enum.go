@@ -200,24 +200,23 @@ func (enum EquipmentType) String() string {
 	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
 }
 
-// CoveredBodyParts は装備が保温効果を与える部位のリストを返す
-// 各装備は対応する1部位のみをカバーする
-func (enum EquipmentType) CoveredBodyParts() []BodyPart {
+// CoveredBodyPart は装備が保温効果を与える部位を返す
+func (enum EquipmentType) CoveredBodyPart() (part BodyPart, ok bool) {
 	switch enum {
 	case EquipmentHead:
-		return []BodyPart{BodyPartHead}
+		return BodyPartHead, true
 	case EquipmentTorso:
-		return []BodyPart{BodyPartTorso}
+		return BodyPartTorso, true
 	case EquipmentArms:
-		return []BodyPart{BodyPartArms}
+		return BodyPartArms, true
 	case EquipmentHands:
-		return []BodyPart{BodyPartHands}
+		return BodyPartHands, true
 	case EquipmentLegs:
-		return []BodyPart{BodyPartLegs}
+		return BodyPartLegs, true
 	case EquipmentFeet:
-		return []BodyPart{BodyPartFeet}
+		return BodyPartFeet, true
 	case EquipmentJewelry:
-		return []BodyPart{} // 装飾品は保温効果なし
+		return 0, false
 	default:
 		panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
 	}

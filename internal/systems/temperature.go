@@ -106,7 +106,7 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) [gc.BodyPartCo
 		}
 
 		wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
-		for _, part := range wearable.EquipmentCategory.CoveredBodyParts() {
+		if part, ok := wearable.EquipmentCategory.CoveredBodyPart(); ok {
 			insulation[part].Cold += wearable.InsulationCold
 			insulation[part].Heat += wearable.InsulationHeat
 		}

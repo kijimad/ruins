@@ -8,8 +8,8 @@ type BodyPart int
 
 // 体の部位定数
 const (
-	BodyPartTorso BodyPart = iota // 胴体
-	BodyPartHead                  // 頭
+	BodyPartHead  BodyPart = iota // 頭
+	BodyPartTorso                 // 胴体
 	BodyPartArms                  // 腕
 	BodyPartHands                 // 手
 	BodyPartLegs                  // 脚
@@ -20,10 +20,10 @@ const (
 // String は部位名を返す
 func (bp BodyPart) String() string {
 	switch bp {
-	case BodyPartTorso:
-		return "胴体"
 	case BodyPartHead:
 		return "頭"
+	case BodyPartTorso:
+		return "胴体"
 	case BodyPartArms:
 		return "腕"
 	case BodyPartHands:
