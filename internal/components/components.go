@@ -217,7 +217,8 @@ type Wearable struct {
 	Defense           int           // 防御力
 	EquipmentCategory EquipmentType // 装備部位
 	EquipBonus        EquipBonus    // ステータスへのボーナス
-	Warmth            int           // 保温値（部位の体温収束先を上昇させる）
+	InsulationCold    int           // 耐寒（快適温度の下限を下げる）
+	InsulationHeat    int           // 耐暑（快適温度の上限を上げる）
 }
 
 // Player は操作対象の主人公キャラクター

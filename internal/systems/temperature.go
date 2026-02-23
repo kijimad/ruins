@@ -19,8 +19,24 @@ func (sys *TemperatureSystem) String() string {
 	return "TemperatureSystem"
 }
 
-// 快適温度（摂氏）
-const comfortableTemp = 20
+// 温度閾値の定数
+const (
+	// ComfortableTempLower は快適温度の下限（これより低いと寒さダメージ）
+	ComfortableTempLower = 11
+	// ComfortableTempUpper は快適温度の上限（これより高いと暑さダメージ）
+	ComfortableTempUpper = 30
+)
+
+// Insulation は部位ごとの断熱値
+type Insulation struct {
+	Cold int // 耐寒（快適温度の下限を下げる）
+	Heat int // 耐暑（快適温度の上限を上げる）
+}
+
+// ComfortableRange は断熱値から快適温度範囲を計算する
+func ComfortableRange(insulation Insulation) (lower, upper int) {
+	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
+}
 
 // Update は健康状態のタイマーを更新する
 func (sys *TemperatureSystem) Update(world w.World) error {
@@ -58,13 +74,13 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		// 環境気温 = 基本気温 + タイル修正 + 時間帯修正
 		envTemp := baseTemp + tileModifier + timeModifier
 
-		// 装備から保温値を計算する
-		warmth := calculateEquippedWarmth(world, entity)
+		// 装備から断熱値を計算する
+		insulation := CalculateEquippedInsulation(world, entity)
 
 		isPlayer := entity.HasComponent(world.Components.Player)
 
 		// 各部位の健康状態を更新
-		hasChange := updateTemperatureConditions(hs, envTemp, warmth, isPlayer)
+		hasChange := updateTemperatureConditions(hs, envTemp, insulation, isPlayer)
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
@@ -75,9 +91,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	return nil
 }
 
-// calculateEquippedWarmth はエンティティの装備から保温値を計算する
-func calculateEquippedWarmth(world w.World, owner ecs.Entity) [gc.BodyPartCount]int {
-	var warmth [gc.BodyPartCount]int
+// CalculateEquippedInsulation はエンティティの装備から断熱値を計算する
+func CalculateEquippedInsulation(world w.World, owner ecs.Entity) [gc.BodyPartCount]Insulation {
+	var insulation [gc.BodyPartCount]Insulation
 
 	world.Manager.Join(
 		world.Components.ItemLocationEquipped,
@@ -90,11 +106,12 @@ func calculateEquippedWarmth(world w.World, owner ecs.Entity) [gc.BodyPartCount]
 
 		wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
 		for _, part := range wearable.EquipmentCategory.CoveredBodyParts() {
-			warmth[part] += wearable.Warmth
+			insulation[part].Cold += wearable.InsulationCold
+			insulation[part].Heat += wearable.InsulationHeat
 		}
 	}))
 
-	return warmth
+	return insulation
 }
 
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
@@ -116,38 +133,42 @@ func getTileTemperatureAt(world w.World, x, y gc.Tile) int {
 // updateTemperatureConditions は環境気温から各部位の健康状態タイマーを更新する
 // isPlayerがtrueの場合、状態悪化時にログを出力する
 // 戻り値: いずれかの状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, warmth [gc.BodyPartCount]int, isPlayer bool) bool {
+func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation [gc.BodyPartCount]Insulation, isPlayer bool) bool {
 	hasChange := false
 
 	for i := 0; i < int(gc.BodyPartCount); i++ {
 		part := gc.BodyPart(i)
 		partHealth := &hs.Parts[i]
 
-		// 有効温度 = 環境気温 + 装備保温値
-		effectiveTemp := envTemp + warmth[i]
+		// 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
+		effectiveTempCold := envTemp + insulation[i].Cold
+		// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
+		effectiveTempHeat := envTemp - insulation[i].Heat
 
-		// 有効温度からタイマー変化量を計算
-		delta := calcTimerDelta(effectiveTemp)
+		// 低体温/高体温のタイマー変化量を計算
+		coldDelta := calcTimerDelta(effectiveTempCold)
+		heatDelta := calcTimerDelta(effectiveTempHeat)
 
 		// 低体温/高体温のタイマーを更新
 		var changes []gc.SeverityChange
-		if delta < 0 {
-			// 寒い: 低体温タイマー増加、高体温タイマー減少
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -delta))
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))
-		} else if delta > 0 {
-			// 暑い: 高体温タイマー増加、低体温タイマー減少
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, delta))
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -delta))
+
+		// 低体温の処理（寒さ判定）
+		if coldDelta < 0 {
+			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
 		} else {
-			// 快適: 両方のタイマーが回復
 			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -0.25))
+		}
+
+		// 高体温の処理（暑さ判定）
+		if heatDelta > 0 {
+			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
+		} else {
 			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -0.25))
 		}
 
-		// 凍傷タイマー更新（末端部位のみ）
+		// 凍傷タイマー更新（末端部位のみ、耐寒を適用）
 		if gc.IsExtremity(part) {
-			changes = append(changes, updateFrostbiteTimer(partHealth, effectiveTemp))
+			changes = append(changes, updateFrostbiteTimer(partHealth, effectiveTempCold))
 		}
 
 		// 状態変化をチェックし、プレイヤーならログ出力

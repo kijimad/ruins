@@ -87,8 +87,8 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 			Timer: 50,
 		})
 
-		warmth := [gc.BodyPartCount]int{}
-		updateTemperatureConditions(hs, 20, warmth, false)
+		insulation := [gc.BodyPartCount]Insulation{}
+		updateTemperatureConditions(hs, 20, insulation, false)
 
 		// タイマーが減少しているはず
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
@@ -100,10 +100,10 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 	t.Run("寒い環境で低体温タイマーが増加", func(t *testing.T) {
 		t.Parallel()
 		hs := &gc.HealthStatus{}
-		warmth := [gc.BodyPartCount]int{}
+		insulation := [gc.BodyPartCount]Insulation{}
 
 		// 非常に寒い環境
-		updateTemperatureConditions(hs, 0, warmth, false)
+		updateTemperatureConditions(hs, 0, insulation, false)
 
 		// 低体温の状態が追加されているはず
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
@@ -114,10 +114,10 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 	t.Run("暑い環境で高体温タイマーが増加", func(t *testing.T) {
 		t.Parallel()
 		hs := &gc.HealthStatus{}
-		warmth := [gc.BodyPartCount]int{}
+		insulation := [gc.BodyPartCount]Insulation{}
 
 		// 非常に暑い環境
-		updateTemperatureConditions(hs, 40, warmth, false)
+		updateTemperatureConditions(hs, 40, insulation, false)
 
 		// 高体温の状態が追加されているはず
 		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHyperthermia)
@@ -125,27 +125,27 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		assert.Greater(t, cond.Timer, 0.0)
 	})
 
-	t.Run("装備保温値で有効温度が上がる", func(t *testing.T) {
+	t.Run("耐寒装備で低体温を軽減", func(t *testing.T) {
 		t.Parallel()
 		hs1 := &gc.HealthStatus{}
 		hs2 := &gc.HealthStatus{}
-		noWarmth := [gc.BodyPartCount]int{}
-		withWarmth := [gc.BodyPartCount]int{}
-		withWarmth[gc.BodyPartTorso] = 20 // 保温+20
+		noInsulation := [gc.BodyPartCount]Insulation{}
+		withInsulation := [gc.BodyPartCount]Insulation{}
+		withInsulation[gc.BodyPartTorso] = Insulation{Cold: 20} // 耐寒+20
 
 		// 同じ寒い環境(0度)で比較
-		updateTemperatureConditions(hs1, 0, noWarmth, false)
-		updateTemperatureConditions(hs2, 0, withWarmth, false)
+		updateTemperatureConditions(hs1, 0, noInsulation, false)
+		updateTemperatureConditions(hs2, 0, withInsulation, false)
 
-		// 保温ありの方がタイマー増加が少ないはず
+		// 耐寒ありの方がタイマー増加が少ないはず
 		cond1 := hs1.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
 		cond2 := hs2.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
 
-		// 保温なしは状態が追加される
+		// 耐寒なしは状態が追加される
 		require.NotNil(t, cond1)
 		assert.Greater(t, cond1.Timer, 0.0)
 
-		// 保温20で有効温度が20度になり、快適範囲なので状態は追加されないか軽微
+		// 耐寒20で有効温度が20度になり、快適範囲なので状態は追加されないか軽微
 		if cond2 != nil {
 			assert.Less(t, cond2.Timer, cond1.Timer)
 		}
@@ -160,20 +160,20 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 			Severity: gc.SeverityNone,
 			Timer:    24.5,
 		})
-		warmth := [gc.BodyPartCount]int{}
+		insulation := [gc.BodyPartCount]Insulation{}
 
 		// 非常に寒い環境（delta=+0.5）でSeverityがNone→Minorに変化
-		hasChange := updateTemperatureConditions(hs, 0, warmth, false)
+		hasChange := updateTemperatureConditions(hs, 0, insulation, false)
 		assert.True(t, hasChange)
 	})
 
 	t.Run("Severity変化がない場合はfalseを返す", func(t *testing.T) {
 		t.Parallel()
 		hs := &gc.HealthStatus{}
-		warmth := [gc.BodyPartCount]int{}
+		insulation := [gc.BodyPartCount]Insulation{}
 
 		// 快適な温度で初期状態ならSeverity変化なし
-		hasChange := updateTemperatureConditions(hs, 20, warmth, false)
+		hasChange := updateTemperatureConditions(hs, 20, insulation, false)
 		assert.False(t, hasChange)
 	})
 }
@@ -314,11 +314,79 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	})
 }
 
-func TestComfortableTemp(t *testing.T) {
+func TestComfortableRange(t *testing.T) {
 	t.Parallel()
 
-	t.Run("快適温度は20度", func(t *testing.T) {
+	t.Run("断熱なしの場合の快適温度範囲", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, 20, comfortableTemp)
+		lower, upper := ComfortableRange(Insulation{Cold: 0, Heat: 0})
+		assert.Equal(t, 11, lower)
+		assert.Equal(t, 30, upper)
+	})
+
+	t.Run("耐寒ありの場合は下限が下がる", func(t *testing.T) {
+		t.Parallel()
+		lower, upper := ComfortableRange(Insulation{Cold: 10, Heat: 0})
+		assert.Equal(t, 1, lower)
+		assert.Equal(t, 30, upper)
+	})
+
+	t.Run("耐熱ありの場合は上限が上がる", func(t *testing.T) {
+		t.Parallel()
+		lower, upper := ComfortableRange(Insulation{Cold: 0, Heat: 10})
+		assert.Equal(t, 11, lower)
+		assert.Equal(t, 40, upper)
+	})
+
+	t.Run("両方ありの場合", func(t *testing.T) {
+		t.Parallel()
+		lower, upper := ComfortableRange(Insulation{Cold: 15, Heat: 5})
+		assert.Equal(t, -4, lower)
+		assert.Equal(t, 35, upper)
+	})
+}
+
+func TestCalculateEquippedInsulation(t *testing.T) {
+	t.Parallel()
+
+	t.Run("装備なしの場合は全て0", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		insulation := CalculateEquippedInsulation(world, player)
+
+		for i := 0; i < int(gc.BodyPartCount); i++ {
+			assert.Equal(t, 0, insulation[i].Cold)
+			assert.Equal(t, 0, insulation[i].Heat)
+		}
+	})
+
+	t.Run("装備の断熱値が反映される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		// 胴体装備を作成（耐寒10, 耐熱5）
+		armor := world.Manager.NewEntity()
+		armor.AddComponent(world.Components.Wearable, &gc.Wearable{
+			EquipmentCategory: gc.EquipmentTorso,
+			InsulationCold:    10,
+			InsulationHeat:    5,
+		})
+		armor.AddComponent(world.Components.ItemLocationEquipped, &gc.LocationEquipped{
+			Owner: player,
+		})
+
+		insulation := CalculateEquippedInsulation(world, player)
+
+		// 胴体に適用されているはず
+		assert.Equal(t, 10, insulation[gc.BodyPartTorso].Cold)
+		assert.Equal(t, 5, insulation[gc.BodyPartTorso].Heat)
+		// 頭には適用されていないはず
+		assert.Equal(t, 0, insulation[gc.BodyPartHead].Cold)
+		assert.Equal(t, 0, insulation[gc.BodyPartHead].Heat)
 	})
 }

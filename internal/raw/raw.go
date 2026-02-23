@@ -91,7 +91,8 @@ type Attack struct {
 type Wearable struct {
 	Defense           int
 	EquipmentCategory string
-	Warmth            int // 保温値。部位の体温収束先を上昇させる
+	InsulationCold    int // 耐寒。快適温度の下限を下げる
+	InsulationHeat    int // 耐暑。快適温度の上限を上げる
 }
 
 // EquipBonus は装備ボーナスの設定
@@ -345,7 +346,8 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 			Defense:           item.Wearable.Defense,
 			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
 			EquipBonus:        bonus,
-			Warmth:            item.Wearable.Warmth,
+			InsulationCold:    item.Wearable.InsulationCold,
+			InsulationHeat:    item.Wearable.InsulationHeat,
 		}
 	}
 

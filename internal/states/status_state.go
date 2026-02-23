@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -449,6 +450,12 @@ func (st *StatusState) updateDetailContainer(world w.World, item tabmenu.Item) {
 // addHealthBreakdown は選択中の部位の健康状態を詳細コンテナに追加する
 func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	res := world.Resources.UIResources
+
+	// 快適温度範囲を表示
+	allInsulation := systems.CalculateEquippedInsulation(world, st.playerEntity)
+	lowerBound, upperBound := systems.ComfortableRange(allInsulation[part])
+	st.detailContainer.AddChild(st.newDetailText("快適温度", res))
+	st.detailContainer.AddChild(st.newDetailRow("", fmt.Sprintf("%d°C 〜 %d°C", lowerBound, upperBound), res))
 
 	// 健康状態
 	if !st.playerEntity.HasComponent(world.Components.HealthStatus) {
