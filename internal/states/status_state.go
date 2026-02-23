@@ -75,7 +75,6 @@ func (st *StatusState) OnStart(world w.World) error {
 }
 
 // calculateEnvTemp は環境気温を計算する
-// TODO: ここに気温の計算ロジックがあるべきではない。計算結果をResourcesにキャッシュしておいたほうがいいかも
 func (st *StatusState) calculateEnvTemp(world w.World) (int, error) {
 	dungeonRes := world.Resources.Dungeon
 	if dungeonRes == nil {

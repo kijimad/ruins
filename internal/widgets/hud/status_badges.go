@@ -24,17 +24,15 @@ type StatusBadgesData struct {
 
 // StatusBadges は左下にステータスバッジを表示するウィジェット
 type StatusBadges struct {
-	bodyFace    text.Face
-	scrollIndex int // スクロール位置（将来の拡張用）
-	enabled     bool
+	bodyFace text.Face
+	enabled  bool
 }
 
 // NewStatusBadges は新しい StatusBadges を作成する
 func NewStatusBadges(bodyFace text.Face) *StatusBadges {
 	return &StatusBadges{
-		bodyFace:    bodyFace,
-		scrollIndex: 0,
-		enabled:     true,
+		bodyFace: bodyFace,
+		enabled:  true,
 	}
 }
 
