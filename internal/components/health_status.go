@@ -98,6 +98,7 @@ func ConditionTypeDisplayName(ct ConditionType) string {
 type HealthCondition struct {
 	Type     ConditionType // 状態の種類
 	Severity Severity      // 重症度
+	Timer    float64       // 進行度タイマー (0-100)
 	Effects  []StatEffect  // この状態による影響
 }
 
@@ -108,6 +109,46 @@ func (hc *HealthCondition) DisplayName() string {
 		name += "(" + hc.Severity.String() + ")"
 	}
 	return name
+}
+
+// UpdateTimer はタイマーを更新し、Severityを再計算する
+// delta が正なら悪化、負なら回復
+// 戻り値: (前のSeverity, 新しいSeverity)
+func (hc *HealthCondition) UpdateTimer(delta float64) (Severity, Severity) {
+	prevSeverity := hc.Severity
+	hc.Timer = clamp(hc.Timer+delta, 0, 100)
+	hc.Severity = TimerToSeverity(hc.Timer)
+	return prevSeverity, hc.Severity
+}
+
+// IsActive はこの状態が発症しているかを返す
+func (hc *HealthCondition) IsActive() bool {
+	return hc.Timer >= 25
+}
+
+// TimerToSeverity はタイマー値からSeverityを導出する
+func TimerToSeverity(timer float64) Severity {
+	switch {
+	case timer < 25:
+		return SeverityNone
+	case timer < 50:
+		return SeverityMinor
+	case timer < 75:
+		return SeverityMedium
+	default:
+		return SeveritySevere
+	}
+}
+
+// clamp は値を範囲内に収める
+func clamp[T ~int | ~float64](val, minVal, maxVal T) T {
+	if val < minVal {
+		return minVal
+	}
+	if val > maxVal {
+		return maxVal
+	}
+	return val
 }
 
 // BodyPartHealth は1つの部位の健康状態
@@ -134,6 +175,52 @@ func (bph *BodyPartHealth) RemoveCondition(condType ConditionType) {
 			return
 		}
 	}
+}
+
+// GetCondition は指定した種類の状態を取得する。存在しない場合はnil
+func (bph *BodyPartHealth) GetCondition(condType ConditionType) *HealthCondition {
+	for i := range bph.Conditions {
+		if bph.Conditions[i].Type == condType {
+			return &bph.Conditions[i]
+		}
+	}
+	return nil
+}
+
+// GetOrCreateCondition は指定した種類の状態を取得または作成する
+func (bph *BodyPartHealth) GetOrCreateCondition(condType ConditionType) *HealthCondition {
+	if cond := bph.GetCondition(condType); cond != nil {
+		return cond
+	}
+	bph.Conditions = append(bph.Conditions, HealthCondition{
+		Type:     condType,
+		Severity: SeverityNone,
+		Timer:    0,
+	})
+	return &bph.Conditions[len(bph.Conditions)-1]
+}
+
+// SeverityChange はSeverityの変化を表す
+type SeverityChange struct {
+	CondType ConditionType
+	Prev     Severity
+	Current  Severity
+}
+
+// UpdateConditionTimer は指定した状態のタイマーを更新する
+// 状態が存在しない場合は作成する
+// タイマーが0になった状態は削除する
+// 戻り値: Severityの変化情報
+func (bph *BodyPartHealth) UpdateConditionTimer(condType ConditionType, delta float64) SeverityChange {
+	cond := bph.GetOrCreateCondition(condType)
+	prev, current := cond.UpdateTimer(delta)
+
+	// タイマーが0になったら状態を削除
+	if cond.Timer == 0 {
+		bph.RemoveCondition(condType)
+	}
+
+	return SeverityChange{CondType: condType, Prev: prev, Current: current}
 }
 
 // HealthStatus は部位ごとの健康状態を管理するコンポーネント

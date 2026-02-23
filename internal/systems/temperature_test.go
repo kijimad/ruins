@@ -43,165 +43,229 @@ func TestGetTileTemperatureAt(t *testing.T) {
 	})
 }
 
-func TestUpdateBodyTemperature(t *testing.T) {
+func TestCalcTimerDelta(t *testing.T) {
 	t.Parallel()
 
-	// 保温値なしの場合
-	noWarmth := [gc.BodyPartCount]int{}
+	tests := []struct {
+		name          string
+		effectiveTemp int
+		expected      float64
+	}{
+		{"非常に寒い(0度以下)", -10, -0.5},
+		{"非常に寒い(0度)", 0, -0.5},
+		{"寒い(1-10度)", 5, -0.25},
+		{"寒い(10度)", 10, -0.25},
+		{"やや寒い(11-15度)", 12, 0},
+		{"やや寒い(15度)", 15, 0},
+		{"快適(16-25度)", 20, 0},
+		{"快適(25度)", 25, 0},
+		{"やや暑い(26-30度)", 28, 0},
+		{"やや暑い(30度)", 30, 0},
+		{"暑い(31-35度)", 33, 0.25},
+		{"暑い(35度)", 35, 0.25},
+		{"非常に暑い(36度以上)", 40, 0.5},
+	}
 
-	t.Run("環境気温20度で正常体温を維持", func(t *testing.T) {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			result := calcTimerDelta(tt.effectiveTemp)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
+func TestUpdateTemperatureConditions(t *testing.T) {
+	t.Parallel()
+
+	t.Run("快適な温度では状態が回復する", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
+		hs := &gc.HealthStatus{}
+		// 事前に低体温状態を設定
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{
+			Type:  gc.ConditionHypothermia,
+			Timer: 50,
+		})
 
-		updateBodyTemperature(bt, 20, noWarmth)
+		warmth := [gc.BodyPartCount]int{}
+		updateTemperatureConditions(hs, 20, warmth, false)
 
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			assert.Equal(t, gc.TempNormal, bt.Parts[i].Convergent, "収束温度が正常体温でない")
-			assert.Equal(t, gc.TempNormal, bt.Parts[i].Temp, "現在温度が正常体温でない")
+		// タイマーが減少しているはず
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
+		if cond != nil {
+			assert.Less(t, cond.Timer, 50.0)
 		}
 	})
 
-	t.Run("環境気温0度で収束温度が下がる", func(t *testing.T) {
+	t.Run("寒い環境で低体温タイマーが増加", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
-
-		updateBodyTemperature(bt, 0, noWarmth)
-
-		// 収束温度 = 50 + (0 - 20) * 2 = 50 - 40 = 10
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			assert.Equal(t, 10, bt.Parts[i].Convergent, "収束温度が10でない")
-		}
-	})
-
-	t.Run("環境気温40度で収束温度が上がる", func(t *testing.T) {
-		t.Parallel()
-		bt := gc.NewBodyTemperature()
-
-		updateBodyTemperature(bt, 40, noWarmth)
-
-		// 収束温度 = 50 + (40 - 20) * 2 = 50 + 40 = 90
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			assert.Equal(t, 90, bt.Parts[i].Convergent, "収束温度が90でない")
-		}
-	})
-
-	t.Run("収束温度は0-100にクランプされる", func(t *testing.T) {
-		t.Parallel()
+		hs := &gc.HealthStatus{}
+		warmth := [gc.BodyPartCount]int{}
 
 		// 非常に寒い環境
-		bt1 := gc.NewBodyTemperature()
-		updateBodyTemperature(bt1, -50, noWarmth)
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			assert.GreaterOrEqual(t, bt1.Parts[i].Convergent, 0, "収束温度が0未満")
-		}
+		updateTemperatureConditions(hs, 0, warmth, false)
+
+		// 低体温の状態が追加されているはず
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
+		require.NotNil(t, cond)
+		assert.Greater(t, cond.Timer, 0.0)
+	})
+
+	t.Run("暑い環境で高体温タイマーが増加", func(t *testing.T) {
+		t.Parallel()
+		hs := &gc.HealthStatus{}
+		warmth := [gc.BodyPartCount]int{}
 
 		// 非常に暑い環境
-		bt2 := gc.NewBodyTemperature()
-		updateBodyTemperature(bt2, 100, noWarmth)
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			assert.LessOrEqual(t, bt2.Parts[i].Convergent, 100, "収束温度が100超過")
+		updateTemperatureConditions(hs, 40, warmth, false)
+
+		// 高体温の状態が追加されているはず
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHyperthermia)
+		require.NotNil(t, cond)
+		assert.Greater(t, cond.Timer, 0.0)
+	})
+
+	t.Run("装備保温値で有効温度が上がる", func(t *testing.T) {
+		t.Parallel()
+		hs1 := &gc.HealthStatus{}
+		hs2 := &gc.HealthStatus{}
+		noWarmth := [gc.BodyPartCount]int{}
+		withWarmth := [gc.BodyPartCount]int{}
+		withWarmth[gc.BodyPartTorso] = 20 // 保温+20
+
+		// 同じ寒い環境(0度)で比較
+		updateTemperatureConditions(hs1, 0, noWarmth, false)
+		updateTemperatureConditions(hs2, 0, withWarmth, false)
+
+		// 保温ありの方がタイマー増加が少ないはず
+		cond1 := hs1.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
+		cond2 := hs2.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
+
+		// 保温なしは状態が追加される
+		require.NotNil(t, cond1)
+		assert.Greater(t, cond1.Timer, 0.0)
+
+		// 保温20で有効温度が20度になり、快適範囲なので状態は追加されないか軽微
+		if cond2 != nil {
+			assert.Less(t, cond2.Timer, cond1.Timer)
 		}
 	})
 
-	t.Run("体温は収束温度に向かって変化する", func(t *testing.T) {
+	t.Run("Severity変化時にtrueを返す", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		initialTemp := bt.Parts[gc.BodyPartTorso].Temp
-
-		// 寒い環境で何度か更新
-		for i := 0; i < 10; i++ {
-			updateBodyTemperature(bt, 0, noWarmth)
-		}
-
-		assert.Less(t, bt.Parts[gc.BodyPartTorso].Temp, initialTemp, "体温が下がっていない")
-	})
-
-	t.Run("装備保温値が収束温度を上げる", func(t *testing.T) {
-		t.Parallel()
-		bt := gc.NewBodyTemperature()
-
-		// 胴体のみ保温値10
+		hs := &gc.HealthStatus{}
+		// タイマーを閾値付近に設定（24.5 → 25で SeverityNone → SeverityMinor に変化）
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeverityNone,
+			Timer:    24.5,
+		})
 		warmth := [gc.BodyPartCount]int{}
-		warmth[gc.BodyPartTorso] = 10
 
-		// 環境気温0度だが胴体に保温あり
-		updateBodyTemperature(bt, 0, warmth)
+		// 非常に寒い環境（delta=+0.5）でSeverityがNone→Minorに変化
+		hasChange := updateTemperatureConditions(hs, 0, warmth, false)
+		assert.True(t, hasChange)
+	})
 
-		// 収束温度 = 50 + (0 - 20) * 2 + 10 = 50 - 40 + 10 = 20
-		assert.Equal(t, 20, bt.Parts[gc.BodyPartTorso].Convergent, "胴体の収束温度が20でない")
-		// 保温なしの部位は10
-		assert.Equal(t, 10, bt.Parts[gc.BodyPartHead].Convergent, "頭の収束温度が10でない")
+	t.Run("Severity変化がない場合はfalseを返す", func(t *testing.T) {
+		t.Parallel()
+		hs := &gc.HealthStatus{}
+		warmth := [gc.BodyPartCount]int{}
+
+		// 快適な温度で初期状態ならSeverity変化なし
+		hasChange := updateTemperatureConditions(hs, 20, warmth, false)
+		assert.False(t, hasChange)
 	})
 }
 
 func TestUpdateFrostbiteTimer(t *testing.T) {
 	t.Parallel()
 
-	t.Run("凍結時にタイマーが速く増加", func(t *testing.T) {
+	t.Run("非常に寒い環境で凍傷タイマーが増加", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		bt.Parts[gc.BodyPartHands].Temp = gc.TempFreezing
+		partHealth := &gc.BodyPartHealth{}
 
-		initialTimer := bt.Parts[gc.BodyPartHands].FrostbiteTimer
-		updateFrostbiteTimer(bt, gc.BodyPartHands)
+		updateFrostbiteTimer(partHealth, 0)
 
-		assert.Equal(t, initialTimer+5, bt.Parts[gc.BodyPartHands].FrostbiteTimer)
+		cond := partHealth.GetCondition(gc.ConditionFrostbite)
+		require.NotNil(t, cond)
+		assert.Equal(t, 0.5, cond.Timer)
 	})
 
-	t.Run("非常に寒い時にタイマーが増加", func(t *testing.T) {
+	t.Run("暖かい環境で凍傷タイマーが回復", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		bt.Parts[gc.BodyPartHands].Temp = gc.TempVeryCold
+		partHealth := &gc.BodyPartHealth{}
+		partHealth.SetCondition(gc.HealthCondition{
+			Type:  gc.ConditionFrostbite,
+			Timer: 50,
+		})
 
-		initialTimer := bt.Parts[gc.BodyPartHands].FrostbiteTimer
-		updateFrostbiteTimer(bt, gc.BodyPartHands)
+		updateFrostbiteTimer(partHealth, 20)
 
-		assert.Equal(t, initialTimer+3, bt.Parts[gc.BodyPartHands].FrostbiteTimer)
+		cond := partHealth.GetCondition(gc.ConditionFrostbite)
+		require.NotNil(t, cond)
+		assert.Equal(t, 49.75, cond.Timer) // -0.25 回復
 	})
 
-	t.Run("寒い時にタイマーがゆっくり増加", func(t *testing.T) {
+	t.Run("タイマーが0になると状態が削除される", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		bt.Parts[gc.BodyPartHands].Temp = gc.TempCold
+		partHealth := &gc.BodyPartHealth{}
+		partHealth.SetCondition(gc.HealthCondition{
+			Type:  gc.ConditionFrostbite,
+			Timer: 0.25,
+		})
 
-		initialTimer := bt.Parts[gc.BodyPartHands].FrostbiteTimer
-		updateFrostbiteTimer(bt, gc.BodyPartHands)
+		updateFrostbiteTimer(partHealth, 20)
 
-		assert.Equal(t, initialTimer+1, bt.Parts[gc.BodyPartHands].FrostbiteTimer)
+		cond := partHealth.GetCondition(gc.ConditionFrostbite)
+		assert.Nil(t, cond) // 削除されたはず
+	})
+}
+
+func TestGetWorstSeverity(t *testing.T) {
+	t.Parallel()
+
+	t.Run("状態がない場合はSeverityNone", func(t *testing.T) {
+		t.Parallel()
+		hs := &gc.HealthStatus{}
+		assert.Equal(t, gc.SeverityNone, getWorstSeverity(hs))
 	})
 
-	t.Run("正常時にタイマーが回復", func(t *testing.T) {
+	t.Run("最も重いSeverityを返す", func(t *testing.T) {
 		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		bt.Parts[gc.BodyPartHands].Temp = gc.TempNormal
-		bt.Parts[gc.BodyPartHands].FrostbiteTimer = 50
+		hs := &gc.HealthStatus{}
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeverityMinor,
+		})
+		hs.Parts[gc.BodyPartHead].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeveritySevere,
+		})
 
-		updateFrostbiteTimer(bt, gc.BodyPartHands)
-
-		assert.Equal(t, 48, bt.Parts[gc.BodyPartHands].FrostbiteTimer)
+		assert.Equal(t, gc.SeveritySevere, getWorstSeverity(hs))
 	})
+}
 
-	t.Run("タイマーは0未満にならない", func(t *testing.T) {
-		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		bt.Parts[gc.BodyPartHands].Temp = gc.TempNormal
-		bt.Parts[gc.BodyPartHands].FrostbiteTimer = 1
+func TestSeverityToMultiplier(t *testing.T) {
+	t.Parallel()
 
-		updateFrostbiteTimer(bt, gc.BodyPartHands)
+	tests := []struct {
+		severity gc.Severity
+		expected int
+	}{
+		{gc.SeverityNone, 0},
+		{gc.SeverityMinor, 1},
+		{gc.SeverityMedium, 2},
+		{gc.SeveritySevere, 3},
+	}
 
-		assert.Equal(t, 0, bt.Parts[gc.BodyPartHands].FrostbiteTimer)
-	})
-
-	t.Run("タイマー100で凍傷発症", func(t *testing.T) {
-		t.Parallel()
-		bt := gc.NewBodyTemperature()
-		bt.Parts[gc.BodyPartHands].Temp = gc.TempFreezing
-		bt.Parts[gc.BodyPartHands].FrostbiteTimer = 96
-
-		updateFrostbiteTimer(bt, gc.BodyPartHands)
-
-		assert.True(t, bt.Parts[gc.BodyPartHands].HasFrostbite)
-	})
+	for _, tt := range tests {
+		t.Run(tt.severity.String(), func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.expected, severityToMultiplier(tt.severity))
+		})
+	}
 }
 
 func TestTemperatureSystem_Update(t *testing.T) {
@@ -218,10 +282,10 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("BodyTemperatureを持つエンティティの体温が更新される", func(t *testing.T) {
+	t.Run("HealthStatusを持つエンティティの状態が更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon.DefinitionName = "亡者の森"
+		world.Resources.Dungeon.DefinitionName = "亡者の森" // 基本気温0度
 
 		// プレイヤーエンティティを作成
 		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
@@ -229,13 +293,13 @@ func TestTemperatureSystem_Update(t *testing.T) {
 
 		sys := &TemperatureSystem{}
 		err = sys.Update(world)
-
 		require.NoError(t, err)
 
-		// 環境気温 = 基本気温(0) + タイル修正(0) + 時間帯修正(0) = 0°C
-		// 収束温度 = 正常体温(50) + (環境気温(0) - 快適温度(20)) * 2 = 10
-		updatedBt := world.Components.BodyTemperature.Get(player).(*gc.BodyTemperature)
-		assert.Equal(t, 10, updatedBt.Parts[gc.BodyPartTorso].Convergent)
+		// 寒い環境なので低体温のタイマーが増加しているはず
+		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		cond := hs.Parts[gc.BodyPartTorso].GetCondition(gc.ConditionHypothermia)
+		require.NotNil(t, cond)
+		assert.Greater(t, cond.Timer, 0.0)
 	})
 
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
@@ -247,15 +311,6 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		err := sys.Update(world)
 
 		assert.NoError(t, err)
-	})
-}
-
-func TestConvergenceRate(t *testing.T) {
-	t.Parallel()
-
-	t.Run("収束レートは約0.03", func(t *testing.T) {
-		t.Parallel()
-		assert.InDelta(t, 0.03, convergenceRate, 0.001)
 	})
 }
 

@@ -50,14 +50,13 @@ type EntitySpec struct {
 	TileTemperature *TileTemperature
 
 	// member ================
-	Player          *Player
-	Hunger          *Hunger
-	Wallet          *Wallet
-	FactionType     *FactionType
-	Dead            *Dead
-	Dialog          *Dialog
-	BodyTemperature *BodyTemperature
-	HealthStatus    *HealthStatus
+	Player       *Player
+	Hunger       *Hunger
+	Wallet       *Wallet
+	FactionType  *FactionType
+	Dead         *Dead
+	Dialog       *Dialog
+	HealthStatus *HealthStatus
 
 	// event ================
 	EquipmentChanged  *EquipmentChanged
@@ -113,17 +112,16 @@ type Components struct {
 	TileTemperature *ecs.SliceComponent
 
 	// member ================
-	Player          *ecs.NullComponent `save:"true"`
-	Hunger          *ecs.SliceComponent
-	Wallet          *ecs.SliceComponent `save:"true"`
-	FactionAlly     *ecs.NullComponent  `save:"true"`
-	FactionEnemy    *ecs.NullComponent
-	FactionNeutral  *ecs.NullComponent `save:"true"`
-	Dialog          *ecs.SliceComponent
-	Dead            *ecs.NullComponent
-	TurnBased       *ecs.SliceComponent `save:"true"`
-	BodyTemperature *ecs.SliceComponent `save:"true"`
-	HealthStatus    *ecs.SliceComponent `save:"true"`
+	Player         *ecs.NullComponent `save:"true"`
+	Hunger         *ecs.SliceComponent
+	Wallet         *ecs.SliceComponent `save:"true"`
+	FactionAlly    *ecs.NullComponent  `save:"true"`
+	FactionEnemy   *ecs.NullComponent
+	FactionNeutral *ecs.NullComponent `save:"true"`
+	Dialog         *ecs.SliceComponent
+	Dead           *ecs.NullComponent
+	TurnBased      *ecs.SliceComponent `save:"true"`
+	HealthStatus   *ecs.SliceComponent `save:"true"`
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent

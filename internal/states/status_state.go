@@ -450,17 +450,6 @@ func (st *StatusState) updateDetailContainer(world w.World, item tabmenu.Item) {
 func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	res := world.Resources.UIResources
 
-	// 体温情報
-	if st.playerEntity.HasComponent(world.Components.BodyTemperature) {
-		bt := world.Components.BodyTemperature.Get(st.playerEntity).(*gc.BodyTemperature)
-		state := bt.Parts[part]
-		level := bt.GetLevel(part)
-
-		st.detailContainer.AddChild(st.newDetailText("体温", res))
-		st.detailContainer.AddChild(st.newDetailRow("現在", fmt.Sprintf("%d (%s)", state.Temp, level.String()), res))
-		st.detailContainer.AddChild(st.newDetailRow("収束先", fmt.Sprintf("%d", state.Convergent), res))
-	}
-
 	// 健康状態
 	if !st.playerEntity.HasComponent(world.Components.HealthStatus) {
 		return
@@ -469,7 +458,6 @@ func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	hs := world.Components.HealthStatus.Get(st.playerEntity).(*gc.HealthStatus)
 	partHealth := hs.Parts[part]
 
-	st.detailContainer.AddChild(st.newDetailText(" ", res))
 	st.detailContainer.AddChild(st.newDetailText("状態", res))
 
 	if len(partHealth.Conditions) == 0 {
@@ -479,7 +467,9 @@ func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 
 	// 各状態とその影響を表示
 	for _, cond := range partHealth.Conditions {
-		st.detailContainer.AddChild(st.newDetailText(cond.DisplayName(), res))
+		// 状態名とタイマー進行度を表示
+		condName := fmt.Sprintf("%s [%.0f%%]", cond.DisplayName(), cond.Timer)
+		st.detailContainer.AddChild(st.newDetailText(condName, res))
 		for _, effect := range cond.Effects {
 			statName := effect.Stat.String()
 			valueStr := fmt.Sprintf("%+d", effect.Value)
