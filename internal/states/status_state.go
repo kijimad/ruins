@@ -9,7 +9,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -64,58 +63,18 @@ func (st *StatusState) OnStart(world w.World) error {
 		return fmt.Errorf("プレイヤーが見つかりません")
 	}
 
-	var err error
-	st.envTemp, err = st.calculateEnvTemp(world)
-	if err != nil {
-		return err
+	// プレイヤー位置の環境気温を計算
+	if st.playerEntity.HasComponent(world.Components.GridElement) {
+		gridElement := world.Components.GridElement.Get(st.playerEntity).(*gc.GridElement)
+		var err error
+		st.envTemp, err = systems.CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
+		if err != nil {
+			return err
+		}
 	}
 	st.ui = st.initUI(world)
 
 	return nil
-}
-
-// calculateEnvTemp は環境気温を計算する
-func (st *StatusState) calculateEnvTemp(world w.World) (int, error) {
-	dungeonRes := world.Resources.Dungeon
-	if dungeonRes == nil {
-		return 0, fmt.Errorf("ダンジョンリソースがありません")
-	}
-
-	def, ok := dungeon.GetDungeon(dungeonRes.DefinitionName)
-	if !ok {
-		return 0, fmt.Errorf("ダンジョン定義が見つかりません: %s", dungeonRes.DefinitionName)
-	}
-
-	baseTemp := def.BaseTemperature
-
-	timeModifier := 0
-	if world.Resources.GameTime != nil {
-		timeModifier = world.Resources.GameTime.GetTemperatureModifier()
-	}
-
-	tileModifier := 0
-	if st.playerEntity.HasComponent(world.Components.GridElement) {
-		gridElement := world.Components.GridElement.Get(st.playerEntity).(*gc.GridElement)
-		tileModifier = st.getTileTemperature(world, gridElement.X, gridElement.Y)
-	}
-
-	return baseTemp + timeModifier + tileModifier, nil
-}
-
-// getTileTemperature はタイルの気温修正値を取得する
-func (st *StatusState) getTileTemperature(world w.World, x, y consts.Tile) int {
-	var modifier int
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.TileTemperature,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		if grid.X == x && grid.Y == y {
-			tileTemp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
-			modifier = tileTemp.Total()
-		}
-	}))
-	return modifier
 }
 
 // OnStop はステートが終了する際に呼ばれる

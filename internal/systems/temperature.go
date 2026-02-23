@@ -39,26 +39,35 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 	return ComfortableTempLower - insulation.Cold, ComfortableTempUpper + insulation.Heat
 }
 
-// Update は健康状態のタイマーを更新する
-func (sys *TemperatureSystem) Update(world w.World) error {
+// CalculateEnvTemperature は指定位置の環境気温を計算する
+// 基本気温 + タイル修正 + 時間帯修正
+func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 	dungeonRes := world.Resources.Dungeon
 	if dungeonRes == nil {
-		return errors.New("ダンジョンリソースが設定されていない")
+		return 0, errors.New("ダンジョンリソースが設定されていない")
 	}
 
-	// ダンジョン定義を取得
 	def, ok := dungeon.GetDungeon(dungeonRes.DefinitionName)
 	if !ok {
-		return nil
+		return 0, nil
 	}
 
-	// 基本環境気温
 	baseTemp := def.BaseTemperature
 
-	// 時間帯による修正
 	timeModifier := 0
 	if world.Resources.GameTime != nil {
 		timeModifier = world.Resources.GameTime.GetTemperatureModifier()
+	}
+
+	tileModifier := getTileTemperatureAt(world, x, y)
+
+	return baseTemp + timeModifier + tileModifier, nil
+}
+
+// Update は健康状態のタイマーを更新する
+func (sys *TemperatureSystem) Update(world w.World) error {
+	if world.Resources.Dungeon == nil {
+		return errors.New("ダンジョンリソースが設定されていない")
 	}
 
 	// HealthStatusとGridElementを持つエンティティを処理
@@ -69,11 +78,11 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		// エンティティの位置のタイル気温修正を取得
-		tileModifier := getTileTemperatureAt(world, gridElement.X, gridElement.Y)
-
-		// 環境気温 = 基本気温 + タイル修正 + 時間帯修正
-		envTemp := baseTemp + tileModifier + timeModifier
+		// 環境気温を計算
+		envTemp, err := CalculateEnvTemperature(world, gridElement.X, gridElement.Y)
+		if err != nil {
+			return
+		}
 
 		// 装備から断熱値を計算する
 		insulation := CalculateEquippedInsulation(world, entity)
