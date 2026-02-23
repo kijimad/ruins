@@ -71,7 +71,6 @@ func processTurnEnd(world w.World) error {
 		&DeadCleanupSystem{},
 		&AutoInteractionSystem{},
 		&TemperatureSystem{},
-		&HealthPenaltySystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {

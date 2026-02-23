@@ -34,9 +34,6 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	temperatureSystem := &TemperatureSystem{}
 	updaters[temperatureSystem.String()] = temperatureSystem
 
-	healthPenaltySystem := &HealthPenaltySystem{}
-	updaters[healthPenaltySystem.String()] = healthPenaltySystem
-
 	// Renderers（描画システム） ================
 	renderSpriteSystem := NewRenderSpriteSystem()
 	renderers[renderSpriteSystem.String()] = renderSpriteSystem

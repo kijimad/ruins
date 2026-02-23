@@ -224,9 +224,6 @@ func (bph *BodyPartHealth) UpdateConditionTimer(condType ConditionType, delta fl
 // HealthStatus は部位ごとの健康状態を管理するコンポーネント
 type HealthStatus struct {
 	Parts [BodyPartCount]BodyPartHealth
-
-	// 前回のステータス修正値のキャッシュ。変化検知に使用する
-	prevModifiers map[StatType]int
 }
 
 // GetStatModifier は指定したステータスへの合計修正値を返す
@@ -242,35 +239,4 @@ func (hs *HealthStatus) GetStatModifier(stat StatType) int {
 		}
 	}
 	return total
-}
-
-// HasModifierChanged は前回からステータス修正値が変化したかを判定し、キャッシュを更新する
-// TODO: もうちょっといい感じに差分判定できないか?
-func (hs *HealthStatus) HasModifierChanged() bool {
-	// 現在の修正値を計算
-	current := map[StatType]int{
-		StatVitality:  hs.GetStatModifier(StatVitality),
-		StatStrength:  hs.GetStatModifier(StatStrength),
-		StatSensation: hs.GetStatModifier(StatSensation),
-		StatDexterity: hs.GetStatModifier(StatDexterity),
-		StatAgility:   hs.GetStatModifier(StatAgility),
-		StatDefense:   hs.GetStatModifier(StatDefense),
-	}
-
-	// 初回または変化があればtrue
-	changed := false
-	if hs.prevModifiers == nil {
-		changed = true
-	} else {
-		for stat, val := range current {
-			if hs.prevModifiers[stat] != val {
-				changed = true
-				break
-			}
-		}
-	}
-
-	// キャッシュを更新
-	hs.prevModifiers = current
-	return changed
 }
