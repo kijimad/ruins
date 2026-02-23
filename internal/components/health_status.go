@@ -27,7 +27,7 @@ func (s Severity) String() string {
 	case SeveritySevere:
 		return "重"
 	default:
-		return ""
+		panic("不正なSeverity値")
 	}
 }
 

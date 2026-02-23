@@ -29,7 +29,7 @@ func (t TimeOfDay) String() string {
 	case TimeMidnight:
 		return "深夜"
 	default:
-		return "不明"
+		panic("不正なTimeOfDay値")
 	}
 }
 

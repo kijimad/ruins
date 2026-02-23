@@ -19,7 +19,6 @@ func TestTimeOfDay_String(t *testing.T) {
 		{TimeEvening, "夕"},
 		{TimeNight, "夜"},
 		{TimeMidnight, "深夜"},
-		{TimeOfDay(99), "不明"},
 	}
 
 	for _, tt := range tests {
@@ -28,6 +27,13 @@ func TestTimeOfDay_String(t *testing.T) {
 			assert.Equal(t, tt.expected, tt.time.String())
 		})
 	}
+
+	t.Run("不正な値でpanicする", func(t *testing.T) {
+		t.Parallel()
+		assert.Panics(t, func() {
+			_ = TimeOfDay(99).String()
+		})
+	})
 }
 
 func TestGameTime_GetTimeOfDay(t *testing.T) {

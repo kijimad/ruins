@@ -197,7 +197,7 @@ func (enum EquipmentType) String() string {
 	case EquipmentJewelry:
 		return "装飾"
 	}
-	panic(fmt.Sprintf("invalid equipment slot type: %s", string(enum)))
+	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
 }
 
 // CoveredBodyParts は装備が保温効果を与える部位のリストを返す
@@ -219,7 +219,7 @@ func (enum EquipmentType) CoveredBodyParts() []BodyPart {
 	case EquipmentJewelry:
 		return []BodyPart{} // 装飾品は保温効果なし
 	default:
-		return []BodyPart{}
+		panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
 	}
 }
 
@@ -264,5 +264,5 @@ func (enum ElementType) String() string {
 	case ElementTypePhoton:
 		return "光"
 	}
-	panic(fmt.Sprintf("invalid element type: %s", string(enum)))
+	panic(fmt.Sprintf("不正なElementType値: %s", string(enum)))
 }

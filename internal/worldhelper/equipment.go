@@ -60,7 +60,7 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 			case gc.SlotJewelry:
 				entities[6] = &entity
 			default:
-				panic(fmt.Sprintf("invalid equipment slot: %v", equipped.EquipmentSlot))
+				panic(fmt.Sprintf("不正な装備スロット: %v", equipped.EquipmentSlot))
 			}
 		}
 	}))

@@ -21,7 +21,6 @@ func TestBodyPart(t *testing.T) {
 			{BodyPartHands, "手"},
 			{BodyPartLegs, "脚"},
 			{BodyPartFeet, "足"},
-			{BodyPart(99), unknownString},
 		}
 
 		for _, tt := range tests {
@@ -30,6 +29,13 @@ func TestBodyPart(t *testing.T) {
 				assert.Equal(t, tt.expected, tt.part.String())
 			})
 		}
+	})
+
+	t.Run("不正な値でpanicする", func(t *testing.T) {
+		t.Parallel()
+		assert.Panics(t, func() {
+			_ = BodyPart(99).String()
+		})
 	})
 
 	t.Run("BodyPartCount is 6", func(t *testing.T) {
@@ -54,7 +60,6 @@ func TestTempLevel(t *testing.T) {
 			{TempLevelHot, "暑い"},
 			{TempLevelVeryHot, "非常に暑い"},
 			{TempLevelScorching, "灼熱"},
-			{TempLevel(99), unknownString},
 		}
 
 		for _, tt := range tests {
@@ -63,6 +68,13 @@ func TestTempLevel(t *testing.T) {
 				assert.Equal(t, tt.expected, tt.level.String())
 			})
 		}
+	})
+
+	t.Run("不正な値でpanicする", func(t *testing.T) {
+		t.Parallel()
+		assert.Panics(t, func() {
+			_ = TempLevel(99).String()
+		})
 	})
 }
 

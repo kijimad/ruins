@@ -411,8 +411,10 @@ func (st *StatusState) getHealthPartDescription(_ w.World, part gc.BodyPart) str
 		return "脚。低体温で敏捷が低下する"
 	case gc.BodyPartFeet:
 		return "足。低体温で敏捷が低下し、凍傷のリスクがある"
+	case gc.BodyPartCount:
+		panic("BodyPartCountは有効な部位ではない")
 	default:
-		return ""
+		panic("不正なBodyPart値")
 	}
 }
 

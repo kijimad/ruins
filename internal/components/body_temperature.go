@@ -33,7 +33,7 @@ func (bp BodyPart) String() string {
 	case BodyPartFeet:
 		return "足"
 	default:
-		return unknownString
+		panic("不正なBodyPart値")
 	}
 }
 
@@ -81,7 +81,7 @@ func (tl TempLevel) String() string {
 	case TempLevelScorching:
 		return "灼熱"
 	default:
-		return unknownString
+		panic("不正なTempLevel値")
 	}
 }
 

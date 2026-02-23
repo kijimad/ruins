@@ -1,5 +1,7 @@
 package mapplanner
 
+import "fmt"
+
 // WallType は壁の種類を表す
 type WallType int
 
@@ -46,6 +48,6 @@ func (wt WallType) String() string {
 	case WallTypeGeneric:
 		return "Generic"
 	default:
-		return "Unknown"
+		panic(fmt.Sprintf("不正なWallType値: %d", int(wt)))
 	}
 }

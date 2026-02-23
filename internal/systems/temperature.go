@@ -405,8 +405,10 @@ func getTempLogMessage(level gc.TempLevel) string {
 		return "とても暑い"
 	case gc.TempLevelScorching:
 		return "焼けつくように暑い"
-	default:
+	case gc.TempLevelNormal:
 		return ""
+	default:
+		panic("不正なTempLevel値")
 	}
 }
 
@@ -435,7 +437,9 @@ func getConvergedLogMessage(level gc.TempLevel) string {
 		return "体が火照っている"
 	case gc.TempLevelScorching:
 		return "体が焼けるように熱い"
-	default:
+	case gc.TempLevelNormal:
 		return ""
+	default:
+		panic("不正なTempLevel値")
 	}
 }
