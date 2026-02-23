@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // Spawn はMetaPlanからレベルを生成する
@@ -25,6 +26,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		x, y := metaPlan.Level.XYTileCoord(i)
 		tileX, tileY := gc.Tile(x), gc.Tile(y)
 
+		var tileEntity ecs.Entity
 		var err error
 
 		// TODO: タイル名直判定だと忘れやすいので直したい
@@ -33,14 +35,14 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			switch tile.Name {
 			case "dirt":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "dirt"))
-				_, err = worldhelper.SpawnTile(world, "dirt", tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, "dirt", tileX, tileY, &index)
 			case "floor":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
-				_, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
 			case "bridge_a", "bridge_b", "bridge_c", "bridge_d":
 				// 橋タイルは通常の床タイルとして生成（見た目は同じ）
 				index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
-				_, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
 			default:
 				// 未知のタイル名はエラーとして処理
 				return resources.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
@@ -50,9 +52,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			switch tile.Name {
 			case "wall":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
-				_, err = worldhelper.SpawnTile(world, "dwall", tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, "dwall", tileX, tileY, &index)
 			case "void":
-				_, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
+				tileEntity, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
 			default:
 				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}
@@ -60,6 +62,13 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
+		}
+
+		// TileRaw の環境情報を TileTemperature に設定する
+		if tileTemp, ok := world.Components.TileTemperature.Get(tileEntity).(*gc.TileTemperature); ok && tileTemp != nil {
+			tileTemp.Shelter = tile.Shelter
+			tileTemp.Water = tile.Water
+			tileTemp.Foliage = tile.Foliage
 		}
 	}
 

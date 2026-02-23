@@ -60,15 +60,18 @@ type EquipmentSlotNumber int
 
 // 装備スロット番号定数
 const (
-	SlotHead    EquipmentSlotNumber = 0 // 頭部防具スロット
-	SlotTorso   EquipmentSlotNumber = 1 // 胴体防具スロット
-	SlotLegs    EquipmentSlotNumber = 2 // 脚部防具スロット
-	SlotJewelry EquipmentSlotNumber = 3 // 装飾品スロット
-	SlotWeapon1 EquipmentSlotNumber = 4 // 武器スロット1
-	SlotWeapon2 EquipmentSlotNumber = 5 // 武器スロット2
-	SlotWeapon3 EquipmentSlotNumber = 6 // 武器スロット3
-	SlotWeapon4 EquipmentSlotNumber = 7 // 武器スロット4
-	SlotWeapon5 EquipmentSlotNumber = 8 // 武器スロット5
+	SlotHead    EquipmentSlotNumber = 0  // 頭部防具スロット
+	SlotTorso   EquipmentSlotNumber = 1  // 胴体防具スロット
+	SlotArms    EquipmentSlotNumber = 2  // 腕部防具スロット
+	SlotHands   EquipmentSlotNumber = 3  // 手部防具スロット
+	SlotLegs    EquipmentSlotNumber = 4  // 脚部防具スロット
+	SlotFeet    EquipmentSlotNumber = 5  // 足部防具スロット
+	SlotJewelry EquipmentSlotNumber = 6  // 装飾品スロット
+	SlotWeapon1 EquipmentSlotNumber = 7  // 武器スロット1
+	SlotWeapon2 EquipmentSlotNumber = 8  // 武器スロット2
+	SlotWeapon3 EquipmentSlotNumber = 9  // 武器スロット3
+	SlotWeapon4 EquipmentSlotNumber = 10 // 武器スロット4
+	SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5
 )
 
 // Amounter は量を計算するためのインターフェース

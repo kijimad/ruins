@@ -355,6 +355,7 @@ func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerCh
 	chain.With(ConvertIsolatedWalls{            // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }
@@ -372,6 +373,7 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

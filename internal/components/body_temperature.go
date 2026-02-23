@@ -96,6 +96,9 @@ type BodyPartState struct {
 // BodyTemperature は部位ごとの体温を管理するコンポーネント
 type BodyTemperature struct {
 	Parts [BodyPartCount]BodyPartState
+
+	// 装備による保温値のキャッシュ。装備変更時に更新される
+	EquippedWarmth [BodyPartCount]int
 }
 
 // NewBodyTemperature は正常体温で初期化された BodyTemperature を作成する

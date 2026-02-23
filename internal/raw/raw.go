@@ -91,6 +91,7 @@ type Attack struct {
 type Wearable struct {
 	Defense           int
 	EquipmentCategory string
+	Warmth            int // 保温値。部位の体温収束先を上昇させる
 }
 
 // EquipBonus は装備ボーナスの設定
@@ -344,6 +345,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 			Defense:           item.Wearable.Defense,
 			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
 			EquipBonus:        bonus,
+			Warmth:            item.Wearable.Warmth,
 		}
 	}
 
@@ -594,6 +596,11 @@ type TileRaw struct {
 	BlockPass    bool // 通行を遮断するか
 	SpriteRender gc.SpriteRender
 	BlockView    bool // 視界を遮断するか
+
+	// 環境情報（EnvironmentPlanner で計算）
+	Shelter gc.ShelterType
+	Water   gc.WaterType
+	Foliage gc.FoliageType
 }
 
 // PropRaw は置物のローデータ定義

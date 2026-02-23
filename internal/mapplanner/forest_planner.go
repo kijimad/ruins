@@ -346,6 +346,7 @@ func NewForestPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain
 	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をfloorに変換
 		ReplacementTile: consts.TileNameFloor,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

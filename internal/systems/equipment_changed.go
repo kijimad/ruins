@@ -48,34 +48,55 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 		}
 
 		// 装備効果を加算
-		{
+		world.Manager.Join(
+			world.Components.ItemLocationEquipped,
+			world.Components.Wearable,
+		).Visit(ecs.Visit(func(item ecs.Entity) {
+			equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+
+			// このエンティティの装備のみ処理
+			if equipped.Owner != entity {
+				return
+			}
+
+			wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+
+			attrs.Defense.Modifier += wearable.Defense
+			attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
+
+			attrs.Vitality.Modifier += wearable.EquipBonus.Vitality
+			attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
+			attrs.Strength.Modifier += wearable.EquipBonus.Strength
+			attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
+			attrs.Sensation.Modifier += wearable.EquipBonus.Sensation
+			attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
+			attrs.Dexterity.Modifier += wearable.EquipBonus.Dexterity
+			attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
+			attrs.Agility.Modifier += wearable.EquipBonus.Agility
+			attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
+		}))
+
+		// 装備保温値を計算してキャッシュ
+		if entity.HasComponent(world.Components.BodyTemperature) {
+			var warmth [gc.BodyPartCount]int
+
 			world.Manager.Join(
 				world.Components.ItemLocationEquipped,
 				world.Components.Wearable,
 			).Visit(ecs.Visit(func(item ecs.Entity) {
 				equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
-
-				// このエンティティの装備のみ処理
 				if equipped.Owner != entity {
 					return
 				}
 
 				wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
-
-				attrs.Defense.Modifier += wearable.Defense
-				attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
-
-				attrs.Vitality.Modifier += wearable.EquipBonus.Vitality
-				attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
-				attrs.Strength.Modifier += wearable.EquipBonus.Strength
-				attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
-				attrs.Sensation.Modifier += wearable.EquipBonus.Sensation
-				attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
-				attrs.Dexterity.Modifier += wearable.EquipBonus.Dexterity
-				attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
-				attrs.Agility.Modifier += wearable.EquipBonus.Agility
-				attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
+				for _, part := range wearable.EquipmentCategory.CoveredBodyParts() {
+					warmth[part] += wearable.Warmth
+				}
 			}))
+
+			bt := world.Components.BodyTemperature.Get(entity).(*gc.BodyTemperature)
+			bt.EquippedWarmth = warmth
 		}
 
 		// Pools（HP/SP）を更新

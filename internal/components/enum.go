@@ -149,6 +149,7 @@ func ParseAttackType(s string) (AttackType, error) {
 // ================
 
 // EquipmentType は装備品種別を表す
+// 6部位（頭・胴体・腕・手・脚・足）と装飾品スロット
 type EquipmentType string
 
 const (
@@ -156,8 +157,14 @@ const (
 	EquipmentHead = EquipmentType("HEAD") // 頭部
 	// EquipmentTorso は胴体装備
 	EquipmentTorso = EquipmentType("TORSO") // 胴体
+	// EquipmentArms は腕装備
+	EquipmentArms = EquipmentType("ARMS") // 腕
+	// EquipmentHands は手装備
+	EquipmentHands = EquipmentType("HANDS") // 手
 	// EquipmentLegs は脚装備
 	EquipmentLegs = EquipmentType("LEGS") // 脚
+	// EquipmentFeet は足装備
+	EquipmentFeet = EquipmentType("FEET") // 足
 	// EquipmentJewelry はアクセサリ装備
 	EquipmentJewelry = EquipmentType("JEWELRY") // アクセサリ
 )
@@ -165,7 +172,8 @@ const (
 // Valid はEquipmentTypeの値が有効かを検証する
 func (enum EquipmentType) Valid() error {
 	switch enum {
-	case EquipmentHead, EquipmentTorso, EquipmentLegs, EquipmentJewelry:
+	case EquipmentHead, EquipmentTorso, EquipmentArms, EquipmentHands,
+		EquipmentLegs, EquipmentFeet, EquipmentJewelry:
 		return nil
 	default:
 		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
@@ -178,12 +186,41 @@ func (enum EquipmentType) String() string {
 		return "頭部"
 	case EquipmentTorso:
 		return "胴体"
+	case EquipmentArms:
+		return "腕部"
+	case EquipmentHands:
+		return "手部"
 	case EquipmentLegs:
 		return "脚部"
+	case EquipmentFeet:
+		return "足部"
 	case EquipmentJewelry:
 		return "装飾"
 	}
 	panic(fmt.Sprintf("invalid equipment slot type: %s", string(enum)))
+}
+
+// CoveredBodyParts は装備が保温効果を与える部位のリストを返す
+// 各装備は対応する1部位のみをカバーする
+func (enum EquipmentType) CoveredBodyParts() []BodyPart {
+	switch enum {
+	case EquipmentHead:
+		return []BodyPart{BodyPartHead}
+	case EquipmentTorso:
+		return []BodyPart{BodyPartTorso}
+	case EquipmentArms:
+		return []BodyPart{BodyPartArms}
+	case EquipmentHands:
+		return []BodyPart{BodyPartHands}
+	case EquipmentLegs:
+		return []BodyPart{BodyPartLegs}
+	case EquipmentFeet:
+		return []BodyPart{BodyPartFeet}
+	case EquipmentJewelry:
+		return []BodyPart{} // 装飾品は保温効果なし
+	default:
+		return []BodyPart{}
+	}
 }
 
 // ================

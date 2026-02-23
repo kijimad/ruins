@@ -271,6 +271,7 @@ func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain,
 	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

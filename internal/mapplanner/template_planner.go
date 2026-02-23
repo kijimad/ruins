@@ -102,6 +102,7 @@ func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, palette *mapte
 	planner := NewTemplatePlanner(template, palette)
 	chain.StartWith(planner)
 	chain.With(planner) // PlanMeta用
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

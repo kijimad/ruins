@@ -46,11 +46,14 @@ func TestGetTileTemperatureAt(t *testing.T) {
 func TestUpdateBodyTemperature(t *testing.T) {
 	t.Parallel()
 
+	// 保温値なしの場合
+	noWarmth := [gc.BodyPartCount]int{}
+
 	t.Run("環境気温20度で正常体温を維持", func(t *testing.T) {
 		t.Parallel()
 		bt := gc.NewBodyTemperature()
 
-		updateBodyTemperature(bt, 20)
+		updateBodyTemperature(bt, 20, noWarmth)
 
 		for i := 0; i < int(gc.BodyPartCount); i++ {
 			assert.Equal(t, gc.TempNormal, bt.Parts[i].Convergent, "収束温度が正常体温でない")
@@ -62,7 +65,7 @@ func TestUpdateBodyTemperature(t *testing.T) {
 		t.Parallel()
 		bt := gc.NewBodyTemperature()
 
-		updateBodyTemperature(bt, 0)
+		updateBodyTemperature(bt, 0, noWarmth)
 
 		// 収束温度 = 50 + (0 - 20) * 2 = 50 - 40 = 10
 		for i := 0; i < int(gc.BodyPartCount); i++ {
@@ -74,7 +77,7 @@ func TestUpdateBodyTemperature(t *testing.T) {
 		t.Parallel()
 		bt := gc.NewBodyTemperature()
 
-		updateBodyTemperature(bt, 40)
+		updateBodyTemperature(bt, 40, noWarmth)
 
 		// 収束温度 = 50 + (40 - 20) * 2 = 50 + 40 = 90
 		for i := 0; i < int(gc.BodyPartCount); i++ {
@@ -87,14 +90,14 @@ func TestUpdateBodyTemperature(t *testing.T) {
 
 		// 非常に寒い環境
 		bt1 := gc.NewBodyTemperature()
-		updateBodyTemperature(bt1, -50)
+		updateBodyTemperature(bt1, -50, noWarmth)
 		for i := 0; i < int(gc.BodyPartCount); i++ {
 			assert.GreaterOrEqual(t, bt1.Parts[i].Convergent, 0, "収束温度が0未満")
 		}
 
 		// 非常に暑い環境
 		bt2 := gc.NewBodyTemperature()
-		updateBodyTemperature(bt2, 100)
+		updateBodyTemperature(bt2, 100, noWarmth)
 		for i := 0; i < int(gc.BodyPartCount); i++ {
 			assert.LessOrEqual(t, bt2.Parts[i].Convergent, 100, "収束温度が100超過")
 		}
@@ -107,10 +110,27 @@ func TestUpdateBodyTemperature(t *testing.T) {
 
 		// 寒い環境で何度か更新
 		for i := 0; i < 10; i++ {
-			updateBodyTemperature(bt, 0)
+			updateBodyTemperature(bt, 0, noWarmth)
 		}
 
 		assert.Less(t, bt.Parts[gc.BodyPartTorso].Temp, initialTemp, "体温が下がっていない")
+	})
+
+	t.Run("装備保温値が収束温度を上げる", func(t *testing.T) {
+		t.Parallel()
+		bt := gc.NewBodyTemperature()
+
+		// 胴体のみ保温値10
+		warmth := [gc.BodyPartCount]int{}
+		warmth[gc.BodyPartTorso] = 10
+
+		// 環境気温0度だが胴体に保温あり
+		updateBodyTemperature(bt, 0, warmth)
+
+		// 収束温度 = 50 + (0 - 20) * 2 + 10 = 50 - 40 + 10 = 20
+		assert.Equal(t, 20, bt.Parts[gc.BodyPartTorso].Convergent, "胴体の収束温度が20でない")
+		// 保温なしの部位は10
+		assert.Equal(t, 10, bt.Parts[gc.BodyPartHead].Convergent, "頭の収束温度が10でない")
 	})
 }
 

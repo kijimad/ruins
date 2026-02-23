@@ -207,7 +207,10 @@ func TestEquipmentType(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, EquipmentType("HEAD"), EquipmentHead, "EquipmentHeadの値が正しくない")
 		assert.Equal(t, EquipmentType("TORSO"), EquipmentTorso, "EquipmentTorsoの値が正しくない")
+		assert.Equal(t, EquipmentType("ARMS"), EquipmentArms, "EquipmentArmsの値が正しくない")
+		assert.Equal(t, EquipmentType("HANDS"), EquipmentHands, "EquipmentHandsの値が正しくない")
 		assert.Equal(t, EquipmentType("LEGS"), EquipmentLegs, "EquipmentLegsの値が正しくない")
+		assert.Equal(t, EquipmentType("FEET"), EquipmentFeet, "EquipmentFeetの値が正しくない")
 		assert.Equal(t, EquipmentType("JEWELRY"), EquipmentJewelry, "EquipmentJewelryの値が正しくない")
 	})
 
@@ -220,7 +223,10 @@ func TestEquipmentType(t *testing.T) {
 		}{
 			{"valid head", EquipmentHead, false},
 			{"valid torso", EquipmentTorso, false},
+			{"valid arms", EquipmentArms, false},
+			{"valid hands", EquipmentHands, false},
 			{"valid legs", EquipmentLegs, false},
+			{"valid feet", EquipmentFeet, false},
 			{"valid jewelry", EquipmentJewelry, false},
 			// 注: invalid typeのテストは、String()メソッドでlog.Fatalが呼ばれるためスキップ
 		}
@@ -247,7 +253,10 @@ func TestEquipmentType(t *testing.T) {
 		}{
 			{EquipmentHead, "頭部"},
 			{EquipmentTorso, "胴体"},
+			{EquipmentArms, "腕部"},
+			{EquipmentHands, "手部"},
 			{EquipmentLegs, "脚部"},
+			{EquipmentFeet, "足部"},
 			{EquipmentJewelry, "装飾"},
 		}
 

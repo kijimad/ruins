@@ -60,7 +60,8 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		// 環境気温 = 基本気温 + タイル修正 + 時間帯修正
 		envTemp := baseTemp + tileModifier + timeModifier
 
-		updateBodyTemperature(bt, envTemp)
+		// 装備の保温値はキャッシュを使用する
+		updateBodyTemperature(bt, envTemp, bt.EquippedWarmth)
 	}))
 
 	return nil
@@ -83,14 +84,15 @@ func getTileTemperatureAt(world w.World, x, y gc.Tile) int {
 }
 
 // updateBodyTemperature は体温を更新する
-func updateBodyTemperature(bt *gc.BodyTemperature, envTemp int) {
+// warmth は部位ごとの装備保温値
+func updateBodyTemperature(bt *gc.BodyTemperature, envTemp int, warmth [gc.BodyPartCount]int) {
 	for i := 0; i < int(gc.BodyPartCount); i++ {
 		part := gc.BodyPart(i)
 		state := &bt.Parts[i]
 
 		// 収束温度を計算
-		// 収束温度 = 50 + (環境気温 - 快適温度) * 2
-		convergent := gc.TempNormal + (envTemp-comfortableTemp)*2
+		// 収束温度 = 50 + (環境気温 - 快適温度) * 2 + 装備保温値
+		convergent := gc.TempNormal + (envTemp-comfortableTemp)*2 + warmth[i]
 		state.Convergent = gc.ClampTemp(convergent)
 
 		// 現在温度を収束温度に近づける
