@@ -20,8 +20,8 @@ const (
 // ========== ゲーム定数 ==========
 
 const (
-	// TileSize はタイルの寸法（ピクセル）
-	TileSize = 32
+	// TileSize はタイルの寸法
+	TileSize Pixel = 32
 	// MapTileWidth はマップの横タイル数
 	MapTileWidth = 50
 	// MapTileHeight はマップの縦タイル数

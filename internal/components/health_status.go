@@ -65,7 +65,7 @@ func (st StatType) String() string {
 // StatEffect はステータスへの1つの影響
 type StatEffect struct {
 	Stat  StatType // 影響を受けるステータス
-	Value int      // 修正値（固定値の場合）
+	Value int      // 修正値
 }
 
 // ConditionType は状態の種類を識別する
