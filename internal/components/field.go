@@ -28,14 +28,14 @@ type GridElement struct {
 
 // Rect は矩形を表す構造体
 type Rect struct {
-	X1 Tile
-	X2 Tile
-	Y1 Tile
-	Y2 Tile
+	X1 consts.Tile
+	X2 consts.Tile
+	Y1 consts.Tile
+	Y2 consts.Tile
 }
 
 // Center は矩形の中心座標を返す
-func (r *Rect) Center() (Tile, Tile) {
+func (r *Rect) Center() (consts.Tile, consts.Tile) {
 	x := (r.X1 + r.X2) / 2
 	y := (r.Y1 + r.Y2) / 2
 	return x, y

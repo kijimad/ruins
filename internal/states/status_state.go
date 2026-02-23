@@ -104,7 +104,7 @@ func (st *StatusState) calculateEnvTemp(world w.World) (int, error) {
 }
 
 // getTileTemperature はタイルの気温修正値を取得する
-func (st *StatusState) getTileTemperature(world w.World, x, y gc.Tile) int {
+func (st *StatusState) getTileTemperature(world w.World, x, y consts.Tile) int {
 	var modifier int
 	world.Manager.Join(
 		world.Components.GridElement,

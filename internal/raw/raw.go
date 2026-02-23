@@ -6,6 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // Master はローデータを管理し、効率的な検索のためのインデックスを提供する
@@ -644,7 +645,7 @@ func (rw *Master) GetTile(name string) (TileRaw, error) {
 
 // NewTileSpec は指定された名前のタイルのEntitySpecを生成する
 // 実際にエンティティを生成する際に使用する
-func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc.EntitySpec, error) {
+func (rw *Master) NewTileSpec(name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {
 	tileRaw, err := rw.GetTile(name)
 	if err != nil {
 		return gc.EntitySpec{}, err

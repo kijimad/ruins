@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"reflect"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -410,9 +411,9 @@ type Prop struct{}
 
 // LightSource は光源コンポーネント
 type LightSource struct {
-	Radius  Tile       // 照明範囲
-	Color   color.RGBA // 光の色
-	Enabled bool       // 有効/無効
+	Radius  consts.Tile // 照明範囲
+	Color   color.RGBA  // 光の色
+	Enabled bool        // 有効/無効
 }
 
 // Door は開閉可能なドアコンポーネント

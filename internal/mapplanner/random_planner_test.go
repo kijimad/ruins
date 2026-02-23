@@ -3,15 +3,14 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/require"
-
-	gc "github.com/kijimaD/ruins/internal/components"
 )
 
 func TestNewRandomPlanner(t *testing.T) {
 	t.Parallel()
 
-	width, height := gc.Tile(20), gc.Tile(20)
+	width, height := consts.Tile(20), consts.Tile(20)
 
 	// 同じシードで複数回実行して同じビルダータイプが選択されることを確認
 	seed := uint64(12345)
@@ -54,7 +53,7 @@ func TestRandomPlannerTypes(t *testing.T) {
 	// 特定のシードで特定のビルダータイプが選ばれることを確認
 	// これによりランダム性が正しく機能していることを検証
 
-	width, height := gc.Tile(20), gc.Tile(20)
+	width, height := consts.Tile(20), consts.Tile(20)
 
 	// 複数のシードでテストして、異なるタイプのビルダーが選ばれることを確認
 	seedResults := make(map[uint64]int) // seed -> 部屋数

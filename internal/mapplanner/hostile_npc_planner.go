@@ -4,7 +4,7 @@ package mapplanner
 import (
 	"log"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -54,8 +54,8 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 	successCount := 0
 
 	for successCount < total && failCount <= maxHostileNPCFailCount {
-		tx := gc.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
-		ty := gc.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
+		tx := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+		ty := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 
 		if !planData.IsSpawnableTile(n.world, tx, ty) {
 			failCount++

@@ -48,32 +48,32 @@ func (d *Dungeon) ConsumeStateChange() StateEvent {
 // TODO: 状態として持たないほうがいいかも
 type Level struct {
 	// 横のタイル数
-	TileWidth gc.Tile
+	TileWidth consts.Tile
 	// 縦のタイル数
-	TileHeight gc.Tile
+	TileHeight consts.Tile
 }
 
 // XYTileIndex はタイル座標から、タイルスライスのインデックスを求める
-func (l *Level) XYTileIndex(tx gc.Tile, ty gc.Tile) TileIdx {
+func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {
 	return TileIdx(int(ty)*int(l.TileWidth) + int(tx))
 }
 
 // XYTileCoord はタイルスライスのインデックスからタイル座標を求める
-func (l *Level) XYTileCoord(idx TileIdx) (gc.Pixel, gc.Pixel) {
+func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {
 	x := int(idx) % int(l.TileWidth)
 	y := int(idx) / int(l.TileWidth)
 
-	return gc.Pixel(x), gc.Pixel(y)
+	return consts.Pixel(x), consts.Pixel(y)
 }
 
 // Width はステージ幅。横の全体ピクセル数
-func (l *Level) Width() gc.Pixel {
-	return gc.Pixel(int(l.TileWidth) * int(consts.TileSize))
+func (l *Level) Width() consts.Pixel {
+	return consts.Pixel(int(l.TileWidth) * int(consts.TileSize))
 }
 
 // Height はステージ縦。縦の全体ピクセル数
-func (l *Level) Height() gc.Pixel {
-	return gc.Pixel(int(l.TileHeight) * int(consts.TileSize))
+func (l *Level) Height() consts.Pixel {
+	return consts.Pixel(int(l.TileHeight) * int(consts.TileSize))
 }
 
 // MinimapSettings はミニマップの設定を管理する

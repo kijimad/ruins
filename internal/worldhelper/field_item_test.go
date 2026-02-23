@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,7 +16,7 @@ func TestSpawnFieldItem(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// フィールドアイテムを生成
-	item, err := SpawnFieldItem(world, "回復薬", gc.Tile(5), gc.Tile(10))
+	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(5), consts.Tile(10))
 	require.NoError(t, err, "SpawnFieldItem should not return error")
 	require.NotNil(t, item, "アイテムエンティティが生成されるべき")
 
@@ -27,8 +28,8 @@ func TestSpawnFieldItem(t *testing.T) {
 	// GridElementコンポーネントの確認
 	require.True(t, item.HasComponent(world.Components.GridElement), "GridElementコンポーネントが必要")
 	gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
-	assert.Equal(t, gc.Tile(5), gridElement.X, "行位置が正しくない")
-	assert.Equal(t, gc.Tile(10), gridElement.Y, "列位置が正しくない")
+	assert.Equal(t, consts.Tile(5), gridElement.X, "行位置が正しくない")
+	assert.Equal(t, consts.Tile(10), gridElement.Y, "列位置が正しくない")
 
 	// SpriteRenderコンポーネントの確認
 	require.True(t, item.HasComponent(world.Components.SpriteRender), "SpriteRenderコンポーネントが必要")
@@ -51,12 +52,12 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 	// 複数のフィールドアイテムを生成
 	items := []struct {
 		itemName string
-		row      gc.Tile
-		col      gc.Tile
+		row      consts.Tile
+		col      consts.Tile
 	}{
-		{"回復薬", gc.Tile(1), gc.Tile(1)},
-		{"手榴弾", gc.Tile(2), gc.Tile(2)},
-		{"ルビー原石", gc.Tile(3), gc.Tile(3)},
+		{"回復薬", consts.Tile(1), consts.Tile(1)},
+		{"手榴弾", consts.Tile(2), consts.Tile(2)},
+		{"ルビー原石", consts.Tile(3), consts.Tile(3)},
 	}
 
 	createdItems := make([]ecs.Entity, 0, len(items))

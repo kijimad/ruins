@@ -148,8 +148,8 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 
 		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
 		pos := &gc.Position{
-			X: gc.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)),
-			Y: gc.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2)),
+			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)),
+			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2)),
 		}
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {
 			// エンティティ情報を追加してエラーを詳細化
@@ -213,8 +213,8 @@ func (sys *RenderSpriteSystem) renderSprites(world w.World, screen *ebiten.Image
 
 		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
 		pos := &gc.Position{
-			X: gc.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: gc.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
+			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
+			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 		}
 		if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {
 			return err

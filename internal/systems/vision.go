@@ -18,8 +18,8 @@ var (
 
 	// プレイヤー位置キャッシュ（4px移動ごとに更新）
 	playerPositionCache struct {
-		lastPlayerX    gc.Pixel
-		lastPlayerY    gc.Pixel
+		lastPlayerX    consts.Pixel
+		lastPlayerY    consts.Pixel
 		visibilityData map[string]TileVisibility
 		isInitialized  bool
 	}
@@ -101,8 +101,8 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 
 	// タイル座標をピクセル座標に変換
 	playerPos := &gc.Position{
-		X: gc.Pixel(int(playerGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-		Y: gc.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
+		X: consts.Pixel(int(playerGridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
+		Y: consts.Pixel(int(playerGridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 	}
 
 	// 移動ごとの視界更新判定（移動ごとに更新）
@@ -119,7 +119,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 
 	if needsUpdate {
 		// タイルの可視性マップを更新
-		visionRadius := gc.Pixel(consts.VisionRadiusTiles * consts.TileSize)
+		visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
 		visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius)
 
 		// 光源情報キャッシュをクリア（更新前）
@@ -130,7 +130,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 			if tileData.Visible {
 				// 光源チェック
 				lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
-				gridElement := gc.GridElement{X: gc.Tile(tileData.Col), Y: gc.Tile(tileData.Row)}
+				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
 
 				// 光源情報をキャッシュに保存
 				lightSourceCache[gridElement] = lightInfo
@@ -162,7 +162,7 @@ type TileVisibility struct {
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius gc.Pixel) map[string]TileVisibility {
+func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius consts.Pixel) map[string]TileVisibility {
 	visibilityMap := make(map[string]TileVisibility)
 
 	// プレイヤーの位置からタイル座標を計算
@@ -293,7 +293,7 @@ func bresenhamLineOfSight(world w.World, x0, y0, x1, y1 int) bool {
 		if x != x1 || y != y1 {
 			tileCenterX := float64(x*int(consts.TileSize) + int(consts.TileSize)/2)
 			tileCenterY := float64(y*int(consts.TileSize) + int(consts.TileSize)/2)
-			if isBlockedByWall(world, gc.Pixel(tileCenterX), gc.Pixel(tileCenterY)) {
+			if isBlockedByWall(world, consts.Pixel(tileCenterX), consts.Pixel(tileCenterY)) {
 				return false // 壁に遮られている
 			}
 		}
@@ -345,7 +345,7 @@ type LightInfo struct {
 // calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する
 // getCachedLightInfo はキャッシュから光源情報を取得する
 func getCachedLightInfo(world w.World, tileX, tileY int) LightInfo {
-	gridElement := gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
+	gridElement := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	if info, exists := lightSourceCache[gridElement]; exists {
 		return info
 	}
@@ -468,7 +468,7 @@ func renderDistanceBasedDarkness(world w.World, screen *ebiten.Image, visibility
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
 		for tileY := startTileY; tileY <= endTileY; tileY++ {
 			tileKey := fmt.Sprintf("%d,%d", tileX, tileY)
-			gridElement := gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
+			gridElement := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 			var lightInfo LightInfo
 
@@ -546,7 +546,7 @@ func GetCurrentVisibilityData() map[string]TileVisibility {
 }
 
 // isBlockedByWall は直接的な壁チェック
-func isBlockedByWall(world w.World, x, y gc.Pixel) bool {
+func isBlockedByWall(world w.World, x, y consts.Pixel) bool {
 	fx, fy := float64(x), float64(y)
 
 	// GridElement + BlockView のチェック（32x32タイル）

@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // RectRoomPlanner は長方形の部屋を作成する
@@ -29,10 +30,10 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 	bottomH := 2 + planData.RNG.IntN(8)
 	bottomX := planData.RNG.IntN(width)
 	rooms = append(rooms, gc.Rect{
-		X1: gc.Tile(bottomX),
-		X2: gc.Tile(min(bottomX+bottomW, width)),
-		Y1: gc.Tile(max(height-bottomH, 0)),
-		Y2: gc.Tile(height),
+		X1: consts.Tile(bottomX),
+		X2: consts.Tile(min(bottomX+bottomW, width)),
+		Y1: consts.Tile(max(height-bottomH, 0)),
+		Y2: consts.Tile(height),
 	})
 
 	// 残りの部屋はランダム配置
@@ -51,9 +52,9 @@ func (b RectRoomPlanner) createRoom(planData *MetaPlan, width, height, y int) gc
 	w := 2 + planData.RNG.IntN(8)
 	h := 2 + planData.RNG.IntN(8)
 	return gc.Rect{
-		X1: gc.Tile(x),
-		X2: gc.Tile(min(x+w, width)),
-		Y1: gc.Tile(max(y, 0)),
-		Y2: gc.Tile(min(y+h, height)),
+		X1: consts.Tile(x),
+		X2: consts.Tile(min(x+w, width)),
+		Y1: consts.Tile(max(y, 0)),
+		Y2: consts.Tile(min(y+h, height)),
 	}
 }

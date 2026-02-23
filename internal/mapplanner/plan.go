@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -58,9 +58,9 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	var chain *PlannerChain
 	var err error
 	if plannerType.Name == PlannerTypeRandom.Name {
-		chain, err = NewRandomPlanner(gc.Tile(width), gc.Tile(height), seed)
+		chain, err = NewRandomPlanner(consts.Tile(width), consts.Tile(height), seed)
 	} else {
-		chain, err = plannerType.PlannerFunc(gc.Tile(width), gc.Tile(height), seed)
+		chain, err = plannerType.PlannerFunc(consts.Tile(width), consts.Tile(height), seed)
 	}
 	if err != nil {
 		return nil, err

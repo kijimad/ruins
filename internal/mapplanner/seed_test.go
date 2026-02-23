@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -14,7 +15,7 @@ func TestSeedReproducibility(t *testing.T) {
 	t.Parallel()
 	// 同じシードで複数回マップを生成して同じ結果になることを確認
 	const testSeed uint64 = 12345
-	width, height := gc.Tile(20), gc.Tile(20)
+	width, height := consts.Tile(20), consts.Tile(20)
 
 	// 1回目の生成
 	chain1, err := NewSmallRoomPlanner(width, height, testSeed)
@@ -62,7 +63,7 @@ func TestSeedReproducibility(t *testing.T) {
 func TestDifferentSeeds(t *testing.T) {
 	t.Parallel()
 	// 異なるシードで異なる結果になることを確認
-	width, height := gc.Tile(20), gc.Tile(20)
+	width, height := consts.Tile(20), consts.Tile(20)
 
 	// シード1で生成
 	chain1, err := NewSmallRoomPlanner(width, height, 11111)

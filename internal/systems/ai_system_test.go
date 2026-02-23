@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/aiinput"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/stretchr/testify/require"
@@ -22,14 +23,14 @@ func TestAISystem(t *testing.T) {
 	// プレイヤーエンティティを作成
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(10), Y: gc.Tile(10)})
+	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(10)})
 
 	// AIエンティティを作成
 	aiEntity := world.Manager.NewEntity()
 	aiEntity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
-	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(5), Y: gc.Tile(5)})
+	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
 	aiEntity.AddComponent(world.Components.AIVision, &gc.AIVision{
-		ViewDistance: gc.Pixel(100), // 3タイル程度の視界
+		ViewDistance: consts.Pixel(100), // 3タイル程度の視界
 		TargetEntity: &player,
 	})
 	aiEntity.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{

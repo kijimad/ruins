@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -100,7 +100,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, err)
 
 		for _, npc := range chain.PlanData.NPCs {
-			tileIdx := chain.PlanData.Level.XYTileIndex(gc.Tile(npc.X), gc.Tile(npc.Y))
+			tileIdx := chain.PlanData.Level.XYTileIndex(consts.Tile(npc.X), consts.Tile(npc.Y))
 			tile := chain.PlanData.Tiles[tileIdx]
 			assert.False(t, tile.BlockPass, "NPC(%d,%d)が壁タイルに配置されている", npc.X, npc.Y)
 		}

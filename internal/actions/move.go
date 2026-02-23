@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -125,8 +126,8 @@ func (ma *MoveActivity) performMove(act *Activity, world w.World) error {
 	grid := gridElement.(*gc.GridElement)
 	oldX, oldY := int(grid.X), int(grid.Y)
 
-	grid.X = gc.Tile(act.Position.X)
-	grid.Y = gc.Tile(act.Position.Y)
+	grid.X = consts.Tile(act.Position.X)
+	grid.Y = consts.Tile(act.Position.Y)
 
 	// TODO: 移動だけでなく、ターンを消費するすべての操作で空腹度を上げる必要がある
 	if act.Actor.HasComponent(world.Components.Player) {

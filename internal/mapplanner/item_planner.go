@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -89,8 +89,8 @@ func (i *ItemPlanner) addItem(planData *MetaPlan, itemName string) error {
 		}
 
 		// ランダムな位置を選択
-		x := gc.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
-		y := gc.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
+		x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+		y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 
 		// スポーン可能な位置かチェック
 		if !i.isValidItemPosition(planData, x, y) {
@@ -109,7 +109,7 @@ func (i *ItemPlanner) addItem(planData *MetaPlan, itemName string) error {
 }
 
 // isValidItemPosition はアイテム配置に適した位置かチェックする
-func (i *ItemPlanner) isValidItemPosition(planData *MetaPlan, x, y gc.Tile) bool {
+func (i *ItemPlanner) isValidItemPosition(planData *MetaPlan, x, y consts.Tile) bool {
 	tileIdx := planData.Level.XYTileIndex(x, y)
 	if int(tileIdx) >= len(planData.Tiles) {
 		return false

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -115,7 +116,7 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) [gc.BodyPartCo
 }
 
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
-func getTileTemperatureAt(world w.World, x, y gc.Tile) int {
+func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	var modifier int
 	world.Manager.Join(
 		world.Components.GridElement,

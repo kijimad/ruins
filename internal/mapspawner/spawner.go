@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -24,7 +25,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	for _i, tile := range metaPlan.Tiles {
 		i := resources.TileIdx(_i)
 		x, y := metaPlan.Level.XYTileCoord(i)
-		tileX, tileY := gc.Tile(x), gc.Tile(y)
+		tileX, tileY := consts.Tile(x), consts.Tile(y)
 
 		var tileEntity ecs.Entity
 		var err error
@@ -99,7 +100,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// アイテムを生成する
 	for _, item := range metaPlan.Items {
-		tileX, tileY := gc.Tile(item.X), gc.Tile(item.Y)
+		tileX, tileY := consts.Tile(item.X), consts.Tile(item.Y)
 		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
@@ -108,7 +109,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// Propsを生成する
 	for _, prop := range metaPlan.Props {
-		tileX, tileY := gc.Tile(prop.X), gc.Tile(prop.Y)
+		tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)
 
 		propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)
 		if err != nil {
@@ -133,7 +134,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// NextPortalsを生成する
 	for _, portal := range metaPlan.NextPortals {
-		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
+		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
 		_, err := worldhelper.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
@@ -142,7 +143,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// EscapePortalsを生成する
 	for _, portal := range metaPlan.EscapePortals {
-		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
+		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
 		_, err := worldhelper.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)

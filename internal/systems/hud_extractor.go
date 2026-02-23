@@ -146,8 +146,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		gridElement := world.Components.GridElement.Get(camEntity).(*gc.GridElement)
 		// GridElementからピクセル座標に変換
 		cameraPos = gc.Position{
-			X: gc.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: gc.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
+			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
+			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 		}
 		camera := world.Components.Camera.Get(camEntity).(*gc.Camera)
 		cameraScale = camera.Scale
