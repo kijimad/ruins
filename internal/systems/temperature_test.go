@@ -232,10 +232,10 @@ func TestTemperatureSystem_Update(t *testing.T) {
 
 		require.NoError(t, err)
 
-		// 環境気温 = 基本気温(10) + タイル修正(0) + 時間帯修正(0) = 10°C
-		// 収束温度 = 正常体温(50) + (環境気温(10) - 快適温度(20)) * 2 = 30
+		// 環境気温 = 基本気温(0) + タイル修正(0) + 時間帯修正(0) = 0°C
+		// 収束温度 = 正常体温(50) + (環境気温(0) - 快適温度(20)) * 2 = 10
 		updatedBt := world.Components.BodyTemperature.Get(player).(*gc.BodyTemperature)
-		assert.Equal(t, 30, updatedBt.Parts[gc.BodyPartTorso].Convergent)
+		assert.Equal(t, 10, updatedBt.Parts[gc.BodyPartTorso].Convergent)
 	})
 
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {

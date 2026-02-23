@@ -16,12 +16,13 @@ import (
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
 	return hud.Data{
-		GameInfo:        extractGameInfo(world),
-		MinimapData:     extractMinimapData(world),
-		DebugOverlay:    extractDebugOverlay(world),
-		MessageData:     extractMessageData(world, gamelog.FieldLog),
-		CurrencyData:    extractCurrencyData(world),
-		WeaponSlotsData: extractWeaponSlotsData(world),
+		GameInfo:         extractGameInfo(world),
+		MinimapData:      extractMinimapData(world),
+		DebugOverlay:     extractDebugOverlay(world),
+		MessageData:      extractMessageData(world, gamelog.FieldLog),
+		CurrencyData:     extractCurrencyData(world),
+		WeaponSlotsData:  extractWeaponSlotsData(world),
+		StatusBadgesData: extractStatusBadgesData(world),
 	}
 }
 
@@ -58,20 +59,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		}
 	}))
 
-	// プレイヤーの空腹度情報を抽出
-	var playerHunger int
-	hungerLevel := gc.HungerNormal // デフォルト値
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.Hunger,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
-			hunger := hungerComponent.(*gc.Hunger)
-			playerHunger = hunger.Current
-			hungerLevel = hunger.GetLevel()
-		}
-	}))
-
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -91,8 +78,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		PlayerMaxEP:       playerMaxEP,
 		PlayerWeight:      playerWeight,
 		PlayerMaxWeight:   playerMaxWeight,
-		PlayerHunger:      playerHunger,
-		HungerLevel:       hungerLevel,
 		MessageAreaHeight: messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
@@ -420,5 +405,94 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		Slots:            slots,
 		SelectedSlot:     selectedSlot,
 		ScreenDimensions: screenDimensions,
+	}
+}
+
+// extractStatusBadgesData はステータスバッジデータを抽出する
+func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
+	var badges []hud.StatusBadge
+
+	// プレイヤーの空腹度を取得
+	world.Manager.Join(
+		world.Components.Player,
+		world.Components.Hunger,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
+			hunger := hungerComponent.(*gc.Hunger)
+			level := hunger.GetLevel()
+			if level != gc.HungerNormal {
+				badges = append(badges, hud.StatusBadge{
+					Text:  level.String(),
+					Color: getHungerBadgeColor(level),
+				})
+			}
+		}
+	}))
+
+	// プレイヤーの体温を取得
+	world.Manager.Join(
+		world.Components.Player,
+		world.Components.BodyTemperature,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if btComponent := world.Components.BodyTemperature.Get(entity); btComponent != nil {
+			bt := btComponent.(*gc.BodyTemperature)
+			level := bt.GetWorstConvergentLevel()
+			if level != gc.TempLevelNormal {
+				badges = append(badges, hud.StatusBadge{
+					Text:  level.String(),
+					Color: getTempBadgeColor(level),
+				})
+			}
+		}
+	}))
+
+	// 画面サイズを取得
+	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
+
+	// メッセージエリアの高さを計算
+	messageAreaConfig := hud.DefaultMessageAreaConfig
+	messageAreaHeight := messageAreaConfig.LogAreaMargin*2 + messageAreaConfig.MaxLogLines*messageAreaConfig.LineHeight + messageAreaConfig.YPadding*2
+
+	return hud.StatusBadgesData{
+		Badges:            badges,
+		MessageAreaHeight: messageAreaHeight,
+		ScreenDimensions: hud.ScreenDimensions{
+			Width:  screenWidth,
+			Height: screenHeight,
+		},
+	}
+}
+
+// getHungerBadgeColor は空腹度に応じたバッジ色を返す
+func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
+	switch level {
+	case gc.HungerSatiated:
+		return color.RGBA{100, 200, 100, 255} // 緑（満腹）
+	case gc.HungerHungry:
+		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
+	case gc.HungerStarving:
+		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
+	default:
+		return color.RGBA{255, 255, 255, 255}
+	}
+}
+
+// getTempBadgeColor は体温レベルに応じたバッジ色を返す
+func getTempBadgeColor(level gc.TempLevel) color.RGBA {
+	switch level {
+	case gc.TempLevelFreezing:
+		return color.RGBA{100, 150, 255, 255} // 濃い青（凍結）
+	case gc.TempLevelVeryCold:
+		return color.RGBA{150, 200, 255, 255} // 青（非常に寒い）
+	case gc.TempLevelCold:
+		return color.RGBA{200, 230, 255, 255} // 水色（寒い）
+	case gc.TempLevelHot:
+		return color.RGBA{255, 200, 100, 255} // オレンジ（暑い）
+	case gc.TempLevelVeryHot:
+		return color.RGBA{255, 150, 50, 255} // 濃いオレンジ（非常に暑い）
+	case gc.TempLevelScorching:
+		return color.RGBA{255, 50, 50, 255} // 赤（灼熱）
+	default:
+		return color.RGBA{255, 255, 255, 255}
 	}
 }

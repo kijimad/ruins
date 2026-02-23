@@ -158,6 +158,54 @@ func (bt *BodyTemperature) GetPenalty(part BodyPart) int {
 	}
 }
 
+// GetWorstConvergentLevel は全部位の収束温度から最悪のレベルを返す
+// 正常から離れているほど悪い
+func (bt *BodyTemperature) GetWorstConvergentLevel() TempLevel {
+	worst := TempLevelNormal
+	worstDistance := 0
+
+	for i := 0; i < int(BodyPartCount); i++ {
+		temp := bt.Parts[i].Convergent
+		var level TempLevel
+		switch {
+		case temp <= TempFreezing:
+			level = TempLevelFreezing
+		case temp <= TempVeryCold:
+			level = TempLevelVeryCold
+		case temp <= TempCold:
+			level = TempLevelCold
+		case temp <= TempHot:
+			level = TempLevelNormal
+		case temp <= TempVeryHot:
+			level = TempLevelHot
+		case temp <= TempScorching:
+			level = TempLevelVeryHot
+		default:
+			level = TempLevelScorching
+		}
+
+		// 正常からの距離を計算
+		distance := 0
+		switch level {
+		case TempLevelFreezing, TempLevelScorching:
+			distance = 3
+		case TempLevelVeryCold, TempLevelVeryHot:
+			distance = 2
+		case TempLevelCold, TempLevelHot:
+			distance = 1
+		case TempLevelNormal:
+			distance = 0
+		}
+
+		if distance > worstDistance {
+			worstDistance = distance
+			worst = level
+		}
+	}
+
+	return worst
+}
+
 // IsExtremity は末端部位かどうかを返す
 // 凍傷は末端部位のみで発症する
 func IsExtremity(part BodyPart) bool {

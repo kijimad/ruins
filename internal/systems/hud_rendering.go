@@ -14,6 +14,7 @@ type HUDRenderingSystem struct {
 	messageArea     *hud.MessageArea
 	currencyDisplay *hud.CurrencyDisplay
 	weaponSlots     *hud.WeaponSlots
+	statusBadges    *hud.StatusBadges
 	enabled         bool
 }
 
@@ -29,6 +30,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
 		weaponSlots:     hud.NewWeaponSlots(smallFace),
+		statusBadges:    hud.NewStatusBadges(smallFace),
 		enabled:         true,
 	}
 }
@@ -97,6 +99,9 @@ func (sys *HUDRenderingSystem) Run(world w.World, screen *ebiten.Image) {
 	}
 	if sys.weaponSlots != nil {
 		sys.weaponSlots.Draw(screen, hudData.WeaponSlotsData, world)
+	}
+	if sys.statusBadges != nil {
+		sys.statusBadges.Draw(screen, hudData.StatusBadgesData)
 	}
 	if sys.gameInfo != nil {
 		sys.gameInfo.Draw(screen, hudData.GameInfo)

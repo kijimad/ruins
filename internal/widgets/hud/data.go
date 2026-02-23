@@ -6,12 +6,13 @@ import (
 
 // Data はすべてのHUDウィジェットが必要とするデータを統合する
 type Data struct {
-	GameInfo        GameInfoData
-	MinimapData     MinimapData
-	DebugOverlay    DebugOverlayData
-	MessageData     MessageData
-	CurrencyData    CurrencyData
-	WeaponSlotsData WeaponSlotsData
+	GameInfo         GameInfoData
+	MinimapData      MinimapData
+	DebugOverlay     DebugOverlayData
+	MessageData      MessageData
+	CurrencyData     CurrencyData
+	WeaponSlotsData  WeaponSlotsData
+	StatusBadgesData StatusBadgesData
 }
 
 // GameInfoData はゲーム基本情報のデータ
@@ -27,8 +28,6 @@ type GameInfoData struct {
 	PlayerMaxEP       int              // プレイヤーの最大EP
 	PlayerWeight      float64          // プレイヤーの現在所持重量（kg）
 	PlayerMaxWeight   float64          // プレイヤーの所持可能重量（kg）
-	PlayerHunger      int              // プレイヤーの空腹度
-	HungerLevel       gc.HungerLevel   // 空腹度のレベル
 	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）
 	ScreenDimensions  ScreenDimensions // 画面サイズ。階層表示位置計算用
 }
