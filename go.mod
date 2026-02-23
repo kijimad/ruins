@@ -4,7 +4,7 @@ go 1.24.6
 
 require (
 	github.com/BurntSushi/toml v1.6.0
-	github.com/caarlos0/env/v11 v11.3.1
+	github.com/caarlos0/env/v11 v11.4.0
 	github.com/ebitenui/ebitenui v0.7.2
 	github.com/hajimehoshi/ebiten/v2 v2.9.8
 	github.com/olekukonko/tablewriter v1.1.3
