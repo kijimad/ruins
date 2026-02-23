@@ -2,10 +2,6 @@ package components
 
 import "github.com/kijimaD/ruins/internal/consts"
 
-// 健康状態システム
-// 部位別健康状態を管理する
-// 低体温、凍傷、食中毒などの状態を部位ごとに追跡し、ステータスへの影響を計算する
-
 // Severity は状態の重症度
 type Severity int
 
