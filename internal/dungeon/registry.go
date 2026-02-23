@@ -10,7 +10,7 @@ var (
 		TotalFloors:     1,
 		EnemyTableName:  "",
 		ItemTableName:   "",
-		BaseTemperature: 20, // 快適な気温
+		BaseTemperature: 10, // やや寒い
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeTown, Weight: 1},
 		},
@@ -22,7 +22,7 @@ var (
 		TotalFloors:     99,
 		EnemyTableName:  "森",
 		ItemTableName:   "森",
-		BaseTemperature: 15,
+		BaseTemperature: 10,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
@@ -34,7 +34,7 @@ var (
 		TotalFloors:     10,
 		EnemyTableName:  "森",
 		ItemTableName:   "森",
-		BaseTemperature: 10, // やや寒い
+		BaseTemperature: 0, // 寒い
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 2},

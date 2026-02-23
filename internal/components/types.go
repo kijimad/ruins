@@ -26,8 +26,8 @@ type TurnBased struct {
 // Attribute は変動するパラメータ値
 type Attribute struct {
 	Base     int // 固有の値
-	Modifier int // 装備などで変動する値
-	Total    int // 足し合わせた現在値。算出される値のメモ
+	Modifier int // 装備や健康状態で変動する値
+	Total    int // 計算した現在値。算出される値のメモ
 }
 
 // TargetType は選択対象

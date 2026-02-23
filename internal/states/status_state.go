@@ -28,12 +28,6 @@ type StatusState struct {
 	playerEntity ecs.Entity
 	envTemp      int
 
-	// 環境気温の内訳
-	baseTemp     int
-	tileModifier int
-	timeModifier int
-	tileTemp     *gc.TileTemperature
-
 	menuView            *tabmenu.View
 	itemDesc            *widget.Text      // 項目の説明（下部に表示）
 	detailContainer     *widget.Container // 詳細表示のコンテナ（右側に表示）
@@ -79,7 +73,7 @@ func (st *StatusState) OnStart(world w.World) error {
 	return nil
 }
 
-// calculateEnvTemp は環境気温を計算し、内訳を保存する
+// calculateEnvTemp は環境気温を計算する
 // TODO: ここに気温の計算ロジックがあるべきではない。計算結果をResourcesにキャッシュしておいたほうがいいかも
 func (st *StatusState) calculateEnvTemp(world w.World) (int, error) {
 	dungeonRes := world.Resources.Dungeon
@@ -92,38 +86,36 @@ func (st *StatusState) calculateEnvTemp(world w.World) (int, error) {
 		return 0, fmt.Errorf("ダンジョン定義が見つかりません: %s", dungeonRes.DefinitionName)
 	}
 
-	st.baseTemp = def.BaseTemperature
+	baseTemp := def.BaseTemperature
 
-	st.timeModifier = 0
+	timeModifier := 0
 	if world.Resources.GameTime != nil {
-		st.timeModifier = world.Resources.GameTime.GetTemperatureModifier()
+		timeModifier = world.Resources.GameTime.GetTemperatureModifier()
 	}
 
-	st.tileModifier = 0
-	st.tileTemp = nil
+	tileModifier := 0
 	if st.playerEntity.HasComponent(world.Components.GridElement) {
 		gridElement := world.Components.GridElement.Get(st.playerEntity).(*gc.GridElement)
-		st.tileModifier, st.tileTemp = st.getTileTemperature(world, gridElement.X, gridElement.Y)
+		tileModifier = st.getTileTemperature(world, gridElement.X, gridElement.Y)
 	}
 
-	return st.baseTemp + st.timeModifier + st.tileModifier, nil
+	return baseTemp + timeModifier + tileModifier, nil
 }
 
-// getTileTemperature はタイルの気温修正と詳細を取得する
-func (st *StatusState) getTileTemperature(world w.World, x, y gc.Tile) (int, *gc.TileTemperature) {
+// getTileTemperature はタイルの気温修正値を取得する
+func (st *StatusState) getTileTemperature(world w.World, x, y gc.Tile) int {
 	var modifier int
-	var tileTemp *gc.TileTemperature
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.TileTemperature,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		if grid.X == x && grid.Y == y {
-			tileTemp = world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
+			tileTemp := world.Components.TileTemperature.Get(entity).(*gc.TileTemperature)
 			modifier = tileTemp.Total()
 		}
 	}))
-	return modifier, tileTemp
+	return modifier
 }
 
 // OnStop はステートが終了する際に呼ばれる
@@ -275,9 +267,9 @@ func (st *StatusState) createTabs(world w.World) []tabmenu.TabItem {
 			Items: st.createAttributeItems(world),
 		},
 		{
-			ID:    "temperature",
-			Label: "体温",
-			Items: st.createTemperatureItems(world),
+			ID:    "health",
+			Label: "健康",
+			Items: st.createHealthItems(world),
 		},
 	}
 }
@@ -335,36 +327,58 @@ func (st *StatusState) createAttributeItems(world w.World) []tabmenu.Item {
 	return items
 }
 
-// createTemperatureItems は体温項目を作成する
-func (st *StatusState) createTemperatureItems(world w.World) []tabmenu.Item {
+// createHealthItems は健康状態項目を作成する
+func (st *StatusState) createHealthItems(world w.World) []tabmenu.Item {
 	items := []tabmenu.Item{}
 
+	// HealthStatus から各部位の状態を取得する
+	var hs *gc.HealthStatus
+	if st.playerEntity.HasComponent(world.Components.HealthStatus) {
+		hs = world.Components.HealthStatus.Get(st.playerEntity).(*gc.HealthStatus)
+	}
+
+	var bt *gc.BodyTemperature
 	if st.playerEntity.HasComponent(world.Components.BodyTemperature) {
-		bt := world.Components.BodyTemperature.Get(st.playerEntity).(*gc.BodyTemperature)
+		bt = world.Components.BodyTemperature.Get(st.playerEntity).(*gc.BodyTemperature)
+	}
 
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			part := gc.BodyPart(i)
-			state := bt.Parts[i]
-			level := bt.GetLevel(part)
+	for i := 0; i < int(gc.BodyPartCount); i++ {
+		part := gc.BodyPart(i)
 
-			arrow := ""
-			if state.Temp < state.Convergent {
-				arrow = "↑"
-			} else if state.Temp > state.Convergent {
-				arrow = "↓"
+		// 状態の文字列を構築
+		conditionStr := ""
+		if hs != nil {
+			conditions := hs.Parts[i].Conditions
+			for j, cond := range conditions {
+				if j > 0 {
+					conditionStr += ", "
+				}
+				conditionStr += cond.DisplayName()
 			}
-
-			frostbite := ""
-			if state.HasFrostbite && gc.IsExtremity(part) {
-				frostbite = "[凍傷]"
-			}
-
-			gauge := st.tempGauge(state.Temp)
-			value := fmt.Sprintf("%s %s%s%s", gauge, level.String(), frostbite, arrow)
-			desc := st.getBodyPartDescription(part, level, state)
-
-			items = append(items, st.newTemperatureItem(part, value, desc))
 		}
+
+		// 体温ゲージ
+		gauge := ""
+		if bt != nil {
+			state := bt.Parts[i]
+			gauge = st.tempGauge(state.Temp)
+
+			// 矢印表示
+			if state.Temp < state.Convergent {
+				gauge += " ↑"
+			} else if state.Temp > state.Convergent {
+				gauge += " ↓"
+			}
+		}
+
+		// 値を構築する。状態がある場合のみ表示する
+		value := gauge
+		if conditionStr != "" {
+			value += " " + conditionStr
+		}
+		desc := st.getHealthPartDescription(world, part)
+
+		items = append(items, st.newHealthItem(part, value, desc))
 	}
 
 	return items
@@ -394,40 +408,6 @@ func (st *StatusState) tempGauge(temp int) string {
 	return gauge
 }
 
-// getBodyPartDescription は部位の説明を返す
-func (st *StatusState) getBodyPartDescription(part gc.BodyPart, level gc.TempLevel, state gc.BodyPartState) string {
-	result := ""
-
-	switch level {
-	case gc.TempLevelFreezing:
-		result = "ペナルティ: -3"
-	case gc.TempLevelVeryCold:
-		result = "ペナルティ: -2"
-	case gc.TempLevelCold:
-		result = "ペナルティ: -1"
-	case gc.TempLevelNormal:
-		// ペナルティなし
-	case gc.TempLevelHot:
-		result = "ペナルティ: -1"
-	case gc.TempLevelVeryHot:
-		result = "ペナルティ: -2"
-	case gc.TempLevelScorching:
-		result = "ペナルティ: -3"
-	}
-
-	if gc.IsExtremity(part) {
-		if result != "" {
-			result += " "
-		}
-		result += fmt.Sprintf("凍傷リスク: %d%%", state.FrostbiteTimer)
-	}
-
-	if result == "" {
-		return " "
-	}
-	return result
-}
-
 // newStatusItem はステータス項目を作成する
 func (st *StatusState) newStatusItem(label, value, description string) tabmenu.Item {
 	return tabmenu.Item{
@@ -443,8 +423,8 @@ func (st *StatusState) newStatusItem(label, value, description string) tabmenu.I
 	}
 }
 
-// newTemperatureItem は体温項目を作成する
-func (st *StatusState) newTemperatureItem(part gc.BodyPart, value, description string) tabmenu.Item {
+// newHealthItem は健康状態項目を作成する
+func (st *StatusState) newHealthItem(part gc.BodyPart, value, description string) tabmenu.Item {
 	return tabmenu.Item{
 		ID:               part.String(),
 		Label:            part.String(),
@@ -453,9 +433,29 @@ func (st *StatusState) newTemperatureItem(part gc.BodyPart, value, description s
 			Label:       part.String(),
 			Value:       value,
 			Description: description,
-			TabID:       "temperature",
+			TabID:       "health",
 			BodyPart:    part,
 		},
+	}
+}
+
+// getHealthPartDescription は部位の説明を返す
+func (st *StatusState) getHealthPartDescription(_ w.World, part gc.BodyPart) string {
+	switch part {
+	case gc.BodyPartTorso:
+		return "胴体。低体温で筋力と体力が低下する"
+	case gc.BodyPartHead:
+		return "頭部。低体温で感覚が低下する"
+	case gc.BodyPartArms:
+		return "腕。低体温で筋力が低下する"
+	case gc.BodyPartHands:
+		return "手。低体温で器用さが低下し、凍傷のリスクがある"
+	case gc.BodyPartLegs:
+		return "脚。低体温で敏捷が低下する"
+	case gc.BodyPartFeet:
+		return "足。低体温で敏捷が低下し、凍傷のリスクがある"
+	default:
+		return ""
 	}
 }
 
@@ -481,67 +481,52 @@ func (st *StatusState) updateDetailContainer(world w.World, item tabmenu.Item) {
 		st.itemDesc.Label = " "
 	}
 
-	// 体温タブの場合は内訳を右側に表示
-	if data.TabID == "temperature" {
-		st.addTemperatureBreakdown(world, data.BodyPart)
+	// タブに応じて右側の内訳を表示
+	if data.TabID == "health" {
+		st.addHealthBreakdown(world, data.BodyPart)
 	}
 }
 
-// addTemperatureBreakdown は体温の内訳を詳細コンテナに追加する
-func (st *StatusState) addTemperatureBreakdown(world w.World, part gc.BodyPart) {
+// addHealthBreakdown は選択中の部位の健康状態を詳細コンテナに追加する
+func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	res := world.Resources.UIResources
 
-	// 区切り線代わりの空行
-	st.detailContainer.AddChild(st.newDetailText(" ", res))
-	st.detailContainer.AddChild(st.newDetailText("環境", res))
-
-	// 気温
-	st.detailContainer.AddChild(st.newDetailRow("気温", fmt.Sprintf("%dC", st.baseTemp), res))
-
-	// タイル修正の内訳
-	if st.tileTemp != nil {
-		if st.tileTemp.Shelter != gc.ShelterNone {
-			shelterLabel := "屋内"
-			if st.tileTemp.Shelter == gc.ShelterPartial {
-				shelterLabel = "半屋外"
-			}
-			st.detailContainer.AddChild(st.newDetailRow(shelterLabel, fmt.Sprintf("%+dC", st.tileTemp.Shelter), res))
-		}
-		if st.tileTemp.Water != gc.WaterNone {
-			waterLabel := "水辺"
-			if st.tileTemp.Water == gc.WaterSubmerged {
-				waterLabel = "水中"
-			}
-			st.detailContainer.AddChild(st.newDetailRow(waterLabel, fmt.Sprintf("%+dC", st.tileTemp.Water), res))
-		}
-		if st.tileTemp.Foliage != gc.FoliageNone {
-			foliageLabel := "草原"
-			if st.tileTemp.Foliage == gc.FoliageForest {
-				foliageLabel = "森"
-			}
-			st.detailContainer.AddChild(st.newDetailRow(foliageLabel, fmt.Sprintf("%+dC", st.tileTemp.Foliage), res))
-		}
-	}
-
-	// 時間帯修正（常に表示）
-	if world.Resources.GameTime != nil {
-		timeLabel := world.Resources.GameTime.GetTimeOfDay().String()
-		st.detailContainer.AddChild(st.newDetailRow(timeLabel, fmt.Sprintf("%+dC", st.timeModifier), res))
-	}
-
-	// 合計環境気温
-	st.detailContainer.AddChild(st.newDetailRow("合計", fmt.Sprintf("%dC", st.envTemp), res))
-
-	// 装備保温値
-	st.detailContainer.AddChild(st.newDetailText(" ", res))
-	st.detailContainer.AddChild(st.newDetailText("装備", res))
-
-	warmth := 0
+	// 体温情報
 	if st.playerEntity.HasComponent(world.Components.BodyTemperature) {
 		bt := world.Components.BodyTemperature.Get(st.playerEntity).(*gc.BodyTemperature)
-		warmth = bt.EquippedWarmth[part]
+		state := bt.Parts[part]
+		level := bt.GetLevel(part)
+
+		st.detailContainer.AddChild(st.newDetailText("体温", res))
+		st.detailContainer.AddChild(st.newDetailRow("現在", fmt.Sprintf("%d (%s)", state.Temp, level.String()), res))
+		st.detailContainer.AddChild(st.newDetailRow("収束先", fmt.Sprintf("%d", state.Convergent), res))
 	}
-	st.detailContainer.AddChild(st.newDetailRow("保温値", fmt.Sprintf("%+d", warmth), res))
+
+	// 健康状態
+	if !st.playerEntity.HasComponent(world.Components.HealthStatus) {
+		return
+	}
+
+	hs := world.Components.HealthStatus.Get(st.playerEntity).(*gc.HealthStatus)
+	partHealth := hs.Parts[part]
+
+	st.detailContainer.AddChild(st.newDetailText(" ", res))
+	st.detailContainer.AddChild(st.newDetailText("状態", res))
+
+	if len(partHealth.Conditions) == 0 {
+		st.detailContainer.AddChild(st.newDetailRow("", "正常", res))
+		return
+	}
+
+	// 各状態とその影響を表示
+	for _, cond := range partHealth.Conditions {
+		st.detailContainer.AddChild(st.newDetailText(cond.DisplayName(), res))
+		for _, effect := range cond.Effects {
+			statName := effect.Stat.String()
+			valueStr := fmt.Sprintf("%+d", effect.Value)
+			st.detailContainer.AddChild(st.newDetailRow(fmt.Sprintf("  %s", statName), valueStr, res))
+		}
+	}
 }
 
 // newDetailText は詳細表示用の明るいテキストを作成する

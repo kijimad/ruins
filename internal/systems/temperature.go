@@ -62,6 +62,12 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		// 装備の保温値はキャッシュを使用する
 		updateBodyTemperature(bt, envTemp, bt.EquippedWarmth)
+
+		// HealthStatus を更新
+		if entity.HasComponent(world.Components.HealthStatus) {
+			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			updateHealthConditionsFromTemperature(bt, hs)
+		}
 	}))
 
 	return nil
@@ -143,4 +149,186 @@ func updateFrostbiteTimer(bt *gc.BodyTemperature, part gc.BodyPart) {
 	if state.FrostbiteTimer >= 100 {
 		state.HasFrostbite = true
 	}
+}
+
+// updateHealthConditionsFromTemperature は体温から健康状態を更新する
+func updateHealthConditionsFromTemperature(bt *gc.BodyTemperature, hs *gc.HealthStatus) {
+	for i := 0; i < int(gc.BodyPartCount); i++ {
+		part := gc.BodyPart(i)
+		level := bt.GetLevel(part)
+		partHealth := &hs.Parts[i]
+
+		// 低体温状態を更新
+		updateHypothermiaCondition(partHealth, part, level)
+
+		// 高体温状態を更新
+		updateHyperthermiaCondition(partHealth, part, level)
+
+		// 凍傷状態を更新（手・足のみ）
+		if gc.IsExtremity(part) {
+			updateFrostbiteCondition(partHealth, part, bt.Parts[i].HasFrostbite)
+		}
+	}
+}
+
+// updateHypothermiaCondition は低体温状態を更新する
+func updateHypothermiaCondition(partHealth *gc.BodyPartHealth, part gc.BodyPart, level gc.TempLevel) {
+	// 正常以上の温度なら低体温を解除
+	if level >= gc.TempLevelNormal {
+		partHealth.RemoveCondition(gc.ConditionHypothermia)
+		return
+	}
+
+	// 重症度を決定
+	var severity gc.Severity
+	switch level {
+	case gc.TempLevelFreezing:
+		severity = gc.SeveritySevere
+	case gc.TempLevelVeryCold:
+		severity = gc.SeverityMedium
+	case gc.TempLevelCold:
+		severity = gc.SeverityMinor
+	default:
+		return
+	}
+
+	// 状態による効果を計算
+	effects := calculateHypothermiaEffects(part, severity)
+
+	partHealth.SetCondition(gc.HealthCondition{
+		Type:     gc.ConditionHypothermia,
+		Severity: severity,
+		Effects:  effects,
+	})
+}
+
+// updateHyperthermiaCondition は高体温状態を更新する
+func updateHyperthermiaCondition(partHealth *gc.BodyPartHealth, part gc.BodyPart, level gc.TempLevel) {
+	// 正常以下の温度なら高体温を解除
+	if level <= gc.TempLevelNormal {
+		partHealth.RemoveCondition(gc.ConditionHyperthermia)
+		return
+	}
+
+	// 重症度を決定
+	var severity gc.Severity
+	switch level {
+	case gc.TempLevelScorching:
+		severity = gc.SeveritySevere
+	case gc.TempLevelVeryHot:
+		severity = gc.SeverityMedium
+	case gc.TempLevelHot:
+		severity = gc.SeverityMinor
+	default:
+		return
+	}
+
+	// 状態による効果を計算
+	effects := calculateHyperthermiaEffects(part, severity)
+
+	partHealth.SetCondition(gc.HealthCondition{
+		Type:     gc.ConditionHyperthermia,
+		Severity: severity,
+		Effects:  effects,
+	})
+}
+
+// updateFrostbiteCondition は凍傷状態を更新する
+func updateFrostbiteCondition(partHealth *gc.BodyPartHealth, part gc.BodyPart, hasFrostbite bool) {
+	if !hasFrostbite {
+		partHealth.RemoveCondition(gc.ConditionFrostbite)
+		return
+	}
+
+	effects := calculateFrostbiteEffects(part)
+
+	partHealth.SetCondition(gc.HealthCondition{
+		Type:     gc.ConditionFrostbite,
+		Severity: gc.SeveritySevere,
+		Effects:  effects,
+	})
+}
+
+// calculateHypothermiaEffects は低体温による効果を計算する
+func calculateHypothermiaEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {
+	// 重症度による倍率
+	multiplier := 1
+	switch severity {
+	case gc.SeveritySevere:
+		multiplier = 3
+	case gc.SeverityMedium:
+		multiplier = 2
+	case gc.SeverityMinor:
+		multiplier = 1
+	case gc.SeverityNone:
+		return nil
+	}
+
+	var effects []gc.StatEffect
+
+	// 部位ごとの効果
+	switch part {
+	case gc.BodyPartTorso:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})
+		effects = append(effects, gc.StatEffect{Stat: gc.StatVitality, Value: -1 * multiplier})
+	case gc.BodyPartHead:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})
+	case gc.BodyPartArms:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})
+	case gc.BodyPartHands:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})
+	case gc.BodyPartLegs:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})
+	case gc.BodyPartFeet:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})
+	case gc.BodyPartCount:
+		// BodyPartCount は列挙の終端を示す定数なので何もしない
+	}
+
+	return effects
+}
+
+// calculateHyperthermiaEffects は高体温による効果を計算する
+func calculateHyperthermiaEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {
+	multiplier := 1
+	switch severity {
+	case gc.SeveritySevere:
+		multiplier = 3
+	case gc.SeverityMedium:
+		multiplier = 2
+	case gc.SeverityMinor:
+		multiplier = 1
+	case gc.SeverityNone:
+		return nil
+	}
+
+	var effects []gc.StatEffect
+
+	// 高体温は主に胴体と頭に影響
+	switch part {
+	case gc.BodyPartTorso:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})
+	case gc.BodyPartHead:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})
+	case gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet, gc.BodyPartCount:
+		// これらの部位は高体温の影響を受けない
+	}
+
+	return effects
+}
+
+// calculateFrostbiteEffects は凍傷による効果を計算する
+func calculateFrostbiteEffects(part gc.BodyPart) []gc.StatEffect {
+	var effects []gc.StatEffect
+
+	switch part {
+	case gc.BodyPartHands:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -2})
+	case gc.BodyPartFeet:
+		effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -2})
+	case gc.BodyPartTorso, gc.BodyPartHead, gc.BodyPartArms, gc.BodyPartLegs, gc.BodyPartCount:
+		// 凍傷は手と足のみに発生する
+	}
+
+	return effects
 }

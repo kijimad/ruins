@@ -62,19 +62,31 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 			wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
 
 			attrs.Defense.Modifier += wearable.Defense
-			attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
-
 			attrs.Vitality.Modifier += wearable.EquipBonus.Vitality
-			attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
 			attrs.Strength.Modifier += wearable.EquipBonus.Strength
-			attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
 			attrs.Sensation.Modifier += wearable.EquipBonus.Sensation
-			attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
 			attrs.Dexterity.Modifier += wearable.EquipBonus.Dexterity
-			attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
 			attrs.Agility.Modifier += wearable.EquipBonus.Agility
-			attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
 		}))
+
+		// 健康ペナルティを加算
+		if entity.HasComponent(world.Components.HealthStatus) {
+			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			attrs.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
+			attrs.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
+			attrs.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
+			attrs.Dexterity.Modifier += hs.GetStatModifier(gc.StatDexterity)
+			attrs.Agility.Modifier += hs.GetStatModifier(gc.StatAgility)
+			attrs.Defense.Modifier += hs.GetStatModifier(gc.StatDefense)
+		}
+
+		// Total を計算
+		attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
+		attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
+		attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
+		attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
+		attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
+		attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
 
 		// 装備保温値を計算してキャッシュ
 		if entity.HasComponent(world.Components.BodyTemperature) {

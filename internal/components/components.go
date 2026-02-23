@@ -57,6 +57,7 @@ type EntitySpec struct {
 	Dead            *Dead
 	Dialog          *Dialog
 	BodyTemperature *BodyTemperature
+	HealthStatus    *HealthStatus
 
 	// event ================
 	EquipmentChanged  *EquipmentChanged
@@ -122,6 +123,7 @@ type Components struct {
 	Dead            *ecs.NullComponent
 	TurnBased       *ecs.SliceComponent `save:"true"`
 	BodyTemperature *ecs.SliceComponent `save:"true"`
+	HealthStatus    *ecs.SliceComponent `save:"true"`
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent
