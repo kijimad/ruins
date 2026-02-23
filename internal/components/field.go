@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // Position はフィールド上に座標をもって存在する
 // スプライトはこの位置に中心を合わせて配置する
 // -----
@@ -8,12 +10,9 @@ package components
 // |   |
 // -----
 type Position struct {
-	X Pixel
-	Y Pixel
+	X consts.Pixel
+	Y consts.Pixel
 }
-
-// Pixel はピクセル単位。計算用にfloat64
-type Pixel float64
 
 // GridElement はフィールド上にグリッドに沿って存在する
 // スプライトはグリッドに沿って配置する
@@ -23,12 +22,9 @@ type Pixel float64
 // |   |
 // -----
 type GridElement struct {
-	X Tile
-	Y Tile
+	X consts.Tile
+	Y consts.Tile
 }
-
-// Tile はタイルの位置。ピクセル数ではない
-type Tile int
 
 // Rect は矩形を表す構造体
 type Rect struct {

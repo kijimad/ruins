@@ -1,5 +1,7 @@
 package components
 
+import "github.com/kijimaD/ruins/internal/consts"
+
 // 健康状態システム
 // 部位別健康状態を管理する
 // 低体温、凍傷、食中毒などの状態を部位ごとに追跡し、ステータスへの影響を計算する
@@ -48,17 +50,17 @@ const (
 func (st StatType) String() string {
 	switch st {
 	case StatVitality:
-		return "体力"
+		return consts.VitalityLabel
 	case StatStrength:
-		return "筋力"
+		return consts.StrengthLabel
 	case StatSensation:
-		return "感覚"
+		return consts.SensationLabel
 	case StatDexterity:
-		return "器用"
+		return consts.DexterityLabel
 	case StatAgility:
-		return "敏捷"
+		return consts.AgilityLabel
 	case StatDefense:
-		return "防御"
+		return consts.DefenseLabel
 	default:
 		return string(st)
 	}
