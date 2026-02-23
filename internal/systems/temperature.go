@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -67,6 +68,19 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		if entity.HasComponent(world.Components.HealthStatus) {
 			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
 			updateHealthConditionsFromTemperature(bt, hs)
+		}
+
+		// プレイヤーの場合、温度レベルが変化したらログ出力
+		if entity.HasComponent(world.Components.Player) {
+			currentLevel := bt.GetWorstConvergentLevel()
+			if currentLevel != bt.PrevWorstLevel {
+				if msg := getTempLogMessage(currentLevel); msg != "" {
+					gamelog.New(gamelog.FieldLog).
+						Warning(msg).
+						Log()
+				}
+				bt.PrevWorstLevel = currentLevel
+			}
 		}
 	}))
 
@@ -331,4 +345,24 @@ func calculateFrostbiteEffects(part gc.BodyPart) []gc.StatEffect {
 	}
 
 	return effects
+}
+
+// getTempLogMessage は温度レベルに応じたログメッセージを返す
+func getTempLogMessage(level gc.TempLevel) string {
+	switch level {
+	case gc.TempLevelFreezing:
+		return "凍えそうだ"
+	case gc.TempLevelVeryCold:
+		return "とても寒い"
+	case gc.TempLevelCold:
+		return "寒い"
+	case gc.TempLevelHot:
+		return "暑い"
+	case gc.TempLevelVeryHot:
+		return "とても暑い"
+	case gc.TempLevelScorching:
+		return "焼けつくように暑い"
+	default:
+		return ""
+	}
 }

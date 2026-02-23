@@ -429,23 +429,6 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 		}
 	}))
 
-	// プレイヤーの体温を取得
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.BodyTemperature,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if btComponent := world.Components.BodyTemperature.Get(entity); btComponent != nil {
-			bt := btComponent.(*gc.BodyTemperature)
-			level := bt.GetWorstConvergentLevel()
-			if level != gc.TempLevelNormal {
-				badges = append(badges, hud.StatusBadge{
-					Text:  level.String(),
-					Color: getTempBadgeColor(level),
-				})
-			}
-		}
-	}))
-
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -472,26 +455,6 @@ func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
 		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
 	case gc.HungerStarving:
 		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
-	default:
-		return color.RGBA{255, 255, 255, 255}
-	}
-}
-
-// getTempBadgeColor は体温レベルに応じたバッジ色を返す
-func getTempBadgeColor(level gc.TempLevel) color.RGBA {
-	switch level {
-	case gc.TempLevelFreezing:
-		return color.RGBA{100, 150, 255, 255} // 濃い青（凍結）
-	case gc.TempLevelVeryCold:
-		return color.RGBA{150, 200, 255, 255} // 青（非常に寒い）
-	case gc.TempLevelCold:
-		return color.RGBA{200, 230, 255, 255} // 水色（寒い）
-	case gc.TempLevelHot:
-		return color.RGBA{255, 200, 100, 255} // オレンジ（暑い）
-	case gc.TempLevelVeryHot:
-		return color.RGBA{255, 150, 50, 255} // 濃いオレンジ（非常に暑い）
-	case gc.TempLevelScorching:
-		return color.RGBA{255, 50, 50, 255} // 赤（灼熱）
 	default:
 		return color.RGBA{255, 255, 255, 255}
 	}

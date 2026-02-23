@@ -99,6 +99,9 @@ type BodyTemperature struct {
 
 	// 装備による保温値のキャッシュ。装備変更時に更新される
 	EquippedWarmth [BodyPartCount]int
+
+	// 前回の最悪レベル。変化時のログ出力用
+	PrevWorstLevel TempLevel
 }
 
 // NewBodyTemperature は正常体温で初期化された BodyTemperature を作成する
