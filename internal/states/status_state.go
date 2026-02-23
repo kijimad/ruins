@@ -337,11 +337,6 @@ func (st *StatusState) createHealthItems(world w.World) []tabmenu.Item {
 		hs = world.Components.HealthStatus.Get(st.playerEntity).(*gc.HealthStatus)
 	}
 
-	var bt *gc.BodyTemperature
-	if st.playerEntity.HasComponent(world.Components.BodyTemperature) {
-		bt = world.Components.BodyTemperature.Get(st.playerEntity).(*gc.BodyTemperature)
-	}
-
 	for i := 0; i < int(gc.BodyPartCount); i++ {
 		part := gc.BodyPart(i)
 
@@ -357,24 +352,10 @@ func (st *StatusState) createHealthItems(world w.World) []tabmenu.Item {
 			}
 		}
 
-		// 体温ゲージ
-		gauge := ""
-		if bt != nil {
-			state := bt.Parts[i]
-			gauge = st.tempGauge(state.Temp)
-
-			// 矢印表示
-			if state.Temp < state.Convergent {
-				gauge += " ↑"
-			} else if state.Temp > state.Convergent {
-				gauge += " ↓"
-			}
-		}
-
-		// 値を構築する。状態がある場合のみ表示する
-		value := gauge
-		if conditionStr != "" {
-			value += " " + conditionStr
+		// 状態がない場合は「正常」と表示
+		value := conditionStr
+		if value == "" {
+			value = "正常"
 		}
 		desc := st.getHealthPartDescription(world, part)
 
@@ -382,30 +363,6 @@ func (st *StatusState) createHealthItems(world w.World) []tabmenu.Item {
 	}
 
 	return items
-}
-
-// tempGauge は温度値をテキストゲージに変換する
-// 0-100の温度を10ブロックのゲージで表現する
-func (st *StatusState) tempGauge(temp int) string {
-	const gaugeWidth = 10
-	filled := temp * gaugeWidth / 100
-	if filled < 0 {
-		filled = 0
-	}
-	if filled > gaugeWidth {
-		filled = gaugeWidth
-	}
-
-	gauge := "["
-	for i := 0; i < gaugeWidth; i++ {
-		if i < filled {
-			gauge += "#"
-		} else {
-			gauge += "-"
-		}
-	}
-	gauge += "]"
-	return gauge
 }
 
 // newStatusItem はステータス項目を作成する

@@ -11,10 +11,16 @@ import (
 )
 
 // TemperatureSystem は体温の更新を行うシステム
-type TemperatureSystem struct{}
+type TemperatureSystem struct {
+	// ログ出力用の状態。プレイヤー専用
+	// 前の状態から変わったかを判定するのに使う
+	prevWorstLevel gc.TempLevel
+	// 収束したか
+	hasConverged bool
+}
 
 // String はシステム名を返す
-func (sys TemperatureSystem) String() string {
+func (sys *TemperatureSystem) String() string {
 	return "TemperatureSystem"
 }
 
@@ -61,8 +67,9 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		// 環境気温 = 基本気温 + タイル修正 + 時間帯修正
 		envTemp := baseTemp + tileModifier + timeModifier
 
-		// 装備の保温値はキャッシュを使用する
-		updateBodyTemperature(bt, envTemp, bt.EquippedWarmth)
+		// 装備から保温値を計算する
+		warmth := calculateEquippedWarmth(world, entity)
+		updateBodyTemperature(bt, envTemp, warmth)
 
 		// HealthStatus を更新
 		if entity.HasComponent(world.Components.HealthStatus) {
@@ -70,21 +77,57 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 			updateHealthConditionsFromTemperature(bt, hs)
 		}
 
-		// プレイヤーの場合、温度レベルが変化したらログ出力
+		// プレイヤーの場合、温度レベルが変化したらログ出力と属性再計算する
 		if entity.HasComponent(world.Components.Player) {
 			currentLevel := bt.GetWorstConvergentLevel()
-			if currentLevel != bt.PrevWorstLevel {
+			if currentLevel != sys.prevWorstLevel {
 				if msg := getTempLogMessage(currentLevel); msg != "" {
 					gamelog.New(gamelog.FieldLog).
 						Warning(msg).
 						Log()
 				}
-				bt.PrevWorstLevel = currentLevel
+				sys.prevWorstLevel = currentLevel
+				sys.hasConverged = false
+
+				// 温度レベル変化時に属性を再計算
+				entity.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+			}
+
+			// 収束温度に達したらメッセージを出力
+			if !sys.hasConverged && isFullyConverged(bt) {
+				if msg := getConvergedLogMessage(currentLevel); msg != "" {
+					gamelog.New(gamelog.FieldLog).
+						Warning(msg).
+						Log()
+				}
+				sys.hasConverged = true
 			}
 		}
 	}))
 
 	return nil
+}
+
+// calculateEquippedWarmth はエンティティの装備から保温値を計算する
+func calculateEquippedWarmth(world w.World, owner ecs.Entity) [gc.BodyPartCount]int {
+	var warmth [gc.BodyPartCount]int
+
+	world.Manager.Join(
+		world.Components.ItemLocationEquipped,
+		world.Components.Wearable,
+	).Visit(ecs.Visit(func(item ecs.Entity) {
+		equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+		if equipped.Owner != owner {
+			return
+		}
+
+		wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+		for _, part := range wearable.EquipmentCategory.CoveredBodyParts() {
+			warmth[part] += wearable.Warmth
+		}
+	}))
+
+	return warmth
 }
 
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
@@ -362,6 +405,36 @@ func getTempLogMessage(level gc.TempLevel) string {
 		return "とても暑い"
 	case gc.TempLevelScorching:
 		return "焼けつくように暑い"
+	default:
+		return ""
+	}
+}
+
+// isFullyConverged は全部位が収束温度に達しているか確認する
+func isFullyConverged(bt *gc.BodyTemperature) bool {
+	for i := 0; i < int(gc.BodyPartCount); i++ {
+		if bt.Parts[i].Temp != bt.Parts[i].Convergent {
+			return false
+		}
+	}
+	return true
+}
+
+// getConvergedLogMessage は収束時のログメッセージを返す
+func getConvergedLogMessage(level gc.TempLevel) string {
+	switch level {
+	case gc.TempLevelFreezing:
+		return "完全に凍えている"
+	case gc.TempLevelVeryCold:
+		return "冷え切っている"
+	case gc.TempLevelCold:
+		return "体が冷えた"
+	case gc.TempLevelHot:
+		return "体が温まった"
+	case gc.TempLevelVeryHot:
+		return "体が火照っている"
+	case gc.TempLevelScorching:
+		return "体が焼けるように熱い"
 	default:
 		return ""
 	}

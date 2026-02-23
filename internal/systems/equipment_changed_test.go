@@ -298,42 +298,4 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 		assert.Greater(t, pools.SP.Max, initialSP, "装備追加でSP.Maxが増加するべき")
 	})
 
-	t.Run("装備変更で保温値キャッシュが更新される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーエンティティを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Attributes, &gc.Attributes{
-			Vitality:  gc.Attribute{Base: 10, Total: 10},
-			Strength:  gc.Attribute{Base: 5, Total: 5},
-			Sensation: gc.Attribute{Base: 5, Total: 5},
-			Dexterity: gc.Attribute{Base: 5, Total: 5},
-			Agility:   gc.Attribute{Base: 5, Total: 5},
-			Defense:   gc.Attribute{Base: 0, Total: 0},
-		})
-		player.AddComponent(world.Components.BodyTemperature, gc.NewBodyTemperature())
-		player.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
-
-		// 装備アイテムを作成（保温値5の胴体装備）
-		armor := world.Manager.NewEntity()
-		armor.AddComponent(world.Components.Item, &gc.Item{})
-		armor.AddComponent(world.Components.Wearable, &gc.Wearable{
-			EquipmentCategory: gc.EquipmentTorso,
-			Warmth:            5,
-		})
-
-		// 装備を装着
-		worldhelper.MoveToEquip(world, armor, player, gc.SlotTorso)
-
-		// EquipmentChangedSystemを実行
-		sys := &EquipmentChangedSystem{}
-		err := sys.Update(world)
-		require.NoError(t, err)
-
-		// 保温値キャッシュが更新されていることを確認
-		bt := world.Components.BodyTemperature.Get(player).(*gc.BodyTemperature)
-		assert.Equal(t, 5, bt.EquippedWarmth[gc.BodyPartTorso], "胴体の保温値が更新されるべき")
-		assert.Equal(t, 0, bt.EquippedWarmth[gc.BodyPartHead], "頭の保温値は0のまま")
-	})
 }
