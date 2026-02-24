@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -43,7 +43,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		x := planData.RNG.IntN(int(planData.Level.TileWidth))
 		y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
-		if planData.IsSpawnableTile(p.world, gc.Tile(x), gc.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
+		if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
 			planData.NextPortals = append(planData.NextPortals, Coord{X: x, Y: y})
 			break
 		}
@@ -58,7 +58,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 			x := planData.RNG.IntN(int(planData.Level.TileWidth))
 			y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
-			if planData.IsSpawnableTile(p.world, gc.Tile(x), gc.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
+			if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
 				planData.EscapePortals = append(planData.EscapePortals, Coord{X: x, Y: y})
 				break
 			}

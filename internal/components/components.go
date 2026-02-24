@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"reflect"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -31,30 +32,32 @@ type EntitySpec struct {
 	ItemLocationType *ItemLocationType
 
 	// field ================
-	AIMoveFSM    *AIMoveFSM
-	AIRoaming    *AIRoaming
-	AIVision     *AIVision
-	AIChasing    *AIChasing
-	Camera       *Camera
-	Position     *Position
-	GridElement  *GridElement
-	SpriteRender *SpriteRender
-	BlockView    *BlockView
-	BlockPass    *BlockPass
-	TurnBased    *TurnBased
-	Prop         *Prop
-	LightSource  *LightSource
-	Door         *Door
-	Interactable *Interactable
-	VisualEffect *VisualEffects
+	AIMoveFSM       *AIMoveFSM
+	AIRoaming       *AIRoaming
+	AIVision        *AIVision
+	AIChasing       *AIChasing
+	Camera          *Camera
+	Position        *Position
+	GridElement     *GridElement
+	SpriteRender    *SpriteRender
+	BlockView       *BlockView
+	BlockPass       *BlockPass
+	TurnBased       *TurnBased
+	Prop            *Prop
+	LightSource     *LightSource
+	Door            *Door
+	Interactable    *Interactable
+	VisualEffect    *VisualEffects
+	TileTemperature *TileTemperature
 
 	// member ================
-	Player      *Player
-	Hunger      *Hunger
-	Wallet      *Wallet
-	FactionType *FactionType
-	Dead        *Dead
-	Dialog      *Dialog
+	Player       *Player
+	Hunger       *Hunger
+	Wallet       *Wallet
+	FactionType  *FactionType
+	Dead         *Dead
+	Dialog       *Dialog
+	HealthStatus *HealthStatus
 
 	// event ================
 	EquipmentChanged  *EquipmentChanged
@@ -92,21 +95,22 @@ type Components struct {
 	ItemLocationOnField          *ecs.NullComponent
 
 	// field ================
-	AIMoveFSM    *ecs.SliceComponent
-	AIRoaming    *ecs.SliceComponent
-	AIVision     *ecs.SliceComponent
-	AIChasing    *ecs.SliceComponent
-	Camera       *ecs.SliceComponent `save:"true"`
-	Position     *ecs.SliceComponent
-	GridElement  *ecs.SliceComponent `save:"true"`
-	SpriteRender *ecs.SliceComponent `save:"true"`
-	BlockView    *ecs.NullComponent
-	BlockPass    *ecs.NullComponent
-	Door         *ecs.SliceComponent
-	Prop         *ecs.NullComponent
-	LightSource  *ecs.SliceComponent `save:"true"`
-	Interactable *ecs.SliceComponent
-	VisualEffect *ecs.SliceComponent
+	AIMoveFSM       *ecs.SliceComponent
+	AIRoaming       *ecs.SliceComponent
+	AIVision        *ecs.SliceComponent
+	AIChasing       *ecs.SliceComponent
+	Camera          *ecs.SliceComponent `save:"true"`
+	Position        *ecs.SliceComponent
+	GridElement     *ecs.SliceComponent `save:"true"`
+	SpriteRender    *ecs.SliceComponent `save:"true"`
+	BlockView       *ecs.NullComponent
+	BlockPass       *ecs.NullComponent
+	Door            *ecs.SliceComponent
+	Prop            *ecs.NullComponent
+	LightSource     *ecs.SliceComponent `save:"true"`
+	Interactable    *ecs.SliceComponent
+	VisualEffect    *ecs.SliceComponent
+	TileTemperature *ecs.SliceComponent
 
 	// member ================
 	Player         *ecs.NullComponent `save:"true"`
@@ -118,6 +122,7 @@ type Components struct {
 	Dialog         *ecs.SliceComponent
 	Dead           *ecs.NullComponent
 	TurnBased      *ecs.SliceComponent `save:"true"`
+	HealthStatus   *ecs.SliceComponent `save:"true"`
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent
@@ -213,6 +218,8 @@ type Wearable struct {
 	Defense           int           // 防御力
 	EquipmentCategory EquipmentType // 装備部位
 	EquipBonus        EquipBonus    // ステータスへのボーナス
+	InsulationCold    int           // 耐寒（快適温度の下限を下げる）
+	InsulationHeat    int           // 耐暑（快適温度の上限を上げる）
 }
 
 // Player は操作対象の主人公キャラクター
@@ -404,9 +411,9 @@ type Prop struct{}
 
 // LightSource は光源コンポーネント
 type LightSource struct {
-	Radius  Tile       // 照明範囲
-	Color   color.RGBA // 光の色
-	Enabled bool       // 有効/無効
+	Radius  consts.Tile // 照明範囲
+	Color   color.RGBA  // 光の色
+	Enabled bool        // 有効/無効
 }
 
 // Door は開閉可能なドアコンポーネント

@@ -6,6 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // Master はローデータを管理し、効率的な検索のためのインデックスを提供する
@@ -91,6 +92,8 @@ type Attack struct {
 type Wearable struct {
 	Defense           int
 	EquipmentCategory string
+	InsulationCold    int // 耐寒。快適温度の下限を下げる
+	InsulationHeat    int // 耐暑。快適温度の上限を上げる
 }
 
 // EquipBonus は装備ボーナスの設定
@@ -344,6 +347,8 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 			Defense:           item.Wearable.Defense,
 			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
 			EquipBonus:        bonus,
+			InsulationCold:    item.Wearable.InsulationCold,
+			InsulationHeat:    item.Wearable.InsulationHeat,
 		}
 	}
 
@@ -594,6 +599,11 @@ type TileRaw struct {
 	BlockPass    bool // 通行を遮断するか
 	SpriteRender gc.SpriteRender
 	BlockView    bool // 視界を遮断するか
+
+	// 環境情報（EnvironmentPlanner で計算）
+	Shelter gc.ShelterType
+	Water   gc.WaterType
+	Foliage gc.FoliageType
 }
 
 // PropRaw は置物のローデータ定義
@@ -635,7 +645,7 @@ func (rw *Master) GetTile(name string) (TileRaw, error) {
 
 // NewTileSpec は指定された名前のタイルのEntitySpecを生成する
 // 実際にエンティティを生成する際に使用する
-func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc.EntitySpec, error) {
+func (rw *Master) NewTileSpec(name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {
 	tileRaw, err := rw.GetTile(name)
 	if err != nil {
 		return gc.EntitySpec{}, err
@@ -663,6 +673,9 @@ func (rw *Master) NewTileSpec(name string, x, y gc.Tile, autoTileIndex *int) (gc
 	if tileRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
 	}
+
+	// タイル種別によらないので、ここでは初期化するだけ
+	entitySpec.TileTemperature = &gc.TileTemperature{}
 
 	return entitySpec, nil
 }

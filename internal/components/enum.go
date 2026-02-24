@@ -10,6 +10,48 @@ var ErrInvalidEnumType = errors.New("enumに無効な値が指定された")
 
 // ================
 
+// BodyPart は体の部位を表す
+type BodyPart int
+
+// 体の部位定数
+const (
+	BodyPartHead  BodyPart = iota // 頭
+	BodyPartTorso                 // 胴体
+	BodyPartArms                  // 腕
+	BodyPartHands                 // 手
+	BodyPartLegs                  // 脚
+	BodyPartFeet                  // 足
+	BodyPartCount                 // 部位数 = 6
+)
+
+// String は部位名を返す
+func (bp BodyPart) String() string {
+	switch bp {
+	case BodyPartHead:
+		return "頭"
+	case BodyPartTorso:
+		return "胴体"
+	case BodyPartArms:
+		return "腕"
+	case BodyPartHands:
+		return "手"
+	case BodyPartLegs:
+		return "脚"
+	case BodyPartFeet:
+		return "足"
+	default:
+		panic("不正なBodyPart値")
+	}
+}
+
+// IsExtremity は末端部位かどうかを返す
+// 凍傷は末端部位のみで発症する
+func IsExtremity(part BodyPart) bool {
+	return part == BodyPartHands || part == BodyPartFeet
+}
+
+// ================
+
 // TargetNumType はターゲット数を表す
 type TargetNumType string
 
@@ -149,6 +191,7 @@ func ParseAttackType(s string) (AttackType, error) {
 // ================
 
 // EquipmentType は装備品種別を表す
+// 6部位（頭・胴体・腕・手・脚・足）と装飾品スロット
 type EquipmentType string
 
 const (
@@ -156,8 +199,14 @@ const (
 	EquipmentHead = EquipmentType("HEAD") // 頭部
 	// EquipmentTorso は胴体装備
 	EquipmentTorso = EquipmentType("TORSO") // 胴体
+	// EquipmentArms は腕装備
+	EquipmentArms = EquipmentType("ARMS") // 腕
+	// EquipmentHands は手装備
+	EquipmentHands = EquipmentType("HANDS") // 手
 	// EquipmentLegs は脚装備
 	EquipmentLegs = EquipmentType("LEGS") // 脚
+	// EquipmentFeet は足装備
+	EquipmentFeet = EquipmentType("FEET") // 足
 	// EquipmentJewelry はアクセサリ装備
 	EquipmentJewelry = EquipmentType("JEWELRY") // アクセサリ
 )
@@ -165,7 +214,8 @@ const (
 // Valid はEquipmentTypeの値が有効かを検証する
 func (enum EquipmentType) Valid() error {
 	switch enum {
-	case EquipmentHead, EquipmentTorso, EquipmentLegs, EquipmentJewelry:
+	case EquipmentHead, EquipmentTorso, EquipmentArms, EquipmentHands,
+		EquipmentLegs, EquipmentFeet, EquipmentJewelry:
 		return nil
 	default:
 		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
@@ -178,12 +228,40 @@ func (enum EquipmentType) String() string {
 		return "頭部"
 	case EquipmentTorso:
 		return "胴体"
+	case EquipmentArms:
+		return "腕部"
+	case EquipmentHands:
+		return "手部"
 	case EquipmentLegs:
 		return "脚部"
+	case EquipmentFeet:
+		return "足部"
 	case EquipmentJewelry:
 		return "装飾"
 	}
-	panic(fmt.Sprintf("invalid equipment slot type: %s", string(enum)))
+	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
+}
+
+// CoveredBodyPart は装備が保温効果を与える部位を返す
+func (enum EquipmentType) CoveredBodyPart() (part BodyPart, ok bool) {
+	switch enum {
+	case EquipmentHead:
+		return BodyPartHead, true
+	case EquipmentTorso:
+		return BodyPartTorso, true
+	case EquipmentArms:
+		return BodyPartArms, true
+	case EquipmentHands:
+		return BodyPartHands, true
+	case EquipmentLegs:
+		return BodyPartLegs, true
+	case EquipmentFeet:
+		return BodyPartFeet, true
+	case EquipmentJewelry:
+		return 0, false
+	default:
+		panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
+	}
 }
 
 // ================
@@ -227,5 +305,5 @@ func (enum ElementType) String() string {
 	case ElementTypePhoton:
 		return "光"
 	}
-	panic(fmt.Sprintf("invalid element type: %s", string(enum)))
+	panic(fmt.Sprintf("不正なElementType値: %s", string(enum)))
 }

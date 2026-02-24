@@ -16,12 +16,13 @@ import (
 // ExtractHUDData はworldから全てのHUDデータを抽出する
 func ExtractHUDData(world w.World) hud.Data {
 	return hud.Data{
-		GameInfo:        extractGameInfo(world),
-		MinimapData:     extractMinimapData(world),
-		DebugOverlay:    extractDebugOverlay(world),
-		MessageData:     extractMessageData(world, gamelog.FieldLog),
-		CurrencyData:    extractCurrencyData(world),
-		WeaponSlotsData: extractWeaponSlotsData(world),
+		GameInfo:         extractGameInfo(world),
+		MinimapData:      extractMinimapData(world),
+		DebugOverlay:     extractDebugOverlay(world),
+		MessageData:      extractMessageData(world, gamelog.FieldLog),
+		CurrencyData:     extractCurrencyData(world),
+		WeaponSlotsData:  extractWeaponSlotsData(world),
+		StatusBadgesData: extractStatusBadgesData(world),
 	}
 }
 
@@ -58,20 +59,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		}
 	}))
 
-	// プレイヤーの空腹度情報を抽出
-	var playerHunger int
-	hungerLevel := gc.HungerNormal // デフォルト値
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.Hunger,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
-			hunger := hungerComponent.(*gc.Hunger)
-			playerHunger = hunger.Current
-			hungerLevel = hunger.GetLevel()
-		}
-	}))
-
 	// 画面サイズを取得
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
@@ -91,8 +78,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		PlayerMaxEP:       playerMaxEP,
 		PlayerWeight:      playerWeight,
 		PlayerMaxWeight:   playerMaxWeight,
-		PlayerHunger:      playerHunger,
-		HungerLevel:       hungerLevel,
 		MessageAreaHeight: messageAreaHeight,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
@@ -161,8 +146,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		gridElement := world.Components.GridElement.Get(camEntity).(*gc.GridElement)
 		// GridElementからピクセル座標に変換
 		cameraPos = gc.Position{
-			X: gc.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
-			Y: gc.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
+			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
+			Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),
 		}
 		camera := world.Components.Camera.Get(camEntity).(*gc.Camera)
 		cameraScale = camera.Scale
@@ -420,5 +405,57 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		Slots:            slots,
 		SelectedSlot:     selectedSlot,
 		ScreenDimensions: screenDimensions,
+	}
+}
+
+// extractStatusBadgesData はステータスバッジデータを抽出する
+func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
+	var badges []hud.StatusBadge
+
+	// プレイヤーの空腹度を取得
+	world.Manager.Join(
+		world.Components.Player,
+		world.Components.Hunger,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if hungerComponent := world.Components.Hunger.Get(entity); hungerComponent != nil {
+			hunger := hungerComponent.(*gc.Hunger)
+			level := hunger.GetLevel()
+			if level != gc.HungerNormal {
+				badges = append(badges, hud.StatusBadge{
+					Text:  level.String(),
+					Color: getHungerBadgeColor(level),
+				})
+			}
+		}
+	}))
+
+	// 画面サイズを取得
+	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
+
+	// メッセージエリアの高さを計算
+	messageAreaConfig := hud.DefaultMessageAreaConfig
+	messageAreaHeight := messageAreaConfig.LogAreaMargin*2 + messageAreaConfig.MaxLogLines*messageAreaConfig.LineHeight + messageAreaConfig.YPadding*2
+
+	return hud.StatusBadgesData{
+		Badges:            badges,
+		MessageAreaHeight: messageAreaHeight,
+		ScreenDimensions: hud.ScreenDimensions{
+			Width:  screenWidth,
+			Height: screenHeight,
+		},
+	}
+}
+
+// getHungerBadgeColor は空腹度に応じたバッジ色を返す
+func getHungerBadgeColor(level gc.HungerLevel) color.RGBA {
+	switch level {
+	case gc.HungerSatiated:
+		return color.RGBA{100, 200, 100, 255} // 緑（満腹）
+	case gc.HungerHungry:
+		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
+	case gc.HungerStarving:
+		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
+	default:
+		return color.RGBA{255, 255, 255, 255}
 	}
 }

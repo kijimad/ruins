@@ -1,6 +1,7 @@
 package components
 
 import (
+	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -24,7 +25,7 @@ const (
 // AIVision はAIの視界システム
 type AIVision struct {
 	// ViewDistance は視界距離（ピクセル単位）
-	ViewDistance Pixel
+	ViewDistance consts.Pixel
 	// TargetEntity は追跡対象のエンティティ（プレイヤーなど）
 	TargetEntity *ecs.Entity
 }

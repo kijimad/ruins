@@ -3,9 +3,9 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/require"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,8 +14,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 
 	t.Run("SmallRoomPlannerが正常に作成される", func(t *testing.T) {
 		t.Parallel()
-		width := gc.Tile(20)
-		height := gc.Tile(20)
+		width := consts.Tile(20)
+		height := consts.Tile(20)
 
 		chain, err := NewSmallRoomPlanner(width, height, 12345)
 		require.NoError(t, err)
@@ -27,8 +27,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 
 	t.Run("SmallRoomPlannerでマップを生成", func(t *testing.T) {
 		t.Parallel()
-		width := gc.Tile(30)
-		height := gc.Tile(30)
+		width := consts.Tile(30)
+		height := consts.Tile(30)
 
 		chain, err := NewSmallRoomPlanner(width, height, 12345)
 		require.NoError(t, err)
@@ -67,8 +67,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 
 	t.Run("生成された部屋が有効な範囲内にある", func(t *testing.T) {
 		t.Parallel()
-		width := gc.Tile(25)
-		height := gc.Tile(25)
+		width := consts.Tile(25)
+		height := consts.Tile(25)
 
 		chain, err := NewSmallRoomPlanner(width, height, 12345)
 		require.NoError(t, err)
@@ -95,8 +95,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 
 	t.Run("生成された部屋の内部が床タイルになっている", func(t *testing.T) {
 		t.Parallel()
-		width := gc.Tile(20)
-		height := gc.Tile(20)
+		width := consts.Tile(20)
+		height := consts.Tile(20)
 
 		chain, err := NewSmallRoomPlanner(width, height, 12345)
 		require.NoError(t, err)
@@ -126,8 +126,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 		t.Parallel()
 		testCases := []struct {
 			name   string
-			width  gc.Tile
-			height gc.Tile
+			width  consts.Tile
+			height consts.Tile
 		}{
 			{"小さいマップ", 10, 10},
 			{"中サイズマップ", 30, 30},
@@ -181,8 +181,8 @@ func TestSmallRoomPlanner(t *testing.T) {
 
 	t.Run("廊下が生成されている", func(t *testing.T) {
 		t.Parallel()
-		width := gc.Tile(30)
-		height := gc.Tile(30)
+		width := consts.Tile(30)
+		height := consts.Tile(30)
 
 		chain, err := NewSmallRoomPlanner(width, height, 12345)
 		require.NoError(t, err)

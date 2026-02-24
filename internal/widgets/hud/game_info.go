@@ -7,7 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -52,9 +51,6 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 
 	// 残りアクションポイント
 	drawOutlinedText(screen, fmt.Sprintf("AP: %d", data.PlayerMoves), info.bodyFace, 0, 170, color.White)
-
-	// ステータス表示（左下）
-	info.drawStatusEffects(screen, data)
 
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(screen, data)
@@ -234,87 +230,6 @@ func (info *GameInfo) drawElectricityBar(screen *ebiten.Image, currentEP, maxEP 
 	textX := float64(gageX) + float64(width)/2 - textWidth/2
 	textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
 	drawOutlinedText(screen, epText, info.bodyFace, textX, textY, color.White)
-}
-
-// drawStatusEffects はプレイヤーのステータス効果を左下に縦に並べて描画する
-func (info *GameInfo) drawStatusEffects(screen *ebiten.Image, data GameInfoData) {
-	const (
-		marginLeft   = 10.0 // 左マージン
-		marginBottom = 10.0 // 下マージン
-		lineHeight   = 20.0 // 行の高さ
-	)
-
-	// ステータス一覧を下から積み上げるように描画
-	var statuses []statusDisplay
-
-	// 空腹度をステータスとして追加（普通以外の場合のみ表示）
-	if data.HungerLevel != gc.HungerNormal {
-		statusColor := getHungerColor(data.HungerLevel)
-		statuses = append(statuses, statusDisplay{
-			text:  data.HungerLevel.String(),
-			color: statusColor,
-		})
-	}
-
-	// TODO(kijima): 将来的に他のステータスもここに追加する
-	// 例: 濡れ、重い、など
-
-	// メッセージエリアの高さを計算（message_area.goと同じ計算式）
-	messageAreaHeight := float64(data.MessageAreaHeight)
-
-	// メッセージエリアの上に表示するため、その分だけ上にオフセット
-	screenHeight := float64(data.ScreenDimensions.Height)
-	baseY := screenHeight - messageAreaHeight - marginBottom
-
-	// 下から上に向かって描画
-	for i, status := range statuses {
-		// テキストサイズを測定
-		textWidth, _ := text.Measure(status.text, info.bodyFace, 0)
-
-		// 背景矩形のパディング
-		paddingX := 4.0
-		paddingY := 4.0
-
-		// フォントサイズ16の実際の描画高さ
-		textHeight := 16.0
-
-		// 背景矩形の高さ（パディングを含む）
-		bgHeight := float32(textHeight + paddingY*2)
-
-		// 背景矩形のY位置（下から積み上げる）
-		bgY := float32(baseY - float64(i+1)*lineHeight)
-
-		// テキストのY位置（背景矩形の中央に配置）
-		textY := float64(bgY) + paddingY
-
-		// 背景矩形を描画
-		bgX := float32(marginLeft - paddingX)
-		bgWidth := float32(textWidth + paddingX*2)
-		vector.FillRect(screen, bgX, bgY, bgWidth, bgHeight, status.color, false)
-
-		// 白文字でテキストを描画
-		drawOutlinedText(screen, status.text, info.bodyFace, marginLeft, textY, color.White)
-	}
-}
-
-// statusDisplay はステータス表示の情報
-type statusDisplay struct {
-	text  string
-	color color.RGBA
-}
-
-// getHungerColor は空腹度に応じた色を返す
-func getHungerColor(hungerLevel gc.HungerLevel) color.RGBA {
-	switch hungerLevel {
-	case gc.HungerSatiated:
-		return color.RGBA{100, 200, 100, 255} // 緑（満腹）
-	case gc.HungerHungry:
-		return color.RGBA{255, 200, 0, 255} // 黄色（空腹）
-	case gc.HungerStarving:
-		return color.RGBA{255, 50, 50, 255} // 赤（飢餓）
-	default:
-		return color.RGBA{255, 255, 255, 255} // 白（通常）
-	}
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する

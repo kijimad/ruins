@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -262,7 +263,7 @@ func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {
 
 		assert.Equal(t, "character", effect.SpriteSheetName)
 		assert.Equal(t, "slime_0", effect.SpriteKey)
-		assert.Equal(t, gc.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
-		assert.Equal(t, gc.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
+		assert.Equal(t, consts.Tile(5), ge.X, "エフェクトは敵の位置に生成されるべき")
+		assert.Equal(t, consts.Tile(5), ge.Y, "エフェクトは敵の位置に生成されるべき")
 	}))
 }

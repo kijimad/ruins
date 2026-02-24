@@ -21,6 +21,13 @@ func NewDungeonMenuState() es.State[w.World] {
 	persistentState := NewPersistentMessageState(nil)
 
 	persistentState.messageData = messagedata.NewSystemMessage("").
+		WithChoice("状態", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewStatusState},
+			})
+			return nil
+		}).
 		WithChoice("所持", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,

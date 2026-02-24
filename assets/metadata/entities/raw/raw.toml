@@ -512,6 +512,8 @@
   [Items.Wearable]
     Defense           = 4
     EquipmentCategory = "HEAD"
+    InsulationCold    = 3
+    InsulationHeat    = 0
 
   [Items.EquipBonus]
     Agility  = -2
@@ -528,6 +530,8 @@
   [Items.Wearable]
     Defense           = 8
     EquipmentCategory = "TORSO"
+    InsulationCold    = 8
+    InsulationHeat    = -4
 
   [Items.EquipBonus]
     Agility = -4
@@ -542,7 +546,9 @@
 
   [Items.Wearable]
     Defense           = 3
-    EquipmentCategory = "LEGS"
+    EquipmentCategory = "FEET"
+    InsulationCold    = 5
+    InsulationHeat    = 2
 
   [Items.EquipBonus]
     Agility = -2
@@ -558,6 +564,8 @@
   [Items.Wearable]
     Defense           = 1
     EquipmentCategory = "JEWELRY"
+    InsulationCold    = 0
+    InsulationHeat    = 0
 
   [Items.EquipBonus]
     Agility   = 1
@@ -577,6 +585,8 @@
   [Items.Wearable]
     Defense           = 3
     EquipmentCategory = "HEAD"
+    InsulationCold    = 4
+    InsulationHeat    = 2
 
   [Items.EquipBonus]
     Agility   = 1
@@ -593,6 +603,8 @@
   [Items.Wearable]
     Defense           = 6
     EquipmentCategory = "HEAD"
+    InsulationCold    = 5
+    InsulationHeat    = -3
 
   [Items.EquipBonus]
     Agility  = -3
@@ -609,6 +621,8 @@
   [Items.Wearable]
     Defense           = 2
     EquipmentCategory = "HEAD"
+    InsulationCold    = 2
+    InsulationHeat    = 2
 
   [Items.EquipBonus]
     Sensation = 5
@@ -625,6 +639,8 @@
   [Items.Wearable]
     Defense           = 1
     EquipmentCategory = "HEAD"
+    InsulationCold    = 3
+    InsulationHeat    = 3
 
   [Items.EquipBonus]
     Agility   = 4
@@ -641,6 +657,8 @@
   [Items.Wearable]
     Defense           = 5
     EquipmentCategory = "TORSO"
+    InsulationCold    = 4
+    InsulationHeat    = -2
 
   [Items.EquipBonus]
     Agility  = -1
@@ -657,6 +675,8 @@
   [Items.Wearable]
     Defense           = 4
     EquipmentCategory = "TORSO"
+    InsulationCold    = 6
+    InsulationHeat    = 2
 
   [Items.EquipBonus]
     Agility   = 2
@@ -673,6 +693,8 @@
   [Items.Wearable]
     Defense           = 12
     EquipmentCategory = "TORSO"
+    InsulationCold    = 10
+    InsulationHeat    = -6
 
   [Items.EquipBonus]
     Agility  = -5
@@ -690,6 +712,8 @@
   [Items.Wearable]
     Defense           = 3
     EquipmentCategory = "TORSO"
+    InsulationCold    = 5
+    InsulationHeat    = 3
 
   [Items.EquipBonus]
     Dexterity = 2
@@ -706,6 +730,8 @@
   [Items.Wearable]
     Defense           = 2
     EquipmentCategory = "TORSO"
+    InsulationCold    = 4
+    InsulationHeat    = 4
 
   [Items.EquipBonus]
     Agility   = 6
@@ -722,6 +748,8 @@
   [Items.Wearable]
     Defense           = 4
     EquipmentCategory = "LEGS"
+    InsulationCold    = 3
+    InsulationHeat    = -2
 
   [Items.EquipBonus]
     Agility  = -2
@@ -738,6 +766,8 @@
   [Items.Wearable]
     Defense           = 2
     EquipmentCategory = "LEGS"
+    InsulationCold    = 4
+    InsulationHeat    = 2
 
   [Items.EquipBonus]
     Agility   = 3
@@ -754,6 +784,8 @@
   [Items.Wearable]
     Defense           = 7
     EquipmentCategory = "LEGS"
+    InsulationCold    = 6
+    InsulationHeat    = -4
 
   [Items.EquipBonus]
     Agility  = -4
@@ -770,6 +802,8 @@
   [Items.Wearable]
     Defense           = 0
     EquipmentCategory = "JEWELRY"
+    InsulationCold    = 0
+    InsulationHeat    = 0
 
   [Items.EquipBonus]
     Strength = 3
@@ -786,11 +820,140 @@
   [Items.Wearable]
     Defense           = 1
     EquipmentCategory = "JEWELRY"
+    InsulationCold    = 0
+    InsulationHeat    = 0
 
   [Items.EquipBonus]
     Agility  = 1
     Strength = 2
     Vitality = 2
+
+    # 腕装備 ================
+
+[[Items]]
+  Description     = "革製の腕当て。動きやすさを重視した設計"
+  Name            = "革の腕当て"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 100
+  Weight          = 0.5
+
+  [Items.Wearable]
+    Defense           = 2
+    EquipmentCategory = "ARMS"
+    InsulationCold    = 3
+    InsulationHeat    = 2
+
+  [Items.EquipBonus]
+    Agility = 1
+
+[[Items]]
+  Description     = "鉄製の腕甲。重いが防御力が高い"
+  Name            = "鉄の腕甲"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 180
+  Weight          = 2.0
+
+  [Items.Wearable]
+    Defense           = 4
+    EquipmentCategory = "ARMS"
+    InsulationCold    = 4
+    InsulationHeat    = -2
+
+  [Items.EquipBonus]
+    Agility  = -1
+    Vitality = 1
+
+    # 手装備 ================
+
+[[Items]]
+  Description     = "革製の手袋。作業にも戦闘にも使える"
+  Name            = "革の手袋"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 80
+  Weight          = 0.2
+
+  [Items.Wearable]
+    Defense           = 1
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 4
+    InsulationHeat    = 2
+
+  [Items.EquipBonus]
+    Dexterity = 1
+
+[[Items]]
+  Description     = "厚手の防寒手袋。保温性に優れる"
+  Name            = "防寒手袋"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 120
+  Weight          = 0.3
+
+  [Items.Wearable]
+    Defense           = 1
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 8
+    InsulationHeat    = -2
+
+  [Items.EquipBonus]
+    Dexterity = -1
+
+[[Items]]
+  Description     = "金属製の篭手。指先の自由度は低いが堅牢"
+  Name            = "鉄の篭手"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 200
+  Weight          = 1.5
+
+  [Items.Wearable]
+    Defense           = 3
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 5
+    InsulationHeat    = -2
+
+  [Items.EquipBonus]
+    Dexterity = -2
+    Strength  = 1
+
+    # 足装備（追加） ================
+
+[[Items]]
+  Description     = "鉄で補強された重厚なブーツ"
+  Name            = "鉄のブーツ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 180
+  Weight          = 2.5
+
+  [Items.Wearable]
+    Defense           = 4
+    EquipmentCategory = "FEET"
+    InsulationCold    = 4
+    InsulationHeat    = -2
+
+  [Items.EquipBonus]
+    Agility = -2
+
+[[Items]]
+  Description     = "裏地に毛皮を使用した防寒ブーツ"
+  Name            = "防寒ブーツ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 160
+  Weight          = 1.2
+
+  [Items.Wearable]
+    Defense           = 2
+    EquipmentCategory = "FEET"
+    InsulationCold    = 10
+    InsulationHeat    = -4
+
+  [Items.EquipBonus]
+    Agility = -1
 
     # material ================
 

@@ -22,7 +22,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	// W F F F F F W
 	// W F F F F F W
 	// W W W W W W W
-	width, height := gc.Tile(7), gc.Tile(7)
+	width, height := consts.Tile(7), consts.Tile(7)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,
@@ -42,7 +42,7 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	// 内側5x5を床にする
 	for x := 1; x <= 5; x++ {
 		for y := 1; y <= 5; y++ {
-			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 			planData.Tiles[idx] = planData.GetTile("floor")
 		}
 	}
@@ -91,7 +91,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	t.Parallel()
 
 	// 全て壁のマップ（床が無い）
-	width, height := gc.Tile(5), gc.Tile(5)
+	width, height := consts.Tile(5), consts.Tile(5)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,
@@ -130,7 +130,7 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	t.Parallel()
 
 	// 壁が無いマップ（全て床）
-	width, height := gc.Tile(3), gc.Tile(3)
+	width, height := consts.Tile(3), consts.Tile(3)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,

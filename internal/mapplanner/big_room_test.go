@@ -3,15 +3,14 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/require"
-
-	gc "github.com/kijimaD/ruins/internal/components"
 )
 
 func TestBigRoomPlanner(t *testing.T) {
 	t.Parallel()
 
-	width, height := gc.Tile(20), gc.Tile(20)
+	width, height := consts.Tile(20), consts.Tile(20)
 	seed := uint64(12345)
 
 	chain, err := NewBigRoomPlanner(width, height, seed)
@@ -124,7 +123,7 @@ func TestBigRoomPlannerBoundaries(t *testing.T) {
 	t.Parallel()
 
 	// 部屋の内部が床、部屋の四周が壁になっているか確認
-	width, height := gc.Tile(20), gc.Tile(20)
+	width, height := consts.Tile(20), consts.Tile(20)
 	seed := uint64(11111)
 
 	chain, err := NewBigRoomPlanner(width, height, seed)

@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -297,8 +298,8 @@ func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
 	playerEntity := world.Manager.NewEntity()
 	playerEntity.AddComponent(world.Components.Player, &gc.Player{})
 	playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
-		X: gc.Tile(x),
-		Y: gc.Tile(y),
+		X: consts.Tile(x),
+		Y: consts.Tile(y),
 	})
 
 	return world, playerEntity

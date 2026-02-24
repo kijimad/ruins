@@ -4,11 +4,12 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 
 // Definition はダンジョンの設定を保持する
 type Definition struct {
-	Name           string          // ダンジョン名
-	TotalFloors    int             // 総階層数
-	EnemyTableName string          // 敵テーブル名
-	ItemTableName  string          // アイテムテーブル名
-	PlannerPool    []PlannerWeight // 使用するマップ種類と重み
+	Name            string          // ダンジョン名
+	TotalFloors     int             // 総階層数
+	EnemyTableName  string          // 敵テーブル名
+	ItemTableName   string          // アイテムテーブル名
+	PlannerPool     []PlannerWeight // 使用するマップ種類と重み
+	BaseTemperature int             // 基本気温（摂氏）
 }
 
 // PlannerWeight はマップ種類と出現重みのペアを表す

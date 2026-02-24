@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 )
@@ -11,7 +12,7 @@ import (
 func TestPlanData_AdjacentAnyFloor(t *testing.T) {
 	t.Parallel()
 	// テスト用のマップを作成
-	width, height := gc.Tile(5), gc.Tile(5)
+	width, height := consts.Tile(5), consts.Tile(5)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,
@@ -80,7 +81,7 @@ func TestPlanData_AdjacentAnyFloor(t *testing.T) {
 func TestPlanData_AdjacentAnyFloor_WithWarpTiles(t *testing.T) {
 	t.Parallel()
 	// テスト用のマップを作成
-	width, height := gc.Tile(5), gc.Tile(5)
+	width, height := consts.Tile(5), consts.Tile(5)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,

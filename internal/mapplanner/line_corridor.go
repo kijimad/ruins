@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"math"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
 )
 
@@ -49,8 +49,8 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			// 中心から上下左右にoffsetして複数のL字型廊下を生成
 			for offsetX := -(corridorWidth / 2); offsetX <= corridorWidth/2; offsetX++ {
 				for offsetY := -(corridorWidth / 2); offsetY <= corridorWidth/2; offsetY++ {
-					startPoint := point{x: centerX + gc.Tile(offsetX), y: centerY + gc.Tile(offsetY)}
-					endPoint := point{x: destCenterX + gc.Tile(offsetX), y: destCenterY + gc.Tile(offsetY)}
+					startPoint := point{x: centerX + consts.Tile(offsetX), y: centerY + consts.Tile(offsetY)}
+					endPoint := point{x: destCenterX + consts.Tile(offsetX), y: destCenterY + consts.Tile(offsetY)}
 					corridorPoints := createLShapedCorridor(startPoint, endPoint)
 					points = append(points, corridorPoints...)
 				}
@@ -70,8 +70,8 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 }
 
 type point struct {
-	x gc.Tile
-	y gc.Tile
+	x consts.Tile
+	y consts.Tile
 }
 
 // createLShapedCorridor は横と縦のみのL字型廊下を生成する

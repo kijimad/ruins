@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 )
 
 // PathFinder はパスファインディング機能を提供する
@@ -26,7 +26,7 @@ func (pf *PathFinder) IsWalkable(x, y int) bool {
 		return false
 	}
 
-	idx := pf.planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+	idx := pf.planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 	tile := pf.planData.Tiles[idx]
 
 	// 歩行可能

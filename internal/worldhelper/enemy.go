@@ -61,7 +61,7 @@ func isInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	}
 
 	// 探索済みタイルかチェック（探索済みなら見える）
-	gridElement := gc.GridElement{X: gc.Tile(targetX), Y: gc.Tile(targetY)}
+	gridElement := gc.GridElement{X: consts.Tile(targetX), Y: consts.Tile(targetY)}
 	return world.Resources.Dungeon.ExploredTiles[gridElement]
 }
 

@@ -6,10 +6,11 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 var (
 	// DungeonTown は街用ダンジョン定義
 	DungeonTown = Definition{
-		Name:           "街",
-		TotalFloors:    1,
-		EnemyTableName: "",
-		ItemTableName:  "",
+		Name:            "街",
+		TotalFloors:     1,
+		EnemyTableName:  "",
+		ItemTableName:   "",
+		BaseTemperature: 10, // やや寒い
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeTown, Weight: 1},
 		},
@@ -17,20 +18,23 @@ var (
 
 	// DungeonDebug はデバッグ用ダンジョン定義
 	DungeonDebug = Definition{
-		Name:           "デバッグ",
-		TotalFloors:    99,
-		EnemyTableName: "森",
-		ItemTableName:  "森",
+		Name:            "デバッグ",
+		TotalFloors:     99,
+		EnemyTableName:  "森",
+		ItemTableName:   "森",
+		BaseTemperature: 10,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
 	}
 
+	// DungeonForest は森ダンジョン定義
 	DungeonForest = Definition{
-		Name:           "亡者の森",
-		TotalFloors:    10,
-		EnemyTableName: "森",
-		ItemTableName:  "森",
+		Name:            "亡者の森",
+		TotalFloors:     10,
+		EnemyTableName:  "森",
+		ItemTableName:   "森",
+		BaseTemperature: 0, // 寒い
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 2},
@@ -38,11 +42,13 @@ var (
 		},
 	}
 
+	// DungeonCave は洞窟ダンジョン定義
 	DungeonCave = Definition{
-		Name:           "灰の洞窟",
-		TotalFloors:    15,
-		EnemyTableName: "洞窟",
-		ItemTableName:  "洞窟",
+		Name:            "灰の洞窟",
+		TotalFloors:     15,
+		EnemyTableName:  "洞窟",
+		ItemTableName:   "洞窟",
+		BaseTemperature: 5, // 寒い
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
@@ -50,11 +56,13 @@ var (
 		},
 	}
 
+	// DungeonRuins は廃墟ダンジョン定義
 	DungeonRuins = Definition{
-		Name:           "忘却の廃都",
-		TotalFloors:    20,
-		EnemyTableName: "廃墟",
-		ItemTableName:  "廃墟",
+		Name:            "忘却の廃都",
+		TotalFloors:     20,
+		EnemyTableName:  "廃墟",
+		ItemTableName:   "廃墟",
+		BaseTemperature: 15, // やや快適
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
 			{PlannerType: mapplanner.PlannerTypeRuins, Weight: 3},

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,8 +50,8 @@ func TestGetVisibleEnemies(t *testing.T) {
 		grid := world.Components.GridElement.Get(enemyEntity).(*gc.GridElement)
 
 		assert.Equal(t, "ゴブリン", name)
-		assert.Equal(t, gc.Tile(12), grid.X)
-		assert.Equal(t, gc.Tile(12), grid.Y)
+		assert.Equal(t, consts.Tile(12), grid.X)
+		assert.Equal(t, consts.Tile(12), grid.Y)
 	})
 
 	t.Run("視界外の敵は取得されない", func(t *testing.T) {
@@ -130,7 +131,7 @@ func TestGetVisibleItems(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界内にアイテムを配置
-		_, err := SpawnFieldItem(world, "回復薬", gc.Tile(12), gc.Tile(12))
+		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12))
 		require.NoError(t, err)
 
 		// 探索済みタイルに設定
@@ -152,8 +153,8 @@ func TestGetVisibleItems(t *testing.T) {
 		if desc != nil {
 			assert.NotEmpty(t, desc.(*gc.Description).Description)
 		}
-		assert.Equal(t, gc.Tile(12), grid.X)
-		assert.Equal(t, gc.Tile(12), grid.Y)
+		assert.Equal(t, consts.Tile(12), grid.X)
+		assert.Equal(t, consts.Tile(12), grid.Y)
 	})
 
 	t.Run("視界外のアイテムは取得されない", func(t *testing.T) {
@@ -166,7 +167,7 @@ func TestGetVisibleItems(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界外にアイテムを配置
-		_, err := SpawnFieldItem(world, "回復薬", gc.Tile(50), gc.Tile(50))
+		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50))
 		require.NoError(t, err)
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
@@ -187,7 +188,7 @@ func TestGetVisibleItems(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// アイテムを配置
-		_, err := SpawnFieldItem(world, "回復薬", gc.Tile(11), gc.Tile(10))
+		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10))
 		require.NoError(t, err)
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)

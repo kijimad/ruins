@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/raw"
 )
@@ -27,8 +27,8 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 	// マップサイズを設定
 	width := p.Template.Size.W
 	height := p.Template.Size.H
-	metaPlan.Level.TileWidth = gc.Tile(width)
-	metaPlan.Level.TileHeight = gc.Tile(height)
+	metaPlan.Level.TileWidth = consts.Tile(width)
+	metaPlan.Level.TileHeight = consts.Tile(height)
 
 	// タイル配列を初期化
 	totalTiles := width * height
@@ -95,13 +95,14 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 
 // NewTemplatePlannerChain はテンプレートベースのPlannerChainを作成する
 func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, palette *maptemplate.Palette, seed uint64) (*PlannerChain, error) {
-	width := gc.Tile(template.Size.W)
-	height := gc.Tile(template.Size.H)
+	width := consts.Tile(template.Size.W)
+	height := consts.Tile(template.Size.H)
 
 	chain := NewPlannerChain(width, height, seed)
 	planner := NewTemplatePlanner(template, palette)
 	chain.StartWith(planner)
 	chain.With(planner) // PlanMeta用
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

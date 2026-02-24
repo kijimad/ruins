@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -358,8 +359,8 @@ func TestMovePlayerToPosition(t *testing.T) {
 
 		// 位置が更新されていることを確認
 		gridElement := world.Components.GridElement.Get(player).(*gc.GridElement)
-		assert.Equal(t, gc.Tile(10), gridElement.X)
-		assert.Equal(t, gc.Tile(15), gridElement.Y)
+		assert.Equal(t, consts.Tile(10), gridElement.X)
+		assert.Equal(t, consts.Tile(15), gridElement.Y)
 	})
 
 	t.Run("プレイヤーが存在しない場合はエラー", func(t *testing.T) {

@@ -78,7 +78,7 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 
 // SpawnTile はタイルを生成する
 // autoTileIndexが指定された場合、spriteKeyを動的に生成する（例: "wall_5"）
-func SpawnTile(world w.World, tileName string, x gc.Tile, y gc.Tile, autoTileIndex *int) (ecs.Entity, error) {
+func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, autoTileIndex *int) (ecs.Entity, error) {
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
 	entitySpec, err := rawMaster.NewTileSpec(tileName, x, y, autoTileIndex)
 	if err != nil {
@@ -110,7 +110,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
 	}
-	entitySpec.GridElement = &gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	// カメラ初期位置をプレイヤー位置に設定
 	tileSize := float64(consts.TileSize)
 	initialX := float64(tileX)*tileSize + tileSize/2
@@ -124,6 +124,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		TargetY: initialY,
 	}
 	entitySpec.Wallet = &gc.Wallet{Currency: 1000}
+	entitySpec.HealthStatus = &gc.HealthStatus{}
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {
@@ -162,7 +163,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	}
 
 	// フィールド用のコンポーネントを設定
-	entitySpec.GridElement = &gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	entitySpec.BlockPass = &gc.BlockPass{} // NPCは通行不可
 
 	// 中立NPCにはAIを付けない（動かない）
@@ -197,7 +198,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 	}
 
 	// フィールド用のコンポーネントを設定
-	entitySpec.GridElement = &gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
+	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	entitySpec.BlockPass = &gc.BlockPass{}
 	entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
 	entitySpec.AIRoaming = &gc.AIRoaming{
@@ -206,7 +207,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 		DurationSubStateTurns: 2 + rand.IntN(3), // 2-4ターン待機
 	}
 	entitySpec.AIVision = &gc.AIVision{
-		ViewDistance: gc.Pixel(aiVisionDistance),
+		ViewDistance: consts.Pixel(aiVisionDistance),
 	}
 	entitySpec.Interactable = &gc.Interactable{
 		Data: gc.MeleeInteraction{},
@@ -384,7 +385,7 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 }
 
 // SpawnFieldItem はフィールド上にアイテムを生成する
-func SpawnFieldItem(world w.World, itemName string, x gc.Tile, y gc.Tile) (ecs.Entity, error) {
+func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	// すべてのアイテムはcount=1で生成
 	item, err := SpawnItem(world, itemName, 1, gc.ItemLocationOnField)
 	if err != nil {
@@ -419,8 +420,8 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 
 	// プレイヤーの位置を更新する
 	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
-	gridElement.X = gc.Tile(tileX)
-	gridElement.Y = gc.Tile(tileY)
+	gridElement.X = consts.Tile(tileX)
+	gridElement.Y = consts.Tile(tileY)
 
 	// カメラ位置も同期する
 	camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)

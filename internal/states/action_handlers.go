@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/movement"
@@ -34,7 +35,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	newY := currentY + deltaY
 
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
-	targetGrid := &gc.GridElement{X: gc.Tile(newX), Y: gc.Tile(newY)}
+	targetGrid := &gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
 	if interactable != nil && interactable.Data.Config().ActivationWay == gc.ActivationWayOnCollision {
 		// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
@@ -57,7 +58,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	canMove := movement.CanMoveTo(world, newX, newY, entity)
 	if canMove {
-		destination := gc.Position{X: gc.Pixel(newX), Y: gc.Pixel(newY)}
+		destination := gc.Position{X: consts.Pixel(newX), Y: consts.Pixel(newY)}
 		params := actions.ActionParams{
 			Actor:       entity,
 			Destination: &destination,
@@ -145,7 +146,7 @@ func ExecuteEnterAction(world w.World) error {
 func checkTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
 	// プレイヤーの場合のみタイルイベントをチェック
 	if entity.HasComponent(world.Components.Player) {
-		gridElement := &gc.GridElement{X: gc.Tile(tileX), Y: gc.Tile(tileY)}
+		gridElement := &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 		// 手動相互作用のメッセージ表示
 		showTileInteractionMessage(world, gridElement)

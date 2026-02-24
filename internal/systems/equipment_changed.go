@@ -48,35 +48,45 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 		}
 
 		// 装備効果を加算
-		{
-			world.Manager.Join(
-				world.Components.ItemLocationEquipped,
-				world.Components.Wearable,
-			).Visit(ecs.Visit(func(item ecs.Entity) {
-				equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+		world.Manager.Join(
+			world.Components.ItemLocationEquipped,
+			world.Components.Wearable,
+		).Visit(ecs.Visit(func(item ecs.Entity) {
+			equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
 
-				// このエンティティの装備のみ処理
-				if equipped.Owner != entity {
-					return
-				}
+			// このエンティティの装備のみ処理
+			if equipped.Owner != entity {
+				return
+			}
 
-				wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
+			wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
 
-				attrs.Defense.Modifier += wearable.Defense
-				attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
+			attrs.Defense.Modifier += wearable.Defense
+			attrs.Vitality.Modifier += wearable.EquipBonus.Vitality
+			attrs.Strength.Modifier += wearable.EquipBonus.Strength
+			attrs.Sensation.Modifier += wearable.EquipBonus.Sensation
+			attrs.Dexterity.Modifier += wearable.EquipBonus.Dexterity
+			attrs.Agility.Modifier += wearable.EquipBonus.Agility
+		}))
 
-				attrs.Vitality.Modifier += wearable.EquipBonus.Vitality
-				attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
-				attrs.Strength.Modifier += wearable.EquipBonus.Strength
-				attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
-				attrs.Sensation.Modifier += wearable.EquipBonus.Sensation
-				attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
-				attrs.Dexterity.Modifier += wearable.EquipBonus.Dexterity
-				attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
-				attrs.Agility.Modifier += wearable.EquipBonus.Agility
-				attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
-			}))
+		// 健康ペナルティを加算
+		if entity.HasComponent(world.Components.HealthStatus) {
+			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			attrs.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
+			attrs.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
+			attrs.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
+			attrs.Dexterity.Modifier += hs.GetStatModifier(gc.StatDexterity)
+			attrs.Agility.Modifier += hs.GetStatModifier(gc.StatAgility)
+			attrs.Defense.Modifier += hs.GetStatModifier(gc.StatDefense)
 		}
+
+		// Total を計算
+		attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
+		attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
+		attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
+		attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
+		attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
+		attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
 
 		// Pools（HP/SP）を更新
 		if entity.HasComponent(world.Components.Pools) {

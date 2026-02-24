@@ -17,6 +17,7 @@ type Resources struct {
 	RawMaster          interface{}
 	UIResources        *UIResources
 	TurnManager        interface{}
+	GameTime           *GameTime
 	SelectedWeaponSlot int // 選択中の武器スロット番号（1-5）
 }
 
@@ -52,6 +53,7 @@ func (r *Resources) InitializeResources() error {
 	r.UIResources = &UIResources{}
 	r.RawMaster = nil
 	r.TurnManager = nil
+	r.GameTime = &GameTime{}
 	return nil
 }
 
@@ -63,6 +65,7 @@ func InitGameResources() *Resources {
 		Fonts:              &map[string]Font{},
 		Faces:              &map[string]text.Face{},
 		UIResources:        &UIResources{},
+		GameTime:           &GameTime{},
 		SelectedWeaponSlot: 1, // デフォルトで武器スロット1を選択
 	}
 }

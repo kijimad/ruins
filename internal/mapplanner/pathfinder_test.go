@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 )
@@ -18,8 +18,8 @@ func createTestPlanData(_, _ int) *MetaPlan {
 	// 一時的なMetaPlanインスタンスを作成
 	tempPlan := &MetaPlan{
 		Level: resources.Level{
-			TileWidth:  gc.Tile(width),
-			TileHeight: gc.Tile(height),
+			TileWidth:  consts.Tile(width),
+			TileHeight: consts.Tile(height),
 		},
 		Tiles:     tiles,
 		RawMaster: CreateTestRawMaster(),
@@ -87,7 +87,7 @@ func TestPathFinder_FindPath_SimplePath(t *testing.T) {
 	// 簡単な一直線のパスを作成
 	// (1,1) -> (1,2) -> (1,3)
 	for y := 1; y <= 3; y++ {
-		idx := planData.Level.XYTileIndex(1, gc.Tile(y))
+		idx := planData.Level.XYTileIndex(1, consts.Tile(y))
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
@@ -133,7 +133,7 @@ func TestPathFinder_FindPath_LShapedPath(t *testing.T) {
 	// (1,1) -> (1,2) -> (2,2) -> (3,2)
 	positions := []Coord{{1, 1}, {1, 2}, {2, 2}, {3, 2}}
 	for _, pos := range positions {
-		idx := planData.Level.XYTileIndex(gc.Tile(pos.X), gc.Tile(pos.Y))
+		idx := planData.Level.XYTileIndex(consts.Tile(pos.X), consts.Tile(pos.Y))
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 
@@ -161,7 +161,7 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	// パスを作成
 	positions := []Coord{{1, 1}, {1, 2}, {2, 2}}
 	for _, pos := range positions {
-		idx := planData.Level.XYTileIndex(gc.Tile(pos.X), gc.Tile(pos.Y))
+		idx := planData.Level.XYTileIndex(consts.Tile(pos.X), consts.Tile(pos.Y))
 		planData.Tiles[idx] = planData.GetTile("floor")
 	}
 

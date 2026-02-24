@@ -101,6 +101,17 @@ func addWearableInfo(targetContainer *widget.Container, wearable *gc.Wearable, w
 
 	defense := fmt.Sprintf("%s %+d", consts.DefenseLabel, wearable.Defense)
 	targetContainer.AddChild(styled.NewBodyText(defense, consts.TextColor, world.Resources.UIResources))
+
+	// 耐寒・耐熱の表示（値がある場合のみ）
+	if wearable.InsulationCold != 0 {
+		cold := fmt.Sprintf("耐寒 %+d", wearable.InsulationCold)
+		targetContainer.AddChild(styled.NewBodyText(cold, consts.TextColor, world.Resources.UIResources))
+	}
+	if wearable.InsulationHeat != 0 {
+		heat := fmt.Sprintf("耐熱 %+d", wearable.InsulationHeat)
+		targetContainer.AddChild(styled.NewBodyText(heat, consts.TextColor, world.Resources.UIResources))
+	}
+
 	addEquipBonus(targetContainer, wearable.EquipBonus, world)
 }
 

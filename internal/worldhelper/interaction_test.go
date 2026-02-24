@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,10 +14,10 @@ func TestIsInActivationRange_SameTile(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		playerX         gc.Tile
-		playerY         gc.Tile
-		triggerX        gc.Tile
-		triggerY        gc.Tile
+		playerX         consts.Tile
+		playerY         consts.Tile
+		triggerX        consts.Tile
+		triggerY        consts.Tile
 		expectedInRange bool
 	}{
 		{
@@ -103,10 +104,10 @@ func TestIsInActivationRange_Adjacent(t *testing.T) {
 
 	tests := []struct {
 		name            string
-		playerX         gc.Tile
-		playerY         gc.Tile
-		triggerX        gc.Tile
-		triggerY        gc.Tile
+		playerX         consts.Tile
+		playerY         consts.Tile
+		triggerX        consts.Tile
+		triggerY        consts.Tile
 		expectedInRange bool
 	}{
 		{

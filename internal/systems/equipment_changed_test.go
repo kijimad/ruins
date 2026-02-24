@@ -297,4 +297,5 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 		assert.Greater(t, pools.HP.Max, initialHP, "装備追加でHP.Maxが増加するべき")
 		assert.Greater(t, pools.SP.Max, initialSP, "装備追加でSP.Maxが増加するべき")
 	})
+
 }

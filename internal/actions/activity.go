@@ -200,7 +200,7 @@ func (s ActivityState) String() string {
 	case ActivityStateCanceled:
 		return "Canceled"
 	default:
-		return fmt.Sprintf("ActivityState(%d)", int(s))
+		panic(fmt.Sprintf("不正なActivityState値: %d", int(s)))
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 )
 
@@ -48,7 +48,7 @@ func TestForestPlanner(t *testing.T) {
 
 	t.Run("生成された空き地が有効な範囲内にある", func(t *testing.T) {
 		t.Parallel()
-		width, height := gc.Tile(30), gc.Tile(30)
+		width, height := consts.Tile(30), consts.Tile(30)
 		chain, err := NewForestPlanner(width, height, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
@@ -72,8 +72,8 @@ func TestForestPlanner(t *testing.T) {
 		t.Parallel()
 		testCases := []struct {
 			name   string
-			width  gc.Tile
-			height gc.Tile
+			width  consts.Tile
+			height consts.Tile
 		}{
 			{"小さいマップ", 15, 15},
 			{"中サイズマップ", 30, 30},

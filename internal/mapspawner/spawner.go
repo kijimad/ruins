@@ -4,11 +4,13 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // Spawn はMetaPlanからレベルを生成する
@@ -23,8 +25,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	for _i, tile := range metaPlan.Tiles {
 		i := resources.TileIdx(_i)
 		x, y := metaPlan.Level.XYTileCoord(i)
-		tileX, tileY := gc.Tile(x), gc.Tile(y)
+		tileX, tileY := consts.Tile(x), consts.Tile(y)
 
+		var tileEntity ecs.Entity
 		var err error
 
 		// TODO: タイル名直判定だと忘れやすいので直したい
@@ -33,14 +36,14 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			switch tile.Name {
 			case "dirt":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "dirt"))
-				_, err = worldhelper.SpawnTile(world, "dirt", tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, "dirt", tileX, tileY, &index)
 			case "floor":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
-				_, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
 			case "bridge_a", "bridge_b", "bridge_c", "bridge_d":
 				// 橋タイルは通常の床タイルとして生成（見た目は同じ）
 				index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
-				_, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
 			default:
 				// 未知のタイル名はエラーとして処理
 				return resources.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
@@ -50,9 +53,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			switch tile.Name {
 			case "wall":
 				index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
-				_, err = worldhelper.SpawnTile(world, "dwall", tileX, tileY, &index)
+				tileEntity, err = worldhelper.SpawnTile(world, "dwall", tileX, tileY, &index)
 			case "void":
-				_, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
+				tileEntity, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
 			default:
 				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}
@@ -60,6 +63,13 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
+		}
+
+		// TileRaw の環境情報を TileTemperature に設定する
+		if tileTemp, ok := world.Components.TileTemperature.Get(tileEntity).(*gc.TileTemperature); ok && tileTemp != nil {
+			tileTemp.Shelter = tile.Shelter
+			tileTemp.Water = tile.Water
+			tileTemp.Foliage = tile.Foliage
 		}
 	}
 
@@ -90,7 +100,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// アイテムを生成する
 	for _, item := range metaPlan.Items {
-		tileX, tileY := gc.Tile(item.X), gc.Tile(item.Y)
+		tileX, tileY := consts.Tile(item.X), consts.Tile(item.Y)
 		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
@@ -99,7 +109,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// Propsを生成する
 	for _, prop := range metaPlan.Props {
-		tileX, tileY := gc.Tile(prop.X), gc.Tile(prop.Y)
+		tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)
 
 		propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)
 		if err != nil {
@@ -124,7 +134,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// NextPortalsを生成する
 	for _, portal := range metaPlan.NextPortals {
-		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
+		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
 		_, err := worldhelper.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
@@ -133,7 +143,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 	// EscapePortalsを生成する
 	for _, portal := range metaPlan.EscapePortals {
-		tileX, tileY := gc.Tile(portal.X), gc.Tile(portal.Y)
+		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
 		_, err := worldhelper.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
 			return resources.Level{}, fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)

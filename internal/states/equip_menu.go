@@ -319,8 +319,8 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _
 
 	// 防具スロットを追加
 	armorSlots := worldhelper.GetArmorEquipments(world, member)
-	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(脚)", "防具(装飾)"}
-	armorSlotNumbers := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotLegs, gc.SlotJewelry}
+	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(腕)", "防具(手)", "防具(脚)", "防具(足)", "防具(装飾)"}
+	armorSlotNumbers := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}
 	for i, slot := range armorSlots {
 		var name string
 		if slot != nil {
@@ -478,8 +478,14 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 			targetCategory = gc.EquipmentHead
 		case gc.SlotTorso:
 			targetCategory = gc.EquipmentTorso
+		case gc.SlotArms:
+			targetCategory = gc.EquipmentArms
+		case gc.SlotHands:
+			targetCategory = gc.EquipmentHands
 		case gc.SlotLegs:
 			targetCategory = gc.EquipmentLegs
+		case gc.SlotFeet:
+			targetCategory = gc.EquipmentFeet
 		case gc.SlotJewelry:
 			targetCategory = gc.EquipmentJewelry
 		default:

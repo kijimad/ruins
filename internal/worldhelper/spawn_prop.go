@@ -3,6 +3,7 @@ package worldhelper
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/raw"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -12,7 +13,7 @@ import (
 )
 
 // SpawnProp は置物を生成する
-func SpawnProp(world w.World, propName string, x gc.Tile, y gc.Tile) (ecs.Entity, error) {
+func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	// RawMasterから置物の設定を生成
 	rawMaster := world.Resources.RawMaster.(*raw.Master)
 	entitySpec, err := rawMaster.NewPropSpec(propName)
@@ -34,7 +35,7 @@ func SpawnProp(world w.World, propName string, x gc.Tile, y gc.Tile) (ecs.Entity
 }
 
 // SpawnDoor はドアを生成する
-func SpawnDoor(world w.World, x gc.Tile, y gc.Tile, orientation gc.DoorOrientation) (ecs.Entity, error) {
+func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorOrientation) (ecs.Entity, error) {
 	// スプライトキーを決定（閉じたドア）
 	var spriteKey string
 	if orientation == gc.DoorOrientationHorizontal {

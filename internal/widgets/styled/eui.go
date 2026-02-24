@@ -336,24 +336,23 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *re
 	mainTextContainer.AddChild(mainText)
 	container.AddChild(mainTextContainer)
 
-	// 右側: 追加ラベル群（固定幅で配置、背景色なし）
+	// 右側: 追加ラベル群（左寄せで配置）
 	for _, label := range additionalLabels {
 		labelContainer := widget.NewContainer(
 			widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 			widget.ContainerOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-					Position: widget.RowLayoutPositionEnd,
+					Position: widget.RowLayoutPositionStart,
 				}),
-				widget.WidgetOpts.MinSize(80, 0), // 追加ラベルも固定幅
 			),
 		)
 
 		labelText := widget.NewText(
 			widget.TextOpts.Text(label, &res.Text.BodyFace, textColor),
-			widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
+			widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-					HorizontalPosition: widget.AnchorLayoutPositionEnd,
+					HorizontalPosition: widget.AnchorLayoutPositionStart,
 					VerticalPosition:   widget.AnchorLayoutPositionCenter,
 				}),
 			),

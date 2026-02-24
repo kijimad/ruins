@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -76,7 +77,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			case 0:
 				// 順序: Name -> GridElement -> Attack
 				entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストエンティティ"})
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(1), Y: gc.Tile(1)})
+				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
 				entity.AddComponent(world.Components.Attack, &gc.Attack{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
@@ -88,10 +89,10 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
 				entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストエンティティ"})
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(1), Y: gc.Tile(1)})
+				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
 			case 2:
 				// 順序: GridElement -> Attack -> Name
-				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(1), Y: gc.Tile(1)})
+				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
 				entity.AddComponent(world.Components.Attack, &gc.Attack{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
@@ -391,7 +392,7 @@ func createStandardTestWorld(t *testing.T) w.World {
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Name, &gc.Name{Name: "プレイヤー"})
 	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(10), Y: gc.Tile(20)})
+	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(20)})
 
 	weapon := world.Manager.NewEntity()
 	weapon.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
@@ -425,7 +426,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
 	player.AddComponent(world.Components.Player, &gc.Player{})
 	player.AddComponent(world.Components.FactionAlly, gc.FactionAlly)
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: gc.Tile(10), Y: gc.Tile(15)})
+	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(15)})
 	player.AddComponent(world.Components.Attributes, &gc.Attributes{
 		Vitality:  gc.Attribute{Base: 10, Modifier: 0, Total: 10},
 		Strength:  gc.Attribute{Base: 8, Modifier: 0, Total: 8},
@@ -501,10 +502,10 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		npc := world.Manager.NewEntity()
 		npc.AddComponent(world.Components.Name, &gc.Name{Name: "NPC" + string(rune('A'+i))})
 		npc.AddComponent(world.Components.GridElement, &gc.GridElement{
-			X: gc.Tile(20 + i*5),
-			Y: gc.Tile(25 + i*3),
+			X: consts.Tile(20 + i*5),
+			Y: consts.Tile(25 + i*3),
 		})
-		npc.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: gc.Pixel(160)})
+		npc.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: consts.Pixel(160)})
 		npc.AddComponent(world.Components.FactionEnemy, gc.FactionEnemy)
 		npc.AddComponent(world.Components.Attributes, &gc.Attributes{
 			Vitality:  gc.Attribute{Base: 10 + i, Modifier: 0, Total: 10 + i},

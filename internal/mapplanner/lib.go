@@ -59,7 +59,7 @@ type MetaPlan struct {
 }
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
-func (bm MetaPlan) IsSpawnableTile(_ w.World, tx gc.Tile, ty gc.Tile) bool {
+func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bool {
 	idx := bm.Level.XYTileIndex(tx, ty)
 	tile := bm.Tiles[idx]
 	// 通行不可なのでスポーン不可
@@ -194,7 +194,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx resources.TileIdx) bool {
 			continue
 		}
 
-		neighborIdx := bm.Level.XYTileIndex(gc.Tile(nx), gc.Tile(ny))
+		neighborIdx := bm.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
 		tile := bm.Tiles[neighborIdx]
 
 		// 歩行可能
@@ -277,7 +277,7 @@ type PlannerChain struct {
 
 // NewPlannerChain はシード値を指定してプランナーチェーンを作成する
 // シードが0の場合はランダムなシードを生成する
-func NewPlannerChain(width gc.Tile, height gc.Tile, seed uint64) *PlannerChain {
+func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *PlannerChain {
 	tileCount := int(width) * int(height)
 	tiles := make([]raw.TileRaw, tileCount)
 
@@ -346,7 +346,7 @@ type MetaMapPlanner interface {
 }
 
 // NewSmallRoomPlanner はシンプルな小部屋プランナーを作成する
-func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
+func NewSmallRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RectRoomPlanner{})
 	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
@@ -355,13 +355,14 @@ func NewSmallRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerCh
 	chain.With(ConvertIsolatedWalls{            // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }
 
 // NewBigRoomPlanner は大部屋プランナーを作成する
 // ランダムにバリエーションを適用する統合版
-func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
+func NewBigRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(BigRoomPlanner{})
 	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
@@ -372,6 +373,7 @@ func NewBigRoomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChai
 	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }
@@ -393,7 +395,7 @@ type PlannerType struct {
 	// スポーンする敵のエントリ（階層でフィルタリング済み）
 	EnemyEntries []SpawnEntry
 	// プランナー関数
-	PlannerFunc func(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error)
+	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
 
 var (
@@ -436,7 +438,7 @@ var (
 	PlannerTypeTown = PlannerType{
 		Name:              "市街地",
 		UseFixedPortalPos: true,
-		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},
 	}
@@ -444,7 +446,7 @@ var (
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
 		Name: "事務所ビル",
-		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
 		},
 	}
@@ -452,7 +454,7 @@ var (
 	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
 	PlannerTypeSmallTown = PlannerType{
 		Name: "小さな町",
-		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
 		},
 	}
@@ -461,14 +463,14 @@ var (
 	PlannerTypeTownPlaza = PlannerType{
 		Name:              "広場",
 		UseFixedPortalPos: true,
-		PlannerFunc: func(_ gc.Tile, _ gc.Tile, seed uint64) (*PlannerChain, error) {
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},
 	}
 )
 
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する
-func NewRandomPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
+func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	// シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される
 	if seed == 0 {
 		seed = uint64(time.Now().UnixNano())
@@ -555,7 +557,7 @@ func (bm *MetaPlan) GetPlayerStartPosition() (Coord, error) {
 
 // isValidSpawnPosition は指定位置がスポーン可能かつポータルに到達可能かを判定する
 func (bm *MetaPlan) isValidSpawnPosition(pf *PathFinder, x, y int) bool {
-	idx := bm.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+	idx := bm.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 	if int(idx) >= len(bm.Tiles) || bm.Tiles[idx].BlockPass {
 		return false
 	}

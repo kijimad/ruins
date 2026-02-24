@@ -31,10 +31,10 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 	return weapons
 }
 
-// GetArmorEquipments は防具一覧を取得する（HEAD, TORSO, LEGS, JEWELRY）
-// 必ず長さ4のスライスを返す
+// GetArmorEquipments は防具一覧を取得する（HEAD, TORSO, ARMS, HANDS, LEGS, FEET, JEWELRY）
+// 必ず長さ7のスライスを返す
 func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
-	entities := make([]*ecs.Entity, 4)
+	entities := make([]*ecs.Entity, 7)
 
 	world.Manager.Join(
 		world.Components.Item,
@@ -49,12 +49,18 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 				entities[0] = &entity
 			case gc.SlotTorso:
 				entities[1] = &entity
-			case gc.SlotLegs:
+			case gc.SlotArms:
 				entities[2] = &entity
-			case gc.SlotJewelry:
+			case gc.SlotHands:
 				entities[3] = &entity
+			case gc.SlotLegs:
+				entities[4] = &entity
+			case gc.SlotFeet:
+				entities[5] = &entity
+			case gc.SlotJewelry:
+				entities[6] = &entity
 			default:
-				panic(fmt.Sprintf("invalid equipment slot: %v", equipped.EquipmentSlot))
+				panic(fmt.Sprintf("不正な装備スロット: %v", equipped.EquipmentSlot))
 			}
 		}
 	}))

@@ -30,10 +30,10 @@ func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error {
 
 		// 建物の外壁を作成
 		room := gc.Rect{
-			X1: gc.Tile(x),
-			Y1: gc.Tile(y),
-			X2: gc.Tile(x + buildingWidth - 1),
-			Y2: gc.Tile(y + buildingHeight - 1),
+			X1: consts.Tile(x),
+			Y1: consts.Tile(y),
+			X2: consts.Tile(x + buildingWidth - 1),
+			Y2: consts.Tile(y + buildingHeight - 1),
 		}
 		planData.Rooms = append(planData.Rooms, room)
 	}
@@ -101,7 +101,7 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 	// 建物が十分大きい場合のみ内部の仕切りを作成
 	if buildingWidth >= 10 && buildingHeight >= 8 {
 		// 縦の仕切り
-		midX := building.X1 + gc.Tile(buildingWidth/2)
+		midX := building.X1 + consts.Tile(buildingWidth/2)
 		for y := building.Y1 + 2; y <= building.Y2-2; y++ {
 			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
 				idx := planData.Level.XYTileIndex(midX, y)
@@ -110,7 +110,7 @@ func (r RuinsDraw) addInteriorWalls(planData *MetaPlan, building gc.Rect) {
 		}
 
 		// 横の仕切り
-		midY := building.Y1 + gc.Tile(buildingHeight/2)
+		midY := building.Y1 + consts.Tile(buildingHeight/2)
 		for x := building.X1 + 2; x <= building.X2-2; x++ {
 			if planData.RNG.Float64() > 0.4 { // 60%の確率で壁
 				idx := planData.Level.XYTileIndex(x, midY)
@@ -134,7 +134,7 @@ func (r RuinsDebris) PlanMeta(planData *MetaPlan) error {
 	// 屋外エリアに瓦礫を散乱させる
 	for x := 1; x < width-1; x++ {
 		for y := 1; y < height-1; y++ {
-			idx := planData.Level.XYTileIndex(gc.Tile(x), gc.Tile(y))
+			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 
 			if planData.Tiles[idx].Name == r.FloorTile {
 				// 建物から離れた場所ほど瓦礫が少ない
@@ -252,7 +252,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 }
 
 // NewRuinsPlanner は廃墟ビルダーを作成する
-func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain, error) {
+func NewRuinsPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {
 	chain := NewPlannerChain(width, height, seed)
 	chain.StartWith(RuinsPlanner{})
 	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
@@ -271,6 +271,7 @@ func NewRuinsPlanner(width gc.Tile, height gc.Tile, seed uint64) (*PlannerChain,
 	chain.With(ConvertIsolatedWalls{ // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})
+	chain.With(EnvironmentPlanner{})
 
 	return chain, nil
 }

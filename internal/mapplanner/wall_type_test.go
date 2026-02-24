@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 )
@@ -11,7 +12,7 @@ import (
 func TestPlanData_GetWallType(t *testing.T) {
 	t.Parallel()
 	// テスト用のマップを作成（7x7）
-	width, height := gc.Tile(7), gc.Tile(7)
+	width, height := consts.Tile(7), consts.Tile(7)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,
@@ -31,7 +32,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 	// テストケース1: WallTypeTop（下に床がある壁）
 	// 座標系注意: XYTileIndex(tx Row, ty Col) → tx は X座標（横方向）、ty は Y座標（縦方向）
 	// インデックス計算: ty * width + tx
-	centerWallX, centerWallY := gc.Tile(3), gc.Tile(3)
+	centerWallX, centerWallY := consts.Tile(3), consts.Tile(3)
 	bottomFloorX, bottomFloorY := centerWallX, centerWallY+1 // 下の床（Y座標が大きくなる）
 
 	centerWallIdx := planData.Level.XYTileIndex(centerWallX, centerWallY)
@@ -93,7 +94,7 @@ func TestPlanData_GetWallType(t *testing.T) {
 func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 	t.Parallel()
 	// テスト用のマップを作成
-	width, height := gc.Tile(5), gc.Tile(5)
+	width, height := consts.Tile(5), consts.Tile(5)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  width,
@@ -111,7 +112,7 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 	}
 
 	// 壁と床を配置
-	wallX, wallY := gc.Tile(2), gc.Tile(2)
+	wallX, wallY := consts.Tile(2), consts.Tile(2)
 	floorX, floorY := wallX, wallY+1 // 下に床を配置（Y座標が大きくなる）
 
 	floorIdx := planData.Level.XYTileIndex(floorX, floorY)
