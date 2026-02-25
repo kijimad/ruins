@@ -35,13 +35,13 @@ func (pf *PathFinder) IsWalkable(x, y int) bool {
 
 // FindPath はBFSを使ってスタート地点からゴールまでのパスを探索する
 // 上下左右の4方向移動のみサポート
-func (pf *PathFinder) FindPath(startX, startY, goalX, goalY int) []Coord {
+func (pf *PathFinder) FindPath(startX, startY, goalX, goalY int) []consts.Coord[int] {
 	width := int(pf.planData.Level.TileWidth)
 	height := int(pf.planData.Level.TileHeight)
 
 	// スタートまたはゴールが歩行不可能な場合は空のパスを返す
 	if !pf.IsWalkable(startX, startY) || !pf.IsWalkable(goalX, goalY) {
-		return []Coord{}
+		return []consts.Coord[int]{}
 	}
 
 	// 訪問済みマップ
@@ -51,16 +51,16 @@ func (pf *PathFinder) FindPath(startX, startY, goalX, goalY int) []Coord {
 	}
 
 	// 親ポイントマップ（パス復元用）
-	parent := make([][]Coord, width)
+	parent := make([][]consts.Coord[int], width)
 	for i := range parent {
-		parent[i] = make([]Coord, height)
+		parent[i] = make([]consts.Coord[int], height)
 		for j := range parent[i] {
-			parent[i][j] = Coord{X: -1, Y: -1} // 無効値で初期化
+			parent[i][j] = consts.Coord[int]{X: -1, Y: -1} // 無効値で初期化
 		}
 	}
 
 	// BFS用のキュー
-	queue := []Coord{{X: startX, Y: startY}}
+	queue := []consts.Coord[int]{{X: startX, Y: startY}}
 	visited[startX][startY] = true
 
 	// 4方向の移動方向
@@ -87,20 +87,20 @@ func (pf *PathFinder) FindPath(startX, startY, goalX, goalY int) []Coord {
 				!visited[nextX][nextY] && pf.IsWalkable(nextX, nextY) {
 
 				visited[nextX][nextY] = true
-				parent[nextX][nextY] = Coord{X: current.X, Y: current.Y}
-				queue = append(queue, Coord{X: nextX, Y: nextY})
+				parent[nextX][nextY] = consts.Coord[int]{X: current.X, Y: current.Y}
+				queue = append(queue, consts.Coord[int]{X: nextX, Y: nextY})
 			}
 		}
 	}
 
 	// パスが見つからなかった場合は空のスライスを返す
-	return []Coord{}
+	return []consts.Coord[int]{}
 }
 
 // reconstructPath は親ポイントマップからパスを復元する
-func (pf *PathFinder) reconstructPath(parent [][]Coord, startX, startY, goalX, goalY int) []Coord {
-	var path []Coord
-	current := Coord{X: goalX, Y: goalY}
+func (pf *PathFinder) reconstructPath(parent [][]consts.Coord[int], startX, startY, goalX, goalY int) []consts.Coord[int] {
+	var path []consts.Coord[int]
+	current := consts.Coord[int]{X: goalX, Y: goalY}
 
 	// ゴールからスタートまで逆順にたどる
 	for current.X != -1 && current.Y != -1 {

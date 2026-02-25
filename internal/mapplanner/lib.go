@@ -15,15 +15,9 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// Coord はタイル座標を表す
-type Coord struct {
-	X int
-	Y int
-}
-
 // PropsSpec はProps配置仕様を表す
 type PropsSpec struct {
-	Coord
+	consts.Coord[int]
 	Name string // Prop名
 }
 
@@ -43,9 +37,9 @@ type MetaPlan struct {
 	// 通行可能かを判定するための情報を保持している必要がある
 	Tiles []raw.TileRaw
 	// NextPortals は次の階へ進むポータルリスト
-	NextPortals []Coord
+	NextPortals []consts.Coord[int]
 	// EscapePortals は脱出用ポータルリスト
-	EscapePortals []Coord
+	EscapePortals []consts.Coord[int]
 	// NPCs は配置予定のNPCリスト
 	NPCs []NPCSpec
 	// Items は配置予定のアイテムリスト
@@ -298,8 +292,8 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			Rooms:         []gc.Rect{},
 			Corridors:     [][]resources.TileIdx{},
 			RNG:           rand.New(rand.NewPCG(seed, seed+1)),
-			NextPortals:   []Coord{},
-			EscapePortals: []Coord{},
+			NextPortals:   []consts.Coord[int]{},
+			EscapePortals: []consts.Coord[int]{},
 			NPCs:          []NPCSpec{},
 			Items:         []ItemSpec{},
 			Props:         []PropsSpec{},
@@ -513,10 +507,10 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 // ポータルへの到達性も確認し、到達可能な位置を返す
-func (bm *MetaPlan) GetPlayerStartPosition() (Coord, error) {
+func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) {
 	// SpawnPointsが設定されていればそれを使用（テンプレートマップ用）
 	if len(bm.SpawnPoints) > 0 {
-		return Coord{X: bm.SpawnPoints[0].X, Y: bm.SpawnPoints[0].Y}, nil
+		return consts.Coord[int]{X: bm.SpawnPoints[0].X, Y: bm.SpawnPoints[0].Y}, nil
 	}
 
 	// プロシージャルマップ用: 自動的に歩行可能でポータルに到達可能な位置を探す
@@ -527,12 +521,12 @@ func (bm *MetaPlan) GetPlayerStartPosition() (Coord, error) {
 	pf := NewPathFinder(bm)
 
 	// 候補位置を試す（中央から外側へ）
-	attempts := []Coord{
-		{width / 2, height / 2},         // 中央
-		{width / 4, height / 4},         // 左上寄り
-		{3 * width / 4, height / 4},     // 右上寄り
-		{width / 4, 3 * height / 4},     // 左下寄り
-		{3 * width / 4, 3 * height / 4}, // 右下寄り
+	attempts := []consts.Coord[int]{
+		{X: width / 2, Y: height / 2},         // 中央
+		{X: width / 4, Y: height / 4},         // 左上寄り
+		{X: 3 * width / 4, Y: height / 4},     // 右上寄り
+		{X: width / 4, Y: 3 * height / 4},     // 左下寄り
+		{X: 3 * width / 4, Y: 3 * height / 4}, // 右下寄り
 	}
 
 	for _, pos := range attempts {
@@ -547,12 +541,12 @@ func (bm *MetaPlan) GetPlayerStartPosition() (Coord, error) {
 			i := resources.TileIdx(_i)
 			x, y := bm.Level.XYTileCoord(i)
 			if bm.isValidSpawnPosition(pf, int(x), int(y)) {
-				return Coord{X: int(x), Y: int(y)}, nil
+				return consts.Coord[int]{X: int(x), Y: int(y)}, nil
 			}
 		}
 	}
 
-	return Coord{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
+	return consts.Coord[int]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
 }
 
 // isValidSpawnPosition は指定位置がスポーン可能かつポータルに到達可能かを判定する

@@ -44,7 +44,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
 		if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
-			planData.NextPortals = append(planData.NextPortals, Coord{X: x, Y: y})
+			planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: x, Y: y})
 			break
 		}
 	}
@@ -59,7 +59,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 			y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
 			if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
-				planData.EscapePortals = append(planData.EscapePortals, Coord{X: x, Y: y})
+				planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: x, Y: y})
 				break
 			}
 		}

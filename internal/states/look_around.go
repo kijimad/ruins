@@ -21,9 +21,7 @@ import (
 // カーソルをマップ上で動かしてタイル・エンティティ情報を確認できる
 type LookAroundState struct {
 	es.BaseState[w.World]
-	cursorX consts.Tile
-	cursorY consts.Tile
-	// 点滅用のカウンター
+	cursor       consts.Coord[consts.Tile]
 	blinkCounter int
 }
 
@@ -58,8 +56,8 @@ func (st *LookAroundState) OnStart(world w.World) error {
 	}
 
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
-	st.cursorX = playerGrid.X
-	st.cursorY = playerGrid.Y
+	st.cursor.X = playerGrid.X
+	st.cursor.Y = playerGrid.Y
 
 	return nil
 }
@@ -94,14 +92,14 @@ func (st *LookAroundState) Update(world w.World) (es.Transition[w.World], error)
 	}
 
 	if dx != 0 || dy != 0 {
-		newX := int(st.cursorX) + dx
-		newY := int(st.cursorY) + dy
+		newX := int(st.cursor.X) + dx
+		newY := int(st.cursor.Y) + dy
 
 		// マップ範囲内なら移動可能
 		level := world.Resources.Dungeon.Level
 		if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
-			st.cursorX = consts.Tile(newX)
-			st.cursorY = consts.Tile(newY)
+			st.cursor.X = consts.Tile(newX)
+			st.cursor.Y = consts.Tile(newY)
 		}
 	}
 
@@ -126,8 +124,8 @@ var (
 // drawCursor はカーソルを描画する
 func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
-	cursorPixelX := float64(int(st.cursorX) * tileSize)
-	cursorPixelY := float64(int(st.cursorY) * tileSize)
+	cursorPixelX := float64(int(st.cursor.X) * tileSize)
+	cursorPixelY := float64(int(st.cursor.Y) * tileSize)
 
 	// カーソル画像をキャッシュから取得または作成
 	if cursorImageCache == nil {
@@ -201,7 +199,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// 座標表示
-	drawText(fmt.Sprintf("座標: (%d, %d)", st.cursorX, st.cursorY))
+	drawText(fmt.Sprintf("座標: (%d, %d)", st.cursor.X, st.cursor.Y))
 	y += 5
 
 	// 視界内かどうかをチェック
@@ -210,7 +208,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
-	inVision := worldhelper.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursorX), int(st.cursorY))
+	inVision := worldhelper.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
 
 	if !inVision {
 		drawText("暗闇")
@@ -218,7 +216,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// タイル上のエンティティを取得
-	entities := worldhelper.GetEntitiesAt(world, st.cursorX, st.cursorY)
+	entities := worldhelper.GetEntitiesAt(world, st.cursor.X, st.cursor.Y)
 
 	if len(entities) == 0 {
 		drawText("何もありません")

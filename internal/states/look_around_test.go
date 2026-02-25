@@ -35,8 +35,8 @@ func TestLookAroundState_OnStart(t *testing.T) {
 	require.NoError(t, err)
 
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
-	assert.Equal(t, playerGrid.X, state.cursorX, "カーソルX座標がプレイヤー位置と一致するべき")
-	assert.Equal(t, playerGrid.Y, state.cursorY, "カーソルY座標がプレイヤー位置と一致するべき")
+	assert.Equal(t, playerGrid.X, state.cursor.X, "カーソルX座標がプレイヤー位置と一致するべき")
+	assert.Equal(t, playerGrid.Y, state.cursor.Y, "カーソルY座標がプレイヤー位置と一致するべき")
 }
 
 func TestLookAroundState_CursorMovement(t *testing.T) {
@@ -157,21 +157,20 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			t.Parallel()
 
 			state := &LookAroundState{
-				cursorX: consts.Tile(tt.startX),
-				cursorY: consts.Tile(tt.startY),
+				cursor: consts.Coord[consts.Tile]{X: consts.Tile(tt.startX), Y: consts.Tile(tt.startY)},
 			}
 
 			// カーソル移動をシミュレート
-			newX := int(state.cursorX) + tt.moveX
-			newY := int(state.cursorY) + tt.moveY
+			newX := int(state.cursor.X) + tt.moveX
+			newY := int(state.cursor.Y) + tt.moveY
 
 			if newX >= 0 && newX < tt.mapWidth && newY >= 0 && newY < tt.mapHeight {
-				state.cursorX = consts.Tile(newX)
-				state.cursorY = consts.Tile(newY)
+				state.cursor.X = consts.Tile(newX)
+				state.cursor.Y = consts.Tile(newY)
 			}
 
-			assert.Equal(t, consts.Tile(tt.expectedX), state.cursorX, "カーソルX座標が期待値と異なる")
-			assert.Equal(t, consts.Tile(tt.expectedY), state.cursorY, "カーソルY座標が期待値と異なる")
+			assert.Equal(t, consts.Tile(tt.expectedX), state.cursor.X, "カーソルX座標が期待値と異なる")
+			assert.Equal(t, consts.Tile(tt.expectedY), state.cursor.Y, "カーソルY座標が期待値と異なる")
 		})
 	}
 }
