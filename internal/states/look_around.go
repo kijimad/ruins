@@ -117,8 +117,11 @@ func (st *LookAroundState) Draw(world w.World, screen *ebiten.Image) error {
 	return st.drawInfoPanel(world, screen)
 }
 
-// カーソル画像のキャッシュ
-var cursorImageCache *ebiten.Image
+// 画像キャッシュ
+var (
+	cursorImageCache *ebiten.Image
+	panelImageCache  *ebiten.Image
+)
 
 // drawCursor はカーソルを描画する
 func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
@@ -174,15 +177,17 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 		lineHeight  = 20
 	)
 
-	// パネル背景
+	// パネル背景をキャッシュから取得または生成
+	if panelImageCache == nil {
+		panelImageCache = ebiten.NewImage(panelWidth, panelHeight)
+		panelImageCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+	}
+
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
-	panelImage := ebiten.NewImage(panelWidth, panelHeight)
-	panelImage.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
-
 	panelOp := &ebiten.DrawImageOptions{}
 	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(panelImage, panelOp)
+	screen.DrawImage(panelImageCache, panelOp)
 
 	// テキスト描画ヘルパー
 	textX := float64(panelX + 10)
