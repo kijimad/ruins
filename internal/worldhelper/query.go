@@ -3,6 +3,8 @@ package worldhelper
 import (
 	"fmt"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -31,4 +33,18 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 	}
 
 	return entities[0], nil
+}
+
+// GetEntitiesAt は指定座標にあるすべてのエンティティを返す
+func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity {
+	var entities []ecs.Entity
+	world.Manager.Join(
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if grid.X == x && grid.Y == y {
+			entities = append(entities, entity)
+		}
+	}))
+	return entities
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/kijimaD/ruins/internal/loader"
 	gr "github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/screeneffect"
+	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -31,9 +32,6 @@ type MainGame struct {
 
 // NewMainGame はMainGameを初期化する
 func NewMainGame(world w.World, stateMachine es.StateMachine[w.World]) (*MainGame, error) {
-	// オーバーレイ描画フックを設定
-	stateMachine.AfterDrawHook = afterDrawHook
-
 	retroFilter, err := screeneffect.NewRetroFilter()
 	if err != nil {
 		return nil, fmt.Errorf("レトロフィルタの初期化に失敗: %w", err)
@@ -83,8 +81,24 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 		target = screen
 	}
 
-	if err := game.StateMachine.Draw(game.World, target); err != nil {
-		log.Fatal(err)
+	// stateを描画し、必要に応じてブラーオーバーレイを適用する
+	stateList := game.StateMachine.GetStates()
+	for i, state := range stateList {
+		if err := state.Draw(game.World, target); err != nil {
+			log.Fatal(err)
+		}
+
+		// 複数stateがあるとき、最初のstate描画後にブラーを適用する
+		if i == 0 && len(stateList) > 1 {
+			topState := stateList[len(stateList)-1]
+			applyBlur := true
+			if cfg, ok := topState.(states.Configurable); ok {
+				applyBlur = cfg.StateConfig().BlurBackground
+			}
+			if applyBlur {
+				applyBlurOverlay(target, state)
+			}
+		}
 	}
 
 	if game.World.Config.ShowMonitor {

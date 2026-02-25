@@ -60,21 +60,10 @@ type ActionHandler[T any] interface {
 // StateFactory はステートを作成するファクトリー関数の型
 type StateFactory[T any] func() State[T]
 
-// DrawHook はstate描画時のフック関数
-// stateIndex: 現在描画したstateのインデックス
-// stateCount: 現在のstateの総数
-type DrawHook[T any] func(
-	stateIndex int,
-	stateCount int,
-	world T,
-	screen *ebiten.Image,
-) error
-
 // StateMachine はジェネリックな状態スタックを管理する
 type StateMachine[T any] struct {
 	states         []State[T]
 	lastTransition Transition[T]
-	AfterDrawHook  DrawHook[T]
 }
 
 // Init は新しいステートマシンを初期化する
@@ -133,20 +122,11 @@ func (sm *StateMachine[T]) Update(world T) error {
 
 // Draw は画面を描画する
 func (sm *StateMachine[T]) Draw(world T, screen *ebiten.Image) error {
-	stateCount := len(sm.states)
-	for i, state := range sm.states {
+	for _, state := range sm.states {
 		if err := state.Draw(world, screen); err != nil {
 			return err
 		}
-
-		// 各state描画後にフックを呼び出し
-		if sm.AfterDrawHook != nil {
-			if err := sm.AfterDrawHook(i, stateCount, world, screen); err != nil {
-				return err
-			}
-		}
 	}
-
 	return nil
 }
 
@@ -276,7 +256,7 @@ func (sm *StateMachine[T]) quit(world T) error {
 	return nil
 }
 
-// GetStates はステートスタックのコピーを返す（テスト用）
+// GetStates はステートスタックのコピーを返す
 func (sm *StateMachine[T]) GetStates() []State[T] {
 	states := make([]State[T], len(sm.states))
 	copy(states, sm.states)

@@ -215,7 +215,7 @@ func TestIsInVision(t *testing.T) {
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 5, Y: 5}] = true
 
-		result := isInVision(world, 0, 0, 5, 5)
+		result := IsInVision(world, 0, 0, 5, 5)
 
 		assert.True(t, result, "探索済みタイルは視界内であるべき")
 	})
@@ -226,7 +226,7 @@ func TestIsInVision(t *testing.T) {
 
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
-		result := isInVision(world, 0, 0, 5, 5)
+		result := IsInVision(world, 0, 0, 5, 5)
 
 		assert.False(t, result, "探索済みでないタイルは視界外であるべき")
 	})
@@ -238,7 +238,7 @@ func TestIsInVision(t *testing.T) {
 		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 100, Y: 100}] = true
 
-		result := isInVision(world, 0, 0, 100, 100)
+		result := IsInVision(world, 0, 0, 100, 100)
 
 		assert.False(t, result, "視界半径外は視界外であるべき")
 	})

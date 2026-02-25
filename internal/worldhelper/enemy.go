@@ -38,7 +38,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 		enemyY := int(gridElement.Y)
 
 		// 視界チェック（プレイヤーから見えるかどうか）
-		if !isInVision(world, playerX, playerY, enemyX, enemyY) {
+		if !IsInVision(world, playerX, playerY, enemyX, enemyY) {
 			return
 		}
 
@@ -48,8 +48,8 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	return enemies, nil
 }
 
-// isInVision はプレイヤーから指定座標が見えるかをチェックする
-func isInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
+// IsInVision はプレイヤーから指定座標が見えるかをチェックする
+func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	// 距離チェック（視界範囲外は見えない）
 	dx := targetX - playerX
 	dy := targetY - playerY
@@ -93,7 +93,7 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 		itemY := int(gridElement.Y)
 
 		// 視界チェック（プレイヤーから見えるかどうか）
-		if !isInVision(world, playerX, playerY, itemX, itemY) {
+		if !IsInVision(world, playerX, playerY, itemX, itemY) {
 			return
 		}
 
@@ -101,19 +101,4 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 	}))
 
 	return items, nil
-}
-
-// CalculateDistance は2つのエンティティ間の距離をタイル単位で計算する
-func CalculateDistance(world w.World, entity1, entity2 ecs.Entity) int {
-	if !entity1.HasComponent(world.Components.GridElement) || !entity2.HasComponent(world.Components.GridElement) {
-		return 0
-	}
-
-	grid1 := world.Components.GridElement.Get(entity1).(*gc.GridElement)
-	grid2 := world.Components.GridElement.Get(entity2).(*gc.GridElement)
-
-	dx := int(grid1.X) - int(grid2.X)
-	dy := int(grid1.Y) - int(grid2.Y)
-
-	return int(math.Sqrt(float64(dx*dx + dy*dy)))
 }
