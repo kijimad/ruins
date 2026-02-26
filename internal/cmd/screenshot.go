@@ -39,11 +39,11 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 			Depth:       1,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
 		})
-	case gs.FieldInfoState{}.String():
+	case gs.LookAroundState{}.String():
 		return vrt.RunTestGame(mode, &gs.DungeonState{
 			Depth:       1,
 			BuilderType: mapplanner.PlannerTypeSmallRoom,
-		}, &gs.FieldInfoState{})
+		}, &gs.LookAroundState{})
 	case gs.EquipMenuState{}.String():
 		return vrt.RunTestGame(mode, townStateFactory(), &gs.EquipMenuState{})
 	case "GameOver":

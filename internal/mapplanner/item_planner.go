@@ -21,7 +21,7 @@ const (
 
 // ItemSpec はアイテム配置仕様を表す
 type ItemSpec struct {
-	Coord
+	consts.Coord[int]
 	Name string // アイテム名
 }
 
@@ -100,7 +100,7 @@ func (i *ItemPlanner) addItem(planData *MetaPlan, itemName string) error {
 
 		// MetaPlanにアイテムを追加
 		planData.Items = append(planData.Items, ItemSpec{
-			Coord: Coord{X: int(x), Y: int(y)},
+			Coord: consts.Coord[int]{X: int(x), Y: int(y)},
 			Name:  itemName,
 		})
 

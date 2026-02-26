@@ -19,7 +19,7 @@ const (
 
 // NPCSpec はNPC配置仕様を表す
 type NPCSpec struct {
-	Coord
+	consts.Coord[int]
 	Name string // NPCタイプ
 }
 
@@ -78,7 +78,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		}
 
 		planData.NPCs = append(planData.NPCs, NPCSpec{
-			Coord: Coord{X: int(tx), Y: int(ty)},
+			Coord: consts.Coord[int]{X: int(tx), Y: int(ty)},
 			Name:  enemyName,
 		})
 

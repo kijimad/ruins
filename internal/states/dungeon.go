@@ -375,7 +375,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		}}, nil
 	case inputmapper.ActionOpenFieldInfo:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			func() es.State[w.World] { return &FieldInfoState{} },
+			func() es.State[w.World] { return &LookAroundState{} },
 		}}, nil
 
 	// 移動系アクション（World状態を変更）
