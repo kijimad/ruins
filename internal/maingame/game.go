@@ -71,6 +71,7 @@ func (game *MainGame) Update() error {
 }
 
 // Draw はゲームの描画処理を行う
+// interface method だからシグネチャは変更できない
 func (game *MainGame) Draw(screen *ebiten.Image) {
 	bounds := screen.Bounds()
 	offscreen := game.screenPipeline.Begin(bounds.Dx(), bounds.Dy())
