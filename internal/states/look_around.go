@@ -113,6 +113,8 @@ func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) 
 		st.moveCursor(world, -1, 0)
 	case inputmapper.ActionMoveEast:
 		st.moveCursor(world, 1, 0)
+	default:
+		return es.Transition[w.World]{}, fmt.Errorf("未対応のアクション: %s", action)
 	}
 
 	return st.ConsumeTransition(), nil
