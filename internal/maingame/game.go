@@ -91,11 +91,7 @@ func (game *MainGame) Draw(screen *ebiten.Image) {
 		// 複数stateがあるとき、最初のstate描画後にブラーを適用する
 		if i == 0 && len(stateList) > 1 {
 			topState := stateList[len(stateList)-1]
-			applyBlur := true
-			if cfg, ok := topState.(states.Configurable); ok {
-				applyBlur = cfg.StateConfig().BlurBackground
-			}
-			if applyBlur {
+			if cfg, ok := topState.(states.Configurable); !ok || cfg.StateConfig().BlurBackground {
 				applyBlurOverlay(target, state)
 			}
 		}
