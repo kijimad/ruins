@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
+	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -69,41 +70,64 @@ func (st *LookAroundState) OnStop(_ w.World) error { return nil }
 func (st *LookAroundState) Update(world w.World) (es.Transition[w.World], error) {
 	st.blinkCounter++
 
-	keyboardInput := input.GetSharedKeyboardInput()
-
-	// Escapeキーまたは Xキーで終了
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) || keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
-		return es.Transition[w.World]{Type: es.TransPop}, nil
-	}
-
-	// 方向キーでカーソル移動
-	var dx, dy int
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {
-		dy = -1
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
-		dy = 1
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) || keyboardInput.IsKeyJustPressed(ebiten.KeyA) {
-		dx = -1
-	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) || keyboardInput.IsKeyJustPressed(ebiten.KeyD) {
-		dx = 1
-	}
-
-	if dx != 0 || dy != 0 {
-		newX := int(st.cursor.X) + dx
-		newY := int(st.cursor.Y) + dy
-
-		// マップ範囲内なら移動可能
-		level := world.Resources.Dungeon.Level
-		if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
-			st.cursor.X = consts.Tile(newX)
-			st.cursor.Y = consts.Tile(newY)
-		}
+	if action, ok := st.handleInput(); ok {
+		return st.doAction(world, action)
 	}
 
 	return st.ConsumeTransition(), nil
+}
+
+// handleInput はキー入力をActionIDに変換する
+func (st *LookAroundState) handleInput() (inputmapper.ActionID, bool) {
+	keyboardInput := input.GetSharedKeyboardInput()
+
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) || keyboardInput.IsKeyJustPressed(ebiten.KeyX) {
+		return inputmapper.ActionCloseMenu, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {
+		return inputmapper.ActionMoveNorth, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+		return inputmapper.ActionMoveSouth, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyLeft) || keyboardInput.IsKeyJustPressed(ebiten.KeyA) {
+		return inputmapper.ActionMoveWest, true
+	}
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyRight) || keyboardInput.IsKeyJustPressed(ebiten.KeyD) {
+		return inputmapper.ActionMoveEast, true
+	}
+
+	return "", false
+}
+
+// doAction はActionIDを実行する
+func (st *LookAroundState) doAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	switch action {
+	case inputmapper.ActionCloseMenu:
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionMoveNorth:
+		st.moveCursor(world, 0, -1)
+	case inputmapper.ActionMoveSouth:
+		st.moveCursor(world, 0, 1)
+	case inputmapper.ActionMoveWest:
+		st.moveCursor(world, -1, 0)
+	case inputmapper.ActionMoveEast:
+		st.moveCursor(world, 1, 0)
+	}
+
+	return st.ConsumeTransition(), nil
+}
+
+// moveCursor はカーソルを移動する
+func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
+	newX := int(st.cursor.X) + dx
+	newY := int(st.cursor.Y) + dy
+
+	level := world.Resources.Dungeon.Level
+	if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
+		st.cursor.X = consts.Tile(newX)
+		st.cursor.Y = consts.Tile(newY)
+	}
 }
 
 // Draw はステートの描画処理

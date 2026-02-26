@@ -156,18 +156,15 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
+			world := testutil.InitTestWorld(t)
+			world.Resources.Dungeon.Level.TileWidth = consts.Tile(tt.mapWidth)
+			world.Resources.Dungeon.Level.TileHeight = consts.Tile(tt.mapHeight)
+
 			state := &LookAroundState{
 				cursor: consts.Coord[consts.Tile]{X: consts.Tile(tt.startX), Y: consts.Tile(tt.startY)},
 			}
 
-			// カーソル移動をシミュレート
-			newX := int(state.cursor.X) + tt.moveX
-			newY := int(state.cursor.Y) + tt.moveY
-
-			if newX >= 0 && newX < tt.mapWidth && newY >= 0 && newY < tt.mapHeight {
-				state.cursor.X = consts.Tile(newX)
-				state.cursor.Y = consts.Tile(newY)
-			}
+			state.moveCursor(world, tt.moveX, tt.moveY)
 
 			assert.Equal(t, consts.Tile(tt.expectedX), state.cursor.X, "カーソルX座標が期待値と異なる")
 			assert.Equal(t, consts.Tile(tt.expectedY), state.cursor.Y, "カーソルY座標が期待値と異なる")
