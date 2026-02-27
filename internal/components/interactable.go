@@ -39,7 +39,7 @@ type PortalInteraction struct {
 func (p PortalInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual, // Enterキーで発動
+		ActivationWay:   ActivationWayManual,
 	}
 }
 
@@ -51,7 +51,7 @@ type DungeonGateInteraction struct{}
 func (d DungeonGateInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual, // Enterキーで発動
+		ActivationWay:   ActivationWayManual,
 	}
 }
 
