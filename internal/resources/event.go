@@ -18,6 +18,8 @@ const (
 	StateEventTypeGameClear = StateEventType("GAME_CLEAR")
 	// StateEventTypeShowDialog は会話メッセージの表示を表す
 	StateEventTypeShowDialog = StateEventType("SHOW_DIALOG")
+	// StateEventTypeOpenDungeonSelect はダンジョン選択メニューを開くことを表す
+	StateEventTypeOpenDungeonSelect = StateEventType("OPEN_DUNGEON_SELECT")
 )
 
 // StateEvent はフィールド上でのイベント。ステート遷移が発生する
@@ -66,4 +68,12 @@ type ShowDialogEvent struct {
 // Type はイベントタイプを返す
 func (e ShowDialogEvent) Type() StateEventType {
 	return StateEventTypeShowDialog
+}
+
+// OpenDungeonSelectEvent はダンジョン選択メニューを開くことを表す
+type OpenDungeonSelectEvent struct{}
+
+// Type はイベントタイプを返す
+func (e OpenDungeonSelectEvent) Type() StateEventType {
+	return StateEventTypeOpenDungeonSelect
 }

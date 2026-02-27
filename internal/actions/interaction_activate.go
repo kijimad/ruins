@@ -70,6 +70,8 @@ func (ia *InteractionActivateActivity) DoTurn(act *Activity, world w.World) erro
 	switch content := interactable.Data.(type) {
 	case gc.PortalInteraction:
 		err = ia.executePortal(act, world, content)
+	case gc.DungeonGateInteraction:
+		err = ia.executeDungeonGate(act, world, content)
 	case gc.DoorInteraction:
 		ia.executeDoor(act, world, content)
 	case gc.TalkInteraction:
@@ -123,6 +125,16 @@ func (ia *InteractionActivateActivity) executePortal(act *Activity, world w.Worl
 	default:
 		return fmt.Errorf("未知のポータルタイプ: %s", portal.PortalType)
 	}
+	return nil
+}
+
+// executeDungeonGate はダンジョンゲート相互作用を実行する
+func (ia *InteractionActivateActivity) executeDungeonGate(act *Activity, world w.World, _ gc.DungeonGateInteraction) error {
+	// ダンジョン選択メニューを開く
+	if err := world.Resources.Dungeon.RequestStateChange(resources.OpenDungeonSelectEvent{}); err != nil {
+		return fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
+	}
+	act.Logger.Debug("ダンジョンゲート発動", "actor", act.Actor)
 	return nil
 }
 

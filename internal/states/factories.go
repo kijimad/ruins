@@ -455,6 +455,39 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	return NewDungeonState(0, allOpts...)
 }
 
+// NewDungeonSelectMenuState はダンジョン選択メニューのStateを作成するファクトリー関数
+// DungeonGateInteractionの発動時に呼ばれる
+func NewDungeonSelectMenuState() es.State[w.World] {
+	messageState := &MessageState{}
+
+	// ダンジョン選択メッセージを作成
+	msg := messagedata.NewSystemMessage("どこへ向かう？")
+
+	// 全ダンジョンを選択肢として追加
+	for _, d := range dungeon.GetAllDungeons() {
+		choiceLabel := fmt.Sprintf("%s（全%d階）", d.Name, d.TotalFloors)
+		msg = msg.WithChoice(choiceLabel, func(_ w.World) error {
+			// 選択したダンジョンに遷移
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					NewFadeoutAnimationState(NewDungeonState(1, WithDefinitionName(d.Name))),
+				},
+			})
+			return nil
+		})
+	}
+
+	// 閉じる選択肢を追加
+	msg = msg.WithChoice("やめる", func(_ w.World) error {
+		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+		return nil
+	})
+
+	messageState.messageData = msg
+	return messageState
+}
+
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
 func NewMainMenuState() es.State[w.World] {
 	return &MainMenuState{}
