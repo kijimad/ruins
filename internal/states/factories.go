@@ -769,10 +769,7 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 	messageState.messageData = messagedata.NewSystemMessage("")
 
 	for _, action := range interactionActions {
-		// TODO(kijima): ループ変数の対策は不要になったので消す
-		// クロージャで変数をキャプチャ
-		capturedAction := action
-		messageState.messageData = messageState.messageData.WithChoice(capturedAction.Label, func(world w.World) error {
+		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
 			// プレイヤーエンティティの取得
 			playerEntity, err := worldhelper.GetPlayerEntity(world)
 			if err != nil {
@@ -782,9 +779,9 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 			// アクションを実行
 			params := actions.ActionParams{
 				Actor:  playerEntity,
-				Target: &capturedAction.Target,
+				Target: &action.Target,
 			}
-			if err := executeActivity(world, capturedAction.Activity, params); err != nil {
+			if err := executeActivity(world, action.Activity, params); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 

@@ -33,8 +33,7 @@ func (st *dummyState) Update(world w.World) (es.Transition[w.World], error) {
 	if len(st.states) > 1 {
 		factories := make([]es.StateFactory[w.World], len(st.states)-1)
 		for i, state := range st.states[1:] {
-			capturedState := state
-			factories[i] = func() es.State[w.World] { return capturedState }
+			factories[i] = func() es.State[w.World] { return state }
 		}
 		// pushが完了したらstatesを消費
 		st.states = st.states[:1]
