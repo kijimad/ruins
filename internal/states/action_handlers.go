@@ -283,6 +283,10 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 				Append("帰還ゲートがある。Enterキーで脱出。").
 				Log()
 		}
+	case gc.DungeonGateInteraction:
+		gamelog.New(gamelog.FieldLog).
+			Append("ダンジョンへの門がある。Enterキーで選択。").
+			Log()
 	}
 }
 
@@ -345,6 +349,13 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 		}
 		result = append(result, InteractionAction{
 			Label:    label,
+			Activity: &actions.InteractionActivateActivity{InteractableEntity: interactableEntity},
+			Target:   interactableEntity,
+		})
+	case gc.DungeonGateInteraction:
+		// ダンジョン選択アクションを生成
+		result = append(result, InteractionAction{
+			Label:    "ダンジョンを選ぶ",
 			Activity: &actions.InteractionActivateActivity{InteractableEntity: interactableEntity},
 			Target:   interactableEntity,
 		})

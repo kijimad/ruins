@@ -455,6 +455,39 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	return NewDungeonState(0, allOpts...)
 }
 
+// NewDungeonSelectMenuState はダンジョン選択メニューのStateを作成するファクトリー関数
+// DungeonGateInteractionの発動時に呼ばれる
+func NewDungeonSelectMenuState() es.State[w.World] {
+	messageState := &MessageState{}
+
+	// ダンジョン選択メッセージを作成
+	msg := messagedata.NewSystemMessage("どこへ向かう？")
+
+	// 全ダンジョンを選択肢として追加
+	for _, d := range dungeon.GetAllDungeons() {
+		choiceLabel := fmt.Sprintf("%s（全%d階）", d.Name, d.TotalFloors)
+		msg = msg.WithChoice(choiceLabel, func(_ w.World) error {
+			// 選択したダンジョンに遷移
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					NewFadeoutAnimationState(NewDungeonState(1, WithDefinitionName(d.Name))),
+				},
+			})
+			return nil
+		})
+	}
+
+	// 閉じる選択肢を追加
+	msg = msg.WithChoice("やめる", func(_ w.World) error {
+		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+		return nil
+	})
+
+	messageState.messageData = msg
+	return messageState
+}
+
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
 func NewMainMenuState() es.State[w.World] {
 	return &MainMenuState{}
@@ -736,10 +769,7 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 	messageState.messageData = messagedata.NewSystemMessage("")
 
 	for _, action := range interactionActions {
-		// TODO(kijima): ループ変数の対策は不要になったので消す
-		// クロージャで変数をキャプチャ
-		capturedAction := action
-		messageState.messageData = messageState.messageData.WithChoice(capturedAction.Label, func(world w.World) error {
+		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
 			// プレイヤーエンティティの取得
 			playerEntity, err := worldhelper.GetPlayerEntity(world)
 			if err != nil {
@@ -749,9 +779,9 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 			// アクションを実行
 			params := actions.ActionParams{
 				Actor:  playerEntity,
-				Target: &capturedAction.Target,
+				Target: &action.Target,
 			}
-			if err := executeActivity(world, capturedAction.Activity, params); err != nil {
+			if err := executeActivity(world, action.Activity, params); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 

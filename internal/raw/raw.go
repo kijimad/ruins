@@ -608,16 +608,17 @@ type TileRaw struct {
 
 // PropRaw は置物のローデータ定義
 type PropRaw struct {
-	Name              string
-	Description       string
-	SpriteRender      gc.SpriteRender
-	AnimKeys          []string
-	BlockPass         bool
-	BlockView         bool
-	LightSource       *gc.LightSource
-	Door              *DoorRaw
-	WarpNextTrigger   *WarpNextTriggerRaw   // 次階層ワープのトリガー
-	WarpEscapeTrigger *WarpEscapeTriggerRaw // 脱出ワープのトリガー
+	Name               string
+	Description        string
+	SpriteRender       gc.SpriteRender
+	AnimKeys           []string
+	BlockPass          bool
+	BlockView          bool
+	LightSource        *gc.LightSource
+	Door               *DoorRaw
+	WarpNextTrigger    *WarpNextTriggerRaw    // 次階層ワープのトリガー
+	WarpEscapeTrigger  *WarpEscapeTriggerRaw  // 脱出ワープのトリガー
+	DungeonGateTrigger *DungeonGateTriggerRaw // ダンジョン選択ゲートのトリガー
 }
 
 // DoorRaw はドアのローデータ
@@ -628,6 +629,9 @@ type WarpNextTriggerRaw struct{}
 
 // WarpEscapeTriggerRaw は脱出ワープトリガーのローデータ
 type WarpEscapeTriggerRaw struct{}
+
+// DungeonGateTriggerRaw はダンジョン選択ゲートトリガーのローデータ
+type DungeonGateTriggerRaw struct{}
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
@@ -744,6 +748,13 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 	if propRaw.WarpEscapeTrigger != nil {
 		entitySpec.Interactable = &gc.Interactable{
 			Data: gc.PortalInteraction{PortalType: gc.PortalTypeTown},
+		}
+	}
+
+	// ダンジョン選択ゲートトリガー
+	if propRaw.DungeonGateTrigger != nil {
+		entitySpec.Interactable = &gc.Interactable{
+			Data: gc.DungeonGateInteraction{},
 		}
 	}
 

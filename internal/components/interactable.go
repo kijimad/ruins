@@ -39,7 +39,19 @@ type PortalInteraction struct {
 func (p PortalInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
-		ActivationWay:   ActivationWayManual, // Enterキーで発動
+		ActivationWay:   ActivationWayManual,
+	}
+}
+
+// DungeonGateInteraction はダンジョン選択門の相互作用
+// 発動するとダンジョン選択メニューを開く
+type DungeonGateInteraction struct{}
+
+// Config は相互作用設定を返す
+func (d DungeonGateInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayManual,
 	}
 }
 

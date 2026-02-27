@@ -318,7 +318,7 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 	}
 
 	// 相互作用キー（Enter）
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEnter) {
+	if keyboardInput.IsEnterJustPressedOnce() {
 		return inputmapper.ActionInteract, true
 	}
 
@@ -515,6 +515,9 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 		}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
+	case resources.OpenDungeonSelectEvent:
+		// ダンジョン選択メニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectMenuState}}, nil
 	}
 
 	// NoneEventまたは未知のイベントの場合は何もしない

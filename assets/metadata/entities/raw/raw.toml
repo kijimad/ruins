@@ -2208,6 +2208,48 @@
 
   [Props.WarpEscapeTrigger]
 
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "ダンジョンへの門"
+  Name        = "dungeon_gate"
+
+  # TODO: スプライトを設定する
+  [Props.SpriteRender]
+    AnimKeys = [
+      "warp_next_0",
+      "warp_next_1",
+      "warp_next_2",
+      "warp_next_3",
+      "warp_next_4",
+      "warp_next_5",
+      "warp_next_6",
+      "warp_next_7",
+      "warp_next_8",
+      "warp_next_9",
+      "warp_next_10",
+      "warp_next_11",
+      "warp_next_12",
+      "warp_next_13",
+      "warp_next_14",
+      "warp_next_15",
+    ]
+    Depth = 1
+    SpriteKey = "warp_next_0"
+    SpriteSheetName = "field"
+
+  [Props.LightSource]
+    Enabled = true
+    Radius  = 2
+
+    [Props.LightSource.Color]
+      A = 200
+      B = 150
+      G = 100
+      R = 255
+
+  [Props.DungeonGateTrigger]
+
     # enemy tables ================
 
 [[EnemyTables]]
