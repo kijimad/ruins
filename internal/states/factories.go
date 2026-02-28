@@ -770,18 +770,13 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 
 	for _, action := range interactionActions {
 		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
-			// プレイヤーエンティティの取得
 			playerEntity, err := worldhelper.GetPlayerEntity(world)
 			if err != nil {
 				return fmt.Errorf("failed to get player entity: %w", err)
 			}
 
-			// アクションを実行
-			params := actions.ActionParams{
-				Actor:  playerEntity,
-				Target: &action.Target,
-			}
-			if err := executeActivity(world, action.Activity, params); err != nil {
+			manager := world.Resources.ActivityManager.(*actions.ActivityManager)
+			if _, err := actions.ExecuteInteraction(manager, playerEntity, action.Target, world); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 

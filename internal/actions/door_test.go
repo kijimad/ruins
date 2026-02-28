@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -31,7 +30,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		door.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
 		// OpenDoorActivityを実行
-		manager := NewActivityManager(logger.New(logger.CategoryAction))
+		manager := NewActivityManager(nil)
 		params := ActionParams{
 			Actor:  player,
 			Target: &door,
@@ -68,7 +67,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 
 		// OpenDoorActivityを実行
-		manager := NewActivityManager(logger.New(logger.CategoryAction))
+		manager := NewActivityManager(nil)
 		params := ActionParams{
 			Actor:  player,
 			Target: &wall,
@@ -93,7 +92,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
 		// OpenDoorActivityを実行（Targetなし）
-		manager := NewActivityManager(logger.New(logger.CategoryAction))
+		manager := NewActivityManager(nil)
 		params := ActionParams{
 			Actor: player,
 		}

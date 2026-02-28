@@ -16,6 +16,8 @@ type ActivityManager struct {
 	// 1エンティティで最大1アクティビティ
 	currentActivities map[ecs.Entity]*Activity
 	logger            *logger.Logger
+	// History はテスト用の履歴記録先。nilでなければ実行結果を追記する
+	History *[]ActivityHistoryEntry
 }
 
 // NewActivityManager は新しいActivityManagerを作成する
@@ -29,6 +31,16 @@ func NewActivityManager(l *logger.Logger) *ActivityManager {
 	}
 }
 
+// ActivityHistoryEntry は実行されたアクティビティの記録
+// テスト用に公開している
+type ActivityHistoryEntry struct {
+	Activity ActivityInterface // 実行されたアクティビティ
+	Actor    ecs.Entity        // 実行者
+	Target   *ecs.Entity       // 対象（あれば）
+	Success  bool              // 成功/失敗
+	Message  string            // 結果メッセージ
+}
+
 // Execute は指定されたアクション（アクティビティ）を実行する
 // 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理
 func (am *ActivityManager) Execute(actorImpl ActivityInterface, params ActionParams, world w.World) (*ActionResult, error) {
@@ -37,16 +49,21 @@ func (am *ActivityManager) Execute(actorImpl ActivityInterface, params ActionPar
 		"type", activityName,
 		"actor", params.Actor)
 
+	// 履歴を予約する
+	historyIndex := am.reserveHistory(actorImpl, params)
+
 	// アクティビティを作成
 	activity := am.createActivity(actorImpl, params, world)
 
 	// アクティビティを開始
 	if err := am.StartActivity(activity, world); err != nil {
-		return &ActionResult{
+		result := &ActionResult{
 			Success:      false,
 			ActivityName: activityName,
 			Message:      err.Error(),
-		}, err
+		}
+		am.recordHistory(historyIndex, result)
+		return result, err
 	}
 
 	// 即座実行アクション（1ターン）の場合は即座に処理
@@ -60,26 +77,56 @@ func (am *ActivityManager) Execute(actorImpl ActivityInterface, params ActionPar
 		// 結果を確認
 		currentActivity := am.GetCurrentActivity(params.Actor)
 		if currentActivity == nil || currentActivity.IsCompleted() {
-			return &ActionResult{
+			result := &ActionResult{
 				Success:      true,
 				ActivityName: activityName,
 				Message:      "アクション完了",
-			}, nil
+			}
+			am.recordHistory(historyIndex, result)
+			return result, nil
 		} else if currentActivity.IsCanceled() {
-			return &ActionResult{
+			result := &ActionResult{
 				Success:      false,
 				ActivityName: activityName,
 				Message:      currentActivity.CancelReason,
-			}, fmt.Errorf("アクション失敗: %s", currentActivity.CancelReason)
+			}
+			am.recordHistory(historyIndex, result)
+			return result, fmt.Errorf("アクション失敗: %s", currentActivity.CancelReason)
 		}
 	}
 
 	// 継続アクションの場合は開始成功を返す
-	return &ActionResult{
+	result := &ActionResult{
 		Success:      true,
 		ActivityName: activityName,
 		Message:      "アクション開始",
-	}, nil
+	}
+	am.recordHistory(historyIndex, result)
+	return result, nil
+}
+
+// reserveHistory は履歴エントリを予約し、インデックスを返す
+// Execute開始時に呼び出すことで、ネストした呼び出しでも開始順を保持できる
+// 完了時に記録すると内側の呼び出しが先に記録されて順序が逆転するため
+func (am *ActivityManager) reserveHistory(actorImpl ActivityInterface, params ActionParams) int {
+	if am.History == nil {
+		return -1
+	}
+	*am.History = append(*am.History, ActivityHistoryEntry{
+		Activity: actorImpl,
+		Actor:    params.Actor,
+		Target:   params.Target,
+	})
+	return len(*am.History) - 1
+}
+
+// recordHistory は履歴の指定位置に結果を記録する
+func (am *ActivityManager) recordHistory(index int, result *ActionResult) {
+	if am.History == nil || index < 0 || index >= len(*am.History) {
+		return
+	}
+	(*am.History)[index].Success = result.Success
+	(*am.History)[index].Message = result.Message
 }
 
 // StartActivity は新しいアクティビティを開始する

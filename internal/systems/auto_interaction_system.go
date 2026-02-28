@@ -82,14 +82,8 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 		}
 
 		// 自動実行の相互作用を実行する
-		activity := &actions.InteractionActivateActivity{
-			InteractableEntity: interactableEntity,
-		}
-		params := actions.ActionParams{
-			Actor: playerEntity,
-		}
-		manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
-		_, err := manager.Execute(activity, params, world)
+		manager := world.Resources.ActivityManager.(*actions.ActivityManager)
+		_, err := actions.ExecuteInteraction(manager, playerEntity, interactableEntity, world)
 		if err != nil {
 			return err
 		}
