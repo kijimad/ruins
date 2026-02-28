@@ -32,7 +32,7 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 	p.logger.Debug("AI処理開始", "turn", turnManager.TurnNumber, "playerMoves", turnManager.PlayerMoves)
 
-	manager := activity.NewActivityManager(logger.New(logger.CategoryAction))
+	manager := activity.NewManager(logger.New(logger.CategoryAction))
 	entityCount := 0
 
 	// AIMoveFSMコンポーネントを持つ全エンティティを処理
@@ -133,8 +133,8 @@ func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, enti
 			break
 		}
 
-		p.logger.Debug("AIアクション実行成功", "entity", entity, "activity", activityName, "success", result.Success, "state", context.Roaming.SubState, "message", result.Message)
-		actionsExecuted++
+		p.logger.Debug("AIアクティビティ実行成功", "entity", entity, "activity", activityName, "success", result.Success, "state", context.Roaming.SubState, "message", result.Message)
+		activitiesExecuted++
 
 		// アクション失敗時は停止
 		if !result.Success {
@@ -143,7 +143,7 @@ func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, enti
 		}
 	}
 
-	p.logger.Debug("AIエンティティ処理完了", "entity", entity, "実行されたアクション数", actionsExecuted)
+	p.logger.Debug("AIエンティティ処理完了", "entity", entity, "実行されたアクティビティ数", activitiesExecuted)
 }
 
 // EntityContext はAIエンティティの必要な情報をまとめる

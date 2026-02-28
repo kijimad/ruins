@@ -30,7 +30,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		door.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
 		// OpenDoorActivityを実行
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		params := ActionParams{
 			Actor:  player,
 			Target: &door,
@@ -67,7 +67,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 
 		// OpenDoorActivityを実行
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		params := ActionParams{
 			Actor:  player,
 			Target: &wall,
@@ -92,7 +92,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
 		// OpenDoorActivityを実行（Targetなし）
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		params := ActionParams{
 			Actor: player,
 		}

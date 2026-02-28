@@ -34,7 +34,7 @@ func TestExecuteInteraction_NoInteractable(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -50,7 +50,7 @@ func TestExecuteInteraction_InvalidRange(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -69,7 +69,7 @@ func TestExecuteInteraction_InvalidWay(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -90,7 +90,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 	t.Run("閉じたドアを開く", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		// プレイヤーを作成
@@ -123,7 +123,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 	t.Run("開いたドアを閉じる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		// プレイヤーを作成
@@ -157,7 +157,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成
@@ -190,7 +190,7 @@ func TestExecuteInteraction_Item(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成（インベントリなし）
@@ -222,7 +222,7 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成（攻撃手段なし）
@@ -252,7 +252,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成（武器なし、素手で攻撃）
@@ -310,7 +310,7 @@ func TestExecuteInteraction_TestTrigger(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -336,7 +336,7 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 	t.Run("次階への転移", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
@@ -358,7 +358,7 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 	t.Run("街への帰還", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
@@ -380,7 +380,7 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 	t.Run("未知のポータルタイプ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
@@ -403,7 +403,7 @@ func TestExecuteInteraction_DungeonGate(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -427,7 +427,7 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -452,7 +452,7 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
@@ -488,7 +488,7 @@ func TestExecuteInteraction_UnknownType(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()

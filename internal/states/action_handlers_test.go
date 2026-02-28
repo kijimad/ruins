@@ -20,7 +20,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 		world.Resources.Dungeon.Level.TileWidth = 50
 		world.Resources.Dungeon.Level.TileHeight = 50
@@ -48,7 +48,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーなしで移動を試みる（エラーが返ることを確認）
 		assert.Error(t, activity.ExecuteMoveAction(world, gc.DirectionUp))
@@ -58,7 +58,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// GridElementなしのプレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -93,7 +93,7 @@ func TestExecuteMoveAction(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
 				world.Resources.TurnManager = turns.NewTurnManager()
-				world.Resources.ActivityManager = activity.NewActivityManager(nil)
+				world.Resources.ActivityManager = activity.NewManager(nil)
 
 				// マップサイズを設定（移動判定に必要）
 				world.Resources.Dungeon.Level.TileWidth = 50
@@ -117,7 +117,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成（AP.Max < 100）
 		player := world.Manager.NewEntity()
@@ -154,7 +154,7 @@ func TestExecuteWaitAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
@@ -176,7 +176,7 @@ func TestExecuteWaitAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーなしで待機を試みる（エラーが返ることを確認）
 		assert.Error(t, activity.ExecuteWaitAction(world))
@@ -190,7 +190,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -216,7 +216,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -234,7 +234,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーなしでEnterを試みる（エラーが返ることを確認）
 		assert.Error(t, activity.ExecuteEnterAction(world))
@@ -244,7 +244,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// GridElementなしのプレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -259,7 +259,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -283,7 +283,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
@@ -315,7 +315,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world.Resources.TurnManager = turns.NewTurnManager()
 		turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
@@ -355,7 +355,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
@@ -502,7 +502,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world.Resources.Dungeon.Level.TileWidth = 50
 		world.Resources.Dungeon.Level.TileHeight = 50
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
@@ -530,7 +530,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world.Resources.Dungeon.Level.TileWidth = 50
 		world.Resources.Dungeon.Level.TileHeight = 50
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := activity.NewActivityManager(nil)
+		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
 		_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")

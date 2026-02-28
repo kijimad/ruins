@@ -420,7 +420,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		manager := activity.NewActivityManager(logger.New(logger.CategoryAction))
+		manager := activity.NewManager(logger.New(logger.CategoryAction))
 		params := activity.ActionParams{
 			Actor:  playerEntity,
 			Target: &st.selectedItem,
@@ -446,7 +446,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			Target: st.selectedItem,
 		}
 
-		manager := activity.NewActivityManager(logger.New(logger.CategoryAction))
+		manager := activity.NewManager(logger.New(logger.CategoryAction))
 		params := activity.ActionParams{
 			Actor: playerEntity,
 		}

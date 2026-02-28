@@ -80,7 +80,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// アクティビティマネージャーを初期化
 	if world.Resources.ActivityManager == nil {
-		world.Resources.ActivityManager = activity.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewManager(nil)
 	}
 
 	// 設定されていればリソースに反映する

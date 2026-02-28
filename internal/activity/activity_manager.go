@@ -20,8 +20,8 @@ type Manager struct {
 	History *[]HistoryEntry
 }
 
-// NewActivityManager は新しいActivityManagerを作成する
-func NewActivityManager(l *logger.Logger) *Manager {
+// NewManager は新しいActivityManagerを作成する
+func NewManager(l *logger.Logger) *Manager {
 	if l == nil {
 		l = logger.New(logger.CategoryAction)
 	}

@@ -14,7 +14,7 @@ import (
 
 func TestActivityManagerCreation(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 
 	if manager == nil {
 		t.Errorf("Expected non-nil activity manager")
@@ -33,7 +33,7 @@ func TestActivityManagerCreation(t *testing.T) {
 
 func TestActivityManagerStartActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -71,7 +71,7 @@ func TestActivityManagerStartActivity(t *testing.T) {
 
 func TestActivityManagerMultipleActivities(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	actor1 := ecs.Entity(1)
@@ -115,7 +115,7 @@ func TestActivityManagerMultipleActivities(t *testing.T) {
 
 func TestActivityManagerReplaceActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -153,7 +153,7 @@ func TestActivityManagerReplaceActivity(t *testing.T) {
 
 func TestActivityManagerInterruptAndResume(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -210,7 +210,7 @@ func TestActivityManagerInterruptAndResume(t *testing.T) {
 
 func TestActivityManagerCancel(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -242,7 +242,7 @@ func TestActivityManagerCancel(t *testing.T) {
 
 func TestActivityManagerProcessTurn(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	actor1 := ecs.Entity(1)
@@ -310,7 +310,7 @@ func TestActivityManagerProcessTurn(t *testing.T) {
 
 func TestActivityManagerSummary(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(nil)
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	// 初期状態のサマリー
@@ -370,7 +370,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world.Resources.TurnManager = turns.NewTurnManager()
 
 		var history []HistoryEntry
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		manager.History = &history
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
@@ -398,7 +398,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world.Resources.Dungeon.Level.TileHeight = 50
 
 		var history []HistoryEntry
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		manager.History = &history
 		world.Resources.ActivityManager = manager
 
@@ -425,7 +425,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
 
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		// History を設定しない
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
@@ -445,7 +445,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world.Resources.TurnManager = turns.NewTurnManager()
 
 		var history []HistoryEntry
-		manager := NewActivityManager(nil)
+		manager := NewManager(nil)
 		manager.History = &history
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")

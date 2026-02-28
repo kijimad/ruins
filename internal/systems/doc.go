@@ -36,7 +36,7 @@
 //
 //	↓ 実行許可
 //
-// actions (実行層) - アクション実行
+// activity (実行層) - アクティビティ実行
 // ```
 //
 // ## 設計原則
@@ -57,7 +57,7 @@
 //		// 2. キー入力を方向に変換
 //		direction := convertKeyToDirection()
 //
-//		// 3. アクション実行（actionsパッケージに委譲）
-//		executeActivity(world, actions.ActivityMove, params)
+//		// 3. アクティビティ実行（activityパッケージに委譲）
+//		executeActivity(world, activity.ActivityMove, params)
 //	}
 package systems

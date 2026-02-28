@@ -31,14 +31,14 @@
 //
 //	↓           ↑
 //
-// actions → turns.ConsumePlayerMoves() → コスト消費
+// activity → turns.ConsumePlayerMoves() → コスト消費
 // ```
 //
 // ## 責務の境界
 //
 // - **turns**: いつ誰が行動できるか（When & Who）
 // - **systems**: 何の入力を受け取るか（What Input）
-// - **actions**: どのような行動をするか（What Action）
+// - **activity**: どのような行動をするか（What Action）
 //
 // # 仕様
 //

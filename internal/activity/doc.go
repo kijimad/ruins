@@ -38,7 +38,7 @@
 // - aiinput/processor.go から使用（AI行動処理）
 //
 // ```go
-// manager := activity.NewActivityManager(logger)
+// manager := activity.NewManager(logger)
 // result, err := manager.Execute(activityType, params, world)
 // ```
 //
@@ -101,7 +101,7 @@
 // # 使用例
 //
 //	// ActivityManagerを通じた統一的なアクション実行
-//	manager := activity.NewActivityManager(logger)
+//	manager := activity.NewManager(logger)
 //
 //	// 即座実行アクション（移動）
 //	params := activity.ActionParams{Actor: player, Destination: &dest}
