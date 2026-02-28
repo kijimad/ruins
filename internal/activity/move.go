@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ import (
 type MoveActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (ma *MoveActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (ma *MoveActivity) Info() Info {
+	return Info{
 		Name:            "移動",
 		Description:     "隣接するタイルに移動する",
 		Interruptible:   false,

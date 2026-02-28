@@ -1,7 +1,7 @@
 package states
 
 import (
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -30,7 +30,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 	var interactionActions []InteractionAction
 
 	// インタラクティブな相互作用を全て取得してアクションを生成
-	interactableEntities := actions.GetAllInteractiveInteractablesInRange(world, gridElement)
+	interactableEntities := activity.GetAllInteractiveInteractablesInRange(world, gridElement)
 	for _, interactableEntity := range interactableEntities {
 		if !interactableEntity.HasComponent(world.Components.GridElement) {
 			continue
@@ -41,7 +41,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 
 		interactableGrid := world.Components.GridElement.Get(interactableEntity).(*gc.GridElement)
 		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
-		dirLabel := actions.GetDirectionLabel(gridElement, interactableGrid)
+		dirLabel := activity.GetDirectionLabel(gridElement, interactableGrid)
 		actionsForEntity := getInteractionActions(world, interactable, interactableEntity, dirLabel)
 		interactionActions = append(interactionActions, actionsForEntity...)
 	}

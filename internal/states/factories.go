@@ -3,7 +3,7 @@ package states
 import (
 	"fmt"
 
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -775,8 +775,8 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 				return fmt.Errorf("failed to get player entity: %w", err)
 			}
 
-			manager := world.Resources.ActivityManager.(*actions.ActivityManager)
-			if _, err := actions.ExecuteInteraction(manager, playerEntity, action.Target, world); err != nil {
+			manager := world.Resources.ActivityManager.(*activity.Manager)
+			if _, err := activity.ExecuteInteraction(manager, playerEntity, action.Target, world); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 

@@ -1,7 +1,7 @@
 package systems
 
 import (
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/aiinput"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
@@ -79,7 +79,7 @@ func processPlayerContinuousActivity(world w.World, turnManager *turns.TurnManag
 		return false
 	}
 
-	manager := world.Resources.ActivityManager.(*actions.ActivityManager)
+	manager := world.Resources.ActivityManager.(*activity.Manager)
 
 	// プレイヤーエンティティを取得
 	playerEntity, err := worldhelper.GetPlayerEntity(world)

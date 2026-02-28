@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ import (
 type OpenDoorActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (oda *OpenDoorActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (oda *OpenDoorActivity) Info() Info {
+	return Info{
 		Name:            "ドア開閉",
 		Description:     "ドアを開く",
 		Interruptible:   false,
@@ -102,8 +102,8 @@ func (oda *OpenDoorActivity) Canceled(act *Activity, _ w.World) error {
 type CloseDoorActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (cda *CloseDoorActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (cda *CloseDoorActivity) Info() Info {
+	return Info{
 		Name:            "ドア閉鎖",
 		Description:     "ドアを閉じる",
 		Interruptible:   false,

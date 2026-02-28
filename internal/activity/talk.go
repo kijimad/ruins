@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -12,8 +12,8 @@ import (
 type TalkActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (ta *TalkActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (ta *TalkActivity) Info() Info {
+	return Info{
 		Name:            "会話",
 		Description:     "NPCと会話する",
 		Interruptible:   false,

@@ -3,7 +3,7 @@ package systems
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +50,7 @@ func TestAutoInteractionSystem_AutoWay(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.ActivityManager = actions.NewActivityManager(nil)
+	world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 	// プレイヤーを作成
 	player := world.Manager.NewEntity()
@@ -171,7 +171,7 @@ func TestAutoInteractionSystem_AdjacentRange(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.ActivityManager = actions.NewActivityManager(nil)
+	world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 	// プレイヤーを作成
 	player := world.Manager.NewEntity()
@@ -220,7 +220,7 @@ func TestAutoInteractionSystem_MultipleAutoTriggers(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.ActivityManager = actions.NewActivityManager(nil)
+	world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 	// プレイヤーを作成
 	player := world.Manager.NewEntity()

@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"testing"
@@ -369,7 +369,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager := NewActivityManager(nil)
 		manager.History = &history
 
@@ -397,7 +397,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world.Resources.Dungeon.Level.TileWidth = 50
 		world.Resources.Dungeon.Level.TileHeight = 50
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager := NewActivityManager(nil)
 		manager.History = &history
 		world.Resources.ActivityManager = manager
@@ -444,7 +444,7 @@ func TestActivityManagerHistory(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager := NewActivityManager(nil)
 		manager.History = &history
 

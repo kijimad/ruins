@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ import (
 type RestActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (ra *RestActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (ra *RestActivity) Info() Info {
+	return Info{
 		Name:            "休息",
 		Description:     "体力を回復するために休息する",
 		Interruptible:   true,

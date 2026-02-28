@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ import (
 type UseItemActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (u *UseItemActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (u *UseItemActivity) Info() Info {
+	return Info{
 		Name:            "アイテム使用",
 		Description:     "アイテムを使う",
 		Interruptible:   false,

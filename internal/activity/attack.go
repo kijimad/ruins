@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -38,8 +38,8 @@ const (
 type AttackActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (aa *AttackActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (aa *AttackActivity) Info() Info {
+	return Info{
 		Name:            "攻撃",
 		Description:     "敵を攻撃する",
 		Interruptible:   false,

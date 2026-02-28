@@ -1,7 +1,7 @@
 package systems
 
 import (
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -82,8 +82,8 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 		}
 
 		// 自動実行の相互作用を実行する
-		manager := world.Resources.ActivityManager.(*actions.ActivityManager)
-		_, err := actions.ExecuteInteraction(manager, playerEntity, interactableEntity, world)
+		manager := world.Resources.ActivityManager.(*activity.Manager)
+		_, err := activity.ExecuteInteraction(manager, playerEntity, interactableEntity, world)
 		if err != nil {
 			return err
 		}

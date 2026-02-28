@@ -3,7 +3,7 @@ package systems
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/turns"
@@ -26,7 +26,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
@@ -49,7 +49,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
@@ -72,7 +72,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 		turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 		turnManager.TurnPhase = turns.AITurn
@@ -88,7 +88,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 		world.Updaters = make(map[string]w.Updater)
 
 		turnManager := world.Resources.TurnManager.(*turns.TurnManager)
@@ -111,7 +111,7 @@ func TestProcessTurnEnd(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 		world.Updaters = make(map[string]w.Updater)
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
@@ -132,7 +132,7 @@ func TestProcessTurnEnd(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 		// テスト用にUpdatersを設定
 		world.Updaters = make(map[string]w.Updater)
@@ -189,7 +189,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 		turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 		result := processPlayerContinuousActivity(world, turnManager)
@@ -201,7 +201,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 		_, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)

@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -9,12 +9,12 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// ActivityState はアクティビティの実行状態を表す
-type ActivityState int
+// State はアクティビティの実行状態を表す
+type State int
 
 const (
 	// ActivityStateRunning はアクティビティが実行中であることを表す
-	ActivityStateRunning ActivityState = iota
+	ActivityStateRunning State = iota
 	// ActivityStatePaused はアクティビティが一時停止中であることを表す
 	ActivityStatePaused
 	// ActivityStateCompleted はアクティビティが完了したことを表す
@@ -23,8 +23,8 @@ const (
 	ActivityStateCanceled
 )
 
-// ActivityInfo はアクティビティのメタデータを保持する
-type ActivityInfo struct {
+// Info はアクティビティのメタデータを保持する
+type Info struct {
 	Name            string // 表示名
 	Description     string // 説明文
 	Interruptible   bool   // 中断可能か
@@ -33,10 +33,10 @@ type ActivityInfo struct {
 	TotalRequiredAP int    // アクティビティ完了に必要な総AP量
 }
 
-// ActivityInterface はアクティビティの実行を担当するインターフェース
+// Interface はアクティビティの実行を担当するインターフェース
 // CDDAのactivity_actorを参考にした設計
-type ActivityInterface interface {
-	Info() ActivityInfo
+type Interface interface {
+	Info() Info
 	String() string
 	Validate(act *Activity, world w.World) error
 	Start(act *Activity, world w.World) error
@@ -47,19 +47,19 @@ type ActivityInterface interface {
 
 // Activity は継続的なアクション（アクティビティ）のデータを表す
 type Activity struct {
-	ActorImpl    ActivityInterface // アクティビティの実装
-	State        ActivityState     // 実行状態
-	TurnsTotal   int               // 総必要ターン数
-	TurnsLeft    int               // 残りターン数
-	Actor        ecs.Entity        // 実行者
-	Target       *ecs.Entity       // 対象エンティティ（nilの場合もある）
-	Position     *gc.Position      // 対象位置（nilの場合もある）
-	CancelReason string            // キャンセル理由
+	ActorImpl    Interface    // アクティビティの実装
+	State        State        // 実行状態
+	TurnsTotal   int          // 総必要ターン数
+	TurnsLeft    int          // 残りターン数
+	Actor        ecs.Entity   // 実行者
+	Target       *ecs.Entity  // 対象エンティティ（nilの場合もある）
+	Position     *gc.Position // 対象位置（nilの場合もある）
+	CancelReason string       // キャンセル理由
 	Logger       *logger.Logger
 }
 
 // NewActivity は新しいアクティビティを作成する
-func NewActivity(actorImpl ActivityInterface, actor ecs.Entity, duration int) *Activity {
+func NewActivity(actorImpl Interface, actor ecs.Entity, duration int) *Activity {
 	// durationは0以下の値は許可しない（呼び出し側で適切な値を指定する必要がある）
 	if duration <= 0 {
 		duration = 1 // 最低1ターンは必要
@@ -76,7 +76,7 @@ func NewActivity(actorImpl ActivityInterface, actor ecs.Entity, duration int) *A
 }
 
 // CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する
-func CalculateRequiredTurns(actorImpl ActivityInterface, characterAP int) int {
+func CalculateRequiredTurns(actorImpl Interface, characterAP int) int {
 	info := actorImpl.Info()
 
 	// AP積み上げ方式の場合
@@ -189,7 +189,7 @@ func (a *Activity) GetDisplayName() string {
 }
 
 // String はActivityStateの文字列表現を返す
-func (s ActivityState) String() string {
+func (s State) String() string {
 	switch s {
 	case ActivityStateRunning:
 		return "Running"

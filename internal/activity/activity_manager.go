@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -10,40 +10,40 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// ActivityManager はアクティビティの管理を行う
-type ActivityManager struct {
+// Manager はアクティビティの管理を行う
+type Manager struct {
 	// 現在実行中の全アクティビティ(全エンティティごと)
 	// 1エンティティで最大1アクティビティ
 	currentActivities map[ecs.Entity]*Activity
 	logger            *logger.Logger
 	// History はテスト用の履歴記録先。nilでなければ実行結果を追記する
-	History *[]ActivityHistoryEntry
+	History *[]HistoryEntry
 }
 
 // NewActivityManager は新しいActivityManagerを作成する
-func NewActivityManager(l *logger.Logger) *ActivityManager {
+func NewActivityManager(l *logger.Logger) *Manager {
 	if l == nil {
 		l = logger.New(logger.CategoryAction)
 	}
-	return &ActivityManager{
+	return &Manager{
 		currentActivities: make(map[ecs.Entity]*Activity),
 		logger:            l,
 	}
 }
 
-// ActivityHistoryEntry は実行されたアクティビティの記録
+// HistoryEntry は実行されたアクティビティの記録
 // テスト用に公開している
-type ActivityHistoryEntry struct {
-	Activity ActivityInterface // 実行されたアクティビティ
-	Actor    ecs.Entity        // 実行者
-	Target   *ecs.Entity       // 対象（あれば）
-	Success  bool              // 成功/失敗
-	Message  string            // 結果メッセージ
+type HistoryEntry struct {
+	Activity Interface   // 実行されたアクティビティ
+	Actor    ecs.Entity  // 実行者
+	Target   *ecs.Entity // 対象（あれば）
+	Success  bool        // 成功/失敗
+	Message  string      // 結果メッセージ
 }
 
 // Execute は指定されたアクション（アクティビティ）を実行する
 // 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理
-func (am *ActivityManager) Execute(actorImpl ActivityInterface, params ActionParams, world w.World) (*ActionResult, error) {
+func (am *Manager) Execute(actorImpl Interface, params ActionParams, world w.World) (*ActionResult, error) {
 	activityName := actorImpl.String()
 	am.logger.Debug("アクション実行開始",
 		"type", activityName,
@@ -108,11 +108,11 @@ func (am *ActivityManager) Execute(actorImpl ActivityInterface, params ActionPar
 // reserveHistory は履歴エントリを予約し、インデックスを返す
 // Execute開始時に呼び出すことで、ネストした呼び出しでも開始順を保持できる
 // 完了時に記録すると内側の呼び出しが先に記録されて順序が逆転するため
-func (am *ActivityManager) reserveHistory(actorImpl ActivityInterface, params ActionParams) int {
+func (am *Manager) reserveHistory(actorImpl Interface, params ActionParams) int {
 	if am.History == nil {
 		return -1
 	}
-	*am.History = append(*am.History, ActivityHistoryEntry{
+	*am.History = append(*am.History, HistoryEntry{
 		Activity: actorImpl,
 		Actor:    params.Actor,
 		Target:   params.Target,
@@ -121,7 +121,7 @@ func (am *ActivityManager) reserveHistory(actorImpl ActivityInterface, params Ac
 }
 
 // recordHistory は履歴の指定位置に結果を記録する
-func (am *ActivityManager) recordHistory(index int, result *ActionResult) {
+func (am *Manager) recordHistory(index int, result *ActionResult) {
 	if am.History == nil || index < 0 || index >= len(*am.History) {
 		return
 	}
@@ -130,7 +130,7 @@ func (am *ActivityManager) recordHistory(index int, result *ActionResult) {
 }
 
 // StartActivity は新しいアクティビティを開始する
-func (am *ActivityManager) StartActivity(activity *Activity, world w.World) error {
+func (am *Manager) StartActivity(activity *Activity, world w.World) error {
 	if activity == nil {
 		return ErrActivityNil
 	}
@@ -172,18 +172,18 @@ func (am *ActivityManager) StartActivity(activity *Activity, world w.World) erro
 }
 
 // GetCurrentActivity は指定されたエンティティの現在のアクティビティを取得する
-func (am *ActivityManager) GetCurrentActivity(entity ecs.Entity) *Activity {
+func (am *Manager) GetCurrentActivity(entity ecs.Entity) *Activity {
 	return am.currentActivities[entity]
 }
 
 // HasActivity は指定されたエンティティがアクティビティを実行中かを返す
-func (am *ActivityManager) HasActivity(entity ecs.Entity) bool {
+func (am *Manager) HasActivity(entity ecs.Entity) bool {
 	activity := am.GetCurrentActivity(entity)
 	return activity != nil && activity.IsActive()
 }
 
 // InterruptActivity は指定されたエンティティのアクティビティを中断する
-func (am *ActivityManager) InterruptActivity(entity ecs.Entity, reason string) error {
+func (am *Manager) InterruptActivity(entity ecs.Entity, reason string) error {
 	activity := am.GetCurrentActivity(entity)
 	if activity == nil {
 		return ErrActivityNotFound
@@ -193,7 +193,7 @@ func (am *ActivityManager) InterruptActivity(entity ecs.Entity, reason string) e
 }
 
 // ResumeActivity は指定されたエンティティのアクティビティを再開する
-func (am *ActivityManager) ResumeActivity(entity ecs.Entity, world w.World) error {
+func (am *Manager) ResumeActivity(entity ecs.Entity, world w.World) error {
 	activity := am.GetCurrentActivity(entity)
 	if activity == nil {
 		return ErrActivityNotFound
@@ -208,7 +208,7 @@ func (am *ActivityManager) ResumeActivity(entity ecs.Entity, world w.World) erro
 }
 
 // CancelActivity は指定されたエンティティのアクティビティをキャンセルする
-func (am *ActivityManager) CancelActivity(entity ecs.Entity, reason string, world w.World) {
+func (am *Manager) CancelActivity(entity ecs.Entity, reason string, world w.World) {
 	activity := am.GetCurrentActivity(entity)
 	if activity == nil {
 		return
@@ -232,7 +232,7 @@ func (am *ActivityManager) CancelActivity(entity ecs.Entity, reason string, worl
 }
 
 // ProcessTurn は全てのアクティブなアクティビティの1ターン分の処理を実行する
-func (am *ActivityManager) ProcessTurn(world w.World) {
+func (am *Manager) ProcessTurn(world w.World) {
 	am.logger.Debug("アクティビティターン処理開始", "count", len(am.currentActivities))
 
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
@@ -286,7 +286,7 @@ func (am *ActivityManager) ProcessTurn(world w.World) {
 }
 
 // GetActivitySummary はアクティビティの要約情報を取得する
-func (am *ActivityManager) GetActivitySummary() map[string]interface{} {
+func (am *Manager) GetActivitySummary() map[string]interface{} {
 	summary := make(map[string]interface{})
 
 	var activeCount, pausedCount, totalCount int
@@ -311,7 +311,7 @@ func (am *ActivityManager) GetActivitySummary() map[string]interface{} {
 
 // validateBasicRequirements はアクティビティの基本要件を検証する
 // 詳細な検証は各アクティビティのValidateメソッドで行う
-func (am *ActivityManager) validateBasicRequirements(activity *Activity) error {
+func (am *Manager) validateBasicRequirements(activity *Activity) error {
 	// 基本的なnilチェックのみ実行
 	if activity == nil {
 		return ErrActivityNil
@@ -321,7 +321,7 @@ func (am *ActivityManager) validateBasicRequirements(activity *Activity) error {
 }
 
 // validateResume はアクティビティの再開可能性を検証する
-func (am *ActivityManager) validateResume(activity *Activity, world w.World) error {
+func (am *Manager) validateResume(activity *Activity, world w.World) error {
 	if !activity.CanResume() {
 		return fmt.Errorf("アクティビティ '%s' は再開できません", activity.GetDisplayName())
 	}
@@ -336,7 +336,7 @@ func (am *ActivityManager) validateResume(activity *Activity, world w.World) err
 }
 
 // createActivity はアクティビティ実装とパラメータからアクティビティを作成する
-func (am *ActivityManager) createActivity(actorImpl ActivityInterface, params ActionParams, world w.World) *Activity {
+func (am *Manager) createActivity(actorImpl Interface, params ActionParams, world w.World) *Activity {
 	// 基本のdurationを計算
 	duration := params.Duration
 	if duration <= 0 {
@@ -359,7 +359,7 @@ func (am *ActivityManager) createActivity(actorImpl ActivityInterface, params Ac
 }
 
 // consumeMoveCost はターン管理システムに移動コストを通知する
-func (am *ActivityManager) consumeMoveCost(world w.World, actorImpl ActivityInterface, actor ecs.Entity) {
+func (am *Manager) consumeMoveCost(world w.World, actorImpl Interface, actor ecs.Entity) {
 	if world.Resources.TurnManager == nil {
 		am.logger.Warn("TurnManagerリソースが見つかりません")
 		return
@@ -383,7 +383,7 @@ func (am *ActivityManager) consumeMoveCost(world w.World, actorImpl ActivityInte
 }
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
-func (am *ActivityManager) getEntityMaxAP(entity ecs.Entity, world w.World) int {
+func (am *Manager) getEntityMaxAP(entity ecs.Entity, world w.World) int {
 	if turnBasedComponent := world.Components.TurnBased.Get(entity); turnBasedComponent != nil {
 		turnBased := turnBasedComponent.(*gc.TurnBased)
 		return turnBased.AP.Max

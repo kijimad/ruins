@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -203,7 +203,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 			} else {
 				world = testutil.InitTestWorld(t)
 				world.Resources.TurnManager = turns.NewTurnManager()
-				world.Resources.ActivityManager = actions.NewActivityManager(nil)
+				world.Resources.ActivityManager = activity.NewActivityManager(nil)
 			}
 
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
@@ -256,7 +256,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 
 			world := testutil.InitTestWorld(t)
 			world.Resources.TurnManager = turns.NewTurnManager()
-			world.Resources.ActivityManager = actions.NewActivityManager(nil)
+			world.Resources.ActivityManager = activity.NewActivityManager(nil)
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 			turnManager.TurnPhase = phase
 
@@ -288,7 +288,7 @@ func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
 
 	world := testutil.InitTestWorld(t)
 	world.Resources.TurnManager = turns.NewTurnManager()
-	world.Resources.ActivityManager = actions.NewActivityManager(nil)
+	world.Resources.ActivityManager = activity.NewActivityManager(nil)
 
 	// マップサイズを設定（移動判定に必要）
 	world.Resources.Dungeon.Level.TileWidth = 50

@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"math/rand/v2"
@@ -31,7 +31,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// 移動を実行
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
 
@@ -126,7 +126,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		initialEnemyHP := enemyPools.HP.Current
 
 		// 移動（攻撃）を実行
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
@@ -157,7 +157,7 @@ func TestExecuteWaitAction(t *testing.T) {
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 		assert.NoError(t, ExecuteWaitAction(world))
 
@@ -191,7 +191,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 		assert.NoError(t, ExecuteEnterAction(world))
 
@@ -219,7 +219,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 		item.AddComponent(world.Components.Item, &gc.Item{})
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 		// Pickupは検証失敗する（拾えるアイテムがない）がエラーは返さない
 		err := ExecuteEnterAction(world)
@@ -492,7 +492,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
 
 		// 移動を実行
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
@@ -520,7 +520,7 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
 		enemyPools.HP.Current = 1
 
-		var history []ActivityHistoryEntry
+		var history []HistoryEntry
 		manager.History = &history
 
 		// 1回目: 攻撃で敵を倒す

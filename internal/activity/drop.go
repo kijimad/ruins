@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -17,8 +17,8 @@ type DropActivity struct {
 }
 
 // Info はActivityInterfaceの実装
-func (da *DropActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (da *DropActivity) Info() Info {
+	return Info{
 		Name:            "ドロップ",
 		Description:     "アイテムを足元に置く",
 		Interruptible:   false,

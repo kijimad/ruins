@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -14,8 +14,8 @@ import (
 type PickupActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (pa *PickupActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (pa *PickupActivity) Info() Info {
+	return Info{
 		Name:            "拾得",
 		Description:     "アイテムを拾得する",
 		Interruptible:   false,

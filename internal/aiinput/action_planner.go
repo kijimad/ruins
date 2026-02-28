@@ -3,7 +3,7 @@ package aiinput
 import (
 	"math/rand/v2"
 
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/movement"
@@ -13,7 +13,7 @@ import (
 
 // ActionPlanner はAIのアクション計画システム
 type ActionPlanner interface {
-	PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, canSeePlayer bool) (actions.ActivityInterface, actions.ActionParams)
+	PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, canSeePlayer bool) (activity.Interface, activity.ActionParams)
 }
 
 // DefaultActionPlanner は標準的なアクション計画実装
@@ -25,7 +25,7 @@ func NewActionPlanner() ActionPlanner {
 }
 
 // PlanAction は現在の状態に基づいてアクションを決定する
-func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, _ bool) (actions.ActivityInterface, actions.ActionParams) {
+func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, _ bool) (activity.Interface, activity.ActionParams) {
 	switch context.Roaming.SubState {
 	case gc.AIRoamingChasing:
 		// 追跡モード：プレイヤーに向かって移動
@@ -37,21 +37,21 @@ func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity
 
 	case gc.AIRoamingWaiting:
 		// 待機モード：何もしない
-		return &actions.WaitActivity{}, actions.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI待機"}
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI待機"}
 
 	default:
 		// 不明な状態：待機
-		return &actions.WaitActivity{}, actions.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AIデフォルト待機"}
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AIデフォルト待機"}
 	}
 }
 
 // planChaseAction はプレイヤー追跡アクションを計画
-func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (actions.ActivityInterface, actions.ActionParams) {
+func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Interface, activity.ActionParams) {
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
 	// プレイヤーと隣接タイルにいる場合は攻撃
 	if ap.isAdjacent(aiGrid, playerGrid) {
-		return &actions.AttackActivity{}, actions.ActionParams{
+		return &activity.AttackActivity{}, activity.ActionParams{
 			Actor:  aiEntity,
 			Target: &playerEntity,
 		}
@@ -71,7 +71,7 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 
 		if movement.CanMoveTo(world, destX, destY, aiEntity) {
 			dest := gc.Position{X: consts.Pixel(destX), Y: consts.Pixel(destY)}
-			return &actions.MoveActivity{}, actions.ActionParams{
+			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
 				Destination: &dest,
 			}
@@ -79,14 +79,14 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 	}
 
 	// どこにも移動できない場合は待機
-	return &actions.WaitActivity{}, actions.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI追跡失敗"}
+	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI追跡失敗"}
 }
 
 // planRandomMoveAction はランダム移動アクションを計画
-func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (actions.ActivityInterface, actions.ActionParams) {
+func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Interface, activity.ActionParams) {
 	// 30%の確率で待機
 	if rand.Float64() < 0.3 {
-		return &actions.WaitActivity{}, actions.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AIランダム待機"}
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AIランダム待機"}
 	}
 
 	// ランダムに隣接する8方向から選択
@@ -113,7 +113,7 @@ func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs
 
 		if movement.CanMoveTo(world, destX, destY, aiEntity) {
 			dest := gc.Position{X: consts.Pixel(destX), Y: consts.Pixel(destY)}
-			return &actions.MoveActivity{}, actions.ActionParams{
+			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
 				Destination: &dest,
 			}
@@ -121,7 +121,7 @@ func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs
 	}
 
 	// どこにも移動できない場合は待機
-	return &actions.WaitActivity{}, actions.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI追跡失敗"}
+	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI追跡失敗"}
 }
 
 // MoveCandidate は移動候補を表す

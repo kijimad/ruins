@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する
-func ExecuteInteraction(manager *ActivityManager, actor ecs.Entity, interactable ecs.Entity, world w.World) (*ActionResult, error) {
+func ExecuteInteraction(manager *Manager, actor ecs.Entity, interactable ecs.Entity, world w.World) (*ActionResult, error) {
 	if !interactable.HasComponent(world.Components.Interactable) {
 		return nil, fmt.Errorf("指定されたエンティティはInteractableを持っていません")
 	}
@@ -73,7 +73,7 @@ func executeDungeonGate(world w.World) (*ActionResult, error) {
 	return &ActionResult{Success: true, ActivityName: "DungeonGate", Message: "ダンジョンゲート発動"}, nil
 }
 
-func executeDoor(manager *ActivityManager, actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
+func executeDoor(manager *Manager, actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
 	if !doorEntity.HasComponent(world.Components.Door) {
 		return nil, fmt.Errorf("DoorInteractionだがDoorコンポーネントがない")
 	}
@@ -90,7 +90,7 @@ func executeDoor(manager *ActivityManager, actor ecs.Entity, doorEntity ecs.Enti
 	return manager.Execute(&OpenDoorActivity{}, params, world)
 }
 
-func executeTalk(manager *ActivityManager, actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
+func executeTalk(manager *Manager, actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
 	if !npcEntity.HasComponent(world.Components.Dialog) {
 		return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
 	}
@@ -117,7 +117,7 @@ func executeTalk(manager *ActivityManager, actor ecs.Entity, npcEntity ecs.Entit
 	return result, nil
 }
 
-func executeItem(manager *ActivityManager, actor ecs.Entity, world w.World) (*ActionResult, error) {
+func executeItem(manager *Manager, actor ecs.Entity, world w.World) (*ActionResult, error) {
 	params := ActionParams{
 		Actor: actor,
 	}
@@ -128,7 +128,7 @@ func executeItem(manager *ActivityManager, actor ecs.Entity, world w.World) (*Ac
 	return result, err
 }
 
-func executeMelee(manager *ActivityManager, actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
+func executeMelee(manager *Manager, actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
 	params := ActionParams{
 		Actor:  actor,
 		Target: &target,

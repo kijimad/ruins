@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 type WaitActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (wa *WaitActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (wa *WaitActivity) Info() Info {
+	return Info{
 		Name:            "待機",
 		Description:     "指定した時間だけ待機する",
 		Interruptible:   true,

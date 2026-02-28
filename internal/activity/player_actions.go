@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -108,14 +108,14 @@ func ExecuteEnterAction(world w.World) error {
 
 // executeInteractionForPlayer は相互作用を実行するヘルパー関数
 func executeInteractionForPlayer(world w.World, actor ecs.Entity, interactable ecs.Entity) error {
-	manager := world.Resources.ActivityManager.(*ActivityManager)
+	manager := world.Resources.ActivityManager.(*Manager)
 	_, err := ExecuteInteraction(manager, actor, interactable, world)
 	return err
 }
 
 // executeActivityWithPostProcess はアクティビティ実行と後処理を行う関数
-func executeActivityWithPostProcess(world w.World, actorImpl ActivityInterface, params ActionParams) error {
-	manager := world.Resources.ActivityManager.(*ActivityManager)
+func executeActivityWithPostProcess(world w.World, actorImpl Interface, params ActionParams) error {
+	manager := world.Resources.ActivityManager.(*Manager)
 	result, err := manager.Execute(actorImpl, params, world)
 	if err != nil {
 		return err
