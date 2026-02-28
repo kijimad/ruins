@@ -62,7 +62,7 @@ func TestNewSystemMessage(t *testing.T) {
 		msg := NewSystemMessage(text)
 
 		assert.Equal(t, text, getMessageText(msg))
-		assert.Equal(t, "システム", msg.Speaker)
+		assert.Equal(t, "", msg.Speaker)
 		assert.Empty(t, msg.Choices)
 		assert.Nil(t, msg.OnComplete)
 		assert.Empty(t, msg.NextMessages)
@@ -74,7 +74,7 @@ func TestNewSystemMessage(t *testing.T) {
 		msg := NewSystemMessage("")
 
 		assert.Equal(t, "", getMessageText(msg))
-		assert.Equal(t, "システム", msg.Speaker)
+		assert.Equal(t, "", msg.Speaker)
 	})
 }
 
@@ -210,7 +210,7 @@ func TestMessageChaining(t *testing.T) {
 		require.Len(t, msg.NextMessages, 1)
 		nextMsg := msg.NextMessages[0]
 		assert.Equal(t, "イベント発生", getMessageText(nextMsg))
-		assert.Equal(t, "システム", nextMsg.Speaker)
+		assert.Equal(t, "", nextMsg.Speaker)
 	})
 
 	t.Run("複数メッセージの連鎖", func(t *testing.T) {

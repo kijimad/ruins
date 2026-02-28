@@ -460,8 +460,8 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 func NewDungeonSelectMenuState() es.State[w.World] {
 	messageState := &MessageState{}
 
-	// ダンジョン選択メッセージを作成
-	msg := messagedata.NewSystemMessage("どこへ向かう？")
+	// ダンジョン選択メニューを作成する
+	msg := messagedata.NewSystemMessage("")
 
 	// 全ダンジョンを選択肢として追加
 	for _, d := range dungeon.GetAllDungeons() {
@@ -886,15 +886,14 @@ func NewDungeonSelectState() es.State[w.World] {
 	// ダンジョン一覧を取得
 	dungeons := dungeon.GetAllDungeons()
 
-	// 選択肢を動的に生成
-	msg := messagedata.NewSystemMessage("どのダンジョンに挑戦しますか？")
+	// 選択肢を動的に生成する
+	msg := messagedata.NewSystemMessage("")
 
-	for i := range dungeons {
-		dungeonDef := dungeons[i]
-		msg = msg.WithChoice(dungeonDef.Name, func(_ w.World) error {
+	for _, d := range dungeons {
+		msg = msg.WithChoice(d.Name, func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(dungeonDef.Name))},
+				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(d.Name))},
 			})
 			return nil
 		})

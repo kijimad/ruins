@@ -43,7 +43,7 @@ func NewDialogMessage(text, speaker string) *MessageData {
 // NewSystemMessage はシステムメッセージを作成する
 func NewSystemMessage(text string) *MessageData {
 	msg := &MessageData{
-		Speaker: "システム",
+		Speaker: "",
 	}
 	msg.AddText(text)
 	return msg
