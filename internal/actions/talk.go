@@ -19,7 +19,7 @@ func (ta *TalkActivity) Info() ActivityInfo {
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 100,
-		TotalRequiredAP: 100,
+		TotalRequiredAP: 0,
 	}
 }
 

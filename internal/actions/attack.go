@@ -3,7 +3,6 @@ package actions
 import (
 	"fmt"
 	"math"
-	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -46,7 +45,7 @@ func (aa *AttackActivity) Info() ActivityInfo {
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 100,
-		TotalRequiredAP: 100,
+		TotalRequiredAP: 0,
 	}
 }
 
@@ -232,7 +231,7 @@ func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.Worl
 		baseHitRate = MinHitRate
 	}
 
-	roll := rand.IntN(DiceMax) + 1
+	roll := world.Config.RNG.IntN(DiceMax) + 1
 	hit = roll <= baseHitRate
 	critical = roll <= CriticalHitThreshold
 
@@ -246,7 +245,7 @@ func (aa *AttackActivity) calculateDamage(attacker, target ecs.Entity, world w.W
 	targetAttrs := world.Components.Attributes.Get(target).(*gc.Attributes)
 	targetDefense := targetAttrs.Defense.Total
 
-	baseDamage := attackerStrength + rand.IntN(DamageRandomRange) + 1
+	baseDamage := attackerStrength + world.Config.RNG.IntN(DamageRandomRange) + 1
 
 	weaponDamage := aa.getWeaponDamage(attacker, world)
 	baseDamage += weaponDamage

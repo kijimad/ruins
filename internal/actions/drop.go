@@ -24,7 +24,7 @@ func (da *DropActivity) Info() ActivityInfo {
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 50,
-		TotalRequiredAP: 50,
+		TotalRequiredAP: 0,
 	}
 }
 

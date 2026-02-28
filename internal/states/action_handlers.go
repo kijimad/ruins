@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/movement"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -37,6 +36,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
 	targetGrid := &gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
+
 	if interactable != nil && interactable.Data.Config().ActivationWay == gc.ActivationWayOnCollision {
 		// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
 		if _, isDoorInteraction := interactable.Data.(gc.DoorInteraction); isDoorInteraction {
@@ -50,7 +50,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				// 開いているドアは通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
 		} else {
-			// ドア以外のOnCollision相互作用（会話など）は常に実行
+			// ドア以外のOnCollision相互作用（攻撃など）を実行
 			params := actions.ActionParams{Actor: entity}
 			return executeActivity(world, &actions.InteractionActivateActivity{InteractableEntity: interactableEntity}, params)
 		}
@@ -71,9 +71,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 // executeActivity はアクティビティ実行関数
 func executeActivity(world w.World, actorImpl actions.ActivityInterface, params actions.ActionParams) error {
-	log := logger.New(logger.CategoryAction)
-	manager := actions.NewActivityManager(log)
-
+	manager := world.Resources.ActivityManager.(*actions.ActivityManager)
 	result, err := manager.Execute(actorImpl, params, world)
 	if err != nil {
 		return err
@@ -161,6 +159,7 @@ func getInteractableAtSameTile(world w.World, playerGrid *gc.GridElement) (*gc.I
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.Interactable,
+		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if interactable != nil {
 			return // 既に見つかっている
@@ -183,6 +182,7 @@ func getInteractableInRange(world w.World, playerGrid *gc.GridElement) (*gc.Inte
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.Interactable,
+		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if interactable != nil {
 			return // 既に見つかっている

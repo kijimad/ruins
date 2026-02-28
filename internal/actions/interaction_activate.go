@@ -220,7 +220,7 @@ func (ia *InteractionActivateActivity) executeMelee(act *Activity, world w.World
 	manager := NewActivityManager(act.Logger)
 	_, err := manager.Execute(&AttackActivity{}, params, world)
 	if err != nil {
-		act.Logger.Warn("近接攻撃アクション失敗", "error", err)
+		act.Logger.Warn("近接攻撃アクション失敗", "error", err.Error())
 	}
 }
 

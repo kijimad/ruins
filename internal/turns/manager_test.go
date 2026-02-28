@@ -3,18 +3,12 @@ package turns
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/logger"
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
-
-func TestMain(m *testing.M) {
-	// テスト用のログレベル設定
-	logger.SetConfig(logger.Config{
-		DefaultLevel:   logger.LevelIgnore,
-		CategoryLevels: map[logger.Category]logger.Level{},
-	})
-	m.Run()
-}
 
 func TestNewTurnManager(t *testing.T) {
 	t.Parallel()
@@ -134,4 +128,243 @@ func TestWarpAction(t *testing.T) {
 	assert.Equal(t, 100, tm.PlayerMoves, "ワープは移動ポイント消費なし")
 	assert.True(t, tm.CanPlayerAct(), "ワープ後も行動可能")
 	assert.True(t, tm.IsPlayerTurn(), "ワープ後もPlayerTurn継続")
+}
+
+func TestTurnPhase_String(t *testing.T) {
+	t.Parallel()
+
+	t.Run("PlayerTurn", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "PlayerTurn", PlayerTurn.String())
+	})
+
+	t.Run("AITurn", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "AITurn", AITurn.String())
+	})
+
+	t.Run("TurnEnd", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "TurnEnd", TurnEnd.String())
+	})
+
+	t.Run("不正な値でpanicする", func(t *testing.T) {
+		t.Parallel()
+		invalidPhase := TurnPhase(999)
+		assert.Panics(t, func() {
+			_ = invalidPhase.String()
+		})
+	})
+}
+
+func TestConsumeActionPoints(t *testing.T) {
+	t.Parallel()
+
+	t.Run("TurnBasedコンポーネントがあればAPを消費", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		initialAP := turnBased.AP.Current
+
+		ok := tm.ConsumeActionPoints(world, player, "テストアクション", 50)
+
+		assert.True(t, ok)
+		assert.Equal(t, initialAP-50, turnBased.AP.Current)
+	})
+
+	t.Run("TurnBasedコンポーネントがない場合はfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.Player, &gc.Player{})
+
+		ok := tm.ConsumeActionPoints(world, entity, "テストアクション", 50)
+
+		assert.False(t, ok)
+	})
+}
+
+func TestCanEntityAct(t *testing.T) {
+	t.Parallel()
+
+	t.Run("APが0以上なら行動可能", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 100
+
+		assert.True(t, tm.CanEntityAct(world, player, 50))
+	})
+
+	t.Run("APが0でも行動可能", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 0
+
+		assert.True(t, tm.CanEntityAct(world, player, 50))
+	})
+
+	t.Run("APがマイナスなら行動不可", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = -1
+
+		assert.False(t, tm.CanEntityAct(world, player, 50))
+	})
+
+	t.Run("プレイヤーはPlayerTurn以外で行動不可", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+		tm.TurnPhase = AITurn
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 100
+
+		assert.False(t, tm.CanEntityAct(world, player, 50))
+	})
+
+	t.Run("TurnBasedがない場合はfalse", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.Player, &gc.Player{})
+
+		assert.False(t, tm.CanEntityAct(world, entity, 50))
+	})
+}
+
+func TestRestoreAllActionPoints(t *testing.T) {
+	t.Parallel()
+
+	t.Run("全エンティティのAPが回復する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 0
+		turnBased.AP.Max = 100
+
+		err = tm.RestoreAllActionPoints(world)
+		require.NoError(t, err)
+
+		// Speed分だけ回復する
+		assert.Greater(t, turnBased.AP.Current, 0)
+	})
+
+	t.Run("APはMax値を超えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 90
+		turnBased.AP.Max = 100
+
+		err = tm.RestoreAllActionPoints(world)
+		require.NoError(t, err)
+
+		assert.LessOrEqual(t, turnBased.AP.Current, turnBased.AP.Max)
+	})
+
+	t.Run("複数エンティティが回復する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		tm := NewTurnManager()
+
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		require.NoError(t, err)
+
+		enemy, err := worldhelper.SpawnEnemy(world, 5, 5, "火の玉")
+		require.NoError(t, err)
+
+		playerTB := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		playerTB.AP.Current = 0
+		playerTB.AP.Max = 100
+
+		enemyTB := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		enemyTB.AP.Current = 0
+		enemyTB.AP.Max = 100
+
+		err = tm.RestoreAllActionPoints(world)
+		require.NoError(t, err)
+
+		assert.Greater(t, playerTB.AP.Current, 0)
+		assert.Greater(t, enemyTB.AP.Current, 0)
+	})
+}
+
+func TestConsumePlayerMovesNegative(t *testing.T) {
+	t.Parallel()
+	tm := NewTurnManager()
+
+	// コストがPlayerMovesより大きい場合
+	tm.ConsumePlayerMoves("HeavyAction", 150)
+
+	assert.Equal(t, -50, tm.PlayerMoves, "移動ポイントがマイナスになる")
+	assert.Equal(t, AITurn, tm.TurnPhase, "AIターンに移行")
+}
+
+func TestIsPlayerTurnAndIsAITurn(t *testing.T) {
+	t.Parallel()
+
+	t.Run("初期状態はPlayerTurn", func(t *testing.T) {
+		t.Parallel()
+		tm := NewTurnManager()
+		assert.True(t, tm.IsPlayerTurn())
+		assert.False(t, tm.IsAITurn())
+	})
+
+	t.Run("AdvanceToAITurn後はAITurn", func(t *testing.T) {
+		t.Parallel()
+		tm := NewTurnManager()
+		tm.AdvanceToAITurn()
+		assert.False(t, tm.IsPlayerTurn())
+		assert.True(t, tm.IsAITurn())
+	})
+
+	t.Run("TurnEnd時はどちらもfalse", func(t *testing.T) {
+		t.Parallel()
+		tm := NewTurnManager()
+		tm.AdvanceToAITurn()
+		tm.AdvanceToTurnEnd()
+		assert.False(t, tm.IsPlayerTurn())
+		assert.False(t, tm.IsAITurn())
+	})
 }

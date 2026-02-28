@@ -38,6 +38,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 	world.Manager.Join(
 		world.Components.Interactable,
 		world.Components.GridElement,
+		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
 		interactableGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)

@@ -21,7 +21,7 @@ func (ma *MoveActivity) Info() ActivityInfo {
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 100,
-		TotalRequiredAP: 100,
+		TotalRequiredAP: 0,
 	}
 }
 
@@ -50,13 +50,11 @@ func (ma *MoveActivity) Validate(act *Activity, world w.World) error {
 		return ErrMoveTargetInvalid
 	}
 
-	// APが足りるかチェック
-	// TODO(kijima): 装備時に俊敏性が下がりAPが足りなくなって動けなくなるが、所持重量は変わっていないし最大重量を超えるわけでもないのに動けなくなるのはおかしい
-	if act.Actor.HasComponent(world.Components.TurnBased) {
-		turnBased := world.Components.TurnBased.Get(act.Actor).(*gc.TurnBased)
-		moveCost := ma.Info().ActionPointCost
-
-		if turnBased.AP.Max < moveCost {
+	// 所持重量が最大の1.5倍を超えていたら動けない
+	if act.Actor.HasComponent(world.Components.Pools) {
+		pools := world.Components.Pools.Get(act.Actor).(*gc.Pools)
+		overweightLimit := pools.Weight.Max * 1.5
+		if pools.Weight.Current > overweightLimit {
 			if act.Actor.HasComponent(world.Components.Player) {
 				gamelog.New(gamelog.FieldLog).
 					Warning("重すぎて動けない").

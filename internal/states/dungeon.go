@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -75,6 +76,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// ターンマネージャーを初期化
 	if world.Resources.TurnManager == nil {
 		world.Resources.TurnManager = turns.NewTurnManager()
+	}
+
+	// アクティビティマネージャーを初期化
+	if world.Resources.ActivityManager == nil {
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 	}
 
 	// 設定されていればリソースに反映する
@@ -354,8 +360,19 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
 		if world.Resources.TurnManager != nil {
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			canAct := turnManager.CanPlayerAct()
+			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			if err != nil {
+				return es.Transition[w.World]{Type: es.TransNone}, err
+			}
+			canAct := turnManager.CanEntityAct(world, playerEntity, 0)
 			if !canAct {
+				return es.Transition[w.World]{Type: es.TransNone}, nil
+			}
+		}
+		// プレイヤーが継続アクション中は新しいアクションを受け付けない
+		if world.Resources.ActivityManager != nil {
+			manager := world.Resources.ActivityManager.(*actions.ActivityManager)
+			if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && manager.HasActivity(playerEntity) {
 				return es.Transition[w.World]{Type: es.TransNone}, nil
 			}
 		}

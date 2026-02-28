@@ -10,7 +10,7 @@ var (
 		TotalFloors:     1,
 		EnemyTableName:  "",
 		ItemTableName:   "",
-		BaseTemperature: 10, // やや寒い
+		BaseTemperature: 0, // デバッグ用
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeTown, Weight: 1},
 		},

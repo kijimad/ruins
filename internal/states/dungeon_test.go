@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -201,8 +202,8 @@ func TestDoActionTurnManagement(t *testing.T) {
 				world, playerEntity = setupTestWorldWithPlayer(t, initialX, initialY)
 			} else {
 				world = testutil.InitTestWorld(t)
-				turnManager := turns.NewTurnManager()
-				world.Resources.TurnManager = turnManager
+				world.Resources.TurnManager = turns.NewTurnManager()
+				world.Resources.ActivityManager = actions.NewActivityManager(nil)
 			}
 
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
@@ -254,9 +255,10 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
-			turnManager := turns.NewTurnManager()
+			world.Resources.TurnManager = turns.NewTurnManager()
+			world.Resources.ActivityManager = actions.NewActivityManager(nil)
+			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 			turnManager.TurnPhase = phase
-			world.Resources.TurnManager = turnManager
 
 			state := &DungeonState{}
 
@@ -285,22 +287,16 @@ func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
 	t.Helper()
 
 	world := testutil.InitTestWorld(t)
-
-	// ターン管理を初期化
-	turnManager := turns.NewTurnManager()
-	world.Resources.TurnManager = turnManager
+	world.Resources.TurnManager = turns.NewTurnManager()
+	world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 	// マップサイズを設定（移動判定に必要）
 	world.Resources.Dungeon.Level.TileWidth = 50
 	world.Resources.Dungeon.Level.TileHeight = 50
 
-	// プレイヤーエンティティを作成
-	playerEntity := world.Manager.NewEntity()
-	playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-	playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
-		X: consts.Tile(x),
-		Y: consts.Tile(y),
-	})
+	// プレイヤーエンティティを作成（TurnBasedコンポーネント含む）
+	playerEntity, err := worldhelper.SpawnPlayer(world, x, y, "セレスティン")
+	require.NoError(t, err)
 
 	return world, playerEntity
 }

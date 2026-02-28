@@ -19,10 +19,13 @@ type ActivityManager struct {
 }
 
 // NewActivityManager は新しいActivityManagerを作成する
-func NewActivityManager(logger *logger.Logger) *ActivityManager {
+func NewActivityManager(l *logger.Logger) *ActivityManager {
+	if l == nil {
+		l = logger.New(logger.CategoryAction)
+	}
 	return &ActivityManager{
 		currentActivities: make(map[ecs.Entity]*Activity),
-		logger:            logger,
+		logger:            l,
 	}
 }
 
@@ -320,13 +323,9 @@ func (am *ActivityManager) consumeMoveCost(world w.World, actorImpl ActivityInte
 	cost := info.ActionPointCost
 	actionName := info.Name
 
-	if actor.HasComponent(world.Components.Player) {
-		turnManager.ConsumePlayerMoves(actionName, cost)
-	} else {
-		success := turnManager.ConsumeActionPoints(world, actor, actionName, cost)
-		if !success {
-			am.logger.Debug("AI移動コスト消費失敗", "actor", actor, "cost", cost)
-		}
+	success := turnManager.ConsumeActionPoints(world, actor, actionName, cost)
+	if !success {
+		am.logger.Debug("移動コスト消費失敗", "actor", actor, "cost", cost)
 	}
 
 	am.logger.Debug("移動コスト消費",

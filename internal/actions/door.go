@@ -20,7 +20,7 @@ func (oda *OpenDoorActivity) Info() ActivityInfo {
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 100,
-		TotalRequiredAP: 100,
+		TotalRequiredAP: 0,
 	}
 }
 
@@ -109,7 +109,7 @@ func (cda *CloseDoorActivity) Info() ActivityInfo {
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 100,
-		TotalRequiredAP: 100,
+		TotalRequiredAP: 0,
 	}
 }
 

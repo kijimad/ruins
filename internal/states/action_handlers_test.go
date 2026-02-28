@@ -1,12 +1,16 @@
 package states
 
 import (
+	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/actions"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/turns"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExecuteMoveAction(t *testing.T) {
@@ -15,6 +19,8 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("正常な移動", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// マップサイズを設定（移動判定に必要）
 		world.Resources.Dungeon.Level.TileWidth = 50
@@ -43,6 +49,8 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーなしで移動を試みる（エラーが返ることを確認）
 		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
@@ -51,6 +59,8 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("GridElementがない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// GridElementなしのプレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -84,6 +94,8 @@ func TestExecuteMoveAction(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
+				world.Resources.TurnManager = turns.NewTurnManager()
+				world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 				// マップサイズを設定（移動判定に必要）
 				world.Resources.Dungeon.Level.TileWidth = 50
@@ -106,10 +118,8 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("最大APが不足している場合は移動できない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-
-		// ターンマネージャーを初期化
-		turnManager := turns.NewTurnManager()
-		world.Resources.TurnManager = turnManager
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーを作成（AP.Max < 100）
 		player := world.Manager.NewEntity()
@@ -145,6 +155,8 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("待機アクションの実行", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -160,6 +172,8 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーなしで待機を試みる（エラーが返ることを確認）
 		assert.Error(t, ExecuteWaitAction(world))
@@ -172,6 +186,8 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("アイテムがある場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -196,6 +212,8 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("ワープホールがある場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -212,6 +230,8 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーなしでEnterを試みる（エラーが返ることを確認）
 		assert.Error(t, ExecuteEnterAction(world))
@@ -220,6 +240,8 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("GridElementがない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// GridElementなしのプレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -233,6 +255,8 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("何もない場所でEnter", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -254,43 +278,130 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 	t.Run("敵がいる位置への移動は攻撃になる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
 
-		// ターンマネージャーを初期化
-		turnManager := turns.NewTurnManager()
-		world.Resources.TurnManager = turnManager
+		// 固定シードで決定的な攻撃結果にする
+		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.FactionAlly, &gc.FactionAlly)
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		require.NoError(t, err)
 
 		// 北隣に敵を作成
-		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 9})
-		enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-		enemy.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: 100, Max: 100},
-		})
-		enemy.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
-		})
+		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		require.NoError(t, err)
 
 		initialPlayerX := int(world.Components.GridElement.Get(player).(*gc.GridElement).X)
 		initialPlayerY := int(world.Components.GridElement.Get(player).(*gc.GridElement).Y)
+		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
+		initialEnemyHP := enemyPools.HP.Current
 
 		// 北に移動（敵がいる方向）
-		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
+		err = ExecuteMoveAction(world, gc.DirectionUp)
+		require.NoError(t, err)
 
 		// プレイヤーが移動していないことを確認（攻撃したため）
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 		assert.Equal(t, initialPlayerX, int(gridAfter.X), "攻撃時はX座標が変化しないべき")
 		assert.Equal(t, initialPlayerY, int(gridAfter.Y), "攻撃時はY座標が変化しないべき")
 
-		// 敵エンティティが存在することを確認（攻撃が実行された）
-		assert.True(t, enemy.HasComponent(world.Components.Pools), "敵が存在するべき")
+		// 敵のHPが減少していることを確認
+		assert.Less(t, enemyPools.HP.Current, initialEnemyHP, "攻撃後は敵のHPが減少しているべき")
+	})
+
+	t.Run("冷えた状態でも敵への攻撃が可能", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+		turnManager := world.Resources.TurnManager.(*turns.TurnManager)
+
+		// 固定シードで攻撃が必ず命中するようにする
+		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+
+		// プレイヤーを作成
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		require.NoError(t, err)
+
+		// 重度の低体温を設定
+		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		for i := 0; i < int(gc.BodyPartCount); i++ {
+			hs.Parts[i].SetCondition(gc.HealthCondition{
+				Type:     gc.ConditionHypothermia,
+				Severity: gc.SeveritySevere,
+				Timer:    90,
+			})
+		}
+
+		// 北隣に敵を作成
+		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		require.NoError(t, err)
+
+		// CanEntityActがtrueを返すことを確認
+		canAct := turnManager.CanEntityAct(world, player, 100)
+		assert.True(t, canAct, "冷えた状態でもAPが0以上なら行動可能")
+
+		initialPlayerX := int(world.Components.GridElement.Get(player).(*gc.GridElement).X)
+		initialPlayerY := int(world.Components.GridElement.Get(player).(*gc.GridElement).Y)
+		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
+		initialEnemyHP := enemyPools.HP.Current
+
+		// 北に移動（敵がいる方向）- これが攻撃になるはず
+		err = ExecuteMoveAction(world, gc.DirectionUp)
+		require.NoError(t, err)
+
+		// 攻撃したためプレイヤーが移動していないことを確認
+		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
+		assert.Equal(t, initialPlayerX, int(gridAfter.X), "攻撃時はX座標が変化しないべき")
+		assert.Equal(t, initialPlayerY, int(gridAfter.Y), "攻撃時はY座標が変化しないべき")
+
+		// 攻撃によって敵のHPが減少していることを確認する
+		assert.Less(t, enemyPools.HP.Current, initialEnemyHP, "攻撃後は敵のHPが減少しているべき")
+	})
+
+	t.Run("冷えた状態で攻撃するとAPが消費される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+		world.Resources.ActivityManager = actions.NewActivityManager(nil)
+
+		// 固定シードで決定的な動作にする
+		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+
+		// プレイヤーを作成
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		require.NoError(t, err)
+
+		// 重度の低体温を設定
+		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		for i := 0; i < int(gc.BodyPartCount); i++ {
+			hs.Parts[i].SetCondition(gc.HealthCondition{
+				Type:     gc.ConditionHypothermia,
+				Severity: gc.SeveritySevere,
+				Timer:    90,
+			})
+		}
+
+		// 北隣に敵を作成
+		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		require.NoError(t, err)
+
+		// 初期値を記録
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		initialAP := turnBased.AP.Current
+		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
+		initialEnemyHP := enemyPools.HP.Current
+
+		// 北に移動（敵がいる方向）- これが攻撃になるはず
+		err = ExecuteMoveAction(world, gc.DirectionUp)
+		assert.NoError(t, err, "攻撃アクションはエラーなく実行されるべき")
+
+		// APが消費されていることを確認
+		assert.Less(t, turnBased.AP.Current, initialAP, "攻撃後はAPが減少しているべき")
+
+		// 敵のHPが減少していることを確認
+		assert.Less(t, enemyPools.HP.Current, initialEnemyHP, "攻撃後は敵のHPが減少しているべき")
 	})
 }
 
@@ -321,5 +432,194 @@ func TestCheckTileEvents(t *testing.T) {
 
 		// checkTileEventsを呼び出し（パニックしないことを確認）
 		checkTileEvents(world, enemy, 10, 10)
+	})
+}
+
+func TestGetInteractableAtSameTile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("同じタイルのInteractableを取得できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// Interactableエンティティを作成
+		interactableEntity := world.Manager.NewEntity()
+		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		playerGrid := &gc.GridElement{X: 5, Y: 5}
+		interactable, entity := getInteractableAtSameTile(world, playerGrid)
+
+		assert.NotNil(t, interactable)
+		assert.Equal(t, interactableEntity, entity)
+	})
+
+	t.Run("死亡エンティティはInteractable対象から除外される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 死亡したInteractableエンティティを作成
+		deadEntity := world.Manager.NewEntity()
+		deadEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		deadEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		playerGrid := &gc.GridElement{X: 5, Y: 5}
+		interactable, _ := getInteractableAtSameTile(world, playerGrid)
+
+		// 死亡エンティティは見つからない
+		assert.Nil(t, interactable)
+	})
+
+	t.Run("異なるタイルのInteractableは取得されない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 別のタイルにInteractableエンティティを作成
+		interactableEntity := world.Manager.NewEntity()
+		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		playerGrid := &gc.GridElement{X: 5, Y: 5}
+		interactable, _ := getInteractableAtSameTile(world, playerGrid)
+
+		assert.Nil(t, interactable)
+	})
+}
+
+func TestGetInteractableInRange(t *testing.T) {
+	t.Parallel()
+
+	t.Run("範囲内のInteractableを取得できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 隣接タイルにInteractableエンティティを作成
+		interactableEntity := world.Manager.NewEntity()
+		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 5})
+		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{}, // ActivationRangeはAdjacentを返す
+		})
+
+		playerGrid := &gc.GridElement{X: 5, Y: 5}
+		interactable, entity := getInteractableInRange(world, playerGrid)
+
+		assert.NotNil(t, interactable)
+		assert.Equal(t, interactableEntity, entity)
+	})
+
+	t.Run("死亡エンティティは範囲内でも除外される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 隣接タイルに死亡したInteractableエンティティを作成
+		deadEntity := world.Manager.NewEntity()
+		deadEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 5})
+		deadEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		playerGrid := &gc.GridElement{X: 5, Y: 5}
+		interactable, _ := getInteractableInRange(world, playerGrid)
+
+		// 死亡エンティティは見つからない
+		assert.Nil(t, interactable)
+	})
+}
+
+func TestDeadEnemyInteraction(t *testing.T) {
+	t.Parallel()
+
+	t.Run("死亡した敵への移動は攻撃にならない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+
+		// 履歴記録用スライスを設定
+		var history []actions.ActivityHistoryEntry
+		manager := actions.NewActivityManager(nil)
+		manager.History = &history
+		world.Resources.ActivityManager = manager
+
+		// マップサイズを設定して移動可能にする
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
+
+		// 固定シードで決定的な動作にする
+		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+
+		// プレイヤーを作成
+		_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		require.NoError(t, err)
+
+		// 北隣に敵を作成して即座に死亡させる
+		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		require.NoError(t, err)
+		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		// 北に移動（死亡した敵がいる方向）
+		err = ExecuteMoveAction(world, gc.DirectionUp)
+		require.NoError(t, err)
+
+		// 履歴から実行されたアクティビティを検証
+		require.Len(t, history, 1, "1つのアクティビティが実行されるべき")
+		assert.Equal(t, "Move", history[0].ActivityName, "Moveが実行されるべき")
+		assert.True(t, history[0].Success, "移動は成功するべき")
+	})
+
+	t.Run("敵を倒した後の再移動はMoveになる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+
+		// 履歴記録用スライスを設定
+		var history []actions.ActivityHistoryEntry
+		manager := actions.NewActivityManager(nil)
+		manager.History = &history
+		world.Resources.ActivityManager = manager
+
+		// マップサイズを設定して移動可能にする
+		world.Resources.Dungeon.Level.TileWidth = 50
+		world.Resources.Dungeon.Level.TileHeight = 50
+
+		// 固定シードで決定的な動作にする
+		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
+
+		// プレイヤーを作成
+		_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		require.NoError(t, err)
+
+		// 北隣に敵を作成
+		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		require.NoError(t, err)
+
+		// 敵のHPを1にして一撃で倒せるようにする
+		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
+		enemyPools.HP.Current = 1
+
+		// 1回目: 攻撃で敵を倒す
+		err = ExecuteMoveAction(world, gc.DirectionUp)
+		require.NoError(t, err)
+		assert.True(t, enemy.HasComponent(world.Components.Dead), "敵は死亡しているべき")
+
+		// 1回目は InteractionActivate（攻撃）
+		require.Len(t, history, 1)
+		assert.Equal(t, "InteractionActivate", history[0].ActivityName, "1回目は攻撃")
+
+		// 2回目: 死亡した敵がいた場所への移動
+		err = ExecuteMoveAction(world, gc.DirectionUp)
+		require.NoError(t, err)
+
+		// 2回目は Move（死亡した敵は無視される）
+		require.Len(t, history, 2)
+		assert.Equal(t, "Move", history[1].ActivityName, "2回目は移動")
+		assert.True(t, history[1].Success, "移動は成功するべき")
 	})
 }
