@@ -23,5 +23,4 @@
 
   # Propsの定義
   [palette.props]
-    ">" = "warp_next"    # ダンジョン入口ポータル
-    "G" = "dungeon_gate" # ダンジョン選択門
+    "G" = "dungeon_gate" # ダンジョン選択ゲート
