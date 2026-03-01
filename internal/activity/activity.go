@@ -39,11 +39,11 @@ func GetBehavior(name gc.BehaviorName) (Behavior, error) {
 type Behavior interface {
 	Info() Info
 	Name() gc.BehaviorName
-	Validate(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error
-	Start(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error
-	DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error
-	Finish(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error
-	Canceled(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error
+	Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error
+	Start(comp *gc.Activity, actor ecs.Entity, world w.World) error
+	DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error
+	Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error
+	Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error
 }
 
 // Info はアクティビティのメタデータを保持する
@@ -56,13 +56,13 @@ type Info struct {
 	TotalRequiredAP int    // アクティビティ完了に必要な総AP量
 }
 
-// NewCurrentActivity は新しいCurrentActivityコンポーネントを作成する
-func NewCurrentActivity(behavior Behavior, duration int) (*gc.CurrentActivity, error) {
+// NewActivity は新しいActivityコンポーネントを作成する
+func NewActivity(behavior Behavior, duration int) (*gc.Activity, error) {
 	if duration <= 0 {
 		return nil, ErrInvalidDuration
 	}
 
-	return &gc.CurrentActivity{
+	return &gc.Activity{
 		BehaviorName: behavior.Name(),
 		State:        gc.ActivityStateRunning,
 		TurnsTotal:   duration,
@@ -79,7 +79,7 @@ func CalculateRequiredTurns(behavior Behavior, characterAP int) int {
 }
 
 // CanInterrupt はアクティビティが中断可能かを返す
-func CanInterrupt(comp *gc.CurrentActivity) bool {
+func CanInterrupt(comp *gc.Activity) bool {
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
 		return false
@@ -88,7 +88,7 @@ func CanInterrupt(comp *gc.CurrentActivity) bool {
 }
 
 // CanResume はアクティビティが再開可能かを返す
-func CanResume(comp *gc.CurrentActivity) bool {
+func CanResume(comp *gc.Activity) bool {
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
 		return false
@@ -97,7 +97,7 @@ func CanResume(comp *gc.CurrentActivity) bool {
 }
 
 // Interrupt はアクティビティを中断する
-func Interrupt(comp *gc.CurrentActivity, reason string) error {
+func Interrupt(comp *gc.Activity, reason string) error {
 	if !CanInterrupt(comp) {
 		return fmt.Errorf("アクティビティ '%s' は中断できません", GetDisplayName(comp))
 	}
@@ -107,7 +107,7 @@ func Interrupt(comp *gc.CurrentActivity, reason string) error {
 }
 
 // Resume はアクティビティを再開する
-func Resume(comp *gc.CurrentActivity) error {
+func Resume(comp *gc.Activity) error {
 	if !CanResume(comp) {
 		return fmt.Errorf("アクティビティ '%s' は再開できません", GetDisplayName(comp))
 	}
@@ -117,7 +117,7 @@ func Resume(comp *gc.CurrentActivity) error {
 }
 
 // GetDisplayName は表示用の名前を返す
-func GetDisplayName(comp *gc.CurrentActivity) string {
+func GetDisplayName(comp *gc.Activity) string {
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
 		return string(comp.BehaviorName)
@@ -126,22 +126,22 @@ func GetDisplayName(comp *gc.CurrentActivity) string {
 }
 
 // IsActive はアクティビティがアクティブかを返す
-func IsActive(comp *gc.CurrentActivity) bool {
+func IsActive(comp *gc.Activity) bool {
 	return comp.State == gc.ActivityStateRunning
 }
 
 // IsCompleted はアクティビティが完了しているかを返す
-func IsCompleted(comp *gc.CurrentActivity) bool {
+func IsCompleted(comp *gc.Activity) bool {
 	return comp.State == gc.ActivityStateCompleted || comp.TurnsLeft <= 0
 }
 
 // IsCanceled はアクティビティがキャンセルされているかを返す
-func IsCanceled(comp *gc.CurrentActivity) bool {
+func IsCanceled(comp *gc.Activity) bool {
 	return comp.State == gc.ActivityStateCanceled
 }
 
 // GetProgressPercent は進捗率を0-100の値で返す
-func GetProgressPercent(comp *gc.CurrentActivity) float64 {
+func GetProgressPercent(comp *gc.Activity) float64 {
 	if comp.TurnsTotal <= 0 {
 		return 100.0
 	}
@@ -150,13 +150,13 @@ func GetProgressPercent(comp *gc.CurrentActivity) float64 {
 }
 
 // Complete はアクティビティを完了状態にする
-func Complete(comp *gc.CurrentActivity) {
+func Complete(comp *gc.Activity) {
 	comp.State = gc.ActivityStateCompleted
 	comp.TurnsLeft = 0
 }
 
 // Cancel はアクティビティをキャンセルする
-func Cancel(comp *gc.CurrentActivity, reason string) {
+func Cancel(comp *gc.Activity, reason string) {
 	comp.State = gc.ActivityStateCanceled
 	comp.CancelReason = reason
 }

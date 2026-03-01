@@ -32,7 +32,7 @@ func (oda *OpenDoorActivity) Name() gc.BehaviorName {
 }
 
 // Validate はドア開閉アクティビティの検証を行う
-func (oda *OpenDoorActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("ドアエンティティが指定されていません")
 	}
@@ -48,13 +48,13 @@ func (oda *OpenDoorActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, wo
 }
 
 // Start はドア開閉開始時の処理を実行する
-func (oda *OpenDoorActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (oda *OpenDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("ドア開閉開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はドア開閉アクティビティの1ターン分の処理を実行する
-func (oda *OpenDoorActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
 	doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
@@ -81,7 +81,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, worl
 }
 
 // Finish はドア開閉完了時の処理を実行する
-func (oda *OpenDoorActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (oda *OpenDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("ドア開閉アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
@@ -95,7 +95,7 @@ func (oda *OpenDoorActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, wor
 }
 
 // Canceled はドア開閉キャンセル時の処理を実行する
-func (oda *OpenDoorActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (oda *OpenDoorActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("ドア開閉キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
@@ -121,7 +121,7 @@ func (cda *CloseDoorActivity) Name() gc.BehaviorName {
 }
 
 // Validate はドア閉鎖アクティビティの検証を行う
-func (cda *CloseDoorActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("ドアエンティティが指定されていません")
 	}
@@ -137,13 +137,13 @@ func (cda *CloseDoorActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, w
 }
 
 // Start はドア閉鎖開始時の処理を実行する
-func (cda *CloseDoorActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (cda *CloseDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("ドア閉鎖開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はドア閉鎖アクティビティの1ターン分の処理を実行する
-func (cda *CloseDoorActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
 	doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
@@ -170,7 +170,7 @@ func (cda *CloseDoorActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, wor
 }
 
 // Finish はドア閉鎖完了時の処理を実行する
-func (cda *CloseDoorActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (cda *CloseDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("ドア閉鎖アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
@@ -184,7 +184,7 @@ func (cda *CloseDoorActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, wo
 }
 
 // Canceled はドア閉鎖キャンセル時の処理を実行する
-func (cda *CloseDoorActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (cda *CloseDoorActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("ドア閉鎖キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

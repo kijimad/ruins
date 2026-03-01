@@ -15,7 +15,7 @@ func TestActivityCreation(t *testing.T) {
 
 	// 休息アクティビティの作成テスト
 	behavior := &RestActivity{}
-	comp, err := NewCurrentActivity(behavior, 10)
+	comp, err := NewActivity(behavior, 10)
 	require.NoError(t, err)
 
 	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
@@ -38,7 +38,7 @@ func TestActivityInfo(t *testing.T) {
 func TestActivityInterruptAndResume(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewCurrentActivity(&RestActivity{}, 10)
+	comp, err := NewActivity(&RestActivity{}, 10)
 	require.NoError(t, err)
 
 	// 初期状態での中断可能性チェック
@@ -67,7 +67,7 @@ func TestActivityInterruptAndResume(t *testing.T) {
 func TestActivityCancel(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 
 	// キャンセル実行
@@ -84,7 +84,7 @@ func TestActivityCancel(t *testing.T) {
 func TestActivityComplete(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 
 	// 完了実行
@@ -98,7 +98,7 @@ func TestActivityComplete(t *testing.T) {
 func TestActivityProgressCalculation(t *testing.T) {
 	t.Parallel()
 
-	comp, err := NewCurrentActivity(&RestActivity{}, 10)
+	comp, err := NewActivity(&RestActivity{}, 10)
 	require.NoError(t, err)
 
 	// 初期進捗（0%）
@@ -121,7 +121,7 @@ func TestActivityDoTurn(t *testing.T) {
 
 	actor := ecs.Entity(1)
 	behavior := &WaitActivity{}
-	comp, err := NewCurrentActivity(behavior, 3)
+	comp, err := NewActivity(behavior, 3)
 	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)

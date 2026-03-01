@@ -32,7 +32,7 @@ func (ma *MoveActivity) Name() gc.BehaviorName {
 }
 
 // Validate はBehaviorの実装
-func (ma *MoveActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Destination == nil {
 		return ErrMoveTargetNotSet
 	}
@@ -70,13 +70,13 @@ func (ma *MoveActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, wor
 }
 
 // Start はBehaviorの実装
-func (ma *MoveActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (ma *MoveActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("移動開始", "actor", actor, "destination", *comp.Destination)
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (ma *MoveActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Destination == nil {
 		Cancel(comp, "移動先が設定されていません")
 		return ErrMoveTargetNotSet
@@ -105,7 +105,7 @@ func (ma *MoveActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world
 }
 
 // Finish はBehaviorの実装
-func (ma *MoveActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (ma *MoveActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
@@ -117,12 +117,12 @@ func (ma *MoveActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world
 }
 
 // Canceled はBehaviorの実装
-func (ma *MoveActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (ma *MoveActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("移動キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (ma *MoveActivity) performMove(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return ErrGridElementNotFound

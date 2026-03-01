@@ -53,9 +53,9 @@ const (
 	BehaviorDungeonGate BehaviorName = "DungeonGate"
 )
 
-// CurrentActivity は実行中のアクティビティを保持するコンポーネント
+// Activity は実行中のアクティビティを保持するコンポーネント
 // 1エンティティにつき最大1つのアクティビティを持つ
-type CurrentActivity struct {
+type Activity struct {
 	BehaviorName BehaviorName  // アクティビティの種類
 	State        ActivityState // 実行状態
 	TurnsTotal   int           // 総必要ターン数
@@ -65,8 +65,8 @@ type CurrentActivity struct {
 	CancelReason string        // キャンセル理由
 }
 
-// LastActivityResult は直近のアクティビティ実行結果を保持するコンポーネント
-type LastActivityResult struct {
+// LastActivity は直近のアクティビティ実行結果を保持するコンポーネント
+type LastActivity struct {
 	BehaviorName BehaviorName  // 実行されたアクティビティ名
 	State        ActivityState // アクティビティの終了状態
 	Success      bool          // 成功/失敗

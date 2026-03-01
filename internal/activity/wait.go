@@ -31,7 +31,7 @@ func (wa *WaitActivity) Name() gc.BehaviorName {
 }
 
 // Validate は待機アクティビティの検証を行う
-func (wa *WaitActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, _ w.World) error {
+func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error {
 	// 待機は基本的に常に実行可能
 	// ただし、最低限のチェックは行う
 
@@ -44,14 +44,14 @@ func (wa *WaitActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, _ w.Wor
 }
 
 // Start は待機開始時の処理を実行する
-func (wa *WaitActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (wa *WaitActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	reason := "時間を過ごすため"
 	log.Debug("待機開始", "actor", actor, "reason", reason, "duration", comp.TurnsLeft)
 	return nil
 }
 
 // DoTurn は待機アクティビティの1ターン分の処理を実行する
-func (wa *WaitActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 環境を観察
 	wa.observeEnvironment(comp, actor, world)
 
@@ -77,7 +77,7 @@ func (wa *WaitActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world
 }
 
 // Finish は待機完了時の処理を実行する
-func (wa *WaitActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (wa *WaitActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("待機完了", "actor", actor)
 
 	// TODO: 1ターン待機の場合も出るのは微妙な感じがする
@@ -92,13 +92,13 @@ func (wa *WaitActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.
 }
 
 // Canceled は待機キャンセル時の処理を実行する
-func (wa *WaitActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (wa *WaitActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("待機キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // observeEnvironment は環境観察処理を実行する
-func (wa *WaitActivity) observeEnvironment(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) {
+func (wa *WaitActivity) observeEnvironment(comp *gc.Activity, actor ecs.Entity, _ w.World) {
 	// 待機中の環境観察（5ターン毎）
 	if (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {
 		// TODO: 環境観察の実装

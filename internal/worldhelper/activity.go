@@ -6,33 +6,33 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetCurrentActivity は指定されたエンティティの現在のアクティビティを取得する
-func GetCurrentActivity(world w.World, entity ecs.Entity) *gc.CurrentActivity {
-	comp := world.Components.CurrentActivity.Get(entity)
+// GetActivity は指定されたエンティティの現在のアクティビティを取得する
+func GetActivity(world w.World, entity ecs.Entity) *gc.Activity {
+	comp := world.Components.Activity.Get(entity)
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.CurrentActivity)
+	return comp.(*gc.Activity)
 }
 
 // HasActivity は指定されたエンティティがアクティビティを実行中かを返す
 func HasActivity(world w.World, entity ecs.Entity) bool {
-	activity := GetCurrentActivity(world, entity)
+	activity := GetActivity(world, entity)
 	return activity != nil && activity.State == gc.ActivityStateRunning
 }
 
-// SetCurrentActivity はエンティティにアクティビティを設定する
-func SetCurrentActivity(world w.World, entity ecs.Entity, activity *gc.CurrentActivity) {
-	if world.Components.CurrentActivity.Get(entity) != nil {
+// SetActivity はエンティティにアクティビティを設定する
+func SetActivity(world w.World, entity ecs.Entity, activity *gc.Activity) {
+	if world.Components.Activity.Get(entity) != nil {
 		// 既存のアクティビティを上書き
-		entity.RemoveComponent(world.Components.CurrentActivity)
+		entity.RemoveComponent(world.Components.Activity)
 	}
-	entity.AddComponent(world.Components.CurrentActivity, activity)
+	entity.AddComponent(world.Components.Activity, activity)
 }
 
-// RemoveCurrentActivity はエンティティからアクティビティを削除する
-func RemoveCurrentActivity(world w.World, entity ecs.Entity) {
-	if world.Components.CurrentActivity.Get(entity) != nil {
-		entity.RemoveComponent(world.Components.CurrentActivity)
+// RemoveActivity はエンティティからアクティビティを削除する
+func RemoveActivity(world w.World, entity ecs.Entity) {
+	if world.Components.Activity.Get(entity) != nil {
+		entity.RemoveComponent(world.Components.Activity)
 	}
 }

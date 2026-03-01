@@ -68,7 +68,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 		consumeMoveCost(world, behavior, params.Actor)
 
 		// 結果を確認
-		currentActivity := worldhelper.GetCurrentActivity(world, params.Actor)
+		currentActivity := worldhelper.GetActivity(world, params.Actor)
 		if currentActivity == nil || IsCompleted(currentActivity) {
 			result := &ActionResult{
 				Success:      true,
@@ -126,7 +126,7 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivityResult {
 }
 
 // StartActivity は新しいアクティビティを開始する
-func StartActivity(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp == nil {
 		return ErrActivityNil
 	}
@@ -137,7 +137,7 @@ func StartActivity(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) er
 	}
 
 	// 既存のアクティビティがある場合は中断
-	if currentActivity := worldhelper.GetCurrentActivity(world, actor); currentActivity != nil {
+	if currentActivity := worldhelper.GetActivity(world, actor); currentActivity != nil {
 		if err := InterruptActivity(actor, "新しいアクティビティを開始", world); err != nil {
 			log.Warn("既存アクティビティの中断に失敗", "entity", actor, "error", err.Error())
 		}
@@ -149,13 +149,13 @@ func StartActivity(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) er
 	}
 
 	// アクティビティをコンポーネントとして登録
-	worldhelper.SetCurrentActivity(world, actor, comp)
+	worldhelper.SetActivity(world, actor, comp)
 	comp.State = gc.ActivityStateRunning
 
 	// BehaviorのStart処理を実行
 	if err := behavior.Start(comp, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
-		worldhelper.RemoveCurrentActivity(world, actor)
+		worldhelper.RemoveActivity(world, actor)
 		return fmt.Errorf("アクティビティ開始失敗: %w", err)
 	}
 
@@ -169,7 +169,7 @@ func StartActivity(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) er
 
 // InterruptActivity は指定されたエンティティのアクティビティを中断する
 func InterruptActivity(entity ecs.Entity, reason string, world w.World) error {
-	comp := worldhelper.GetCurrentActivity(world, entity)
+	comp := worldhelper.GetActivity(world, entity)
 	if comp == nil {
 		return ErrActivityNotFound
 	}
@@ -179,7 +179,7 @@ func InterruptActivity(entity ecs.Entity, reason string, world w.World) error {
 
 // ResumeActivity は指定されたエンティティのアクティビティを再開する
 func ResumeActivity(entity ecs.Entity, world w.World) error {
-	comp := worldhelper.GetCurrentActivity(world, entity)
+	comp := worldhelper.GetActivity(world, entity)
 	if comp == nil {
 		return ErrActivityNotFound
 	}
@@ -193,7 +193,7 @@ func ResumeActivity(entity ecs.Entity, world w.World) error {
 
 // CancelActivity は指定されたエンティティのアクティビティをキャンセルする
 func CancelActivity(entity ecs.Entity, reason string, world w.World) {
-	comp := worldhelper.GetCurrentActivity(world, entity)
+	comp := worldhelper.GetActivity(world, entity)
 	if comp == nil {
 		return
 	}
@@ -201,7 +201,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
 		log.Warn("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
-		worldhelper.RemoveCurrentActivity(world, entity)
+		worldhelper.RemoveActivity(world, entity)
 		return
 	}
 
@@ -224,7 +224,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 	}
 	setLastResult(entity, result, world)
 
-	worldhelper.RemoveCurrentActivity(world, entity)
+	worldhelper.RemoveActivity(world, entity)
 
 	log.Debug("アクティビティキャンセル",
 		"entity", entity,
@@ -239,8 +239,8 @@ func ProcessTurn(world w.World) {
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
 	var toRemove []ecs.Entity
 
-	world.Manager.Join(world.Components.CurrentActivity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.CurrentActivity.Get(entity).(*gc.CurrentActivity)
+	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
+		comp := world.Components.Activity.Get(entity).(*gc.Activity)
 
 		// アクティブなアクティビティのみ処理
 		if !IsActive(comp) {
@@ -298,14 +298,14 @@ func ProcessTurn(world w.World) {
 
 	// 完了・キャンセルされたアクティビティを削除
 	for _, entity := range toRemove {
-		worldhelper.RemoveCurrentActivity(world, entity)
+		worldhelper.RemoveActivity(world, entity)
 	}
 
 	log.Debug("アクティビティターン処理完了", "removed", len(toRemove))
 }
 
 // buildActivity はアクティビティ実装とパラメータからアクティビティを作成する
-func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.CurrentActivity, error) {
+func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.Activity, error) {
 	// 基本のdurationを計算
 	duration := params.Duration
 	if duration <= 0 {
@@ -314,7 +314,7 @@ func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.C
 	}
 
 	// アクティビティを作成
-	comp, err := NewCurrentActivity(behavior, duration)
+	comp, err := NewActivity(behavior, duration)
 	if err != nil {
 		return nil, err
 	}

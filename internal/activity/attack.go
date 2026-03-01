@@ -56,7 +56,7 @@ func (aa *AttackActivity) Name() gc.BehaviorName {
 }
 
 // Validate はBehaviorの実装
-func (aa *AttackActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (aa *AttackActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
@@ -85,13 +85,13 @@ func (aa *AttackActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, w
 }
 
 // Start はBehaviorの実装
-func (aa *AttackActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (aa *AttackActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
 // DoTurn はBehaviorの実装
-func (aa *AttackActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (aa *AttackActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		Cancel(comp, "攻撃対象が設定されていません")
 		return ErrAttackTargetNotSet
@@ -112,7 +112,7 @@ func (aa *AttackActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, wor
 }
 
 // Finish はBehaviorの実装
-func (aa *AttackActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (aa *AttackActivity) Finish(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃アクティビティ完了",
 		"actor", actor,
 		"target", *comp.Target)
@@ -121,12 +121,12 @@ func (aa *AttackActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, _ w
 }
 
 // Canceled はBehaviorの実装
-func (aa *AttackActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (aa *AttackActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("攻撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (aa *AttackActivity) performAttack(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	target := *comp.Target
 
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
@@ -172,7 +172,7 @@ func (aa *AttackActivity) performAttack(comp *gc.CurrentActivity, actor ecs.Enti
 	return nil
 }
 
-func (aa *AttackActivity) canAttack(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) bool {
+func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
 	if comp.Target == nil {
 		return false
 	}

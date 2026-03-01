@@ -21,8 +21,8 @@ func getActivitySummary(t *testing.T, world w.World) map[string]int {
 		"paused": 0,
 	}
 
-	world.Manager.Join(world.Components.CurrentActivity).Visit(ecs.Visit(func(entity ecs.Entity) {
-		comp := world.Components.CurrentActivity.Get(entity).(*gc.CurrentActivity)
+	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
+		comp := world.Components.Activity.Get(entity).(*gc.Activity)
 		summary["total"]++
 		switch comp.State {
 		case gc.ActivityStateRunning:
@@ -44,7 +44,7 @@ func TestStartActivity(t *testing.T) {
 	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// アクティビティを作成
-	comp, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 
 	// アクティビティ開始
@@ -52,7 +52,7 @@ func TestStartActivity(t *testing.T) {
 	assert.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
-	currentActivity := worldhelper.GetCurrentActivity(world, actor)
+	currentActivity := worldhelper.GetActivity(world, actor)
 	assert.NotNil(t, currentActivity, "Expected activity to be registered")
 	assert.Equal(t, comp, currentActivity, "Expected registered activity to match started activity")
 
@@ -74,9 +74,9 @@ func TestMultipleActivities(t *testing.T) {
 	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
-	comp1, err := NewCurrentActivity(&WaitActivity{}, 10)
+	comp1, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
-	comp2, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp2, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 
 	err = StartActivity(comp1, actor1, world)
@@ -90,10 +90,10 @@ func TestMultipleActivities(t *testing.T) {
 	assert.True(t, worldhelper.HasActivity(world, actor2), "Expected actor2 to have activity")
 
 	// 正しいアクティビティが取得できるかチェック
-	retrievedActivity1 := worldhelper.GetCurrentActivity(world, actor1)
+	retrievedActivity1 := worldhelper.GetActivity(world, actor1)
 	assert.NotNil(t, retrievedActivity1, "Expected actor1 to have activity")
 
-	retrievedActivity2 := worldhelper.GetCurrentActivity(world, actor2)
+	retrievedActivity2 := worldhelper.GetActivity(world, actor2)
 	assert.NotNil(t, retrievedActivity2, "Expected actor2 to have activity")
 }
 
@@ -104,7 +104,7 @@ func TestReplaceActivity(t *testing.T) {
 	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
-	comp1, err := NewCurrentActivity(&WaitActivity{}, 10)
+	comp1, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
 	err = StartActivity(comp1, actor, world)
 	assert.NoError(t, err)
@@ -113,7 +113,7 @@ func TestReplaceActivity(t *testing.T) {
 	assert.Equal(t, gc.ActivityStateRunning, comp1.State, "Expected first activity to be running")
 
 	// 新しいアクティビティを開始（古いものを置き換え）
-	comp2, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp2, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 	err = StartActivity(comp2, actor, world)
 	assert.NoError(t, err)
@@ -122,7 +122,7 @@ func TestReplaceActivity(t *testing.T) {
 	assert.Equal(t, gc.ActivityStatePaused, comp1.State, "Expected first activity to be paused after replacement")
 
 	// 新しいアクティビティが現在のアクティビティになっているかチェック
-	currentActivity := worldhelper.GetCurrentActivity(world, actor)
+	currentActivity := worldhelper.GetActivity(world, actor)
 	assert.Equal(t, comp2, currentActivity, "Expected current activity to be the second activity")
 }
 
@@ -133,7 +133,7 @@ func TestInterruptAndResume(t *testing.T) {
 	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewCurrentActivity(&WaitActivity{}, 10)
+	comp, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
 	err = StartActivity(comp, actor, world)
 	assert.NoError(t, err)
@@ -172,7 +172,7 @@ func TestCancelActivity(t *testing.T) {
 	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// アクティビティを開始
-	comp, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 	err = StartActivity(comp, actor, world)
 	assert.NoError(t, err)
@@ -183,7 +183,7 @@ func TestCancelActivity(t *testing.T) {
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected activity to be canceled")
 
 	// キャンセルされたアクティビティは管理対象から削除される
-	currentActivity := worldhelper.GetCurrentActivity(world, actor)
+	currentActivity := worldhelper.GetActivity(world, actor)
 	assert.Nil(t, currentActivity, "Expected no current activity after cancel")
 
 	// 存在しないアクティビティのキャンセル（エラーにならない）
@@ -201,9 +201,9 @@ func TestProcessTurn(t *testing.T) {
 	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// 短いアクティビティと長いアクティビティを開始
-	shortComp, err := NewCurrentActivity(&WaitActivity{}, 2) // 2ターンで完了
+	shortComp, err := NewActivity(&WaitActivity{}, 2) // 2ターンで完了
 	require.NoError(t, err)
-	longComp, err := NewCurrentActivity(&WaitActivity{}, 5) // 5ターンで完了
+	longComp, err := NewActivity(&WaitActivity{}, 5) // 5ターンで完了
 	require.NoError(t, err)
 
 	err = StartActivity(shortComp, actor1, world)
@@ -231,8 +231,8 @@ func TestProcessTurn(t *testing.T) {
 	assert.Equal(t, 3, longComp.TurnsLeft, "Expected long activity to have 3 turns left")
 
 	// 完了したアクティビティは管理対象から削除される
-	assert.Nil(t, worldhelper.GetCurrentActivity(world, actor1), "Expected completed activity to be removed")
-	assert.NotNil(t, worldhelper.GetCurrentActivity(world, actor2), "Expected long activity to still be present")
+	assert.Nil(t, worldhelper.GetActivity(world, actor1), "Expected completed activity to be removed")
+	assert.NotNil(t, worldhelper.GetActivity(world, actor2), "Expected long activity to still be present")
 
 	// サマリーの確認
 	summary = getActivitySummary(t, world)
@@ -255,9 +255,9 @@ func TestActivitySummary(t *testing.T) {
 	actor2 := world.Manager.NewEntity()
 	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-	comp1, err := NewCurrentActivity(&WaitActivity{}, 10)
+	comp1, err := NewActivity(&WaitActivity{}, 10)
 	require.NoError(t, err)
-	comp2, err := NewCurrentActivity(&WaitActivity{}, 5)
+	comp2, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 
 	err = StartActivity(comp1, actor1, world)

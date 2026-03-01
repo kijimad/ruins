@@ -136,7 +136,7 @@ type Components struct {
 	DropTable    *ecs.SliceComponent
 
 	// activity ================
-	CurrentActivity    *ecs.SliceComponent // 実行中のアクティビティ
+	Activity           *ecs.SliceComponent // 実行中のアクティビティ
 	LastActivityResult *ecs.SliceComponent // 直近のアクティビティ実行結果
 }
 

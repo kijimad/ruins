@@ -31,7 +31,7 @@ func (pa *PickupActivity) Name() gc.BehaviorName {
 }
 
 // Validate はアイテム拾得アクティビティの検証を行う
-func (pa *PickupActivity) Validate(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (pa *PickupActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	// プレイヤーの位置情報が必要
 	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
@@ -63,13 +63,13 @@ func (pa *PickupActivity) Validate(_ *gc.CurrentActivity, actor ecs.Entity, worl
 }
 
 // Start はアイテム拾得開始時の処理を実行する
-func (pa *PickupActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (pa *PickupActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム拾得開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はアイテム拾得アクティビティの1ターン分の処理を実行する
-func (pa *PickupActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (pa *PickupActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// アイテム拾得処理を実行
 	if err := pa.performPickupActivity(comp, actor, world); err != nil {
 		Cancel(comp, fmt.Sprintf("アイテム拾得エラー: %s", err.Error()))
@@ -83,19 +83,19 @@ func (pa *PickupActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, wor
 }
 
 // Finish はアイテム拾得完了時の処理を実行する
-func (pa *PickupActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (pa *PickupActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム拾得アクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテム拾得キャンセル時の処理を実行する
-func (pa *PickupActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("アイテム拾得キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // performPickupActivity は実際のアイテム拾得処理を実行する
-func (pa *PickupActivity) performPickupActivity(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity, world w.World) error {
 	// プレイヤー位置を取得
 	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {

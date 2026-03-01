@@ -32,7 +32,7 @@ func (ta *TalkActivity) Name() gc.BehaviorName {
 }
 
 // Validate は会話アクティビティの検証を行う
-func (ta *TalkActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+func (ta *TalkActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("会話対象が指定されていません")
 	}
@@ -53,13 +53,13 @@ func (ta *TalkActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, world w
 }
 
 // Start は会話開始時の処理を実行する
-func (ta *TalkActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (ta *TalkActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("会話開始", "actor", actor)
 	return nil
 }
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
-func (ta *TalkActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+func (ta *TalkActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	targetEntity := *comp.Target
 
 	dialogComp := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
@@ -84,7 +84,7 @@ func (ta *TalkActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.W
 }
 
 // Finish は会話完了時の処理を実行する
-func (ta *TalkActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("会話アクティビティ完了", "actor", actor)
 
 	if comp.Target == nil {
@@ -120,7 +120,7 @@ func (ta *TalkActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world
 }
 
 // Canceled は会話キャンセル時の処理を実行する
-func (ta *TalkActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+func (ta *TalkActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	log.Debug("会話キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
