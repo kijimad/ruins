@@ -13,13 +13,12 @@ import (
 func TestGetTurnState(t *testing.T) {
 	t.Parallel()
 
-	t.Run("シングルトンからターン状態を取得できる", func(t *testing.T) {
+	t.Run("ターン状態を取得できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		state, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
-		require.NotNil(t, state, "TurnStateシングルトンが存在する")
+		require.NoError(t, err, "TurnStateが存在する")
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase, "初期フェーズはPlayerTurn")
 		assert.Equal(t, 1, state.TurnNumber, "初期ターン番号は1")
 	})

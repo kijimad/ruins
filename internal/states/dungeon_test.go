@@ -196,7 +196,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			// シングルトンのターン状態を設定
+			// ターン状態を設定
 			turnState, err := worldhelper.GetTurnState(world)
 			require.NoError(t, err)
 			turnState.Phase = tt.turnPhase
@@ -248,7 +248,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 
 			world := testutil.InitTestWorld(t)
 
-			// シングルトンのターン状態を設定
+			// ターン状態を設定
 			turnState, err := worldhelper.GetTurnState(world)
 			require.NoError(t, err)
 			turnState.Phase = phase

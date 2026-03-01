@@ -28,7 +28,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
 
-		// シングルトンの状態を設定
+		// ターン状態を設定
 		turnState, err := worldhelper.GetTurnState(world)
 		require.NoError(t, err)
 		turnState.Phase = gc.TurnPhasePlayer
@@ -51,7 +51,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
 
-		// シングルトンの状態を設定
+		// ターン状態を設定
 		turnState, err := worldhelper.GetTurnState(world)
 		require.NoError(t, err)
 		turnState.Phase = gc.TurnPhasePlayer
@@ -71,7 +71,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// シングルトンの状態を設定
+		// ターン状態を設定
 		turnState, err := worldhelper.GetTurnState(world)
 		require.NoError(t, err)
 		turnState.Phase = gc.TurnPhaseAI
@@ -88,7 +88,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Updaters = make(map[string]w.Updater)
 
-		// シングルトンの状態を設定
+		// ターン状態を設定
 		turnState, err := worldhelper.GetTurnState(world)
 		require.NoError(t, err)
 		turnState.Phase = gc.TurnPhaseEnd

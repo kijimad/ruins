@@ -55,13 +55,6 @@ func InitWorld(c *gc.Components) (World, error) {
 		Renderers:  make(map[string]Renderer),
 	}
 
-	// シングルトンエンティティを作成する
-	turnEntity := world.Manager.NewEntity()
-	turnEntity.AddComponent(world.Components.TurnState, &gc.TurnState{
-		Phase:      gc.TurnPhasePlayer,
-		TurnNumber: 1,
-	})
-
 	return world, nil
 }
 

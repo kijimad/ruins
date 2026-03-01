@@ -9,25 +9,15 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetTurnState はワールドからターン状態シングルトンを取得する
-// シングルトンが0個または2個以上の場合はエラーを返す
+// GetTurnState はワールドからターン状態を取得する
 func GetTurnState(world w.World) (*gc.TurnState, error) {
-	var states []*gc.TurnState
-	world.Manager.Join(world.Components.TurnState).Visit(ecs.Visit(func(entity ecs.Entity) {
-		states = append(states, world.Components.TurnState.Get(entity).(*gc.TurnState))
-	}))
-
-	if len(states) == 0 {
-		return nil, fmt.Errorf("TurnStateシングルトンが存在しません")
+	if world.Resources.Dungeon == nil {
+		return nil, fmt.Errorf("Dungeonが初期化されていません")
 	}
-	if len(states) > 1 {
-		return nil, fmt.Errorf("TurnStateシングルトンが複数存在します: %d個", len(states))
-	}
-
-	return states[0], nil
+	return &world.Resources.Dungeon.TurnState, nil
 }
 
-// GetTurnNumber はシングルトンからターン番号を取得する
+// GetTurnNumber はターン番号を取得する
 func GetTurnNumber(world w.World) int {
 	state, err := GetTurnState(world)
 	if err != nil {

@@ -138,10 +138,6 @@ type Components struct {
 	// activity ================
 	CurrentActivity    *ecs.SliceComponent // 実行中のアクティビティ
 	LastActivityResult *ecs.SliceComponent // 直近のアクティビティ実行結果
-
-	// singleton ================
-	// TODO: どうにかする
-	TurnState *ecs.SliceComponent // グローバルターン状態（シングルトン）
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

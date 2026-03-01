@@ -29,7 +29,6 @@ func ExtractHUDData(world w.World) hud.Data {
 func extractGameInfo(world w.World) hud.GameInfoData {
 	floorNumber := world.Resources.Dungeon.Depth
 
-	// シングルトンからターン番号を取得
 	turnNumber := worldhelper.GetTurnNumber(world)
 
 	// プレイヤーの現在APを取得（旧PlayerMovesの代わり）
