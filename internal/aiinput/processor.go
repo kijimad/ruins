@@ -29,7 +29,10 @@ func NewProcessor() *Processor {
 
 // ProcessAllEntities は全てのAIエンティティを処理する
 func (p *Processor) ProcessAllEntities(world w.World) error {
-	turnNumber := worldhelper.GetTurnNumber(world)
+	turnNumber, err := worldhelper.GetTurnNumber(world)
+	if err != nil {
+		return err
+	}
 	p.logger.Debug("AI処理開始", "turn", turnNumber)
 
 	entityCount := 0
@@ -50,7 +53,7 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 
 // ProcessEntity は個別のAIエンティティを処理する
 func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
-	turnNumber := worldhelper.GetTurnNumber(world)
+	turnNumber, _ := worldhelper.GetTurnNumber(world)
 	p.logger.Debug("AIエンティティ処理開始", "entity", entity)
 
 	// 死亡しているエンティティは処理しない

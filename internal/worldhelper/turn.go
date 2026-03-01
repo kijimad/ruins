@@ -18,12 +18,12 @@ func GetTurnState(world w.World) (*gc.TurnState, error) {
 }
 
 // GetTurnNumber はターン番号を取得する
-func GetTurnNumber(world w.World) int {
+func GetTurnNumber(world w.World) (int, error) {
 	state, err := GetTurnState(world)
 	if err != nil {
-		return 0
+		return 0, err
 	}
-	return state.TurnNumber
+	return state.TurnNumber, nil
 }
 
 // CanPlayerAct はプレイヤーが行動可能かを判定する
