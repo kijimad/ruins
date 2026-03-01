@@ -83,6 +83,10 @@ func InitTestWorld(t *testing.T) w.World {
 			OffsetY: 10,
 			Scale:   3,
 		},
+		Level: gr.Level{
+			TileWidth:  50,
+			TileHeight: 50,
+		},
 	}
 	err = gameResource.RequestStateChange(gr.NoneEvent{})
 	require.NoError(t, err, "テスト初期化時の状態変更要求に失敗しました")

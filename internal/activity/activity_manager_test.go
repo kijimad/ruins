@@ -394,8 +394,6 @@ func TestActivityManagerHistory(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.Dungeon.Level.TileWidth = 50
-		world.Resources.Dungeon.Level.TileHeight = 50
 
 		var history []HistoryEntry
 		manager := NewManager(nil)

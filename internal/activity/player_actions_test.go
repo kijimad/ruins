@@ -22,8 +22,6 @@ func TestExecuteMoveAction(t *testing.T) {
 		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
-		world.Resources.Dungeon.Level.TileWidth = 50
-		world.Resources.Dungeon.Level.TileHeight = 50
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -93,8 +91,6 @@ func TestExecuteMoveAction(t *testing.T) {
 				world.Resources.TurnManager = turns.NewTurnManager()
 				manager := NewManager(nil)
 				world.Resources.ActivityManager = manager
-				world.Resources.Dungeon.Level.TileWidth = 50
-				world.Resources.Dungeon.Level.TileHeight = 50
 
 				player := world.Manager.NewEntity()
 				player.AddComponent(world.Components.Player, &gc.Player{})
@@ -461,8 +457,6 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.Dungeon.Level.TileWidth = 50
-		world.Resources.Dungeon.Level.TileHeight = 50
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -489,8 +483,6 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
-		world.Resources.Dungeon.Level.TileWidth = 50
-		world.Resources.Dungeon.Level.TileHeight = 50
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
