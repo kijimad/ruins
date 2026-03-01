@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -55,14 +54,12 @@ func (ta *TalkActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, world w
 
 // Start は会話開始時の処理を実行する
 func (ta *TalkActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("会話開始", "actor", actor)
 	return nil
 }
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
 func (ta *TalkActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
 	targetEntity := *comp.Target
 
 	dialogComp := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
@@ -88,7 +85,6 @@ func (ta *TalkActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.W
 
 // Finish は会話完了時の処理を実行する
 func (ta *TalkActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("会話アクティビティ完了", "actor", actor)
 
 	if comp.Target == nil {
@@ -125,7 +121,6 @@ func (ta *TalkActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world
 
 // Canceled は会話キャンセル時の処理を実行する
 func (ta *TalkActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("会話キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

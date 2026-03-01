@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -30,7 +29,6 @@ type ActionResult struct {
 // Execute は指定されたアクティビティを実行する
 // 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する
 func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResult, error) {
-	log := logger.New(logger.CategoryAction)
 	behaviorName := behavior.Name()
 	log.Debug("アクション実行開始",
 		"type", behaviorName,
@@ -129,8 +127,6 @@ func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivityResult {
 
 // StartActivity は新しいアクティビティを開始する
 func StartActivity(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
-
 	if comp == nil {
 		return ErrActivityNil
 	}
@@ -197,8 +193,6 @@ func ResumeActivity(entity ecs.Entity, world w.World) error {
 
 // CancelActivity は指定されたエンティティのアクティビティをキャンセルする
 func CancelActivity(entity ecs.Entity, reason string, world w.World) {
-	log := logger.New(logger.CategoryAction)
-
 	comp := worldhelper.GetCurrentActivity(world, entity)
 	if comp == nil {
 		return
@@ -240,7 +234,6 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 
 // ProcessTurn は全てのアクティブなアクティビティの1ターン分の処理を実行する
 func ProcessTurn(world w.World) {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アクティビティターン処理開始")
 
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
@@ -339,8 +332,6 @@ func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.C
 
 // consumeMoveCost はアクションのAPコストを消費する
 func consumeMoveCost(world w.World, behavior Behavior, actor ecs.Entity) {
-	log := logger.New(logger.CategoryAction)
-
 	info := behavior.Info()
 	cost := info.ActionPointCost
 
@@ -364,8 +355,6 @@ func consumeMoveCost(world w.World, behavior Behavior, actor ecs.Entity) {
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
 func getEntityMaxAP(entity ecs.Entity, world w.World) int {
-	log := logger.New(logger.CategoryAction)
-
 	if turnBasedComponent := world.Components.TurnBased.Get(entity); turnBasedComponent != nil {
 		turnBased := turnBasedComponent.(*gc.TurnBased)
 		return turnBased.AP.Max

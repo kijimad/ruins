@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -55,7 +54,6 @@ func (da *DropActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // Start はアイテムドロップ開始時の処理を実行する
 func (da *DropActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテムドロップ開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
@@ -75,14 +73,12 @@ func (da *DropActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world
 
 // Finish はアイテムドロップ完了時の処理を実行する
 func (da *DropActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテムドロップアクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテムドロップキャンセル時の処理を実行する
 func (da *DropActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテムドロップキャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

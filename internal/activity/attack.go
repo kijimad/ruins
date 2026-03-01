@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -87,7 +86,6 @@ func (aa *AttackActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, w
 
 // Start はBehaviorの実装
 func (aa *AttackActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("攻撃開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
@@ -115,7 +113,6 @@ func (aa *AttackActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // Finish はBehaviorの実装
 func (aa *AttackActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("攻撃アクティビティ完了",
 		"actor", actor,
 		"target", *comp.Target)
@@ -125,7 +122,6 @@ func (aa *AttackActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, _ w
 
 // Canceled はBehaviorの実装
 func (aa *AttackActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("攻撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
@@ -133,7 +129,6 @@ func (aa *AttackActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _
 func (aa *AttackActivity) performAttack(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
 	target := *comp.Target
 
-	log := logger.New(logger.CategoryAction)
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
 
 	// 攻撃方法を取得

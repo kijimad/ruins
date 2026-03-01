@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -108,7 +107,7 @@ func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	}
 	result, err := Execute(&PickupActivity{}, params, world)
 	if err != nil {
-		logger.New(logger.CategoryAction).Warn("アイテム拾得アクション失敗", "error", err)
+		log.Warn("アイテム拾得アクション失敗", "error", err)
 	}
 	return result, err
 }

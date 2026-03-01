@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -64,7 +63,6 @@ func (u *UseItemActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, w
 
 // Start はBehaviorの実装
 func (u *UseItemActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテム使用開始", "actor", actor, "item", *comp.Target)
 	return nil
 }
@@ -116,14 +114,12 @@ func (u *UseItemActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // Finish はBehaviorの実装
 func (u *UseItemActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテム使用完了", "actor", actor)
 	return nil
 }
 
 // Canceled はBehaviorの実装
 func (u *UseItemActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテム使用キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

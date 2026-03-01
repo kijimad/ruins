@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -65,7 +64,6 @@ func (pa *PickupActivity) Validate(_ *gc.CurrentActivity, actor ecs.Entity, worl
 
 // Start はアイテム拾得開始時の処理を実行する
 func (pa *PickupActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテム拾得開始", "actor", actor)
 	return nil
 }
@@ -86,22 +84,18 @@ func (pa *PickupActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // Finish はアイテム拾得完了時の処理を実行する
 func (pa *PickupActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテム拾得アクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテム拾得キャンセル時の処理を実行する
 func (pa *PickupActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("アイテム拾得キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // performPickupActivity は実際のアイテム拾得処理を実行する
 func (pa *PickupActivity) performPickupActivity(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
-
 	// プレイヤー位置を取得
 	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {

@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -48,15 +47,12 @@ func (ra *RestActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // Start は休息開始時の処理を実行する
 func (ra *RestActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("休息開始", "actor", actor, "duration", comp.TurnsLeft)
 	return nil
 }
 
 // DoTurn は休息アクティビティの1ターン分の処理を実行する
 func (ra *RestActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
-
 	// 周囲の安全性をチェック
 	if !ra.isSafe(actor, world) {
 		Cancel(comp, "周囲に敵がいるため休息を中断")
@@ -91,7 +87,6 @@ func (ra *RestActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world
 
 // Finish は休息完了時の処理を実行する
 func (ra *RestActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("休息完了", "actor", actor)
 
 	// プレイヤーの場合のみ完了メッセージを表示
@@ -136,8 +131,6 @@ func (ra *RestActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.
 
 // Canceled は休息キャンセル時の処理を実行する
 func (ra *RestActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
-
 	// プレイヤーの場合のみ中断時のメッセージを表示
 	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
@@ -152,8 +145,6 @@ func (ra *RestActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // performHealing はHP回復処理を実行する
 func (ra *RestActivity) performHealing(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
-
 	// Poolsコンポーネントを取得
 	poolsComponent := world.Components.Pools.Get(actor)
 	if poolsComponent == nil {

@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -72,7 +71,6 @@ func (ma *MoveActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, wor
 
 // Start はBehaviorの実装
 func (ma *MoveActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("移動開始", "actor", actor, "destination", *comp.Destination)
 	return nil
 }
@@ -108,7 +106,6 @@ func (ma *MoveActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world
 
 // Finish はBehaviorの実装
 func (ma *MoveActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
@@ -121,7 +118,6 @@ func (ma *MoveActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world
 
 // Canceled はBehaviorの実装
 func (ma *MoveActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
-	log := logger.New(logger.CategoryAction)
 	log.Debug("移動キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
@@ -132,7 +128,6 @@ func (ma *MoveActivity) performMove(comp *gc.CurrentActivity, actor ecs.Entity, 
 		return ErrGridElementNotFound
 	}
 
-	log := logger.New(logger.CategoryAction)
 	grid := gridElement.(*gc.GridElement)
 	oldX, oldY := int(grid.X), int(grid.Y)
 

@@ -4,9 +4,13 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
+
+// log はactivityパッケージ用のロガー
+var log = logger.New(logger.CategoryAction)
 
 // behaviors は登録されたBehavior実装のマップ
 var behaviors = map[gc.BehaviorName]Behavior{
