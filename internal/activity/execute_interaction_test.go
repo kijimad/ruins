@@ -305,30 +305,6 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	assert.Less(t, pools.HP.Current, 10, "素手攻撃でダメージが入るべき")
 }
 
-// TestExecuteInteraction_TestTrigger はテストトリガー相互作用の動作を確認
-func TestExecuteInteraction_TestTrigger(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
-
-	player := world.Manager.NewEntity()
-
-	executed := false
-	triggerEntity := world.Manager.NewEntity()
-	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.TestTriggerInteraction{Executed: &executed},
-	})
-
-	result, err := ExecuteInteraction(manager, player, triggerEntity, world)
-
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "テストトリガーが成功するべき")
-	assert.True(t, executed, "テストトリガーが実行されるべき")
-}
-
 // TestExecuteInteraction_Portal はポータル相互作用の動作を確認
 func TestExecuteInteraction_Portal(t *testing.T) {
 	t.Parallel()
@@ -499,11 +475,9 @@ func TestExecuteInteraction_UnknownType(t *testing.T) {
 		Data: UnknownInteraction{},
 	})
 
-	// 未知のタイプは警告ログを出力して成功を返す
 	result, err := ExecuteInteraction(manager, player, unknownEntity, world)
 
-	require.NoError(t, err)
-	require.NotNil(t, result)
-	assert.True(t, result.Success, "未知の相互作用タイプも成功を返すべき")
-	assert.Equal(t, "Unknown", result.ActivityName)
+	require.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "未知の相互作用タイプ")
 }

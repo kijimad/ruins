@@ -39,14 +39,8 @@ func ExecuteInteraction(manager *Manager, actor ecs.Entity, interactable ecs.Ent
 		return executeItem(manager, actor, world)
 	case gc.MeleeInteraction:
 		return executeMelee(manager, actor, interactable, world)
-		// TODO: 消す
-	case gc.TestTriggerInteraction:
-		return executeTestTrigger(content)
 	default:
-		// TODO: エラーにする
-		// 未知の型はテスト用やカスタム拡張の可能性があるため、警告のみで成功を返す
-		logger.New(logger.CategoryAction).Warn("未知の相互作用タイプ", "type", fmt.Sprintf("%T", comp.Data))
-		return &ActionResult{Success: true, ActivityName: "Unknown", Message: "相互作用実行"}, nil
+		return nil, fmt.Errorf("未知の相互作用タイプ: %T", comp.Data)
 	}
 }
 
@@ -134,11 +128,4 @@ func executeMelee(manager *Manager, actor ecs.Entity, target ecs.Entity, world w
 		Target: &target,
 	}
 	return manager.Execute(&AttackActivity{}, params, world)
-}
-
-func executeTestTrigger(content gc.TestTriggerInteraction) (*ActionResult, error) {
-	if content.Executed != nil {
-		*content.Executed = true
-	}
-	return &ActionResult{Success: true, ActivityName: "TestTrigger", Message: "テストトリガー実行"}, nil
 }

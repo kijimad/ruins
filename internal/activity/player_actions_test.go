@@ -391,23 +391,6 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		require.Len(t, results, 1)
 		assert.Equal(t, collisionEntity, results[0])
 	})
-
-	t.Run("Auto方式のInteractableは取得されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// Auto方式のInteractableを作成
-		autoEntity := world.Manager.NewEntity()
-		autoEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		autoEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.TestTriggerInteraction{}, // Auto + SameTile
-		})
-
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		results := GetAllInteractiveInteractablesInRange(world, targetGrid)
-
-		assert.Len(t, results, 0)
-	})
 }
 
 func TestGetDirectionLabel(t *testing.T) {
