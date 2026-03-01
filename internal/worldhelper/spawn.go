@@ -30,6 +30,12 @@ const (
 	epSensationMultiply = 3    // EP計算の感覚係数
 	hpLevelGrowthRate   = 0.03 // HPのレベル成長率
 	spLevelGrowthRate   = 0.02 // SPのレベル成長率
+
+	// Speed計算係数
+	speedBaseValue         = 100 // Speed計算の基本値
+	speedAgilityMultiply   = 2   // Speed計算の敏捷係数
+	speedDexterityMultiply = 1   // Speed計算の器用係数
+	speedMinimum           = 25  // Speedの最小値（基本値の1/4）
 )
 
 // エラー定義
@@ -46,7 +52,7 @@ var (
 // worldhelper: 頻繁に変わる部分に関して引数を受け取れるようにする。エンティティを発行するところまでやる
 
 // CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
-// CDDAスタイルで敏捷性を重視したAP計算式
+// 敏捷性を重視したAP計算式
 func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 	// Attributesコンポーネントがない場合はエラー
 	attributesComponent := world.Components.Attributes.Get(entity)
@@ -70,6 +76,122 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 	}
 
 	return calculatedAP, nil
+}
+
+// CalculateSpeed はエンティティのSpeedを計算する
+// 属性ボーナス・状態異常ペナルティ・過積載ペナルティを考慮する
+func CalculateSpeed(world w.World, entity ecs.Entity) int {
+	speed := speedBaseValue
+
+	// 属性ボーナス
+	if attrsComp := world.Components.Attributes.Get(entity); attrsComp != nil {
+		attrs := attrsComp.(*gc.Attributes)
+		speed += attrs.Agility.Total*speedAgilityMultiply + attrs.Dexterity.Total*speedDexterityMultiply
+	}
+
+	// 状態異常ペナルティ
+	speed += calculateStatusSpeedPenalty(world, entity)
+
+	// 過積載ペナルティ
+	speed += calculateOverweightPenalty(world, entity)
+
+	// 最小値制限
+	if speed < speedMinimum {
+		speed = speedMinimum
+	}
+
+	return speed
+}
+
+// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する
+func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
+	penalty := 0
+
+	// 空腹ペナルティ
+	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
+		hunger := hungerComp.(*gc.Hunger)
+		penalty += hungerSpeedPenalty(hunger.Current)
+	}
+
+	// 体温ペナルティ（HealthStatusから計算）
+	if hsComp := world.Components.HealthStatus.Get(entity); hsComp != nil {
+		hs := hsComp.(*gc.HealthStatus)
+		penalty += temperatureSpeedPenalty(hs)
+	}
+
+	return penalty
+}
+
+// hungerSpeedPenalty は空腹度によるペナルティを返す
+func hungerSpeedPenalty(current int) int {
+	// 空腹度が減ると（0に近づくと）ペナルティが増加
+	// Hungerは通常100がMAXで、減っていく
+	switch {
+	case current >= 75:
+		return 0 // 満腹
+	case current >= 50:
+		return -10 // やや空腹
+	case current >= 25:
+		return -25 // 空腹
+	case current >= 10:
+		return -50 // 飢餓
+	default:
+		return -75 // 餓死寸前
+	}
+}
+
+// temperatureSpeedPenalty は体温状態によるペナルティを返す
+func temperatureSpeedPenalty(hs *gc.HealthStatus) int {
+	// 全部位の最大Severityを取得
+	worstSeverity := gc.SeverityNone
+	for i := 0; i < int(gc.BodyPartCount); i++ {
+		for _, cond := range hs.Parts[i].Conditions {
+			// 低体温・高体温のみ対象
+			if cond.Type == gc.ConditionHypothermia || cond.Type == gc.ConditionHyperthermia {
+				if cond.Severity > worstSeverity {
+					worstSeverity = cond.Severity
+				}
+			}
+		}
+	}
+
+	// Severityに応じたペナルティ
+	switch worstSeverity {
+	case gc.SeveritySevere:
+		return -30
+	case gc.SeverityMedium:
+		return -20
+	case gc.SeverityMinor:
+		return -10
+	default:
+		return 0
+	}
+}
+
+// calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
+func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
+	poolsComp := world.Components.Pools.Get(entity)
+	if poolsComp == nil {
+		return 0
+	}
+
+	pools := poolsComp.(*gc.Pools)
+	if pools.Weight.Max == 0 {
+		return 0
+	}
+
+	// 最大重量を超えた分に応じてペナルティ
+	// 超過分の25%をペナルティとする（最大-75）
+	if pools.Weight.Current > pools.Weight.Max {
+		overweight := pools.Weight.Current - pools.Weight.Max
+		penalty := int((overweight * 25) / pools.Weight.Max)
+		if penalty > 75 {
+			penalty = 75
+		}
+		return -penalty
+	}
+
+	return 0
 }
 
 // ================

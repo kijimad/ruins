@@ -17,6 +17,17 @@ const (
 	MinGameHeight = 720
 )
 
+// ========== アクションポイント ==========
+
+const (
+	// MinActionThreshold は行動可能な最小AP
+	MinActionThreshold = 0
+	// StandardActionCost は標準的なアクションのAPコスト
+	StandardActionCost = 100
+	// DefaultPlayerMoves はプレイヤーの初期移動ポイント
+	DefaultPlayerMoves = 100
+)
+
 // ========== ゲーム定数 ==========
 
 const (

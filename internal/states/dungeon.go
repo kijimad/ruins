@@ -6,6 +6,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -75,6 +76,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// ターンマネージャーを初期化
 	if world.Resources.TurnManager == nil {
 		world.Resources.TurnManager = turns.NewTurnManager()
+	}
+
+	// アクティビティマネージャーを初期化
+	if world.Resources.ActivityManager == nil {
+		world.Resources.ActivityManager = activity.NewManager(nil)
 	}
 
 	// 設定されていればリソースに反映する
@@ -354,8 +360,19 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
 		if world.Resources.TurnManager != nil {
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			canAct := turnManager.CanPlayerAct()
+			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			if err != nil {
+				return es.Transition[w.World]{Type: es.TransNone}, err
+			}
+			canAct := turnManager.CanEntityAct(world, playerEntity, 0)
 			if !canAct {
+				return es.Transition[w.World]{Type: es.TransNone}, nil
+			}
+		}
+		// プレイヤーが継続アクション中は新しいアクションを受け付けない
+		if world.Resources.ActivityManager != nil {
+			manager := world.Resources.ActivityManager.(*activity.Manager)
+			if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && manager.HasActivity(playerEntity) {
 				return es.Transition[w.World]{Type: es.TransNone}, nil
 			}
 		}
@@ -378,56 +395,56 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			func() es.State[w.World] { return &LookAroundState{} },
 		}}, nil
 
-	// 移動系アクション（World状態を変更）
+	// 移動系アクション
 	case inputmapper.ActionMoveNorth:
-		if err := ExecuteMoveAction(world, gc.DirectionUp); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionUp); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouth:
-		if err := ExecuteMoveAction(world, gc.DirectionDown); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionDown); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveEast:
-		if err := ExecuteMoveAction(world, gc.DirectionRight); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionRight); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveWest:
-		if err := ExecuteMoveAction(world, gc.DirectionLeft); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionLeft); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveNorthEast:
-		if err := ExecuteMoveAction(world, gc.DirectionUpRight); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionUpRight); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveNorthWest:
-		if err := ExecuteMoveAction(world, gc.DirectionUpLeft); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionUpLeft); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouthEast:
-		if err := ExecuteMoveAction(world, gc.DirectionDownRight); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionDownRight); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionMoveSouthWest:
-		if err := ExecuteMoveAction(world, gc.DirectionDownLeft); err != nil {
+		if err := activity.ExecuteMoveAction(world, gc.DirectionDownLeft); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	case inputmapper.ActionWait:
-		if err := ExecuteWaitAction(world); err != nil {
+		if err := activity.ExecuteWaitAction(world); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
 	// 相互作用系アクション
 	case inputmapper.ActionInteract:
-		if err := ExecuteEnterAction(world); err != nil {
+		if err := activity.ExecuteEnterAction(world); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil

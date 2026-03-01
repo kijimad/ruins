@@ -2,6 +2,7 @@ package turns
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -44,7 +45,7 @@ type TurnManager struct {
 // NewTurnManager は新しいTurnManagerを作成する
 func NewTurnManager() *TurnManager {
 	return &TurnManager{
-		PlayerMoves: 100,
+		PlayerMoves: consts.DefaultPlayerMoves,
 		TurnPhase:   PlayerTurn,
 		TurnNumber:  1,
 		logger:      logger.New(logger.CategoryTurn),
@@ -87,7 +88,7 @@ func (tm *TurnManager) AdvanceToTurnEnd() {
 // StartNewTurn は新しいターンを開始する
 func (tm *TurnManager) StartNewTurn() {
 	tm.TurnNumber++
-	tm.PlayerMoves = 100
+	tm.PlayerMoves = consts.DefaultPlayerMoves
 	tm.TurnPhase = PlayerTurn
 
 	tm.logger.Debug("新ターン開始",
@@ -106,28 +107,13 @@ func (tm *TurnManager) IsAITurn() bool {
 }
 
 // ConsumeActionPoints はエンティティのアクションポイントを消費する
-// CDDAスタイルの共通AP管理システム
 func (tm *TurnManager) ConsumeActionPoints(world w.World, entity ecs.Entity, actionName string, cost int) bool {
-	// ActionPointsコンポーネントを取得
 	apComponent := world.Components.TurnBased.Get(entity)
 	if apComponent == nil {
-		// TODO: 直す
-		// ActionPointsコンポーネントがない場合は従来のプレイヤー専用処理
-		if entity.HasComponent(world.Components.Player) {
-			tm.ConsumePlayerMoves(actionName, cost)
-			return true
-		}
 		return false
 	}
 
 	actionPoints := apComponent.(*gc.TurnBased)
-
-	// AP不足チェック
-	if actionPoints.AP.Current < cost {
-		return false
-	}
-
-	// AP消費
 	actionPoints.AP.Current -= cost
 
 	tm.logger.Debug("アクションポイント消費",
@@ -140,38 +126,54 @@ func (tm *TurnManager) ConsumeActionPoints(world w.World, entity ecs.Entity, act
 }
 
 // CanEntityAct はエンティティがアクション可能かチェックする
-func (tm *TurnManager) CanEntityAct(world w.World, entity ecs.Entity, cost int) bool {
-	// ActionPointsコンポーネントを取得
+// APが最小閾値以上なら行動可能。コストは問わない、マイナスになっても良い
+func (tm *TurnManager) CanEntityAct(world w.World, entity ecs.Entity, _ int) bool {
+	// プレイヤーの場合はターンフェーズもチェック
+	if entity.HasComponent(world.Components.Player) && tm.TurnPhase != PlayerTurn {
+		return false
+	}
+
 	apComponent := world.Components.TurnBased.Get(entity)
 	if apComponent == nil {
-		// ActionPointsコンポーネントがない場合は従来のプレイヤー専用処理
-		if entity.HasComponent(world.Components.Player) {
-			return tm.CanPlayerAct()
-		}
-		// 敵もAP制限を受ける
 		return false
 	}
 
 	actionPoints := apComponent.(*gc.TurnBased)
 
-	return actionPoints.AP.Current >= cost
+	// APが最小閾値以上なら行動可能
+	return actionPoints.AP.Current >= consts.MinActionThreshold
 }
 
-// RestoreAllActionPoints は全エンティティのAPを回復する（ターン終了時）
+// RestoreAllActionPoints は全エンティティのAPを回復する。Speed分のAPを上限まで加算する
 func (tm *TurnManager) RestoreAllActionPoints(world w.World) error {
 	// 複数ある場合は最後のエラー
 	var err error
-	// ActionPointsコンポーネントを持つ全エンティティのAP回復
+	// ActionPointsコンポーネントを持つ全エンティティのAP回復する
 	world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {
 		actionPoints := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
 		maxAP, calcErr := worldhelper.CalculateMaxActionPoints(world, entity)
-		err = calcErr
+		if calcErr != nil {
+			err = calcErr
+			return
+		}
 
-		actionPoints.AP.Current = maxAP
+		// Speedを計算する
+		speed := worldhelper.CalculateSpeed(world, entity)
+		actionPoints.Speed = speed
 		actionPoints.AP.Max = maxAP
+
+		// 現在AP + Speed で上限まで回復する
+		newAP := actionPoints.AP.Current + speed
+		if newAP > maxAP {
+			newAP = maxAP
+		}
+		actionPoints.AP.Current = newAP
+
 		tm.logger.Debug("アクションポイント回復",
 			"entity", entity,
-			"restored", maxAP)
+			"speed", speed,
+			"current", actionPoints.AP.Current,
+			"max", maxAP)
 	}))
 	return err
 }

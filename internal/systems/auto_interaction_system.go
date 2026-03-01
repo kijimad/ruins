@@ -1,7 +1,7 @@
 package systems
 
 import (
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -38,6 +38,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 	world.Manager.Join(
 		world.Components.Interactable,
 		world.Components.GridElement,
+		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
 		interactableGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -81,14 +82,8 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 		}
 
 		// 自動実行の相互作用を実行する
-		activity := &actions.InteractionActivateActivity{
-			InteractableEntity: interactableEntity,
-		}
-		params := actions.ActionParams{
-			Actor: playerEntity,
-		}
-		manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
-		_, err := manager.Execute(activity, params, world)
+		manager := world.Resources.ActivityManager.(*activity.Manager)
+		_, err := activity.ExecuteInteraction(manager, playerEntity, interactableEntity, world)
 		if err != nil {
 			return err
 		}

@@ -1,7 +1,7 @@
 package aiinput
 
 import (
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/turns"
@@ -32,7 +32,7 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 	p.logger.Debug("AI処理開始", "turn", turnManager.TurnNumber, "playerMoves", turnManager.PlayerMoves)
 
-	manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
+	manager := activity.NewManager(logger.New(logger.CategoryAction))
 	entityCount := 0
 
 	// AIMoveFSMコンポーネントを持つ全エンティティを処理
@@ -50,7 +50,7 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 }
 
 // ProcessEntity は個別のAIエンティティを処理する
-func (p *Processor) ProcessEntity(world w.World, manager *actions.ActivityManager, entity ecs.Entity) {
+func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, entity ecs.Entity) {
 	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 	p.logger.Debug("AIエンティティ処理開始", "entity", entity)
 
@@ -98,11 +98,11 @@ func (p *Processor) ProcessEntity(world w.World, manager *actions.ActivityManage
 	}
 	p.logger.Debug("AIRoaming状態", "entity", entity, "subState", context.Roaming.SubState, "remainingTurns", remainingTurns)
 
-	// APが残っている限り連続してアクションを実行
-	actionsExecuted := 0
-	maxActions := 10 // 無限ループを防ぐためのリミット
+	// APが残っている限り連続してアクティビティを実行
+	activitiesExecuted := 0
+	maxActivities := 10 // 無限ループを防ぐためのリミット
 
-	for actionsExecuted < maxActions {
+	for activitiesExecuted < maxActivities {
 		// アクション実行中に死亡した場合は処理を中断
 		if entity.HasComponent(world.Components.Dead) {
 			p.logger.Debug("エンティティが死亡したため処理中断", "entity", entity)
@@ -114,7 +114,7 @@ func (p *Processor) ProcessEntity(world w.World, manager *actions.ActivityManage
 
 		// アクション実行
 		activityName := actorImpl.String()
-		p.logger.Debug("アクション決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "actions", actionsExecuted)
+		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "count", activitiesExecuted)
 		if actorImpl == nil {
 			p.logger.Debug("アクション無し", "entity", entity)
 			break
@@ -133,8 +133,8 @@ func (p *Processor) ProcessEntity(world w.World, manager *actions.ActivityManage
 			break
 		}
 
-		p.logger.Debug("AIアクション実行成功", "entity", entity, "activity", activityName, "success", result.Success, "state", context.Roaming.SubState, "message", result.Message)
-		actionsExecuted++
+		p.logger.Debug("AIアクティビティ実行成功", "entity", entity, "activity", activityName, "success", result.Success, "state", context.Roaming.SubState, "message", result.Message)
+		activitiesExecuted++
 
 		// アクション失敗時は停止
 		if !result.Success {
@@ -143,7 +143,7 @@ func (p *Processor) ProcessEntity(world w.World, manager *actions.ActivityManage
 		}
 	}
 
-	p.logger.Debug("AIエンティティ処理完了", "entity", entity, "実行されたアクション数", actionsExecuted)
+	p.logger.Debug("AIエンティティ処理完了", "entity", entity, "実行されたアクティビティ数", activitiesExecuted)
 }
 
 // EntityContext はAIエンティティの必要な情報をまとめる

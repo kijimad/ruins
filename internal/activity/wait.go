@@ -1,8 +1,9 @@
-package actions
+package activity
 
 import (
 	"fmt"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -11,13 +12,13 @@ import (
 type WaitActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (wa *WaitActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (wa *WaitActivity) Info() Info {
+	return Info{
 		Name:            "待機",
 		Description:     "指定した時間だけ待機する",
 		Interruptible:   true,
 		Resumable:       true,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 500,
 	}
 }

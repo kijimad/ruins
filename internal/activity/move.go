@@ -1,4 +1,4 @@
-package actions
+package activity
 
 import (
 	"fmt"
@@ -14,14 +14,14 @@ import (
 type MoveActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (ma *MoveActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (ma *MoveActivity) Info() Info {
+	return Info{
 		Name:            "移動",
 		Description:     "隣接するタイルに移動する",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 100,
-		TotalRequiredAP: 100,
+		ActionPointCost: consts.StandardActionCost,
+		TotalRequiredAP: 0,
 	}
 }
 
@@ -50,13 +50,11 @@ func (ma *MoveActivity) Validate(act *Activity, world w.World) error {
 		return ErrMoveTargetInvalid
 	}
 
-	// APが足りるかチェック
-	// TODO(kijima): 装備時に俊敏性が下がりAPが足りなくなって動けなくなるが、所持重量は変わっていないし最大重量を超えるわけでもないのに動けなくなるのはおかしい
-	if act.Actor.HasComponent(world.Components.TurnBased) {
-		turnBased := world.Components.TurnBased.Get(act.Actor).(*gc.TurnBased)
-		moveCost := ma.Info().ActionPointCost
-
-		if turnBased.AP.Max < moveCost {
+	// 所持重量が最大の1.5倍を超えていたら動けない
+	if act.Actor.HasComponent(world.Components.Pools) {
+		pools := world.Components.Pools.Get(act.Actor).(*gc.Pools)
+		overweightLimit := pools.Weight.Max * 1.5
+		if pools.Weight.Current > overweightLimit {
 			if act.Actor.HasComponent(world.Components.Player) {
 				gamelog.New(gamelog.FieldLog).
 					Warning("重すぎて動けない").
@@ -106,8 +104,15 @@ func (ma *MoveActivity) DoTurn(act *Activity, world w.World) error {
 }
 
 // Finish はActivityInterfaceの実装
-func (ma *MoveActivity) Finish(act *Activity, _ w.World) error {
+func (ma *MoveActivity) Finish(act *Activity, world w.World) error {
 	act.Logger.Debug("移動アクティビティ完了", "actor", act.Actor)
+
+	// プレイヤーの場合のみ移動先のタイルイベントをチェック
+	if act.Position != nil && act.Actor.HasComponent(world.Components.Player) {
+		gridElement := &gc.GridElement{X: consts.Tile(act.Position.X), Y: consts.Tile(act.Position.Y)}
+		showTileInteractionMessage(world, gridElement)
+	}
+
 	return nil
 }
 

@@ -1,16 +1,20 @@
-package actions
+package activity
 
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/logger"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/turns"
+	"github.com/kijimaD/ruins/internal/worldhelper"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestActivityManagerCreation(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 
 	if manager == nil {
 		t.Errorf("Expected non-nil activity manager")
@@ -29,7 +33,7 @@ func TestActivityManagerCreation(t *testing.T) {
 
 func TestActivityManagerStartActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -67,7 +71,7 @@ func TestActivityManagerStartActivity(t *testing.T) {
 
 func TestActivityManagerMultipleActivities(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	actor1 := ecs.Entity(1)
@@ -111,7 +115,7 @@ func TestActivityManagerMultipleActivities(t *testing.T) {
 
 func TestActivityManagerReplaceActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -149,7 +153,7 @@ func TestActivityManagerReplaceActivity(t *testing.T) {
 
 func TestActivityManagerInterruptAndResume(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -206,7 +210,7 @@ func TestActivityManagerInterruptAndResume(t *testing.T) {
 
 func TestActivityManagerCancel(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 	actor := ecs.Entity(1)
 
@@ -238,7 +242,7 @@ func TestActivityManagerCancel(t *testing.T) {
 
 func TestActivityManagerProcessTurn(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	actor1 := ecs.Entity(1)
@@ -306,7 +310,7 @@ func TestActivityManagerProcessTurn(t *testing.T) {
 
 func TestActivityManagerSummary(t *testing.T) {
 	t.Parallel()
-	manager := NewActivityManager(logger.New(logger.CategoryAction))
+	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	// 初期状態のサマリー
@@ -355,4 +359,104 @@ func TestActivityManagerSummary(t *testing.T) {
 	if summary["paused"] != 1 {
 		t.Errorf("Expected 1 paused activity, got %v", summary["paused"])
 	}
+}
+
+func TestActivityManagerHistory(t *testing.T) {
+	t.Parallel()
+
+	t.Run("履歴が記録される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+
+		var history []HistoryEntry
+		manager := NewManager(nil)
+		manager.History = &history
+
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		require.NoError(t, err)
+
+		params := ActionParams{
+			Actor:    player,
+			Duration: 1,
+			Reason:   "テスト",
+		}
+		_, err = manager.Execute(&WaitActivity{}, params, world)
+		require.NoError(t, err)
+
+		require.Len(t, history, 1)
+		assert.Equal(t, "Wait", history[0].Activity.String())
+		assert.Equal(t, player, history[0].Actor)
+		assert.True(t, history[0].Success)
+	})
+
+	t.Run("複数のアクティビティが順番に記録される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+
+		var history []HistoryEntry
+		manager := NewManager(nil)
+		manager.History = &history
+		world.Resources.ActivityManager = manager
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		require.NoError(t, err)
+
+		// 待機
+		params := ActionParams{Actor: player, Duration: 1, Reason: "待機"}
+		_, err = manager.Execute(&WaitActivity{}, params, world)
+		require.NoError(t, err)
+
+		// 移動
+		params = ActionParams{Actor: player, Destination: &gc.Position{X: 10, Y: 9}}
+		_, err = manager.Execute(&MoveActivity{}, params, world)
+		require.NoError(t, err)
+
+		require.Len(t, history, 2)
+		assert.Equal(t, "Wait", history[0].Activity.String())
+		assert.Equal(t, "Move", history[1].Activity.String())
+	})
+
+	t.Run("Historyがnilの場合は記録されない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+
+		manager := NewManager(nil)
+		// History を設定しない
+
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		require.NoError(t, err)
+
+		params := ActionParams{Actor: player, Duration: 1, Reason: "テスト"}
+		_, err = manager.Execute(&WaitActivity{}, params, world)
+		require.NoError(t, err)
+
+		// パニックしないことを確認（Historyがnilでも安全）
+		assert.Nil(t, manager.History)
+	})
+
+	t.Run("失敗したアクティビティも記録される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.TurnManager = turns.NewTurnManager()
+
+		var history []HistoryEntry
+		manager := NewManager(nil)
+		manager.History = &history
+
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		require.NoError(t, err)
+
+		// 存在しないターゲットへの攻撃（失敗する）
+		nonExistentEntity := ecs.Entity(9999)
+		params := ActionParams{Actor: player, Target: &nonExistentEntity}
+		_, _ = manager.Execute(&AttackActivity{}, params, world)
+
+		// エラーが発生しても履歴には記録される
+		require.Len(t, history, 1)
+		assert.Equal(t, "Attack", history[0].Activity.String())
+		assert.False(t, history[0].Success)
+	})
 }

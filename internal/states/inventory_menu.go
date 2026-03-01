@@ -7,7 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/actions"
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -420,12 +420,12 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
-		params := actions.ActionParams{
+		manager := activity.NewManager(logger.New(logger.CategoryAction))
+		params := activity.ActionParams{
 			Actor:  playerEntity,
 			Target: &st.selectedItem,
 		}
-		_, err = manager.Execute(&actions.UseItemActivity{}, params, world)
+		_, err = manager.Execute(&activity.UseItemActivity{}, params, world)
 		if err != nil {
 			st.closeActionWindow()
 			return err
@@ -442,12 +442,12 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		dropActivity := &actions.DropActivity{
+		dropActivity := &activity.DropActivity{
 			Target: st.selectedItem,
 		}
 
-		manager := actions.NewActivityManager(logger.New(logger.CategoryAction))
-		params := actions.ActionParams{
+		manager := activity.NewManager(logger.New(logger.CategoryAction))
+		params := activity.ActionParams{
 			Actor: playerEntity,
 		}
 		_, err = manager.Execute(dropActivity, params, world)

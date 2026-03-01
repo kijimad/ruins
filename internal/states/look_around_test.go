@@ -24,8 +24,6 @@ func TestLookAroundState_OnStart(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.Dungeon.Level.TileWidth = 50
-	world.Resources.Dungeon.Level.TileHeight = 50
 
 	playerEntity, err := worldhelper.SpawnPlayer(world, 5, 7, "セレスティン")
 	require.NoError(t, err)

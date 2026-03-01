@@ -55,6 +55,24 @@ func InitTestWorld(t *testing.T) w.World {
 	require.NotNil(t, rawMaster, "RawMasterが初期化されていません")
 	world.Resources.RawMaster = rawMaster
 
+	// テスト用スプライトシートを初期化
+	spriteSheets := map[string]gc.SpriteSheet{
+		"field": {
+			Sprites: map[string]gc.Sprite{
+				"void":         {Width: 32, Height: 32},
+				"wall_generic": {Width: 32, Height: 32},
+				"floor":        {Width: 32, Height: 32},
+				"player":       {Width: 32, Height: 32},
+				"player_0":     {Width: 32, Height: 32},
+				"player_1":     {Width: 32, Height: 32},
+				"warp_next":    {Width: 32, Height: 32},
+				"warp_escape":  {Width: 32, Height: 32},
+				"red_ball":     {Width: 32, Height: 32},
+			},
+		},
+	}
+	world.Resources.SpriteSheets = &spriteSheets
+
 	// 最低限のゲームリソースを初期化
 	gameResource := &gr.Dungeon{
 		ExploredTiles: make(map[gc.GridElement]bool),
@@ -64,6 +82,10 @@ func InitTestWorld(t *testing.T) w.World {
 			OffsetX: 10,
 			OffsetY: 10,
 			Scale:   3,
+		},
+		Level: gr.Level{
+			TileWidth:  50,
+			TileHeight: 50,
 		},
 	}
 	err = gameResource.RequestStateChange(gr.NoneEvent{})

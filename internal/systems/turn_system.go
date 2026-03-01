@@ -1,10 +1,14 @@
 package systems
 
 import (
+	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/aiinput"
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // TurnSystem はターン管理を行うシステム
@@ -23,6 +27,16 @@ func (sys *TurnSystem) Update(world w.World) error {
 
 	switch turnManager.TurnPhase {
 	case turns.PlayerTurn:
+		// プレイヤーが継続アクション中かチェック
+		if processPlayerContinuousActivity(world, turnManager) {
+			// 継続アクション中はターンを進める
+			return nil
+		}
+		// APが最小行動コストを満たさない場合は自動でターンを終了
+		if shouldAutoEndTurn(world) {
+			turnManager.AdvanceToAITurn()
+			return nil
+		}
 		// プレイヤー入力処理はDungeonStateで実行される
 	case turns.AITurn:
 		// AIターン: 全AI・NPCを一括処理
@@ -38,6 +52,64 @@ func (sys *TurnSystem) Update(world w.World) error {
 		turnManager.StartNewTurn()
 	}
 	return nil
+}
+
+// shouldAutoEndTurn はプレイヤーのAPがマイナスの場合にtrueを返す
+// APがマイナスの間は自動でターンを経過させる
+func shouldAutoEndTurn(world w.World) bool {
+	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return false
+	}
+
+	turnBased := world.Components.TurnBased.Get(playerEntity)
+	if turnBased == nil {
+		return false
+	}
+
+	ap := turnBased.(*gc.TurnBased)
+	// APが最小閾値未満の場合は自動でターンを終了
+	return ap.AP.Current < consts.MinActionThreshold
+}
+
+// processPlayerContinuousActivity はプレイヤーの継続アクションを処理する
+// 継続アクションが進行中の場合は true を返し、ターンを進める
+func processPlayerContinuousActivity(world w.World, turnManager *turns.TurnManager) bool {
+	// ActivityManager が存在しない場合は何もしない
+	if world.Resources.ActivityManager == nil {
+		return false
+	}
+
+	manager := world.Resources.ActivityManager.(*activity.Manager)
+
+	// プレイヤーエンティティを取得
+	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return false
+	}
+
+	// プレイヤーの継続アクションをチェック
+	if !manager.HasActivity(playerEntity) {
+		return false
+	}
+
+	log := logger.New(logger.CategoryTurn)
+	log.Debug("プレイヤー継続アクション処理")
+
+	// 継続アクションの1ターン分を処理
+	manager.ProcessTurn(world)
+
+	// アクティビティが完了したかチェック
+	if !manager.HasActivity(playerEntity) {
+		log.Debug("プレイヤー継続アクション完了")
+		// 完了した場合はターンコストを消費
+		turnManager.ConsumeActionPoints(world, playerEntity, "継続アクション", consts.StandardActionCost)
+		return true
+	}
+
+	// まだ進行中の場合もターンを進める
+	turnManager.ConsumeActionPoints(world, playerEntity, "継続アクション", consts.StandardActionCost)
+	return true
 }
 
 // processAITurn はAIターンの処理を行う

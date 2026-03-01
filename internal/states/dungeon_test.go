@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -110,9 +111,12 @@ func TestDoActionMovementActions(t *testing.T) {
 		t.Run(string(tt.action), func(t *testing.T) {
 			t.Parallel()
 
-			// プレイヤー付きのテストワールドを作成
 			initialX, initialY := 10, 10
-			world, playerEntity := setupTestWorldWithPlayer(t, initialX, initialY)
+			world := testutil.InitTestWorld(t)
+			world.Resources.TurnManager = turns.NewTurnManager()
+			world.Resources.ActivityManager = activity.NewManager(nil)
+			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
+			require.NoError(t, err)
 
 			state := &DungeonState{}
 
@@ -192,17 +196,16 @@ func TestDoActionTurnManagement(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			// プレイヤー付きのテストワールドを作成（移動テストの場合）
-			var world w.World
-			var playerEntity ecs.Entity
 			initialX, initialY := 10, 10
+			world := testutil.InitTestWorld(t)
+			world.Resources.TurnManager = turns.NewTurnManager()
+			world.Resources.ActivityManager = activity.NewManager(nil)
 
+			var playerEntity ecs.Entity
 			if tt.isMoveAction {
-				world, playerEntity = setupTestWorldWithPlayer(t, initialX, initialY)
-			} else {
-				world = testutil.InitTestWorld(t)
-				turnManager := turns.NewTurnManager()
-				world.Resources.TurnManager = turnManager
+				var err error
+				playerEntity, err = worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
+				require.NoError(t, err)
 			}
 
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
@@ -254,9 +257,10 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
-			turnManager := turns.NewTurnManager()
+			world.Resources.TurnManager = turns.NewTurnManager()
+			world.Resources.ActivityManager = activity.NewManager(nil)
+			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 			turnManager.TurnPhase = phase
-			world.Resources.TurnManager = turnManager
 
 			state := &DungeonState{}
 
@@ -278,29 +282,4 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			assert.IsType(t, &PersistentMessageState{}, newState, "期待するステート型と異なります")
 		})
 	}
-}
-
-// setupTestWorldWithPlayer はプレイヤー付きのテスト用Worldを初期化するヘルパー関数
-func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
-	t.Helper()
-
-	world := testutil.InitTestWorld(t)
-
-	// ターン管理を初期化
-	turnManager := turns.NewTurnManager()
-	world.Resources.TurnManager = turnManager
-
-	// マップサイズを設定（移動判定に必要）
-	world.Resources.Dungeon.Level.TileWidth = 50
-	world.Resources.Dungeon.Level.TileHeight = 50
-
-	// プレイヤーエンティティを作成
-	playerEntity := world.Manager.NewEntity()
-	playerEntity.AddComponent(world.Components.Player, &gc.Player{})
-	playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
-		X: consts.Tile(x),
-		Y: consts.Tile(y),
-	})
-
-	return world, playerEntity
 }

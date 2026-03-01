@@ -17,6 +17,7 @@ type Resources struct {
 	RawMaster          interface{}
 	UIResources        *UIResources
 	TurnManager        interface{}
+	ActivityManager    interface{} // 継続アクションの状態を保持する
 	GameTime           *GameTime
 	SelectedWeaponSlot int // 選択中の武器スロット番号（1-5）
 }

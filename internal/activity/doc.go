@@ -1,4 +1,4 @@
-// Package actions はアクションとアクティビティの実装を提供する。
+// Package activity はアクションとアクティビティの実装を提供する。
 //
 // # 概要
 //
@@ -15,12 +15,12 @@
 //
 // # ActivityManagerの責務
 //
-// ## ActivityManager（アクション実行エンジン）
+// ## Manager（アクション実行エンジン）
 // **役割**：すべてのアクション（即座実行・継続実行）を統一的に管理
 // - **Execute**: アクションの実行エントリーポイント
 // - **ActivityType**: 実行可能なアクティビティの種別（移動、攻撃、休息など）
 // - **Activity struct**: 実行中のアクティビティの状態データ
-// - **ActivityInterface**: アクティビティの実行ロジック
+// - **Behavior**: アクティビティの実行ロジック
 // - **各種Activity実装**: MoveActivity, AttackActivity, RestActivityなど
 //
 // 責務：
@@ -38,7 +38,7 @@
 // - aiinput/processor.go から使用（AI行動処理）
 //
 // ```go
-// manager := actions.NewActivityManager(logger)
+// manager := activity.NewManager(logger)
 // result, err := manager.Execute(activityType, params, world)
 // ```
 //
@@ -51,16 +51,16 @@
 // # 他パッケージとの関係
 //
 // ```
-// systems → actions.ActivityManager.Execute() → アクション実行
+// systems → activity.Manager.Execute() → アクション実行
 //
 //	↓
 //
-// actions → turns.ConsumePlayerMoves → コスト消費
+// activity → turns.ConsumePlayerMoves → コスト消費
 // ```
 //
 // ## 責務の境界
 //
-// - **actions**: どのような行動をするか（What Action & How）
+// - **activity**: どのような行動をするか（What Action & How）
 // - **turns**: いつ実行するかの制御（When）
 // - **systems**: 何の入力から実行するか（What Input）
 //
@@ -84,7 +84,7 @@
 //
 //	type Activity struct {
 //		Type       ActivityType  // アクション種別
-//		State      ActivityState // 実行状態
+//		State      State // 実行状態
 //		TurnsTotal int          // 必要ターン数
 //		TurnsLeft  int          // 残りターン数
 //		// ...
@@ -101,15 +101,15 @@
 // # 使用例
 //
 //	// ActivityManagerを通じた統一的なアクション実行
-//	manager := actions.NewActivityManager(logger)
+//	manager := activity.NewManager(logger)
 //
 //	// 即座実行アクション（移動）
-//	params := actions.ActionParams{Actor: player, Destination: &dest}
-//	result, err := manager.Execute(actions.ActivityMove, params, world)
+//	params := activity.ActionParams{Actor: player, Destination: &dest}
+//	result, err := manager.Execute(activity.ActivityMove, params, world)
 //
 //	// 継続実行アクション（休息）
-//	params := actions.ActionParams{Actor: player, Duration: 10}
-//	result, err := manager.Execute(actions.ActivityRest, params, world)
+//	params := activity.ActionParams{Actor: player, Duration: 10}
+//	result, err := manager.Execute(activity.ActivityRest, params, world)
 //
 //	// アクティビティの管理
 //	manager.InterruptActivity(player, "戦闘開始")
@@ -135,6 +135,6 @@
 // 1. ActivityTypeに新しい定数を追加
 // 2. activityInfosに情報を追加
 // 3. 具体的な実装ファイルを作成（例：new_action.go）
-// 4. ActivityManager.createActivityに分岐を追加
+// 4. Manager.createActivityに分岐を追加
 // 5. 必要に応じてActivity.DoTurnに処理を追加
-package actions
+package activity

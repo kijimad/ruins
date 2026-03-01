@@ -1,9 +1,10 @@
-package actions
+package activity
 
 import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -13,13 +14,13 @@ import (
 type RestActivity struct{}
 
 // Info はActivityInterfaceの実装
-func (ra *RestActivity) Info() ActivityInfo {
-	return ActivityInfo{
+func (ra *RestActivity) Info() Info {
+	return Info{
 		Name:            "休息",
 		Description:     "体力を回復するために休息する",
 		Interruptible:   true,
 		Resumable:       true,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 1000,
 	}
 }
