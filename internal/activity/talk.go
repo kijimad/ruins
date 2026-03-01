@@ -6,14 +6,16 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // TalkActivity は会話アクティビティ
 type TalkActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (ta *TalkActivity) Info() Info {
 	return Info{
 		Name:            "会話",
@@ -25,18 +27,18 @@ func (ta *TalkActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (ta *TalkActivity) String() string {
-	return "Talk"
+// Name はBehaviorの実装
+func (ta *TalkActivity) Name() gc.BehaviorName {
+	return gc.BehaviorTalk
 }
 
 // Validate は会話アクティビティの検証を行う
-func (ta *TalkActivity) Validate(act *Activity, world w.World) error {
-	if act.Target == nil {
+func (ta *TalkActivity) Validate(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+	if comp.Target == nil {
 		return fmt.Errorf("会話対象が指定されていません")
 	}
 
-	targetEntity := *act.Target
+	targetEntity := *comp.Target
 
 	// Dialogコンポーネントを持っているか確認
 	if !targetEntity.HasComponent(world.Components.Dialog) {
@@ -52,48 +54,51 @@ func (ta *TalkActivity) Validate(act *Activity, world w.World) error {
 }
 
 // Start は会話開始時の処理を実行する
-func (ta *TalkActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("会話開始", "actor", act.Actor)
+func (ta *TalkActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("会話開始", "actor", actor)
 	return nil
 }
 
 // DoTurn は会話アクティビティの1ターン分の処理を実行する
-func (ta *TalkActivity) DoTurn(act *Activity, world w.World) error {
-	targetEntity := *act.Target
+func (ta *TalkActivity) DoTurn(comp *gc.CurrentActivity, _ ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+	targetEntity := *comp.Target
 
 	dialogComp := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
 	if dialogComp == nil {
-		act.Cancel("会話データが取得できません")
+		Cancel(comp, "会話データが取得できません")
 		return fmt.Errorf("会話データが取得できません")
 	}
 
 	// Nameコンポーネントから話者名を取得
 	if !targetEntity.HasComponent(world.Components.Name) {
-		act.Cancel("対象エンティティにNameコンポーネントがありません")
+		Cancel(comp, "対象エンティティにNameコンポーネントがありません")
 		return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 	}
 	nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
 	speakerName := nameComp.Name
 
-	act.Logger.Debug("会話実行", "messageKey", dialogComp.MessageKey, "speaker", speakerName)
+	log.Debug("会話実行", "messageKey", dialogComp.MessageKey, "speaker", speakerName)
 
 	// 会話メッセージの表示はstateで行うため、ここでは完了のみ
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
 // Finish は会話完了時の処理を実行する
-func (ta *TalkActivity) Finish(act *Activity, world w.World) error {
-	act.Logger.Debug("会話アクティビティ完了", "actor", act.Actor)
+func (ta *TalkActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("会話アクティビティ完了", "actor", actor)
 
-	if act.Target == nil {
+	if comp.Target == nil {
 		return nil
 	}
 
-	targetEntity := *act.Target
+	targetEntity := *comp.Target
 
 	// プレイヤーの場合のみメッセージを表示
-	if isPlayerActivity(act, world) {
+	if actor.HasComponent(world.Components.Player) {
 		if !targetEntity.HasComponent(world.Components.Name) {
 			return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 		}
@@ -119,7 +124,8 @@ func (ta *TalkActivity) Finish(act *Activity, world w.World) error {
 }
 
 // Canceled は会話キャンセル時の処理を実行する
-func (ta *TalkActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("会話キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+func (ta *TalkActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("会話キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

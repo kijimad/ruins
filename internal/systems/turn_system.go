@@ -128,13 +128,6 @@ func runTurnEndSystems(world w.World) error {
 // processPlayerContinuousActivity はプレイヤーの継続アクションを処理する
 // 継続アクションが進行中の場合は true を返し、ターンを進める
 func processPlayerContinuousActivity(world w.World) bool {
-	// ActivityManager が存在しない場合は何もしない
-	if world.Resources.ActivityManager == nil {
-		return false
-	}
-
-	manager := world.Resources.ActivityManager.(*activity.Manager)
-
 	// プレイヤーエンティティを取得
 	playerEntity, err := worldhelper.GetPlayerEntity(world)
 	if err != nil {
@@ -142,7 +135,7 @@ func processPlayerContinuousActivity(world w.World) bool {
 	}
 
 	// プレイヤーの継続アクションをチェック
-	if !manager.HasActivity(playerEntity) {
+	if !worldhelper.HasActivity(world, playerEntity) {
 		return false
 	}
 
@@ -150,9 +143,9 @@ func processPlayerContinuousActivity(world w.World) bool {
 	log.Debug("プレイヤー継続アクション処理")
 
 	// 継続アクションの1ターン分を処理
-	manager.ProcessTurn(world)
+	activity.ProcessTurn(world)
 
-	if !manager.HasActivity(playerEntity) {
+	if !worldhelper.HasActivity(world, playerEntity) {
 		log.Debug("プレイヤー継続アクション完了")
 	}
 

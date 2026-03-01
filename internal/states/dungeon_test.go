@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -106,7 +105,6 @@ func TestDoActionMovementActions(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			world.Resources.ActivityManager = activity.NewManager(nil)
 			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
 			require.NoError(t, err)
 
@@ -190,7 +188,6 @@ func TestDoActionTurnManagement(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			world.Resources.ActivityManager = activity.NewManager(nil)
 
 			var playerEntity ecs.Entity
 			if tt.isMoveAction {
@@ -250,7 +247,6 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
-			world.Resources.ActivityManager = activity.NewManager(nil)
 
 			// シングルトンのターン状態を設定
 			turnState, err := worldhelper.GetTurnState(world)

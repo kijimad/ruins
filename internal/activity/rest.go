@@ -6,14 +6,15 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// RestActivity はActivityInterfaceの実装
+// RestActivity はBehaviorの実装
 type RestActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (ra *RestActivity) Info() Info {
 	return Info{
 		Name:            "休息",
@@ -25,21 +26,20 @@ func (ra *RestActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (ra *RestActivity) String() string {
-	return "Rest"
+// Name はBehaviorの実装
+func (ra *RestActivity) Name() gc.BehaviorName {
+	return gc.BehaviorRest
 }
 
 // Validate は休息アクティビティの検証を行う
-// Validate はActivityInterfaceの実装
-func (ra *RestActivity) Validate(act *Activity, world w.World) error {
+func (ra *RestActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
-	if !ra.isSafe(act, world) {
+	if !ra.isSafe(actor, world) {
 		return fmt.Errorf("周囲に敵がいるため休息できません")
 	}
 
 	// 休息時間が妥当かチェック
-	if act.TurnsTotal <= 0 {
+	if comp.TurnsTotal <= 0 {
 		return fmt.Errorf("休息時間が無効です")
 	}
 
@@ -47,41 +47,42 @@ func (ra *RestActivity) Validate(act *Activity, world w.World) error {
 }
 
 // Start は休息開始時の処理を実行する
-// Start はActivityInterfaceの実装
-func (ra *RestActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("休息開始", "actor", act.Actor, "duration", act.TurnsLeft)
+func (ra *RestActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("休息開始", "actor", actor, "duration", comp.TurnsLeft)
 	return nil
 }
 
 // DoTurn は休息アクティビティの1ターン分の処理を実行する
-// DoTurn はActivityInterfaceの実装
-func (ra *RestActivity) DoTurn(act *Activity, world w.World) error {
+func (ra *RestActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+
 	// 周囲の安全性をチェック
-	if !ra.isSafe(act, world) {
-		act.Cancel("周囲に敵がいるため休息を中断")
+	if !ra.isSafe(actor, world) {
+		Cancel(comp, "周囲に敵がいるため休息を中断")
 		return fmt.Errorf("周囲に敵がいるため休息できません")
 	}
 
 	// 基本のターン処理
-	if act.TurnsLeft <= 0 {
-		act.Complete()
+	if comp.TurnsLeft <= 0 {
+		Complete(comp)
 		return nil
 	}
 
 	// 1ターン進行
-	act.TurnsLeft--
-	act.Logger.Debug("休息進行",
-		"turns_left", act.TurnsLeft,
-		"progress", act.GetProgressPercent())
+	comp.TurnsLeft--
+	log.Debug("休息進行",
+		"turns_left", comp.TurnsLeft,
+		"progress", GetProgressPercent(comp))
 
 	// HP回復処理
-	if err := ra.performHealing(act, world); err != nil {
-		act.Logger.Warn("HP回復処理エラー", "error", err.Error())
+	if err := ra.performHealing(comp, actor, world); err != nil {
+		log.Warn("HP回復処理エラー", "error", err.Error())
 	}
 
 	// 完了チェック
-	if act.TurnsLeft <= 0 {
-		act.Complete()
+	if comp.TurnsLeft <= 0 {
+		Complete(comp)
 		return nil
 	}
 
@@ -89,19 +90,19 @@ func (ra *RestActivity) DoTurn(act *Activity, world w.World) error {
 }
 
 // Finish は休息完了時の処理を実行する
-// Finish はActivityInterfaceの実装
-func (ra *RestActivity) Finish(act *Activity, world w.World) error {
-	act.Logger.Debug("休息完了", "actor", act.Actor)
+func (ra *RestActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("休息完了", "actor", actor)
 
 	// プレイヤーの場合のみ完了メッセージを表示
-	if isPlayerActivity(act, world) {
+	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append("十分な休息を取って体力を回復した").
 			Log()
 	}
 
 	// 最終的なHP回復（ボーナス）
-	poolsComponent := world.Components.Pools.Get(act.Actor)
+	poolsComponent := world.Components.Pools.Get(actor)
 	if poolsComponent != nil {
 		pools := poolsComponent.(*gc.Pools)
 		if pools.HP.Current < pools.HP.Max {
@@ -126,7 +127,7 @@ func (ra *RestActivity) Finish(act *Activity, world w.World) error {
 				pools.SP.Current = pools.SP.Max
 			}
 
-			act.Logger.Debug("スタミナ回復", "bonus", bonusStamina, "current", pools.SP.Current)
+			log.Debug("スタミナ回復", "bonus", bonusStamina, "current", pools.SP.Current)
 		}
 	}
 
@@ -134,24 +135,27 @@ func (ra *RestActivity) Finish(act *Activity, world w.World) error {
 }
 
 // Canceled は休息キャンセル時の処理を実行する
-// Canceled はActivityInterfaceの実装
-func (ra *RestActivity) Canceled(act *Activity, world w.World) error {
+func (ra *RestActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+
 	// プレイヤーの場合のみ中断時のメッセージを表示
-	if isPlayerActivity(act, world) {
+	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append("休息が中断された: ").
-			Append(act.CancelReason).
+			Append(comp.CancelReason).
 			Log()
 	}
 
-	act.Logger.Debug("休息中断", "reason", act.CancelReason, "progress", act.GetProgressPercent())
+	log.Debug("休息中断", "reason", comp.CancelReason, "progress", GetProgressPercent(comp))
 	return nil
 }
 
 // performHealing はHP回復処理を実行する
-func (ra *RestActivity) performHealing(act *Activity, world w.World) error {
+func (ra *RestActivity) performHealing(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+
 	// Poolsコンポーネントを取得
-	poolsComponent := world.Components.Pools.Get(act.Actor)
+	poolsComponent := world.Components.Pools.Get(actor)
 	if poolsComponent == nil {
 		// HPコンポーネントがない場合はスキップ（エラーにしない）
 		return nil
@@ -163,7 +167,7 @@ func (ra *RestActivity) performHealing(act *Activity, world w.World) error {
 	}
 	if pools.HP.Current >= pools.HP.Max {
 		// 既に満タンの場合は早期完了
-		act.Complete()
+		Complete(comp)
 		return nil
 	}
 
@@ -177,20 +181,20 @@ func (ra *RestActivity) performHealing(act *Activity, world w.World) error {
 	actualHealing := pools.HP.Current - beforeHP
 
 	// 5ターン毎にゲームログ出力（プレイヤーの場合のみ）
-	if isPlayerActivity(act, world) && act.TurnsTotal-act.TurnsLeft > 0 && (act.TurnsTotal-act.TurnsLeft)%5 == 0 {
+	if actor.HasComponent(world.Components.Player) && comp.TurnsTotal-comp.TurnsLeft > 0 && (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {
 		gamelog.New(gamelog.FieldLog).
 			Append(fmt.Sprintf("HPが %d 回復した。", actualHealing)).
 			Log()
 	}
 
-	act.Logger.Debug("HP回復", "actor", act.Actor, "amount", actualHealing)
+	log.Debug("HP回復", "actor", actor, "amount", actualHealing)
 	return nil
 }
 
 // isSafe は周囲が安全かをチェックする
-func (ra *RestActivity) isSafe(act *Activity, world w.World) bool {
+func (ra *RestActivity) isSafe(actor ecs.Entity, world w.World) bool {
 	// プレイヤーの位置を取得
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return false
 	}

@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -35,10 +36,10 @@ const (
 	DiceMax = 100 // ダイス最大値（1-100）
 )
 
-// AttackActivity はActivityInterfaceの実装
+// AttackActivity はBehaviorの実装
 type AttackActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (aa *AttackActivity) Info() Info {
 	return Info{
 		Name:            "攻撃",
@@ -50,102 +51,105 @@ func (aa *AttackActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (aa *AttackActivity) String() string {
-	return "Attack"
+// Name はBehaviorの実装
+func (aa *AttackActivity) Name() gc.BehaviorName {
+	return gc.BehaviorAttack
 }
 
-// Validate はActivityInterfaceの実装
-func (aa *AttackActivity) Validate(act *Activity, world w.World) error {
-	if act.Target == nil {
+// Validate はBehaviorの実装
+func (aa *AttackActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
 		return ErrAttackTargetNotSet
 	}
 
-	if act.Actor.HasComponent(world.Components.Dead) {
+	if actor.HasComponent(world.Components.Dead) {
 		return ErrAttackerDead
 	}
 
-	if !act.Target.HasComponent(world.Components.GridElement) {
+	if !comp.Target.HasComponent(world.Components.GridElement) {
 		return ErrAttackTargetNotExists
 	}
 
-	if act.Target.HasComponent(world.Components.Dead) {
+	if comp.Target.HasComponent(world.Components.Dead) {
 		return ErrAttackTargetDead
 	}
 
-	if !aa.isInRange(act.Actor, *act.Target, world) {
+	if !aa.isInRange(actor, *comp.Target, world) {
 		return ErrAttackOutOfRange
 	}
 
-	if !aa.canPerformAttack(act.Actor, world) {
+	if !aa.canPerformAttack(actor, world) {
 		return ErrAttackNoWeapon
 	}
 
 	return nil
 }
 
-// Start はActivityInterfaceの実装
-func (aa *AttackActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("攻撃開始", "actor", act.Actor, "target", *act.Target)
+// Start はBehaviorの実装
+func (aa *AttackActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("攻撃開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
-// DoTurn はActivityInterfaceの実装
-func (aa *AttackActivity) DoTurn(act *Activity, world w.World) error {
-	if act.Target == nil {
-		act.Cancel("攻撃対象が設定されていません")
+// DoTurn はBehaviorの実装
+func (aa *AttackActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
+		Cancel(comp, "攻撃対象が設定されていません")
 		return ErrAttackTargetNotSet
 	}
 
-	if !aa.canAttack(act, world) {
-		act.Cancel("攻撃できません")
+	if !aa.canAttack(comp, actor, world) {
+		Cancel(comp, "攻撃できません")
 		return ErrAttackTargetInvalid
 	}
 
-	if err := aa.performAttack(act, world); err != nil {
-		act.Cancel(fmt.Sprintf("攻撃エラー: %s", err.Error()))
+	if err := aa.performAttack(comp, actor, world); err != nil {
+		Cancel(comp, fmt.Sprintf("攻撃エラー: %s", err.Error()))
 		return err
 	}
 
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
-// Finish はActivityInterfaceの実装
-func (aa *AttackActivity) Finish(act *Activity, _ w.World) error {
-	act.Logger.Debug("攻撃アクティビティ完了",
-		"actor", act.Actor,
-		"target", *act.Target)
+// Finish はBehaviorの実装
+func (aa *AttackActivity) Finish(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("攻撃アクティビティ完了",
+		"actor", actor,
+		"target", *comp.Target)
 
 	return nil
 }
 
-// Canceled はActivityInterfaceの実装
-func (aa *AttackActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("攻撃キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+// Canceled はBehaviorの実装
+func (aa *AttackActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("攻撃キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (aa *AttackActivity) performAttack(act *Activity, world w.World) error {
-	attacker := act.Actor
-	target := *act.Target
+func (aa *AttackActivity) performAttack(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	target := *comp.Target
 
-	act.Logger.Debug("攻撃実行", "attacker", attacker, "target", target)
+	log := logger.New(logger.CategoryAction)
+	log.Debug("攻撃実行", "attacker", actor, "target", target)
 
 	// 攻撃方法を取得
-	_, attackMethodName, err := aa.getAttackParams(attacker, world)
+	_, attackMethodName, err := aa.getAttackParams(actor, world)
 	if err != nil {
 		return fmt.Errorf("攻撃パラメータの取得に失敗: %w", err)
 	}
 
-	hit, criticalHit := aa.rollHitCheck(attacker, target, world)
+	hit, criticalHit := aa.rollHitCheck(actor, target, world)
 	if !hit {
-		aa.logAttackResult(attacker, target, world, false, false, 0, attackMethodName)
+		aa.logAttackResult(actor, target, world, false, false, 0, attackMethodName)
 		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
 		return nil
 	}
 
-	damage := aa.calculateDamage(attacker, target, world, criticalHit)
+	damage := aa.calculateDamage(actor, target, world, criticalHit)
 	if damage < 0 {
 		damage = 0
 	}
@@ -159,7 +163,7 @@ func (aa *AttackActivity) performAttack(act *Activity, world w.World) error {
 	}
 
 	// 攻撃とダメージを1行でログ出力
-	aa.logAttackResult(attacker, target, world, true, criticalHit, damage, attackMethodName)
+	aa.logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
 
 	// ダメージエフェクトを生成
 	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
@@ -173,12 +177,12 @@ func (aa *AttackActivity) performAttack(act *Activity, world w.World) error {
 	return nil
 }
 
-func (aa *AttackActivity) canAttack(act *Activity, world w.World) bool {
-	if act.Target == nil {
+func (aa *AttackActivity) canAttack(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) bool {
+	if comp.Target == nil {
 		return false
 	}
 
-	if err := aa.Validate(act, world); err != nil {
+	if err := aa.Validate(comp, actor, world); err != nil {
 		return false
 	}
 
@@ -338,7 +342,7 @@ func (aa *AttackActivity) getAttackParams(attacker ecs.Entity, world w.World) (*
 // logAttackResult は攻撃結果をログに出力する（ダメージも含む）
 func (aa *AttackActivity) logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {
 	// プレイヤーが関わる攻撃のみログ出力
-	if !isPlayerActivity(&Activity{Actor: attacker}, world) && !isPlayerActivity(&Activity{Actor: target}, world) {
+	if !attacker.HasComponent(world.Components.Player) && !target.HasComponent(world.Components.Player) {
 		return
 	}
 

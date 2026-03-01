@@ -13,15 +13,16 @@
 // - アクションコストの定義と管理
 // - ターン管理システムとの連携
 //
-// # ActivityManagerの責務
+// # パッケージレベル関数
 //
-// ## Manager（アクション実行エンジン）
-// **役割**：すべてのアクション（即座実行・継続実行）を統一的に管理
-// - **Execute**: アクションの実行エントリーポイント
-// - **ActivityType**: 実行可能なアクティビティの種別（移動、攻撃、休息など）
-// - **Activity struct**: 実行中のアクティビティの状態データ
-// - **Behavior**: アクティビティの実行ロジック
-// - **各種Activity実装**: MoveActivity, AttackActivity, RestActivityなど
+// このパッケージはパッケージレベル関数を提供し、アクションを統一的に管理する：
+// - Execute: アクションの実行エントリーポイント
+// - StartActivity: 継続アクティビティの開始
+// - InterruptActivity: アクティビティの中断
+// - ResumeActivity: アクティビティの再開
+// - CancelActivity: アクティビティのキャンセル
+// - ProcessTurn: ターン毎のアクティビティ処理
+// - GetLastResult: 直近のアクティビティ実行結果を取得
 //
 // 責務：
 // - アクティビティの作成（パラメータからActivityを生成）
@@ -38,8 +39,7 @@
 // - aiinput/processor.go から使用（AI行動処理）
 //
 // ```go
-// manager := activity.NewManager(logger)
-// result, err := manager.Execute(activityType, params, world)
+// result, err := activity.Execute(activityImpl, params, world)
 // ```
 //
 // ### 個別Activity実装
@@ -51,7 +51,7 @@
 // # 他パッケージとの関係
 //
 // ```
-// systems → activity.Manager.Execute() → アクション実行
+// systems → activity.Execute() → アクション実行
 //
 //	↓
 //
@@ -100,23 +100,25 @@
 //
 // # 使用例
 //
-//	// ActivityManagerを通じた統一的なアクション実行
-//	manager := activity.NewManager(logger)
+//	// パッケージレベル関数を通じた統一的なアクション実行
 //
 //	// 即座実行アクション（移動）
 //	params := activity.ActionParams{Actor: player, Destination: &dest}
-//	result, err := manager.Execute(activity.ActivityMove, params, world)
+//	result, err := activity.Execute(&activity.MoveActivity{}, params, world)
 //
 //	// 継続実行アクション（休息）
 //	params := activity.ActionParams{Actor: player, Duration: 10}
-//	result, err := manager.Execute(activity.ActivityRest, params, world)
+//	result, err := activity.Execute(&activity.RestActivity{}, params, world)
 //
 //	// アクティビティの管理
-//	manager.InterruptActivity(player, "戦闘開始")
-//	manager.ResumeActivity(player, world)
+//	activity.InterruptActivity(player, "戦闘開始", world)
+//	activity.ResumeActivity(player, world)
 //
 //	// ターン毎の処理
-//	manager.ProcessTurn(world)
+//	activity.ProcessTurn(world)
+//
+//	// 直近の結果を取得
+//	lastResult := activity.GetLastResult(player, world)
 //
 // # CDDAとの対応関係
 //
@@ -135,6 +137,6 @@
 // 1. ActivityTypeに新しい定数を追加
 // 2. activityInfosに情報を追加
 // 3. 具体的な実装ファイルを作成（例：new_action.go）
-// 4. Manager.createActivityに分岐を追加
+// 4. Activity インターフェースを実装
 // 5. 必要に応じてActivity.DoTurnに処理を追加
 package activity

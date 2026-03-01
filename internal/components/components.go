@@ -135,7 +135,12 @@ type Components struct {
 	CommandTable *ecs.SliceComponent
 	DropTable    *ecs.SliceComponent
 
+	// activity ================
+	CurrentActivity    *ecs.SliceComponent // 実行中のアクティビティ
+	LastActivityResult *ecs.SliceComponent // 直近のアクティビティ実行結果
+
 	// singleton ================
+	// TODO: どうにかする
 	TurnState *ecs.SliceComponent // グローバルターン状態（シングルトン）
 }
 

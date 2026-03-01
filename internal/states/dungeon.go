@@ -72,11 +72,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	world.Resources.Dungeon.Depth = st.Depth
 
-	// アクティビティマネージャーを初期化
-	if world.Resources.ActivityManager == nil {
-		world.Resources.ActivityManager = activity.NewManager(nil)
-	}
-
 	// 設定されていればリソースに反映する
 	if st.DefinitionName != "" {
 		world.Resources.Dungeon.DefinitionName = st.DefinitionName
@@ -356,11 +351,9 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		// プレイヤーが継続アクション中は新しいアクションを受け付けない
-		if world.Resources.ActivityManager != nil {
-			manager := world.Resources.ActivityManager.(*activity.Manager)
-			if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && manager.HasActivity(playerEntity) {
-				return es.Transition[w.World]{Type: es.TransNone}, nil
-			}
+		// プレイヤーが継続アクション中は新しいアクションを受け付けない
+		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && worldhelper.HasActivity(world, playerEntity) {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 	}
 

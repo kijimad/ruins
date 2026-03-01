@@ -30,12 +30,11 @@ func TestOpenDoorActivity(t *testing.T) {
 		door.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
 		// OpenDoorActivityを実行
-		manager := NewManager(nil)
 		params := ActionParams{
 			Actor:  player,
 			Target: &door,
 		}
-		result, err := manager.Execute(&OpenDoorActivity{}, params, world)
+		result, err := Execute(&OpenDoorActivity{}, params, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -67,12 +66,11 @@ func TestOpenDoorActivity(t *testing.T) {
 		wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 
 		// OpenDoorActivityを実行
-		manager := NewManager(nil)
 		params := ActionParams{
 			Actor:  player,
 			Target: &wall,
 		}
-		result, err := manager.Execute(&OpenDoorActivity{}, params, world)
+		result, err := Execute(&OpenDoorActivity{}, params, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)
@@ -92,11 +90,10 @@ func TestOpenDoorActivity(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
 		// OpenDoorActivityを実行（Targetなし）
-		manager := NewManager(nil)
 		params := ActionParams{
 			Actor: player,
 		}
-		result, err := manager.Execute(&OpenDoorActivity{}, params, world)
+		result, err := Execute(&OpenDoorActivity{}, params, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)

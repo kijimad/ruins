@@ -9,14 +9,14 @@ import (
 // ゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
 type Resources struct {
-	ScreenDimensions   *ScreenDimensions
-	SpriteSheets       *map[string]components.SpriteSheet
-	Fonts              *map[string]Font
-	Faces              *map[string]text.Face
+	ScreenDimensions *ScreenDimensions
+	SpriteSheets     *map[string]components.SpriteSheet
+	Fonts            *map[string]Font
+	Faces            *map[string]text.Face
+	UIResources      *UIResources
+	RawMaster        interface{}
+
 	Dungeon            *Dungeon
-	RawMaster          interface{}
-	UIResources        *UIResources
-	ActivityManager    interface{} // 継続アクションの状態を保持する
 	GameTime           *GameTime
 	SelectedWeaponSlot int // 選択中の武器スロット番号（1-5）
 }

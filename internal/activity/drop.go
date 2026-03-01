@@ -5,18 +5,16 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// DropActivity はActivityInterfaceの実装
-type DropActivity struct {
-	// Target は捨てるアイテムのエンティティ
-	Target ecs.Entity
-}
+// DropActivity はBehaviorの実装
+type DropActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (da *DropActivity) Info() Info {
 	return Info{
 		Name:            "ドロップ",
@@ -28,20 +26,26 @@ func (da *DropActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (da *DropActivity) String() string {
-	return "Drop"
+// Name はBehaviorの実装
+func (da *DropActivity) Name() gc.BehaviorName {
+	return gc.BehaviorDrop
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う
-func (da *DropActivity) Validate(act *Activity, world w.World) error {
+func (da *DropActivity) Validate(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
+		return fmt.Errorf("ドロップ対象が指定されていません")
+	}
+
+	target := *comp.Target
+
 	// Targetがバックパック内にあることを確認
-	if !da.Target.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+	if !target.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 
 	// プレイヤーの位置情報が必要
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return fmt.Errorf("位置情報が見つかりません")
 	}
@@ -50,54 +54,58 @@ func (da *DropActivity) Validate(act *Activity, world w.World) error {
 }
 
 // Start はアイテムドロップ開始時の処理を実行する
-func (da *DropActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテムドロップ開始", "actor", act.Actor, "target", da.Target)
+func (da *DropActivity) Start(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("アイテムドロップ開始", "actor", actor, "target", *comp.Target)
 	return nil
 }
 
 // DoTurn はアイテムドロップアクティビティの1ターン分の処理を実行する
-func (da *DropActivity) DoTurn(act *Activity, world w.World) error {
+func (da *DropActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
 	// アイテムドロップ処理を実行
-	if err := da.performDropActivity(act, world); err != nil {
-		act.Cancel(fmt.Sprintf("アイテムドロップエラー: %s", err.Error()))
+	if err := da.performDropActivity(comp, actor, world); err != nil {
+		Cancel(comp, fmt.Sprintf("アイテムドロップエラー: %s", err.Error()))
 		return err
 	}
 
 	// ドロップ処理完了
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
 // Finish はアイテムドロップ完了時の処理を実行する
-func (da *DropActivity) Finish(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテムドロップアクティビティ完了", "actor", act.Actor)
+func (da *DropActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("アイテムドロップアクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテムドロップキャンセル時の処理を実行する
-func (da *DropActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテムドロップキャンセル", "actor", act.Actor, "reason", act.CancelReason)
+func (da *DropActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("アイテムドロップキャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // performDropActivity は実際のアイテムドロップ処理を実行する
-func (da *DropActivity) performDropActivity(act *Activity, world w.World) error {
+func (da *DropActivity) performDropActivity(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
 	// プレイヤー位置を取得
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return fmt.Errorf("位置情報が見つかりません")
 	}
 
 	playerGrid := gridElement.(*gc.GridElement)
+	target := *comp.Target
 
 	// アイテム情報を取得
-	formattedName := worldhelper.FormatItemName(world, da.Target)
+	formattedName := worldhelper.FormatItemName(world, target)
 
 	// バックパックから削除してフィールドに移動
-	worldhelper.MoveToField(world, da.Target, act.Actor)
+	worldhelper.MoveToField(world, target, actor)
 
 	// グリッド位置を設定
-	da.Target.AddComponent(world.Components.GridElement, &gc.GridElement{
+	target.AddComponent(world.Components.GridElement, &gc.GridElement{
 		X: playerGrid.X,
 		Y: playerGrid.Y,
 	})

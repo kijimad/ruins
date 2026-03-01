@@ -3,7 +3,6 @@ package systems
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -25,7 +24,6 @@ func TestTurnSystem_Update(t *testing.T) {
 	t.Run("PlayerTurnでAPがマイナスなら自動でAITurnへ遷移", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
@@ -49,7 +47,6 @@ func TestTurnSystem_Update(t *testing.T) {
 	t.Run("PlayerTurnでAPが0以上なら遷移しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
@@ -73,7 +70,6 @@ func TestTurnSystem_Update(t *testing.T) {
 	t.Run("AITurnからTurnEndへ遷移", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// シングルトンの状態を設定
 		turnState, err := worldhelper.GetTurnState(world)
@@ -90,7 +86,6 @@ func TestTurnSystem_Update(t *testing.T) {
 	t.Run("TurnEndから新しいターンへ遷移", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 		world.Updaters = make(map[string]w.Updater)
 
 		// シングルトンの状態を設定
@@ -114,7 +109,6 @@ func TestProcessTurnEnd(t *testing.T) {
 	t.Run("ターン終了時にAPが回復する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 		world.Updaters = make(map[string]w.Updater)
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
@@ -134,7 +128,6 @@ func TestProcessTurnEnd(t *testing.T) {
 	t.Run("登録されたシステムが実行される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// テスト用にUpdatersを設定
 		world.Updaters = make(map[string]w.Updater)
@@ -173,20 +166,9 @@ func TestShouldAutoEndTurn(t *testing.T) {
 func TestProcessPlayerContinuousActivity(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ActivityManagerがnilの場合はfalse", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = nil
-
-		result := processPlayerContinuousActivity(world)
-
-		assert.False(t, result)
-	})
-
 	t.Run("プレイヤーがいない場合はfalse", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		result := processPlayerContinuousActivity(world)
 
@@ -196,7 +178,6 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 	t.Run("継続アクションがない場合はfalse", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		_, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)

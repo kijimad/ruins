@@ -5,15 +5,16 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// PickupActivity はActivityInterfaceの実装
+// PickupActivity はBehaviorの実装
 type PickupActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (pa *PickupActivity) Info() Info {
 	return Info{
 		Name:            "拾得",
@@ -25,16 +26,15 @@ func (pa *PickupActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (pa *PickupActivity) String() string {
-	return "Pickup"
+// Name はBehaviorの実装
+func (pa *PickupActivity) Name() gc.BehaviorName {
+	return gc.BehaviorPickup
 }
 
 // Validate はアイテム拾得アクティビティの検証を行う
-// Validate はActivityInterfaceの実装
-func (pa *PickupActivity) Validate(act *Activity, world w.World) error {
+func (pa *PickupActivity) Validate(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
 	// プレイヤーの位置情報が必要
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return fmt.Errorf("位置情報が見つかりません")
 	}
@@ -64,45 +64,46 @@ func (pa *PickupActivity) Validate(act *Activity, world w.World) error {
 }
 
 // Start はアイテム拾得開始時の処理を実行する
-// Start はActivityInterfaceの実装
-func (pa *PickupActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテム拾得開始", "actor", act.Actor)
+func (pa *PickupActivity) Start(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("アイテム拾得開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はアイテム拾得アクティビティの1ターン分の処理を実行する
-// DoTurn はActivityInterfaceの実装
-func (pa *PickupActivity) DoTurn(act *Activity, world w.World) error {
+func (pa *PickupActivity) DoTurn(comp *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
 	// アイテム拾得処理を実行
-	if err := pa.performPickupActivity(act, world); err != nil {
-		act.Cancel(fmt.Sprintf("アイテム拾得エラー: %s", err.Error()))
+	if err := pa.performPickupActivity(comp, actor, world); err != nil {
+		Cancel(comp, fmt.Sprintf("アイテム拾得エラー: %s", err.Error()))
 		return err
 	}
 
 	// 拾得処理完了
-	act.Complete()
+	Complete(comp)
 
 	return nil
 }
 
 // Finish はアイテム拾得完了時の処理を実行する
-// Finish はActivityInterfaceの実装
-func (pa *PickupActivity) Finish(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテム拾得アクティビティ完了", "actor", act.Actor)
+func (pa *PickupActivity) Finish(_ *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("アイテム拾得アクティビティ完了", "actor", actor)
 	return nil
 }
 
 // Canceled はアイテム拾得キャンセル時の処理を実行する
-// Canceled はActivityInterfaceの実装
-func (pa *PickupActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテム拾得キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+func (pa *PickupActivity) Canceled(comp *gc.CurrentActivity, actor ecs.Entity, _ w.World) error {
+	log := logger.New(logger.CategoryAction)
+	log.Debug("アイテム拾得キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // performPickupActivity は実際のアイテム拾得処理を実行する
-func (pa *PickupActivity) performPickupActivity(act *Activity, world w.World) error {
+func (pa *PickupActivity) performPickupActivity(_ *gc.CurrentActivity, actor ecs.Entity, world w.World) error {
+	log := logger.New(logger.CategoryAction)
+
 	// プレイヤー位置を取得
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return fmt.Errorf("位置情報が見つかりません")
 	}
@@ -132,8 +133,8 @@ func (pa *PickupActivity) performPickupActivity(act *Activity, world w.World) er
 	// 収集されたアイテムを処理
 	collectedCount := 0
 	for _, itemEntity := range itemsToCollect {
-		if err := pa.collectFieldItem(act, world, itemEntity); err != nil {
-			act.Logger.Warn("アイテム拾得エラー", "item", itemEntity, "error", err.Error())
+		if err := pa.collectFieldItem(actor, world, itemEntity); err != nil {
+			log.Warn("アイテム拾得エラー", "item", itemEntity, "error", err.Error())
 			continue
 		}
 		collectedCount++
@@ -143,10 +144,10 @@ func (pa *PickupActivity) performPickupActivity(act *Activity, world w.World) er
 		return fmt.Errorf("アイテムの拾得に失敗しました")
 	}
 
-	act.Logger.Debug("アイテム拾得完了", "count", collectedCount)
+	log.Debug("アイテム拾得完了", "count", collectedCount)
 
 	// プレイヤーの場合のみ複数アイテム収集時の総括メッセージを表示
-	if collectedCount > 1 && isPlayerActivity(act, world) {
+	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append(fmt.Sprintf("%d個のアイテムを入手した", collectedCount)).
 			Log()
@@ -156,7 +157,7 @@ func (pa *PickupActivity) performPickupActivity(act *Activity, world w.World) er
 }
 
 // collectFieldItem はフィールドアイテムを収集してバックパックに移動する
-func (pa *PickupActivity) collectFieldItem(act *Activity, world w.World, itemEntity ecs.Entity) error {
+func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, itemEntity ecs.Entity) error {
 	itemName := "Unknown Item"
 	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
 		name := nameComp.(*gc.Name)
@@ -166,7 +167,7 @@ func (pa *PickupActivity) collectFieldItem(act *Activity, world w.World, itemEnt
 	formattedName := worldhelper.FormatItemName(world, itemEntity)
 
 	// フィールドからバックパックに移動
-	worldhelper.MoveToBackpack(world, itemEntity, act.Actor)
+	worldhelper.MoveToBackpack(world, itemEntity, actor)
 
 	// グリッド表示コンポーネントを削除（フィールドから消す）
 	if itemEntity.HasComponent(world.Components.GridElement) {

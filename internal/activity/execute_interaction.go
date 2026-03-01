@@ -11,7 +11,7 @@ import (
 )
 
 // ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する
-func ExecuteInteraction(manager *Manager, actor ecs.Entity, interactable ecs.Entity, world w.World) (*ActionResult, error) {
+func ExecuteInteraction(actor ecs.Entity, interactable ecs.Entity, world w.World) (*ActionResult, error) {
 	if !interactable.HasComponent(world.Components.Interactable) {
 		return nil, fmt.Errorf("指定されたエンティティはInteractableを持っていません")
 	}
@@ -32,13 +32,13 @@ func ExecuteInteraction(manager *Manager, actor ecs.Entity, interactable ecs.Ent
 	case gc.DungeonGateInteraction:
 		return executeDungeonGate(world)
 	case gc.DoorInteraction:
-		return executeDoor(manager, actor, interactable, world)
+		return executeDoor(actor, interactable, world)
 	case gc.TalkInteraction:
-		return executeTalk(manager, actor, interactable, world)
+		return executeTalk(actor, interactable, world)
 	case gc.ItemInteraction:
-		return executeItem(manager, actor, world)
+		return executeItem(actor, world)
 	case gc.MeleeInteraction:
-		return executeMelee(manager, actor, interactable, world)
+		return executeMelee(actor, interactable, world)
 	default:
 		return nil, fmt.Errorf("未知の相互作用タイプ: %T", comp.Data)
 	}
@@ -57,17 +57,17 @@ func executePortal(world w.World, portal gc.PortalInteraction) (*ActionResult, e
 	default:
 		return nil, fmt.Errorf("未知のポータルタイプ: %s", portal.PortalType)
 	}
-	return &ActionResult{Success: true, ActivityName: "Portal", Message: "ポータル移動"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorPortal, Message: "ポータル移動"}, nil
 }
 
 func executeDungeonGate(world w.World) (*ActionResult, error) {
 	if err := world.Resources.Dungeon.RequestStateChange(resources.OpenDungeonSelectEvent{}); err != nil {
 		return nil, fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
 	}
-	return &ActionResult{Success: true, ActivityName: "DungeonGate", Message: "ダンジョンゲート発動"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
 }
 
-func executeDoor(manager *Manager, actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
+func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*ActionResult, error) {
 	if !doorEntity.HasComponent(world.Components.Door) {
 		return nil, fmt.Errorf("DoorInteractionだがDoorコンポーネントがない")
 	}
@@ -79,12 +79,12 @@ func executeDoor(manager *Manager, actor ecs.Entity, doorEntity ecs.Entity, worl
 	}
 
 	if door.IsOpen {
-		return manager.Execute(&CloseDoorActivity{}, params, world)
+		return Execute(&CloseDoorActivity{}, params, world)
 	}
-	return manager.Execute(&OpenDoorActivity{}, params, world)
+	return Execute(&OpenDoorActivity{}, params, world)
 }
 
-func executeTalk(manager *Manager, actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
+func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {
 	if !npcEntity.HasComponent(world.Components.Dialog) {
 		return nil, fmt.Errorf("TalkInteractionですがDialogコンポーネントがありません")
 	}
@@ -94,7 +94,7 @@ func executeTalk(manager *Manager, actor ecs.Entity, npcEntity ecs.Entity, world
 		Target: &npcEntity,
 	}
 
-	result, err := manager.Execute(&TalkActivity{}, params, world)
+	result, err := Execute(&TalkActivity{}, params, world)
 	if err != nil {
 		return nil, fmt.Errorf("会話アクション失敗: %w", err)
 	}
@@ -102,21 +102,21 @@ func executeTalk(manager *Manager, actor ecs.Entity, npcEntity ecs.Entity, world
 	return result, nil
 }
 
-func executeItem(manager *Manager, actor ecs.Entity, world w.World) (*ActionResult, error) {
+func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	params := ActionParams{
 		Actor: actor,
 	}
-	result, err := manager.Execute(&PickupActivity{}, params, world)
+	result, err := Execute(&PickupActivity{}, params, world)
 	if err != nil {
 		logger.New(logger.CategoryAction).Warn("アイテム拾得アクション失敗", "error", err)
 	}
 	return result, err
 }
 
-func executeMelee(manager *Manager, actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
+func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
 	params := ActionParams{
 		Actor:  actor,
 		Target: &target,
 	}
-	return manager.Execute(&AttackActivity{}, params, world)
+	return Execute(&AttackActivity{}, params, world)
 }

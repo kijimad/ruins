@@ -42,29 +42,26 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
 				if !door.IsOpen {
 					// 閉じているドアは開く相互作用を実行
-					manager := world.Resources.ActivityManager.(*Manager)
-					_, err := ExecuteInteraction(manager, entity, interactableEntity, world)
+					_, err := ExecuteInteraction(entity, interactableEntity, world)
 					return err
 				}
 				// 開いているドアは通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
 		} else {
 			// ドア以外のOnCollision相互作用（攻撃など）を実行
-			manager := world.Resources.ActivityManager.(*Manager)
-			_, err := ExecuteInteraction(manager, entity, interactableEntity, world)
+			_, err := ExecuteInteraction(entity, interactableEntity, world)
 			return err
 		}
 	}
 
 	canMove := movement.CanMoveTo(world, newX, newY, entity)
 	if canMove {
-		destination := gc.Position{X: consts.Pixel(newX), Y: consts.Pixel(newY)}
+		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 		params := ActionParams{
 			Actor:       entity,
 			Destination: &destination,
 		}
-		manager := world.Resources.ActivityManager.(*Manager)
-		_, err := manager.Execute(&MoveActivity{}, params, world)
+		_, err := Execute(&MoveActivity{}, params, world)
 		return err
 	}
 
@@ -83,8 +80,7 @@ func ExecuteWaitAction(world w.World) error {
 		Duration: 1,
 		Reason:   "プレイヤー待機",
 	}
-	manager := world.Resources.ActivityManager.(*Manager)
-	_, err = manager.Execute(&WaitActivity{}, params, world)
+	_, err = Execute(&WaitActivity{}, params, world)
 	return err
 }
 
@@ -106,8 +102,7 @@ func ExecuteEnterAction(world w.World) error {
 		config := interactable.Data.Config()
 		// 手動発動（Enterキー）かつ同タイルのみ実行
 		if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
-			manager := world.Resources.ActivityManager.(*Manager)
-			_, err := ExecuteInteraction(manager, entity, interactableEntity, world)
+			_, err := ExecuteInteraction(entity, interactableEntity, world)
 			return err
 		}
 	}
