@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -47,7 +46,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveNoGridElement
 	}
 
-	if !movement.CanMoveTo(world, destX, destY, actor) {
+	if !CanMoveTo(world, destX, destY, actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -90,7 +89,7 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// 移動可能かチェック
-	if !movement.CanMoveTo(world, int(comp.Destination.X), int(comp.Destination.Y), actor) {
+	if !CanMoveTo(world, int(comp.Destination.X), int(comp.Destination.Y), actor) {
 		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid
 	}

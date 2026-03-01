@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -54,7 +53,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	canMove := movement.CanMoveTo(world, newX, newY, entity)
+	canMove := CanMoveTo(world, newX, newY, entity)
 	if canMove {
 		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 		params := ActionParams{
