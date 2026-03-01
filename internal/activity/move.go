@@ -107,9 +107,10 @@ func (ma *MoveActivity) DoTurn(act *Activity, world w.World) error {
 func (ma *MoveActivity) Finish(act *Activity, world w.World) error {
 	act.Logger.Debug("移動アクティビティ完了", "actor", act.Actor)
 
-	// 移動先のタイルイベントをチェック
-	if act.Position != nil {
-		checkTileEvents(world, act.Actor, int(act.Position.X), int(act.Position.Y))
+	// プレイヤーの場合のみ移動先のタイルイベントをチェック
+	if act.Position != nil && act.Actor.HasComponent(world.Components.Player) {
+		gridElement := &gc.GridElement{X: consts.Tile(act.Position.X), Y: consts.Tile(act.Position.Y)}
+		showTileInteractionMessage(world, gridElement)
 	}
 
 	return nil

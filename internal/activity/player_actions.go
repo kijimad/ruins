@@ -115,17 +115,6 @@ func ExecuteEnterAction(world w.World) error {
 	return nil
 }
 
-// checkTileEvents はタイル上のイベントをチェックする
-func checkTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
-	// プレイヤーの場合のみタイルイベントをチェック
-	if entity.HasComponent(world.Components.Player) {
-		gridElement := &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-
-		// 手動相互作用のメッセージ表示
-		showTileInteractionMessage(world, gridElement)
-	}
-}
-
 // getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
 // 複数ある場合は最初に見つかったものを返す
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
