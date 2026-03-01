@@ -111,9 +111,12 @@ func TestDoActionMovementActions(t *testing.T) {
 		t.Run(string(tt.action), func(t *testing.T) {
 			t.Parallel()
 
-			// プレイヤー付きのテストワールドを作成
 			initialX, initialY := 10, 10
-			world, playerEntity := setupTestWorldWithPlayer(t, initialX, initialY)
+			world := testutil.InitTestWorld(t)
+			world.Resources.TurnManager = turns.NewTurnManager()
+			world.Resources.ActivityManager = activity.NewManager(nil)
+			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
+			require.NoError(t, err)
 
 			state := &DungeonState{}
 
@@ -193,17 +196,16 @@ func TestDoActionTurnManagement(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			// プレイヤー付きのテストワールドを作成（移動テストの場合）
-			var world w.World
-			var playerEntity ecs.Entity
 			initialX, initialY := 10, 10
+			world := testutil.InitTestWorld(t)
+			world.Resources.TurnManager = turns.NewTurnManager()
+			world.Resources.ActivityManager = activity.NewManager(nil)
 
+			var playerEntity ecs.Entity
 			if tt.isMoveAction {
-				world, playerEntity = setupTestWorldWithPlayer(t, initialX, initialY)
-			} else {
-				world = testutil.InitTestWorld(t)
-				world.Resources.TurnManager = turns.NewTurnManager()
-				world.Resources.ActivityManager = activity.NewManager(nil)
+				var err error
+				playerEntity, err = worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
+				require.NoError(t, err)
 			}
 
 			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
@@ -280,23 +282,4 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			assert.IsType(t, &PersistentMessageState{}, newState, "期待するステート型と異なります")
 		})
 	}
-}
-
-// setupTestWorldWithPlayer はプレイヤー付きのテスト用Worldを初期化するヘルパー関数
-func setupTestWorldWithPlayer(t *testing.T, x, y int) (w.World, ecs.Entity) {
-	t.Helper()
-
-	world := testutil.InitTestWorld(t)
-	world.Resources.TurnManager = turns.NewTurnManager()
-	world.Resources.ActivityManager = activity.NewManager(nil)
-
-	// マップサイズを設定（移動判定に必要）
-	world.Resources.Dungeon.Level.TileWidth = 50
-	world.Resources.Dungeon.Level.TileHeight = 50
-
-	// プレイヤーエンティティを作成（TurnBasedコンポーネント含む）
-	playerEntity, err := worldhelper.SpawnPlayer(world, x, y, "セレスティン")
-	require.NoError(t, err)
-
-	return world, playerEntity
 }

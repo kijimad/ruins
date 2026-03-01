@@ -105,37 +105,32 @@ func TestExecuteMoveAction(t *testing.T) {
 		}
 	})
 
-	t.Run("最大APが不足している場合は移動できない", func(t *testing.T) {
+	t.Run("APがマイナスになっても移動は実行される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
-		// プレイヤーを作成（AP.Max < 100）
+		// プレイヤーを作成（AP.Current >= 0 なら行動可能）
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Current: 50, Max: 50}, // 移動に必要なAP(100)より少ない
+			AP: gc.Pool{Current: 50, Max: 50},
 		})
 
-		// 移動前の座標とAPを記録
-		initialX := int(world.Components.GridElement.Get(player).(*gc.GridElement).X)
-		initialY := int(world.Components.GridElement.Get(player).(*gc.GridElement).Y)
-		initialAP := world.Components.TurnBased.Get(player).(*gc.TurnBased).AP.Current
-
-		// 移動を試みる（AP.Maxが不足しているため、Validateでgamelogに出力され、移動は実行されない）
+		// 移動を実行（APがマイナスになる）
 		err := activity.ExecuteMoveAction(world, gc.DirectionUp)
-		assert.NoError(t, err, "AP.Max不足時もエラーは返さない（gamelog出力のみ）")
+		assert.NoError(t, err)
 
-		// プレイヤーは移動していない（AP.Maxが不足している場合は移動しない）
+		// プレイヤーは移動している
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
-		assert.Equal(t, initialX, int(gridAfter.X), "AP.Max不足時はX座標は変化しない")
-		assert.Equal(t, initialY, int(gridAfter.Y), "AP.Max不足時はY座標は変化しない")
+		assert.Equal(t, 10, int(gridAfter.X))
+		assert.Equal(t, 9, int(gridAfter.Y))
 
-		// APも消費されない
+		// APはマイナスになる
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
-		assert.Equal(t, initialAP, turnBased.AP.Current, "AP.Max不足時はAPも消費されない")
+		assert.Less(t, turnBased.AP.Current, 0, "移動コストでAPがマイナスになる")
 	})
 }
 
