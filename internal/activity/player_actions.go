@@ -31,7 +31,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 	// 移動先にOnCollision方式のInteractableがある場合は自動実行
 	targetGrid := &gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
-	interactable, interactableEntity := GetInteractableAtSameTile(world, targetGrid)
+	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
 
 	if interactable != nil && interactable.Data.Config().ActivationWay == gc.ActivationWayOnCollision {
 		// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
@@ -99,7 +99,7 @@ func ExecuteEnterAction(world w.World) error {
 
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	interactable, interactableEntity := GetInteractableAtSameTile(world, gridElement)
+	interactable, interactableEntity := getInteractableAtSameTile(world, gridElement)
 	if interactable != nil {
 		config := interactable.Data.Config()
 		// 手動発動（Enterキー）かつ同タイルのみ実行
@@ -113,8 +113,8 @@ func ExecuteEnterAction(world w.World) error {
 	return nil
 }
 
-// CheckTileEvents はタイル上のイベントをチェックする
-func CheckTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
+// checkTileEvents はタイル上のイベントをチェックする
+func checkTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
 	// プレイヤーの場合のみタイルイベントをチェック
 	if entity.HasComponent(world.Components.Player) {
 		gridElement := &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
@@ -124,9 +124,9 @@ func CheckTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
 	}
 }
 
-// GetInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
+// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
 // 複数ある場合は最初に見つかったものを返す
-func GetInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
+func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
 	var interactable *gc.Interactable
 	var interactableEntity ecs.Entity
 	world.Manager.Join(
@@ -147,9 +147,9 @@ func GetInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 	return interactable, interactableEntity
 }
 
-// GetInteractableInRange は範囲内のInteractableとエンティティを取得する
+// getInteractableInRange は範囲内のInteractableとエンティティを取得する
 // 複数ある場合は最初に見つかったものを返す
-func GetInteractableInRange(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
+func getInteractableInRange(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
 	var interactable *gc.Interactable
 	var interactableEntity ecs.Entity
 	world.Manager.Join(
@@ -229,7 +229,7 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 
 // showTileInteractionMessage は手動相互作用のメッセージを表示する
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
-	interactable, interactableEntity := GetInteractableInRange(world, playerGrid)
+	interactable, interactableEntity := getInteractableInRange(world, playerGrid)
 	if interactable == nil {
 		return
 	}

@@ -109,7 +109,7 @@ func (ma *MoveActivity) Finish(act *Activity, world w.World) error {
 
 	// 移動先のタイルイベントをチェック
 	if act.Position != nil {
-		CheckTileEvents(world, act.Actor, int(act.Position.X), int(act.Position.Y))
+		checkTileEvents(world, act.Actor, int(act.Position.X), int(act.Position.Y))
 	}
 
 	return nil

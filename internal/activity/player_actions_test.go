@@ -271,7 +271,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, entity := GetInteractableAtSameTile(world, targetGrid)
+		interactable, entity := getInteractableAtSameTile(world, targetGrid)
 
 		require.NotNil(t, interactable)
 		assert.Equal(t, interactableEntity, entity)
@@ -289,7 +289,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, _ := GetInteractableAtSameTile(world, targetGrid)
+		interactable, _ := getInteractableAtSameTile(world, targetGrid)
 
 		assert.Nil(t, interactable)
 	})
@@ -307,7 +307,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, _ := GetInteractableAtSameTile(world, targetGrid)
+		interactable, _ := getInteractableAtSameTile(world, targetGrid)
 
 		assert.Nil(t, interactable)
 	})
@@ -328,7 +328,7 @@ func TestGetInteractableInRange(t *testing.T) {
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, entity := GetInteractableInRange(world, targetGrid)
+		interactable, entity := getInteractableInRange(world, targetGrid)
 
 		require.NotNil(t, interactable)
 		assert.Equal(t, interactableEntity, entity)
@@ -347,7 +347,7 @@ func TestGetInteractableInRange(t *testing.T) {
 		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, _ := GetInteractableInRange(world, targetGrid)
+		interactable, _ := getInteractableInRange(world, targetGrid)
 
 		assert.Nil(t, interactable)
 	})
@@ -439,7 +439,7 @@ func TestCheckTileEvents(t *testing.T) {
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// パニックしないことを確認
-		CheckTileEvents(world, player, 10, 10)
+		checkTileEvents(world, player, 10, 10)
 	})
 
 	t.Run("非プレイヤーエンティティの場合はイベントチェックしない", func(t *testing.T) {
@@ -451,7 +451,7 @@ func TestCheckTileEvents(t *testing.T) {
 		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// パニックしないことを確認
-		CheckTileEvents(world, enemy, 10, 10)
+		checkTileEvents(world, enemy, 10, 10)
 	})
 }
 
