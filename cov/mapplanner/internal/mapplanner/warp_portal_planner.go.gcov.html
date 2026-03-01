@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - mapplanner/internal/mapplanner/warp_portal_planner.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">mapplanner/internal/mapplanner</a> - warp_portal_planner.go<span style="font-size: 80%;"> (source / <a href="warp_portal_planner.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntry">34</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-03-01 02:52:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package mapplanner</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              : )</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // ポータル配置用の定数</span>
+<span id="L11"><span class="lineNum">      11</span>              : const (</span>
+<span id="L12"><span class="lineNum">      12</span>              :         maxPortalPlacementAttempts = 200 // ポータル配置処理の最大試行回数</span>
+<span id="L13"><span class="lineNum">      13</span>              :         escapePortalInterval       = 5   // 帰還ポータル配置間隔（n階層ごと）</span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // PortalPlanner はポータル配置を担当するプランナー</span>
+<span id="L17"><span class="lineNum">      17</span>              : type PortalPlanner struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         world       w.World</span>
+<span id="L19"><span class="lineNum">      19</span>              :         plannerType PlannerType</span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // NewPortalPlanner はポータルプランナーを作成する</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func NewPortalPlanner(world w.World, plannerType PlannerType) *PortalPlanner {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return &amp;PortalPlanner{</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 world:       world,</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 plannerType: plannerType,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // PlanMeta はポータルをMetaPlanに追加する</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         // テンプレートベースのマップではポータルは固定位置なのでスキップ</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         if p.plannerType.UseFixedPortalPos {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              :         // プロシージャルマップの場合はランダム配置（到達可能な位置のみ）</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         playerPos, _ := planData.GetPlayerStartPosition()</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         pathFinder := NewPathFinder(planData)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         // 次の階へ進むポータルを配置する</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           2 :         for attempt := 0; attempt &lt; maxPortalPlacementAttempts; attempt++ {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 x := planData.RNG.IntN(int(planData.Level.TileWidth))</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 y := planData.RNG.IntN(int(planData.Level.TileHeight))</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           2 :                 if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) &amp;&amp; pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                         planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: x, Y: y})</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :                         break</span></span>
+<span id="L49"><span class="lineNum">      49</span>              :                 }</span>
+<span id="L50"><span class="lineNum">      50</span>              :         }</span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           2 :         if p.world.Resources.Dungeon == nil {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;Dungeonが初期化されてない&quot;)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L55"><span class="lineNum">      55</span>              :         // 間隔ごとに帰還ポータルを配置する</span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if p.world.Resources.Dungeon.Depth%escapePortalInterval == 0 {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :                 for attempt := 0; attempt &lt; maxPortalPlacementAttempts; attempt++ {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         x := planData.RNG.IntN(int(planData.Level.TileWidth))</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         y := planData.RNG.IntN(int(planData.Level.TileHeight))</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           2 :                         if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) &amp;&amp; pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                                 planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: x, Y: y})</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                                 break</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :                         }</span>
+<span id="L65"><span class="lineNum">      65</span>              :                 }</span>
+<span id="L66"><span class="lineNum">      66</span>              :         }</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

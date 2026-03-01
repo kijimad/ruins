@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - aiinput/internal/aiinput/processor.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">aiinput/internal/aiinput</a> - processor.go<span style="font-size: 80%;"> (source / <a href="processor.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">6.1&nbsp;%</td>
+            <td class="headerCovTableEntry">132</td>
+            <td class="headerCovTableEntry">8</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-03-01 02:52:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package aiinput</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/activity&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/logger&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/turns&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // Processor はAIエンティティの行動処理を管理する</span>
+<span id="L13"><span class="lineNum">      13</span>              : type Processor struct {</span>
+<span id="L14"><span class="lineNum">      14</span>              :         logger        *logger.Logger</span>
+<span id="L15"><span class="lineNum">      15</span>              :         stateMachine  StateMachine</span>
+<span id="L16"><span class="lineNum">      16</span>              :         actionPlanner ActionPlanner</span>
+<span id="L17"><span class="lineNum">      17</span>              :         visionSystem  VisionSystem</span>
+<span id="L18"><span class="lineNum">      18</span>              : }</span>
+<span id="L19"><span class="lineNum">      19</span>              : </span>
+<span id="L20"><span class="lineNum">      20</span>              : // NewProcessor は新しいProcessorを作成する</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC tlaBgGNC">           1 : func NewProcessor() *Processor {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return &amp;Processor{</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 logger:        logger.New(logger.CategoryTurn),</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 stateMachine:  NewStateMachine(),</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 actionPlanner: NewActionPlanner(),</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 visionSystem:  NewVisionSystem(),</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // ProcessAllEntities は全てのAIエンティティを処理する</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 : func (p *Processor) ProcessAllEntities(world w.World) error {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         turnManager := world.Resources.TurnManager.(*turns.TurnManager)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AI処理開始&quot;, &quot;turn&quot;, turnManager.TurnNumber, &quot;playerMoves&quot;, turnManager.PlayerMoves)</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         manager := activity.NewManager(logger.New(logger.CategoryAction))</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         entityCount := 0</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         // AIMoveFSMコンポーネントを持つ全エンティティを処理</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 world.Components.AIMoveFSM,</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 entityCount++</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;AIエンティティを処理中&quot;, &quot;entity&quot;, entity, &quot;count&quot;, entityCount)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 p.ProcessEntity(world, manager, entity)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : </span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AI処理完了&quot;, &quot;処理されたエンティティ数&quot;, entityCount, &quot;turn&quot;, turnManager.TurnNumber, &quot;playerMoves&quot;, turnManager.PlayerMoves)</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : // ProcessEntity は個別のAIエンティティを処理する</span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 : func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, entity ecs.Entity) {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         turnManager := world.Resources.TurnManager.(*turns.TurnManager)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIエンティティ処理開始&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         // 死亡しているエンティティは処理しない</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         if entity.HasComponent(world.Components.Dead) {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;Deadエンティティのため処理スキップ&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              :         // 必要なコンポーネントを取得</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         context, err := p.gatherEntityContext(world, entity)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 p.logger.Warn(&quot;AIエンティティコンテキスト取得失敗&quot;, &quot;entity&quot;, entity, &quot;error&quot;, err.Error())</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L69"><span class="lineNum">      69</span>              : </span>
+<span id="L70"><span class="lineNum">      70</span>              :         // プレイヤー検索</span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         playerEntity := p.findPlayer(world)</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         if playerEntity == nil {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              :         // プレイヤーエンティティの有効性チェック</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         if !playerEntity.HasComponent(world.Components.GridElement) {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 p.logger.Warn(&quot;プレイヤーエンティティが無効（GridElementなし）&quot;, &quot;entity&quot;, entity, &quot;player&quot;, *playerEntity)</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              :         // 視界チェック</span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         canSeePlayer := p.visionSystem.CanSeeTarget(world, entity, *playerEntity, context.Vision)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;プレイヤー視界チェック&quot;, &quot;entity&quot;, entity, &quot;canSee&quot;, canSeePlayer)</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         // 状態更新</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         oldState := context.Roaming.SubState</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         p.stateMachine.UpdateState(context.Roaming, canSeePlayer, turnManager.TurnNumber)</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         if oldState != context.Roaming.SubState {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;AI状態変化&quot;, &quot;entity&quot;, entity, &quot;from&quot;, oldState, &quot;to&quot;, context.Roaming.SubState)</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : </span>
+<span id="L93"><span class="lineNum">      93</span>              :         // 残りターン数を計算してログ出力</span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         elapsedTurns := turnManager.TurnNumber - context.Roaming.StartSubStateTurn</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         remainingTurns := context.Roaming.DurationSubStateTurns - elapsedTurns</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         if remainingTurns &lt; 0 {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 remainingTurns = 0</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIRoaming状態&quot;, &quot;entity&quot;, entity, &quot;subState&quot;, context.Roaming.SubState, &quot;remainingTurns&quot;, remainingTurns)</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         // APが残っている限り連続してアクティビティを実行</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :         activitiesExecuted := 0</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :         maxActivities := 10 // 無限ループを防ぐためのリミット</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         for activitiesExecuted &lt; maxActivities {</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 // アクション実行中に死亡した場合は処理を中断</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 if entity.HasComponent(world.Components.Dead) {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                         p.logger.Debug(&quot;エンティティが死亡したため処理中断&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L110"><span class="lineNum">     110</span>              :                 }</span>
+<span id="L111"><span class="lineNum">     111</span>              : </span>
+<span id="L112"><span class="lineNum">     112</span>              :                 // アクション決定</span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context, canSeePlayer)</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 // アクション実行</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 activityName := actorImpl.String()</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;アクティビティ決定&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName, &quot;state&quot;, context.Roaming.SubState, &quot;count&quot;, activitiesExecuted)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 if actorImpl == nil {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                         p.logger.Debug(&quot;アクション無し&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L121"><span class="lineNum">     121</span>              :                 }</span>
+<span id="L122"><span class="lineNum">     122</span>              : </span>
+<span id="L123"><span class="lineNum">     123</span>              :                 // アクティビティタイプに応じたAPコストを計算</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 actionCost := actorImpl.Info().ActionPointCost</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 if !turnManager.CanEntityAct(world, entity, actionCost) {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                         p.logger.Debug(&quot;AP不足でアクション実行不可&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName, &quot;cost&quot;, actionCost)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L128"><span class="lineNum">     128</span>              :                 }</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 result, err := manager.Execute(actorImpl, actionParams, world)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                         p.logger.Warn(&quot;AIアクション実行失敗&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName, &quot;error&quot;, err.Error())</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L134"><span class="lineNum">     134</span>              :                 }</span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;AIアクティビティ実行成功&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName, &quot;success&quot;, result.Success, &quot;state&quot;, context.Roaming.SubState, &quot;message&quot;, result.Message)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 activitiesExecuted++</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 // アクション失敗時は停止</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 if !result.Success {</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                         p.logger.Debug(&quot;アクション失敗により停止&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L143"><span class="lineNum">     143</span>              :                 }</span>
+<span id="L144"><span class="lineNum">     144</span>              :         }</span>
+<span id="L145"><span class="lineNum">     145</span>              : </span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIエンティティ処理完了&quot;, &quot;entity&quot;, entity, &quot;実行されたアクティビティ数&quot;, activitiesExecuted)</span></span>
+<span id="L147"><span class="lineNum">     147</span>              : }</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span>              : // EntityContext はAIエンティティの必要な情報をまとめる</span>
+<span id="L150"><span class="lineNum">     150</span>              : type EntityContext struct {</span>
+<span id="L151"><span class="lineNum">     151</span>              :         GridElement *gc.GridElement</span>
+<span id="L152"><span class="lineNum">     152</span>              :         Vision      *gc.AIVision</span>
+<span id="L153"><span class="lineNum">     153</span>              :         Roaming     *gc.AIRoaming</span>
+<span id="L154"><span class="lineNum">     154</span>              : }</span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              : // gatherEntityContext はエンティティから必要なコンポーネントを収集する</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 : func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*EntityContext, error) {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         // GridElementコンポーネント取得</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIエンティティ位置&quot;, &quot;entity&quot;, entity, &quot;x&quot;, gridElement.X, &quot;y&quot;, gridElement.Y)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         // AIVisionコンポーネント確認</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         aiVision := world.Components.AIVision.Get(entity)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         if aiVision == nil {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIVisionコンポーネントなし&quot;, Entity: entity}</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         vision := aiVision.(*gc.AIVision)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIVision設定&quot;, &quot;entity&quot;, entity, &quot;viewDistance&quot;, vision.ViewDistance)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         // AIRoamingコンポーネント確認</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         aiRoaming := world.Components.AIRoaming.Get(entity)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         if aiRoaming == nil {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIRoamingコンポーネントなし&quot;, Entity: entity}</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         roaming := aiRoaming.(*gc.AIRoaming)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         return &amp;EntityContext{</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 GridElement: gridElement,</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 Vision:      vision,</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 Roaming:     roaming,</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L182"><span class="lineNum">     182</span>              : }</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span>              : // findPlayer はプレイヤーエンティティを探す</span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : func (p *Processor) findPlayer(world w.World) *ecs.Entity {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         var playerEntity *ecs.Entity</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         world.Manager.Join(world.Components.Player, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 // 死亡しているエンティティは除外</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 if entity.HasComponent(world.Components.Dead) {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 playerEntity = &amp;entity</span></span>
+<span id="L194"><span class="lineNum">     194</span>              :         }))</span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         return playerEntity</span></span>
+<span id="L197"><span class="lineNum">     197</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

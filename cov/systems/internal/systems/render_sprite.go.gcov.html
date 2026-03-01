@@ -1,0 +1,556 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - systems/internal/systems/render_sprite.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">systems/internal/systems</a> - render_sprite.go<span style="font-size: 80%;"> (source / <a href="render_sprite.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">1.4&nbsp;%</td>
+            <td class="headerCovTableEntry">348</td>
+            <td class="headerCovTableEntry">5</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-03-01 02:52:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package systems</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;image&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;image/color&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;sort&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;strings&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/ebitenutil&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              : )</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : var (</span>
+<span id="L20"><span class="lineNum">      20</span>              :         wallShadowImage  *ebiten.Image // 壁が落とす影</span>
+<span id="L21"><span class="lineNum">      21</span>              :         moverShadowImage *ebiten.Image // 動く物体が落とす影</span>
+<span id="L22"><span class="lineNum">      22</span>              : )</span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // spriteImageCacheKey はスプライト画像キャッシュのキー</span>
+<span id="L25"><span class="lineNum">      25</span>              : // SpriteRenderには比較不能なフィールドが含まれていて直接使えないので定義する</span>
+<span id="L26"><span class="lineNum">      26</span>              : type spriteImageCacheKey struct {</span>
+<span id="L27"><span class="lineNum">      27</span>              :         SpriteSheetName string</span>
+<span id="L28"><span class="lineNum">      28</span>              :         SpriteKey       string</span>
+<span id="L29"><span class="lineNum">      29</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // RenderSpriteSystem はスプライト描画システム</span>
+<span id="L32"><span class="lineNum">      32</span>              : // キャッシュを保持し、描画処理を行う</span>
+<span id="L33"><span class="lineNum">      33</span>              : type RenderSpriteSystem struct {</span>
+<span id="L34"><span class="lineNum">      34</span>              :         spriteImageCache map[spriteImageCacheKey]*ebiten.Image</span>
+<span id="L35"><span class="lineNum">      35</span>              : }</span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              : // NewRenderSpriteSystem はRenderSpriteSystemを初期化する</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 : func NewRenderSpriteSystem() *RenderSpriteSystem {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         return &amp;RenderSpriteSystem{</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // SetTranslate はカメラを考慮した画像配置オプションをセットする</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 : func SetTranslate(world w.World, op *ebiten.DrawImageOptions) {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         var camera *gc.Camera</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         // カメラコンポーネントを取得</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 world.Components.Camera,</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 camera = world.Components.Camera.Get(entity).(*gc.Camera)</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         cx, cy := float64(world.Resources.ScreenDimensions.Width/2), float64(world.Resources.ScreenDimensions.Height/2)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         // カメラ位置の設定</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         if camera != nil {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(-camera.X, -camera.Y)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                 op.GeoM.Scale(camera.Scale, camera.Scale)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              :         // 画面の中央</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(cx, cy)</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : }</span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : // String はシステム名を返す</span>
+<span id="L67"><span class="lineNum">      67</span>              : // w.Renderer interfaceを実装</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 : func (sys RenderSpriteSystem) String() string {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         return &quot;RenderSpriteSystem&quot;</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span>              : // Draw は (下) タイル -&gt; 暗闇 -&gt; 光源グロー -&gt; 影 -&gt; スプライト (上) の順に表示する</span>
+<span id="L73"><span class="lineNum">      73</span>              : // w.Renderer interfaceを実装</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         // 現在の視界データを取得（全描画で使用）</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         visibilityData := GetCurrentVisibilityData()</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         // シャドウ画像を初期化</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         initializeShadowImages()</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         // 各種描画処理</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         if err := sys.renderFloorLayer(world, screen, visibilityData); err != nil { // 床レイヤー（タイル・アイテム）を描画</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         renderDistanceBasedDarkness(world, screen, visibilityData)               // 床タイルに暗闇オーバーレイ</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         sys.renderShadows(world, screen, visibilityData)                         // 影を描画</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         if err := sys.renderSprites(world, screen, visibilityData); err != nil { // 物体を描画</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L90"><span class="lineNum">      90</span>              : </span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L92"><span class="lineNum">      92</span>              : }</span>
+<span id="L93"><span class="lineNum">      93</span>              : </span>
+<span id="L94"><span class="lineNum">      94</span>              : // initializeShadowImages は影画像を初期化する</span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 : func initializeShadowImages() {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :         if wallShadowImage == nil {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 wallWidth := int(consts.TileSize)</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                 wallHeight := int(consts.TileSize / 2)</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 if wallWidth &gt; 0 &amp;&amp; wallHeight &gt; 0 {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :                         wallShadowImage = ebiten.NewImage(wallWidth, wallHeight)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                         wallShadowImage.Fill(color.RGBA{0, 0, 0, 80})</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L103"><span class="lineNum">     103</span>              :         }</span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :         if moverShadowImage == nil {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :                 moverWidth := int(consts.TileSize - 6 - 2)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 moverHeight := int(consts.TileSize / 2)</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 if moverWidth &gt; 0 &amp;&amp; moverHeight &gt; 0 {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                         moverShadowImage = ebiten.NewImage(moverWidth, moverHeight)</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                         moverShadowImage.Fill(color.RGBA{0, 0, 0, 120})</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L111"><span class="lineNum">     111</span>              :         }</span>
+<span id="L112"><span class="lineNum">     112</span>              : }</span>
+<span id="L113"><span class="lineNum">     113</span>              : </span>
+<span id="L114"><span class="lineNum">     114</span>              : // renderFloorLayer は床レイヤー（タイル・地面に落ちているアイテム）を描画する</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) error {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         iSprite := 0</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         entities := make([]ecs.Entity, world.Manager.Join(world.Components.SpriteRender, world.Components.GridElement).Size())</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 world.Components.Prop.Not(),</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 world.Components.TurnBased.Not(),</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 entities[iSprite] = entity</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 iSprite++</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         sort.Slice(entities[:iSprite], func(i, j int) bool {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                 spriteRender1 := world.Components.SpriteRender.Get(entities[i]).(*gc.SpriteRender)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 spriteRender2 := world.Components.SpriteRender.Get(entities[j]).(*gc.SpriteRender)</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                 return spriteRender1.Depth &lt; spriteRender2.Depth</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : </span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         for i := 0; i &lt; iSprite; i++ {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 entity := entities[i]</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 // 視界チェック - 視界内または探索済みのタイルのみ描画</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 if visibilityData != nil {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                         tileKey := fmt.Sprintf(&quot;%d,%d&quot;, gridElement.X, gridElement.Y)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                         if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                                 // 探索済みかどうかもチェック</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                                 if !world.Resources.Dungeon.ExploredTiles[*gridElement] {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                                         continue // 未探索かつ視界外のタイルは描画しない</span></span>
+<span id="L145"><span class="lineNum">     145</span>              :                                 }</span>
+<span id="L146"><span class="lineNum">     146</span>              :                         }</span>
+<span id="L147"><span class="lineNum">     147</span>              :                 }</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 pos := &amp;gc.Position{</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                         X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize/2)),</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                         Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize/2)),</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :                 if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                         // エンティティ情報を追加してエラーを詳細化</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                         var entityInfo string</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                         if entity.HasComponent(world.Components.Name) {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                                 name := world.Components.Name.Get(entity).(*gc.Name)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                                 entityInfo = fmt.Sprintf(&quot;Name: %s&quot;, name.Name)</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;entity %d at (%d,%d), SpriteSheet: '%s', SpriteKey: '%s', %s: %w&quot;,</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                                 entity, gridElement.X, gridElement.Y, spriteRender.SpriteSheetName, spriteRender.SpriteKey, entityInfo, err)</span></span>
+<span id="L163"><span class="lineNum">     163</span>              :                 }</span>
+<span id="L164"><span class="lineNum">     164</span>              :         }</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L166"><span class="lineNum">     166</span>              : }</span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              : // renderSprites はスプライトを描画する</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) renderSprites(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) error {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         var entities []ecs.Entity</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         // Props を収集</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 world.Components.Prop,</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 entities = append(entities, entity)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : </span>
+<span id="L181"><span class="lineNum">     181</span>              :         // Movers を収集</span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 world.Components.TurnBased,</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                 entities = append(entities, entity)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L189"><span class="lineNum">     189</span>              : </span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         sort.Slice(entities, func(i, j int) bool {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 spriteRender1 := world.Components.SpriteRender.Get(entities[i]).(*gc.SpriteRender)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 spriteRender2 := world.Components.SpriteRender.Get(entities[j]).(*gc.SpriteRender)</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 return spriteRender1.Depth &lt; spriteRender2.Depth</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span>              :         // 描画</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         for _, entity := range entities {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 // 視界チェック - 視界内のもののみ描画</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 if visibilityData != nil {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                         tileKey := fmt.Sprintf(&quot;%d,%d&quot;, gridElement.X, gridElement.Y)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                         if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L205"><span class="lineNum">     205</span>              :                         }</span>
+<span id="L206"><span class="lineNum">     206</span>              :                 }</span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
+<span id="L208"><span class="lineNum">     208</span>              :                 // 光源チェック - 光がある場所のみ描画（完全に暗い場所は描画しない）</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 lightInfo := getCachedLightInfo(world, int(gridElement.X), int(gridElement.Y))</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 if lightInfo.Darkness &gt;= 1.0 {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                         continue // 完全に暗い場所は描画しない</span></span>
+<span id="L212"><span class="lineNum">     212</span>              :                 }</span>
+<span id="L213"><span class="lineNum">     213</span>              : </span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 pos := &amp;gc.Position{</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                         X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                         Y: consts.Pixel(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2),</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 if err := sys.drawImage(world, screen, spriteRender, pos, 0); err != nil {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L222"><span class="lineNum">     222</span>              :         }</span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L224"><span class="lineNum">     224</span>              : }</span>
+<span id="L225"><span class="lineNum">     225</span>              : </span>
+<span id="L226"><span class="lineNum">     226</span>              : // renderShadows は物体と壁の影を描画する</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image, visibilityData map[string]TileVisibility) {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         // 物体の影</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 // TurnBased または Prop を持つエンティティのみ</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 if !entity.HasComponent(world.Components.TurnBased) &amp;&amp; !entity.HasComponent(world.Components.Prop) {</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L237"><span class="lineNum">     237</span>              : </span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 // 高さのあるものだけが影を落とす</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth &lt;= gc.DepthNumRug {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L244"><span class="lineNum">     244</span>              : </span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                 // 視界チェック</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                 if visibilityData != nil {</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                         tileKey := fmt.Sprintf(&quot;%d,%d&quot;, gridElement.X, gridElement.Y)</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                         if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                                 return</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L253"><span class="lineNum">     253</span>              :                 }</span>
+<span id="L254"><span class="lineNum">     254</span>              : </span>
+<span id="L255"><span class="lineNum">     255</span>              :                 // 光源範囲外では影を描画しない</span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 lightInfo := getCachedLightInfo(world, int(gridElement.X), int(gridElement.Y))</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 if lightInfo.Darkness &gt;= 1.0 {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L260"><span class="lineNum">     260</span>              : </span>
+<span id="L261"><span class="lineNum">     261</span>              :                 // グリッド座標をピクセル座標に変換</span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                 pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2 - 12)</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(pixelX, pixelY)</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 SetTranslate(world, op)</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 if moverShadowImage != nil {</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                         screen.DrawImage(moverShadowImage, op)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L271"><span class="lineNum">     271</span>              :         }))</span>
+<span id="L272"><span class="lineNum">     272</span>              : </span>
+<span id="L273"><span class="lineNum">     273</span>              :         // 壁の影（下タイルが床の場合のみ）</span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         tileMap := make(map[gc.GridElement]ecs.Entity)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(e ecs.Entity) {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                 ge := world.Components.GridElement.Get(e).(*gc.GridElement)</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 tileMap[*ge] = e</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         }))</span></span>
+<span id="L282"><span class="lineNum">     282</span>              : </span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 world.Components.SpriteRender,</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 world.Components.GridElement,</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :                 world.Components.BlockView,</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 world.Components.BlockPass,</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                 grid := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 // 視界チェック</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                 if visibilityData != nil {</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         tileKey := fmt.Sprintf(&quot;%d,%d&quot;, grid.X, grid.Y)</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                         if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                                 return</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L297"><span class="lineNum">     297</span>              :                 }</span>
+<span id="L298"><span class="lineNum">     298</span>              : </span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaUNC">           0 :                 spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                 // 高さのあるものだけが影を落とす</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 if spriteRender.Depth &lt;= gc.DepthNumRug {</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L305"><span class="lineNum">     305</span>              : </span>
+<span id="L306"><span class="lineNum">     306</span>              :                 // 下のタイルを検索</span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 belowPos := gc.GridElement{X: grid.X, Y: grid.Y + 1}</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 belowTileEntity, foundBelow := tileMap[belowPos]</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                 if !foundBelow {</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L313"><span class="lineNum">     313</span>              : </span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 belowSpriteRender, ok := world.Components.SpriteRender.Get(belowTileEntity).(*gc.SpriteRender)</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 if !ok || belowSpriteRender.Depth != gc.DepthNumFloor {</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                         return // 下が床でなければ影を描画しない</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L318"><span class="lineNum">     318</span>              : </span>
+<span id="L319"><span class="lineNum">     319</span>              :                 // 下のタイルが壁でないことも確認（壁-&gt;床-&gt;壁の場合は影を描画しない）</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 if belowTileEntity.HasComponent(world.Components.BlockView) &amp;&amp; belowTileEntity.HasComponent(world.Components.BlockPass) {</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L323"><span class="lineNum">     323</span>              : </span>
+<span id="L324"><span class="lineNum">     324</span>              :                 // 影が落ちる位置（下のタイル）の光源情報を取得</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaUNC">           0 :                 belowX := int(belowPos.X)</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaUNC">           0 :                 belowY := int(belowPos.Y)</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 :                 lightInfo := getCachedLightInfo(world, belowX, belowY)</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :                 // 光源範囲外では影を描画しない</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :                 if lightInfo.Darkness &gt;= 1.0 {</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L333"><span class="lineNum">     333</span>              : </span>
+<span id="L334"><span class="lineNum">     334</span>              :                 // 光源の明るさに応じて影の透明度を調整</span>
+<span id="L335"><span class="lineNum">     335</span>              :                 // Darkness: 0.0(明るい) → 影薄い、1.0(暗い) → 影濃い</span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 baseShadowAlpha := 80.0</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                 shadowAlpha := uint8(baseShadowAlpha * lightInfo.Darkness)</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                 // 影の透明度が非常に小さい場合は描画しない（最適化）</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 if shadowAlpha &lt; 5 {</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L343"><span class="lineNum">     343</span>              : </span>
+<span id="L344"><span class="lineNum">     344</span>              :                 // 影画像を生成（キャッシュあり）</span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 wallShadow := sys.getWallShadowImage(shadowAlpha)</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 if wallShadow == nil {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                         return</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L349"><span class="lineNum">     349</span>              : </span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                 op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 SetTranslate(world, op)</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                 screen.DrawImage(wallShadow, op)</span></span>
+<span id="L354"><span class="lineNum">     354</span>              :         }))</span>
+<span id="L355"><span class="lineNum">     355</span>              : }</span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span>              : // getWallShadowImage は指定した透明度の壁の影画像を取得する</span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) getWallShadowImage(alpha uint8) *ebiten.Image {</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         // キャッシュキーを生成</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         cacheKey := spriteImageCacheKey{</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :                 SpriteSheetName: &quot;wall_shadow&quot;,</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 SpriteKey:       fmt.Sprintf(&quot;alpha_%d&quot;, alpha),</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :         // キャッシュから取得</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :         if img, exists := sys.spriteImageCache[cacheKey]; exists {</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                 return img</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L369"><span class="lineNum">     369</span>              : </span>
+<span id="L370"><span class="lineNum">     370</span>              :         // 新規作成</span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         wallWidth := int(consts.TileSize)</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         wallHeight := int(consts.TileSize / 2)</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         if wallWidth &lt;= 0 || wallHeight &lt;= 0 {</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L376"><span class="lineNum">     376</span>              : </span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :         img := ebiten.NewImage(wallWidth, wallHeight)</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         img.Fill(color.RGBA{0, 0, 0, alpha})</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :         sys.spriteImageCache[cacheKey] = img</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         return img</span></span>
+<span id="L383"><span class="lineNum">     383</span>              : }</span>
+<span id="L384"><span class="lineNum">     384</span>              : </span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRender) (*ebiten.Image, error) {</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         var result *ebiten.Image</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :         key := spriteImageCacheKey{</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 SpriteSheetName: spriteRender.SpriteSheetName,</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                 SpriteKey:       spriteRender.SpriteKey,</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         if v, ok := sys.spriteImageCache[key]; ok {</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 result = v</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 // Resourcesからスプライトシートを取得</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 if world.Resources.SpriteSheets == nil {</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;SpriteSheets が nil です&quot;)</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaUNC">           0 :                 spriteSheet, exists := (*world.Resources.SpriteSheets)[spriteRender.SpriteSheetName]</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;スプライトシート '%s' が見つかりません&quot;, spriteRender.SpriteSheetName)</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L402"><span class="lineNum">     402</span>              : </span>
+<span id="L403"><span class="lineNum">     403</span>              :                 // スプライトキーからスプライトを取得</span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :                 sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;スプライトキー '%s' がスプライトシート '%s' に存在しません&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :                 texture := spriteSheet.Texture</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 textureWidth := texture.Image.Bounds().Dx()</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :                 textureHeight := texture.Image.Bounds().Dy()</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :                 left := max(0, sprite.X)</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                 right := min(textureWidth, sprite.X+sprite.Width)</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :                 top := max(0, sprite.Y)</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :                 bottom := min(textureHeight, sprite.Y+sprite.Height)</span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :                 result = texture.Image.SubImage(image.Rect(left, top, right, bottom)).(*ebiten.Image)</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :                 sys.spriteImageCache[key] = result</span></span>
+<span id="L420"><span class="lineNum">     420</span>              :         }</span>
+<span id="L421"><span class="lineNum">     421</span>              : </span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         return result, nil</span></span>
+<span id="L423"><span class="lineNum">     423</span>              : }</span>
+<span id="L424"><span class="lineNum">     424</span>              : </span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 : func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, spriteRender *gc.SpriteRender, pos *gc.Position, angle float64) error {</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 :         // Resourcesからスプライトシートを取得</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;SpriteSheets が nil です&quot;)</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :         spriteSheet, exists := (*world.Resources.SpriteSheets)[spriteRender.SpriteSheetName]</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スプライトシート '%s' が見つかりません&quot;, spriteRender.SpriteSheetName)</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L434"><span class="lineNum">     434</span>              : </span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :         sprite, exists := spriteSheet.Sprites[spriteRender.SpriteKey]</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スプライトキー '%s' がスプライトシート '%s' に存在しません&quot;, spriteRender.SpriteKey, spriteRender.SpriteSheetName)</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L439"><span class="lineNum">     439</span>              : </span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         op := &amp;spriteRender.Options</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         op.GeoM.Reset()                                                       // FIXME: Resetがないと非表示になる。なぜ?</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(float64(-sprite.Width/2), float64(-sprite.Width/2)) // 回転軸を画像の中心にする</span></span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :         op.GeoM.Rotate(angle)</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(float64(pos.X), float64(pos.Y))</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :         SetTranslate(world, op)</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :         img, err := sys.getImage(world, spriteRender)</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :         screen.DrawImage(img, op)</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :         if world.Config.ShowMapDebug {</span></span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :                 // デバッグ用：スプライト番号表示(dirt, dwall)</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :                 if spriteRender.SpriteSheetName == &quot;tile&quot; {</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :                         var number string</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :                         var prefix string</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :                         if strings.HasPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;) {</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :                                 number = strings.TrimPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;)</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :                                 prefix = &quot;d&quot;</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :                         } else if strings.HasPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;) {</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :                                 number = strings.TrimPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;)</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :                                 prefix = &quot;w&quot;</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L465"><span class="lineNum">     465</span>              : </span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :                         if number != &quot;&quot; {</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                                 // カメラ変換を考慮したテキスト位置を計算</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                                 textOp := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                                 textOp.GeoM.Translate(float64(pos.X-8), float64(pos.Y-8)) // タイルの左上付近に表示</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                                 SetTranslate(world, textOp)</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                                 // テキスト表示位置を逆変換で求める</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                                 screenX, screenY := textOp.GeoM.Apply(0, 0)</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                                 ebitenutil.DebugPrintAt(screen, prefix+number, int(screenX), int(screenY))</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L476"><span class="lineNum">     476</span>              :                 }</span>
+<span id="L477"><span class="lineNum">     477</span>              :         }</span>
+<span id="L478"><span class="lineNum">     478</span>              : </span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L480"><span class="lineNum">     480</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
