@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-01 03:08:31</td>
+            <td class="headerValue">2026-03-01 14:20:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 destY := int(aiGrid.Y) + candidate.y</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 if movement.CanMoveTo(world, destX, destY, aiEntity) {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                         dest := gc.Position{X: consts.Pixel(destX), Y: consts.Pixel(destY)}</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                         dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                         return &amp;activity.MoveActivity{}, activity.ActionParams{</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                                 Actor:       aiEntity,</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                                 Destination: &amp;dest,</span></span>
@@ -174,7 +174,7 @@
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 destY := int(aiGrid.Y) + direction.y</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 if movement.CanMoveTo(world, destX, destY, aiEntity) {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                         dest := gc.Position{X: consts.Pixel(destX), Y: consts.Pixel(destY)}</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                         dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}</span></span>
 <span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                         return &amp;activity.MoveActivity{}, activity.ActionParams{</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                                 Actor:       aiEntity,</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                                 Destination: &amp;dest,</span></span>

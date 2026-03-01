@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">3.2&nbsp;%</td>
-            <td class="headerCovTableEntry">749</td>
+            <td class="headerCovTableEntry">748</td>
             <td class="headerCovTableEntry">24</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-01 03:08:31</td>
+            <td class="headerValue">2026-03-01 14:20:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -837,133 +837,132 @@
 <span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;failed to get player entity: %w&quot;, err)</span></span>
 <span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L777"><span class="lineNum">     777</span>              : </span>
-<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :                         manager := world.Resources.ActivityManager.(*activity.Manager)</span></span>
-<span id="L779"><span class="lineNum">     779</span> <span class="tlaUNC">           0 :                         if _, err := activity.ExecuteInteraction(manager, playerEntity, action.Target, world); err != nil {</span></span>
-<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;アクション実行失敗: %w&quot;, err)</span></span>
-<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L782"><span class="lineNum">     782</span>              : </span>
-<span id="L783"><span class="lineNum">     783</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L784"><span class="lineNum">     784</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L785"><span class="lineNum">     785</span>              :                 })</span>
-<span id="L786"><span class="lineNum">     786</span>              :         }</span>
-<span id="L787"><span class="lineNum">     787</span>              : </span>
-<span id="L788"><span class="lineNum">     788</span>              :         // キャンセル用の「閉じる」選択肢を追加</span>
-<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :         messageState.messageData = messageState.messageData.WithChoice(&quot;キャンセル&quot;, func(_ w.World) error {</span></span>
-<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L792"><span class="lineNum">     792</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L793"><span class="lineNum">     793</span>              : </span>
-<span id="L794"><span class="lineNum">     794</span> <span class="tlaUNC">           0 :         return messageState</span></span>
-<span id="L795"><span class="lineNum">     795</span>              : }</span>
-<span id="L796"><span class="lineNum">     796</span>              : </span>
-<span id="L797"><span class="lineNum">     797</span>              : // NewMerchantDialogState は商人との会話ステートを作成</span>
-<span id="L798"><span class="lineNum">     798</span> <span class="tlaUNC">           0 : func NewMerchantDialogState(speakerName string) es.State[w.World] {</span></span>
-<span id="L799"><span class="lineNum">     799</span> <span class="tlaUNC">           0 :         persistentState := NewPersistentMessageState(nil)</span></span>
-<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L801"><span class="lineNum">     801</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L802"><span class="lineNum">     802</span> <span class="tlaUNC">           0 :                 AddText(`何か取引しないかい?</span></span>
-<span id="L803"><span class="lineNum">     803</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 : いい物揃ってるよ。`).</span></span>
-<span id="L805"><span class="lineNum">     805</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;見る&quot;, func(_ w.World) error {</span></span>
-<span id="L806"><span class="lineNum">     806</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L807"><span class="lineNum">     807</span> <span class="tlaUNC">           0 :                                 Type:          es.TransPush,</span></span>
-<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},</span></span>
-<span id="L809"><span class="lineNum">     809</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC">           0 :                 }).</span></span>
-<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;用は無い&quot;, func(_ w.World) error {</span></span>
-<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L815"><span class="lineNum">     815</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L816"><span class="lineNum">     816</span>              : </span>
-<span id="L817"><span class="lineNum">     817</span> <span class="tlaUNC">           0 :         return persistentState</span></span>
-<span id="L818"><span class="lineNum">     818</span>              : }</span>
-<span id="L819"><span class="lineNum">     819</span>              : </span>
-<span id="L820"><span class="lineNum">     820</span>              : // NewDoctorDialogState は怪しい科学者との会話ステートを作成</span>
-<span id="L821"><span class="lineNum">     821</span> <span class="tlaUNC">           0 : func NewDoctorDialogState(speakerName string) es.State[w.World] {</span></span>
-<span id="L822"><span class="lineNum">     822</span> <span class="tlaUNC">           0 :         persistentState := NewPersistentMessageState(nil)</span></span>
-<span id="L823"><span class="lineNum">     823</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L824"><span class="lineNum">     824</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L825"><span class="lineNum">     825</span> <span class="tlaUNC">           0 :                 AddText(`フフフ...わしの秘密の技術で物質再構築してやろう</span></span>
-<span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L827"><span class="lineNum">     827</span> <span class="tlaUNC">           0 : 地髄と素材を持ってくるのじゃ!`).</span></span>
-<span id="L828"><span class="lineNum">     828</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;合成したい&quot;, func(_ w.World) error {</span></span>
-<span id="L829"><span class="lineNum">     829</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L830"><span class="lineNum">     830</span> <span class="tlaUNC">           0 :                                 Type:          es.TransPush,</span></span>
-<span id="L831"><span class="lineNum">     831</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},</span></span>
-<span id="L832"><span class="lineNum">     832</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L833"><span class="lineNum">     833</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L834"><span class="lineNum">     834</span> <span class="tlaUNC">           0 :                 }).</span></span>
-<span id="L835"><span class="lineNum">     835</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;用は無い&quot;, func(_ w.World) error {</span></span>
-<span id="L836"><span class="lineNum">     836</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L837"><span class="lineNum">     837</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L838"><span class="lineNum">     838</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L839"><span class="lineNum">     839</span>              : </span>
-<span id="L840"><span class="lineNum">     840</span> <span class="tlaUNC">           0 :         return persistentState</span></span>
-<span id="L841"><span class="lineNum">     841</span>              : }</span>
-<span id="L842"><span class="lineNum">     842</span>              : </span>
-<span id="L843"><span class="lineNum">     843</span>              : // NewDarkDoctorDialogState は闇医者との会話ステートを作成</span>
-<span id="L844"><span class="lineNum">     844</span> <span class="tlaUNC">           0 : func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.World] {</span></span>
-<span id="L845"><span class="lineNum">     845</span> <span class="tlaUNC">           0 :         persistentState := NewPersistentMessageState(nil)</span></span>
-<span id="L846"><span class="lineNum">     846</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :         // プレイヤーの所持金を確認</span></span>
-<span id="L848"><span class="lineNum">     848</span> <span class="tlaUNC">           0 :         player, _ := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L849"><span class="lineNum">     849</span> <span class="tlaUNC">           0 :         requiredAmount := 10000000 // 1000万CZ</span></span>
-<span id="L850"><span class="lineNum">     850</span> <span class="tlaUNC">           0 :         hasEnoughMoney := worldhelper.HasCurrency(world, player, requiredAmount)</span></span>
-<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L852"><span class="lineNum">     852</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L853"><span class="lineNum">     853</span> <span class="tlaUNC">           0 :                 AddText(`治療費1000万CZを用意できたかい?`)</span></span>
-<span id="L854"><span class="lineNum">     854</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L855"><span class="lineNum">     855</span> <span class="tlaUNC">           0 :         // 1000万CZ以上持っている場合のみ「はい」選択肢を表示</span></span>
-<span id="L856"><span class="lineNum">     856</span> <span class="tlaUNC">           0 :         if hasEnoughMoney {</span></span>
-<span id="L857"><span class="lineNum">     857</span> <span class="tlaUNC">           0 :                 persistentState.messageData = persistentState.messageData.WithChoice(&quot;はい&quot;, func(world w.World) error {</span></span>
-<span id="L858"><span class="lineNum">     858</span> <span class="tlaUNC">           0 :                         // 通貨を消費</span></span>
-<span id="L859"><span class="lineNum">     859</span> <span class="tlaUNC">           0 :                         if worldhelper.ConsumeCurrency(world, player, requiredAmount) {</span></span>
-<span id="L860"><span class="lineNum">     860</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L861"><span class="lineNum">     861</span> <span class="tlaUNC">           0 :                                         Type:          es.TransSwitch,</span></span>
-<span id="L862"><span class="lineNum">     862</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},</span></span>
-<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC">           0 :                                 })</span></span>
-<span id="L864"><span class="lineNum">     864</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L865"><span class="lineNum">     865</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L866"><span class="lineNum">     866</span>              :                 })</span>
-<span id="L867"><span class="lineNum">     867</span>              :         }</span>
-<span id="L868"><span class="lineNum">     868</span>              : </span>
-<span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :         persistentState.messageData = persistentState.messageData.WithChoice(&quot;まだだ&quot;, func(_ w.World) error {</span></span>
-<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L871"><span class="lineNum">     871</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L872"><span class="lineNum">     872</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L873"><span class="lineNum">     873</span>              : </span>
-<span id="L874"><span class="lineNum">     874</span> <span class="tlaUNC">           0 :         return persistentState</span></span>
-<span id="L875"><span class="lineNum">     875</span>              : }</span>
-<span id="L876"><span class="lineNum">     876</span>              : </span>
-<span id="L877"><span class="lineNum">     877</span>              : // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数</span>
-<span id="L878"><span class="lineNum">     878</span> <span class="tlaUNC">           0 : func NewDungeonSelectState() es.State[w.World] {</span></span>
-<span id="L879"><span class="lineNum">     879</span> <span class="tlaUNC">           0 :         messageState := &amp;MessageState{}</span></span>
-<span id="L880"><span class="lineNum">     880</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L881"><span class="lineNum">     881</span> <span class="tlaUNC">           0 :         // ダンジョン一覧を取得</span></span>
-<span id="L882"><span class="lineNum">     882</span> <span class="tlaUNC">           0 :         dungeons := dungeon.GetAllDungeons()</span></span>
-<span id="L883"><span class="lineNum">     883</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L884"><span class="lineNum">     884</span> <span class="tlaUNC">           0 :         // 選択肢を動的に生成する</span></span>
-<span id="L885"><span class="lineNum">     885</span> <span class="tlaUNC">           0 :         msg := messagedata.NewSystemMessage(&quot;&quot;)</span></span>
-<span id="L886"><span class="lineNum">     886</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L887"><span class="lineNum">     887</span> <span class="tlaUNC">           0 :         for _, d := range dungeons {</span></span>
-<span id="L888"><span class="lineNum">     888</span> <span class="tlaUNC">           0 :                 msg = msg.WithChoice(d.Name, func(_ w.World) error {</span></span>
-<span id="L889"><span class="lineNum">     889</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{</span></span>
-<span id="L890"><span class="lineNum">     890</span> <span class="tlaUNC">           0 :                                 Type:          es.TransReplace,</span></span>
-<span id="L891"><span class="lineNum">     891</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(d.Name))},</span></span>
-<span id="L892"><span class="lineNum">     892</span> <span class="tlaUNC">           0 :                         })</span></span>
-<span id="L893"><span class="lineNum">     893</span> <span class="tlaUNC">           0 :                         return nil</span></span>
-<span id="L894"><span class="lineNum">     894</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L895"><span class="lineNum">     895</span>              :         }</span>
-<span id="L896"><span class="lineNum">     896</span>              : </span>
-<span id="L897"><span class="lineNum">     897</span> <span class="tlaUNC">           0 :         msg = msg.WithChoice(&quot;戻る&quot;, func(_ w.World) error {</span></span>
-<span id="L898"><span class="lineNum">     898</span> <span class="tlaUNC">           0 :                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
-<span id="L899"><span class="lineNum">     899</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L900"><span class="lineNum">     900</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L901"><span class="lineNum">     901</span>              : </span>
-<span id="L902"><span class="lineNum">     902</span> <span class="tlaUNC">           0 :         messageState.messageData = msg</span></span>
-<span id="L903"><span class="lineNum">     903</span> <span class="tlaUNC">           0 :         return messageState</span></span>
-<span id="L904"><span class="lineNum">     904</span>              : }</span>
+<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :                         if _, err := activity.ExecuteInteraction(playerEntity, action.Target, world); err != nil {</span></span>
+<span id="L779"><span class="lineNum">     779</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;アクション実行失敗: %w&quot;, err)</span></span>
+<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L781"><span class="lineNum">     781</span>              : </span>
+<span id="L782"><span class="lineNum">     782</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L783"><span class="lineNum">     783</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L784"><span class="lineNum">     784</span>              :                 })</span>
+<span id="L785"><span class="lineNum">     785</span>              :         }</span>
+<span id="L786"><span class="lineNum">     786</span>              : </span>
+<span id="L787"><span class="lineNum">     787</span>              :         // キャンセル用の「閉じる」選択肢を追加</span>
+<span id="L788"><span class="lineNum">     788</span> <span class="tlaUNC">           0 :         messageState.messageData = messageState.messageData.WithChoice(&quot;キャンセル&quot;, func(_ w.World) error {</span></span>
+<span id="L789"><span class="lineNum">     789</span> <span class="tlaUNC">           0 :                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L790"><span class="lineNum">     790</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L791"><span class="lineNum">     791</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L792"><span class="lineNum">     792</span>              : </span>
+<span id="L793"><span class="lineNum">     793</span> <span class="tlaUNC">           0 :         return messageState</span></span>
+<span id="L794"><span class="lineNum">     794</span>              : }</span>
+<span id="L795"><span class="lineNum">     795</span>              : </span>
+<span id="L796"><span class="lineNum">     796</span>              : // NewMerchantDialogState は商人との会話ステートを作成</span>
+<span id="L797"><span class="lineNum">     797</span> <span class="tlaUNC">           0 : func NewMerchantDialogState(speakerName string) es.State[w.World] {</span></span>
+<span id="L798"><span class="lineNum">     798</span> <span class="tlaUNC">           0 :         persistentState := NewPersistentMessageState(nil)</span></span>
+<span id="L799"><span class="lineNum">     799</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L800"><span class="lineNum">     800</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L801"><span class="lineNum">     801</span> <span class="tlaUNC">           0 :                 AddText(`何か取引しないかい?</span></span>
+<span id="L802"><span class="lineNum">     802</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L803"><span class="lineNum">     803</span> <span class="tlaUNC">           0 : いい物揃ってるよ。`).</span></span>
+<span id="L804"><span class="lineNum">     804</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;見る&quot;, func(_ w.World) error {</span></span>
+<span id="L805"><span class="lineNum">     805</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{</span></span>
+<span id="L806"><span class="lineNum">     806</span> <span class="tlaUNC">           0 :                                 Type:          es.TransPush,</span></span>
+<span id="L807"><span class="lineNum">     807</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},</span></span>
+<span id="L808"><span class="lineNum">     808</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L809"><span class="lineNum">     809</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L810"><span class="lineNum">     810</span> <span class="tlaUNC">           0 :                 }).</span></span>
+<span id="L811"><span class="lineNum">     811</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;用は無い&quot;, func(_ w.World) error {</span></span>
+<span id="L812"><span class="lineNum">     812</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L813"><span class="lineNum">     813</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L814"><span class="lineNum">     814</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L815"><span class="lineNum">     815</span>              : </span>
+<span id="L816"><span class="lineNum">     816</span> <span class="tlaUNC">           0 :         return persistentState</span></span>
+<span id="L817"><span class="lineNum">     817</span>              : }</span>
+<span id="L818"><span class="lineNum">     818</span>              : </span>
+<span id="L819"><span class="lineNum">     819</span>              : // NewDoctorDialogState は怪しい科学者との会話ステートを作成</span>
+<span id="L820"><span class="lineNum">     820</span> <span class="tlaUNC">           0 : func NewDoctorDialogState(speakerName string) es.State[w.World] {</span></span>
+<span id="L821"><span class="lineNum">     821</span> <span class="tlaUNC">           0 :         persistentState := NewPersistentMessageState(nil)</span></span>
+<span id="L822"><span class="lineNum">     822</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L823"><span class="lineNum">     823</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L824"><span class="lineNum">     824</span> <span class="tlaUNC">           0 :                 AddText(`フフフ...わしの秘密の技術で物質再構築してやろう</span></span>
+<span id="L825"><span class="lineNum">     825</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L826"><span class="lineNum">     826</span> <span class="tlaUNC">           0 : 地髄と素材を持ってくるのじゃ!`).</span></span>
+<span id="L827"><span class="lineNum">     827</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;合成したい&quot;, func(_ w.World) error {</span></span>
+<span id="L828"><span class="lineNum">     828</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{</span></span>
+<span id="L829"><span class="lineNum">     829</span> <span class="tlaUNC">           0 :                                 Type:          es.TransPush,</span></span>
+<span id="L830"><span class="lineNum">     830</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewCraftMenuState},</span></span>
+<span id="L831"><span class="lineNum">     831</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L832"><span class="lineNum">     832</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L833"><span class="lineNum">     833</span> <span class="tlaUNC">           0 :                 }).</span></span>
+<span id="L834"><span class="lineNum">     834</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;用は無い&quot;, func(_ w.World) error {</span></span>
+<span id="L835"><span class="lineNum">     835</span> <span class="tlaUNC">           0 :                         persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L836"><span class="lineNum">     836</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L837"><span class="lineNum">     837</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L838"><span class="lineNum">     838</span>              : </span>
+<span id="L839"><span class="lineNum">     839</span> <span class="tlaUNC">           0 :         return persistentState</span></span>
+<span id="L840"><span class="lineNum">     840</span>              : }</span>
+<span id="L841"><span class="lineNum">     841</span>              : </span>
+<span id="L842"><span class="lineNum">     842</span>              : // NewDarkDoctorDialogState は闇医者との会話ステートを作成</span>
+<span id="L843"><span class="lineNum">     843</span> <span class="tlaUNC">           0 : func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.World] {</span></span>
+<span id="L844"><span class="lineNum">     844</span> <span class="tlaUNC">           0 :         persistentState := NewPersistentMessageState(nil)</span></span>
+<span id="L845"><span class="lineNum">     845</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L846"><span class="lineNum">     846</span> <span class="tlaUNC">           0 :         // プレイヤーの所持金を確認</span></span>
+<span id="L847"><span class="lineNum">     847</span> <span class="tlaUNC">           0 :         player, _ := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L848"><span class="lineNum">     848</span> <span class="tlaUNC">           0 :         requiredAmount := 10000000 // 1000万CZ</span></span>
+<span id="L849"><span class="lineNum">     849</span> <span class="tlaUNC">           0 :         hasEnoughMoney := worldhelper.HasCurrency(world, player, requiredAmount)</span></span>
+<span id="L850"><span class="lineNum">     850</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L851"><span class="lineNum">     851</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
+<span id="L852"><span class="lineNum">     852</span> <span class="tlaUNC">           0 :                 AddText(`治療費1000万CZを用意できたかい?`)</span></span>
+<span id="L853"><span class="lineNum">     853</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L854"><span class="lineNum">     854</span> <span class="tlaUNC">           0 :         // 1000万CZ以上持っている場合のみ「はい」選択肢を表示</span></span>
+<span id="L855"><span class="lineNum">     855</span> <span class="tlaUNC">           0 :         if hasEnoughMoney {</span></span>
+<span id="L856"><span class="lineNum">     856</span> <span class="tlaUNC">           0 :                 persistentState.messageData = persistentState.messageData.WithChoice(&quot;はい&quot;, func(world w.World) error {</span></span>
+<span id="L857"><span class="lineNum">     857</span> <span class="tlaUNC">           0 :                         // 通貨を消費</span></span>
+<span id="L858"><span class="lineNum">     858</span> <span class="tlaUNC">           0 :                         if worldhelper.ConsumeCurrency(world, player, requiredAmount) {</span></span>
+<span id="L859"><span class="lineNum">     859</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
+<span id="L860"><span class="lineNum">     860</span> <span class="tlaUNC">           0 :                                         Type:          es.TransSwitch,</span></span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},</span></span>
+<span id="L862"><span class="lineNum">     862</span> <span class="tlaUNC">           0 :                                 })</span></span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L864"><span class="lineNum">     864</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L865"><span class="lineNum">     865</span>              :                 })</span>
+<span id="L866"><span class="lineNum">     866</span>              :         }</span>
+<span id="L867"><span class="lineNum">     867</span>              : </span>
+<span id="L868"><span class="lineNum">     868</span> <span class="tlaUNC">           0 :         persistentState.messageData = persistentState.messageData.WithChoice(&quot;まだだ&quot;, func(_ w.World) error {</span></span>
+<span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :                 persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L871"><span class="lineNum">     871</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L872"><span class="lineNum">     872</span>              : </span>
+<span id="L873"><span class="lineNum">     873</span> <span class="tlaUNC">           0 :         return persistentState</span></span>
+<span id="L874"><span class="lineNum">     874</span>              : }</span>
+<span id="L875"><span class="lineNum">     875</span>              : </span>
+<span id="L876"><span class="lineNum">     876</span>              : // NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数</span>
+<span id="L877"><span class="lineNum">     877</span> <span class="tlaUNC">           0 : func NewDungeonSelectState() es.State[w.World] {</span></span>
+<span id="L878"><span class="lineNum">     878</span> <span class="tlaUNC">           0 :         messageState := &amp;MessageState{}</span></span>
+<span id="L879"><span class="lineNum">     879</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L880"><span class="lineNum">     880</span> <span class="tlaUNC">           0 :         // ダンジョン一覧を取得</span></span>
+<span id="L881"><span class="lineNum">     881</span> <span class="tlaUNC">           0 :         dungeons := dungeon.GetAllDungeons()</span></span>
+<span id="L882"><span class="lineNum">     882</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L883"><span class="lineNum">     883</span> <span class="tlaUNC">           0 :         // 選択肢を動的に生成する</span></span>
+<span id="L884"><span class="lineNum">     884</span> <span class="tlaUNC">           0 :         msg := messagedata.NewSystemMessage(&quot;&quot;)</span></span>
+<span id="L885"><span class="lineNum">     885</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L886"><span class="lineNum">     886</span> <span class="tlaUNC">           0 :         for _, d := range dungeons {</span></span>
+<span id="L887"><span class="lineNum">     887</span> <span class="tlaUNC">           0 :                 msg = msg.WithChoice(d.Name, func(_ w.World) error {</span></span>
+<span id="L888"><span class="lineNum">     888</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{</span></span>
+<span id="L889"><span class="lineNum">     889</span> <span class="tlaUNC">           0 :                                 Type:          es.TransReplace,</span></span>
+<span id="L890"><span class="lineNum">     890</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(d.Name))},</span></span>
+<span id="L891"><span class="lineNum">     891</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L892"><span class="lineNum">     892</span> <span class="tlaUNC">           0 :                         return nil</span></span>
+<span id="L893"><span class="lineNum">     893</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L894"><span class="lineNum">     894</span>              :         }</span>
+<span id="L895"><span class="lineNum">     895</span>              : </span>
+<span id="L896"><span class="lineNum">     896</span> <span class="tlaUNC">           0 :         msg = msg.WithChoice(&quot;戻る&quot;, func(_ w.World) error {</span></span>
+<span id="L897"><span class="lineNum">     897</span> <span class="tlaUNC">           0 :                 messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
+<span id="L898"><span class="lineNum">     898</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L899"><span class="lineNum">     899</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L900"><span class="lineNum">     900</span>              : </span>
+<span id="L901"><span class="lineNum">     901</span> <span class="tlaUNC">           0 :         messageState.messageData = msg</span></span>
+<span id="L902"><span class="lineNum">     902</span> <span class="tlaUNC">           0 :         return messageState</span></span>
+<span id="L903"><span class="lineNum">     903</span>              : }</span>
         </pre>
               </td>
             </tr>

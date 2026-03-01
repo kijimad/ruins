@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-01 03:08:31</td>
+            <td class="headerValue">2026-03-01 14:20:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,69 +86,75 @@
 <span id="L24"><span class="lineNum">      24</span>              :         NeedsForceUpdate bool</span>
 <span id="L25"><span class="lineNum">      25</span>              :         // DefinitionName はダンジョン定義名</span>
 <span id="L26"><span class="lineNum">      26</span>              :         DefinitionName string</span>
-<span id="L27"><span class="lineNum">      27</span>              : }</span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              : // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 : func (d *Dungeon) RequestStateChange(event StateEvent) error {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           2 :         if d.stateEvent != nil &amp;&amp; d.stateEvent.Type() != StateEventTypeNone {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;イベントがすでに設定されています: %s → %s を設定しようとしました&quot;,</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         d.stateEvent.Type(), event.Type())</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         d.stateEvent = event</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L37"><span class="lineNum">      37</span>              : }</span>
-<span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : // ConsumeStateChange は状態変更イベントを読み取り、読み取り後にNoneEventでクリアする</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : func (d *Dungeon) ConsumeStateChange() StateEvent {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         event := d.stateEvent</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         d.stateEvent = NoneEvent{}</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         return event</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // Level は現在の階層</span>
-<span id="L47"><span class="lineNum">      47</span>              : // タイル計算メソッドを提供する</span>
-<span id="L48"><span class="lineNum">      48</span>              : // TODO: 状態として持たないほうがいいかも</span>
-<span id="L49"><span class="lineNum">      49</span>              : type Level struct {</span>
-<span id="L50"><span class="lineNum">      50</span>              :         // 横のタイル数</span>
-<span id="L51"><span class="lineNum">      51</span>              :         TileWidth consts.Tile</span>
-<span id="L52"><span class="lineNum">      52</span>              :         // 縦のタイル数</span>
-<span id="L53"><span class="lineNum">      53</span>              :         TileHeight consts.Tile</span>
-<span id="L54"><span class="lineNum">      54</span>              : }</span>
-<span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span>              : // XYTileIndex はタイル座標から、タイルスライスのインデックスを求める</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC tlaBgUNC">           0 : func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         return TileIdx(int(ty)*int(l.TileWidth) + int(tx))</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : // XYTileCoord はタイルスライスのインデックスからタイル座標を求める</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 : func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         x := int(idx) % int(l.TileWidth)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         y := int(idx) / int(l.TileWidth)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         return consts.Pixel(x), consts.Pixel(y)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L68"><span class="lineNum">      68</span>              : </span>
-<span id="L69"><span class="lineNum">      69</span>              : // Width はステージ幅。横の全体ピクセル数</span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 : func (l *Level) Width() consts.Pixel {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         return consts.Pixel(int(l.TileWidth) * int(consts.TileSize))</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L73"><span class="lineNum">      73</span>              : </span>
-<span id="L74"><span class="lineNum">      74</span>              : // Height はステージ縦。縦の全体ピクセル数</span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 : func (l *Level) Height() consts.Pixel {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         return consts.Pixel(int(l.TileHeight) * int(consts.TileSize))</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L78"><span class="lineNum">      78</span>              : </span>
-<span id="L79"><span class="lineNum">      79</span>              : // MinimapSettings はミニマップの設定を管理する</span>
-<span id="L80"><span class="lineNum">      80</span>              : type MinimapSettings struct {</span>
-<span id="L81"><span class="lineNum">      81</span>              :         // ミニマップのサイズ（ピクセル単位）</span>
-<span id="L82"><span class="lineNum">      82</span>              :         Width  int</span>
-<span id="L83"><span class="lineNum">      83</span>              :         Height int</span>
-<span id="L84"><span class="lineNum">      84</span>              :         // ミニマップの表示位置（画面右上に配置）</span>
-<span id="L85"><span class="lineNum">      85</span>              :         OffsetX int</span>
-<span id="L86"><span class="lineNum">      86</span>              :         OffsetY int</span>
-<span id="L87"><span class="lineNum">      87</span>              :         // ミニマップのスケール（何ピクセルで1タイルを表すか）</span>
-<span id="L88"><span class="lineNum">      88</span>              :         Scale int</span>
-<span id="L89"><span class="lineNum">      89</span>              : }</span>
+<span id="L27"><span class="lineNum">      27</span>              :         // TurnState はターンの状態を保持する</span>
+<span id="L28"><span class="lineNum">      28</span>              :         TurnState gc.TurnState</span>
+<span id="L29"><span class="lineNum">      29</span>              :         // GameTime はゲーム内時間を保持する</span>
+<span id="L30"><span class="lineNum">      30</span>              :         GameTime GameTime</span>
+<span id="L31"><span class="lineNum">      31</span>              :         // SelectedWeaponSlot は選択中の武器スロット番号（1-5）</span>
+<span id="L32"><span class="lineNum">      32</span>              :         SelectedWeaponSlot int</span>
+<span id="L33"><span class="lineNum">      33</span>              : }</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 : func (d *Dungeon) RequestStateChange(event StateEvent) error {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           2 :         if d.stateEvent != nil &amp;&amp; d.stateEvent.Type() != StateEventTypeNone {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;イベントがすでに設定されています: %s → %s を設定しようとしました&quot;,</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         d.stateEvent.Type(), event.Type())</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         d.stateEvent = event</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // ConsumeStateChange は状態変更イベントを読み取り、読み取り後にNoneEventでクリアする</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func (d *Dungeon) ConsumeStateChange() StateEvent {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         event := d.stateEvent</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         d.stateEvent = NoneEvent{}</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return event</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L51"><span class="lineNum">      51</span>              : </span>
+<span id="L52"><span class="lineNum">      52</span>              : // Level は現在の階層</span>
+<span id="L53"><span class="lineNum">      53</span>              : // タイル計算メソッドを提供する</span>
+<span id="L54"><span class="lineNum">      54</span>              : // TODO: 状態として持たないほうがいいかも</span>
+<span id="L55"><span class="lineNum">      55</span>              : type Level struct {</span>
+<span id="L56"><span class="lineNum">      56</span>              :         // 横のタイル数</span>
+<span id="L57"><span class="lineNum">      57</span>              :         TileWidth consts.Tile</span>
+<span id="L58"><span class="lineNum">      58</span>              :         // 縦のタイル数</span>
+<span id="L59"><span class="lineNum">      59</span>              :         TileHeight consts.Tile</span>
+<span id="L60"><span class="lineNum">      60</span>              : }</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : // XYTileIndex はタイル座標から、タイルスライスのインデックスを求める</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 : func (l *Level) XYTileIndex(tx consts.Tile, ty consts.Tile) TileIdx {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         return TileIdx(int(ty)*int(l.TileWidth) + int(tx))</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : </span>
+<span id="L67"><span class="lineNum">      67</span>              : // XYTileCoord はタイルスライスのインデックスからタイル座標を求める</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 : func (l *Level) XYTileCoord(idx TileIdx) (consts.Pixel, consts.Pixel) {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         x := int(idx) % int(l.TileWidth)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         y := int(idx) / int(l.TileWidth)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         return consts.Pixel(x), consts.Pixel(y)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : // Width はステージ幅。横の全体ピクセル数</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 : func (l *Level) Width() consts.Pixel {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         return consts.Pixel(int(l.TileWidth) * int(consts.TileSize))</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : // Height はステージ縦。縦の全体ピクセル数</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 : func (l *Level) Height() consts.Pixel {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         return consts.Pixel(int(l.TileHeight) * int(consts.TileSize))</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : </span>
+<span id="L85"><span class="lineNum">      85</span>              : // MinimapSettings はミニマップの設定を管理する</span>
+<span id="L86"><span class="lineNum">      86</span>              : type MinimapSettings struct {</span>
+<span id="L87"><span class="lineNum">      87</span>              :         // ミニマップのサイズ（ピクセル単位）</span>
+<span id="L88"><span class="lineNum">      88</span>              :         Width  int</span>
+<span id="L89"><span class="lineNum">      89</span>              :         Height int</span>
+<span id="L90"><span class="lineNum">      90</span>              :         // ミニマップの表示位置（画面右上に配置）</span>
+<span id="L91"><span class="lineNum">      91</span>              :         OffsetX int</span>
+<span id="L92"><span class="lineNum">      92</span>              :         OffsetY int</span>
+<span id="L93"><span class="lineNum">      93</span>              :         // ミニマップのスケール（何ピクセルで1タイルを表すか）</span>
+<span id="L94"><span class="lineNum">      94</span>              :         Scale int</span>
+<span id="L95"><span class="lineNum">      95</span>              : }</span>
         </pre>
               </td>
             </tr>
