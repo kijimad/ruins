@@ -221,15 +221,14 @@ func TestExecuteEnterAction(t *testing.T) {
 
 		var history []HistoryEntry
 		manager.History = &history
-		// Pickupは検証失敗する（拾えるアイテムがない）がエラーは返さない
+		// ItemLocationOnFieldがないので拾えるアイテムがない
 		err := ExecuteEnterAction(world)
+		assert.Error(t, err)
 
-		// Pickupが試行される（検証失敗してもエラーは返さない設計）
+		// Pickupが試行され、検証失敗でエラー
 		require.Len(t, history, 1)
 		assert.Equal(t, "Pickup", history[0].Activity.String())
-		// 検証失敗のため成功フラグはfalse
 		assert.False(t, history[0].Success)
-		assert.Error(t, err)
 	})
 
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
