@@ -522,7 +522,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
 func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
-	world.Resources.SelectedWeaponSlot = slotNumber
+	world.Resources.Dungeon.SelectedWeaponSlot = slotNumber
 
 	// プレイヤーの武器スロット情報を取得してログメッセージを出力
 	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {

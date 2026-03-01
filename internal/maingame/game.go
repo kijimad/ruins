@@ -222,6 +222,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 			Phase:      gc.TurnPhasePlayer,
 			TurnNumber: 1,
 		},
+		SelectedWeaponSlot: 1,
 	}
 	if err := gameResource.RequestStateChange(gr.NoneEvent{}); err != nil {
 		return w.World{}, fmt.Errorf("初期化時の状態変更要求エラー: %w", err)

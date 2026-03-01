@@ -266,7 +266,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	})
 
 	// 武器スロット1を選択
-	world.Resources.SelectedWeaponSlot = 1
+	world.Resources.Dungeon.SelectedWeaponSlot = 1
 
 	// ExecuteInteractionを実行（素手で攻撃）
 	result, err := ExecuteInteraction(player, enemyEntity, world)
