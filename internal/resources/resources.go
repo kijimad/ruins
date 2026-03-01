@@ -5,21 +5,20 @@ import (
 	"github.com/kijimaD/ruins/internal/components"
 )
 
-// Resources は具体的なリソース実装
-// ゲーム固有のリソース管理を担当する
+// Resources は具体的なリソース実装。ゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
+// データのみを保存し、ロジックはもたない
 type Resources struct {
-	ScreenDimensions   *ScreenDimensions
-	SpriteSheets       *map[string]components.SpriteSheet
-	Fonts              *map[string]Font
-	Faces              *map[string]text.Face
-	Dungeon            *Dungeon
-	RawMaster          interface{}
-	UIResources        *UIResources
-	TurnManager        interface{}
-	ActivityManager    interface{} // 継続アクションの状態を保持する
-	GameTime           *GameTime
-	SelectedWeaponSlot int // 選択中の武器スロット番号（1-5）
+	// 静的
+	ScreenDimensions *ScreenDimensions
+	SpriteSheets     *map[string]components.SpriteSheet
+	Fonts            *map[string]Font
+	Faces            *map[string]text.Face
+	UIResources      *UIResources
+	RawMaster        interface{}
+
+	// 動的
+	Dungeon *Dungeon
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -53,20 +52,16 @@ func (r *Resources) InitializeResources() error {
 	r.Faces = &map[string]text.Face{}
 	r.UIResources = &UIResources{}
 	r.RawMaster = nil
-	r.TurnManager = nil
-	r.GameTime = &GameTime{}
 	return nil
 }
 
 // InitGameResources はゲームリソースを初期化する
 func InitGameResources() *Resources {
 	return &Resources{
-		ScreenDimensions:   &ScreenDimensions{},
-		SpriteSheets:       &map[string]components.SpriteSheet{},
-		Fonts:              &map[string]Font{},
-		Faces:              &map[string]text.Face{},
-		UIResources:        &UIResources{},
-		GameTime:           &GameTime{},
-		SelectedWeaponSlot: 1, // デフォルトで武器スロット1を選択
+		ScreenDimensions: &ScreenDimensions{},
+		SpriteSheets:     &map[string]components.SpriteSheet{},
+		Fonts:            &map[string]Font{},
+		Faces:            &map[string]text.Face{},
+		UIResources:      &UIResources{},
 	}
 }

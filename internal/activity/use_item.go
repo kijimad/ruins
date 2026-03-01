@@ -11,10 +11,10 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// UseItemActivity はActivityInterfaceの実装
+// UseItemActivity はBehaviorの実装
 type UseItemActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (u *UseItemActivity) Info() Info {
 	return Info{
 		Name:            "アイテム使用",
@@ -26,18 +26,18 @@ func (u *UseItemActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (u *UseItemActivity) String() string {
-	return "UseItem"
+// Name はBehaviorの実装
+func (u *UseItemActivity) Name() gc.BehaviorName {
+	return gc.BehaviorUseItem
 }
 
-// Validate はActivityInterfaceの実装
-func (u *UseItemActivity) Validate(act *Activity, world w.World) error {
-	if act.Target == nil {
+// Validate はBehaviorの実装
+func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
 		return ErrItemNotSet
 	}
 
-	item := *act.Target
+	item := *comp.Target
 
 	// アイテムエンティティにItemコンポーネントがあるかチェック
 	if !item.HasComponent(world.Components.Item) {
@@ -54,33 +54,33 @@ func (u *UseItemActivity) Validate(act *Activity, world w.World) error {
 	}
 
 	// アクターがPoolsコンポーネントを持っているかチェック
-	if !act.Actor.HasComponent(world.Components.Pools) {
+	if !actor.HasComponent(world.Components.Pools) {
 		return ErrActorNoPools
 	}
 
 	return nil
 }
 
-// Start はActivityInterfaceの実装
-func (u *UseItemActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテム使用開始", "actor", act.Actor, "item", *act.Target)
+// Start はBehaviorの実装
+func (u *UseItemActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("アイテム使用開始", "actor", actor, "item", *comp.Target)
 	return nil
 }
 
-// DoTurn はActivityInterfaceの実装
-func (u *UseItemActivity) DoTurn(act *Activity, world w.World) error {
-	if act.Target == nil {
-		act.Cancel("アイテムが指定されていません")
+// DoTurn はBehaviorの実装
+func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp.Target == nil {
+		Cancel(comp, "アイテムが指定されていません")
 		return ErrItemNotSet
 	}
 
-	item := *act.Target
+	item := *comp.Target
 
 	// 回復効果があるかチェック
 	if healing := world.Components.ProvidesHealing.Get(item); healing != nil {
 		healingComponent := healing.(*gc.ProvidesHealing)
-		if err := u.applyHealing(act, world, healingComponent.Amount, item); err != nil {
-			act.Cancel(fmt.Sprintf("回復処理エラー: %s", err.Error()))
+		if err := u.applyHealing(comp, actor, world, healingComponent.Amount, item); err != nil {
+			Cancel(comp, fmt.Sprintf("回復処理エラー: %s", err.Error()))
 			return err
 		}
 	}
@@ -88,8 +88,8 @@ func (u *UseItemActivity) DoTurn(act *Activity, world w.World) error {
 	// 空腹度回復効果があるかチェック
 	if nutrition := world.Components.ProvidesNutrition.Get(item); nutrition != nil {
 		nutritionComponent := nutrition.(*gc.ProvidesNutrition)
-		if err := u.applyNutrition(act, world, nutritionComponent.Amount, item); err != nil {
-			act.Cancel(fmt.Sprintf("空腹度回復処理エラー: %s", err.Error()))
+		if err := u.applyNutrition(comp, actor, world, nutritionComponent.Amount, item); err != nil {
+			Cancel(comp, fmt.Sprintf("空腹度回復処理エラー: %s", err.Error()))
 			return err
 		}
 	}
@@ -98,7 +98,7 @@ func (u *UseItemActivity) DoTurn(act *Activity, world w.World) error {
 	if damage := world.Components.InflictsDamage.Get(item); damage != nil {
 		damageComponent := damage.(*gc.InflictsDamage)
 		// 共通のダメージ処理を使用
-		worldhelper.ApplyDamage(world, act.Actor, damageComponent.Amount, act.Actor)
+		worldhelper.ApplyDamage(world, actor, damageComponent.Amount, actor)
 	}
 
 	// 消費可能アイテムの場合は削除または個数を減らす
@@ -108,24 +108,24 @@ func (u *UseItemActivity) DoTurn(act *Activity, world w.World) error {
 		}
 	}
 
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
-// Finish はActivityInterfaceの実装
-func (u *UseItemActivity) Finish(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテム使用完了", "actor", act.Actor)
+// Finish はBehaviorの実装
+func (u *UseItemActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("アイテム使用完了", "actor", actor)
 	return nil
 }
 
-// Canceled はActivityInterfaceの実装
-func (u *UseItemActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("アイテム使用キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+// Canceled はBehaviorの実装
+func (u *UseItemActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("アイテム使用キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // applyHealing は回復処理を適用する
-func (u *UseItemActivity) applyHealing(act *Activity, world w.World, amounter gc.Amounter, item ecs.Entity) error {
+func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w.World, amounter gc.Amounter, item ecs.Entity) error {
 	// Amounterから実際の回復量を取得
 	var amount int
 	switch amt := amounter.(type) {
@@ -133,23 +133,23 @@ func (u *UseItemActivity) applyHealing(act *Activity, world w.World, amounter gc
 		amount = amt.Calc()
 	case gc.RatioAmount:
 		// 最大HPに対する割合で回復
-		pools := world.Components.Pools.Get(act.Actor).(*gc.Pools)
+		pools := world.Components.Pools.Get(actor).(*gc.Pools)
 		amount = amt.Calc(pools.HP.Max)
 	default:
 		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
 	}
 
 	// 共通の回復処理を使用
-	actualHealing := worldhelper.ApplyHealing(world, act.Actor, amount)
+	actualHealing := worldhelper.ApplyHealing(world, actor, amount)
 
-	u.logItemUse(act, world, item, actualHealing, true)
+	u.logItemUse(actor, world, item, actualHealing, true)
 
 	return nil
 }
 
 // applyNutrition は空腹度回復処理を適用する
-func (u *UseItemActivity) applyNutrition(act *Activity, world w.World, amount int, item ecs.Entity) error {
-	hungerComp := world.Components.Hunger.Get(act.Actor)
+func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {
+	hungerComp := world.Components.Hunger.Get(actor)
 	if hungerComp == nil {
 		return nil
 	}
@@ -162,24 +162,24 @@ func (u *UseItemActivity) applyNutrition(act *Activity, world w.World, amount in
 	// 満腹状態になったかチェック
 	isSatiated := hunger.GetLevel() == gc.HungerSatiated
 
-	u.logNutritionUse(act, world, item, isSatiated)
+	u.logNutritionUse(actor, world, item, isSatiated)
 
 	return nil
 }
 
 // logItemUse はアイテム使用のログを出力する
-func (u *UseItemActivity) logItemUse(act *Activity, world w.World, item ecs.Entity, amount int, isHealing bool) {
+func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {
 	// プレイヤーが関わる場合のみログ出力
-	if !isPlayerActivity(act, world) {
+	if !actor.HasComponent(world.Components.Player) {
 		return
 	}
 
 	itemName := u.getItemName(item, world)
-	actorName := worldhelper.GetEntityName(act.Actor, world)
+	actorName := worldhelper.GetEntityName(actor, world)
 
 	logger := gamelog.New(gamelog.FieldLog)
 	logger.Build(func(l *gamelog.Logger) {
-		worldhelper.AppendNameWithColor(l, act.Actor, actorName, world)
+		worldhelper.AppendNameWithColor(l, actor, actorName, world)
 	}).Append(" は ").ItemName(itemName).Append(" を使った。")
 
 	if isHealing {
@@ -192,18 +192,18 @@ func (u *UseItemActivity) logItemUse(act *Activity, world w.World, item ecs.Enti
 }
 
 // logNutritionUse は空腹度回復のログを出力する
-func (u *UseItemActivity) logNutritionUse(act *Activity, world w.World, item ecs.Entity, isSatiated bool) {
+func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {
 	// プレイヤーが関わる場合のみログ出力
-	if !isPlayerActivity(act, world) {
+	if !actor.HasComponent(world.Components.Player) {
 		return
 	}
 
 	itemName := u.getItemName(item, world)
-	actorName := worldhelper.GetEntityName(act.Actor, world)
+	actorName := worldhelper.GetEntityName(actor, world)
 
 	logger := gamelog.New(gamelog.FieldLog)
 	logger.Build(func(l *gamelog.Logger) {
-		worldhelper.AppendNameWithColor(l, act.Actor, actorName, world)
+		worldhelper.AppendNameWithColor(l, actor, actorName, world)
 	}).Append(" は ").ItemName(itemName).Append(" を食べた。")
 
 	if isSatiated {

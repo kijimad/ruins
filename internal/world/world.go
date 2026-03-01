@@ -46,13 +46,16 @@ func InitWorld(c *gc.Components) (World, error) {
 	if err != nil {
 		return World{}, err
 	}
-	return World{
+
+	world := World{
 		Manager:    manager,
 		Components: c,
 		Resources:  resources.InitGameResources(),
 		Updaters:   make(map[string]Updater),
 		Renderers:  make(map[string]Renderer),
-	}, nil
+	}
+
+	return world, nil
 }
 
 // GetManager は World interfaceを満たすためのメソッド

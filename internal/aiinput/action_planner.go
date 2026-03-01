@@ -70,7 +70,7 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 		destY := int(aiGrid.Y) + candidate.y
 
 		if movement.CanMoveTo(world, destX, destY, aiEntity) {
-			dest := gc.Position{X: consts.Pixel(destX), Y: consts.Pixel(destY)}
+			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
 			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
 				Destination: &dest,
@@ -112,7 +112,7 @@ func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs
 		destY := int(aiGrid.Y) + direction.y
 
 		if movement.CanMoveTo(world, destX, destY, aiEntity) {
-			dest := gc.Position{X: consts.Pixel(destX), Y: consts.Pixel(destY)}
+			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
 			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
 				Destination: &dest,

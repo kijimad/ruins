@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -29,15 +28,6 @@ func ExtractHUDData(world w.World) hud.Data {
 // extractGameInfo はゲーム基本情報を抽出する
 func extractGameInfo(world w.World) hud.GameInfoData {
 	floorNumber := world.Resources.Dungeon.Depth
-
-	var turnNumber int
-	var playerMoves int
-	if world.Resources.TurnManager != nil {
-		if turnManager, ok := world.Resources.TurnManager.(*turns.TurnManager); ok {
-			turnNumber = turnManager.TurnNumber
-			playerMoves = turnManager.PlayerMoves
-		}
-	}
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP, playerSP, playerMaxSP, playerEP, playerMaxEP int
@@ -68,8 +58,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	return hud.GameInfoData{
 		FloorNumber:       floorNumber,
-		TurnNumber:        turnNumber,
-		PlayerMoves:       playerMoves,
 		PlayerHP:          playerHP,
 		PlayerMaxHP:       playerMaxHP,
 		PlayerSP:          playerSP,
@@ -398,7 +386,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 
 		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
-		selectedSlot = world.Resources.SelectedWeaponSlot - 1
+		selectedSlot = world.Resources.Dungeon.SelectedWeaponSlot - 1
 	})
 
 	return hud.WeaponSlotsData{

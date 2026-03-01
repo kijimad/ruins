@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,9 +18,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("正常な移動", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -29,14 +25,13 @@ func TestExecuteMoveAction(t *testing.T) {
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// 移動を実行
-		var history []HistoryEntry
-		manager.History = &history
 		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
 
 		// 検証
-		require.Len(t, history, 1)
-		assert.Equal(t, "Move", history[0].Activity.String())
-		assert.True(t, history[0].Success)
+		result := GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorMove, result.BehaviorName)
+		assert.True(t, result.Success)
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 9, int(gridAfter.Y))
@@ -45,9 +40,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
 	})
@@ -55,9 +47,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -88,9 +77,6 @@ func TestExecuteMoveAction(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
-				world.Resources.TurnManager = turns.NewTurnManager()
-				manager := NewManager(nil)
-				world.Resources.ActivityManager = manager
 
 				player := world.Manager.NewEntity()
 				player.AddComponent(world.Components.Player, &gc.Player{})
@@ -109,10 +95,7 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("敵がいる位置への移動は攻撃になる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
@@ -122,15 +105,14 @@ func TestExecuteMoveAction(t *testing.T) {
 		initialEnemyHP := enemyPools.HP.Current
 
 		// 移動（攻撃）を実行
-		var history []HistoryEntry
-		manager.History = &history
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
 		// 検証: Attackが実行される
-		require.Len(t, history, 1)
-		assert.Equal(t, "Attack", history[0].Activity.String())
-		assert.True(t, history[0].Success)
+		result := GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
+		assert.True(t, result.Success)
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 10, int(gridAfter.Y))
@@ -144,30 +126,23 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("待機アクションの実行", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-		var history []HistoryEntry
-		manager.History = &history
 		assert.NoError(t, ExecuteWaitAction(world))
 
-		require.Len(t, history, 1)
-		assert.Equal(t, "Wait", history[0].Activity.String())
-		assert.True(t, history[0].Success)
+		result := GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorWait, result.BehaviorName)
+		assert.True(t, result.Success)
 	})
 
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		assert.Error(t, ExecuteWaitAction(world))
 	})
@@ -179,28 +154,21 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("何もない場所でEnter", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
-		var history []HistoryEntry
-		manager.History = &history
 		assert.NoError(t, ExecuteEnterAction(world))
 
-		// 何も実行されない
-		assert.Len(t, history, 0)
+		// 何も実行されないのでLastActivityはnil
+		result := GetLastResult(player, world)
+		assert.Nil(t, result)
 	})
 
 	t.Run("アイテムがある場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -215,24 +183,20 @@ func TestExecuteEnterAction(t *testing.T) {
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 		item.AddComponent(world.Components.Item, &gc.Item{})
 
-		var history []HistoryEntry
-		manager.History = &history
 		// ItemLocationOnFieldがないので拾えるアイテムがない
 		err := ExecuteEnterAction(world)
 		assert.Error(t, err)
 
 		// Pickupが試行され、検証失敗でエラー
-		require.Len(t, history, 1)
-		assert.Equal(t, "Pickup", history[0].Activity.String())
-		assert.False(t, history[0].Success)
+		result := GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorPickup, result.BehaviorName)
+		assert.False(t, result.Success)
 	})
 
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		assert.Error(t, ExecuteEnterAction(world))
 	})
@@ -240,9 +204,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -428,59 +389,51 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("死亡した敵への移動は攻撃にならない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
-		_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
 
 		// 移動を実行
-		var history []HistoryEntry
-		manager.History = &history
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 
 		// 検証: 攻撃ではなく移動になる
-		require.Len(t, history, 1)
-		assert.Equal(t, "Move", history[0].Activity.String())
-		assert.True(t, history[0].Success)
+		result := GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorMove, result.BehaviorName)
+		assert.True(t, result.Success)
 	})
 
 	t.Run("敵を倒した後の再移動はMoveになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
-		_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
 		enemyPools.HP.Current = 1
 
-		var history []HistoryEntry
-		manager.History = &history
-
 		// 1回目: 攻撃で敵を倒す
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
 		assert.True(t, enemy.HasComponent(world.Components.Dead))
-		require.Len(t, history, 1)
-		assert.Equal(t, "Attack", history[0].Activity.String())
+		result := GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
 
 		// 2回目: 死亡した敵がいた場所への移動
 		err = ExecuteMoveAction(world, gc.DirectionUp)
 		require.NoError(t, err)
-		require.Len(t, history, 2)
-		assert.Equal(t, "Move", history[1].Activity.String())
-		assert.True(t, history[1].Success)
+		result = GetLastResult(player, world)
+		require.NotNil(t, result)
+		assert.Equal(t, gc.BehaviorMove, result.BehaviorName)
+		assert.True(t, result.Success)
 	})
 }

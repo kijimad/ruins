@@ -24,6 +24,12 @@ type Dungeon struct {
 	NeedsForceUpdate bool
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
+	// TurnState はターンの状態を保持する
+	TurnState gc.TurnState
+	// GameTime はゲーム内時間を保持する
+	GameTime GameTime
+	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
+	SelectedWeaponSlot int
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

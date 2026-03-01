@@ -4,12 +4,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +30,6 @@ func TestDoActionUIActions(t *testing.T) {
 		expectedType      es.TransType
 		shouldHaveFunc    bool
 		expectedStateType string
-		expectError       bool
 	}{
 		{
 			name:              "ダンジョンメニューを開く",
@@ -49,9 +46,10 @@ func TestDoActionUIActions(t *testing.T) {
 			expectedStateType: "*states.InventoryMenuState",
 		},
 		{
-			name:        "未知のアクション",
-			action:      inputmapper.ActionID("unknown"),
-			expectError: true,
+			name:           "未知のアクション",
+			action:         inputmapper.ActionID("unknown"),
+			expectedType:   es.TransNone,
+			shouldHaveFunc: false,
 		},
 	}
 
@@ -63,12 +61,6 @@ func TestDoActionUIActions(t *testing.T) {
 			state := &DungeonState{}
 
 			transition, err := state.DoAction(world, tt.action)
-
-			if tt.expectError {
-				require.Error(t, err, "DoActionがエラーを返すべきです")
-				return
-			}
-
 			require.NoError(t, err, "DoActionがエラーを返しました")
 
 			assert.Equal(t, tt.expectedType, transition.Type, "トランジションタイプが不正")
@@ -113,8 +105,6 @@ func TestDoActionMovementActions(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			world.Resources.TurnManager = turns.NewTurnManager()
-			world.Resources.ActivityManager = activity.NewManager(nil)
 			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
 			require.NoError(t, err)
 
@@ -154,7 +144,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 	tests := []struct {
 		name             string
 		action           inputmapper.ActionID
-		turnPhase        turns.TurnPhase
+		turnPhase        gc.TurnPhase
 		expectedTrans    es.TransType
 		isUIAction       bool
 		isMoveAction     bool
@@ -163,21 +153,21 @@ func TestDoActionTurnManagement(t *testing.T) {
 		{
 			name:          "プレイヤーターン中のUI操作",
 			action:        inputmapper.ActionOpenDungeonMenu,
-			turnPhase:     turns.PlayerTurn,
+			turnPhase:     gc.TurnPhasePlayer,
 			expectedTrans: es.TransPush,
 			isUIAction:    true,
 		},
 		{
 			name:          "AIターン中のUI操作",
 			action:        inputmapper.ActionOpenDungeonMenu,
-			turnPhase:     turns.AITurn,
+			turnPhase:     gc.TurnPhaseAI,
 			expectedTrans: es.TransPush,
 			isUIAction:    true,
 		},
 		{
 			name:             "プレイヤーターン中の移動",
 			action:           inputmapper.ActionMoveNorth,
-			turnPhase:        turns.PlayerTurn,
+			turnPhase:        gc.TurnPhasePlayer,
 			expectedTrans:    es.TransNone,
 			isMoveAction:     true,
 			shouldMovePlayer: true,
@@ -185,7 +175,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 		{
 			name:             "AIターン中の移動（実行されない）",
 			action:           inputmapper.ActionMoveNorth,
-			turnPhase:        turns.AITurn,
+			turnPhase:        gc.TurnPhaseAI,
 			expectedTrans:    es.TransNone,
 			isMoveAction:     true,
 			shouldMovePlayer: false,
@@ -198,8 +188,6 @@ func TestDoActionTurnManagement(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			world.Resources.TurnManager = turns.NewTurnManager()
-			world.Resources.ActivityManager = activity.NewManager(nil)
 
 			var playerEntity ecs.Entity
 			if tt.isMoveAction {
@@ -208,8 +196,10 @@ func TestDoActionTurnManagement(t *testing.T) {
 				require.NoError(t, err)
 			}
 
-			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			turnManager.TurnPhase = tt.turnPhase
+			// ターン状態を設定
+			turnState, err := worldhelper.GetTurnState(world)
+			require.NoError(t, err)
+			turnState.Phase = tt.turnPhase
 
 			state := &DungeonState{}
 
@@ -242,14 +232,14 @@ func TestDoActionTurnManagement(t *testing.T) {
 	}
 }
 
-// TestDoActionUIActionsAlwaysWork はUI系アクションがターンフェーズに関わらず動作することを検証
+// TestDoActionUIActionsAlwaysWork はUI系アクションはターンフェーズに関わらず動作する
 func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 	t.Parallel()
 
-	turnPhases := []turns.TurnPhase{
-		turns.PlayerTurn,
-		turns.AITurn,
-		turns.TurnEnd,
+	turnPhases := []gc.TurnPhase{
+		gc.TurnPhasePlayer,
+		gc.TurnPhaseAI,
+		gc.TurnPhaseEnd,
 	}
 
 	for _, phase := range turnPhases {
@@ -257,10 +247,11 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
-			world.Resources.TurnManager = turns.NewTurnManager()
-			world.Resources.ActivityManager = activity.NewManager(nil)
-			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			turnManager.TurnPhase = phase
+
+			// ターン状態を設定
+			turnState, err := worldhelper.GetTurnState(world)
+			require.NoError(t, err)
+			turnState.Phase = phase
 
 			state := &DungeonState{}
 

@@ -14,7 +14,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/logger"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
@@ -420,12 +419,11 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		manager := activity.NewManager(logger.New(logger.CategoryAction))
 		params := activity.ActionParams{
 			Actor:  playerEntity,
 			Target: &st.selectedItem,
 		}
-		_, err = manager.Execute(&activity.UseItemActivity{}, params, world)
+		_, err = activity.Execute(&activity.UseItemActivity{}, params, world)
 		if err != nil {
 			st.closeActionWindow()
 			return err
@@ -442,15 +440,11 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
-		dropActivity := &activity.DropActivity{
-			Target: st.selectedItem,
-		}
-
-		manager := activity.NewManager(logger.New(logger.CategoryAction))
 		params := activity.ActionParams{
-			Actor: playerEntity,
+			Actor:  playerEntity,
+			Target: &st.selectedItem,
 		}
-		_, err = manager.Execute(dropActivity, params, world)
+		_, err = activity.Execute(&activity.DropActivity{}, params, world)
 		if err != nil {
 			st.closeActionWindow()
 			return err

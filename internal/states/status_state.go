@@ -258,11 +258,9 @@ func (st *StatusState) createBasicItems(world w.World) []tabmenu.Item {
 	items = append(items,
 		st.newStatusItem("環境気温", fmt.Sprintf("%d°C", st.envTemp), "現在地の気温"),
 	)
-	if world.Resources.GameTime != nil {
-		items = append(items,
-			st.newStatusItem("時間帯", world.Resources.GameTime.GetTimeOfDay().String(), "現在の時間帯。屋外では気温に影響する"),
-		)
-	}
+	items = append(items,
+		st.newStatusItem("時間帯", world.Resources.Dungeon.GameTime.GetTimeOfDay().String(), "現在の時間帯。屋外では気温に影響する"),
+	)
 
 	return items
 }

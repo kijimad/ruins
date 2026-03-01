@@ -21,7 +21,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -72,16 +71,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 
 	world.Resources.Dungeon.Depth = st.Depth
-
-	// ターンマネージャーを初期化
-	if world.Resources.TurnManager == nil {
-		world.Resources.TurnManager = turns.NewTurnManager()
-	}
-
-	// アクティビティマネージャーを初期化
-	if world.Resources.ActivityManager == nil {
-		world.Resources.ActivityManager = activity.NewManager(nil)
-	}
 
 	// 設定されていればリソースに反映する
 	if st.DefinitionName != "" {
@@ -358,23 +347,13 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
-		if world.Resources.TurnManager != nil {
-			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			playerEntity, err := worldhelper.GetPlayerEntity(world)
-			if err != nil {
-				return es.Transition[w.World]{Type: es.TransNone}, err
-			}
-			canAct := turnManager.CanEntityAct(world, playerEntity, 0)
-			if !canAct {
-				return es.Transition[w.World]{Type: es.TransNone}, nil
-			}
+		if !worldhelper.CanPlayerAct(world) {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		// プレイヤーが継続アクション中は新しいアクションを受け付けない
-		if world.Resources.ActivityManager != nil {
-			manager := world.Resources.ActivityManager.(*activity.Manager)
-			if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && manager.HasActivity(playerEntity) {
-				return es.Transition[w.World]{Type: es.TransNone}, nil
-			}
+		// プレイヤーが継続アクション中は新しいアクションを受け付けない
+		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && worldhelper.HasActivity(world, playerEntity) {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 	}
 
@@ -543,7 +522,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
 func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
-	world.Resources.SelectedWeaponSlot = slotNumber
+	world.Resources.Dungeon.SelectedWeaponSlot = slotNumber
 
 	// プレイヤーの武器スロット情報を取得してログメッセージを出力
 	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {

@@ -775,8 +775,7 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 				return fmt.Errorf("failed to get player entity: %w", err)
 			}
 
-			manager := world.Resources.ActivityManager.(*activity.Manager)
-			if _, err := activity.ExecuteInteraction(manager, playerEntity, action.Target, world); err != nil {
+			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, world); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 

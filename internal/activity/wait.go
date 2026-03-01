@@ -3,15 +3,17 @@ package activity
 import (
 	"fmt"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// WaitActivity はActivityInterfaceの実装
+// WaitActivity はBehaviorの実装
 type WaitActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (wa *WaitActivity) Info() Info {
 	return Info{
 		Name:            "待機",
@@ -23,19 +25,18 @@ func (wa *WaitActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (wa *WaitActivity) String() string {
-	return "Wait"
+// Name はBehaviorの実装
+func (wa *WaitActivity) Name() gc.BehaviorName {
+	return gc.BehaviorWait
 }
 
 // Validate は待機アクティビティの検証を行う
-// Validate はActivityInterfaceの実装
-func (wa *WaitActivity) Validate(act *Activity, _ w.World) error {
+func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) error {
 	// 待機は基本的に常に実行可能
 	// ただし、最低限のチェックは行う
 
 	// 待機時間が妥当かチェック
-	if act.TurnsTotal <= 0 {
+	if comp.TurnsTotal <= 0 {
 		return fmt.Errorf("待機時間が無効です")
 	}
 
@@ -43,34 +44,32 @@ func (wa *WaitActivity) Validate(act *Activity, _ w.World) error {
 }
 
 // Start は待機開始時の処理を実行する
-// Start はActivityInterfaceの実装
-func (wa *WaitActivity) Start(act *Activity, _ w.World) error {
+func (wa *WaitActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
 	reason := "時間を過ごすため"
-	act.Logger.Debug("待機開始", "actor", act.Actor, "reason", reason, "duration", act.TurnsLeft)
+	log.Debug("待機開始", "actor", actor, "reason", reason, "duration", comp.TurnsLeft)
 	return nil
 }
 
 // DoTurn は待機アクティビティの1ターン分の処理を実行する
-// DoTurn はActivityInterfaceの実装
-func (wa *WaitActivity) DoTurn(act *Activity, world w.World) error {
+func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 環境を観察
-	wa.observeEnvironment(act, world)
+	wa.observeEnvironment(comp, actor, world)
 
 	// 基本のターン処理
-	if act.TurnsLeft <= 0 {
-		act.Complete()
+	if comp.TurnsLeft <= 0 {
+		Complete(comp)
 		return nil
 	}
 
 	// 1ターン進行
-	act.TurnsLeft--
-	act.Logger.Debug("待機進行",
-		"turns_left", act.TurnsLeft,
-		"progress", act.GetProgressPercent())
+	comp.TurnsLeft--
+	log.Debug("待機進行",
+		"turns_left", comp.TurnsLeft,
+		"progress", GetProgressPercent(comp))
 
 	// 完了チェック
-	if act.TurnsLeft <= 0 {
-		act.Complete()
+	if comp.TurnsLeft <= 0 {
+		Complete(comp)
 		return nil
 	}
 
@@ -78,13 +77,12 @@ func (wa *WaitActivity) DoTurn(act *Activity, world w.World) error {
 }
 
 // Finish は待機完了時の処理を実行する
-// Finish はActivityInterfaceの実装
-func (wa *WaitActivity) Finish(act *Activity, world w.World) error {
-	act.Logger.Debug("待機完了", "actor", act.Actor)
+func (wa *WaitActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+	log.Debug("待機完了", "actor", actor)
 
 	// TODO: 1ターン待機の場合も出るのは微妙な感じがする
 	// プレイヤーの場合のみ待機完了メッセージを表示
-	if isPlayerActivity(act, world) {
+	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append("待機を終了した").
 			Log()
@@ -94,20 +92,19 @@ func (wa *WaitActivity) Finish(act *Activity, world w.World) error {
 }
 
 // Canceled は待機キャンセル時の処理を実行する
-// Canceled はActivityInterfaceの実装
-func (wa *WaitActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("待機キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+func (wa *WaitActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("待機キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
 // observeEnvironment は環境観察処理を実行する
-func (wa *WaitActivity) observeEnvironment(act *Activity, _ w.World) {
+func (wa *WaitActivity) observeEnvironment(comp *gc.Activity, actor ecs.Entity, _ w.World) {
 	// 待機中の環境観察（5ターン毎）
-	if (act.TurnsTotal-act.TurnsLeft)%5 == 0 {
+	if (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {
 		// TODO: 環境観察の実装
 		// - 周囲の敵の発見
 		// - アイテムの発見
 		// - 天候の変化など
-		act.Logger.Debug("環境観察", "actor", act.Actor)
+		log.Debug("環境観察", "actor", actor)
 	}
 }

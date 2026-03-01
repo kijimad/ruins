@@ -97,17 +97,17 @@ func TestDeadCleanupSystem_EmptyWorld(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// エンティティが存在しない状態でテスト
-	// パニックやエラーが発生しないことを確認
+	// Deadコンポーネントを持つエンティティがない状態でテスト
+	// パニックやエラーが発生しないことを確認する
 	sys := &DeadCleanupSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// エンティティ数が0であることを確認
-	count := 0
-	world.Manager.Join().Visit(ecs.Visit(func(_ ecs.Entity) {
-		count++
+	// Deadコンポーネントを持つエンティティが存在しないことを確認
+	deadCount := 0
+	world.Manager.Join(world.Components.Dead).Visit(ecs.Visit(func(_ ecs.Entity) {
+		deadCount++
 	}))
-	assert.Equal(t, 0, count, "空のworldではエンティティ数は0であるべき")
+	assert.Equal(t, 0, deadCount, "Deadコンポーネントを持つエンティティは存在しない")
 }
 
 func TestDeadCleanupSystem_WithDropTable(t *testing.T) {

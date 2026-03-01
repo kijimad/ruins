@@ -10,6 +10,12 @@ test: ## テストを実行する
 	RUINS_LOG_LEVEL=ignore \
 	go test -v -cover -shuffle=on ./...
 
+.PHONY: report
+report: ## AIが読みやすい形でカバレッジレポートを表示する
+	RUINS_LOG_LEVEL=ignore \
+	go test -coverprofile=cover.out ./...
+	go tool cover -func=cover.out
+
 .PHONY: build
 build: ## ビルドする
 	./scripts/build.sh

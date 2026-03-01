@@ -4,90 +4,88 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// Manager はアクティビティの管理を行う
-type Manager struct {
-	// 現在実行中の全アクティビティ(全エンティティごと)
-	// 1エンティティで最大1アクティビティ
-	currentActivities map[ecs.Entity]*Activity
-	logger            *logger.Logger
-	// History はテスト用の履歴記録先。nilでなければ実行結果を追記する
-	History *[]HistoryEntry
+// ActionParams はアクション実行時のパラメータを表す
+type ActionParams struct {
+	Actor       ecs.Entity      // アクションを実行するエンティティ
+	Target      *ecs.Entity     // 対象エンティティ（攻撃等で使用）
+	Destination *gc.GridElement // 移動先のグリッド座標（移動等で使用）
+	Duration    int             // 継続時間（休息、待機等で使用）
+	Reason      string          // 理由（待機等で使用）
 }
 
-// NewManager は新しいActivityManagerを作成する
-func NewManager(l *logger.Logger) *Manager {
-	if l == nil {
-		l = logger.New(logger.CategoryAction)
-	}
-	return &Manager{
-		currentActivities: make(map[ecs.Entity]*Activity),
-		logger:            l,
-	}
+// ActionResult はアクション実行結果を表す
+type ActionResult struct {
+	Success      bool             // 実行成功/失敗
+	State        gc.ActivityState // アクティビティの終了状態
+	ActivityName gc.BehaviorName  // 実行されたアクティビティ名
+	Message      string           // 結果メッセージ
 }
 
-// HistoryEntry は実行されたアクティビティの記録
-// テスト用に公開している
-type HistoryEntry struct {
-	Activity Behavior    // 実行されたアクティビティ
-	Actor    ecs.Entity  // 実行者
-	Target   *ecs.Entity // 対象（あれば）
-	Success  bool        // 成功/失敗
-	Message  string      // 結果メッセージ
-}
-
-// Execute は指定されたアクション（アクティビティ）を実行する
-// 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理
-func (m *Manager) Execute(actorImpl Behavior, params ActionParams, world w.World) (*ActionResult, error) {
-	activityName := actorImpl.String()
-	m.logger.Debug("アクション実行開始",
-		"type", activityName,
+// Execute は指定されたアクティビティを実行する
+// 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理する
+func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResult, error) {
+	behaviorName := behavior.Name()
+	log.Debug("アクション実行開始",
+		"type", behaviorName,
 		"actor", params.Actor)
 
 	// アクティビティを作成
-	activity := m.createActivity(actorImpl, params, world)
-
-	// アクティビティを開始
-	if err := m.StartActivity(activity, world); err != nil {
+	comp, err := buildActivity(behavior, params, world)
+	if err != nil {
 		result := &ActionResult{
 			Success:      false,
-			ActivityName: activityName,
+			State:        gc.ActivityStateCanceled,
+			ActivityName: behaviorName,
 			Message:      err.Error(),
 		}
-		m.addHistory(actorImpl, params, result)
+		setLastResult(params.Actor, result, world)
+		return result, err
+	}
+
+	// アクティビティを開始
+	if err := StartActivity(comp, params.Actor, world); err != nil {
+		result := &ActionResult{
+			Success:      false,
+			State:        gc.ActivityStateCanceled,
+			ActivityName: behaviorName,
+			Message:      err.Error(),
+		}
+		setLastResult(params.Actor, result, world)
 		return result, err
 	}
 
 	// 即座実行アクション（1ターン）の場合は即座に処理
-	if activity.TurnsTotal == 1 {
+	if comp.TurnsTotal == 1 {
 		// ターン処理実行
-		m.ProcessTurn(world)
+		ProcessTurn(world)
 
 		// ターン管理システムに移動コストを通知
-		m.consumeMoveCost(world, actorImpl, params.Actor)
+		consumeMoveCost(world, behavior, params.Actor)
 
 		// 結果を確認
-		currentActivity := m.GetCurrentActivity(params.Actor)
-		if currentActivity == nil || currentActivity.IsCompleted() {
+		currentActivity := worldhelper.GetActivity(world, params.Actor)
+		if currentActivity == nil || IsCompleted(currentActivity) {
 			result := &ActionResult{
 				Success:      true,
-				ActivityName: activityName,
+				State:        gc.ActivityStateCompleted,
+				ActivityName: behaviorName,
 				Message:      "アクション完了",
 			}
-			m.addHistory(actorImpl, params, result)
+			setLastResult(params.Actor, result, world)
 			return result, nil
-		} else if currentActivity.IsCanceled() {
+		} else if IsCanceled(currentActivity) {
 			result := &ActionResult{
 				Success:      false,
-				ActivityName: activityName,
+				State:        gc.ActivityStateCanceled,
+				ActivityName: behaviorName,
 				Message:      currentActivity.CancelReason,
 			}
-			m.addHistory(actorImpl, params, result)
+			setLastResult(params.Actor, result, world)
 			return result, fmt.Errorf("アクション失敗: %s", currentActivity.CancelReason)
 		}
 	}
@@ -95,302 +93,272 @@ func (m *Manager) Execute(actorImpl Behavior, params ActionParams, world w.World
 	// 継続アクションの場合は開始成功を返す
 	result := &ActionResult{
 		Success:      true,
-		ActivityName: activityName,
+		State:        gc.ActivityStateRunning,
+		ActivityName: behaviorName,
 		Message:      "アクション開始",
 	}
-	m.addHistory(actorImpl, params, result)
+	setLastResult(params.Actor, result, world)
 	return result, nil
 }
 
-// addHistory は履歴エントリを追加する
-func (m *Manager) addHistory(actorImpl Behavior, params ActionParams, result *ActionResult) {
-	if m.History == nil {
-		return
+// setLastResult はエンティティの直近アクティビティ結果を設定する
+func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
+	lastResult := &gc.LastActivity{
+		BehaviorName: result.ActivityName,
+		State:        result.State,
+		Success:      result.Success,
+		Message:      result.Message,
 	}
-	*m.History = append(*m.History, HistoryEntry{
-		Activity: actorImpl,
-		Actor:    params.Actor,
-		Target:   params.Target,
-		Success:  result.Success,
-		Message:  result.Message,
-	})
+
+	if actor.HasComponent(world.Components.LastActivity) {
+		actor.RemoveComponent(world.Components.LastActivity)
+	}
+	actor.AddComponent(world.Components.LastActivity, lastResult)
+}
+
+// GetLastResult はエンティティの直近アクティビティ結果を取得する
+func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
+	comp := world.Components.LastActivity.Get(actor)
+	if comp == nil {
+		return nil
+	}
+	return comp.(*gc.LastActivity)
 }
 
 // StartActivity は新しいアクティビティを開始する
-func (m *Manager) StartActivity(activity *Activity, world w.World) error {
-	if activity == nil {
+func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp == nil {
 		return ErrActivityNil
 	}
 
+	behavior, err := GetBehavior(comp.BehaviorName)
+	if err != nil {
+		return err
+	}
+
 	// 既存のアクティビティがある場合は中断
-	if currentActivity := m.GetCurrentActivity(activity.Actor); currentActivity != nil {
-		if err := m.InterruptActivity(activity.Actor, "新しいアクティビティを開始"); err != nil {
-			m.logger.Warn("既存アクティビティの中断に失敗", "entity", activity.Actor, "error", err.Error())
+	if currentActivity := worldhelper.GetActivity(world, actor); currentActivity != nil {
+		if err := InterruptActivity(actor, "新しいアクティビティを開始", world); err != nil {
+			log.Warn("既存アクティビティの中断に失敗", "entity", actor, "error", err.Error())
 		}
 	}
 
-	// アクティビティアクターでの検証
-	if err := activity.ActorImpl.Validate(activity, world); err != nil {
+	// Behaviorでの検証
+	if err := behavior.Validate(comp, actor, world); err != nil {
 		return fmt.Errorf("アクティビティ検証失敗: %w", err)
 	}
 
-	// 基本的な必須項目チェック
-	if err := m.validateBasicRequirements(activity); err != nil {
-		return fmt.Errorf("基本要件検証失敗: %w", err)
-	}
+	// アクティビティをコンポーネントとして登録
+	worldhelper.SetActivity(world, actor, comp)
+	comp.State = gc.ActivityStateRunning
 
-	// アクティビティを登録
-	m.currentActivities[activity.Actor] = activity
-	activity.State = ActivityStateRunning
-
-	// アクティビティアクターのStart処理を実行
-	if err := activity.ActorImpl.Start(activity, world); err != nil {
+	// BehaviorのStart処理を実行
+	if err := behavior.Start(comp, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
-		delete(m.currentActivities, activity.Actor)
+		worldhelper.RemoveActivity(world, actor)
 		return fmt.Errorf("アクティビティ開始失敗: %w", err)
 	}
 
-	m.logger.Debug("アクティビティ開始",
-		"entity", activity.Actor,
-		"type", activity.ActorImpl.String(),
-		"duration", activity.TurnsTotal)
+	log.Debug("アクティビティ開始",
+		"entity", actor,
+		"type", behavior.Name(),
+		"duration", comp.TurnsTotal)
 
 	return nil
 }
 
-// GetCurrentActivity は指定されたエンティティの現在のアクティビティを取得する
-func (m *Manager) GetCurrentActivity(entity ecs.Entity) *Activity {
-	return m.currentActivities[entity]
-}
-
-// HasActivity は指定されたエンティティがアクティビティを実行中かを返す
-func (m *Manager) HasActivity(entity ecs.Entity) bool {
-	activity := m.GetCurrentActivity(entity)
-	return activity != nil && activity.IsActive()
-}
-
 // InterruptActivity は指定されたエンティティのアクティビティを中断する
-func (m *Manager) InterruptActivity(entity ecs.Entity, reason string) error {
-	activity := m.GetCurrentActivity(entity)
-	if activity == nil {
+func InterruptActivity(entity ecs.Entity, reason string, world w.World) error {
+	comp := worldhelper.GetActivity(world, entity)
+	if comp == nil {
 		return ErrActivityNotFound
 	}
 
-	return activity.Interrupt(reason)
+	return Interrupt(comp, reason)
 }
 
 // ResumeActivity は指定されたエンティティのアクティビティを再開する
-func (m *Manager) ResumeActivity(entity ecs.Entity, world w.World) error {
-	activity := m.GetCurrentActivity(entity)
-	if activity == nil {
+func ResumeActivity(entity ecs.Entity, world w.World) error {
+	comp := worldhelper.GetActivity(world, entity)
+	if comp == nil {
 		return ErrActivityNotFound
 	}
 
-	// 再開条件をチェック
-	if err := m.validateResume(activity, world); err != nil {
-		return fmt.Errorf("アクティビティ再開検証失敗: %w", err)
+	if !CanResume(comp) {
+		return fmt.Errorf("アクティビティ '%s' は再開できません", GetDisplayName(comp))
 	}
 
-	return activity.Resume()
+	return Resume(comp)
 }
 
 // CancelActivity は指定されたエンティティのアクティビティをキャンセルする
-func (m *Manager) CancelActivity(entity ecs.Entity, reason string, world w.World) {
-	activity := m.GetCurrentActivity(entity)
-	if activity == nil {
+func CancelActivity(entity ecs.Entity, reason string, world w.World) {
+	comp := worldhelper.GetActivity(world, entity)
+	if comp == nil {
 		return
 	}
 
-	// アクティビティアクターを取得してCanceled処理を実行
-	if err := activity.ActorImpl.Canceled(activity, world); err != nil {
-		m.logger.Warn("アクティビティキャンセル処理エラー",
+	behavior, err := GetBehavior(comp.BehaviorName)
+	if err != nil {
+		log.Warn("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
+		worldhelper.RemoveActivity(world, entity)
+		return
+	}
+
+	// BehaviorのCanceled処理を実行
+	if err := behavior.Canceled(comp, entity, world); err != nil {
+		log.Warn("アクティビティキャンセル処理エラー",
 			"entity", entity,
 			"error", err.Error())
 	}
 
 	// アクティビティ自体をキャンセル状態に
-	activity.Cancel(reason)
-	delete(m.currentActivities, entity)
+	Cancel(comp, reason)
 
-	m.logger.Debug("アクティビティキャンセル",
+	// 結果を記録
+	result := &ActionResult{
+		Success:      false,
+		State:        gc.ActivityStateCanceled,
+		ActivityName: comp.BehaviorName,
+		Message:      reason,
+	}
+	setLastResult(entity, result, world)
+
+	worldhelper.RemoveActivity(world, entity)
+
+	log.Debug("アクティビティキャンセル",
 		"entity", entity,
-		"type", activity.ActorImpl.String(),
+		"type", comp.BehaviorName,
 		"reason", reason)
 }
 
 // ProcessTurn は全てのアクティブなアクティビティの1ターン分の処理を実行する
-func (m *Manager) ProcessTurn(world w.World) {
-	m.logger.Debug("アクティビティターン処理開始", "count", len(m.currentActivities))
+func ProcessTurn(world w.World) {
+	log.Debug("アクティビティターン処理開始")
 
 	// 完了・キャンセルされたアクティビティを削除するためのリスト
 	var toRemove []ecs.Entity
 
-	for entity, activity := range m.currentActivities {
+	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
+		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+
 		// アクティブなアクティビティのみ処理
-		if !activity.IsActive() {
-			if activity.IsCompleted() || activity.IsCanceled() {
+		if !IsActive(comp) {
+			if IsCompleted(comp) || IsCanceled(comp) {
 				toRemove = append(toRemove, entity)
 			}
-			continue
+			return
+		}
+
+		behavior, err := GetBehavior(comp.BehaviorName)
+		if err != nil {
+			log.Error("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
+			toRemove = append(toRemove, entity)
+			return
 		}
 
 		// ターン処理を実行
-		if err := activity.ActorImpl.DoTurn(activity, world); err != nil {
-			m.logger.Error("アクティビティターン処理エラー",
+		if err := behavior.DoTurn(comp, entity, world); err != nil {
+			log.Error("アクティビティターン処理エラー",
 				"entity", entity,
-				"type", activity.ActorImpl.String(),
+				"type", comp.BehaviorName,
 				"error", err.Error())
 
 			// エラーが発生した場合はキャンセル
-			m.CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
+			CancelActivity(entity, fmt.Sprintf("エラー: %s", err.Error()), world)
 			toRemove = append(toRemove, entity)
-			continue
+			return
 		}
 
 		// 完了したアクティビティの処理
-		if activity.IsCompleted() {
+		if IsCompleted(comp) {
 			// Finish処理を実行
-			if err := activity.ActorImpl.Finish(activity, world); err != nil {
-				m.logger.Error("アクティビティ完了処理エラー",
+			if err := behavior.Finish(comp, entity, world); err != nil {
+				log.Error("アクティビティ完了処理エラー",
 					"entity", entity,
-					"type", activity.ActorImpl.String(),
+					"type", comp.BehaviorName,
 					"error", err.Error())
 			}
 
-			m.logger.Debug("アクティビティ完了",
+			// 結果を記録
+			result := &ActionResult{
+				Success:      true,
+				State:        gc.ActivityStateCompleted,
+				ActivityName: comp.BehaviorName,
+				Message:      "完了",
+			}
+			setLastResult(entity, result, world)
+
+			log.Debug("アクティビティ完了",
 				"entity", entity,
-				"type", activity.ActorImpl.String())
+				"type", comp.BehaviorName)
 			toRemove = append(toRemove, entity)
 		}
-	}
+	}))
 
 	// 完了・キャンセルされたアクティビティを削除
 	for _, entity := range toRemove {
-		delete(m.currentActivities, entity)
+		worldhelper.RemoveActivity(world, entity)
 	}
 
-	m.logger.Debug("アクティビティターン処理完了", "removed", len(toRemove))
+	log.Debug("アクティビティターン処理完了", "removed", len(toRemove))
 }
 
-// GetActivitySummary はアクティビティの要約情報を取得する
-func (m *Manager) GetActivitySummary() map[string]interface{} {
-	summary := make(map[string]interface{})
-
-	var activeCount, pausedCount, totalCount int
-	for _, activity := range m.currentActivities {
-		totalCount++
-		switch activity.State {
-		case ActivityStateRunning:
-			activeCount++
-		case ActivityStatePaused:
-			pausedCount++
-		case ActivityStateCompleted, ActivityStateCanceled:
-			// 完了/キャンセル状態はカウントしない
-		}
-	}
-
-	summary["total"] = totalCount
-	summary["active"] = activeCount
-	summary["paused"] = pausedCount
-
-	return summary
-}
-
-// validateBasicRequirements はアクティビティの基本要件を検証する
-// 詳細な検証は各アクティビティのValidateメソッドで行う
-func (m *Manager) validateBasicRequirements(activity *Activity) error {
-	// 基本的なnilチェックのみ実行
-	if activity == nil {
-		return ErrActivityNil
-	}
-
-	return nil
-}
-
-// validateResume はアクティビティの再開可能性を検証する
-func (m *Manager) validateResume(activity *Activity, world w.World) error {
-	if !activity.CanResume() {
-		return fmt.Errorf("アクティビティ '%s' は再開できません", activity.GetDisplayName())
-	}
-
-	// アクティビティアクターでの検証を再実行
-	if err := activity.ActorImpl.Validate(activity, world); err != nil {
-		return fmt.Errorf("再開時検証失敗: %w", err)
-	}
-
-	// 基本要件を再チェック
-	return m.validateBasicRequirements(activity)
-}
-
-// createActivity はアクティビティ実装とパラメータからアクティビティを作成する
-func (m *Manager) createActivity(actorImpl Behavior, params ActionParams, world w.World) *Activity {
+// buildActivity はアクティビティ実装とパラメータからアクティビティを作成する
+func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.Activity, error) {
 	// 基本のdurationを計算
 	duration := params.Duration
 	if duration <= 0 {
-		characterAP := m.getEntityMaxAP(params.Actor, world)
-		duration = CalculateRequiredTurns(actorImpl, characterAP)
+		characterAP := getEntityMaxAP(params.Actor, world)
+		duration = CalculateRequiredTurns(behavior, characterAP)
 	}
 
 	// アクティビティを作成
-	activity := NewActivity(actorImpl, params.Actor, duration)
+	comp, err := NewActivity(behavior, duration)
+	if err != nil {
+		return nil, err
+	}
 
 	// パラメータを設定
 	if params.Destination != nil {
-		activity.Position = params.Destination
+		comp.Destination = params.Destination
 	}
 	if params.Target != nil {
-		activity.Target = params.Target
+		comp.Target = params.Target
 	}
 
-	return activity
+	return comp, nil
 }
 
-// consumeMoveCost はターン管理システムに移動コストを通知する
-func (m *Manager) consumeMoveCost(world w.World, actorImpl Behavior, actor ecs.Entity) {
-	if world.Resources.TurnManager == nil {
-		m.logger.Warn("TurnManagerリソースが見つかりません")
+// consumeMoveCost はアクションのAPコストを消費する
+func consumeMoveCost(world w.World, behavior Behavior, actor ecs.Entity) {
+	info := behavior.Info()
+	cost := info.ActionPointCost
+
+	// TurnBasedコンポーネントから直接APを消費
+	tbComp := world.Components.TurnBased.Get(actor)
+	if tbComp == nil {
+		log.Debug("TurnBasedコンポーネントがない", "actor", actor)
 		return
 	}
 
-	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-	info := actorImpl.Info()
-	cost := info.ActionPointCost
-	actionName := info.Name
+	tb := tbComp.(*gc.TurnBased)
+	tb.AP.Current -= cost
 
-	success := turnManager.ConsumeActionPoints(world, actor, actionName, cost)
-	if !success {
-		m.logger.Debug("移動コスト消費失敗", "actor", actor, "cost", cost)
-	}
-
-	m.logger.Debug("移動コスト消費",
-		"activity", actorImpl.String(),
+	log.Debug("移動コスト消費",
+		"activity", behavior.Name(),
 		"cost", cost,
+		"remaining", tb.AP.Current,
 		"actor", actor,
 		"isPlayer", actor.HasComponent(world.Components.Player))
 }
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
-func (m *Manager) getEntityMaxAP(entity ecs.Entity, world w.World) int {
+func getEntityMaxAP(entity ecs.Entity, world w.World) int {
 	if turnBasedComponent := world.Components.TurnBased.Get(entity); turnBasedComponent != nil {
 		turnBased := turnBasedComponent.(*gc.TurnBased)
 		return turnBased.AP.Max
 	}
-	m.logger.Debug("TurnBasedコンポーネントが見つからない", "entity", entity)
+	log.Debug("TurnBasedコンポーネントが見つからない", "entity", entity)
 	return 100 // デフォルトAP値
-}
-
-// ActionParams はアクション実行時のパラメータを表す
-type ActionParams struct {
-	Actor       ecs.Entity   // アクションを実行するエンティティ
-	Target      *ecs.Entity  // 対象エンティティ（攻撃等で使用）
-	Destination *gc.Position // 対象位置（移動等で使用）
-	Duration    int          // 継続時間（休息、待機等で使用）
-	Reason      string       // 理由（待機等で使用）
-}
-
-// ActionResult はアクション実行結果を表す
-type ActionResult struct {
-	Success      bool   // 実行成功/失敗
-	ActivityName string // 実行されたアクティビティ名
-	Message      string // 結果メッセージ
 }

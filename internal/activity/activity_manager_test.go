@@ -5,373 +5,283 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-func TestActivityManagerCreation(t *testing.T) {
-	t.Parallel()
-	manager := NewManager(nil)
-
-	if manager == nil {
-		t.Errorf("Expected non-nil activity manager")
-		return
+// getActivitySummary はテスト用にアクティビティの要約情報を取得する
+func getActivitySummary(t *testing.T, world w.World) map[string]int {
+	t.Helper()
+	summary := map[string]int{
+		"total":  0,
+		"active": 0,
+		"paused": 0,
 	}
 
-	if manager.currentActivities == nil {
-		t.Errorf("Expected non-nil current activities map")
-		return
-	}
+	world.Manager.Join(world.Components.Activity).Visit(ecs.Visit(func(entity ecs.Entity) {
+		comp := world.Components.Activity.Get(entity).(*gc.Activity)
+		summary["total"]++
+		switch comp.State {
+		case gc.ActivityStateRunning:
+			summary["active"]++
+		case gc.ActivityStatePaused:
+			summary["paused"]++
+		case gc.ActivityStateCompleted, gc.ActivityStateCanceled:
+			// 完了/キャンセル状態はカウントしない
+		}
+	}))
 
-	if len(manager.currentActivities) != 0 {
-		t.Errorf("Expected empty activities map initially, got %d activities", len(manager.currentActivities))
-	}
+	return summary
 }
 
-func TestActivityManagerStartActivity(t *testing.T) {
+func TestStartActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
-	actor := ecs.Entity(1)
+	actor := world.Manager.NewEntity()
+	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// アクティビティを作成
-	actorImpl := &WaitActivity{}
-	activity := NewActivity(actorImpl, actor, 5)
+	comp, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
 
 	// アクティビティ開始
-	err := manager.StartActivity(activity, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity: %v", err)
-	}
+	err = StartActivity(comp, actor, world)
+	assert.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
-	currentActivity := manager.GetCurrentActivity(actor)
-	if currentActivity == nil {
-		t.Errorf("Expected activity to be registered")
-	}
-
-	if currentActivity != activity {
-		t.Errorf("Expected registered activity to match started activity")
-	}
+	currentActivity := worldhelper.GetActivity(world, actor)
+	assert.NotNil(t, currentActivity, "Expected activity to be registered")
+	assert.Equal(t, comp, currentActivity, "Expected registered activity to match started activity")
 
 	// HasActivity のテスト
-	if !manager.HasActivity(actor) {
-		t.Errorf("Expected HasActivity to return true")
-	}
+	assert.True(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return true")
 
 	// 存在しないエンティティのテスト
 	nonExistentActor := ecs.Entity(999)
-	if manager.HasActivity(nonExistentActor) {
-		t.Errorf("Expected HasActivity to return false for non-existent entity")
-	}
+	assert.False(t, worldhelper.HasActivity(world, nonExistentActor), "Expected HasActivity to return false for non-existent entity")
 }
 
-func TestActivityManagerMultipleActivities(t *testing.T) {
+func TestMultipleActivities(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
-	actor1 := ecs.Entity(1)
-	actor2 := ecs.Entity(2)
+	actor1 := world.Manager.NewEntity()
+	actor1.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor2 := world.Manager.NewEntity()
+	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// 複数のアクターでアクティビティを開始
-	actorImpl := &WaitActivity{}
-	activity1 := NewActivity(actorImpl, actor1, 10)
-	activity2 := NewActivity(actorImpl, actor2, 5)
+	comp1, err := NewActivity(&WaitActivity{}, 10)
+	require.NoError(t, err)
+	comp2, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
 
-	err := manager.StartActivity(activity1, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity 1: %v", err)
-	}
+	err = StartActivity(comp1, actor1, world)
+	assert.NoError(t, err)
 
-	err = manager.StartActivity(activity2, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity 2: %v", err)
-	}
+	err = StartActivity(comp2, actor2, world)
+	assert.NoError(t, err)
 
 	// 両方のアクティビティが登録されているかチェック
-	if !manager.HasActivity(actor1) {
-		t.Errorf("Expected actor1 to have activity")
-	}
-
-	if !manager.HasActivity(actor2) {
-		t.Errorf("Expected actor2 to have activity")
-	}
+	assert.True(t, worldhelper.HasActivity(world, actor1), "Expected actor1 to have activity")
+	assert.True(t, worldhelper.HasActivity(world, actor2), "Expected actor2 to have activity")
 
 	// 正しいアクティビティが取得できるかチェック
-	retrievedActivity1 := manager.GetCurrentActivity(actor1)
-	if retrievedActivity1 == nil {
-		t.Errorf("Expected actor1 to have activity")
-	}
+	retrievedActivity1 := worldhelper.GetActivity(world, actor1)
+	assert.NotNil(t, retrievedActivity1, "Expected actor1 to have activity")
 
-	retrievedActivity2 := manager.GetCurrentActivity(actor2)
-	if retrievedActivity2 == nil {
-		t.Errorf("Expected actor2 to have activity")
-	}
+	retrievedActivity2 := worldhelper.GetActivity(world, actor2)
+	assert.NotNil(t, retrievedActivity2, "Expected actor2 to have activity")
 }
 
-func TestActivityManagerReplaceActivity(t *testing.T) {
+func TestReplaceActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
-	actor := ecs.Entity(1)
+	actor := world.Manager.NewEntity()
+	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// 最初のアクティビティを開始
-	actorImpl := &WaitActivity{}
-	activity1 := NewActivity(actorImpl, actor, 10)
-	err := manager.StartActivity(activity1, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting first activity: %v", err)
-	}
+	comp1, err := NewActivity(&WaitActivity{}, 10)
+	require.NoError(t, err)
+	err = StartActivity(comp1, actor, world)
+	assert.NoError(t, err)
 
 	// 最初のアクティビティが実行中であることを確認
-	if activity1.State != ActivityStateRunning {
-		t.Errorf("Expected first activity to be running")
-	}
+	assert.Equal(t, gc.ActivityStateRunning, comp1.State, "Expected first activity to be running")
 
 	// 新しいアクティビティを開始（古いものを置き換え）
-	activity2 := NewActivity(actorImpl, actor, 5)
-	err = manager.StartActivity(activity2, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting second activity: %v", err)
-	}
+	comp2, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
+	err = StartActivity(comp2, actor, world)
+	assert.NoError(t, err)
 
 	// 古いアクティビティが中断されているかチェック
-	if activity1.State != ActivityStatePaused {
-		t.Errorf("Expected first activity to be paused after replacement, got %v", activity1.State)
-	}
+	assert.Equal(t, gc.ActivityStatePaused, comp1.State, "Expected first activity to be paused after replacement")
 
 	// 新しいアクティビティが現在のアクティビティになっているかチェック
-	currentActivity := manager.GetCurrentActivity(actor)
-	if currentActivity != activity2 {
-		t.Errorf("Expected current activity to be the second activity")
-	}
+	currentActivity := worldhelper.GetActivity(world, actor)
+	assert.Equal(t, comp2, currentActivity, "Expected current activity to be the second activity")
 }
 
-func TestActivityManagerInterruptAndResume(t *testing.T) {
+func TestInterruptAndResume(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
-	actor := ecs.Entity(1)
+	actor := world.Manager.NewEntity()
+	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// アクティビティを開始
-	actorImpl := &WaitActivity{}
-	activity := NewActivity(actorImpl, actor, 10)
-	err := manager.StartActivity(activity, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity: %v", err)
-	}
+	comp, err := NewActivity(&WaitActivity{}, 10)
+	require.NoError(t, err)
+	err = StartActivity(comp, actor, world)
+	assert.NoError(t, err)
 
 	// アクティビティを中断
-	err = manager.InterruptActivity(actor, "テスト中断")
-	if err != nil {
-		t.Errorf("Unexpected error interrupting activity: %v", err)
-	}
+	err = InterruptActivity(actor, "テスト中断", world)
+	assert.NoError(t, err)
 
-	if activity.State != ActivityStatePaused {
-		t.Errorf("Expected activity to be paused after interrupt")
-	}
+	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected activity to be paused after interrupt")
 
 	// 中断されたアクティビティはアクティブではない
-	if manager.HasActivity(actor) {
-		t.Errorf("Expected HasActivity to return false for paused activity")
-	}
+	assert.False(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return false for paused activity")
 
 	// アクティビティを再開
-	err = manager.ResumeActivity(actor, world)
-	if err != nil {
-		t.Errorf("Unexpected error resuming activity: %v", err)
-	}
+	err = ResumeActivity(actor, world)
+	assert.NoError(t, err)
 
-	if activity.State != ActivityStateRunning {
-		t.Errorf("Expected activity to be running after resume")
-	}
+	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected activity to be running after resume")
 
 	// 再開されたアクティビティはアクティブ
-	if !manager.HasActivity(actor) {
-		t.Errorf("Expected HasActivity to return true for resumed activity")
-	}
+	assert.True(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return true for resumed activity")
 
 	// 存在しないアクティビティの中断・再開テスト
 	nonExistentActor := ecs.Entity(999)
-	err = manager.InterruptActivity(nonExistentActor, "テスト")
-	if err == nil {
-		t.Errorf("Expected error when interrupting non-existent activity")
-	}
+	err = InterruptActivity(nonExistentActor, "テスト", world)
+	assert.Error(t, err, "Expected error when interrupting non-existent activity")
 
-	err = manager.ResumeActivity(nonExistentActor, world)
-	if err == nil {
-		t.Errorf("Expected error when resuming non-existent activity")
-	}
+	err = ResumeActivity(nonExistentActor, world)
+	assert.Error(t, err, "Expected error when resuming non-existent activity")
 }
 
-func TestActivityManagerCancel(t *testing.T) {
+func TestCancelActivity(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
-	actor := ecs.Entity(1)
+	actor := world.Manager.NewEntity()
+	actor.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// アクティビティを開始
-	actorImpl := &WaitActivity{}
-	activity := NewActivity(actorImpl, actor, 5)
-	err := manager.StartActivity(activity, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity: %v", err)
-	}
+	comp, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
+	err = StartActivity(comp, actor, world)
+	assert.NoError(t, err)
 
 	// アクティビティをキャンセル
-	manager.CancelActivity(actor, "テストキャンセル", world)
+	CancelActivity(actor, "テストキャンセル", world)
 
-	if activity.State != ActivityStateCanceled {
-		t.Errorf("Expected activity to be canceled")
-	}
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected activity to be canceled")
 
 	// キャンセルされたアクティビティは管理対象から削除される
-	currentActivity := manager.GetCurrentActivity(actor)
-	if currentActivity != nil {
-		t.Errorf("Expected no current activity after cancel")
-	}
+	currentActivity := worldhelper.GetActivity(world, actor)
+	assert.Nil(t, currentActivity, "Expected no current activity after cancel")
 
 	// 存在しないアクティビティのキャンセル（エラーにならない）
 	nonExistentActor := ecs.Entity(999)
-	manager.CancelActivity(nonExistentActor, "テスト", world) // パニックしないことを確認
+	CancelActivity(nonExistentActor, "テスト", world) // パニックしないことを確認
 }
 
-func TestActivityManagerProcessTurn(t *testing.T) {
+func TestProcessTurn(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
-	actor1 := ecs.Entity(1)
-	actor2 := ecs.Entity(2)
+	actor1 := world.Manager.NewEntity()
+	actor1.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor2 := world.Manager.NewEntity()
+	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 	// 短いアクティビティと長いアクティビティを開始
-	actorImpl := &WaitActivity{}
-	shortActivity := NewActivity(actorImpl, actor1, 2) // 2ターンで完了
-	longActivity := NewActivity(actorImpl, actor2, 5)  // 5ターンで完了
+	shortComp, err := NewActivity(&WaitActivity{}, 2) // 2ターンで完了
+	require.NoError(t, err)
+	longComp, err := NewActivity(&WaitActivity{}, 5) // 5ターンで完了
+	require.NoError(t, err)
 
-	err := manager.StartActivity(shortActivity, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting short activity: %v", err)
-	}
-	err = manager.StartActivity(longActivity, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting long activity: %v", err)
-	}
+	err = StartActivity(shortComp, actor1, world)
+	assert.NoError(t, err)
+	err = StartActivity(longComp, actor2, world)
+	assert.NoError(t, err)
 
 	// 初期状態の確認
-	summary := manager.GetActivitySummary()
-	if summary["total"] != 2 {
-		t.Errorf("Expected 2 total activities, got %v", summary["total"])
-	}
-	if summary["active"] != 2 {
-		t.Errorf("Expected 2 active activities, got %v", summary["active"])
-	}
+	summary := getActivitySummary(t, world)
+	assert.Equal(t, 2, summary["total"], "Expected 2 total activities")
+	assert.Equal(t, 2, summary["active"], "Expected 2 active activities")
 
 	// 1ターン目処理
-	manager.ProcessTurn(world)
+	ProcessTurn(world)
 
 	// 両方まだ実行中
-	if shortActivity.TurnsLeft != 1 {
-		t.Errorf("Expected short activity to have 1 turn left, got %d", shortActivity.TurnsLeft)
-	}
-	if longActivity.TurnsLeft != 4 {
-		t.Errorf("Expected long activity to have 4 turns left, got %d", longActivity.TurnsLeft)
-	}
+	assert.Equal(t, 1, shortComp.TurnsLeft, "Expected short activity to have 1 turn left")
+	assert.Equal(t, 4, longComp.TurnsLeft, "Expected long activity to have 4 turns left")
 
 	// 2ターン目処理
-	manager.ProcessTurn(world)
+	ProcessTurn(world)
 
 	// 短いアクティビティが完了
-	if !shortActivity.IsCompleted() {
-		t.Errorf("Expected short activity to be completed")
-	}
-	if longActivity.TurnsLeft != 3 {
-		t.Errorf("Expected long activity to have 3 turns left, got %d", longActivity.TurnsLeft)
-	}
+	assert.True(t, IsCompleted(shortComp), "Expected short activity to be completed")
+	assert.Equal(t, 3, longComp.TurnsLeft, "Expected long activity to have 3 turns left")
 
 	// 完了したアクティビティは管理対象から削除される
-	if manager.GetCurrentActivity(actor1) != nil {
-		t.Errorf("Expected completed activity to be removed")
-	}
-	if manager.GetCurrentActivity(actor2) == nil {
-		t.Errorf("Expected long activity to still be present")
-	}
+	assert.Nil(t, worldhelper.GetActivity(world, actor1), "Expected completed activity to be removed")
+	assert.NotNil(t, worldhelper.GetActivity(world, actor2), "Expected long activity to still be present")
 
 	// サマリーの確認
-	summary = manager.GetActivitySummary()
-	if summary["total"] != 1 {
-		t.Errorf("Expected 1 total activity after completion, got %v", summary["total"])
-	}
+	summary = getActivitySummary(t, world)
+	assert.Equal(t, 1, summary["total"], "Expected 1 total activity after completion")
 }
 
-func TestActivityManagerSummary(t *testing.T) {
+func TestActivitySummary(t *testing.T) {
 	t.Parallel()
-	manager := NewManager(nil)
 	world := testutil.InitTestWorld(t)
 
 	// 初期状態のサマリー
-	summary := manager.GetActivitySummary()
-	if summary["total"] != 0 {
-		t.Errorf("Expected 0 total activities initially, got %v", summary["total"])
-	}
-	if summary["active"] != 0 {
-		t.Errorf("Expected 0 active activities initially, got %v", summary["active"])
-	}
-	if summary["paused"] != 0 {
-		t.Errorf("Expected 0 paused activities initially, got %v", summary["paused"])
-	}
+	summary := getActivitySummary(t, world)
+	assert.Equal(t, 0, summary["total"], "Expected 0 total activities initially")
+	assert.Equal(t, 0, summary["active"], "Expected 0 active activities initially")
+	assert.Equal(t, 0, summary["paused"], "Expected 0 paused activities initially")
 
 	// アクティビティを追加
-	actor1 := ecs.Entity(1)
-	actor2 := ecs.Entity(2)
+	actor1 := world.Manager.NewEntity()
+	actor1.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+	actor2 := world.Manager.NewEntity()
+	actor2.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
-	actorImpl := &WaitActivity{}
-	activity1 := NewActivity(actorImpl, actor1, 10)
-	activity2 := NewActivity(actorImpl, actor2, 5)
+	comp1, err := NewActivity(&WaitActivity{}, 10)
+	require.NoError(t, err)
+	comp2, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
 
-	err := manager.StartActivity(activity1, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity1: %v", err)
-	}
-	err = manager.StartActivity(activity2, world)
-	if err != nil {
-		t.Errorf("Unexpected error starting activity2: %v", err)
-	}
+	err = StartActivity(comp1, actor1, world)
+	assert.NoError(t, err)
+	err = StartActivity(comp2, actor2, world)
+	assert.NoError(t, err)
 
 	// 1つを中断
-	err = manager.InterruptActivity(actor1, "テスト")
-	if err != nil {
-		t.Errorf("Unexpected error interrupting activity: %v", err)
-	}
+	err = InterruptActivity(actor1, "テスト", world)
+	assert.NoError(t, err)
 
 	// サマリーの確認
-	summary = manager.GetActivitySummary()
-	if summary["total"] != 2 {
-		t.Errorf("Expected 2 total activities, got %v", summary["total"])
-	}
-	if summary["active"] != 1 {
-		t.Errorf("Expected 1 active activity, got %v", summary["active"])
-	}
-	if summary["paused"] != 1 {
-		t.Errorf("Expected 1 paused activity, got %v", summary["paused"])
-	}
+	summary = getActivitySummary(t, world)
+	assert.Equal(t, 2, summary["total"], "Expected 2 total activities")
+	assert.Equal(t, 1, summary["active"], "Expected 1 active activity")
+	assert.Equal(t, 1, summary["paused"], "Expected 1 paused activity")
 }
 
-func TestActivityManagerHistory(t *testing.T) {
+func TestLastActivity(t *testing.T) {
 	t.Parallel()
 
-	t.Run("履歴が記録される", func(t *testing.T) {
+	t.Run("結果が記録される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-
-		var history []HistoryEntry
-		manager := NewManager(nil)
-		manager.History = &history
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
@@ -381,70 +291,58 @@ func TestActivityManagerHistory(t *testing.T) {
 			Duration: 1,
 			Reason:   "テスト",
 		}
-		_, err = manager.Execute(&WaitActivity{}, params, world)
+		_, err = Execute(&WaitActivity{}, params, world)
 		require.NoError(t, err)
 
-		require.Len(t, history, 1)
-		assert.Equal(t, "Wait", history[0].Activity.String())
-		assert.Equal(t, player, history[0].Actor)
-		assert.True(t, history[0].Success)
+		result := GetLastResult(player, world)
+		expected := &gc.LastActivity{
+			BehaviorName: gc.BehaviorWait,
+			State:        gc.ActivityStateCompleted,
+			Success:      true,
+			Message:      "アクション完了",
+		}
+		assert.Equal(t, expected, result)
 	})
 
-	t.Run("複数のアクティビティが順番に記録される", func(t *testing.T) {
+	t.Run("複数のアクティビティで最新の結果が保持される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-
-		var history []HistoryEntry
-		manager := NewManager(nil)
-		manager.History = &history
-		world.Resources.ActivityManager = manager
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
 
 		// 待機
 		params := ActionParams{Actor: player, Duration: 1, Reason: "待機"}
-		_, err = manager.Execute(&WaitActivity{}, params, world)
+		_, err = Execute(&WaitActivity{}, params, world)
 		require.NoError(t, err)
+
+		result := GetLastResult(player, world)
+		expected := &gc.LastActivity{
+			BehaviorName: gc.BehaviorWait,
+			State:        gc.ActivityStateCompleted,
+			Success:      true,
+			Message:      "アクション完了",
+		}
+		assert.Equal(t, expected, result)
 
 		// 移動
-		params = ActionParams{Actor: player, Destination: &gc.Position{X: 10, Y: 9}}
-		_, err = manager.Execute(&MoveActivity{}, params, world)
+		params = ActionParams{Actor: player, Destination: &gc.GridElement{X: 10, Y: 9}}
+		_, err = Execute(&MoveActivity{}, params, world)
 		require.NoError(t, err)
 
-		require.Len(t, history, 2)
-		assert.Equal(t, "Wait", history[0].Activity.String())
-		assert.Equal(t, "Move", history[1].Activity.String())
-	})
-
-	t.Run("Historyがnilの場合は記録されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-
-		manager := NewManager(nil)
-		// History を設定しない
-
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
-		require.NoError(t, err)
-
-		params := ActionParams{Actor: player, Duration: 1, Reason: "テスト"}
-		_, err = manager.Execute(&WaitActivity{}, params, world)
-		require.NoError(t, err)
-
-		// パニックしないことを確認（Historyがnilでも安全）
-		assert.Nil(t, manager.History)
+		result = GetLastResult(player, world)
+		expected = &gc.LastActivity{
+			BehaviorName: gc.BehaviorMove,
+			State:        gc.ActivityStateCompleted,
+			Success:      true,
+			Message:      "アクション完了",
+		}
+		assert.Equal(t, expected, result)
 	})
 
 	t.Run("失敗したアクティビティも記録される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-
-		var history []HistoryEntry
-		manager := NewManager(nil)
-		manager.History = &history
 
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
 		require.NoError(t, err)
@@ -452,11 +350,15 @@ func TestActivityManagerHistory(t *testing.T) {
 		// 存在しないターゲットへの攻撃（失敗する）
 		nonExistentEntity := ecs.Entity(9999)
 		params := ActionParams{Actor: player, Target: &nonExistentEntity}
-		_, _ = manager.Execute(&AttackActivity{}, params, world)
+		_, _ = Execute(&AttackActivity{}, params, world)
 
-		// エラーが発生しても履歴には記録される
-		require.Len(t, history, 1)
-		assert.Equal(t, "Attack", history[0].Activity.String())
-		assert.False(t, history[0].Success)
+		result := GetLastResult(player, world)
+		expected := &gc.LastActivity{
+			BehaviorName: gc.BehaviorAttack,
+			State:        gc.ActivityStateCanceled,
+			Success:      false,
+			Message:      "アクティビティ検証失敗: " + ErrAttackTargetNotExists.Error(),
+		}
+		assert.Equal(t, expected, result)
 	})
 }

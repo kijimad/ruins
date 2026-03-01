@@ -87,6 +87,11 @@ func InitTestWorld(t *testing.T) w.World {
 			TileWidth:  50,
 			TileHeight: 50,
 		},
+		TurnState: gc.TurnState{
+			Phase:      gc.TurnPhasePlayer,
+			TurnNumber: 1,
+		},
+		SelectedWeaponSlot: 1,
 	}
 	err = gameResource.RequestStateChange(gr.NoneEvent{})
 	require.NoError(t, err, "テスト初期化時の状態変更要求に失敗しました")

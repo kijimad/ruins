@@ -8,12 +8,13 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// OpenDoorActivity はActivityInterfaceの実装
+// OpenDoorActivity はBehaviorの実装
 type OpenDoorActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (oda *OpenDoorActivity) Info() Info {
 	return Info{
 		Name:            "ドア開閉",
@@ -25,18 +26,18 @@ func (oda *OpenDoorActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (oda *OpenDoorActivity) String() string {
-	return "OpenDoor"
+// Name はBehaviorの実装
+func (oda *OpenDoorActivity) Name() gc.BehaviorName {
+	return gc.BehaviorOpenDoor
 }
 
 // Validate はドア開閉アクティビティの検証を行う
-func (oda *OpenDoorActivity) Validate(act *Activity, world w.World) error {
-	if act.Target == nil {
+func (oda *OpenDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	if comp.Target == nil {
 		return fmt.Errorf("ドアエンティティが指定されていません")
 	}
 
-	targetEntity := *act.Target
+	targetEntity := *comp.Target
 
 	// Doorコンポーネントを持っているか確認
 	if !targetEntity.HasComponent(world.Components.Door) {
@@ -47,44 +48,44 @@ func (oda *OpenDoorActivity) Validate(act *Activity, world w.World) error {
 }
 
 // Start はドア開閉開始時の処理を実行する
-func (oda *OpenDoorActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("ドア開閉開始", "actor", act.Actor)
+func (oda *OpenDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("ドア開閉開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はドア開閉アクティビティの1ターン分の処理を実行する
-func (oda *OpenDoorActivity) DoTurn(act *Activity, world w.World) error {
-	targetEntity := *act.Target
+func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	targetEntity := *comp.Target
 
 	doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
 	if doorComp == nil {
-		act.Cancel("ドアコンポーネントが取得できません")
+		Cancel(comp, "ドアコンポーネントが取得できません")
 		return fmt.Errorf("ドアコンポーネントが取得できません")
 	}
 
 	// ドアを開く
 	if !doorComp.IsOpen {
 		if err := worldhelper.OpenDoor(world, targetEntity); err != nil {
-			act.Cancel(fmt.Sprintf("ドアを開けません: %v", err))
+			Cancel(comp, fmt.Sprintf("ドアを開けません: %v", err))
 			return err
 		}
 
-		act.Logger.Debug("ドアを開きました", "door", targetEntity)
+		log.Debug("ドアを開きました", "door", targetEntity)
 
 		// 視界の更新が必要
 		world.Resources.Dungeon.NeedsForceUpdate = true
 	}
 
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
 // Finish はドア開閉完了時の処理を実行する
-func (oda *OpenDoorActivity) Finish(act *Activity, world w.World) error {
-	act.Logger.Debug("ドア開閉アクティビティ完了", "actor", act.Actor)
+func (oda *OpenDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+	log.Debug("ドア開閉アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
-	if isPlayerActivity(act, world) {
+	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append("ドアを開いた。").
 			Log()
@@ -94,15 +95,15 @@ func (oda *OpenDoorActivity) Finish(act *Activity, world w.World) error {
 }
 
 // Canceled はドア開閉キャンセル時の処理を実行する
-func (oda *OpenDoorActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("ドア開閉キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+func (oda *OpenDoorActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("ドア開閉キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-// CloseDoorActivity はActivityInterfaceの実装
+// CloseDoorActivity はBehaviorの実装
 type CloseDoorActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (cda *CloseDoorActivity) Info() Info {
 	return Info{
 		Name:            "ドア閉鎖",
@@ -114,18 +115,18 @@ func (cda *CloseDoorActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (cda *CloseDoorActivity) String() string {
-	return "CloseDoor"
+// Name はBehaviorの実装
+func (cda *CloseDoorActivity) Name() gc.BehaviorName {
+	return gc.BehaviorCloseDoor
 }
 
 // Validate はドア閉鎖アクティビティの検証を行う
-func (cda *CloseDoorActivity) Validate(act *Activity, world w.World) error {
-	if act.Target == nil {
+func (cda *CloseDoorActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	if comp.Target == nil {
 		return fmt.Errorf("ドアエンティティが指定されていません")
 	}
 
-	targetEntity := *act.Target
+	targetEntity := *comp.Target
 
 	// Doorコンポーネントを持っているか確認
 	if !targetEntity.HasComponent(world.Components.Door) {
@@ -136,44 +137,44 @@ func (cda *CloseDoorActivity) Validate(act *Activity, world w.World) error {
 }
 
 // Start はドア閉鎖開始時の処理を実行する
-func (cda *CloseDoorActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("ドア閉鎖開始", "actor", act.Actor)
+func (cda *CloseDoorActivity) Start(_ *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("ドア閉鎖開始", "actor", actor)
 	return nil
 }
 
 // DoTurn はドア閉鎖アクティビティの1ターン分の処理を実行する
-func (cda *CloseDoorActivity) DoTurn(act *Activity, world w.World) error {
-	targetEntity := *act.Target
+func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	targetEntity := *comp.Target
 
 	doorComp := world.Components.Door.Get(targetEntity).(*gc.Door)
 	if doorComp == nil {
-		act.Cancel("ドアコンポーネントが取得できません")
+		Cancel(comp, "ドアコンポーネントが取得できません")
 		return fmt.Errorf("ドアコンポーネントが取得できません")
 	}
 
 	// ドアを閉じる
 	if doorComp.IsOpen {
 		if err := worldhelper.CloseDoor(world, targetEntity); err != nil {
-			act.Cancel(fmt.Sprintf("ドアを閉じられません: %v", err))
+			Cancel(comp, fmt.Sprintf("ドアを閉じられません: %v", err))
 			return err
 		}
 
-		act.Logger.Debug("ドアを閉じました", "door", targetEntity)
+		log.Debug("ドアを閉じました", "door", targetEntity)
 
 		// 視界の更新が必要であることをマーク（BlockViewが変更されたため）
 		world.Resources.Dungeon.NeedsForceUpdate = true
 	}
 
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
 // Finish はドア閉鎖完了時の処理を実行する
-func (cda *CloseDoorActivity) Finish(act *Activity, world w.World) error {
-	act.Logger.Debug("ドア閉鎖アクティビティ完了", "actor", act.Actor)
+func (cda *CloseDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+	log.Debug("ドア閉鎖アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみメッセージを表示
-	if isPlayerActivity(act, world) {
+	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append("ドアを閉じた。").
 			Log()
@@ -183,7 +184,7 @@ func (cda *CloseDoorActivity) Finish(act *Activity, world w.World) error {
 }
 
 // Canceled はドア閉鎖キャンセル時の処理を実行する
-func (cda *CloseDoorActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("ドア閉鎖キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+func (cda *CloseDoorActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("ドア閉鎖キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }

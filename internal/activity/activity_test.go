@@ -3,37 +3,25 @@ package activity
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestActivityCreation(t *testing.T) {
 	t.Parallel()
-	actor := ecs.Entity(1)
 
 	// 休息アクティビティの作成テスト
-	actorImpl := &RestActivity{}
-	activity := NewActivity(actorImpl, actor, 10)
+	behavior := &RestActivity{}
+	comp, err := NewActivity(behavior, 10)
+	require.NoError(t, err)
 
-	if activity.ActorImpl != actorImpl {
-		t.Errorf("Expected activity actor %v, got %v", actorImpl, activity.ActorImpl)
-	}
-
-	if activity.State != ActivityStateRunning {
-		t.Errorf("Expected initial state %v, got %v", ActivityStateRunning, activity.State)
-	}
-
-	if activity.TurnsTotal != 10 {
-		t.Errorf("Expected turns total 10, got %d", activity.TurnsTotal)
-	}
-
-	if activity.TurnsLeft != 10 {
-		t.Errorf("Expected turns left 10, got %d", activity.TurnsLeft)
-	}
-
-	if activity.Actor != actor {
-		t.Errorf("Expected actor %v, got %v", actor, activity.Actor)
-	}
+	assert.Equal(t, gc.BehaviorRest, behavior.Name(), "Expected behavior to be Rest")
+	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected initial state to be Running")
+	assert.Equal(t, 10, comp.TurnsTotal, "Expected turns total 10")
+	assert.Equal(t, 10, comp.TurnsLeft, "Expected turns left 10")
 }
 
 func TestActivityInfo(t *testing.T) {
@@ -42,194 +30,163 @@ func TestActivityInfo(t *testing.T) {
 	actorImpl := &RestActivity{}
 	info := actorImpl.Info()
 
-	if info.Name != "休息" {
-		t.Errorf("Expected name '休息', got '%s'", info.Name)
-	}
-
-	if info.Name != "休息" {
-		t.Errorf("Expected name '休息', got '%s'", info.Name)
-	}
-
-	if !info.Interruptible {
-		t.Errorf("Expected rest activity to be interruptible")
-	}
-
-	if !info.Resumable {
-		t.Errorf("Expected rest activity to be resumable")
-	}
+	assert.Equal(t, "休息", info.Name, "Expected name '休息'")
+	assert.True(t, info.Interruptible, "Expected rest activity to be interruptible")
+	assert.True(t, info.Resumable, "Expected rest activity to be resumable")
 }
 
 func TestActivityInterruptAndResume(t *testing.T) {
 	t.Parallel()
-	actor := ecs.Entity(1)
-	actorImpl := &RestActivity{}
-	activity := NewActivity(actorImpl, actor, 10)
+
+	comp, err := NewActivity(&RestActivity{}, 10)
+	require.NoError(t, err)
 
 	// 初期状態での中断可能性チェック
-	if !activity.CanInterrupt() {
-		t.Errorf("Expected activity to be interruptible initially")
-	}
+	assert.True(t, CanInterrupt(comp), "Expected activity to be interruptible initially")
 
 	// 中断実行
-	err := activity.Interrupt("テスト中断")
-	if err != nil {
-		t.Errorf("Unexpected error during interrupt: %v", err)
-	}
-
-	if activity.State != ActivityStatePaused {
-		t.Errorf("Expected state %v after interrupt, got %v", ActivityStatePaused, activity.State)
-	}
-
-	if activity.CancelReason != "テスト中断" {
-		t.Errorf("Expected cancel reason 'テスト中断', got '%s'", activity.CancelReason)
-	}
+	err = Interrupt(comp, "テスト中断")
+	assert.NoError(t, err, "Unexpected error during interrupt")
+	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected state to be Paused after interrupt")
+	assert.Equal(t, "テスト中断", comp.CancelReason, "Expected cancel reason 'テスト中断'")
 
 	// 中断状態での再中断テスト（エラーになるはず）
-	err = activity.Interrupt("再中断")
-	if err == nil {
-		t.Errorf("Expected error when interrupting already paused activity")
-	}
+	err = Interrupt(comp, "再中断")
+	assert.Error(t, err, "Expected error when interrupting already paused activity")
 
 	// 再開可能性チェック
-	if !activity.CanResume() {
-		t.Errorf("Expected activity to be resumable")
-	}
+	assert.True(t, CanResume(comp), "Expected activity to be resumable")
 
 	// 再開実行
-	err = activity.Resume()
-	if err != nil {
-		t.Errorf("Unexpected error during resume: %v", err)
-	}
-
-	if activity.State != ActivityStateRunning {
-		t.Errorf("Expected state %v after resume, got %v", ActivityStateRunning, activity.State)
-	}
-
-	if activity.CancelReason != "" {
-		t.Errorf("Expected empty cancel reason after resume, got '%s'", activity.CancelReason)
-	}
+	err = Resume(comp)
+	assert.NoError(t, err, "Unexpected error during resume")
+	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected state to be Running after resume")
+	assert.Equal(t, "", comp.CancelReason, "Expected empty cancel reason after resume")
 }
 
 func TestActivityCancel(t *testing.T) {
 	t.Parallel()
-	actor := ecs.Entity(1)
-	actorImpl := &WaitActivity{}
-	activity := NewActivity(actorImpl, actor, 5)
+
+	comp, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
+
+	// キャンセル前はIsCanceledがfalse
+	assert.False(t, IsCanceled(comp), "Expected IsCanceled to be false before cancel")
 
 	// キャンセル実行
-	activity.Cancel("テストキャンセル")
+	Cancel(comp, "テストキャンセル")
 
-	if activity.State != ActivityStateCanceled {
-		t.Errorf("Expected state %v after cancel, got %v", ActivityStateCanceled, activity.State)
-	}
-
-	if activity.CancelReason != "テストキャンセル" {
-		t.Errorf("Expected cancel reason 'テストキャンセル', got '%s'", activity.CancelReason)
-	}
+	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected state to be Canceled after cancel")
+	assert.Equal(t, "テストキャンセル", comp.CancelReason, "Expected cancel reason 'テストキャンセル'")
+	assert.True(t, IsCanceled(comp), "Expected IsCanceled to be true after cancel")
 
 	// キャンセル後は中断・再開不可
-	if activity.CanInterrupt() {
-		t.Errorf("Expected canceled activity to not be interruptible")
-	}
-
-	if activity.CanResume() {
-		t.Errorf("Expected canceled activity to not be resumable")
-	}
+	assert.False(t, CanInterrupt(comp), "Expected canceled activity to not be interruptible")
+	assert.False(t, CanResume(comp), "Expected canceled activity to not be resumable")
 }
 
 func TestActivityComplete(t *testing.T) {
 	t.Parallel()
-	actor := ecs.Entity(1)
-	actorImpl := &WaitActivity{}
-	activity := NewActivity(actorImpl, actor, 5)
+
+	comp, err := NewActivity(&WaitActivity{}, 5)
+	require.NoError(t, err)
 
 	// 完了実行
-	activity.Complete()
+	Complete(comp)
 
-	if activity.State != ActivityStateCompleted {
-		t.Errorf("Expected state %v after complete, got %v", ActivityStateCompleted, activity.State)
-	}
-
-	if activity.TurnsLeft != 0 {
-		t.Errorf("Expected turns left 0 after complete, got %d", activity.TurnsLeft)
-	}
-
-	if !activity.IsCompleted() {
-		t.Errorf("Expected IsCompleted() to return true")
-	}
+	assert.Equal(t, gc.ActivityStateCompleted, comp.State, "Expected state to be Completed after complete")
+	assert.Equal(t, 0, comp.TurnsLeft, "Expected turns left 0 after complete")
+	assert.True(t, IsCompleted(comp), "Expected IsCompleted() to return true")
 }
 
 func TestActivityProgressCalculation(t *testing.T) {
 	t.Parallel()
-	actor := ecs.Entity(1)
-	actorImpl := &RestActivity{}
-	activity := NewActivity(actorImpl, actor, 10)
+
+	comp, err := NewActivity(&RestActivity{}, 10)
+	require.NoError(t, err)
 
 	// 初期進捗（0%）
-	progress := activity.GetProgressPercent()
-	if progress != 0.0 {
-		t.Errorf("Expected initial progress 0%%, got %f%%", progress)
-	}
+	progress := GetProgressPercent(comp)
+	assert.Equal(t, 0.0, progress, "Expected initial progress 0%%")
 
 	// 5ターン進行（50%）
-	activity.TurnsLeft = 5
-	progress = activity.GetProgressPercent()
-	if progress != 50.0 {
-		t.Errorf("Expected progress 50%%, got %f%%", progress)
-	}
+	comp.TurnsLeft = 5
+	progress = GetProgressPercent(comp)
+	assert.Equal(t, 50.0, progress, "Expected progress 50%%")
 
 	// 完了（100%）
-	activity.TurnsLeft = 0
-	progress = activity.GetProgressPercent()
-	if progress != 100.0 {
-		t.Errorf("Expected progress 100%%, got %f%%", progress)
-	}
+	comp.TurnsLeft = 0
+	progress = GetProgressPercent(comp)
+	assert.Equal(t, 100.0, progress, "Expected progress 100%%")
 }
 
 func TestActivityDoTurn(t *testing.T) {
 	t.Parallel()
 
 	actor := ecs.Entity(1)
-	actorImpl := &WaitActivity{}
-	activity := NewActivity(actorImpl, actor, 3)
+	behavior := &WaitActivity{}
+	comp, err := NewActivity(behavior, 3)
+	require.NoError(t, err)
 
 	world := testutil.InitTestWorld(t)
 
 	// 1ターン目
-	err := activity.ActorImpl.DoTurn(activity, world)
-	if err != nil {
-		t.Errorf("Unexpected error in turn 1: %v", err)
-	}
-
-	if activity.TurnsLeft != 2 {
-		t.Errorf("Expected 2 turns left after turn 1, got %d", activity.TurnsLeft)
-	}
-
-	if activity.IsCompleted() {
-		t.Errorf("Expected activity not to be completed after turn 1")
-	}
+	err = behavior.DoTurn(comp, actor, world)
+	assert.NoError(t, err, "Unexpected error in turn 1")
+	assert.Equal(t, 2, comp.TurnsLeft, "Expected 2 turns left after turn 1")
+	assert.False(t, IsCompleted(comp), "Expected activity not to be completed after turn 1")
 
 	// 2ターン目
-	err = activity.ActorImpl.DoTurn(activity, world)
-	if err != nil {
-		t.Errorf("Unexpected error in turn 2: %v", err)
-	}
-
-	if activity.TurnsLeft != 1 {
-		t.Errorf("Expected 1 turn left after turn 2, got %d", activity.TurnsLeft)
-	}
+	err = behavior.DoTurn(comp, actor, world)
+	assert.NoError(t, err, "Unexpected error in turn 2")
+	assert.Equal(t, 1, comp.TurnsLeft, "Expected 1 turn left after turn 2")
 
 	// 3ターン目（完了）
-	err = activity.ActorImpl.DoTurn(activity, world)
-	if err != nil {
-		t.Errorf("Unexpected error in turn 3: %v", err)
-	}
+	err = behavior.DoTurn(comp, actor, world)
+	assert.NoError(t, err, "Unexpected error in turn 3")
+	assert.Equal(t, 0, comp.TurnsLeft, "Expected 0 turns left after turn 3")
+	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
+}
 
-	if activity.TurnsLeft != 0 {
-		t.Errorf("Expected 0 turns left after turn 3, got %d", activity.TurnsLeft)
-	}
+func TestGetBehavior(t *testing.T) {
+	t.Parallel()
 
-	if !activity.IsCompleted() {
-		t.Errorf("Expected activity to be completed after turn 3")
-	}
+	t.Run("登録済みBehaviorを取得できる", func(t *testing.T) {
+		t.Parallel()
+		behavior, err := GetBehavior(gc.BehaviorWait)
+		require.NoError(t, err)
+		assert.Equal(t, gc.BehaviorWait, behavior.Name())
+	})
+
+	t.Run("未登録Behaviorでエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		_, err := GetBehavior(gc.BehaviorName("Unknown"))
+		assert.Error(t, err)
+	})
+}
+
+func TestNewActivityInvalidDuration(t *testing.T) {
+	t.Parallel()
+
+	t.Run("duration 0でエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := NewActivity(&WaitActivity{}, 0)
+		assert.Error(t, err)
+	})
+
+	t.Run("負のdurationでエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := NewActivity(&WaitActivity{}, -1)
+		assert.Error(t, err)
+	})
+}
+
+func TestGetProgressPercentEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	t.Run("TurnsTotal 0の場合は100%を返す", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{TurnsTotal: 0, TurnsLeft: 0}
+		assert.Equal(t, 100.0, GetProgressPercent(comp))
+	})
 }

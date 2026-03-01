@@ -54,10 +54,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 	baseTemp := def.BaseTemperature
 
-	timeModifier := 0
-	if world.Resources.GameTime != nil {
-		timeModifier = world.Resources.GameTime.GetTemperatureModifier()
-	}
+	timeModifier := world.Resources.Dungeon.GameTime.GetTemperatureModifier()
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 

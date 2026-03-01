@@ -134,6 +134,10 @@ type Components struct {
 	// battle ================
 	CommandTable *ecs.SliceComponent
 	DropTable    *ecs.SliceComponent
+
+	// activity ================
+	Activity     *ecs.SliceComponent // 実行中のアクティビティ
+	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

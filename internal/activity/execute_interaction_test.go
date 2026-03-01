@@ -34,13 +34,11 @@ func TestExecuteInteraction_NoInteractable(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	notInteractableEntity := world.Manager.NewEntity()
 
-	_, err := ExecuteInteraction(manager, player, notInteractableEntity, world)
+	_, err := ExecuteInteraction(player, notInteractableEntity, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "Interactableを持っていません")
 }
@@ -50,8 +48,6 @@ func TestExecuteInteraction_InvalidRange(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	triggerEntity := world.Manager.NewEntity()
@@ -59,7 +55,7 @@ func TestExecuteInteraction_InvalidRange(t *testing.T) {
 		Data: InvalidRangeTrigger{},
 	})
 
-	_, err := ExecuteInteraction(manager, player, triggerEntity, world)
+	_, err := ExecuteInteraction(player, triggerEntity, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "無効なActivationRange")
 }
@@ -69,8 +65,6 @@ func TestExecuteInteraction_InvalidWay(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	triggerEntity := world.Manager.NewEntity()
@@ -78,7 +72,7 @@ func TestExecuteInteraction_InvalidWay(t *testing.T) {
 		Data: InvalidWayTrigger{},
 	})
 
-	_, err := ExecuteInteraction(manager, player, triggerEntity, world)
+	_, err := ExecuteInteraction(player, triggerEntity, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "無効なActivationWay")
 }
@@ -90,8 +84,6 @@ func TestExecuteInteraction_Door(t *testing.T) {
 	t.Run("閉じたドアを開く", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -109,7 +101,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
 		// ExecuteInteractionを実行
-		result, err := ExecuteInteraction(manager, player, doorEntity, world)
+		result, err := ExecuteInteraction(player, doorEntity, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -123,8 +115,6 @@ func TestExecuteInteraction_Door(t *testing.T) {
 	t.Run("開いたドアを閉じる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
@@ -140,7 +130,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		})
 
 		// ExecuteInteractionを実行
-		result, err := ExecuteInteraction(manager, player, doorEntity, world)
+		result, err := ExecuteInteraction(player, doorEntity, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -157,8 +147,6 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成
 	player := world.Manager.NewEntity()
@@ -178,7 +166,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	npcEntity.AddComponent(world.Components.FactionNeutral, nil)
 
 	// ExecuteInteractionを実行
-	result, err := ExecuteInteraction(manager, player, npcEntity, world)
+	result, err := ExecuteInteraction(player, npcEntity, world)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -190,8 +178,6 @@ func TestExecuteInteraction_Item(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成（インベントリなし）
 	player := world.Manager.NewEntity()
@@ -209,7 +195,7 @@ func TestExecuteInteraction_Item(t *testing.T) {
 	itemEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
 	// ExecuteInteractionを実行（拾えるアイテムが見つからないためエラー）
-	result, err := ExecuteInteraction(manager, player, itemEntity, world)
+	result, err := ExecuteInteraction(player, itemEntity, world)
 
 	// 検証に失敗するためエラーになる
 	require.Error(t, err)
@@ -222,8 +208,6 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成（攻撃手段なし）
 	player := world.Manager.NewEntity()
@@ -239,7 +223,7 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
 
 	// ExecuteInteractionを実行（攻撃手段がないためエラー）
-	result, err := ExecuteInteraction(manager, player, enemyEntity, world)
+	result, err := ExecuteInteraction(player, enemyEntity, world)
 
 	// 攻撃手段がないためエラーになる
 	require.Error(t, err)
@@ -252,8 +236,6 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	// プレイヤーを作成（武器なし、素手で攻撃）
 	player := world.Manager.NewEntity()
@@ -284,10 +266,10 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	})
 
 	// 武器スロット1を選択
-	world.Resources.SelectedWeaponSlot = 1
+	world.Resources.Dungeon.SelectedWeaponSlot = 1
 
 	// ExecuteInteractionを実行（素手で攻撃）
-	result, err := ExecuteInteraction(manager, player, enemyEntity, world)
+	result, err := ExecuteInteraction(player, enemyEntity, world)
 
 	// 素手攻撃が成功すること
 	require.NoError(t, err)
@@ -298,7 +280,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	pools := world.Components.Pools.Get(enemyEntity).(*gc.Pools)
 	maxRetries := 20
 	for i := 0; i < maxRetries && pools.HP.Current >= 10; i++ {
-		result, err = ExecuteInteraction(manager, player, enemyEntity, world)
+		result, err = ExecuteInteraction(player, enemyEntity, world)
 		require.NoError(t, err)
 		require.NotNil(t, result)
 	}
@@ -312,8 +294,6 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 	t.Run("次階への転移", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -323,19 +303,17 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 			Data: gc.PortalInteraction{PortalType: gc.PortalTypeNext},
 		})
 
-		result, err := ExecuteInteraction(manager, player, portalEntity, world)
+		result, err := ExecuteInteraction(player, portalEntity, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.True(t, result.Success, "ポータル相互作用が成功するべき")
-		assert.Equal(t, "Portal", result.ActivityName)
+		assert.Equal(t, gc.BehaviorPortal, result.ActivityName)
 	})
 
 	t.Run("街への帰還", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -345,19 +323,17 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 			Data: gc.PortalInteraction{PortalType: gc.PortalTypeTown},
 		})
 
-		result, err := ExecuteInteraction(manager, player, portalEntity, world)
+		result, err := ExecuteInteraction(player, portalEntity, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.True(t, result.Success, "帰還ポータル相互作用が成功するべき")
-		assert.Equal(t, "Portal", result.ActivityName)
+		assert.Equal(t, gc.BehaviorPortal, result.ActivityName)
 	})
 
 	t.Run("未知のポータルタイプ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		manager := NewManager(nil)
-		world.Resources.ActivityManager = manager
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -367,7 +343,7 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 			Data: gc.PortalInteraction{PortalType: gc.PortalType("UNKNOWN")},
 		})
 
-		_, err := ExecuteInteraction(manager, player, portalEntity, world)
+		_, err := ExecuteInteraction(player, portalEntity, world)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "未知のポータルタイプ")
@@ -379,8 +355,6 @@ func TestExecuteInteraction_DungeonGate(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
@@ -390,12 +364,12 @@ func TestExecuteInteraction_DungeonGate(t *testing.T) {
 		Data: gc.DungeonGateInteraction{},
 	})
 
-	result, err := ExecuteInteraction(manager, player, gateEntity, world)
+	result, err := ExecuteInteraction(player, gateEntity, world)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
 	assert.True(t, result.Success, "ダンジョンゲート相互作用が成功するべき")
-	assert.Equal(t, "DungeonGate", result.ActivityName)
+	assert.Equal(t, gc.BehaviorDungeonGate, result.ActivityName)
 }
 
 // TestExecuteInteraction_Door_NoDoorComponent はDoorコンポーネントがない場合のエラーを確認
@@ -403,8 +377,6 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
@@ -417,7 +389,7 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 		Data: gc.DoorInteraction{},
 	})
 
-	_, err := ExecuteInteraction(manager, player, doorEntity, world)
+	_, err := ExecuteInteraction(player, doorEntity, world)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "Doorコンポーネントがない")
@@ -428,8 +400,6 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
@@ -443,7 +413,7 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	})
 	npcEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
 
-	_, err := ExecuteInteraction(manager, player, npcEntity, world)
+	_, err := ExecuteInteraction(player, npcEntity, world)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
@@ -464,8 +434,6 @@ func TestExecuteInteraction_UnknownType(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	manager := NewManager(nil)
-	world.Resources.ActivityManager = manager
 
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
@@ -475,7 +443,7 @@ func TestExecuteInteraction_UnknownType(t *testing.T) {
 		Data: UnknownInteraction{},
 	})
 
-	result, err := ExecuteInteraction(manager, player, unknownEntity, world)
+	result, err := ExecuteInteraction(player, unknownEntity, world)
 
 	require.Error(t, err)
 	assert.Nil(t, result)

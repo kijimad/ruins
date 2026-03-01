@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,9 +15,6 @@ func TestAISystem(t *testing.T) {
 
 	// テスト用のワールド作成
 	world := testutil.InitTestWorld(t)
-
-	// TurnManagerを初期化
-	world.Resources.TurnManager = turns.NewTurnManager()
 
 	// プレイヤーエンティティを作成
 	player := world.Manager.NewEntity()

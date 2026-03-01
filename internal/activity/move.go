@@ -8,12 +8,13 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MoveActivity はActivityInterfaceの実装
+// MoveActivity はBehaviorの実装
 type MoveActivity struct{}
 
-// Info はActivityInterfaceの実装
+// Info はBehaviorの実装
 func (ma *MoveActivity) Info() Info {
 	return Info{
 		Name:            "移動",
@@ -25,37 +26,37 @@ func (ma *MoveActivity) Info() Info {
 	}
 }
 
-// String はActivityInterfaceの実装
-func (ma *MoveActivity) String() string {
-	return "Move"
+// Name はBehaviorの実装
+func (ma *MoveActivity) Name() gc.BehaviorName {
+	return gc.BehaviorMove
 }
 
-// Validate はActivityInterfaceの実装
-func (ma *MoveActivity) Validate(act *Activity, world w.World) error {
-	if act.Position == nil {
+// Validate はBehaviorの実装
+func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp.Destination == nil {
 		return ErrMoveTargetNotSet
 	}
 
-	destX, destY := int(act.Position.X), int(act.Position.Y)
+	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
 	if destX < 0 || destY < 0 {
 		return ErrMoveTargetCoordInvalid
 	}
 
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return ErrMoveNoGridElement
 	}
 
-	if !movement.CanMoveTo(world, int(act.Position.X), int(act.Position.Y), act.Actor) {
+	if !movement.CanMoveTo(world, destX, destY, actor) {
 		return ErrMoveTargetInvalid
 	}
 
 	// 所持重量が最大の1.5倍を超えていたら動けない
-	if act.Actor.HasComponent(world.Components.Pools) {
-		pools := world.Components.Pools.Get(act.Actor).(*gc.Pools)
+	if actor.HasComponent(world.Components.Pools) {
+		pools := world.Components.Pools.Get(actor).(*gc.Pools)
 		overweightLimit := pools.Weight.Max * 1.5
 		if pools.Weight.Current > overweightLimit {
-			if act.Actor.HasComponent(world.Components.Player) {
+			if actor.HasComponent(world.Components.Player) {
 				gamelog.New(gamelog.FieldLog).
 					Warning("重すぎて動けない").
 					Log()
@@ -68,62 +69,61 @@ func (ma *MoveActivity) Validate(act *Activity, world w.World) error {
 	return nil
 }
 
-// Start はActivityInterfaceの実装
-func (ma *MoveActivity) Start(act *Activity, _ w.World) error {
-	act.Logger.Debug("移動開始", "actor", act.Actor, "destination", *act.Position)
+// Start はBehaviorの実装
+func (ma *MoveActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("移動開始", "actor", actor, "destination", *comp.Destination)
 	return nil
 }
 
-// DoTurn はActivityInterfaceの実装
-func (ma *MoveActivity) DoTurn(act *Activity, world w.World) error {
-	if act.Position == nil {
-		act.Cancel("移動先が設定されていません")
+// DoTurn はBehaviorの実装
+func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	if comp.Destination == nil {
+		Cancel(comp, "移動先が設定されていません")
 		return ErrMoveTargetNotSet
 	}
 
 	// GridElementの存在確認
-	gridElement := world.Components.GridElement.Get(act.Actor)
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
-		act.Cancel("移動できません（位置情報なし）")
+		Cancel(comp, "移動できません（位置情報なし）")
 		return ErrMoveTargetInvalid
 	}
 
 	// 移動可能かチェック
-	if !movement.CanMoveTo(world, int(act.Position.X), int(act.Position.Y), act.Actor) {
-		act.Cancel("移動できません")
+	if !movement.CanMoveTo(world, int(comp.Destination.X), int(comp.Destination.Y), actor) {
+		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid
 	}
 
-	if err := ma.performMove(act, world); err != nil {
-		act.Cancel(fmt.Sprintf("移動エラー: %s", err.Error()))
+	if err := ma.performMove(comp, actor, world); err != nil {
+		Cancel(comp, fmt.Sprintf("移動エラー: %s", err.Error()))
 		return err
 	}
 
-	act.Complete()
+	Complete(comp)
 	return nil
 }
 
-// Finish はActivityInterfaceの実装
-func (ma *MoveActivity) Finish(act *Activity, world w.World) error {
-	act.Logger.Debug("移動アクティビティ完了", "actor", act.Actor)
+// Finish はBehaviorの実装
+func (ma *MoveActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	log.Debug("移動アクティビティ完了", "actor", actor)
 
 	// プレイヤーの場合のみ移動先のタイルイベントをチェック
-	if act.Position != nil && act.Actor.HasComponent(world.Components.Player) {
-		gridElement := &gc.GridElement{X: consts.Tile(act.Position.X), Y: consts.Tile(act.Position.Y)}
-		showTileInteractionMessage(world, gridElement)
+	if comp.Destination != nil && actor.HasComponent(world.Components.Player) {
+		showTileInteractionMessage(world, comp.Destination)
 	}
 
 	return nil
 }
 
-// Canceled はActivityInterfaceの実装
-func (ma *MoveActivity) Canceled(act *Activity, _ w.World) error {
-	act.Logger.Debug("移動キャンセル", "actor", act.Actor, "reason", act.CancelReason)
+// Canceled はBehaviorの実装
+func (ma *MoveActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
+	log.Debug("移動キャンセル", "actor", actor, "reason", comp.CancelReason)
 	return nil
 }
 
-func (ma *MoveActivity) performMove(act *Activity, world w.World) error {
-	gridElement := world.Components.GridElement.Get(act.Actor)
+func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return ErrGridElementNotFound
 	}
@@ -131,21 +131,21 @@ func (ma *MoveActivity) performMove(act *Activity, world w.World) error {
 	grid := gridElement.(*gc.GridElement)
 	oldX, oldY := int(grid.X), int(grid.Y)
 
-	grid.X = consts.Tile(act.Position.X)
-	grid.Y = consts.Tile(act.Position.Y)
+	grid.X = comp.Destination.X
+	grid.Y = comp.Destination.Y
 
 	// TODO: 移動だけでなく、ターンを消費するすべての操作で空腹度を上げる必要がある
-	if act.Actor.HasComponent(world.Components.Player) {
-		if hungerComponent := world.Components.Hunger.Get(act.Actor); hungerComponent != nil {
+	if actor.HasComponent(world.Components.Player) {
+		if hungerComponent := world.Components.Hunger.Get(actor); hungerComponent != nil {
 			hunger := hungerComponent.(*gc.Hunger)
 			hunger.Decrease(1)
 		}
 	}
 
-	act.Logger.Debug("移動完了",
-		"actor", act.Actor,
+	log.Debug("移動完了",
+		"actor", actor,
 		"from", fmt.Sprintf("(%d,%d)", oldX, oldY),
-		"to", fmt.Sprintf("(%.1f,%.1f)", act.Position.X, act.Position.Y))
+		"to", fmt.Sprintf("(%d,%d)", comp.Destination.X, comp.Destination.Y))
 
 	return nil
 }
