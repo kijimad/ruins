@@ -54,7 +54,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
 	})
 
-	t.Run("GridElementがない場合", func(t *testing.T) {
+	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
@@ -64,7 +64,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
-		assert.NoError(t, ExecuteMoveAction(world, gc.DirectionUp))
+		assert.Error(t, ExecuteMoveAction(world, gc.DirectionUp))
 	})
 
 	t.Run("8方向の移動", func(t *testing.T) {
@@ -242,7 +242,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		assert.Error(t, ExecuteEnterAction(world))
 	})
 
-	t.Run("GridElementがない場合", func(t *testing.T) {
+	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.TurnManager = turns.NewTurnManager()
@@ -252,7 +252,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
-		assert.NoError(t, ExecuteEnterAction(world))
+		assert.Error(t, ExecuteEnterAction(world))
 	})
 }
 

@@ -1,6 +1,8 @@
 package activity
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
@@ -18,7 +20,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	}
 
 	if !entity.HasComponent(world.Components.GridElement) {
-		return nil
+		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
 	}
 
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -94,7 +96,7 @@ func ExecuteEnterAction(world w.World) error {
 	}
 
 	if !entity.HasComponent(world.Components.GridElement) {
-		return nil
+		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
 	}
 
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
