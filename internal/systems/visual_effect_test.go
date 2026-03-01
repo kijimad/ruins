@@ -93,3 +93,63 @@ func TestVisualEffectSystem_SpriteFadeout(t *testing.T) {
 	// ホールド期間中なのでまだ1.0のはず
 	assert.Equal(t, 1.0, effect.Alpha, "ホールド期間中はAlphaが1.0")
 }
+
+func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// アニメーションを無効化
+	world.Config.DisableAnimation = true
+
+	// エフェクトを作成
+	titleEffect := gc.NewDungeonTitleEffect("テストダンジョン", 1, 800, 600)
+	titleEntity := world.Manager.NewEntity()
+	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+		Effects: []gc.VisualEffect{titleEffect},
+	})
+
+	// エフェクトが存在することを確認
+	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	assert.Equal(t, 1, count)
+
+	// Update実行（アニメーション無効時は即座に削除される）
+	sys := &VisualEffectSystem{}
+	err := sys.Update(world)
+	require.NoError(t, err)
+
+	// エフェクトエンティティが削除されたことを確認
+	count = world.Manager.Join(world.Components.VisualEffect).Size()
+	assert.Equal(t, 0, count, "アニメーション無効時はエフェクトが即座に削除される")
+}
+
+func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// 完了間近のエフェクトを作成
+	effect := &gc.ScreenTextEffect{
+		Text:        "テスト",
+		OffsetX:     100,
+		OffsetY:     100,
+		Alpha:       0.01,
+		TotalMs:     100,
+		RemainingMs: 1, // ほぼ完了（残り1ミリ秒）
+	}
+	effectEntity := world.Manager.NewEntity()
+	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
+		Effects: []gc.VisualEffect{effect},
+	})
+
+	// Update実行（エフェクトが完了して削除される）
+	sys := &VisualEffectSystem{}
+
+	// 複数回更新してエフェクトを完了させる
+	for i := 0; i < 10; i++ {
+		err := sys.Update(world)
+		require.NoError(t, err)
+	}
+
+	// エフェクトエンティティが削除されたことを確認
+	count := world.Manager.Join(world.Components.VisualEffect).Size()
+	assert.Equal(t, 0, count, "完了したエフェクトのエンティティは削除される")
+}

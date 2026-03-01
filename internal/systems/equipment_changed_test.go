@@ -10,6 +10,77 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
+	t.Parallel()
+
+	t.Run("健康ペナルティが属性に反映される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// プレイヤーを作成
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		require.NoError(t, err)
+
+		// 初期Strengthを取得
+		attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
+		initialStrength := attrs.Strength.Total
+
+		// 健康状態に低体温を追加（Strengthにペナルティ）
+		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
+		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeveritySevere,
+			Timer:    90,
+			Effects: []gc.StatEffect{
+				{Stat: gc.StatStrength, Value: -3},
+			},
+		})
+
+		// EquipmentChangedフラグを立てる
+		player.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+
+		// システム実行
+		sys := &EquipmentChangedSystem{}
+		err = sys.Update(world)
+		require.NoError(t, err)
+
+		// 属性にペナルティが反映されていることを確認
+		attrs = world.Components.Attributes.Get(player).(*gc.Attributes)
+		assert.Less(t, attrs.Strength.Total, initialStrength, "低体温でStrengthが減少するべき")
+	})
+}
+
+func TestEquipmentChangedSystem_APClamp(t *testing.T) {
+	t.Parallel()
+
+	t.Run("現在APが最大APを超えている場合は切り詰められる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// プレイヤーを作成
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		require.NoError(t, err)
+
+		// 現在APを非常に高い値に設定（通常ではありえない値）
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 9999
+		turnBased.AP.Max = 9999
+
+		// EquipmentChangedフラグを立てる
+		player.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+
+		// システム実行
+		sys := &EquipmentChangedSystem{}
+		err = sys.Update(world)
+		require.NoError(t, err)
+
+		// APが正しく切り詰められていることを確認
+		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		assert.Equal(t, turnBased.AP.Max, turnBased.AP.Current, "現在APは最大APに切り詰められるべき")
+		assert.Less(t, turnBased.AP.Current, 9999, "APが正しく再計算されるべき")
+	})
+}
+
 func TestMaxHP(t *testing.T) {
 	t.Parallel()
 	t.Run("calculate max HP with base stats", func(t *testing.T) {

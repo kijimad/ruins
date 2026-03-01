@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +34,47 @@ func (t InvalidAutoWayTrigger) Config() gc.InteractionConfig {
 	}
 }
 
+func TestAutoInteractionSystem_NoGridElement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// GridElementなしのプレイヤーを作成
+	player := world.Manager.NewEntity()
+	player.AddComponent(world.Components.Player, &gc.Player{})
+
+	// システム実行（エラーなしで完了するべき）
+	sys := &AutoInteractionSystem{}
+	err := sys.Update(world)
+	assert.NoError(t, err, "GridElementがなくてもエラーにならない")
+}
+
+func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// プレイヤーを作成
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
+
+	// 範囲外にあるトリガーを作成（距離が2以上）
+	triggerEntity := world.Manager.NewEntity()
+	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
+	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+		Data: gc.ItemInteraction{},
+	})
+	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
+
+	// システム実行
+	sys := &AutoInteractionSystem{}
+	require.NoError(t, sys.Update(world))
+
+	// 範囲外のトリガーは処理されない
+	assert.True(t, triggerEntity.HasComponent(world.Components.Interactable),
+		"範囲外のトリガーは処理されないべき")
+}
+
 // TestAutoInteractionSystem_ManualWay はManual方式のトリガーが自動実行されないことを確認
 func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	t.Parallel()
@@ -40,9 +82,8 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
 
 	// Manual方式のトリガーを作成（プレイヤーと同じタイル）
 	triggerEntity := world.Manager.NewEntity()
@@ -70,9 +111,8 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
 
 	// OnCollision方式のトリガーを作成（プレイヤーと隣接）
 	triggerEntity := world.Manager.NewEntity()
@@ -98,9 +138,8 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
 
 	// 無効なActivationRangeを持つトリガーを作成
 	triggerEntity := world.Manager.NewEntity()
@@ -128,9 +167,8 @@ func TestAutoInteractionSystem_InvalidWay(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
 
 	// 無効なActivationWayを持つトリガーを作成
 	triggerEntity := world.Manager.NewEntity()

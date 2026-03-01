@@ -7,9 +7,45 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+func TestCameraSystem_DisableAnimation(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Config.DisableAnimation = true
+
+	// プレイヤーエンティティを作成
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
+
+	// カメラエンティティを作成（初期位置は原点）
+	cameraEntity := world.Manager.NewEntity()
+	camera := &gc.Camera{
+		Scale:   1.0,
+		ScaleTo: 1.0,
+		X:       0,
+		Y:       0,
+		TargetX: 0,
+		TargetY: 0,
+	}
+	cameraEntity.AddComponent(world.Components.Camera, camera)
+
+	// CameraSystemを実行
+	sys := &CameraSystem{}
+	require.NoError(t, sys.Update(world))
+
+	// アニメーション無効時は即座にスナップ
+	tileSize := float64(consts.TileSize)
+	expectedTargetX := float64(10)*tileSize + tileSize/2
+	expectedTargetY := float64(10)*tileSize + tileSize/2
+
+	assert.Equal(t, expectedTargetX, camera.X, "アニメーション無効時は即座にスナップするべき")
+	assert.Equal(t, expectedTargetY, camera.Y, "アニメーション無効時は即座にスナップするべき")
+}
 
 func TestCameraSystem_SmoothFollow(t *testing.T) {
 	t.Parallel()
@@ -17,9 +53,8 @@ func TestCameraSystem_SmoothFollow(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーエンティティを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	require.NoError(t, err)
 
 	// カメラエンティティを作成（初期位置は原点）
 	cameraEntity := world.Manager.NewEntity()
@@ -58,9 +93,8 @@ func TestCameraSystem_ConvergesToTarget(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーエンティティを作成
-	player := world.Manager.NewEntity()
-	player.AddComponent(world.Components.Player, &gc.Player{})
-	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	_, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+	require.NoError(t, err)
 
 	// カメラエンティティを作成
 	cameraEntity := world.Manager.NewEntity()

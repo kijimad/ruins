@@ -186,6 +186,29 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 
 		assert.False(t, result, "継続アクションがない場合はfalse")
 	})
+
+	t.Run("継続アクションがある場合はtrueを返しAPを消費する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		require.NoError(t, err)
+
+		// 継続アクションを設定
+		player.AddComponent(world.Components.Activity, &gc.Activity{
+			BehaviorName: gc.BehaviorRest,
+			State:        gc.ActivityStateRunning,
+		})
+
+		// 初期APを確認
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		initialAP := turnBased.AP.Current
+
+		result := processPlayerContinuousActivity(world)
+
+		assert.True(t, result, "継続アクションがある場合はtrue")
+		assert.Less(t, turnBased.AP.Current, initialAP, "APが消費されるべき")
+	})
 }
 
 // TestColdPlayerCanAct は冷えた状態のプレイヤーが行動できることをテストする
