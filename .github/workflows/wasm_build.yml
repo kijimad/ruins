@@ -40,20 +40,10 @@ jobs:
             curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-red"
           fi
 
-      - name: Generate godoc
-        run: |
-          go install golang.org/x/tools/cmd/godoc@v0.24.0
-          $(go env GOPATH)/bin/godoc -http=localhost:8888 & \
-          sleep 60
-          wget -r -np -nv -N -E -p -k -e robots=off --reject-regex="png" "http://localhost:8888/pkg/github.com/kijimaD/ruins/"
-          pkill godoc
-          mv localhost:8888/ ./wasm/godoc/
-
       - name: Check
         run: |
           ls -al ./wasm
           ls -al ./wasm/cov
-          ls -al ./wasm/godoc
 
       - name: Publish generated content to GitHub Pages
         if: github.ref == 'refs/heads/main'
