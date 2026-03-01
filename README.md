@@ -1,3 +1,5 @@
+![coverage](https://kijimad.github.io/ruins/cov/coverage.svg)
+
 ローグライク。
 
 - [play](https://kijimad.github.io/ruins/)
