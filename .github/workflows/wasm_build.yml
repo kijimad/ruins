@@ -19,6 +19,27 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v6
 
+      - name: Generate coverage report
+        run: |
+          # 依存インストール
+          apt update && apt install -y lcov
+          go install github.com/jandelgado/gcov2lcov@v1.1.1
+          # レポート生成
+          RUINS_LOG_LEVEL=ignore go test -cover ./... -coverprofile=coverage.out
+          $(go env GOPATH)/bin/gcov2lcov -infile=coverage.out -outfile=coverage.lcov
+          genhtml coverage.lcov -o ./wasm/cov
+          go tool cover -html=coverage.out -o ./wasm/cov/gocoverage.html
+          # カバレッジバッジを生成
+          percent=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          int=${percent%.*}
+          if [ $int -gt 90 ]; then
+            curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-green"
+          elif [ $int -gt 75 ]; then
+            curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-yellow"
+          else
+            curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-red"
+          fi
+
       - name: Generate godoc
         run: |
           go install golang.org/x/tools/cmd/godoc@v0.24.0
@@ -31,6 +52,7 @@ jobs:
       - name: Check
         run: |
           ls -al ./wasm
+          ls -al ./wasm/cov
           ls -al ./wasm/godoc
 
       - name: Publish generated content to GitHub Pages
