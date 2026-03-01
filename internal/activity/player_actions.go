@@ -1,13 +1,10 @@
 package activity
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/movement"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -43,13 +40,17 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
 				if !door.IsOpen {
 					// 閉じているドアは開く相互作用を実行
-					return executeInteractionForPlayer(world, entity, interactableEntity)
+					manager := world.Resources.ActivityManager.(*Manager)
+					_, err := ExecuteInteraction(manager, entity, interactableEntity, world)
+					return err
 				}
 				// 開いているドアは通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
 		} else {
 			// ドア以外のOnCollision相互作用（攻撃など）を実行
-			return executeInteractionForPlayer(world, entity, interactableEntity)
+			manager := world.Resources.ActivityManager.(*Manager)
+			_, err := ExecuteInteraction(manager, entity, interactableEntity, world)
+			return err
 		}
 	}
 
@@ -60,7 +61,9 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			Actor:       entity,
 			Destination: &destination,
 		}
-		return executeActivityWithPostProcess(world, &MoveActivity{}, params)
+		manager := world.Resources.ActivityManager.(*Manager)
+		_, err := manager.Execute(&MoveActivity{}, params, world)
+		return err
 	}
 
 	return nil
@@ -78,7 +81,9 @@ func ExecuteWaitAction(world w.World) error {
 		Duration: 1,
 		Reason:   "プレイヤー待機",
 	}
-	return executeActivityWithPostProcess(world, &WaitActivity{}, params)
+	manager := world.Resources.ActivityManager.(*Manager)
+	_, err = manager.Execute(&WaitActivity{}, params, world)
+	return err
 }
 
 // ExecuteEnterAction は直上タイルの相互作用を実行する
@@ -99,52 +104,17 @@ func ExecuteEnterAction(world w.World) error {
 		config := interactable.Data.Config()
 		// 手動発動（Enterキー）かつ同タイルのみ実行
 		if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
-			return executeInteractionForPlayer(world, entity, interactableEntity)
+			manager := world.Resources.ActivityManager.(*Manager)
+			_, err := ExecuteInteraction(manager, entity, interactableEntity, world)
+			return err
 		}
 	}
 
 	return nil
 }
 
-// executeInteractionForPlayer は相互作用を実行するヘルパー関数
-func executeInteractionForPlayer(world w.World, actor ecs.Entity, interactable ecs.Entity) error {
-	manager := world.Resources.ActivityManager.(*Manager)
-	_, err := ExecuteInteraction(manager, actor, interactable, world)
-	return err
-}
-
-// executeActivityWithPostProcess はアクティビティ実行と後処理を行う関数
-func executeActivityWithPostProcess(world w.World, actorImpl Behavior, params ActionParams) error {
-	manager := world.Resources.ActivityManager.(*Manager)
-	result, err := manager.Execute(actorImpl, params, world)
-	if err != nil {
-		return err
-	}
-
-	// 会話の場合は会話メッセージを表示する状態変更を要求
-	if _, isTalkActivity := actorImpl.(*TalkActivity); isTalkActivity && result != nil && result.Success && params.Target != nil {
-		targetEntity := *params.Target
-		if targetEntity.HasComponent(world.Components.Dialog) {
-			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			if err := world.Resources.Dungeon.RequestStateChange(resources.ShowDialogEvent{
-				MessageKey:    dialog.MessageKey,
-				SpeakerEntity: targetEntity,
-			}); err != nil {
-				return fmt.Errorf("会話状態変更要求エラー: %w", err)
-			}
-		}
-	}
-
-	// 移動の場合は追加でタイルイベントをチェック
-	if _, isMoveActivity := actorImpl.(*MoveActivity); isMoveActivity && result != nil && result.Success && params.Destination != nil {
-		checkTileEvents(world, params.Actor, int(params.Destination.X), int(params.Destination.Y))
-	}
-
-	return nil
-}
-
-// checkTileEvents はタイル上のイベントをチェックする
-func checkTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
+// CheckTileEvents はタイル上のイベントをチェックする
+func CheckTileEvents(world w.World, entity ecs.Entity, tileX, tileY int) {
 	// プレイヤーの場合のみタイルイベントをチェック
 	if entity.HasComponent(world.Components.Player) {
 		gridElement := &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}

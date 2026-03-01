@@ -104,8 +104,14 @@ func (ma *MoveActivity) DoTurn(act *Activity, world w.World) error {
 }
 
 // Finish はActivityInterfaceの実装
-func (ma *MoveActivity) Finish(act *Activity, _ w.World) error {
+func (ma *MoveActivity) Finish(act *Activity, world w.World) error {
 	act.Logger.Debug("移動アクティビティ完了", "actor", act.Actor)
+
+	// 移動先のタイルイベントをチェック
+	if act.Position != nil {
+		CheckTileEvents(world, act.Actor, int(act.Position.X), int(act.Position.Y))
+	}
+
 	return nil
 }
 

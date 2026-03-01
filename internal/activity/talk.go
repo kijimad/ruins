@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -84,9 +85,14 @@ func (ta *TalkActivity) DoTurn(act *Activity, world w.World) error {
 func (ta *TalkActivity) Finish(act *Activity, world w.World) error {
 	act.Logger.Debug("会話アクティビティ完了", "actor", act.Actor)
 
+	if act.Target == nil {
+		return nil
+	}
+
+	targetEntity := *act.Target
+
 	// プレイヤーの場合のみメッセージを表示
 	if isPlayerActivity(act, world) {
-		targetEntity := *act.Target
 		if !targetEntity.HasComponent(world.Components.Name) {
 			return fmt.Errorf("対象エンティティにNameコンポーネントがありません")
 		}
@@ -95,6 +101,17 @@ func (ta *TalkActivity) Finish(act *Activity, world w.World) error {
 		gamelog.New(gamelog.FieldLog).
 			Append(nameComp.Name + "と話した。").
 			Log()
+
+		// 会話ダイアログを表示
+		if targetEntity.HasComponent(world.Components.Dialog) {
+			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
+			if err := world.Resources.Dungeon.RequestStateChange(resources.ShowDialogEvent{
+				MessageKey:    dialog.MessageKey,
+				SpeakerEntity: targetEntity,
+			}); err != nil {
+				return fmt.Errorf("会話状態変更要求エラー: %w", err)
+			}
+		}
 	}
 
 	return nil

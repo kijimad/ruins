@@ -99,15 +99,6 @@ func executeTalk(manager *Manager, actor ecs.Entity, npcEntity ecs.Entity, world
 		return nil, fmt.Errorf("会話アクション失敗: %w", err)
 	}
 
-	if result != nil && result.Success {
-		dialog := world.Components.Dialog.Get(npcEntity).(*gc.Dialog)
-		if err := world.Resources.Dungeon.RequestStateChange(resources.ShowDialogEvent{
-			MessageKey:    dialog.MessageKey,
-			SpeakerEntity: npcEntity,
-		}); err != nil {
-			return nil, fmt.Errorf("会話状態変更要求エラー: %w", err)
-		}
-	}
 	return result, nil
 }
 

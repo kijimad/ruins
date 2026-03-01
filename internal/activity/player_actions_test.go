@@ -439,7 +439,7 @@ func TestCheckTileEvents(t *testing.T) {
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// パニックしないことを確認
-		checkTileEvents(world, player, 10, 10)
+		CheckTileEvents(world, player, 10, 10)
 	})
 
 	t.Run("非プレイヤーエンティティの場合はイベントチェックしない", func(t *testing.T) {
@@ -451,7 +451,7 @@ func TestCheckTileEvents(t *testing.T) {
 		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// パニックしないことを確認
-		checkTileEvents(world, enemy, 10, 10)
+		CheckTileEvents(world, enemy, 10, 10)
 	})
 }
 
