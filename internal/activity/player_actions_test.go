@@ -161,7 +161,7 @@ func TestExecuteEnterAction(t *testing.T) {
 
 		assert.NoError(t, ExecuteEnterAction(world))
 
-		// 何も実行されないのでLastActivityResultはnil
+		// 何も実行されないのでLastActivityはnil
 		result := GetLastResult(player, world)
 		assert.Nil(t, result)
 	})

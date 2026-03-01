@@ -276,7 +276,7 @@ func TestActivitySummary(t *testing.T) {
 	assert.Equal(t, 1, summary["paused"], "Expected 1 paused activity")
 }
 
-func TestLastActivityResult(t *testing.T) {
+func TestLastActivity(t *testing.T) {
 	t.Parallel()
 
 	t.Run("結果が記録される", func(t *testing.T) {
@@ -295,7 +295,7 @@ func TestLastActivityResult(t *testing.T) {
 		require.NoError(t, err)
 
 		result := GetLastResult(player, world)
-		expected := &gc.LastActivityResult{
+		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateCompleted,
 			Success:      true,
@@ -317,7 +317,7 @@ func TestLastActivityResult(t *testing.T) {
 		require.NoError(t, err)
 
 		result := GetLastResult(player, world)
-		expected := &gc.LastActivityResult{
+		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorWait,
 			State:        gc.ActivityStateCompleted,
 			Success:      true,
@@ -331,7 +331,7 @@ func TestLastActivityResult(t *testing.T) {
 		require.NoError(t, err)
 
 		result = GetLastResult(player, world)
-		expected = &gc.LastActivityResult{
+		expected = &gc.LastActivity{
 			BehaviorName: gc.BehaviorMove,
 			State:        gc.ActivityStateCompleted,
 			Success:      true,
@@ -353,7 +353,7 @@ func TestLastActivityResult(t *testing.T) {
 		_, _ = Execute(&AttackActivity{}, params, world)
 
 		result := GetLastResult(player, world)
-		expected := &gc.LastActivityResult{
+		expected := &gc.LastActivity{
 			BehaviorName: gc.BehaviorAttack,
 			State:        gc.ActivityStateCanceled,
 			Success:      false,

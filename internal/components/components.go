@@ -136,8 +136,8 @@ type Components struct {
 	DropTable    *ecs.SliceComponent
 
 	// activity ================
-	Activity           *ecs.SliceComponent // 実行中のアクティビティ
-	LastActivityResult *ecs.SliceComponent // 直近のアクティビティ実行結果
+	Activity     *ecs.SliceComponent // 実行中のアクティビティ
+	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

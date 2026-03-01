@@ -103,26 +103,26 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 
 // setLastResult はエンティティの直近アクティビティ結果を設定する
 func setLastResult(actor ecs.Entity, result *ActionResult, world w.World) {
-	lastResult := &gc.LastActivityResult{
+	lastResult := &gc.LastActivity{
 		BehaviorName: result.ActivityName,
 		State:        result.State,
 		Success:      result.Success,
 		Message:      result.Message,
 	}
 
-	if actor.HasComponent(world.Components.LastActivityResult) {
-		actor.RemoveComponent(world.Components.LastActivityResult)
+	if actor.HasComponent(world.Components.LastActivity) {
+		actor.RemoveComponent(world.Components.LastActivity)
 	}
-	actor.AddComponent(world.Components.LastActivityResult, lastResult)
+	actor.AddComponent(world.Components.LastActivity, lastResult)
 }
 
 // GetLastResult はエンティティの直近アクティビティ結果を取得する
-func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivityResult {
-	comp := world.Components.LastActivityResult.Get(actor)
+func GetLastResult(actor ecs.Entity, world w.World) *gc.LastActivity {
+	comp := world.Components.LastActivity.Get(actor)
 	if comp == nil {
 		return nil
 	}
-	return comp.(*gc.LastActivityResult)
+	return comp.(*gc.LastActivity)
 }
 
 // StartActivity は新しいアクティビティを開始する
