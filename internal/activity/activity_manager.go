@@ -49,9 +49,6 @@ func (am *Manager) Execute(actorImpl Interface, params ActionParams, world w.Wor
 		"type", activityName,
 		"actor", params.Actor)
 
-	// 履歴を予約する
-	historyIndex := am.reserveHistory(actorImpl, params)
-
 	// アクティビティを作成
 	activity := am.createActivity(actorImpl, params, world)
 
@@ -62,7 +59,7 @@ func (am *Manager) Execute(actorImpl Interface, params ActionParams, world w.Wor
 			ActivityName: activityName,
 			Message:      err.Error(),
 		}
-		am.recordHistory(historyIndex, result)
+		am.addHistory(actorImpl, params, result)
 		return result, err
 	}
 
@@ -82,7 +79,7 @@ func (am *Manager) Execute(actorImpl Interface, params ActionParams, world w.Wor
 				ActivityName: activityName,
 				Message:      "アクション完了",
 			}
-			am.recordHistory(historyIndex, result)
+			am.addHistory(actorImpl, params, result)
 			return result, nil
 		} else if currentActivity.IsCanceled() {
 			result := &ActionResult{
@@ -90,7 +87,7 @@ func (am *Manager) Execute(actorImpl Interface, params ActionParams, world w.Wor
 				ActivityName: activityName,
 				Message:      currentActivity.CancelReason,
 			}
-			am.recordHistory(historyIndex, result)
+			am.addHistory(actorImpl, params, result)
 			return result, fmt.Errorf("アクション失敗: %s", currentActivity.CancelReason)
 		}
 	}
@@ -101,32 +98,22 @@ func (am *Manager) Execute(actorImpl Interface, params ActionParams, world w.Wor
 		ActivityName: activityName,
 		Message:      "アクション開始",
 	}
-	am.recordHistory(historyIndex, result)
+	am.addHistory(actorImpl, params, result)
 	return result, nil
 }
 
-// reserveHistory は履歴エントリを予約し、インデックスを返す
-// Execute開始時に呼び出すことで、ネストした呼び出しでも開始順を保持できる
-// 完了時に記録すると内側の呼び出しが先に記録されて順序が逆転するため
-func (am *Manager) reserveHistory(actorImpl Interface, params ActionParams) int {
+// addHistory は履歴エントリを追加する
+func (am *Manager) addHistory(actorImpl Interface, params ActionParams, result *ActionResult) {
 	if am.History == nil {
-		return -1
+		return
 	}
 	*am.History = append(*am.History, HistoryEntry{
 		Activity: actorImpl,
 		Actor:    params.Actor,
 		Target:   params.Target,
+		Success:  result.Success,
+		Message:  result.Message,
 	})
-	return len(*am.History) - 1
-}
-
-// recordHistory は履歴の指定位置に結果を記録する
-func (am *Manager) recordHistory(index int, result *ActionResult) {
-	if am.History == nil || index < 0 || index >= len(*am.History) {
-		return
-	}
-	(*am.History)[index].Success = result.Success
-	(*am.History)[index].Message = result.Message
 }
 
 // StartActivity は新しいアクティビティを開始する
