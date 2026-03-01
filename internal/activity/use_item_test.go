@@ -143,3 +143,193 @@ func TestUseItemActivity_applyNutrition(t *testing.T) {
 		assert.Equal(t, gc.HungerNormal, updatedHunger.GetLevel(), "普通状態に回復しているはず")
 	})
 }
+
+func TestUseItemActivity_DoTurn(t *testing.T) {
+	t.Parallel()
+
+	t.Run("空腹度回復アイテムを使用して完了する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		actor.AddComponent(world.Components.Player, &gc.Player{})
+		actor.AddComponent(world.Components.Pools, &gc.Pools{
+			HP: gc.Pool{Current: 100, Max: 100},
+		})
+		hunger := gc.NewHunger()
+		hunger.Current = 250
+		actor.AddComponent(world.Components.Hunger, hunger)
+
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.Item, &gc.Item{Count: 3})
+		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
+		item.AddComponent(world.Components.ProvidesNutrition, &gc.ProvidesNutrition{Amount: 100})
+		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Target:       &item,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.DoTurn(comp, actor, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+
+		// 満腹度が回復していることを確認
+		hungerComp := world.Components.Hunger.Get(actor).(*gc.Hunger)
+		assert.Equal(t, 350, hungerComp.Current)
+
+		// アイテムが1つ消費されていることを確認
+		itemComp := world.Components.Item.Get(item).(*gc.Item)
+		assert.Equal(t, 2, itemComp.Count)
+	})
+
+	t.Run("Targetがnilの場合はキャンセルされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		actor.AddComponent(world.Components.Player, &gc.Player{})
+		actor.AddComponent(world.Components.Pools, &gc.Pools{
+			HP: gc.Pool{Current: 100, Max: 100},
+		})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			State:        gc.ActivityStateRunning,
+			Target:       nil,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.DoTurn(comp, actor, world)
+
+		assert.Error(t, err)
+		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	})
+}
+
+func TestUseItemActivity_Validate(t *testing.T) {
+	t.Parallel()
+
+	t.Run("有効なアイテムの場合は成功", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		actor.AddComponent(world.Components.Player, &gc.Player{})
+		actor.AddComponent(world.Components.Pools, &gc.Pools{
+			HP: gc.Pool{Current: 100, Max: 100},
+		})
+
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Target:       &item,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.Validate(comp, actor, world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Targetがnilの場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		actor.AddComponent(world.Components.Pools, &gc.Pools{})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Target:       nil,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.Validate(comp, actor, world)
+		assert.Error(t, err)
+		assert.Equal(t, ErrItemNotSet, err)
+	})
+
+	t.Run("Itemコンポーネントがない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		actor.AddComponent(world.Components.Pools, &gc.Pools{})
+
+		item := world.Manager.NewEntity()
+		// Itemコンポーネントなし
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Target:       &item,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.Validate(comp, actor, world)
+		assert.Error(t, err)
+		assert.Equal(t, ErrInvalidItem, err)
+	})
+
+	t.Run("効果がないアイテムの場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		actor.AddComponent(world.Components.Pools, &gc.Pools{})
+
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		// 効果コンポーネントなし
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Target:       &item,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.Validate(comp, actor, world)
+		assert.Error(t, err)
+		assert.Equal(t, ErrItemNoEffect, err)
+	})
+
+	t.Run("ActorにPoolsがない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actor := world.Manager.NewEntity()
+		// Poolsなし
+
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorUseItem,
+			Target:       &item,
+		}
+
+		ua := &UseItemActivity{}
+		err := ua.Validate(comp, actor, world)
+		assert.Error(t, err)
+		assert.Equal(t, ErrActorNoPools, err)
+	})
+}
+
+func TestUseItemActivity_Info(t *testing.T) {
+	t.Parallel()
+
+	ua := &UseItemActivity{}
+	info := ua.Info()
+
+	assert.Equal(t, "アイテム使用", info.Name)
+	assert.False(t, info.Interruptible)
+	assert.False(t, info.Resumable)
+}

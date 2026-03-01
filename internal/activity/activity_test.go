@@ -70,11 +70,15 @@ func TestActivityCancel(t *testing.T) {
 	comp, err := NewActivity(&WaitActivity{}, 5)
 	require.NoError(t, err)
 
+	// キャンセル前はIsCanceledがfalse
+	assert.False(t, IsCanceled(comp), "Expected IsCanceled to be false before cancel")
+
 	// キャンセル実行
 	Cancel(comp, "テストキャンセル")
 
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected state to be Canceled after cancel")
 	assert.Equal(t, "テストキャンセル", comp.CancelReason, "Expected cancel reason 'テストキャンセル'")
+	assert.True(t, IsCanceled(comp), "Expected IsCanceled to be true after cancel")
 
 	// キャンセル後は中断・再開不可
 	assert.False(t, CanInterrupt(comp), "Expected canceled activity to not be interruptible")
@@ -142,4 +146,47 @@ func TestActivityDoTurn(t *testing.T) {
 	assert.NoError(t, err, "Unexpected error in turn 3")
 	assert.Equal(t, 0, comp.TurnsLeft, "Expected 0 turns left after turn 3")
 	assert.True(t, IsCompleted(comp), "Expected activity to be completed after turn 3")
+}
+
+func TestGetBehavior(t *testing.T) {
+	t.Parallel()
+
+	t.Run("登録済みBehaviorを取得できる", func(t *testing.T) {
+		t.Parallel()
+		behavior, err := GetBehavior(gc.BehaviorWait)
+		require.NoError(t, err)
+		assert.Equal(t, gc.BehaviorWait, behavior.Name())
+	})
+
+	t.Run("未登録Behaviorでエラーを返す", func(t *testing.T) {
+		t.Parallel()
+		_, err := GetBehavior(gc.BehaviorName("Unknown"))
+		assert.Error(t, err)
+	})
+}
+
+func TestNewActivityInvalidDuration(t *testing.T) {
+	t.Parallel()
+
+	t.Run("duration 0でエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := NewActivity(&WaitActivity{}, 0)
+		assert.Error(t, err)
+	})
+
+	t.Run("負のdurationでエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := NewActivity(&WaitActivity{}, -1)
+		assert.Error(t, err)
+	})
+}
+
+func TestGetProgressPercentEdgeCases(t *testing.T) {
+	t.Parallel()
+
+	t.Run("TurnsTotal 0の場合は100%を返す", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{TurnsTotal: 0, TurnsLeft: 0}
+		assert.Equal(t, 100.0, GetProgressPercent(comp))
+	})
 }
