@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -19,7 +18,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (*gc.Attac
 	}
 
 	commandTableName := commandTableComp.(*gc.CommandTable).Name
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 
 	// CommandTableを取得
 	commandTable, err := rawMaster.GetCommandTable(commandTableName)

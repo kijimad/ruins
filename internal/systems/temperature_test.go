@@ -192,6 +192,34 @@ func TestUpdateFrostbiteTimer(t *testing.T) {
 		assert.Equal(t, 0.5, cond.Timer)
 	})
 
+	t.Run("危険な環境で凍傷タイマーが増加", func(t *testing.T) {
+		t.Parallel()
+		partHealth := &gc.BodyPartHealth{}
+
+		// 有効温度1-5度は危険レベル
+		updateFrostbiteTimer(partHealth, 3)
+
+		cond := partHealth.GetCondition(gc.ConditionFrostbite)
+		require.NotNil(t, cond)
+		assert.Equal(t, 0.25, cond.Timer) // delta=0.25
+	})
+
+	t.Run("やや寒い環境では凍傷タイマーが変化しない", func(t *testing.T) {
+		t.Parallel()
+		partHealth := &gc.BodyPartHealth{}
+		partHealth.SetCondition(gc.HealthCondition{
+			Type:  gc.ConditionFrostbite,
+			Timer: 50,
+		})
+
+		// 有効温度6-10度は現状維持
+		updateFrostbiteTimer(partHealth, 8)
+
+		cond := partHealth.GetCondition(gc.ConditionFrostbite)
+		require.NotNil(t, cond)
+		assert.Equal(t, 50.0, cond.Timer) // 変化なし
+	})
+
 	t.Run("暖かい環境で凍傷タイマーが回復", func(t *testing.T) {
 		t.Parallel()
 		partHealth := &gc.BodyPartHealth{}
@@ -388,5 +416,304 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 		// 頭には適用されていないはず
 		assert.Equal(t, 0, insulation[gc.BodyPartHead].Cold)
 		assert.Equal(t, 0, insulation[gc.BodyPartHead].Heat)
+	})
+}
+
+func TestCalculateHypothermiaEffects(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		part         gc.BodyPart
+		severity     gc.Severity
+		expectedLen  int
+		expectedStat gc.StatType
+	}{
+		{"胴体-軽度", gc.BodyPartTorso, gc.SeverityMinor, 2, gc.StatStrength},
+		{"胴体-中度", gc.BodyPartTorso, gc.SeverityMedium, 2, gc.StatStrength},
+		{"胴体-重度", gc.BodyPartTorso, gc.SeveritySevere, 2, gc.StatStrength},
+		{"頭-軽度", gc.BodyPartHead, gc.SeverityMinor, 1, gc.StatSensation},
+		{"腕-軽度", gc.BodyPartArms, gc.SeverityMinor, 1, gc.StatStrength},
+		{"手-軽度", gc.BodyPartHands, gc.SeverityMinor, 1, gc.StatDexterity},
+		{"脚-軽度", gc.BodyPartLegs, gc.SeverityMinor, 1, gc.StatAgility},
+		{"足-軽度", gc.BodyPartFeet, gc.SeverityMinor, 1, gc.StatAgility},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			effects := calculateHypothermiaEffects(tt.part, tt.severity)
+			require.Len(t, effects, tt.expectedLen)
+			assert.Equal(t, tt.expectedStat, effects[0].Stat)
+			assert.Less(t, effects[0].Value, 0) // 効果は負の値
+		})
+	}
+
+	t.Run("SeverityNoneでは効果なし", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHypothermiaEffects(gc.BodyPartTorso, gc.SeverityNone)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("胴体の低体温はStrengthとVitalityを下げる", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHypothermiaEffects(gc.BodyPartTorso, gc.SeverityMinor)
+		require.Len(t, effects, 2)
+		assert.Equal(t, gc.StatStrength, effects[0].Stat)
+		assert.Equal(t, gc.StatVitality, effects[1].Stat)
+	})
+
+	t.Run("重度の方が効果が大きい", func(t *testing.T) {
+		t.Parallel()
+		minorEffects := calculateHypothermiaEffects(gc.BodyPartTorso, gc.SeverityMinor)
+		severeEffects := calculateHypothermiaEffects(gc.BodyPartTorso, gc.SeveritySevere)
+
+		// 重度の効果値の絶対値が大きい
+		assert.Greater(t, -severeEffects[0].Value, -minorEffects[0].Value)
+	})
+}
+
+func TestCalculateHyperthermiaEffects(t *testing.T) {
+	t.Parallel()
+
+	t.Run("胴体の高体温はStrengthを下げる", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartTorso, gc.SeverityMinor)
+		require.Len(t, effects, 1)
+		assert.Equal(t, gc.StatStrength, effects[0].Stat)
+		assert.Equal(t, -1, effects[0].Value)
+	})
+
+	t.Run("頭の高体温はSensationを下げる", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartHead, gc.SeverityMinor)
+		require.Len(t, effects, 1)
+		assert.Equal(t, gc.StatSensation, effects[0].Stat)
+		assert.Equal(t, -1, effects[0].Value)
+	})
+
+	t.Run("手は高体温の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartHands, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("足は高体温の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartFeet, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("腕は高体温の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartArms, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("脚は高体温の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartLegs, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("SeverityNoneでは効果なし", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateHyperthermiaEffects(gc.BodyPartTorso, gc.SeverityNone)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("重度の方が効果が大きい", func(t *testing.T) {
+		t.Parallel()
+		minorEffects := calculateHyperthermiaEffects(gc.BodyPartTorso, gc.SeverityMinor)
+		severeEffects := calculateHyperthermiaEffects(gc.BodyPartTorso, gc.SeveritySevere)
+
+		assert.Equal(t, -1, minorEffects[0].Value)
+		assert.Equal(t, -3, severeEffects[0].Value)
+	})
+}
+
+func TestCalculateFrostbiteEffects(t *testing.T) {
+	t.Parallel()
+
+	t.Run("手の凍傷はDexterityを下げる", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartHands, gc.SeverityMinor)
+		require.Len(t, effects, 1)
+		assert.Equal(t, gc.StatDexterity, effects[0].Stat)
+		assert.Equal(t, -1, effects[0].Value)
+	})
+
+	t.Run("足の凍傷はAgilityを下げる", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartFeet, gc.SeverityMinor)
+		require.Len(t, effects, 1)
+		assert.Equal(t, gc.StatAgility, effects[0].Stat)
+		assert.Equal(t, -1, effects[0].Value)
+	})
+
+	t.Run("胴体は凍傷の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartTorso, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("頭は凍傷の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartHead, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("腕は凍傷の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartArms, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("脚は凍傷の影響を受けない", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartLegs, gc.SeveritySevere)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("SeverityNoneでは効果なし", func(t *testing.T) {
+		t.Parallel()
+		effects := calculateFrostbiteEffects(gc.BodyPartHands, gc.SeverityNone)
+		assert.Nil(t, effects)
+	})
+
+	t.Run("重度の方が効果が大きい", func(t *testing.T) {
+		t.Parallel()
+		minorEffects := calculateFrostbiteEffects(gc.BodyPartHands, gc.SeverityMinor)
+		severeEffects := calculateFrostbiteEffects(gc.BodyPartHands, gc.SeveritySevere)
+
+		assert.Equal(t, -1, minorEffects[0].Value)
+		assert.Equal(t, -3, severeEffects[0].Value)
+	})
+}
+
+func TestUpdateConditionEffects(t *testing.T) {
+	t.Parallel()
+
+	t.Run("低体温の効果が適用される", func(t *testing.T) {
+		t.Parallel()
+		partHealth := &gc.BodyPartHealth{}
+		partHealth.SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeverityMinor,
+			Timer:    30,
+		})
+
+		updateConditionEffects(partHealth, gc.BodyPartTorso)
+
+		cond := partHealth.GetCondition(gc.ConditionHypothermia)
+		require.NotNil(t, cond)
+		require.Len(t, cond.Effects, 2) // Strength と Vitality
+	})
+
+	t.Run("高体温の効果が適用される", func(t *testing.T) {
+		t.Parallel()
+		partHealth := &gc.BodyPartHealth{}
+		partHealth.SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHyperthermia,
+			Severity: gc.SeverityMedium,
+			Timer:    50,
+		})
+
+		updateConditionEffects(partHealth, gc.BodyPartHead)
+
+		cond := partHealth.GetCondition(gc.ConditionHyperthermia)
+		require.NotNil(t, cond)
+		require.Len(t, cond.Effects, 1) // Sensation
+		assert.Equal(t, gc.StatSensation, cond.Effects[0].Stat)
+	})
+
+	t.Run("凍傷の効果が適用される", func(t *testing.T) {
+		t.Parallel()
+		partHealth := &gc.BodyPartHealth{}
+		partHealth.SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionFrostbite,
+			Severity: gc.SeveritySevere,
+			Timer:    80,
+		})
+
+		updateConditionEffects(partHealth, gc.BodyPartHands)
+
+		cond := partHealth.GetCondition(gc.ConditionFrostbite)
+		require.NotNil(t, cond)
+		require.Len(t, cond.Effects, 1) // Dexterity
+		assert.Equal(t, gc.StatDexterity, cond.Effects[0].Stat)
+		assert.Equal(t, -3, cond.Effects[0].Value) // Severe = multiplier 3
+	})
+}
+
+func TestLogTemperatureChange(t *testing.T) {
+	t.Parallel()
+
+	t.Run("悪化時のメッセージが取得できる", func(t *testing.T) {
+		t.Parallel()
+		msg := getWorseningMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeverityMinor)
+		assert.Contains(t, msg, "冷えてきた")
+		assert.Contains(t, msg, "[胴体]")
+	})
+
+	t.Run("中程度悪化のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getWorseningMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeverityMedium)
+		assert.Contains(t, msg, "かなり冷えている")
+	})
+
+	t.Run("重度悪化のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getWorseningMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeveritySevere)
+		assert.Contains(t, msg, "危険な状態")
+	})
+
+	t.Run("高体温悪化のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getWorseningMessage(gc.BodyPartHead, gc.ConditionHyperthermia, gc.SeverityMinor)
+		assert.Contains(t, msg, "火照ってきた")
+		assert.Contains(t, msg, "[頭]")
+	})
+
+	t.Run("凍傷悪化のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getWorseningMessage(gc.BodyPartHands, gc.ConditionFrostbite, gc.SeverityMinor)
+		assert.Contains(t, msg, "凍傷になりかけている")
+	})
+
+	t.Run("回復時のメッセージが取得できる", func(t *testing.T) {
+		t.Parallel()
+		msg := getRecoveryMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeverityNone)
+		assert.Contains(t, msg, "温まった")
+	})
+
+	t.Run("部分回復のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getRecoveryMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeverityMinor)
+		assert.Contains(t, msg, "少し温まってきた")
+	})
+
+	t.Run("高体温回復のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getRecoveryMessage(gc.BodyPartHead, gc.ConditionHyperthermia, gc.SeverityNone)
+		assert.Contains(t, msg, "涼しくなった")
+	})
+
+	t.Run("凍傷回復のメッセージ", func(t *testing.T) {
+		t.Parallel()
+		msg := getRecoveryMessage(gc.BodyPartHands, gc.ConditionFrostbite, gc.SeverityNone)
+		assert.Contains(t, msg, "凍傷が治った")
+	})
+
+	t.Run("SeverityNoneの悪化メッセージは空", func(t *testing.T) {
+		t.Parallel()
+		msg := getWorseningMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeverityNone)
+		assert.Empty(t, msg)
+	})
+
+	t.Run("SeveritySevereの回復メッセージは空", func(t *testing.T) {
+		t.Parallel()
+		msg := getRecoveryMessage(gc.BodyPartTorso, gc.ConditionHypothermia, gc.SeveritySevere)
+		assert.Empty(t, msg)
 	})
 }

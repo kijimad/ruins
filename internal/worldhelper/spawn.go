@@ -7,7 +7,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
-	"github.com/kijimaD/ruins/internal/raw"
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -201,7 +200,7 @@ func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
 // SpawnTile はタイルを生成する
 // autoTileIndexが指定された場合、spriteKeyを動的に生成する（例: "wall_5"）
 func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, autoTileIndex *int) (ecs.Entity, error) {
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	entitySpec, err := rawMaster.NewTileSpec(tileName, x, y, autoTileIndex)
 	if err != nil {
 		return ecs.Entity(0), err
@@ -227,7 +226,7 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 // SpawnPlayer はプレイヤーキャラクターを生成する
 func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	entitySpec, err := rawMaster.NewPlayerSpec(name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
@@ -268,7 +267,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
 func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 
 	// NewMemberSpecでEntitySpecを生成
 	entitySpec, err := rawMaster.NewMemberSpec(name)
@@ -311,7 +310,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
 func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 
 	// raw.Masterから敵データを取得
 	entitySpec, err := rawMaster.NewEnemySpec(name)
@@ -374,7 +373,7 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 		return 0, fmt.Errorf("count must be positive: %d", count)
 	}
 
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 
 	{
 		// アイテム定義を取得してStackable対応かチェック

@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -283,7 +282,7 @@ func (aa *AttackActivity) getWeaponAccuracy(attacker ecs.Entity, world w.World) 
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
 func (aa *AttackActivity) getBareHandsAttack(world w.World) (*gc.Attack, string, error) {
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	bareHandsSpec, err := rawMaster.NewWeaponSpec("素手")
 	if err != nil {
 		return nil, "", fmt.Errorf("素手武器が見つかりません: %w", err)

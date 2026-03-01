@@ -3,7 +3,6 @@ package systems
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -34,7 +33,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	}))
 
 	// ドロップアイテム生成
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 
 	for _, entity := range toDelete {
 		// ドロップに必要なコンポーネントをチェック

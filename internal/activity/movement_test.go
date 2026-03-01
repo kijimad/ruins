@@ -1,4 +1,4 @@
-package movement
+package activity
 
 import (
 	"testing"
@@ -9,14 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPlayerMovementWithWalls(t *testing.T) {
+func TestCanMoveTo(t *testing.T) {
 	t.Parallel()
 
 	t.Run("壁がない方向への移動は可能", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを(10, 10)にスポーン
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
 
@@ -41,7 +40,6 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを(10, 10)にスポーン
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
 
@@ -66,7 +64,6 @@ func TestPlayerMovementWithWalls(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// プレイヤーを(10, 10)にスポーン
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
 		require.NoError(t, err)
 

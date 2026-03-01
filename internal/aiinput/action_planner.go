@@ -6,7 +6,6 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/movement"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -69,7 +68,7 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 		destX := int(aiGrid.X) + candidate.x
 		destY := int(aiGrid.Y) + candidate.y
 
-		if movement.CanMoveTo(world, destX, destY, aiEntity) {
+		if activity.CanMoveTo(world, destX, destY, aiEntity) {
 			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
 			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
@@ -111,7 +110,7 @@ func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs
 		destX := int(aiGrid.X) + direction.x
 		destY := int(aiGrid.Y) + direction.y
 
-		if movement.CanMoveTo(world, destX, destY, aiEntity) {
+		if activity.CanMoveTo(world, destX, destY, aiEntity) {
 			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
 			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,

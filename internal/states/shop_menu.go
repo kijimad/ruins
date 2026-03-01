@@ -13,7 +13,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/views"
@@ -331,7 +330,7 @@ func (st *ShopMenuState) createSellItems(world w.World) []tabmenu.Item {
 
 // getItemPrice はアイテム名から価格を計算
 func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	itemIdx, ok := rawMaster.ItemIndex[itemName]
 	if !ok {
 		return 0
@@ -374,7 +373,7 @@ func (st *ShopMenuState) handleItemChange(world w.World, item tabmenu.Item) erro
 	st.specContainer.RemoveChildren()
 
 	// アイテムの情報を取得する
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	spec, err := rawMaster.NewItemSpec(itemName)
 	if err != nil {
 		st.itemDesc.Label = TextNoDescription
