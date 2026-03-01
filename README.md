@@ -49,11 +49,13 @@
 $ make
 run                  実行する。スクショのキーを指定している
 test                 テストを実行する
+report               AIが読みやすい形でカバレッジレポートを表示する
 build                ビルドする
 vrt                  各ステートでスクショを取得する
 fmt                  フォーマットする
 lint                 Linterを実行する
-aseprite             asepriteでパッキングする
+gendata              現在の設定でデータファイルを生成する
+aseprite             asepriteでパッキングする。画像の変更を反映したら実行する
 toolsinstall         開発ツールをインストールする
 check                一気にチェックする
 memp                 実行毎に保存しているプロファイルを見る
