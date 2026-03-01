@@ -13,7 +13,7 @@ import (
 
 // ActionPlanner はAIのアクション計画システム
 type ActionPlanner interface {
-	PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, canSeePlayer bool) (activity.Interface, activity.ActionParams)
+	PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, canSeePlayer bool) (activity.Behavior, activity.ActionParams)
 }
 
 // DefaultActionPlanner は標準的なアクション計画実装
@@ -25,7 +25,7 @@ func NewActionPlanner() ActionPlanner {
 }
 
 // PlanAction は現在の状態に基づいてアクションを決定する
-func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, _ bool) (activity.Interface, activity.ActionParams) {
+func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, _ bool) (activity.Behavior, activity.ActionParams) {
 	switch context.Roaming.SubState {
 	case gc.AIRoamingChasing:
 		// 追跡モード：プレイヤーに向かって移動
@@ -46,7 +46,7 @@ func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity
 }
 
 // planChaseAction はプレイヤー追跡アクションを計画
-func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Interface, activity.ActionParams) {
+func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
 	// プレイヤーと隣接タイルにいる場合は攻撃
@@ -83,7 +83,7 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 }
 
 // planRandomMoveAction はランダム移動アクションを計画
-func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Interface, activity.ActionParams) {
+func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
 	// 30%の確率で待機
 	if rand.Float64() < 0.3 {
 		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AIランダム待機"}

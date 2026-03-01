@@ -34,7 +34,7 @@ func NewManager(l *logger.Logger) *Manager {
 // HistoryEntry は実行されたアクティビティの記録
 // テスト用に公開している
 type HistoryEntry struct {
-	Activity Interface   // 実行されたアクティビティ
+	Activity Behavior    // 実行されたアクティビティ
 	Actor    ecs.Entity  // 実行者
 	Target   *ecs.Entity // 対象（あれば）
 	Success  bool        // 成功/失敗
@@ -43,7 +43,7 @@ type HistoryEntry struct {
 
 // Execute は指定されたアクション（アクティビティ）を実行する
 // 即座実行アクション（移動、攻撃等）も継続アクション（休息等）も統一的に処理
-func (m *Manager) Execute(actorImpl Interface, params ActionParams, world w.World) (*ActionResult, error) {
+func (m *Manager) Execute(actorImpl Behavior, params ActionParams, world w.World) (*ActionResult, error) {
 	activityName := actorImpl.String()
 	m.logger.Debug("アクション実行開始",
 		"type", activityName,
@@ -103,7 +103,7 @@ func (m *Manager) Execute(actorImpl Interface, params ActionParams, world w.Worl
 }
 
 // addHistory は履歴エントリを追加する
-func (m *Manager) addHistory(actorImpl Interface, params ActionParams, result *ActionResult) {
+func (m *Manager) addHistory(actorImpl Behavior, params ActionParams, result *ActionResult) {
 	if m.History == nil {
 		return
 	}
@@ -323,7 +323,7 @@ func (m *Manager) validateResume(activity *Activity, world w.World) error {
 }
 
 // createActivity はアクティビティ実装とパラメータからアクティビティを作成する
-func (m *Manager) createActivity(actorImpl Interface, params ActionParams, world w.World) *Activity {
+func (m *Manager) createActivity(actorImpl Behavior, params ActionParams, world w.World) *Activity {
 	// 基本のdurationを計算
 	duration := params.Duration
 	if duration <= 0 {
@@ -346,7 +346,7 @@ func (m *Manager) createActivity(actorImpl Interface, params ActionParams, world
 }
 
 // consumeMoveCost はターン管理システムに移動コストを通知する
-func (m *Manager) consumeMoveCost(world w.World, actorImpl Interface, actor ecs.Entity) {
+func (m *Manager) consumeMoveCost(world w.World, actorImpl Behavior, actor ecs.Entity) {
 	if world.Resources.TurnManager == nil {
 		m.logger.Warn("TurnManagerリソースが見つかりません")
 		return

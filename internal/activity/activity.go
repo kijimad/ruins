@@ -33,9 +33,9 @@ type Info struct {
 	TotalRequiredAP int    // アクティビティ完了に必要な総AP量
 }
 
-// Interface はアクティビティの実行を担当するインターフェース
+// Behavior はアクティビティの実行を担当するインターフェース
 // CDDAのactivity_actorを参考にした設計
-type Interface interface {
+type Behavior interface {
 	Info() Info
 	String() string
 	Validate(act *Activity, world w.World) error
@@ -47,7 +47,7 @@ type Interface interface {
 
 // Activity は継続的なアクション（アクティビティ）のデータを表す
 type Activity struct {
-	ActorImpl    Interface    // アクティビティの実装
+	ActorImpl    Behavior     // アクティビティの実装
 	State        State        // 実行状態
 	TurnsTotal   int          // 総必要ターン数
 	TurnsLeft    int          // 残りターン数
@@ -59,7 +59,7 @@ type Activity struct {
 }
 
 // NewActivity は新しいアクティビティを作成する
-func NewActivity(actorImpl Interface, actor ecs.Entity, duration int) *Activity {
+func NewActivity(actorImpl Behavior, actor ecs.Entity, duration int) *Activity {
 	// durationは0以下の値は許可しない（呼び出し側で適切な値を指定する必要がある）
 	if duration <= 0 {
 		duration = 1 // 最低1ターンは必要
@@ -76,7 +76,7 @@ func NewActivity(actorImpl Interface, actor ecs.Entity, duration int) *Activity 
 }
 
 // CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する
-func CalculateRequiredTurns(actorImpl Interface, characterAP int) int {
+func CalculateRequiredTurns(actorImpl Behavior, characterAP int) int {
 	info := actorImpl.Info()
 
 	// AP積み上げ方式の場合

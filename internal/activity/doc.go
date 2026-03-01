@@ -20,7 +20,7 @@
 // - **Execute**: アクションの実行エントリーポイント
 // - **ActivityType**: 実行可能なアクティビティの種別（移動、攻撃、休息など）
 // - **Activity struct**: 実行中のアクティビティの状態データ
-// - **Interface**: アクティビティの実行ロジック
+// - **Behavior**: アクティビティの実行ロジック
 // - **各種Activity実装**: MoveActivity, AttackActivity, RestActivityなど
 //
 // 責務：

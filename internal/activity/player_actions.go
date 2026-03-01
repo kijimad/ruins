@@ -114,7 +114,7 @@ func executeInteractionForPlayer(world w.World, actor ecs.Entity, interactable e
 }
 
 // executeActivityWithPostProcess はアクティビティ実行と後処理を行う関数
-func executeActivityWithPostProcess(world w.World, actorImpl Interface, params ActionParams) error {
+func executeActivityWithPostProcess(world w.World, actorImpl Behavior, params ActionParams) error {
 	manager := world.Resources.ActivityManager.(*Manager)
 	result, err := manager.Execute(actorImpl, params, world)
 	if err != nil {
