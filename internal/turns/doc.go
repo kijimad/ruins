@@ -72,7 +72,7 @@
 //		// アクション実行
 //		// ...
 //		// コスト消費
-//		turnManager.ConsumePlayerMoves("移動", 100)
+//		turnManager.ConsumePlayerMoves("移動", consts.StandardActionCost)
 //	}
 //
 //	// ターン進行

@@ -20,7 +20,7 @@ func (ma *MoveActivity) Info() Info {
 		Description:     "隣接するタイルに移動する",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 0,
 	}
 }

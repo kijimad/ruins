@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -19,7 +20,7 @@ func (ta *TalkActivity) Info() Info {
 		Description:     "NPCと会話する",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 0,
 	}
 }

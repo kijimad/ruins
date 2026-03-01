@@ -2,6 +2,7 @@ package turns
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -44,7 +45,7 @@ type TurnManager struct {
 // NewTurnManager は新しいTurnManagerを作成する
 func NewTurnManager() *TurnManager {
 	return &TurnManager{
-		PlayerMoves: 100,
+		PlayerMoves: consts.DefaultPlayerMoves,
 		TurnPhase:   PlayerTurn,
 		TurnNumber:  1,
 		logger:      logger.New(logger.CategoryTurn),
@@ -87,7 +88,7 @@ func (tm *TurnManager) AdvanceToTurnEnd() {
 // StartNewTurn は新しいターンを開始する
 func (tm *TurnManager) StartNewTurn() {
 	tm.TurnNumber++
-	tm.PlayerMoves = 100
+	tm.PlayerMoves = consts.DefaultPlayerMoves
 	tm.TurnPhase = PlayerTurn
 
 	tm.logger.Debug("新ターン開始",
@@ -125,7 +126,7 @@ func (tm *TurnManager) ConsumeActionPoints(world w.World, entity ecs.Entity, act
 }
 
 // CanEntityAct はエンティティがアクション可能かチェックする
-// APが0以上なら行動可能。コストは問わない、マイナスになっても良い
+// APが最小閾値以上なら行動可能。コストは問わない、マイナスになっても良い
 func (tm *TurnManager) CanEntityAct(world w.World, entity ecs.Entity, _ int) bool {
 	// プレイヤーの場合はターンフェーズもチェック
 	if entity.HasComponent(world.Components.Player) && tm.TurnPhase != PlayerTurn {
@@ -139,8 +140,8 @@ func (tm *TurnManager) CanEntityAct(world w.World, entity ecs.Entity, _ int) boo
 
 	actionPoints := apComponent.(*gc.TurnBased)
 
-	// APが0以上なら行動可能
-	return actionPoints.AP.Current >= 0
+	// APが最小閾値以上なら行動可能
+	return actionPoints.AP.Current >= consts.MinActionThreshold
 }
 
 // RestoreAllActionPoints は全エンティティのAPを回復する。Speed分のAPを上限まで加算する

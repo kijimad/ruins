@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -19,7 +20,7 @@ func (oda *OpenDoorActivity) Info() Info {
 		Description:     "ドアを開く",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 0,
 	}
 }
@@ -108,7 +109,7 @@ func (cda *CloseDoorActivity) Info() Info {
 		Description:     "ドアを閉じる",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 0,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -19,7 +20,7 @@ func (ra *RestActivity) Info() Info {
 		Description:     "体力を回復するために休息する",
 		Interruptible:   true,
 		Resumable:       true,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 1000,
 	}
 }

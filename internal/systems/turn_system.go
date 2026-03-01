@@ -4,6 +4,7 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	"github.com/kijimaD/ruins/internal/aiinput"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -67,8 +68,8 @@ func shouldAutoEndTurn(world w.World) bool {
 	}
 
 	ap := turnBased.(*gc.TurnBased)
-	// APがマイナスの場合は自動でターンを終了
-	return ap.AP.Current < 0
+	// APが最小閾値未満の場合は自動でターンを終了
+	return ap.AP.Current < consts.MinActionThreshold
 }
 
 // processPlayerContinuousActivity はプレイヤーの継続アクションを処理する
@@ -102,12 +103,12 @@ func processPlayerContinuousActivity(world w.World, turnManager *turns.TurnManag
 	if !manager.HasActivity(playerEntity) {
 		log.Debug("プレイヤー継続アクション完了")
 		// 完了した場合はターンコストを消費
-		turnManager.ConsumeActionPoints(world, playerEntity, "継続アクション", 100)
+		turnManager.ConsumeActionPoints(world, playerEntity, "継続アクション", consts.StandardActionCost)
 		return true
 	}
 
 	// まだ進行中の場合もターンを進める
-	turnManager.ConsumeActionPoints(world, playerEntity, "継続アクション", 100)
+	turnManager.ConsumeActionPoints(world, playerEntity, "継続アクション", consts.StandardActionCost)
 	return true
 }
 

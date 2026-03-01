@@ -5,6 +5,7 @@ import (
 	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -44,7 +45,7 @@ func (aa *AttackActivity) Info() Info {
 		Description:     "敵を攻撃する",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 100,
+		ActionPointCost: consts.StandardActionCost,
 		TotalRequiredAP: 0,
 	}
 }

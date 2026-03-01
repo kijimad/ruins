@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
@@ -14,7 +15,7 @@ func TestNewTurnManager(t *testing.T) {
 	t.Parallel()
 	tm := NewTurnManager()
 
-	assert.Equal(t, 100, tm.PlayerMoves, "初期移動ポイントが正しく設定されている")
+	assert.Equal(t, consts.DefaultPlayerMoves, tm.PlayerMoves, "初期移動ポイントが正しく設定されている")
 	assert.Equal(t, PlayerTurn, tm.TurnPhase, "初期ターンフェーズがPlayerTurn")
 	assert.Equal(t, 1, tm.TurnNumber, "初期ターン番号が1")
 	assert.True(t, tm.CanPlayerAct(), "初期状態でプレイヤーが行動可能")
@@ -24,8 +25,8 @@ func TestConsumePlayerMoves(t *testing.T) {
 	t.Parallel()
 	tm := NewTurnManager()
 
-	// 移動アクション（コスト100）
-	tm.ConsumePlayerMoves("Move", 100)
+	// 移動アクション
+	tm.ConsumePlayerMoves("Move", consts.StandardActionCost)
 
 	assert.Equal(t, 0, tm.PlayerMoves, "移動後の移動ポイントが0")
 	assert.Equal(t, AITurn, tm.TurnPhase, "移動ポイント消費後にAIターンに移行")
@@ -69,12 +70,12 @@ func TestStartNewTurn(t *testing.T) {
 	tm := NewTurnManager()
 
 	// ターンを進める
-	tm.ConsumePlayerMoves("Move", 100) // PlayerTurn -> AITurn
-	tm.AdvanceToTurnEnd()              // AITurn -> TurnEnd
-	tm.StartNewTurn()                  // TurnEnd -> PlayerTurn（新ターン）
+	tm.ConsumePlayerMoves("Move", consts.StandardActionCost) // PlayerTurn -> AITurn
+	tm.AdvanceToTurnEnd()                                    // AITurn -> TurnEnd
+	tm.StartNewTurn()                                        // TurnEnd -> PlayerTurn（新ターン）
 
 	assert.Equal(t, 2, tm.TurnNumber, "ターン番号が2に増加")
-	assert.Equal(t, 100, tm.PlayerMoves, "新ターンで移動ポイントがリセット")
+	assert.Equal(t, consts.DefaultPlayerMoves, tm.PlayerMoves, "新ターンで移動ポイントがリセット")
 	assert.Equal(t, PlayerTurn, tm.TurnPhase, "新ターンでPlayerTurnに戻る")
 	assert.True(t, tm.CanPlayerAct(), "新ターンでプレイヤーが行動可能")
 }
@@ -88,7 +89,7 @@ func TestTurnCycle(t *testing.T) {
 
 	// 1. プレイヤーアクション
 	assert.True(t, tm.IsPlayerTurn())
-	tm.ConsumePlayerMoves("Move", 100)
+	tm.ConsumePlayerMoves("Move", consts.StandardActionCost)
 
 	// 2. AIターン
 	assert.True(t, tm.IsAITurn())
@@ -125,7 +126,7 @@ func TestWarpAction(t *testing.T) {
 	// ワープアクション（コスト0）
 	tm.ConsumePlayerMoves("Warp", 0)
 
-	assert.Equal(t, 100, tm.PlayerMoves, "ワープは移動ポイント消費なし")
+	assert.Equal(t, consts.DefaultPlayerMoves, tm.PlayerMoves, "ワープは移動ポイント消費なし")
 	assert.True(t, tm.CanPlayerAct(), "ワープ後も行動可能")
 	assert.True(t, tm.IsPlayerTurn(), "ワープ後もPlayerTurn継続")
 }
