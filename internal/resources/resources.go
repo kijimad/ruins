@@ -16,7 +16,6 @@ type Resources struct {
 	Dungeon            *Dungeon
 	RawMaster          interface{}
 	UIResources        *UIResources
-	TurnManager        interface{}
 	ActivityManager    interface{} // 継続アクションの状態を保持する
 	GameTime           *GameTime
 	SelectedWeaponSlot int // 選択中の武器スロット番号（1-5）
@@ -53,7 +52,6 @@ func (r *Resources) InitializeResources() error {
 	r.Faces = &map[string]text.Face{}
 	r.UIResources = &UIResources{}
 	r.RawMaster = nil
-	r.TurnManager = nil
 	r.GameTime = &GameTime{}
 	return nil
 }

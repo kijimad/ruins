@@ -46,13 +46,23 @@ func InitWorld(c *gc.Components) (World, error) {
 	if err != nil {
 		return World{}, err
 	}
-	return World{
+
+	world := World{
 		Manager:    manager,
 		Components: c,
 		Resources:  resources.InitGameResources(),
 		Updaters:   make(map[string]Updater),
 		Renderers:  make(map[string]Renderer),
-	}, nil
+	}
+
+	// シングルトンエンティティを作成する
+	turnEntity := world.Manager.NewEntity()
+	turnEntity.AddComponent(world.Components.TurnState, &gc.TurnState{
+		Phase:      gc.TurnPhasePlayer,
+		TurnNumber: 1,
+	})
+
+	return world, nil
 }
 
 // GetManager は World interfaceを満たすためのメソッド

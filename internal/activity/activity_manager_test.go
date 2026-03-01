@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -367,7 +366,6 @@ func TestActivityManagerHistory(t *testing.T) {
 	t.Run("履歴が記録される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 
 		var history []HistoryEntry
 		manager := NewManager(nil)
@@ -393,7 +391,6 @@ func TestActivityManagerHistory(t *testing.T) {
 	t.Run("複数のアクティビティが順番に記録される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 
 		var history []HistoryEntry
 		manager := NewManager(nil)
@@ -421,7 +418,6 @@ func TestActivityManagerHistory(t *testing.T) {
 	t.Run("Historyがnilの場合は記録されない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 
 		manager := NewManager(nil)
 		// History を設定しない
@@ -440,7 +436,6 @@ func TestActivityManagerHistory(t *testing.T) {
 	t.Run("失敗したアクティビティも記録される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 
 		var history []HistoryEntry
 		manager := NewManager(nil)

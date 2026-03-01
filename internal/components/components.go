@@ -134,6 +134,9 @@ type Components struct {
 	// battle ================
 	CommandTable *ecs.SliceComponent
 	DropTable    *ecs.SliceComponent
+
+	// singleton ================
+	TurnState *ecs.SliceComponent // グローバルターン状態（シングルトン）
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -30,14 +29,17 @@ func ExtractHUDData(world w.World) hud.Data {
 func extractGameInfo(world w.World) hud.GameInfoData {
 	floorNumber := world.Resources.Dungeon.Depth
 
-	var turnNumber int
+	// シングルトンからターン番号を取得
+	turnNumber := worldhelper.GetTurnNumber(world)
+
+	// プレイヤーの現在APを取得（旧PlayerMovesの代わり）
 	var playerMoves int
-	if world.Resources.TurnManager != nil {
-		if turnManager, ok := world.Resources.TurnManager.(*turns.TurnManager); ok {
-			turnNumber = turnManager.TurnNumber
-			playerMoves = turnManager.PlayerMoves
+	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
+		if tbComp := world.Components.TurnBased.Get(entity); tbComp != nil {
+			tb := tbComp.(*gc.TurnBased)
+			playerMoves = tb.AP.Current
 		}
-	}
+	})
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP, playerSP, playerMaxSP, playerEP, playerMaxEP int

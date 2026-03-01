@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -345,26 +344,25 @@ func (m *Manager) createActivity(actorImpl Behavior, params ActionParams, world 
 	return activity
 }
 
-// consumeMoveCost はターン管理システムに移動コストを通知する
+// consumeMoveCost はアクションのAPコストを消費する
 func (m *Manager) consumeMoveCost(world w.World, actorImpl Behavior, actor ecs.Entity) {
-	if world.Resources.TurnManager == nil {
-		m.logger.Warn("TurnManagerリソースが見つかりません")
+	info := actorImpl.Info()
+	cost := info.ActionPointCost
+
+	// TurnBasedコンポーネントから直接APを消費
+	tbComp := world.Components.TurnBased.Get(actor)
+	if tbComp == nil {
+		m.logger.Debug("TurnBasedコンポーネントがない", "actor", actor)
 		return
 	}
 
-	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-	info := actorImpl.Info()
-	cost := info.ActionPointCost
-	actionName := info.Name
-
-	success := turnManager.ConsumeActionPoints(world, actor, actionName, cost)
-	if !success {
-		m.logger.Debug("移動コスト消費失敗", "actor", actor, "cost", cost)
-	}
+	tb := tbComp.(*gc.TurnBased)
+	tb.AP.Current -= cost
 
 	m.logger.Debug("移動コスト消費",
 		"activity", actorImpl.String(),
 		"cost", cost,
+		"remaining", tb.AP.Current,
 		"actor", actor,
 		"isPlayer", actor.HasComponent(world.Components.Player))
 }

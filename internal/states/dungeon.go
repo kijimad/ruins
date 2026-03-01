@@ -21,7 +21,6 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -72,11 +71,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 
 	world.Resources.Dungeon.Depth = st.Depth
-
-	// ターンマネージャーを初期化
-	if world.Resources.TurnManager == nil {
-		world.Resources.TurnManager = turns.NewTurnManager()
-	}
 
 	// アクティビティマネージャーを初期化
 	if world.Resources.ActivityManager == nil {
@@ -358,16 +352,8 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
-		if world.Resources.TurnManager != nil {
-			turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-			playerEntity, err := worldhelper.GetPlayerEntity(world)
-			if err != nil {
-				return es.Transition[w.World]{Type: es.TransNone}, err
-			}
-			canAct := turnManager.CanEntityAct(world, playerEntity, 0)
-			if !canAct {
-				return es.Transition[w.World]{Type: es.TransNone}, nil
-			}
+		if !worldhelper.CanPlayerAct(world) {
+			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		// プレイヤーが継続アクション中は新しいアクションを受け付けない
 		if world.Resources.ActivityManager != nil {

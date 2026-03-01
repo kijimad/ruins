@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,7 +18,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("正常な移動", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -45,7 +43,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーなしで移動を試みる（エラーが返ることを確認）
@@ -55,7 +52,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// GridElementなしのプレイヤーを作成
@@ -88,7 +84,6 @@ func TestExecuteMoveAction(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
-				world.Resources.TurnManager = turns.NewTurnManager()
 				world.Resources.ActivityManager = activity.NewManager(nil)
 
 				player := world.Manager.NewEntity()
@@ -108,7 +103,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("APがマイナスになっても移動は実行される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成（AP.Current >= 0 なら行動可能）
@@ -140,7 +134,6 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("待機アクションの実行", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -162,7 +155,6 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーなしで待機を試みる（エラーが返ることを確認）
@@ -176,7 +168,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("アイテムがある場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成
@@ -202,7 +193,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("ワープホールがある場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成
@@ -220,7 +210,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーなしでEnterを試みる（エラーが返ることを確認）
@@ -230,7 +219,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// GridElementなしのプレイヤーを作成
@@ -243,7 +231,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("何もない場所でEnter", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Resources.ActivityManager = activity.NewManager(nil)
 
 		// プレイヤーを作成
@@ -266,7 +253,6 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 	t.Run("敵がいる位置への移動は攻撃になる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -297,8 +283,6 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 	t.Run("冷えた状態でも敵への攻撃が可能", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
-		turnManager := world.Resources.TurnManager.(*turns.TurnManager)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -318,8 +302,9 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		canAct := turnManager.CanEntityAct(world, player, 100)
-		assert.True(t, canAct, "冷えた状態でもAPが0以上なら行動可能")
+		// APが0以上なら行動可能であることを確認
+		tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		assert.GreaterOrEqual(t, tb.AP.Current, 0, "冷えた状態でもAPが0以上なら行動可能")
 		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
 		initialEnemyHP := enemyPools.HP.Current
 
@@ -338,7 +323,6 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 	t.Run("冷えた状態で攻撃するとAPが消費される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -384,7 +368,6 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("死亡した敵への移動は攻撃にならない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -410,7 +393,6 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("敵を倒した後の再移動はMoveになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := activity.NewManager(nil)
 		world.Resources.ActivityManager = manager

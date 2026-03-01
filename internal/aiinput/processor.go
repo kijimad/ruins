@@ -4,8 +4,8 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
-	"github.com/kijimaD/ruins/internal/turns"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -29,8 +29,8 @@ func NewProcessor() *Processor {
 
 // ProcessAllEntities は全てのAIエンティティを処理する
 func (p *Processor) ProcessAllEntities(world w.World) error {
-	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
-	p.logger.Debug("AI処理開始", "turn", turnManager.TurnNumber, "playerMoves", turnManager.PlayerMoves)
+	turnNumber := worldhelper.GetTurnNumber(world)
+	p.logger.Debug("AI処理開始", "turn", turnNumber)
 
 	manager := activity.NewManager(logger.New(logger.CategoryAction))
 	entityCount := 0
@@ -45,13 +45,13 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 		p.ProcessEntity(world, manager, entity)
 	}))
 
-	p.logger.Debug("AI処理完了", "処理されたエンティティ数", entityCount, "turn", turnManager.TurnNumber, "playerMoves", turnManager.PlayerMoves)
+	p.logger.Debug("AI処理完了", "処理されたエンティティ数", entityCount, "turn", turnNumber)
 	return nil
 }
 
 // ProcessEntity は個別のAIエンティティを処理する
 func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, entity ecs.Entity) {
-	turnManager := world.Resources.TurnManager.(*turns.TurnManager)
+	turnNumber := worldhelper.GetTurnNumber(world)
 	p.logger.Debug("AIエンティティ処理開始", "entity", entity)
 
 	// 死亡しているエンティティは処理しない
@@ -85,13 +85,13 @@ func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, enti
 
 	// 状態更新
 	oldState := context.Roaming.SubState
-	p.stateMachine.UpdateState(context.Roaming, canSeePlayer, turnManager.TurnNumber)
+	p.stateMachine.UpdateState(context.Roaming, canSeePlayer, turnNumber)
 	if oldState != context.Roaming.SubState {
 		p.logger.Debug("AI状態変化", "entity", entity, "from", oldState, "to", context.Roaming.SubState)
 	}
 
 	// 残りターン数を計算してログ出力
-	elapsedTurns := turnManager.TurnNumber - context.Roaming.StartSubStateTurn
+	elapsedTurns := turnNumber - context.Roaming.StartSubStateTurn
 	remainingTurns := context.Roaming.DurationSubStateTurns - elapsedTurns
 	if remainingTurns < 0 {
 		remainingTurns = 0
@@ -120,9 +120,10 @@ func (p *Processor) ProcessEntity(world w.World, manager *activity.Manager, enti
 			break
 		}
 
-		// アクティビティタイプに応じたAPコストを計算
+		// APが足りるか確認する
 		actionCost := actorImpl.Info().ActionPointCost
-		if !turnManager.CanEntityAct(world, entity, actionCost) {
+		tbComp := world.Components.TurnBased.Get(entity)
+		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < 0 {
 			p.logger.Debug("AP不足でアクション実行不可", "entity", entity, "activity", activityName, "cost", actionCost)
 			break
 		}

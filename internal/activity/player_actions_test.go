@@ -7,7 +7,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/turns"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -19,7 +18,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("正常な移動", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -45,7 +43,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -55,7 +52,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -88,7 +84,6 @@ func TestExecuteMoveAction(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
-				world.Resources.TurnManager = turns.NewTurnManager()
 				manager := NewManager(nil)
 				world.Resources.ActivityManager = manager
 
@@ -109,7 +104,6 @@ func TestExecuteMoveAction(t *testing.T) {
 	t.Run("敵がいる位置への移動は攻撃になる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -144,7 +138,6 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("待機アクションの実行", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -165,7 +158,6 @@ func TestExecuteWaitAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -179,7 +171,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("何もない場所でEnter", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -198,7 +189,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("アイテムがある場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -230,7 +220,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -240,7 +229,6 @@ func TestExecuteEnterAction(t *testing.T) {
 	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
 
@@ -428,7 +416,6 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("死亡した敵への移動は攻撃にならない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
@@ -454,7 +441,6 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	t.Run("敵を倒した後の再移動はMoveになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.TurnManager = turns.NewTurnManager()
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 		manager := NewManager(nil)
 		world.Resources.ActivityManager = manager
