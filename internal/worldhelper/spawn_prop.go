@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
-	"github.com/kijimaD/ruins/internal/raw"
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -15,7 +14,7 @@ import (
 // SpawnProp は置物を生成する
 func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
 	// RawMasterから置物の設定を生成
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	entitySpec, err := rawMaster.NewPropSpec(propName)
 	if err != nil {
 		return ecs.Entity(0), err

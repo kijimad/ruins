@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -68,9 +67,7 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 
 	// RawMasterを設定
 	if world.Resources != nil && world.Resources.RawMaster != nil {
-		if rawMaster, ok := world.Resources.RawMaster.(*raw.Master); ok {
-			chain.PlanData.RawMaster = rawMaster
-		}
+		chain.PlanData.RawMaster = world.Resources.RawMaster
 	}
 
 	// 敵NPCプランナーを追加

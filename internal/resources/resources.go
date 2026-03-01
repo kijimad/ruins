@@ -3,6 +3,7 @@ package resources
 import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 )
 
 // Resources は具体的なリソース実装。ゲーム固有のリソース管理を担当する
@@ -15,7 +16,7 @@ type Resources struct {
 	Fonts            *map[string]Font
 	Faces            *map[string]text.Face
 	UIResources      *UIResources
-	RawMaster        interface{}
+	RawMaster        *raw.Master
 
 	// 動的
 	Dungeon *Dungeon

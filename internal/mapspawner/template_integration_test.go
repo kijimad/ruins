@@ -5,7 +5,6 @@ import (
 
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -36,7 +35,7 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		// 4. テンプレートからマップを生成
 		chain, err := mapplanner.NewTemplatePlannerChain(template, palette, 12345)
 		require.NoError(t, err)
-		chain.PlanData.RawMaster = world.Resources.RawMaster.(*raw.Master)
+		chain.PlanData.RawMaster = world.Resources.RawMaster
 
 		err = chain.Plan()
 		require.NoError(t, err)

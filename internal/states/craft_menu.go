@@ -15,7 +15,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/views"
@@ -330,7 +329,7 @@ func (st *CraftMenuState) handleItemChange(world w.World, item tabmenu.Item) err
 	}
 
 	// RawMasterからEntitySpecを取得
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	spec, err := rawMaster.NewRecipeSpec(recipeName)
 	if err != nil {
 		st.itemDesc.Label = TextNoDescription
@@ -355,7 +354,7 @@ func (st *CraftMenuState) handleItemChange(world w.World, item tabmenu.Item) err
 }
 
 func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	var items []string
 
 	// 全レシピから消耗品を抽出
@@ -375,7 +374,7 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 }
 
 func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	var items []string
 
 	// 全レシピから武器を抽出
@@ -394,7 +393,7 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 }
 
 func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	var items []string
 
 	// 全レシピから装備品を抽出
@@ -596,7 +595,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 		}
 
 		// レシピリストを更新
-		rawMaster := world.Resources.RawMaster.(*raw.Master)
+		rawMaster := world.Resources.RawMaster
 		var spec gc.EntitySpec
 		spec, err = rawMaster.NewRecipeSpec(recipeName)
 		if err != nil {

@@ -100,7 +100,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 
 	// スポーンエントリを設定する
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	if def.ItemTableName != "" {
 		itemTable, err := rawMaster.GetItemTable(def.ItemTableName)
 		if err != nil {

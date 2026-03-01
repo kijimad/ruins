@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -38,7 +37,7 @@ func GetItemValue(world w.World, entity ecs.Entity) int {
 // 通貨が足りない場合や購入に失敗した場合はエラーを返す
 func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	// アイテムの価値を取得
-	rawMaster := world.Resources.RawMaster.(*raw.Master)
+	rawMaster := world.Resources.RawMaster
 	itemIdx, ok := rawMaster.ItemIndex[itemName]
 	if !ok {
 		return fmt.Errorf("アイテムが見つかりません: %s", itemName)
