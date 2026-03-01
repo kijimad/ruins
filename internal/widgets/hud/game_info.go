@@ -46,12 +46,6 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 	// EP情報
 	info.drawElectricityBar(screen, data.PlayerEP, data.PlayerMaxEP)
 
-	// ターン情報
-	drawOutlinedText(screen, fmt.Sprintf("turn: %d", data.TurnNumber), info.bodyFace, 0, 150, color.White)
-
-	// 残りアクションポイント
-	drawOutlinedText(screen, fmt.Sprintf("AP: %d", data.PlayerMoves), info.bodyFace, 0, 170, color.White)
-
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(screen, data)
 

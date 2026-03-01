@@ -29,17 +29,6 @@ func ExtractHUDData(world w.World) hud.Data {
 func extractGameInfo(world w.World) hud.GameInfoData {
 	floorNumber := world.Resources.Dungeon.Depth
 
-	turnNumber, _ := worldhelper.GetTurnNumber(world)
-
-	// プレイヤーの現在APを取得（旧PlayerMovesの代わり）
-	var playerMoves int
-	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
-		if tbComp := world.Components.TurnBased.Get(entity); tbComp != nil {
-			tb := tbComp.(*gc.TurnBased)
-			playerMoves = tb.AP.Current
-		}
-	})
-
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP, playerSP, playerMaxSP, playerEP, playerMaxEP int
 	var playerWeight, playerMaxWeight float64
@@ -69,8 +58,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 
 	return hud.GameInfoData{
 		FloorNumber:       floorNumber,
-		TurnNumber:        turnNumber,
-		PlayerMoves:       playerMoves,
 		PlayerHP:          playerHP,
 		PlayerMaxHP:       playerMaxHP,
 		PlayerSP:          playerSP,

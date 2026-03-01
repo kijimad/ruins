@@ -13,8 +13,6 @@ func TestHUDData(t *testing.T) {
 	hudData := Data{
 		GameInfo: GameInfoData{
 			FloorNumber: 3,
-			TurnNumber:  25,
-			PlayerMoves: 75,
 		},
 		MinimapData: MinimapData{
 			PlayerTileX:      5,
@@ -36,8 +34,6 @@ func TestHUDData(t *testing.T) {
 
 	// データ構造が正しく作成されることを確認
 	assert.Equal(t, 3, hudData.GameInfo.FloorNumber)
-	assert.Equal(t, 25, hudData.GameInfo.TurnNumber)
-	assert.Equal(t, 75, hudData.GameInfo.PlayerMoves)
 	assert.Equal(t, 5, hudData.MinimapData.PlayerTileX)
 	assert.Len(t, hudData.MessageData.Messages, 2)
 }
