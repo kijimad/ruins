@@ -16,13 +16,13 @@ jobs:
       - name: Build
         run: ./scripts/build.sh
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
+      - name: Set up Go with X11 dependencies
+        uses: ./.github/actions/setup-go-with-x
 
       - name: Generate coverage report
         run: |
-          # 依存インストール
-          apt update && apt install -y lcov
+          # lcovインストール
+          sudo apt install -y lcov
           go install github.com/jandelgado/gcov2lcov@v1.1.1
           # レポート生成
           RUINS_LOG_LEVEL=ignore go test -cover ./... -coverprofile=coverage.out
