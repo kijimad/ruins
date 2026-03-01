@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">72.0&nbsp;%</td>
+            <td class="headerCovTableEntryMed">83.0&nbsp;%</td>
             <td class="headerCovTableEntry">100</td>
-            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">83</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-01 14:22:56</td>
+            <td class="headerValue">2026-03-01 15:11:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -201,19 +201,19 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 return false</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC tlaBgUNC">           0 :         log := logger.New(logger.CategoryTurn)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         log.Debug(&quot;プレイヤー継続アクション処理&quot;)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         // 継続アクションの1ターン分を処理</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         activity.ProcessTurn(world)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         if !worldhelper.HasActivity(world, playerEntity) {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 log.Debug(&quot;プレイヤー継続アクション完了&quot;)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         log.Debug(&quot;プレイヤー継続アクション処理&quot;)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         // 継続アクションの1ターン分を処理</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         activity.ProcessTurn(world)</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :         if !worldhelper.HasActivity(world, playerEntity) {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;プレイヤー継続アクション完了&quot;)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L151"><span class="lineNum">     151</span>              : </span>
 <span id="L152"><span class="lineNum">     152</span>              :         // 継続中でも完了でもターンコストを消費する</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         worldhelper.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         return true</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         worldhelper.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         return true</span></span>
 <span id="L155"><span class="lineNum">     155</span>              : }</span>
         </pre>
               </td>

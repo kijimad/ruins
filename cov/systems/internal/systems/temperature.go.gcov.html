@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">59.0&nbsp;%</td>
+            <td class="headerCovTableEntryMed">82.3&nbsp;%</td>
             <td class="headerCovTableEntry">310</td>
-            <td class="headerCovTableEntry">183</td>
+            <td class="headerCovTableEntry">255</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-01 14:22:56</td>
+            <td class="headerValue">2026-03-01 15:11:17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -284,11 +284,11 @@
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :         switch {</span></span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         case effectiveTemp &lt;= 0:</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 delta = 0.5 // 非常に危険</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC tlaBgUNC">           0 :         case effectiveTemp &lt;= 5:</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 delta = 0.25 // 危険</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         case effectiveTemp &lt;= 10:</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 delta = 0 // 現状維持</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         case effectiveTemp &lt;= 5:</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                 delta = 0.25 // 危険</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         case effectiveTemp &lt;= 10:</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 delta = 0 // 現状維持</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         default:</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 delta = -0.25 // 回復</span></span>
 <span id="L231"><span class="lineNum">     231</span>              :         }</span>
 <span id="L232"><span class="lineNum">     232</span>              : </span>
@@ -345,38 +345,38 @@
 <span id="L283"><span class="lineNum">     283</span>              : }</span>
 <span id="L284"><span class="lineNum">     284</span>              : </span>
 <span id="L285"><span class="lineNum">     285</span>              : // getWorseningMessage は悪化時のメッセージを返す</span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 : func getWorseningMessage(part gc.BodyPart, condType gc.ConditionType, severity gc.Severity) string {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :         partTag := &quot;[&quot; + part.String() + &quot;]&quot;</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         switch condType {</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :         case gc.ConditionHypothermia:</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                 case gc.SeverityNone:</span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                 case gc.SeverityMinor:</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaUNC">           0 :                         return &quot;寒さで冷えてきた&quot; + partTag</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC">           0 :                         return &quot;寒さでかなり冷えている&quot; + partTag</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                         return &quot;寒さで危険な状態だ&quot; + partTag</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC tlaBgGNC">           1 : func getWorseningMessage(part gc.BodyPart, condType gc.ConditionType, severity gc.Severity) string {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         partTag := &quot;[&quot; + part.String() + &quot;]&quot;</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         switch condType {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         case gc.ConditionHypothermia:</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC">           1 :                 case gc.SeverityMinor:</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           1 :                         return &quot;寒さで冷えてきた&quot; + partTag</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                 case gc.SeverityMedium:</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                         return &quot;寒さでかなり冷えている&quot; + partTag</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaGNC">           1 :                 case gc.SeveritySevere:</span></span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC">           1 :                         return &quot;寒さで危険な状態だ&quot; + partTag</span></span>
 <span id="L299"><span class="lineNum">     299</span>              :                 }</span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaUNC">           0 :         case gc.ConditionHyperthermia:</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC">           0 :                 case gc.SeverityNone:</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         case gc.ConditionHyperthermia:</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityNone:</span></span>
 <span id="L303"><span class="lineNum">     303</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaUNC">           0 :                 case gc.SeverityMinor:</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaUNC">           0 :                         return &quot;暑さで火照ってきた&quot; + partTag</span></span>
-<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC tlaBgGNC">           1 :                 case gc.SeverityMinor:</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                         return &quot;暑さで火照ってきた&quot; + partTag</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMedium:</span></span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                         return &quot;暑さでかなり消耗している&quot; + partTag</span></span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                         return &quot;暑さで危険な状態だ&quot; + partTag</span></span>
 <span id="L310"><span class="lineNum">     310</span>              :                 }</span>
-<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :         case gc.ConditionFrostbite:</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 case gc.SeverityNone:</span></span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC tlaBgGNC">           1 :         case gc.ConditionFrostbite:</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityNone:</span></span>
 <span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 case gc.SeverityMinor:</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                         return &quot;凍傷になりかけている&quot; + partTag</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC tlaBgGNC">           1 :                 case gc.SeverityMinor:</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                         return &quot;凍傷になりかけている&quot; + partTag</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMedium:</span></span>
 <span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                         return &quot;凍傷が進行している&quot; + partTag</span></span>
 <span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
 <span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                         return &quot;凍傷が危険な状態だ&quot; + partTag</span></span>
@@ -386,36 +386,36 @@
 <span id="L324"><span class="lineNum">     324</span>              : }</span>
 <span id="L325"><span class="lineNum">     325</span>              : </span>
 <span id="L326"><span class="lineNum">     326</span>              : // getRecoveryMessage は回復時のメッセージを返す</span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaUNC">           0 : func getRecoveryMessage(part gc.BodyPart, condType gc.ConditionType, severity gc.Severity) string {</span></span>
-<span id="L328"><span class="lineNum">     328</span> <span class="tlaUNC">           0 :         partTag := &quot;[&quot; + part.String() + &quot;]&quot;</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaUNC">           0 :         switch condType {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaUNC">           0 :         case gc.ConditionHypothermia:</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaUNC">           0 :                 case gc.SeverityNone:</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                         return &quot;温まった&quot; + partTag</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                 case gc.SeverityMinor:</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                         return &quot;少し温まってきた&quot; + partTag</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC tlaBgGNC">           1 : func getRecoveryMessage(part gc.BodyPart, condType gc.ConditionType, severity gc.Severity) string {</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         partTag := &quot;[&quot; + part.String() + &quot;]&quot;</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :         switch condType {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         case gc.ConditionHypothermia:</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                         return &quot;温まった&quot; + partTag</span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 case gc.SeverityMinor:</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                         return &quot;少し温まってきた&quot; + partTag</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMedium:</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                         return &quot;まだ寒いが、少しマシになった&quot; + partTag</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC tlaBgGNC">           1 :                 case gc.SeveritySevere:</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :                         return &quot;&quot;</span></span>
 <span id="L340"><span class="lineNum">     340</span>              :                 }</span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :         case gc.ConditionHyperthermia:</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 case gc.SeverityNone:</span></span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                         return &quot;涼しくなった&quot; + partTag</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 case gc.SeverityMinor:</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :         case gc.ConditionHyperthermia:</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :                         return &quot;涼しくなった&quot; + partTag</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMinor:</span></span>
 <span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                         return &quot;少し涼しくなってきた&quot; + partTag</span></span>
 <span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                         return &quot;まだ暑いが、少しマシになった&quot; + partTag</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :                 case gc.SeveritySevere:</span></span>
 <span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                         return &quot;&quot;</span></span>
 <span id="L351"><span class="lineNum">     351</span>              :                 }</span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         case gc.ConditionFrostbite:</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                 switch severity {</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 case gc.SeverityNone:</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                         return &quot;凍傷が治った&quot; + partTag</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 case gc.SeverityMinor:</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC tlaBgGNC">           1 :         case gc.ConditionFrostbite:</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                 switch severity {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                 case gc.SeverityNone:</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :                         return &quot;凍傷が治った&quot; + partTag</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC tlaBgUNC">           0 :                 case gc.SeverityMinor:</span></span>
 <span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                         return &quot;凍傷が少し回復した&quot; + partTag</span></span>
 <span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 case gc.SeverityMedium:</span></span>
 <span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :                         return &quot;凍傷がまだ残っているが、少しマシになった&quot; + partTag</span></span>
@@ -439,17 +439,17 @@
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         case gc.BodyPartTorso:</span></span>
 <span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})</span></span>
 <span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatVitality, Value: -1 * multiplier})</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC tlaBgUNC">           0 :         case gc.BodyPartHead:</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :         case gc.BodyPartArms:</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         case gc.BodyPartHands:</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         case gc.BodyPartLegs:</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         case gc.BodyPartFeet:</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :         case gc.BodyPartCount:</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         case gc.BodyPartHead:</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           1 :         case gc.BodyPartArms:</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :         case gc.BodyPartHands:</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         case gc.BodyPartLegs:</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         case gc.BodyPartFeet:</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC tlaBgUNC">           0 :         case gc.BodyPartCount:</span></span>
 <span id="L391"><span class="lineNum">     391</span>              :                 // BodyPartCount は列挙の終端を示す定数なので何もしない</span>
 <span id="L392"><span class="lineNum">     392</span>              :         }</span>
 <span id="L393"><span class="lineNum">     393</span>              : </span>
@@ -463,43 +463,43 @@
 <span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L403"><span class="lineNum">     403</span>              : </span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC tlaBgUNC">           0 :         var effects []gc.StatEffect</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         switch part {</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         case gc.BodyPartTorso:</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         case gc.BodyPartHead:</span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         case gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet, gc.BodyPartCount:</span></span>
+<span id="L404"><span class="lineNum">     404</span> <span class="tlaGNC">           1 :         var effects []gc.StatEffect</span></span>
+<span id="L405"><span class="lineNum">     405</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaGNC">           1 :         switch part {</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 :         case gc.BodyPartTorso:</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :         case gc.BodyPartHead:</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaGNC">           1 :         case gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet, gc.BodyPartCount:</span></span>
 <span id="L412"><span class="lineNum">     412</span>              :                 // これらの部位は高体温の影響を受けない</span>
 <span id="L413"><span class="lineNum">     413</span>              :         }</span>
 <span id="L414"><span class="lineNum">     414</span>              : </span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         return effects</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaGNC">           1 :         return effects</span></span>
 <span id="L416"><span class="lineNum">     416</span>              : }</span>
 <span id="L417"><span class="lineNum">     417</span>              : </span>
 <span id="L418"><span class="lineNum">     418</span>              : // calculateFrostbiteEffects は凍傷による効果を計算する</span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC tlaBgGNC">           1 : func calculateFrostbiteEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 : func calculateFrostbiteEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {</span></span>
 <span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :         multiplier := severityToMultiplier(severity)</span></span>
 <span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           2 :         if multiplier == 0 {</span></span>
 <span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L424"><span class="lineNum">     424</span>              : </span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC tlaBgUNC">           0 :         var effects []gc.StatEffect</span></span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         switch part {</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :         case gc.BodyPartHands:</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :         case gc.BodyPartFeet:</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :         case gc.BodyPartTorso, gc.BodyPartHead, gc.BodyPartArms, gc.BodyPartLegs, gc.BodyPartCount:</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         var effects []gc.StatEffect</span></span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         switch part {</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         case gc.BodyPartHands:</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         case gc.BodyPartFeet:</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaGNC">           1 :                 effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})</span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaGNC">           1 :         case gc.BodyPartTorso, gc.BodyPartHead, gc.BodyPartArms, gc.BodyPartLegs, gc.BodyPartCount:</span></span>
 <span id="L433"><span class="lineNum">     433</span>              :                 // 凍傷は手と足のみに発生する</span>
 <span id="L434"><span class="lineNum">     434</span>              :         }</span>
 <span id="L435"><span class="lineNum">     435</span>              : </span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         return effects</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :         return effects</span></span>
 <span id="L437"><span class="lineNum">     437</span>              : }</span>
 <span id="L438"><span class="lineNum">     438</span>              : </span>
 <span id="L439"><span class="lineNum">     439</span>              : // severityToMultiplier はSeverityから効果倍率を返す</span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC tlaBgGNC">           1 : func severityToMultiplier(severity gc.Severity) int {</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaGNC">           1 : func severityToMultiplier(severity gc.Severity) int {</span></span>
 <span id="L441"><span class="lineNum">     441</span> <span class="tlaGNC">           1 :         switch severity {</span></span>
 <span id="L442"><span class="lineNum">     442</span> <span class="tlaGNC">           1 :         case gc.SeveritySevere:</span></span>
 <span id="L443"><span class="lineNum">     443</span> <span class="tlaGNC">           1 :                 return 3</span></span>
