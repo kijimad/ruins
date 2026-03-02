@@ -402,6 +402,13 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("キャラクター作成", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterCreationState},
+			})
+			return nil
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -491,6 +498,11 @@ func NewDungeonSelectMenuState() es.State[w.World] {
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
 func NewMainMenuState() es.State[w.World] {
 	return &MainMenuState{}
+}
+
+// NewCharacterCreationState は新しいCharacterCreationStateインスタンスを作成するファクトリー関数
+func NewCharacterCreationState() es.State[w.World] {
+	return &CharacterCreationState{}
 }
 
 // NewGameOverMessageState はゲームオーバー用のMessageStateを作成するファクトリー関数

@@ -30,6 +30,8 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 	townStateFactory := gs.NewTownState()
 
 	switch mode {
+	case gs.CharacterCreationState{}.String():
+		return vrt.RunTestGame(mode, &gs.CharacterCreationState{})
 	case gs.CraftMenuState{}.String():
 		return vrt.RunTestGame(mode, townStateFactory(), &gs.CraftMenuState{})
 	case "DebugMenu":
