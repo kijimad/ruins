@@ -111,7 +111,7 @@ func TestLoggerBuildWithEntityLogic(t *testing.T) {
 	logger := New(store)
 	logger.Build(func(l *Logger) {
 		if isPlayer {
-			l.PlayerName("セレスティン")
+			l.PlayerName("Ash")
 		} else if isNPC {
 			l.NPCName("スライム")
 		} else {

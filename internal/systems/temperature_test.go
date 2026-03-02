@@ -316,7 +316,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 		world.Resources.Dungeon.DefinitionName = "亡者の森" // 基本気温0度
 
 		// プレイヤーエンティティを作成
-		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
 
 		sys := &TemperatureSystem{}
@@ -380,7 +380,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備なしの場合は全て0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
 
 		insulation := CalculateEquippedInsulation(world, player)
@@ -394,7 +394,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備の断熱値が反映される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := worldhelper.SpawnPlayer(world, 0, 0, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
 
 		// 胴体装備を作成（耐寒10, 耐熱5）

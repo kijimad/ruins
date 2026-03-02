@@ -150,7 +150,7 @@ func (st *CharacterCreationState) initUI(world w.World) *ebitenui.UI {
 func (st *CharacterCreationState) confirmName(world w.World) {
 	name := st.textInput.GetText()
 	if name == "" {
-		name = "セレスティン"
+		name = "Ash"
 	}
 
 	playerEntity, err := worldhelper.GetPlayerEntity(world)

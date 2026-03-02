@@ -283,7 +283,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		params := ActionParams{
@@ -308,7 +308,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 待機
@@ -344,7 +344,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 存在しないターゲットへの攻撃（失敗する）

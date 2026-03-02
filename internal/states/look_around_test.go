@@ -25,7 +25,7 @@ func TestLookAroundState_OnStart(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	playerEntity, err := worldhelper.SpawnPlayer(world, 5, 7, "セレスティン")
+	playerEntity, err := worldhelper.SpawnPlayer(world, 5, 7, "Ash")
 	require.NoError(t, err)
 
 	state := &LookAroundState{}

@@ -19,7 +19,7 @@ func TestCameraSystem_DisableAnimation(t *testing.T) {
 	world.Config.DisableAnimation = true
 
 	// プレイヤーエンティティを作成
-	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 	require.NoError(t, err)
 
 	// カメラエンティティを作成（初期位置は原点）
@@ -53,7 +53,7 @@ func TestCameraSystem_SmoothFollow(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーエンティティを作成
-	_, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+	_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 	require.NoError(t, err)
 
 	// カメラエンティティを作成（初期位置は原点）
@@ -93,7 +93,7 @@ func TestCameraSystem_ConvergesToTarget(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// プレイヤーエンティティを作成
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	// カメラエンティティを作成
