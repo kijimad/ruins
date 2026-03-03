@@ -139,7 +139,7 @@ func (st *CharacterNamingState) initUI(world w.World) *ebitenui.UI {
 		widget.TextInputOpts.Placeholder("名前"),
 	)
 
-	// 既存プレイヤーの名前を初期値として設定
+	// 既存プレイヤーの名前を初期値として設定する。プレイヤーが存在しない場合は空欄のまま
 	playerEntity, err := worldhelper.GetPlayerEntity(world)
 	if err == nil {
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
