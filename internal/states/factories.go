@@ -402,7 +402,7 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
-		WithChoice("キャラクター作成", func(_ w.World) error {
+		WithChoice("名前入力", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState},
