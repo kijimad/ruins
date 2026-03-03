@@ -1,6 +1,7 @@
 package states
 
 import (
+	"time"
 	"unicode/utf8"
 
 	"github.com/ebitenui/ebitenui"
@@ -15,16 +16,18 @@ import (
 )
 
 const (
-	nameMinLength = 1
-	nameMaxLength = 10
+	nameMinLength    = 1
+	nameMaxLength    = 10
+	errorDisplayTime = 2 * time.Second
 )
 
 // CharacterNamingState はキャラクター名前入力画面のステート
 type CharacterNamingState struct {
 	es.BaseState[w.World]
-	ui        *ebitenui.UI
-	textInput *widget.TextInput
-	errorText *widget.Text
+	ui             *ebitenui.UI
+	textInput      *widget.TextInput
+	errorText      *widget.Text
+	errorClearTime time.Time
 }
 
 // NewCharacterNamingState は名付けステートのファクトリを返す
@@ -57,6 +60,11 @@ func (st *CharacterNamingState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], error) {
+	// エラーメッセージの自動クリア
+	if st.errorText != nil && st.errorText.Label != "" && time.Now().After(st.errorClearTime) {
+		st.errorText.Label = ""
+	}
+
 	keyboardInput := input.GetSharedKeyboardInput()
 	if keyboardInput.IsEnterJustPressedOnce() {
 		st.confirmName(world)
@@ -178,9 +186,9 @@ func (st *CharacterNamingState) confirmName(world w.World) {
 	nameLen := utf8.RuneCountInString(name)
 	if nameLen < nameMinLength || nameLen > nameMaxLength {
 		st.errorText.Label = "名前は1〜10文字で入力してください"
+		st.errorClearTime = time.Now().Add(errorDisplayTime)
 		return
 	}
-	st.errorText.Label = ""
 
 	playerEntity, err := worldhelper.GetPlayerEntity(world)
 	if err == nil {
