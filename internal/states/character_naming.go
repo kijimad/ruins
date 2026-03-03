@@ -175,7 +175,6 @@ func (st *CharacterNamingState) initUI(world w.World) *ebitenui.UI {
 func (st *CharacterNamingState) confirmName(world w.World) {
 	name := st.textInput.GetText()
 
-	// 名前のバリデーション
 	nameLen := utf8.RuneCountInString(name)
 	if nameLen < nameMinLength || nameLen > nameMaxLength {
 		st.errorText.Label = "名前は1〜10文字で入力してください"
@@ -185,7 +184,7 @@ func (st *CharacterNamingState) confirmName(world w.World) {
 
 	playerEntity, err := worldhelper.GetPlayerEntity(world)
 	if err == nil {
-		// 既存プレイヤーの名前を変更
+		// 既存プレイヤーの名前を変更した
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
 			nameComp.(*gc.Name).Name = name
 		}
