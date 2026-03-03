@@ -405,7 +405,14 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("キャラクター作成", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterCreationState},
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState},
+			})
+			return nil
+		}).
+		WithChoice("職業選択", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterJobState("Ash")},
 			})
 			return nil
 		}).
@@ -498,11 +505,6 @@ func NewDungeonSelectMenuState() es.State[w.World] {
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
 func NewMainMenuState() es.State[w.World] {
 	return &MainMenuState{}
-}
-
-// NewCharacterCreationState は新しいCharacterCreationStateインスタンスを作成するファクトリー関数
-func NewCharacterCreationState() es.State[w.World] {
-	return &CharacterCreationState{}
 }
 
 // NewGameOverMessageState はゲームオーバー用のMessageStateを作成するファクトリー関数

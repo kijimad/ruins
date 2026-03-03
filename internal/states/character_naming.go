@@ -1,54 +1,68 @@
 package states
 
 import (
+	"unicode/utf8"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/input"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
-// CharacterCreationState はキャラクター作成画面のステート
-type CharacterCreationState struct {
+const (
+	nameMinLength = 1
+	nameMaxLength = 10
+)
+
+// CharacterNamingState はキャラクター名前入力画面のステート
+type CharacterNamingState struct {
 	es.BaseState[w.World]
 	ui        *ebitenui.UI
 	textInput *widget.TextInput
+	errorText *widget.Text
 }
 
-func (st CharacterCreationState) String() string {
-	return "CharacterCreation"
+// NewCharacterNamingState は名付けステートのファクトリを返す
+func NewCharacterNamingState() es.State[w.World] {
+	return &CharacterNamingState{}
+}
+
+func (st CharacterNamingState) String() string {
+	return "CharacterNaming"
 }
 
 // State interface ================
 
-var _ es.State[w.World] = &CharacterCreationState{}
+var _ es.State[w.World] = &CharacterNamingState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
-func (st *CharacterCreationState) OnPause(_ w.World) error { return nil }
+func (st *CharacterNamingState) OnPause(_ w.World) error { return nil }
 
 // OnResume はステートが再開される際に呼ばれる
-func (st *CharacterCreationState) OnResume(_ w.World) error { return nil }
+func (st *CharacterNamingState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
-func (st *CharacterCreationState) OnStart(world w.World) error {
+func (st *CharacterNamingState) OnStart(world w.World) error {
 	st.ui = st.initUI(world)
 	return nil
 }
 
 // OnStop はステートが停止される際に呼ばれる
-func (st *CharacterCreationState) OnStop(_ w.World) error { return nil }
+func (st *CharacterNamingState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
-func (st *CharacterCreationState) Update(world w.World) (es.Transition[w.World], error) {
-	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], error) {
+	keyboardInput := input.GetSharedKeyboardInput()
+	if keyboardInput.IsEnterJustPressedOnce() {
 		st.confirmName(world)
 		return st.ConsumeTransition(), nil
 	}
-	if inpututil.IsKeyJustPressed(ebiten.KeyEscape) {
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
 		st.cancel(world)
 		return st.ConsumeTransition(), nil
 	}
@@ -61,7 +75,7 @@ func (st *CharacterCreationState) Update(world w.World) (es.Transition[w.World],
 }
 
 // Draw はスクリーンに描画する
-func (st *CharacterCreationState) Draw(_ w.World, screen *ebiten.Image) error {
+func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(consts.BlackColor)
 
 	if st.ui != nil {
@@ -73,7 +87,7 @@ func (st *CharacterCreationState) Draw(_ w.World, screen *ebiten.Image) error {
 // ================
 
 // initUI はUIを初期化する
-func (st *CharacterCreationState) initUI(world w.World) *ebitenui.UI {
+func (st *CharacterNamingState) initUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 
 	rootContainer := widget.NewContainer(
@@ -94,7 +108,7 @@ func (st *CharacterCreationState) initUI(world w.World) *ebitenui.UI {
 	)
 
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("名前を入力してください", &res.Text.TitleFontFace, consts.PrimaryColor),
+		widget.TextOpts.Text("名前", &res.Text.TitleFontFace, consts.PrimaryColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
@@ -127,6 +141,16 @@ func (st *CharacterCreationState) initUI(world w.World) *ebitenui.UI {
 
 	st.textInput.Focus(true)
 
+	// エラーメッセージ
+	st.errorText = widget.NewText(
+		widget.TextOpts.Text("", &res.Text.SmallFace, consts.DangerColor),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Position: widget.RowLayoutPositionStart,
+			}),
+		),
+	)
+
 	// 操作ヒント
 	hintLabel := widget.NewText(
 		widget.TextOpts.Text("Enter: 決定 / Esc: 戻る", &res.Text.SmallFace, consts.SecondaryColor),
@@ -139,6 +163,7 @@ func (st *CharacterCreationState) initUI(world w.World) *ebitenui.UI {
 
 	centerContainer.AddChild(titleLabel)
 	centerContainer.AddChild(st.textInput)
+	centerContainer.AddChild(st.errorText)
 	centerContainer.AddChild(hintLabel)
 
 	rootContainer.AddChild(centerContainer)
@@ -147,11 +172,16 @@ func (st *CharacterCreationState) initUI(world w.World) *ebitenui.UI {
 }
 
 // confirmName は名前を確定する
-func (st *CharacterCreationState) confirmName(world w.World) {
+func (st *CharacterNamingState) confirmName(world w.World) {
 	name := st.textInput.GetText()
-	if name == "" {
-		name = "Ash"
+
+	// 名前のバリデーション
+	nameLen := utf8.RuneCountInString(name)
+	if nameLen < nameMinLength || nameLen > nameMaxLength {
+		st.errorText.Label = "名前は1〜10文字で入力してください"
+		return
 	}
+	st.errorText.Label = ""
 
 	playerEntity, err := worldhelper.GetPlayerEntity(world)
 	if err == nil {
@@ -163,17 +193,16 @@ func (st *CharacterCreationState) confirmName(world w.World) {
 			Type: es.TransPop,
 		})
 	} else {
-		// プレイヤーを生成して新規ゲーム開始
-		_, _ = worldhelper.SpawnPlayer(world, 5, 5, name)
+		// 職業選択画面へ遷移
 		st.SetTransition(es.Transition[w.World]{
-			Type:          es.TransReplace,
-			NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+			Type:          es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{NewCharacterJobState(name)},
 		})
 	}
 }
 
 // cancel はキャンセルする
-func (st *CharacterCreationState) cancel(world w.World) {
+func (st *CharacterNamingState) cancel(world w.World) {
 	_, err := worldhelper.GetPlayerEntity(world)
 	if err == nil {
 		st.SetTransition(es.Transition[w.World]{
