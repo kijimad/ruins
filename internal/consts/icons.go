@@ -9,6 +9,9 @@ const (
 	IconArrowUp    = "\uf062"
 	IconArrowDown  = "\uf063"
 
+	// カーソル
+	IconCursor = "\uf054" // fa-chevron-right
+
 	// 操作
 	IconEnter    = "\uf148"
 	IconCheck    = "\uf00c"

@@ -15,8 +15,6 @@ func RGB(rgb uint64) color.RGBA {
 }
 
 var (
-	// TransparentColor は透明色を表す
-	TransparentColor = color.RGBA{}
 	// PrimaryColor は主要色を表す
 	PrimaryColor = RGB(0x9dd793)
 	// SecondaryColor はサブ色を表す
@@ -38,15 +36,6 @@ var (
 	WindowBodyColor = RGB(0x808080)
 	// WindowHeaderColor はウィンドウヘッダー色を表す
 	WindowHeaderColor = RGB(0x939393)
-
-	// ButtonIdleColor はボタン通常色を表す
-	ButtonIdleColor = RGB(0xaaaaaa)
-	// ButtonHoverColor はボタンホバー色を表す
-	ButtonHoverColor = RGB(0x828296)
-	// ButtonPressedColor はボタン押下色を表す
-	ButtonPressedColor = RGB(0x646478)
-	// ButtonDisabledColor はボタン無効色を表す
-	ButtonDisabledColor = RGB(0x555555)
 
 	// SuccessColor は成功色を表す
 	SuccessColor = RGB(0x198754)
