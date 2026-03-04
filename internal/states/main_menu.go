@@ -116,7 +116,7 @@ func (st *MainMenuState) initMenu(world w.World) {
 				{
 					ID:       "town",
 					Label:    "開始",
-					UserData: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}},
+					UserData: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState}},
 				},
 				{
 					ID:       "load",

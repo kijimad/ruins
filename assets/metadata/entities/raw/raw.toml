@@ -1242,7 +1242,7 @@
 
 [[Members]]
   AnimKeys        = ["player_0", "player_1"]
-  Name            = "セレスティン"
+  Name            = "Ash"
   Player          = true
   SpriteKey       = "player_0"
   SpriteSheetName = "field"

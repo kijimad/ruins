@@ -105,7 +105,7 @@ func TestDoActionMovementActions(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
+			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "Ash")
 			require.NoError(t, err)
 
 			state := &DungeonState{}
@@ -192,7 +192,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 			var playerEntity ecs.Entity
 			if tt.isMoveAction {
 				var err error
-				playerEntity, err = worldhelper.SpawnPlayer(world, initialX, initialY, "セレスティン")
+				playerEntity, err = worldhelper.SpawnPlayer(world, initialX, initialY, "Ash")
 				require.NoError(t, err)
 			}
 

@@ -402,6 +402,20 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("名前入力", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState},
+			})
+			return nil
+		}).
+		WithChoice("職業選択", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewCharacterJobState("Ash")},
+			})
+			return nil
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,

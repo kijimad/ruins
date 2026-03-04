@@ -17,7 +17,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		_, err = worldhelper.SpawnFieldItem(world, "木刀", 10, 10)
@@ -36,7 +36,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// アイテムは別のタイルにある
@@ -97,7 +97,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10)
@@ -124,7 +124,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 別のタイルにアイテムがある

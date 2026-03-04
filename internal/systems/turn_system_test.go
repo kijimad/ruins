@@ -25,7 +25,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
@@ -48,7 +48,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
@@ -111,7 +111,7 @@ func TestProcessTurnEnd(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Updaters = make(map[string]w.Updater)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// APをマイナスに設定
@@ -179,7 +179,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		result := processPlayerContinuousActivity(world)
@@ -191,7 +191,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 継続アクションを設定
@@ -234,7 +234,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントの存在確認
@@ -258,7 +258,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定（全部位）
@@ -289,7 +289,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// APをマイナスに設定
@@ -306,7 +306,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// APを0に設定
@@ -323,7 +323,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 初期APを確認
@@ -345,7 +345,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 通常時のSpeedを計算
@@ -375,7 +375,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -440,7 +440,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温 + 飢餓
@@ -469,7 +469,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定

@@ -16,7 +16,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
@@ -40,7 +40,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
@@ -64,7 +64,7 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 全方向に壁を配置

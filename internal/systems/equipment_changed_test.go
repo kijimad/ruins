@@ -18,7 +18,7 @@ func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 初期Strengthを取得
@@ -58,7 +58,7 @@ func TestEquipmentChangedSystem_APClamp(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "セレスティン")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 現在APを非常に高い値に設定（通常ではありえない値）

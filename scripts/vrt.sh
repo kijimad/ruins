@@ -17,6 +17,7 @@ cmd() {
     $RUN screenshot $state
 }
 
+cmd CharacterNaming
 cmd CraftMenu
 cmd DebugMenu
 cmd Dungeon
@@ -27,6 +28,7 @@ cmd InventoryMenu
 cmd LoadMenu
 cmd MainMenu
 cmd Message
+cmd CharacterJob
 cmd SaveMenu
 cmd ShopMenu
 cmd Town

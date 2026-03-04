@@ -34,7 +34,7 @@ func InitNewGameData(world w.World) {
 		Log()
 
 	// プレイヤー生成
-	player, _ := SpawnPlayer(world, 5, 5, "セレスティン")
+	player, _ := SpawnPlayer(world, 5, 5, "Ash")
 
 	// デバッグ用の初期インベントリを設定
 	initDebugData(world, player)
