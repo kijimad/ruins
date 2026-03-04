@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">52</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-03 00:07:36</td>
+            <td class="headerValue">2026-03-04 00:17:29</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,50 +92,54 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         townStateFactory := gs.NewTownState()</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         switch mode {</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         case gs.CraftMenuState{}.String():</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.CraftMenuState{})</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         case &quot;DebugMenu&quot;:</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewDebugMenuState())</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         case gs.DungeonState{}.String():</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.DungeonState{</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                         Depth:       1,</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                         BuilderType: mapplanner.PlannerTypeSmallRoom,</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         case gs.LookAroundState{}.String():</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.DungeonState{</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                         Depth:       1,</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                         BuilderType: mapplanner.PlannerTypeSmallRoom,</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                 }, &amp;gs.LookAroundState{})</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         case gs.EquipMenuState{}.String():</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.EquipMenuState{})</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         case &quot;GameOver&quot;:</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewGameOverMessageState())</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         case &quot;Town&quot;:</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory())</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         case gs.InventoryMenuState{}.String():</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.InventoryMenuState{})</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         case &quot;LoadMenu&quot;:</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewLoadMenuState())</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         case gs.MainMenuState{}.String():</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.MainMenuState{})</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         case gs.MessageState{}.String():</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                 messageData := messagedata.NewDialogMessage(</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                         &quot;これはメッセージウィンドウのVRTテストです。\n\n表示状態の確認用メッセージです。&quot;,</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                         &quot;VRTテスト&quot;,</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 ).WithChoice(</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                         &quot;選択肢1&quot;, func(_ w.World) error { return nil },</span></span>
-<span id="L65"><span class="lineNum">      65</span>              :                 ).WithChoice(</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                         &quot;選択肢2&quot;, func(_ w.World) error { return nil },</span></span>
-<span id="L67"><span class="lineNum">      67</span>              :                 )</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewMessageState(messageData))</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         case &quot;SaveMenu&quot;:</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewSaveMenuState())</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         case gs.ShopMenuState{}.String():</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.ShopMenuState{})</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スクリーンショット実行時に対応してないステートが指定された: %s&quot;, mode)</span></span>
-<span id="L75"><span class="lineNum">      75</span>              :         }</span>
-<span id="L76"><span class="lineNum">      76</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         case gs.CharacterNamingState{}.String():</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.CharacterNamingState{})</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         case gs.CharacterJobState{}.String():</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, gs.NewCharacterJobState(&quot;Ash&quot;)())</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         case gs.CraftMenuState{}.String():</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.CraftMenuState{})</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         case &quot;DebugMenu&quot;:</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewDebugMenuState())</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         case gs.DungeonState{}.String():</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.DungeonState{</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                         Depth:       1,</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                         BuilderType: mapplanner.PlannerTypeSmallRoom,</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         case gs.LookAroundState{}.String():</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.DungeonState{</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                         Depth:       1,</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                         BuilderType: mapplanner.PlannerTypeSmallRoom,</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 }, &amp;gs.LookAroundState{})</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         case gs.EquipMenuState{}.String():</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.EquipMenuState{})</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         case &quot;GameOver&quot;:</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewGameOverMessageState())</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         case &quot;Town&quot;:</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory())</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         case gs.InventoryMenuState{}.String():</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.InventoryMenuState{})</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         case &quot;LoadMenu&quot;:</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewLoadMenuState())</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         case gs.MainMenuState{}.String():</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, &amp;gs.MainMenuState{})</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         case gs.MessageState{}.String():</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                 messageData := messagedata.NewDialogMessage(</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                         &quot;これはメッセージウィンドウのVRTテストです。\n\n表示状態の確認用メッセージです。&quot;,</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                         &quot;VRTテスト&quot;,</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 ).WithChoice(</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                         &quot;選択肢1&quot;, func(_ w.World) error { return nil },</span></span>
+<span id="L69"><span class="lineNum">      69</span>              :                 ).WithChoice(</span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                         &quot;選択肢2&quot;, func(_ w.World) error { return nil },</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :                 )</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewMessageState(messageData))</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         case &quot;SaveMenu&quot;:</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewSaveMenuState())</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         case gs.ShopMenuState{}.String():</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.ShopMenuState{})</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スクリーンショット実行時に対応してないステートが指定された: %s&quot;, mode)</span></span>
+<span id="L79"><span class="lineNum">      79</span>              :         }</span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
         </pre>
               </td>
             </tr>
