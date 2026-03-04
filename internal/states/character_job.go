@@ -173,7 +173,7 @@ func (st *CharacterJobState) initUI(world w.World) *ebitenui.UI {
 
 	// 操作ヒント
 	hintLabel := widget.NewText(
-		widget.TextOpts.Text("Enter: 決定 / Esc: 戻る", &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, consts.SecondaryColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

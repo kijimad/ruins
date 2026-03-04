@@ -176,10 +176,10 @@ type ToolTipResources struct {
 }
 
 // NewUIResources は新しいUIリソースを作成する
-func NewUIResources(tfs *text.GoTextFaceSource) (*UIResources, error) {
+func NewUIResources(sources []*text.GoTextFaceSource) (*UIResources, error) {
 	background := image.NewNineSliceColor(hexToColor(backgroundColor))
 
-	fonts := loadFonts(tfs)
+	fonts := loadFonts(sources)
 
 	button, err := newButtonResources(fonts)
 	if err != nil {
