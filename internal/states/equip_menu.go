@@ -50,6 +50,19 @@ type EquipMenuState struct {
 	equipTargetMember ecs.Entity             // 装備対象のメンバー
 }
 
+// equipSlotItem は装備スロット項目の表示データ
+type equipSlotItem struct {
+	SlotLabel string                 // スロット名
+	ItemName  string                 // 装備名
+	UserData  map[string]interface{} // 元のUserData
+}
+
+// equipSelectItem は装備選択モードでの項目データ
+type equipSelectItem struct {
+	Entity ecs.Entity
+	Name   string
+}
+
 func (st EquipMenuState) String() string {
 	return "EquipMenu"
 }
@@ -197,14 +210,14 @@ func (st *EquipMenuState) initUI(world w.World) *ebitenui.UI {
 			st.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		},
 		OnTabChange: func(_, _ int, _ tabmenu.TabItem) {
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+			st.updateTabDisplayAsTable(world)
 			st.reloadAbilityContainer(world)
 		},
 		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
 			if err := st.handleItemChange(world, item); err != nil {
 				return err
 			}
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+			st.updateTabDisplayAsTable(world)
 			return nil
 		},
 	}
@@ -285,8 +298,8 @@ func (st *EquipMenuState) createTabs(world w.World) []tabmenu.TabItem {
 
 // createAllSlotItems は武器と防具の全スロットのMenuItemを作成する
 func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _ int) []tabmenu.Item {
-	// 武器スロット5つ + 防具スロット4つ = 9つ
-	items := make([]tabmenu.Item, 0, 9)
+	// 武器スロット5つ + 防具スロット7つ = 12つ
+	items := make([]tabmenu.Item, 0, 12)
 
 	// 武器スロットを追加する
 	weapons := worldhelper.GetWeapons(world, member)
@@ -299,20 +312,25 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _
 		gc.SlotWeapon5,
 	}
 	for i, weapon := range weapons {
-		var name string
+		slotLabel := weaponLabels[i]
+		itemName := ""
 		if weapon != nil {
-			name = fmt.Sprintf("%s: %s", weaponLabels[i], world.Components.Name.Get(*weapon).(*gc.Name).Name)
-		} else {
-			name = fmt.Sprintf("%s: -", weaponLabels[i])
+			itemName = world.Components.Name.Get(*weapon).(*gc.Name).Name
+		}
+
+		userData := map[string]interface{}{
+			"member":     member,
+			"slotNumber": weaponSlotNumbers[i],
+			"entity":     weapon,
 		}
 
 		items = append(items, tabmenu.Item{
 			ID:    fmt.Sprintf("weapon_slot_%d", i),
-			Label: name,
-			UserData: map[string]interface{}{
-				"member":     member,
-				"slotNumber": weaponSlotNumbers[i],
-				"entity":     weapon,
+			Label: slotLabel,
+			UserData: equipSlotItem{
+				SlotLabel: slotLabel,
+				ItemName:  itemName,
+				UserData:  userData,
 			},
 		})
 	}
@@ -322,20 +340,25 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _
 	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(腕)", "防具(手)", "防具(脚)", "防具(足)", "防具(装飾)"}
 	armorSlotNumbers := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}
 	for i, slot := range armorSlots {
-		var name string
+		slotLabel := armorLabels[i]
+		itemName := ""
 		if slot != nil {
-			name = fmt.Sprintf("%s: %s", armorLabels[i], world.Components.Name.Get(*slot).(*gc.Name).Name)
-		} else {
-			name = fmt.Sprintf("%s: -", armorLabels[i])
+			itemName = world.Components.Name.Get(*slot).(*gc.Name).Name
+		}
+
+		userData := map[string]interface{}{
+			"member":     member,
+			"slotNumber": armorSlotNumbers[i],
+			"entity":     slot,
 		}
 
 		items = append(items, tabmenu.Item{
 			ID:    fmt.Sprintf("wear_slot_%d", i),
-			Label: name,
-			UserData: map[string]interface{}{
-				"member":     member,
-				"slotNumber": armorSlotNumbers[i],
-				"entity":     slot,
+			Label: slotLabel,
+			UserData: equipSlotItem{
+				SlotLabel: slotLabel,
+				ItemName:  itemName,
+				UserData:  userData,
 			},
 		})
 	}
@@ -351,12 +374,12 @@ func (st *EquipMenuState) handleItemSelection(world w.World, _ tabmenu.TabItem, 
 	}
 
 	// スロット選択モードの場合
-	userData, ok := item.UserData.(map[string]interface{})
+	slotItem, ok := item.UserData.(equipSlotItem)
 	if !ok {
 		return fmt.Errorf("unexpected item UserData")
 	}
 
-	st.showActionWindow(world, userData)
+	st.showActionWindow(world, slotItem.UserData)
 	return nil
 }
 
@@ -371,11 +394,12 @@ func (st *EquipMenuState) handleItemChange(world w.World, item tabmenu.Item) err
 
 	if st.isEquipMode {
 		// 装備選択モードの場合
-		entity, ok := item.UserData.(ecs.Entity)
+		selectItem, ok := item.UserData.(equipSelectItem)
 		if !ok {
 			return fmt.Errorf("unexpected item UserData")
 		}
 
+		entity := selectItem.Entity
 		if entity.HasComponent(world.Components.Description) {
 			desc := world.Components.Description.Get(entity).(*gc.Description)
 			st.itemDesc.Label = desc.Description
@@ -383,11 +407,12 @@ func (st *EquipMenuState) handleItemChange(world w.World, item tabmenu.Item) err
 		views.UpdateSpec(world, st.specContainer, entity)
 	} else {
 		// スロット選択モードの場合
-		userData, ok := item.UserData.(map[string]interface{})
+		slotItem, ok := item.UserData.(equipSlotItem)
 		if !ok {
 			return fmt.Errorf("unexpected item UserData")
 		}
 
+		userData := slotItem.UserData
 		slotEntity := userData["entity"].(*ecs.Entity)
 		if slotEntity != nil {
 			if (*slotEntity).HasComponent(world.Components.Description) {
@@ -409,8 +434,65 @@ func (st *EquipMenuState) handleItemChange(world w.World, item tabmenu.Item) err
 }
 
 // createTabDisplayUI はタブ表示UIを作成する
-func (st *EquipMenuState) createTabDisplayUI(_ w.World) {
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+func (st *EquipMenuState) createTabDisplayUI(world w.World) {
+	st.updateTabDisplayAsTable(world)
+}
+
+// updateTabDisplayAsTable はタブ表示コンテナをテーブル形式で更新する
+func (st *EquipMenuState) updateTabDisplayAsTable(world w.World) {
+	st.tabDisplayContainer.RemoveChildren()
+	res := world.Resources.UIResources
+
+	currentTab := st.menuView.GetCurrentTab()
+	currentItemIndex := st.menuView.GetCurrentItemIndex()
+
+	if st.isEquipMode {
+		// 装備選択モード: カーソル、アイテム名の2列
+		columnWidths := []int{20, 150}
+
+		table := styled.NewTableContainer(columnWidths, res)
+
+		for i, item := range currentTab.Items {
+			isSelected := i == currentItemIndex
+
+			selectItem, ok := item.UserData.(equipSelectItem)
+			name := item.Label
+			if ok {
+				name = selectItem.Name
+			}
+
+			styled.NewTableRow(table, columnWidths, []string{"", name}, nil, &isSelected, res)
+		}
+
+		st.tabDisplayContainer.AddChild(table)
+	} else {
+		// スロット選択モード: カーソル、スロット名、装備名の3列
+		columnWidths := []int{20, 80, 120}
+
+		table := styled.NewTableContainer(columnWidths, res)
+
+		for i, item := range currentTab.Items {
+			isSelected := i == currentItemIndex
+
+			slotItem, ok := item.UserData.(equipSlotItem)
+			slotLabel := item.Label
+			itemName := ""
+			if ok {
+				slotLabel = slotItem.SlotLabel
+				itemName = slotItem.ItemName
+			}
+
+			styled.NewTableRow(table, columnWidths, []string{"", slotLabel, itemName}, nil, &isSelected, res)
+		}
+
+		st.tabDisplayContainer.AddChild(table)
+	}
+
+	// アイテムがない場合の表示
+	if len(currentTab.Items) == 0 {
+		emptyText := styled.NewDescriptionText("(装備なし)", res)
+		st.tabDisplayContainer.AddChild(emptyText)
+	}
 }
 
 // updateInitialItemDisplay は初期状態のアイテム表示を更新する
@@ -430,6 +512,7 @@ func (st *EquipMenuState) updateInitialItemDisplay(world w.World) error {
 // reloadAbilityContainer はメンバーの能力表示コンテナを更新する
 func (st *EquipMenuState) reloadAbilityContainer(world w.World) {
 	st.abilityContainer.RemoveChildren()
+	res := world.Resources.UIResources
 
 	var player ecs.Entity
 	var found bool
@@ -447,13 +530,20 @@ func (st *EquipMenuState) reloadAbilityContainer(world w.World) {
 	// プレイヤーの基本情報を表示
 	views.AddMemberStatusText(st.abilityContainer, player, world)
 
+	// 能力値をテーブル形式で表示
+	columnWidths := []int{50, 30, 40}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+
 	attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
-	st.abilityContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %2d(%+d)", consts.VitalityLabel, attrs.Vitality.Total, attrs.Vitality.Modifier), consts.TextColor, world.Resources.UIResources))
-	st.abilityContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %2d(%+d)", consts.StrengthLabel, attrs.Strength.Total, attrs.Strength.Modifier), consts.TextColor, world.Resources.UIResources))
-	st.abilityContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %2d(%+d)", consts.SensationLabel, attrs.Sensation.Total, attrs.Sensation.Modifier), consts.TextColor, world.Resources.UIResources))
-	st.abilityContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %2d(%+d)", consts.DexterityLabel, attrs.Dexterity.Total, attrs.Dexterity.Modifier), consts.TextColor, world.Resources.UIResources))
-	st.abilityContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %2d(%+d)", consts.AgilityLabel, attrs.Agility.Total, attrs.Agility.Modifier), consts.TextColor, world.Resources.UIResources))
-	st.abilityContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %2d(%+d)", consts.DefenseLabel, attrs.Defense.Total, attrs.Defense.Modifier), consts.TextColor, world.Resources.UIResources))
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", attrs.Vitality.Total), fmt.Sprintf("(%+d)", attrs.Vitality.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%d", attrs.Strength.Total), fmt.Sprintf("(%+d)", attrs.Strength.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%d", attrs.Sensation.Total), fmt.Sprintf("(%+d)", attrs.Sensation.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%d", attrs.Dexterity.Total), fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%d", attrs.Agility.Total), fmt.Sprintf("(%+d)", attrs.Agility.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%d", attrs.Defense.Total), fmt.Sprintf("(%+d)", attrs.Defense.Modifier)}, aligns, nil, res)
+	st.abilityContainer.AddChild(table)
 }
 
 // queryEquipableItemsForSlot はスロット番号に応じた装備可能なアイテムを取得する
@@ -521,7 +611,14 @@ func (st *EquipMenuState) showActionWindow(world w.World, userData map[string]in
 	if hasEquipment && slotEntity != nil {
 		st.actionItems = append(st.actionItems, "外す")
 	}
-	st.actionItems = append(st.actionItems, "装備する")
+
+	// 装備可能なアイテムがあるかチェック
+	slotNumber := userData["slotNumber"].(gc.EquipmentSlotNumber)
+	equipableItems := st.queryEquipableItemsForSlot(world, slotNumber)
+	if len(equipableItems) > 0 {
+		st.actionItems = append(st.actionItems, "装備する")
+	}
+
 	st.actionItems = append(st.actionItems, TextClose)
 
 	st.actionFocusIndex = 0
@@ -589,11 +686,12 @@ func (st *EquipMenuState) executeActionItem(world w.World) {
 		return
 	}
 
-	userData, ok := currentTab.Items[currentItemIndex].UserData.(map[string]interface{})
+	slotItem, ok := currentTab.Items[currentItemIndex].UserData.(equipSlotItem)
 	if !ok {
 		st.closeActionWindow()
 		return
 	}
+	userData := slotItem.UserData
 
 	switch selectedAction {
 	case "装備する":
@@ -632,7 +730,7 @@ func (st *EquipMenuState) startEquipMode(world w.World, userData map[string]inte
 	}
 
 	st.menuView.UpdateTabs(newTabs)
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+	st.updateTabDisplayAsTable(world)
 	st.closeActionWindow()
 }
 
@@ -643,9 +741,12 @@ func (st *EquipMenuState) createEquipMenuItems(world w.World, entities []ecs.Ent
 	for i, entity := range entities {
 		name := world.Components.Name.Get(entity).(*gc.Name).Name
 		items[i] = tabmenu.Item{
-			ID:       fmt.Sprintf("equip_entity_%d", entity),
-			Label:    name,
-			UserData: entity,
+			ID:    fmt.Sprintf("equip_entity_%d", entity),
+			Label: name,
+			UserData: equipSelectItem{
+				Entity: entity,
+				Name:   name,
+			},
 		}
 	}
 
@@ -654,7 +755,7 @@ func (st *EquipMenuState) createEquipMenuItems(world w.World, entities []ecs.Ent
 
 // handleEquipItemSelection は装備選択時の処理
 func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.Item) error {
-	entity, ok := item.UserData.(ecs.Entity)
+	selectItem, ok := item.UserData.(equipSelectItem)
 	if !ok {
 		return fmt.Errorf("unexpected item UserData")
 	}
@@ -665,7 +766,7 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.I
 	}
 
 	// 保存されたメンバーに新しい装備を装着
-	worldhelper.MoveToEquip(world, entity, st.equipTargetMember, st.equipSlotNumber)
+	worldhelper.MoveToEquip(world, selectItem.Entity, st.equipTargetMember, st.equipSlotNumber)
 
 	// 装備モードを終了して元の表示に戻る
 	return st.exitEquipMode(world)
@@ -678,7 +779,7 @@ func (st *EquipMenuState) unequipItem(world w.World, userData map[string]interfa
 	if hasEquipment && slotEntity != nil {
 		worldhelper.MoveToBackpack(world, *slotEntity, member)
 		st.reloadTabs(world)
-		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+		st.updateTabDisplayAsTable(world)
 		st.reloadAbilityContainer(world)
 	}
 	st.closeActionWindow()
@@ -702,7 +803,7 @@ func (st *EquipMenuState) exitEquipMode(world w.World) error {
 		}
 	}
 
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+	st.updateTabDisplayAsTable(world)
 	st.reloadAbilityContainer(world)
 	return nil
 }
@@ -711,5 +812,4 @@ func (st *EquipMenuState) exitEquipMode(world w.World) error {
 func (st *EquipMenuState) reloadTabs(world w.World) {
 	newTabs := st.createTabs(world)
 	st.menuView.UpdateTabs(newTabs)
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
 }

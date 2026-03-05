@@ -474,14 +474,10 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 func NewDungeonSelectMenuState() es.State[w.World] {
 	messageState := &MessageState{}
 
-	// ダンジョン選択メニューを作成する
 	msg := messagedata.NewSystemMessage("")
 
-	// 全ダンジョンを選択肢として追加
 	for _, d := range dungeon.GetAllDungeons() {
-		choiceLabel := fmt.Sprintf("%s（全%d階）", d.Name, d.TotalFloors)
-		msg = msg.WithChoice(choiceLabel, func(_ w.World) error {
-			// 選択したダンジョンに遷移
+		msg = msg.WithChoice(d.Name, func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{
@@ -492,7 +488,6 @@ func NewDungeonSelectMenuState() es.State[w.World] {
 		})
 	}
 
-	// 閉じる選択肢を追加
 	msg = msg.WithChoice("やめる", func(_ w.World) error {
 		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		return nil
@@ -664,12 +659,12 @@ func NewSaveMenuState() es.State[w.World] {
 
 		if saveManager.SaveFileExists(slotName) {
 			if timestamp, err := saveManager.GetSaveFileTimestamp(slotName); err == nil {
-				label = fmt.Sprintf("スロット%d [%s]", i, timestamp.Format("01/02 15:04"))
+				label = fmt.Sprintf("スロット%d  %s", i, timestamp.Format("01/02 15:04"))
 			} else {
-				label = fmt.Sprintf("スロット%d [データあり]", i)
+				label = fmt.Sprintf("スロット%d  データあり", i)
 			}
 		} else {
-			label = fmt.Sprintf("スロット%d [空]", i)
+			label = fmt.Sprintf("スロット%d", i)
 		}
 
 		messageData = messageData.WithChoice(label, func(world w.World) error {
@@ -711,9 +706,9 @@ func NewLoadMenuState() es.State[w.World] {
 		if saveManager.SaveFileExists(slotName) {
 			hasValidSlot = true
 			if timestamp, err := saveManager.GetSaveFileTimestamp(slotName); err == nil {
-				label = fmt.Sprintf("スロット%d [%s]", i, timestamp.Format("01/02 15:04"))
+				label = fmt.Sprintf("スロット%d  %s", i, timestamp.Format("01/02 15:04"))
 			} else {
-				label = fmt.Sprintf("スロット%d [データあり]", i)
+				label = fmt.Sprintf("スロット%d  データあり", i)
 			}
 
 			messageData = messageData.WithChoice(label, func(world w.World) error {
@@ -891,13 +886,9 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 func NewDungeonSelectState() es.State[w.World] {
 	messageState := &MessageState{}
 
-	// ダンジョン一覧を取得
-	dungeons := dungeon.GetAllDungeons()
-
-	// 選択肢を動的に生成する
 	msg := messagedata.NewSystemMessage("")
 
-	for _, d := range dungeons {
+	for _, d := range dungeon.GetAllDungeons() {
 		msg = msg.WithChoice(d.Name, func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransReplace,

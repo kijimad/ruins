@@ -26,6 +26,9 @@ const (
 	IconMenu     = "\uf0c9"
 	IconSearch   = "\uf002"
 
+	// 単位
+	IconDegree = "\u2103" // 摂氏記号 ℃
+
 	// ゲーム
 	IconHeart    = "\uf004"
 	IconStar     = "\uf005"

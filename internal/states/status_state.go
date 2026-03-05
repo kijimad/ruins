@@ -12,7 +12,6 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
@@ -146,11 +145,11 @@ func (st *StatusState) initUI(world w.World) *ebitenui.UI {
 			st.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		},
 		OnTabChange: func(_, _ int, _ tabmenu.TabItem) {
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+			st.updateTabDisplayAsTable(world)
 			st.updateCategoryDisplay(world)
 		},
 		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+			st.updateTabDisplayAsTable(world)
 			st.updateDetailContainer(world, item)
 			return nil
 		},
@@ -170,7 +169,7 @@ func (st *StatusState) initUI(world w.World) *ebitenui.UI {
 
 	// タブ表示のコンテナ
 	st.tabDisplayContainer = styled.NewVerticalContainer()
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+	st.updateTabDisplayAsTable(world)
 
 	// カテゴリ一覧のコンテナ
 	st.categoryContainer = styled.NewRowContainer()
@@ -207,6 +206,7 @@ func (st *StatusState) initUI(world w.World) *ebitenui.UI {
 type statusItem struct {
 	Label       string
 	Value       string
+	Modifier    string // 補正値（能力値タブで使用）
 	Description string
 	TabID       string      // タブID（詳細表示の切り替えに使用）
 	BodyPart    gc.BodyPart // 体温タブの場合、部位を指定
@@ -240,10 +240,10 @@ func (st *StatusState) createBasicItems(world w.World) []tabmenu.Item {
 	if st.playerEntity.HasComponent(world.Components.Pools) {
 		pools := world.Components.Pools.Get(st.playerEntity).(*gc.Pools)
 		items = append(items,
-			st.newStatusItem("HP", fmt.Sprintf("%d / %d", pools.HP.Current, pools.HP.Max), "体力。0になると死亡する"),
-			st.newStatusItem("SP", fmt.Sprintf("%d / %d", pools.SP.Current, pools.SP.Max), "スタミナ。行動に消費する"),
-			st.newStatusItem("EP", fmt.Sprintf("%d / %d", pools.EP.Current, pools.EP.Max), "電力。電子機器の使用に消費する"),
-			st.newStatusItem("重量", fmt.Sprintf("%.1f / %.1f kg", pools.Weight.Current, pools.Weight.Max), "所持重量。超過すると移動が遅くなる"),
+			st.newStatusItem("HP", fmt.Sprintf("%d", pools.HP.Max), "体力。0になると死亡する"),
+			st.newStatusItem("SP", fmt.Sprintf("%d", pools.SP.Max), "スタミナ。行動に消費する"),
+			st.newStatusItem("EP", fmt.Sprintf("%d", pools.EP.Max), "電力。電子機器の使用に消費する"),
+			st.newStatusItem("最大重量", fmt.Sprintf("%.1fkg", pools.Weight.Max), "所持可能な最大重量"),
 		)
 	}
 
@@ -256,7 +256,7 @@ func (st *StatusState) createBasicItems(world w.World) []tabmenu.Item {
 
 	// 環境情報
 	items = append(items,
-		st.newStatusItem("環境気温", fmt.Sprintf("%d°C", st.envTemp), "現在地の気温"),
+		st.newStatusItem("環境気温", fmt.Sprintf("%d%s", st.envTemp, consts.IconDegree), "現在地の気温"),
 	)
 	items = append(items,
 		st.newStatusItem("時間帯", world.Resources.Dungeon.GameTime.GetTimeOfDay().String(), "現在の時間帯。屋外では気温に影響する"),
@@ -272,12 +272,12 @@ func (st *StatusState) createAttributeItems(world w.World) []tabmenu.Item {
 	if st.playerEntity.HasComponent(world.Components.Attributes) {
 		attrs := world.Components.Attributes.Get(st.playerEntity).(*gc.Attributes)
 		items = append(items,
-			st.newStatusItem(consts.VitalityLabel, fmt.Sprintf("%d (%+d)", attrs.Vitality.Total, attrs.Vitality.Modifier), "体力。HPとSPの最大値に影響する"),
-			st.newStatusItem(consts.StrengthLabel, fmt.Sprintf("%d (%+d)", attrs.Strength.Total, attrs.Strength.Modifier), "筋力。近接攻撃のダメージに影響する"),
-			st.newStatusItem(consts.SensationLabel, fmt.Sprintf("%d (%+d)", attrs.Sensation.Total, attrs.Sensation.Modifier), "感覚。射撃攻撃のダメージに影響する"),
-			st.newStatusItem(consts.DexterityLabel, fmt.Sprintf("%d (%+d)", attrs.Dexterity.Total, attrs.Dexterity.Modifier), "器用さ。命中率に影響する"),
-			st.newStatusItem(consts.AgilityLabel, fmt.Sprintf("%d (%+d)", attrs.Agility.Total, attrs.Agility.Modifier), "敏捷。回避率と行動速度に影響する"),
-			st.newStatusItem(consts.DefenseLabel, fmt.Sprintf("%d (%+d)", attrs.Defense.Total, attrs.Defense.Modifier), "防御。被ダメージを軽減する"),
+			st.newAttributeItem(consts.VitalityLabel, attrs.Vitality.Total, attrs.Vitality.Modifier, "体力。HPとSPの最大値に影響する"),
+			st.newAttributeItem(consts.StrengthLabel, attrs.Strength.Total, attrs.Strength.Modifier, "筋力。近接攻撃のダメージに影響する"),
+			st.newAttributeItem(consts.SensationLabel, attrs.Sensation.Total, attrs.Sensation.Modifier, "感覚。射撃攻撃のダメージに影響する"),
+			st.newAttributeItem(consts.DexterityLabel, attrs.Dexterity.Total, attrs.Dexterity.Modifier, "器用さ。命中率に影響する"),
+			st.newAttributeItem(consts.AgilityLabel, attrs.Agility.Total, attrs.Agility.Modifier, "敏捷。回避率と行動速度に影響する"),
+			st.newAttributeItem(consts.DefenseLabel, attrs.Defense.Total, attrs.Defense.Modifier, "防御。被ダメージを軽減する"),
 		)
 	}
 
@@ -333,6 +333,22 @@ func (st *StatusState) newStatusItem(label, value, description string) tabmenu.I
 			Value:       value,
 			Description: description,
 			TabID:       "basic",
+		},
+	}
+}
+
+// newAttributeItem は能力値項目を作成する
+func (st *StatusState) newAttributeItem(label string, total, modifier int, description string) tabmenu.Item {
+	return tabmenu.Item{
+		ID:               label,
+		Label:            label,
+		AdditionalLabels: []string{fmt.Sprintf("%d", total)},
+		UserData: statusItem{
+			Label:       label,
+			Value:       fmt.Sprintf("%d", total),
+			Modifier:    fmt.Sprintf("(%+d)", modifier),
+			Description: description,
+			TabID:       "attributes",
 		},
 	}
 }
@@ -406,12 +422,17 @@ func (st *StatusState) updateDetailContainer(world w.World, item tabmenu.Item) {
 // addHealthBreakdown は選択中の部位の健康状態を詳細コンテナに追加する
 func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	res := world.Resources.UIResources
+	columnWidths := []int{80, 100}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
 	// 快適温度範囲を表示
 	allInsulation := systems.CalculateEquippedInsulation(world, st.playerEntity)
 	lowerBound, upperBound := systems.ComfortableRange(allInsulation[part])
-	st.detailContainer.AddChild(st.newDetailText("快適温度", res))
-	st.detailContainer.AddChild(st.newDetailRow("", fmt.Sprintf("%d°C 〜 %d°C", lowerBound, upperBound), res))
+
+	tempTable := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableHeaderRow(tempTable, columnWidths, []string{"快適温度", ""}, res)
+	styled.NewTableRow(tempTable, columnWidths, []string{"範囲", fmt.Sprintf("%d%s 〜 %d%s", lowerBound, consts.IconDegree, upperBound, consts.IconDegree)}, aligns, nil, res)
+	st.detailContainer.AddChild(tempTable)
 
 	// 健康状態
 	if !st.playerEntity.HasComponent(world.Components.HealthStatus) {
@@ -421,10 +442,12 @@ func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	hs := world.Components.HealthStatus.Get(st.playerEntity).(*gc.HealthStatus)
 	partHealth := hs.Parts[part]
 
-	st.detailContainer.AddChild(st.newDetailText("状態", res))
+	statusTable := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableHeaderRow(statusTable, columnWidths, []string{"状態", ""}, res)
 
 	if len(partHealth.Conditions) == 0 {
-		st.detailContainer.AddChild(st.newDetailRow("", "正常", res))
+		styled.NewTableRow(statusTable, columnWidths, []string{"", "正常"}, aligns, nil, res)
+		st.detailContainer.AddChild(statusTable)
 		return
 	}
 
@@ -432,54 +455,54 @@ func (st *StatusState) addHealthBreakdown(world w.World, part gc.BodyPart) {
 	for _, cond := range partHealth.Conditions {
 		// 状態名とタイマー進行度を表示
 		condName := fmt.Sprintf("%s [%.0f%%]", cond.DisplayName(), cond.Timer)
-		st.detailContainer.AddChild(st.newDetailText(condName, res))
+		styled.NewTableRow(statusTable, columnWidths, []string{condName, ""}, aligns, nil, res)
 		for _, effect := range cond.Effects {
 			statName := effect.Stat.String()
 			valueStr := fmt.Sprintf("%+d", effect.Value)
-			st.detailContainer.AddChild(st.newDetailRow(fmt.Sprintf("  %s", statName), valueStr, res))
+			styled.NewTableRow(statusTable, columnWidths, []string{"  " + statName, valueStr}, aligns, nil, res)
 		}
 	}
+	st.detailContainer.AddChild(statusTable)
 }
 
-// newDetailText は詳細表示用の明るいテキストを作成する
-func (st *StatusState) newDetailText(text string, res *resources.UIResources) *widget.Text {
-	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.BodyFace, consts.TextColor),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-		),
-	)
-}
+// updateTabDisplayAsTable はタブ表示コンテナをテーブル形式で更新する
+func (st *StatusState) updateTabDisplayAsTable(world w.World) {
+	st.tabDisplayContainer.RemoveChildren()
+	res := world.Resources.UIResources
 
-// newDetailRow は詳細パネル用のラベル・値ペアを作成する
-func (st *StatusState) newDetailRow(label, value string, res *resources.UIResources) *widget.Container {
-	container := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-			widget.RowLayoutOpts.Spacing(8),
-		)),
-	)
+	currentTab := st.menuView.GetCurrentTab()
+	currentItemIndex := st.menuView.GetCurrentItemIndex()
 
-	// ラベル（固定幅80px）
-	labelText := widget.NewText(
-		widget.TextOpts.Text(label, &res.Text.BodyFace, consts.TextColor),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-			widget.WidgetOpts.MinSize(80, 0),
-		),
-	)
-	container.AddChild(labelText)
+	// カーソル、ラベル、値、補正の4列
+	columnWidths := []int{20, 100, 60, 60}
+	// 値と補正は右揃え
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
-	// 値
-	valueText := widget.NewText(
-		widget.TextOpts.Text(value, &res.Text.BodyFace, consts.TextColor),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
-		),
-	)
-	container.AddChild(valueText)
+	table := styled.NewTableContainer(columnWidths, res)
 
-	return container
+	for i, item := range currentTab.Items {
+		isSelected := i == currentItemIndex
+
+		// UserDataからstatusItemを取得して値を表示
+		data, ok := item.UserData.(statusItem)
+		value := ""
+		modifier := ""
+		if ok {
+			value = data.Value
+			modifier = data.Modifier
+		}
+
+		// カーソル用の空文字、ラベル、値、補正
+		styled.NewTableRow(table, columnWidths, []string{"", item.Label, value, modifier}, aligns, &isSelected, res)
+	}
+
+	st.tabDisplayContainer.AddChild(table)
+
+	// アイテムがない場合の表示
+	if len(currentTab.Items) == 0 {
+		emptyText := styled.NewDescriptionText("(項目なし)", res)
+		st.tabDisplayContainer.AddChild(emptyText)
+	}
 }
 
 // updateCategoryDisplay はカテゴリ表示を更新する
