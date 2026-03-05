@@ -179,7 +179,10 @@ type ToolTipResources struct {
 func NewUIResources(sources []*text.GoTextFaceSource) (*UIResources, error) {
 	background := image.NewNineSliceColor(hexToColor(backgroundColor))
 
-	fonts := loadFonts(sources)
+	fonts, err := loadFonts(sources)
+	if err != nil {
+		return nil, err
+	}
 
 	button, err := newButtonResources(fonts)
 	if err != nil {

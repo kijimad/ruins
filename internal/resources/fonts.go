@@ -1,6 +1,8 @@
 package resources
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
@@ -12,21 +14,30 @@ type fonts struct {
 
 // loadFonts は指定されたサイズでフォントフェイスを作成する
 // 複数のFaceSourceを指定した場合、順番にフォールバックする
-func loadFonts(sources []*text.GoTextFaceSource) *fonts {
-	smallFace := loadFont(sources, 16)
-	bodyFace := loadFont(sources, 20)
-	titleFontFace := loadFont(sources, 32)
+func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
+	smallFace, err := loadFont(sources, 16)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load small font: %w", err)
+	}
+	bodyFace, err := loadFont(sources, 20)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load body font: %w", err)
+	}
+	titleFontFace, err := loadFont(sources, 32)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load title font: %w", err)
+	}
 
 	return &fonts{
 		smallFace:     smallFace,
 		bodyFace:      bodyFace,
 		titleFontFace: titleFontFace,
-	}
+	}, nil
 }
 
-func loadFont(sources []*text.GoTextFaceSource, size float64) text.Face {
+func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error) {
 	if len(sources) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	faces := make([]text.Face, 0, len(sources))
@@ -40,15 +51,15 @@ func loadFont(sources []*text.GoTextFaceSource, size float64) text.Face {
 	}
 
 	if len(faces) == 0 {
-		return nil
+		return nil, nil
 	}
 	if len(faces) == 1 {
-		return faces[0]
+		return faces[0], nil
 	}
 
 	multiFace, err := text.NewMultiFace(faces...)
 	if err != nil {
-		return faces[0]
+		return nil, fmt.Errorf("failed to create multi face: %w", err)
 	}
-	return multiFace
+	return multiFace, nil
 }
