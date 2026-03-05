@@ -183,6 +183,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	world.Resources.Fonts = &fonts
 
 	dougenzakaFont := (*world.Resources.Fonts)["dougenzaka"]
+	nerdFont := (*world.Resources.Fonts)["nerd"]
 
 	// サイズ調整
 	dougenzaka := &text.GoTextFace{
@@ -195,7 +196,11 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 
 	// load UI resources
-	uir, err := gr.NewUIResources(dougenzakaFont.FaceSource)
+	fontSources := []*text.GoTextFaceSource{
+		dougenzakaFont.FaceSource,
+		nerdFont.FaceSource,
+	}
+	uir, err := gr.NewUIResources(fontSources)
 	if err != nil {
 		return w.World{}, err
 	}

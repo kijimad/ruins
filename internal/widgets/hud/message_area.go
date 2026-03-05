@@ -25,7 +25,7 @@ var DefaultMessageAreaConfig = MessageAreaConfig{
 	MaxLogLines:   5,   // 表示する最大行数
 	LogAreaMargin: 8,   // 余白
 	LineHeight:    20,  // 1行の高さ
-	YPadding:      8,   // 下端の追加パディング
+	YPadding:      12,  // 下端の追加パディング
 }
 
 // MessageArea はHUDメッセージエリア

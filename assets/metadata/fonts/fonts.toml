@@ -1,2 +1,5 @@
 [font.dougenzaka]
-  font = "file/fonts/KH-Dot-Dougenzaka-16.ttf"
+  font = "file/fonts/dougenzaka/KH-Dot-Dougenzaka-16.ttf"
+
+[font.nerd]
+  font = "file/fonts/nerd/SymbolsNerdFont-Regular.ttf"
