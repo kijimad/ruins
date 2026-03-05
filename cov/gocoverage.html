@@ -169,7 +169,7 @@
 				
 				<option value="file56">github.com/kijimaD/ruins/internal/logger/logger.go (89.1%)</option>
 				
-				<option value="file57">github.com/kijimaD/ruins/internal/maingame/game.go (61.1%)</option>
+				<option value="file57">github.com/kijimaD/ruins/internal/maingame/game.go (62.2%)</option>
 				
 				<option value="file58">github.com/kijimaD/ruins/internal/maingame/hooks.go (14.3%)</option>
 				
@@ -367,7 +367,7 @@
 				
 				<option value="file155">github.com/kijimaD/ruins/internal/widgets/styled/background.go (0.0%)</option>
 				
-				<option value="file156">github.com/kijimaD/ruins/internal/widgets/styled/eui.go (1.9%)</option>
+				<option value="file156">github.com/kijimaD/ruins/internal/widgets/styled/eui.go (2.2%)</option>
 				
 				<option value="file157">github.com/kijimaD/ruins/internal/widgets/tabmenu/tabmenu.go (44.2%)</option>
 				
@@ -6574,8 +6574,6 @@ func RGB(rgb uint64) color.RGBA <span class="cov8" title="1">{
 }</span>
 
 var (
-        // TransparentColor は透明色を表す
-        TransparentColor = color.RGBA{}
         // PrimaryColor は主要色を表す
         PrimaryColor = RGB(0x9dd793)
         // SecondaryColor はサブ色を表す
@@ -6597,15 +6595,6 @@ var (
         WindowBodyColor = RGB(0x808080)
         // WindowHeaderColor はウィンドウヘッダー色を表す
         WindowHeaderColor = RGB(0x939393)
-
-        // ButtonIdleColor はボタン通常色を表す
-        ButtonIdleColor = RGB(0xaaaaaa)
-        // ButtonHoverColor はボタンホバー色を表す
-        ButtonHoverColor = RGB(0x828296)
-        // ButtonPressedColor はボタン押下色を表す
-        ButtonPressedColor = RGB(0x646478)
-        // ButtonDisabledColor はボタン無効色を表す
-        ButtonDisabledColor = RGB(0x555555)
 
         // SuccessColor は成功色を表す
         SuccessColor = RGB(0x198754)
@@ -8551,6 +8540,7 @@ func InitWorld(cfg *config.Config) (w.World, error) <span class="cov8" title="1"
         <span class="cov8" title="1">world.Resources.Fonts = &amp;fonts
 
         dougenzakaFont := (*world.Resources.Fonts)["dougenzaka"]
+        nerdFont := (*world.Resources.Fonts)["nerd"]
 
         // サイズ調整
         dougenzaka := &amp;text.GoTextFace{
@@ -8563,7 +8553,11 @@ func InitWorld(cfg *config.Config) (w.World, error) <span class="cov8" title="1"
         }
 
         // load UI resources
-        uir, err := gr.NewUIResources(dougenzakaFont.FaceSource)
+        fontSources := []*text.GoTextFaceSource{
+                dougenzakaFont.FaceSource,
+                nerdFont.FaceSource,
+        }
+        uir, err := gr.NewUIResources(fontSources)
         if err != nil </span><span class="cov0" title="0">{
                 return w.World{}, err
         }</span>
@@ -14302,6 +14296,8 @@ func (f *Font) UnmarshalTOML(i interface{}) error <span class="cov0" title="0">{
 		<pre class="file" id="file95" style="display: none">package resources
 
 import (
+        "fmt"
+
         "github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
@@ -14311,24 +14307,57 @@ type fonts struct {
         titleFontFace text.Face
 }
 
-func loadFonts(tfs *text.GoTextFaceSource) *fonts <span class="cov0" title="0">{
-        smallFace := loadFont(tfs, 16)
-        bodyFace := loadFont(tfs, 20)
-        titleFontFace := loadFont(tfs, 32)
+// loadFonts は指定されたサイズでフォントフェイスを作成する
+// 複数のFaceSourceを指定した場合、順番にフォールバックする
+func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) <span class="cov0" title="0">{
+        smallFace, err := loadFont(sources, 16)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to load small font: %w", err)
+        }</span>
+        <span class="cov0" title="0">bodyFace, err := loadFont(sources, 20)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to load body font: %w", err)
+        }</span>
+        <span class="cov0" title="0">titleFontFace, err := loadFont(sources, 32)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to load title font: %w", err)
+        }</span>
 
-        return &amp;fonts{
+        <span class="cov0" title="0">return &amp;fonts{
                 smallFace:     smallFace,
                 bodyFace:      bodyFace,
                 titleFontFace: titleFontFace,
-        }
-}</span>
+        }, nil</span>
+}
 
-func loadFont(tfs *text.GoTextFaceSource, size float64) text.Face <span class="cov0" title="0">{
-        return &amp;text.GoTextFace{
-                Source: tfs,
-                Size:   size,
+func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error) <span class="cov0" title="0">{
+        if len(sources) == 0 </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+
+        <span class="cov0" title="0">faces := make([]text.Face, 0, len(sources))
+        for _, src := range sources </span><span class="cov0" title="0">{
+                if src != nil </span><span class="cov0" title="0">{
+                        faces = append(faces, &amp;text.GoTextFace{
+                                Source: src,
+                                Size:   size,
+                        })
+                }</span>
         }
-}</span>
+
+        <span class="cov0" title="0">if len(faces) == 0 </span><span class="cov0" title="0">{
+                return nil, nil
+        }</span>
+        <span class="cov0" title="0">if len(faces) == 1 </span><span class="cov0" title="0">{
+                return faces[0], nil
+        }</span>
+
+        <span class="cov0" title="0">multiFace, err := text.NewMultiFace(faces...)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("failed to create multi face: %w", err)
+        }</span>
+        <span class="cov0" title="0">return multiFace, nil</span>
+}
 </pre>
 		
 		<pre class="file" id="file96" style="display: none">package resources
@@ -14821,12 +14850,15 @@ type ToolTipResources struct {
 }
 
 // NewUIResources は新しいUIリソースを作成する
-func NewUIResources(tfs *text.GoTextFaceSource) (*UIResources, error) <span class="cov0" title="0">{
+func NewUIResources(sources []*text.GoTextFaceSource) (*UIResources, error) <span class="cov0" title="0">{
         background := image.NewNineSliceColor(hexToColor(backgroundColor))
 
-        fonts := loadFonts(tfs)
+        fonts, err := loadFonts(sources)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
 
-        button, err := newButtonResources(fonts)
+        <span class="cov0" title="0">button, err := newButtonResources(fonts)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
@@ -17189,7 +17221,7 @@ func (st *CharacterJobState) initUI(world w.World) *ebitenui.UI <span class="cov
 
         // 操作ヒント
         hintLabel := widget.NewText(
-                widget.TextOpts.Text("Enter: 決定 / Esc: 戻る", &amp;res.Text.SmallFace, consts.SecondaryColor),
+                widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &amp;res.Text.SmallFace, consts.SecondaryColor),
                 widget.TextOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{
                                 Position: widget.RowLayoutPositionCenter,
@@ -17461,7 +17493,7 @@ func (st *CharacterNamingState) initUI(world w.World) *ebitenui.UI <span class="
 
         // 操作ヒント
         hintLabel := widget.NewText(
-                widget.TextOpts.Text("Enter: 決定 / Esc: 戻る", &amp;res.Text.SmallFace, consts.SecondaryColor),
+                widget.TextOpts.Text(consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &amp;res.Text.SmallFace, consts.SecondaryColor),
                 widget.TextOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{
                                 Position: widget.RowLayoutPositionCenter,
@@ -26889,7 +26921,7 @@ var DefaultMessageAreaConfig = MessageAreaConfig{
         MaxLogLines:   5,   // 表示する最大行数
         LogAreaMargin: 8,   // 余白
         LineHeight:    20,  // 1行の高さ
-        YPadding:      8,   // 下端の追加パディング
+        YPadding:      12,  // 下端の追加パディング
 }
 
 // MessageArea はHUDメッセージエリア
@@ -28922,11 +28954,8 @@ func NewDescriptionText(text string, res *resources.UIResources) *widget.Text <s
 
 // NewPageIndicator は右寄せのページインジケーターを作成する
 func NewPageIndicator(text string, res *resources.UIResources) *widget.Container <span class="cov0" title="0">{
-        // 透明な背景のコンテナを作成（NewListItemTextと同じパターン）
-        backgroundColor := image.NewNineSliceColor(consts.TransparentColor)
-
         container := widget.NewContainer(
-                widget.ContainerOpts.BackgroundImage(backgroundColor),
+                widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{})),
                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
                 widget.ContainerOpts.WidgetOpts(
                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -28969,129 +28998,72 @@ func NewBodyText(title string, _ color.RGBA, res *resources.UIResources) *widget
         return text
 }</span>
 
-// NewListItemText はリスト項目用テキストを作成する（背景色変更で選択状態を表現）
+// NewListItemText はリスト項目用テキストを作成する（カーソルで選択状態を表現）
 // additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示
 func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *resources.UIResources, additionalLabels ...string) *widget.Container <span class="cov0" title="0">{
-        // 背景色の設定
-        var backgroundColor *image.NineSlice
+        // カーソルの色: 選択時は表示、非選択時は透明
+        cursorColor := color.RGBA{}
         if isSelected </span><span class="cov0" title="0">{
-                // 選択中は背景色を付ける
-                backgroundColor = image.NewNineSliceColor(consts.ButtonHoverColor)
-        }</span> else<span class="cov0" title="0"> {
-                // 非選択は背景なし（透明）
-                backgroundColor = image.NewNineSliceColor(consts.TransparentColor)
+                cursorColor = consts.PrimaryColor
         }</span>
 
-        // 追加ラベルがない場合は、外側のcontainerに背景色を設定
-        <span class="cov0" title="0">var containerOpts []widget.ContainerOpt
-        if len(additionalLabels) == 0 </span><span class="cov0" title="0">{
-                containerOpts = []widget.ContainerOpt{
-                        widget.ContainerOpts.BackgroundImage(backgroundColor),
-                        widget.ContainerOpts.Layout(widget.NewRowLayout(
-                                widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-                                widget.RowLayoutOpts.Spacing(10),
-                                widget.RowLayoutOpts.Padding(&amp;widget.Insets{
-                                        Top:    0,
-                                        Bottom: 0,
-                                        Left:   8,
-                                        Right:  8,
-                                }),
-                        )),
-                        widget.ContainerOpts.WidgetOpts(
-                                widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                        Stretch: true,
-                                }),
-                                widget.WidgetOpts.MinSize(120, 0),
-                        ),
-                }
-        }</span> else<span class="cov0" title="0"> {
-                containerOpts = []widget.ContainerOpt{
-                        widget.ContainerOpts.Layout(widget.NewRowLayout(
-                                widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-                                widget.RowLayoutOpts.Spacing(10),
-                                widget.RowLayoutOpts.Padding(&amp;widget.Insets{
-                                        Top:    0,
-                                        Bottom: 0,
-                                        Left:   8,
-                                        Right:  8,
-                                }),
-                        )),
-                        widget.ContainerOpts.WidgetOpts(
-                                widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                        Stretch: true,
-                                }),
-                                widget.WidgetOpts.MinSize(120, 0),
-                        ),
-                }
-        }</span>
+        <span class="cov0" title="0">container := widget.NewContainer(
+                widget.ContainerOpts.Layout(widget.NewRowLayout(
+                        widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
+                        widget.RowLayoutOpts.Spacing(4),
+                        widget.RowLayoutOpts.Padding(&amp;widget.Insets{
+                                Top:    0,
+                                Bottom: 0,
+                                Left:   4,
+                                Right:  8,
+                        }),
+                )),
+                widget.ContainerOpts.WidgetOpts(
+                        widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+                                Stretch: true,
+                        }),
+                        widget.WidgetOpts.MinSize(120, 0),
+                ),
+        )
 
-        <span class="cov0" title="0">container := widget.NewContainer(containerOpts...)
+        // カーソル（常に同じ文字を表示、色で表示/非表示を制御）
+        cursorText := widget.NewText(
+                widget.TextOpts.Text(consts.IconCursor+" ", &amp;res.Text.BodyFace, cursorColor),
+                widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
+        )
+        container.AddChild(cursorText)
 
-        // メインテキストコンテナ
-        // 追加ラベルがない場合はStretch、ある場合は固定幅
-        var mainTextContainerOpts []widget.ContainerOpt
-        if len(additionalLabels) == 0 </span><span class="cov0" title="0">{
-                // 追加ラベルなし: 全幅使用、背景色なし（外側のcontainerに設定済み）
-                mainTextContainerOpts = []widget.ContainerOpt{
-                        widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-                        widget.ContainerOpts.WidgetOpts(
-                                widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                        Stretch: true,
-                                }),
-                        ),
-                }
-        }</span> else<span class="cov0" title="0"> {
-                // 追加ラベルあり: 固定幅、背景色あり
-                mainTextContainerOpts = []widget.ContainerOpt{
-                        widget.ContainerOpts.BackgroundImage(backgroundColor),
-                        widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
-                        widget.ContainerOpts.WidgetOpts(
-                                widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                        Position: widget.RowLayoutPositionStart,
-                                }),
-                                widget.WidgetOpts.MinSize(250, 0), // 固定幅を設定
-                        ),
-                }
-        }</span>
-
-        <span class="cov0" title="0">mainTextContainer := widget.NewContainer(mainTextContainerOpts...)
-
+        // メインテキスト
         mainText := widget.NewText(
                 widget.TextOpts.Text(text, &amp;res.Text.BodyFace, textColor),
                 widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
                 widget.TextOpts.WidgetOpts(
-                        widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-                                HorizontalPosition: widget.AnchorLayoutPositionStart,
-                                VerticalPosition:   widget.AnchorLayoutPositionCenter,
+                        widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+                                Stretch: len(additionalLabels) == 0,
                         }),
                 ),
         )
-        mainTextContainer.AddChild(mainText)
-        container.AddChild(mainTextContainer)
+        container.AddChild(mainText)
 
-        // 右側: 追加ラベル群（左寄せで配置）
-        for _, label := range additionalLabels </span><span class="cov0" title="0">{
-                labelContainer := widget.NewContainer(
-                        widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
+        // 追加ラベルがある場合は固定幅のスペーサーを追加
+        if len(additionalLabels) &gt; 0 </span><span class="cov0" title="0">{
+                spacer := widget.NewContainer(
                         widget.ContainerOpts.WidgetOpts(
                                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                        Position: widget.RowLayoutPositionStart,
+                                        Stretch: true,
                                 }),
                         ),
                 )
+                container.AddChild(spacer)
+        }</span>
 
+        // 右側: 追加ラベル群
+        <span class="cov0" title="0">for _, label := range additionalLabels </span><span class="cov0" title="0">{
                 labelText := widget.NewText(
                         widget.TextOpts.Text(label, &amp;res.Text.BodyFace, textColor),
-                        widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
-                        widget.TextOpts.WidgetOpts(
-                                widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-                                        HorizontalPosition: widget.AnchorLayoutPositionStart,
-                                        VerticalPosition:   widget.AnchorLayoutPositionCenter,
-                                }),
-                        ),
+                        widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
                 )
-                labelContainer.AddChild(labelText)
-                container.AddChild(labelContainer)
+                container.AddChild(labelText)
         }</span>
 
         <span class="cov0" title="0">return container</span>
@@ -29712,7 +29684,6 @@ func (tm *tabMenu) HasNextPage() bool <span class="cov0" title="0">{
 import (
         "image/color"
 
-        "github.com/ebitenui/ebitenui/image"
         "github.com/ebitenui/ebitenui/widget"
         "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/widgets/styled"
@@ -29743,6 +29714,7 @@ func (b *uiBuilder) BuildUI(tabMenu *tabMenu) *widget.Container <span class="cov
 // buildVerticalUI は垂直リスト表示のUIを構築する
 func (b *uiBuilder) buildVerticalUI(tabMenu *tabMenu) *widget.Container <span class="cov0" title="0">{
         mainContainer := styled.NewVerticalContainer()
+        b.itemWidgets = make([]widget.PreferredSizeLocateableWidget, 0)
 
         // ページインジケーターを追加
         pageText := tabMenu.GetPageIndicatorText()
@@ -29751,109 +29723,42 @@ func (b *uiBuilder) buildVerticalUI(tabMenu *tabMenu) *widget.Container <span cl
                 mainContainer.AddChild(pageIndicator)
         }</span>
 
-        // メニューアイテムのコンテナ
-        <span class="cov0" title="0">menuContainer := styled.NewVerticalContainer()
-        b.itemWidgets = make([]widget.PreferredSizeLocateableWidget, 0)
-
         // 表示する項目のみを追加（スクロール対応）
-        visibleItems, indices := tabMenu.GetVisibleItems()
+        <span class="cov0" title="0">visibleItems, indices := tabMenu.GetVisibleItems()
         for i, item := range visibleItems </span><span class="cov0" title="0">{
                 originalIndex := indices[i]
                 btn := b.CreateMenuButton(tabMenu, originalIndex, item)
-                menuContainer.AddChild(btn)
+                mainContainer.AddChild(btn)
                 b.itemWidgets = append(b.itemWidgets, btn)
         }</span>
 
-        <span class="cov0" title="0">mainContainer.AddChild(menuContainer)
-        b.UpdateFocus(tabMenu)
+        <span class="cov0" title="0">b.UpdateFocus(tabMenu)
 
         return mainContainer</span>
 }
 
 // CreateMenuButton はメニューボタンを作成する
-// 追加ラベルがある場合は、Button + ラベル群をコンテナでまとめて返す
 func (b *uiBuilder) CreateMenuButton(tabMenu *tabMenu, index int, item Item) widget.PreferredSizeLocateableWidget <span class="cov0" title="0">{
-        res := b.world.Resources.UIResources
-
         // フォーカス状態をチェック
         isFocused := index == tabMenu.GetCurrentItemIndex()
 
-        // ボタン画像を作成
-        var buttonImage *widget.ButtonImage
-        if isFocused </span><span class="cov0" title="0">{
-                buttonImage = b.createFocusedButtonImage()
-        }</span> else<span class="cov0" title="0"> {
-                buttonImage = b.createTransparentButtonImage()
+        // 無効時は灰色テキスト
+        textColor := consts.TextColor
+        if item.Disabled </span><span class="cov0" title="0">{
+                textColor = consts.ForegroundColor
         }</span>
 
-        // ボタンを作成
-        <span class="cov0" title="0">btn := widget.NewButton(
-                widget.ButtonOpts.WidgetOpts(
-                        widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                Stretch: len(item.AdditionalLabels) == 0, // 追加ラベルがなければStretch
-                        }),
-                        widget.WidgetOpts.MinSize(100, 28),
-                ),
-                widget.ButtonOpts.Image(buttonImage),
-                widget.ButtonOpts.Text(item.Label, &amp;res.Button.Face, res.Button.Text),
-                widget.ButtonOpts.TextPadding(&amp;res.Button.Padding),
-                widget.ButtonOpts.TextPosition(widget.TextPositionStart, widget.TextPositionCenter),
-                widget.ButtonOpts.ClickedHandler(func(_ *widget.ButtonClickedEventArgs) </span><span class="cov0" title="0">{
-                        if err := tabMenu.SetItemIndex(index); err != nil </span><span class="cov0" title="0">{
-                                panic(err)</span>
-                        }
-                        <span class="cov0" title="0">if err := tabMenu.selectCurrentItem(); err != nil </span><span class="cov0" title="0">{
-                                panic(err)</span>
-                        }
-                }),
-        )
-
-        // 無効化されたアイテムの処理
-        <span class="cov0" title="0">if item.Disabled </span><span class="cov0" title="0">{
-                btn.GetWidget().Disabled = true
-        }</span>
-
-        // 追加ラベルがない場合はボタンをそのまま返す
-        <span class="cov0" title="0">if len(item.AdditionalLabels) == 0 </span><span class="cov0" title="0">{
-                return btn
-        }</span>
-
-        // 追加ラベルがある場合は、コンテナでまとめる
-        <span class="cov0" title="0">container := widget.NewContainer(
-                widget.ContainerOpts.WidgetOpts(
-                        widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                Stretch: true,
-                        }),
-                ),
-                widget.ContainerOpts.Layout(widget.NewRowLayout(
-                        widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-                        widget.RowLayoutOpts.Spacing(10),
-                )),
-        )
-
-        // ボタンを追加
-        container.AddChild(btn)
-
-        // 右側: 追加ラベル群（右寄せ）
-        for _, label := range item.AdditionalLabels </span><span class="cov0" title="0">{
-                additionalText := widget.NewText(
-                        widget.TextOpts.Text(label, &amp;res.Button.Face, res.Button.Text.Idle),
-                        widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
-                        widget.TextOpts.WidgetOpts(
-                                widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-                                        Position: widget.RowLayoutPositionEnd,
-                                }),
-                        ),
-                )
-                container.AddChild(additionalText)
-        }</span>
-
-        <span class="cov0" title="0">return container</span>
+        <span class="cov0" title="0">return styled.NewListItemText(
+                item.Label,
+                textColor,
+                isFocused,
+                b.world.Resources.UIResources,
+                item.AdditionalLabels...,
+        )</span>
 }
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-// カーソルで選択中の要素だけボタンを変える。マウスのhoverでは色が変わらないようにしている
-// カーソル移動は独自実装なので、UIを対応させるために必要
+// カーソルの色を変更して選択状態を表現する
 func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) <span class="cov0" title="0">{
         if len(b.itemWidgets) == 0 </span><span class="cov0" title="0">{
                 return
@@ -29862,7 +29767,7 @@ func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) <span class="cov0" title="0">{
         // 表示中の項目とそのインデックスを取得
         <span class="cov0" title="0">_, indices := tabMenu.GetVisibleItems()
 
-        // 全てのボタンのフォーカスを更新
+        // 全てのアイテムのカーソル色を更新
         for i, w := range b.itemWidgets </span><span class="cov0" title="0">{
                 if i &gt;= len(indices) </span><span class="cov0" title="0">{
                         continue</span>
@@ -29871,74 +29776,23 @@ func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) <span class="cov0" title="0">{
                 <span class="cov0" title="0">originalIndex := indices[i]
                 isFocused := originalIndex == tabMenu.GetCurrentItemIndex()
 
-                var btn *widget.Button
+                // カーソルの色を決定
+                cursorColor := color.RGBA{}
+                if isFocused </span><span class="cov0" title="0">{
+                        cursorColor = consts.PrimaryColor
+                }</span>
 
-                // ボタンの場合
-                if b, ok := w.(*widget.Button); ok </span><span class="cov0" title="0">{
-                        btn = b
-                }</span> else<span class="cov0" title="0"> if container, ok := w.(*widget.Container); ok </span><span class="cov0" title="0">{
-                        // コンテナの場合は、子要素からボタンを探す
-                        for _, child := range container.Children() </span><span class="cov0" title="0">{
-                                if b, ok := child.(*widget.Button); ok </span><span class="cov0" title="0">{
-                                        btn = b
-                                        break</span>
-                                }
+                // コンテナの場合、最初の子要素（カーソルText）の色を更新
+                <span class="cov0" title="0">if container, ok := w.(*widget.Container); ok </span><span class="cov0" title="0">{
+                        children := container.Children()
+                        if len(children) &gt; 0 </span><span class="cov0" title="0">{
+                                if cursorText, ok := children[0].(*widget.Text); ok </span><span class="cov0" title="0">{
+                                        cursorText.SetColor(cursorColor)
+                                }</span>
                         }
-                }
-
-                // ボタンが見つかった場合、フォーカス状態に応じて画像を更新
-                <span class="cov0" title="0">if btn != nil </span><span class="cov0" title="0">{
-                        if isFocused </span><span class="cov0" title="0">{
-                                // フォーカス時: より明るい背景色
-                                focusedImage := b.createFocusedButtonImage()
-                                btn.SetImage(focusedImage)
-                        }</span> else<span class="cov0" title="0"> {
-                                // 非フォーカス時: 通常の半透明背景
-                                normalImage := b.createTransparentButtonImage()
-                                btn.SetImage(normalImage)
-                        }</span>
                 }
         }
 }
-
-// createTransparentButtonImage は半透明のボタン画像を作成する
-// マウスホバーでは色が変わらず、キーボード操作（フォーカス）でのみ反応する
-func (b *uiBuilder) createTransparentButtonImage() *widget.ButtonImage <span class="cov0" title="0">{
-        // アイドル状態: 透明
-        idle := image.NewNineSliceColor(color.NRGBA{R: 0, G: 0, B: 0, A: 0})
-
-        // プレス状態: さらに明るい半透明の灰色
-        pressed := image.NewNineSliceColor(color.NRGBA{R: 100, G: 100, B: 100, A: 180})
-
-        // 無効状態: 暗い半透明
-        disabled := image.NewNineSliceColor(color.NRGBA{R: 30, G: 30, B: 30, A: 16})
-
-        return &amp;widget.ButtonImage{
-                Idle:     idle,
-                Hover:    idle, // フォーカス時と同じ色でマウスホバー効果を無効化
-                Pressed:  pressed,
-                Disabled: disabled,
-        }
-}</span>
-
-// createFocusedButtonImage はフォーカス時の明るいボタン画像を作成する
-func (b *uiBuilder) createFocusedButtonImage() *widget.ButtonImage <span class="cov0" title="0">{
-        // フォーカス時: 半透明の灰色
-        focused := image.NewNineSliceColor(consts.ButtonHoverColor)
-
-        // プレス状態: さらに明るい色
-        pressed := image.NewNineSliceColor(consts.ButtonPressedColor)
-
-        // 無効状態: 暗い半透明
-        disabled := image.NewNineSliceColor(color.NRGBA{R: 30, G: 30, B: 30, A: 80})
-
-        return &amp;widget.ButtonImage{
-                Idle:     focused,
-                Hover:    focused, // フォーカス時と同じ色でマウスホバー効果を無効化
-                Pressed:  pressed,
-                Disabled: disabled,
-        }
-}</span>
 
 // CreatePageIndicator はページインジケーターを作成する
 func (b *uiBuilder) CreatePageIndicator(tabMenu *tabMenu) *widget.Text <span class="cov0" title="0">{

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-04 00:17:29</td>
+            <td class="headerValue">2026-03-05 14:28:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,74 +77,63 @@
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L16"><span class="lineNum">      16</span>              : </span>
 <span id="L17"><span class="lineNum">      17</span>              : var (</span>
-<span id="L18"><span class="lineNum">      18</span>              :         // TransparentColor は透明色を表す</span>
-<span id="L19"><span class="lineNum">      19</span>              :         TransparentColor = color.RGBA{}</span>
-<span id="L20"><span class="lineNum">      20</span>              :         // PrimaryColor は主要色を表す</span>
-<span id="L21"><span class="lineNum">      21</span>              :         PrimaryColor = RGB(0x9dd793)</span>
-<span id="L22"><span class="lineNum">      22</span>              :         // SecondaryColor はサブ色を表す</span>
-<span id="L23"><span class="lineNum">      23</span>              :         SecondaryColor = RGB(0x9dd793)</span>
-<span id="L24"><span class="lineNum">      24</span>              :         // TextColor は地のテキスト色を表す</span>
-<span id="L25"><span class="lineNum">      25</span>              :         TextColor = RGB(0xf5f5f5)</span>
-<span id="L26"><span class="lineNum">      26</span>              :         // ForegroundColor は前景色を表す</span>
-<span id="L27"><span class="lineNum">      27</span>              :         ForegroundColor = RGB(0xa9a9a9)</span>
-<span id="L28"><span class="lineNum">      28</span>              :         // BackgroundColor は背景色を表す</span>
-<span id="L29"><span class="lineNum">      29</span>              :         BackgroundColor = RGB(0x000000)</span>
-<span id="L30"><span class="lineNum">      30</span>              :         // DebugColor はデバッグ色を表す</span>
-<span id="L31"><span class="lineNum">      31</span>              :         DebugColor = RGB(0x0000FF)</span>
-<span id="L32"><span class="lineNum">      32</span>              :         // TransBlackColor は透過黒背景色を表す</span>
-<span id="L33"><span class="lineNum">      33</span>              :         TransBlackColor = color.RGBA{0, 0, 0, 140}</span>
-<span id="L34"><span class="lineNum">      34</span>              :         // BlackColor は非透過黒背景色を表す</span>
-<span id="L35"><span class="lineNum">      35</span>              :         BlackColor = color.RGBA{30, 30, 30, 255}</span>
-<span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              :         // WindowBodyColor はウィンドウ本体色を表す</span>
-<span id="L38"><span class="lineNum">      38</span>              :         WindowBodyColor = RGB(0x808080)</span>
-<span id="L39"><span class="lineNum">      39</span>              :         // WindowHeaderColor はウィンドウヘッダー色を表す</span>
-<span id="L40"><span class="lineNum">      40</span>              :         WindowHeaderColor = RGB(0x939393)</span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              :         // ButtonIdleColor はボタン通常色を表す</span>
-<span id="L43"><span class="lineNum">      43</span>              :         ButtonIdleColor = RGB(0xaaaaaa)</span>
-<span id="L44"><span class="lineNum">      44</span>              :         // ButtonHoverColor はボタンホバー色を表す</span>
-<span id="L45"><span class="lineNum">      45</span>              :         ButtonHoverColor = RGB(0x828296)</span>
-<span id="L46"><span class="lineNum">      46</span>              :         // ButtonPressedColor はボタン押下色を表す</span>
-<span id="L47"><span class="lineNum">      47</span>              :         ButtonPressedColor = RGB(0x646478)</span>
-<span id="L48"><span class="lineNum">      48</span>              :         // ButtonDisabledColor はボタン無効色を表す</span>
-<span id="L49"><span class="lineNum">      49</span>              :         ButtonDisabledColor = RGB(0x555555)</span>
-<span id="L50"><span class="lineNum">      50</span>              : </span>
-<span id="L51"><span class="lineNum">      51</span>              :         // SuccessColor は成功色を表す</span>
-<span id="L52"><span class="lineNum">      52</span>              :         SuccessColor = RGB(0x198754)</span>
-<span id="L53"><span class="lineNum">      53</span>              :         // DangerColor は危険色を表す</span>
-<span id="L54"><span class="lineNum">      54</span>              :         DangerColor = RGB(0xdc3545)</span>
-<span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span>              :         // FireColor は炎色（赤）を表す</span>
-<span id="L57"><span class="lineNum">      57</span>              :         FireColor = RGB(0xc44303)</span>
-<span id="L58"><span class="lineNum">      58</span>              :         // ThunderColor は雷色（暗青）を表す</span>
-<span id="L59"><span class="lineNum">      59</span>              :         ThunderColor = RGB(0x4169e1)</span>
-<span id="L60"><span class="lineNum">      60</span>              :         // ChillColor は冷気色（明青）を表す</span>
-<span id="L61"><span class="lineNum">      61</span>              :         ChillColor = RGB(0x00ffff)</span>
-<span id="L62"><span class="lineNum">      62</span>              :         // PhotonColor は光子色（黄）を表す</span>
-<span id="L63"><span class="lineNum">      63</span>              :         PhotonColor = RGB(0xffff00)</span>
-<span id="L64"><span class="lineNum">      64</span>              : </span>
-<span id="L65"><span class="lineNum">      65</span>              :         // ColorWhite は白色を表す</span>
-<span id="L66"><span class="lineNum">      66</span>              :         ColorWhite = RGB(0xFFFFFF)</span>
-<span id="L67"><span class="lineNum">      67</span>              :         // ColorBlack は黒色を表す</span>
-<span id="L68"><span class="lineNum">      68</span>              :         ColorBlack = RGB(0x000000)</span>
-<span id="L69"><span class="lineNum">      69</span>              :         // ColorRed は赤色を表す</span>
-<span id="L70"><span class="lineNum">      70</span>              :         ColorRed = RGB(0xFF0000)</span>
-<span id="L71"><span class="lineNum">      71</span>              :         // ColorGreen は緑色を表す</span>
-<span id="L72"><span class="lineNum">      72</span>              :         ColorGreen = RGB(0x00FF00)</span>
-<span id="L73"><span class="lineNum">      73</span>              :         // ColorBlue は青色を表す</span>
-<span id="L74"><span class="lineNum">      74</span>              :         ColorBlue = RGB(0x0000FF)</span>
-<span id="L75"><span class="lineNum">      75</span>              :         // ColorYellow は黄色を表す</span>
-<span id="L76"><span class="lineNum">      76</span>              :         ColorYellow = RGB(0xFFFF00)</span>
-<span id="L77"><span class="lineNum">      77</span>              :         // ColorCyan はシアン色を表す</span>
-<span id="L78"><span class="lineNum">      78</span>              :         ColorCyan = RGB(0x00FFFF)</span>
-<span id="L79"><span class="lineNum">      79</span>              :         // ColorMagenta はマゼンタ色を表す</span>
-<span id="L80"><span class="lineNum">      80</span>              :         ColorMagenta = RGB(0xFF00FF)</span>
-<span id="L81"><span class="lineNum">      81</span>              :         // ColorOrange はオレンジ色を表す</span>
-<span id="L82"><span class="lineNum">      82</span>              :         ColorOrange = RGB(0xFFA500)</span>
-<span id="L83"><span class="lineNum">      83</span>              :         // ColorPurple は紫色を表す</span>
-<span id="L84"><span class="lineNum">      84</span>              :         ColorPurple = RGB(0x800080)</span>
-<span id="L85"><span class="lineNum">      85</span>              : )</span>
+<span id="L18"><span class="lineNum">      18</span>              :         // PrimaryColor は主要色を表す</span>
+<span id="L19"><span class="lineNum">      19</span>              :         PrimaryColor = RGB(0x9dd793)</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // SecondaryColor はサブ色を表す</span>
+<span id="L21"><span class="lineNum">      21</span>              :         SecondaryColor = RGB(0x9dd793)</span>
+<span id="L22"><span class="lineNum">      22</span>              :         // TextColor は地のテキスト色を表す</span>
+<span id="L23"><span class="lineNum">      23</span>              :         TextColor = RGB(0xf5f5f5)</span>
+<span id="L24"><span class="lineNum">      24</span>              :         // ForegroundColor は前景色を表す</span>
+<span id="L25"><span class="lineNum">      25</span>              :         ForegroundColor = RGB(0xa9a9a9)</span>
+<span id="L26"><span class="lineNum">      26</span>              :         // BackgroundColor は背景色を表す</span>
+<span id="L27"><span class="lineNum">      27</span>              :         BackgroundColor = RGB(0x000000)</span>
+<span id="L28"><span class="lineNum">      28</span>              :         // DebugColor はデバッグ色を表す</span>
+<span id="L29"><span class="lineNum">      29</span>              :         DebugColor = RGB(0x0000FF)</span>
+<span id="L30"><span class="lineNum">      30</span>              :         // TransBlackColor は透過黒背景色を表す</span>
+<span id="L31"><span class="lineNum">      31</span>              :         TransBlackColor = color.RGBA{0, 0, 0, 140}</span>
+<span id="L32"><span class="lineNum">      32</span>              :         // BlackColor は非透過黒背景色を表す</span>
+<span id="L33"><span class="lineNum">      33</span>              :         BlackColor = color.RGBA{30, 30, 30, 255}</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              :         // WindowBodyColor はウィンドウ本体色を表す</span>
+<span id="L36"><span class="lineNum">      36</span>              :         WindowBodyColor = RGB(0x808080)</span>
+<span id="L37"><span class="lineNum">      37</span>              :         // WindowHeaderColor はウィンドウヘッダー色を表す</span>
+<span id="L38"><span class="lineNum">      38</span>              :         WindowHeaderColor = RGB(0x939393)</span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span>              :         // SuccessColor は成功色を表す</span>
+<span id="L41"><span class="lineNum">      41</span>              :         SuccessColor = RGB(0x198754)</span>
+<span id="L42"><span class="lineNum">      42</span>              :         // DangerColor は危険色を表す</span>
+<span id="L43"><span class="lineNum">      43</span>              :         DangerColor = RGB(0xdc3545)</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              :         // FireColor は炎色（赤）を表す</span>
+<span id="L46"><span class="lineNum">      46</span>              :         FireColor = RGB(0xc44303)</span>
+<span id="L47"><span class="lineNum">      47</span>              :         // ThunderColor は雷色（暗青）を表す</span>
+<span id="L48"><span class="lineNum">      48</span>              :         ThunderColor = RGB(0x4169e1)</span>
+<span id="L49"><span class="lineNum">      49</span>              :         // ChillColor は冷気色（明青）を表す</span>
+<span id="L50"><span class="lineNum">      50</span>              :         ChillColor = RGB(0x00ffff)</span>
+<span id="L51"><span class="lineNum">      51</span>              :         // PhotonColor は光子色（黄）を表す</span>
+<span id="L52"><span class="lineNum">      52</span>              :         PhotonColor = RGB(0xffff00)</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              :         // ColorWhite は白色を表す</span>
+<span id="L55"><span class="lineNum">      55</span>              :         ColorWhite = RGB(0xFFFFFF)</span>
+<span id="L56"><span class="lineNum">      56</span>              :         // ColorBlack は黒色を表す</span>
+<span id="L57"><span class="lineNum">      57</span>              :         ColorBlack = RGB(0x000000)</span>
+<span id="L58"><span class="lineNum">      58</span>              :         // ColorRed は赤色を表す</span>
+<span id="L59"><span class="lineNum">      59</span>              :         ColorRed = RGB(0xFF0000)</span>
+<span id="L60"><span class="lineNum">      60</span>              :         // ColorGreen は緑色を表す</span>
+<span id="L61"><span class="lineNum">      61</span>              :         ColorGreen = RGB(0x00FF00)</span>
+<span id="L62"><span class="lineNum">      62</span>              :         // ColorBlue は青色を表す</span>
+<span id="L63"><span class="lineNum">      63</span>              :         ColorBlue = RGB(0x0000FF)</span>
+<span id="L64"><span class="lineNum">      64</span>              :         // ColorYellow は黄色を表す</span>
+<span id="L65"><span class="lineNum">      65</span>              :         ColorYellow = RGB(0xFFFF00)</span>
+<span id="L66"><span class="lineNum">      66</span>              :         // ColorCyan はシアン色を表す</span>
+<span id="L67"><span class="lineNum">      67</span>              :         ColorCyan = RGB(0x00FFFF)</span>
+<span id="L68"><span class="lineNum">      68</span>              :         // ColorMagenta はマゼンタ色を表す</span>
+<span id="L69"><span class="lineNum">      69</span>              :         ColorMagenta = RGB(0xFF00FF)</span>
+<span id="L70"><span class="lineNum">      70</span>              :         // ColorOrange はオレンジ色を表す</span>
+<span id="L71"><span class="lineNum">      71</span>              :         ColorOrange = RGB(0xFFA500)</span>
+<span id="L72"><span class="lineNum">      72</span>              :         // ColorPurple は紫色を表す</span>
+<span id="L73"><span class="lineNum">      73</span>              :         ColorPurple = RGB(0x800080)</span>
+<span id="L74"><span class="lineNum">      74</span>              : )</span>
         </pre>
               </td>
             </tr>

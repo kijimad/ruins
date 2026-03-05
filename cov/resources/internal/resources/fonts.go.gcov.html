@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">17</td>
+            <td class="headerCovTableEntry">41</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-04 00:17:29</td>
+            <td class="headerValue">2026-03-05 14:28:19</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,33 +63,68 @@
 <span id="L1"><span class="lineNum">       1</span>              : package resources</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              : )</span>
-<span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              : type fonts struct {</span>
-<span id="L8"><span class="lineNum">       8</span>              :         smallFace     text.Face</span>
-<span id="L9"><span class="lineNum">       9</span>              :         bodyFace      text.Face</span>
-<span id="L10"><span class="lineNum">      10</span>              :         titleFontFace text.Face</span>
-<span id="L11"><span class="lineNum">      11</span>              : }</span>
-<span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC tlaBgUNC">           0 : func loadFonts(tfs *text.GoTextFaceSource) *fonts {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC">           0 :         smallFace := loadFont(tfs, 16)</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         bodyFace := loadFont(tfs, 20)</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :         titleFontFace := loadFont(tfs, 32)</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         return &amp;fonts{</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 smallFace:     smallFace,</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 bodyFace:      bodyFace,</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 titleFontFace: titleFontFace,</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 : func loadFont(tfs *text.GoTextFaceSource, size float64) text.Face {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         return &amp;text.GoTextFace{</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :                 Source: tfs,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 Size:   size,</span></span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : type fonts struct {</span>
+<span id="L10"><span class="lineNum">      10</span>              :         smallFace     text.Face</span>
+<span id="L11"><span class="lineNum">      11</span>              :         bodyFace      text.Face</span>
+<span id="L12"><span class="lineNum">      12</span>              :         titleFontFace text.Face</span>
+<span id="L13"><span class="lineNum">      13</span>              : }</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // loadFonts は指定されたサイズでフォントフェイスを作成する</span>
+<span id="L16"><span class="lineNum">      16</span>              : // 複数のFaceSourceを指定した場合、順番にフォールバックする</span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 : func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         smallFace, err := loadFont(sources, 16)</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to load small font: %w&quot;, err)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         bodyFace, err := loadFont(sources, 20)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to load body font: %w&quot;, err)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         titleFontFace, err := loadFont(sources, 32)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to load title font: %w&quot;, err)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         return &amp;fonts{</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 smallFace:     smallFace,</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                 bodyFace:      bodyFace,</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 titleFontFace: titleFontFace,</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : }</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func loadFont(sources []*text.GoTextFaceSource, size float64) (text.Face, error) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         if len(sources) == 0 {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return nil, nil</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         faces := make([]text.Face, 0, len(sources))</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         for _, src := range sources {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 if src != nil {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                         faces = append(faces, &amp;text.GoTextFace{</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                                 Source: src,</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :                                 Size:   size,</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                         })</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L51"><span class="lineNum">      51</span>              :         }</span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         if len(faces) == 0 {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 return nil, nil</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         if len(faces) == 1 {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 return faces[0], nil</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L59"><span class="lineNum">      59</span>              : </span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         multiFace, err := text.NewMultiFace(faces...)</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;failed to create multi face: %w&quot;, err)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         return multiFace, nil</span></span>
+<span id="L65"><span class="lineNum">      65</span>              : }</span>
         </pre>
               </td>
             </tr>
