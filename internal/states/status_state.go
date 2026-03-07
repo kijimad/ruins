@@ -7,7 +7,6 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -32,7 +31,6 @@ func (st StatusState) String() string {
 }
 
 var _ es.State[w.World] = &StatusState{}
-var _ es.ActionHandler[w.World] = &StatusState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *StatusState) OnPause(_ w.World) error { return nil }
@@ -51,7 +49,7 @@ func (st *StatusState) OnStart(_ w.World) error {
 
 // Update はステートの更新処理
 func (st *StatusState) Update(world w.World) (es.Transition[w.World], error) {
-	action, ok := st.HandleInput(world.Config)
+	action, ok := HandleMenuInput()
 	if ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
@@ -86,11 +84,6 @@ func (st *StatusState) Update(world w.World) (es.Transition[w.World], error) {
 func (st *StatusState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.widget.Draw(screen)
 	return nil
-}
-
-// HandleInput はキー入力をActionに変換する
-func (st *StatusState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する

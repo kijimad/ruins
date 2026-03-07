@@ -34,8 +34,8 @@ func UseState[T any](store *Store, key string, init T, reducer func(T, inputmapp
 	return store.states[key].(T)
 }
 
-// dispatch は全てのStateにActionを送る
-func (store *Store) dispatch(action inputmapper.ActionID) {
+// Dispatch は全てのStateにActionを送る
+func (store *Store) Dispatch(action inputmapper.ActionID) {
 	for key, reducer := range store.reducers {
 		store.states[key] = reducer(store.states[key], action)
 	}

@@ -44,7 +44,7 @@ func (m *Mount[Props]) Store() *Store {
 
 // Dispatch は全てのStateにActionを送りdirtyフラグを立てる
 func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {
-	m.store.dispatch(action)
+	m.store.Dispatch(action)
 	m.dirty = true
 }
 

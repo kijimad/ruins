@@ -31,6 +31,9 @@ func HandleMenuInput() (inputmapper.ActionID, bool) {
 		}
 		return inputmapper.ActionMenuRight, true
 	}
+	if keyboardInput.IsEnterJustPressedOnce() {
+		return inputmapper.ActionMenuSelect, true
+	}
 	return "", false
 }
 
