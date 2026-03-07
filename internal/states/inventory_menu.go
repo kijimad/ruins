@@ -43,6 +43,13 @@ type InventoryMenuState struct {
 	isWindowMode     bool           // ウィンドウ操作モードかどうか
 }
 
+// inventoryItem はインベントリ項目の表示データ
+type inventoryItem struct {
+	Entity ecs.Entity
+	Name   string
+	Count  string // スタック数（スタック可能な場合のみ）
+}
+
 func (st InventoryMenuState) String() string {
 	return "InventoryMenu"
 }
@@ -183,14 +190,14 @@ func (st *InventoryMenuState) initUI(world w.World) *ebitenui.UI {
 			st.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		},
 		OnTabChange: func(_, _ int, _ tabmenu.TabItem) {
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+			st.updateTabDisplayAsTable(world)
 			st.updateCategoryDisplay(world)
 		},
 		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
 			if err := st.handleItemChange(world, item); err != nil {
 				return err
 			}
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+			st.updateTabDisplayAsTable(world)
 			return nil
 		},
 	}
@@ -273,19 +280,22 @@ func (st *InventoryMenuState) createMenuItems(world w.World, entities []ecs.Enti
 	for i, entity := range entities {
 		name := world.Components.Name.Get(entity).(*gc.Name).Name
 
-		item := tabmenu.Item{
-			ID:       fmt.Sprintf("entity_%d", entity),
-			Label:    name,
-			UserData: entity,
+		invItem := inventoryItem{
+			Entity: entity,
+			Name:   name,
 		}
 
 		// Stackableコンポーネントがあれば個数を表示する
 		if entity.HasComponent(world.Components.Stackable) {
 			itemComp := world.Components.Item.Get(entity).(*gc.Item)
-			item.AdditionalLabels = []string{fmt.Sprintf("x%d", itemComp.Count)}
+			invItem.Count = fmt.Sprintf("%d", itemComp.Count)
 		}
 
-		items[i] = item
+		items[i] = tabmenu.Item{
+			ID:       fmt.Sprintf("entity_%d", entity),
+			Label:    name,
+			UserData: invItem,
+		}
 	}
 
 	return items
@@ -293,13 +303,13 @@ func (st *InventoryMenuState) createMenuItems(world w.World, entities []ecs.Enti
 
 // handleItemSelection はアイテム選択時の処理
 func (st *InventoryMenuState) handleItemSelection(world w.World, _ tabmenu.TabItem, item tabmenu.Item) error {
-	entity, ok := item.UserData.(ecs.Entity)
+	invItem, ok := item.UserData.(inventoryItem)
 	if !ok {
 		return fmt.Errorf("unexpected item UserData")
 	}
 
-	st.selectedItem = entity
-	st.showActionWindow(world, entity)
+	st.selectedItem = invItem.Entity
+	st.showActionWindow(world, invItem.Entity)
 	return nil
 }
 
@@ -312,10 +322,12 @@ func (st *InventoryMenuState) handleItemChange(world w.World, item tabmenu.Item)
 		return nil
 	}
 
-	entity, ok := item.UserData.(ecs.Entity)
+	invItem, ok := item.UserData.(inventoryItem)
 	if !ok {
 		return fmt.Errorf("unexpected item UserData")
 	}
+
+	entity := invItem.Entity
 
 	// Descriptionコンポーネントの存在チェック
 	if !entity.HasComponent(world.Components.Description) {
@@ -431,7 +443,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		st.closeActionWindow()
 		st.reloadTabs(world)
-		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+		st.updateTabDisplayAsTable(world)
 		st.updateCategoryDisplay(world)
 	case "捨てる":
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
@@ -452,7 +464,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		st.closeActionWindow()
 		st.reloadTabs(world)
-		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+		st.updateTabDisplayAsTable(world)
 		st.updateCategoryDisplay(world)
 	case TextClose:
 		st.closeActionWindow()
@@ -465,8 +477,6 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 func (st *InventoryMenuState) reloadTabs(world w.World) {
 	newTabs := st.createTabs(world)
 	st.menuView.UpdateTabs(newTabs)
-	// UpdateTabs後に表示を更新
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
 }
 
 func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity {
@@ -513,8 +523,47 @@ func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity {
 }
 
 // createTabDisplayUI はタブ表示UIを作成する
-func (st *InventoryMenuState) createTabDisplayUI(_ w.World) {
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
+func (st *InventoryMenuState) createTabDisplayUI(world w.World) {
+	st.updateTabDisplayAsTable(world)
+}
+
+// updateTabDisplayAsTable はタブ表示コンテナをテーブル形式で更新する
+func (st *InventoryMenuState) updateTabDisplayAsTable(world w.World) {
+	st.tabDisplayContainer.RemoveChildren()
+	res := world.Resources.UIResources
+
+	currentTab := st.menuView.GetCurrentTab()
+	currentItemIndex := st.menuView.GetCurrentItemIndex()
+
+	// カーソル、名前、個数の3列
+	columnWidths := []int{20, 150, 50}
+	// 個数列は右揃え
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
+
+	table := styled.NewTableContainer(columnWidths, res)
+
+	for i, item := range currentTab.Items {
+		isSelected := i == currentItemIndex
+
+		// UserDataからinventoryItemを取得
+		invItem, ok := item.UserData.(inventoryItem)
+		name := item.Label
+		count := ""
+		if ok {
+			name = invItem.Name
+			count = invItem.Count
+		}
+
+		styled.NewTableRow(table, columnWidths, []string{"", name, count}, aligns, &isSelected, res)
+	}
+
+	st.tabDisplayContainer.AddChild(table)
+
+	// アイテムがない場合の表示
+	if len(currentTab.Items) == 0 {
+		emptyText := styled.NewDescriptionText("(アイテムなし)", res)
+		st.tabDisplayContainer.AddChild(emptyText)
+	}
 }
 
 // createCategoryDisplayUI はカテゴリ表示UIを作成する

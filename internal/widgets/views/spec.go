@@ -7,6 +7,7 @@ import (
 	"github.com/ebitenui/ebitenui/widget"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -76,128 +77,123 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 	}
 }
 
+// specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）
+var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+
 // addAttackInfo はAttackコンポーネントの情報を追加する
 func addAttackInfo(targetContainer *widget.Container, attack *gc.Attack, world w.World) {
-	targetContainer.AddChild(styled.NewBodyText(attack.AttackCategory.Label, consts.TextColor, world.Resources.UIResources))
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
 
-	damage := fmt.Sprintf("%s %s", consts.DamageLabel, strconv.Itoa(attack.Damage))
-	targetContainer.AddChild(styled.NewBodyText(damage, consts.TextColor, world.Resources.UIResources))
-
-	accuracy := fmt.Sprintf("%s %s", consts.AccuracyLabel, strconv.Itoa(attack.Accuracy))
-	targetContainer.AddChild(styled.NewBodyText(accuracy, consts.TextColor, world.Resources.UIResources))
-
-	attackCount := fmt.Sprintf("%s %s", consts.AttackCountLabel, strconv.Itoa(attack.AttackCount))
-	targetContainer.AddChild(styled.NewBodyText(attackCount, consts.TextColor, world.Resources.UIResources))
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableHeaderRow(table, columnWidths, []string{attack.AttackCategory.Label, ""}, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DamageLabel, strconv.Itoa(attack.Damage)}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AccuracyLabel, strconv.Itoa(attack.Accuracy)}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AttackCountLabel, strconv.Itoa(attack.AttackCount)}, specTableAligns, nil, res)
 
 	if attack.Element != gc.ElementTypeNone {
-		targetContainer.AddChild(damageAttrText(world, attack.Element, attack.Element.String()))
+		styled.NewTableRow(table, columnWidths, []string{"属性", attack.Element.String()}, specTableAligns, nil, res)
 	}
+
+	targetContainer.AddChild(table)
 }
 
 // addWearableInfo はWearableコンポーネントの情報を追加する
 func addWearableInfo(targetContainer *widget.Container, wearable *gc.Wearable, world w.World) {
-	equipmentCategory := fmt.Sprintf("%s %s", consts.EquimentCategoryLabel, wearable.EquipmentCategory)
-	targetContainer.AddChild(styled.NewBodyText(equipmentCategory, consts.TextColor, world.Resources.UIResources))
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
 
-	defense := fmt.Sprintf("%s %+d", consts.DefenseLabel, wearable.Defense)
-	targetContainer.AddChild(styled.NewBodyText(defense, consts.TextColor, world.Resources.UIResources))
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableHeaderRow(table, columnWidths, []string{wearable.EquipmentCategory.String(), ""}, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%+d", wearable.Defense)}, specTableAligns, nil, res)
 
-	// 耐寒・耐熱の表示（値がある場合のみ）
 	if wearable.InsulationCold != 0 {
-		cold := fmt.Sprintf("耐寒 %+d", wearable.InsulationCold)
-		targetContainer.AddChild(styled.NewBodyText(cold, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{"耐寒", fmt.Sprintf("%+d", wearable.InsulationCold)}, specTableAligns, nil, res)
 	}
 	if wearable.InsulationHeat != 0 {
-		heat := fmt.Sprintf("耐熱 %+d", wearable.InsulationHeat)
-		targetContainer.AddChild(styled.NewBodyText(heat, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{"耐熱", fmt.Sprintf("%+d", wearable.InsulationHeat)}, specTableAligns, nil, res)
 	}
 
-	addEquipBonus(targetContainer, wearable.EquipBonus, world)
+	addEquipBonusToTable(table, columnWidths, wearable.EquipBonus, res)
+	targetContainer.AddChild(table)
 }
 
 // addWeaponInfo はWeaponコンポーネントの情報を追加する
 func addWeaponInfo(targetContainer *widget.Container, weapon *gc.Weapon, world w.World) {
-	cost := fmt.Sprintf("コスト %d", weapon.Cost)
-	targetContainer.AddChild(styled.NewBodyText(cost, consts.TextColor, world.Resources.UIResources))
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{"コスト", strconv.Itoa(weapon.Cost)}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
 }
 
 // addValueInfo はValueコンポーネントの情報を追加する
 func addValueInfo(targetContainer *widget.Container, value *gc.Value, world w.World) {
-	valueText := fmt.Sprintf("変換 %s", worldhelper.FormatCurrency(value.Value))
-	targetContainer.AddChild(styled.NewBodyText(valueText, consts.TextColor, world.Resources.UIResources))
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{"変換", worldhelper.FormatCurrency(value.Value)}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
 }
 
 // addHealingInfo はProvidesHealingコンポーネントの情報を追加する
 func addHealingInfo(targetContainer *widget.Container, healing *gc.ProvidesHealing, world w.World) {
-	var healingText string
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
+
+	var healValue string
 	switch amt := healing.Amount.(type) {
 	case gc.NumeralAmount:
-		healingText = fmt.Sprintf("体力 %d", amt.Numeral)
+		healValue = strconv.Itoa(amt.Numeral)
 	case gc.RatioAmount:
-		healingText = fmt.Sprintf("体力 %.0f%%", amt.Ratio*100)
+		healValue = fmt.Sprintf("%.0f%%", amt.Ratio*100)
 	default:
-		healingText = "HP回復"
+		healValue = "-"
 	}
-	targetContainer.AddChild(styled.NewBodyText(healingText, consts.TextColor, world.Resources.UIResources))
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{"体力", healValue}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
 }
 
 // addNutritionInfo はProvidesNutritionコンポーネントの情報を追加する
 func addNutritionInfo(targetContainer *widget.Container, nutrition *gc.ProvidesNutrition, world w.World) {
-	nutritionText := fmt.Sprintf("栄養 %d", nutrition.Amount)
-	targetContainer.AddChild(styled.NewBodyText(nutritionText, consts.TextColor, world.Resources.UIResources))
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{"栄養", strconv.Itoa(nutrition.Amount)}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
 }
 
 // addWeightInfo はWeightコンポーネントの情報を追加する
 func addWeightInfo(targetContainer *widget.Container, weight *gc.Weight, world w.World) {
-	weightText := fmt.Sprintf("重量 %.2fkg", weight.Kg)
-	targetContainer.AddChild(styled.NewBodyText(weightText, consts.TextColor, world.Resources.UIResources))
-}
-
-// damageAttrText は属性によって色付けする
-func damageAttrText(world w.World, dat gc.ElementType, str string) *widget.Text {
 	res := world.Resources.UIResources
-	var text *widget.Text
-	switch dat {
-	case gc.ElementTypeFire:
-		text = styled.NewBodyText(str, consts.FireColor, res)
-	case gc.ElementTypeThunder:
-		text = styled.NewBodyText(str, consts.ThunderColor, res)
-	case gc.ElementTypeChill:
-		text = styled.NewBodyText(str, consts.ChillColor, res)
-	case gc.ElementTypePhoton:
-		text = styled.NewBodyText(str, consts.PhotonColor, res)
-	default:
-		text = styled.NewBodyText(str, consts.TextColor, res)
-	}
+	columnWidths := []int{70, 80}
 
-	return text
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{"重量", fmt.Sprintf("%.2fkg", weight.Kg)}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
 }
 
-// addEquipBonus は装備ボーナスを表示する
-func addEquipBonus(targetContainer *widget.Container, equipBonus gc.EquipBonus, world w.World) {
+// addEquipBonusToTable は装備ボーナスをテーブルに追加する
+func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonus gc.EquipBonus, res *resources.UIResources) {
 	if equipBonus.Vitality != 0 {
-		vitality := fmt.Sprintf("%s %+d", consts.VitalityLabel, equipBonus.Vitality)
-		targetContainer.AddChild(styled.NewBodyText(vitality, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%+d", equipBonus.Vitality)}, specTableAligns, nil, res)
 	}
-
 	if equipBonus.Strength != 0 {
-		strength := fmt.Sprintf("%s %+d", consts.StrengthLabel, equipBonus.Strength)
-		targetContainer.AddChild(styled.NewBodyText(strength, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%+d", equipBonus.Strength)}, specTableAligns, nil, res)
 	}
-
 	if equipBonus.Sensation != 0 {
-		sensation := fmt.Sprintf("%s %+d", consts.SensationLabel, equipBonus.Sensation)
-		targetContainer.AddChild(styled.NewBodyText(sensation, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%+d", equipBonus.Sensation)}, specTableAligns, nil, res)
 	}
-
 	if equipBonus.Dexterity != 0 {
-		dexterity := fmt.Sprintf("%s %+d", consts.DexterityLabel, equipBonus.Dexterity)
-		targetContainer.AddChild(styled.NewBodyText(dexterity, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%+d", equipBonus.Dexterity)}, specTableAligns, nil, res)
 	}
-
 	if equipBonus.Agility != 0 {
-		agility := fmt.Sprintf("%s %+d", consts.AgilityLabel, equipBonus.Agility)
-		targetContainer.AddChild(styled.NewBodyText(agility, consts.TextColor, world.Resources.UIResources))
+		styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%+d", equipBonus.Agility)}, specTableAligns, nil, res)
 	}
 }
 
