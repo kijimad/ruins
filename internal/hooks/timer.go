@@ -1,4 +1,4 @@
-package ui
+package hooks
 
 import (
 	"time"

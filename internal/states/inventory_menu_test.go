@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -52,24 +52,24 @@ func TestInventoryMenuState_TabNavigation(t *testing.T) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(state.menuMount.Store(), "inventory", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "inventory", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
 	state.menuMount.Update()
 
 	// 初期状態
-	tabIndex, _ := ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ := hooks.GetState[int](state.menuMount, "inventory_tabIndex")
 	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
 
 	// 右に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
-	tabIndex, _ = ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ = hooks.GetState[int](state.menuMount, "inventory_tabIndex")
 	assert.Equal(t, 1, tabIndex, "右移動後は1")
 
 	// 左に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuLeft)
-	tabIndex, _ = ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ = hooks.GetState[int](state.menuMount, "inventory_tabIndex")
 	assert.Equal(t, 0, tabIndex, "左移動後は0")
 }
 

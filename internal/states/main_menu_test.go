@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -46,27 +46,27 @@ func TestMainMenuState_Navigation(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
 	state.menuMount.Update()
 
 	// 初期状態
-	itemIndex, ok := ui.GetState[int](state.menuMount, "menu_itemIndex")
+	itemIndex, ok := hooks.GetState[int](state.menuMount, "menu_itemIndex")
 	assert.True(t, ok)
 	assert.Equal(t, 0, itemIndex, "初期インデックスは0")
 
 	// 下に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
-	itemIndex, _ = ui.GetState[int](state.menuMount, "menu_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "menu_itemIndex")
 	assert.Equal(t, 1, itemIndex, "下移動後はインデックス1")
 
 	// 上に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
-	itemIndex, _ = ui.GetState[int](state.menuMount, "menu_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "menu_itemIndex")
 	assert.Equal(t, 0, itemIndex, "上移動後はインデックス0")
 }
 
@@ -79,7 +79,7 @@ func TestMainMenuState_CircularNavigation(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
@@ -88,13 +88,13 @@ func TestMainMenuState_CircularNavigation(t *testing.T) {
 	// 最初の項目から上に移動すると最後の項目に
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
-	itemIndex, _ := ui.GetState[int](state.menuMount, "menu_itemIndex")
+	itemIndex, _ := hooks.GetState[int](state.menuMount, "menu_itemIndex")
 	assert.Equal(t, 2, itemIndex, "循環して最後の項目に移動")
 
 	// 最後の項目から下に移動すると最初の項目に
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
-	itemIndex, _ = ui.GetState[int](state.menuMount, "menu_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "menu_itemIndex")
 	assert.Equal(t, 0, itemIndex, "循環して最初の項目に移動")
 }
 
@@ -152,7 +152,7 @@ func TestMainMenuState_Selection_Start(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
@@ -173,7 +173,7 @@ func TestMainMenuState_Selection_Load(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
@@ -197,7 +197,7 @@ func TestMainMenuState_Selection_Exit(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})

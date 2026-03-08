@@ -11,8 +11,8 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -20,7 +20,7 @@ import (
 // MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	menuMount *ui.Mount[mainMenuProps]
+	menuMount *hooks.Mount[mainMenuProps]
 	widget    *ebitenui.UI
 }
 
@@ -44,7 +44,7 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
 	world.Manager.DeleteAllEntities()
 
-	st.menuMount = ui.NewMount[mainMenuProps]()
+	st.menuMount = hooks.NewMount[mainMenuProps]()
 	return nil
 }
 
@@ -66,7 +66,7 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	// Props更新
 	st.menuMount.SetProps(st.fetchProps())
 	props := st.menuMount.GetProps()
-	ui.UseTabMenu(st.menuMount.Store(), "menu", ui.TabMenuConfig{
+	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
@@ -145,7 +145,7 @@ func (st *MainMenuState) fetchProps() mainMenuProps {
 
 func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 	props := st.menuMount.GetProps()
-	itemIndex, ok := ui.GetState[int](st.menuMount, "menu_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "menu_itemIndex")
 	if !ok {
 		return es.Transition[w.World]{}, fmt.Errorf("menu_itemIndexの取得に失敗")
 	}
@@ -164,7 +164,7 @@ func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	itemIndex, _ := ui.GetState[int](st.menuMount, "menu_itemIndex")
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "menu_itemIndex")
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

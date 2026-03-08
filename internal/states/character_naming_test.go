@@ -6,9 +6,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -107,7 +107,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
-	st.mount = ui.NewMount[namingProps]()
+	st.mount = hooks.NewMount[namingProps]()
 	st.mount.SetProps(namingProps{CurrentName: "NewName"})
 
 	transition := st.confirmName(world)
@@ -127,7 +127,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
-	st.mount = ui.NewMount[namingProps]()
+	st.mount = hooks.NewMount[namingProps]()
 	st.mount.SetProps(namingProps{CurrentName: "太郎"})
 
 	transition := st.confirmName(world)
@@ -147,7 +147,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
-	st.mount = ui.NewMount[namingProps]()
+	st.mount = hooks.NewMount[namingProps]()
 
 	// 空文字は無効
 	st.mount.SetProps(namingProps{CurrentName: ""})
@@ -172,7 +172,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
-	st.mount = ui.NewMount[namingProps]()
+	st.mount = hooks.NewMount[namingProps]()
 
 	// 11文字は無効
 	st.mount.SetProps(namingProps{CurrentName: "ABCDEFGHIJK"})
@@ -196,7 +196,7 @@ func TestConfirmName_NewPlayer(t *testing.T) {
 	// プレイヤーがいない状態
 
 	st := &CharacterNamingState{}
-	st.mount = ui.NewMount[namingProps]()
+	st.mount = hooks.NewMount[namingProps]()
 	st.mount.SetProps(namingProps{CurrentName: "NewPlayer"})
 
 	transition := st.confirmName(world)

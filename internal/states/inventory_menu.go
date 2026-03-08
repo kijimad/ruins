@@ -11,10 +11,10 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -34,8 +34,8 @@ const (
 type InventoryMenuState struct {
 	es.BaseState[w.World]
 	subState    inventorySubState
-	menuMount   *ui.Mount[inventoryProps]
-	windowMount *ui.Mount[windowProps]
+	menuMount   *hooks.Mount[inventoryProps]
+	windowMount *hooks.Mount[windowProps]
 	widget      *ebitenui.UI
 }
 
@@ -57,8 +57,8 @@ func (st *InventoryMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *InventoryMenuState) OnStart(_ w.World) error {
 	st.subState = invSubStateMenu
-	st.menuMount = ui.NewMount[inventoryProps]()
-	st.windowMount = ui.NewMount[windowProps]()
+	st.menuMount = hooks.NewMount[inventoryProps]()
+	st.windowMount = hooks.NewMount[windowProps]()
 	return nil
 }
 
@@ -101,7 +101,7 @@ func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], err
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(st.menuMount.Store(), "inventory", ui.TabMenuConfig{
+	hooks.UseTabMenu(st.menuMount.Store(), "inventory", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
@@ -124,7 +124,7 @@ func (st *InventoryMenuState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionCount := len(st.getActionItems(world, windowProps.SelectedEntity))
 
-	ui.UseState(st.windowMount.Store(), "focusIndex", 0, func(v int, a inputmapper.ActionID) int {
+	hooks.UseState(st.windowMount.Store(), "focusIndex", 0, func(v int, a inputmapper.ActionID) int {
 		if actionCount == 0 {
 			return 0
 		}
@@ -309,8 +309,8 @@ func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity {
 func (st *InventoryMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	tabIndex, _ := ui.GetState[int](st.menuMount, "inventory_tabIndex")
-	itemIndex, _ := ui.GetState[int](st.menuMount, "inventory_itemIndex")
+	tabIndex, _ := hooks.GetState[int](st.menuMount, "inventory_tabIndex")
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "inventory_itemIndex")
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
@@ -413,11 +413,11 @@ func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabInd
 
 func (st *InventoryMenuState) handleItemSelection() error {
 	props := st.menuMount.GetProps()
-	tabIndex, ok := ui.GetState[int](st.menuMount, "inventory_tabIndex")
+	tabIndex, ok := hooks.GetState[int](st.menuMount, "inventory_tabIndex")
 	if !ok {
 		return fmt.Errorf("inventory_tabIndexの取得に失敗")
 	}
-	itemIndex, ok := ui.GetState[int](st.menuMount, "inventory_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "inventory_itemIndex")
 	if !ok {
 		return fmt.Errorf("inventory_itemIndexの取得に失敗")
 	}
@@ -431,7 +431,7 @@ func (st *InventoryMenuState) handleItemSelection() error {
 
 	item := props.Tabs[tabIndex].Items[itemIndex]
 	st.subState = invSubStateWindow
-	st.windowMount = ui.NewMount[windowProps]()
+	st.windowMount = hooks.NewMount[windowProps]()
 	st.windowMount.SetProps(windowProps{
 		SelectedEntity: item.Entity,
 	})
@@ -462,7 +462,7 @@ func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UI
 
 	windowProps := st.windowMount.GetProps()
 	actions := st.getActionItems(world, windowProps.SelectedEntity)
-	focusIndex, _ := ui.GetState[int](st.windowMount, "focusIndex")
+	focusIndex, _ := hooks.GetState[int](st.windowMount, "focusIndex")
 
 	for i, action := range actions {
 		isSelected := i == focusIndex
@@ -478,7 +478,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 	windowProps := st.windowMount.GetProps()
 	entity := windowProps.SelectedEntity
 
-	focusIndex, ok := ui.GetState[int](st.windowMount, "focusIndex")
+	focusIndex, ok := hooks.GetState[int](st.windowMount, "focusIndex")
 	if !ok {
 		return fmt.Errorf("focusIndexの取得に失敗")
 	}

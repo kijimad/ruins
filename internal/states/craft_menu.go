@@ -12,9 +12,9 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -35,9 +35,9 @@ const (
 type CraftMenuState struct {
 	es.BaseState[w.World]
 	subState    craftSubState
-	menuMount   *ui.Mount[craftProps]
-	windowMount *ui.Mount[craftWindowProps]
-	resultMount *ui.Mount[craftResultProps]
+	menuMount   *hooks.Mount[craftProps]
+	windowMount *hooks.Mount[craftWindowProps]
+	resultMount *hooks.Mount[craftResultProps]
 	widget      *ebitenui.UI
 }
 
@@ -59,9 +59,9 @@ func (st *CraftMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *CraftMenuState) OnStart(_ w.World) error {
 	st.subState = craftSubStateMenu
-	st.menuMount = ui.NewMount[craftProps]()
-	st.windowMount = ui.NewMount[craftWindowProps]()
-	st.resultMount = ui.NewMount[craftResultProps]()
+	st.menuMount = hooks.NewMount[craftProps]()
+	st.windowMount = hooks.NewMount[craftWindowProps]()
+	st.resultMount = hooks.NewMount[craftResultProps]()
 	return nil
 }
 
@@ -95,7 +95,7 @@ func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) 
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(st.menuMount.Store(), "craft", ui.TabMenuConfig{
+	hooks.UseTabMenu(st.menuMount.Store(), "craft", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
@@ -296,7 +296,7 @@ func (st *CraftMenuState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionItems := st.getActionItems(world, windowProps.RecipeName)
 
-	ui.UseState(st.windowMount.Store(), "craft_window_index", 0, func(v int, action inputmapper.ActionID) int {
+	hooks.UseState(st.windowMount.Store(), "craft_window_index", 0, func(v int, action inputmapper.ActionID) int {
 		switch action {
 		case inputmapper.ActionWindowUp:
 			if v > 0 {
@@ -331,11 +331,11 @@ func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []str
 
 func (st *CraftMenuState) handleItemSelection(_ w.World) error {
 	props := st.menuMount.GetProps()
-	tabIndex, ok := ui.GetState[int](st.menuMount, "craft_tabIndex")
+	tabIndex, ok := hooks.GetState[int](st.menuMount, "craft_tabIndex")
 	if !ok {
 		return fmt.Errorf("craft_tabIndexの取得に失敗")
 	}
-	itemIndex, ok := ui.GetState[int](st.menuMount, "craft_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "craft_itemIndex")
 	if !ok {
 		return fmt.Errorf("craft_itemIndexの取得に失敗")
 	}
@@ -350,7 +350,7 @@ func (st *CraftMenuState) handleItemSelection(_ w.World) error {
 	item := tab.Items[itemIndex]
 
 	st.subState = craftSubStateWindow
-	st.windowMount = ui.NewMount[craftWindowProps]()
+	st.windowMount = hooks.NewMount[craftWindowProps]()
 	st.windowMount.SetProps(craftWindowProps{
 		RecipeName: item.RecipeName,
 	})
@@ -359,7 +359,7 @@ func (st *CraftMenuState) handleItemSelection(_ w.World) error {
 
 func (st *CraftMenuState) executeActionItem(world w.World) error {
 	windowProps := st.windowMount.GetProps()
-	actionIndex, ok := ui.GetState[int](st.windowMount, "craft_window_index")
+	actionIndex, ok := hooks.GetState[int](st.windowMount, "craft_window_index")
 	if !ok {
 		return fmt.Errorf("craft_window_indexの取得に失敗")
 	}
@@ -379,7 +379,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 		}
 		st.subState = craftSubStateMenu
 		st.subState = craftSubStateResult
-		st.resultMount = ui.NewMount[craftResultProps]()
+		st.resultMount = hooks.NewMount[craftResultProps]()
 		st.resultMount.SetProps(craftResultProps{
 			ResultEntity: *resultEntity,
 		})
@@ -396,7 +396,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 func (st *CraftMenuState) setupResultState() {
 	resultItems := []string{TextClose}
 
-	ui.UseState(st.resultMount.Store(), "craft_result_index", 0, func(v int, action inputmapper.ActionID) int {
+	hooks.UseState(st.resultMount.Store(), "craft_result_index", 0, func(v int, action inputmapper.ActionID) int {
 		switch action {
 		case inputmapper.ActionWindowUp:
 			if v > 0 {
@@ -421,8 +421,8 @@ func (st *CraftMenuState) setupResultState() {
 func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	tabIndex, _ := ui.GetState[int](st.menuMount, "craft_tabIndex")
-	itemIndex, _ := ui.GetState[int](st.menuMount, "craft_itemIndex")
+	tabIndex, _ := hooks.GetState[int](st.menuMount, "craft_tabIndex")
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "craft_itemIndex")
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
@@ -567,7 +567,7 @@ func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData,
 
 func (st *CraftMenuState) buildActionWindow(world w.World, windowProps craftWindowProps) *widget.Window {
 	res := world.Resources.UIResources
-	actionIndex, _ := ui.GetState[int](st.windowMount, "craft_window_index")
+	actionIndex, _ := hooks.GetState[int](st.windowMount, "craft_window_index")
 	actionItems := st.getActionItems(world, windowProps.RecipeName)
 
 	windowContainer := styled.NewWindowContainer(res)
@@ -586,7 +586,7 @@ func (st *CraftMenuState) buildActionWindow(world w.World, windowProps craftWind
 
 func (st *CraftMenuState) buildResultWindow(world w.World, resultProps craftResultProps) *widget.Window {
 	res := world.Resources.UIResources
-	resultIndex, _ := ui.GetState[int](st.resultMount, "craft_result_index")
+	resultIndex, _ := hooks.GetState[int](st.resultMount, "craft_result_index")
 	resultItems := []string{TextClose}
 
 	windowContainer := styled.NewWindowContainer(res)

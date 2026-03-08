@@ -9,10 +9,10 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -22,7 +22,7 @@ import (
 // StatusState はステータス画面のステート
 type StatusState struct {
 	es.BaseState[w.World]
-	mount  *ui.Mount[statusProps]
+	mount  *hooks.Mount[statusProps]
 	widget *ebitenui.UI
 }
 
@@ -43,7 +43,7 @@ func (st *StatusState) OnStop(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *StatusState) OnStart(_ w.World) error {
-	st.mount = ui.NewMount[statusProps]()
+	st.mount = hooks.NewMount[statusProps]()
 	return nil
 }
 
@@ -67,7 +67,7 @@ func (st *StatusState) Update(world w.World) (es.Transition[w.World], error) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(st.mount.Store(), "status", ui.TabMenuConfig{
+	hooks.UseTabMenu(st.mount.Store(), "status", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
@@ -265,8 +265,8 @@ func (st *StatusState) getHealthPartDescription(part gc.BodyPart) string {
 func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
-	tabIndex, _ := ui.GetState[int](st.mount, "status_tabIndex")
-	itemIndex, _ := ui.GetState[int](st.mount, "status_itemIndex")
+	tabIndex, _ := hooks.GetState[int](st.mount, "status_tabIndex")
+	itemIndex, _ := hooks.GetState[int](st.mount, "status_itemIndex")
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),

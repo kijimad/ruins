@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -92,27 +92,27 @@ func TestCharacterJobState_Navigation(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "job", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
 	state.menuMount.Update()
 
 	// 初期状態
-	itemIndex, ok := ui.GetState[int](state.menuMount, "job_itemIndex")
+	itemIndex, ok := hooks.GetState[int](state.menuMount, "job_itemIndex")
 	assert.True(t, ok)
 	assert.Equal(t, 0, itemIndex, "初期インデックスは0")
 
 	// 下に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
-	itemIndex, _ = ui.GetState[int](state.menuMount, "job_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "job_itemIndex")
 	assert.Equal(t, 1, itemIndex, "下移動後は1")
 
 	// 上に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
-	itemIndex, _ = ui.GetState[int](state.menuMount, "job_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "job_itemIndex")
 	assert.Equal(t, 0, itemIndex, "上移動後は0")
 }
 
@@ -125,7 +125,7 @@ func TestCharacterJobState_CircularNavigation(t *testing.T) {
 
 	props := state.fetchProps()
 	state.menuMount.SetProps(props)
-	ui.UseTabMenu(state.menuMount.Store(), "job", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
@@ -134,13 +134,13 @@ func TestCharacterJobState_CircularNavigation(t *testing.T) {
 	// 最初から上に移動すると最後に
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
-	itemIndex, _ := ui.GetState[int](state.menuMount, "job_itemIndex")
+	itemIndex, _ := hooks.GetState[int](state.menuMount, "job_itemIndex")
 	assert.Equal(t, 3, itemIndex, "循環して最後の項目に移動")
 
 	// 最後から下に移動すると最初に
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
-	itemIndex, _ = ui.GetState[int](state.menuMount, "job_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "job_itemIndex")
 	assert.Equal(t, 0, itemIndex, "循環して最初の項目に移動")
 }
 

@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -51,33 +51,33 @@ func TestStatusState_TabNavigation(t *testing.T) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(state.mount.Store(), "status", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.mount.Store(), "status", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
 	state.mount.Update()
 
 	// 初期状態
-	tabIndex, _ := ui.GetState[int](state.mount, "status_tabIndex")
+	tabIndex, _ := hooks.GetState[int](state.mount, "status_tabIndex")
 	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
 
 	// 右に移動
 	state.mount.Dispatch(inputmapper.ActionMenuRight)
-	tabIndex, _ = ui.GetState[int](state.mount, "status_tabIndex")
+	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
 	assert.Equal(t, 1, tabIndex, "右移動後は1")
 
 	// さらに右に移動
 	state.mount.Dispatch(inputmapper.ActionMenuRight)
-	tabIndex, _ = ui.GetState[int](state.mount, "status_tabIndex")
+	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
 	assert.Equal(t, 2, tabIndex, "右移動後は2")
 
 	// 循環して最初に戻る
 	state.mount.Dispatch(inputmapper.ActionMenuRight)
-	ui.UseTabMenu(state.mount.Store(), "status", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.mount.Store(), "status", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
-	tabIndex, _ = ui.GetState[int](state.mount, "status_tabIndex")
+	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
 	assert.Equal(t, 0, tabIndex, "循環して最初に戻る")
 }
 
@@ -95,24 +95,24 @@ func TestStatusState_ItemNavigation(t *testing.T) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(state.mount.Store(), "status", ui.TabMenuConfig{
+	hooks.UseTabMenu(state.mount.Store(), "status", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
 	state.mount.Update()
 
 	// 初期状態
-	itemIndex, _ := ui.GetState[int](state.mount, "status_itemIndex")
+	itemIndex, _ := hooks.GetState[int](state.mount, "status_itemIndex")
 	assert.Equal(t, 0, itemIndex, "初期アイテムインデックスは0")
 
 	// 下に移動
 	state.mount.Dispatch(inputmapper.ActionMenuDown)
-	itemIndex, _ = ui.GetState[int](state.mount, "status_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.mount, "status_itemIndex")
 	assert.Equal(t, 1, itemIndex, "下移動後は1")
 
 	// 上に移動
 	state.mount.Dispatch(inputmapper.ActionMenuUp)
-	itemIndex, _ = ui.GetState[int](state.mount, "status_itemIndex")
+	itemIndex, _ = hooks.GetState[int](state.mount, "status_itemIndex")
 	assert.Equal(t, 0, itemIndex, "上移動後は0")
 }
 

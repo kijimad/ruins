@@ -10,10 +10,10 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -34,9 +34,9 @@ const (
 type EquipMenuState struct {
 	es.BaseState[w.World]
 	subState    equipSubState
-	slotMount   *ui.Mount[slotScreenProps]   // スロット選択画面
-	windowMount *ui.Mount[windowScreenProps] // アクションウィンドウ
-	equipMount  *ui.Mount[equipScreenProps]  // 装備選択画面
+	slotMount   *hooks.Mount[slotScreenProps]   // スロット選択画面
+	windowMount *hooks.Mount[windowScreenProps] // アクションウィンドウ
+	equipMount  *hooks.Mount[equipScreenProps]  // 装備選択画面
 	widget      *ebitenui.UI
 }
 
@@ -58,9 +58,9 @@ func (st *EquipMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *EquipMenuState) OnStart(_ w.World) error {
 	st.subState = subStateSlotSelect
-	st.slotMount = ui.NewMount[slotScreenProps]()
-	st.windowMount = ui.NewMount[windowScreenProps]()
-	st.equipMount = ui.NewMount[equipScreenProps]()
+	st.slotMount = hooks.NewMount[slotScreenProps]()
+	st.windowMount = hooks.NewMount[windowScreenProps]()
+	st.equipMount = hooks.NewMount[equipScreenProps]()
 	return nil
 }
 
@@ -134,7 +134,7 @@ func (st *EquipMenuState) updateSubStateProps(world w.World) {
 		for i, tab := range props.Tabs {
 			itemCounts[i] = len(tab.Items)
 		}
-		ui.UseTabMenu(st.slotMount.Store(), "slot", ui.TabMenuConfig{
+		hooks.UseTabMenu(st.slotMount.Store(), "slot", hooks.TabMenuConfig{
 			TabCount:   len(props.Tabs),
 			ItemCounts: itemCounts,
 		})
@@ -143,7 +143,7 @@ func (st *EquipMenuState) updateSubStateProps(world w.World) {
 	case subStateEquipSelect:
 		st.equipMount.SetProps(st.fetchEquipProps(world))
 		props := st.equipMount.GetProps()
-		ui.UseTabMenu(st.equipMount.Store(), "equip", ui.TabMenuConfig{
+		hooks.UseTabMenu(st.equipMount.Store(), "equip", hooks.TabMenuConfig{
 			TabCount:   1,
 			ItemCounts: []int{len(props.Items)},
 		})
@@ -408,7 +408,7 @@ func (st *EquipMenuState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionItems := st.getActionItems(world, windowProps.SlotData)
 
-	ui.UseState(st.windowMount.Store(), "equip_window_index", 0, func(v int, action inputmapper.ActionID) int {
+	hooks.UseState(st.windowMount.Store(), "equip_window_index", 0, func(v int, action inputmapper.ActionID) int {
 		switch action {
 		case inputmapper.ActionWindowUp:
 			if v > 0 {
@@ -449,11 +449,11 @@ func (st *EquipMenuState) getActionItems(world w.World, item equipItemData) []st
 // handleSlotSelection はスロット選択画面での選択処理
 func (st *EquipMenuState) handleSlotSelection(_ w.World) error {
 	props := st.slotMount.GetProps()
-	tabIndex, ok := ui.GetState[int](st.slotMount, "slot_tabIndex")
+	tabIndex, ok := hooks.GetState[int](st.slotMount, "slot_tabIndex")
 	if !ok {
 		return fmt.Errorf("slot_tabIndexの取得に失敗")
 	}
-	itemIndex, ok := ui.GetState[int](st.slotMount, "slot_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.slotMount, "slot_itemIndex")
 	if !ok {
 		return fmt.Errorf("slot_itemIndexの取得に失敗")
 	}
@@ -468,7 +468,7 @@ func (st *EquipMenuState) handleSlotSelection(_ w.World) error {
 	item := tab.Items[itemIndex]
 
 	st.subState = subStateActionWindow
-	st.windowMount = ui.NewMount[windowScreenProps]()
+	st.windowMount = hooks.NewMount[windowScreenProps]()
 	st.windowMount.SetProps(windowScreenProps{
 		SlotData: item,
 	})
@@ -477,7 +477,7 @@ func (st *EquipMenuState) handleSlotSelection(_ w.World) error {
 
 func (st *EquipMenuState) executeActionItem(world w.World) error {
 	windowProps := st.windowMount.GetProps()
-	actionIndex, ok := ui.GetState[int](st.windowMount, "equip_window_index")
+	actionIndex, ok := hooks.GetState[int](st.windowMount, "equip_window_index")
 	if !ok {
 		return fmt.Errorf("equip_window_indexの取得に失敗")
 	}
@@ -493,7 +493,7 @@ func (st *EquipMenuState) executeActionItem(world w.World) error {
 	switch selectedAction {
 	case "装備する":
 		st.subState = subStateEquipSelect
-		st.equipMount = ui.NewMount[equipScreenProps]()
+		st.equipMount = hooks.NewMount[equipScreenProps]()
 		st.equipMount.SetProps(equipScreenProps{
 			SlotNumber:        slotData.SlotNumber,
 			PreviousEquipment: slotData.Entity,
@@ -512,7 +512,7 @@ func (st *EquipMenuState) executeActionItem(world w.World) error {
 
 func (st *EquipMenuState) handleEquipItemSelection(world w.World) error {
 	props := st.equipMount.GetProps()
-	itemIndex, ok := ui.GetState[int](st.equipMount, "equip_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.equipMount, "equip_itemIndex")
 	if !ok {
 		return fmt.Errorf("equip_itemIndexの取得に失敗")
 	}
@@ -554,15 +554,15 @@ func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
 	switch st.subState {
 	case subStateEquipSelect:
 		props := st.equipMount.GetProps()
-		itemIndex, _ := ui.GetState[int](st.equipMount, "equip_itemIndex")
+		itemIndex, _ := hooks.GetState[int](st.equipMount, "equip_itemIndex")
 		root.AddChild(st.buildEquipSelectContainer(props, itemIndex, res))
 		root.AddChild(widget.NewContainer())
 		root.AddChild(st.buildEquipDetailContainer(world, props, itemIndex, res))
 		root.AddChild(st.buildEquipDescContainer(world, props.Items, itemIndex, res))
 	default: // screenSlotSelect, screenActionWindow
 		slotProps := st.slotMount.GetProps()
-		tabIndex, _ := ui.GetState[int](st.slotMount, "slot_tabIndex")
-		itemIndex, _ := ui.GetState[int](st.slotMount, "slot_itemIndex")
+		tabIndex, _ := hooks.GetState[int](st.slotMount, "slot_tabIndex")
+		itemIndex, _ := hooks.GetState[int](st.slotMount, "slot_itemIndex")
 		root.AddChild(st.buildSlotContainer(slotProps.Tabs, tabIndex, itemIndex, res))
 		root.AddChild(widget.NewContainer())
 		root.AddChild(st.buildSlotDetailContainer(world, slotProps, tabIndex, itemIndex, res))
@@ -738,7 +738,7 @@ func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipIt
 
 func (st *EquipMenuState) buildActionWindow(world w.World, windowProps windowScreenProps) *widget.Window {
 	res := world.Resources.UIResources
-	actionIndex, _ := ui.GetState[int](st.windowMount, "equip_window_index")
+	actionIndex, _ := hooks.GetState[int](st.windowMount, "equip_window_index")
 	actionItems := st.getActionItems(world, windowProps.SlotData)
 
 	windowContainer := styled.NewWindowContainer(res)

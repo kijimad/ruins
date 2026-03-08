@@ -12,9 +12,9 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/ui"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -28,7 +28,7 @@ const (
 // CharacterNamingState はキャラクター名前入力画面のステート
 type CharacterNamingState struct {
 	es.BaseState[w.World]
-	mount  *ui.Mount[namingProps]
+	mount  *hooks.Mount[namingProps]
 	widget *ebitenui.UI
 }
 
@@ -54,7 +54,7 @@ func (st *CharacterNamingState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
 func (st *CharacterNamingState) OnStart(world w.World) error {
-	st.mount = ui.NewMount[namingProps]()
+	st.mount = hooks.NewMount[namingProps]()
 
 	// 既存プレイヤーの名前を初期値として設定
 	initialName := ""
@@ -80,7 +80,7 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	props := st.mount.GetProps()
 
 	// エラーメッセージの自動クリア
-	expired, _, resetTimer := ui.UseTimer(st.mount.Store(), "errorTimer", errorDisplayTime)
+	expired, _, resetTimer := hooks.UseTimer(st.mount.Store(), "errorTimer", errorDisplayTime)
 	if expired && props.ErrorMessage != "" {
 		st.mount.SetProps(namingProps{
 			CurrentName:  props.CurrentName,
@@ -90,7 +90,7 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	}
 
 	// TextInput から現在の値を同期
-	if textInput, ok := ui.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && textInput != nil {
+	if textInput, ok := hooks.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && textInput != nil {
 		currentText := textInput.GetText()
 		if currentText != props.CurrentName {
 			st.mount.SetProps(namingProps{
@@ -170,7 +170,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 			CurrentName:  props.CurrentName,
 			ErrorMessage: "名前は1〜10文字で入力してください",
 		})
-		_, startTimer, _ := ui.UseTimer(st.mount.Store(), "errorTimer", errorDisplayTime)
+		_, startTimer, _ := hooks.UseTimer(st.mount.Store(), "errorTimer", errorDisplayTime)
 		startTimer()
 		return es.Transition[w.World]{Type: es.TransNone}
 	}
@@ -238,7 +238,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	// テキスト入力を作成
-	textInput := ui.UseRef(st.mount.Store(), "textInput", func() *widget.TextInput {
+	textInput := hooks.UseRef(st.mount.Store(), "textInput", func() *widget.TextInput {
 		ti := widget.NewTextInput(
 			widget.TextInputOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.RowLayoutData{

@@ -10,9 +10,9 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -32,8 +32,8 @@ const (
 type ShopMenuState struct {
 	es.BaseState[w.World]
 	subState    shopSubState
-	menuMount   *ui.Mount[shopProps]
-	windowMount *ui.Mount[shopWindowProps]
+	menuMount   *hooks.Mount[shopProps]
+	windowMount *hooks.Mount[shopWindowProps]
 	widget      *ebitenui.UI
 }
 
@@ -55,8 +55,8 @@ func (st *ShopMenuState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *ShopMenuState) OnStart(_ w.World) error {
 	st.subState = shopSubStateMenu
-	st.menuMount = ui.NewMount[shopProps]()
-	st.windowMount = ui.NewMount[shopWindowProps]()
+	st.menuMount = hooks.NewMount[shopProps]()
+	st.windowMount = hooks.NewMount[shopWindowProps]()
 	return nil
 }
 
@@ -88,7 +88,7 @@ func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(st.menuMount.Store(), "shop", ui.TabMenuConfig{
+	hooks.UseTabMenu(st.menuMount.Store(), "shop", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
@@ -283,7 +283,7 @@ func (st *ShopMenuState) setupWindowState(world w.World) {
 	windowProps := st.windowMount.GetProps()
 	actionItems := st.getActionItems(world, windowProps.SelectedItem)
 
-	ui.UseState(st.windowMount.Store(), "shop_window_index", 0, func(v int, action inputmapper.ActionID) int {
+	hooks.UseState(st.windowMount.Store(), "shop_window_index", 0, func(v int, action inputmapper.ActionID) int {
 		switch action {
 		case inputmapper.ActionWindowUp:
 			if v > 0 {
@@ -327,11 +327,11 @@ func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []stri
 
 func (st *ShopMenuState) handleItemSelection(_ w.World) error {
 	props := st.menuMount.GetProps()
-	tabIndex, ok := ui.GetState[int](st.menuMount, "shop_tabIndex")
+	tabIndex, ok := hooks.GetState[int](st.menuMount, "shop_tabIndex")
 	if !ok {
 		return fmt.Errorf("shop_tabIndexの取得に失敗")
 	}
-	itemIndex, ok := ui.GetState[int](st.menuMount, "shop_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "shop_itemIndex")
 	if !ok {
 		return fmt.Errorf("shop_itemIndexの取得に失敗")
 	}
@@ -346,7 +346,7 @@ func (st *ShopMenuState) handleItemSelection(_ w.World) error {
 	item := tab.Items[itemIndex]
 
 	st.subState = shopSubStateWindow
-	st.windowMount = ui.NewMount[shopWindowProps]()
+	st.windowMount = hooks.NewMount[shopWindowProps]()
 	st.windowMount.SetProps(shopWindowProps{
 		SelectedItem: item,
 	})
@@ -355,7 +355,7 @@ func (st *ShopMenuState) handleItemSelection(_ w.World) error {
 
 func (st *ShopMenuState) executeActionItem(world w.World) error {
 	windowProps := st.windowMount.GetProps()
-	actionIndex, ok := ui.GetState[int](st.windowMount, "shop_window_index")
+	actionIndex, ok := hooks.GetState[int](st.windowMount, "shop_window_index")
 	if !ok {
 		return fmt.Errorf("shop_window_indexの取得に失敗")
 	}
@@ -391,8 +391,8 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	tabIndex, _ := ui.GetState[int](st.menuMount, "shop_tabIndex")
-	itemIndex, _ := ui.GetState[int](st.menuMount, "shop_itemIndex")
+	tabIndex, _ := hooks.GetState[int](st.menuMount, "shop_tabIndex")
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "shop_itemIndex")
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
@@ -413,15 +413,15 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(widget.NewContainer())
 	root.AddChild(widget.NewContainer())
 
-	ui := &ebitenui.UI{Container: root}
+	eui := &ebitenui.UI{Container: root}
 
 	// ウィンドウを追加
 	if st.subState == shopSubStateWindow {
 		actionWindow := st.buildActionWindow(world, st.windowMount.GetProps())
-		ui.AddWindow(actionWindow)
+		eui.AddWindow(actionWindow)
 	}
 
-	return ui
+	return eui
 }
 
 func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res *resources.UIResources) *widget.Container {
@@ -539,7 +539,7 @@ func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, t
 
 func (st *ShopMenuState) buildActionWindow(world w.World, windowProps shopWindowProps) *widget.Window {
 	res := world.Resources.UIResources
-	actionIndex, _ := ui.GetState[int](st.windowMount, "shop_window_index")
+	actionIndex, _ := hooks.GetState[int](st.windowMount, "shop_window_index")
 	actionItems := st.getActionItems(world, windowProps.SelectedItem)
 
 	windowContainer := styled.NewWindowContainer(res)

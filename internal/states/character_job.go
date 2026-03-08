@@ -10,8 +10,8 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -20,7 +20,7 @@ import (
 // CharacterJobState はキャラクター職業選択画面のステート
 type CharacterJobState struct {
 	es.BaseState[w.World]
-	menuMount  *ui.Mount[jobMenuProps]
+	menuMount  *hooks.Mount[jobMenuProps]
 	widget     *ebitenui.UI
 	playerName string // TODO: どうにかする。キャラメイクは複数のstateで構成され、前の決定事項を保持する必要がある...
 }
@@ -51,7 +51,7 @@ func (st *CharacterJobState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
 func (st *CharacterJobState) OnStart(_ w.World) error {
-	st.menuMount = ui.NewMount[jobMenuProps]()
+	st.menuMount = hooks.NewMount[jobMenuProps]()
 	return nil
 }
 
@@ -73,7 +73,7 @@ func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], erro
 	// Props更新
 	st.menuMount.SetProps(st.fetchProps())
 	props := st.menuMount.GetProps()
-	ui.UseTabMenu(st.menuMount.Store(), "job", ui.TabMenuConfig{
+	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
 		ItemCounts: []int{len(props.Items)},
 	})
@@ -138,7 +138,7 @@ func (st *CharacterJobState) fetchProps() jobMenuProps {
 
 func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
 	props := st.menuMount.GetProps()
-	itemIndex, ok := ui.GetState[int](st.menuMount, "job_itemIndex")
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "job_itemIndex")
 	if !ok {
 		return es.Transition[w.World]{}, fmt.Errorf("job_itemIndexの取得に失敗")
 	}
@@ -175,7 +175,7 @@ func (st *CharacterJobState) selectProfession(world w.World, prof Profession) {
 func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	itemIndex, _ := ui.GetState[int](st.menuMount, "job_itemIndex")
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "job_itemIndex")
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

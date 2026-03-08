@@ -1,4 +1,4 @@
-package ui
+package hooks
 
 // UseRef は再レンダリングしても値が保持される参照を提供する
 // React の useRef に相当する
