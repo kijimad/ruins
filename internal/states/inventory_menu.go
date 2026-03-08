@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -21,11 +22,20 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
+// inventorySubState はインベントリメニュー内のサブステート
+type inventorySubState int
+
+const (
+	invSubStateMenu   inventorySubState = iota // メニュー選択
+	invSubStateWindow                          // アクションウィンドウ
+)
+
 // InventoryMenuState はインベントリメニューのゲームステート
 type InventoryMenuState struct {
 	es.BaseState[w.World]
+	subState    inventorySubState
 	menuMount   *ui.Mount[inventoryProps]
-	windowMount *ui.Mount[windowProps] // アクションウィンドウ用
+	windowMount *ui.Mount[windowProps]
 	widget      *ebitenui.UI
 }
 
@@ -36,6 +46,7 @@ func (st InventoryMenuState) String() string {
 // State interface ================
 
 var _ es.State[w.World] = &InventoryMenuState{}
+var _ es.ActionHandler[w.World] = &InventoryMenuState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *InventoryMenuState) OnPause(_ w.World) error { return nil }
@@ -45,6 +56,7 @@ func (st *InventoryMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *InventoryMenuState) OnStart(_ w.World) error {
+	st.subState = invSubStateMenu
 	st.menuMount = ui.NewMount[inventoryProps]()
 	st.windowMount = ui.NewMount[windowProps]()
 	return nil
@@ -66,26 +78,18 @@ func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], err
 		}
 	}
 
-	// ウィンドウのPropsを設定
-	windowProps := st.windowMount.GetProps()
-
-	// キー入力をActionに変換
-	var action inputmapper.ActionID
-	var ok bool
-	if windowProps.Open {
-		action, ok = HandleWindowInput()
-	} else {
-		action, ok = HandleMenuInput()
-	}
-
-	if ok {
+	// 入力処理
+	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
 			return transition, nil
 		}
-		if !windowProps.Open {
+		switch st.subState {
+		case invSubStateMenu:
 			st.menuMount.Dispatch(action)
+		case invSubStateWindow:
+			st.windowMount.Dispatch(action)
 		}
 	}
 
@@ -105,7 +109,9 @@ func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], err
 	// ウィンドウ用のUseStateを登録
 	st.setupWindowState(world)
 
-	if st.menuMount.Update() || st.windowMount.Update() {
+	menuDirty := st.menuMount.Update()
+	windowDirty := st.windowMount.Update()
+	if menuDirty || windowDirty || st.widget == nil {
 		st.widget = st.buildUI(world)
 	}
 
@@ -141,42 +147,51 @@ func (st *InventoryMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 
 // ================
 
+// HandleInput はキー入力をActionに変換する
+func (st *InventoryMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+	switch st.subState {
+	case invSubStateMenu:
+		return HandleMenuInput()
+	case invSubStateWindow:
+		return HandleWindowInput()
+	}
+	return "", false
+}
+
 // DoAction はActionを実行する
 func (st *InventoryMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	windowProps := st.windowMount.GetProps()
-
-	// ウィンドウモード時のアクション処理
-	if windowProps.Open {
+	switch st.subState {
+	case invSubStateWindow:
 		switch action {
-		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-			st.windowMount.Dispatch(action)
-			return es.Transition[w.World]{Type: es.TransNone}, nil
 		case inputmapper.ActionWindowConfirm:
 			if err := st.executeActionItem(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
 		case inputmapper.ActionWindowCancel:
-			st.closeActionWindow()
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			st.subState = invSubStateMenu
+		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
+			// Dispatchで処理される
 		default:
-			return es.Transition[w.World]{}, fmt.Errorf("ウィンドウモード時の未知のアクション: %s", action)
+			return es.Transition[w.World]{}, fmt.Errorf("invSubStateWindow: 未対応のアクション: %s", action)
+		}
+
+	case invSubStateMenu:
+		switch action {
+		case inputmapper.ActionOpenDebugMenu:
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
+		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		case inputmapper.ActionMenuSelect:
+			if err := st.handleItemSelection(); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+			// Dispatchで処理される
+		default:
+			return es.Transition[w.World]{}, fmt.Errorf("invSubStateMenu: 未対応のアクション: %s", action)
 		}
 	}
-
-	switch action {
-	case inputmapper.ActionOpenDebugMenu:
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
-	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuSelect:
-		st.handleItemSelection()
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
-	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // ================
@@ -202,7 +217,6 @@ type inventoryItemData struct {
 
 // windowProps はアクションウィンドウ用のProps
 type windowProps struct {
-	Open           bool
 	SelectedEntity ecs.Entity
 }
 
@@ -317,8 +331,7 @@ func (st *InventoryMenuState) buildUI(world w.World) *ebitenui.UI {
 	result := &ebitenui.UI{Container: root}
 
 	// アクションウィンドウが開いている場合は追加
-	windowProps := st.windowMount.GetProps()
-	if windowProps.Open {
+	if st.subState == invSubStateWindow {
 		actionWindow := st.buildActionWindow(world, res)
 		result.AddWindow(actionWindow)
 	}
@@ -398,36 +411,31 @@ func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabInd
 // アクションウィンドウ
 // ================
 
-func (st *InventoryMenuState) handleItemSelection() {
+func (st *InventoryMenuState) handleItemSelection() error {
 	props := st.menuMount.GetProps()
-	tabIndex, _ := ui.GetState[int](st.menuMount, "inventory_tabIndex")
-	itemIndex, _ := ui.GetState[int](st.menuMount, "inventory_itemIndex")
+	tabIndex, ok := ui.GetState[int](st.menuMount, "inventory_tabIndex")
+	if !ok {
+		return fmt.Errorf("inventory_tabIndexの取得に失敗")
+	}
+	itemIndex, ok := ui.GetState[int](st.menuMount, "inventory_itemIndex")
+	if !ok {
+		return fmt.Errorf("inventory_itemIndexの取得に失敗")
+	}
 
 	if tabIndex >= len(props.Tabs) {
-		return
+		return nil
 	}
 	if itemIndex >= len(props.Tabs[tabIndex].Items) {
-		return
+		return nil
 	}
 
 	item := props.Tabs[tabIndex].Items[itemIndex]
-	st.openActionWindow(item.Entity)
-}
-
-func (st *InventoryMenuState) openActionWindow(entity ecs.Entity) {
-	// windowMountを再作成して状態をリセット
+	st.subState = invSubStateWindow
 	st.windowMount = ui.NewMount[windowProps]()
 	st.windowMount.SetProps(windowProps{
-		Open:           true,
-		SelectedEntity: entity,
+		SelectedEntity: item.Entity,
 	})
-}
-
-func (st *InventoryMenuState) closeActionWindow() {
-	st.windowMount.SetProps(windowProps{
-		Open:           false,
-		SelectedEntity: 0,
-	})
+	return nil
 }
 
 // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す
@@ -470,7 +478,10 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 	windowProps := st.windowMount.GetProps()
 	entity := windowProps.SelectedEntity
 
-	focusIndex, _ := ui.GetState[int](st.windowMount, "focusIndex")
+	focusIndex, ok := ui.GetState[int](st.windowMount, "focusIndex")
+	if !ok {
+		return fmt.Errorf("focusIndexの取得に失敗")
+	}
 
 	actions := st.getActionItems(world, entity)
 	if focusIndex >= len(actions) {
@@ -483,7 +494,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 	case "使う":
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
-			st.closeActionWindow()
+			st.subState = invSubStateMenu
 			return err
 		}
 
@@ -493,15 +504,15 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 		_, err = activity.Execute(&activity.UseItemActivity{}, params, world)
 		if err != nil {
-			st.closeActionWindow()
+			st.subState = invSubStateMenu
 			return err
 		}
 
-		st.closeActionWindow()
+		st.subState = invSubStateMenu
 	case "捨てる":
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
-			st.closeActionWindow()
+			st.subState = invSubStateMenu
 			return err
 		}
 
@@ -511,13 +522,13 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 		_, err = activity.Execute(&activity.DropActivity{}, params, world)
 		if err != nil {
-			st.closeActionWindow()
+			st.subState = invSubStateMenu
 			return err
 		}
 
-		st.closeActionWindow()
+		st.subState = invSubStateMenu
 	case TextClose:
-		st.closeActionWindow()
+		st.subState = invSubStateMenu
 	}
 
 	return nil

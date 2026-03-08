@@ -3,7 +3,6 @@ package states
 import (
 	"fmt"
 	"image/color"
-	"log"
 	"sort"
 
 	"github.com/ebitenui/ebitenui"
@@ -13,42 +12,33 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/ui"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
+// craftSubState はクラフトメニュー内のサブステート
+type craftSubState int
+
+const (
+	craftSubStateMenu   craftSubState = iota // メニュー選択
+	craftSubStateWindow                      // アクションウィンドウ
+	craftSubStateResult                      // 結果表示
+)
+
 // CraftMenuState はクラフトメニューのゲームステート
 type CraftMenuState struct {
 	es.BaseState[w.World]
-	ui *ebitenui.UI
-
-	menuView            *tabmenu.View
-	selectedItem        string            // 選択中のレシピ名
-	itemDesc            *widget.Text      // アイテムの概要
-	specContainer       *widget.Container // 性能表示のコンテナ
-	recipeList          *widget.Container // レシピリストのコンテナ
-	resultWindow        *widget.Window    // 合成結果ウィンドウ
-	rootContainer       *widget.Container
-	tabDisplayContainer *widget.Container // タブ表示のコンテナ
-	categoryContainer   *widget.Container // カテゴリ一覧のコンテナ
-
-	// アクション選択ウィンドウ用
-	actionWindow     *widget.Window // アクション選択ウィンドウ
-	actionFocusIndex int            // アクションウィンドウ内のフォーカス
-	actionItems      []string       // アクション項目リスト
-	isWindowMode     bool           // ウィンドウ操作モードかどうか
-
-	// 結果ウィンドウ用
-	resultFocusIndex int        // 結果ウィンドウ内のフォーカス
-	resultItems      []string   // 結果ウィンドウの項目リスト
-	resultEntity     ecs.Entity // 生成された結果アイテムのエンティティ
-	isResultMode     bool       // 結果ウィンドウ操作モードかどうか
+	subState    craftSubState
+	menuMount   *ui.Mount[craftProps]
+	windowMount *ui.Mount[craftWindowProps]
+	resultMount *ui.Mount[craftResultProps]
+	widget      *ebitenui.UI
 }
 
 func (st CraftMenuState) String() string {
@@ -67,8 +57,11 @@ func (st *CraftMenuState) OnPause(_ w.World) error { return nil }
 func (st *CraftMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
-func (st *CraftMenuState) OnStart(world w.World) error {
-	st.ui = st.initUI(world)
+func (st *CraftMenuState) OnStart(_ w.World) error {
+	st.subState = craftSubStateMenu
+	st.menuMount = ui.NewMount[craftProps]()
+	st.windowMount = ui.NewMount[craftWindowProps]()
+	st.resultMount = ui.NewMount[craftResultProps]()
 	return nil
 }
 
@@ -77,293 +70,179 @@ func (st *CraftMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// キー入力をActionに変換
-	var action inputmapper.ActionID
-	var ok bool
-	if st.isWindowMode || st.isResultMode {
-		action, ok = HandleWindowInput()
-	} else {
-		action, ok = st.HandleInput(world.Config)
-	}
-
-	if ok {
+	// 入力処理
+	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
 			return transition, nil
 		}
-	}
-
-	// アクションウィンドウまたは結果ウィンドウ表示中はTabMenuの更新をスキップ
-	if !st.isWindowMode && !st.isResultMode {
-		if err := st.menuView.Update(); err != nil {
-			return es.Transition[w.World]{}, err
+		switch st.subState {
+		case craftSubStateMenu:
+			st.menuMount.Dispatch(action)
+		case craftSubStateWindow:
+			st.windowMount.Dispatch(action)
+		case craftSubStateResult:
+			st.resultMount.Dispatch(action)
 		}
 	}
-	st.ui.Update()
 
+	props := st.fetchProps(world)
+	st.menuMount.SetProps(props)
+
+	// UseTabMenuでreducerを登録・更新
+	itemCounts := make([]int, len(props.Tabs))
+	for i, tab := range props.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+	ui.UseTabMenu(st.menuMount.Store(), "craft", ui.TabMenuConfig{
+		TabCount:   len(props.Tabs),
+		ItemCounts: itemCounts,
+	})
+
+	// ウィンドウ用のステート
+	st.setupWindowState(world)
+	st.setupResultState()
+
+	// 短絡評価を避け、全てのmountのdirtyフラグをクリアする
+	menuDirty := st.menuMount.Update()
+	windowDirty := st.windowMount.Update()
+	resultDirty := st.resultMount.Update()
+	if menuDirty || windowDirty || resultDirty || st.widget == nil {
+		st.widget = st.buildUI(world)
+	}
+
+	st.widget.Update()
 	return st.ConsumeTransition(), nil
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *CraftMenuState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.ui.Draw(screen)
+	st.widget.Draw(screen)
 	return nil
 }
 
-// ================
-
 // HandleInput はキー入力をActionに変換する
 func (st *CraftMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionMenuCancel, true
+	switch st.subState {
+	case craftSubStateMenu:
+		return HandleMenuInput()
+	case craftSubStateWindow, craftSubStateResult:
+		return HandleWindowInput()
 	}
-
 	return "", false
 }
 
 // DoAction はActionを実行する
 func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	// ウィンドウモード時のアクション処理
-	if st.isWindowMode {
+	switch st.subState {
+	case craftSubStateResult:
 		switch action {
+		case inputmapper.ActionWindowConfirm, inputmapper.ActionWindowCancel:
+			st.subState = craftSubStateMenu
 		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-			if UpdateFocusIndex(action, &st.actionFocusIndex, len(st.actionItems)) {
-				st.updateActionWindowDisplay(world)
-			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			// Dispatchで処理される
+		default:
+			return es.Transition[w.World]{}, fmt.Errorf("craftSubStateResult: 未対応のアクション: %s", action)
+		}
+
+	case craftSubStateWindow:
+		switch action {
 		case inputmapper.ActionWindowConfirm:
 			if err := st.executeActionItem(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
 		case inputmapper.ActionWindowCancel:
-			st.closeActionWindow()
-			return es.Transition[w.World]{Type: es.TransNone}, nil
-		default:
-			return es.Transition[w.World]{}, fmt.Errorf("ウィンドウモード時の未知のアクション: %s", action)
-		}
-	}
-
-	// 結果ウィンドウモード時のアクション処理
-	if st.isResultMode {
-		switch action {
+			st.subState = craftSubStateMenu
 		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-			if UpdateFocusIndex(action, &st.resultFocusIndex, len(st.resultItems)) {
-				st.updateResultWindowDisplay(world)
-			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
-		case inputmapper.ActionWindowConfirm:
-			st.executeResultItem(world)
-			return es.Transition[w.World]{Type: es.TransNone}, nil
-		case inputmapper.ActionWindowCancel:
-			st.closeResultWindow()
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			// Dispatchで処理される
 		default:
-			return es.Transition[w.World]{}, fmt.Errorf("結果ウィンドウモード時の未知のアクション: %s", action)
+			return es.Transition[w.World]{}, fmt.Errorf("craftSubStateWindow: 未対応のアクション: %s", action)
+		}
+
+	case craftSubStateMenu:
+		switch action {
+		case inputmapper.ActionOpenDebugMenu:
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
+		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		case inputmapper.ActionMenuSelect:
+			if err := st.handleItemSelection(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+			// Dispatchで処理される
+		default:
+			return es.Transition[w.World]{}, fmt.Errorf("craftSubStateMenu: 未対応のアクション: %s", action)
 		}
 	}
-
-	switch action {
-	case inputmapper.ActionOpenDebugMenu:
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
-	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		return es.Transition[w.World]{Type: es.TransPop}, nil
-	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
-	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // ================
+// Props
+// ================
 
-func (st *CraftMenuState) initUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-
-	// TabMenuの設定
-	tabs := st.createTabs(world)
-	config := tabmenu.Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-		ItemsPerPage:     20,
-	}
-
-	callbacks := tabmenu.Callbacks{
-		OnSelectItem: func(_ int, _ int, tab tabmenu.TabItem, item tabmenu.Item) error {
-			return st.handleItemSelection(world, tab, item)
-		},
-		OnCancel: func() {
-			// Escapeで前の画面に戻る
-			st.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		},
-		OnTabChange: func(_, _ int, _ tabmenu.TabItem) {
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-			st.updateCategoryDisplay(world)
-		},
-		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
-			if err := st.handleItemChange(world, item); err != nil {
-				return err
-			}
-			st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-			return nil
-		},
-	}
-
-	st.menuView = tabmenu.NewView(config, callbacks, world)
-
-	// アイテムの説明文
-	itemDescContainer := styled.NewRowContainer()
-	st.itemDesc = styled.NewMenuText(" ", world.Resources.UIResources) // 空文字だと初期状態の縦サイズがなくなる
-	itemDescContainer.AddChild(st.itemDesc)
-
-	st.specContainer = styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-	st.recipeList = styled.NewVerticalContainer()
-
-	// 初期状態の表示を更新
-	if err := st.updateInitialItemDisplay(world); err != nil {
-		log.Fatalf("Failed to update initial item display: %v", err)
-	}
-
-	// タブ表示のコンテナを作成
-	st.tabDisplayContainer = styled.NewVerticalContainer()
-	st.createTabDisplayUI(world)
-
-	// カテゴリ一覧のコンテナを作成（横並び）
-	st.categoryContainer = styled.NewRowContainer()
-	st.createCategoryDisplayUI(world)
-
-	st.rootContainer = styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-	{
-		// 3x3グリッドレイアウト: 9個の要素が必要
-		// 1行目
-		st.rootContainer.AddChild(styled.NewTitleText("合成", world.Resources.UIResources))
-		st.rootContainer.AddChild(st.categoryContainer) // カテゴリ一覧の表示
-		st.rootContainer.AddChild(widget.NewContainer())
-
-		// 2行目
-		st.rootContainer.AddChild(st.tabDisplayContainer) // タブとアイテム一覧の表示
-		st.rootContainer.AddChild(widget.NewContainer())
-		st.rootContainer.AddChild(styled.NewVSplitContainer(st.specContainer, st.recipeList))
-
-		// 3行目
-		st.rootContainer.AddChild(itemDescContainer)
-		st.rootContainer.AddChild(widget.NewContainer()) // 空
-		st.rootContainer.AddChild(widget.NewContainer()) // 空
-	}
-
-	return &ebitenui.UI{Container: st.rootContainer}
+type craftProps struct {
+	Tabs []craftTabData
 }
 
-// createTabs はTabMenuで使用するタブを作成する
-func (st *CraftMenuState) createTabs(world w.World) []tabmenu.TabItem {
-	tabs := []tabmenu.TabItem{
-		{
-			ID:    "consumables",
-			Label: "道具",
-			Items: st.createMenuItems(world, st.queryMenuConsumable(world)),
-		},
-		{
-			ID:    "weapons",
-			Label: "武器",
-			Items: st.createMenuItems(world, st.queryMenuWeapon(world)),
-		},
-		{
-			ID:    "wearables",
-			Label: "装備",
-			Items: st.createMenuItems(world, st.queryMenuWearable(world)),
-		},
-	}
-
-	return tabs
+type craftTabData struct {
+	ID    string
+	Label string
+	Items []craftItemData
 }
 
-// createMenuItems はレシピ名リストをMenuItemに変換する
-func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) []tabmenu.Item {
-	items := make([]tabmenu.Item, len(recipeNames))
+type craftItemData struct {
+	RecipeName string
+	CanCraft   bool
+}
+
+type craftWindowProps struct {
+	RecipeName string
+}
+
+type craftResultProps struct {
+	ResultEntity ecs.Entity
+}
+
+func (st *CraftMenuState) fetchProps(world w.World) craftProps {
+	return craftProps{
+		Tabs: st.createTabs(world),
+	}
+}
+
+func (st *CraftMenuState) createTabs(world w.World) []craftTabData {
+	return []craftTabData{
+		{ID: "consumables", Label: "道具", Items: st.createMenuItems(world, st.queryMenuConsumable(world))},
+		{ID: "weapons", Label: "武器", Items: st.createMenuItems(world, st.queryMenuWeapon(world))},
+		{ID: "wearables", Label: "装備", Items: st.createMenuItems(world, st.queryMenuWearable(world))},
+	}
+}
+
+func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) []craftItemData {
+	items := make([]craftItemData, len(recipeNames))
 
 	for i, recipeName := range recipeNames {
 		canCraft, _ := worldhelper.CanCraft(world, recipeName)
-
-		items[i] = tabmenu.Item{
-			ID:       fmt.Sprintf("recipe_%s", recipeName),
-			Label:    recipeName,
-			UserData: recipeName,
-			Disabled: !canCraft, // 合成不可能な場合はDisabled
+		items[i] = craftItemData{
+			RecipeName: recipeName,
+			CanCraft:   canCraft,
 		}
 	}
 
 	return items
 }
 
-// handleItemSelection はアイテム選択時の処理
-func (st *CraftMenuState) handleItemSelection(world w.World, _ tabmenu.TabItem, item tabmenu.Item) error {
-	recipeName, ok := item.UserData.(string)
-	if !ok {
-		return fmt.Errorf("unexpected item UserData")
-	}
-
-	st.selectedItem = recipeName
-	st.showActionWindow(world, recipeName)
-	return nil
-}
-
-// handleItemChange はアイテム変更時の処理（カーソル移動）
-func (st *CraftMenuState) handleItemChange(world w.World, item tabmenu.Item) error {
-	// 無効なアイテムの場合は何もしない
-	if item.UserData == nil {
-		st.itemDesc.Label = " "
-		st.specContainer.RemoveChildren()
-		st.recipeList.RemoveChildren()
-		return nil
-	}
-
-	recipeName, ok := item.UserData.(string)
-	if !ok {
-		return fmt.Errorf("unexpected item UserData")
-	}
-
-	// RawMasterからEntitySpecを取得
-	rawMaster := world.Resources.RawMaster
-	spec, err := rawMaster.NewRecipeSpec(recipeName)
-	if err != nil {
-		st.itemDesc.Label = TextNoDescription
-		st.specContainer.RemoveChildren()
-		st.recipeList.RemoveChildren()
-		return err
-	}
-
-	// Descriptionを取得
-	if spec.Description != nil {
-		st.itemDesc.Label = spec.Description.Description
-	} else {
-		st.itemDesc.Label = TextNoDescription
-	}
-
-	// EntitySpecから性能表示を更新
-	views.UpdateSpecFromSpec(world, st.specContainer, spec)
-	if err := st.updateRecipeList(world, spec.Recipe); err != nil {
-		return err
-	}
-	return nil
-}
-
 func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 	rawMaster := world.Resources.RawMaster
 	var items []string
 
-	// 全レシピから消耗品を抽出
 	for recipeName := range rawMaster.RecipeIndex {
 		spec, err := rawMaster.NewRecipeSpec(recipeName)
 		if err != nil {
 			continue
 		}
-		// 消耗品
 		if spec.Consumable != nil {
 			items = append(items, recipeName)
 		}
@@ -377,7 +256,6 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 	rawMaster := world.Resources.RawMaster
 	var items []string
 
-	// 全レシピから武器を抽出
 	for recipeName := range rawMaster.RecipeIndex {
 		spec, err := rawMaster.NewRecipeSpec(recipeName)
 		if err != nil {
@@ -396,7 +274,6 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 	rawMaster := world.Resources.RawMaster
 	var items []string
 
-	// 全レシピから装備品を抽出
 	for recipeName := range rawMaster.RecipeIndex {
 		spec, err := rawMaster.NewRecipeSpec(recipeName)
 		if err != nil {
@@ -411,67 +288,245 @@ func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
 	return items
 }
 
-// showResultWindow は合成結果ウィンドウを表示する
-func (st *CraftMenuState) showResultWindow(world w.World, entity ecs.Entity) {
-	windowContainer := styled.NewWindowContainer(world.Resources.UIResources)
-	titleContainer := styled.NewWindowHeaderContainer("合成結果", world.Resources.UIResources)
-	st.resultWindow = styled.NewSmallWindow(titleContainer, windowContainer)
+// ================
+// Action Window
+// ================
 
-	// 結果項目を準備
-	st.resultItems = []string{TextClose}
-	st.resultFocusIndex = 0
-	st.resultEntity = entity // 生成されたアイテムのエンティティを保存
-	st.isResultMode = true
+func (st *CraftMenuState) setupWindowState(world w.World) {
+	windowProps := st.windowMount.GetProps()
+	actionItems := st.getActionItems(world, windowProps.RecipeName)
 
-	// UI要素を作成（表示のみ、操作はキーボードで行う）
-	st.createResultWindowUI(world, windowContainer, entity)
-
-	st.resultWindow.SetLocation(getCenterWinRect(world))
-	st.ui.AddWindow(st.resultWindow)
+	ui.UseState(st.windowMount.Store(), "craft_window_index", 0, func(v int, action inputmapper.ActionID) int {
+		switch action {
+		case inputmapper.ActionWindowUp:
+			if v > 0 {
+				return v - 1
+			}
+			return len(actionItems) - 1
+		case inputmapper.ActionWindowDown:
+			if v < len(actionItems)-1 {
+				return v + 1
+			}
+			return 0
+		default:
+			return v
+		}
+	})
 }
 
-// createResultWindowUI は結果ウィンドウのUI要素を作成する
-func (st *CraftMenuState) createResultWindowUI(world w.World, container *widget.Container, entity ecs.Entity) {
-	// アイテム詳細を表示
-	views.UpdateSpec(world, container, entity)
+func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []string {
+	if recipeName == "" {
+		return []string{TextClose}
+	}
 
-	st.updateResultWindowDisplay(world)
+	actionItems := []string{}
+
+	if canCraft, _ := worldhelper.CanCraft(world, recipeName); canCraft {
+		actionItems = append(actionItems, "合成する")
+	}
+	actionItems = append(actionItems, TextClose)
+
+	return actionItems
 }
 
-// updateResultWindowDisplay は結果ウィンドウの表示を更新する
-func (st *CraftMenuState) updateResultWindowDisplay(world w.World) {
-	if st.resultWindow == nil {
-		return
+func (st *CraftMenuState) handleItemSelection(_ w.World) error {
+	props := st.menuMount.GetProps()
+	tabIndex, ok := ui.GetState[int](st.menuMount, "craft_tabIndex")
+	if !ok {
+		return fmt.Errorf("craft_tabIndexの取得に失敗")
+	}
+	itemIndex, ok := ui.GetState[int](st.menuMount, "craft_itemIndex")
+	if !ok {
+		return fmt.Errorf("craft_itemIndexの取得に失敗")
 	}
 
-	// 既存のウィンドウを閉じて新しく作成
-	st.resultWindow.Close()
-
-	windowContainer := styled.NewWindowContainer(world.Resources.UIResources)
-	titleContainer := styled.NewWindowHeaderContainer("合成結果", world.Resources.UIResources)
-	st.resultWindow = styled.NewSmallWindow(titleContainer, windowContainer)
-
-	// アイテム詳細を表示（生成されたアイテムの値を使用）
-	views.UpdateSpec(world, windowContainer, st.resultEntity)
-
-	// ボタン項目を表示
-	for i, action := range st.resultItems {
-		isSelected := i == st.resultFocusIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, world.Resources.UIResources)
-		windowContainer.AddChild(actionWidget)
+	if tabIndex >= len(props.Tabs) {
+		return nil
 	}
+	tab := props.Tabs[tabIndex]
+	if itemIndex >= len(tab.Items) {
+		return nil
+	}
+	item := tab.Items[itemIndex]
 
-	st.resultWindow.SetLocation(getCenterWinRect(world))
-	st.ui.AddWindow(st.resultWindow)
+	st.subState = craftSubStateWindow
+	st.windowMount = ui.NewMount[craftWindowProps]()
+	st.windowMount.SetProps(craftWindowProps{
+		RecipeName: item.RecipeName,
+	})
+	return nil
 }
 
-func (st *CraftMenuState) updateRecipeList(world w.World, recipe *gc.Recipe) error {
-	st.recipeList.RemoveChildren()
+func (st *CraftMenuState) executeActionItem(world w.World) error {
+	windowProps := st.windowMount.GetProps()
+	actionIndex, ok := ui.GetState[int](st.windowMount, "craft_window_index")
+	if !ok {
+		return fmt.Errorf("craft_window_indexの取得に失敗")
+	}
+	actionItems := st.getActionItems(world, windowProps.RecipeName)
 
-	if recipe == nil {
-		return fmt.Errorf("recipeがnilです")
+	if actionIndex >= len(actionItems) {
+		return nil
 	}
 
+	selectedAction := actionItems[actionIndex]
+
+	switch selectedAction {
+	case "合成する":
+		resultEntity, err := worldhelper.Craft(world, windowProps.RecipeName)
+		if err != nil {
+			return err
+		}
+		st.subState = craftSubStateMenu
+		st.subState = craftSubStateResult
+		st.resultMount = ui.NewMount[craftResultProps]()
+		st.resultMount.SetProps(craftResultProps{
+			ResultEntity: *resultEntity,
+		})
+	case TextClose:
+		st.subState = craftSubStateMenu
+	}
+	return nil
+}
+
+// ================
+// Result Window
+// ================
+
+func (st *CraftMenuState) setupResultState() {
+	resultItems := []string{TextClose}
+
+	ui.UseState(st.resultMount.Store(), "craft_result_index", 0, func(v int, action inputmapper.ActionID) int {
+		switch action {
+		case inputmapper.ActionWindowUp:
+			if v > 0 {
+				return v - 1
+			}
+			return len(resultItems) - 1
+		case inputmapper.ActionWindowDown:
+			if v < len(resultItems)-1 {
+				return v + 1
+			}
+			return 0
+		default:
+			return v
+		}
+	})
+}
+
+// ================
+// buildUI
+// ================
+
+func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
+	res := world.Resources.UIResources
+	props := st.menuMount.GetProps()
+	tabIndex, _ := ui.GetState[int](st.menuMount, "craft_tabIndex")
+	itemIndex, _ := ui.GetState[int](st.menuMount, "craft_itemIndex")
+
+	root := styled.NewItemGridContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+
+	// 1行目: タイトル、カテゴリ、空
+	root.AddChild(styled.NewTitleText("合成", res))
+	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
+	root.AddChild(widget.NewContainer())
+
+	// 2行目: アイテム一覧、空、性能+レシピ表示
+	root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
+	root.AddChild(widget.NewContainer())
+	root.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
+
+	// 3行目: 説明文
+	root.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))
+	root.AddChild(widget.NewContainer())
+	root.AddChild(widget.NewContainer())
+
+	eui := &ebitenui.UI{Container: root}
+
+	// ウィンドウを追加
+	switch st.subState {
+	case craftSubStateMenu:
+		// ウィンドウなし
+	case craftSubStateWindow:
+		actionWindow := st.buildActionWindow(world, st.windowMount.GetProps())
+		eui.AddWindow(actionWindow)
+	case craftSubStateResult:
+		resultWindow := st.buildResultWindow(world, st.resultMount.GetProps())
+		eui.AddWindow(resultWindow)
+	}
+
+	return eui
+}
+
+func (st *CraftMenuState) buildCategoryContainer(tabs []craftTabData, tabIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	for i, tab := range tabs {
+		isSelected := i == tabIndex
+		color := consts.ForegroundColor
+		if isSelected {
+			color = consts.TextColor
+		}
+		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
+	}
+	return container
+}
+
+func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer()
+	if tabIndex >= len(tabs) {
+		return container
+	}
+
+	currentTab := tabs[tabIndex]
+	columnWidths := []int{20, 180}
+
+	table := styled.NewTableContainer(columnWidths, res)
+	for i, item := range currentTab.Items {
+		isSelected := i == itemIndex
+		styled.NewTableRow(table, columnWidths, []string{"", item.RecipeName}, nil, &isSelected, res)
+	}
+	container.AddChild(table)
+
+	if len(currentTab.Items) == 0 {
+		container.AddChild(styled.NewDescriptionText("(レシピなし)", res))
+	}
+
+	return container
+}
+
+func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+	specContainer := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+	recipeContainer := styled.NewVerticalContainer()
+
+	if tabIndex >= len(props.Tabs) {
+		return styled.NewVSplitContainer(specContainer, recipeContainer)
+	}
+	tab := props.Tabs[tabIndex]
+	if itemIndex >= len(tab.Items) {
+		return styled.NewVSplitContainer(specContainer, recipeContainer)
+	}
+	item := tab.Items[itemIndex]
+
+	// 性能表示
+	rawMaster := world.Resources.RawMaster
+	spec, err := rawMaster.NewRecipeSpec(item.RecipeName)
+	if err == nil {
+		views.UpdateSpecFromSpec(world, specContainer, spec)
+	}
+
+	// レシピ表示
+	if err == nil && spec.Recipe != nil {
+		st.buildRecipeList(world, recipeContainer, spec.Recipe, res)
+	}
+
+	return styled.NewVSplitContainer(specContainer, recipeContainer)
+}
+
+func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res *resources.UIResources) {
 	for _, input := range recipe.Inputs {
 		var currentAmount int
 		if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found {
@@ -479,194 +534,75 @@ func (st *CraftMenuState) updateRecipeList(world w.World, recipe *gc.Recipe) err
 			currentAmount = item.Count
 		}
 		str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
-		var color color.RGBA
+		var textColor color.RGBA
 		if currentAmount >= input.Amount {
-			color = consts.SuccessColor
+			textColor = consts.SuccessColor
 		} else {
-			color = consts.DangerColor
+			textColor = consts.DangerColor
 		}
 
-		st.recipeList.AddChild(styled.NewBodyText(str, color, world.Resources.UIResources))
+		container.AddChild(styled.NewBodyText(str, textColor, res))
 	}
-	return nil
 }
 
-// showActionWindow はアクションウィンドウを表示する
-func (st *CraftMenuState) showActionWindow(world w.World, recipeName string) {
-	windowContainer := styled.NewWindowContainer(world.Resources.UIResources)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", world.Resources.UIResources)
-	st.actionWindow = styled.NewSmallWindow(titleContainer, windowContainer)
+func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	desc := " "
 
-	// アクション項目を準備
-	st.actionItems = []string{}
-	st.selectedItem = recipeName
-
-	// 合成可能かチェック
-	if canCraft, _ := worldhelper.CanCraft(world, recipeName); canCraft {
-		st.actionItems = append(st.actionItems, "合成する")
+	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
+		item := tabs[tabIndex].Items[itemIndex]
+		rawMaster := world.Resources.RawMaster
+		spec, err := rawMaster.NewRecipeSpec(item.RecipeName)
+		if err == nil && spec.Description != nil {
+			desc = spec.Description.Description
+		}
 	}
-	st.actionItems = append(st.actionItems, TextClose)
 
-	st.actionFocusIndex = 0
-	st.isWindowMode = true
-
-	// UI要素を作成（表示のみ、操作はキーボードで行う）
-	st.updateActionWindowDisplay(world)
-
-	st.actionWindow.SetLocation(getCenterWinRect(world))
-	st.ui.AddWindow(st.actionWindow)
+	if desc == "" {
+		desc = " "
+	}
+	container.AddChild(styled.NewMenuText(desc, res))
+	return container
 }
 
-// updateActionWindowDisplay はアクションウィンドウの表示を更新する
-func (st *CraftMenuState) updateActionWindowDisplay(world w.World) {
-	if st.actionWindow == nil {
-		return
-	}
+func (st *CraftMenuState) buildActionWindow(world w.World, windowProps craftWindowProps) *widget.Window {
+	res := world.Resources.UIResources
+	actionIndex, _ := ui.GetState[int](st.windowMount, "craft_window_index")
+	actionItems := st.getActionItems(world, windowProps.RecipeName)
 
-	// 既存のウィンドウを閉じて新しく作成
-	st.actionWindow.Close()
+	windowContainer := styled.NewWindowContainer(res)
+	titleContainer := styled.NewWindowHeaderContainer("アクション選択", res)
+	window := styled.NewSmallWindow(titleContainer, windowContainer)
 
-	windowContainer := styled.NewWindowContainer(world.Resources.UIResources)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", world.Resources.UIResources)
-	st.actionWindow = styled.NewSmallWindow(titleContainer, windowContainer)
-
-	// アクション項目を表示
-	for i, action := range st.actionItems {
-		isSelected := i == st.actionFocusIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, world.Resources.UIResources)
+	for i, action := range actionItems {
+		isSelected := i == actionIndex
+		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 
-	st.actionWindow.SetLocation(getCenterWinRect(world))
-	st.ui.AddWindow(st.actionWindow)
+	window.SetLocation(getCenterWinRect(world))
+	return window
 }
 
-// closeActionWindow はアクションウィンドウを閉じる
-func (st *CraftMenuState) closeActionWindow() {
-	if st.actionWindow != nil {
-		st.actionWindow.Close()
-		st.actionWindow = nil
-	}
-	st.isWindowMode = false
-	st.actionFocusIndex = 0
-	st.actionItems = nil
-}
+func (st *CraftMenuState) buildResultWindow(world w.World, resultProps craftResultProps) *widget.Window {
+	res := world.Resources.UIResources
+	resultIndex, _ := ui.GetState[int](st.resultMount, "craft_result_index")
+	resultItems := []string{TextClose}
 
-// closeResultWindow は結果ウィンドウを閉じる
-func (st *CraftMenuState) closeResultWindow() {
-	if st.resultWindow != nil {
-		st.resultWindow.Close()
-		st.resultWindow = nil
-	}
-	st.isResultMode = false
-	st.resultFocusIndex = 0
-	st.resultItems = nil
-	st.resultEntity = 0 // エンティティIDをリセット
-}
+	windowContainer := styled.NewWindowContainer(res)
+	titleContainer := styled.NewWindowHeaderContainer("合成結果", res)
+	window := styled.NewSmallWindow(titleContainer, windowContainer)
 
-// executeResultItem は選択された結果項目を実行する
-func (st *CraftMenuState) executeResultItem(_ w.World) {
-	if st.resultFocusIndex >= len(st.resultItems) {
-		return
+	// アイテム詳細を表示
+	views.UpdateSpec(world, windowContainer, resultProps.ResultEntity)
+
+	// ボタン項目を表示
+	for i, action := range resultItems {
+		isSelected := i == resultIndex
+		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		windowContainer.AddChild(actionWidget)
 	}
 
-	selectedAction := st.resultItems[st.resultFocusIndex]
-
-	switch selectedAction {
-	case TextClose:
-		st.closeResultWindow()
-	}
-}
-
-// executeActionItem は選択されたアクション項目を実行する
-func (st *CraftMenuState) executeActionItem(world w.World) error {
-	if st.actionFocusIndex >= len(st.actionItems) {
-		return nil
-	}
-
-	selectedAction := st.actionItems[st.actionFocusIndex]
-	recipeName := st.selectedItem
-
-	switch selectedAction {
-	case "合成する":
-		resultEntity, err := worldhelper.Craft(world, recipeName)
-		if err != nil {
-			return err
-		}
-
-		// レシピリストを更新
-		rawMaster := world.Resources.RawMaster
-		var spec gc.EntitySpec
-		spec, err = rawMaster.NewRecipeSpec(recipeName)
-		if err != nil {
-			return err
-		}
-		if err = st.updateRecipeList(world, spec.Recipe); err != nil {
-			return err
-		}
-
-		st.closeActionWindow()
-		st.showResultWindow(world, *resultEntity)
-		st.reloadTabs(world)
-		st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-		st.updateCategoryDisplay(world)
-	case TextClose:
-		st.closeActionWindow()
-	}
-	return nil
-}
-
-// reloadTabs はタブの内容を再読み込みする
-func (st *CraftMenuState) reloadTabs(world w.World) {
-	newTabs := st.createTabs(world)
-	st.menuView.UpdateTabs(newTabs)
-	// UpdateTabs後に表示を更新
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-}
-
-// createTabDisplayUI はタブ表示UIを作成する
-func (st *CraftMenuState) createTabDisplayUI(_ w.World) {
-	st.menuView.UpdateTabDisplayContainer(st.tabDisplayContainer)
-}
-
-// createCategoryDisplayUI はカテゴリ表示UIを作成する
-func (st *CraftMenuState) createCategoryDisplayUI(world w.World) {
-	st.updateCategoryDisplay(world)
-}
-
-// updateCategoryDisplay はカテゴリ表示を更新する
-func (st *CraftMenuState) updateCategoryDisplay(world w.World) {
-	// 既存の子要素をクリア
-	st.categoryContainer.RemoveChildren()
-
-	// 全カテゴリを横並びで表示
-	currentTabIndex := st.menuView.GetCurrentTabIndex()
-	tabs := st.createTabs(world) // 最新のタブ情報を取得
-
-	for i, tab := range tabs {
-		isSelected := i == currentTabIndex
-		if isSelected {
-			// 選択中のカテゴリは背景色付きで明るい文字色
-			categoryWidget := styled.NewListItemText(tab.Label, consts.TextColor, true, world.Resources.UIResources)
-			st.categoryContainer.AddChild(categoryWidget)
-		} else {
-			// 非選択のカテゴリは背景なしでグレー文字色
-			categoryWidget := styled.NewListItemText(tab.Label, consts.ForegroundColor, false, world.Resources.UIResources)
-			st.categoryContainer.AddChild(categoryWidget)
-		}
-	}
-}
-
-// updateInitialItemDisplay は初期状態のアイテム表示を更新する
-func (st *CraftMenuState) updateInitialItemDisplay(world w.World) error {
-	currentTab := st.menuView.GetCurrentTab()
-	currentItemIndex := st.menuView.GetCurrentItemIndex()
-
-	if len(currentTab.Items) > 0 && currentItemIndex >= 0 && currentItemIndex < len(currentTab.Items) {
-		currentItem := currentTab.Items[currentItemIndex]
-		if err := st.handleItemChange(world, currentItem); err != nil {
-			return err
-		}
-	}
-	return nil
+	window.SetLocation(getCenterWinRect(world))
+	return window
 }

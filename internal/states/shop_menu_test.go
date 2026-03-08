@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInventoryMenuState_OnStart(t *testing.T) {
+func TestShopMenuState_OnStart(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 
 	err := state.OnStart(world)
@@ -23,25 +23,24 @@ func TestInventoryMenuState_OnStart(t *testing.T) {
 	assert.NotNil(t, state.windowMount, "windowMountが初期化されている")
 }
 
-func TestInventoryMenuState_FetchProps(t *testing.T) {
+func TestShopMenuState_FetchProps(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 3, len(props.Tabs), "タブは3つ（道具、武器、防具）")
-	assert.Equal(t, "items", props.Tabs[0].ID)
-	assert.Equal(t, "weapons", props.Tabs[1].ID)
-	assert.Equal(t, "wearables", props.Tabs[2].ID)
+	assert.Equal(t, 2, len(props.Tabs), "タブは2つ（購入、売却）")
+	assert.Equal(t, "buy", props.Tabs[0].ID)
+	assert.Equal(t, "sell", props.Tabs[1].ID)
 }
 
-func TestInventoryMenuState_TabNavigation(t *testing.T) {
+func TestShopMenuState_TabNavigation(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -52,31 +51,31 @@ func TestInventoryMenuState_TabNavigation(t *testing.T) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(state.menuMount.Store(), "inventory", ui.TabMenuConfig{
+	ui.UseTabMenu(state.menuMount.Store(), "shop", ui.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
 	state.menuMount.Update()
 
 	// 初期状態
-	tabIndex, _ := ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ := ui.GetState[int](state.menuMount, "shop_tabIndex")
 	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
 
 	// 右に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
-	tabIndex, _ = ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ = ui.GetState[int](state.menuMount, "shop_tabIndex")
 	assert.Equal(t, 1, tabIndex, "右移動後は1")
 
-	// 左に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuLeft)
-	tabIndex, _ = ui.GetState[int](state.menuMount, "inventory_tabIndex")
-	assert.Equal(t, 0, tabIndex, "左移動後は0")
+	// 循環して戻る
+	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
+	tabIndex, _ = ui.GetState[int](state.menuMount, "shop_tabIndex")
+	assert.Equal(t, 0, tabIndex, "循環して0に戻る")
 }
 
-func TestInventoryMenuState_DoAction_Cancel(t *testing.T) {
+func TestShopMenuState_DoAction_Cancel(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -85,10 +84,10 @@ func TestInventoryMenuState_DoAction_Cancel(t *testing.T) {
 	assert.Equal(t, es.TransPop, transition.Type, "キャンセルでTransPop")
 }
 
-func TestInventoryMenuState_DoAction_CloseMenu(t *testing.T) {
+func TestShopMenuState_DoAction_CloseMenu(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -97,10 +96,10 @@ func TestInventoryMenuState_DoAction_CloseMenu(t *testing.T) {
 	assert.Equal(t, es.TransPop, transition.Type, "CloseMenuでTransPop")
 }
 
-func TestInventoryMenuState_DoAction_Navigation(t *testing.T) {
+func TestShopMenuState_DoAction_Navigation(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -119,40 +118,32 @@ func TestInventoryMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestInventoryMenuState_WindowProps(t *testing.T) {
+func TestShopMenuState_WindowProps(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// 初期状態ではメニューモード
-	assert.Equal(t, invSubStateMenu, state.subState, "初期状態ではメニューモード")
+	assert.Equal(t, shopSubStateMenu, state.subState, "初期状態ではメニューモード")
 }
 
-func TestInventoryMenuState_GetActionItems(t *testing.T) {
+func TestShopMenuState_DoAction_WindowMode(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	// エンティティが0の場合は空のリスト
-	actions := state.getActionItems(world, 0)
-	assert.Empty(t, actions, "エンティティが0の場合は空")
-}
-
-func TestInventoryMenuState_DoAction_WindowMode(t *testing.T) {
-	t.Parallel()
-
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// ウィンドウを開く
-	state.subState = invSubStateWindow
-	state.windowMount.SetProps(windowProps{
-		SelectedEntity: 1, // ダミーエンティティ
+	state.subState = shopSubStateWindow
+	state.windowMount.SetProps(shopWindowProps{
+		SelectedItem: shopItemData{
+			Label: "テスト",
+			Price: 100,
+			IsBuy: true,
+		},
 	})
 
 	// ウィンドウモードでのキャンセル
@@ -161,20 +152,24 @@ func TestInventoryMenuState_DoAction_WindowMode(t *testing.T) {
 	assert.Equal(t, es.TransNone, transition.Type, "ウィンドウキャンセルはTransNone")
 
 	// ウィンドウが閉じている
-	assert.Equal(t, invSubStateMenu, state.subState, "キャンセル後はメニューモード")
+	assert.Equal(t, shopSubStateMenu, state.subState, "キャンセル後はメニューモード")
 }
 
-func TestInventoryMenuState_DoAction_WindowNavigation(t *testing.T) {
+func TestShopMenuState_DoAction_WindowNavigation(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &ShopMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// ウィンドウを開く
-	state.subState = invSubStateWindow
-	state.windowMount.SetProps(windowProps{
-		SelectedEntity: 1,
+	state.subState = shopSubStateWindow
+	state.windowMount.SetProps(shopWindowProps{
+		SelectedItem: shopItemData{
+			Label: "テスト",
+			Price: 100,
+			IsBuy: true,
+		},
 	})
 
 	// ウィンドウ用のUseStateを登録
@@ -191,13 +186,34 @@ func TestInventoryMenuState_DoAction_WindowNavigation(t *testing.T) {
 	assert.Equal(t, es.TransNone, transition.Type)
 }
 
-func TestNewInventoryMenuState(t *testing.T) {
+func TestNewShopMenuState(t *testing.T) {
 	t.Parallel()
 
-	factory := NewInventoryMenuState
+	factory := NewShopMenuState
 	state := factory()
 
 	assert.NotNil(t, state, "Stateが作成される")
-	_, ok := state.(*InventoryMenuState)
-	assert.True(t, ok, "InventoryMenuState型である")
+	_, ok := state.(*ShopMenuState)
+	assert.True(t, ok, "ShopMenuState型である")
+}
+
+func TestShopMenuState_GetActionItems(t *testing.T) {
+	t.Parallel()
+
+	state := &ShopMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	// 空のアイテムの場合は閉じるのみ
+	actions := state.getActionItems(world, shopItemData{})
+	assert.Equal(t, []string{TextClose}, actions, "空のアイテムは閉じるのみ")
+
+	// 売却アイテムの場合
+	sellActions := state.getActionItems(world, shopItemData{
+		Label: "テスト",
+		Price: 100,
+		IsBuy: false,
+	})
+	assert.Contains(t, sellActions, "売却する", "売却オプションがある")
+	assert.Contains(t, sellActions, TextClose, "閉じるオプションがある")
 }

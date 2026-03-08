@@ -11,37 +11,38 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInventoryMenuState_OnStart(t *testing.T) {
+func TestCraftMenuState_OnStart(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 
 	err := state.OnStart(world)
 	require.NoError(t, err)
 	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
 	assert.NotNil(t, state.windowMount, "windowMountが初期化されている")
+	assert.NotNil(t, state.resultMount, "resultMountが初期化されている")
 }
 
-func TestInventoryMenuState_FetchProps(t *testing.T) {
+func TestCraftMenuState_FetchProps(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 3, len(props.Tabs), "タブは3つ（道具、武器、防具）")
-	assert.Equal(t, "items", props.Tabs[0].ID)
+	assert.Equal(t, 3, len(props.Tabs), "タブは3つ（道具、武器、装備）")
+	assert.Equal(t, "consumables", props.Tabs[0].ID)
 	assert.Equal(t, "weapons", props.Tabs[1].ID)
 	assert.Equal(t, "wearables", props.Tabs[2].ID)
 }
 
-func TestInventoryMenuState_TabNavigation(t *testing.T) {
+func TestCraftMenuState_TabNavigation(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -52,31 +53,36 @@ func TestInventoryMenuState_TabNavigation(t *testing.T) {
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
-	ui.UseTabMenu(state.menuMount.Store(), "inventory", ui.TabMenuConfig{
+	ui.UseTabMenu(state.menuMount.Store(), "craft", ui.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
 	state.menuMount.Update()
 
 	// 初期状態
-	tabIndex, _ := ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ := ui.GetState[int](state.menuMount, "craft_tabIndex")
 	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
 
 	// 右に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
-	tabIndex, _ = ui.GetState[int](state.menuMount, "inventory_tabIndex")
+	tabIndex, _ = ui.GetState[int](state.menuMount, "craft_tabIndex")
 	assert.Equal(t, 1, tabIndex, "右移動後は1")
 
-	// 左に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuLeft)
-	tabIndex, _ = ui.GetState[int](state.menuMount, "inventory_tabIndex")
-	assert.Equal(t, 0, tabIndex, "左移動後は0")
+	// さらに右に移動
+	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
+	tabIndex, _ = ui.GetState[int](state.menuMount, "craft_tabIndex")
+	assert.Equal(t, 2, tabIndex, "右移動後は2")
+
+	// 循環して戻る
+	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
+	tabIndex, _ = ui.GetState[int](state.menuMount, "craft_tabIndex")
+	assert.Equal(t, 0, tabIndex, "循環して0に戻る")
 }
 
-func TestInventoryMenuState_DoAction_Cancel(t *testing.T) {
+func TestCraftMenuState_DoAction_Cancel(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -85,10 +91,10 @@ func TestInventoryMenuState_DoAction_Cancel(t *testing.T) {
 	assert.Equal(t, es.TransPop, transition.Type, "キャンセルでTransPop")
 }
 
-func TestInventoryMenuState_DoAction_CloseMenu(t *testing.T) {
+func TestCraftMenuState_DoAction_CloseMenu(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -97,10 +103,10 @@ func TestInventoryMenuState_DoAction_CloseMenu(t *testing.T) {
 	assert.Equal(t, es.TransPop, transition.Type, "CloseMenuでTransPop")
 }
 
-func TestInventoryMenuState_DoAction_Navigation(t *testing.T) {
+func TestCraftMenuState_DoAction_Navigation(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
@@ -119,40 +125,28 @@ func TestInventoryMenuState_DoAction_Navigation(t *testing.T) {
 	}
 }
 
-func TestInventoryMenuState_WindowProps(t *testing.T) {
+func TestCraftMenuState_WindowProps(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// 初期状態ではメニューモード
-	assert.Equal(t, invSubStateMenu, state.subState, "初期状態ではメニューモード")
+	assert.Equal(t, craftSubStateMenu, state.subState, "初期状態ではメニューモード")
 }
 
-func TestInventoryMenuState_GetActionItems(t *testing.T) {
+func TestCraftMenuState_DoAction_WindowMode(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	// エンティティが0の場合は空のリスト
-	actions := state.getActionItems(world, 0)
-	assert.Empty(t, actions, "エンティティが0の場合は空")
-}
-
-func TestInventoryMenuState_DoAction_WindowMode(t *testing.T) {
-	t.Parallel()
-
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// ウィンドウを開く
-	state.subState = invSubStateWindow
-	state.windowMount.SetProps(windowProps{
-		SelectedEntity: 1, // ダミーエンティティ
+	state.subState = craftSubStateWindow
+	state.windowMount.SetProps(craftWindowProps{
+		RecipeName: "テストレシピ",
 	})
 
 	// ウィンドウモードでのキャンセル
@@ -161,20 +155,42 @@ func TestInventoryMenuState_DoAction_WindowMode(t *testing.T) {
 	assert.Equal(t, es.TransNone, transition.Type, "ウィンドウキャンセルはTransNone")
 
 	// ウィンドウが閉じている
-	assert.Equal(t, invSubStateMenu, state.subState, "キャンセル後はメニューモード")
+	assert.Equal(t, craftSubStateMenu, state.subState, "キャンセル後はメニューモード")
 }
 
-func TestInventoryMenuState_DoAction_WindowNavigation(t *testing.T) {
+func TestCraftMenuState_DoAction_ResultMode(t *testing.T) {
 	t.Parallel()
 
-	state := &InventoryMenuState{}
+	state := &CraftMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	// 結果ウィンドウを開く
+	state.subState = craftSubStateResult
+	state.resultMount.SetProps(craftResultProps{
+		ResultEntity: 1,
+	})
+
+	// 結果ウィンドウモードでのキャンセル
+	transition, err := state.DoAction(world, inputmapper.ActionWindowCancel)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransNone, transition.Type, "結果ウィンドウキャンセルはTransNone")
+
+	// 結果ウィンドウが閉じている
+	assert.Equal(t, craftSubStateMenu, state.subState, "キャンセル後はメニューモード")
+}
+
+func TestCraftMenuState_DoAction_WindowNavigation(t *testing.T) {
+	t.Parallel()
+
+	state := &CraftMenuState{}
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
 	// ウィンドウを開く
-	state.subState = invSubStateWindow
-	state.windowMount.SetProps(windowProps{
-		SelectedEntity: 1,
+	state.subState = craftSubStateWindow
+	state.windowMount.SetProps(craftWindowProps{
+		RecipeName: "テストレシピ",
 	})
 
 	// ウィンドウ用のUseStateを登録
@@ -191,13 +207,25 @@ func TestInventoryMenuState_DoAction_WindowNavigation(t *testing.T) {
 	assert.Equal(t, es.TransNone, transition.Type)
 }
 
-func TestNewInventoryMenuState(t *testing.T) {
+func TestNewCraftMenuState(t *testing.T) {
 	t.Parallel()
 
-	factory := NewInventoryMenuState
+	factory := NewCraftMenuState
 	state := factory()
 
 	assert.NotNil(t, state, "Stateが作成される")
-	_, ok := state.(*InventoryMenuState)
-	assert.True(t, ok, "InventoryMenuState型である")
+	_, ok := state.(*CraftMenuState)
+	assert.True(t, ok, "CraftMenuState型である")
+}
+
+func TestCraftMenuState_GetActionItems(t *testing.T) {
+	t.Parallel()
+
+	state := &CraftMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	// 空のレシピ名の場合は閉じるのみ
+	actions := state.getActionItems(world, "")
+	assert.Equal(t, []string{TextClose}, actions, "空のレシピ名は閉じるのみ")
 }
