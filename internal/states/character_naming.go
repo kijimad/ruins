@@ -28,9 +28,8 @@ const (
 // CharacterNamingState はキャラクター名前入力画面のステート
 type CharacterNamingState struct {
 	es.BaseState[w.World]
-	mount     *ui.Mount[namingProps]
-	widget    *ebitenui.UI
-	textInput *widget.TextInput // UIウィジェットは再利用のため保持
+	mount  *ui.Mount[namingProps]
+	widget *ebitenui.UI
 }
 
 // NewCharacterNamingState は名付けステートのファクトリを返す
@@ -91,8 +90,8 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 	}
 
 	// TextInput から現在の値を同期
-	if st.textInput != nil {
-		currentText := st.textInput.GetText()
+	if textInput, ok := ui.GetRef[*widget.TextInput](st.mount.Store(), "textInput"); ok && textInput != nil {
+		currentText := textInput.GetText()
 		if currentText != props.CurrentName {
 			st.mount.SetProps(namingProps{
 				CurrentName:  currentText,
@@ -239,8 +238,8 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	// テキスト入力を作成
-	if st.textInput == nil {
-		st.textInput = widget.NewTextInput(
+	textInput := ui.UseRef(st.mount.Store(), "textInput", func() *widget.TextInput {
+		ti := widget.NewTextInput(
 			widget.TextInputOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 					Position: widget.RowLayoutPositionCenter,
@@ -254,9 +253,10 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 			widget.TextInputOpts.Padding(&res.TextInput.Padding),
 			widget.TextInputOpts.Placeholder("名前"),
 		)
-		st.textInput.SetText(props.CurrentName)
-		st.textInput.Focus(true)
-	}
+		ti.SetText(props.CurrentName)
+		ti.Focus(true)
+		return ti
+	})
 
 	// エラーメッセージ
 	errorText := widget.NewText(
@@ -279,7 +279,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	centerContainer.AddChild(titleLabel)
-	centerContainer.AddChild(st.textInput)
+	centerContainer.AddChild(textInput)
 	centerContainer.AddChild(errorText)
 	centerContainer.AddChild(hintLabel)
 

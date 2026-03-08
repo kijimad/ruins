@@ -9,6 +9,7 @@ type Reducer func(state any, action inputmapper.ActionID) any
 type Store struct {
 	states   map[string]any
 	reducers map[string]Reducer
+	refs     map[string]any
 }
 
 // NewStore は新しいStoreを生成する
@@ -16,6 +17,7 @@ func NewStore() *Store {
 	return &Store{
 		states:   make(map[string]any),
 		reducers: make(map[string]Reducer),
+		refs:     make(map[string]any),
 	}
 }
 
