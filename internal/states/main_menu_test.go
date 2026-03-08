@@ -6,162 +6,238 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/ui"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestMainMenuNavigation(t *testing.T) {
+func TestMainMenuState_OnStart(t *testing.T) {
 	t.Parallel()
-	// MainMenuStateを作成
+
 	state := &MainMenuState{}
-
-	// メニューを初期化（Worldは簡易版を使用）
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
 
-	// 初期状態の確認
-	if state.menuView.GetCurrentItemIndex() != 0 {
-		t.Errorf("初期フォーカスが不正: 期待 0, 実際 %d", state.menuView.GetCurrentItemIndex())
+	err := state.OnStart(world)
+	require.NoError(t, err)
+	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
+}
+
+func TestMainMenuState_FetchProps(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	props := state.fetchProps()
+
+	assert.Equal(t, 3, len(props.Items), "メニュー項目は3つ")
+	assert.Equal(t, "開始", props.Items[0].Label)
+	assert.Equal(t, "読込", props.Items[1].Label)
+	assert.Equal(t, "終了", props.Items[2].Label)
+}
+
+func TestMainMenuState_Navigation(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
+
+	// 初期状態
+	itemIndex, ok := ui.GetState[int](state.menuMount, "menu_itemIndex")
+	assert.True(t, ok)
+	assert.Equal(t, 0, itemIndex, "初期インデックスは0")
+
+	// 下に移動
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
+	itemIndex, _ = ui.GetState[int](state.menuMount, "menu_itemIndex")
+	assert.Equal(t, 1, itemIndex, "下移動後はインデックス1")
+
+	// 上に移動
+	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
+	state.menuMount.Update()
+	itemIndex, _ = ui.GetState[int](state.menuMount, "menu_itemIndex")
+	assert.Equal(t, 0, itemIndex, "上移動後はインデックス0")
+}
+
+func TestMainMenuState_CircularNavigation(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
+
+	// 最初の項目から上に移動すると最後の項目に
+	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
+	state.menuMount.Update()
+	itemIndex, _ := ui.GetState[int](state.menuMount, "menu_itemIndex")
+	assert.Equal(t, 2, itemIndex, "循環して最後の項目に移動")
+
+	// 最後の項目から下に移動すると最初の項目に
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
+	itemIndex, _ = ui.GetState[int](state.menuMount, "menu_itemIndex")
+	assert.Equal(t, 0, itemIndex, "循環して最初の項目に移動")
+}
+
+func TestMainMenuState_DoAction_Cancel(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	transition, err := state.DoAction(world, inputmapper.ActionMenuCancel)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransQuit, transition.Type, "キャンセルでTransQuit")
+}
+
+func TestMainMenuState_DoAction_CloseMenu(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	transition, err := state.DoAction(world, inputmapper.ActionCloseMenu)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransQuit, transition.Type, "CloseMenuでTransQuit")
+}
+
+func TestMainMenuState_DoAction_Navigation(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	actions := []inputmapper.ActionID{
+		inputmapper.ActionMenuUp,
+		inputmapper.ActionMenuDown,
+		inputmapper.ActionMenuLeft,
+		inputmapper.ActionMenuRight,
 	}
 
-	// ActionMenuDownでフォーカス移動
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuDown))
-
-	if state.menuView.GetCurrentItemIndex() != 1 {
-		t.Errorf("ActionMenuDown後のフォーカス位置が不正: 期待 1, 実際 %d", state.menuView.GetCurrentItemIndex())
-	}
-
-	// ActionMenuUpでフォーカス移動
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuUp))
-
-	if state.menuView.GetCurrentItemIndex() != 0 {
-		t.Errorf("ActionMenuUp後のフォーカス位置が不正: 期待 0, 実際 %d", state.menuView.GetCurrentItemIndex())
+	for _, action := range actions {
+		transition, err := state.DoAction(world, action)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransNone, transition.Type, "ナビゲーションはTransNone: %s", action)
 	}
 }
 
-func TestMainMenuCircularNavigation(t *testing.T) {
+func TestMainMenuState_Selection_Start(t *testing.T) {
 	t.Parallel()
-	// MainMenuStateを作成
+
 	state := &MainMenuState{}
-
-	// メニューを初期化
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	require.NoError(t, state.OnStart(world))
 
-	// 最後の項目にフォーカス移動
-	currentTab := state.menuView.GetCurrentTab()
-	itemCount := len(currentTab.Items)
-	require.NoError(t, state.menuView.SetItemIndex(itemCount-1))
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
 
-	// ActionMenuDownで循環して最初に戻る
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuDown))
-
-	if state.menuView.GetCurrentItemIndex() != 0 {
-		t.Errorf("循環移動後のフォーカス位置が不正: 期待 0, 実際 %d", state.menuView.GetCurrentItemIndex())
-	}
+	// 「開始」を選択（インデックス0）
+	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransReplace, transition.Type, "開始でTransReplace")
 }
 
-func TestMainMenuSelection(t *testing.T) {
+func TestMainMenuState_Selection_Load(t *testing.T) {
 	t.Parallel()
-	// MainMenuStateを作成
+
 	state := &MainMenuState{}
-
-	// メニューを初期化
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	require.NoError(t, state.OnStart(world))
 
-	// 「終了」項目にフォーカス移動（インデックス2）
-	require.NoError(t, state.menuView.SetItemIndex(2))
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
 
-	// ActionMenuSelectで選択
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuSelect))
+	// 「読込」に移動して選択（インデックス1）
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
 
-	// トランジションが設定されることを確認
-	transition := state.GetTransition()
-	if transition == nil || transition.Type != es.TransQuit {
-		if transition == nil {
-			t.Error("トランジションが設定されていない")
-		} else {
-			t.Errorf("期待されるトランジション: TransQuit, 実際: %v", transition.Type)
-		}
-	}
+	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPush, transition.Type, "読込でTransPush")
 }
 
-func TestMainMenuCancel(t *testing.T) {
+func TestMainMenuState_Selection_Exit(t *testing.T) {
 	t.Parallel()
-	// MainMenuStateを作成
+
 	state := &MainMenuState{}
-
-	// メニューを初期化
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	require.NoError(t, state.OnStart(world))
 
-	// ActionMenuCancelでキャンセル
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuCancel))
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	ui.UseTabMenu(state.menuMount.Store(), "menu", ui.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
 
-	// トランジションが設定されることを確認
-	transition := state.GetTransition()
-	if transition == nil || transition.Type != es.TransQuit {
-		if transition == nil {
-			t.Error("トランジションが設定されていない")
-		} else {
-			t.Errorf("期待されるトランジション: TransQuit, 実際: %v", transition.Type)
-		}
-	}
+	// 「終了」に移動して選択（インデックス2）
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
+
+	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransQuit, transition.Type, "終了でTransQuit")
 }
 
-func TestMainMenuItems(t *testing.T) {
+func TestNewMainMenuState(t *testing.T) {
 	t.Parallel()
-	// MainMenuStateを作成
-	state := &MainMenuState{}
 
-	// メニューを初期化
-	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	factory := NewMainMenuState
+	state := factory()
 
-	// メニュー項目の確認
-	currentTab := state.menuView.GetCurrentTab()
-	items := currentTab.Items
-	expectedItems := []string{"town", "load", "exit"}
-
-	if len(items) != len(expectedItems) {
-		t.Errorf("メニュー項目数が不正: 期待 %d, 実際 %d", len(expectedItems), len(items))
-	}
-
-	for i, expectedID := range expectedItems {
-		if i < len(items) && items[i].ID != expectedID {
-			t.Errorf("メニュー項目ID[%d]が不正: 期待 %s, 実際 %s", i, expectedID, items[i].ID)
-		}
-	}
-
-	// ラベルの確認
-	expectedLabels := []string{"開始", "読込", "終了"}
-	for i, expectedLabel := range expectedLabels {
-		if i < len(items) && items[i].Label != expectedLabel {
-			t.Errorf("メニュー項目ラベル[%d]が不正: 期待 %s, 実際 %s", i, expectedLabel, items[i].Label)
-		}
-	}
+	assert.NotNil(t, state, "Stateが作成される")
+	_, ok := state.(*MainMenuState)
+	assert.True(t, ok, "MainMenuState型である")
 }
 
-func TestMainMenuTabNavigation(t *testing.T) {
+func TestMainMenuState_HandleInput(t *testing.T) {
 	t.Parallel()
-	// MainMenuStateを作成
+
 	state := &MainMenuState{}
-
-	// メニューを初期化
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	require.NoError(t, state.OnStart(world))
 
-	// ActionMenuDownでフォーカス移動（Tabキーと同じ動作）
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuDown))
+	// HandleInputはHandleMenuInputを呼び出す
+	_, _ = state.HandleInput(world.Config)
+}
 
-	if state.menuView.GetCurrentItemIndex() != 1 {
-		t.Errorf("ActionMenuDown後のフォーカス位置が不正: 期待 1, 実際 %d", state.menuView.GetCurrentItemIndex())
-	}
+func TestMainMenuState_String(t *testing.T) {
+	t.Parallel()
 
-	// ActionMenuUpでフォーカス移動（Shift+Tabキーと同じ動作）
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuUp))
-
-	if state.menuView.GetCurrentItemIndex() != 0 {
-		t.Errorf("ActionMenuUp後のフォーカス位置が不正: 期待 0, 実際 %d", state.menuView.GetCurrentItemIndex())
-	}
+	state := &MainMenuState{}
+	assert.Equal(t, "MainMenu", state.String())
 }
