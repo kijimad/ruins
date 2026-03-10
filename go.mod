@@ -6,7 +6,7 @@ require (
 	github.com/BurntSushi/toml v1.6.0
 	github.com/caarlos0/env/v11 v11.4.0
 	github.com/ebitenui/ebitenui v0.7.2
-	github.com/hajimehoshi/ebiten/v2 v2.9.8
+	github.com/hajimehoshi/ebiten/v2 v2.9.9
 	github.com/olekukonko/tablewriter v1.1.3
 	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/pkg/profile v1.7.0
