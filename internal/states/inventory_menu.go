@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -29,6 +30,8 @@ const (
 	invSubStateMenu   inventorySubState = iota // メニュー選択
 	invSubStateWindow                          // アクションウィンドウ
 )
+
+const inventoryItemsPerPage = 20
 
 // InventoryMenuState はインベントリメニューのゲームステート
 type InventoryMenuState struct {
@@ -102,8 +105,9 @@ func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], err
 		itemCounts[i] = len(tab.Items)
 	}
 	hooks.UseTabMenu(st.menuMount.Store(), "inventory", hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
+		TabCount:     len(props.Tabs),
+		ItemCounts:   itemCounts,
+		ItemsPerPage: inventoryItemsPerPage,
 	})
 
 	// ウィンドウ用のUseStateを登録
@@ -185,7 +189,7 @@ func (st *InventoryMenuState) DoAction(world w.World, action inputmapper.ActionI
 			if err := st.handleItemSelection(); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 			// Dispatchで処理される
 		default:
 			return es.Transition[w.World]{}, fmt.Errorf("invSubStateMenu: 未対応のアクション: %s", action)
@@ -362,10 +366,20 @@ func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabInd
 	columnWidths := []int{20, 150, 50}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 
+	// ペジネーション
+	pg := pagination.New(itemIndex, len(currentTab.Items), inventoryItemsPerPage)
+
+	// ページインジケーター（上部固定位置、右寄せ）
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " " // 空でも高さを確保
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
 	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range currentTab.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{"", item.Name, item.Count}, aligns, &isSelected, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, entry.Item.Count}, aligns, &isSelected, res)
 	}
 	container.AddChild(table)
 

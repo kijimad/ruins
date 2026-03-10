@@ -62,12 +62,12 @@ func TestShopMenuState_TabNavigation(t *testing.T) {
 	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
 
 	// 右に移動
-	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
+	state.menuMount.Dispatch(inputmapper.ActionMenuTabNext)
 	tabIndex, _ = hooks.GetState[int](state.menuMount, "shop_tabIndex")
 	assert.Equal(t, 1, tabIndex, "右移動後は1")
 
 	// 循環して戻る
-	state.menuMount.Dispatch(inputmapper.ActionMenuRight)
+	state.menuMount.Dispatch(inputmapper.ActionMenuTabNext)
 	tabIndex, _ = hooks.GetState[int](state.menuMount, "shop_tabIndex")
 	assert.Equal(t, 0, tabIndex, "循環して0に戻る")
 }
@@ -109,6 +109,8 @@ func TestShopMenuState_DoAction_Navigation(t *testing.T) {
 		inputmapper.ActionMenuDown,
 		inputmapper.ActionMenuLeft,
 		inputmapper.ActionMenuRight,
+		inputmapper.ActionMenuTabNext,
+		inputmapper.ActionMenuTabPrev,
 	}
 
 	for _, action := range actions {

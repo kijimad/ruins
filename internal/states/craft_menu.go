@@ -15,12 +15,15 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
+
+const craftItemsPerPage = 20
 
 // craftSubState はクラフトメニュー内のサブステート
 type craftSubState int
@@ -96,8 +99,9 @@ func (st *CraftMenuState) Update(world w.World) (es.Transition[w.World], error) 
 		itemCounts[i] = len(tab.Items)
 	}
 	hooks.UseTabMenu(st.menuMount.Store(), "craft", hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
+		TabCount:     len(props.Tabs),
+		ItemCounts:   itemCounts,
+		ItemsPerPage: craftItemsPerPage,
 	})
 
 	// ウィンドウ用のステート
@@ -170,7 +174,7 @@ func (st *CraftMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 			if err := st.handleItemSelection(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 			// Dispatchで処理される
 		default:
 			return es.Transition[w.World]{}, fmt.Errorf("craftSubStateMenu: 未対応のアクション: %s", action)
@@ -480,12 +484,21 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	}
 
 	currentTab := tabs[tabIndex]
+	pg := pagination.New(itemIndex, len(currentTab.Items), craftItemsPerPage)
+
+	// ページインジケーター
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
 	columnWidths := []int{20, 180}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range currentTab.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{"", item.RecipeName}, nil, &isSelected, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.RecipeName}, nil, &isSelected, res)
 	}
 	container.AddChild(table)
 

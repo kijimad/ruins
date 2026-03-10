@@ -94,8 +94,8 @@ func NewDebugMenuState() es.State[w.World] {
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
 		}).
-		WithChoice("手榴弾スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "手榴弾", 1, gc.ItemLocationInPlayerBackpack)
+		WithChoice("レイガンスポーン(インベントリ)", func(world w.World) error {
+			_, err := worldhelper.SpawnItem(world, "レイガン", 1, gc.ItemLocationInPlayerBackpack)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}

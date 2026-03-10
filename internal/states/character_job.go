@@ -106,7 +106,7 @@ func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		return st.handleSelection(world)
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理される
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("characterJob: 未対応のアクション: %s", action)

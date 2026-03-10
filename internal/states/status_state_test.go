@@ -62,17 +62,17 @@ func TestStatusState_TabNavigation(t *testing.T) {
 	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
 
 	// 右に移動
-	state.mount.Dispatch(inputmapper.ActionMenuRight)
+	state.mount.Dispatch(inputmapper.ActionMenuTabNext)
 	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
 	assert.Equal(t, 1, tabIndex, "右移動後は1")
 
 	// さらに右に移動
-	state.mount.Dispatch(inputmapper.ActionMenuRight)
+	state.mount.Dispatch(inputmapper.ActionMenuTabNext)
 	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
 	assert.Equal(t, 2, tabIndex, "右移動後は2")
 
 	// 循環して最初に戻る
-	state.mount.Dispatch(inputmapper.ActionMenuRight)
+	state.mount.Dispatch(inputmapper.ActionMenuTabNext)
 	hooks.UseTabMenu(state.mount.Store(), "status", hooks.TabMenuConfig{
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
@@ -153,6 +153,8 @@ func TestStatusState_DoAction_Navigation(t *testing.T) {
 		inputmapper.ActionMenuDown,
 		inputmapper.ActionMenuLeft,
 		inputmapper.ActionMenuRight,
+		inputmapper.ActionMenuTabNext,
+		inputmapper.ActionMenuTabPrev,
 	}
 
 	for _, action := range actions {

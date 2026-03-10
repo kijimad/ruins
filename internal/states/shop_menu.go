@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -27,6 +28,8 @@ const (
 	shopSubStateMenu   shopSubState = iota // メニュー選択
 	shopSubStateWindow                     // アクションウィンドウ
 )
+
+const shopItemsPerPage = 20
 
 // ShopMenuState はショップメニューのゲームステート
 type ShopMenuState struct {
@@ -89,8 +92,9 @@ func (st *ShopMenuState) Update(world w.World) (es.Transition[w.World], error) {
 		itemCounts[i] = len(tab.Items)
 	}
 	hooks.UseTabMenu(st.menuMount.Store(), "shop", hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
+		TabCount:     len(props.Tabs),
+		ItemCounts:   itemCounts,
+		ItemsPerPage: shopItemsPerPage,
 	})
 
 	// ウィンドウ用のステート
@@ -148,7 +152,7 @@ func (st *ShopMenuState) DoAction(world w.World, action inputmapper.ActionID) (e
 			if err := st.handleItemSelection(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 			// Dispatchで処理される
 		default:
 			return es.Transition[w.World]{}, fmt.Errorf("shopSubStateMenu: 未対応のアクション: %s", action)
@@ -450,6 +454,14 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
+	pg := pagination.New(itemIndex, len(currentTab.Items), shopItemsPerPage)
+
+	// ページインジケーター（上部固定位置、右寄せ）
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
 
 	// 購入タブ: カーソル、名前、価格の3列
 	// 売却タブ: カーソル、名前、価格、個数の4列
@@ -458,10 +470,10 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 
 		table := styled.NewTableContainer(columnWidths, res)
-		for i, item := range currentTab.Items {
-			isSelected := i == itemIndex
-			priceStr := worldhelper.FormatCurrency(item.Price)
-			styled.NewTableRow(table, columnWidths, []string{"", item.Label, priceStr}, aligns, &isSelected, res)
+		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+			isSelected := pg.IsSelectedInPage(entry.Index)
+			priceStr := worldhelper.FormatCurrency(entry.Item.Price)
+			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr}, aligns, &isSelected, res)
 		}
 		container.AddChild(table)
 	} else {
@@ -469,14 +481,14 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 		aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
 		table := styled.NewTableContainer(columnWidths, res)
-		for i, item := range currentTab.Items {
-			isSelected := i == itemIndex
-			priceStr := worldhelper.FormatCurrency(item.Price)
+		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+			isSelected := pg.IsSelectedInPage(entry.Index)
+			priceStr := worldhelper.FormatCurrency(entry.Item.Price)
 			countStr := ""
-			if item.Count > 1 {
-				countStr = fmt.Sprintf("x%d", item.Count)
+			if entry.Item.Count > 1 {
+				countStr = fmt.Sprintf("x%d", entry.Item.Count)
 			}
-			styled.NewTableRow(table, columnWidths, []string{"", item.Label, priceStr, countStr}, aligns, &isSelected, res)
+			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr, countStr}, aligns, &isSelected, res)
 		}
 		container.AddChild(table)
 	}

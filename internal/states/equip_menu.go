@@ -14,11 +14,17 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
+)
+
+const (
+	slotItemsPerPage  = 20
+	equipItemsPerPage = 20
 )
 
 // equipSubState は装備メニュー内のサブステート
@@ -135,8 +141,9 @@ func (st *EquipMenuState) updateSubStateProps(world w.World) {
 			itemCounts[i] = len(tab.Items)
 		}
 		hooks.UseTabMenu(st.slotMount.Store(), "slot", hooks.TabMenuConfig{
-			TabCount:   len(props.Tabs),
-			ItemCounts: itemCounts,
+			TabCount:     len(props.Tabs),
+			ItemCounts:   itemCounts,
+			ItemsPerPage: slotItemsPerPage,
 		})
 	case subStateActionWindow:
 		st.setupWindowState(world)
@@ -144,8 +151,9 @@ func (st *EquipMenuState) updateSubStateProps(world w.World) {
 		st.equipMount.SetProps(st.fetchEquipProps(world))
 		props := st.equipMount.GetProps()
 		hooks.UseTabMenu(st.equipMount.Store(), "equip", hooks.TabMenuConfig{
-			TabCount:   1,
-			ItemCounts: []int{len(props.Items)},
+			TabCount:     1,
+			ItemCounts:   []int{len(props.Items)},
+			ItemsPerPage: equipItemsPerPage,
 		})
 	}
 }
@@ -200,7 +208,7 @@ func (st *EquipMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 			if err := st.handleSlotSelection(world); err != nil {
 				return es.Transition[w.World]{}, err
 			}
-		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 			// Dispatchで処理される
 		default:
 			return es.Transition[w.World]{}, fmt.Errorf("subStateSlotSelect: 未対応のアクション: %s", action)
@@ -591,11 +599,20 @@ func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, item
 	}
 
 	currentTab := tabs[tabIndex]
+	pg := pagination.New(itemIndex, len(currentTab.Items), slotItemsPerPage)
+
+	// ページインジケーター
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
 	columnWidths := []int{20, 80, 120}
 	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range currentTab.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{"", item.SlotLabel, item.ItemName}, nil, &isSelected, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.SlotLabel, entry.Item.ItemName}, nil, &isSelected, res)
 	}
 	container.AddChild(table)
 
@@ -609,12 +626,20 @@ func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, item
 // buildEquipSelectContainer は装備選択画面のアイテム一覧を構築する
 func (st *EquipMenuState) buildEquipSelectContainer(props equipScreenProps, itemIndex int, res *resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
+	pg := pagination.New(itemIndex, len(props.Items), equipItemsPerPage)
+
+	// ページインジケーター
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
 
 	columnWidths := []int{20, 150}
 	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range props.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{"", item.ItemName}, nil, &isSelected, res)
+	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.ItemName}, nil, &isSelected, res)
 	}
 	container.AddChild(table)
 

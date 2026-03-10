@@ -17,7 +17,8 @@ type testTabData struct {
 }
 
 // setupTabMenuState はタブメニュー用のUseTabMenuを登録する
-func setupTabMenuState(store *Store, p tabMenuTestProps) {
+func setupTabMenuState(t *testing.T, store *Store, p tabMenuTestProps) {
+	t.Helper()
 	itemCounts := make([]int, len(p.Tabs))
 	for i, tab := range p.Tabs {
 		itemCounts[i] = len(tab.Items)
@@ -39,7 +40,7 @@ func TestUseTabMenu_InitialState(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
@@ -60,27 +61,27 @@ func TestUseTabMenu_TabNavigation(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
 	// 右に移動
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	tabIndex, _ := GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 1, tabIndex)
 
 	// さらに右に移動
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	tabIndex, _ = GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 2, tabIndex)
 
 	// 循環して最初に戻る
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	tabIndex, _ = GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 0, tabIndex, "最後のタブから右に移動すると最初のタブに循環する")
@@ -96,13 +97,13 @@ func TestUseTabMenu_TabNavigationLeft(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
 	// 最初のタブで左に移動すると最後のタブに循環
-	mount.Dispatch(inputmapper.ActionMenuLeft)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabPrev)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	tabIndex, _ := GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 1, tabIndex, "最初のタブから左に移動すると最後のタブに循環する")
@@ -117,27 +118,27 @@ func TestUseTabMenu_ItemNavigation(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
 	// 下に移動
 	mount.Dispatch(inputmapper.ActionMenuDown)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ := GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 1, itemIndex)
 
 	// さらに下に移動
 	mount.Dispatch(inputmapper.ActionMenuDown)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ = GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 2, itemIndex)
 
 	// 循環して最初に戻る
 	mount.Dispatch(inputmapper.ActionMenuDown)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ = GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 0, itemIndex, "最後のアイテムから下に移動すると最初に循環する")
@@ -152,13 +153,13 @@ func TestUseTabMenu_ItemNavigationUp(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
 	// 最初のアイテムで上に移動すると最後に循環
 	mount.Dispatch(inputmapper.ActionMenuUp)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ := GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 2, itemIndex, "最初のアイテムから上に移動すると最後に循環する")
@@ -174,21 +175,21 @@ func TestUseTabMenu_TabChangeResetsItemIndex(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
 	// アイテムを選択
 	mount.Dispatch(inputmapper.ActionMenuDown)
 	mount.Dispatch(inputmapper.ActionMenuDown)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ := GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 2, itemIndex)
 
 	// タブを切り替え
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ = GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 0, itemIndex, "タブ切り替え時にアイテムインデックスがリセットされる")
@@ -201,7 +202,7 @@ func TestUseTabMenu_EmptyTabs(t *testing.T) {
 		Tabs: []testTabData{},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
@@ -211,8 +212,8 @@ func TestUseTabMenu_EmptyTabs(t *testing.T) {
 	assert.Equal(t, 0, itemIndex)
 
 	// 操作しても変わらない
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	tabIndex, _ = GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 0, tabIndex)
@@ -227,7 +228,7 @@ func TestUseTabMenu_EmptyItems(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 
 	mount.Update()
 
@@ -236,7 +237,7 @@ func TestUseTabMenu_EmptyItems(t *testing.T) {
 
 	// 操作しても変わらない
 	mount.Dispatch(inputmapper.ActionMenuDown)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	itemIndex, _ = GetState[int](mount, "menu_itemIndex")
 	assert.Equal(t, 0, itemIndex)
@@ -255,12 +256,12 @@ func TestUseTabMenu_PropsChange(t *testing.T) {
 		},
 	}
 	mount.SetProps(props)
-	setupTabMenuState(mount.Store(), props)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 
 	// 2番目のタブに移動
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), props)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), props)
 	mount.Update()
 	tabIndex, _ := GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 1, tabIndex)
@@ -273,13 +274,13 @@ func TestUseTabMenu_PropsChange(t *testing.T) {
 		},
 	}
 	mount.SetProps(newProps)
-	setupTabMenuState(mount.Store(), newProps)
+	setupTabMenuState(t, mount.Store(), newProps)
 	mount.Update()
 
 	// 右に移動すると2タブなので循環して0になる
 	// tabIndex=1, tabCount=2 → (1+1) % 2 = 0
-	mount.Dispatch(inputmapper.ActionMenuRight)
-	setupTabMenuState(mount.Store(), newProps)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	setupTabMenuState(t, mount.Store(), newProps)
 	mount.Update()
 	tabIndex, _ = GetState[int](mount, "menu_tabIndex")
 	assert.Equal(t, 0, tabIndex, "Propsが変わると新しいタブ数で循環する")
@@ -324,11 +325,302 @@ func TestUseTabMenu_MultipleInstances(t *testing.T) {
 	assert.Equal(t, 0, tab2)
 
 	// 同じDispatchで両方更新される
-	mount.Dispatch(inputmapper.ActionMenuRight)
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
 	setupMultiMenu(mount.Store(), props)
 	mount.Update()
 	tab1, _ = GetState[int](mount, "menu1_tabIndex")
 	tab2, _ = GetState[int](mount, "menu2_tabIndex")
 	assert.Equal(t, 1, tab1)
 	assert.Equal(t, 1, tab2)
+}
+
+// ペジネーション用のセットアップ
+func setupTabMenuStateWithPagination(t *testing.T, store *Store, p tabMenuTestProps, itemsPerPage int) TabMenuState {
+	t.Helper()
+	itemCounts := make([]int, len(p.Tabs))
+	for i, tab := range p.Tabs {
+		itemCounts[i] = len(tab.Items)
+	}
+
+	return UseTabMenu(store, "menu", TabMenuConfig{
+		TabCount:     len(p.Tabs),
+		ItemCounts:   itemCounts,
+		ItemsPerPage: itemsPerPage,
+	})
+}
+
+func TestUseTabMenu_Pagination_InitialState(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e", "f", "g"}},
+		},
+	}
+	mount.SetProps(props)
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+
+	assert.Equal(t, 0, result.TabIndex)
+	assert.Equal(t, 0, result.ItemIndex)
+	assert.Equal(t, 0, result.Page)
+}
+
+func TestUseTabMenu_Pagination_NavigateWithinPage(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+
+	// ページ内で下に移動
+	mount.Dispatch(inputmapper.ActionMenuDown)
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 1, result.ItemIndex)
+	assert.Equal(t, 0, result.Page, "同じページ内にとどまる")
+
+	mount.Dispatch(inputmapper.ActionMenuDown)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 2, result.ItemIndex)
+	assert.Equal(t, 0, result.Page, "まだページ0内")
+}
+
+func TestUseTabMenu_Pagination_NavigateToNextPage(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+
+	// ページ0の最後まで移動
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 1
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 2
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 2, result.ItemIndex)
+	assert.Equal(t, 0, result.Page)
+
+	// 次のページに移動
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 3
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 3, result.ItemIndex)
+	assert.Equal(t, 1, result.Page, "ページ1に移動")
+}
+
+func TestUseTabMenu_Pagination_NavigateToPreviousPage(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+		},
+	}
+	mount.SetProps(props)
+
+	// ページ1のindex 3から開始するために移動
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 1
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 2
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 3, page 1
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 3, result.ItemIndex)
+	assert.Equal(t, 1, result.Page)
+
+	// 上に移動して前のページに戻る
+	mount.Dispatch(inputmapper.ActionMenuUp) // index 2, page 0
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 2, result.ItemIndex)
+	assert.Equal(t, 0, result.Page, "ページ0に戻る")
+}
+
+func TestUseTabMenu_Pagination_WrapToLastPage(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+
+	// 最初のアイテムで上に移動すると最後に循環
+	mount.Dispatch(inputmapper.ActionMenuUp)
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 4, result.ItemIndex, "最後のアイテムに循環")
+	assert.Equal(t, 1, result.Page, "最後のページに移動")
+}
+
+func TestUseTabMenu_Pagination_WrapToFirstPage(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+		},
+	}
+	mount.SetProps(props)
+
+	// 最後のアイテムまで移動
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	for i := 0; i < 4; i++ {
+		mount.Dispatch(inputmapper.ActionMenuDown)
+		setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+		mount.Update()
+	}
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 4, result.ItemIndex)
+	assert.Equal(t, 1, result.Page)
+
+	// 下に移動すると最初に循環
+	mount.Dispatch(inputmapper.ActionMenuDown)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 0, result.ItemIndex, "最初のアイテムに循環")
+	assert.Equal(t, 0, result.Page, "最初のページに戻る")
+}
+
+func TestUseTabMenu_Pagination_TabChangeResetsPage(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e"}},
+			{ID: "tab2", Items: []string{"x", "y", "z"}},
+		},
+	}
+	mount.SetProps(props)
+
+	// ページ1まで移動
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 1
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 2
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 3, page 1
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 1, result.Page)
+
+	// タブを切り替え
+	mount.Dispatch(inputmapper.ActionMenuTabNext)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 1, result.TabIndex)
+	assert.Equal(t, 0, result.ItemIndex, "アイテムインデックスがリセット")
+	assert.Equal(t, 0, result.Page, "ページがリセット")
+}
+
+func TestUseTabMenu_Pagination_DifferentPageSizes(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}},
+		},
+	}
+	mount.SetProps(props)
+
+	// itemsPerPage=5 でテスト
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 5)
+	mount.Update()
+	assert.Equal(t, 0, result.Page)
+
+	// 5アイテム移動してページ1に到達
+	for i := 0; i < 5; i++ {
+		mount.Dispatch(inputmapper.ActionMenuDown)
+		result = setupTabMenuStateWithPagination(t, mount.Store(), props, 5)
+		mount.Update()
+	}
+	assert.Equal(t, 5, result.ItemIndex)
+	assert.Equal(t, 1, result.Page)
+
+	// itemsPerPage=2 でテスト
+	mount2 := NewMount[tabMenuTestProps]()
+	mount2.SetProps(props)
+	result2 := setupTabMenuStateWithPagination(t, mount2.Store(), props, 2)
+	mount2.Update()
+	assert.Equal(t, 0, result2.Page)
+
+	// 2アイテム移動してページ1に到達
+	mount2.Dispatch(inputmapper.ActionMenuDown)
+	mount2.Dispatch(inputmapper.ActionMenuDown)
+	result2 = setupTabMenuStateWithPagination(t, mount2.Store(), props, 2)
+	mount2.Update()
+	assert.Equal(t, 2, result2.ItemIndex)
+	assert.Equal(t, 1, result2.Page)
+}
+
+func TestUseTabMenu_Pagination_PageNavigationWithLeftRight(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d", "e", "f", "g", "h", "i"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+
+	// 右キーで次のページへ
+	mount.Dispatch(inputmapper.ActionMenuRight)
+	result := setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 3, result.ItemIndex, "1ページ分移動")
+	assert.Equal(t, 1, result.Page)
+
+	// さらに右キーで次のページへ
+	mount.Dispatch(inputmapper.ActionMenuRight)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 6, result.ItemIndex)
+	assert.Equal(t, 2, result.Page)
+
+	// 最後のページでは右キーで移動しない
+	mount.Dispatch(inputmapper.ActionMenuRight)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 6, result.ItemIndex, "最後のページでは移動しない")
+	assert.Equal(t, 2, result.Page)
+
+	// 左キーで前のページへ
+	mount.Dispatch(inputmapper.ActionMenuLeft)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 3, result.ItemIndex)
+	assert.Equal(t, 1, result.Page)
+
+	// さらに左キーで前のページへ
+	mount.Dispatch(inputmapper.ActionMenuLeft)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 0, result.ItemIndex)
+	assert.Equal(t, 0, result.Page)
+
+	// 最初のページでは左キーで移動しない
+	mount.Dispatch(inputmapper.ActionMenuLeft)
+	result = setupTabMenuStateWithPagination(t, mount.Store(), props, 3)
+	mount.Update()
+	assert.Equal(t, 0, result.ItemIndex, "最初のページでは移動しない")
+	assert.Equal(t, 0, result.Page)
 }

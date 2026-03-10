@@ -101,6 +101,8 @@ func TestEquipMenuState_DoAction_Navigation(t *testing.T) {
 		inputmapper.ActionMenuDown,
 		inputmapper.ActionMenuLeft,
 		inputmapper.ActionMenuRight,
+		inputmapper.ActionMenuTabNext,
+		inputmapper.ActionMenuTabPrev,
 	}
 
 	for _, action := range actions {

@@ -13,11 +13,14 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
+
+const statusItemsPerPage = 20
 
 // StatusState はステータス画面のステート
 type StatusState struct {
@@ -68,8 +71,9 @@ func (st *StatusState) Update(world w.World) (es.Transition[w.World], error) {
 		itemCounts[i] = len(tab.Items)
 	}
 	hooks.UseTabMenu(st.mount.Store(), "status", hooks.TabMenuConfig{
-		TabCount:   len(props.Tabs),
-		ItemCounts: itemCounts,
+		TabCount:     len(props.Tabs),
+		ItemCounts:   itemCounts,
+		ItemsPerPage: statusItemsPerPage,
 	})
 
 	if st.mount.Update() {
@@ -91,7 +95,7 @@ func (st *StatusState) DoAction(_ w.World, action inputmapper.ActionID) (es.Tran
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
-	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight:
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	default:
 		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
@@ -307,13 +311,22 @@ func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIn
 	}
 
 	currentTab := tabs[tabIndex]
+	pg := pagination.New(itemIndex, len(currentTab.Items), statusItemsPerPage)
+
+	// ページインジケーター
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
 	columnWidths := []int{20, 100, 60, 60}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	for i, item := range currentTab.Items {
-		isSelected := i == itemIndex
-		styled.NewTableRow(table, columnWidths, []string{"", item.Label, item.Value, item.Modifier}, aligns, &isSelected, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, entry.Item.Value, entry.Item.Modifier}, aligns, &isSelected, res)
 	}
 	container.AddChild(table)
 
