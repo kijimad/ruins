@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -11,56 +10,40 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/input"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
+const (
+	slotItemsPerPage  = 20
+	equipItemsPerPage = 20
+)
+
+// equipSubState は装備メニュー内のサブステート
+type equipSubState int
+
+const (
+	subStateSlotSelect   equipSubState = iota // スロット選択
+	subStateActionWindow                      // アクションウィンドウ
+	subStateEquipSelect                       // 装備選択
+)
+
 // EquipMenuState は装備メニューのゲームステート
 type EquipMenuState struct {
 	es.BaseState[w.World]
-	ui *ebitenui.UI
-
-	menuView            *tabmenu.View
-	itemDesc            *widget.Text      // アイテムの説明
-	specContainer       *widget.Container // 性能コンテナ
-	abilityContainer    *widget.Container // プレイヤーの能力表示コンテナ
-	rootContainer       *widget.Container
-	tabDisplayContainer *widget.Container // タブ表示のコンテナ
-
-	// 現在のタブインデックス（装備選択時の復元用）
-	previousTabIndex int
-
-	// アクション選択ウィンドウ用
-	actionWindow     *widget.Window // アクション選択ウィンドウ
-	actionFocusIndex int            // アクションウィンドウ内のフォーカス
-	actionItems      []string       // アクション項目リスト
-	isWindowMode     bool           // ウィンドウ操作モードかどうか
-
-	// 装備選択状態管理
-	isEquipMode       bool                   // 装備選択モードかどうか
-	equipSlotNumber   gc.EquipmentSlotNumber // 装備スロット番号
-	previousEquipment *ecs.Entity            // 前の装備
-	equipTargetMember ecs.Entity             // 装備対象のメンバー
-}
-
-// equipSlotItem は装備スロット項目の表示データ
-type equipSlotItem struct {
-	SlotLabel string                 // スロット名
-	ItemName  string                 // 装備名
-	UserData  map[string]interface{} // 元のUserData
-}
-
-// equipSelectItem は装備選択モードでの項目データ
-type equipSelectItem struct {
-	Entity ecs.Entity
-	Name   string
+	subState    equipSubState
+	slotMount   *hooks.Mount[slotScreenProps]   // スロット選択画面
+	windowMount *hooks.Mount[windowScreenProps] // アクションウィンドウ
+	equipMount  *hooks.Mount[equipScreenProps]  // 装備選択画面
+	widget      *ebitenui.UI
 }
 
 func (st EquipMenuState) String() string {
@@ -79,8 +62,11 @@ func (st *EquipMenuState) OnPause(_ w.World) error { return nil }
 func (st *EquipMenuState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
-func (st *EquipMenuState) OnStart(world w.World) error {
-	st.ui = st.initUI(world)
+func (st *EquipMenuState) OnStart(_ w.World) error {
+	st.subState = subStateSlotSelect
+	st.slotMount = hooks.NewMount[slotScreenProps]()
+	st.windowMount = hooks.NewMount[windowScreenProps]()
+	st.equipMount = hooks.NewMount[equipScreenProps]()
 	return nil
 }
 
@@ -89,10 +75,7 @@ func (st *EquipMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// UI更新が必要かチェック
-	needsUIUpdate := worldhelper.HasEquipmentChanged(world) || worldhelper.HasInventoryChanged(world)
-
-	// システム更新（フラグをクリアして処理実行）
+	// システム更新
 	for _, updater := range []w.Updater{
 		&gs.EquipmentChangedSystem{},
 		&gs.InventoryChangedSystem{},
@@ -104,453 +87,283 @@ func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) 
 		}
 	}
 
-	// UI更新
-	if needsUIUpdate {
-		st.reloadAbilityContainer(world)
-	}
-
-	// キー入力をActionに変換
-	var action inputmapper.ActionID
-	var ok bool
-	if st.isWindowMode {
-		action, ok = HandleWindowInput()
-	} else {
-		action, ok = st.HandleInput(world.Config)
-	}
-
-	if ok {
+	// 入力処理
+	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
 			return es.Transition[w.World]{}, err
 		} else if transition.Type != es.TransNone {
 			return transition, nil
 		}
+		st.dispatchToCurrentSubState(action)
 	}
 
-	// アクションウィンドウ表示中はTabMenuの更新をスキップ
-	if !st.isWindowMode {
-		if err := st.menuView.Update(); err != nil {
-			return es.Transition[w.World]{}, err
-		}
-	}
-	st.ui.Update()
+	// 画面ごとのProps更新
+	st.updateSubStateProps(world)
 
+	// dirty判定とUI再構築
+	slotDirty := st.slotMount.Update()
+	windowDirty := st.windowMount.Update()
+	equipDirty := st.equipMount.Update()
+	if slotDirty || windowDirty || equipDirty || st.widget == nil {
+		st.widget = st.buildUI(world)
+	}
+
+	st.widget.Update()
 	return st.ConsumeTransition(), nil
 }
 
 // Draw はゲームステートの描画処理を行う
 func (st *EquipMenuState) Draw(_ w.World, screen *ebiten.Image) error {
-	st.ui.Draw(screen)
+	st.widget.Draw(screen)
 	return nil
 }
 
-// ================
+// dispatchToCurrentSubState は現在のサブステートにアクションを送る
+func (st *EquipMenuState) dispatchToCurrentSubState(action inputmapper.ActionID) {
+	switch st.subState {
+	case subStateSlotSelect:
+		st.slotMount.Dispatch(action)
+	case subStateActionWindow:
+		st.windowMount.Dispatch(action)
+	case subStateEquipSelect:
+		st.equipMount.Dispatch(action)
+	}
+}
+
+// updateSubStateProps は現在のサブステートのPropsを更新する
+func (st *EquipMenuState) updateSubStateProps(world w.World) {
+	switch st.subState {
+	case subStateSlotSelect:
+		st.slotMount.SetProps(st.fetchSlotProps(world))
+		props := st.slotMount.GetProps()
+		itemCounts := make([]int, len(props.Tabs))
+		for i, tab := range props.Tabs {
+			itemCounts[i] = len(tab.Items)
+		}
+		hooks.UseTabMenu(st.slotMount.Store(), "slot", hooks.TabMenuConfig{
+			TabCount:     len(props.Tabs),
+			ItemCounts:   itemCounts,
+			ItemsPerPage: slotItemsPerPage,
+		})
+	case subStateActionWindow:
+		st.setupWindowState(world)
+	case subStateEquipSelect:
+		st.equipMount.SetProps(st.fetchEquipProps(world))
+		props := st.equipMount.GetProps()
+		hooks.UseTabMenu(st.equipMount.Store(), "equip", hooks.TabMenuConfig{
+			TabCount:     1,
+			ItemCounts:   []int{len(props.Items)},
+			ItemsPerPage: equipItemsPerPage,
+		})
+	}
+}
 
 // HandleInput はキー入力をActionに変換する
 func (st *EquipMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	keyboardInput := input.GetSharedKeyboardInput()
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
-		return inputmapper.ActionMenuCancel, true
+	switch st.subState {
+	case subStateSlotSelect, subStateEquipSelect:
+		return HandleMenuInput()
+	case subStateActionWindow:
+		return HandleWindowInput()
 	}
-
 	return "", false
 }
 
 // DoAction はActionを実行する
 func (st *EquipMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
-	// ウィンドウモード時のアクション処理
-	if st.isWindowMode {
+	switch st.subState {
+	case subStateActionWindow:
 		switch action {
-		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
-			if UpdateFocusIndex(action, &st.actionFocusIndex, len(st.actionItems)) {
-				st.updateActionWindowDisplay(world)
-			}
-			return es.Transition[w.World]{Type: es.TransNone}, nil
 		case inputmapper.ActionWindowConfirm:
-			st.executeActionItem(world)
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			if err := st.executeActionItem(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
 		case inputmapper.ActionWindowCancel:
-			st.closeActionWindow()
-			return es.Transition[w.World]{Type: es.TransNone}, nil
+			st.subState = subStateSlotSelect
+		case inputmapper.ActionWindowUp, inputmapper.ActionWindowDown:
+			// Dispatchで処理される
 		default:
-			return es.Transition[w.World]{}, fmt.Errorf("ウィンドウモード時の未知のアクション: %s", action)
+			return es.Transition[w.World]{}, fmt.Errorf("subStateActionWindow: 未対応のアクション: %s", action)
+		}
+
+	case subStateEquipSelect:
+		switch action {
+		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+			st.subState = subStateSlotSelect
+		case inputmapper.ActionMenuSelect:
+			if err := st.handleEquipItemSelection(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown:
+			// Dispatchで処理される
+		default:
+			return es.Transition[w.World]{}, fmt.Errorf("subStateEquipSelect: 未対応のアクション: %s", action)
+		}
+
+	case subStateSlotSelect:
+		switch action {
+		case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+			return es.Transition[w.World]{Type: es.TransPop}, nil
+		case inputmapper.ActionMenuSelect:
+			if err := st.handleSlotSelection(world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
+		case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+			// Dispatchで処理される
+		default:
+			return es.Transition[w.World]{}, fmt.Errorf("subStateSlotSelect: 未対応のアクション: %s", action)
 		}
 	}
-
-	switch action {
-	case inputmapper.ActionOpenDebugMenu:
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDebugMenuState}}, nil
-	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
-		return es.Transition[w.World]{Type: es.TransPop}, nil
-	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
-	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // ================
+// Props
+// ================
 
-func (st *EquipMenuState) initUI(world w.World) *ebitenui.UI {
-	res := world.Resources.UIResources
-
-	// TabMenuの設定
-	tabs := st.createTabs(world)
-	config := tabmenu.Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-		ItemsPerPage:     20,
-	}
-
-	callbacks := tabmenu.Callbacks{
-		OnSelectItem: func(_ int, _ int, tab tabmenu.TabItem, item tabmenu.Item) error {
-			return st.handleItemSelection(world, tab, item)
-		},
-		OnCancel: func() {
-			// Escapeで前の画面に戻る
-			st.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		},
-		OnTabChange: func(_, _ int, _ tabmenu.TabItem) {
-			st.updateTabDisplayAsTable(world)
-			st.reloadAbilityContainer(world)
-		},
-		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
-			if err := st.handleItemChange(world, item); err != nil {
-				return err
-			}
-			st.updateTabDisplayAsTable(world)
-			return nil
-		},
-	}
-
-	st.menuView = tabmenu.NewView(config, callbacks, world)
-
-	// アイテムの説明文
-	itemDescContainer := styled.NewRowContainer()
-	st.itemDesc = styled.NewMenuText(" ", world.Resources.UIResources) // 空文字だと初期状態の縦サイズがなくなる
-	itemDescContainer.AddChild(st.itemDesc)
-
-	st.specContainer = styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-	st.abilityContainer = styled.NewVerticalContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-
-	// 初期状態の表示を更新
-	if err := st.updateInitialItemDisplay(world); err != nil {
-		log.Fatalf("Failed to update initial item display: %v", err)
-	}
-
-	// タブ表示のコンテナを作成
-	st.tabDisplayContainer = styled.NewVerticalContainer()
-	st.createTabDisplayUI(world)
-
-	st.rootContainer = styled.NewItemGridContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-	)
-	{
-		// 3x3グリッドレイアウト: 9個の要素が必要
-		// 1行目
-		st.rootContainer.AddChild(styled.NewTitleText("装備", world.Resources.UIResources))
-		st.rootContainer.AddChild(widget.NewContainer()) // 空
-		st.rootContainer.AddChild(widget.NewContainer()) // 空
-
-		// 2行目
-		st.rootContainer.AddChild(st.tabDisplayContainer) // タブとアイテム一覧の表示
-		st.rootContainer.AddChild(widget.NewContainer())  // 空
-		st.rootContainer.AddChild(styled.NewWSplitContainer(st.specContainer, st.abilityContainer))
-
-		// 3行目
-		st.rootContainer.AddChild(itemDescContainer)
-		st.rootContainer.AddChild(widget.NewContainer()) // 空
-		st.rootContainer.AddChild(widget.NewContainer()) // 空
-	}
-
-	return &ebitenui.UI{Container: st.rootContainer}
+type equipTabData struct {
+	ID    string
+	Label string
+	Items []equipItemData
 }
 
-// createTabs はTabMenuで使用するタブを作成する
-func (st *EquipMenuState) createTabs(world w.World) []tabmenu.TabItem {
+type equipItemData struct {
+	SlotLabel  string
+	ItemName   string
+	SlotNumber gc.EquipmentSlotNumber
+	Entity     *ecs.Entity
+	Member     ecs.Entity
+	// 装備選択モード用
+	IsEquipItem bool
+	EquipEntity ecs.Entity
+}
+
+// slotScreenProps はスロット選択画面のProps
+type slotScreenProps struct {
+	Tabs             []equipTabData
+	Player           ecs.Entity
+	PlayerAttributes gc.Attributes
+}
+
+// windowScreenProps はアクションウィンドウのProps
+type windowScreenProps struct {
+	SlotData equipItemData
+}
+
+// equipScreenProps は装備選択画面のProps
+type equipScreenProps struct {
+	Items             []equipItemData
+	SlotNumber        gc.EquipmentSlotNumber
+	PreviousEquipment *ecs.Entity
+	TargetMember      ecs.Entity
+}
+
+// fetchSlotProps はスロット選択画面のPropsを取得する
+func (st *EquipMenuState) fetchSlotProps(world w.World) slotScreenProps {
 	var player ecs.Entity
-	var found bool
+	var playerFound bool
 	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
-		if !found {
-			player = entity
-			found = true
-		}
+		player = entity
+		playerFound = true
 	})
 
-	if !found {
-		return []tabmenu.TabItem{}
+	tabs := st.createSlotTabs(world, player, playerFound)
+
+	var attrs gc.Attributes
+	if playerFound && player.HasComponent(world.Components.Attributes) {
+		attrs = *world.Components.Attributes.Get(player).(*gc.Attributes)
 	}
 
-	allItems := st.createAllSlotItems(world, player, 0)
-	tabs := []tabmenu.TabItem{
-		{
-			ID:    "player_equipment",
-			Label: "装備",
-			Items: allItems,
-		},
+	return slotScreenProps{
+		Tabs:             tabs,
+		Player:           player,
+		PlayerAttributes: attrs,
 	}
-
-	return tabs
 }
 
-// createAllSlotItems は武器と防具の全スロットのMenuItemを作成する
-func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity, _ int) []tabmenu.Item {
-	// 武器スロット5つ + 防具スロット7つ = 12つ
-	items := make([]tabmenu.Item, 0, 12)
+// fetchEquipProps は装備選択画面のPropsを取得する
+func (st *EquipMenuState) fetchEquipProps(world w.World) equipScreenProps {
+	currentProps := st.equipMount.GetProps()
+	entities := st.queryEquipableItemsForSlot(world, currentProps.SlotNumber)
+	items := make([]equipItemData, len(entities))
 
-	// 武器スロットを追加する
+	for i, entity := range entities {
+		name := world.Components.Name.Get(entity).(*gc.Name).Name
+		items[i] = equipItemData{
+			ItemName:    name,
+			IsEquipItem: true,
+			EquipEntity: entity,
+		}
+	}
+
+	return equipScreenProps{
+		Items:             items,
+		SlotNumber:        currentProps.SlotNumber,
+		PreviousEquipment: currentProps.PreviousEquipment,
+		TargetMember:      currentProps.TargetMember,
+	}
+}
+
+func (st *EquipMenuState) createSlotTabs(world w.World, player ecs.Entity, playerFound bool) []equipTabData {
+	// プレイヤーがいない場合でも空のタブを返す
+	items := []equipItemData{}
+	if playerFound {
+		items = st.createAllSlotItems(world, player)
+	}
+	return []equipTabData{
+		{ID: "player_equipment", Label: "装備", Items: items},
+	}
+}
+
+func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) []equipItemData {
+	items := make([]equipItemData, 0, 12)
+
+	// 武器スロット
 	weapons := worldhelper.GetWeapons(world, member)
 	weaponLabels := []string{"武器1", "武器2", "武器3", "武器4", "武器5"}
 	weaponSlotNumbers := []gc.EquipmentSlotNumber{
-		gc.SlotWeapon1,
-		gc.SlotWeapon2,
-		gc.SlotWeapon3,
-		gc.SlotWeapon4,
-		gc.SlotWeapon5,
+		gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5,
 	}
 	for i, weapon := range weapons {
-		slotLabel := weaponLabels[i]
 		itemName := ""
 		if weapon != nil {
 			itemName = world.Components.Name.Get(*weapon).(*gc.Name).Name
 		}
-
-		userData := map[string]interface{}{
-			"member":     member,
-			"slotNumber": weaponSlotNumbers[i],
-			"entity":     weapon,
-		}
-
-		items = append(items, tabmenu.Item{
-			ID:    fmt.Sprintf("weapon_slot_%d", i),
-			Label: slotLabel,
-			UserData: equipSlotItem{
-				SlotLabel: slotLabel,
-				ItemName:  itemName,
-				UserData:  userData,
-			},
+		items = append(items, equipItemData{
+			SlotLabel:  weaponLabels[i],
+			ItemName:   itemName,
+			SlotNumber: weaponSlotNumbers[i],
+			Entity:     weapon,
+			Member:     member,
 		})
 	}
 
-	// 防具スロットを追加
+	// 防具スロット
 	armorSlots := worldhelper.GetArmorEquipments(world, member)
 	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(腕)", "防具(手)", "防具(脚)", "防具(足)", "防具(装飾)"}
-	armorSlotNumbers := []gc.EquipmentSlotNumber{gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry}
+	armorSlotNumbers := []gc.EquipmentSlotNumber{
+		gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry,
+	}
 	for i, slot := range armorSlots {
-		slotLabel := armorLabels[i]
 		itemName := ""
 		if slot != nil {
 			itemName = world.Components.Name.Get(*slot).(*gc.Name).Name
 		}
-
-		userData := map[string]interface{}{
-			"member":     member,
-			"slotNumber": armorSlotNumbers[i],
-			"entity":     slot,
-		}
-
-		items = append(items, tabmenu.Item{
-			ID:    fmt.Sprintf("wear_slot_%d", i),
-			Label: slotLabel,
-			UserData: equipSlotItem{
-				SlotLabel: slotLabel,
-				ItemName:  itemName,
-				UserData:  userData,
-			},
+		items = append(items, equipItemData{
+			SlotLabel:  armorLabels[i],
+			ItemName:   itemName,
+			SlotNumber: armorSlotNumbers[i],
+			Entity:     slot,
+			Member:     member,
 		})
 	}
 
 	return items
 }
 
-// handleItemSelection はアイテム選択時の処理
-func (st *EquipMenuState) handleItemSelection(world w.World, _ tabmenu.TabItem, item tabmenu.Item) error {
-	if st.isEquipMode {
-		// 装備選択モードの場合
-		return st.handleEquipItemSelection(world, item)
-	}
-
-	// スロット選択モードの場合
-	slotItem, ok := item.UserData.(equipSlotItem)
-	if !ok {
-		return fmt.Errorf("unexpected item UserData")
-	}
-
-	st.showActionWindow(world, slotItem.UserData)
-	return nil
-}
-
-// handleItemChange はアイテム変更時の処理（カーソル移動）
-func (st *EquipMenuState) handleItemChange(world w.World, item tabmenu.Item) error {
-	// 無効なアイテムの場合は何もしない
-	if item.UserData == nil {
-		st.itemDesc.Label = " "
-		st.specContainer.RemoveChildren()
-		return nil
-	}
-
-	if st.isEquipMode {
-		// 装備選択モードの場合
-		selectItem, ok := item.UserData.(equipSelectItem)
-		if !ok {
-			return fmt.Errorf("unexpected item UserData")
-		}
-
-		entity := selectItem.Entity
-		if entity.HasComponent(world.Components.Description) {
-			desc := world.Components.Description.Get(entity).(*gc.Description)
-			st.itemDesc.Label = desc.Description
-		}
-		views.UpdateSpec(world, st.specContainer, entity)
-	} else {
-		// スロット選択モードの場合
-		slotItem, ok := item.UserData.(equipSlotItem)
-		if !ok {
-			return fmt.Errorf("unexpected item UserData")
-		}
-
-		userData := slotItem.UserData
-		slotEntity := userData["entity"].(*ecs.Entity)
-		if slotEntity != nil {
-			if (*slotEntity).HasComponent(world.Components.Description) {
-				desc := world.Components.Description.Get(*slotEntity).(*gc.Description)
-				st.itemDesc.Label = desc.Description
-			}
-			views.UpdateSpec(world, st.specContainer, *slotEntity)
-		} else {
-			st.itemDesc.Label = " "
-			st.specContainer.RemoveChildren()
-		}
-
-		// プレイヤー情報を更新
-		if _, ok := userData["member"].(ecs.Entity); ok {
-			st.reloadAbilityContainer(world)
-		}
-	}
-	return nil
-}
-
-// createTabDisplayUI はタブ表示UIを作成する
-func (st *EquipMenuState) createTabDisplayUI(world w.World) {
-	st.updateTabDisplayAsTable(world)
-}
-
-// updateTabDisplayAsTable はタブ表示コンテナをテーブル形式で更新する
-func (st *EquipMenuState) updateTabDisplayAsTable(world w.World) {
-	st.tabDisplayContainer.RemoveChildren()
-	res := world.Resources.UIResources
-
-	currentTab := st.menuView.GetCurrentTab()
-	currentItemIndex := st.menuView.GetCurrentItemIndex()
-
-	if st.isEquipMode {
-		// 装備選択モード: カーソル、アイテム名の2列
-		columnWidths := []int{20, 150}
-
-		table := styled.NewTableContainer(columnWidths, res)
-
-		for i, item := range currentTab.Items {
-			isSelected := i == currentItemIndex
-
-			selectItem, ok := item.UserData.(equipSelectItem)
-			name := item.Label
-			if ok {
-				name = selectItem.Name
-			}
-
-			styled.NewTableRow(table, columnWidths, []string{"", name}, nil, &isSelected, res)
-		}
-
-		st.tabDisplayContainer.AddChild(table)
-	} else {
-		// スロット選択モード: カーソル、スロット名、装備名の3列
-		columnWidths := []int{20, 80, 120}
-
-		table := styled.NewTableContainer(columnWidths, res)
-
-		for i, item := range currentTab.Items {
-			isSelected := i == currentItemIndex
-
-			slotItem, ok := item.UserData.(equipSlotItem)
-			slotLabel := item.Label
-			itemName := ""
-			if ok {
-				slotLabel = slotItem.SlotLabel
-				itemName = slotItem.ItemName
-			}
-
-			styled.NewTableRow(table, columnWidths, []string{"", slotLabel, itemName}, nil, &isSelected, res)
-		}
-
-		st.tabDisplayContainer.AddChild(table)
-	}
-
-	// アイテムがない場合の表示
-	if len(currentTab.Items) == 0 {
-		emptyText := styled.NewDescriptionText("(装備なし)", res)
-		st.tabDisplayContainer.AddChild(emptyText)
-	}
-}
-
-// updateInitialItemDisplay は初期状態のアイテム表示を更新する
-func (st *EquipMenuState) updateInitialItemDisplay(world w.World) error {
-	currentTab := st.menuView.GetCurrentTab()
-	currentItemIndex := st.menuView.GetCurrentItemIndex()
-
-	if len(currentTab.Items) > 0 && currentItemIndex >= 0 && currentItemIndex < len(currentTab.Items) {
-		currentItem := currentTab.Items[currentItemIndex]
-		if err := st.handleItemChange(world, currentItem); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// reloadAbilityContainer はメンバーの能力表示コンテナを更新する
-func (st *EquipMenuState) reloadAbilityContainer(world w.World) {
-	st.abilityContainer.RemoveChildren()
-	res := world.Resources.UIResources
-
-	var player ecs.Entity
-	var found bool
-	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
-		if !found {
-			player = entity
-			found = true
-		}
-	})
-
-	if !found {
-		return
-	}
-
-	// プレイヤーの基本情報を表示
-	views.AddMemberStatusText(st.abilityContainer, player, world)
-
-	// 能力値をテーブル形式で表示
-	columnWidths := []int{50, 30, 40}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
-
-	attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
-
-	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", attrs.Vitality.Total), fmt.Sprintf("(%+d)", attrs.Vitality.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%d", attrs.Strength.Total), fmt.Sprintf("(%+d)", attrs.Strength.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%d", attrs.Sensation.Total), fmt.Sprintf("(%+d)", attrs.Sensation.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%d", attrs.Dexterity.Total), fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%d", attrs.Agility.Total), fmt.Sprintf("(%+d)", attrs.Agility.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%d", attrs.Defense.Total), fmt.Sprintf("(%+d)", attrs.Defense.Modifier)}, aligns, nil, res)
-	st.abilityContainer.AddChild(table)
-}
-
-// queryEquipableItemsForSlot はスロット番号に応じた装備可能なアイテムを取得する
 func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber gc.EquipmentSlotNumber) []ecs.Entity {
 	items := []ecs.Entity{}
 
-	// 武器スロットの場合
 	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
 		world.Manager.Join(
 			world.Components.Item,
@@ -560,8 +373,6 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 			items = append(items, entity)
 		}))
 	} else {
-		// 防具スロットの場合
-		// スロット番号からEquipmentTypeを決定
 		var targetCategory gc.EquipmentType
 		switch slotNumber {
 		case gc.SlotHead:
@@ -597,219 +408,374 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	return worldhelper.SortEntities(world, items)
 }
 
-// showActionWindow はアクションウィンドウを表示する
-func (st *EquipMenuState) showActionWindow(world w.World, userData map[string]interface{}) {
-	windowContainer := styled.NewWindowContainer(world.Resources.UIResources)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", world.Resources.UIResources)
-	st.actionWindow = styled.NewSmallWindow(titleContainer, windowContainer)
+// ================
+// Window
+// ================
 
-	// アクション項目を準備
-	st.actionItems = []string{}
+func (st *EquipMenuState) setupWindowState(world w.World) {
+	windowProps := st.windowMount.GetProps()
+	actionItems := st.getActionItems(world, windowProps.SlotData)
 
-	// スロットに装備されているかチェック
-	slotEntity, hasEquipment := userData["entity"].(*ecs.Entity)
-	if hasEquipment && slotEntity != nil {
-		st.actionItems = append(st.actionItems, "外す")
+	hooks.UseState(st.windowMount.Store(), "equip_window_index", 0, func(v int, action inputmapper.ActionID) int {
+		switch action {
+		case inputmapper.ActionWindowUp:
+			if v > 0 {
+				return v - 1
+			}
+			return len(actionItems) - 1
+		case inputmapper.ActionWindowDown:
+			if v < len(actionItems)-1 {
+				return v + 1
+			}
+			return 0
+		default:
+			return v
+		}
+	})
+}
+
+func (st *EquipMenuState) getActionItems(world w.World, item equipItemData) []string {
+	if item.SlotLabel == "" {
+		return []string{TextClose}
 	}
 
-	// 装備可能なアイテムがあるかチェック
-	slotNumber := userData["slotNumber"].(gc.EquipmentSlotNumber)
-	equipableItems := st.queryEquipableItemsForSlot(world, slotNumber)
+	actionItems := []string{}
+
+	if item.Entity != nil {
+		actionItems = append(actionItems, "外す")
+	}
+
+	equipableItems := st.queryEquipableItemsForSlot(world, item.SlotNumber)
 	if len(equipableItems) > 0 {
-		st.actionItems = append(st.actionItems, "装備する")
+		actionItems = append(actionItems, "装備する")
 	}
 
-	st.actionItems = append(st.actionItems, TextClose)
-
-	st.actionFocusIndex = 0
-	st.isWindowMode = true
-
-	// UI要素を作成（表示のみ、操作はキーボードで行う）
-	st.createActionWindowUI(world, windowContainer)
-
-	st.actionWindow.SetLocation(getCenterWinRect(world))
-	st.ui.AddWindow(st.actionWindow)
+	actionItems = append(actionItems, TextClose)
+	return actionItems
 }
 
-// createActionWindowUI はアクションウィンドウのUI要素を作成する
-func (st *EquipMenuState) createActionWindowUI(world w.World, _ *widget.Container) {
-	st.updateActionWindowDisplay(world)
-}
-
-// updateActionWindowDisplay はアクションウィンドウの表示を更新する
-func (st *EquipMenuState) updateActionWindowDisplay(world w.World) {
-	if st.actionWindow == nil {
-		return
-	}
-
-	// 既存のウィンドウを閉じて新しく作成
-	st.actionWindow.Close()
-
-	windowContainer := styled.NewWindowContainer(world.Resources.UIResources)
-	titleContainer := styled.NewWindowHeaderContainer("アクション選択", world.Resources.UIResources)
-	st.actionWindow = styled.NewSmallWindow(titleContainer, windowContainer)
-
-	// アクション項目を表示
-	for i, action := range st.actionItems {
-		isSelected := i == st.actionFocusIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, world.Resources.UIResources)
-		windowContainer.AddChild(actionWidget)
-	}
-
-	st.actionWindow.SetLocation(getCenterWinRect(world))
-	st.ui.AddWindow(st.actionWindow)
-}
-
-// closeActionWindow はアクションウィンドウを閉じる
-func (st *EquipMenuState) closeActionWindow() {
-	if st.actionWindow != nil {
-		st.actionWindow.Close()
-		st.actionWindow = nil
-	}
-	st.isWindowMode = false
-	st.actionFocusIndex = 0
-	st.actionItems = nil
-}
-
-// executeActionItem は選択されたアクション項目を実行する
-func (st *EquipMenuState) executeActionItem(world w.World) {
-	if st.actionFocusIndex >= len(st.actionItems) {
-		return
-	}
-
-	selectedAction := st.actionItems[st.actionFocusIndex]
-	currentTab := st.menuView.GetCurrentTab()
-	currentItemIndex := st.menuView.GetCurrentItemIndex()
-
-	if currentItemIndex < 0 || currentItemIndex >= len(currentTab.Items) {
-		st.closeActionWindow()
-		return
-	}
-
-	slotItem, ok := currentTab.Items[currentItemIndex].UserData.(equipSlotItem)
+// handleSlotSelection はスロット選択画面での選択処理
+func (st *EquipMenuState) handleSlotSelection(_ w.World) error {
+	props := st.slotMount.GetProps()
+	tabIndex, ok := hooks.GetState[int](st.slotMount, "slot_tabIndex")
 	if !ok {
-		st.closeActionWindow()
-		return
+		return fmt.Errorf("slot_tabIndexの取得に失敗")
 	}
-	userData := slotItem.UserData
-
-	switch selectedAction {
-	case "装備する":
-		st.startEquipMode(world, userData)
-	case "外す":
-		st.unequipItem(world, userData)
-	case TextClose:
-		st.closeActionWindow()
-	}
-}
-
-// startEquipMode は装備選択モードを開始する
-func (st *EquipMenuState) startEquipMode(world w.World, userData map[string]interface{}) {
-	member := userData["member"].(ecs.Entity)
-	slotNumber := userData["slotNumber"].(gc.EquipmentSlotNumber)
-	previousEquipment := userData["entity"].(*ecs.Entity)
-
-	// 現在のタブインデックスを保存
-	st.previousTabIndex = st.menuView.GetCurrentTabIndex()
-
-	st.isEquipMode = true
-	st.equipSlotNumber = slotNumber
-	st.previousEquipment = previousEquipment
-	st.equipTargetMember = member // 装備対象のメンバーを保存
-
-	// スロット番号に応じた装備可能なアイテムを取得
-	items := st.queryEquipableItemsForSlot(world, slotNumber)
-	equipItems := st.createEquipMenuItems(world, items, member)
-
-	newTabs := []tabmenu.TabItem{
-		{
-			ID:    "equip_selection",
-			Label: "装備選択",
-			Items: equipItems,
-		},
-	}
-
-	st.menuView.UpdateTabs(newTabs)
-	st.updateTabDisplayAsTable(world)
-	st.closeActionWindow()
-}
-
-// createEquipMenuItems は装備選択用のMenuItemを作成する
-func (st *EquipMenuState) createEquipMenuItems(world w.World, entities []ecs.Entity, _ ecs.Entity) []tabmenu.Item {
-	items := make([]tabmenu.Item, len(entities))
-
-	for i, entity := range entities {
-		name := world.Components.Name.Get(entity).(*gc.Name).Name
-		items[i] = tabmenu.Item{
-			ID:    fmt.Sprintf("equip_entity_%d", entity),
-			Label: name,
-			UserData: equipSelectItem{
-				Entity: entity,
-				Name:   name,
-			},
-		}
-	}
-
-	return items
-}
-
-// handleEquipItemSelection は装備選択時の処理
-func (st *EquipMenuState) handleEquipItemSelection(world w.World, item tabmenu.Item) error {
-	selectItem, ok := item.UserData.(equipSelectItem)
+	itemIndex, ok := hooks.GetState[int](st.slotMount, "slot_itemIndex")
 	if !ok {
-		return fmt.Errorf("unexpected item UserData")
+		return fmt.Errorf("slot_itemIndexの取得に失敗")
 	}
 
-	// 前の装備を外す
-	if st.previousEquipment != nil {
-		worldhelper.MoveToBackpack(world, *st.previousEquipment, st.equipTargetMember)
+	if tabIndex >= len(props.Tabs) {
+		return nil
 	}
-
-	// 保存されたメンバーに新しい装備を装着
-	worldhelper.MoveToEquip(world, selectItem.Entity, st.equipTargetMember, st.equipSlotNumber)
-
-	// 装備モードを終了して元の表示に戻る
-	return st.exitEquipMode(world)
-}
-
-// unequipItem は装備を外す
-func (st *EquipMenuState) unequipItem(world w.World, userData map[string]interface{}) {
-	slotEntity, hasEquipment := userData["entity"].(*ecs.Entity)
-	member := userData["member"].(ecs.Entity)
-	if hasEquipment && slotEntity != nil {
-		worldhelper.MoveToBackpack(world, *slotEntity, member)
-		st.reloadTabs(world)
-		st.updateTabDisplayAsTable(world)
-		st.reloadAbilityContainer(world)
+	tab := props.Tabs[tabIndex]
+	if itemIndex >= len(tab.Items) {
+		return nil
 	}
-	st.closeActionWindow()
-}
+	item := tab.Items[itemIndex]
 
-// exitEquipMode は装備選択モードを終了する
-func (st *EquipMenuState) exitEquipMode(world w.World) error {
-	st.isEquipMode = false
-	st.equipSlotNumber = 0
-	st.previousEquipment = nil
-	st.equipTargetMember = 0 // メンバー情報をクリア
-
-	// 元のタブに戻る
-	newTabs := st.createTabs(world)
-	st.menuView.UpdateTabs(newTabs)
-
-	// 保存されたタブインデックスに復元
-	if st.previousTabIndex >= 0 && st.previousTabIndex < len(newTabs) {
-		if err := st.menuView.SetTabIndex(st.previousTabIndex); err != nil {
-			return err
-		}
-	}
-
-	st.updateTabDisplayAsTable(world)
-	st.reloadAbilityContainer(world)
+	st.subState = subStateActionWindow
+	st.windowMount = hooks.NewMount[windowScreenProps]()
+	st.windowMount.SetProps(windowScreenProps{
+		SlotData: item,
+	})
 	return nil
 }
 
-// reloadTabs はタブの内容を再読み込みする
-func (st *EquipMenuState) reloadTabs(world w.World) {
-	newTabs := st.createTabs(world)
-	st.menuView.UpdateTabs(newTabs)
+func (st *EquipMenuState) executeActionItem(world w.World) error {
+	windowProps := st.windowMount.GetProps()
+	actionIndex, ok := hooks.GetState[int](st.windowMount, "equip_window_index")
+	if !ok {
+		return fmt.Errorf("equip_window_indexの取得に失敗")
+	}
+	actionItems := st.getActionItems(world, windowProps.SlotData)
+
+	if actionIndex >= len(actionItems) {
+		return nil
+	}
+
+	selectedAction := actionItems[actionIndex]
+	slotData := windowProps.SlotData
+
+	switch selectedAction {
+	case "装備する":
+		st.subState = subStateEquipSelect
+		st.equipMount = hooks.NewMount[equipScreenProps]()
+		st.equipMount.SetProps(equipScreenProps{
+			SlotNumber:        slotData.SlotNumber,
+			PreviousEquipment: slotData.Entity,
+			TargetMember:      slotData.Member,
+		})
+	case "外す":
+		if slotData.Entity != nil {
+			worldhelper.MoveToBackpack(world, *slotData.Entity, slotData.Member)
+		}
+		st.subState = subStateSlotSelect
+	case TextClose:
+		st.subState = subStateSlotSelect
+	}
+	return nil
+}
+
+func (st *EquipMenuState) handleEquipItemSelection(world w.World) error {
+	props := st.equipMount.GetProps()
+	itemIndex, ok := hooks.GetState[int](st.equipMount, "equip_itemIndex")
+	if !ok {
+		return fmt.Errorf("equip_itemIndexの取得に失敗")
+	}
+
+	if itemIndex >= len(props.Items) {
+		return nil
+	}
+	item := props.Items[itemIndex]
+
+	// 前の装備を外す
+	if props.PreviousEquipment != nil {
+		worldhelper.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember)
+	}
+
+	// 新しい装備を装着
+	worldhelper.MoveToEquip(world, item.EquipEntity, props.TargetMember, props.SlotNumber)
+
+	st.subState = subStateSlotSelect
+	return nil
+}
+
+// ================
+// buildUI
+// ================
+
+func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
+	res := world.Resources.UIResources
+
+	root := styled.NewItemGridContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+
+	// 1行目: タイトル、空、空
+	root.AddChild(styled.NewTitleText("装備", res))
+	root.AddChild(widget.NewContainer())
+	root.AddChild(widget.NewContainer())
+
+	// サブステートに応じてUIを構築
+	switch st.subState {
+	case subStateEquipSelect:
+		props := st.equipMount.GetProps()
+		itemIndex, _ := hooks.GetState[int](st.equipMount, "equip_itemIndex")
+		root.AddChild(st.buildEquipSelectContainer(props, itemIndex, res))
+		root.AddChild(widget.NewContainer())
+		root.AddChild(st.buildEquipDetailContainer(world, props, itemIndex, res))
+		root.AddChild(st.buildEquipDescContainer(world, props.Items, itemIndex, res))
+	default: // screenSlotSelect, screenActionWindow
+		slotProps := st.slotMount.GetProps()
+		tabIndex, _ := hooks.GetState[int](st.slotMount, "slot_tabIndex")
+		itemIndex, _ := hooks.GetState[int](st.slotMount, "slot_itemIndex")
+		root.AddChild(st.buildSlotContainer(slotProps.Tabs, tabIndex, itemIndex, res))
+		root.AddChild(widget.NewContainer())
+		root.AddChild(st.buildSlotDetailContainer(world, slotProps, tabIndex, itemIndex, res))
+		root.AddChild(st.buildSlotDescContainer(world, slotProps.Tabs, tabIndex, itemIndex, res))
+	}
+	root.AddChild(widget.NewContainer())
+	root.AddChild(widget.NewContainer())
+
+	eui := &ebitenui.UI{Container: root}
+
+	// アクションウィンドウを追加
+	if st.subState == subStateActionWindow {
+		windowProps := st.windowMount.GetProps()
+		actionWindow := st.buildActionWindow(world, windowProps)
+		eui.AddWindow(actionWindow)
+	}
+
+	return eui
+}
+
+// buildSlotContainer はスロット選択画面のアイテム一覧を構築する
+func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer()
+	if tabIndex >= len(tabs) {
+		return container
+	}
+
+	currentTab := tabs[tabIndex]
+	pg := pagination.New(itemIndex, len(currentTab.Items), slotItemsPerPage)
+
+	// ページインジケーター
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
+	columnWidths := []int{20, 80, 120}
+	table := styled.NewTableContainer(columnWidths, res)
+	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.SlotLabel, entry.Item.ItemName}, nil, &isSelected, res)
+	}
+	container.AddChild(table)
+
+	if len(currentTab.Items) == 0 {
+		container.AddChild(styled.NewDescriptionText("(装備なし)", res))
+	}
+
+	return container
+}
+
+// buildEquipSelectContainer は装備選択画面のアイテム一覧を構築する
+func (st *EquipMenuState) buildEquipSelectContainer(props equipScreenProps, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer()
+	pg := pagination.New(itemIndex, len(props.Items), equipItemsPerPage)
+
+	// ページインジケーター
+	pageText := pg.GetPageText()
+	if pageText == "" {
+		pageText = " "
+	}
+	container.AddChild(styled.NewPageIndicator(pageText, res))
+
+	columnWidths := []int{20, 150}
+	table := styled.NewTableContainer(columnWidths, res)
+	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
+		isSelected := pg.IsSelectedInPage(entry.Index)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.ItemName}, nil, &isSelected, res)
+	}
+	container.AddChild(table)
+
+	if len(props.Items) == 0 {
+		container.AddChild(styled.NewDescriptionText("(装備なし)", res))
+	}
+
+	return container
+}
+
+// buildSlotDetailContainer はスロット選択画面の詳細表示を構築する
+func (st *EquipMenuState) buildSlotDetailContainer(world w.World, props slotScreenProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+	specContainer := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+	abilityContainer := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+
+	// 性能表示
+	if tabIndex < len(props.Tabs) && itemIndex < len(props.Tabs[tabIndex].Items) {
+		item := props.Tabs[tabIndex].Items[itemIndex]
+		if item.Entity != nil {
+			views.UpdateSpec(world, specContainer, *item.Entity)
+		}
+	}
+
+	// 能力表示
+	st.buildAbilityDisplay(world, abilityContainer, props.Player, res)
+
+	return styled.NewWSplitContainer(specContainer, abilityContainer)
+}
+
+// buildEquipDetailContainer は装備選択画面の詳細表示を構築する
+func (st *EquipMenuState) buildEquipDetailContainer(world w.World, props equipScreenProps, itemIndex int, res *resources.UIResources) *widget.Container {
+	specContainer := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+	abilityContainer := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+
+	// 性能表示
+	if itemIndex < len(props.Items) {
+		item := props.Items[itemIndex]
+		views.UpdateSpec(world, specContainer, item.EquipEntity)
+	}
+
+	// 能力表示(装備選択中もプレイヤー能力を表示)
+	slotProps := st.slotMount.GetProps()
+	st.buildAbilityDisplay(world, abilityContainer, slotProps.Player, res)
+
+	return styled.NewWSplitContainer(specContainer, abilityContainer)
+}
+
+func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.Container, player ecs.Entity, res *resources.UIResources) {
+	if !player.HasComponent(world.Components.Player) {
+		return
+	}
+
+	views.AddMemberStatusText(container, player, world)
+
+	if !player.HasComponent(world.Components.Attributes) {
+		return
+	}
+
+	columnWidths := []int{50, 30, 40}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+
+	attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", attrs.Vitality.Total), fmt.Sprintf("(%+d)", attrs.Vitality.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%d", attrs.Strength.Total), fmt.Sprintf("(%+d)", attrs.Strength.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%d", attrs.Sensation.Total), fmt.Sprintf("(%+d)", attrs.Sensation.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%d", attrs.Dexterity.Total), fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%d", attrs.Agility.Total), fmt.Sprintf("(%+d)", attrs.Agility.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%d", attrs.Defense.Total), fmt.Sprintf("(%+d)", attrs.Defense.Modifier)}, aligns, nil, res)
+	container.AddChild(table)
+}
+
+// buildSlotDescContainer はスロット選択画面の説明文を構築する
+func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	desc := " "
+
+	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
+		item := tabs[tabIndex].Items[itemIndex]
+		if item.Entity != nil && (*item.Entity).HasComponent(world.Components.Description) {
+			descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)
+			desc = descComp.Description
+		}
+	}
+
+	if desc == "" {
+		desc = " "
+	}
+	container.AddChild(styled.NewMenuText(desc, res))
+	return container
+}
+
+// buildEquipDescContainer は装備選択画面の説明文を構築する
+func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipItemData, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	desc := " "
+
+	if itemIndex < len(items) {
+		item := items[itemIndex]
+		if item.EquipEntity.HasComponent(world.Components.Description) {
+			descComp := world.Components.Description.Get(item.EquipEntity).(*gc.Description)
+			desc = descComp.Description
+		}
+	}
+
+	if desc == "" {
+		desc = " "
+	}
+	container.AddChild(styled.NewMenuText(desc, res))
+	return container
+}
+
+func (st *EquipMenuState) buildActionWindow(world w.World, windowProps windowScreenProps) *widget.Window {
+	res := world.Resources.UIResources
+	actionIndex, _ := hooks.GetState[int](st.windowMount, "equip_window_index")
+	actionItems := st.getActionItems(world, windowProps.SlotData)
+
+	windowContainer := styled.NewWindowContainer(res)
+	titleContainer := styled.NewWindowHeaderContainer("アクション選択", res)
+	window := styled.NewSmallWindow(titleContainer, windowContainer)
+
+	for i, action := range actionItems {
+		isSelected := i == actionIndex
+		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		windowContainer.AddChild(actionWidget)
+	}
+
+	window.SetLocation(getCenterWinRect(world))
+	return window
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/widgets/render"
+	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -139,7 +139,7 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
 // drawDamageText はエンティティ座標でダメージテキストを描画する
@@ -169,7 +169,7 @@ func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Imag
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する

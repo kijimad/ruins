@@ -51,6 +51,9 @@ func initDebugData(world w.World, player ecs.Entity) {
 	_, _ = SpawnItem(world, "作業用ヘルメット", 1, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "革のブーツ", 1, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "レイガン", 1, gc.ItemLocationInPlayerBackpack)
+	for i := 0; i < 30; i++ {
+		_, _ = SpawnItem(world, "鉄のナイフ", 1, gc.ItemLocationInPlayerBackpack)
+	}
 	// Stackableアイテム
 	_, _ = SpawnItem(world, "ルビー原石", 2, gc.ItemLocationInPlayerBackpack)
 	_, _ = SpawnItem(world, "回復薬", 3, gc.ItemLocationInPlayerBackpack)

@@ -55,12 +55,14 @@ const (
 
 // メニュー操作アクション
 const (
-	ActionMenuUp     ActionID = "menu_up"
-	ActionMenuDown   ActionID = "menu_down"
-	ActionMenuLeft   ActionID = "menu_left"
-	ActionMenuRight  ActionID = "menu_right"
-	ActionMenuSelect ActionID = "menu_select"
-	ActionMenuCancel ActionID = "menu_cancel"
+	ActionMenuUp      ActionID = "menu_up"
+	ActionMenuDown    ActionID = "menu_down"
+	ActionMenuLeft    ActionID = "menu_left"
+	ActionMenuRight   ActionID = "menu_right"
+	ActionMenuSelect  ActionID = "menu_select"
+	ActionMenuCancel  ActionID = "menu_cancel"
+	ActionMenuTabNext ActionID = "menu_tab_next"
+	ActionMenuTabPrev ActionID = "menu_tab_prev"
 )
 
 // メッセージウィンドウ系アクション

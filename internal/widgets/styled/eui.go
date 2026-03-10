@@ -196,13 +196,12 @@ func NewPageIndicator(text string, res *resources.UIResources) *widget.Container
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true, // 横幅を親コンテナに合わせる
 			}),
-			widget.WidgetOpts.MinSize(120, 0), // NewListItemTextと同じ最小横幅
 		),
 	)
 
 	// 右寄せのテキスト
 	textWidget := widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.SmallFace, consts.ForegroundColor),
+		widget.TextOpts.Text(text, &res.Text.SmallFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionEnd, // 右寄せ

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -55,49 +56,139 @@ func TestProfessionItems(t *testing.T) {
 	}
 }
 
-func TestProfessionSelectionNavigation(t *testing.T) {
+func TestCharacterJobState_OnStart(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterJobState{playerName: "TestPlayer"}
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
 
-	assert.Equal(t, 0, state.menuView.GetCurrentItemIndex(), "初期フォーカスは0")
-
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuDown))
-	assert.Equal(t, 1, state.menuView.GetCurrentItemIndex(), "下移動後は1")
-
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuUp))
-	assert.Equal(t, 0, state.menuView.GetCurrentItemIndex(), "上移動後は0")
+	err := state.OnStart(world)
+	require.NoError(t, err)
+	assert.NotNil(t, state.menuMount, "menuMountが初期化されている")
 }
 
-func TestProfessionSelectionCircularNavigation(t *testing.T) {
+func TestCharacterJobState_FetchProps(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterJobState{playerName: "TestPlayer"}
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	require.NoError(t, state.OnStart(world))
 
-	currentTab := state.menuView.GetCurrentTab()
-	itemCount := len(currentTab.Items)
-	require.NoError(t, state.menuView.SetItemIndex(itemCount-1))
+	props := state.fetchProps()
 
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuDown))
-	assert.Equal(t, 0, state.menuView.GetCurrentItemIndex(), "循環移動で最初に戻る")
+	assert.Equal(t, 4, len(props.Items), "職業は4つ")
+	assert.Equal(t, "避難民", props.Items[0].Profession.Name)
+	assert.Equal(t, "軍人", props.Items[1].Profession.Name)
+	assert.Equal(t, "整備士", props.Items[2].Profession.Name)
+	assert.Equal(t, "猟師", props.Items[3].Profession.Name)
 }
 
-func TestProfessionSelectionCancel(t *testing.T) {
+func TestCharacterJobState_Navigation(t *testing.T) {
 	t.Parallel()
 
 	state := &CharacterJobState{playerName: "TestPlayer"}
 	world := testutil.InitTestWorld(t)
-	state.initMenu(world)
+	require.NoError(t, state.OnStart(world))
 
-	require.NoError(t, state.menuView.DoAction(inputmapper.ActionMenuCancel))
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
 
-	transition := state.GetTransition()
-	require.NotNil(t, transition, "トランジションが設定されている")
+	// 初期状態
+	itemIndex, ok := hooks.GetState[int](state.menuMount, "job_itemIndex")
+	assert.True(t, ok)
+	assert.Equal(t, 0, itemIndex, "初期インデックスは0")
+
+	// 下に移動
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "job_itemIndex")
+	assert.Equal(t, 1, itemIndex, "下移動後は1")
+
+	// 上に移動
+	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
+	state.menuMount.Update()
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "job_itemIndex")
+	assert.Equal(t, 0, itemIndex, "上移動後は0")
+}
+
+func TestCharacterJobState_CircularNavigation(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterJobState{playerName: "TestPlayer"}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	props := state.fetchProps()
+	state.menuMount.SetProps(props)
+	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
+
+	// 最初から上に移動すると最後に
+	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
+	state.menuMount.Update()
+	itemIndex, _ := hooks.GetState[int](state.menuMount, "job_itemIndex")
+	assert.Equal(t, 3, itemIndex, "循環して最後の項目に移動")
+
+	// 最後から下に移動すると最初に
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
+	itemIndex, _ = hooks.GetState[int](state.menuMount, "job_itemIndex")
+	assert.Equal(t, 0, itemIndex, "循環して最初の項目に移動")
+}
+
+func TestCharacterJobState_DoAction_Cancel(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterJobState{playerName: "TestPlayer"}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	transition, err := state.DoAction(world, inputmapper.ActionMenuCancel)
+	require.NoError(t, err)
 	assert.Equal(t, es.TransPop, transition.Type, "キャンセルでTransPop")
+}
+
+func TestCharacterJobState_DoAction_CloseMenu(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterJobState{playerName: "TestPlayer"}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	transition, err := state.DoAction(world, inputmapper.ActionCloseMenu)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransPop, transition.Type, "CloseMenuでTransPop")
+}
+
+func TestCharacterJobState_DoAction_Navigation(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterJobState{playerName: "TestPlayer"}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	actions := []inputmapper.ActionID{
+		inputmapper.ActionMenuUp,
+		inputmapper.ActionMenuDown,
+		inputmapper.ActionMenuLeft,
+		inputmapper.ActionMenuRight,
+		inputmapper.ActionMenuTabNext,
+		inputmapper.ActionMenuTabPrev,
+	}
+
+	for _, action := range actions {
+		transition, err := state.DoAction(world, action)
+		require.NoError(t, err)
+		assert.Equal(t, es.TransNone, transition.Type, "ナビゲーションはTransNone: %s", action)
+	}
 }
 
 func TestNewCharacterJobState(t *testing.T) {
@@ -108,4 +199,21 @@ func TestNewCharacterJobState(t *testing.T) {
 	state := factory().(*CharacterJobState)
 
 	assert.Equal(t, playerName, state.playerName, "プレイヤー名が設定される")
+}
+
+func TestCharacterJobState_HandleInput(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterJobState{playerName: "TestPlayer"}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	_, _ = state.HandleInput(world.Config)
+}
+
+func TestCharacterJobState_String(t *testing.T) {
+	t.Parallel()
+
+	state := &CharacterJobState{}
+	assert.Equal(t, "CharacterJob", state.String())
 }

@@ -1,13 +1,18 @@
 package states
 
 import (
+	"fmt"
+
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
+	"github.com/kijimaD/ruins/internal/hooks"
+	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -15,10 +20,9 @@ import (
 // CharacterJobState はキャラクター職業選択画面のステート
 type CharacterJobState struct {
 	es.BaseState[w.World]
-	ui              *ebitenui.UI
-	menuView        *tabmenu.View
-	descriptionText *widget.Text
-	playerName      string
+	menuMount  *hooks.Mount[jobMenuProps]
+	widget     *ebitenui.UI
+	playerName string // TODO: どうにかする。キャラメイクは複数のstateで構成され、前の決定事項を保持する必要がある...
 }
 
 // NewCharacterJobState は職業選択ステートのファクトリを返す
@@ -37,6 +41,7 @@ func (st CharacterJobState) String() string {
 // State interface ================
 
 var _ es.State[w.World] = &CharacterJobState{}
+var _ es.ActionHandler[w.World] = &CharacterJobState{}
 
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *CharacterJobState) OnPause(_ w.World) error { return nil }
@@ -45,9 +50,8 @@ func (st *CharacterJobState) OnPause(_ w.World) error { return nil }
 func (st *CharacterJobState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
-func (st *CharacterJobState) OnStart(world w.World) error {
-	st.initMenu(world)
-	st.ui = st.initUI(world)
+func (st *CharacterJobState) OnStart(_ w.World) error {
+	st.menuMount = hooks.NewMount[jobMenuProps]()
 	return nil
 }
 
@@ -55,81 +59,123 @@ func (st *CharacterJobState) OnStart(world w.World) error {
 func (st *CharacterJobState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
-func (st *CharacterJobState) Update(_ w.World) (es.Transition[w.World], error) {
-	if err := st.menuView.Update(); err != nil {
-		return es.Transition[w.World]{Type: es.TransNone}, err
+func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], error) {
+	// 入力処理
+	if action, ok := st.HandleInput(world.Config); ok {
+		if transition, err := st.DoAction(world, action); err != nil {
+			return es.Transition[w.World]{}, err
+		} else if transition.Type != es.TransNone {
+			return transition, nil
+		}
+		st.menuMount.Dispatch(action)
 	}
 
-	if st.ui != nil {
-		st.ui.Update()
+	// Props更新
+	st.menuMount.SetProps(st.fetchProps())
+	props := st.menuMount.GetProps()
+	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+
+	// dirty判定とUI再構築
+	if st.menuMount.Update() || st.widget == nil {
+		st.widget = st.buildUI(world)
 	}
 
+	st.widget.Update()
 	return st.ConsumeTransition(), nil
 }
 
 // Draw はスクリーンに描画する
 func (st *CharacterJobState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(consts.BlackColor)
-
-	if st.ui != nil {
-		st.ui.Draw(screen)
-	}
+	st.widget.Draw(screen)
 	return nil
 }
 
-// ================
-
-// initMenu はメニューコンポーネントを初期化する
-func (st *CharacterJobState) initMenu(world w.World) {
-	items := make([]tabmenu.Item, len(professions))
-	for i, p := range professions {
-		items[i] = tabmenu.Item{
-			ID:       p.ID,
-			Label:    p.Name,
-			UserData: p,
-		}
-	}
-
-	tabs := []tabmenu.TabItem{
-		{
-			ID:    "professions",
-			Label: "",
-			Items: items,
-		},
-	}
-
-	config := tabmenu.Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-		ItemsPerPage:     10,
-	}
-
-	callbacks := tabmenu.Callbacks{
-		OnSelectItem: func(_ int, _ int, _ tabmenu.TabItem, item tabmenu.Item) error {
-			if prof, ok := item.UserData.(Profession); ok {
-				st.selectProfession(world, prof)
-			}
-			return nil
-		},
-		OnItemChange: func(_ int, _, _ int, item tabmenu.Item) error {
-			if prof, ok := item.UserData.(Profession); ok {
-				st.updateDescription(prof)
-			}
-			return nil
-		},
-		OnCancel: func() {
-			st.cancel()
-		},
-	}
-
-	st.menuView = tabmenu.NewView(config, callbacks, world)
+// HandleInput はキー入力をActionに変換する
+func (st *CharacterJobState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
+	return HandleMenuInput()
 }
 
-// initUI はUIを初期化する
-func (st *CharacterJobState) initUI(world w.World) *ebitenui.UI {
+// DoAction はActionを実行する
+func (st *CharacterJobState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+	switch action {
+	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
+		return es.Transition[w.World]{Type: es.TransPop}, nil
+	case inputmapper.ActionMenuSelect:
+		return st.handleSelection(world)
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatchで処理される
+	default:
+		return es.Transition[w.World]{}, fmt.Errorf("characterJob: 未対応のアクション: %s", action)
+	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
+}
+
+// ================
+// Props
+// ================
+
+// jobMenuProps は職業選択メニューのProps
+type jobMenuProps struct {
+	Items []jobMenuItem
+}
+
+// jobMenuItem は職業メニューの項目
+type jobMenuItem struct {
+	Profession Profession
+}
+
+func (st *CharacterJobState) fetchProps() jobMenuProps {
+	items := make([]jobMenuItem, len(professions))
+	for i, p := range professions {
+		items[i] = jobMenuItem{Profession: p}
+	}
+	return jobMenuProps{Items: items}
+}
+
+func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
+	props := st.menuMount.GetProps()
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "job_itemIndex")
+	if !ok {
+		return es.Transition[w.World]{}, fmt.Errorf("job_itemIndexの取得に失敗")
+	}
+
+	if itemIndex >= len(props.Items) {
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	}
+
+	prof := props.Items[itemIndex].Profession
+	st.selectProfession(world, prof)
+	return st.ConsumeTransition(), nil
+}
+
+// selectProfession は職業を選択してゲームを開始する
+func (st *CharacterJobState) selectProfession(world w.World, prof Profession) {
+	// プレイヤーを生成
+	_, _ = worldhelper.SpawnPlayer(world, 5, 5, st.playerName)
+
+	// 初期装備を付与
+	for _, item := range prof.Items {
+		_, _ = worldhelper.SpawnItem(world, item.Name, item.Count, gc.ItemLocationInPlayerBackpack)
+	}
+
+	st.SetTransition(es.Transition[w.World]{
+		Type:          es.TransReplace,
+		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+	})
+}
+
+// ================
+// buildUI
+// ================
+
+func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
+	props := st.menuMount.GetProps()
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "job_itemIndex")
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
@@ -157,12 +203,21 @@ func (st *CharacterJobState) initUI(world w.World) *ebitenui.UI {
 		),
 	)
 
-	// TabMenuのUIを取得
-	menuContainer := st.menuView.BuildUI()
+	// メニューコンテナを構築
+	menuContainer := styled.NewVerticalContainer()
+	for i, item := range props.Items {
+		isSelected := i == itemIndex
+		itemWidget := styled.NewListItemText(item.Profession.Name, consts.TextColor, isSelected, res)
+		menuContainer.AddChild(itemWidget)
+	}
 
 	// 職業説明テキスト
-	st.descriptionText = widget.NewText(
-		widget.TextOpts.Text(professions[0].Description, &res.Text.SmallFace, consts.SecondaryColor),
+	description := ""
+	if itemIndex < len(props.Items) {
+		description = props.Items[itemIndex].Profession.Description
+	}
+	descriptionText := widget.NewText(
+		widget.TextOpts.Text(description, &res.Text.SmallFace, consts.SecondaryColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
@@ -183,42 +238,12 @@ func (st *CharacterJobState) initUI(world w.World) *ebitenui.UI {
 
 	centerContainer.AddChild(titleLabel)
 	centerContainer.AddChild(menuContainer)
-	centerContainer.AddChild(st.descriptionText)
+	centerContainer.AddChild(descriptionText)
 	centerContainer.AddChild(hintLabel)
 
 	rootContainer.AddChild(centerContainer)
 
 	return &ebitenui.UI{Container: rootContainer}
-}
-
-// updateDescription は職業説明を更新する
-func (st *CharacterJobState) updateDescription(prof Profession) {
-	if st.descriptionText != nil {
-		st.descriptionText.Label = prof.Description
-	}
-}
-
-// selectProfession は職業を選択してゲームを開始する
-func (st *CharacterJobState) selectProfession(world w.World, prof Profession) {
-	// プレイヤーを生成
-	_, _ = worldhelper.SpawnPlayer(world, 5, 5, st.playerName)
-
-	// 初期装備を付与
-	for _, item := range prof.Items {
-		_, _ = worldhelper.SpawnItem(world, item.Name, item.Count, gc.ItemLocationInPlayerBackpack)
-	}
-
-	st.SetTransition(es.Transition[w.World]{
-		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
-	})
-}
-
-// cancel はキャンセルして名前入力に戻る
-func (st *CharacterJobState) cancel() {
-	st.SetTransition(es.Transition[w.World]{
-		Type: es.TransPop,
-	})
 }
 
 // ================
