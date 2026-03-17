@@ -126,7 +126,6 @@ type statusItemData struct {
 	Value       string
 	Modifier    string
 	Description string
-	TabID       string
 	BodyPart    gc.BodyPart
 }
 
@@ -164,23 +163,23 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 	if playerEntity.HasComponent(world.Components.Pools) {
 		pools := world.Components.Pools.Get(playerEntity).(*gc.Pools)
 		items = append(items,
-			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", pools.HP.Max), Description: "体力。0になると死亡する", TabID: "basic"},
-			statusItemData{Label: "SP", Value: fmt.Sprintf("%d", pools.SP.Max), Description: "スタミナ。行動に消費する", TabID: "basic"},
-			statusItemData{Label: "EP", Value: fmt.Sprintf("%d", pools.EP.Max), Description: "電力。電子機器の使用に消費する", TabID: "basic"},
-			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1fkg", pools.Weight.Max), Description: "所持可能な最大重量", TabID: "basic"},
+			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", pools.HP.Max), Description: "体力。0になると死亡する"},
+			statusItemData{Label: "SP", Value: fmt.Sprintf("%d", pools.SP.Max), Description: "スタミナ。行動に消費する"},
+			statusItemData{Label: "EP", Value: fmt.Sprintf("%d", pools.EP.Max), Description: "電力。電子機器の使用に消費する"},
+			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1fkg", pools.Weight.Max), Description: "所持可能な最大重量"},
 		)
 	}
 
 	if playerEntity.HasComponent(world.Components.Hunger) {
 		hunger := world.Components.Hunger.Get(playerEntity).(*gc.Hunger)
 		items = append(items,
-			statusItemData{Label: "空腹度", Value: fmt.Sprintf("%d (%s)", hunger.Current, hunger.GetLevel().String()), Description: "空腹度。高いと行動に支障が出る", TabID: "basic"},
+			statusItemData{Label: "空腹度", Value: fmt.Sprintf("%d (%s)", hunger.Current, hunger.GetLevel().String()), Description: "空腹度。高いと行動に支障が出る"},
 		)
 	}
 
 	items = append(items,
-		statusItemData{Label: "環境気温", Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: "現在地の気温", TabID: "basic"},
-		statusItemData{Label: "時間帯", Value: world.Resources.Dungeon.GameTime.GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する", TabID: "basic"},
+		statusItemData{Label: "環境気温", Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: "現在地の気温"},
+		statusItemData{Label: "時間帯", Value: world.Resources.Dungeon.GameTime.GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
 	)
 
 	return items
@@ -192,12 +191,12 @@ func (st *StatusState) createAttributeItems(world w.World, playerEntity ecs.Enti
 	if playerEntity.HasComponent(world.Components.Attributes) {
 		attrs := world.Components.Attributes.Get(playerEntity).(*gc.Attributes)
 		items = append(items,
-			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", attrs.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する", TabID: "attributes"},
-			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", attrs.Strength.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する", TabID: "attributes"},
-			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", attrs.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Sensation.Modifier), Description: "感覚。射撃攻撃のダメージに影響する", TabID: "attributes"},
-			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", attrs.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier), Description: "器用さ。命中率に影響する", TabID: "attributes"},
-			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", attrs.Agility.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Agility.Modifier), Description: "敏捷。回避率と行動速度に影響する", TabID: "attributes"},
-			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", attrs.Defense.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Defense.Modifier), Description: "防御。被ダメージを軽減する", TabID: "attributes"},
+			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", attrs.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
+			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", attrs.Strength.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する"},
+			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", attrs.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Sensation.Modifier), Description: "感覚。射撃攻撃のダメージに影響する"},
+			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", attrs.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier), Description: "器用さ。命中率に影響する"},
+			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", attrs.Agility.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Agility.Modifier), Description: "敏捷。回避率と行動速度に影響する"},
+			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", attrs.Defense.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Defense.Modifier), Description: "防御。被ダメージを軽減する"},
 		)
 	}
 
@@ -235,7 +234,6 @@ func (st *StatusState) createHealthItems(world w.World, playerEntity ecs.Entity)
 			Label:       part.String(),
 			Value:       value,
 			Description: st.getHealthPartDescription(part),
-			TabID:       "health",
 			BodyPart:    part,
 		})
 	}

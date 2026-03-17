@@ -381,7 +381,6 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 		if err != nil {
 			return err
 		}
-		st.subState = craftSubStateMenu
 		st.subState = craftSubStateResult
 		st.resultMount = hooks.NewMount[craftResultProps]()
 		st.resultMount.SetProps(craftResultProps{

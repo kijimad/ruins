@@ -58,23 +58,3 @@ func HandleWindowInput() (inputmapper.ActionID, bool) {
 
 	return "", false
 }
-
-// UpdateFocusIndex はナビゲーションアクションに応じてフォーカスインデックスを更新する
-func UpdateFocusIndex(action inputmapper.ActionID, focusIndex *int, itemCount int) bool {
-	switch action {
-	case inputmapper.ActionWindowUp:
-		*focusIndex--
-		if *focusIndex < 0 {
-			*focusIndex = itemCount - 1
-		}
-		return true
-	case inputmapper.ActionWindowDown:
-		*focusIndex++
-		if *focusIndex >= itemCount {
-			*focusIndex = 0
-		}
-		return true
-	default:
-		return false
-	}
-}
