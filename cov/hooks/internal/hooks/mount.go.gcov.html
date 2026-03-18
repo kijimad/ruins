@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - hooks/internal/hooks/mount.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">hooks/internal/hooks</a> - mount.go<span style="font-size: 80%;"> (source / <a href="mount.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">92.1&nbsp;%</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">35</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-03-18 00:23:34</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package hooks</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;reflect&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : )</span>
+<span id="L8"><span class="lineNum">       8</span>              : </span>
+<span id="L9"><span class="lineNum">       9</span>              : // Mount はProps + Stateを管理し、変更を検出する</span>
+<span id="L10"><span class="lineNum">      10</span>              : // 描画は担当しない。描画はアプリケーション層の責務である</span>
+<span id="L11"><span class="lineNum">      11</span>              : type Mount[Props any] struct {</span>
+<span id="L12"><span class="lineNum">      12</span>              :         props Props</span>
+<span id="L13"><span class="lineNum">      13</span>              :         store *Store</span>
+<span id="L14"><span class="lineNum">      14</span>              :         dirty bool</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // NewMount は新しいMountを生成する</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func NewMount[Props any]() *Mount[Props] {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return &amp;Mount[Props]{</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 store: NewStore(),</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 dirty: true, // 初回は必ず描画する</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // SetProps は外部からPropsを設定する</span>
+<span id="L26"><span class="lineNum">      26</span>              : // 値が変わった場合はdirtyフラグを立てる</span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 : func (m *Mount[Props]) SetProps(props Props) {</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if !reflect.DeepEqual(m.props, props) {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 m.dirty = true</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         m.props = props</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // GetProps は現在のPropsを返す</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 : func (m *Mount[Props]) GetProps() Props {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         return m.props</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L38"><span class="lineNum">      38</span>              : </span>
+<span id="L39"><span class="lineNum">      39</span>              : // Store はStoreを返す</span>
+<span id="L40"><span class="lineNum">      40</span>              : // UseStateやUseTabMenuを呼び出すために使用する</span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC tlaBgGNC">           1 : func (m *Mount[Props]) Store() *Store {</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         return m.store</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // Dispatch は全てのStateにActionを送りdirtyフラグを立てる</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : func (m *Mount[Props]) Dispatch(action inputmapper.ActionID) {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         m.store.Dispatch(action)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         m.dirty = true</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // GetState は指定したキーのStateを取得する</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func GetState[T any, Props any](m *Mount[Props], key string) (T, bool) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         v, ok := m.store.states[key]</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 var zero T</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 return zero, false</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         typed, ok := v.(T)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 var zero T</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 return zero, false</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         return typed, true</span></span>
+<span id="L64"><span class="lineNum">      64</span>              : }</span>
+<span id="L65"><span class="lineNum">      65</span>              : </span>
+<span id="L66"><span class="lineNum">      66</span>              : // Update は変更の有無を返す</span>
+<span id="L67"><span class="lineNum">      67</span>              : // 初回は常にtrue、以降はpropsまたはstateが変わった場合にtrueを返す</span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : func (m *Mount[Props]) Update() bool {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         changed := m.dirty</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         m.dirty = false</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return changed</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

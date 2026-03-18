@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-10 12:42:48</td>
+            <td class="headerValue">2026-03-18 00:23:34</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -71,7 +71,7 @@
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/assets&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/render&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/hud&quot;</span>
 <span id="L13"><span class="lineNum">      13</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              : )</span>
@@ -201,7 +201,7 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         outlineColor := color.RGBA{0, 0, 0, alpha}</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         // アウトライン付きテキストを描画</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)</span></span>
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
 <span id="L145"><span class="lineNum">     145</span>              : // drawDamageText はエンティティ座標でダメージテキストを描画する</span>
@@ -231,7 +231,7 @@
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         outlineColor := color.RGBA{0, 0, 0, alpha}</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         // アウトライン付きテキストを描画</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         render.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              : // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する</span>
