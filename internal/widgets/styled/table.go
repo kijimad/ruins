@@ -40,7 +40,11 @@ func NewTableContainer(columnWidths []int, _ *resources.UIResources, opts ...wid
 		),
 	}
 
-	return widget.NewContainer(append(defaultOpts, opts...)...)
+	allOpts := make([]widget.ContainerOpt, 0, len(defaultOpts)+len(opts))
+	allOpts = append(allOpts, defaultOpts...)
+	allOpts = append(allOpts, opts...)
+
+	return widget.NewContainer(allOpts...)
 }
 
 // NewTableHeaderRow はヘッダー行のセル群を作成してコンテナに追加する

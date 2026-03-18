@@ -331,7 +331,9 @@ func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...
 		widget.WindowOpts.MinSize(200, 200),
 		widget.WindowOpts.MaxSize(650, 550),
 	}
-	allOpts := append(defaultOpts, opts...)
+	allOpts := make([]widget.WindowOpt, 0, len(defaultOpts)+len(opts))
+	allOpts = append(allOpts, defaultOpts...)
+	allOpts = append(allOpts, opts...)
 
 	return widget.NewWindow(allOpts...)
 }
