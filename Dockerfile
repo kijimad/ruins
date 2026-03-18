@@ -17,7 +17,11 @@ RUN apt update && apt install -y \
     xorg-dev \
     libx11-dev \
     libopenal-dev \
-    upx
+    xz-utils
+
+ARG UPX_VERSION=5.0.1
+RUN curl -fsSL "https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-amd64_linux.tar.xz" \
+    | tar -xJ --strip-components=1 -C /usr/local/bin "upx-${UPX_VERSION}-amd64_linux/upx"
 
 ###########
 # builder #
