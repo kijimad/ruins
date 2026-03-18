@@ -11,16 +11,17 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
-// MainMenuState は新しいメニューコンポーネントを使用するメインメニュー
+// MainMenuState はメインメニューのゲームステート
 type MainMenuState struct {
 	es.BaseState[w.World]
-	ui       *ebitenui.UI
-	menuView *tabmenu.View
+	menuMount *hooks.Mount[mainMenuProps]
+	widget    *ebitenui.UI
 }
 
 func (st MainMenuState) String() string {
@@ -43,8 +44,7 @@ func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
 	world.Manager.DeleteAllEntities()
 
-	st.initMenu(world)
-	st.ui = st.initUI(world)
+	st.menuMount = hooks.NewMount[mainMenuProps]()
 	return nil
 }
 
@@ -52,17 +52,31 @@ func (st *MainMenuState) OnStart(world w.World) error {
 func (st *MainMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
-func (st *MainMenuState) Update(_ w.World) (es.Transition[w.World], error) {
-	// メニューの更新（キーボード入力→Action変換は TabMenu 内部で実施）
-	if err := st.menuView.Update(); err != nil {
-		return es.Transition[w.World]{Type: es.TransNone}, err
+func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
+	// 入力処理
+	if action, ok := st.HandleInput(world.Config); ok {
+		if transition, err := st.DoAction(world, action); err != nil {
+			return es.Transition[w.World]{}, err
+		} else if transition.Type != es.TransNone {
+			return transition, nil
+		}
+		st.menuMount.Dispatch(action)
 	}
 
-	if st.ui != nil {
-		st.ui.Update()
+	// Props更新
+	st.menuMount.SetProps(st.fetchProps())
+	props := st.menuMount.GetProps()
+	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+
+	// dirty判定とUI再構築
+	if st.menuMount.Update() || st.widget == nil {
+		st.widget = st.buildUI(world)
 	}
 
-	// BaseStateの共通処理を使用
+	st.widget.Update()
 	return st.ConsumeTransition(), nil
 }
 
@@ -80,94 +94,89 @@ func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 	bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
 	screen.DrawImage(bgImage, nil)
 
-	st.ui.Draw(screen)
+	st.widget.Draw(screen)
 	return nil
 }
 
-// ================
-
 // HandleInput はキー入力をActionに変換する
 func (st *MainMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
-	// 未使用
-	return "", false
+	return HandleMenuInput()
 }
 
 // DoAction はActionを実行する
 func (st *MainMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
-	case inputmapper.ActionMenuCancel:
-		// メインメニューでのキャンセルは終了
+	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransQuit}, nil
+	case inputmapper.ActionMenuSelect:
+		return st.handleSelection()
+	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
+		// Dispatchで処理される
 	default:
-		return es.Transition[w.World]{}, fmt.Errorf("未知のアクション: %s", action)
+		return es.Transition[w.World]{}, fmt.Errorf("mainMenu: 未対応のアクション: %s", action)
 	}
+	return es.Transition[w.World]{Type: es.TransNone}, nil
 }
 
 // ================
+// Props
+// ================
 
-// initMenu はメニューコンポーネントを初期化する
-func (st *MainMenuState) initMenu(world w.World) {
-	// タブ1つでTabMenuを使用
-	tabs := []tabmenu.TabItem{
-		{
-			ID:    "main",
-			Label: "",
-			Items: []tabmenu.Item{
-				{
-					ID:       "town",
-					Label:    "開始",
-					UserData: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState}},
-				},
-				{
-					ID:       "load",
-					Label:    "読込",
-					UserData: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}},
-				},
-				{
-					ID:       "exit",
-					Label:    "終了",
-					UserData: es.Transition[w.World]{Type: es.TransQuit},
-				},
-			},
-		},
-	}
-
-	// TabMenuの設定
-	config := tabmenu.Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-		ItemsPerPage:     10,
-	}
-
-	// コールバックの設定
-	callbacks := tabmenu.Callbacks{
-		OnSelectItem: func(_ int, _ int, _ tabmenu.TabItem, item tabmenu.Item) error {
-			// 選択されたアイテムのUserDataからTransitionを取得
-			if trans, ok := item.UserData.(es.Transition[w.World]); ok {
-				st.SetTransition(trans)
-			}
-			return nil
-		},
-		OnCancel: func() {
-			// Escapeキーが押された時の処理
-			st.SetTransition(es.Transition[w.World]{Type: es.TransQuit})
-		},
-	}
-
-	// View を作成（TabMenu + UIBuilder を統合）
-	st.menuView = tabmenu.NewView(config, callbacks, world)
+// mainMenuProps はメインメニューのProps
+type mainMenuProps struct {
+	Items []mainMenuItem
 }
 
-// initUI はUIを初期化する
-func (st *MainMenuState) initUI(world w.World) *ebitenui.UI {
+// mainMenuItem はメインメニューの項目
+type mainMenuItem struct {
+	Label      string
+	Transition es.Transition[w.World]
+}
+
+func (st *MainMenuState) fetchProps() mainMenuProps {
+	return mainMenuProps{
+		Items: []mainMenuItem{
+			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState}}},
+			{Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
+			{Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}},
+		},
+	}
+}
+
+func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
+	props := st.menuMount.GetProps()
+	itemIndex, ok := hooks.GetState[int](st.menuMount, "menu_itemIndex")
+	if !ok {
+		return es.Transition[w.World]{}, fmt.Errorf("menu_itemIndexの取得に失敗")
+	}
+
+	if itemIndex >= len(props.Items) {
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	}
+
+	return props.Items[itemIndex].Transition, nil
+}
+
+// ================
+// buildUI
+// ================
+
+func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
+	res := world.Resources.UIResources
+	props := st.menuMount.GetProps()
+	itemIndex, _ := hooks.GetState[int](st.menuMount, "menu_itemIndex")
+
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
-	// TabMenuView を使ってメニューUIを構築
-	menuContainer := st.menuView.BuildUI()
+	// メニューコンテナを構築
+	menuContainer := styled.NewVerticalContainer()
+	for i, item := range props.Items {
+		isSelected := i == itemIndex
+		itemWidget := styled.NewListItemText(item.Label, consts.TextColor, isSelected, res)
+		menuContainer.AddChild(itemWidget)
+	}
 
 	// バージョン表示テキストを作成
 	versionInfo := []string{}
@@ -181,20 +190,20 @@ func (st *MainMenuState) initUI(world w.World) *ebitenui.UI {
 		versionInfo = append(versionInfo, consts.AppDate)
 	}
 	versionText := widget.NewText(
-		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &world.Resources.UIResources.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &res.Text.SmallFace, consts.SecondaryColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionEnd,
 				VerticalPosition:   widget.AnchorLayoutPositionEnd,
 				Padding: &widget.Insets{
-					Right:  20, // 画面右端から20ピクセル左に配置
-					Bottom: 20, // 画面下端から20ピクセル上に配置
+					Right:  20,
+					Bottom: 20,
 				},
 			}),
 		),
 	)
 
-	// ラッパーコンテナを作成(メニューの位置指定のため)
+	// ラッパーコンテナを作成
 	wrapperContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
@@ -204,16 +213,13 @@ func (st *MainMenuState) initUI(world w.World) *ebitenui.UI {
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
 				VerticalPosition:   widget.AnchorLayoutPositionStart,
 				Padding: &widget.Insets{
-					Top: 400, // メニューを下寄りにする
+					Top: 400,
 				},
 			}),
 		),
 	)
 
-	// メニューコンテナをラッパーに追加
 	wrapperContainer.AddChild(menuContainer)
-
-	// メニュー、バージョンテキストをrootContainerに追加
 	rootContainer.AddChild(wrapperContainer)
 	rootContainer.AddChild(versionText)
 
