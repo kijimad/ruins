@@ -17,7 +17,7 @@ RUN apt update && apt install -y \
     xorg-dev \
     libx11-dev \
     libopenal-dev \
-    upx-ucl
+    upx
 
 ###########
 # builder #
@@ -37,7 +37,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     GO111MODULE=on \
     go build -o ./bin/ruins .
-RUN upx-ucl --best --ultra-brute ./bin/ruins
+RUN upx --best --ultra-brute ./bin/ruins
 
 ###########
 # release #
