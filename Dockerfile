@@ -2,7 +2,7 @@
 # base #
 ########
 
-FROM golang:1.24.6-bullseye AS base
+FROM golang:1.26.1-bookworm AS base
 RUN apt update && apt install -y \
     gcc \
     libc6-dev \
@@ -17,7 +17,11 @@ RUN apt update && apt install -y \
     xorg-dev \
     libx11-dev \
     libopenal-dev \
-    upx-ucl
+    xz-utils
+
+ARG UPX_VERSION=5.0.1
+RUN curl -fsSL "https://github.com/upx/upx/releases/download/v${UPX_VERSION}/upx-${UPX_VERSION}-amd64_linux.tar.xz" \
+    | tar -xJ --strip-components=1 -C /usr/local/bin "upx-${UPX_VERSION}-amd64_linux/upx"
 
 ###########
 # builder #
@@ -37,7 +41,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     GO111MODULE=on \
     go build -o ./bin/ruins .
-RUN upx-ucl --best --ultra-brute ./bin/ruins
+RUN upx --best --ultra-brute ./bin/ruins
 
 ###########
 # release #
