@@ -14,14 +14,17 @@ import (
 func TestProfessions(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, 4, len(professions), "職業は4種類")
+	world := testutil.InitTestWorld(t)
+	professions := world.Resources.RawMaster.Raws.Professions
 
-	expectedIDs := []string{"evacuee", "soldier", "mechanic", "hunter"}
+	assert.Equal(t, 6, len(professions), "職業は6種類")
+
+	expectedIDs := []string{"evacuee", "soldier", "sniper", "mechanic", "hunter", "medic"}
 	for i, expectedID := range expectedIDs {
 		assert.Equal(t, expectedID, professions[i].ID, "職業ID[%d]", i)
 	}
 
-	expectedNames := []string{"避難民", "軍人", "整備士", "猟師"}
+	expectedNames := []string{"避難民", "軍人", "狙撃手", "整備士", "猟師", "衛生兵"}
 	for i, expectedName := range expectedNames {
 		assert.Equal(t, expectedName, professions[i].Name, "職業名[%d]", i)
 	}
@@ -30,28 +33,33 @@ func TestProfessions(t *testing.T) {
 func TestProfessionItems(t *testing.T) {
 	t.Parallel()
 
+	world := testutil.InitTestWorld(t)
+	professions := world.Resources.RawMaster.Raws.Professions
+
 	tests := []struct {
 		professionID string
 		itemCount    int
 	}{
-		{professionID: "evacuee", itemCount: 2},
-		{professionID: "soldier", itemCount: 3},
-		{professionID: "mechanic", itemCount: 2},
-		{professionID: "hunter", itemCount: 3},
+		{professionID: "evacuee", itemCount: 3},
+		{professionID: "soldier", itemCount: 4},
+		{professionID: "sniper", itemCount: 4},
+		{professionID: "mechanic", itemCount: 5},
+		{professionID: "hunter", itemCount: 5},
+		{professionID: "medic", itemCount: 5},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.professionID, func(t *testing.T) {
 			t.Parallel()
-			var found *Profession
-			for i := range professions {
-				if professions[i].ID == tt.professionID {
-					found = &professions[i]
+			var found bool
+			for _, p := range professions {
+				if p.ID == tt.professionID {
+					assert.Equal(t, tt.itemCount, len(p.Items), "初期アイテム数")
+					found = true
 					break
 				}
 			}
-			require.NotNil(t, found, "職業が見つからない: %s", tt.professionID)
-			assert.Equal(t, tt.itemCount, len(found.Items), "初期アイテム数")
+			require.True(t, found, "職業が見つからない: %s", tt.professionID)
 		})
 	}
 }
@@ -74,13 +82,15 @@ func TestCharacterJobState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 
-	assert.Equal(t, 4, len(props.Items), "職業は4つ")
+	assert.Equal(t, 6, len(props.Items), "職業は6つ")
 	assert.Equal(t, "避難民", props.Items[0].Profession.Name)
 	assert.Equal(t, "軍人", props.Items[1].Profession.Name)
-	assert.Equal(t, "整備士", props.Items[2].Profession.Name)
-	assert.Equal(t, "猟師", props.Items[3].Profession.Name)
+	assert.Equal(t, "狙撃手", props.Items[2].Profession.Name)
+	assert.Equal(t, "整備士", props.Items[3].Profession.Name)
+	assert.Equal(t, "猟師", props.Items[4].Profession.Name)
+	assert.Equal(t, "衛生兵", props.Items[5].Profession.Name)
 }
 
 func TestCharacterJobState_Navigation(t *testing.T) {
@@ -90,7 +100,7 @@ func TestCharacterJobState_Navigation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -123,7 +133,7 @@ func TestCharacterJobState_CircularNavigation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -135,7 +145,7 @@ func TestCharacterJobState_CircularNavigation(t *testing.T) {
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
 	itemIndex, _ := hooks.GetState[int](state.menuMount, "job_itemIndex")
-	assert.Equal(t, 3, itemIndex, "循環して最後の項目に移動")
+	assert.Equal(t, 5, itemIndex, "循環して最後の項目に移動")
 
 	// 最後から下に移動すると最初に
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)

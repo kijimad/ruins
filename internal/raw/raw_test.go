@@ -42,6 +42,7 @@ Description = "半分程度回復する"
 		SpriteSheetIndex:  map[string]int{},
 		TileIndex:         map[string]int{},
 		PropIndex:         map[string]int{},
+		ProfessionIndex:   map[string]int{},
 	}
 	assert.Equal(t, expect, raw)
 }

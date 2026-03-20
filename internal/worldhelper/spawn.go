@@ -231,6 +231,9 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
 	}
+
+	entitySpec.Skills = gc.NewSkills()
+
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	// カメラ初期位置をプレイヤー位置に設定
 	tileSize := float64(consts.TileSize)
@@ -256,7 +259,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	}
 	playerEntity := entitiesSlice[0]
 
-	if err := fullRecover(world, playerEntity); err != nil {
+	if err := FullRecover(world, playerEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
 	}
 	playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
@@ -300,7 +303,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	if err := fullRecover(world, npcEntity); err != nil {
+	if err := FullRecover(world, npcEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("NPCの回復処理エラー: %w", err)
 	}
 
@@ -345,7 +348,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	if err := fullRecover(world, npcEntity); err != nil {
+	if err := FullRecover(world, npcEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("敵の回復処理エラー: %w", err)
 	}
 
@@ -422,8 +425,8 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	return entity, nil
 }
 
-// fullRecover はエンティティのHP/SP/EP/APを全回復する（内部用）
-func fullRecover(world w.World, entity ecs.Entity) error {
+// FullRecover はエンティティのHP/SP/EP/APを全回復する
+func FullRecover(world w.World, entity ecs.Entity) error {
 	// 新しく生成されたエンティティの最大HP/SPを設定
 	if err := setMaxHPSP(world, entity); err != nil {
 		return fmt.Errorf("最大HP/SP設定エラー: %w", err)

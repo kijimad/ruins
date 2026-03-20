@@ -22,6 +22,7 @@ type Master struct {
 	SpriteSheetIndex  map[string]int
 	TileIndex         map[string]int
 	PropIndex         map[string]int
+	ProfessionIndex   map[string]int
 }
 
 // Raws は全てのローデータを格納する構造体
@@ -36,6 +37,7 @@ type Raws struct {
 	SpriteSheets  []SpriteSheet
 	Tiles         []TileRaw
 	Props         []PropRaw
+	Professions   []Profession
 }
 
 // Item はアイテムのローデータ
@@ -145,6 +147,28 @@ type Attributes struct {
 	Defense   int
 }
 
+// Profession は職業の定義
+type Profession struct {
+	ID          string
+	Name        string
+	Description string
+	Attributes  Attributes
+	Skills      []ProfessionSkill
+	Items       []ProfessionItem
+}
+
+// ProfessionSkill は職業のスキル初期値
+type ProfessionSkill struct {
+	ID    string
+	Value int
+}
+
+// ProfessionItem は職業の初期所持アイテム
+type ProfessionItem struct {
+	Name  string
+	Count int
+}
+
 // LoadFromFile はファイルからローデータを読み込む
 func LoadFromFile(path string) (Master, error) {
 	bs, err := assets.FS.ReadFile(path)
@@ -171,6 +195,7 @@ func Load(entityMetadataContent string) (Master, error) {
 	rw.SpriteSheetIndex = map[string]int{}
 	rw.TileIndex = map[string]int{}
 	rw.PropIndex = map[string]int{}
+	rw.ProfessionIndex = map[string]int{}
 
 	metaData, err := toml.Decode(entityMetadataContent, &rw.Raws)
 	if err != nil {
@@ -211,6 +236,9 @@ func Load(entityMetadataContent string) (Master, error) {
 	}
 	for i, prop := range rw.Raws.Props {
 		rw.PropIndex[prop.Name] = i
+	}
+	for i, prof := range rw.Raws.Professions {
+		rw.ProfessionIndex[prof.ID] = i
 	}
 
 	return rw, nil
@@ -759,4 +787,16 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	return entitySpec, nil
+}
+
+// GetProfession は指定されたIDの職業データを返す
+func (rw *Master) GetProfession(id string) (Profession, error) {
+	idx, ok := rw.ProfessionIndex[id]
+	if !ok {
+		return Profession{}, NewKeyNotFoundError(id, "ProfessionIndex")
+	}
+	if idx >= len(rw.Raws.Professions) {
+		return Profession{}, fmt.Errorf("職業インデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.Professions))
+	}
+	return rw.Raws.Professions[idx], nil
 }

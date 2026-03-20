@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -71,7 +72,7 @@ func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], erro
 	}
 
 	// Props更新
-	st.menuMount.SetProps(st.fetchProps())
+	st.menuMount.SetProps(st.fetchProps(world))
 	props := st.menuMount.GetProps()
 	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -125,10 +126,11 @@ type jobMenuProps struct {
 
 // jobMenuItem は職業メニューの項目
 type jobMenuItem struct {
-	Profession Profession
+	Profession raw.Profession
 }
 
-func (st *CharacterJobState) fetchProps() jobMenuProps {
+func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
+	professions := world.Resources.RawMaster.Raws.Professions
 	items := make([]jobMenuItem, len(professions))
 	for i, p := range professions {
 		items[i] = jobMenuItem{Profession: p}
@@ -153,9 +155,36 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 }
 
 // selectProfession は職業を選択してゲームを開始する
-func (st *CharacterJobState) selectProfession(world w.World, prof Profession) {
-	// プレイヤーを生成
-	_, _ = worldhelper.SpawnPlayer(world, 5, 5, st.playerName)
+func (st *CharacterJobState) selectProfession(world w.World, prof raw.Profession) {
+	// TOMLの"Ash"定義でエンティティを生成し、名前と属性を上書きする
+	player, _ := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+
+	// プレイヤー名を上書き
+	name := world.Components.Name.Get(player).(*gc.Name)
+	name.Name = st.playerName
+
+	// 職業の属性値で上書き
+	attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
+	attrs.Strength = gc.Attribute{Base: prof.Attributes.Strength}
+	attrs.Sensation = gc.Attribute{Base: prof.Attributes.Sensation}
+	attrs.Dexterity = gc.Attribute{Base: prof.Attributes.Dexterity}
+	attrs.Agility = gc.Attribute{Base: prof.Attributes.Agility}
+	attrs.Vitality = gc.Attribute{Base: prof.Attributes.Vitality}
+	attrs.Defense = gc.Attribute{Base: prof.Attributes.Defense}
+
+	// 職業のスキル初期値を設定
+	if len(prof.Skills) > 0 {
+		skills := world.Components.Skills.Get(player).(*gc.Skills)
+		for _, ps := range prof.Skills {
+			if s, ok := skills.Data[gc.SkillID(ps.ID)]; ok {
+				s.Value = ps.Value
+			}
+		}
+		skills.RecalculateEffects()
+	}
+
+	// 属性値変更後にHP/SP/EP/APを再計算
+	_ = worldhelper.FullRecover(world, player)
 
 	// 初期装備を付与
 	for _, item := range prof.Items {
@@ -244,64 +273,4 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	rootContainer.AddChild(centerContainer)
 
 	return &ebitenui.UI{Container: rootContainer}
-}
-
-// ================
-// 職業はあとで実装する
-// ================
-
-// Profession は職業を表す
-type Profession struct {
-	ID          string
-	Name        string
-	Description string
-	Items       []ProfessionItem
-}
-
-// ProfessionItem は職業の初期装備アイテムを表す
-type ProfessionItem struct {
-	Name  string
-	Count int
-}
-
-// 職業一覧
-var professions = []Profession{
-	{
-		ID:          "evacuee",
-		Name:        "避難民",
-		Description: "一般市民。特別な装備はない",
-		Items: []ProfessionItem{
-			{Name: "パン", Count: 3},
-			{Name: "回復薬", Count: 1},
-		},
-	},
-	{
-		ID:          "soldier",
-		Name:        "軍人",
-		Description: "武器の扱いに慣れている",
-		Items: []ProfessionItem{
-			{Name: "ハンドガン", Count: 1},
-			{Name: "木刀", Count: 1},
-			{Name: "回復薬", Count: 1},
-		},
-	},
-	{
-		ID:          "mechanic",
-		Name:        "整備士",
-		Description: "機械の修理が得意",
-		Items: []ProfessionItem{
-			{Name: "鉄", Count: 5},
-			{Name: "回復薬", Count: 2},
-		},
-	},
-	{
-		ID:          "hunter",
-		Name:        "猟師",
-		Description: "野外活動に長けている",
-		Items: []ProfessionItem{
-			{Name: "ハンドガン", Count: 1},
-			{Name: "パン", Count: 5},
-			{Name: "緑ハーブ", Count: 2},
-		},
-	},
 }

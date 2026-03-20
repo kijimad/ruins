@@ -147,7 +147,7 @@ func TestFullRecover(t *testing.T) {
 	})
 
 	// FullRecoverを実行
-	err := fullRecover(world, entity)
+	err := FullRecover(world, entity)
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
 	// 結果を検証
