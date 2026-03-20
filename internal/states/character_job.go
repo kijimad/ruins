@@ -278,7 +278,7 @@ var professions = []Profession{
 	{
 		ID:          "soldier",
 		Name:        "軍人",
-		Description: "元兵士。武器の扱いに慣れている",
+		Description: "武器の扱いに慣れている",
 		Items: []ProfessionItem{
 			{Name: "ハンドガン", Count: 1},
 			{Name: "木刀", Count: 1},
