@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -131,19 +132,19 @@ func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
 
 	// 攻撃方法を取得
-	_, attackMethodName, err := aa.getAttackParams(actor, world)
+	attack, attackMethodName, err := aa.getAttackParams(actor, world)
 	if err != nil {
 		return fmt.Errorf("攻撃パラメータの取得に失敗: %w", err)
 	}
 
-	hit, criticalHit := aa.rollHitCheck(actor, target, world)
+	hit, criticalHit := aa.rollHitCheck(actor, target, world, attack)
 	if !hit {
 		aa.logAttackResult(actor, target, world, false, false, 0, attackMethodName)
 		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
 		return nil
 	}
 
-	damage := aa.calculateDamage(actor, target, world, criticalHit)
+	damage := aa.calculateDamage(actor, target, world, attack, criticalHit)
 	if damage < 0 {
 		damage = 0
 	}
@@ -158,6 +159,9 @@ func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 
 	// 攻撃とダメージを1行でログ出力
 	aa.logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
+
+	// 攻撃成功時にスキル成長
+	aa.growWeaponSkill(actor, world, attack)
 
 	// ダメージエフェクトを生成
 	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
@@ -211,7 +215,7 @@ func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) b
 	return attrs != nil
 }
 
-func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.World) (hit bool, critical bool) {
+func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.World, attack *gc.Attack) (hit bool, critical bool) {
 	attackerAttrs := world.Components.Attributes.Get(attacker).(*gc.Attributes)
 	attackerDexterity := attackerAttrs.Dexterity.Total
 
@@ -222,6 +226,9 @@ func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.Worl
 
 	weaponAccuracy := aa.getWeaponAccuracy(attacker, world)
 	baseHitRate += weaponAccuracy
+
+	// 武器スキルによる命中倍率を適用
+	baseHitRate = baseHitRate * getSkillMult(attacker, attack, world, false) / 100
 
 	if baseHitRate > MaxHitRate {
 		baseHitRate = MaxHitRate
@@ -237,20 +244,33 @@ func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.Worl
 	return hit, critical
 }
 
-func (aa *AttackActivity) calculateDamage(attacker, target ecs.Entity, world w.World, critical bool) int {
+func (aa *AttackActivity) calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Attack, critical bool) int {
 	attackerAttrs := world.Components.Attributes.Get(attacker).(*gc.Attributes)
-	attackerStrength := attackerAttrs.Strength.Total
+
+	// 武器の射程に応じて基礎属性値を切り替える
+	baseAttr := attackerAttrs.Strength.Total
+	if attack != nil && attack.AttackCategory.Range == gc.AttackRangeRanged {
+		baseAttr = attackerAttrs.Sensation.Total
+	}
 
 	targetAttrs := world.Components.Attributes.Get(target).(*gc.Attributes)
 	targetDefense := targetAttrs.Defense.Total
 
-	baseDamage := attackerStrength + world.Config.RNG.IntN(DamageRandomRange) + 1
+	baseDamage := baseAttr + world.Config.RNG.IntN(DamageRandomRange) + 1
 
 	weaponDamage := aa.getWeaponDamage(attacker, world)
 	baseDamage += weaponDamage
 
+	// 武器スキルによるダメージ倍率を適用
+	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
+
 	if critical {
 		baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
+	}
+
+	// 元素耐性による軽減
+	if attack != nil && attack.Element != gc.ElementTypeNone {
+		baseDamage = applyElementResist(baseDamage, target, attack.Element, world)
 	}
 
 	finalDamage := baseDamage - targetDefense
@@ -366,6 +386,94 @@ func (aa *AttackActivity) logAttackResult(attacker, target ecs.Entity, world w.W
 			}
 		}).
 		Log()
+}
+
+// getSkillMult は事前計算済みのスキル倍率(%)を返す。
+// isDamageがtrueならWeaponDamage、falseならWeaponAccuracyを参照する。
+// Skillsコンポーネントを持たないエンティティでは100(等倍)を返す。
+func getSkillMult(entity ecs.Entity, attack *gc.Attack, world w.World, isDamage bool) int {
+	if attack == nil {
+		return 100
+	}
+	skillsComp := world.Components.Skills.Get(entity)
+	if skillsComp == nil {
+		return 100
+	}
+	skills := skillsComp.(*gc.Skills)
+	skillID, ok := gc.WeaponSkillID(attack.AttackCategory)
+	if !ok {
+		return 100
+	}
+	var mults map[gc.SkillID]int
+	if isDamage {
+		mults = skills.Effects.WeaponDamage
+	} else {
+		mults = skills.Effects.WeaponAccuracy
+	}
+	if mult, ok := mults[skillID]; ok {
+		return mult
+	}
+	return 100
+}
+
+// applyElementResist は事前計算済みの元素耐性倍率でダメージを軽減する
+func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
+	skillsComp := world.Components.Skills.Get(target)
+	if skillsComp == nil {
+		return damage
+	}
+	skills := skillsComp.(*gc.Skills)
+	mult, ok := skills.Effects.ElementResist[element]
+	if !ok {
+		return damage
+	}
+	reduced := damage * mult / 100
+	if reduced < MinDamage {
+		reduced = MinDamage
+	}
+	return reduced
+}
+
+// growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する。
+// Skillsコンポーネントを持たないエンティティではスキップする。
+func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attack *gc.Attack) {
+	if attack == nil {
+		return
+	}
+	skillsComp := world.Components.Skills.Get(actor)
+	if skillsComp == nil {
+		return
+	}
+	skills := skillsComp.(*gc.Skills)
+
+	skillID, ok := gc.WeaponSkillID(attack.AttackCategory)
+	if !ok {
+		return
+	}
+	s, ok := skills.Data[skillID]
+	if !ok {
+		return
+	}
+
+	// 対応する属性値を取得して成長速度に反映する
+	attrsComp := world.Components.Attributes.Get(actor)
+	if attrsComp == nil {
+		return
+	}
+	attrs := attrsComp.(*gc.Attributes)
+	attrID, ok := gc.SkillAttribute[skillID]
+	if !ok {
+		return
+	}
+
+	if skill.GainExp(s, attrs.ValueOf(attrID)) {
+		skills.RecalculateEffects()
+
+		actorName := worldhelper.GetEntityName(actor, world)
+		gamelog.New(gamelog.FieldLog).
+			Append(fmt.Sprintf("%s のスキルが上がった！（%s Lv%d）", actorName, string(skillID), s.Value)).
+			Log()
+	}
 }
 
 // logDeath は死亡ログを出力する

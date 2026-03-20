@@ -153,6 +153,8 @@ func (st *StatusState) createTabs(world w.World, playerEntity ecs.Entity, envTem
 	return []statusTabData{
 		{ID: "basic", Label: "基本", Items: st.createBasicItems(world, playerEntity, envTemp)},
 		{ID: "attributes", Label: "能力", Items: st.createAttributeItems(world, playerEntity)},
+		{ID: "skills", Label: "スキル", Items: st.createSkillItems(world, playerEntity)},
+		{ID: "effects", Label: "効果", Items: st.createEffectItems(world, playerEntity)},
 		{ID: "health", Label: "健康", Items: st.createHealthItems(world, playerEntity)},
 	}
 }
@@ -199,6 +201,103 @@ func (st *StatusState) createAttributeItems(world w.World, playerEntity ecs.Enti
 			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", attrs.Defense.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Defense.Modifier), Description: "防御。被ダメージを軽減する"},
 		)
 	}
+
+	return items
+}
+
+func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) []statusItemData {
+	items := []statusItemData{}
+
+	if !playerEntity.HasComponent(world.Components.Skills) {
+		return items
+	}
+	skills := world.Components.Skills.Get(playerEntity).(*gc.Skills)
+
+	for _, id := range gc.AllSkillIDs {
+		s, ok := skills.Data[id]
+		if !ok {
+			continue
+		}
+		name := gc.SkillName[id]
+		expFrac := 0
+		if s.Exp.Max > 0 {
+			expFrac = s.Exp.Current * 1000 / s.Exp.Max
+		}
+		items = append(items, statusItemData{
+			Label:       name,
+			Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
+			Description: fmt.Sprintf("%s スキル", name),
+		})
+	}
+
+	return items
+}
+
+func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity) []statusItemData {
+	items := []statusItemData{}
+
+	if !playerEntity.HasComponent(world.Components.Skills) {
+		return items
+	}
+	skills := world.Components.Skills.Get(playerEntity).(*gc.Skills)
+	e := &skills.Effects
+
+	// 武器ダメージ倍率
+	for _, id := range gc.AllSkillIDs {
+		if mult, ok := e.WeaponDamage[id]; ok {
+			items = append(items, statusItemData{
+				Label:       gc.SkillName[id] + "攻撃力",
+				Value:       fmt.Sprintf("%d%%", mult),
+				Description: fmt.Sprintf("%s武器のダメージ倍率", gc.SkillName[id]),
+			})
+		}
+	}
+
+	// 武器命中倍率
+	for _, id := range gc.AllSkillIDs {
+		if mult, ok := e.WeaponAccuracy[id]; ok {
+			items = append(items, statusItemData{
+				Label:       gc.SkillName[id] + "命中",
+				Value:       fmt.Sprintf("%d%%", mult),
+				Description: fmt.Sprintf("%s武器の命中倍率", gc.SkillName[id]),
+			})
+		}
+	}
+
+	// 元素耐性倍率
+	elementNames := map[gc.ElementType]string{
+		gc.ElementTypeFire:    "火",
+		gc.ElementTypeThunder: "雷",
+		gc.ElementTypeChill:   "氷",
+		gc.ElementTypePhoton:  "光",
+	}
+	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
+		if mult, ok := e.ElementResist[elem]; ok {
+			items = append(items, statusItemData{
+				Label:       elementNames[elem] + "耐性",
+				Value:       fmt.Sprintf("%d%%", mult),
+				Description: fmt.Sprintf("%s属性ダメージの倍率。低いほど軽減される", elementNames[elem]),
+			})
+		}
+	}
+
+	// その他の効果倍率
+	items = append(items,
+		statusItemData{Label: "低体温進行", Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: "低体温の進行速度。低いほど遅くなる"},
+		statusItemData{Label: "高体温進行", Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: "高体温の進行速度。低いほど遅くなる"},
+		statusItemData{Label: "空腹進行", Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: "空腹の進行速度。低いほど遅くなる"},
+		statusItemData{Label: "回復効果", Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: "回復アイテムの効果倍率。高いほど多く回復する"},
+		statusItemData{Label: "最大重量", Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: "所持可能な最大重量の倍率"},
+		statusItemData{Label: "発見", Value: fmt.Sprintf("%d%%", e.Exploration), Description: "アイテム発見率の倍率。高いほど見つけやすい"},
+		statusItemData{Label: "被発見", Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: "敵に発見される距離の倍率。低いほど見つかりにくい"},
+		statusItemData{Label: "暗所視界", Value: fmt.Sprintf("%d%%", e.NightVision), Description: "暗所での視界の倍率。高いほど見える"},
+		statusItemData{Label: "移動速度", Value: fmt.Sprintf("%d%%", e.MoveCost), Description: "移動時のAPコスト倍率。低いほど少ないAPで移動できる"},
+		statusItemData{Label: "素材消費", Value: fmt.Sprintf("%d%%", e.CraftCost), Description: "合成時の素材消費量倍率。低いほど素材が節約できる"},
+		statusItemData{Label: "合成品質", Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: "調合時の品質倍率。高いほど良い品ができる"},
+		statusItemData{Label: "買値", Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: "買い物の価格倍率。低いほど安く買える"},
+		statusItemData{Label: "売値", Value: fmt.Sprintf("%d%%", e.SellPrice), Description: "売却の価格倍率。高いほど高く売れる"},
+		statusItemData{Label: "最大荷重", Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: "最大荷重倍率"},
+	)
 
 	return items
 }

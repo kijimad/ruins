@@ -101,6 +101,33 @@ var SkillAttribute = map[SkillID]AttributeID{
 	SkillPhotonResist:  AttrDEF,
 }
 
+// SkillName はスキルIDの表示名を返す
+var SkillName = map[SkillID]string{
+	SkillSword:         "刀剣",
+	SkillSpear:         "長物",
+	SkillFist:          "格闘",
+	SkillWeightBearing: "荷重",
+	SkillHandgun:       "拳銃",
+	SkillRifle:         "小銃",
+	SkillCannon:        "砲撃",
+	SkillExploration:   "探索",
+	SkillCrafting:      "合成",
+	SkillSmithing:      "調合",
+	SkillNegotiation:   "交渉",
+	SkillSprinting:     "走破",
+	SkillStealth:       "隠密",
+	SkillNightVision:   "暗視",
+	SkillColdResist:    "耐寒",
+	SkillHeatResist:    "耐暑",
+	SkillHungerResist:  "耐餓",
+	SkillHealing:       "治療",
+	SkillHeavyArmor:    "重装",
+	SkillFireResist:    "耐火",
+	SkillThunderResist: "耐電",
+	SkillChillResist:   "耐冷",
+	SkillPhotonResist:  "耐光",
+}
+
 // AllSkillIDs は定義済みの全SkillIDのリスト
 var AllSkillIDs = []SkillID{
 	SkillSword, SkillSpear, SkillFist, SkillWeightBearing,
