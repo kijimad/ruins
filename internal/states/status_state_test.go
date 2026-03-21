@@ -194,6 +194,10 @@ func TestStatusState_SkillsTab(t *testing.T) {
 	effectTab := props.Tabs[3]
 	assert.Equal(t, "effects", effectTab.ID)
 	assert.NotEmpty(t, effectTab.Items, "効果項目がある")
+
+	// スキルLv0では変化量が0なので内訳は空になる
+	firstEffect := effectTab.Items[0]
+	assert.Empty(t, firstEffect.Details, "スキルLv0では内訳がない")
 }
 
 func TestNewStatusState(t *testing.T) {

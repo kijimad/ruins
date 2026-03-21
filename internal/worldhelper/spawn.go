@@ -78,7 +78,7 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 }
 
 // CalculateSpeed はエンティティのSpeedを計算する
-// 属性ボーナス・状態異常ペナルティ・過積載ペナルティを考慮する
+// 属性ボーナス・状態異常ペナルティ・過積載ペナルティ・Effect倍率を考慮する
 func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed := speedBaseValue
 
@@ -88,11 +88,20 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 		speed += attrs.Agility.Total*speedAgilityMultiply + attrs.Dexterity.Total*speedDexterityMultiply
 	}
 
-	// 状態異常ペナルティ
+	// 状態異常ペナルティ（空腹・過積載）
 	speed += calculateStatusSpeedPenalty(world, entity)
-
-	// 過積載ペナルティ
 	speed += calculateOverweightPenalty(world, entity)
+
+	// MoveCost Effect倍率を適用する。
+	// MoveCost 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
+	if entity.HasComponent(world.Components.CharModifiers) {
+		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		moveCost := effects.MoveCost
+		if moveCost < 10 {
+			moveCost = 10
+		}
+		speed = speed * 100 / moveCost
+	}
 
 	// 最小値制限
 	if speed < speedMinimum {
@@ -102,7 +111,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	return speed
 }
 
-// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する
+// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する。
+// 体温ペナルティはEffects.MoveCost経由で適用されるためここには含まない。
 func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 
@@ -110,12 +120,6 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
 		hunger := hungerComp.(*gc.Hunger)
 		penalty += hungerSpeedPenalty(hunger.Current)
-	}
-
-	// 体温ペナルティ（HealthStatusから計算）
-	if hsComp := world.Components.HealthStatus.Get(entity); hsComp != nil {
-		hs := hsComp.(*gc.HealthStatus)
-		penalty += temperatureSpeedPenalty(hs)
 	}
 
 	return penalty
@@ -136,34 +140,6 @@ func hungerSpeedPenalty(current int) int {
 		return -50 // 飢餓
 	default:
 		return -75 // 餓死寸前
-	}
-}
-
-// temperatureSpeedPenalty は体温状態によるペナルティを返す
-func temperatureSpeedPenalty(hs *gc.HealthStatus) int {
-	// 全部位の最大Severityを取得
-	worstSeverity := gc.SeverityNone
-	for i := 0; i < int(gc.BodyPartCount); i++ {
-		for _, cond := range hs.Parts[i].Conditions {
-			// 低体温・高体温のみ対象
-			if cond.Type == gc.ConditionHypothermia || cond.Type == gc.ConditionHyperthermia {
-				if cond.Severity > worstSeverity {
-					worstSeverity = cond.Severity
-				}
-			}
-		}
-	}
-
-	// Severityに応じたペナルティ
-	switch worstSeverity {
-	case gc.SeveritySevere:
-		return -30
-	case gc.SeverityMedium:
-		return -20
-	case gc.SeverityMinor:
-		return -10
-	default:
-		return 0
 	}
 }
 
@@ -232,7 +208,9 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
 	}
 
-	entitySpec.Skills = gc.NewSkills()
+	skills := gc.NewSkills()
+	entitySpec.Skills = skills
+	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil)
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	// カメラ初期位置をプレイヤー位置に設定

@@ -20,11 +20,6 @@ func TestHealthCondition_DisplayName(t *testing.T) {
 			expected: "低体温(軽)",
 		},
 		{
-			name:     "凍傷（重症度なし）",
-			cond:     HealthCondition{Type: ConditionFrostbite, Severity: SeverityNone},
-			expected: "凍傷",
-		},
-		{
 			name:     "高体温（重）",
 			cond:     HealthCondition{Type: ConditionHyperthermia, Severity: SeveritySevere},
 			expected: "高体温(重)",
@@ -71,14 +66,14 @@ func TestBodyPartHealth_RemoveCondition(t *testing.T) {
 	bph := &BodyPartHealth{}
 
 	bph.SetCondition(HealthCondition{Type: ConditionHypothermia, Severity: SeverityMinor})
-	bph.SetCondition(HealthCondition{Type: ConditionFrostbite, Severity: SeveritySevere})
+	bph.SetCondition(HealthCondition{Type: ConditionHyperthermia, Severity: SeveritySevere})
 
 	assert.Equal(t, 2, len(bph.Conditions))
 
 	bph.RemoveCondition(ConditionHypothermia)
 
 	assert.Equal(t, 1, len(bph.Conditions))
-	assert.Equal(t, ConditionFrostbite, bph.Conditions[0].Type)
+	assert.Equal(t, ConditionHyperthermia, bph.Conditions[0].Type)
 }
 
 func TestHealthStatus_GetStatModifier(t *testing.T) {

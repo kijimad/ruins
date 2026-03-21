@@ -390,25 +390,24 @@ func (aa *AttackActivity) logAttackResult(attacker, target ecs.Entity, world w.W
 
 // getSkillMult は事前計算済みのスキル倍率(%)を返す。
 // isDamageがtrueならWeaponDamage、falseならWeaponAccuracyを参照する。
-// Skillsコンポーネントを持たないエンティティでは100(等倍)を返す。
+// Effectsコンポーネントを持たないエンティティでは100(等倍)を返す。
 func getSkillMult(entity ecs.Entity, attack *gc.Attack, world w.World, isDamage bool) int {
 	if attack == nil {
 		return 100
 	}
-	skillsComp := world.Components.Skills.Get(entity)
-	if skillsComp == nil {
+	if !entity.HasComponent(world.Components.CharModifiers) {
 		return 100
 	}
-	skills := skillsComp.(*gc.Skills)
+	effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
 	skillID, ok := gc.WeaponSkillID(attack.AttackCategory)
 	if !ok {
 		return 100
 	}
 	var mults map[gc.SkillID]int
 	if isDamage {
-		mults = skills.Effects.WeaponDamage
+		mults = effects.WeaponDamage
 	} else {
-		mults = skills.Effects.WeaponAccuracy
+		mults = effects.WeaponAccuracy
 	}
 	if mult, ok := mults[skillID]; ok {
 		return mult
@@ -418,12 +417,11 @@ func getSkillMult(entity ecs.Entity, attack *gc.Attack, world w.World, isDamage 
 
 // applyElementResist は事前計算済みの元素耐性倍率でダメージを軽減する
 func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, world w.World) int {
-	skillsComp := world.Components.Skills.Get(target)
-	if skillsComp == nil {
+	if !target.HasComponent(world.Components.CharModifiers) {
 		return damage
 	}
-	skills := skillsComp.(*gc.Skills)
-	mult, ok := skills.Effects.ElementResist[element]
+	effects := world.Components.CharModifiers.Get(target).(*gc.CharModifiers)
+	mult, ok := effects.ElementResist[element]
 	if !ok {
 		return damage
 	}
@@ -467,7 +465,12 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 	}
 
 	if skill.GainExp(s, attrs.ValueOf(attrID)) {
-		skills.RecalculateEffects()
+		var hs *gc.HealthStatus
+		if actor.HasComponent(world.Components.HealthStatus) {
+			hs = world.Components.HealthStatus.Get(actor).(*gc.HealthStatus)
+		}
+		effects := gc.RecalculateCharModifiers(skills, hs)
+		actor.AddComponent(world.Components.CharModifiers, effects)
 
 		actorName := worldhelper.GetEntityName(actor, world)
 		gamelog.New(gamelog.FieldLog).

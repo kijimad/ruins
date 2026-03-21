@@ -150,32 +150,9 @@ type Skill struct {
 	Exp   Pool // 蓄積経験値。Maxに達するとスキルアップする
 }
 
-// SkillEffects はスキル値から算出される効果倍率（百分率）。
-// 100が基準値で変化なし。スキル値が変動したときに RecalculateEffects で再計算する。
-type SkillEffects struct {
-	WeaponDamage   map[SkillID]int     // 武器ダメージ倍率%
-	WeaponAccuracy map[SkillID]int     // 武器命中倍率%
-	ElementResist  map[ElementType]int // 元素耐性倍率%
-	ColdProgress   int                 // 低体温進行倍率%
-	HeatProgress   int                 // 高体温進行倍率%
-	HungerProgress int                 // 空腹進行倍率%
-	HealingEffect  int                 // 回復効果倍率%
-	MaxWeight      int                 // 最大所持重量倍率%
-	Exploration    int                 // アイテム発見率倍率%
-	EnemyVision    int                 // 敵視界距離倍率%
-	NightVision    int                 // 暗所視界倍率%
-	MoveCost       int                 // 移動APコスト倍率%
-	CraftCost      int                 // 素材消費量倍率%
-	SmithQuality   int                 // 合成品質倍率%
-	BuyPrice       int                 // 買値倍率%
-	SellPrice      int                 // 売値倍率%
-	HeavyArmor     int                 // 重装備AGIペナルティ倍率%
-}
-
 // Skills はエンティティが持つスキルセット
 type Skills struct {
-	Data    map[SkillID]*Skill
-	Effects SkillEffects
+	Data map[SkillID]*Skill
 }
 
 // LevelUpExp はスキルアップに必要な経験値
@@ -187,44 +164,7 @@ func NewSkills() *Skills {
 	for _, id := range AllSkillIDs {
 		data[id] = &Skill{Exp: Pool{Max: LevelUpExp}}
 	}
-	s := &Skills{Data: data}
-	s.RecalculateEffects()
-	return s
-}
-
-// RecalculateEffects はスキル値から全効果倍率を再計算する
-func (s *Skills) RecalculateEffects() {
-	e := &s.Effects
-
-	e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))
-	e.WeaponAccuracy = make(map[SkillID]int, len(weaponSkillIDs))
-	for _, id := range weaponSkillIDs {
-		v := s.Data[id].Value
-		e.WeaponDamage[id] = 100 + v*5
-		e.WeaponAccuracy[id] = 100 + v*3
-	}
-
-	e.ElementResist = map[ElementType]int{
-		ElementTypeFire:    100 - s.Data[SkillFireResist].Value*3,
-		ElementTypeThunder: 100 - s.Data[SkillThunderResist].Value*3,
-		ElementTypeChill:   100 - s.Data[SkillChillResist].Value*3,
-		ElementTypePhoton:  100 - s.Data[SkillPhotonResist].Value*3,
-	}
-
-	e.ColdProgress = 100 - s.Data[SkillColdResist].Value*3
-	e.HeatProgress = 100 - s.Data[SkillHeatResist].Value*3
-	e.HungerProgress = 100 - s.Data[SkillHungerResist].Value*2
-	e.HealingEffect = 100 + s.Data[SkillHealing].Value*5
-	e.MaxWeight = 100 + s.Data[SkillWeightBearing].Value*4
-	e.Exploration = 100 + s.Data[SkillExploration].Value*4
-	e.EnemyVision = 100 - s.Data[SkillStealth].Value*3
-	e.NightVision = 100 + s.Data[SkillNightVision].Value*5
-	e.MoveCost = 100 - s.Data[SkillSprinting].Value*2
-	e.CraftCost = 100 - s.Data[SkillCrafting].Value*3
-	e.SmithQuality = 100 + s.Data[SkillSmithing].Value*3
-	e.BuyPrice = 100 - s.Data[SkillNegotiation].Value*2
-	e.SellPrice = 100 + s.Data[SkillNegotiation].Value*2
-	e.HeavyArmor = 100 - s.Data[SkillHeavyArmor].Value*5
+	return &Skills{Data: data}
 }
 
 // weaponSkillMap は武器種別からスキルIDへのマッピング

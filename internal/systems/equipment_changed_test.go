@@ -27,7 +27,7 @@ func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
 
 		// 健康状態に低体温を追加（Strengthにペナルティ）
 		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
-		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeveritySevere,
 			Timer:    90,

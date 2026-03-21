@@ -348,6 +348,7 @@ func TestBodyPart(t *testing.T) {
 			{BodyPartHands, "手"},
 			{BodyPartLegs, "脚"},
 			{BodyPartFeet, "足"},
+			{BodyPartWholeBody, "全身"},
 		}
 
 		for _, tt := range tests {
@@ -365,31 +366,8 @@ func TestBodyPart(t *testing.T) {
 		})
 	})
 
-	t.Run("BodyPartCount is 6", func(t *testing.T) {
+	t.Run("BodyPartCount is 7", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, BodyPart(6), BodyPartCount)
+		assert.Equal(t, BodyPart(7), BodyPartCount)
 	})
-}
-
-func TestIsExtremity(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		part     BodyPart
-		expected bool
-	}{
-		{BodyPartTorso, false},
-		{BodyPartHead, false},
-		{BodyPartArms, false},
-		{BodyPartHands, true},
-		{BodyPartLegs, false},
-		{BodyPartFeet, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.part.String(), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, IsExtremity(tt.part))
-		})
-	}
 }

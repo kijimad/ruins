@@ -51,14 +51,15 @@ type EntitySpec struct {
 	TileTemperature *TileTemperature
 
 	// member ================
-	Player       *Player
-	Hunger       *Hunger
-	Wallet       *Wallet
-	FactionType  *FactionType
-	Dead         *Dead
-	Dialog       *Dialog
-	HealthStatus *HealthStatus
-	Skills       *Skills
+	Player        *Player
+	Hunger        *Hunger
+	Wallet        *Wallet
+	FactionType   *FactionType
+	Dead          *Dead
+	Dialog        *Dialog
+	HealthStatus  *HealthStatus
+	Skills        *Skills
+	CharModifiers *CharModifiers
 
 	// event ================
 	EquipmentChanged  *EquipmentChanged
@@ -125,6 +126,7 @@ type Components struct {
 	TurnBased      *ecs.SliceComponent `save:"true"`
 	HealthStatus   *ecs.SliceComponent `save:"true"`
 	Skills         *ecs.SliceComponent `save:"true"`
+	CharModifiers  *ecs.SliceComponent `save:"true"`
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent

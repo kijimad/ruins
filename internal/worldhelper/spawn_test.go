@@ -448,17 +448,24 @@ func TestCalculateSpeed(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		entity := world.Manager.NewEntity()
-		hs := &gc.HealthStatus{}
-		hs.Parts[gc.BodyPartTorso].SetCondition(gc.HealthCondition{
+		entity, err := SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		// 通常時のSpeedを記録
+		normalSpeed := CalculateSpeed(world, entity)
+
+		// 低体温を設定してCharModifiersを再計算
+		hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
 			Severity: gc.SeverityMedium,
 		})
-		entity.AddComponent(world.Components.HealthStatus, hs)
+		skills := world.Components.Skills.Get(entity).(*gc.Skills)
+		mods := gc.RecalculateCharModifiers(skills, hs)
+		entity.AddComponent(world.Components.CharModifiers, mods)
 
-		speed := CalculateSpeed(world, entity)
-		// 基本100 - 体温ペナルティ20 = 80
-		assert.Equal(t, 80, speed)
+		coldSpeed := CalculateSpeed(world, entity)
+		assert.Less(t, coldSpeed, normalSpeed, "低体温によりSpeedが低下するべき")
 	})
 
 	t.Run("複合ペナルティで最小値に達する", func(t *testing.T) {

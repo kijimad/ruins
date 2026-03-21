@@ -98,9 +98,10 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 	return nil
 }
 
-// CalculateEquippedInsulation はエンティティの装備から断熱値を計算する
-func CalculateEquippedInsulation(world w.World, owner ecs.Entity) [gc.BodyPartCount]Insulation {
-	var insulation [gc.BodyPartCount]Insulation
+// CalculateEquippedInsulation はエンティティの装備から全身の断熱値を計算する。
+// 各装備部位の断熱値を合算して返す。
+func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
+	var total Insulation
 
 	world.Manager.Join(
 		world.Components.ItemLocationEquipped,
@@ -112,13 +113,11 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) [gc.BodyPartCo
 		}
 
 		wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
-		if part, ok := wearable.EquipmentCategory.CoveredBodyPart(); ok {
-			insulation[part].Cold += wearable.InsulationCold
-			insulation[part].Heat += wearable.InsulationHeat
-		}
+		total.Cold += wearable.InsulationCold
+		total.Heat += wearable.InsulationHeat
 	}))
 
-	return insulation
+	return total
 }
 
 // getTileTemperatureAt は指定座標のタイル気温修正値を取得する
@@ -137,60 +136,49 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 	return modifier
 }
 
-// updateTemperatureConditions は環境気温から各部位の健康状態タイマーを更新する
-// isPlayerがtrueの場合、状態悪化時にログを出力する
-// 戻り値: いずれかの状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation [gc.BodyPartCount]Insulation, isPlayer bool) bool {
+// updateTemperatureConditions は環境気温から全身の体温状態タイマーを更新する。
+// - 断熱値は装備全体の合算値を使う。
+// - isPlayerがtrueの場合、状態変化時にログを出力する。
+// - 戻り値: 状態のSeverityが変化した場合trueを返す
+func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool) bool {
 	hasChange := false
+	partHealth := &hs.Parts[gc.BodyPartWholeBody]
 
-	for i := 0; i < int(gc.BodyPartCount); i++ {
-		part := gc.BodyPart(i)
-		partHealth := &hs.Parts[i]
+	// 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
+	effectiveTempCold := envTemp + insulation.Cold
+	// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
+	effectiveTempHeat := envTemp - insulation.Heat
 
-		// 耐寒を適用した有効温度（寒さ判定用）: 耐寒が高いほど暖かく感じる
-		effectiveTempCold := envTemp + insulation[i].Cold
-		// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
-		effectiveTempHeat := envTemp - insulation[i].Heat
+	coldDelta := calcTimerDelta(effectiveTempCold)
+	heatDelta := calcTimerDelta(effectiveTempHeat)
 
-		// 低体温/高体温のタイマー変化量を計算
-		coldDelta := calcTimerDelta(effectiveTempCold)
-		heatDelta := calcTimerDelta(effectiveTempHeat)
+	var changes []gc.SeverityChange
 
-		// 低体温/高体温のタイマーを更新
-		var changes []gc.SeverityChange
+	// 低体温の処理（寒さ判定）
+	if coldDelta < 0 {
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
+	} else {
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -0.25))
+	}
 
-		// 低体温の処理（寒さ判定）
-		if coldDelta < 0 {
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -coldDelta))
-		} else {
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHypothermia, -0.25))
-		}
+	// 高体温の処理（暑さ判定）
+	if heatDelta > 0 {
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
+	} else {
+		changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -0.25))
+	}
 
-		// 高体温の処理（暑さ判定）
-		if heatDelta > 0 {
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, heatDelta))
-		} else {
-			changes = append(changes, partHealth.UpdateConditionTimer(gc.ConditionHyperthermia, -0.25))
-		}
-
-		// 凍傷タイマー更新（末端部位のみ、耐寒を適用）
-		if gc.IsExtremity(part) {
-			changes = append(changes, updateFrostbiteTimer(partHealth, effectiveTempCold))
-		}
-
-		// 状態変化をチェックし、プレイヤーならログ出力
-		for _, change := range changes {
-			if change.Prev != change.Current {
-				hasChange = true
-				if isPlayer {
-					logTemperatureChange(part, change.CondType, change.Current, change.Prev)
-				}
+	for _, change := range changes {
+		if change.Prev != change.Current {
+			hasChange = true
+			if isPlayer {
+				logTemperatureChange(change.CondType, change.Current, change.Prev)
 			}
 		}
-
-		// 効果を更新
-		updateConditionEffects(partHealth, part)
 	}
+
+	// 効果を更新
+	updateConditionEffects(partHealth)
 
 	return hasChange
 }
@@ -216,63 +204,23 @@ func calcTimerDelta(effectiveTemp int) float64 {
 	}
 }
 
-// updateFrostbiteTimer は凍傷タイマーを更新する
-func updateFrostbiteTimer(partHealth *gc.BodyPartHealth, effectiveTemp int) gc.SeverityChange {
-	var delta float64
-	switch {
-	case effectiveTemp <= 0:
-		delta = 0.5 // 非常に危険
-	case effectiveTemp <= 5:
-		delta = 0.25 // 危険
-	case effectiveTemp <= 10:
-		delta = 0 // 現状維持
-	default:
-		delta = -0.25 // 回復
-	}
-
-	return partHealth.UpdateConditionTimer(gc.ConditionFrostbite, delta)
-}
-
-// updateConditionEffects は状態の効果を更新する
-func updateConditionEffects(partHealth *gc.BodyPartHealth, part gc.BodyPart) {
-	// 低体温の効果
+// updateConditionEffects は全身の状態の効果を更新する
+func updateConditionEffects(partHealth *gc.BodyPartHealth) {
 	if cond := partHealth.GetCondition(gc.ConditionHypothermia); cond != nil {
-		cond.Effects = calculateHypothermiaEffects(part, cond.Severity)
+		cond.Effects = calculateHypothermiaEffects(cond.Severity)
 	}
-
-	// 高体温の効果
 	if cond := partHealth.GetCondition(gc.ConditionHyperthermia); cond != nil {
-		cond.Effects = calculateHyperthermiaEffects(part, cond.Severity)
+		cond.Effects = calculateHyperthermiaEffects(cond.Severity)
 	}
-
-	// 凍傷の効果
-	if cond := partHealth.GetCondition(gc.ConditionFrostbite); cond != nil {
-		cond.Effects = calculateFrostbiteEffects(part, cond.Severity)
-	}
-}
-
-// getWorstSeverity は全部位で最も重い状態のSeverityを返す
-func getWorstSeverity(hs *gc.HealthStatus) gc.Severity {
-	worst := gc.SeverityNone
-	for i := 0; i < int(gc.BodyPartCount); i++ {
-		for _, cond := range hs.Parts[i].Conditions {
-			if cond.Severity > worst {
-				worst = cond.Severity
-			}
-		}
-	}
-	return worst
 }
 
 // logTemperatureChange は状態変化をログ出力する
-func logTemperatureChange(part gc.BodyPart, condType gc.ConditionType, current, prev gc.Severity) {
+func logTemperatureChange(condType gc.ConditionType, current, prev gc.Severity) {
 	var msg string
 	if current > prev {
-		// 悪化
-		msg = getWorseningMessage(part, condType, current)
+		msg = getWorseningMessage(condType, current)
 	} else {
-		// 回復
-		msg = getRecoveryMessage(part, condType, current)
+		msg = getRecoveryMessage(condType, current)
 	}
 
 	if msg != "" {
@@ -283,80 +231,56 @@ func logTemperatureChange(part gc.BodyPart, condType gc.ConditionType, current, 
 }
 
 // getWorseningMessage は悪化時のメッセージを返す
-func getWorseningMessage(part gc.BodyPart, condType gc.ConditionType, severity gc.Severity) string {
-	partTag := "[" + part.String() + "]"
+func getWorseningMessage(condType gc.ConditionType, severity gc.Severity) string {
 	switch condType {
 	case gc.ConditionHypothermia:
 		switch severity {
 		case gc.SeverityNone:
 			return ""
 		case gc.SeverityMinor:
-			return "寒さで冷えてきた" + partTag
+			return "寒さで冷えてきた"
 		case gc.SeverityMedium:
-			return "寒さでかなり冷えている" + partTag
+			return "寒さでかなり冷えている"
 		case gc.SeveritySevere:
-			return "寒さで危険な状態だ" + partTag
+			return "寒さで危険な状態だ"
 		}
 	case gc.ConditionHyperthermia:
 		switch severity {
 		case gc.SeverityNone:
 			return ""
 		case gc.SeverityMinor:
-			return "暑さで火照ってきた" + partTag
+			return "暑さで火照ってきた"
 		case gc.SeverityMedium:
-			return "暑さでかなり消耗している" + partTag
+			return "暑さでかなり消耗している"
 		case gc.SeveritySevere:
-			return "暑さで危険な状態だ" + partTag
-		}
-	case gc.ConditionFrostbite:
-		switch severity {
-		case gc.SeverityNone:
-			return ""
-		case gc.SeverityMinor:
-			return "凍傷になりかけている" + partTag
-		case gc.SeverityMedium:
-			return "凍傷が進行している" + partTag
-		case gc.SeveritySevere:
-			return "凍傷が危険な状態だ" + partTag
+			return "暑さで危険な状態だ"
 		}
 	}
 	return ""
 }
 
 // getRecoveryMessage は回復時のメッセージを返す
-func getRecoveryMessage(part gc.BodyPart, condType gc.ConditionType, severity gc.Severity) string {
-	partTag := "[" + part.String() + "]"
+func getRecoveryMessage(condType gc.ConditionType, severity gc.Severity) string {
 	switch condType {
 	case gc.ConditionHypothermia:
 		switch severity {
 		case gc.SeverityNone:
-			return "温まった" + partTag
+			return "温まった"
 		case gc.SeverityMinor:
-			return "少し温まってきた" + partTag
+			return "少し温まってきた"
 		case gc.SeverityMedium:
-			return "まだ寒いが、少しマシになった" + partTag
+			return "まだ寒いが、少しマシになった"
 		case gc.SeveritySevere:
 			return ""
 		}
 	case gc.ConditionHyperthermia:
 		switch severity {
 		case gc.SeverityNone:
-			return "涼しくなった" + partTag
+			return "涼しくなった"
 		case gc.SeverityMinor:
-			return "少し涼しくなってきた" + partTag
+			return "少し涼しくなってきた"
 		case gc.SeverityMedium:
-			return "まだ暑いが、少しマシになった" + partTag
-		case gc.SeveritySevere:
-			return ""
-		}
-	case gc.ConditionFrostbite:
-		switch severity {
-		case gc.SeverityNone:
-			return "凍傷が治った" + partTag
-		case gc.SeverityMinor:
-			return "凍傷が少し回復した" + partTag
-		case gc.SeverityMedium:
-			return "凍傷がまだ残っているが、少しマシになった" + partTag
+			return "まだ暑いが、少しマシになった"
 		case gc.SeveritySevere:
 			return ""
 		}
@@ -364,76 +288,33 @@ func getRecoveryMessage(part gc.BodyPart, condType gc.ConditionType, severity gc
 	return ""
 }
 
-// calculateHypothermiaEffects は低体温による効果を計算する
-func calculateHypothermiaEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {
-	multiplier := severityToMultiplier(severity)
-	if multiplier == 0 {
+// calculateHypothermiaEffects は低体温による全身への効果を計算する
+func calculateHypothermiaEffects(severity gc.Severity) []gc.StatEffect {
+	m := severityToMultiplier(severity)
+	if m == 0 {
 		return nil
 	}
 
-	var effects []gc.StatEffect
-
-	switch part {
-	case gc.BodyPartTorso:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})
-		effects = append(effects, gc.StatEffect{Stat: gc.StatVitality, Value: -1 * multiplier})
-	case gc.BodyPartHead:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})
-	case gc.BodyPartArms:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})
-	case gc.BodyPartHands:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})
-	case gc.BodyPartLegs:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})
-	case gc.BodyPartFeet:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})
-	case gc.BodyPartCount:
-		// BodyPartCount は列挙の終端を示す定数なので何もしない
+	return []gc.StatEffect{
+		{Stat: gc.StatStrength, Value: -1 * m},
+		{Stat: gc.StatVitality, Value: -1 * m},
+		{Stat: gc.StatDexterity, Value: -1 * m},
+		{Stat: gc.StatAgility, Value: -1 * m},
 	}
-
-	return effects
 }
 
-// calculateHyperthermiaEffects は高体温による効果を計算する
-func calculateHyperthermiaEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {
-	multiplier := severityToMultiplier(severity)
-	if multiplier == 0 {
+// calculateHyperthermiaEffects は高体温による全身への効果を計算する
+func calculateHyperthermiaEffects(severity gc.Severity) []gc.StatEffect {
+	m := severityToMultiplier(severity)
+	if m == 0 {
 		return nil
 	}
 
-	var effects []gc.StatEffect
-
-	switch part {
-	case gc.BodyPartTorso:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatStrength, Value: -1 * multiplier})
-	case gc.BodyPartHead:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatSensation, Value: -1 * multiplier})
-	case gc.BodyPartArms, gc.BodyPartHands, gc.BodyPartLegs, gc.BodyPartFeet, gc.BodyPartCount:
-		// これらの部位は高体温の影響を受けない
+	return []gc.StatEffect{
+		{Stat: gc.StatStrength, Value: -1 * m},
+		{Stat: gc.StatSensation, Value: -1 * m},
+		{Stat: gc.StatVitality, Value: -1 * m},
 	}
-
-	return effects
-}
-
-// calculateFrostbiteEffects は凍傷による効果を計算する
-func calculateFrostbiteEffects(part gc.BodyPart, severity gc.Severity) []gc.StatEffect {
-	multiplier := severityToMultiplier(severity)
-	if multiplier == 0 {
-		return nil
-	}
-
-	var effects []gc.StatEffect
-
-	switch part {
-	case gc.BodyPartHands:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatDexterity, Value: -1 * multiplier})
-	case gc.BodyPartFeet:
-		effects = append(effects, gc.StatEffect{Stat: gc.StatAgility, Value: -1 * multiplier})
-	case gc.BodyPartTorso, gc.BodyPartHead, gc.BodyPartArms, gc.BodyPartLegs, gc.BodyPartCount:
-		// 凍傷は手と足のみに発生する
-	}
-
-	return effects
 }
 
 // severityToMultiplier はSeverityから効果倍率を返す

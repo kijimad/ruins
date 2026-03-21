@@ -271,13 +271,11 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			hs.Parts[i].SetCondition(gc.HealthCondition{
-				Type:     gc.ConditionHypothermia,
-				Severity: gc.SeveritySevere,
-				Timer:    90,
-			})
-		}
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeveritySevere,
+			Timer:    90,
+		})
 
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
@@ -308,13 +306,11 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 
 		// 重度の低体温を設定
 		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
-		for i := 0; i < int(gc.BodyPartCount); i++ {
-			hs.Parts[i].SetCondition(gc.HealthCondition{
-				Type:     gc.ConditionHypothermia,
-				Severity: gc.SeveritySevere,
-				Timer:    90,
-			})
-		}
+		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+			Type:     gc.ConditionHypothermia,
+			Severity: gc.SeveritySevere,
+			Timer:    90,
+		})
 
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)

@@ -88,6 +88,17 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 		attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
 		attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
 
+		// スキル効果倍率を再計算する。属性変更後に行う
+		if entity.HasComponent(world.Components.Skills) {
+			skills := world.Components.Skills.Get(entity).(*gc.Skills)
+			var hs *gc.HealthStatus
+			if entity.HasComponent(world.Components.HealthStatus) {
+				hs = world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			}
+			effects := gc.RecalculateCharModifiers(skills, hs)
+			entity.AddComponent(world.Components.CharModifiers, effects)
+		}
+
 		// Pools（HP/SP）を更新
 		if entity.HasComponent(world.Components.Pools) {
 			pools := world.Components.Pools.Get(entity).(*gc.Pools)

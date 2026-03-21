@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // CharacterJobState はキャラクター職業選択画面のステート
@@ -150,15 +151,25 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	}
 
 	prof := props.Items[itemIndex].Profession
-	st.selectProfession(world, prof)
+
+	// 既存プレイヤーがいれば削除する
+	if existing, err := worldhelper.GetPlayerEntity(world); err == nil {
+		world.Manager.DeleteEntity(existing)
+	}
+
+	player, _ := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	st.applyProfession(world, player, prof)
+
+	st.SetTransition(es.Transition[w.World]{
+		Type:          es.TransReplace,
+		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
+	})
+
 	return st.ConsumeTransition(), nil
 }
 
-// selectProfession は職業を選択してゲームを開始する
-func (st *CharacterJobState) selectProfession(world w.World, prof raw.Profession) {
-	// TOMLの"Ash"定義でエンティティを生成し、名前と属性を上書きする
-	player, _ := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
-
+// applyProfession はプレイヤーエンティティに職業の属性値・スキルを適用する
+func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, prof raw.Profession) {
 	// プレイヤー名を上書き
 	name := world.Components.Name.Get(player).(*gc.Name)
 	name.Name = st.playerName
@@ -173,15 +184,14 @@ func (st *CharacterJobState) selectProfession(world w.World, prof raw.Profession
 	attrs.Defense = gc.Attribute{Base: prof.Attributes.Defense}
 
 	// 職業のスキル初期値を設定
-	if len(prof.Skills) > 0 {
-		skills := world.Components.Skills.Get(player).(*gc.Skills)
-		for _, ps := range prof.Skills {
-			if s, ok := skills.Data[gc.SkillID(ps.ID)]; ok {
-				s.Value = ps.Value
-			}
+	skills := world.Components.Skills.Get(player).(*gc.Skills)
+	for _, ps := range prof.Skills {
+		if s, ok := skills.Data[gc.SkillID(ps.ID)]; ok {
+			s.Value = ps.Value
 		}
-		skills.RecalculateEffects()
 	}
+	modifiers := gc.RecalculateCharModifiers(skills, nil)
+	player.AddComponent(world.Components.CharModifiers, modifiers)
 
 	// 属性値変更後にHP/SP/EP/APを再計算
 	_ = worldhelper.FullRecover(world, player)
@@ -190,11 +200,6 @@ func (st *CharacterJobState) selectProfession(world w.World, prof raw.Profession
 	for _, item := range prof.Items {
 		_, _ = worldhelper.SpawnItem(world, item.Name, item.Count, gc.ItemLocationInPlayerBackpack)
 	}
-
-	st.SetTransition(es.Transition[w.World]{
-		Type:          es.TransReplace,
-		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
-	})
 }
 
 // ================
