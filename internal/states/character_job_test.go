@@ -41,10 +41,10 @@ func TestProfessionItems(t *testing.T) {
 		itemCount    int
 	}{
 		{professionID: "evacuee", itemCount: 3},
-		{professionID: "soldier", itemCount: 4},
-		{professionID: "sniper", itemCount: 4},
-		{professionID: "mechanic", itemCount: 5},
-		{professionID: "hunter", itemCount: 5},
+		{professionID: "soldier", itemCount: 1},
+		{professionID: "sniper", itemCount: 2},
+		{professionID: "mechanic", itemCount: 2},
+		{professionID: "hunter", itemCount: 2},
 		{professionID: "medic", itemCount: 5},
 	}
 
@@ -55,6 +55,40 @@ func TestProfessionItems(t *testing.T) {
 			for _, p := range professions {
 				if p.ID == tt.professionID {
 					assert.Equal(t, tt.itemCount, len(p.Items), "初期アイテム数")
+					found = true
+					break
+				}
+			}
+			require.True(t, found, "職業が見つからない: %s", tt.professionID)
+		})
+	}
+}
+
+func TestProfessionEquips(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	professions := world.Resources.RawMaster.Raws.Professions
+
+	tests := []struct {
+		professionID string
+		equipCount   int
+	}{
+		{professionID: "evacuee", equipCount: 6},
+		{professionID: "soldier", equipCount: 7},
+		{professionID: "sniper", equipCount: 7},
+		{professionID: "mechanic", equipCount: 7},
+		{professionID: "hunter", equipCount: 7},
+		{professionID: "medic", equipCount: 6},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.professionID, func(t *testing.T) {
+			t.Parallel()
+			var found bool
+			for _, p := range professions {
+				if p.ID == tt.professionID {
+					assert.Equal(t, tt.equipCount, len(p.Equips), "初期装備数")
 					found = true
 					break
 				}

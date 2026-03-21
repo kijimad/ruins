@@ -219,6 +219,27 @@ func (enum EquipmentType) Valid() error {
 	}
 }
 
+// SlotNumber はEquipmentTypeに対応するEquipmentSlotNumberを返す
+func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
+	switch enum {
+	case EquipmentHead:
+		return SlotHead
+	case EquipmentTorso:
+		return SlotTorso
+	case EquipmentArms:
+		return SlotArms
+	case EquipmentHands:
+		return SlotHands
+	case EquipmentLegs:
+		return SlotLegs
+	case EquipmentFeet:
+		return SlotFeet
+	case EquipmentJewelry:
+		return SlotJewelry
+	}
+	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
+}
+
 func (enum EquipmentType) String() string {
 	switch enum {
 	case EquipmentHead:

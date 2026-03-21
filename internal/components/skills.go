@@ -182,17 +182,3 @@ func WeaponSkillID(at AttackType) (SkillID, bool) {
 	id, ok := weaponSkillMap[at.Type]
 	return id, ok
 }
-
-// elementResistMap は元素から耐性スキルIDへのマッピング
-var elementResistMap = map[ElementType]SkillID{
-	ElementTypeFire:    SkillFireResist,
-	ElementTypeThunder: SkillThunderResist,
-	ElementTypeChill:   SkillChillResist,
-	ElementTypePhoton:  SkillPhotonResist,
-}
-
-// ElementResistSkillID は元素に対応する耐性スキルIDを返す
-func ElementResistSkillID(e ElementType) (SkillID, bool) {
-	id, ok := elementResistMap[e]
-	return id, ok
-}

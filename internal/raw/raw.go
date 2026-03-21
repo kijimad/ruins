@@ -155,6 +155,7 @@ type Profession struct {
 	Attributes  Attributes
 	Skills      []ProfessionSkill
 	Items       []ProfessionItem
+	Equips      []ProfessionEquip
 }
 
 // ProfessionSkill は職業のスキル初期値
@@ -163,10 +164,16 @@ type ProfessionSkill struct {
 	Value int
 }
 
-// ProfessionItem は職業の初期所持アイテム
+// ProfessionItem は職業の初期所持アイテム。バックパックに入る
 type ProfessionItem struct {
 	Name  string
 	Count int
+}
+
+// ProfessionEquip は職業の初期装備。指定スロットに装備される
+type ProfessionEquip struct {
+	Name string // アイテム名
+	Slot string // 装備スロット名
 }
 
 // LoadFromFile はファイルからローデータを読み込む

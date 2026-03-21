@@ -502,6 +502,92 @@
     # wearable ================
 
 [[Items]]
+  Description     = "ありふれた布の帽子"
+  Name            = "布の帽子"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 10
+  Weight          = 0.1
+
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "HEAD"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+
+[[Items]]
+  Description     = "普段着のシャツ。防御力は期待できない"
+  Name            = "布のシャツ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 15
+  Weight          = 0.3
+
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "TORSO"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+
+[[Items]]
+  Description     = "薄い布地の袖カバー"
+  Name            = "布の腕巻き"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 8
+  Weight          = 0.1
+
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "ARMS"
+    InsulationCold    = 1
+    InsulationHeat    = 1
+
+[[Items]]
+  Description     = "薄手の布手袋"
+  Name            = "布の手袋"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 8
+  Weight          = 0.1
+
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 1
+    InsulationHeat    = 1
+
+[[Items]]
+  Description     = "ごく普通のズボン"
+  Name            = "布のズボン"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 12
+  Weight          = 0.2
+
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "LEGS"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+
+[[Items]]
+  Description     = "底の薄い布靴"
+  Name            = "布の靴"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 10
+  Weight          = 0.2
+
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "FEET"
+    InsulationCold    = 1
+    InsulationHeat    = 1
+
+    # 戦闘用装備 ================
+
+[[Items]]
   Description     = "衝撃吸収性に優れた産業用の帽子"
   Name            = "作業用ヘルメット"
   SpriteKey       = "construction_helmet"
@@ -2370,6 +2456,24 @@
   [[Professions.Items]]
     Count = 1
     Name  = "回復薬"
+  [[Professions.Equips]]
+    Name = "布の帽子"
+    Slot = "HEAD"
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+  [[Professions.Equips]]
+    Name = "布の手袋"
+    Slot = "HANDS"
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"
 
 [[Professions]]
   Description = "訓練を積んだ兵隊"
@@ -2390,16 +2494,28 @@
     Value = 2
   [[Professions.Items]]
     Count = 1
-    Name  = "木刀"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "鉄の胸当て"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "革の手袋"
-  [[Professions.Items]]
-    Count = 1
     Name  = "回復薬"
+  [[Professions.Equips]]
+    Name = "木刀"
+    Slot = "WEAPON1"
+  [[Professions.Equips]]
+    Name = "作業用ヘルメット"
+    Slot = "HEAD"
+  [[Professions.Equips]]
+    Name = "鉄の胸当て"
+    Slot = "TORSO"
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+  [[Professions.Equips]]
+    Name = "革の手袋"
+    Slot = "HANDS"
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+  [[Professions.Equips]]
+    Name = "革のブーツ"
+    Slot = "FEET"
 
 [[Professions]]
   Description = "射撃の達人"
@@ -2420,16 +2536,31 @@
     Value = 2
   [[Professions.Items]]
     Count = 1
-    Name  = "ハンドガン"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "影の頭巾"
-  [[Professions.Items]]
-    Count = 1
     Name  = "パン"
   [[Professions.Items]]
     Count = 1
     Name  = "回復薬"
+  [[Professions.Equips]]
+    Name = "ハンドガン"
+    Slot = "WEAPON1"
+  [[Professions.Equips]]
+    Name = "影の頭巾"
+    Slot = "HEAD"
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+  [[Professions.Equips]]
+    Name = "布の手袋"
+    Slot = "HANDS"
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"
 
 [[Professions]]
   Description = "技術者"
@@ -2452,20 +2583,32 @@
     ID    = "exploration"
     Value = 1
   [[Professions.Items]]
-    Count = 1
-    Name  = "鉄のナイフ"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "作業用ヘルメット"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "革の手袋"
-  [[Professions.Items]]
     Count = 5
     Name  = "鉄"
   [[Professions.Items]]
     Count = 2
     Name  = "フェライトコア"
+  [[Professions.Equips]]
+    Name = "鉄のナイフ"
+    Slot = "WEAPON1"
+  [[Professions.Equips]]
+    Name = "作業用ヘルメット"
+    Slot = "HEAD"
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+  [[Professions.Equips]]
+    Name = "革の手袋"
+    Slot = "HANDS"
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"
 
 [[Professions]]
   Description = "野外活動に長けた生存者"
@@ -2491,20 +2634,32 @@
     ID    = "cold_resist"
     Value = 1
   [[Professions.Items]]
-    Count = 1
-    Name  = "ハンドガン"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "狩人の帽子"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "狩人の外套"
-  [[Professions.Items]]
     Count = 2
     Name  = "乾肉"
   [[Professions.Items]]
     Count = 2
     Name  = "緑ハーブ"
+  [[Professions.Equips]]
+    Name = "ハンドガン"
+    Slot = "WEAPON1"
+  [[Professions.Equips]]
+    Name = "狩人の帽子"
+    Slot = "HEAD"
+  [[Professions.Equips]]
+    Name = "狩人の外套"
+    Slot = "TORSO"
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+  [[Professions.Equips]]
+    Name = "布の手袋"
+    Slot = "HANDS"
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+  [[Professions.Equips]]
+    Name = "革のブーツ"
+    Slot = "FEET"
 
 [[Professions]]
   Description = "医療知識を持つ"
@@ -2541,3 +2696,21 @@
   [[Professions.Items]]
     Count = 2
     Name  = "パン"
+  [[Professions.Equips]]
+    Name = "布の帽子"
+    Slot = "HEAD"
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+  [[Professions.Equips]]
+    Name = "布の手袋"
+    Slot = "HANDS"
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"

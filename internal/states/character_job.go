@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -13,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -52,8 +54,9 @@ func (st *CharacterJobState) OnPause(_ w.World) error { return nil }
 func (st *CharacterJobState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
-func (st *CharacterJobState) OnStart(_ w.World) error {
+func (st *CharacterJobState) OnStart(world w.World) error {
 	st.menuMount = hooks.NewMount[jobMenuProps]()
+	st.menuMount.SetProps(st.fetchProps(world))
 	return nil
 }
 
@@ -72,8 +75,7 @@ func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], erro
 		st.menuMount.Dispatch(action)
 	}
 
-	// Props更新
-	st.menuMount.SetProps(st.fetchProps(world))
+	// Props更新。職業データは静的なのでOnStartでセット済み
 	props := st.menuMount.GetProps()
 	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -196,9 +198,26 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 	// 属性値変更後にHP/SP/EP/APを再計算
 	_ = worldhelper.FullRecover(world, player)
 
-	// 初期装備を付与
-	for _, item := range prof.Items {
-		_, _ = worldhelper.SpawnItem(world, item.Name, item.Count, gc.ItemLocationInPlayerBackpack)
+	// 初期アイテムをバックパックに付与
+	for _, profItem := range prof.Items {
+		if _, err := worldhelper.SpawnItem(world, profItem.Name, profItem.Count, gc.ItemLocationInPlayerBackpack); err != nil {
+			log.Printf("職業の初期アイテム生成に失敗: %s: %v", profItem.Name, err)
+		}
+	}
+
+	// 初期装備を付与して装備する
+	for _, equip := range prof.Equips {
+		item, err := worldhelper.SpawnItem(world, equip.Name, 1, gc.ItemLocationInPlayerBackpack)
+		if err != nil {
+			log.Printf("職業の初期装備生成に失敗: %s: %v", equip.Name, err)
+			continue
+		}
+		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
+		if !ok {
+			log.Printf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
+			continue
+		}
+		worldhelper.MoveToEquip(world, item, player, slot)
 	}
 }
 
@@ -211,41 +230,52 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	props := st.menuMount.GetProps()
 	itemIndex, _ := hooks.GetState[int](st.menuMount, "job_itemIndex")
 
+	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
 	rootContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Spacing(0, 10),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{
+				Top:    20,
+				Bottom: 20,
+				Left:   40,
+				Right:  40,
+			}),
+		)),
+	)
+
+	// タイトル行
+	titleContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
-
-	centerContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(20),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-			}),
-		),
-	)
-
 	titleLabel := widget.NewText(
 		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, consts.PrimaryColor),
 		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				HorizontalPosition: widget.AnchorLayoutPositionCenter,
 			}),
 		),
 	)
+	titleContainer.AddChild(titleLabel)
 
-	// メニューコンテナを構築
-	menuContainer := styled.NewVerticalContainer()
+	// メインエリア: 左右分割
+	leftContainer := styled.NewVerticalContainer()
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
 		itemWidget := styled.NewListItemText(item.Profession.Name, consts.TextColor, isSelected, res)
-		menuContainer.AddChild(itemWidget)
+		leftContainer.AddChild(itemWidget)
 	}
+	rightContainer := st.buildDetailPanel(props, itemIndex, res)
+	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
 
-	// 職業説明テキスト
+	// フッター: 説明 + ヒント
+	footerContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(4),
+		)),
+	)
 	description := ""
 	if itemIndex < len(props.Items) {
 		description = props.Items[itemIndex].Profession.Description
@@ -256,11 +286,8 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
 			}),
-			widget.WidgetOpts.MinSize(300, 0),
 		),
 	)
-
-	// 操作ヒント
 	hintLabel := widget.NewText(
 		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, consts.SecondaryColor),
 		widget.TextOpts.WidgetOpts(
@@ -269,13 +296,59 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 			}),
 		),
 	)
+	footerContainer.AddChild(descriptionText)
+	footerContainer.AddChild(hintLabel)
 
-	centerContainer.AddChild(titleLabel)
-	centerContainer.AddChild(menuContainer)
-	centerContainer.AddChild(descriptionText)
-	centerContainer.AddChild(hintLabel)
-
-	rootContainer.AddChild(centerContainer)
+	rootContainer.AddChild(titleContainer)
+	rootContainer.AddChild(mainContainer)
+	rootContainer.AddChild(footerContainer)
 
 	return &ebitenui.UI{Container: rootContainer}
+}
+
+// buildDetailPanel は選択中の職業の詳細パネルを構築する
+func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
+
+	if itemIndex >= len(props.Items) {
+		return container
+	}
+
+	prof := props.Items[itemIndex].Profession
+
+	// 装備
+	if len(prof.Equips) > 0 {
+		container.AddChild(styled.NewDescriptionText("装備", res))
+		for _, equip := range prof.Equips {
+			slotLabel := equip.Slot
+			if slot, ok := gc.ParseEquipmentSlot(equip.Slot); ok {
+				slotLabel = slot.String()
+			}
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s: %s", slotLabel, equip.Name), res))
+		}
+	}
+
+	// 所持品
+	if len(prof.Items) > 0 {
+		container.AddChild(styled.NewDescriptionText("所持品", res))
+		for _, item := range prof.Items {
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", item.Name, item.Count), res))
+		}
+	}
+
+	// スキル
+	if len(prof.Skills) > 0 {
+		container.AddChild(styled.NewDescriptionText("スキル", res))
+		for _, skill := range prof.Skills {
+			name := skill.ID
+			if n, ok := gc.SkillName[gc.SkillID(skill.ID)]; ok {
+				name = n
+			}
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s Lv.%d", name, skill.Value), res))
+		}
+	}
+
+	return container
 }

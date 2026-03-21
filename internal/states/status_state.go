@@ -486,7 +486,7 @@ func (st *StatusState) buildDetailContainer(world w.World, props statusProps, ta
 	case tabEffects:
 		st.buildEffectDetail(container, item, res)
 	case tabHealth:
-		st.buildHealthDetail(container, item, world, res)
+		st.buildHealthDetail(container, world, res)
 	}
 
 	return container
@@ -508,7 +508,7 @@ func (st *StatusState) buildEffectDetail(container *widget.Container, item statu
 	container.AddChild(table)
 }
 
-func (st *StatusState) buildHealthDetail(container *widget.Container, item statusItemData, world w.World, res *resources.UIResources) {
+func (st *StatusState) buildHealthDetail(container *widget.Container, world w.World, res *resources.UIResources) {
 	var playerEntity ecs.Entity
 	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
 		playerEntity = entity
