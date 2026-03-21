@@ -313,8 +313,9 @@ func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity {
 func (st *InventoryMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	tabIndex, _ := hooks.GetState[int](st.menuMount, "inventory_tabIndex")
-	itemIndex, _ := hooks.GetState[int](st.menuMount, "inventory_itemIndex")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "inventory")
+	tabIndex := menuState.TabIndex
+	itemIndex := menuState.ItemIndex
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
@@ -427,14 +428,12 @@ func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabInd
 
 func (st *InventoryMenuState) handleItemSelection() error {
 	props := st.menuMount.GetProps()
-	tabIndex, ok := hooks.GetState[int](st.menuMount, "inventory_tabIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "inventory")
 	if !ok {
-		return fmt.Errorf("inventory_tabIndexの取得に失敗")
+		return fmt.Errorf("inventoryの取得に失敗")
 	}
-	itemIndex, ok := hooks.GetState[int](st.menuMount, "inventory_itemIndex")
-	if !ok {
-		return fmt.Errorf("inventory_itemIndexの取得に失敗")
-	}
+	tabIndex := menuState.TabIndex
+	itemIndex := menuState.ItemIndex
 
 	if tabIndex >= len(props.Tabs) {
 		return nil

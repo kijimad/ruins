@@ -143,10 +143,11 @@ func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
 
 func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
 	props := st.menuMount.GetProps()
-	itemIndex, ok := hooks.GetState[int](st.menuMount, "job_itemIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
 	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("job_itemIndexの取得に失敗")
+		return es.Transition[w.World]{}, fmt.Errorf("jobの取得に失敗")
 	}
+	itemIndex := menuState.ItemIndex
 
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -228,7 +229,8 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	itemIndex, _ := hooks.GetState[int](st.menuMount, "job_itemIndex")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
+	itemIndex := menuState.ItemIndex
 
 	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
 	rootContainer := widget.NewContainer(

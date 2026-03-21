@@ -61,6 +61,14 @@ var WeaponAccuracyKeys = map[SkillID]ModifierKey{
 	SkillCannon:  ModCannonAccuracy,
 }
 
+// ElementResistKeys は元素タイプから耐性効果キーへのマッピング
+var ElementResistKeys = map[ElementType]ModifierKey{
+	ElementTypeFire:    ModFireResist,
+	ElementTypeThunder: ModThunderResist,
+	ElementTypeChill:   ModChillResist,
+	ElementTypePhoton:  ModPhotonResist,
+}
+
 // ModifierSource は効果倍率の算出元を表す。
 // スキル以外の要因（健康状態など）にも対応できる汎用的な構造にしている。
 type ModifierSource struct {

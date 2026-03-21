@@ -145,10 +145,11 @@ func (st *MainMenuState) fetchProps() mainMenuProps {
 
 func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 	props := st.menuMount.GetProps()
-	itemIndex, ok := hooks.GetState[int](st.menuMount, "menu_itemIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
 	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("menu_itemIndexの取得に失敗")
+		return es.Transition[w.World]{}, fmt.Errorf("menuの取得に失敗")
 	}
+	itemIndex := menuState.ItemIndex
 
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -164,7 +165,8 @@ func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) {
 func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	itemIndex, _ := hooks.GetState[int](st.menuMount, "menu_itemIndex")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "menu")
+	itemIndex := menuState.ItemIndex
 
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),

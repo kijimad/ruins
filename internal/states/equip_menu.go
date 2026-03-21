@@ -457,14 +457,12 @@ func (st *EquipMenuState) getActionItems(world w.World, item equipItemData) []st
 // handleSlotSelection はスロット選択画面での選択処理
 func (st *EquipMenuState) handleSlotSelection(_ w.World) error {
 	props := st.slotMount.GetProps()
-	tabIndex, ok := hooks.GetState[int](st.slotMount, "slot_tabIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.slotMount, "slot")
 	if !ok {
-		return fmt.Errorf("slot_tabIndexの取得に失敗")
+		return fmt.Errorf("slotの取得に失敗")
 	}
-	itemIndex, ok := hooks.GetState[int](st.slotMount, "slot_itemIndex")
-	if !ok {
-		return fmt.Errorf("slot_itemIndexの取得に失敗")
-	}
+	tabIndex := menuState.TabIndex
+	itemIndex := menuState.ItemIndex
 
 	if tabIndex >= len(props.Tabs) {
 		return nil
@@ -520,10 +518,11 @@ func (st *EquipMenuState) executeActionItem(world w.World) error {
 
 func (st *EquipMenuState) handleEquipItemSelection(world w.World) error {
 	props := st.equipMount.GetProps()
-	itemIndex, ok := hooks.GetState[int](st.equipMount, "equip_itemIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.equipMount, "equip")
 	if !ok {
-		return fmt.Errorf("equip_itemIndexの取得に失敗")
+		return fmt.Errorf("equipの取得に失敗")
 	}
+	itemIndex := menuState.ItemIndex
 
 	if itemIndex >= len(props.Items) {
 		return nil
@@ -562,15 +561,17 @@ func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
 	switch st.subState {
 	case subStateEquipSelect:
 		props := st.equipMount.GetProps()
-		itemIndex, _ := hooks.GetState[int](st.equipMount, "equip_itemIndex")
+		equipMenuState, _ := hooks.GetState[hooks.TabMenuState](st.equipMount, "equip")
+		itemIndex := equipMenuState.ItemIndex
 		root.AddChild(st.buildEquipSelectContainer(props, itemIndex, res))
 		root.AddChild(widget.NewContainer())
 		root.AddChild(st.buildEquipDetailContainer(world, props, itemIndex, res))
 		root.AddChild(st.buildEquipDescContainer(world, props.Items, itemIndex, res))
 	default: // screenSlotSelect, screenActionWindow
 		slotProps := st.slotMount.GetProps()
-		tabIndex, _ := hooks.GetState[int](st.slotMount, "slot_tabIndex")
-		itemIndex, _ := hooks.GetState[int](st.slotMount, "slot_itemIndex")
+		slotMenuState, _ := hooks.GetState[hooks.TabMenuState](st.slotMount, "slot")
+		tabIndex := slotMenuState.TabIndex
+		itemIndex := slotMenuState.ItemIndex
 		root.AddChild(st.buildSlotContainer(slotProps.Tabs, tabIndex, itemIndex, res))
 		root.AddChild(widget.NewContainer())
 		root.AddChild(st.buildSlotDetailContainer(world, slotProps, tabIndex, itemIndex, res))

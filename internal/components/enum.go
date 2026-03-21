@@ -295,9 +295,9 @@ func (enum ElementType) String() string {
 	case ElementTypeFire:
 		return "火"
 	case ElementTypeThunder:
-		return "電"
+		return "雷"
 	case ElementTypeChill:
-		return "冷"
+		return "氷"
 	case ElementTypePhoton:
 		return "光"
 	}

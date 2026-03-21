@@ -62,20 +62,20 @@ func TestStatusState_TabNavigation(t *testing.T) {
 	state.mount.Update()
 
 	// 初期状態
-	tabIndex, _ := hooks.GetState[int](state.mount, "status_tabIndex")
-	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, 0, menuState.TabIndex, "初期タブインデックスは0")
 
 	// 右に移動
 	state.mount.Dispatch(inputmapper.ActionMenuTabNext)
-	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
-	assert.Equal(t, 1, tabIndex, "右移動後は1")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, 1, menuState.TabIndex, "右移動後は1")
 
 	// 最後のタブまで移動
 	for i := 2; i < len(props.Tabs); i++ {
 		state.mount.Dispatch(inputmapper.ActionMenuTabNext)
 	}
-	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
-	assert.Equal(t, len(props.Tabs)-1, tabIndex, "最後のタブ")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, len(props.Tabs)-1, menuState.TabIndex, "最後のタブ")
 
 	// 循環して最初に戻る
 	state.mount.Dispatch(inputmapper.ActionMenuTabNext)
@@ -83,8 +83,8 @@ func TestStatusState_TabNavigation(t *testing.T) {
 		TabCount:   len(props.Tabs),
 		ItemCounts: itemCounts,
 	})
-	tabIndex, _ = hooks.GetState[int](state.mount, "status_tabIndex")
-	assert.Equal(t, 0, tabIndex, "循環して最初に戻る")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, 0, menuState.TabIndex, "循環して最初に戻る")
 }
 
 func TestStatusState_ItemNavigation(t *testing.T) {
@@ -108,18 +108,18 @@ func TestStatusState_ItemNavigation(t *testing.T) {
 	state.mount.Update()
 
 	// 初期状態
-	itemIndex, _ := hooks.GetState[int](state.mount, "status_itemIndex")
-	assert.Equal(t, 0, itemIndex, "初期アイテムインデックスは0")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, 0, menuState.ItemIndex, "初期アイテムインデックスは0")
 
 	// 下に移動
 	state.mount.Dispatch(inputmapper.ActionMenuDown)
-	itemIndex, _ = hooks.GetState[int](state.mount, "status_itemIndex")
-	assert.Equal(t, 1, itemIndex, "下移動後は1")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, 1, menuState.ItemIndex, "下移動後は1")
 
 	// 上に移動
 	state.mount.Dispatch(inputmapper.ActionMenuUp)
-	itemIndex, _ = hooks.GetState[int](state.mount, "status_itemIndex")
-	assert.Equal(t, 0, itemIndex, "上移動後は0")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.mount, "status")
+	assert.Equal(t, 0, menuState.ItemIndex, "上移動後は0")
 }
 
 func TestStatusState_DoAction_Cancel(t *testing.T) {
@@ -183,20 +183,24 @@ func TestStatusState_SkillsTab(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	// スキルタブ
+	// スキルタブ。カテゴリヘッダー6個 + スキル23個 = 29個
 	skillTab := props.Tabs[2]
 	assert.Equal(t, "skills", skillTab.ID)
-	assert.Equal(t, len(gc.AllSkillIDs), len(skillTab.Items), "全スキルが表示される")
-	assert.Equal(t, "刀剣", skillTab.Items[0].Label)
-	assert.Equal(t, "0.000", skillTab.Items[0].Value)
+	assert.Equal(t, len(gc.AllSkillIDs)+len(gc.SkillCategories), len(skillTab.Items), "カテゴリヘッダーと全スキルが表示される")
+	assert.True(t, skillTab.Items[0].IsHeader, "最初のアイテムはカテゴリヘッダーである")
+	assert.Equal(t, "近接", skillTab.Items[0].Label)
+	assert.Equal(t, "刀剣", skillTab.Items[1].Label)
+	assert.Equal(t, "0.000", skillTab.Items[1].Value)
 
 	// 効果タブ
 	effectTab := props.Tabs[3]
 	assert.Equal(t, "effects", effectTab.ID)
 	assert.NotEmpty(t, effectTab.Items, "効果項目がある")
+	assert.True(t, effectTab.Items[0].IsHeader, "最初のアイテムはカテゴリヘッダーである")
+	assert.Equal(t, "戦闘", effectTab.Items[0].Label)
 
-	// スキルLv0では変化量が0なので内訳は空になる
-	firstEffect := effectTab.Items[0]
+	// カテゴリヘッダーの次がスキルLv0では変化量が0なので内訳は空になる
+	firstEffect := effectTab.Items[1]
 	assert.Empty(t, firstEffect.Details, "スキルLv0では内訳がない")
 }
 

@@ -318,8 +318,8 @@ func TestElementType(t *testing.T) {
 		}{
 			{ElementTypeNone, "無"},
 			{ElementTypeFire, "火"},
-			{ElementTypeThunder, "電"},
-			{ElementTypeChill, "冷"},
+			{ElementTypeThunder, "雷"},
+			{ElementTypeChill, "氷"},
 			{ElementTypePhoton, "光"},
 		}
 

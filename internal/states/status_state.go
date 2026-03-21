@@ -67,13 +67,20 @@ func (st *StatusState) Update(world w.World) (es.Transition[w.World], error) {
 
 	// UseTabMenuを呼んでreducerを登録・更新
 	itemCounts := make([]int, len(props.Tabs))
+	skips := make([][]bool, len(props.Tabs))
 	for i, tab := range props.Tabs {
 		itemCounts[i] = len(tab.Items)
+		s := make([]bool, len(tab.Items))
+		for j, item := range tab.Items {
+			s[j] = item.IsHeader
+		}
+		skips[i] = s
 	}
 	hooks.UseTabMenu(st.mount.Store(), "status", hooks.TabMenuConfig{
 		TabCount:     len(props.Tabs),
 		ItemCounts:   itemCounts,
 		ItemsPerPage: statusItemsPerPage,
+		Skips:        skips,
 	})
 
 	if st.mount.Update() {
@@ -126,6 +133,7 @@ type statusItemData struct {
 	Value       string
 	Modifier    string
 	Description string
+	IsHeader    bool // カテゴリヘッダー行かどうか
 	BodyPart    gc.BodyPart
 	Details     []statusDetailRow // 詳細パネルに表示する内訳
 }
@@ -228,21 +236,34 @@ func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) 
 	}
 	skills := world.Components.Skills.Get(playerEntity).(*gc.Skills)
 
-	for _, id := range gc.AllSkillIDs {
-		s, ok := skills.Data[id]
-		if !ok {
-			continue
-		}
-		name := gc.SkillName[id]
-		expFrac := 0
-		if s.Exp.Max > 0 {
-			expFrac = s.Exp.Current * 1000 / s.Exp.Max
-		}
+	for _, cat := range gc.SkillCategories {
+		// カテゴリヘッダーをアイテムとして挿入する
 		items = append(items, statusItemData{
-			Label:       name,
-			Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
-			Description: fmt.Sprintf("%s スキル", name),
+			Label:       cat.Name,
+			IsHeader:    true,
+			Description: fmt.Sprintf("%sカテゴリのスキル", cat.Name),
 		})
+		for _, id := range cat.IDs {
+			s, ok := skills.Data[id]
+			if !ok {
+				continue
+			}
+			name := gc.SkillName[id]
+			expFrac := 0
+			if s.Exp.Max > 0 {
+				expFrac = s.Exp.Current * 1000 / s.Exp.Max
+			}
+			info := gc.SkillDescription[id]
+			items = append(items, statusItemData{
+				Label:       name,
+				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
+				Description: info.Summary,
+				Details: []statusDetailRow{
+					{Label: "獲得条件", Value: info.GainedBy},
+					{Label: "効果", Value: info.Effect},
+				},
+			})
+		}
 	}
 
 	return items
@@ -256,7 +277,8 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 	}
 	e := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
 
-	// 武器ダメージ倍率
+	// 戦闘
+	items = append(items, statusItemData{Label: "戦闘", IsHeader: true, Description: "戦闘に関する効果"})
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponDamage[id]; ok {
 			items = append(items, statusItemData{
@@ -267,8 +289,6 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 			})
 		}
 	}
-
-	// 武器命中倍率
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponAccuracy[id]; ok {
 			items = append(items, statusItemData{
@@ -279,46 +299,43 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 			})
 		}
 	}
-
-	// 元素耐性倍率
-	elementNames := map[gc.ElementType]string{
-		gc.ElementTypeFire:    "火",
-		gc.ElementTypeThunder: "雷",
-		gc.ElementTypeChill:   "氷",
-		gc.ElementTypePhoton:  "光",
-	}
-	elementKeys := map[gc.ElementType]gc.ModifierKey{
-		gc.ElementTypeFire:    gc.ModFireResist,
-		gc.ElementTypeThunder: gc.ModThunderResist,
-		gc.ElementTypeChill:   gc.ModChillResist,
-		gc.ElementTypePhoton:  gc.ModPhotonResist,
-	}
 	for _, elem := range []gc.ElementType{gc.ElementTypeFire, gc.ElementTypeThunder, gc.ElementTypeChill, gc.ElementTypePhoton} {
 		if mult, ok := e.ElementResist[elem]; ok {
 			items = append(items, statusItemData{
-				Label:       elementNames[elem] + "耐性",
+				Label:       elem.String() + "耐性",
 				Value:       fmt.Sprintf("%d%%", mult),
-				Description: fmt.Sprintf("%s属性ダメージの倍率。低いほど軽減される", elementNames[elem]),
-				Details:     sourceToDetails(e.Sources, elementKeys[elem]),
+				Description: fmt.Sprintf("%s属性ダメージの倍率。低いほど軽減される", elem.String()),
+				Details:     sourceToDetails(e.Sources, gc.ElementResistKeys[elem]),
 			})
 		}
 	}
 
-	// その他の効果倍率
+	// 生存
+	items = append(items, statusItemData{Label: "生存", IsHeader: true, Description: "生存に関する効果"})
 	items = append(items,
 		statusItemData{Label: "低体温進行", Value: fmt.Sprintf("%d%%", e.ColdProgress), Description: "低体温の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModColdProgress)},
 		statusItemData{Label: "高体温進行", Value: fmt.Sprintf("%d%%", e.HeatProgress), Description: "高体温の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModHeatProgress)},
 		statusItemData{Label: "空腹進行", Value: fmt.Sprintf("%d%%", e.HungerProgress), Description: "空腹の進行速度。低いほど遅くなる", Details: sourceToDetails(e.Sources, gc.ModHungerProgress)},
 		statusItemData{Label: "回復効果", Value: fmt.Sprintf("%d%%", e.HealingEffect), Description: "回復アイテムの効果倍率。高いほど多く回復する", Details: sourceToDetails(e.Sources, gc.ModHealingEffect)},
-		statusItemData{Label: "最大重量", Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: "所持可能な最大重量の倍率", Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
+	)
+
+	// 行動
+	items = append(items, statusItemData{Label: "行動", IsHeader: true, Description: "行動に関する効果"})
+	items = append(items,
+		statusItemData{Label: "移動速度", Value: fmt.Sprintf("%d%%", e.MoveCost), Description: "移動時のAPコスト倍率。低いほど少ないAPで移動できる", Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
 		statusItemData{Label: "発見", Value: fmt.Sprintf("%d%%", e.Exploration), Description: "アイテム発見率の倍率。高いほど見つけやすい", Details: sourceToDetails(e.Sources, gc.ModExploration)},
 		statusItemData{Label: "被発見", Value: fmt.Sprintf("%d%%", e.EnemyVision), Description: "敵に発見される距離の倍率。低いほど見つかりにくい", Details: sourceToDetails(e.Sources, gc.ModEnemyVision)},
 		statusItemData{Label: "暗所視界", Value: fmt.Sprintf("%d%%", e.NightVision), Description: "暗所での視界の倍率。高いほど見える", Details: sourceToDetails(e.Sources, gc.ModNightVision)},
-		statusItemData{Label: "移動速度", Value: fmt.Sprintf("%d%%", e.MoveCost), Description: "移動時のAPコスト倍率。低いほど少ないAPで移動できる", Details: sourceToDetails(e.Sources, gc.ModMoveCost)},
+	)
+
+	// 生産
+	items = append(items, statusItemData{Label: "生産", IsHeader: true, Description: "生産・取引に関する効果"})
+	items = append(items,
 		statusItemData{Label: "素材消費", Value: fmt.Sprintf("%d%%", e.CraftCost), Description: "合成時の素材消費量倍率。低いほど素材が節約できる", Details: sourceToDetails(e.Sources, gc.ModCraftCost)},
 		statusItemData{Label: "合成品質", Value: fmt.Sprintf("%d%%", e.SmithQuality), Description: "調合時の品質倍率。高いほど良い品ができる", Details: sourceToDetails(e.Sources, gc.ModSmithQuality)},
 		statusItemData{Label: "買値", Value: fmt.Sprintf("%d%%", e.BuyPrice), Description: "買い物の価格倍率。低いほど安く買える", Details: sourceToDetails(e.Sources, gc.ModBuyPrice)},
 		statusItemData{Label: "売値", Value: fmt.Sprintf("%d%%", e.SellPrice), Description: "売却の価格倍率。高いほど高く売れる", Details: sourceToDetails(e.Sources, gc.ModSellPrice)},
+		statusItemData{Label: "最大重量", Value: fmt.Sprintf("%d%%", e.MaxWeight), Description: "所持可能な最大重量の倍率", Details: sourceToDetails(e.Sources, gc.ModMaxWeight)},
 		statusItemData{Label: "最大荷重", Value: fmt.Sprintf("%d%%", e.HeavyArmor), Description: "最大荷重倍率", Details: sourceToDetails(e.Sources, gc.ModHeavyArmor)},
 	)
 
@@ -391,8 +408,9 @@ func (st *StatusState) getHealthPartDescription(part gc.BodyPart) string {
 func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
-	tabIndex, _ := hooks.GetState[int](st.mount, "status_tabIndex")
-	itemIndex, _ := hooks.GetState[int](st.mount, "status_itemIndex")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "status")
+	tabIndex := menuState.TabIndex
+	itemIndex := menuState.ItemIndex
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
@@ -455,6 +473,10 @@ func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIn
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
+		if entry.Item.IsHeader {
+			styled.NewTableHeaderRow(table, columnWidths, []string{"", entry.Item.Label, "", ""}, res)
+			continue
+		}
 		isSelected := pg.IsSelectedInPage(entry.Index)
 		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, entry.Item.Value, entry.Item.Modifier}, aligns, &isSelected, res)
 	}
@@ -483,6 +505,8 @@ func (st *StatusState) buildDetailContainer(world w.World, props statusProps, ta
 	item := props.Tabs[tabIndex].Items[itemIndex]
 
 	switch tabID {
+	case tabSkills:
+		st.buildSkillDetail(container, item, res)
 	case tabEffects:
 		st.buildEffectDetail(container, item, res)
 	case tabHealth:
@@ -490,6 +514,13 @@ func (st *StatusState) buildDetailContainer(world w.World, props statusProps, ta
 	}
 
 	return container
+}
+
+func (st *StatusState) buildSkillDetail(container *widget.Container, item statusItemData, res *resources.UIResources) {
+	for _, d := range item.Details {
+		container.AddChild(styled.NewDescriptionText(d.Label, res))
+		container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s", d.Value), res))
+	}
 }
 
 func (st *StatusState) buildEffectDetail(container *widget.Container, item statusItemData, res *resources.UIResources) {

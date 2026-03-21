@@ -13,16 +13,16 @@ func HandleMenuInput() (inputmapper.ActionID, bool) {
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {
 		return inputmapper.ActionMenuCancel, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowLeft) || keyboardInput.IsKeyJustPressed(ebiten.KeyA) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) {
 		return inputmapper.ActionMenuLeft, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowRight) || keyboardInput.IsKeyJustPressed(ebiten.KeyD) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) {
 		return inputmapper.ActionMenuRight, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {
 		return inputmapper.ActionMenuUp, true
 	}
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {
 		return inputmapper.ActionMenuDown, true
 	}
 	if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {

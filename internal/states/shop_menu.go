@@ -331,14 +331,12 @@ func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []stri
 
 func (st *ShopMenuState) handleItemSelection(_ w.World) error {
 	props := st.menuMount.GetProps()
-	tabIndex, ok := hooks.GetState[int](st.menuMount, "shop_tabIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "shop")
 	if !ok {
-		return fmt.Errorf("shop_tabIndexの取得に失敗")
+		return fmt.Errorf("shopの取得に失敗")
 	}
-	itemIndex, ok := hooks.GetState[int](st.menuMount, "shop_itemIndex")
-	if !ok {
-		return fmt.Errorf("shop_itemIndexの取得に失敗")
-	}
+	tabIndex := menuState.TabIndex
+	itemIndex := menuState.ItemIndex
 
 	if tabIndex >= len(props.Tabs) {
 		return nil
@@ -395,8 +393,9 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	tabIndex, _ := hooks.GetState[int](st.menuMount, "shop_tabIndex")
-	itemIndex, _ := hooks.GetState[int](st.menuMount, "shop_itemIndex")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "shop")
+	tabIndex := menuState.TabIndex
+	itemIndex := menuState.ItemIndex
 
 	root := styled.NewItemGridContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
