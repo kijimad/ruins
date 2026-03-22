@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - components/internal/components/skills.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">components/internal/components</a> - skills.go<span style="font-size: 80%;"> (source / <a href="skills.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">16</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-03-22 09:44:40</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package components</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : // SkillID はスキルの識別子</span>
+<span id="L4"><span class="lineNum">       4</span>              : type SkillID string</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              : // スキルID定数</span>
+<span id="L7"><span class="lineNum">       7</span>              : const (</span>
+<span id="L8"><span class="lineNum">       8</span>              :         SkillSword         SkillID = &quot;sword&quot;          // 刀剣</span>
+<span id="L9"><span class="lineNum">       9</span>              :         SkillSpear         SkillID = &quot;spear&quot;          // 長物</span>
+<span id="L10"><span class="lineNum">      10</span>              :         SkillFist          SkillID = &quot;fist&quot;           // 格闘</span>
+<span id="L11"><span class="lineNum">      11</span>              :         SkillWeightBearing SkillID = &quot;weight_bearing&quot; // 荷重</span>
+<span id="L12"><span class="lineNum">      12</span>              : </span>
+<span id="L13"><span class="lineNum">      13</span>              :         SkillHandgun     SkillID = &quot;handgun&quot;     // 拳銃</span>
+<span id="L14"><span class="lineNum">      14</span>              :         SkillRifle       SkillID = &quot;rifle&quot;       // 小銃</span>
+<span id="L15"><span class="lineNum">      15</span>              :         SkillCannon      SkillID = &quot;cannon&quot;      // 砲撃</span>
+<span id="L16"><span class="lineNum">      16</span>              :         SkillExploration SkillID = &quot;exploration&quot; // 探索</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              :         SkillCrafting    SkillID = &quot;crafting&quot;    // 合成</span>
+<span id="L19"><span class="lineNum">      19</span>              :         SkillSmithing    SkillID = &quot;smithing&quot;    // 調合</span>
+<span id="L20"><span class="lineNum">      20</span>              :         SkillNegotiation SkillID = &quot;negotiation&quot; // 交渉</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              :         SkillSprinting   SkillID = &quot;sprinting&quot;    // 走破</span>
+<span id="L23"><span class="lineNum">      23</span>              :         SkillStealth     SkillID = &quot;stealth&quot;      // 隠密</span>
+<span id="L24"><span class="lineNum">      24</span>              :         SkillNightVision SkillID = &quot;night_vision&quot; // 暗視</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span>              :         SkillColdResist   SkillID = &quot;cold_resist&quot;   // 耐寒</span>
+<span id="L27"><span class="lineNum">      27</span>              :         SkillHeatResist   SkillID = &quot;heat_resist&quot;   // 耐暑</span>
+<span id="L28"><span class="lineNum">      28</span>              :         SkillHungerResist SkillID = &quot;hunger_resist&quot; // 耐餓</span>
+<span id="L29"><span class="lineNum">      29</span>              :         SkillHealing      SkillID = &quot;healing&quot;       // 治療</span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              :         SkillHeavyArmor    SkillID = &quot;heavy_armor&quot;    // 重装</span>
+<span id="L32"><span class="lineNum">      32</span>              :         SkillFireResist    SkillID = &quot;fire_resist&quot;    // 耐火</span>
+<span id="L33"><span class="lineNum">      33</span>              :         SkillThunderResist SkillID = &quot;thunder_resist&quot; // 耐電</span>
+<span id="L34"><span class="lineNum">      34</span>              :         SkillChillResist   SkillID = &quot;chill_resist&quot;   // 耐冷</span>
+<span id="L35"><span class="lineNum">      35</span>              :         SkillPhotonResist  SkillID = &quot;photon_resist&quot;  // 耐光</span>
+<span id="L36"><span class="lineNum">      36</span>              : )</span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // SkillAbility はスキルIDから対応する能力値IDへのマッピング。</span>
+<span id="L39"><span class="lineNum">      39</span>              : // 能力値が高いほど、対応するスキルの成長が速くなる。</span>
+<span id="L40"><span class="lineNum">      40</span>              : var SkillAbility = map[SkillID]AbilityID{</span>
+<span id="L41"><span class="lineNum">      41</span>              :         SkillSword:         AblSTR,</span>
+<span id="L42"><span class="lineNum">      42</span>              :         SkillSpear:         AblSTR,</span>
+<span id="L43"><span class="lineNum">      43</span>              :         SkillFist:          AblSTR,</span>
+<span id="L44"><span class="lineNum">      44</span>              :         SkillWeightBearing: AblSTR,</span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              :         SkillHandgun:     AblSEN,</span>
+<span id="L47"><span class="lineNum">      47</span>              :         SkillRifle:       AblSEN,</span>
+<span id="L48"><span class="lineNum">      48</span>              :         SkillCannon:      AblSEN,</span>
+<span id="L49"><span class="lineNum">      49</span>              :         SkillExploration: AblSEN,</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              :         SkillCrafting:    AblDEX,</span>
+<span id="L52"><span class="lineNum">      52</span>              :         SkillSmithing:    AblDEX,</span>
+<span id="L53"><span class="lineNum">      53</span>              :         SkillNegotiation: AblDEX,</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              :         SkillSprinting:   AblAGI,</span>
+<span id="L56"><span class="lineNum">      56</span>              :         SkillStealth:     AblAGI,</span>
+<span id="L57"><span class="lineNum">      57</span>              :         SkillNightVision: AblAGI,</span>
+<span id="L58"><span class="lineNum">      58</span>              : </span>
+<span id="L59"><span class="lineNum">      59</span>              :         SkillColdResist:   AblVIT,</span>
+<span id="L60"><span class="lineNum">      60</span>              :         SkillHeatResist:   AblVIT,</span>
+<span id="L61"><span class="lineNum">      61</span>              :         SkillHungerResist: AblVIT,</span>
+<span id="L62"><span class="lineNum">      62</span>              :         SkillHealing:      AblVIT,</span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span>              :         SkillHeavyArmor:    AblDEF,</span>
+<span id="L65"><span class="lineNum">      65</span>              :         SkillFireResist:    AblDEF,</span>
+<span id="L66"><span class="lineNum">      66</span>              :         SkillThunderResist: AblDEF,</span>
+<span id="L67"><span class="lineNum">      67</span>              :         SkillChillResist:   AblDEF,</span>
+<span id="L68"><span class="lineNum">      68</span>              :         SkillPhotonResist:  AblDEF,</span>
+<span id="L69"><span class="lineNum">      69</span>              : }</span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : // SkillName はスキルIDの表示名を返す</span>
+<span id="L72"><span class="lineNum">      72</span>              : var SkillName = map[SkillID]string{</span>
+<span id="L73"><span class="lineNum">      73</span>              :         SkillSword:         &quot;刀剣&quot;,</span>
+<span id="L74"><span class="lineNum">      74</span>              :         SkillSpear:         &quot;長物&quot;,</span>
+<span id="L75"><span class="lineNum">      75</span>              :         SkillFist:          &quot;格闘&quot;,</span>
+<span id="L76"><span class="lineNum">      76</span>              :         SkillWeightBearing: &quot;荷重&quot;,</span>
+<span id="L77"><span class="lineNum">      77</span>              :         SkillHandgun:       &quot;拳銃&quot;,</span>
+<span id="L78"><span class="lineNum">      78</span>              :         SkillRifle:         &quot;小銃&quot;,</span>
+<span id="L79"><span class="lineNum">      79</span>              :         SkillCannon:        &quot;砲撃&quot;,</span>
+<span id="L80"><span class="lineNum">      80</span>              :         SkillExploration:   &quot;探索&quot;,</span>
+<span id="L81"><span class="lineNum">      81</span>              :         SkillCrafting:      &quot;合成&quot;,</span>
+<span id="L82"><span class="lineNum">      82</span>              :         SkillSmithing:      &quot;調合&quot;,</span>
+<span id="L83"><span class="lineNum">      83</span>              :         SkillNegotiation:   &quot;交渉&quot;,</span>
+<span id="L84"><span class="lineNum">      84</span>              :         SkillSprinting:     &quot;走破&quot;,</span>
+<span id="L85"><span class="lineNum">      85</span>              :         SkillStealth:       &quot;隠密&quot;,</span>
+<span id="L86"><span class="lineNum">      86</span>              :         SkillNightVision:   &quot;暗視&quot;,</span>
+<span id="L87"><span class="lineNum">      87</span>              :         SkillColdResist:    &quot;耐寒&quot;,</span>
+<span id="L88"><span class="lineNum">      88</span>              :         SkillHeatResist:    &quot;耐暑&quot;,</span>
+<span id="L89"><span class="lineNum">      89</span>              :         SkillHungerResist:  &quot;耐餓&quot;,</span>
+<span id="L90"><span class="lineNum">      90</span>              :         SkillHealing:       &quot;治療&quot;,</span>
+<span id="L91"><span class="lineNum">      91</span>              :         SkillHeavyArmor:    &quot;重装&quot;,</span>
+<span id="L92"><span class="lineNum">      92</span>              :         SkillFireResist:    &quot;耐火&quot;,</span>
+<span id="L93"><span class="lineNum">      93</span>              :         SkillThunderResist: &quot;耐電&quot;,</span>
+<span id="L94"><span class="lineNum">      94</span>              :         SkillChillResist:   &quot;耐冷&quot;,</span>
+<span id="L95"><span class="lineNum">      95</span>              :         SkillPhotonResist:  &quot;耐光&quot;,</span>
+<span id="L96"><span class="lineNum">      96</span>              : }</span>
+<span id="L97"><span class="lineNum">      97</span>              : </span>
+<span id="L98"><span class="lineNum">      98</span>              : // SkillInfo はスキルの詳細情報</span>
+<span id="L99"><span class="lineNum">      99</span>              : type SkillInfo struct {</span>
+<span id="L100"><span class="lineNum">     100</span>              :         Summary  string // 概要文</span>
+<span id="L101"><span class="lineNum">     101</span>              :         GainedBy string // 獲得条件</span>
+<span id="L102"><span class="lineNum">     102</span>              :         Effect   string // 効果</span>
+<span id="L103"><span class="lineNum">     103</span>              : }</span>
+<span id="L104"><span class="lineNum">     104</span>              : </span>
+<span id="L105"><span class="lineNum">     105</span>              : // SkillDescription はスキルの詳細情報を返す</span>
+<span id="L106"><span class="lineNum">     106</span>              : var SkillDescription = map[SkillID]SkillInfo{</span>
+<span id="L107"><span class="lineNum">     107</span>              :         SkillSword:         {Summary: &quot;刀剣類の扱いに関する技術&quot;, GainedBy: &quot;刀剣で攻撃すると上がる&quot;, Effect: &quot;刀剣のダメージと命中が上昇する&quot;},</span>
+<span id="L108"><span class="lineNum">     108</span>              :         SkillSpear:         {Summary: &quot;槍や棒などの長物を扱う技術&quot;, GainedBy: &quot;長物で攻撃すると上がる&quot;, Effect: &quot;長物のダメージと命中が上昇する&quot;},</span>
+<span id="L109"><span class="lineNum">     109</span>              :         SkillFist:          {Summary: &quot;素手や拳で戦う技術&quot;, GainedBy: &quot;格闘で攻撃すると上がる&quot;, Effect: &quot;格闘のダメージと命中が上昇する&quot;},</span>
+<span id="L110"><span class="lineNum">     110</span>              :         SkillWeightBearing: {Summary: &quot;重い荷物を運ぶ能力&quot;, GainedBy: &quot;重い装備で行動すると上がる&quot;, Effect: &quot;最大荷重が上昇する&quot;},</span>
+<span id="L111"><span class="lineNum">     111</span>              :         SkillHandgun:       {Summary: &quot;拳銃の射撃技術&quot;, GainedBy: &quot;拳銃で攻撃すると上がる&quot;, Effect: &quot;拳銃のダメージと命中が上昇する&quot;},</span>
+<span id="L112"><span class="lineNum">     112</span>              :         SkillRifle:         {Summary: &quot;小銃の射撃技術&quot;, GainedBy: &quot;小銃で攻撃すると上がる&quot;, Effect: &quot;小銃のダメージと命中が上昇する&quot;},</span>
+<span id="L113"><span class="lineNum">     113</span>              :         SkillCannon:        {Summary: &quot;大型火器の運用技術&quot;, GainedBy: &quot;砲撃で攻撃すると上がる&quot;, Effect: &quot;砲撃のダメージと命中が上昇する&quot;},</span>
+<span id="L114"><span class="lineNum">     114</span>              :         SkillExploration:   {Summary: &quot;未知の場所を調査する技術&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;アイテム発見率が上昇する&quot;},</span>
+<span id="L115"><span class="lineNum">     115</span>              :         SkillCrafting:      {Summary: &quot;素材からアイテムを作る技術&quot;, GainedBy: &quot;アイテムを合成すると上がる&quot;, Effect: &quot;合成時の素材消費が減少する&quot;},</span>
+<span id="L116"><span class="lineNum">     116</span>              :         SkillSmithing:      {Summary: &quot;素材を精製・調合する技術&quot;, GainedBy: &quot;素材を調合すると上がる&quot;, Effect: &quot;調合時の品質が上昇する&quot;},</span>
+<span id="L117"><span class="lineNum">     117</span>              :         SkillNegotiation:   {Summary: &quot;有利な取引をする話術&quot;, GainedBy: &quot;取引を行うと上がる&quot;, Effect: &quot;売買の価格が有利になる&quot;},</span>
+<span id="L118"><span class="lineNum">     118</span>              :         SkillSprinting:     {Summary: &quot;長距離を素早く移動する能力&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;移動時のAPコストが減少する&quot;},</span>
+<span id="L119"><span class="lineNum">     119</span>              :         SkillStealth:       {Summary: &quot;敵に気づかれずに行動する技術&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;敵に発見される距離が短くなる&quot;},</span>
+<span id="L120"><span class="lineNum">     120</span>              :         SkillNightVision:   {Summary: &quot;暗所での視認能力&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;暗所での視界が広がる&quot;},</span>
+<span id="L121"><span class="lineNum">     121</span>              :         SkillColdResist:    {Summary: &quot;寒さへの耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;低体温の進行が遅くなる&quot;},</span>
+<span id="L122"><span class="lineNum">     122</span>              :         SkillHeatResist:    {Summary: &quot;暑さへの耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;高体温の進行が遅くなる&quot;},</span>
+<span id="L123"><span class="lineNum">     123</span>              :         SkillHungerResist:  {Summary: &quot;空腹への耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;空腹の進行が遅くなる&quot;},</span>
+<span id="L124"><span class="lineNum">     124</span>              :         SkillHealing:       {Summary: &quot;傷を治す医療技術&quot;, GainedBy: &quot;回復アイテムを使用すると上がる&quot;, Effect: &quot;回復アイテムの効果が上昇する&quot;},</span>
+<span id="L125"><span class="lineNum">     125</span>              :         SkillHeavyArmor:    {Summary: &quot;重い防具を着こなす技術&quot;, GainedBy: &quot;重装備で被弾すると上がる&quot;, Effect: &quot;最大荷重が上昇する&quot;},</span>
+<span id="L126"><span class="lineNum">     126</span>              :         SkillFireResist:    {Summary: &quot;火への耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;火属性ダメージが軽減される&quot;},</span>
+<span id="L127"><span class="lineNum">     127</span>              :         SkillThunderResist: {Summary: &quot;雷への耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;雷属性ダメージが軽減される&quot;},</span>
+<span id="L128"><span class="lineNum">     128</span>              :         SkillChillResist:   {Summary: &quot;氷への耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;氷属性ダメージが軽減される&quot;},</span>
+<span id="L129"><span class="lineNum">     129</span>              :         SkillPhotonResist:  {Summary: &quot;光への耐性&quot;, GainedBy: &quot;装備や本で上がる&quot;, Effect: &quot;光属性ダメージが軽減される&quot;},</span>
+<span id="L130"><span class="lineNum">     130</span>              : }</span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span>              : // SkillCategory はスキルのカテゴリを表す</span>
+<span id="L133"><span class="lineNum">     133</span>              : type SkillCategory struct {</span>
+<span id="L134"><span class="lineNum">     134</span>              :         Name string    // カテゴリの表示名</span>
+<span id="L135"><span class="lineNum">     135</span>              :         IDs  []SkillID // カテゴリに属するスキルID</span>
+<span id="L136"><span class="lineNum">     136</span>              : }</span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              : // SkillCategories はカテゴリごとにグループ化されたスキル定義。</span>
+<span id="L139"><span class="lineNum">     139</span>              : // 表示順序はこのスライスの順序に従う。</span>
+<span id="L140"><span class="lineNum">     140</span>              : var SkillCategories = []SkillCategory{</span>
+<span id="L141"><span class="lineNum">     141</span>              :         {Name: &quot;近接&quot;, IDs: []SkillID{SkillSword, SkillSpear, SkillFist}},</span>
+<span id="L142"><span class="lineNum">     142</span>              :         {Name: &quot;射撃&quot;, IDs: []SkillID{SkillHandgun, SkillRifle, SkillCannon}},</span>
+<span id="L143"><span class="lineNum">     143</span>              :         {Name: &quot;技巧&quot;, IDs: []SkillID{SkillCrafting, SkillSmithing, SkillNegotiation}},</span>
+<span id="L144"><span class="lineNum">     144</span>              :         {Name: &quot;機動&quot;, IDs: []SkillID{SkillSprinting, SkillStealth, SkillNightVision, SkillWeightBearing}},</span>
+<span id="L145"><span class="lineNum">     145</span>              :         {Name: &quot;生存&quot;, IDs: []SkillID{SkillColdResist, SkillHeatResist, SkillHungerResist, SkillHealing, SkillExploration}},</span>
+<span id="L146"><span class="lineNum">     146</span>              :         {Name: &quot;防御&quot;, IDs: []SkillID{SkillHeavyArmor, SkillFireResist, SkillThunderResist, SkillChillResist, SkillPhotonResist}},</span>
+<span id="L147"><span class="lineNum">     147</span>              : }</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span>              : // AllSkillIDs は定義済みの全SkillIDのリスト。</span>
+<span id="L150"><span class="lineNum">     150</span>              : // SkillCategoriesの順序に従う。</span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 : var AllSkillIDs = func() []SkillID {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         var ids []SkillID</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           2 :         for _, cat := range SkillCategories {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 ids = append(ids, cat.IDs...)</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         return ids</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : }()</span>
+<span id="L158"><span class="lineNum">     158</span>              : </span>
+<span id="L159"><span class="lineNum">     159</span>              : // weaponSkillIDs は武器に対応するスキルIDのリスト</span>
+<span id="L160"><span class="lineNum">     160</span>              : var weaponSkillIDs = []SkillID{</span>
+<span id="L161"><span class="lineNum">     161</span>              :         SkillSword, SkillSpear, SkillFist,</span>
+<span id="L162"><span class="lineNum">     162</span>              :         SkillHandgun, SkillRifle, SkillCannon,</span>
+<span id="L163"><span class="lineNum">     163</span>              : }</span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span>              : // Skill は個別のスキル</span>
+<span id="L166"><span class="lineNum">     166</span>              : type Skill struct {</span>
+<span id="L167"><span class="lineNum">     167</span>              :         Value int  // スキル値</span>
+<span id="L168"><span class="lineNum">     168</span>              :         Exp   Pool // 蓄積経験値。Maxに達するとスキルアップする</span>
+<span id="L169"><span class="lineNum">     169</span>              : }</span>
+<span id="L170"><span class="lineNum">     170</span>              : </span>
+<span id="L171"><span class="lineNum">     171</span>              : // Skills はエンティティが持つスキルセット</span>
+<span id="L172"><span class="lineNum">     172</span>              : type Skills struct {</span>
+<span id="L173"><span class="lineNum">     173</span>              :         Data map[SkillID]*Skill</span>
+<span id="L174"><span class="lineNum">     174</span>              : }</span>
+<span id="L175"><span class="lineNum">     175</span>              : </span>
+<span id="L176"><span class="lineNum">     176</span>              : // LevelUpExp はスキルアップに必要な経験値</span>
+<span id="L177"><span class="lineNum">     177</span>              : const LevelUpExp = 100</span>
+<span id="L178"><span class="lineNum">     178</span>              : </span>
+<span id="L179"><span class="lineNum">     179</span>              : // NewSkills は全スキルを0で初期化したSkillsを返す</span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 : func NewSkills() *Skills {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         data := make(map[SkillID]*Skill, len(AllSkillIDs))</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           2 :         for _, id := range AllSkillIDs {</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 data[id] = &amp;Skill{Exp: Pool{Max: LevelUpExp}}</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         return &amp;Skills{Data: data}</span></span>
+<span id="L186"><span class="lineNum">     186</span>              : }</span>
+<span id="L187"><span class="lineNum">     187</span>              : </span>
+<span id="L188"><span class="lineNum">     188</span>              : // weaponSkillMap は武器種別からスキルIDへのマッピング</span>
+<span id="L189"><span class="lineNum">     189</span>              : var weaponSkillMap = map[string]SkillID{</span>
+<span id="L190"><span class="lineNum">     190</span>              :         AttackSword.Type:   SkillSword,</span>
+<span id="L191"><span class="lineNum">     191</span>              :         AttackSpear.Type:   SkillSpear,</span>
+<span id="L192"><span class="lineNum">     192</span>              :         AttackFist.Type:    SkillFist,</span>
+<span id="L193"><span class="lineNum">     193</span>              :         AttackHandgun.Type: SkillHandgun,</span>
+<span id="L194"><span class="lineNum">     194</span>              :         AttackRifle.Type:   SkillRifle,</span>
+<span id="L195"><span class="lineNum">     195</span>              :         AttackCanon.Type:   SkillCannon,</span>
+<span id="L196"><span class="lineNum">     196</span>              : }</span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span>              : // WeaponSkillID は武器種別に対応するスキルIDを返す</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : func WeaponSkillID(at AttackType) (SkillID, bool) {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         id, ok := weaponSkillMap[at.Type]</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         return id, ok</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 : }</span></span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>

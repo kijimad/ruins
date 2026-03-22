@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">58.7&nbsp;%</td>
-            <td class="headerCovTableEntry">150</td>
+            <td class="headerCovTableEntryLo">56.1&nbsp;%</td>
+            <td class="headerCovTableEntry">157</td>
             <td class="headerCovTableEntry">88</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-18 13:11:24</td>
+            <td class="headerValue">2026-03-22 09:44:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -201,88 +201,96 @@
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;未対応のAmounterタイプ: %T&quot;, amounter)</span></span>
 <span id="L140"><span class="lineNum">     140</span>              :         }</span>
 <span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span>              :         // 共通の回復処理を使用</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         actualHealing := worldhelper.ApplyHealing(world, actor, amount)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         u.logItemUse(actor, world, item, actualHealing, true)</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L148"><span class="lineNum">     148</span>              : }</span>
-<span id="L149"><span class="lineNum">     149</span>              : </span>
-<span id="L150"><span class="lineNum">     150</span>              : // applyNutrition は空腹度回復処理を適用する</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         hungerComp := world.Components.Hunger.Get(actor)</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           2 :         if hungerComp == nil {</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L156"><span class="lineNum">     156</span>              : </span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         hunger := hungerComp.(*gc.Hunger)</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         // 満腹度を増加させる（値が大きいほど満腹）</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         hunger.Increase(amount)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         // 満腹状態になったかチェック</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         isSatiated := hunger.GetLevel() == gc.HungerSatiated</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         u.logNutritionUse(actor, world, item, isSatiated)</span></span>
+<span id="L142"><span class="lineNum">     142</span>              :         // 回復効果倍率を適用する</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         if actor.HasComponent(world.Components.CharModifiers) {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 amount = amount * mods.HealingEffect / 100</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         if amount &lt; 1 {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 amount = 1</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L150"><span class="lineNum">     150</span>              : </span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         actualHealing := worldhelper.ApplyHealing(world, actor, amount)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         u.logItemUse(actor, world, item, actualHealing, true)</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L156"><span class="lineNum">     156</span>              : }</span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              : // applyNutrition は空腹度回復処理を適用する</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) applyNutrition(_ *gc.Activity, actor ecs.Entity, world w.World, amount int, item ecs.Entity) error {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         hungerComp := world.Components.Hunger.Get(actor)</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           2 :         if hungerComp == nil {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : </span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         hunger := hungerComp.(*gc.Hunger)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L168"><span class="lineNum">     168</span>              : }</span>
-<span id="L169"><span class="lineNum">     169</span>              : </span>
-<span id="L170"><span class="lineNum">     170</span>              : // logItemUse はアイテム使用のログを出力する</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         // プレイヤーが関わる場合のみログ出力</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         if !actor.HasComponent(world.Components.Player) {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L176"><span class="lineNum">     176</span>              : </span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         itemName := u.getItemName(item, world)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         actorName := worldhelper.GetEntityName(actor, world)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         logger := gamelog.New(gamelog.FieldLog)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         logger.Build(func(l *gamelog.Logger) {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 worldhelper.AppendNameWithColor(l, actor, actorName, world)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }).Append(&quot; は &quot;).ItemName(itemName).Append(&quot; を使った。&quot;)</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         // 満腹度を増加させる（値が大きいほど満腹）</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         hunger.Increase(amount)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         // 満腹状態になったかチェック</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         isSatiated := hunger.GetLevel() == gc.HungerSatiated</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         u.logNutritionUse(actor, world, item, isSatiated)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L176"><span class="lineNum">     176</span>              : }</span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span>              : // logItemUse はアイテム使用のログを出力する</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 : func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.Entity, amount int, isHealing bool) {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         // プレイヤーが関わる場合のみログ出力</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         if !actor.HasComponent(world.Components.Player) {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L184"><span class="lineNum">     184</span>              : </span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         if isHealing {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 logger.Append(fmt.Sprintf(&quot; HPが %d 回復した。&quot;, amount))</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 logger.Append(fmt.Sprintf(&quot; %d のダメージを受けた。&quot;, amount))</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L190"><span class="lineNum">     190</span>              : </span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         logger.Log()</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : }</span>
-<span id="L193"><span class="lineNum">     193</span>              : </span>
-<span id="L194"><span class="lineNum">     194</span>              : // logNutritionUse は空腹度回復のログを出力する</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         // プレイヤーが関わる場合のみログ出力</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           2 :         if !actor.HasComponent(world.Components.Player) {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span>              : </span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         itemName := u.getItemName(item, world)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         actorName := worldhelper.GetEntityName(actor, world)</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         logger := gamelog.New(gamelog.FieldLog)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           2 :         logger.Build(func(l *gamelog.Logger) {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 worldhelper.AppendNameWithColor(l, actor, actorName, world)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         }).Append(&quot; は &quot;).ItemName(itemName).Append(&quot; を食べた。&quot;)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         itemName := u.getItemName(item, world)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         actorName := worldhelper.GetEntityName(actor, world)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         logger := gamelog.New(gamelog.FieldLog)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         logger.Build(func(l *gamelog.Logger) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 worldhelper.AppendNameWithColor(l, actor, actorName, world)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         }).Append(&quot; は &quot;).ItemName(itemName).Append(&quot; を使った。&quot;)</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         if isHealing {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 logger.Append(fmt.Sprintf(&quot; HPが %d 回復した。&quot;, amount))</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 logger.Append(fmt.Sprintf(&quot; %d のダメージを受けた。&quot;, amount))</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L198"><span class="lineNum">     198</span>              : </span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         logger.Log()</span></span>
+<span id="L200"><span class="lineNum">     200</span>              : }</span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              : // logNutritionUse は空腹度回復のログを出力する</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC tlaBgGNC">           1 : func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item ecs.Entity, isSatiated bool) {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         // プレイヤーが関わる場合のみログ出力</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           2 :         if !actor.HasComponent(world.Components.Player) {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L208"><span class="lineNum">     208</span>              : </span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           2 :         if isSatiated {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 logger.Append(&quot;満腹だ。&quot;)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L212"><span class="lineNum">     212</span>              : </span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         logger.Log()</span></span>
-<span id="L214"><span class="lineNum">     214</span>              : }</span>
-<span id="L215"><span class="lineNum">     215</span>              : </span>
-<span id="L216"><span class="lineNum">     216</span>              : // getItemName はアイテムの名前を取得する</span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 : func (u *UseItemActivity) getItemName(item ecs.Entity, world w.World) string {</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         name := world.Components.Name.Get(item)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :         if name != nil {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 return name.(*gc.Name).Name</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;アイテム&quot;</span></span>
-<span id="L223"><span class="lineNum">     223</span>              : }</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         itemName := u.getItemName(item, world)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         actorName := worldhelper.GetEntityName(actor, world)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         logger := gamelog.New(gamelog.FieldLog)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           2 :         logger.Build(func(l *gamelog.Logger) {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 worldhelper.AppendNameWithColor(l, actor, actorName, world)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         }).Append(&quot; は &quot;).ItemName(itemName).Append(&quot; を食べた。&quot;)</span></span>
+<span id="L216"><span class="lineNum">     216</span>              : </span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           2 :         if isSatiated {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 logger.Append(&quot;満腹だ。&quot;)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L220"><span class="lineNum">     220</span>              : </span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         logger.Log()</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // getItemName はアイテムの名前を取得する</span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 : func (u *UseItemActivity) getItemName(item ecs.Entity, world w.World) string {</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         name := world.Components.Name.Get(item)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           2 :         if name != nil {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 return name.(*gc.Name).Name</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC tlaBgUNC">           0 :         return &quot;アイテム&quot;</span></span>
+<span id="L231"><span class="lineNum">     231</span>              : }</span>
         </pre>
               </td>
             </tr>

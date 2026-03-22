@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">95.2&nbsp;%</td>
             <td class="headerCovTableEntry">42</td>
-            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-18 13:11:24</td>
+            <td class="headerValue">2026-03-22 09:44:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,10 +80,10 @@
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 world.Components.ItemLocationInPlayerBackpack,</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 world.Components.Name,</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           2 :                 if found {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                         return</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 itemName := world.Components.Name.Get(entity).(*gc.Name)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 if found {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 :                         return</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :                 itemName := world.Components.Name.Get(entity).(*gc.Name)</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :                 if itemName.Name == name {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                         foundEntity = entity</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                         found = true</span></span>

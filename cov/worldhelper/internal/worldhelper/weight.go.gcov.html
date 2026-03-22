@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">45</td>
-            <td class="headerCovTableEntry">45</td>
+            <td class="headerCovTableEntryHi">94.1&nbsp;%</td>
+            <td class="headerCovTableEntry">51</td>
+            <td class="headerCovTableEntry">48</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-18 13:11:24</td>
+            <td class="headerValue">2026-03-22 09:44:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,62 +81,69 @@
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.Pools) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.Attributes) {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.Abilities) {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         pools := world.Components.Pools.Get(entity).(*gc.Pools)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         attributes := world.Components.Attributes.Get(entity).(*gc.Attributes)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         // 所持可能重量を計算</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         maxWeight := calculateMaxCarryingWeight(attributes)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         pools.Weight.Max = maxWeight</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         // 現在の所持重量を計算</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         currentWeight := calculateCurrentCarryingWeight(world, entity)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         pools.Weight.Current = currentWeight</span></span>
-<span id="L36"><span class="lineNum">      36</span>              : }</span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         maxWeight := calculateMaxCarryingWeight(abilities)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         // 倍率を適用する</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if entity.HasComponent(world.Components.CharModifiers) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 maxWeight = maxWeight * float64(mods.MaxWeight) / 100</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span>              : // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する</span>
-<span id="L39"><span class="lineNum">      39</span>              : // 計算式: 基本値 + (筋力 × 倍率)</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 : func calculateMaxCarryingWeight(attributes *gc.Attributes) float64 {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         if attributes == nil {</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return baseCarryingWeight</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         strength := attributes.Strength.Base + attributes.Strength.Modifier</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         return baseCarryingWeight + float64(strength)*strengthWeightMultiplier</span></span>
-<span id="L46"><span class="lineNum">      46</span>              : }</span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              : // calculateCurrentCarryingWeight は所持アイテムの総重量を計算する</span>
-<span id="L49"><span class="lineNum">      49</span>              : // バックパック内と装備中のアイテムの重量を合算する</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func calculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         var totalWeight float64</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         // 全アイテムを走査</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 world.Components.Item,</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 world.Components.Weight,</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(itemEntity ecs.Entity) {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 weight := world.Components.Weight.Get(itemEntity).(*gc.Weight)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 :         pools.Weight.Max = maxWeight</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         // 現在の所持重量を計算</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         currentWeight := calculateCurrentCarryingWeight(world, entity)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         pools.Weight.Current = currentWeight</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する</span>
+<span id="L46"><span class="lineNum">      46</span>              : // 計算式: 基本値 + (筋力 × 倍率)</span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         if abilities == nil {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return baseCarryingWeight</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         strength := abilities.Strength.Base + abilities.Strength.Modifier</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         return baseCarryingWeight + float64(strength)*strengthWeightMultiplier</span></span>
+<span id="L53"><span class="lineNum">      53</span>              : }</span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span>              : // calculateCurrentCarryingWeight は所持アイテムの総重量を計算する</span>
+<span id="L56"><span class="lineNum">      56</span>              : // バックパック内と装備中のアイテムの重量を合算する</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : func calculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         var totalWeight float64</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 // バックパック内のアイテム</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           2 :                 if itemEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         item := world.Components.Item.Get(itemEntity).(*gc.Item)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         totalWeight += weight.Kg * float64(item.Count)</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              :                 // 装備中のアイテム</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :                 if itemEntity.HasComponent(world.Components.ItemLocationEquipped) {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                         equipped := world.Components.ItemLocationEquipped.Get(itemEntity).(*gc.LocationEquipped)</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         // このエンティティが装備しているアイテムのみ</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :                         if equipped.Owner == entity {</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                                 totalWeight += weight.Kg</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L73"><span class="lineNum">      73</span>              :                 }</span>
-<span id="L74"><span class="lineNum">      74</span>              :         }))</span>
-<span id="L75"><span class="lineNum">      75</span>              : </span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         return totalWeight</span></span>
-<span id="L77"><span class="lineNum">      77</span>              : }</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         // 全アイテムを走査</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 world.Components.Item,</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 world.Components.Weight,</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(itemEntity ecs.Entity) {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 weight := world.Components.Weight.Get(itemEntity).(*gc.Weight)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 // バックパック内のアイテム</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :                 if itemEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         item := world.Components.Item.Get(itemEntity).(*gc.Item)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         totalWeight += weight.Kg * float64(item.Count)</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span>              :                 // 装備中のアイテム</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           2 :                 if itemEntity.HasComponent(world.Components.ItemLocationEquipped) {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         equipped := world.Components.ItemLocationEquipped.Get(itemEntity).(*gc.LocationEquipped)</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                         // このエンティティが装備しているアイテムのみ</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           2 :                         if equipped.Owner == entity {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                                 totalWeight += weight.Kg</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L80"><span class="lineNum">      80</span>              :                 }</span>
+<span id="L81"><span class="lineNum">      81</span>              :         }))</span>
+<span id="L82"><span class="lineNum">      82</span>              : </span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return totalWeight</span></span>
+<span id="L84"><span class="lineNum">      84</span>              : }</span>
         </pre>
               </td>
             </tr>

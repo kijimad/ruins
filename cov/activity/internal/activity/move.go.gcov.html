@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.6&nbsp;%</td>
-            <td class="headerCovTableEntry">98</td>
-            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryMed">79.0&nbsp;%</td>
+            <td class="headerCovTableEntry">105</td>
+            <td class="headerCovTableEntry">83</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-18 13:11:24</td>
+            <td class="headerValue">2026-03-22 09:44:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -199,17 +199,25 @@
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           2 :         if actor.HasComponent(world.Components.Player) {</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           2 :                 if hungerComponent := world.Components.Hunger.Get(actor); hungerComponent != nil {</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         hunger := hungerComponent.(*gc.Hunger)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                         hunger.Decrease(1)</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L142"><span class="lineNum">     142</span>              :         }</span>
-<span id="L143"><span class="lineNum">     143</span>              : </span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動完了&quot;,</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, oldX, oldY),</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, comp.Destination.X, comp.Destination.Y))</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L150"><span class="lineNum">     150</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                         // 空腹進行倍率を適用する。100未満の場合は確率的に空腹減少を抑制する</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                         hungerPct := 100</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :                         if actor.HasComponent(world.Components.CharModifiers) {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                                 mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                                 hungerPct = mods.HungerProgress</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           2 :                         if world.Config.RNG.IntN(100) &lt; hungerPct {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                                 hunger.Decrease(1)</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L149"><span class="lineNum">     149</span>              :                 }</span>
+<span id="L150"><span class="lineNum">     150</span>              :         }</span>
+<span id="L151"><span class="lineNum">     151</span>              : </span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動完了&quot;,</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, oldX, oldY),</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, comp.Destination.X, comp.Destination.Y))</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L158"><span class="lineNum">     158</span>              : }</span>
         </pre>
               </td>
             </tr>

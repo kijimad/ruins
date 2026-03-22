@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-18 13:11:24</td>
+            <td class="headerValue">2026-03-22 09:44:40</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,16 +75,16 @@
 <span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuCancel, true</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowLeft) || keyboardInput.IsKeyJustPressed(ebiten.KeyA) {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuLeft, true</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowRight) || keyboardInput.IsKeyJustPressed(ebiten.KeyD) {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuRight, true</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuUp, true</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                 return inputmapper.ActionMenuDown, true</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC tlaBgGNC">           1 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyTab) {</span></span>
