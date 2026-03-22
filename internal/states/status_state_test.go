@@ -35,7 +35,7 @@ func TestStatusState_FetchProps(t *testing.T) {
 
 	assert.Equal(t, 5, len(props.Tabs), "タブは5つ（基本、能力、スキル、効果、健康）")
 	assert.Equal(t, "basic", props.Tabs[0].ID)
-	assert.Equal(t, "attributes", props.Tabs[1].ID)
+	assert.Equal(t, "abilities", props.Tabs[1].ID)
 	assert.Equal(t, "skills", props.Tabs[2].ID)
 	assert.Equal(t, "effects", props.Tabs[3].ID)
 	assert.Equal(t, "health", props.Tabs[4].ID)

@@ -19,15 +19,15 @@ func UpdateCarryingWeight(world w.World, entity ecs.Entity) {
 	if !entity.HasComponent(world.Components.Pools) {
 		return
 	}
-	if !entity.HasComponent(world.Components.Attributes) {
+	if !entity.HasComponent(world.Components.Abilities) {
 		return
 	}
 
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)
-	attributes := world.Components.Attributes.Get(entity).(*gc.Attributes)
+	abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 	// 所持可能重量を計算
-	maxWeight := calculateMaxCarryingWeight(attributes)
+	maxWeight := calculateMaxCarryingWeight(abilities)
 
 	// 倍率を適用する
 	if entity.HasComponent(world.Components.CharModifiers) {
@@ -44,11 +44,11 @@ func UpdateCarryingWeight(world w.World, entity ecs.Entity) {
 
 // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する
 // 計算式: 基本値 + (筋力 × 倍率)
-func calculateMaxCarryingWeight(attributes *gc.Attributes) float64 {
-	if attributes == nil {
+func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 {
+	if abilities == nil {
 		return baseCarryingWeight
 	}
-	strength := attributes.Strength.Base + attributes.Strength.Modifier
+	strength := abilities.Strength.Base + abilities.Strength.Modifier
 	return baseCarryingWeight + float64(strength)*strengthWeightMultiplier
 }
 

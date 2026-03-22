@@ -240,9 +240,9 @@ type equipItemData struct {
 
 // slotScreenProps はスロット選択画面のProps
 type slotScreenProps struct {
-	Tabs             []equipTabData
-	Player           ecs.Entity
-	PlayerAttributes gc.Attributes
+	Tabs            []equipTabData
+	Player          ecs.Entity
+	PlayerAbilities gc.Abilities
 }
 
 // windowScreenProps はアクションウィンドウのProps
@@ -269,15 +269,15 @@ func (st *EquipMenuState) fetchSlotProps(world w.World) slotScreenProps {
 
 	tabs := st.createSlotTabs(world, player, playerFound)
 
-	var attrs gc.Attributes
-	if playerFound && player.HasComponent(world.Components.Attributes) {
-		attrs = *world.Components.Attributes.Get(player).(*gc.Attributes)
+	var abils gc.Abilities
+	if playerFound && player.HasComponent(world.Components.Abilities) {
+		abils = *world.Components.Abilities.Get(player).(*gc.Abilities)
 	}
 
 	return slotScreenProps{
-		Tabs:             tabs,
-		Player:           player,
-		PlayerAttributes: attrs,
+		Tabs:            tabs,
+		Player:          player,
+		PlayerAbilities: abils,
 	}
 }
 
@@ -703,22 +703,22 @@ func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.C
 
 	views.AddMemberStatusText(container, player, world)
 
-	if !player.HasComponent(world.Components.Attributes) {
+	if !player.HasComponent(world.Components.Abilities) {
 		return
 	}
 
 	columnWidths := []int{50, 30, 40}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
-	attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
+	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", attrs.Vitality.Total), fmt.Sprintf("(%+d)", attrs.Vitality.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%d", attrs.Strength.Total), fmt.Sprintf("(%+d)", attrs.Strength.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%d", attrs.Sensation.Total), fmt.Sprintf("(%+d)", attrs.Sensation.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%d", attrs.Dexterity.Total), fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%d", attrs.Agility.Total), fmt.Sprintf("(%+d)", attrs.Agility.Modifier)}, aligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%d", attrs.Defense.Total), fmt.Sprintf("(%+d)", attrs.Defense.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", abils.Vitality.Total), fmt.Sprintf("(%+d)", abils.Vitality.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf("%d", abils.Strength.Total), fmt.Sprintf("(%+d)", abils.Strength.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf("%d", abils.Sensation.Total), fmt.Sprintf("(%+d)", abils.Sensation.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf("%d", abils.Dexterity.Total), fmt.Sprintf("(%+d)", abils.Dexterity.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%d", abils.Agility.Total), fmt.Sprintf("(%+d)", abils.Agility.Modifier)}, aligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf("%d", abils.Defense.Total), fmt.Sprintf("(%+d)", abils.Defense.Modifier)}, aligns, nil, res)
 	container.AddChild(table)
 }
 

@@ -165,17 +165,17 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 
 // タブID定数
 const (
-	tabBasic      = "basic"
-	tabAttributes = "attributes"
-	tabSkills     = "skills"
-	tabEffects    = "effects"
-	tabHealth     = "health"
+	tabBasic     = "basic"
+	tabAbilities = "abilities"
+	tabSkills    = "skills"
+	tabEffects   = "effects"
+	tabHealth    = "health"
 )
 
 func (st *StatusState) createTabs(world w.World, playerEntity ecs.Entity, envTemp int) []statusTabData {
 	return []statusTabData{
 		{ID: tabBasic, Label: "基本", Items: st.createBasicItems(world, playerEntity, envTemp)},
-		{ID: tabAttributes, Label: "能力", Items: st.createAttributeItems(world, playerEntity)},
+		{ID: tabAbilities, Label: "能力", Items: st.createAbilityItems(world, playerEntity)},
 		{ID: tabSkills, Label: "スキル", Items: st.createSkillItems(world, playerEntity)},
 		{ID: tabEffects, Label: "効果", Items: st.createEffectItems(world, playerEntity)},
 		{ID: tabHealth, Label: "健康", Items: st.createHealthItems(world, playerEntity)},
@@ -210,18 +210,18 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 	return items
 }
 
-func (st *StatusState) createAttributeItems(world w.World, playerEntity ecs.Entity) []statusItemData {
+func (st *StatusState) createAbilityItems(world w.World, playerEntity ecs.Entity) []statusItemData {
 	items := []statusItemData{}
 
-	if playerEntity.HasComponent(world.Components.Attributes) {
-		attrs := world.Components.Attributes.Get(playerEntity).(*gc.Attributes)
+	if playerEntity.HasComponent(world.Components.Abilities) {
+		abils := world.Components.Abilities.Get(playerEntity).(*gc.Abilities)
 		items = append(items,
-			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", attrs.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
-			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", attrs.Strength.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する"},
-			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", attrs.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Sensation.Modifier), Description: "感覚。射撃攻撃のダメージに影響する"},
-			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", attrs.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Dexterity.Modifier), Description: "器用さ。命中率に影響する"},
-			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", attrs.Agility.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Agility.Modifier), Description: "敏捷。回避率と行動速度に影響する"},
-			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", attrs.Defense.Total), Modifier: fmt.Sprintf("(%+d)", attrs.Defense.Modifier), Description: "防御。被ダメージを軽減する"},
+			statusItemData{Label: consts.VitalityLabel, Value: fmt.Sprintf("%d", abils.Vitality.Total), Modifier: fmt.Sprintf("(%+d)", abils.Vitality.Modifier), Description: "体力。HPとSPの最大値に影響する"},
+			statusItemData{Label: consts.StrengthLabel, Value: fmt.Sprintf("%d", abils.Strength.Total), Modifier: fmt.Sprintf("(%+d)", abils.Strength.Modifier), Description: "筋力。近接攻撃のダメージに影響する"},
+			statusItemData{Label: consts.SensationLabel, Value: fmt.Sprintf("%d", abils.Sensation.Total), Modifier: fmt.Sprintf("(%+d)", abils.Sensation.Modifier), Description: "感覚。射撃攻撃のダメージに影響する"},
+			statusItemData{Label: consts.DexterityLabel, Value: fmt.Sprintf("%d", abils.Dexterity.Total), Modifier: fmt.Sprintf("(%+d)", abils.Dexterity.Modifier), Description: "器用さ。命中率に影響する"},
+			statusItemData{Label: consts.AgilityLabel, Value: fmt.Sprintf("%d", abils.Agility.Total), Modifier: fmt.Sprintf("(%+d)", abils.Agility.Modifier), Description: "敏捷。回避率と行動速度に影響する"},
+			statusItemData{Label: consts.DefenseLabel, Value: fmt.Sprintf("%d", abils.Defense.Total), Modifier: fmt.Sprintf("(%+d)", abils.Defense.Modifier), Description: "防御。被ダメージを軽減する"},
 		)
 	}
 

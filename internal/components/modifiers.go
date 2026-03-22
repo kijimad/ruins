@@ -102,9 +102,9 @@ type CharModifiers struct {
 	Sources map[ModifierKey][]ModifierSource
 }
 
-// RecalculateCharModifiers はスキル、属性値、健康状態から全効果倍率を計算する。
-// attrs, hs は nil でもよい。
-func RecalculateCharModifiers(skills *Skills, attrs *Attributes, hs *HealthStatus) *CharModifiers {
+// RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。
+// abils, hs は nil でもよい。
+func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {
 	e := &CharModifiers{}
 	src := make(map[ModifierKey][]ModifierSource)
 
@@ -116,20 +116,20 @@ func RecalculateCharModifiers(skills *Skills, attrs *Attributes, hs *HealthStatu
 			Value: bonus,
 		})
 
-		// 対応する属性値による補正。属性1ポイントにつきスキル係数と同じ方向に±1%
-		if attrs != nil {
-			attrID := SkillAttribute[skillID]
-			attrVal := attrs.ValueOf(attrID)
-			attrCoeff := 1
+		// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
+		if abils != nil {
+			ablID := SkillAbility[skillID]
+			ablVal := abils.ValueOf(ablID)
+			ablCoeff := 1
 			if coeff < 0 {
-				attrCoeff = -1
+				ablCoeff = -1
 			}
-			attrBonus := attrVal * attrCoeff
+			ablBonus := ablVal * ablCoeff
 			src[key] = append(src[key], ModifierSource{
-				Label: fmt.Sprintf("%s %d", AttributeName[attrID], attrVal),
-				Value: attrBonus,
+				Label: fmt.Sprintf("%s %d", AbilityName[ablID], ablVal),
+				Value: ablBonus,
 			})
-			bonus += attrBonus
+			bonus += ablBonus
 		}
 
 		return 100 + bonus

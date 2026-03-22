@@ -27,7 +27,7 @@ func TestGainExp_SkillLevelUp(t *testing.T) {
 	assert.Equal(t, 1, s.Value)
 }
 
-func TestGainExp_HighAttributeGrowsFaster(t *testing.T) {
+func TestGainExp_HighAbilityGrowsFaster(t *testing.T) {
 	t.Parallel()
 
 	// 属性値8のとき: 10 * 140 / 100 = 14exp
@@ -64,7 +64,7 @@ func TestGainExp_MinimumExpIsOne(t *testing.T) {
 	assert.Greater(t, s.Exp.Current, before, "最低1expは獲得するはず")
 }
 
-func TestGainExp_CombinedAttributeAndLevel(t *testing.T) {
+func TestGainExp_CombinedAbilityAndLevel(t *testing.T) {
 	t.Parallel()
 
 	// 属性値5、スキル値10のとき:

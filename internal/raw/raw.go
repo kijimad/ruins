@@ -123,7 +123,7 @@ type RecipeInput struct {
 type Member struct {
 	Name            string
 	Player          *bool
-	Attributes      Attributes
+	Abilities       Abilities
 	SpriteSheetName string
 	SpriteKey       string
 	AnimKeys        []string
@@ -137,8 +137,8 @@ type DialogRaw struct {
 	MessageKey string // メッセージキー
 }
 
-// Attributes はキャラクターの能力値
-type Attributes struct {
+// Abilities はキャラクターの能力値
+type Abilities struct {
 	Vitality  int
 	Strength  int
 	Sensation int
@@ -152,7 +152,7 @@ type Profession struct {
 	ID          string
 	Name        string
 	Description string
-	Attributes  Attributes
+	Abilities   Abilities
 	Skills      []ProfessionSkill
 	Items       []ProfessionItem
 	Equips      []ProfessionEquip
@@ -488,20 +488,20 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: member.Name}
-	entitySpec.TurnBased = &gc.TurnBased{AP: gc.Pool{Current: 100, Max: 100}} // TODO: Attributesから計算する
+	entitySpec.TurnBased = &gc.TurnBased{AP: gc.Pool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
 		AnimKeys:        member.AnimKeys,
 		Depth:           gc.DepthNumPlayer,
 	}
-	entitySpec.Attributes = &gc.Attributes{
-		Vitality:  gc.Attribute{Base: member.Attributes.Vitality},
-		Strength:  gc.Attribute{Base: member.Attributes.Strength},
-		Sensation: gc.Attribute{Base: member.Attributes.Sensation},
-		Dexterity: gc.Attribute{Base: member.Attributes.Dexterity},
-		Agility:   gc.Attribute{Base: member.Attributes.Agility},
-		Defense:   gc.Attribute{Base: member.Attributes.Defense},
+	entitySpec.Abilities = &gc.Abilities{
+		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
+		Strength:  gc.Ability{Base: member.Abilities.Strength},
+		Sensation: gc.Ability{Base: member.Abilities.Sensation},
+		Dexterity: gc.Ability{Base: member.Abilities.Dexterity},
+		Agility:   gc.Ability{Base: member.Abilities.Agility},
+		Defense:   gc.Ability{Base: member.Abilities.Defense},
 	}
 	entitySpec.Pools = &gc.Pools{}
 	if member.Player != nil && *member.Player {

@@ -211,16 +211,16 @@ func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) 
 
 func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) bool {
 	// TODO: 装備武器のチェック
-	attrs := world.Components.Attributes.Get(attacker)
-	return attrs != nil
+	abils := world.Components.Abilities.Get(attacker)
+	return abils != nil
 }
 
 func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.World, attack *gc.Attack) (hit bool, critical bool) {
-	attackerAttrs := world.Components.Attributes.Get(attacker).(*gc.Attributes)
-	attackerDexterity := attackerAttrs.Dexterity.Total
+	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+	attackerDexterity := attackerAbils.Dexterity.Total
 
-	targetAttrs := world.Components.Attributes.Get(target).(*gc.Attributes)
-	targetAgility := targetAttrs.Agility.Total
+	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
+	targetAgility := targetAbils.Agility.Total
 
 	baseHitRate := BaseHitRate + (attackerDexterity-targetAgility)*HitRatePerStatPoint
 
@@ -245,18 +245,18 @@ func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.Worl
 }
 
 func (aa *AttackActivity) calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Attack, critical bool) int {
-	attackerAttrs := world.Components.Attributes.Get(attacker).(*gc.Attributes)
+	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
 
-	// 武器の射程に応じて基礎属性値を切り替える
-	baseAttr := attackerAttrs.Strength.Total
+	// 武器の射程に応じて基礎能力値を切り替える
+	baseAbil := attackerAbils.Strength.Total
 	if attack != nil && attack.AttackCategory.Range == gc.AttackRangeRanged {
-		baseAttr = attackerAttrs.Sensation.Total
+		baseAbil = attackerAbils.Sensation.Total
 	}
 
-	targetAttrs := world.Components.Attributes.Get(target).(*gc.Attributes)
-	targetDefense := targetAttrs.Defense.Total
+	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
+	targetDefense := targetAbils.Defense.Total
 
-	baseDamage := baseAttr + world.Config.RNG.IntN(DamageRandomRange) + 1
+	baseDamage := baseAbil + world.Config.RNG.IntN(DamageRandomRange) + 1
 
 	weaponDamage := aa.getWeaponDamage(attacker, world)
 	baseDamage += weaponDamage
@@ -453,23 +453,23 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 		return
 	}
 
-	// 対応する属性値を取得して成長速度に反映する
-	attrsComp := world.Components.Attributes.Get(actor)
-	if attrsComp == nil {
+	// 対応する能力値を取得して成長速度に反映する
+	abilsComp := world.Components.Abilities.Get(actor)
+	if abilsComp == nil {
 		return
 	}
-	attrs := attrsComp.(*gc.Attributes)
-	attrID, ok := gc.SkillAttribute[skillID]
+	abils := abilsComp.(*gc.Abilities)
+	ablID, ok := gc.SkillAbility[skillID]
 	if !ok {
 		return
 	}
 
-	if skill.GainExp(s, attrs.ValueOf(attrID)) {
+	if skill.GainExp(s, abils.ValueOf(ablID)) {
 		var hs *gc.HealthStatus
 		if actor.HasComponent(world.Components.HealthStatus) {
 			hs = world.Components.HealthStatus.Get(actor).(*gc.HealthStatus)
 		}
-		effects := gc.RecalculateCharModifiers(skills, attrs, hs)
+		effects := gc.RecalculateCharModifiers(skills, abils, hs)
 		actor.AddComponent(world.Components.CharModifiers, effects)
 
 		actorName := worldhelper.GetEntityName(actor, world)

@@ -360,8 +360,8 @@ func TestColdPlayerCanAct(t *testing.T) {
 
 		// Effectsコンポーネントに低体温ペナルティを反映する
 		skills := world.Components.Skills.Get(playerEntity).(*gc.Skills)
-		attrs := world.Components.Attributes.Get(playerEntity).(*gc.Attributes)
-		effects := gc.RecalculateCharModifiers(skills, attrs, hs)
+		abils := world.Components.Abilities.Get(playerEntity).(*gc.Abilities)
+		effects := gc.RecalculateCharModifiers(skills, abils, hs)
 		playerEntity.AddComponent(world.Components.CharModifiers, effects)
 
 		// 低体温時のSpeedを計算

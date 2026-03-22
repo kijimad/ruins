@@ -38,42 +38,42 @@ func TestPool(t *testing.T) {
 	})
 }
 
-func TestAttribute(t *testing.T) {
+func TestAbility(t *testing.T) {
 	t.Parallel()
-	t.Run("create attribute", func(t *testing.T) {
+	t.Run("create ability", func(t *testing.T) {
 		t.Parallel()
-		attr := Attribute{
+		abil := Ability{
 			Base:     10,
 			Modifier: 5,
 			Total:    15,
 		}
-		assert.Equal(t, 10, attr.Base, "基本値が正しく設定されない")
-		assert.Equal(t, 5, attr.Modifier, "修正値が正しく設定されない")
-		assert.Equal(t, 15, attr.Total, "合計値が正しく設定されない")
+		assert.Equal(t, 10, abil.Base, "基本値が正しく設定されない")
+		assert.Equal(t, 5, abil.Modifier, "修正値が正しく設定されない")
+		assert.Equal(t, 15, abil.Total, "合計値が正しく設定されない")
 	})
 
 	t.Run("negative modifier", func(t *testing.T) {
 		t.Parallel()
-		attr := Attribute{
+		abil := Ability{
 			Base:     20,
 			Modifier: -5,
 			Total:    15,
 		}
-		assert.Equal(t, 20, attr.Base, "基本値が正しく設定されない")
-		assert.Equal(t, -5, attr.Modifier, "負の修正値が正しく設定されない")
-		assert.Equal(t, 15, attr.Total, "負の修正値を含む合計値が正しくない")
+		assert.Equal(t, 20, abil.Base, "基本値が正しく設定されない")
+		assert.Equal(t, -5, abil.Modifier, "負の修正値が正しく設定されない")
+		assert.Equal(t, 15, abil.Total, "負の修正値を含む合計値が正しくない")
 	})
 
 	t.Run("zero values", func(t *testing.T) {
 		t.Parallel()
-		attr := Attribute{
+		abil := Ability{
 			Base:     0,
 			Modifier: 0,
 			Total:    0,
 		}
-		assert.Equal(t, 0, attr.Base, "ゼロの基本値が正しく設定されない")
-		assert.Equal(t, 0, attr.Modifier, "ゼロの修正値が正しく設定されない")
-		assert.Equal(t, 0, attr.Total, "ゼロの合計値が正しく設定されない")
+		assert.Equal(t, 0, abil.Base, "ゼロの基本値が正しく設定されない")
+		assert.Equal(t, 0, abil.Modifier, "ゼロの修正値が正しく設定されない")
+		assert.Equal(t, 0, abil.Total, "ゼロの合計値が正しく設定されない")
 	})
 }
 

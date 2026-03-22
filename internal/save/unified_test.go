@@ -427,13 +427,13 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	player.AddComponent(world.Components.Player, &gc.Player{})
 	player.AddComponent(world.Components.FactionAlly, gc.FactionAlly)
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(10), Y: consts.Tile(15)})
-	player.AddComponent(world.Components.Attributes, &gc.Attributes{
-		Vitality:  gc.Attribute{Base: 10, Modifier: 0, Total: 10},
-		Strength:  gc.Attribute{Base: 8, Modifier: 0, Total: 8},
-		Sensation: gc.Attribute{Base: 6, Modifier: 0, Total: 6},
-		Dexterity: gc.Attribute{Base: 7, Modifier: 0, Total: 7},
-		Agility:   gc.Attribute{Base: 9, Modifier: 0, Total: 9},
-		Defense:   gc.Attribute{Base: 5, Modifier: 0, Total: 5},
+	player.AddComponent(world.Components.Abilities, &gc.Abilities{
+		Vitality:  gc.Ability{Base: 10, Modifier: 0, Total: 10},
+		Strength:  gc.Ability{Base: 8, Modifier: 0, Total: 8},
+		Sensation: gc.Ability{Base: 6, Modifier: 0, Total: 6},
+		Dexterity: gc.Ability{Base: 7, Modifier: 0, Total: 7},
+		Agility:   gc.Ability{Base: 9, Modifier: 0, Total: 9},
+		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
 	})
 	player.AddComponent(world.Components.Pools, &gc.Pools{
 		HP: gc.Pool{Current: 100, Max: 100},
@@ -507,13 +507,13 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		})
 		npc.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: consts.Pixel(160)})
 		npc.AddComponent(world.Components.FactionEnemy, gc.FactionEnemy)
-		npc.AddComponent(world.Components.Attributes, &gc.Attributes{
-			Vitality:  gc.Attribute{Base: 10 + i, Modifier: 0, Total: 10 + i},
-			Strength:  gc.Attribute{Base: 8 + i, Modifier: 0, Total: 8 + i},
-			Sensation: gc.Attribute{Base: 6 + i, Modifier: 0, Total: 6 + i},
-			Dexterity: gc.Attribute{Base: 7 + i, Modifier: 0, Total: 7 + i},
-			Agility:   gc.Attribute{Base: 9 + i, Modifier: 0, Total: 9 + i},
-			Defense:   gc.Attribute{Base: 5 + i, Modifier: 0, Total: 5 + i},
+		npc.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Vitality:  gc.Ability{Base: 10 + i, Modifier: 0, Total: 10 + i},
+			Strength:  gc.Ability{Base: 8 + i, Modifier: 0, Total: 8 + i},
+			Sensation: gc.Ability{Base: 6 + i, Modifier: 0, Total: 6 + i},
+			Dexterity: gc.Ability{Base: 7 + i, Modifier: 0, Total: 7 + i},
+			Agility:   gc.Ability{Base: 9 + i, Modifier: 0, Total: 9 + i},
+			Defense:   gc.Ability{Base: 5 + i, Modifier: 0, Total: 5 + i},
 		})
 		npc.AddComponent(world.Components.Pools, &gc.Pools{
 			HP: gc.Pool{Current: 100 + i*10, Max: 100 + i*10},

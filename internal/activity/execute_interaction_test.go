@@ -241,11 +241,11 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-	player.AddComponent(world.Components.Attributes, &gc.Attributes{
-		Strength:  gc.Attribute{Base: 5, Total: 5},
-		Dexterity: gc.Attribute{Base: 5, Total: 5},
-		Agility:   gc.Attribute{Base: 5, Total: 5},
-		Defense:   gc.Attribute{Base: 0, Total: 0},
+	player.AddComponent(world.Components.Abilities, &gc.Abilities{
+		Strength:  gc.Ability{Base: 5, Total: 5},
+		Dexterity: gc.Ability{Base: 5, Total: 5},
+		Agility:   gc.Ability{Base: 5, Total: 5},
+		Defense:   gc.Ability{Base: 0, Total: 0},
 	})
 
 	// 敵を作成
@@ -255,11 +255,11 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 		Data: gc.MeleeInteraction{},
 	})
 	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
-	enemyEntity.AddComponent(world.Components.Attributes, &gc.Attributes{
-		Strength:  gc.Attribute{Base: 1, Total: 1},
-		Dexterity: gc.Attribute{Base: 1, Total: 1},
-		Agility:   gc.Attribute{Base: 1, Total: 1},
-		Defense:   gc.Attribute{Base: 0, Total: 0},
+	enemyEntity.AddComponent(world.Components.Abilities, &gc.Abilities{
+		Strength:  gc.Ability{Base: 1, Total: 1},
+		Dexterity: gc.Ability{Base: 1, Total: 1},
+		Agility:   gc.Ability{Base: 1, Total: 1},
+		Defense:   gc.Ability{Base: 0, Total: 0},
 	})
 	enemyEntity.AddComponent(world.Components.Pools, &gc.Pools{
 		HP: gc.Pool{Max: 10, Current: 10},

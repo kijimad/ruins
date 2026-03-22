@@ -26,7 +26,7 @@ type EntitySpec struct {
 	Weight           *Weight
 	Recipe           *Recipe
 	Wearable         *Wearable
-	Attributes       *Attributes
+	Abilities        *Abilities
 	Weapon           *Weapon
 	Stackable        *Stackable
 	ItemLocationType *ItemLocationType
@@ -89,7 +89,7 @@ type Components struct {
 	Weight                       *ecs.SliceComponent `save:"true"`
 	Recipe                       *ecs.SliceComponent `save:"true"`
 	Wearable                     *ecs.SliceComponent `save:"true"`
-	Attributes                   *ecs.SliceComponent `save:"true"`
+	Abilities                    *ecs.SliceComponent `save:"true"`
 	Weapon                       *ecs.SliceComponent `save:"true"`
 	Stackable                    *ecs.SliceComponent `save:"true"`
 	ItemLocationInPlayerBackpack *ecs.NullComponent  `save:"true"`
@@ -258,14 +258,14 @@ type Pools struct {
 	Weight PoolFloat
 }
 
-// Attributes はエンティティが持つステータス値。各種計算式で使う
-type Attributes struct {
-	Vitality  Attribute // 体力。丈夫さ、持久力、しぶとさ。HPやSPに影響する
-	Strength  Attribute // 筋力。主に近接攻撃のダメージに影響する
-	Sensation Attribute // 感覚。主に射撃攻撃のダメージに影響する
-	Dexterity Attribute // 器用。攻撃時の命中率に影響する
-	Agility   Attribute // 敏捷。回避率、行動の速さに影響する
-	Defense   Attribute // 防御。被弾ダメージを軽減させる
+// Abilities はエンティティが持つ能力値。各種計算式で使う
+type Abilities struct {
+	Vitality  Ability // 体力。丈夫さ、持久力、しぶとさ。HPやSPに影響する
+	Strength  Ability // 筋力。主に近接攻撃のダメージに影響する
+	Sensation Ability // 感覚。主に射撃攻撃のダメージに影響する
+	Dexterity Ability // 器用。攻撃時の命中率に影響する
+	Agility   Ability // 敏捷。回避率、行動の速さに影響する
+	Defense   Ability // 防御。被弾ダメージを軽減させる
 }
 
 // ProvidesHealing は回復する性質

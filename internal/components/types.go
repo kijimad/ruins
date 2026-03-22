@@ -18,12 +18,12 @@ type PoolFloat struct {
 type TurnBased struct {
 	// Action Point
 	AP Pool
-	// Speed は毎ターンのAP回復量。属性・状態異常・装備で変動する
+	// Speed は毎ターンのAP回復量。能力値・状態異常・装備で変動する
 	Speed int
 }
 
-// Attribute は変動するパラメータ値
-type Attribute struct {
+// Ability は変動するパラメータ値
+type Ability struct {
 	Base     int // 固有の値
 	Modifier int // 装備や健康状態で変動する値
 	Total    int // 計算した現在値。算出される値のメモ

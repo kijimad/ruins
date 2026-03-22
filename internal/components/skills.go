@@ -1,42 +1,42 @@
 package components
 
-// AttributeID はスキルの成長に影響する属性の識別子
-type AttributeID int
+// AbilityID はスキルの成長に影響する能力値の識別子
+type AbilityID int
 
-// 属性ID定数
+// 能力値ID定数
 const (
-	AttrSTR AttributeID = iota // 筋力
-	AttrSEN                    // 感覚
-	AttrDEX                    // 器用
-	AttrAGI                    // 敏捷
-	AttrVIT                    // 体力
-	AttrDEF                    // 防御
+	AblSTR AbilityID = iota // 筋力
+	AblSEN                  // 感覚
+	AblDEX                  // 器用
+	AblAGI                  // 敏捷
+	AblVIT                  // 体力
+	AblDEF                  // 防御
 )
 
-// AttributeName は属性IDの表示名を返す
-var AttributeName = map[AttributeID]string{
-	AttrSTR: "STR",
-	AttrSEN: "SEN",
-	AttrDEX: "DEX",
-	AttrAGI: "AGI",
-	AttrVIT: "VIT",
-	AttrDEF: "DEF",
+// AbilityName は能力値IDの表示名を返す
+var AbilityName = map[AbilityID]string{
+	AblSTR: "STR",
+	AblSEN: "SEN",
+	AblDEX: "DEX",
+	AblAGI: "AGI",
+	AblVIT: "VIT",
+	AblDEF: "DEF",
 }
 
-// ValueOf は指定された属性IDに対応するTotal値を返す
-func (a *Attributes) ValueOf(id AttributeID) int {
+// ValueOf は指定された能力値IDに対応するTotal値を返す
+func (a *Abilities) ValueOf(id AbilityID) int {
 	switch id {
-	case AttrSTR:
+	case AblSTR:
 		return a.Strength.Total
-	case AttrSEN:
+	case AblSEN:
 		return a.Sensation.Total
-	case AttrDEX:
+	case AblDEX:
 		return a.Dexterity.Total
-	case AttrAGI:
+	case AblAGI:
 		return a.Agility.Total
-	case AttrVIT:
+	case AblVIT:
 		return a.Vitality.Total
-	case AttrDEF:
+	case AblDEF:
 		return a.Defense.Total
 	default:
 		return 0
@@ -78,37 +78,37 @@ const (
 	SkillPhotonResist  SkillID = "photon_resist"  // 耐光
 )
 
-// SkillAttribute はスキルIDから対応する属性IDへのマッピング。
-// 属性値が高いほど、対応するスキルの成長が速くなる。
-var SkillAttribute = map[SkillID]AttributeID{
-	SkillSword:         AttrSTR,
-	SkillSpear:         AttrSTR,
-	SkillFist:          AttrSTR,
-	SkillWeightBearing: AttrSTR,
+// SkillAbility はスキルIDから対応する能力値IDへのマッピング。
+// 能力値が高いほど、対応するスキルの成長が速くなる。
+var SkillAbility = map[SkillID]AbilityID{
+	SkillSword:         AblSTR,
+	SkillSpear:         AblSTR,
+	SkillFist:          AblSTR,
+	SkillWeightBearing: AblSTR,
 
-	SkillHandgun:     AttrSEN,
-	SkillRifle:       AttrSEN,
-	SkillCannon:      AttrSEN,
-	SkillExploration: AttrSEN,
+	SkillHandgun:     AblSEN,
+	SkillRifle:       AblSEN,
+	SkillCannon:      AblSEN,
+	SkillExploration: AblSEN,
 
-	SkillCrafting:    AttrDEX,
-	SkillSmithing:    AttrDEX,
-	SkillNegotiation: AttrDEX,
+	SkillCrafting:    AblDEX,
+	SkillSmithing:    AblDEX,
+	SkillNegotiation: AblDEX,
 
-	SkillSprinting:   AttrAGI,
-	SkillStealth:     AttrAGI,
-	SkillNightVision: AttrAGI,
+	SkillSprinting:   AblAGI,
+	SkillStealth:     AblAGI,
+	SkillNightVision: AblAGI,
 
-	SkillColdResist:   AttrVIT,
-	SkillHeatResist:   AttrVIT,
-	SkillHungerResist: AttrVIT,
-	SkillHealing:      AttrVIT,
+	SkillColdResist:   AblVIT,
+	SkillHeatResist:   AblVIT,
+	SkillHungerResist: AblVIT,
+	SkillHealing:      AblVIT,
 
-	SkillHeavyArmor:    AttrDEF,
-	SkillFireResist:    AttrDEF,
-	SkillThunderResist: AttrDEF,
-	SkillChillResist:   AttrDEF,
-	SkillPhotonResist:  AttrDEF,
+	SkillHeavyArmor:    AblDEF,
+	SkillFireResist:    AblDEF,
+	SkillThunderResist: AblDEF,
+	SkillChillResist:   AblDEF,
+	SkillPhotonResist:  AblDEF,
 }
 
 // SkillName はスキルIDの表示名を返す

@@ -27,13 +27,13 @@ func TestPlayerComponentSaveLoad(t *testing.T) {
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
 	player.AddComponent(world.Components.Name, &gc.Name{Name: "主人公"})
-	player.AddComponent(world.Components.Attributes, &gc.Attributes{
-		Vitality:  gc.Attribute{Base: 10},
-		Strength:  gc.Attribute{Base: 15},
-		Sensation: gc.Attribute{Base: 12},
-		Dexterity: gc.Attribute{Base: 14},
-		Agility:   gc.Attribute{Base: 13},
-		Defense:   gc.Attribute{Base: 8},
+	player.AddComponent(world.Components.Abilities, &gc.Abilities{
+		Vitality:  gc.Ability{Base: 10},
+		Strength:  gc.Ability{Base: 15},
+		Sensation: gc.Ability{Base: 12},
+		Dexterity: gc.Ability{Base: 14},
+		Agility:   gc.Ability{Base: 13},
+		Defense:   gc.Ability{Base: 8},
 	})
 	player.AddComponent(world.Components.Pools, &gc.Pools{})
 	player.AddComponent(world.Components.FactionAlly, &gc.FactionAllyData{})
@@ -74,7 +74,7 @@ func TestPlayerComponentSaveLoad(t *testing.T) {
 	// プレイヤーの詳細検証
 	assert.True(t, playerEntity.HasComponent(newWorld.Components.Player), "Player should have Player component")
 	assert.True(t, playerEntity.HasComponent(newWorld.Components.Name), "Player should have Name component")
-	assert.True(t, playerEntity.HasComponent(newWorld.Components.Attributes), "Player should have Attributes component")
+	assert.True(t, playerEntity.HasComponent(newWorld.Components.Abilities), "Player should have Abilities component")
 	assert.True(t, playerEntity.HasComponent(newWorld.Components.Pools), "Player should have Pools component")
 	assert.True(t, playerEntity.HasComponent(newWorld.Components.FactionAlly), "Player should have FactionAlly component")
 	assert.True(t, playerEntity.HasComponent(newWorld.Components.Player), "Player should have Player component")
@@ -86,9 +86,9 @@ func TestPlayerComponentSaveLoad(t *testing.T) {
 	playerPools := newWorld.Components.Pools.Get(playerEntity).(*gc.Pools)
 	assert.NotNil(t, playerPools)
 
-	playerAttrs := newWorld.Components.Attributes.Get(playerEntity).(*gc.Attributes)
-	assert.Equal(t, 10, playerAttrs.Vitality.Base)
-	assert.Equal(t, 15, playerAttrs.Strength.Base)
+	playerAbils := newWorld.Components.Abilities.Get(playerEntity).(*gc.Abilities)
+	assert.Equal(t, 10, playerAbils.Vitality.Base)
+	assert.Equal(t, 15, playerAbils.Strength.Base)
 
 	t.Logf("Player entity: %v", playerEntity)
 }

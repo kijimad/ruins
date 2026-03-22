@@ -68,14 +68,14 @@ func TestSetMaxHPSP(t *testing.T) {
 			// エンティティを作成
 			entity := world.Manager.NewEntity()
 
-			// Attributesコンポーネントを追加（BaseとTotalを0に設定してsetMaxHPSPの初期化をテスト）
-			entity.AddComponent(world.Components.Attributes, &gc.Attributes{
-				Vitality:  gc.Attribute{Base: tt.vitality, Total: 0},
-				Strength:  gc.Attribute{Base: tt.strength, Total: 0},
-				Sensation: gc.Attribute{Base: tt.sensation, Total: 0},
-				Dexterity: gc.Attribute{Base: tt.dexterity, Total: 0},
-				Agility:   gc.Attribute{Base: tt.agility, Total: 0},
-				Defense:   gc.Attribute{Base: 5, Total: 0},
+			// Abilitiesコンポーネントを追加（BaseとTotalを0に設定してsetMaxHPSPの初期化をテスト）
+			entity.AddComponent(world.Components.Abilities, &gc.Abilities{
+				Vitality:  gc.Ability{Base: tt.vitality, Total: 0},
+				Strength:  gc.Ability{Base: tt.strength, Total: 0},
+				Sensation: gc.Ability{Base: tt.sensation, Total: 0},
+				Dexterity: gc.Ability{Base: tt.dexterity, Total: 0},
+				Agility:   gc.Ability{Base: tt.agility, Total: 0},
+				Defense:   gc.Ability{Base: 5, Total: 0},
 			})
 
 			// Poolsコンポーネントを追加
@@ -90,14 +90,14 @@ func TestSetMaxHPSP(t *testing.T) {
 
 			// 結果を検証
 			pools := world.Components.Pools.Get(entity).(*gc.Pools)
-			attrs := world.Components.Attributes.Get(entity).(*gc.Attributes)
+			abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 			// Totalが正しく初期化されたことを確認
-			assert.Equal(t, tt.vitality, attrs.Vitality.Total, "体力のTotal値が正しく初期化されていない")
-			assert.Equal(t, tt.strength, attrs.Strength.Total, "力のTotal値が正しく初期化されていない")
-			assert.Equal(t, tt.sensation, attrs.Sensation.Total, "感覚のTotal値が正しく初期化されていない")
-			assert.Equal(t, tt.dexterity, attrs.Dexterity.Total, "器用さのTotal値が正しく初期化されていない")
-			assert.Equal(t, tt.agility, attrs.Agility.Total, "素早さのTotal値が正しく初期化されていない")
+			assert.Equal(t, tt.vitality, abils.Vitality.Total, "体力のTotal値が正しく初期化されていない")
+			assert.Equal(t, tt.strength, abils.Strength.Total, "力のTotal値が正しく初期化されていない")
+			assert.Equal(t, tt.sensation, abils.Sensation.Total, "感覚のTotal値が正しく初期化されていない")
+			assert.Equal(t, tt.dexterity, abils.Dexterity.Total, "器用さのTotal値が正しく初期化されていない")
+			assert.Equal(t, tt.agility, abils.Agility.Total, "素早さのTotal値が正しく初期化されていない")
 
 			// HP/SPが正しく計算されたことを確認
 			assert.Equal(t, tt.expectedHP, pools.HP.Max, "最大HPの計算が正しくない: %s", tt.description)
@@ -133,13 +133,13 @@ func TestFullRecover(t *testing.T) {
 
 	// テスト用エンティティを作成
 	entity := world.Manager.NewEntity()
-	entity.AddComponent(world.Components.Attributes, &gc.Attributes{
-		Vitality:  gc.Attribute{Base: 10, Total: 0},
-		Strength:  gc.Attribute{Base: 8, Total: 0},
-		Sensation: gc.Attribute{Base: 7, Total: 0},
-		Dexterity: gc.Attribute{Base: 6, Total: 0},
-		Agility:   gc.Attribute{Base: 9, Total: 0},
-		Defense:   gc.Attribute{Base: 5, Total: 0},
+	entity.AddComponent(world.Components.Abilities, &gc.Abilities{
+		Vitality:  gc.Ability{Base: 10, Total: 0},
+		Strength:  gc.Ability{Base: 8, Total: 0},
+		Sensation: gc.Ability{Base: 7, Total: 0},
+		Dexterity: gc.Ability{Base: 6, Total: 0},
+		Agility:   gc.Ability{Base: 9, Total: 0},
+		Defense:   gc.Ability{Base: 5, Total: 0},
 	})
 	entity.AddComponent(world.Components.Pools, &gc.Pools{
 		HP: gc.Pool{Current: 0, Max: 0},
@@ -152,11 +152,11 @@ func TestFullRecover(t *testing.T) {
 
 	// 結果を検証
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)
-	attrs := world.Components.Attributes.Get(entity).(*gc.Attributes)
+	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
-	// 属性のTotalが正しく設定されたことを確認
-	assert.Equal(t, 10, attrs.Vitality.Total, "体力のTotal値が正しく設定されていない")
-	assert.Equal(t, 8, attrs.Strength.Total, "力のTotal値が正しく設定されていない")
+	// 能力値のTotalが正しく設定されたことを確認
+	assert.Equal(t, 10, abils.Vitality.Total, "体力のTotal値が正しく設定されていない")
+	assert.Equal(t, 8, abils.Strength.Total, "力のTotal値が正しく設定されていない")
 
 	// HP/SPが正しく計算されたことを確認
 	expectedHP := int(30 + float64(10*8+8+7)*1.0) // 30 + 95 = 125
@@ -392,25 +392,25 @@ func TestMovePlayerToPosition(t *testing.T) {
 func TestCalculateSpeed(t *testing.T) {
 	t.Parallel()
 
-	t.Run("基本Speed（属性なし）", func(t *testing.T) {
+	t.Run("基本Speed（能力値なし）", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
 
 		speed := CalculateSpeed(world, entity)
-		// 基本値100、属性なし
+		// 基本値100、能力値なし
 		assert.Equal(t, 100, speed)
 	})
 
-	t.Run("属性によるボーナス", func(t *testing.T) {
+	t.Run("能力値によるボーナス", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Attributes, &gc.Attributes{
-			Agility:   gc.Attribute{Total: 10},
-			Dexterity: gc.Attribute{Total: 5},
+		entity.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Agility:   gc.Ability{Total: 10},
+			Dexterity: gc.Ability{Total: 5},
 		})
 
 		speed := CalculateSpeed(world, entity)
@@ -461,8 +461,8 @@ func TestCalculateSpeed(t *testing.T) {
 			Severity: gc.SeverityMedium,
 		})
 		skills := world.Components.Skills.Get(entity).(*gc.Skills)
-		attrs := world.Components.Attributes.Get(entity).(*gc.Attributes)
-		mods := gc.RecalculateCharModifiers(skills, attrs, hs)
+		abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
+		mods := gc.RecalculateCharModifiers(skills, abils, hs)
 		entity.AddComponent(world.Components.CharModifiers, mods)
 
 		coldSpeed := CalculateSpeed(world, entity)

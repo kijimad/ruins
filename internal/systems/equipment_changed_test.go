@@ -22,8 +22,8 @@ func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
 		require.NoError(t, err)
 
 		// 初期Strengthを取得
-		attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
-		initialStrength := attrs.Strength.Total
+		abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+		initialStrength := abils.Strength.Total
 
 		// 健康状態に低体温を追加（Strengthにペナルティ）
 		hs := world.Components.HealthStatus.Get(player).(*gc.HealthStatus)
@@ -44,9 +44,9 @@ func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
 		err = sys.Update(world)
 		require.NoError(t, err)
 
-		// 属性にペナルティが反映されていることを確認
-		attrs = world.Components.Attributes.Get(player).(*gc.Attributes)
-		assert.Less(t, attrs.Strength.Total, initialStrength, "低体温でStrengthが減少するべき")
+		// 能力値にペナルティが反映されていることを確認
+		abils = world.Components.Abilities.Get(player).(*gc.Abilities)
+		assert.Less(t, abils.Strength.Total, initialStrength, "低体温でStrengthが減少するべき")
 	})
 }
 
@@ -85,24 +85,24 @@ func TestMaxHP(t *testing.T) {
 	t.Parallel()
 	t.Run("calculate max HP with base stats", func(t *testing.T) {
 		t.Parallel()
-		attrs := &gc.Attributes{
-			Vitality: gc.Attribute{
+		abils := &gc.Abilities{
+			Vitality: gc.Ability{
 				Base:     10,
 				Modifier: 0,
 				Total:    10,
 			},
-			Strength: gc.Attribute{
+			Strength: gc.Ability{
 				Base:     5,
 				Modifier: 0,
 				Total:    5,
 			},
-			Sensation: gc.Attribute{
+			Sensation: gc.Ability{
 				Base:     3,
 				Modifier: 0,
 				Total:    3,
 			},
 		}
-		result := maxHP(attrs)
+		result := maxHP(abils)
 		// 30 + (10*8 + 5 + 3) = 30 + 88 = 118
 		expected := 118
 		assert.Equal(t, expected, result, "maxHPの計算が正しくない")
@@ -110,24 +110,24 @@ func TestMaxHP(t *testing.T) {
 
 	t.Run("calculate max HP with level bonus", func(t *testing.T) {
 		t.Parallel()
-		attrs := &gc.Attributes{
-			Vitality: gc.Attribute{
+		abils := &gc.Abilities{
+			Vitality: gc.Ability{
 				Base:     10,
 				Modifier: 0,
 				Total:    10,
 			},
-			Strength: gc.Attribute{
+			Strength: gc.Ability{
 				Base:     5,
 				Modifier: 0,
 				Total:    5,
 			},
-			Sensation: gc.Attribute{
+			Sensation: gc.Ability{
 				Base:     3,
 				Modifier: 0,
 				Total:    3,
 			},
 		}
-		result := maxHP(attrs)
+		result := maxHP(abils)
 		// 30 + (10*8 + 5 + 3) = 30 + 88 = 118
 		expected := 118
 		assert.Equal(t, expected, result, "レベルボーナス込みのmaxHPの計算が正しくない")
@@ -135,24 +135,24 @@ func TestMaxHP(t *testing.T) {
 
 	t.Run("calculate max HP with high stats", func(t *testing.T) {
 		t.Parallel()
-		attrs := &gc.Attributes{
-			Vitality: gc.Attribute{
+		abils := &gc.Abilities{
+			Vitality: gc.Ability{
 				Base:     20,
 				Modifier: 5,
 				Total:    25,
 			},
-			Strength: gc.Attribute{
+			Strength: gc.Ability{
 				Base:     15,
 				Modifier: 3,
 				Total:    18,
 			},
-			Sensation: gc.Attribute{
+			Sensation: gc.Ability{
 				Base:     10,
 				Modifier: 2,
 				Total:    12,
 			},
 		}
-		result := maxHP(attrs)
+		result := maxHP(abils)
 		// 30 + (25*8 + 18 + 12) = 30 + 230 = 260
 		expected := 260
 		assert.Equal(t, expected, result, "高ステータスでのmaxHPの計算が正しくない")
@@ -163,24 +163,24 @@ func TestMaxSP(t *testing.T) {
 	t.Parallel()
 	t.Run("calculate max SP with base stats", func(t *testing.T) {
 		t.Parallel()
-		attrs := &gc.Attributes{
-			Vitality: gc.Attribute{
+		abils := &gc.Abilities{
+			Vitality: gc.Ability{
 				Base:     10,
 				Modifier: 0,
 				Total:    10,
 			},
-			Dexterity: gc.Attribute{
+			Dexterity: gc.Ability{
 				Base:     8,
 				Modifier: 0,
 				Total:    8,
 			},
-			Agility: gc.Attribute{
+			Agility: gc.Ability{
 				Base:     6,
 				Modifier: 0,
 				Total:    6,
 			},
 		}
-		result := maxSP(attrs)
+		result := maxSP(abils)
 		// 10*2 + 8 + 6 = 20 + 8 + 6 = 34
 		expected := 34
 		assert.Equal(t, expected, result, "maxSPの計算が正しくない")
@@ -188,24 +188,24 @@ func TestMaxSP(t *testing.T) {
 
 	t.Run("calculate max SP with level bonus", func(t *testing.T) {
 		t.Parallel()
-		attrs := &gc.Attributes{
-			Vitality: gc.Attribute{
+		abils := &gc.Abilities{
+			Vitality: gc.Ability{
 				Base:     10,
 				Modifier: 0,
 				Total:    10,
 			},
-			Dexterity: gc.Attribute{
+			Dexterity: gc.Ability{
 				Base:     8,
 				Modifier: 0,
 				Total:    8,
 			},
-			Agility: gc.Attribute{
+			Agility: gc.Ability{
 				Base:     6,
 				Modifier: 0,
 				Total:    6,
 			},
 		}
-		result := maxSP(attrs)
+		result := maxSP(abils)
 		// 10*2 + 8 + 6 = 20 + 8 + 6 = 34
 		expected := 34
 		assert.Equal(t, expected, result, "maxSPの計算が正しくない")
@@ -213,24 +213,24 @@ func TestMaxSP(t *testing.T) {
 
 	t.Run("calculate max SP with high stats", func(t *testing.T) {
 		t.Parallel()
-		attrs := &gc.Attributes{
-			Vitality: gc.Attribute{
+		abils := &gc.Abilities{
+			Vitality: gc.Ability{
 				Base:     20,
 				Modifier: 5,
 				Total:    25,
 			},
-			Dexterity: gc.Attribute{
+			Dexterity: gc.Ability{
 				Base:     15,
 				Modifier: 3,
 				Total:    18,
 			},
-			Agility: gc.Attribute{
+			Agility: gc.Ability{
 				Base:     12,
 				Modifier: 2,
 				Total:    14,
 			},
 		}
-		result := maxSP(attrs)
+		result := maxSP(abils)
 		// 25*2 + 18 + 14 = 50 + 18 + 14 = 82
 		expected := 82
 		assert.Equal(t, expected, result, "高ステータスでのmaxSPの計算が正しくない")
@@ -247,13 +247,13 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.Attributes, &gc.Attributes{
-			Vitality:  gc.Attribute{Base: 10, Total: 10},
-			Strength:  gc.Attribute{Base: 5, Total: 5},
-			Sensation: gc.Attribute{Base: 5, Total: 5},
-			Dexterity: gc.Attribute{Base: 5, Total: 5},
-			Agility:   gc.Attribute{Base: 5, Total: 5},
-			Defense:   gc.Attribute{Base: 0, Total: 0},
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Vitality:  gc.Ability{Base: 10, Total: 10},
+			Strength:  gc.Ability{Base: 5, Total: 5},
+			Sensation: gc.Ability{Base: 5, Total: 5},
+			Dexterity: gc.Ability{Base: 5, Total: 5},
+			Agility:   gc.Ability{Base: 5, Total: 5},
+			Defense:   gc.Ability{Base: 0, Total: 0},
 		})
 
 		// 初期APを計算
@@ -307,8 +307,8 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 
 		// APが元に戻っていることを確認
 		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
-		attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
-		t.Logf("装備削除後: Agility.Total=%d, AP.Max=%d, 期待AP=%d", attrs.Agility.Total, turnBased.AP.Max, initialAP)
+		abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+		t.Logf("装備削除後: Agility.Total=%d, AP.Max=%d, 期待AP=%d", abils.Agility.Total, turnBased.AP.Max, initialAP)
 		assert.Equal(t, initialAP, turnBased.AP.Max, "装備削除でAP.Maxが元に戻るべき")
 	})
 
@@ -319,21 +319,21 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
-		attrs := &gc.Attributes{
-			Vitality:  gc.Attribute{Base: 10, Total: 10},
-			Strength:  gc.Attribute{Base: 5, Total: 5},
-			Sensation: gc.Attribute{Base: 5, Total: 5},
-			Dexterity: gc.Attribute{Base: 5, Total: 5},
-			Agility:   gc.Attribute{Base: 5, Total: 5},
-			Defense:   gc.Attribute{Base: 0, Total: 0},
+		abils := &gc.Abilities{
+			Vitality:  gc.Ability{Base: 10, Total: 10},
+			Strength:  gc.Ability{Base: 5, Total: 5},
+			Sensation: gc.Ability{Base: 5, Total: 5},
+			Dexterity: gc.Ability{Base: 5, Total: 5},
+			Agility:   gc.Ability{Base: 5, Total: 5},
+			Defense:   gc.Ability{Base: 0, Total: 0},
 		}
-		player.AddComponent(world.Components.Attributes, attrs)
+		player.AddComponent(world.Components.Abilities, abils)
 
 		// 初期HP/SPを計算式から算出
 		// maxHP: 30 + (体力*8 + 力 + 感覚) = 30 + (10*8 + 5 + 5) = 30 + 90 = 120
 		// maxSP: 体力*2 + 器用さ + 素早さ = 10*2 + 5 + 5 = 30
-		initialHP := maxHP(attrs)
-		initialSP := maxSP(attrs)
+		initialHP := maxHP(abils)
+		initialSP := maxSP(abils)
 
 		player.AddComponent(world.Components.Pools, &gc.Pools{
 			HP: gc.Pool{Current: initialHP, Max: initialHP},

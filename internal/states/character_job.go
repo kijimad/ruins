@@ -178,13 +178,13 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 	name.Name = st.playerName
 
 	// 職業の属性値で上書き
-	attrs := world.Components.Attributes.Get(player).(*gc.Attributes)
-	attrs.Strength = gc.Attribute{Base: prof.Attributes.Strength}
-	attrs.Sensation = gc.Attribute{Base: prof.Attributes.Sensation}
-	attrs.Dexterity = gc.Attribute{Base: prof.Attributes.Dexterity}
-	attrs.Agility = gc.Attribute{Base: prof.Attributes.Agility}
-	attrs.Vitality = gc.Attribute{Base: prof.Attributes.Vitality}
-	attrs.Defense = gc.Attribute{Base: prof.Attributes.Defense}
+	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+	abils.Strength = gc.Ability{Base: prof.Abilities.Strength}
+	abils.Sensation = gc.Ability{Base: prof.Abilities.Sensation}
+	abils.Dexterity = gc.Ability{Base: prof.Abilities.Dexterity}
+	abils.Agility = gc.Ability{Base: prof.Abilities.Agility}
+	abils.Vitality = gc.Ability{Base: prof.Abilities.Vitality}
+	abils.Defense = gc.Ability{Base: prof.Abilities.Defense}
 
 	// 職業のスキル初期値を設定
 	skills := world.Components.Skills.Get(player).(*gc.Skills)
@@ -193,7 +193,7 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 			s.Value = ps.Value
 		}
 	}
-	modifiers := gc.RecalculateCharModifiers(skills, attrs, nil)
+	modifiers := gc.RecalculateCharModifiers(skills, abils, nil)
 	player.AddComponent(world.Components.CharModifiers, modifiers)
 
 	// 属性値変更後にHP/SP/EP/APを再計算

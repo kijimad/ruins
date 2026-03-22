@@ -1333,7 +1333,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 6
@@ -1357,7 +1357,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 7
     Defense   = 0
     Dexterity = 7
@@ -1371,7 +1371,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 5
@@ -1385,7 +1385,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 5
@@ -1399,7 +1399,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 5
@@ -1413,7 +1413,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 5
@@ -1427,7 +1427,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 6
     Defense   = 0
     Dexterity = 9
@@ -1441,7 +1441,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 4
     Defense   = 0
     Dexterity = 5
@@ -1455,7 +1455,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 9
     Defense   = 0
     Dexterity = 6
@@ -1469,7 +1469,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 8
@@ -1483,7 +1483,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 3
     Defense   = 0
     Dexterity = 3
@@ -1497,7 +1497,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 7
     Defense   = 0
     Dexterity = 7
@@ -1511,7 +1511,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 4
     Defense   = 0
     Dexterity = 5
@@ -1525,7 +1525,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 8
     Defense   = 0
     Dexterity = 6
@@ -1539,7 +1539,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 0
     Dexterity = 5
@@ -1553,7 +1553,7 @@
   SpriteKey       = "player_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 7
     Defense   = 0
     Dexterity = 8
@@ -1567,7 +1567,7 @@
   SpriteKey       = "light_tank_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 5
     Defense   = 5
     Dexterity = 5
@@ -1591,7 +1591,7 @@
   SpriteKey       = "red_ball_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 6
     Defense   = 4
     Dexterity = 5
@@ -1613,7 +1613,7 @@
   Name            = "灰の偶像"
   SpriteKey       = "red_ball"
   SpriteSheetName = "field"
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 3
     Defense   = 40
     Dexterity = 2
@@ -1627,7 +1627,7 @@
   SpriteKey       = "slime_0"
   SpriteSheetName = "field"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 4
     Defense   = 2
     Dexterity = 3
@@ -1647,7 +1647,7 @@
   [Members.Dialog]
     MessageKey = "old_soldier_greeting"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 10
     Defense   = 10
     Dexterity = 10
@@ -1665,7 +1665,7 @@
   [Members.Dialog]
     MessageKey = "merchant_greeting"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 8
     Defense   = 5
     Dexterity = 10
@@ -1683,7 +1683,7 @@
   [Members.Dialog]
     MessageKey = "doctor_greeting"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 7
     Defense   = 5
     Dexterity = 10
@@ -1701,7 +1701,7 @@
   [Members.Dialog]
     MessageKey = "dark_doctor_greeting"
 
-  [Members.Attributes]
+  [Members.Abilities]
     Agility   = 7
     Defense   = 5
     Dexterity = 10
@@ -2440,7 +2440,7 @@
   Description = "逃げてきた一般人"
   ID          = "evacuee"
   Name        = "避難民"
-  [Professions.Attributes]
+  [Professions.Abilities]
     Agility   = 5
     Defense   = 5
     Dexterity = 5
@@ -2479,7 +2479,7 @@
   Description = "訓練を積んだ兵隊"
   ID          = "soldier"
   Name        = "軍人"
-  [Professions.Attributes]
+  [Professions.Abilities]
     Agility   = 4
     Defense   = 7
     Dexterity = 4
@@ -2521,7 +2521,7 @@
   Description = "射撃の達人"
   ID          = "sniper"
   Name        = "狙撃手"
-  [Professions.Attributes]
+  [Professions.Abilities]
     Agility   = 6
     Defense   = 4
     Dexterity = 5
@@ -2566,7 +2566,7 @@
   Description = "技術者"
   ID          = "mechanic"
   Name        = "整備士"
-  [Professions.Attributes]
+  [Professions.Abilities]
     Agility   = 4
     Defense   = 5
     Dexterity = 8
@@ -2614,7 +2614,7 @@
   Description = "野外活動に長けた生存者"
   ID          = "hunter"
   Name        = "猟師"
-  [Professions.Attributes]
+  [Professions.Abilities]
     Agility   = 7
     Defense   = 4
     Dexterity = 4
@@ -2665,7 +2665,7 @@
   Description = "医療知識を持つ"
   ID          = "medic"
   Name        = "衛生兵"
-  [Professions.Attributes]
+  [Professions.Abilities]
     Agility   = 4
     Defense   = 4
     Dexterity = 6
