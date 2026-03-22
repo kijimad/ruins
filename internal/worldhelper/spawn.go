@@ -210,7 +210,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 
 	skills := gc.NewSkills()
 	entitySpec.Skills = skills
-	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil)
+	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	// カメラ初期位置をプレイヤー位置に設定

@@ -28,6 +28,13 @@ func UpdateCarryingWeight(world w.World, entity ecs.Entity) {
 
 	// 所持可能重量を計算
 	maxWeight := calculateMaxCarryingWeight(attributes)
+
+	// 倍率を適用する
+	if entity.HasComponent(world.Components.CharModifiers) {
+		mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		maxWeight = maxWeight * float64(mods.MaxWeight) / 100
+	}
+
 	pools.Weight.Max = maxWeight
 
 	// 現在の所持重量を計算

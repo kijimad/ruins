@@ -87,9 +87,9 @@ type CharModifiers struct {
 	HungerProgress int                 // 空腹進行倍率%
 	HealingEffect  int                 // 回復効果倍率%
 	MaxWeight      int                 // 最大所持重量倍率%
-	Exploration    int                 // アイテム発見率倍率%
+	Exploration    int                 // TODO: アイテム発見システム実装時に適用する。アイテム発見率倍率%
 	EnemyVision    int                 // 敵視界距離倍率%
-	NightVision    int                 // 暗所視界倍率%
+	NightVision    int                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率%
 	MoveCost       int                 // 移動APコスト倍率%
 	CraftCost      int                 // 素材消費量倍率%
 	SmithQuality   int                 // 合成品質倍率%
@@ -102,9 +102,9 @@ type CharModifiers struct {
 	Sources map[ModifierKey][]ModifierSource
 }
 
-// RecalculateCharModifiers はスキルと健康状態から全効果倍率を計算する。
-// hs は nil でもよい。
-func RecalculateCharModifiers(skills *Skills, hs *HealthStatus) *CharModifiers {
+// RecalculateCharModifiers はスキル、属性値、健康状態から全効果倍率を計算する。
+// attrs, hs は nil でもよい。
+func RecalculateCharModifiers(skills *Skills, attrs *Attributes, hs *HealthStatus) *CharModifiers {
 	e := &CharModifiers{}
 	src := make(map[ModifierKey][]ModifierSource)
 
@@ -115,6 +115,23 @@ func RecalculateCharModifiers(skills *Skills, hs *HealthStatus) *CharModifiers {
 			Label: fmt.Sprintf("%s Lv%d", SkillName[skillID], v),
 			Value: bonus,
 		})
+
+		// 対応する属性値による補正。属性1ポイントにつきスキル係数と同じ方向に±1%
+		if attrs != nil {
+			attrID := SkillAttribute[skillID]
+			attrVal := attrs.ValueOf(attrID)
+			attrCoeff := 1
+			if coeff < 0 {
+				attrCoeff = -1
+			}
+			attrBonus := attrVal * attrCoeff
+			src[key] = append(src[key], ModifierSource{
+				Label: fmt.Sprintf("%s %d", AttributeName[attrID], attrVal),
+				Value: attrBonus,
+			})
+			bonus += attrBonus
+		}
+
 		return 100 + bonus
 	}
 

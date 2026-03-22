@@ -193,7 +193,7 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 			s.Value = ps.Value
 		}
 	}
-	modifiers := gc.RecalculateCharModifiers(skills, nil)
+	modifiers := gc.RecalculateCharModifiers(skills, attrs, nil)
 	player.AddComponent(world.Components.CharModifiers, modifiers)
 
 	// 属性値変更後にHP/SP/EP/APを再計算

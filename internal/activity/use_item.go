@@ -139,7 +139,15 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
 	}
 
-	// 共通の回復処理を使用
+	// 回復効果倍率を適用する
+	if actor.HasComponent(world.Components.CharModifiers) {
+		mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+		amount = amount * mods.HealingEffect / 100
+	}
+	if amount < 1 {
+		amount = 1
+	}
+
 	actualHealing := worldhelper.ApplyHealing(world, actor, amount)
 
 	u.logItemUse(actor, world, item, actualHealing, true)

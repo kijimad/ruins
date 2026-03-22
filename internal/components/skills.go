@@ -13,6 +13,16 @@ const (
 	AttrDEF                    // 防御
 )
 
+// AttributeName は属性IDの表示名を返す
+var AttributeName = map[AttributeID]string{
+	AttrSTR: "STR",
+	AttrSEN: "SEN",
+	AttrDEX: "DEX",
+	AttrAGI: "AGI",
+	AttrVIT: "VIT",
+	AttrDEF: "DEF",
+}
+
 // ValueOf は指定された属性IDに対応するTotal値を返す
 func (a *Attributes) ValueOf(id AttributeID) int {
 	switch id {

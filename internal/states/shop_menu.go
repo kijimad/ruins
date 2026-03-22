@@ -191,29 +191,35 @@ type shopWindowProps struct {
 
 func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	var currency int
+	buyPriceMod, sellPriceMod := 100, 100
 	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
 		currency = worldhelper.GetCurrency(world, playerEntity)
+		if playerEntity.HasComponent(world.Components.CharModifiers) {
+			mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+			buyPriceMod = mods.BuyPrice
+			sellPriceMod = mods.SellPrice
+		}
 	})
 
 	return shopProps{
-		Tabs:     st.createTabs(world, currency),
+		Tabs:     st.createTabs(world, currency, buyPriceMod, sellPriceMod),
 		Currency: currency,
 	}
 }
 
-func (st *ShopMenuState) createTabs(world w.World, currency int) []shopTabData {
+func (st *ShopMenuState) createTabs(world w.World, currency, buyPriceMod, sellPriceMod int) []shopTabData {
 	return []shopTabData{
-		{ID: "buy", Label: "購入", Items: st.createBuyItems(world, currency)},
-		{ID: "sell", Label: "売却", Items: st.createSellItems(world)},
+		{ID: "buy", Label: "購入", Items: st.createBuyItems(world, currency, buyPriceMod)},
+		{ID: "sell", Label: "売却", Items: st.createSellItems(world, sellPriceMod)},
 	}
 }
 
-func (st *ShopMenuState) createBuyItems(world w.World, currency int) []shopItemData {
+func (st *ShopMenuState) createBuyItems(world w.World, currency, buyPriceMod int) []shopItemData {
 	shopInventory := worldhelper.GetShopInventory()
 	items := make([]shopItemData, 0, len(shopInventory))
 
 	for _, itemName := range shopInventory {
-		price := st.getItemPrice(world, itemName, true)
+		price := st.getItemPrice(world, itemName, true) * buyPriceMod / 100
 		canAfford := currency >= price
 
 		items = append(items, shopItemData{
@@ -227,7 +233,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency int) []shopItemD
 	return items
 }
 
-func (st *ShopMenuState) createSellItems(world w.World) []shopItemData {
+func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shopItemData {
 	var items []shopItemData
 
 	worldhelper.QueryPlayer(world, func(_ ecs.Entity) {
@@ -240,7 +246,7 @@ func (st *ShopMenuState) createSellItems(world w.World) []shopItemData {
 			itemName := nameComp.Name
 
 			baseValue := worldhelper.GetItemValue(world, entity)
-			price := worldhelper.CalculateSellPrice(baseValue)
+			price := worldhelper.CalculateSellPrice(baseValue) * sellPriceMod / 100
 
 			count := 1
 			if entity.HasComponent(world.Components.Stackable) {

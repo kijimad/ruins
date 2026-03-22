@@ -469,7 +469,7 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 		if actor.HasComponent(world.Components.HealthStatus) {
 			hs = world.Components.HealthStatus.Get(actor).(*gc.HealthStatus)
 		}
-		effects := gc.RecalculateCharModifiers(skills, hs)
+		effects := gc.RecalculateCharModifiers(skills, attrs, hs)
 		actor.AddComponent(world.Components.CharModifiers, effects)
 
 		actorName := worldhelper.GetEntityName(actor, world)

@@ -95,7 +95,7 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 			if entity.HasComponent(world.Components.HealthStatus) {
 				hs = world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
 			}
-			effects := gc.RecalculateCharModifiers(skills, hs)
+			effects := gc.RecalculateCharModifiers(skills, attrs, hs)
 			entity.AddComponent(world.Components.CharModifiers, effects)
 		}
 

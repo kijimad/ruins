@@ -85,7 +85,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 			Timer: 50,
 		})
 
-		updateTemperatureConditions(hs, 20, Insulation{}, false)
+		updateTemperatureConditions(hs, 20, Insulation{}, false, 100, 100)
 
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		if cond != nil {
@@ -97,7 +97,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		t.Parallel()
 		hs := &gc.HealthStatus{}
 
-		updateTemperatureConditions(hs, 0, Insulation{}, false)
+		updateTemperatureConditions(hs, 0, Insulation{}, false, 100, 100)
 
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		require.NotNil(t, cond)
@@ -108,7 +108,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		t.Parallel()
 		hs := &gc.HealthStatus{}
 
-		updateTemperatureConditions(hs, 40, Insulation{}, false)
+		updateTemperatureConditions(hs, 40, Insulation{}, false, 100, 100)
 
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHyperthermia)
 		require.NotNil(t, cond)
@@ -121,8 +121,8 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		hs2 := &gc.HealthStatus{}
 
 		// 同じ寒い環境(0度)で比較
-		updateTemperatureConditions(hs1, 0, Insulation{}, false)
-		updateTemperatureConditions(hs2, 0, Insulation{Cold: 20}, false)
+		updateTemperatureConditions(hs1, 0, Insulation{}, false, 100, 100)
+		updateTemperatureConditions(hs2, 0, Insulation{Cold: 20}, false, 100, 100)
 
 		cond1 := hs1.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		cond2 := hs2.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
@@ -145,7 +145,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 			Timer:    24.5,
 		})
 
-		hasChange := updateTemperatureConditions(hs, 0, Insulation{}, false)
+		hasChange := updateTemperatureConditions(hs, 0, Insulation{}, false, 100, 100)
 		assert.True(t, hasChange)
 	})
 
@@ -153,7 +153,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 		t.Parallel()
 		hs := &gc.HealthStatus{}
 
-		hasChange := updateTemperatureConditions(hs, 20, Insulation{}, false)
+		hasChange := updateTemperatureConditions(hs, 20, Insulation{}, false, 100, 100)
 		assert.False(t, hasChange)
 	})
 }

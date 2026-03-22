@@ -51,6 +51,12 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	baseValue := *itemDef.Value
 	price := CalculateBuyPrice(baseValue)
 
+	// 交渉スキルによる買値倍率を適用する
+	if playerEntity.HasComponent(world.Components.CharModifiers) {
+		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+		price = price * mods.BuyPrice / 100
+	}
+
 	// 所持金をチェック
 	if !HasCurrency(world, playerEntity, price) {
 		return fmt.Errorf("地髄が足りません（必要: %d、所持: %d）", price, GetCurrency(world, playerEntity))
@@ -97,6 +103,12 @@ func SellItem(world w.World, playerEntity ecs.Entity, itemEntity ecs.Entity) err
 		return fmt.Errorf("このアイテムは売却できません")
 	}
 	price := CalculateSellPrice(baseValue)
+
+	// 交渉スキルによる売値倍率を適用する
+	if playerEntity.HasComponent(world.Components.CharModifiers) {
+		mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
+		price = price * mods.SellPrice / 100
+	}
 
 	if err := ChangeItemCount(world, itemEntity, -1); err != nil {
 		return fmt.Errorf("アイテムの売却に失敗した: %w", err)

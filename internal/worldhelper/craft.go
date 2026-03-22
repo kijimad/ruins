@@ -22,12 +22,21 @@ func Craft(world w.World, name string) (*ecs.Entity, error) {
 		return nil, fmt.Errorf("必要素材が足りません")
 	}
 
+	// プレイヤーのCharModifiersを取得する
+	craftCostPct, smithQualityPct := 100, 100
+	player, playerErr := GetPlayerEntity(world)
+	if playerErr == nil && player.HasComponent(world.Components.CharModifiers) {
+		mods := world.Components.CharModifiers.Get(player).(*gc.CharModifiers)
+		craftCostPct = mods.CraftCost
+		smithQualityPct = mods.SmithQuality
+	}
+
 	resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInPlayerBackpack)
 	if err != nil {
 		return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}
-	randomize(world, resultEntity)
-	if err := consumeMaterials(world, name); err != nil {
+	randomize(world, resultEntity, smithQualityPct)
+	if err := consumeMaterials(world, name, craftCostPct); err != nil {
 		return nil, fmt.Errorf("素材消費に失敗: %w", err)
 	}
 
@@ -57,10 +66,15 @@ func CanCraft(world w.World, name string) (bool, error) {
 	return true, nil
 }
 
-// consumeMaterials はアイテム合成に必要な素材を消費する
-func consumeMaterials(world w.World, goal string) error {
+// consumeMaterials はアイテム合成に必要な素材を消費する。
+// craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
+func consumeMaterials(world w.World, goal string, craftCostPct int) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
-		err := ChangeStackableCount(world, recipeInput.Name, -recipeInput.Amount)
+		consumed := recipeInput.Amount * craftCostPct / 100
+		if consumed < 1 {
+			consumed = 1
+		}
+		err := ChangeStackableCount(world, recipeInput.Name, -consumed)
 		if err != nil {
 			return err
 		}
@@ -85,17 +99,21 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 	return spec.Recipe.Inputs
 }
 
-// randomize はアイテムにランダム値を設定する
-func randomize(world w.World, entity ecs.Entity) {
+// randomize はアイテムにランダム値を設定する。
+// smithQualityPctは品質倍率%で、100が基準。高いほどボーナスが大きくなる。
+func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
+	// 品質ボーナス: 100%→+0, 130%→+3, 50%→-5
+	qualityBonus := (smithQualityPct - 100) / 10
+
 	if entity.HasComponent(world.Components.Attack) {
 		attack := world.Components.Attack.Get(entity).(*gc.Attack)
 
-		attack.Accuracy += (-10 + rand.IntN(20)) // -10 ~ +9
-		attack.Damage += (-5 + rand.IntN(15))    // -5  ~ +9
+		attack.Accuracy += (-10 + rand.IntN(20)) + qualityBonus // -10 ~ +9 + 品質ボーナス
+		attack.Damage += (-5 + rand.IntN(15)) + qualityBonus    // -5  ~ +9 + 品質ボーナス
 	}
 	if entity.HasComponent(world.Components.Wearable) {
 		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
 
-		wearable.Defense += (-4 + rand.IntN(20)) // -4 ~ +9
+		wearable.Defense += (-4 + rand.IntN(20)) + qualityBonus // -4 ~ +9 + 品質ボーナス
 	}
 }

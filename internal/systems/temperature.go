@@ -86,8 +86,16 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		isPlayer := entity.HasComponent(world.Components.Player)
 
+		// 体温進行倍率を取得する
+		coldProgressPct, heatProgressPct := 100, 100
+		if entity.HasComponent(world.Components.CharModifiers) {
+			mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+			coldProgressPct = mods.ColdProgress
+			heatProgressPct = mods.HeatProgress
+		}
+
 		// 各部位の健康状態を更新
-		hasChange := updateTemperatureConditions(hs, envTemp, insulation, isPlayer)
+		hasChange := updateTemperatureConditions(hs, envTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
@@ -139,8 +147,9 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 // updateTemperatureConditions は環境気温から全身の体温状態タイマーを更新する。
 // - 断熱値は装備全体の合算値を使う。
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
+// - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool) bool {
+func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct int) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
 
@@ -149,8 +158,8 @@ func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation In
 	// 耐暑を適用した有効温度（暑さ判定用）: 耐暑が高いほど涼しく感じる
 	effectiveTempHeat := envTemp - insulation.Heat
 
-	coldDelta := calcTimerDelta(effectiveTempCold)
-	heatDelta := calcTimerDelta(effectiveTempHeat)
+	coldDelta := calcTimerDelta(effectiveTempCold) * float64(coldProgressPct) / 100
+	heatDelta := calcTimerDelta(effectiveTempHeat) * float64(heatProgressPct) / 100
 
 	var changes []gc.SeverityChange
 

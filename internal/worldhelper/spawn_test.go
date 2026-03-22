@@ -461,7 +461,8 @@ func TestCalculateSpeed(t *testing.T) {
 			Severity: gc.SeverityMedium,
 		})
 		skills := world.Components.Skills.Get(entity).(*gc.Skills)
-		mods := gc.RecalculateCharModifiers(skills, hs)
+		attrs := world.Components.Attributes.Get(entity).(*gc.Attributes)
+		mods := gc.RecalculateCharModifiers(skills, attrs, hs)
 		entity.AddComponent(world.Components.CharModifiers, mods)
 
 		coldSpeed := CalculateSpeed(world, entity)
