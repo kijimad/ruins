@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 09:44:40</td>
+            <td class="headerValue">2026-03-22 10:28:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -396,7 +396,7 @@
 <span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC">           0 :                         page5.AddText(&quot;さて、あんたの母親じゃが、\nわしが経験論的に編み出した手法によって\n治療できると確信しとる!\n\n&quot;).</span></span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                                 AddText(&quot;超高純度の精製地髄を投与して\nショックを与えれば、目覚める。\n\n&quot;).</span></span>
 <span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                                 AddText(&quot;それに必要な地髄量は...&quot;).</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                                 AddKeyword(&quot;1000万CZ&quot;).</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                                 AddKeyword(worldhelper.FormatCurrency(10000000)).</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                                 AddText(&quot;分だ。\n\n&quot;)</span></span>
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                         // 6ページ目: 闇医者 - 採掘を勧める</span></span>
@@ -438,10 +438,10 @@
 <span id="L376"><span class="lineNum">     376</span>              :                                 }})</span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L378"><span class="lineNum">     378</span>              :                 }).</span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;CZ収集エンディング&quot;, func(_ w.World) error {</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;資金収集エンディング&quot;, func(_ w.World) error {</span></span>
 <span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{</span></span>
 <span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                                 Type:          es.TransPush,</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                                 NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},</span></span>
 <span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                         })</span></span>
 <span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                 }).</span></span>
@@ -615,15 +615,15 @@
 <span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :         return messageState</span></span>
 <span id="L554"><span class="lineNum">     554</span>              : }</span>
 <span id="L555"><span class="lineNum">     555</span>              : </span>
-<span id="L556"><span class="lineNum">     556</span>              : // NewCZCollectionEndingState はCZ収集エンディングのStateFactoryを作成する</span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 : func NewCZCollectionEndingState() es.StateFactory[w.World] {</span></span>
+<span id="L556"><span class="lineNum">     556</span>              : // NewCurrencyCollectionEndingState は資金収集エンディングのStateFactoryを作成する</span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 : func NewCurrencyCollectionEndingState() es.StateFactory[w.World] {</span></span>
 <span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :         return func() es.State[w.World] {</span></span>
 <span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :                 // 1ページ目: 治療費を集めた主人公</span></span>
 <span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :                 ending1 := &amp;messagedata.MessageData{Speaker: &quot;&quot;}</span></span>
 <span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                 ending1.AddText(</span></span>
 <span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :                         `遺跡への潜行を繰り返し、</span></span>
 <span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 : ついに1000万CZを集めた。`)</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 : ついに` + worldhelper.FormatCurrency(10000000) + `を集めた。`)</span></span>
 <span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :                 // 2ページ目: 医師の反応</span></span>
 <span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                 ending2 := &amp;messagedata.MessageData{Speaker: &quot;医師&quot;}</span></span>
@@ -916,20 +916,20 @@
 <span id="L854"><span class="lineNum">     854</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L855"><span class="lineNum">     855</span> <span class="tlaUNC">           0 :         // プレイヤーの所持金を確認</span></span>
 <span id="L856"><span class="lineNum">     856</span> <span class="tlaUNC">           0 :         player, _ := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L857"><span class="lineNum">     857</span> <span class="tlaUNC">           0 :         requiredAmount := 10000000 // 1000万CZ</span></span>
+<span id="L857"><span class="lineNum">     857</span> <span class="tlaUNC">           0 :         requiredAmount := 10000000</span></span>
 <span id="L858"><span class="lineNum">     858</span> <span class="tlaUNC">           0 :         hasEnoughMoney := worldhelper.HasCurrency(world, player, requiredAmount)</span></span>
 <span id="L859"><span class="lineNum">     859</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L860"><span class="lineNum">     860</span> <span class="tlaUNC">           0 :         persistentState.messageData = messagedata.NewDialogMessage(&quot;&quot;, speakerName).</span></span>
-<span id="L861"><span class="lineNum">     861</span> <span class="tlaUNC">           0 :                 AddText(`治療費1000万CZを用意できたかい?`)</span></span>
+<span id="L861"><span class="lineNum">     861</span> <span class="tlaUNC">           0 :                 AddText(`治療費` + worldhelper.FormatCurrency(10000000) + `を用意できたかい?`)</span></span>
 <span id="L862"><span class="lineNum">     862</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC">           0 :         // 1000万CZ以上持っている場合のみ「はい」選択肢を表示</span></span>
+<span id="L863"><span class="lineNum">     863</span> <span class="tlaUNC">           0 :         // 必要額以上持っている場合のみ「はい」選択肢を表示</span></span>
 <span id="L864"><span class="lineNum">     864</span> <span class="tlaUNC">           0 :         if hasEnoughMoney {</span></span>
 <span id="L865"><span class="lineNum">     865</span> <span class="tlaUNC">           0 :                 persistentState.messageData = persistentState.messageData.WithChoice(&quot;はい&quot;, func(world w.World) error {</span></span>
 <span id="L866"><span class="lineNum">     866</span> <span class="tlaUNC">           0 :                         // 通貨を消費</span></span>
 <span id="L867"><span class="lineNum">     867</span> <span class="tlaUNC">           0 :                         if worldhelper.ConsumeCurrency(world, player, requiredAmount) {</span></span>
 <span id="L868"><span class="lineNum">     868</span> <span class="tlaUNC">           0 :                                 persistentState.SetTransition(es.Transition[w.World]{</span></span>
 <span id="L869"><span class="lineNum">     869</span> <span class="tlaUNC">           0 :                                         Type:          es.TransSwitch,</span></span>
-<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},</span></span>
+<span id="L870"><span class="lineNum">     870</span> <span class="tlaUNC">           0 :                                         NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},</span></span>
 <span id="L871"><span class="lineNum">     871</span> <span class="tlaUNC">           0 :                                 })</span></span>
 <span id="L872"><span class="lineNum">     872</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L873"><span class="lineNum">     873</span> <span class="tlaUNC">           0 :                         return nil</span></span>

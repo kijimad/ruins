@@ -21111,7 +21111,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov0" title="0">{
                         page5.AddText("さて、あんたの母親じゃが、\nわしが経験論的に編み出した手法によって\n治療できると確信しとる!\n\n").
                                 AddText("超高純度の精製地髄を投与して\nショックを与えれば、目覚める。\n\n").
                                 AddText("それに必要な地髄量は...").
-                                AddKeyword("1000万CZ").
+                                AddKeyword(worldhelper.FormatCurrency(10000000)).
                                 AddText("分だ。\n\n")
 
                         // 6ページ目: 闇医者 - 採掘を勧める
@@ -21153,10 +21153,10 @@ func NewDebugMenuState() es.State[w.World] <span class="cov0" title="0">{
                                 }})
                         <span class="cov0" title="0">return nil</span>
                 }).
-                WithChoice("CZ収集エンディング", func(_ w.World) error <span class="cov0" title="0">{
+                WithChoice("資金収集エンディング", func(_ w.World) error <span class="cov0" title="0">{
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},
+                                NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},
                         })
                         return nil
                 }</span>).
@@ -21330,15 +21330,15 @@ func NewDungeonCompleteEndingState() es.State[w.World] <span class="cov0" title=
         return messageState</span>
 }
 
-// NewCZCollectionEndingState はCZ収集エンディングのStateFactoryを作成する
-func NewCZCollectionEndingState() es.StateFactory[w.World] <span class="cov0" title="0">{
+// NewCurrencyCollectionEndingState は資金収集エンディングのStateFactoryを作成する
+func NewCurrencyCollectionEndingState() es.StateFactory[w.World] <span class="cov0" title="0">{
         return func() es.State[w.World] </span><span class="cov0" title="0">{
                 // 1ページ目: 治療費を集めた主人公
                 ending1 := &amp;messagedata.MessageData{Speaker: ""}
                 ending1.AddText(
                         `遺跡への潜行を繰り返し、
 
-ついに1000万CZを集めた。`)
+ついに` + worldhelper.FormatCurrency(10000000) + `を集めた。`)
 
                 // 2ページ目: 医師の反応
                 ending2 := &amp;messagedata.MessageData{Speaker: "医師"}
@@ -21631,20 +21631,20 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 
         // プレイヤーの所持金を確認
         player, _ := worldhelper.GetPlayerEntity(world)
-        requiredAmount := 10000000 // 1000万CZ
+        requiredAmount := 10000000
         hasEnoughMoney := worldhelper.HasCurrency(world, player, requiredAmount)
 
         persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-                AddText(`治療費1000万CZを用意できたかい?`)
+                AddText(`治療費` + worldhelper.FormatCurrency(10000000) + `を用意できたかい?`)
 
-        // 1000万CZ以上持っている場合のみ「はい」選択肢を表示
+        // 必要額以上持っている場合のみ「はい」選択肢を表示
         if hasEnoughMoney </span><span class="cov0" title="0">{
                 persistentState.messageData = persistentState.messageData.WithChoice("はい", func(world w.World) error </span><span class="cov0" title="0">{
                         // 通貨を消費
                         if worldhelper.ConsumeCurrency(world, player, requiredAmount) </span><span class="cov0" title="0">{
                                 persistentState.SetTransition(es.Transition[w.World]{
                                         Type:          es.TransSwitch,
-                                        NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},
+                                        NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},
                                 })
                         }</span>
                         <span class="cov0" title="0">return nil</span>
@@ -31999,6 +31999,7 @@ import (
         "fmt"
 
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
         ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -32044,8 +32045,8 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount int) bool <span cl
         return true</span>
 }
 
-// FormatCurrency は金額を CZ 形式でフォーマットする
-// 3桁ごとにカンマで区切る（例: CZ 100,204）
+// FormatCurrency は金額を通貨記号付きでフォーマットする
+// 3桁ごとにカンマで区切る
 func FormatCurrency(amount int) string <span class="cov8" title="1">{
         // 数値を文字列に変換
         str := fmt.Sprintf("%d", amount)
@@ -32070,7 +32071,7 @@ func FormatCurrency(amount int) string <span class="cov8" title="1">{
                 result = "-" + result
         }</span>
 
-        <span class="cov8" title="1">return fmt.Sprintf("CZ %s", result)</span>
+        <span class="cov8" title="1">return fmt.Sprintf("%s %s", consts.IconCurrency, result)</span>
 }
 </pre>
 		
