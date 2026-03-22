@@ -35,6 +35,8 @@ const (
 	DiceMax = 100 // ダイス最大値（1-100）
 )
 
+var defaultGrowthCfg = skill.DefaultGrowthConfig()
+
 // AttackActivity はBehaviorの実装
 type AttackActivity struct{}
 
@@ -464,7 +466,7 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 		return
 	}
 
-	if skill.GainExp(s, abils.ValueOf(ablID)) {
+	if skill.GainExp(s, abils.ValueOf(ablID), defaultGrowthCfg) {
 		var hs *gc.HealthStatus
 		if actor.HasComponent(world.Components.HealthStatus) {
 			hs = world.Components.HealthStatus.Get(actor).(*gc.HealthStatus)

@@ -69,6 +69,28 @@ var ElementResistKeys = map[ElementType]ModifierKey{
 	ElementTypePhoton:  ModPhotonResist,
 }
 
+// スキル効果係数の定数。スキル値1あたりの倍率変化量（%）を定義する。
+// 正の値はスキルが高いほど効果が増し、負の値は効果が減る。
+const (
+	coeffWeaponDamage   = 5  // 武器ダメージ: スキルLv1あたり+5%
+	coeffWeaponAccuracy = 3  // 武器命中: スキルLv1あたり+3%
+	coeffElementResist  = -3 // 元素耐性: スキルLv1あたり-3%（被ダメージ軽減）
+	coeffColdProgress   = -3 // 低体温進行: スキルLv1あたり-3%
+	coeffHeatProgress   = -3 // 高体温進行: スキルLv1あたり-3%
+	coeffHungerProgress = -2 // 空腹進行: スキルLv1あたり-2%
+	coeffHealingEffect  = 5  // 回復効果: スキルLv1あたり+5%
+	coeffMaxWeight      = 4  // 最大所持重量: スキルLv1あたり+4%
+	coeffExploration    = 4  // アイテム発見率: スキルLv1あたり+4%
+	coeffEnemyVision    = -3 // 敵視界距離: スキルLv1あたり-3%
+	coeffNightVision    = 5  // 暗所視界: スキルLv1あたり+5%
+	coeffMoveCost       = -2 // 移動コスト: スキルLv1あたり-2%
+	coeffCraftCost      = -3 // 素材消費: スキルLv1あたり-3%
+	coeffSmithQuality   = 3  // 合成品質: スキルLv1あたり+3%
+	coeffBuyPrice       = -2 // 買値: スキルLv1あたり-2%
+	coeffSellPrice      = 2  // 売値: スキルLv1あたり+2%
+	coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%
+)
+
 // ModifierSource は効果倍率の算出元を表す。
 // スキル以外の要因（健康状態など）にも対応できる汎用的な構造にしている。
 type ModifierSource struct {
@@ -138,31 +160,31 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))
 	e.WeaponAccuracy = make(map[SkillID]int, len(weaponSkillIDs))
 	for _, id := range weaponSkillIDs {
-		e.WeaponDamage[id] = calcEffect(WeaponDamageKeys[id], id, 5)
-		e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKeys[id], id, 3)
+		e.WeaponDamage[id] = calcEffect(WeaponDamageKeys[id], id, coeffWeaponDamage)
+		e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKeys[id], id, coeffWeaponAccuracy)
 	}
 
 	e.ElementResist = map[ElementType]int{
-		ElementTypeFire:    calcEffect(ModFireResist, SkillFireResist, -3),
-		ElementTypeThunder: calcEffect(ModThunderResist, SkillThunderResist, -3),
-		ElementTypeChill:   calcEffect(ModChillResist, SkillChillResist, -3),
-		ElementTypePhoton:  calcEffect(ModPhotonResist, SkillPhotonResist, -3),
+		ElementTypeFire:    calcEffect(ModFireResist, SkillFireResist, coeffElementResist),
+		ElementTypeThunder: calcEffect(ModThunderResist, SkillThunderResist, coeffElementResist),
+		ElementTypeChill:   calcEffect(ModChillResist, SkillChillResist, coeffElementResist),
+		ElementTypePhoton:  calcEffect(ModPhotonResist, SkillPhotonResist, coeffElementResist),
 	}
 
-	e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, -3)
-	e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, -3)
-	e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, -2)
-	e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, 5)
-	e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, 4)
-	e.Exploration = calcEffect(ModExploration, SkillExploration, 4)
-	e.EnemyVision = calcEffect(ModEnemyVision, SkillStealth, -3)
-	e.NightVision = calcEffect(ModNightVision, SkillNightVision, 5)
-	e.MoveCost = calcEffect(ModMoveCost, SkillSprinting, -2)
-	e.CraftCost = calcEffect(ModCraftCost, SkillCrafting, -3)
-	e.SmithQuality = calcEffect(ModSmithQuality, SkillSmithing, 3)
-	e.BuyPrice = calcEffect(ModBuyPrice, SkillNegotiation, -2)
-	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, 2)
-	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, -5)
+	e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)
+	e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, coeffHeatProgress)
+	e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)
+	e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)
+	e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)
+	e.Exploration = calcEffect(ModExploration, SkillExploration, coeffExploration)
+	e.EnemyVision = calcEffect(ModEnemyVision, SkillStealth, coeffEnemyVision)
+	e.NightVision = calcEffect(ModNightVision, SkillNightVision, coeffNightVision)
+	e.MoveCost = calcEffect(ModMoveCost, SkillSprinting, coeffMoveCost)
+	e.CraftCost = calcEffect(ModCraftCost, SkillCrafting, coeffCraftCost)
+	e.SmithQuality = calcEffect(ModSmithQuality, SkillSmithing, coeffSmithQuality)
+	e.BuyPrice = calcEffect(ModBuyPrice, SkillNegotiation, coeffBuyPrice)
+	e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)
+	e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)
 
 	// 健康状態によるペナルティ
 	if hs != nil {

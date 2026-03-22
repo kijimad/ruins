@@ -2,21 +2,36 @@ package skill
 
 import gc "github.com/kijimaD/ruins/internal/components"
 
-// スキル成長の定数
-const (
-	baseExp       = 10 // 基本獲得経験値
-	abilBonus     = 5  // 能力値1あたりの成長速度ボーナス（%）
-	decayPerLevel = 20 // スキル値1あたりの減衰率（%）
-)
+// GrowthConfig はスキル成長のバランスパラメータ
+type GrowthConfig struct {
+	BaseExp       int // 基本獲得経験値
+	AbilBonus     int // 能力値1あたりの成長速度ボーナス（%）
+	DecayPerLevel int // スキル値1あたりの減衰率（%）
+	MaxLevel      int // スキルの最大レベル。0の場合は上限なし
+}
+
+// DefaultGrowthConfig はデフォルトのスキル成長パラメータを返す
+func DefaultGrowthConfig() GrowthConfig {
+	return GrowthConfig{
+		BaseExp:       10,
+		AbilBonus:     5,
+		DecayPerLevel: 20,
+		MaxLevel:      100,
+	}
+}
 
 // GainExp はスキルに経験値を加算する。スキルアップしたらtrueを返す。
 // abilityValueは対応する能力値で、高いほど獲得経験値が増える。
-// 式: exp = baseExp * (100 + abilValue*5) / 100 * 100 / (100 + currentValue*20)
-func GainExp(s *gc.Skill, abilityValue int) bool {
-	growthSpeed := 100 + abilityValue*abilBonus
-	decay := 100 + s.Value*decayPerLevel
+// 式: exp = BaseExp * (100 + abilValue*AbilBonus) / 100 * 100 / (100 + currentValue*DecayPerLevel)
+func GainExp(s *gc.Skill, abilityValue int, cfg GrowthConfig) bool {
+	if cfg.MaxLevel > 0 && s.Value >= cfg.MaxLevel {
+		return false
+	}
 
-	exp := baseExp * growthSpeed / 100 * 100 / decay
+	growthSpeed := 100 + abilityValue*cfg.AbilBonus
+	decay := 100 + s.Value*cfg.DecayPerLevel
+
+	exp := cfg.BaseExp * growthSpeed / 100 * 100 / decay
 	if exp < 1 {
 		exp = 1
 	}
