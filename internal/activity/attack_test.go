@@ -196,3 +196,143 @@ func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
 	// 経験値は増えていない（Abilitiesがないので早期リターン）
 	assert.Equal(t, 0, skills.Data[gc.SkillSword].Exp.Current)
 }
+
+func TestGrowWeaponSkill_RangedWeapon(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.Manager.NewEntity()
+
+	skills := gc.NewSkills()
+	actor.AddComponent(world.Components.Skills, skills)
+
+	abils := &gc.Abilities{
+		Sensation: gc.Ability{Total: 10},
+	}
+	actor.AddComponent(world.Components.Abilities, abils)
+	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+
+	aa := &AttackActivity{}
+	attack := &gc.Attack{AttackCategory: gc.AttackRifle}
+
+	aa.growWeaponSkill(actor, world, attack)
+
+	// 小銃スキルに経験値が入る
+	assert.Greater(t, skills.Data[gc.SkillRifle].Exp.Current, 0, "小銃スキルに経験値が入る")
+	// 他のスキルには影響しない
+	assert.Equal(t, 0, skills.Data[gc.SkillSword].Exp.Current, "刀剣スキルは変わらない")
+	assert.Equal(t, 0, skills.Data[gc.SkillHandgun].Exp.Current, "拳銃スキルは変わらない")
+}
+
+func TestGrowWeaponSkill_OnlyAffectsMatchingSkill(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.Manager.NewEntity()
+
+	skills := gc.NewSkills()
+	actor.AddComponent(world.Components.Skills, skills)
+
+	abils := &gc.Abilities{
+		Strength: gc.Ability{Total: 5},
+	}
+	actor.AddComponent(world.Components.Abilities, abils)
+	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+
+	aa := &AttackActivity{}
+	attack := &gc.Attack{AttackCategory: gc.AttackSpear}
+
+	aa.growWeaponSkill(actor, world, attack)
+
+	assert.Greater(t, skills.Data[gc.SkillSpear].Exp.Current, 0, "長物スキルに経験値が入る")
+	assert.Equal(t, 0, skills.Data[gc.SkillSword].Exp.Current, "刀剣スキルは変わらない")
+	assert.Equal(t, 0, skills.Data[gc.SkillFist].Exp.Current, "格闘スキルは変わらない")
+}
+
+func TestGrowWeaponSkill_MaxLevelStopsGrowth(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.Manager.NewEntity()
+
+	skills := gc.NewSkills()
+	skills.Data[gc.SkillSword].Value = 100 // 最大レベル
+	skills.Data[gc.SkillSword].Exp.Current = 99
+	actor.AddComponent(world.Components.Skills, skills)
+
+	abils := &gc.Abilities{
+		Strength: gc.Ability{Total: 10},
+	}
+	actor.AddComponent(world.Components.Abilities, abils)
+	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, nil))
+
+	aa := &AttackActivity{}
+	attack := &gc.Attack{AttackCategory: gc.AttackSword}
+
+	aa.growWeaponSkill(actor, world, attack)
+
+	assert.Equal(t, 100, skills.Data[gc.SkillSword].Value, "最大レベルを超えない")
+	assert.Equal(t, 99, skills.Data[gc.SkillSword].Exp.Current, "経験値が変わらない")
+}
+
+func TestGrowWeaponSkill_LevelUpWithHealthStatus(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.Manager.NewEntity()
+
+	skills := gc.NewSkills()
+	skills.Data[gc.SkillSword].Exp.Current = 95
+	actor.AddComponent(world.Components.Skills, skills)
+
+	abils := &gc.Abilities{
+		Strength: gc.Ability{Total: 5},
+	}
+	actor.AddComponent(world.Components.Abilities, abils)
+
+	hs := &gc.HealthStatus{}
+	hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
+		Type:     gc.ConditionHypothermia,
+		Severity: gc.SeverityMinor,
+	})
+	actor.AddComponent(world.Components.HealthStatus, hs)
+	actor.AddComponent(world.Components.CharModifiers, gc.RecalculateCharModifiers(skills, abils, hs))
+
+	aa := &AttackActivity{}
+	attack := &gc.Attack{AttackCategory: gc.AttackSword}
+
+	aa.growWeaponSkill(actor, world, attack)
+
+	assert.Equal(t, 1, skills.Data[gc.SkillSword].Value, "スキルアップしている")
+
+	// 再計算されたCharModifiersにHealthStatusのペナルティが反映されている
+	mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+	require.NotNil(t, mods)
+	// MoveCost = 100 + 走破Lv0*(-2) + AGI0*(-1) + 軽度低体温10 = 110
+	assert.Equal(t, 110, mods.MoveCost, "HealthStatusのペナルティがCharModifiers再計算に反映されている")
+}
+
+func TestGrowWeaponSkill_UnknownWeaponType(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	actor := world.Manager.NewEntity()
+
+	skills := gc.NewSkills()
+	actor.AddComponent(world.Components.Skills, skills)
+
+	abils := &gc.Abilities{
+		Strength: gc.Ability{Total: 5},
+	}
+	actor.AddComponent(world.Components.Abilities, abils)
+
+	aa := &AttackActivity{}
+	attack := &gc.Attack{AttackCategory: gc.AttackType{Type: "unknown"}}
+
+	aa.growWeaponSkill(actor, world, attack)
+
+	// 全スキルの経験値が0のまま
+	for _, id := range gc.AllSkillIDs {
+		assert.Equal(t, 0, skills.Data[id].Exp.Current, "スキル %s の経験値が変わらない", id)
+	}
+}

@@ -184,3 +184,95 @@ func TestRecalculateCharModifiers_Negotiation(t *testing.T) {
 	// 交渉Lv4: 売値 = 100 + 4*2 = 108 (高く売れる)
 	assert.Equal(t, 108, mods.SellPrice)
 }
+
+func TestRecalculateCharModifiers_MultipleSkills(t *testing.T) {
+	t.Parallel()
+
+	skills := NewSkills()
+	skills.Data[SkillSword].Value = 3
+	skills.Data[SkillHandgun].Value = 5
+	skills.Data[SkillCrafting].Value = 2
+
+	abils := &Abilities{
+		Strength:  Ability{Total: 8},
+		Sensation: Ability{Total: 6},
+		Dexterity: Ability{Total: 4},
+	}
+
+	mods := RecalculateCharModifiers(skills, abils, nil)
+
+	// 刀剣Lv3 + STR8: ダメージ = 100 + 3*5 + 8*1 = 123
+	assert.Equal(t, 123, mods.WeaponDamage[SkillSword])
+	// 拳銃Lv5 + SEN6: ダメージ = 100 + 5*5 + 6*1 = 131
+	assert.Equal(t, 131, mods.WeaponDamage[SkillHandgun])
+	// 合成Lv2 + DEX4: 素材消費 = 100 + 2*(-3) + 4*(-1) = 90
+	assert.Equal(t, 90, mods.CraftCost)
+	// 長物は未使用: ダメージ = 100 + 0*5 + 8*1 = 108（STR能力値のみ）
+	assert.Equal(t, 108, mods.WeaponDamage[SkillSpear])
+}
+
+func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
+	t.Parallel()
+
+	skills := NewSkills()
+	skills.Data[SkillSprinting].Value = 4
+
+	abils := &Abilities{
+		Agility: Ability{Total: 10},
+	}
+
+	hs := &HealthStatus{
+		Parts: [BodyPartCount]BodyPartHealth{},
+	}
+	hs.Parts[BodyPartWholeBody].SetCondition(HealthCondition{
+		Type:     ConditionHypothermia,
+		Severity: SeveritySevere,
+	})
+
+	mods := RecalculateCharModifiers(skills, abils, hs)
+
+	// 走破Lv4 + AGI10: MoveCost = 100 + 4*(-2) + 10*(-1) = 82
+	// 重度低体温ペナルティ: +30
+	// 合計: 82 + 30 = 112
+	assert.Equal(t, 112, mods.MoveCost)
+
+	// Sourcesに3要因が記録される
+	sources := mods.Sources[ModMoveCost]
+	assert.Len(t, sources, 3, "スキル、能力値、健康状態の3つのソースがある")
+}
+
+func TestRecalculateCharModifiers_RangedWeaponAbility(t *testing.T) {
+	t.Parallel()
+
+	skills := NewSkills()
+	skills.Data[SkillRifle].Value = 4
+
+	abils := &Abilities{
+		Sensation: Ability{Total: 12},
+	}
+
+	mods := RecalculateCharModifiers(skills, abils, nil)
+
+	// 小銃Lv4 + SEN12: ダメージ = 100 + 4*5 + 12*1 = 132
+	assert.Equal(t, 132, mods.WeaponDamage[SkillRifle])
+	// 小銃Lv4 + SEN12: 命中 = 100 + 4*3 + 12*1 = 124
+	assert.Equal(t, 124, mods.WeaponAccuracy[SkillRifle])
+}
+
+func TestRecalculateCharModifiers_ElementResistAllTypes(t *testing.T) {
+	t.Parallel()
+
+	skills := NewSkills()
+	skills.Data[SkillFireResist].Value = 2
+	skills.Data[SkillThunderResist].Value = 4
+	skills.Data[SkillChillResist].Value = 6
+	skills.Data[SkillPhotonResist].Value = 8
+
+	mods := RecalculateCharModifiers(skills, nil, nil)
+
+	// 各元素耐性: 100 + Lv*(-3)
+	assert.Equal(t, 94, mods.ElementResist[ElementTypeFire])    // 100 + 2*(-3)
+	assert.Equal(t, 88, mods.ElementResist[ElementTypeThunder]) // 100 + 4*(-3)
+	assert.Equal(t, 82, mods.ElementResist[ElementTypeChill])   // 100 + 6*(-3)
+	assert.Equal(t, 76, mods.ElementResist[ElementTypePhoton])  // 100 + 8*(-3)
+}
