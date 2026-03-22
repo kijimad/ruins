@@ -11,40 +11,40 @@ import (
 func TestCalculateMaxCarryingWeight(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name       string
-		attributes *gc.Attributes
-		expected   float64
+		name      string
+		abilities *gc.Abilities
+		expected  float64
 	}{
 		{
-			name:       "nil attributes",
-			attributes: nil,
-			expected:   baseCarryingWeight,
+			name:      "nil abilities",
+			abilities: nil,
+			expected:  baseCarryingWeight,
 		},
 		{
 			name: "strength 0",
-			attributes: &gc.Attributes{
-				Strength: gc.Attribute{Base: 0},
+			abilities: &gc.Abilities{
+				Strength: gc.Ability{Base: 0},
 			},
 			expected: baseCarryingWeight, // 10.0
 		},
 		{
 			name: "strength 5",
-			attributes: &gc.Attributes{
-				Strength: gc.Attribute{Base: 5},
+			abilities: &gc.Abilities{
+				Strength: gc.Ability{Base: 5},
 			},
 			expected: baseCarryingWeight + 5*strengthWeightMultiplier, // 10 + 10 = 20
 		},
 		{
 			name: "strength 10",
-			attributes: &gc.Attributes{
-				Strength: gc.Attribute{Base: 10},
+			abilities: &gc.Abilities{
+				Strength: gc.Ability{Base: 10},
 			},
 			expected: baseCarryingWeight + 10*strengthWeightMultiplier, // 10 + 20 = 30
 		},
 		{
 			name: "strength with modifier",
-			attributes: &gc.Attributes{
-				Strength: gc.Attribute{Base: 5, Modifier: 3}, // Total: 8
+			abilities: &gc.Abilities{
+				Strength: gc.Ability{Base: 5, Modifier: 3}, // Total: 8
 			},
 			expected: baseCarryingWeight + 8*strengthWeightMultiplier, // 10 + 16 = 26
 		},
@@ -53,7 +53,7 @@ func TestCalculateMaxCarryingWeight(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			result := calculateMaxCarryingWeight(tt.attributes)
+			result := calculateMaxCarryingWeight(tt.abilities)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -192,13 +192,13 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 func TestUpdateCarryingWeight(t *testing.T) {
 	t.Parallel()
-	t.Run("Poolsとattributesがある場合に更新される", func(t *testing.T) {
+	t.Run("Poolsとabilitiesがある場合に更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Pools, &gc.Pools{})
-		player.AddComponent(world.Components.Attributes, &gc.Attributes{
-			Strength: gc.Attribute{Base: 10},
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Strength: gc.Ability{Base: 10},
 		})
 
 		// 2kgのアイテムを追加
@@ -218,13 +218,13 @@ func TestUpdateCarryingWeight(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Attributes, &gc.Attributes{})
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{})
 
 		// パニックしないことを確認
 		UpdateCarryingWeight(world, player)
 	})
 
-	t.Run("Attributesがない場合は何もしない", func(t *testing.T) {
+	t.Run("Abilitiesがない場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.Manager.NewEntity()

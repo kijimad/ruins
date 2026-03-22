@@ -1,7 +1,6 @@
 package worldhelper
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -34,47 +33,5 @@ func InitNewGameData(world w.World) {
 		Log()
 
 	// プレイヤー生成
-	player, _ := SpawnPlayer(world, 5, 5, "Ash")
-
-	// デバッグ用の初期インベントリを設定
-	initDebugData(world, player)
-}
-
-// initDebugData はデバッグ用の初期インベントリを設定する
-// テスト、VRT、デバッグで使用される共通のアイテムセットを生成する
-func initDebugData(world w.World, player ecs.Entity) {
-	// 基本アイテムの生成
-	weapon1, _ := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
-	weapon2, _ := SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "M72 LAW", 1, gc.ItemLocationInPlayerBackpack)
-	armor, _ := SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "作業用ヘルメット", 1, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "革のブーツ", 1, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "レイガン", 1, gc.ItemLocationInPlayerBackpack)
-	for i := 0; i < 30; i++ {
-		_, _ = SpawnItem(world, "鉄のナイフ", 1, gc.ItemLocationInPlayerBackpack)
-	}
-	// Stackableアイテム
-	_, _ = SpawnItem(world, "ルビー原石", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "回復薬", 3, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "手榴弾", 5, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "パン", 10, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "鉄", 14, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "コーラ", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "緑ハーブ", 2, gc.ItemLocationInPlayerBackpack)
-
-	// アイテム生成
-	_, _ = SpawnItem(world, "木刀", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "ハンドガン", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "レイガン", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "西洋鎧", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "作業用ヘルメット", 2, gc.ItemLocationInPlayerBackpack)
-	_, _ = SpawnItem(world, "革のブーツ", 2, gc.ItemLocationInPlayerBackpack)
-
-	// 木刀は武器スロット1に装備
-	MoveToEquip(world, weapon1, player, gc.SlotWeapon1)
-	// ハンドガンは武器スロット2に装備
-	MoveToEquip(world, weapon2, player, gc.SlotWeapon2)
-	// 西洋鎧は胴体スロットに装備
-	MoveToEquip(world, armor, player, gc.SlotTorso)
+	_, _ = SpawnPlayer(world, 5, 5, "Ash")
 }

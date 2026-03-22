@@ -18,15 +18,8 @@ type PoolFloat struct {
 type TurnBased struct {
 	// Action Point
 	AP Pool
-	// Speed は毎ターンのAP回復量。属性・状態異常・装備で変動する
+	// Speed は毎ターンのAP回復量。能力値・状態異常・装備で変動する
 	Speed int
-}
-
-// Attribute は変動するパラメータ値
-type Attribute struct {
-	Base     int // 固有の値
-	Modifier int // 装備や健康状態で変動する値
-	Total    int // 計算した現在値。算出される値のメモ
 }
 
 // TargetType は選択対象
@@ -72,6 +65,62 @@ const (
 	SlotWeapon4 EquipmentSlotNumber = 10 // 武器スロット4
 	SlotWeapon5 EquipmentSlotNumber = 11 // 武器スロット5
 )
+
+// String は装備スロット番号の表示名を返す
+func (s EquipmentSlotNumber) String() string {
+	switch s {
+	case SlotHead:
+		return EquipmentHead.String()
+	case SlotTorso:
+		return EquipmentTorso.String()
+	case SlotArms:
+		return EquipmentArms.String()
+	case SlotHands:
+		return EquipmentHands.String()
+	case SlotLegs:
+		return EquipmentLegs.String()
+	case SlotFeet:
+		return EquipmentFeet.String()
+	case SlotJewelry:
+		return EquipmentJewelry.String()
+	case SlotWeapon1:
+		return "武器1"
+	case SlotWeapon2:
+		return "武器2"
+	case SlotWeapon3:
+		return "武器3"
+	case SlotWeapon4:
+		return "武器4"
+	case SlotWeapon5:
+		return "武器5"
+	}
+	return "不明"
+}
+
+// ParseEquipmentSlot は文字列から装備スロット番号を返す。
+// 防具スロットはEquipmentTypeの定数値、武器スロットは"WEAPON1"〜"WEAPON5"を受け付ける。
+func ParseEquipmentSlot(s string) (EquipmentSlotNumber, bool) {
+	// 武器スロット
+	switch s {
+	case "WEAPON1":
+		return SlotWeapon1, true
+	case "WEAPON2":
+		return SlotWeapon2, true
+	case "WEAPON3":
+		return SlotWeapon3, true
+	case "WEAPON4":
+		return SlotWeapon4, true
+	case "WEAPON5":
+		return SlotWeapon5, true
+	}
+
+	// 防具スロット: EquipmentTypeを経由して変換する
+	et := EquipmentType(s)
+	if et.Valid() == nil {
+		return et.SlotNumber(), true
+	}
+	return 0, false
+}
 
 // Amounter は量を計算するためのインターフェース
 type Amounter interface {

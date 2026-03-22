@@ -12,7 +12,7 @@
 //
 // 仕様:
 // - NullComponent: 状態マーカー（Player, Dead等）
-// - SliceComponent: データ保持（Pools, Attributes, Attack等）
+// - SliceComponent: データ保持（Pools, Abilities, Attack等）
 // - 死亡状態はDeadコンポーネントで明示的に管理
 // - HP.Current == 0 での死亡判定とDeadコンポーネント付与を併用
 //

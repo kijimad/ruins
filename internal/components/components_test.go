@@ -57,7 +57,7 @@ func TestInitializeComponents(t *testing.T) {
 		// SliceComponentのサンプルチェック
 		assert.NotNil(t, components.Name, "Name SliceComponentが初期化されている")
 		assert.NotNil(t, components.Position, "Position SliceComponentが初期化されている")
-		assert.NotNil(t, components.Attributes, "Attributes SliceComponentが初期化されている")
+		assert.NotNil(t, components.Abilities, "Abilities SliceComponentが初期化されている")
 
 		// NullComponentのサンプルチェック
 		assert.NotNil(t, components.Item, "Item NullComponentが初期化されている")

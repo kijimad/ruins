@@ -1,6 +1,6 @@
 module github.com/kijimaD/ruins
 
-go 1.26.1
+go 1.25.7
 
 require (
 	github.com/BurntSushi/toml v1.6.0

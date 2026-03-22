@@ -168,6 +168,19 @@ func TestRawReferenceIntegrity(t *testing.T) {
 		}
 	})
 
+	// Professions ================
+
+	t.Run("職業の初期アイテム参照が存在する", func(t *testing.T) {
+		t.Parallel()
+		for _, prof := range master.Raws.Professions {
+			for _, item := range prof.Items {
+				_, ok := master.ItemIndex[item.Name]
+				assert.True(t, ok, "職業 '%s' が参照するアイテム '%s' が存在しません",
+					prof.ID, item.Name)
+			}
+		}
+	})
+
 	// Tiles ================
 
 	t.Run("TileのSpriteSheet参照が存在する", func(t *testing.T) {

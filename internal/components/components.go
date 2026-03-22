@@ -26,7 +26,7 @@ type EntitySpec struct {
 	Weight           *Weight
 	Recipe           *Recipe
 	Wearable         *Wearable
-	Attributes       *Attributes
+	Abilities        *Abilities
 	Weapon           *Weapon
 	Stackable        *Stackable
 	ItemLocationType *ItemLocationType
@@ -51,13 +51,15 @@ type EntitySpec struct {
 	TileTemperature *TileTemperature
 
 	// member ================
-	Player       *Player
-	Hunger       *Hunger
-	Wallet       *Wallet
-	FactionType  *FactionType
-	Dead         *Dead
-	Dialog       *Dialog
-	HealthStatus *HealthStatus
+	Player        *Player
+	Hunger        *Hunger
+	Wallet        *Wallet
+	FactionType   *FactionType
+	Dead          *Dead
+	Dialog        *Dialog
+	HealthStatus  *HealthStatus
+	Skills        *Skills
+	CharModifiers *CharModifiers
 
 	// event ================
 	EquipmentChanged  *EquipmentChanged
@@ -87,7 +89,7 @@ type Components struct {
 	Weight                       *ecs.SliceComponent `save:"true"`
 	Recipe                       *ecs.SliceComponent `save:"true"`
 	Wearable                     *ecs.SliceComponent `save:"true"`
-	Attributes                   *ecs.SliceComponent `save:"true"`
+	Abilities                    *ecs.SliceComponent `save:"true"`
 	Weapon                       *ecs.SliceComponent `save:"true"`
 	Stackable                    *ecs.SliceComponent `save:"true"`
 	ItemLocationInPlayerBackpack *ecs.NullComponent  `save:"true"`
@@ -123,6 +125,8 @@ type Components struct {
 	Dead           *ecs.NullComponent
 	TurnBased      *ecs.SliceComponent `save:"true"`
 	HealthStatus   *ecs.SliceComponent `save:"true"`
+	Skills         *ecs.SliceComponent `save:"true"`
+	CharModifiers  *ecs.SliceComponent `save:"true"`
 
 	// event ================
 	EquipmentChanged  *ecs.NullComponent
@@ -252,16 +256,6 @@ type Pools struct {
 	// 所持重量 Weight
 	// 超過量に応じたペナルティが発生する
 	Weight PoolFloat
-}
-
-// Attributes はエンティティが持つステータス値。各種計算式で使う
-type Attributes struct {
-	Vitality  Attribute // 体力。丈夫さ、持久力、しぶとさ。HPやSPに影響する
-	Strength  Attribute // 筋力。主に近接攻撃のダメージに影響する
-	Sensation Attribute // 感覚。主に射撃攻撃のダメージに影響する
-	Dexterity Attribute // 器用。攻撃時の命中率に影響する
-	Agility   Attribute // 敏捷。回避率、行動の速さに影響する
-	Defense   Attribute // 防御。被弾ダメージを軽減させる
 }
 
 // ProvidesHealing は回復する性質

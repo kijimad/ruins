@@ -60,8 +60,8 @@ func TestEquipMenuState_TabNavigation(t *testing.T) {
 	state.slotMount.Update()
 
 	// 初期状態
-	tabIndex, _ := hooks.GetState[int](state.slotMount, "slot_tabIndex")
-	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](state.slotMount, "slot")
+	assert.Equal(t, 0, menuState.TabIndex, "初期タブインデックスは0")
 }
 
 func TestEquipMenuState_DoAction_Cancel(t *testing.T) {

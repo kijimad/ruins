@@ -34,6 +34,12 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 	// 視界距離内かチェック（タイル単位で計算）
 	viewDistanceInTiles := float64(vision.ViewDistance) / 32.0 // 仮にタイル1つ=32ピクセル
 
+	// ターゲットの隠密スキルによる被発見距離倍率を適用する
+	if targetEntity.HasComponent(world.Components.CharModifiers) {
+		mods := world.Components.CharModifiers.Get(targetEntity).(*gc.CharModifiers)
+		viewDistanceInTiles = viewDistanceInTiles * float64(mods.EnemyVision) / 100
+	}
+
 	return distance <= viewDistanceInTiles
 }
 

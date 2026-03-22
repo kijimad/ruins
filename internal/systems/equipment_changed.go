@@ -26,25 +26,25 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 	// EquipmentChangedが付与されたエンティティを処理
 	world.Manager.Join(
 		world.Components.EquipmentChanged,
-		world.Components.Attributes,
+		world.Components.Abilities,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		entity.RemoveComponent(world.Components.EquipmentChanged)
-		attrs := world.Components.Attributes.Get(entity).(*gc.Attributes)
+		abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
-		// Attributes初期化
+		// Abilities初期化
 		{
-			attrs.Vitality.Modifier = 0
-			attrs.Vitality.Total = attrs.Vitality.Base
-			attrs.Strength.Modifier = 0
-			attrs.Strength.Total = attrs.Strength.Base
-			attrs.Sensation.Modifier = 0
-			attrs.Sensation.Total = attrs.Sensation.Base
-			attrs.Dexterity.Modifier = 0
-			attrs.Dexterity.Total = attrs.Dexterity.Base
-			attrs.Agility.Modifier = 0
-			attrs.Agility.Total = attrs.Agility.Base
-			attrs.Defense.Modifier = 0
-			attrs.Defense.Total = attrs.Defense.Base
+			abils.Vitality.Modifier = 0
+			abils.Vitality.Total = abils.Vitality.Base
+			abils.Strength.Modifier = 0
+			abils.Strength.Total = abils.Strength.Base
+			abils.Sensation.Modifier = 0
+			abils.Sensation.Total = abils.Sensation.Base
+			abils.Dexterity.Modifier = 0
+			abils.Dexterity.Total = abils.Dexterity.Base
+			abils.Agility.Modifier = 0
+			abils.Agility.Total = abils.Agility.Base
+			abils.Defense.Modifier = 0
+			abils.Defense.Total = abils.Defense.Base
 		}
 
 		// 装備効果を加算
@@ -61,40 +61,51 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 
 			wearable := world.Components.Wearable.Get(item).(*gc.Wearable)
 
-			attrs.Defense.Modifier += wearable.Defense
-			attrs.Vitality.Modifier += wearable.EquipBonus.Vitality
-			attrs.Strength.Modifier += wearable.EquipBonus.Strength
-			attrs.Sensation.Modifier += wearable.EquipBonus.Sensation
-			attrs.Dexterity.Modifier += wearable.EquipBonus.Dexterity
-			attrs.Agility.Modifier += wearable.EquipBonus.Agility
+			abils.Defense.Modifier += wearable.Defense
+			abils.Vitality.Modifier += wearable.EquipBonus.Vitality
+			abils.Strength.Modifier += wearable.EquipBonus.Strength
+			abils.Sensation.Modifier += wearable.EquipBonus.Sensation
+			abils.Dexterity.Modifier += wearable.EquipBonus.Dexterity
+			abils.Agility.Modifier += wearable.EquipBonus.Agility
 		}))
 
 		// 健康ペナルティを加算
 		if entity.HasComponent(world.Components.HealthStatus) {
 			hs := world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
-			attrs.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
-			attrs.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
-			attrs.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
-			attrs.Dexterity.Modifier += hs.GetStatModifier(gc.StatDexterity)
-			attrs.Agility.Modifier += hs.GetStatModifier(gc.StatAgility)
-			attrs.Defense.Modifier += hs.GetStatModifier(gc.StatDefense)
+			abils.Vitality.Modifier += hs.GetStatModifier(gc.StatVitality)
+			abils.Strength.Modifier += hs.GetStatModifier(gc.StatStrength)
+			abils.Sensation.Modifier += hs.GetStatModifier(gc.StatSensation)
+			abils.Dexterity.Modifier += hs.GetStatModifier(gc.StatDexterity)
+			abils.Agility.Modifier += hs.GetStatModifier(gc.StatAgility)
+			abils.Defense.Modifier += hs.GetStatModifier(gc.StatDefense)
 		}
 
 		// Total を計算
-		attrs.Vitality.Total = attrs.Vitality.Base + attrs.Vitality.Modifier
-		attrs.Strength.Total = attrs.Strength.Base + attrs.Strength.Modifier
-		attrs.Sensation.Total = attrs.Sensation.Base + attrs.Sensation.Modifier
-		attrs.Dexterity.Total = attrs.Dexterity.Base + attrs.Dexterity.Modifier
-		attrs.Agility.Total = attrs.Agility.Base + attrs.Agility.Modifier
-		attrs.Defense.Total = attrs.Defense.Base + attrs.Defense.Modifier
+		abils.Vitality.Total = abils.Vitality.Base + abils.Vitality.Modifier
+		abils.Strength.Total = abils.Strength.Base + abils.Strength.Modifier
+		abils.Sensation.Total = abils.Sensation.Base + abils.Sensation.Modifier
+		abils.Dexterity.Total = abils.Dexterity.Base + abils.Dexterity.Modifier
+		abils.Agility.Total = abils.Agility.Base + abils.Agility.Modifier
+		abils.Defense.Total = abils.Defense.Base + abils.Defense.Modifier
+
+		// スキル効果倍率を再計算する。能力値変更後に行う
+		if entity.HasComponent(world.Components.Skills) {
+			skills := world.Components.Skills.Get(entity).(*gc.Skills)
+			var hs *gc.HealthStatus
+			if entity.HasComponent(world.Components.HealthStatus) {
+				hs = world.Components.HealthStatus.Get(entity).(*gc.HealthStatus)
+			}
+			effects := gc.RecalculateCharModifiers(skills, abils, hs)
+			entity.AddComponent(world.Components.CharModifiers, effects)
+		}
 
 		// Pools（HP/SP）を更新
 		if entity.HasComponent(world.Components.Pools) {
 			pools := world.Components.Pools.Get(entity).(*gc.Pools)
 
-			pools.HP.Max = maxHP(attrs)
+			pools.HP.Max = maxHP(abils)
 			pools.HP.Current = min(pools.HP.Max, pools.HP.Current)
-			pools.SP.Max = maxSP(attrs)
+			pools.SP.Max = maxSP(abils)
 			pools.SP.Current = min(pools.SP.Max, pools.SP.Current)
 
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
@@ -124,11 +135,11 @@ func (sys *EquipmentChangedSystem) Update(world w.World) error {
 }
 
 // 30+(体力*8+力+感覚)
-func maxHP(attrs *gc.Attributes) int {
-	return 30 + attrs.Vitality.Total*8 + attrs.Strength.Total + attrs.Sensation.Total
+func maxHP(abils *gc.Abilities) int {
+	return 30 + abils.Vitality.Total*8 + abils.Strength.Total + abils.Sensation.Total
 }
 
 // 体力*2+器用さ+素早さ
-func maxSP(attrs *gc.Attributes) int {
-	return attrs.Vitality.Total*2 + attrs.Dexterity.Total + attrs.Agility.Total
+func maxSP(abils *gc.Abilities) int {
+	return abils.Vitality.Total*2 + abils.Dexterity.Total + abils.Agility.Total
 }

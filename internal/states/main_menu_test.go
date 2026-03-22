@@ -53,21 +53,21 @@ func TestMainMenuState_Navigation(t *testing.T) {
 	state.menuMount.Update()
 
 	// 初期状態
-	itemIndex, ok := hooks.GetState[int](state.menuMount, "menu_itemIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
 	assert.True(t, ok)
-	assert.Equal(t, 0, itemIndex, "初期インデックスは0")
+	assert.Equal(t, 0, menuState.ItemIndex, "初期インデックスは0")
 
 	// 下に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
-	itemIndex, _ = hooks.GetState[int](state.menuMount, "menu_itemIndex")
-	assert.Equal(t, 1, itemIndex, "下移動後はインデックス1")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
+	assert.Equal(t, 1, menuState.ItemIndex, "下移動後はインデックス1")
 
 	// 上に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
-	itemIndex, _ = hooks.GetState[int](state.menuMount, "menu_itemIndex")
-	assert.Equal(t, 0, itemIndex, "上移動後はインデックス0")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
+	assert.Equal(t, 0, menuState.ItemIndex, "上移動後はインデックス0")
 }
 
 func TestMainMenuState_CircularNavigation(t *testing.T) {
@@ -88,14 +88,14 @@ func TestMainMenuState_CircularNavigation(t *testing.T) {
 	// 最初の項目から上に移動すると最後の項目に
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
-	itemIndex, _ := hooks.GetState[int](state.menuMount, "menu_itemIndex")
-	assert.Equal(t, 2, itemIndex, "循環して最後の項目に移動")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
+	assert.Equal(t, 2, menuState.ItemIndex, "循環して最後の項目に移動")
 
 	// 最後の項目から下に移動すると最初の項目に
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
-	itemIndex, _ = hooks.GetState[int](state.menuMount, "menu_itemIndex")
-	assert.Equal(t, 0, itemIndex, "循環して最初の項目に移動")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
+	assert.Equal(t, 0, menuState.ItemIndex, "循環して最初の項目に移動")
 }
 
 func TestMainMenuState_DoAction_Cancel(t *testing.T) {

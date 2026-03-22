@@ -59,18 +59,18 @@ func TestInventoryMenuState_TabNavigation(t *testing.T) {
 	state.menuMount.Update()
 
 	// 初期状態
-	tabIndex, _ := hooks.GetState[int](state.menuMount, "inventory_tabIndex")
-	assert.Equal(t, 0, tabIndex, "初期タブインデックスは0")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](state.menuMount, "inventory")
+	assert.Equal(t, 0, menuState.TabIndex, "初期タブインデックスは0")
 
 	// 右に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuTabNext)
-	tabIndex, _ = hooks.GetState[int](state.menuMount, "inventory_tabIndex")
-	assert.Equal(t, 1, tabIndex, "右移動後は1")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "inventory")
+	assert.Equal(t, 1, menuState.TabIndex, "右移動後は1")
 
 	// 左に移動
 	state.menuMount.Dispatch(inputmapper.ActionMenuTabPrev)
-	tabIndex, _ = hooks.GetState[int](state.menuMount, "inventory_tabIndex")
-	assert.Equal(t, 0, tabIndex, "左移動後は0")
+	menuState, _ = hooks.GetState[hooks.TabMenuState](state.menuMount, "inventory")
+	assert.Equal(t, 0, menuState.TabIndex, "左移動後は0")
 }
 
 func TestInventoryMenuState_DoAction_Cancel(t *testing.T) {

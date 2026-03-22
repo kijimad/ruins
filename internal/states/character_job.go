@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -12,9 +13,12 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // CharacterJobState はキャラクター職業選択画面のステート
@@ -50,8 +54,9 @@ func (st *CharacterJobState) OnPause(_ w.World) error { return nil }
 func (st *CharacterJobState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステート開始時の処理を行う
-func (st *CharacterJobState) OnStart(_ w.World) error {
+func (st *CharacterJobState) OnStart(world w.World) error {
 	st.menuMount = hooks.NewMount[jobMenuProps]()
+	st.menuMount.SetProps(st.fetchProps(world))
 	return nil
 }
 
@@ -70,8 +75,7 @@ func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], erro
 		st.menuMount.Dispatch(action)
 	}
 
-	// Props更新
-	st.menuMount.SetProps(st.fetchProps())
+	// Props更新。職業データは静的なのでOnStartでセット済み
 	props := st.menuMount.GetProps()
 	hooks.UseTabMenu(st.menuMount.Store(), "job", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -125,10 +129,11 @@ type jobMenuProps struct {
 
 // jobMenuItem は職業メニューの項目
 type jobMenuItem struct {
-	Profession Profession
+	Profession raw.Profession
 }
 
-func (st *CharacterJobState) fetchProps() jobMenuProps {
+func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
+	professions := world.Resources.RawMaster.Raws.Professions
 	items := make([]jobMenuItem, len(professions))
 	for i, p := range professions {
 		items[i] = jobMenuItem{Profession: p}
@@ -138,34 +143,83 @@ func (st *CharacterJobState) fetchProps() jobMenuProps {
 
 func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.World], error) {
 	props := st.menuMount.GetProps()
-	itemIndex, ok := hooks.GetState[int](st.menuMount, "job_itemIndex")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
 	if !ok {
-		return es.Transition[w.World]{}, fmt.Errorf("job_itemIndexの取得に失敗")
+		return es.Transition[w.World]{}, fmt.Errorf("jobの取得に失敗")
 	}
+	itemIndex := menuState.ItemIndex
 
 	if itemIndex >= len(props.Items) {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
 
 	prof := props.Items[itemIndex].Profession
-	st.selectProfession(world, prof)
-	return st.ConsumeTransition(), nil
-}
 
-// selectProfession は職業を選択してゲームを開始する
-func (st *CharacterJobState) selectProfession(world w.World, prof Profession) {
-	// プレイヤーを生成
-	_, _ = worldhelper.SpawnPlayer(world, 5, 5, st.playerName)
-
-	// 初期装備を付与
-	for _, item := range prof.Items {
-		_, _ = worldhelper.SpawnItem(world, item.Name, item.Count, gc.ItemLocationInPlayerBackpack)
+	// 既存プレイヤーがいれば削除する
+	if existing, err := worldhelper.GetPlayerEntity(world); err == nil {
+		world.Manager.DeleteEntity(existing)
 	}
+
+	player, _ := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	st.applyProfession(world, player, prof)
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
 		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
 	})
+
+	return st.ConsumeTransition(), nil
+}
+
+// applyProfession はプレイヤーエンティティに職業の属性値・スキルを適用する
+func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, prof raw.Profession) {
+	// プレイヤー名を上書き
+	name := world.Components.Name.Get(player).(*gc.Name)
+	name.Name = st.playerName
+
+	// 職業の属性値で上書き
+	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+	abils.Strength = gc.Ability{Base: prof.Abilities.Strength}
+	abils.Sensation = gc.Ability{Base: prof.Abilities.Sensation}
+	abils.Dexterity = gc.Ability{Base: prof.Abilities.Dexterity}
+	abils.Agility = gc.Ability{Base: prof.Abilities.Agility}
+	abils.Vitality = gc.Ability{Base: prof.Abilities.Vitality}
+	abils.Defense = gc.Ability{Base: prof.Abilities.Defense}
+
+	// 職業のスキル初期値を設定
+	skills := world.Components.Skills.Get(player).(*gc.Skills)
+	for _, ps := range prof.Skills {
+		if s, ok := skills.Data[gc.SkillID(ps.ID)]; ok {
+			s.Value = ps.Value
+		}
+	}
+	modifiers := gc.RecalculateCharModifiers(skills, abils, nil)
+	player.AddComponent(world.Components.CharModifiers, modifiers)
+
+	// 属性値変更後にHP/SP/EP/APを再計算
+	_ = worldhelper.FullRecover(world, player)
+
+	// 初期アイテムをバックパックに付与
+	for _, profItem := range prof.Items {
+		if _, err := worldhelper.SpawnItem(world, profItem.Name, profItem.Count, gc.ItemLocationInPlayerBackpack); err != nil {
+			log.Printf("職業の初期アイテム生成に失敗: %s: %v", profItem.Name, err)
+		}
+	}
+
+	// 初期装備を付与して装備する
+	for _, equip := range prof.Equips {
+		item, err := worldhelper.SpawnItem(world, equip.Name, 1, gc.ItemLocationInPlayerBackpack)
+		if err != nil {
+			log.Printf("職業の初期装備生成に失敗: %s: %v", equip.Name, err)
+			continue
+		}
+		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
+		if !ok {
+			log.Printf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
+			continue
+		}
+		worldhelper.MoveToEquip(world, item, player, slot)
+	}
 }
 
 // ================
@@ -175,43 +229,55 @@ func (st *CharacterJobState) selectProfession(world w.World, prof Profession) {
 func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	itemIndex, _ := hooks.GetState[int](st.menuMount, "job_itemIndex")
+	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "job")
+	itemIndex := menuState.ItemIndex
 
+	// 3行グリッド: タイトル(固定) / メインエリア(伸縮) / フッター(固定)
 	rootContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(1),
+			widget.GridLayoutOpts.Spacing(0, 10),
+			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{
+				Top:    20,
+				Bottom: 20,
+				Left:   40,
+				Right:  40,
+			}),
+		)),
+	)
+
+	// タイトル行
+	titleContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
-
-	centerContainer := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(20),
-		)),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-				HorizontalPosition: widget.AnchorLayoutPositionCenter,
-				VerticalPosition:   widget.AnchorLayoutPositionCenter,
-			}),
-		),
-	)
-
 	titleLabel := widget.NewText(
 		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, consts.PrimaryColor),
 		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Position: widget.RowLayoutPositionCenter,
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				HorizontalPosition: widget.AnchorLayoutPositionCenter,
 			}),
 		),
 	)
+	titleContainer.AddChild(titleLabel)
 
-	// メニューコンテナを構築
-	menuContainer := styled.NewVerticalContainer()
+	// メインエリア: 左右分割
+	leftContainer := styled.NewVerticalContainer()
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
 		itemWidget := styled.NewListItemText(item.Profession.Name, consts.TextColor, isSelected, res)
-		menuContainer.AddChild(itemWidget)
+		leftContainer.AddChild(itemWidget)
 	}
+	rightContainer := st.buildDetailPanel(props, itemIndex, res)
+	mainContainer := styled.NewWSplitContainer(leftContainer, rightContainer)
 
-	// 職業説明テキスト
+	// フッター: 説明 + ヒント
+	footerContainer := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(4),
+		)),
+	)
 	description := ""
 	if itemIndex < len(props.Items) {
 		description = props.Items[itemIndex].Profession.Description
@@ -222,11 +288,8 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
 			}),
-			widget.WidgetOpts.MinSize(300, 0),
 		),
 	)
-
-	// 操作ヒント
 	hintLabel := widget.NewText(
 		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, consts.SecondaryColor),
 		widget.TextOpts.WidgetOpts(
@@ -235,73 +298,59 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 			}),
 		),
 	)
+	footerContainer.AddChild(descriptionText)
+	footerContainer.AddChild(hintLabel)
 
-	centerContainer.AddChild(titleLabel)
-	centerContainer.AddChild(menuContainer)
-	centerContainer.AddChild(descriptionText)
-	centerContainer.AddChild(hintLabel)
-
-	rootContainer.AddChild(centerContainer)
+	rootContainer.AddChild(titleContainer)
+	rootContainer.AddChild(mainContainer)
+	rootContainer.AddChild(footerContainer)
 
 	return &ebitenui.UI{Container: rootContainer}
 }
 
-// ================
-// 職業はあとで実装する
-// ================
+// buildDetailPanel は選択中の職業の詳細パネルを構築する
+func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res *resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+	)
 
-// Profession は職業を表す
-type Profession struct {
-	ID          string
-	Name        string
-	Description string
-	Items       []ProfessionItem
-}
+	if itemIndex >= len(props.Items) {
+		return container
+	}
 
-// ProfessionItem は職業の初期装備アイテムを表す
-type ProfessionItem struct {
-	Name  string
-	Count int
-}
+	prof := props.Items[itemIndex].Profession
 
-// 職業一覧
-var professions = []Profession{
-	{
-		ID:          "evacuee",
-		Name:        "避難民",
-		Description: "一般市民。特別な装備はない",
-		Items: []ProfessionItem{
-			{Name: "パン", Count: 3},
-			{Name: "回復薬", Count: 1},
-		},
-	},
-	{
-		ID:          "soldier",
-		Name:        "軍人",
-		Description: "元兵士。武器の扱いに慣れている",
-		Items: []ProfessionItem{
-			{Name: "ハンドガン", Count: 1},
-			{Name: "木刀", Count: 1},
-			{Name: "回復薬", Count: 1},
-		},
-	},
-	{
-		ID:          "mechanic",
-		Name:        "整備士",
-		Description: "機械の修理が得意",
-		Items: []ProfessionItem{
-			{Name: "鉄", Count: 5},
-			{Name: "回復薬", Count: 2},
-		},
-	},
-	{
-		ID:          "hunter",
-		Name:        "猟師",
-		Description: "野外活動に長けている",
-		Items: []ProfessionItem{
-			{Name: "ハンドガン", Count: 1},
-			{Name: "パン", Count: 5},
-			{Name: "緑ハーブ", Count: 2},
-		},
-	},
+	// 装備
+	if len(prof.Equips) > 0 {
+		container.AddChild(styled.NewDescriptionText("装備", res))
+		for _, equip := range prof.Equips {
+			slotLabel := equip.Slot
+			if slot, ok := gc.ParseEquipmentSlot(equip.Slot); ok {
+				slotLabel = slot.String()
+			}
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s: %s", slotLabel, equip.Name), res))
+		}
+	}
+
+	// 所持品
+	if len(prof.Items) > 0 {
+		container.AddChild(styled.NewDescriptionText("所持品", res))
+		for _, item := range prof.Items {
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s x%d", item.Name, item.Count), res))
+		}
+	}
+
+	// スキル
+	if len(prof.Skills) > 0 {
+		container.AddChild(styled.NewDescriptionText("スキル", res))
+		for _, skill := range prof.Skills {
+			name := skill.ID
+			if n, ok := gc.SkillName[gc.SkillID(skill.ID)]; ok {
+				name = n
+			}
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s Lv.%d", name, skill.Value), res))
+		}
+	}
+
+	return container
 }

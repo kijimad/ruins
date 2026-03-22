@@ -82,22 +82,22 @@ func (tm *tabMenu) Update() (bool, error) {
 // translateKeyToAction はキーボード入力をActionに変換する
 func (tm *tabMenu) translateKeyToAction(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
 	// 左移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowLeft) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowLeft) {
 		return inputmapper.ActionMenuLeft, true
 	}
 
 	// 右移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowRight) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowRight) {
 		return inputmapper.ActionMenuRight, true
 	}
 
 	// 上移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowUp) || keyboardInput.IsKeyJustPressed(ebiten.KeyW) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowUp) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) {
 		return inputmapper.ActionMenuUp, true
 	}
 
 	// 下移動キー
-	if keyboardInput.IsKeyJustPressed(ebiten.KeyArrowDown) || keyboardInput.IsKeyJustPressed(ebiten.KeyS) {
+	if keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyArrowDown) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) {
 		return inputmapper.ActionMenuDown, true
 	}
 

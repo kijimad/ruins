@@ -38,42 +38,42 @@ func TestPool(t *testing.T) {
 	})
 }
 
-func TestAttribute(t *testing.T) {
+func TestAbility(t *testing.T) {
 	t.Parallel()
-	t.Run("create attribute", func(t *testing.T) {
+	t.Run("create ability", func(t *testing.T) {
 		t.Parallel()
-		attr := Attribute{
+		abil := Ability{
 			Base:     10,
 			Modifier: 5,
 			Total:    15,
 		}
-		assert.Equal(t, 10, attr.Base, "基本値が正しく設定されない")
-		assert.Equal(t, 5, attr.Modifier, "修正値が正しく設定されない")
-		assert.Equal(t, 15, attr.Total, "合計値が正しく設定されない")
+		assert.Equal(t, 10, abil.Base, "基本値が正しく設定されない")
+		assert.Equal(t, 5, abil.Modifier, "修正値が正しく設定されない")
+		assert.Equal(t, 15, abil.Total, "合計値が正しく設定されない")
 	})
 
 	t.Run("negative modifier", func(t *testing.T) {
 		t.Parallel()
-		attr := Attribute{
+		abil := Ability{
 			Base:     20,
 			Modifier: -5,
 			Total:    15,
 		}
-		assert.Equal(t, 20, attr.Base, "基本値が正しく設定されない")
-		assert.Equal(t, -5, attr.Modifier, "負の修正値が正しく設定されない")
-		assert.Equal(t, 15, attr.Total, "負の修正値を含む合計値が正しくない")
+		assert.Equal(t, 20, abil.Base, "基本値が正しく設定されない")
+		assert.Equal(t, -5, abil.Modifier, "負の修正値が正しく設定されない")
+		assert.Equal(t, 15, abil.Total, "負の修正値を含む合計値が正しくない")
 	})
 
 	t.Run("zero values", func(t *testing.T) {
 		t.Parallel()
-		attr := Attribute{
+		abil := Ability{
 			Base:     0,
 			Modifier: 0,
 			Total:    0,
 		}
-		assert.Equal(t, 0, attr.Base, "ゼロの基本値が正しく設定されない")
-		assert.Equal(t, 0, attr.Modifier, "ゼロの修正値が正しく設定されない")
-		assert.Equal(t, 0, attr.Total, "ゼロの合計値が正しく設定されない")
+		assert.Equal(t, 0, abil.Base, "ゼロの基本値が正しく設定されない")
+		assert.Equal(t, 0, abil.Modifier, "ゼロの修正値が正しく設定されない")
+		assert.Equal(t, 0, abil.Total, "ゼロの合計値が正しく設定されない")
 	})
 }
 
@@ -178,15 +178,96 @@ func TestTargetType(t *testing.T) {
 
 func TestEquipmentSlotNumber(t *testing.T) {
 	t.Parallel()
-	t.Run("create slot numbers", func(t *testing.T) {
-		t.Parallel()
-		slot0 := EquipmentSlotNumber(0)
-		slot1 := EquipmentSlotNumber(1)
-		slot7 := EquipmentSlotNumber(7)
 
-		assert.Equal(t, EquipmentSlotNumber(0), slot0, "スロット0が正しく設定されない")
-		assert.Equal(t, EquipmentSlotNumber(1), slot1, "スロット1が正しく設定されない")
-		assert.Equal(t, EquipmentSlotNumber(7), slot7, "スロット7が正しく設定されない")
+	t.Run("String returns correct names", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			slot     EquipmentSlotNumber
+			expected string
+		}{
+			{SlotHead, "頭部"},
+			{SlotTorso, "胴体"},
+			{SlotArms, "腕部"},
+			{SlotHands, "手部"},
+			{SlotLegs, "脚部"},
+			{SlotFeet, "足部"},
+			{SlotJewelry, "装飾"},
+			{SlotWeapon1, "武器1"},
+			{SlotWeapon2, "武器2"},
+			{SlotWeapon3, "武器3"},
+			{SlotWeapon4, "武器4"},
+			{SlotWeapon5, "武器5"},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.expected, func(t *testing.T) {
+				t.Parallel()
+				assert.Equal(t, tt.expected, tt.slot.String())
+			})
+		}
+	})
+
+	t.Run("未定義のスロット番号は不明を返す", func(t *testing.T) {
+		t.Parallel()
+		assert.Equal(t, "不明", EquipmentSlotNumber(99).String())
+	})
+}
+
+func TestParseEquipmentSlot(t *testing.T) {
+	t.Parallel()
+
+	t.Run("防具スロットのパース", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			input    string
+			expected EquipmentSlotNumber
+		}{
+			{"HEAD", SlotHead},
+			{"TORSO", SlotTorso},
+			{"ARMS", SlotArms},
+			{"HANDS", SlotHands},
+			{"LEGS", SlotLegs},
+			{"FEET", SlotFeet},
+			{"JEWELRY", SlotJewelry},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.input, func(t *testing.T) {
+				t.Parallel()
+				slot, ok := ParseEquipmentSlot(tt.input)
+				assert.True(t, ok)
+				assert.Equal(t, tt.expected, slot)
+			})
+		}
+	})
+
+	t.Run("武器スロットのパース", func(t *testing.T) {
+		t.Parallel()
+		tests := []struct {
+			input    string
+			expected EquipmentSlotNumber
+		}{
+			{"WEAPON1", SlotWeapon1},
+			{"WEAPON2", SlotWeapon2},
+			{"WEAPON3", SlotWeapon3},
+			{"WEAPON4", SlotWeapon4},
+			{"WEAPON5", SlotWeapon5},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.input, func(t *testing.T) {
+				t.Parallel()
+				slot, ok := ParseEquipmentSlot(tt.input)
+				assert.True(t, ok)
+				assert.Equal(t, tt.expected, slot)
+			})
+		}
+	})
+
+	t.Run("無効な文字列はfalseを返す", func(t *testing.T) {
+		t.Parallel()
+		_, ok := ParseEquipmentSlot("INVALID")
+		assert.False(t, ok)
 	})
 }
 

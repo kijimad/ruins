@@ -53,13 +53,13 @@ var (
 // CalculateMaxActionPoints はエンティティの最大アクションポイントを計算する
 // 敏捷性を重視したAP計算式
 func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
-	// Attributesコンポーネントがない場合はエラー
-	attributesComponent := world.Components.Attributes.Get(entity)
-	if attributesComponent == nil {
-		return 0, fmt.Errorf("attributesが設定されていない")
+	// Abilitiesコンポーネントがない場合はエラー
+	abilsComp := world.Components.Abilities.Get(entity)
+	if abilsComp == nil {
+		return 0, fmt.Errorf("能力値が設定されていない")
 	}
 
-	attrs := attributesComponent.(*gc.Attributes)
+	abils := abilsComp.(*gc.Abilities)
 
 	// AP計算式: 基本値 + 敏捷性の重要度を高くした式
 	// 敏捷性 * 3 + 器用性 * 1
@@ -67,7 +67,7 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 	agilityMultiplier := 3
 	dexterityMultiplier := 1
 
-	calculatedAP := baseAP + attrs.Agility.Total*agilityMultiplier + attrs.Dexterity.Total*dexterityMultiplier
+	calculatedAP := baseAP + abils.Agility.Total*agilityMultiplier + abils.Dexterity.Total*dexterityMultiplier
 
 	// 最小値制限（20以上）
 	if calculatedAP < 20 {
@@ -78,21 +78,30 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 }
 
 // CalculateSpeed はエンティティのSpeedを計算する
-// 属性ボーナス・状態異常ペナルティ・過積載ペナルティを考慮する
+// 能力値ボーナス・状態異常ペナルティ・過積載ペナルティ・Effect倍率を考慮する
 func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed := speedBaseValue
 
-	// 属性ボーナス
-	if attrsComp := world.Components.Attributes.Get(entity); attrsComp != nil {
-		attrs := attrsComp.(*gc.Attributes)
-		speed += attrs.Agility.Total*speedAgilityMultiply + attrs.Dexterity.Total*speedDexterityMultiply
+	// 能力値ボーナス
+	if abilsComp := world.Components.Abilities.Get(entity); abilsComp != nil {
+		abils := abilsComp.(*gc.Abilities)
+		speed += abils.Agility.Total*speedAgilityMultiply + abils.Dexterity.Total*speedDexterityMultiply
 	}
 
-	// 状態異常ペナルティ
+	// 状態異常ペナルティ（空腹・過積載）
 	speed += calculateStatusSpeedPenalty(world, entity)
-
-	// 過積載ペナルティ
 	speed += calculateOverweightPenalty(world, entity)
+
+	// MoveCost Effect倍率を適用する。
+	// MoveCost 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
+	if entity.HasComponent(world.Components.CharModifiers) {
+		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+		moveCost := effects.MoveCost
+		if moveCost < 10 {
+			moveCost = 10
+		}
+		speed = speed * 100 / moveCost
+	}
 
 	// 最小値制限
 	if speed < speedMinimum {
@@ -102,7 +111,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	return speed
 }
 
-// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する
+// calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する。
+// 体温ペナルティはEffects.MoveCost経由で適用されるためここには含まない。
 func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 
@@ -110,12 +120,6 @@ func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	if hungerComp := world.Components.Hunger.Get(entity); hungerComp != nil {
 		hunger := hungerComp.(*gc.Hunger)
 		penalty += hungerSpeedPenalty(hunger.Current)
-	}
-
-	// 体温ペナルティ（HealthStatusから計算）
-	if hsComp := world.Components.HealthStatus.Get(entity); hsComp != nil {
-		hs := hsComp.(*gc.HealthStatus)
-		penalty += temperatureSpeedPenalty(hs)
 	}
 
 	return penalty
@@ -136,34 +140,6 @@ func hungerSpeedPenalty(current int) int {
 		return -50 // 飢餓
 	default:
 		return -75 // 餓死寸前
-	}
-}
-
-// temperatureSpeedPenalty は体温状態によるペナルティを返す
-func temperatureSpeedPenalty(hs *gc.HealthStatus) int {
-	// 全部位の最大Severityを取得
-	worstSeverity := gc.SeverityNone
-	for i := 0; i < int(gc.BodyPartCount); i++ {
-		for _, cond := range hs.Parts[i].Conditions {
-			// 低体温・高体温のみ対象
-			if cond.Type == gc.ConditionHypothermia || cond.Type == gc.ConditionHyperthermia {
-				if cond.Severity > worstSeverity {
-					worstSeverity = cond.Severity
-				}
-			}
-		}
-	}
-
-	// Severityに応じたペナルティ
-	switch worstSeverity {
-	case gc.SeveritySevere:
-		return -30
-	case gc.SeverityMedium:
-		return -20
-	case gc.SeverityMinor:
-		return -10
-	default:
-		return 0
 	}
 }
 
@@ -231,6 +207,11 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
 	}
+
+	skills := gc.NewSkills()
+	entitySpec.Skills = skills
+	entitySpec.CharModifiers = gc.RecalculateCharModifiers(skills, nil, nil)
+
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	// カメラ初期位置をプレイヤー位置に設定
 	tileSize := float64(consts.TileSize)
@@ -256,7 +237,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	}
 	playerEntity := entitiesSlice[0]
 
-	if err := fullRecover(world, playerEntity); err != nil {
+	if err := FullRecover(world, playerEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
 	}
 	playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
@@ -300,7 +281,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	if err := fullRecover(world, npcEntity); err != nil {
+	if err := FullRecover(world, npcEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("NPCの回復処理エラー: %w", err)
 	}
 
@@ -345,7 +326,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 
 	// 全回復
 	npcEntity := entitiesSlice[len(entitiesSlice)-1]
-	if err := fullRecover(world, npcEntity); err != nil {
+	if err := FullRecover(world, npcEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("敵の回復処理エラー: %w", err)
 	}
 
@@ -422,8 +403,8 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	return entity, nil
 }
 
-// fullRecover はエンティティのHP/SP/EP/APを全回復する（内部用）
-func fullRecover(world w.World, entity ecs.Entity) error {
+// FullRecover はエンティティのHP/SP/EP/APを全回復する
+func FullRecover(world w.World, entity ecs.Entity) error {
 	// 新しく生成されたエンティティの最大HP/SPを設定
 	if err := setMaxHPSP(world, entity); err != nil {
 		return fmt.Errorf("最大HP/SP設定エラー: %w", err)
@@ -463,43 +444,43 @@ func fullRecover(world w.World, entity ecs.Entity) error {
 // setMaxHPSP はエンティティの最大HP/SPを設定する
 func setMaxHPSP(world w.World, entity ecs.Entity) error {
 
-	if !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Attributes) {
-		return fmt.Errorf("entity %v does not have required components (Pools or Attributes)", entity)
+	if !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Abilities) {
+		return fmt.Errorf("entity %v does not have required components (Pools or Abilities)", entity)
 	}
 
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)
-	attrs := world.Components.Attributes.Get(entity).(*gc.Attributes)
+	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 	// Totalが設定されていない場合はBaseから初期化
-	if attrs.Vitality.Total == 0 {
-		attrs.Vitality.Total = attrs.Vitality.Base
+	if abils.Vitality.Total == 0 {
+		abils.Vitality.Total = abils.Vitality.Base
 	}
-	if attrs.Strength.Total == 0 {
-		attrs.Strength.Total = attrs.Strength.Base
+	if abils.Strength.Total == 0 {
+		abils.Strength.Total = abils.Strength.Base
 	}
-	if attrs.Sensation.Total == 0 {
-		attrs.Sensation.Total = attrs.Sensation.Base
+	if abils.Sensation.Total == 0 {
+		abils.Sensation.Total = abils.Sensation.Base
 	}
-	if attrs.Dexterity.Total == 0 {
-		attrs.Dexterity.Total = attrs.Dexterity.Base
+	if abils.Dexterity.Total == 0 {
+		abils.Dexterity.Total = abils.Dexterity.Base
 	}
-	if attrs.Agility.Total == 0 {
-		attrs.Agility.Total = attrs.Agility.Base
+	if abils.Agility.Total == 0 {
+		abils.Agility.Total = abils.Agility.Base
 	}
-	if attrs.Defense.Total == 0 {
-		attrs.Defense.Total = attrs.Defense.Base
+	if abils.Defense.Total == 0 {
+		abils.Defense.Total = abils.Defense.Base
 	}
 
 	// 最大HP計算: base+(体力*multiplyV+力+感覚)
-	pools.HP.Max = int(hpBaseValue) + attrs.Vitality.Total*hpVitalityMultiply + attrs.Strength.Total + attrs.Sensation.Total
+	pools.HP.Max = int(hpBaseValue) + abils.Vitality.Total*hpVitalityMultiply + abils.Strength.Total + abils.Sensation.Total
 	pools.HP.Current = pools.HP.Max
 
 	// 最大SP計算: (体力*multiplyV+器用さ+素早さ)
-	pools.SP.Max = attrs.Vitality.Total*spVitalityMultiply + attrs.Dexterity.Total + attrs.Agility.Total
+	pools.SP.Max = abils.Vitality.Total*spVitalityMultiply + abils.Dexterity.Total + abils.Agility.Total
 	pools.SP.Current = pools.SP.Max
 
 	// 最大EP計算: base+(感覚*multiplyS+器用さ)
-	pools.EP.Max = int(epBaseValue) + attrs.Sensation.Total*epSensationMultiply + attrs.Dexterity.Total
+	pools.EP.Max = int(epBaseValue) + abils.Sensation.Total*epSensationMultiply + abils.Dexterity.Total
 	pools.EP.Current = pools.EP.Max
 
 	return nil

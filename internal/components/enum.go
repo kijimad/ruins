@@ -15,13 +15,14 @@ type BodyPart int
 
 // 体の部位定数
 const (
-	BodyPartHead  BodyPart = iota // 頭
-	BodyPartTorso                 // 胴体
-	BodyPartArms                  // 腕
-	BodyPartHands                 // 手
-	BodyPartLegs                  // 脚
-	BodyPartFeet                  // 足
-	BodyPartCount                 // 部位数 = 6
+	BodyPartHead      BodyPart = iota // 頭
+	BodyPartTorso                     // 胴体
+	BodyPartArms                      // 腕
+	BodyPartHands                     // 手
+	BodyPartLegs                      // 脚
+	BodyPartFeet                      // 足
+	BodyPartWholeBody                 // 全身。体温異常など全身に影響する状態を管理する
+	BodyPartCount                     // 部位数
 )
 
 // String は部位名を返す
@@ -39,15 +40,11 @@ func (bp BodyPart) String() string {
 		return "脚"
 	case BodyPartFeet:
 		return "足"
+	case BodyPartWholeBody:
+		return "全身"
 	default:
 		panic("不正なBodyPart値")
 	}
-}
-
-// IsExtremity は末端部位かどうかを返す
-// 凍傷は末端部位のみで発症する
-func IsExtremity(part BodyPart) bool {
-	return part == BodyPartHands || part == BodyPartFeet
 }
 
 // ================
@@ -222,6 +219,27 @@ func (enum EquipmentType) Valid() error {
 	}
 }
 
+// SlotNumber はEquipmentTypeに対応するEquipmentSlotNumberを返す
+func (enum EquipmentType) SlotNumber() EquipmentSlotNumber {
+	switch enum {
+	case EquipmentHead:
+		return SlotHead
+	case EquipmentTorso:
+		return SlotTorso
+	case EquipmentArms:
+		return SlotArms
+	case EquipmentHands:
+		return SlotHands
+	case EquipmentLegs:
+		return SlotLegs
+	case EquipmentFeet:
+		return SlotFeet
+	case EquipmentJewelry:
+		return SlotJewelry
+	}
+	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
+}
+
 func (enum EquipmentType) String() string {
 	switch enum {
 	case EquipmentHead:
@@ -240,28 +258,6 @@ func (enum EquipmentType) String() string {
 		return "装飾"
 	}
 	panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
-}
-
-// CoveredBodyPart は装備が保温効果を与える部位を返す
-func (enum EquipmentType) CoveredBodyPart() (part BodyPart, ok bool) {
-	switch enum {
-	case EquipmentHead:
-		return BodyPartHead, true
-	case EquipmentTorso:
-		return BodyPartTorso, true
-	case EquipmentArms:
-		return BodyPartArms, true
-	case EquipmentHands:
-		return BodyPartHands, true
-	case EquipmentLegs:
-		return BodyPartLegs, true
-	case EquipmentFeet:
-		return BodyPartFeet, true
-	case EquipmentJewelry:
-		return 0, false
-	default:
-		panic(fmt.Sprintf("不正なEquipmentType値: %s", string(enum)))
-	}
 }
 
 // ================
@@ -299,9 +295,9 @@ func (enum ElementType) String() string {
 	case ElementTypeFire:
 		return "火"
 	case ElementTypeThunder:
-		return "電"
+		return "雷"
 	case ElementTypeChill:
-		return "冷"
+		return "氷"
 	case ElementTypePhoton:
 		return "光"
 	}

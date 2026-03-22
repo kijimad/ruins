@@ -22,6 +22,7 @@ type Master struct {
 	SpriteSheetIndex  map[string]int
 	TileIndex         map[string]int
 	PropIndex         map[string]int
+	ProfessionIndex   map[string]int
 }
 
 // Raws は全てのローデータを格納する構造体
@@ -36,6 +37,7 @@ type Raws struct {
 	SpriteSheets  []SpriteSheet
 	Tiles         []TileRaw
 	Props         []PropRaw
+	Professions   []Profession
 }
 
 // Item はアイテムのローデータ
@@ -121,7 +123,7 @@ type RecipeInput struct {
 type Member struct {
 	Name            string
 	Player          *bool
-	Attributes      Attributes
+	Abilities       Abilities
 	SpriteSheetName string
 	SpriteKey       string
 	AnimKeys        []string
@@ -135,14 +137,43 @@ type DialogRaw struct {
 	MessageKey string // メッセージキー
 }
 
-// Attributes はキャラクターの能力値
-type Attributes struct {
+// Abilities はキャラクターの能力値
+type Abilities struct {
 	Vitality  int
 	Strength  int
 	Sensation int
 	Dexterity int
 	Agility   int
 	Defense   int
+}
+
+// Profession は職業の定義
+type Profession struct {
+	ID          string
+	Name        string
+	Description string
+	Abilities   Abilities
+	Skills      []ProfessionSkill
+	Items       []ProfessionItem
+	Equips      []ProfessionEquip
+}
+
+// ProfessionSkill は職業のスキル初期値
+type ProfessionSkill struct {
+	ID    string
+	Value int
+}
+
+// ProfessionItem は職業の初期所持アイテム。バックパックに入る
+type ProfessionItem struct {
+	Name  string
+	Count int
+}
+
+// ProfessionEquip は職業の初期装備。指定スロットに装備される
+type ProfessionEquip struct {
+	Name string // アイテム名
+	Slot string // 装備スロット名
 }
 
 // LoadFromFile はファイルからローデータを読み込む
@@ -171,6 +202,7 @@ func Load(entityMetadataContent string) (Master, error) {
 	rw.SpriteSheetIndex = map[string]int{}
 	rw.TileIndex = map[string]int{}
 	rw.PropIndex = map[string]int{}
+	rw.ProfessionIndex = map[string]int{}
 
 	metaData, err := toml.Decode(entityMetadataContent, &rw.Raws)
 	if err != nil {
@@ -211,6 +243,9 @@ func Load(entityMetadataContent string) (Master, error) {
 	}
 	for i, prop := range rw.Raws.Props {
 		rw.PropIndex[prop.Name] = i
+	}
+	for i, prof := range rw.Raws.Professions {
+		rw.ProfessionIndex[prof.ID] = i
 	}
 
 	return rw, nil
@@ -453,20 +488,20 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: member.Name}
-	entitySpec.TurnBased = &gc.TurnBased{AP: gc.Pool{Current: 100, Max: 100}} // TODO: Attributesから計算する
+	entitySpec.TurnBased = &gc.TurnBased{AP: gc.Pool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
 		AnimKeys:        member.AnimKeys,
 		Depth:           gc.DepthNumPlayer,
 	}
-	entitySpec.Attributes = &gc.Attributes{
-		Vitality:  gc.Attribute{Base: member.Attributes.Vitality},
-		Strength:  gc.Attribute{Base: member.Attributes.Strength},
-		Sensation: gc.Attribute{Base: member.Attributes.Sensation},
-		Dexterity: gc.Attribute{Base: member.Attributes.Dexterity},
-		Agility:   gc.Attribute{Base: member.Attributes.Agility},
-		Defense:   gc.Attribute{Base: member.Attributes.Defense},
+	entitySpec.Abilities = &gc.Abilities{
+		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
+		Strength:  gc.Ability{Base: member.Abilities.Strength},
+		Sensation: gc.Ability{Base: member.Abilities.Sensation},
+		Dexterity: gc.Ability{Base: member.Abilities.Dexterity},
+		Agility:   gc.Ability{Base: member.Abilities.Agility},
+		Defense:   gc.Ability{Base: member.Abilities.Defense},
 	}
 	entitySpec.Pools = &gc.Pools{}
 	if member.Player != nil && *member.Player {
@@ -759,4 +794,16 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	return entitySpec, nil
+}
+
+// GetProfession は指定されたIDの職業データを返す
+func (rw *Master) GetProfession(id string) (Profession, error) {
+	idx, ok := rw.ProfessionIndex[id]
+	if !ok {
+		return Profession{}, NewKeyNotFoundError(id, "ProfessionIndex")
+	}
+	if idx >= len(rw.Raws.Professions) {
+		return Profession{}, fmt.Errorf("職業インデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.Professions))
+	}
+	return rw.Raws.Professions[idx], nil
 }

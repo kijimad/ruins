@@ -115,7 +115,7 @@ InitializeFromWorld関数に登録を追加してください：
 
 ### サポートされるコンポーネント型
 現在サポートされているコンポーネント：
-- プレイヤー情報: Player, Name, Pools, Attributes, TurnBased, Wallet
+- プレイヤー情報: Player, Name, Pools, Abilities, TurnBased, Wallet
 - 位置・表示: Camera, GridElement, SpriteRender, LightSource
 - アイテム: Item, Weapon, Wearable, Consumable, Stackable等
 - アイテム位置: ItemLocationInPlayerBackpack, ItemLocationEquipped

@@ -42,6 +42,7 @@ Description = "半分程度回復する"
 		SpriteSheetIndex:  map[string]int{},
 		TileIndex:         map[string]int{},
 		PropIndex:         map[string]int{},
+		ProfessionIndex:   map[string]int{},
 	}
 	assert.Equal(t, expect, raw)
 }
@@ -95,7 +96,7 @@ Name = "テストプレイヤー"
 Player = true
 SpriteSheetName = "field"
 SpriteKey = "player"
-[Members.Attributes]
+[Members.Abilities]
 Vitality = 50
 Strength = 50
 Sensation = 5
@@ -125,7 +126,7 @@ func TestGenerateMemberWithoutSprite(t *testing.T) {
 [[Members]]
 Name = "スプライトなしキャラ"
 Player = true
-[Members.Attributes]
+[Members.Abilities]
 Vitality = 50
 Strength = 50
 Sensation = 5
@@ -454,7 +455,7 @@ Player = true
 SpriteSheetName = "field"
 SpriteKey = "player_0"
 AnimKeys = ["player_0", "player_1"]
-[Members.Attributes]
+[Members.Abilities]
 Vitality = 50
 Strength = 50
 Sensation = 5
@@ -485,7 +486,7 @@ Name = "静的キャラ"
 Player = true
 SpriteSheetName = "field"
 SpriteKey = "static_player"
-[Members.Attributes]
+[Members.Abilities]
 Vitality = 50
 Strength = 50
 Sensation = 5

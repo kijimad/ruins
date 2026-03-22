@@ -137,7 +137,15 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	if actor.HasComponent(world.Components.Player) {
 		if hungerComponent := world.Components.Hunger.Get(actor); hungerComponent != nil {
 			hunger := hungerComponent.(*gc.Hunger)
-			hunger.Decrease(1)
+			// 空腹進行倍率を適用する。100未満の場合は確率的に空腹減少を抑制する
+			hungerPct := 100
+			if actor.HasComponent(world.Components.CharModifiers) {
+				mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
+				hungerPct = mods.HungerProgress
+			}
+			if world.Config.RNG.IntN(100) < hungerPct {
+				hunger.Decrease(1)
+			}
 		}
 	}
 
