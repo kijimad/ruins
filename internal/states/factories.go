@@ -334,7 +334,7 @@ func NewDebugMenuState() es.State[w.World] {
 			page5.AddText("さて、あんたの母親じゃが、\nわしが経験論的に編み出した手法によって\n治療できると確信しとる!\n\n").
 				AddText("超高純度の精製地髄を投与して\nショックを与えれば、目覚める。\n\n").
 				AddText("それに必要な地髄量は...").
-				AddKeyword("1000万CZ").
+				AddKeyword(worldhelper.FormatCurrency(10000000)).
 				AddText("分だ。\n\n")
 
 			// 6ページ目: 闇医者 - 採掘を勧める
@@ -376,10 +376,10 @@ func NewDebugMenuState() es.State[w.World] {
 				}})
 			return nil
 		}).
-		WithChoice("CZ収集エンディング", func(_ w.World) error {
+		WithChoice("資金収集エンディング", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},
+				NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},
 			})
 			return nil
 		}).
@@ -553,15 +553,15 @@ func NewDungeonCompleteEndingState() es.State[w.World] {
 	return messageState
 }
 
-// NewCZCollectionEndingState はCZ収集エンディングのStateFactoryを作成する
-func NewCZCollectionEndingState() es.StateFactory[w.World] {
+// NewCurrencyCollectionEndingState は資金収集エンディングのStateFactoryを作成する
+func NewCurrencyCollectionEndingState() es.StateFactory[w.World] {
 	return func() es.State[w.World] {
 		// 1ページ目: 治療費を集めた主人公
 		ending1 := &messagedata.MessageData{Speaker: ""}
 		ending1.AddText(
 			`遺跡への潜行を繰り返し、
 
-ついに1000万CZを集めた。`)
+ついに` + worldhelper.FormatCurrency(10000000) + `を集めた。`)
 
 		// 2ページ目: 医師の反応
 		ending2 := &messagedata.MessageData{Speaker: "医師"}
@@ -854,20 +854,20 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 
 	// プレイヤーの所持金を確認
 	player, _ := worldhelper.GetPlayerEntity(world)
-	requiredAmount := 10000000 // 1000万CZ
+	requiredAmount := 10000000
 	hasEnoughMoney := worldhelper.HasCurrency(world, player, requiredAmount)
 
 	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-		AddText(`治療費1000万CZを用意できたかい?`)
+		AddText(`治療費` + worldhelper.FormatCurrency(10000000) + `を用意できたかい?`)
 
-	// 1000万CZ以上持っている場合のみ「はい」選択肢を表示
+	// 必要額以上持っている場合のみ「はい」選択肢を表示
 	if hasEnoughMoney {
 		persistentState.messageData = persistentState.messageData.WithChoice("はい", func(world w.World) error {
 			// 通貨を消費
 			if worldhelper.ConsumeCurrency(world, player, requiredAmount) {
 				persistentState.SetTransition(es.Transition[w.World]{
 					Type:          es.TransSwitch,
-					NewStateFuncs: []es.StateFactory[w.World]{NewCZCollectionEndingState()},
+					NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},
 				})
 			}
 			return nil

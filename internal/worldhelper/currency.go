@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -49,8 +50,8 @@ func ConsumeCurrency(world w.World, entity ecs.Entity, amount int) bool {
 	return true
 }
 
-// FormatCurrency は金額を CZ 形式でフォーマットする
-// 3桁ごとにカンマで区切る（例: CZ 100,204）
+// FormatCurrency は金額を通貨記号付きでフォーマットする
+// 3桁ごとにカンマで区切る
 func FormatCurrency(amount int) string {
 	// 数値を文字列に変換
 	str := fmt.Sprintf("%d", amount)
@@ -75,5 +76,5 @@ func FormatCurrency(amount int) string {
 		result = "-" + result
 	}
 
-	return fmt.Sprintf("CZ %s", result)
+	return fmt.Sprintf("%s %s", consts.IconCurrency, result)
 }
