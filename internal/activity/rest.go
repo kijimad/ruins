@@ -33,7 +33,7 @@ func (ra *RestActivity) Name() gc.BehaviorName {
 // Validate は休息アクティビティの検証を行う
 func (ra *RestActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
-	if !ra.isSafe(actor, world) {
+	if !isAreaSafe(actor, world) {
 		return fmt.Errorf("周囲に敵がいるため休息できません")
 	}
 
@@ -54,7 +54,7 @@ func (ra *RestActivity) Start(comp *gc.Activity, actor ecs.Entity, _ w.World) er
 // DoTurn は休息アクティビティの1ターン分の処理を実行する
 func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// 周囲の安全性をチェック
-	if !ra.isSafe(actor, world) {
+	if !isAreaSafe(actor, world) {
 		Cancel(comp, "周囲に敵がいるため休息を中断")
 		return fmt.Errorf("周囲に敵がいるため休息できません")
 	}
@@ -180,36 +180,4 @@ func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 
 	log.Debug("HP回復", "actor", actor, "amount", actualHealing)
 	return nil
-}
-
-// isSafe は周囲が安全かをチェックする
-func (ra *RestActivity) isSafe(actor ecs.Entity, world w.World) bool {
-	// プレイヤーの位置を取得
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
-		return false
-	}
-
-	playerGrid := gridElement.(*gc.GridElement)
-	playerX, playerY := int(playerGrid.X), int(playerGrid.Y)
-
-	// 近くに敵がいないかチェック（3x3の範囲）
-	safeRadius := 1
-	hasEnemies := false
-
-	world.Manager.Join(
-		world.Components.FactionEnemy,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		enemyGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		enemyX, enemyY := int(enemyGrid.X), int(enemyGrid.Y)
-
-		// 距離チェック
-		dx, dy := enemyX-playerX, enemyY-playerY
-		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
-			hasEnemies = true
-		}
-	}))
-
-	return !hasEnemies
 }

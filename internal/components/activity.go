@@ -51,6 +51,7 @@ const (
 	BehaviorCloseDoor   BehaviorName = "CloseDoor"
 	BehaviorPortal      BehaviorName = "Portal"
 	BehaviorDungeonGate BehaviorName = "DungeonGate"
+	BehaviorRead        BehaviorName = "Read"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

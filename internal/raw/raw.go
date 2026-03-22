@@ -58,6 +58,20 @@ type Item struct {
 	EquipBonus        *EquipBonus
 	Weapon            *Weapon
 	Attack            *Attack
+	Book              *BookRaw
+}
+
+// BookRaw は本のローデータ
+type BookRaw struct {
+	TotalEffort int
+	Skill       *SkillBookRaw
+}
+
+// SkillBookRaw はスキル本のローデータ
+type SkillBookRaw struct {
+	TargetSkill   string
+	RequiredLevel int
+	MaxLevel      int
 }
 
 // ProvidesHealing は回復効果を提供する構造体
@@ -306,17 +320,11 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	if item.ProvidesHealing != nil {
-		if err := item.ProvidesHealing.ValueType.Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("%s: %w", "invalid value type", err)
+		healing, err := newProvidesHealingFromRaw(item.ProvidesHealing)
+		if err != nil {
+			return gc.EntitySpec{}, err
 		}
-		switch item.ProvidesHealing.ValueType {
-		case PercentageType:
-			entitySpec.ProvidesHealing = &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: item.ProvidesHealing.Ratio}}
-		case NumeralType:
-			entitySpec.ProvidesHealing = &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: item.ProvidesHealing.Amount}}
-		default:
-			return gc.EntitySpec{}, fmt.Errorf("不明なValueType: %v", item.ProvidesHealing.ValueType)
-		}
+		entitySpec.ProvidesHealing = healing
 	}
 	if item.ProvidesNutrition != nil {
 		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: *item.ProvidesNutrition}
@@ -400,10 +408,48 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 		entitySpec.Stackable = &gc.Stackable{}
 	}
 
+	if item.Book != nil {
+		book, err := newBookFromRaw(item.Book)
+		if err != nil {
+			return gc.EntitySpec{}, err
+		}
+		entitySpec.Book = book
+	}
+
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
 	entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
 
 	return entitySpec, nil
+}
+
+// newProvidesHealingFromRaw はProvidesHealingRawからProvidesHealingコンポーネントを生成する
+func newProvidesHealingFromRaw(raw *ProvidesHealing) (*gc.ProvidesHealing, error) {
+	if err := raw.ValueType.Valid(); err != nil {
+		return nil, fmt.Errorf("%s: %w", "invalid value type", err)
+	}
+	switch raw.ValueType {
+	case PercentageType:
+		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: raw.Ratio}}, nil
+	case NumeralType:
+		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: raw.Amount}}, nil
+	default:
+		return nil, fmt.Errorf("不明なValueType: %v", raw.ValueType)
+	}
+}
+
+// newBookFromRaw はBookRawからBookコンポーネントを生成する
+func newBookFromRaw(raw *BookRaw) (*gc.Book, error) {
+	if raw.Skill == nil {
+		return nil, fmt.Errorf("BookにSkillの指定が必要です")
+	}
+	return &gc.Book{
+		Effort: gc.Pool{Max: raw.TotalEffort},
+		Skill: &gc.SkillBookEffect{
+			TargetSkill:   gc.SkillID(raw.Skill.TargetSkill),
+			MaxLevel:      raw.Skill.MaxLevel,
+			RequiredLevel: raw.Skill.RequiredLevel,
+		},
+	}, nil
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する

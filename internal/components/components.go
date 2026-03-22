@@ -67,6 +67,9 @@ type EntitySpec struct {
 	ProvidesNutrition *ProvidesNutrition
 	InflictsDamage    *InflictsDamage
 
+	// book ================
+	Book *Book
+
 	// battle ================
 	CommandTable *CommandTable
 	DropTable    *DropTable
@@ -134,6 +137,9 @@ type Components struct {
 	ProvidesHealing   *ecs.SliceComponent `save:"true"`
 	ProvidesNutrition *ecs.SliceComponent `save:"true"`
 	InflictsDamage    *ecs.SliceComponent `save:"true"`
+
+	// book ================
+	Book *ecs.SliceComponent `save:"true"`
 
 	// battle ================
 	CommandTable *ecs.SliceComponent

@@ -133,21 +133,7 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	grid.X = comp.Destination.X
 	grid.Y = comp.Destination.Y
 
-	// TODO: 移動だけでなく、ターンを消費するすべての操作で空腹度を上げる必要がある
-	if actor.HasComponent(world.Components.Player) {
-		if hungerComponent := world.Components.Hunger.Get(actor); hungerComponent != nil {
-			hunger := hungerComponent.(*gc.Hunger)
-			// 空腹進行倍率を適用する。100未満の場合は確率的に空腹減少を抑制する
-			hungerPct := 100
-			if actor.HasComponent(world.Components.CharModifiers) {
-				mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
-				hungerPct = mods.HungerProgress
-			}
-			if world.Config.RNG.IntN(100) < hungerPct {
-				hunger.Decrease(1)
-			}
-		}
-	}
+	progressHunger(actor, world)
 
 	log.Debug("移動完了",
 		"actor", actor,

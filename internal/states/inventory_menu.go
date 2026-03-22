@@ -451,19 +451,50 @@ func (st *InventoryMenuState) handleItemSelection() error {
 	return nil
 }
 
+// actionItem はアクションメニューの1項目を表す
+type actionItem struct {
+	Label   string // 表示名
+	Enabled bool   // 選択可能か
+	Reason  string // 無効の理由
+}
+
 // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す
-func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []string {
+func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []actionItem {
 	if entity == 0 {
-		return []string{}
+		return nil
 	}
 
-	actions := []string{}
+	var actions []actionItem
 
 	if entity.HasComponent(world.Components.Consumable) {
-		actions = append(actions, "使う")
+		actions = append(actions, actionItem{Label: "使う", Enabled: true})
 	}
-	actions = append(actions, "捨てる")
-	actions = append(actions, TextClose)
+	if entity.HasComponent(world.Components.Book) {
+		item := actionItem{Label: "読む", Enabled: true}
+		book := world.Components.Book.Get(entity).(*gc.Book)
+		if book.IsCompleted() {
+			item.Enabled = false
+			item.Reason = consts.IconWarning + "読了済み"
+		} else if book.Skill != nil && book.Skill.RequiredLevel > 0 {
+			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			if err == nil {
+				playerLevel := 0
+				if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {
+					if s, ok := skillsComp.(*gc.Skills).Data[book.Skill.TargetSkill]; ok {
+						playerLevel = s.Value
+					}
+				}
+				if playerLevel < book.Skill.RequiredLevel {
+					item.Enabled = false
+					item.Reason = fmt.Sprintf("%sスキル不足(%sLv%d以上必要)",
+						consts.IconWarning, gc.SkillName[book.Skill.TargetSkill], book.Skill.RequiredLevel)
+				}
+			}
+		}
+		actions = append(actions, item)
+	}
+	actions = append(actions, actionItem{Label: "捨てる", Enabled: true})
+	actions = append(actions, actionItem{Label: TextClose, Enabled: true})
 
 	return actions
 }
@@ -479,7 +510,16 @@ func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UI
 
 	for i, action := range actions {
 		isSelected := i == focusIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		textColor := consts.TextColor
+		if !action.Enabled {
+			textColor = consts.ForegroundColor
+		}
+		var actionWidget *widget.Container
+		if action.Reason != "" {
+			actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res, action.Reason)
+		} else {
+			actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res)
+		}
 		windowContainer.AddChild(actionWidget)
 	}
 
@@ -501,9 +541,12 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		return nil
 	}
 
-	selectedAction := actions[focusIndex]
+	selected := actions[focusIndex]
+	if !selected.Enabled {
+		return nil
+	}
 
-	switch selectedAction {
+	switch selected.Label {
 	case "使う":
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
@@ -516,6 +559,31 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			Target: &entity,
 		}
 		_, err = activity.Execute(&activity.UseItemActivity{}, params, world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+
+		st.subState = invSubStateMenu
+	case "読む":
+		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+
+		// Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する
+		book := world.Components.Book.Get(entity).(*gc.Book)
+		remaining := book.Effort.Max - book.Effort.Current
+		if remaining <= 0 {
+			remaining = 1
+		}
+		params := activity.ActionParams{
+			Actor:    playerEntity,
+			Target:   &entity,
+			Duration: remaining,
+		}
+		_, err = activity.Execute(&activity.ReadActivity{}, params, world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
