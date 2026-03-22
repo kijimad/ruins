@@ -27,7 +27,8 @@ const (
 	IconSearch   = "\uf002"
 
 	// 単位
-	IconDegree = "\u2103" // 摂氏記号 ℃
+	IconDegree   = "\u2103"     // 摂氏記号 ℃
+	IconCurrency = "\U000f1aaf" // 通貨記号 nf-md-heating_coil
 
 	// ゲーム
 	IconHeart    = "\uf004"
@@ -35,7 +36,6 @@ const (
 	IconShield   = "\uf132"
 	IconSword    = "\uf71c"
 	IconSkull    = "\uf54c"
-	IconCoin     = "\uf51e"
 	IconFlask    = "\uf0c3"
 	IconFire     = "\uf06d"
 	IconBolt     = "\uf0e7"
