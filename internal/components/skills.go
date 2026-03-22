@@ -1,48 +1,5 @@
 package components
 
-// AbilityID はスキルの成長に影響する能力値の識別子
-type AbilityID int
-
-// 能力値ID定数
-const (
-	AblSTR AbilityID = iota // 筋力
-	AblSEN                  // 感覚
-	AblDEX                  // 器用
-	AblAGI                  // 敏捷
-	AblVIT                  // 体力
-	AblDEF                  // 防御
-)
-
-// AbilityName は能力値IDの表示名を返す
-var AbilityName = map[AbilityID]string{
-	AblSTR: "STR",
-	AblSEN: "SEN",
-	AblDEX: "DEX",
-	AblAGI: "AGI",
-	AblVIT: "VIT",
-	AblDEF: "DEF",
-}
-
-// ValueOf は指定された能力値IDに対応するTotal値を返す
-func (a *Abilities) ValueOf(id AbilityID) int {
-	switch id {
-	case AblSTR:
-		return a.Strength.Total
-	case AblSEN:
-		return a.Sensation.Total
-	case AblDEX:
-		return a.Dexterity.Total
-	case AblAGI:
-		return a.Agility.Total
-	case AblVIT:
-		return a.Vitality.Total
-	case AblDEF:
-		return a.Defense.Total
-	default:
-		return 0
-	}
-}
-
 // SkillID はスキルの識別子
 type SkillID string
 

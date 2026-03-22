@@ -258,16 +258,6 @@ type Pools struct {
 	Weight PoolFloat
 }
 
-// Abilities はエンティティが持つ能力値。各種計算式で使う
-type Abilities struct {
-	Vitality  Ability // 体力。丈夫さ、持久力、しぶとさ。HPやSPに影響する
-	Strength  Ability // 筋力。主に近接攻撃のダメージに影響する
-	Sensation Ability // 感覚。主に射撃攻撃のダメージに影響する
-	Dexterity Ability // 器用。攻撃時の命中率に影響する
-	Agility   Ability // 敏捷。回避率、行動の速さに影響する
-	Defense   Ability // 防御。被弾ダメージを軽減させる
-}
-
 // ProvidesHealing は回復する性質
 // 直接的な数値が作用し、ステータスなどは考慮されない
 type ProvidesHealing struct {

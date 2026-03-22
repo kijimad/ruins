@@ -22,13 +22,6 @@ type TurnBased struct {
 	Speed int
 }
 
-// Ability は変動するパラメータ値
-type Ability struct {
-	Base     int // 固有の値
-	Modifier int // 装備や健康状態で変動する値
-	Total    int // 計算した現在値。算出される値のメモ
-}
-
 // TargetType は選択対象
 type TargetType struct {
 	TargetGroup TargetGroupType // 対象グループ（味方、敵など）
