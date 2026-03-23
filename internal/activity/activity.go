@@ -215,6 +215,10 @@ func isAreaSafe(actor ecs.Entity, world w.World) bool {
 		world.Components.FactionEnemy,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		// 早期リターン
+		if hasEnemies {
+			return
+		}
 		enemyGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		enemyX, enemyY := int(enemyGrid.X), int(enemyGrid.Y)
 

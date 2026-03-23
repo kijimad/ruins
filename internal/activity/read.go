@@ -42,23 +42,12 @@ func (ra *ReadActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return fmt.Errorf("対象はBookコンポーネントを持っていません")
 	}
 
-	if book.IsCompleted() {
-		return fmt.Errorf("この本は読了済みです")
+	var skills *gc.Skills
+	if skillsComp := world.Components.Skills.Get(actor); skillsComp != nil {
+		skills = skillsComp.(*gc.Skills)
 	}
-
-	// RequiredLevelチェック
-	if book.Skill != nil && book.Skill.RequiredLevel > 0 {
-		playerLevel := 0
-		if skillsComp := world.Components.Skills.Get(actor); skillsComp != nil {
-			skills := skillsComp.(*gc.Skills)
-			if s, ok := skills.Data[book.Skill.TargetSkill]; ok {
-				playerLevel = s.Value
-			}
-		}
-		if playerLevel < book.Skill.RequiredLevel {
-			return fmt.Errorf("この本を読むには%sスキルがレベル%d以上必要です（現在: %d）",
-				gc.SkillName[book.Skill.TargetSkill], book.Skill.RequiredLevel, playerLevel)
-		}
+	if err := book.CanRead(skills); err != nil {
+		return err
 	}
 
 	if !isAreaSafe(actor, world) {
@@ -75,7 +64,7 @@ func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 		return fmt.Errorf("Bookコンポーネントが見つかりません")
 	}
 
-	name := ra.getBookName(*comp.Target, world)
+	name := worldhelper.GetEntityName(*comp.Target, world)
 	gamelog.New(gamelog.FieldLog).
 		Append(fmt.Sprintf("「%s」を読み始めた", name)).
 		Log()
@@ -129,7 +118,7 @@ func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 // Finish は読書完了時の処理を実行する
 func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	book := ra.getBook(*comp.Target, world)
-	name := ra.getBookName(*comp.Target, world)
+	name := worldhelper.GetEntityName(*comp.Target, world)
 
 	if book != nil && book.IsCompleted() {
 		gamelog.New(gamelog.FieldLog).
@@ -148,7 +137,7 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled は読書キャンセル時の処理を実行する
 func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	name := ra.getBookName(*comp.Target, world)
+	name := worldhelper.GetEntityName(*comp.Target, world)
 
 	if actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
@@ -229,13 +218,4 @@ func (ra *ReadActivity) getBook(entity ecs.Entity, world w.World) *gc.Book {
 		return nil
 	}
 	return comp.(*gc.Book)
-}
-
-// getBookName は対象エンティティの名前を取得する
-func (ra *ReadActivity) getBookName(entity ecs.Entity, world w.World) string {
-	comp := world.Components.Name.Get(entity)
-	if comp == nil {
-		return "不明な本"
-	}
-	return comp.(*gc.Name).Name
 }

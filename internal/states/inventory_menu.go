@@ -451,11 +451,22 @@ func (st *InventoryMenuState) handleItemSelection() error {
 	return nil
 }
 
+// actionKind はアクションの種別
+type actionKind int
+
+const (
+	actionUse   actionKind = iota // 使う
+	actionRead                    // 読む
+	actionDrop                    // 捨てる
+	actionClose                   // 閉じる
+)
+
 // actionItem はアクションメニューの1項目を表す
 type actionItem struct {
-	Label   string // 表示名
-	Enabled bool   // 選択可能か
-	Reason  string // 無効の理由
+	Kind    actionKind // アクション種別
+	Label   string     // 表示名
+	Enabled bool       // 選択可能か
+	Reason  string     // 無効の理由
 }
 
 // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す
@@ -467,34 +478,26 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 	var actions []actionItem
 
 	if entity.HasComponent(world.Components.Consumable) {
-		actions = append(actions, actionItem{Label: "使う", Enabled: true})
+		actions = append(actions, actionItem{Kind: actionUse, Label: "使う", Enabled: true})
 	}
 	if entity.HasComponent(world.Components.Book) {
-		item := actionItem{Label: "読む", Enabled: true}
+		item := actionItem{Kind: actionRead, Label: "読む", Enabled: true}
 		book := world.Components.Book.Get(entity).(*gc.Book)
-		if book.IsCompleted() {
-			item.Enabled = false
-			item.Reason = consts.IconWarning + "読了済み"
-		} else if book.Skill != nil && book.Skill.RequiredLevel > 0 {
-			playerEntity, err := worldhelper.GetPlayerEntity(world)
-			if err == nil {
-				playerLevel := 0
-				if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {
-					if s, ok := skillsComp.(*gc.Skills).Data[book.Skill.TargetSkill]; ok {
-						playerLevel = s.Value
-					}
-				}
-				if playerLevel < book.Skill.RequiredLevel {
-					item.Enabled = false
-					item.Reason = fmt.Sprintf("%sスキル不足(%sLv%d以上必要)",
-						consts.IconWarning, gc.SkillName[book.Skill.TargetSkill], book.Skill.RequiredLevel)
-				}
+
+		var skills *gc.Skills
+		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil {
+			if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {
+				skills = skillsComp.(*gc.Skills)
 			}
+		}
+		if err := book.CanRead(skills); err != nil {
+			item.Enabled = false
+			item.Reason = consts.IconWarning + err.Error()
 		}
 		actions = append(actions, item)
 	}
-	actions = append(actions, actionItem{Label: "捨てる", Enabled: true})
-	actions = append(actions, actionItem{Label: TextClose, Enabled: true})
+	actions = append(actions, actionItem{Kind: actionDrop, Label: "捨てる", Enabled: true})
+	actions = append(actions, actionItem{Kind: actionClose, Label: TextClose, Enabled: true})
 
 	return actions
 }
@@ -546,8 +549,8 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		return nil
 	}
 
-	switch selected.Label {
-	case "使う":
+	switch selected.Kind {
+	case actionUse:
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
@@ -565,7 +568,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		st.subState = invSubStateMenu
-	case "読む":
+	case actionRead:
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
@@ -590,7 +593,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		st.subState = invSubStateMenu
-	case "捨てる":
+	case actionDrop:
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
@@ -608,7 +611,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		st.subState = invSubStateMenu
-	case TextClose:
+	case actionClose:
 		st.subState = invSubStateMenu
 	}
 

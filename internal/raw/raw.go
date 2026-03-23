@@ -442,10 +442,16 @@ func newBookFromRaw(raw *BookRaw) (*gc.Book, error) {
 	if raw.Skill == nil {
 		return nil, fmt.Errorf("BookにSkillの指定が必要です")
 	}
+
+	skillID := gc.SkillID(raw.Skill.TargetSkill)
+	if _, ok := gc.SkillName[skillID]; !ok {
+		return nil, fmt.Errorf("未定義のスキルID: %q", raw.Skill.TargetSkill)
+	}
+
 	return &gc.Book{
 		Effort: gc.Pool{Max: raw.TotalEffort},
 		Skill: &gc.SkillBookEffect{
-			TargetSkill:   gc.SkillID(raw.Skill.TargetSkill),
+			TargetSkill:   skillID,
 			MaxLevel:      raw.Skill.MaxLevel,
 			RequiredLevel: raw.Skill.RequiredLevel,
 		},

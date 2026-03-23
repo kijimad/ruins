@@ -1,5 +1,7 @@
 package components
 
+import "fmt"
+
 // Book は読書可能な本のコンポーネント
 type Book struct {
 	Effort Pool             // Max=読了に必要な総工数, Current=蓄積した工数
@@ -9,6 +11,27 @@ type Book struct {
 // IsCompleted は読了済みかを返す
 func (b *Book) IsCompleted() bool {
 	return b.Effort.Current >= b.Effort.Max
+}
+
+// CanRead はこの本を読めるかチェックする。読めない場合はエラーを返す
+func (b *Book) CanRead(skills *Skills) error {
+	if b.IsCompleted() {
+		return fmt.Errorf("この本は読了済みです")
+	}
+	if b.Skill == nil || b.Skill.RequiredLevel <= 0 {
+		return nil
+	}
+	playerLevel := 0
+	if skills != nil {
+		if s, ok := skills.Data[b.Skill.TargetSkill]; ok {
+			playerLevel = s.Value
+		}
+	}
+	if playerLevel < b.Skill.RequiredLevel {
+		return fmt.Errorf("この本を読むには%sスキルがレベル%d以上必要です（現在: %d）",
+			SkillName[b.Skill.TargetSkill], b.Skill.RequiredLevel, playerLevel)
+	}
+	return nil
 }
 
 // SkillBookEffect はスキル経験値を毎ターン獲得する効果

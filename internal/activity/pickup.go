@@ -140,10 +140,6 @@ func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity
 		return fmt.Errorf("アイテムの拾得に失敗しました")
 	}
 
-	if len(errs) > 0 {
-		return fmt.Errorf("一部アイテムの拾得に失敗: %w", errors.Join(errs...))
-	}
-
 	log.Debug("アイテム拾得完了", "count", collectedCount)
 
 	// プレイヤーの場合のみ複数アイテム収集時の総括メッセージを表示
@@ -151,6 +147,10 @@ func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity
 		gamelog.New(gamelog.FieldLog).
 			Append(fmt.Sprintf("%d個のアイテムを入手した", collectedCount)).
 			Log()
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("一部アイテムの拾得に失敗: %w", errors.Join(errs...))
 	}
 
 	return nil
