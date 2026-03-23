@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 func TestReadActivity_Validate_NoTarget(t *testing.T) {
@@ -316,9 +315,8 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Data[gc.SkillSword].Value, "スキルアップしている")
 
-	// CharModifiersが再計算されている
-	mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
-	require.NotNil(t, mods)
+	// EquipmentChangedフラグが立っている
+	assert.True(t, actor.HasComponent(world.Components.EquipmentChanged), "再計算フラグが立っている")
 }
 
 func TestReadActivity_NoSkillsComponent(t *testing.T) {

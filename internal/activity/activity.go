@@ -182,22 +182,6 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	}
 }
 
-// recalculateCharModifiers はスキル変動後にCharModifiersを再計算する
-func recalculateCharModifiers(actor ecs.Entity, world w.World, skills *gc.Skills) {
-	var abils *gc.Abilities
-	if abilsComp := world.Components.Abilities.Get(actor); abilsComp != nil {
-		abils = abilsComp.(*gc.Abilities)
-	}
-
-	var hs *gc.HealthStatus
-	if hsComp := world.Components.HealthStatus.Get(actor); hsComp != nil {
-		hs = hsComp.(*gc.HealthStatus)
-	}
-
-	mods := gc.RecalculateCharModifiers(skills, abils, hs)
-	actor.AddComponent(world.Components.CharModifiers, mods)
-}
-
 // isAreaSafe はアクターの周囲に敵がいないかチェックする
 func isAreaSafe(actor ecs.Entity, world w.World) bool {
 	gridElement := world.Components.GridElement.Get(actor)

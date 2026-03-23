@@ -462,7 +462,7 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
-		recalculateCharModifiers(actor, world, skills)
+		actor.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
 
 		actorName := worldhelper.GetEntityName(actor, world)
 		gamelog.New(gamelog.FieldLog).

@@ -172,11 +172,8 @@ func TestGrowWeaponSkill_LevelUpRecalculates(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Data[gc.SkillSword].Value, "スキルアップしている")
 
-	// CharModifiersが再計算されている
-	mods := world.Components.CharModifiers.Get(actor).(*gc.CharModifiers)
-	require.NotNil(t, mods)
-	// 刀剣Lv1 + STR5: ダメージ = 100 + 1*5 + 5*1 = 110
-	assert.Equal(t, 110, mods.WeaponDamage[gc.SkillSword], "CharModifiersが再計算されている")
+	// EquipmentChangedフラグが立っている
+	assert.True(t, actor.HasComponent(world.Components.EquipmentChanged), "再計算フラグが立っている")
 }
 
 func TestGrowWeaponSkill_NoAbilitiesComponent(t *testing.T) {
