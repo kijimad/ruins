@@ -77,7 +77,7 @@ func (st *EquipMenuState) OnStop(_ w.World) error { return nil }
 func (st *EquipMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	// システム更新
 	for _, updater := range []w.Updater{
-		&gs.EquipmentChangedSystem{},
+		&gs.StatsChangedSystem{},
 		&gs.InventoryChangedSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {

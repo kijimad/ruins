@@ -7,28 +7,28 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// EquipmentChangedSystem は装備変更のダーティフラグが立ったら、ステータス補正まわりを再計算する
+// StatsChangedSystem はステータス再計算のダーティフラグが立ったら、ステータス補正まわりを再計算する
 // TODO: 最大HP/SPの更新はここでやったほうがよさそう
 // TODO: マイナスにならないようにする
-type EquipmentChangedSystem struct{}
+type StatsChangedSystem struct{}
 
 // String はシステム名を返す
 // w.Updater interfaceを実装
-func (sys EquipmentChangedSystem) String() string {
-	return "EquipmentChangedSystem"
+func (sys StatsChangedSystem) String() string {
+	return "StatsChangedSystem"
 }
 
-// Update は装備変更フラグをチェックし、必要に応じてステータスを再計算する
+// Update はステータス再計算フラグをチェックし、必要に応じてステータスを再計算する
 // w.Updater interfaceを実装
-func (sys *EquipmentChangedSystem) Update(world w.World) error {
+func (sys *StatsChangedSystem) Update(world w.World) error {
 	var updateErr error
 
-	// EquipmentChangedが付与されたエンティティを処理
+	// StatsChangedが付与されたエンティティを処理
 	world.Manager.Join(
-		world.Components.EquipmentChanged,
+		world.Components.StatsChanged,
 		world.Components.Abilities,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		entity.RemoveComponent(world.Components.EquipmentChanged)
+		entity.RemoveComponent(world.Components.StatsChanged)
 		abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 		// Abilities初期化

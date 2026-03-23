@@ -26,7 +26,7 @@ func TestEquipDisarm(t *testing.T) {
 	// 装備されたことを確認
 	assert.True(t, item.HasComponent(world.Components.ItemLocationEquipped), "アイテムが装備されていない")
 	assert.False(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack), "アイテムがまだバックパックにある")
-	assert.True(t, owner.HasComponent(world.Components.EquipmentChanged), "オーナーに装備変更フラグが設定されていない")
+	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
 
 	equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
 	assert.Equal(t, owner, equipped.Owner, "オーナーが正しく設定されていない")
@@ -38,7 +38,7 @@ func TestEquipDisarm(t *testing.T) {
 	// 装備が外されたことを確認
 	assert.False(t, item.HasComponent(world.Components.ItemLocationEquipped), "アイテムがまだ装備されている")
 	assert.True(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack), "アイテムがバックパックに戻っていない")
-	assert.True(t, owner.HasComponent(world.Components.EquipmentChanged), "オーナーに装備変更フラグが設定されていない")
+	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
 
 	// クリーンアップ
 	world.Manager.DeleteEntity(item)

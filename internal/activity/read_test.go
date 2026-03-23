@@ -315,8 +315,8 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 
 	assert.Equal(t, 1, skills.Data[gc.SkillSword].Value, "スキルアップしている")
 
-	// EquipmentChangedフラグが立っている
-	assert.True(t, actor.HasComponent(world.Components.EquipmentChanged), "再計算フラグが立っている")
+	// StatsChangedフラグが立っている
+	assert.True(t, actor.HasComponent(world.Components.StatsChanged), "再計算フラグが立っている")
 }
 
 func TestReadActivity_NoSkillsComponent(t *testing.T) {

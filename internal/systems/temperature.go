@@ -99,7 +99,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
-			entity.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+			entity.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 		}
 	}))
 

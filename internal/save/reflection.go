@@ -52,7 +52,7 @@ func getComponentTypeMap() map[string]reflect.Type {
 		"ItemLocationEquipped":         reflect.TypeOf(&gc.LocationEquipped{}),
 
 		// イベント
-		"EquipmentChanged": reflect.TypeOf(&gc.EquipmentChanged{}),
+		"StatsChanged": reflect.TypeOf(&gc.StatsChanged{}),
 
 		// データ
 		"Name":        reflect.TypeOf(&gc.Name{}),
@@ -216,8 +216,8 @@ func (r *ComponentRegistry) registerNullComponent(typ reflect.Type, fieldName st
 				return struct{}{}, entity.HasComponent(world.Components.Item)
 			case "LocationInPlayerBackpack":
 				return struct{}{}, entity.HasComponent(world.Components.ItemLocationInPlayerBackpack)
-			case "EquipmentChanged":
-				return struct{}{}, entity.HasComponent(world.Components.EquipmentChanged)
+			case "StatsChanged":
+				return struct{}{}, entity.HasComponent(world.Components.StatsChanged)
 			}
 			return nil, false
 		},
@@ -232,8 +232,8 @@ func (r *ComponentRegistry) registerNullComponent(typ reflect.Type, fieldName st
 				entity.AddComponent(world.Components.Item, &gc.Item{})
 			case "LocationInPlayerBackpack":
 				entity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
-			case "EquipmentChanged":
-				entity.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+			case "StatsChanged":
+				entity.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 			default:
 				return fmt.Errorf("unknown NullComponent type: %s", elemType.Name())
 			}

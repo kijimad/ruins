@@ -178,7 +178,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 
 	// スキルアップした場合はCharModifiers再計算
 	if leveledUp {
-		actor.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		name := gc.SkillName[effect.TargetSkill]
 		gamelog.New(gamelog.FieldLog).

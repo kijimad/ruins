@@ -62,7 +62,7 @@ type EntitySpec struct {
 	CharModifiers *CharModifiers
 
 	// event ================
-	EquipmentChanged  *EquipmentChanged
+	StatsChanged      *StatsChanged
 	ProvidesHealing   *ProvidesHealing
 	ProvidesNutrition *ProvidesNutrition
 	InflictsDamage    *InflictsDamage
@@ -132,7 +132,7 @@ type Components struct {
 	CharModifiers  *ecs.SliceComponent `save:"true"`
 
 	// event ================
-	EquipmentChanged  *ecs.NullComponent
+	StatsChanged      *ecs.NullComponent
 	InventoryChanged  *ecs.NullComponent
 	ProvidesHealing   *ecs.SliceComponent `save:"true"`
 	ProvidesNutrition *ecs.SliceComponent `save:"true"`
@@ -302,9 +302,9 @@ type Recipe struct {
 	Inputs []RecipeInput
 }
 
-// EquipmentChanged は装備変更が行われたことを示すダーティーフラグ
+// StatsChanged はステータス再計算が必要なことを示すダーティーフラグ
 // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
-type EquipmentChanged struct{}
+type StatsChanged struct{}
 
 // InventoryChanged はインベントリ変動が行われたことを示すダーティーフラグ
 // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う

@@ -50,7 +50,7 @@ func TestSaveLoadItemLocations(t *testing.T) {
 		Owner:         character,
 		EquipmentSlot: gc.EquipmentSlotNumber(0), // メインハンドに相当
 	})
-	item3.AddComponent(w.Components.EquipmentChanged, &gc.EquipmentChanged{})
+	item3.AddComponent(w.Components.StatsChanged, &gc.StatsChanged{})
 
 	// セーブマネージャーを作成
 	sm := NewSerializationManager(tempDir)
