@@ -106,9 +106,6 @@ func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
 		Actor: actor,
 	}
 	result, err := Execute(&PickupActivity{}, params, world)
-	if err != nil {
-		log.Warn("アイテム拾得アクション失敗", "error", err)
-	}
 	return result, err
 }
 

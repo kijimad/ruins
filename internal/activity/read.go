@@ -138,7 +138,7 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 		// 読了した本を消費する
 		if err := worldhelper.ChangeItemCount(world, *comp.Target, -1); err != nil {
-			log.Debug("本の消費に失敗", "error", err)
+			return fmt.Errorf("本の消費に失敗: %w", err)
 		}
 	}
 

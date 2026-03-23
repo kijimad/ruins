@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -126,9 +127,10 @@ func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity
 
 	// 収集されたアイテムを処理
 	collectedCount := 0
+	var errs []error
 	for _, itemEntity := range itemsToCollect {
 		if err := pa.collectFieldItem(actor, world, itemEntity); err != nil {
-			log.Warn("アイテム拾得エラー", "item", itemEntity, "error", err.Error())
+			errs = append(errs, err)
 			continue
 		}
 		collectedCount++
@@ -136,6 +138,10 @@ func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity
 
 	if collectedCount == 0 {
 		return fmt.Errorf("アイテムの拾得に失敗しました")
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("一部アイテムの拾得に失敗: %w", errors.Join(errs...))
 	}
 
 	log.Debug("アイテム拾得完了", "count", collectedCount)

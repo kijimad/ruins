@@ -73,7 +73,7 @@ func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// HP回復処理
 	if err := ra.performHealing(comp, actor, world); err != nil {
-		log.Warn("HP回復処理エラー", "error", err.Error())
+		return err
 	}
 
 	// 完了チェック
