@@ -39,6 +39,10 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 		nutrition := world.Components.ProvidesNutrition.Get(entity).(*gc.ProvidesNutrition)
 		addNutritionInfo(targetContainer, nutrition, world)
 	}
+	if entity.HasComponent(world.Components.Book) {
+		book := world.Components.Book.Get(entity).(*gc.Book)
+		addBookInfo(targetContainer, book, world)
+	}
 	if entity.HasComponent(world.Components.Value) {
 		v := world.Components.Value.Get(entity).(*gc.Value)
 		addValueInfo(targetContainer, v, world)
@@ -68,6 +72,9 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 	}
 	if spec.ProvidesNutrition != nil {
 		addNutritionInfo(targetContainer, spec.ProvidesNutrition, world)
+	}
+	if spec.Book != nil {
+		addBookInfo(targetContainer, spec.Book, world)
 	}
 	if spec.Value != nil {
 		addValueInfo(targetContainer, spec.Value, world)
@@ -174,7 +181,32 @@ func addWeightInfo(targetContainer *widget.Container, weight *gc.Weight, world w
 	columnWidths := []int{70, 80}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"重量", fmt.Sprintf("%.2fkg", weight.Kg)}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{"重量", fmt.Sprintf("%.2f%s", weight.Kg, consts.IconKg)}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
+}
+
+// addBookInfo はBookコンポーネントの情報を追加する
+func addBookInfo(targetContainer *widget.Container, book *gc.Book, world w.World) {
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
+
+	table := styled.NewTableContainer(columnWidths, res)
+
+	styled.NewTableHeaderRow(table, columnWidths, []string{"本", ""}, res)
+
+	if book.Skill != nil {
+		skillName := gc.SkillName(book.Skill.TargetSkill)
+		styled.NewTableRow(table, columnWidths, []string{"スキル", skillName}, specTableAligns, nil, res)
+
+		lvRange := fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)
+		styled.NewTableRow(table, columnWidths, []string{"Lv", lvRange}, specTableAligns, nil, res)
+	}
+
+	if book.Effort.Current > 0 && book.Effort.Max > 0 {
+		pct := book.Effort.Current * 100 / book.Effort.Max
+		styled.NewTableRow(table, columnWidths, []string{"進捗", fmt.Sprintf("%d%%", pct)}, specTableAligns, nil, res)
+	}
+
 	targetContainer.AddChild(table)
 }
 

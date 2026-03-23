@@ -105,7 +105,7 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	worldhelper.InitNewGameData(world)
 
 	for _, updater := range []w.Updater{
-		&gs.EquipmentChangedSystem{},
+		&gs.StatsChangedSystem{},
 		&gs.InventoryChangedSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {

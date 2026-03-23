@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRestActivity_isSafe(t *testing.T) {
+func TestIsAreaSafe(t *testing.T) {
 	t.Parallel()
 
 	t.Run("敵がいない場合は安全", func(t *testing.T) {
@@ -20,8 +20,7 @@ func TestRestActivity_isSafe(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		ra := &RestActivity{}
-		assert.True(t, ra.isSafe(player, world))
+		assert.True(t, isAreaSafe(player, world))
 	})
 
 	t.Run("近くに敵がいる場合は危険", func(t *testing.T) {
@@ -31,13 +30,11 @@ func TestRestActivity_isSafe(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		// 敵を手動で作成
 		enemy := world.Manager.NewEntity()
 		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 
-		ra := &RestActivity{}
-		assert.False(t, ra.isSafe(player, world))
+		assert.False(t, isAreaSafe(player, world))
 	})
 
 	t.Run("遠くに敵がいる場合は安全", func(t *testing.T) {
@@ -47,25 +44,21 @@ func TestRestActivity_isSafe(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		// 敵を手動で作成
 		enemy := world.Manager.NewEntity()
 		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
 
-		ra := &RestActivity{}
-		assert.True(t, ra.isSafe(player, world))
+		assert.True(t, isAreaSafe(player, world))
 	})
 
 	t.Run("GridElementがない場合は危険と判定", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
 
-		ra := &RestActivity{}
-		assert.False(t, ra.isSafe(player, world))
+		assert.False(t, isAreaSafe(player, world))
 	})
 }
 

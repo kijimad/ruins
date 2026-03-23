@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -234,7 +235,7 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 	)
 
 	// 所持重量テキストを作成
-	weightText := fmt.Sprintf("%.2f / %.2f kg", data.PlayerWeight, data.PlayerMaxWeight)
+	weightText := fmt.Sprintf("%.2f / %.2f%s", data.PlayerWeight, data.PlayerMaxWeight, consts.IconKg)
 
 	// テキストの幅を測定
 	textWidth, _ := text.Measure(weightText, info.bodyFace, 0)

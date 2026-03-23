@@ -189,9 +189,7 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 	// 職業のスキル初期値を設定
 	skills := world.Components.Skills.Get(player).(*gc.Skills)
 	for _, ps := range prof.Skills {
-		if s, ok := skills.Data[gc.SkillID(ps.ID)]; ok {
-			s.Value = ps.Value
-		}
+		skills.Get(gc.SkillID(ps.ID)).Value = ps.Value
 	}
 	modifiers := gc.RecalculateCharModifiers(skills, abils, nil)
 	player.AddComponent(world.Components.CharModifiers, modifiers)
@@ -344,9 +342,10 @@ func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int,
 	if len(prof.Skills) > 0 {
 		container.AddChild(styled.NewDescriptionText("スキル", res))
 		for _, skill := range prof.Skills {
+			skillID := gc.SkillID(skill.ID)
 			name := skill.ID
-			if n, ok := gc.SkillName[gc.SkillID(skill.ID)]; ok {
-				name = n
+			if gc.HasSkillName(skillID) {
+				name = gc.SkillName(skillID)
 			}
 			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s Lv.%d", name, skill.Value), res))
 		}

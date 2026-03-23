@@ -24,6 +24,7 @@ var behaviors = map[gc.BehaviorName]Behavior{
 	gc.BehaviorTalk:      &TalkActivity{},
 	gc.BehaviorOpenDoor:  &OpenDoorActivity{},
 	gc.BehaviorCloseDoor: &CloseDoorActivity{},
+	gc.BehaviorRead:      &ReadActivity{},
 }
 
 // GetBehavior は名前からBehavior実装を取得する
@@ -159,4 +160,57 @@ func Complete(comp *gc.Activity) {
 func Cancel(comp *gc.Activity, reason string) {
 	comp.State = gc.ActivityStateCanceled
 	comp.CancelReason = reason
+}
+
+// progressHunger はターン経過による空腹進行を処理する
+func progressHunger(actor ecs.Entity, world w.World) {
+	if !actor.HasComponent(world.Components.Player) {
+		return
+	}
+	hungerComp := world.Components.Hunger.Get(actor)
+	if hungerComp == nil {
+		return
+	}
+	hunger := hungerComp.(*gc.Hunger)
+
+	hungerPct := 100
+	if modsComp := world.Components.CharModifiers.Get(actor); modsComp != nil {
+		hungerPct = modsComp.(*gc.CharModifiers).HungerProgress
+	}
+	if world.Config.RNG.IntN(100) < hungerPct {
+		hunger.Decrease(1)
+	}
+}
+
+// isAreaSafe はアクターの周囲に敵がいないかチェックする
+func isAreaSafe(actor ecs.Entity, world w.World) bool {
+	gridElement := world.Components.GridElement.Get(actor)
+	if gridElement == nil {
+		return false
+	}
+
+	playerGrid := gridElement.(*gc.GridElement)
+	playerX, playerY := int(playerGrid.X), int(playerGrid.Y)
+
+	safeRadius := 1
+	hasEnemies := false
+
+	world.Manager.Join(
+		world.Components.FactionEnemy,
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		// 早期リターン
+		if hasEnemies {
+			return
+		}
+		enemyGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		enemyX, enemyY := int(enemyGrid.X), int(enemyGrid.Y)
+
+		dx, dy := enemyX-playerX, enemyY-playerY
+		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
+			hasEnemies = true
+		}
+	}))
+
+	return !hasEnemies
 }

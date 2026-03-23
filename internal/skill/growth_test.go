@@ -7,8 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var defaultCfg = DefaultGrowthConfig()
-
 func newTestSkill(value int, exp int) *gc.Skill {
 	return &gc.Skill{Value: value, Exp: gc.Pool{Max: gc.LevelUpExp, Current: exp}}
 }
@@ -21,7 +19,7 @@ func TestGainExp_SkillLevelUp(t *testing.T) {
 	// 100 / 10 = 10回でスキルアップ
 	leveledUp := false
 	for i := 0; i < 10; i++ {
-		if GainExp(s, 0, defaultCfg) {
+		if GainExp(s, 0) {
 			leveledUp = true
 		}
 	}
@@ -36,7 +34,7 @@ func TestGainExp_HighAbilityGrowsFaster(t *testing.T) {
 	// 100 / 14 ≈ 8回でスキルアップ
 	s := newTestSkill(0, 0)
 	for i := 0; i < 8; i++ {
-		GainExp(s, 8, defaultCfg)
+		GainExp(s, 8)
 	}
 	assert.Equal(t, 1, s.Value, "能力値8では8回以内にスキルアップするはず")
 }
@@ -50,7 +48,7 @@ func TestGainExp_DecaysWithLevel(t *testing.T) {
 
 	count := 0
 	for s.Value == 5 {
-		GainExp(s, 0, defaultCfg)
+		GainExp(s, 0)
 		count++
 	}
 	assert.Equal(t, 20, count, "スキル値5では20回でスキルアップするはず")
@@ -59,16 +57,9 @@ func TestGainExp_DecaysWithLevel(t *testing.T) {
 func TestGainExp_MinimumExpIsOne(t *testing.T) {
 	t.Parallel()
 
-	// 非常に高いスキル値でも最低1expは獲得する
-	cfg := GrowthConfig{
-		BaseExp:       10,
-		AbilBonus:     5,
-		DecayPerLevel: 20,
-		MaxLevel:      0, // 上限なし
-	}
-	s := newTestSkill(100, 0)
+	s := newTestSkill(50, 0)
 	before := s.Exp.Current
-	GainExp(s, 0, cfg)
+	GainExp(s, 0)
 	assert.Greater(t, s.Exp.Current, before, "最低1expは獲得するはず")
 }
 
@@ -79,7 +70,7 @@ func TestGainExp_CombinedAbilityAndLevel(t *testing.T) {
 	// 10 * 125 / 100 * 100 / 300 = 12 * 100 / 300 = 4exp
 	s := newTestSkill(10, 0)
 	before := s.Exp.Current
-	GainExp(s, 5, defaultCfg)
+	GainExp(s, 5)
 	gained := s.Exp.Current - before
 	assert.Equal(t, 4, gained)
 }
@@ -89,55 +80,46 @@ func TestGainExp_ExpCarriesOver(t *testing.T) {
 
 	// レベルアップ時に余剰expは繰り越される
 	s := newTestSkill(0, 95)
-	GainExp(s, 0, defaultCfg) // +10 → 105 → レベルアップ、残り5
+	GainExp(s, 0) // +10 → 105 → レベルアップ、残り5
 	assert.Equal(t, 1, s.Value)
 	assert.Equal(t, 5, s.Exp.Current, "余剰expは繰り越されるはず")
-}
-
-func TestGainExp_CustomConfig(t *testing.T) {
-	t.Parallel()
-
-	// BaseExpを倍にすると成長が速くなる
-	cfg := GrowthConfig{
-		BaseExp:       20,
-		AbilBonus:     5,
-		DecayPerLevel: 20,
-		MaxLevel:      50,
-	}
-
-	s := newTestSkill(0, 0)
-	leveledUp := false
-	for i := 0; i < 5; i++ {
-		if GainExp(s, 0, cfg) {
-			leveledUp = true
-		}
-	}
-	assert.True(t, leveledUp, "BaseExp=20なら5回でスキルアップするはず")
-	assert.Equal(t, 1, s.Value)
 }
 
 func TestGainExp_MaxLevel(t *testing.T) {
 	t.Parallel()
 
 	s := newTestSkill(100, 99)
-	result := GainExp(s, 0, defaultCfg)
+	result := GainExp(s, 0)
 	assert.False(t, result, "最大レベルに達したら経験値を獲得しない")
 	assert.Equal(t, 100, s.Value, "スキル値は変わらない")
 	assert.Equal(t, 99, s.Exp.Current, "経験値は変わらない")
 }
 
-func TestGainExp_MaxLevelZeroMeansUnlimited(t *testing.T) {
+func TestGainExpScaled_HalfEfficiency(t *testing.T) {
 	t.Parallel()
 
-	cfg := GrowthConfig{
-		BaseExp:       10,
-		AbilBonus:     5,
-		DecayPerLevel: 20,
-		MaxLevel:      0,
-	}
+	// efficiency=50%のとき、BaseExp=10*50/100=5exp
+	s := newTestSkill(0, 0)
+	GainExpScaled(s, 0, 50)
+	assert.Equal(t, 5, s.Exp.Current)
+}
 
-	s := newTestSkill(100, 99)
-	result := GainExp(s, 0, cfg)
-	assert.True(t, result, "MaxLevel=0なら上限なくスキルアップする")
-	assert.Equal(t, 101, s.Value)
+func TestGainExpScaled_ZeroEfficiency(t *testing.T) {
+	t.Parallel()
+
+	// efficiency=0%のとき、最低1expは獲得する
+	s := newTestSkill(0, 0)
+	GainExpScaled(s, 0, 0)
+	assert.Equal(t, 1, s.Exp.Current, "最低1expは獲得するはず")
+}
+
+func TestGainExpScaled_FullEfficiency(t *testing.T) {
+	t.Parallel()
+
+	// efficiency=100%のとき、GainExpと同じ結果になる
+	s1 := newTestSkill(0, 0)
+	s2 := newTestSkill(0, 0)
+	GainExp(s1, 5)
+	GainExpScaled(s2, 5, 100)
+	assert.Equal(t, s1.Exp.Current, s2.Exp.Current)
 }

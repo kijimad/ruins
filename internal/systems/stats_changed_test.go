@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
+func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 	t.Parallel()
 
 	t.Run("健康ペナルティが属性に反映される", func(t *testing.T) {
@@ -36,11 +36,11 @@ func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
 			},
 		})
 
-		// EquipmentChangedフラグを立てる
-		player.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+		// StatsChangedフラグを立てる
+		player.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		// システム実行
-		sys := &EquipmentChangedSystem{}
+		sys := &StatsChangedSystem{}
 		err = sys.Update(world)
 		require.NoError(t, err)
 
@@ -50,7 +50,7 @@ func TestEquipmentChangedSystem_HealthPenalty(t *testing.T) {
 	})
 }
 
-func TestEquipmentChangedSystem_APClamp(t *testing.T) {
+func TestStatsChangedSystem_APClamp(t *testing.T) {
 	t.Parallel()
 
 	t.Run("現在APが最大APを超えている場合は切り詰められる", func(t *testing.T) {
@@ -66,11 +66,11 @@ func TestEquipmentChangedSystem_APClamp(t *testing.T) {
 		turnBased.AP.Current = 9999
 		turnBased.AP.Max = 9999
 
-		// EquipmentChangedフラグを立てる
-		player.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+		// StatsChangedフラグを立てる
+		player.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		// システム実行
-		sys := &EquipmentChangedSystem{}
+		sys := &StatsChangedSystem{}
 		err = sys.Update(world)
 		require.NoError(t, err)
 
@@ -237,7 +237,7 @@ func TestMaxSP(t *testing.T) {
 	})
 }
 
-func TestEquipmentChangedAPRecalculation(t *testing.T) {
+func TestStatsChangedAPRecalculation(t *testing.T) {
 	t.Parallel()
 
 	t.Run("装備変更でAPが再計算される", func(t *testing.T) {
@@ -280,11 +280,11 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 			},
 		})
 
-		// 装備を装着（EquipmentChangedフラグが立つ）
+		// 装備を装着（StatsChangedフラグが立つ）
 		worldhelper.MoveToEquip(world, equipment, player, gc.SlotJewelry)
 
-		// EquipmentChangedSystemを実行
-		sys := &EquipmentChangedSystem{}
+		// StatsChangedSystemを実行
+		sys := &StatsChangedSystem{}
 		err = sys.Update(world)
 		require.NoError(t, err)
 
@@ -292,18 +292,18 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		assert.Greater(t, turnBased.AP.Max, initialAP, "装備追加でAP.Maxが増加するべき")
 
-		// 装備を外す（EquipmentChangedフラグが再度立つ）
+		// 装備を外す（StatsChangedフラグが再度立つ）
 		worldhelper.MoveToBackpack(world, equipment, player)
 
-		// EquipmentChangedフラグが立っているか確認
-		require.True(t, player.HasComponent(world.Components.EquipmentChanged), "装備を外した後、EquipmentChangedフラグが立っているべき")
+		// StatsChangedフラグが立っているか確認
+		require.True(t, player.HasComponent(world.Components.StatsChanged), "装備を外した後、StatsChangedフラグが立っているべき")
 
-		// EquipmentChangedSystemを実行
+		// StatsChangedSystemを実行
 		err = sys.Update(world)
 		require.NoError(t, err)
 
-		// EquipmentChangedフラグが削除されたか確認
-		assert.False(t, player.HasComponent(world.Components.EquipmentChanged), "EquipmentChangedSystemの実行後、フラグが削除されるべき")
+		// StatsChangedフラグが削除されたか確認
+		assert.False(t, player.HasComponent(world.Components.StatsChanged), "StatsChangedSystemの実行後、フラグが削除されるべき")
 
 		// APが元に戻っていることを確認
 		turnBased = world.Components.TurnBased.Get(player).(*gc.TurnBased)
@@ -357,8 +357,8 @@ func TestEquipmentChangedAPRecalculation(t *testing.T) {
 		// 装備を装着
 		worldhelper.MoveToEquip(world, equipment, player, gc.SlotTorso)
 
-		// EquipmentChangedSystemを実行
-		sys := &EquipmentChangedSystem{}
+		// StatsChangedSystemを実行
+		sys := &StatsChangedSystem{}
 		err := sys.Update(world)
 		require.NoError(t, err)
 

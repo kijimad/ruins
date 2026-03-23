@@ -11,8 +11,8 @@
 // アイテムの位置を管理する際は、以下のhelper関数を使用します：
 //
 //	// ✅ 推奨: 具体的なHelper関数を使用（排他制御あり）
-//	worldhelper.MoveToBackpack(world, item, owner)            // バックパックに移動（EquipmentChanged, InventoryChangedフラグ付き）
-//	worldhelper.MoveToEquip(world, item, owner, slot)         // 装備（EquipmentChanged, InventoryChangedフラグ付き）
+//	worldhelper.MoveToBackpack(world, item, owner)            // バックパックに移動（StatsChanged, InventoryChangedフラグ付き）
+//	worldhelper.MoveToEquip(world, item, owner, slot)         // 装備（StatsChanged, InventoryChangedフラグ付き）
 //	worldhelper.MoveToField(world, item, owner)               // フィールドにドロップ（InventoryChangedフラグ付き）
 //
 //	// ❌ 非推奨: 直接操作（排他制御なし）

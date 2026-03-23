@@ -35,7 +35,7 @@ func TestRecalculateCharModifiers_SkillEffects(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillSword].Value = 2
+	skills.Get(SkillSword).Value = 2
 
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
@@ -51,7 +51,7 @@ func TestRecalculateCharModifiers_NegativeCoefficient(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillColdResist].Value = 3
+	skills.Get(SkillColdResist).Value = 3
 
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
@@ -65,7 +65,7 @@ func TestRecalculateCharModifiers_WithAbilities(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillSword].Value = 2
+	skills.Get(SkillSword).Value = 2
 
 	abils := &Abilities{
 		Strength: Ability{Total: 10},
@@ -83,7 +83,7 @@ func TestRecalculateCharModifiers_AbilityNegativeDirection(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillColdResist].Value = 1
+	skills.Get(SkillColdResist).Value = 1
 
 	abils := &Abilities{
 		Vitality: Ability{Total: 5},
@@ -99,7 +99,7 @@ func TestRecalculateCharModifiers_Sources(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillSword].Value = 3
+	skills.Get(SkillSword).Value = 3
 
 	abils := &Abilities{
 		Strength: Ability{Total: 8},
@@ -175,7 +175,7 @@ func TestRecalculateCharModifiers_Negotiation(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillNegotiation].Value = 4
+	skills.Get(SkillNegotiation).Value = 4
 
 	mods := RecalculateCharModifiers(skills, nil, nil)
 
@@ -189,9 +189,9 @@ func TestRecalculateCharModifiers_MultipleSkills(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillSword].Value = 3
-	skills.Data[SkillHandgun].Value = 5
-	skills.Data[SkillCrafting].Value = 2
+	skills.Get(SkillSword).Value = 3
+	skills.Get(SkillHandgun).Value = 5
+	skills.Get(SkillCrafting).Value = 2
 
 	abils := &Abilities{
 		Strength:  Ability{Total: 8},
@@ -215,7 +215,7 @@ func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillSprinting].Value = 4
+	skills.Get(SkillSprinting).Value = 4
 
 	abils := &Abilities{
 		Agility: Ability{Total: 10},
@@ -245,7 +245,7 @@ func TestRecalculateCharModifiers_RangedWeaponAbility(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillRifle].Value = 4
+	skills.Get(SkillRifle).Value = 4
 
 	abils := &Abilities{
 		Sensation: Ability{Total: 12},
@@ -263,10 +263,10 @@ func TestRecalculateCharModifiers_ElementResistAllTypes(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()
-	skills.Data[SkillFireResist].Value = 2
-	skills.Data[SkillThunderResist].Value = 4
-	skills.Data[SkillChillResist].Value = 6
-	skills.Data[SkillPhotonResist].Value = 8
+	skills.Get(SkillFireResist).Value = 2
+	skills.Get(SkillThunderResist).Value = 4
+	skills.Get(SkillChillResist).Value = 6
+	skills.Get(SkillPhotonResist).Value = 8
 
 	mods := RecalculateCharModifiers(skills, nil, nil)
 

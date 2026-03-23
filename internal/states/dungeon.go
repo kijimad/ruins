@@ -201,7 +201,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.TurnSystem{},
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
-		&gs.EquipmentChangedSystem{},
+		&gs.StatsChangedSystem{},
 		&gs.InventoryChangedSystem{},
 		&gs.VisualEffectSystem{},
 	} {

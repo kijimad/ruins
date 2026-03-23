@@ -451,19 +451,53 @@ func (st *InventoryMenuState) handleItemSelection() error {
 	return nil
 }
 
+// actionKind はアクションの種別
+type actionKind int
+
+const (
+	actionUse   actionKind = iota // 使う
+	actionRead                    // 読む
+	actionDrop                    // 捨てる
+	actionClose                   // 閉じる
+)
+
+// actionItem はアクションメニューの1項目を表す
+type actionItem struct {
+	Kind    actionKind // アクション種別
+	Label   string     // 表示名
+	Enabled bool       // 選択可能か
+	Reason  string     // 無効の理由
+}
+
 // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す
-func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []string {
+func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []actionItem {
 	if entity == 0 {
-		return []string{}
+		return nil
 	}
 
-	actions := []string{}
+	var actions []actionItem
 
 	if entity.HasComponent(world.Components.Consumable) {
-		actions = append(actions, "使う")
+		actions = append(actions, actionItem{Kind: actionUse, Label: "使う", Enabled: true})
 	}
-	actions = append(actions, "捨てる")
-	actions = append(actions, TextClose)
+	if entity.HasComponent(world.Components.Book) {
+		item := actionItem{Kind: actionRead, Label: "読む", Enabled: true}
+		book := world.Components.Book.Get(entity).(*gc.Book)
+
+		var skills *gc.Skills
+		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil {
+			if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {
+				skills = skillsComp.(*gc.Skills)
+			}
+		}
+		if err := book.CanRead(skills); err != nil {
+			item.Enabled = false
+			item.Reason = consts.IconWarning + err.Error()
+		}
+		actions = append(actions, item)
+	}
+	actions = append(actions, actionItem{Kind: actionDrop, Label: "捨てる", Enabled: true})
+	actions = append(actions, actionItem{Kind: actionClose, Label: TextClose, Enabled: true})
 
 	return actions
 }
@@ -479,7 +513,16 @@ func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UI
 
 	for i, action := range actions {
 		isSelected := i == focusIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		textColor := consts.TextColor
+		if !action.Enabled {
+			textColor = consts.ForegroundColor
+		}
+		var actionWidget *widget.Container
+		if action.Reason != "" {
+			actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res, action.Reason)
+		} else {
+			actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res)
+		}
 		windowContainer.AddChild(actionWidget)
 	}
 
@@ -501,10 +544,13 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		return nil
 	}
 
-	selectedAction := actions[focusIndex]
+	selected := actions[focusIndex]
+	if !selected.Enabled {
+		return nil
+	}
 
-	switch selectedAction {
-	case "使う":
+	switch selected.Kind {
+	case actionUse:
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
@@ -522,7 +568,32 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		st.subState = invSubStateMenu
-	case "捨てる":
+	case actionRead:
+		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+
+		// Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する
+		book := world.Components.Book.Get(entity).(*gc.Book)
+		remaining := book.Effort.Max - book.Effort.Current
+		if remaining <= 0 {
+			remaining = 1
+		}
+		params := activity.ActionParams{
+			Actor:    playerEntity,
+			Target:   &entity,
+			Duration: remaining,
+		}
+		_, err = activity.Execute(&activity.ReadActivity{}, params, world)
+		if err != nil {
+			st.subState = invSubStateMenu
+			return err
+		}
+
+		st.subState = invSubStateMenu
+	case actionDrop:
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
@@ -540,7 +611,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 		}
 
 		st.subState = invSubStateMenu
-	case TextClose:
+	case actionClose:
 		st.subState = invSubStateMenu
 	}
 

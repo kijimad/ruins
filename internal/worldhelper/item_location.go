@@ -21,7 +21,7 @@ const (
 // MoveToBackpack はアイテムをバックパックに移動する
 func MoveToBackpack(world w.World, item ecs.Entity, owner ecs.Entity) {
 	setItemLocation(world, item, ItemLocationInPlayerBackpack, nil)
-	owner.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 	owner.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 }
 
@@ -32,7 +32,7 @@ func MoveToEquip(world w.World, item ecs.Entity, owner ecs.Entity, slot gc.Equip
 		EquipmentSlot: slot,
 	}
 	setItemLocation(world, item, ItemLocationEquipped, equipData)
-	owner.AddComponent(world.Components.EquipmentChanged, &gc.EquipmentChanged{})
+	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 	owner.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 }
 

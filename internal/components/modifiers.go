@@ -41,8 +41,8 @@ const (
 	ModCannonAccuracy  ModifierKey = "cannon_accuracy"
 )
 
-// WeaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング
-var WeaponDamageKeys = map[SkillID]ModifierKey{
+// weaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング
+var weaponDamageKeys = map[SkillID]ModifierKey{
 	SkillSword:   ModSwordDamage,
 	SkillSpear:   ModSpearDamage,
 	SkillFist:    ModFistDamage,
@@ -51,8 +51,17 @@ var WeaponDamageKeys = map[SkillID]ModifierKey{
 	SkillCannon:  ModCannonDamage,
 }
 
-// WeaponAccuracyKeys は武器スキルIDから命中効果キーへのマッピング
-var WeaponAccuracyKeys = map[SkillID]ModifierKey{
+// WeaponDamageKey は武器スキルIDに対応するダメージ効果キーを返す。未定義ならpanicする
+func WeaponDamageKey(id SkillID) ModifierKey {
+	key, ok := weaponDamageKeys[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義の武器スキルID（ダメージ）: %q", id))
+	}
+	return key
+}
+
+// weaponAccuracyKeys は武器スキルIDから命中効果キーへのマッピング
+var weaponAccuracyKeys = map[SkillID]ModifierKey{
 	SkillSword:   ModSwordAccuracy,
 	SkillSpear:   ModSpearAccuracy,
 	SkillFist:    ModFistAccuracy,
@@ -61,12 +70,30 @@ var WeaponAccuracyKeys = map[SkillID]ModifierKey{
 	SkillCannon:  ModCannonAccuracy,
 }
 
-// ElementResistKeys は元素タイプから耐性効果キーへのマッピング
-var ElementResistKeys = map[ElementType]ModifierKey{
+// WeaponAccuracyKey は武器スキルIDに対応する命中効果キーを返す。未定義ならpanicする
+func WeaponAccuracyKey(id SkillID) ModifierKey {
+	key, ok := weaponAccuracyKeys[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義の武器スキルID（命中）: %q", id))
+	}
+	return key
+}
+
+// elementResistKeys は元素タイプから耐性効果キーへのマッピング
+var elementResistKeys = map[ElementType]ModifierKey{
 	ElementTypeFire:    ModFireResist,
 	ElementTypeThunder: ModThunderResist,
 	ElementTypeChill:   ModChillResist,
 	ElementTypePhoton:  ModPhotonResist,
+}
+
+// ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする
+func ElementResistKey(elem ElementType) ModifierKey {
+	key, ok := elementResistKeys[elem]
+	if !ok {
+		panic(fmt.Sprintf("未定義の元素タイプ（耐性）: %q", elem))
+	}
+	return key
 }
 
 // スキル効果係数の定数。スキル値1あたりの倍率変化量（%）を定義する。
@@ -131,16 +158,16 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	src := make(map[ModifierKey][]ModifierSource)
 
 	calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {
-		v := skills.Data[skillID].Value
+		v := skills.Get(skillID).Value
 		bonus := v * coeff
 		src[key] = append(src[key], ModifierSource{
-			Label: fmt.Sprintf("%s Lv%d", SkillName[skillID], v),
+			Label: fmt.Sprintf("%s Lv%d", SkillName(skillID), v),
 			Value: bonus,
 		})
 
 		// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
 		if abils != nil {
-			ablID := SkillAbility[skillID]
+			ablID := SkillAbilityID(skillID)
 			ablVal := abils.ValueOf(ablID)
 			ablCoeff := 1
 			if coeff < 0 {
@@ -148,7 +175,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 			}
 			ablBonus := ablVal * ablCoeff
 			src[key] = append(src[key], ModifierSource{
-				Label: fmt.Sprintf("%s %d", AbilityName[ablID], ablVal),
+				Label: fmt.Sprintf("%s %d", AbilityName(ablID), ablVal),
 				Value: ablBonus,
 			})
 			bonus += ablBonus
@@ -160,8 +187,8 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))
 	e.WeaponAccuracy = make(map[SkillID]int, len(weaponSkillIDs))
 	for _, id := range weaponSkillIDs {
-		e.WeaponDamage[id] = calcEffect(WeaponDamageKeys[id], id, coeffWeaponDamage)
-		e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKeys[id], id, coeffWeaponAccuracy)
+		e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)
+		e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)
 	}
 
 	e.ElementResist = map[ElementType]int{

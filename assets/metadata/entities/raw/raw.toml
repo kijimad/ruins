@@ -1204,10 +1204,59 @@
   Weight          = 1.2
 
   ###################
-  # recipe          #
+  # book            #
   ###################
 
-  # 武器のレシピ ================
+[[Items]]
+  Description     = "自動火器の運用について詳しく解説した雑誌。読みやすい"
+  Name            = "マシンガンマガジン vol.43"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 50
+  Weight          = 0.3
+
+  [Items.Book]
+    TotalEffort = 200
+    [Items.Book.Skill]
+      MaxLevel      = 2
+      RequiredLevel = 0
+      TargetSkill   = "rifle"
+
+[[Items]]
+  Description     = "軍が発行した射撃技術の教本。体系的で内容が濃い"
+  Name            = "陸軍射撃マニュアル"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 200
+  Weight          = 0.8
+
+  [Items.Book]
+    TotalEffort = 400
+    [Items.Book.Skill]
+      MaxLevel      = 5
+      RequiredLevel = 2
+      TargetSkill   = "rifle"
+
+[[Items]]
+  Description     = "極限環境での生存術を記した書籍"
+  Name            = "高みのサバイバルライフ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 150
+  Weight          = 0.5
+
+  [Items.Book]
+    TotalEffort = 300
+    [Items.Book.Skill]
+      MaxLevel      = 3
+      RequiredLevel = 0
+      TargetSkill   = "cold_resist"
+
+      ###################
+      # recipe          #
+      ###################
+
+      # 武器のレシピ ================
 
 [[Recipes]]
   Name = "木刀"

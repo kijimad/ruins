@@ -1,5 +1,7 @@
 package components
 
+import "fmt"
+
 // SkillID はスキルの識別子
 type SkillID string
 
@@ -35,9 +37,9 @@ const (
 	SkillPhotonResist  SkillID = "photon_resist"  // 耐光
 )
 
-// SkillAbility はスキルIDから対応する能力値IDへのマッピング。
+// skillAbility はスキルIDから対応する能力値IDへのマッピング。
 // 能力値が高いほど、対応するスキルの成長が速くなる。
-var SkillAbility = map[SkillID]AbilityID{
+var skillAbility = map[SkillID]AbilityID{
 	SkillSword:         AblSTR,
 	SkillSpear:         AblSTR,
 	SkillFist:          AblSTR,
@@ -68,8 +70,17 @@ var SkillAbility = map[SkillID]AbilityID{
 	SkillPhotonResist:  AblDEF,
 }
 
-// SkillName はスキルIDの表示名を返す
-var SkillName = map[SkillID]string{
+// SkillAbilityID はスキルに対応する能力値IDを返す
+func SkillAbilityID(id SkillID) AbilityID {
+	ablID, ok := skillAbility[id]
+	if !ok {
+		panic(fmt.Sprintf("スキル%qに対応する能力値が定義されていません", id))
+	}
+	return ablID
+}
+
+// skillName はスキルIDの表示名マップ
+var skillName = map[SkillID]string{
 	SkillSword:         "刀剣",
 	SkillSpear:         "長物",
 	SkillFist:          "格闘",
@@ -95,6 +106,21 @@ var SkillName = map[SkillID]string{
 	SkillPhotonResist:  "耐光",
 }
 
+// SkillName はスキルIDの表示名を返す。未定義ならpanicする
+func SkillName(id SkillID) string {
+	name, ok := skillName[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義のスキルID: %q", id))
+	}
+	return name
+}
+
+// HasSkillName はスキルIDの表示名が定義されているかを返す。ロード時のバリデーション用
+func HasSkillName(id SkillID) bool {
+	_, ok := skillName[id]
+	return ok
+}
+
 // SkillInfo はスキルの詳細情報
 type SkillInfo struct {
 	Summary  string // 概要文
@@ -102,8 +128,8 @@ type SkillInfo struct {
 	Effect   string // 効果
 }
 
-// SkillDescription はスキルの詳細情報を返す
-var SkillDescription = map[SkillID]SkillInfo{
+// skillDescription はスキルIDの詳細情報マップ
+var skillDescription = map[SkillID]SkillInfo{
 	SkillSword:         {Summary: "刀剣類の扱いに関する技術", GainedBy: "刀剣で攻撃すると上がる", Effect: "刀剣のダメージと命中が上昇する"},
 	SkillSpear:         {Summary: "槍や棒などの長物を扱う技術", GainedBy: "長物で攻撃すると上がる", Effect: "長物のダメージと命中が上昇する"},
 	SkillFist:          {Summary: "素手や拳で戦う技術", GainedBy: "格闘で攻撃すると上がる", Effect: "格闘のダメージと命中が上昇する"},
@@ -127,6 +153,15 @@ var SkillDescription = map[SkillID]SkillInfo{
 	SkillThunderResist: {Summary: "雷への耐性", GainedBy: "装備や本で上がる", Effect: "雷属性ダメージが軽減される"},
 	SkillChillResist:   {Summary: "氷への耐性", GainedBy: "装備や本で上がる", Effect: "氷属性ダメージが軽減される"},
 	SkillPhotonResist:  {Summary: "光への耐性", GainedBy: "装備や本で上がる", Effect: "光属性ダメージが軽減される"},
+}
+
+// SkillDescription はスキルIDの詳細情報を返す。未定義ならpanicする
+func SkillDescription(id SkillID) SkillInfo {
+	info, ok := skillDescription[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義のスキルID: %q", id))
+	}
+	return info
 }
 
 // SkillCategory はスキルのカテゴリを表す
@@ -171,6 +206,15 @@ type Skill struct {
 // Skills はエンティティが持つスキルセット
 type Skills struct {
 	Data map[SkillID]*Skill
+}
+
+// Get は指定されたスキルIDのSkillを返す。未定義ならpanicする
+func (s *Skills) Get(id SkillID) *Skill {
+	sk, ok := s.Data[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義のスキルID: %q", id))
+	}
+	return sk
 }
 
 // LevelUpExp はスキルアップに必要な経験値

@@ -191,7 +191,7 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", pools.HP.Max), Description: "体力。0になると死亡する"},
 			statusItemData{Label: "SP", Value: fmt.Sprintf("%d", pools.SP.Max), Description: "スタミナ。行動に消費する"},
 			statusItemData{Label: "EP", Value: fmt.Sprintf("%d", pools.EP.Max), Description: "電力。電子機器の使用に消費する"},
-			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1fkg", pools.Weight.Max), Description: "所持可能な最大重量"},
+			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", pools.Weight.Max, consts.IconKg), Description: "所持可能な最大重量"},
 		)
 	}
 
@@ -244,16 +244,13 @@ func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) 
 			Description: fmt.Sprintf("%sカテゴリのスキル", cat.Name),
 		})
 		for _, id := range cat.IDs {
-			s, ok := skills.Data[id]
-			if !ok {
-				continue
-			}
-			name := gc.SkillName[id]
+			s := skills.Get(id)
+			name := gc.SkillName(id)
 			expFrac := 0
 			if s.Exp.Max > 0 {
 				expFrac = s.Exp.Current * 1000 / s.Exp.Max
 			}
-			info := gc.SkillDescription[id]
+			info := gc.SkillDescription(id)
 			items = append(items, statusItemData{
 				Label:       name,
 				Value:       fmt.Sprintf("%d.%03d", s.Value, expFrac),
@@ -281,21 +278,23 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 	items = append(items, statusItemData{Label: "戦闘", IsHeader: true, Description: "戦闘に関する効果"})
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponDamage[id]; ok {
+			name := gc.SkillName(id)
 			items = append(items, statusItemData{
-				Label:       gc.SkillName[id] + "攻撃力",
+				Label:       name + "攻撃力",
 				Value:       fmt.Sprintf("%d%%", mult),
-				Description: fmt.Sprintf("%s武器のダメージ倍率", gc.SkillName[id]),
-				Details:     sourceToDetails(e.Sources, gc.WeaponDamageKeys[id]),
+				Description: fmt.Sprintf("%s武器のダメージ倍率", name),
+				Details:     sourceToDetails(e.Sources, gc.WeaponDamageKey(id)),
 			})
 		}
 	}
 	for _, id := range gc.AllSkillIDs {
 		if mult, ok := e.WeaponAccuracy[id]; ok {
+			name := gc.SkillName(id)
 			items = append(items, statusItemData{
-				Label:       gc.SkillName[id] + "命中",
+				Label:       name + "命中",
 				Value:       fmt.Sprintf("%d%%", mult),
-				Description: fmt.Sprintf("%s武器の命中倍率", gc.SkillName[id]),
-				Details:     sourceToDetails(e.Sources, gc.WeaponAccuracyKeys[id]),
+				Description: fmt.Sprintf("%s武器の命中倍率", name),
+				Details:     sourceToDetails(e.Sources, gc.WeaponAccuracyKey(id)),
 			})
 		}
 	}
@@ -305,7 +304,7 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 				Label:       elem.String() + "耐性",
 				Value:       fmt.Sprintf("%d%%", mult),
 				Description: fmt.Sprintf("%s属性ダメージの倍率。低いほど軽減される", elem.String()),
-				Details:     sourceToDetails(e.Sources, gc.ElementResistKeys[elem]),
+				Details:     sourceToDetails(e.Sources, gc.ElementResistKey(elem)),
 			})
 		}
 	}

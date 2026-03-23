@@ -35,8 +35,6 @@ const (
 	DiceMax = 100 // ダイス最大値（1-100）
 )
 
-var defaultGrowthCfg = skill.DefaultGrowthConfig()
-
 // AttackActivity はBehaviorの実装
 type AttackActivity struct{}
 
@@ -450,10 +448,7 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 	if !ok {
 		return
 	}
-	s, ok := skills.Data[skillID]
-	if !ok {
-		return
-	}
+	s := skills.Get(skillID)
 
 	// 対応する能力値を取得して成長速度に反映する
 	abilsComp := world.Components.Abilities.Get(actor)
@@ -461,18 +456,10 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 		return
 	}
 	abils := abilsComp.(*gc.Abilities)
-	ablID, ok := gc.SkillAbility[skillID]
-	if !ok {
-		return
-	}
+	ablID := gc.SkillAbilityID(skillID)
 
-	if skill.GainExp(s, abils.ValueOf(ablID), defaultGrowthCfg) {
-		var hs *gc.HealthStatus
-		if actor.HasComponent(world.Components.HealthStatus) {
-			hs = world.Components.HealthStatus.Get(actor).(*gc.HealthStatus)
-		}
-		effects := gc.RecalculateCharModifiers(skills, abils, hs)
-		actor.AddComponent(world.Components.CharModifiers, effects)
+	if skill.GainExp(s, abils.ValueOf(ablID)) {
+		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		actorName := worldhelper.GetEntityName(actor, world)
 		gamelog.New(gamelog.FieldLog).

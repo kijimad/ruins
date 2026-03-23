@@ -29,6 +29,7 @@ const (
 	// 単位
 	IconDegree   = "\u2103"     // 摂氏記号 ℃
 	IconCurrency = "\U000f1aaf" // 通貨記号 nf-md-heating_coil
+	IconKg       = "\u338f"     // ㎏
 
 	// ゲーム
 	IconHeart    = "\uf004"
