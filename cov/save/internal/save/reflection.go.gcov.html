@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -114,7 +114,7 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 &quot;ItemLocationEquipped&quot;:         reflect.TypeOf(&amp;gc.LocationEquipped{}),</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 // イベント</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 &quot;EquipmentChanged&quot;: reflect.TypeOf(&amp;gc.EquipmentChanged{}),</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 &quot;StatsChanged&quot;: reflect.TypeOf(&amp;gc.StatsChanged{}),</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 // データ</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 &quot;Name&quot;:        reflect.TypeOf(&amp;gc.Name{}),</span></span>
@@ -278,8 +278,8 @@
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                                 return struct{}{}, entity.HasComponent(world.Components.Item)</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 :                         case &quot;LocationInPlayerBackpack&quot;:</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                                 return struct{}{}, entity.HasComponent(world.Components.ItemLocationInPlayerBackpack)</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                         case &quot;EquipmentChanged&quot;:</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                                 return struct{}{}, entity.HasComponent(world.Components.EquipmentChanged)</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                         case &quot;StatsChanged&quot;:</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                                 return struct{}{}, entity.HasComponent(world.Components.StatsChanged)</span></span>
 <span id="L221"><span class="lineNum">     221</span>              :                         }</span>
 <span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                         return nil, false</span></span>
 <span id="L223"><span class="lineNum">     223</span>              :                 },</span>
@@ -294,8 +294,8 @@
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                                 entity.AddComponent(world.Components.Item, &amp;gc.Item{})</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC tlaBgGNC">           1 :                         case &quot;LocationInPlayerBackpack&quot;:</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                                 entity.AddComponent(world.Components.ItemLocationInPlayerBackpack, &amp;gc.LocationInPlayerBackpack{})</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC tlaBgUNC">           0 :                         case &quot;EquipmentChanged&quot;:</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                                 entity.AddComponent(world.Components.EquipmentChanged, &amp;gc.EquipmentChanged{})</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC tlaBgUNC">           0 :                         case &quot;StatsChanged&quot;:</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                                 entity.AddComponent(world.Components.StatsChanged, &amp;gc.StatsChanged{})</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         default:</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                                 return fmt.Errorf(&quot;unknown NullComponent type: %s&quot;, elemType.Name())</span></span>
 <span id="L239"><span class="lineNum">     239</span>              :                         }</span>

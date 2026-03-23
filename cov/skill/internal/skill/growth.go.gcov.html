@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">27</td>
-            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">28</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,49 +64,58 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L4"><span class="lineNum">       4</span>              : </span>
-<span id="L5"><span class="lineNum">       5</span>              : // GrowthConfig はスキル成長のバランスパラメータ</span>
-<span id="L6"><span class="lineNum">       6</span>              : type GrowthConfig struct {</span>
+<span id="L5"><span class="lineNum">       5</span>              : // growthConfig はスキル成長のバランスパラメータ</span>
+<span id="L6"><span class="lineNum">       6</span>              : var growthConfig = struct {</span>
 <span id="L7"><span class="lineNum">       7</span>              :         BaseExp       int // 基本獲得経験値</span>
 <span id="L8"><span class="lineNum">       8</span>              :         AbilBonus     int // 能力値1あたりの成長速度ボーナス（%）</span>
 <span id="L9"><span class="lineNum">       9</span>              :         DecayPerLevel int // スキル値1あたりの減衰率（%）</span>
 <span id="L10"><span class="lineNum">      10</span>              :         MaxLevel      int // スキルの最大レベル。0の場合は上限なし</span>
-<span id="L11"><span class="lineNum">      11</span>              : }</span>
-<span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span>              : // DefaultGrowthConfig はデフォルトのスキル成長パラメータを返す</span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC tlaBgGNC">           1 : func DefaultGrowthConfig() GrowthConfig {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         return GrowthConfig{</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 BaseExp:       10,</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 AbilBonus:     5,</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 DecayPerLevel: 20,</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 MaxLevel:      100,</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : // GainExp はスキルに経験値を加算する。スキルアップしたらtrueを返す。</span>
-<span id="L24"><span class="lineNum">      24</span>              : // abilityValueは対応する能力値で、高いほど獲得経験値が増える。</span>
-<span id="L25"><span class="lineNum">      25</span>              : // 式: exp = BaseExp * (100 + abilValue*AbilBonus) / 100 * 100 / (100 + currentValue*DecayPerLevel)</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : func GainExp(s *gc.Skill, abilityValue int, cfg GrowthConfig) bool {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if cfg.MaxLevel &gt; 0 &amp;&amp; s.Value &gt;= cfg.MaxLevel {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         growthSpeed := 100 + abilityValue*cfg.AbilBonus</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         decay := 100 + s.Value*cfg.DecayPerLevel</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         exp := cfg.BaseExp * growthSpeed / 100 * 100 / decay</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :         if exp &lt; 1 {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 exp = 1</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         s.Exp.Current += exp</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           2 :         if s.Exp.Current &gt;= s.Exp.Max {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 s.Exp.Current -= s.Exp.Max</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 s.Value++</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return true</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         return false</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : }</span>
+<span id="L11"><span class="lineNum">      11</span>              : }{</span>
+<span id="L12"><span class="lineNum">      12</span>              :         BaseExp:       10,</span>
+<span id="L13"><span class="lineNum">      13</span>              :         AbilBonus:     5,</span>
+<span id="L14"><span class="lineNum">      14</span>              :         DecayPerLevel: 20,</span>
+<span id="L15"><span class="lineNum">      15</span>              :         MaxLevel:      100,</span>
+<span id="L16"><span class="lineNum">      16</span>              : }</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // GainExp はスキルに経験値を加算する。スキルアップしたらtrueを返す。</span>
+<span id="L19"><span class="lineNum">      19</span>              : // abilityValueは対応する能力値で、高いほど獲得経験値が増える。</span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func GainExp(s *gc.Skill, abilityValue int) bool {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return gainExp(s, abilityValue, growthConfig.BaseExp)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : </span>
+<span id="L24"><span class="lineNum">      24</span>              : // GainExpScaled はBaseExpにefficiencyPct（0-100%）を適用してから経験値を加算する。</span>
+<span id="L25"><span class="lineNum">      25</span>              : // 読書など、状況に応じて獲得量を調整する場合に使う。</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : func GainExpScaled(s *gc.Skill, abilityValue int, efficiencyPct int) bool {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         baseExp := growthConfig.BaseExp * efficiencyPct / 100</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if baseExp &lt; 1 {</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 baseExp = 1</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return gainExp(s, abilityValue, baseExp)</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // gainExp は共通の経験値加算処理</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func gainExp(s *gc.Skill, abilityValue int, baseExp int) bool {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         if growthConfig.MaxLevel &gt; 0 &amp;&amp; s.Value &gt;= growthConfig.MaxLevel {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         growthSpeed := 100 + abilityValue*growthConfig.AbilBonus</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         decay := 100 + s.Value*growthConfig.DecayPerLevel</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         exp := baseExp * growthSpeed / 100 * 100 / decay</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :         if exp &lt; 1 {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 exp = 1</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         s.Exp.Current += exp</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :         if s.Exp.Current &gt;= s.Exp.Max {</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 s.Exp.Current -= s.Exp.Max</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 s.Value++</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return true</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span>              : </span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L56"><span class="lineNum">      56</span>              : }</span>
         </pre>
               </td>
             </tr>

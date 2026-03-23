@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">20.7&nbsp;%</td>
-            <td class="headerCovTableEntry">372</td>
-            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntryLo">18.7&nbsp;%</td>
+            <td class="headerCovTableEntry">418</td>
+            <td class="headerCovTableEntry">78</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -513,101 +513,172 @@
 <span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L452"><span class="lineNum">     452</span>              : }</span>
 <span id="L453"><span class="lineNum">     453</span>              : </span>
-<span id="L454"><span class="lineNum">     454</span>              : // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す</span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []string {</span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           2 :         if entity == 0 {</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :                 return []string{}</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L459"><span class="lineNum">     459</span>              : </span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :         actions := []string{}</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         if entity.HasComponent(world.Components.Consumable) {</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC tlaBgUNC">           0 :                 actions = append(actions, &quot;使う&quot;)</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC tlaBgGNC">           1 :         actions = append(actions, &quot;捨てる&quot;)</span></span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :         actions = append(actions, TextClose)</span></span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 :         return actions</span></span>
-<span id="L469"><span class="lineNum">     469</span>              : }</span>
-<span id="L470"><span class="lineNum">     470</span>              : </span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UIResources) *widget.Window {</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :         actionWindow := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :         actions := st.getActionItems(world, windowProps.SelectedEntity)</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         focusIndex, _ := hooks.GetState[int](st.windowMount, &quot;focusIndex&quot;)</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         for i, action := range actions {</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 isSelected := i == focusIndex</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L485"><span class="lineNum">     485</span>              : </span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :         actionWindow.SetLocation(getCenterWinRect(world))</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :         return actionWindow</span></span>
-<span id="L488"><span class="lineNum">     488</span>              : }</span>
-<span id="L489"><span class="lineNum">     489</span>              : </span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) executeActionItem(world w.World) error {</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :         entity := windowProps.SelectedEntity</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :         focusIndex, ok := hooks.GetState[int](st.windowMount, &quot;focusIndex&quot;)</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;focusIndexの取得に失敗&quot;)</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L498"><span class="lineNum">     498</span>              : </span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :         actions := st.getActionItems(world, entity)</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :         if focusIndex &gt;= len(actions) {</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :                 return nil</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L503"><span class="lineNum">     503</span>              : </span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :         selectedAction := actions[focusIndex]</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :         case &quot;使う&quot;:</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :                 playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L513"><span class="lineNum">     513</span>              : </span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                         Actor:  playerEntity,</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :                         Target: &amp;entity,</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.UseItemActivity{}, params, world)</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L523"><span class="lineNum">     523</span>              : </span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         case &quot;捨てる&quot;:</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :                 playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L531"><span class="lineNum">     531</span>              : </span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :                         Actor:  playerEntity,</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :                         Target: &amp;entity,</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L454"><span class="lineNum">     454</span>              : // actionKind はアクションの種別</span>
+<span id="L455"><span class="lineNum">     455</span>              : type actionKind int</span>
+<span id="L456"><span class="lineNum">     456</span>              : </span>
+<span id="L457"><span class="lineNum">     457</span>              : const (</span>
+<span id="L458"><span class="lineNum">     458</span>              :         actionUse   actionKind = iota // 使う</span>
+<span id="L459"><span class="lineNum">     459</span>              :         actionRead                    // 読む</span>
+<span id="L460"><span class="lineNum">     460</span>              :         actionDrop                    // 捨てる</span>
+<span id="L461"><span class="lineNum">     461</span>              :         actionClose                   // 閉じる</span>
+<span id="L462"><span class="lineNum">     462</span>              : )</span>
+<span id="L463"><span class="lineNum">     463</span>              : </span>
+<span id="L464"><span class="lineNum">     464</span>              : // actionItem はアクションメニューの1項目を表す</span>
+<span id="L465"><span class="lineNum">     465</span>              : type actionItem struct {</span>
+<span id="L466"><span class="lineNum">     466</span>              :         Kind    actionKind // アクション種別</span>
+<span id="L467"><span class="lineNum">     467</span>              :         Label   string     // 表示名</span>
+<span id="L468"><span class="lineNum">     468</span>              :         Enabled bool       // 選択可能か</span>
+<span id="L469"><span class="lineNum">     469</span>              :         Reason  string     // 無効の理由</span>
+<span id="L470"><span class="lineNum">     470</span>              : }</span>
+<span id="L471"><span class="lineNum">     471</span>              : </span>
+<span id="L472"><span class="lineNum">     472</span>              : // getActionItems は指定されたエンティティで利用可能なアクション一覧を返す</span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) []actionItem {</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           2 :         if entity == 0 {</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L477"><span class="lineNum">     477</span>              : </span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :         var actions []actionItem</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         if entity.HasComponent(world.Components.Consumable) {</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC tlaBgUNC">           0 :                 actions = append(actions, actionItem{Kind: actionUse, Label: &quot;使う&quot;, Enabled: true})</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC tlaBgGNC">           1 :         if entity.HasComponent(world.Components.Book) {</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC tlaBgUNC">           0 :                 item := actionItem{Kind: actionRead, Label: &quot;読む&quot;, Enabled: true}</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                 book := world.Components.Book.Get(entity).(*gc.Book)</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :                 var skills *gc.Skills</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                 if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil {</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                         if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                                 skills = skillsComp.(*gc.Skills)</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L492"><span class="lineNum">     492</span>              :                 }</span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                 if err := book.CanRead(skills); err != nil {</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                         item.Enabled = false</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                         item.Reason = consts.IconWarning + err.Error()</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :                 actions = append(actions, item)</span></span>
+<span id="L498"><span class="lineNum">     498</span>              :         }</span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC tlaBgGNC">           1 :         actions = append(actions, actionItem{Kind: actionDrop, Label: &quot;捨てる&quot;, Enabled: true})</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :         actions = append(actions, actionItem{Kind: actionClose, Label: TextClose, Enabled: true})</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :         return actions</span></span>
+<span id="L503"><span class="lineNum">     503</span>              : }</span>
+<span id="L504"><span class="lineNum">     504</span>              : </span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UIResources) *widget.Window {</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         actionWindow := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :         actions := st.getActionItems(world, windowProps.SelectedEntity)</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :         focusIndex, _ := hooks.GetState[int](st.windowMount, &quot;focusIndex&quot;)</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :         for i, action := range actions {</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                 isSelected := i == focusIndex</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :                 textColor := consts.TextColor</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 if !action.Enabled {</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                         textColor = consts.ForegroundColor</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                 var actionWidget *widget.Container</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 if action.Reason != &quot;&quot; {</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                         actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res, action.Reason)</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                 } else {</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :                         actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res)</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
+<span id="L527"><span class="lineNum">     527</span>              :         }</span>
+<span id="L528"><span class="lineNum">     528</span>              : </span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         actionWindow.SetLocation(getCenterWinRect(world))</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :         return actionWindow</span></span>
+<span id="L531"><span class="lineNum">     531</span>              : }</span>
+<span id="L532"><span class="lineNum">     532</span>              : </span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) executeActionItem(world w.World) error {</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         windowProps := st.windowMount.GetProps()</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :         entity := windowProps.SelectedEntity</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         focusIndex, ok := hooks.GetState[int](st.windowMount, &quot;focusIndex&quot;)</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;focusIndexの取得に失敗&quot;)</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L541"><span class="lineNum">     541</span>              : </span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         case TextClose:</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L545"><span class="lineNum">     545</span>              :         }</span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :         actions := st.getActionItems(world, entity)</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         if focusIndex &gt;= len(actions) {</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L546"><span class="lineNum">     546</span>              : </span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L548"><span class="lineNum">     548</span>              : }</span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :         selected := actions[focusIndex]</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :         if !selected.Enabled {</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L551"><span class="lineNum">     551</span>              : </span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :         switch selected.Kind {</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :         case actionUse:</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :                 playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L559"><span class="lineNum">     559</span>              : </span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :                         Actor:  playerEntity,</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :                         Target: &amp;entity,</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.UseItemActivity{}, params, world)</span></span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L569"><span class="lineNum">     569</span>              : </span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :         case actionRead:</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :                 playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L577"><span class="lineNum">     577</span>              : </span>
+<span id="L578"><span class="lineNum">     578</span>              :                 // Durationは上限見積もり。実際の完了はDoTurn内のIsCompletedで判定する</span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                 book := world.Components.Book.Get(entity).(*gc.Book)</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :                 remaining := book.Effort.Max - book.Effort.Current</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaUNC">           0 :                 if remaining &lt;= 0 {</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :                         remaining = 1</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :                         Actor:    playerEntity,</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                         Target:   &amp;entity,</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :                         Duration: remaining,</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.ReadActivity{}, params, world)</span></span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L594"><span class="lineNum">     594</span>              : </span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC">           0 :         case actionDrop:</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :                 playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L602"><span class="lineNum">     602</span>              : </span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :                         Actor:  playerEntity,</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :                         Target: &amp;entity,</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L612"><span class="lineNum">     612</span>              : </span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaUNC">           0 :         case actionClose:</span></span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L616"><span class="lineNum">     616</span>              :         }</span>
+<span id="L617"><span class="lineNum">     617</span>              : </span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L619"><span class="lineNum">     619</span>              : }</span>
         </pre>
               </td>
             </tr>

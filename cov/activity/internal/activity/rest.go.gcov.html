@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">67.1&nbsp;%</td>
-            <td class="headerCovTableEntry">149</td>
-            <td class="headerCovTableEntry">100</td>
+            <td class="headerCovTableEntryLo">60.2&nbsp;%</td>
+            <td class="headerCovTableEntry">123</td>
+            <td class="headerCovTableEntry">74</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -95,7 +95,7 @@
 <span id="L33"><span class="lineNum">      33</span>              : // Validate は休息アクティビティの検証を行う</span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : func (ra *RestActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // 周囲の安全性をチェック</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         if !ra.isSafe(actor, world) {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         if !isAreaSafe(actor, world) {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;周囲に敵がいるため休息できません&quot;)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L39"><span class="lineNum">      39</span>              : </span>
@@ -116,7 +116,7 @@
 <span id="L54"><span class="lineNum">      54</span>              : // DoTurn は休息アクティビティの1ターン分の処理を実行する</span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func (ra *RestActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         // 周囲の安全性をチェック</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !ra.isSafe(actor, world) {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !isAreaSafe(actor, world) {</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 Cancel(comp, &quot;周囲に敵がいるため休息を中断&quot;)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;周囲に敵がいるため休息できません&quot;)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -135,7 +135,7 @@
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         // HP回復処理</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         if err := ra.performHealing(comp, actor, world); err != nil {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Warn(&quot;HP回復処理エラー&quot;, &quot;error&quot;, err.Error())</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 :                 return err</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L78"><span class="lineNum">      78</span>              : </span>
 <span id="L79"><span class="lineNum">      79</span>              :         // 完了チェック</span>
@@ -243,38 +243,6 @@
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         log.Debug(&quot;HP回復&quot;, &quot;actor&quot;, actor, &quot;amount&quot;, actualHealing)</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L183"><span class="lineNum">     183</span>              : }</span>
-<span id="L184"><span class="lineNum">     184</span>              : </span>
-<span id="L185"><span class="lineNum">     185</span>              : // isSafe は周囲が安全かをチェックする</span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : func (ra *RestActivity) isSafe(actor ecs.Entity, world w.World) bool {</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         // プレイヤーの位置を取得</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(actor)</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         if gridElement == nil {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : </span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         playerGrid := gridElement.(*gc.GridElement)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         playerX, playerY := int(playerGrid.X), int(playerGrid.Y)</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         // 近くに敵がいないかチェック（3x3の範囲）</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         safeRadius := 1</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         hasEnemies := false</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 world.Components.FactionEnemy,</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 enemyGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 enemyX, enemyY := int(enemyGrid.X), int(enemyGrid.Y)</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 // 距離チェック</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 dx, dy := enemyX-playerX, enemyY-playerY</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           2 :                 if dx &gt;= -safeRadius &amp;&amp; dx &lt;= safeRadius &amp;&amp; dy &gt;= -safeRadius &amp;&amp; dy &lt;= safeRadius {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                         hasEnemies = true</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L212"><span class="lineNum">     212</span>              :         }))</span>
-<span id="L213"><span class="lineNum">     213</span>              : </span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         return !hasEnemies</span></span>
-<span id="L215"><span class="lineNum">     215</span>              : }</span>
         </pre>
               </td>
             </tr>

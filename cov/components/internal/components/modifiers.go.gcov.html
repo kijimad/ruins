@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">78</td>
-            <td class="headerCovTableEntry">78</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntry">93</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -103,8 +103,8 @@
 <span id="L41"><span class="lineNum">      41</span>              :         ModCannonAccuracy  ModifierKey = &quot;cannon_accuracy&quot;</span>
 <span id="L42"><span class="lineNum">      42</span>              : )</span>
 <span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              : // WeaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング</span>
-<span id="L45"><span class="lineNum">      45</span>              : var WeaponDamageKeys = map[SkillID]ModifierKey{</span>
+<span id="L44"><span class="lineNum">      44</span>              : // weaponDamageKeys は武器スキルIDからダメージ効果キーへのマッピング</span>
+<span id="L45"><span class="lineNum">      45</span>              : var weaponDamageKeys = map[SkillID]ModifierKey{</span>
 <span id="L46"><span class="lineNum">      46</span>              :         SkillSword:   ModSwordDamage,</span>
 <span id="L47"><span class="lineNum">      47</span>              :         SkillSpear:   ModSpearDamage,</span>
 <span id="L48"><span class="lineNum">      48</span>              :         SkillFist:    ModFistDamage,</span>
@@ -113,172 +113,199 @@
 <span id="L51"><span class="lineNum">      51</span>              :         SkillCannon:  ModCannonDamage,</span>
 <span id="L52"><span class="lineNum">      52</span>              : }</span>
 <span id="L53"><span class="lineNum">      53</span>              : </span>
-<span id="L54"><span class="lineNum">      54</span>              : // WeaponAccuracyKeys は武器スキルIDから命中効果キーへのマッピング</span>
-<span id="L55"><span class="lineNum">      55</span>              : var WeaponAccuracyKeys = map[SkillID]ModifierKey{</span>
-<span id="L56"><span class="lineNum">      56</span>              :         SkillSword:   ModSwordAccuracy,</span>
-<span id="L57"><span class="lineNum">      57</span>              :         SkillSpear:   ModSpearAccuracy,</span>
-<span id="L58"><span class="lineNum">      58</span>              :         SkillFist:    ModFistAccuracy,</span>
-<span id="L59"><span class="lineNum">      59</span>              :         SkillHandgun: ModHandgunAccuracy,</span>
-<span id="L60"><span class="lineNum">      60</span>              :         SkillRifle:   ModRifleAccuracy,</span>
-<span id="L61"><span class="lineNum">      61</span>              :         SkillCannon:  ModCannonAccuracy,</span>
-<span id="L62"><span class="lineNum">      62</span>              : }</span>
-<span id="L63"><span class="lineNum">      63</span>              : </span>
-<span id="L64"><span class="lineNum">      64</span>              : // ElementResistKeys は元素タイプから耐性効果キーへのマッピング</span>
-<span id="L65"><span class="lineNum">      65</span>              : var ElementResistKeys = map[ElementType]ModifierKey{</span>
-<span id="L66"><span class="lineNum">      66</span>              :         ElementTypeFire:    ModFireResist,</span>
-<span id="L67"><span class="lineNum">      67</span>              :         ElementTypeThunder: ModThunderResist,</span>
-<span id="L68"><span class="lineNum">      68</span>              :         ElementTypeChill:   ModChillResist,</span>
-<span id="L69"><span class="lineNum">      69</span>              :         ElementTypePhoton:  ModPhotonResist,</span>
-<span id="L70"><span class="lineNum">      70</span>              : }</span>
-<span id="L71"><span class="lineNum">      71</span>              : </span>
-<span id="L72"><span class="lineNum">      72</span>              : // スキル効果係数の定数。スキル値1あたりの倍率変化量（%）を定義する。</span>
-<span id="L73"><span class="lineNum">      73</span>              : // 正の値はスキルが高いほど効果が増し、負の値は効果が減る。</span>
-<span id="L74"><span class="lineNum">      74</span>              : const (</span>
-<span id="L75"><span class="lineNum">      75</span>              :         coeffWeaponDamage   = 5  // 武器ダメージ: スキルLv1あたり+5%</span>
-<span id="L76"><span class="lineNum">      76</span>              :         coeffWeaponAccuracy = 3  // 武器命中: スキルLv1あたり+3%</span>
-<span id="L77"><span class="lineNum">      77</span>              :         coeffElementResist  = -3 // 元素耐性: スキルLv1あたり-3%（被ダメージ軽減）</span>
-<span id="L78"><span class="lineNum">      78</span>              :         coeffColdProgress   = -3 // 低体温進行: スキルLv1あたり-3%</span>
-<span id="L79"><span class="lineNum">      79</span>              :         coeffHeatProgress   = -3 // 高体温進行: スキルLv1あたり-3%</span>
-<span id="L80"><span class="lineNum">      80</span>              :         coeffHungerProgress = -2 // 空腹進行: スキルLv1あたり-2%</span>
-<span id="L81"><span class="lineNum">      81</span>              :         coeffHealingEffect  = 5  // 回復効果: スキルLv1あたり+5%</span>
-<span id="L82"><span class="lineNum">      82</span>              :         coeffMaxWeight      = 4  // 最大所持重量: スキルLv1あたり+4%</span>
-<span id="L83"><span class="lineNum">      83</span>              :         coeffExploration    = 4  // アイテム発見率: スキルLv1あたり+4%</span>
-<span id="L84"><span class="lineNum">      84</span>              :         coeffEnemyVision    = -3 // 敵視界距離: スキルLv1あたり-3%</span>
-<span id="L85"><span class="lineNum">      85</span>              :         coeffNightVision    = 5  // 暗所視界: スキルLv1あたり+5%</span>
-<span id="L86"><span class="lineNum">      86</span>              :         coeffMoveCost       = -2 // 移動コスト: スキルLv1あたり-2%</span>
-<span id="L87"><span class="lineNum">      87</span>              :         coeffCraftCost      = -3 // 素材消費: スキルLv1あたり-3%</span>
-<span id="L88"><span class="lineNum">      88</span>              :         coeffSmithQuality   = 3  // 合成品質: スキルLv1あたり+3%</span>
-<span id="L89"><span class="lineNum">      89</span>              :         coeffBuyPrice       = -2 // 買値: スキルLv1あたり-2%</span>
-<span id="L90"><span class="lineNum">      90</span>              :         coeffSellPrice      = 2  // 売値: スキルLv1あたり+2%</span>
-<span id="L91"><span class="lineNum">      91</span>              :         coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%</span>
-<span id="L92"><span class="lineNum">      92</span>              : )</span>
-<span id="L93"><span class="lineNum">      93</span>              : </span>
-<span id="L94"><span class="lineNum">      94</span>              : // ModifierSource は効果倍率の算出元を表す。</span>
-<span id="L95"><span class="lineNum">      95</span>              : // スキル以外の要因（健康状態など）にも対応できる汎用的な構造にしている。</span>
-<span id="L96"><span class="lineNum">      96</span>              : type ModifierSource struct {</span>
-<span id="L97"><span class="lineNum">      97</span>              :         Label string // 表示名。例: &quot;刀剣 Lv2&quot;, &quot;低体温&quot;</span>
-<span id="L98"><span class="lineNum">      98</span>              :         Value int    // この要因による変化量。例: +10, -15</span>
-<span id="L99"><span class="lineNum">      99</span>              : }</span>
-<span id="L100"><span class="lineNum">     100</span>              : </span>
-<span id="L101"><span class="lineNum">     101</span>              : // CharModifiers はエンティティの効果倍率を集約するコンポーネント。</span>
-<span id="L102"><span class="lineNum">     102</span>              : // スキル、健康状態など複数の要因から算出される。100が基準値で変化なし。</span>
-<span id="L103"><span class="lineNum">     103</span>              : type CharModifiers struct {</span>
-<span id="L104"><span class="lineNum">     104</span>              :         WeaponDamage   map[SkillID]int     // 武器ダメージ倍率%</span>
-<span id="L105"><span class="lineNum">     105</span>              :         WeaponAccuracy map[SkillID]int     // 武器命中倍率%</span>
-<span id="L106"><span class="lineNum">     106</span>              :         ElementResist  map[ElementType]int // 元素耐性倍率%</span>
-<span id="L107"><span class="lineNum">     107</span>              :         ColdProgress   int                 // 低体温進行倍率%</span>
-<span id="L108"><span class="lineNum">     108</span>              :         HeatProgress   int                 // 高体温進行倍率%</span>
-<span id="L109"><span class="lineNum">     109</span>              :         HungerProgress int                 // 空腹進行倍率%</span>
-<span id="L110"><span class="lineNum">     110</span>              :         HealingEffect  int                 // 回復効果倍率%</span>
-<span id="L111"><span class="lineNum">     111</span>              :         MaxWeight      int                 // 最大所持重量倍率%</span>
-<span id="L112"><span class="lineNum">     112</span>              :         Exploration    int                 // TODO: アイテム発見システム実装時に適用する。アイテム発見率倍率%</span>
-<span id="L113"><span class="lineNum">     113</span>              :         EnemyVision    int                 // 敵視界距離倍率%</span>
-<span id="L114"><span class="lineNum">     114</span>              :         NightVision    int                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率%</span>
-<span id="L115"><span class="lineNum">     115</span>              :         MoveCost       int                 // 移動APコスト倍率%</span>
-<span id="L116"><span class="lineNum">     116</span>              :         CraftCost      int                 // 素材消費量倍率%</span>
-<span id="L117"><span class="lineNum">     117</span>              :         SmithQuality   int                 // 合成品質倍率%</span>
-<span id="L118"><span class="lineNum">     118</span>              :         BuyPrice       int                 // 買値倍率%</span>
-<span id="L119"><span class="lineNum">     119</span>              :         SellPrice      int                 // 売値倍率%</span>
-<span id="L120"><span class="lineNum">     120</span>              :         HeavyArmor     int                 // 重装備AGIペナルティ倍率%</span>
-<span id="L121"><span class="lineNum">     121</span>              : </span>
-<span id="L122"><span class="lineNum">     122</span>              :         // Sources は各効果の算出元を保持する。</span>
-<span id="L123"><span class="lineNum">     123</span>              :         // 1つの効果に複数の要因が影響しうるためスライスにしている。</span>
-<span id="L124"><span class="lineNum">     124</span>              :         Sources map[ModifierKey][]ModifierSource</span>
-<span id="L125"><span class="lineNum">     125</span>              : }</span>
-<span id="L126"><span class="lineNum">     126</span>              : </span>
-<span id="L127"><span class="lineNum">     127</span>              : // RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。</span>
-<span id="L128"><span class="lineNum">     128</span>              : // abils, hs は nil でもよい。</span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC tlaBgGNC">           1 : func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         e := &amp;CharModifiers{}</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         src := make(map[ModifierKey][]ModifierSource)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           2 :         calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 v := skills.Data[skillID].Value</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                 bonus := v * coeff</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 src[key] = append(src[key], ModifierSource{</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                         Label: fmt.Sprintf(&quot;%s Lv%d&quot;, SkillName[skillID], v),</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                         Value: bonus,</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           2 :                 if abils != nil {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                         ablID := SkillAbility[skillID]</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                         ablVal := abils.ValueOf(ablID)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         ablCoeff := 1</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           2 :                         if coeff &lt; 0 {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                                 ablCoeff = -1</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                         ablBonus := ablVal * ablCoeff</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                         src[key] = append(src[key], ModifierSource{</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                                 Label: fmt.Sprintf(&quot;%s %d&quot;, AbilityName[ablID], ablVal),</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                                 Value: ablBonus,</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                         })</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                         bonus += ablBonus</span></span>
-<span id="L155"><span class="lineNum">     155</span>              :                 }</span>
-<span id="L156"><span class="lineNum">     156</span>              : </span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :                 return 100 + bonus</span></span>
-<span id="L158"><span class="lineNum">     158</span>              :         }</span>
-<span id="L159"><span class="lineNum">     159</span>              : </span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         e.WeaponAccuracy = make(map[SkillID]int, len(weaponSkillIDs))</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :         for _, id := range weaponSkillIDs {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 e.WeaponDamage[id] = calcEffect(WeaponDamageKeys[id], id, coeffWeaponDamage)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKeys[id], id, coeffWeaponAccuracy)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         e.ElementResist = map[ElementType]int{</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 ElementTypeFire:    calcEffect(ModFireResist, SkillFireResist, coeffElementResist),</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 ElementTypeThunder: calcEffect(ModThunderResist, SkillThunderResist, coeffElementResist),</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 ElementTypeChill:   calcEffect(ModChillResist, SkillChillResist, coeffElementResist),</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 ElementTypePhoton:  calcEffect(ModPhotonResist, SkillPhotonResist, coeffElementResist),</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, coeffHeatProgress)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         e.Exploration = calcEffect(ModExploration, SkillExploration, coeffExploration)</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         e.EnemyVision = calcEffect(ModEnemyVision, SkillStealth, coeffEnemyVision)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         e.NightVision = calcEffect(ModNightVision, SkillNightVision, coeffNightVision)</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         e.MoveCost = calcEffect(ModMoveCost, SkillSprinting, coeffMoveCost)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         e.CraftCost = calcEffect(ModCraftCost, SkillCrafting, coeffCraftCost)</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         e.SmithQuality = calcEffect(ModSmithQuality, SkillSmithing, coeffSmithQuality)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         e.BuyPrice = calcEffect(ModBuyPrice, SkillNegotiation, coeffBuyPrice)</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         // 健康状態によるペナルティ</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           2 :         if hs != nil {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 wb := &amp;hs.Parts[BodyPartWholeBody]</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           2 :                 for _, cond := range wb.Conditions {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           2 :                         if penalty := temperatureMovePenalty(cond.Severity); penalty != 0 {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                                 e.MoveCost += penalty</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                                 src[ModMoveCost] = append(src[ModMoveCost], ModifierSource{</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                                         Label: ConditionTypeDisplayName(cond.Type),</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                                         Value: penalty,</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                                 })</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L200"><span class="lineNum">     200</span>              :                 }</span>
-<span id="L201"><span class="lineNum">     201</span>              :         }</span>
-<span id="L202"><span class="lineNum">     202</span>              : </span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         e.Sources = src</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         return e</span></span>
-<span id="L205"><span class="lineNum">     205</span>              : }</span>
-<span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span>              : // temperatureMovePenalty は体温異常の重症度に応じた移動コスト増加量を返す</span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 : func temperatureMovePenalty(severity Severity) int {</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         switch severity {</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         case SeveritySevere:</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                 return 30</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         case SeverityMedium:</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 return 20</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         case SeverityMinor:</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 return 10</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L218"><span class="lineNum">     218</span>              :         }</span>
-<span id="L219"><span class="lineNum">     219</span>              : }</span>
+<span id="L54"><span class="lineNum">      54</span>              : // WeaponDamageKey は武器スキルIDに対応するダメージ効果キーを返す。未定義ならpanicする</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 : func WeaponDamageKey(id SkillID) ModifierKey {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         key, ok := weaponDamageKeys[id]</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義の武器スキルID（ダメージ）: %q&quot;, id))</span></span>
+<span id="L59"><span class="lineNum">      59</span>              :         }</span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return key</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : }</span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              : // weaponAccuracyKeys は武器スキルIDから命中効果キーへのマッピング</span>
+<span id="L64"><span class="lineNum">      64</span>              : var weaponAccuracyKeys = map[SkillID]ModifierKey{</span>
+<span id="L65"><span class="lineNum">      65</span>              :         SkillSword:   ModSwordAccuracy,</span>
+<span id="L66"><span class="lineNum">      66</span>              :         SkillSpear:   ModSpearAccuracy,</span>
+<span id="L67"><span class="lineNum">      67</span>              :         SkillFist:    ModFistAccuracy,</span>
+<span id="L68"><span class="lineNum">      68</span>              :         SkillHandgun: ModHandgunAccuracy,</span>
+<span id="L69"><span class="lineNum">      69</span>              :         SkillRifle:   ModRifleAccuracy,</span>
+<span id="L70"><span class="lineNum">      70</span>              :         SkillCannon:  ModCannonAccuracy,</span>
+<span id="L71"><span class="lineNum">      71</span>              : }</span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span>              : // WeaponAccuracyKey は武器スキルIDに対応する命中効果キーを返す。未定義ならpanicする</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : func WeaponAccuracyKey(id SkillID) ModifierKey {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         key, ok := weaponAccuracyKeys[id]</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義の武器スキルID（命中）: %q&quot;, id))</span></span>
+<span id="L78"><span class="lineNum">      78</span>              :         }</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return key</span></span>
+<span id="L80"><span class="lineNum">      80</span>              : }</span>
+<span id="L81"><span class="lineNum">      81</span>              : </span>
+<span id="L82"><span class="lineNum">      82</span>              : // elementResistKeys は元素タイプから耐性効果キーへのマッピング</span>
+<span id="L83"><span class="lineNum">      83</span>              : var elementResistKeys = map[ElementType]ModifierKey{</span>
+<span id="L84"><span class="lineNum">      84</span>              :         ElementTypeFire:    ModFireResist,</span>
+<span id="L85"><span class="lineNum">      85</span>              :         ElementTypeThunder: ModThunderResist,</span>
+<span id="L86"><span class="lineNum">      86</span>              :         ElementTypeChill:   ModChillResist,</span>
+<span id="L87"><span class="lineNum">      87</span>              :         ElementTypePhoton:  ModPhotonResist,</span>
+<span id="L88"><span class="lineNum">      88</span>              : }</span>
+<span id="L89"><span class="lineNum">      89</span>              : </span>
+<span id="L90"><span class="lineNum">      90</span>              : // ElementResistKey は元素タイプに対応する耐性効果キーを返す。未定義ならpanicする</span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : func ElementResistKey(elem ElementType) ModifierKey {</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         key, ok := elementResistKeys[elem]</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義の元素タイプ（耐性）: %q&quot;, elem))</span></span>
+<span id="L95"><span class="lineNum">      95</span>              :         }</span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         return key</span></span>
+<span id="L97"><span class="lineNum">      97</span>              : }</span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              : // スキル効果係数の定数。スキル値1あたりの倍率変化量（%）を定義する。</span>
+<span id="L100"><span class="lineNum">     100</span>              : // 正の値はスキルが高いほど効果が増し、負の値は効果が減る。</span>
+<span id="L101"><span class="lineNum">     101</span>              : const (</span>
+<span id="L102"><span class="lineNum">     102</span>              :         coeffWeaponDamage   = 5  // 武器ダメージ: スキルLv1あたり+5%</span>
+<span id="L103"><span class="lineNum">     103</span>              :         coeffWeaponAccuracy = 3  // 武器命中: スキルLv1あたり+3%</span>
+<span id="L104"><span class="lineNum">     104</span>              :         coeffElementResist  = -3 // 元素耐性: スキルLv1あたり-3%（被ダメージ軽減）</span>
+<span id="L105"><span class="lineNum">     105</span>              :         coeffColdProgress   = -3 // 低体温進行: スキルLv1あたり-3%</span>
+<span id="L106"><span class="lineNum">     106</span>              :         coeffHeatProgress   = -3 // 高体温進行: スキルLv1あたり-3%</span>
+<span id="L107"><span class="lineNum">     107</span>              :         coeffHungerProgress = -2 // 空腹進行: スキルLv1あたり-2%</span>
+<span id="L108"><span class="lineNum">     108</span>              :         coeffHealingEffect  = 5  // 回復効果: スキルLv1あたり+5%</span>
+<span id="L109"><span class="lineNum">     109</span>              :         coeffMaxWeight      = 4  // 最大所持重量: スキルLv1あたり+4%</span>
+<span id="L110"><span class="lineNum">     110</span>              :         coeffExploration    = 4  // アイテム発見率: スキルLv1あたり+4%</span>
+<span id="L111"><span class="lineNum">     111</span>              :         coeffEnemyVision    = -3 // 敵視界距離: スキルLv1あたり-3%</span>
+<span id="L112"><span class="lineNum">     112</span>              :         coeffNightVision    = 5  // 暗所視界: スキルLv1あたり+5%</span>
+<span id="L113"><span class="lineNum">     113</span>              :         coeffMoveCost       = -2 // 移動コスト: スキルLv1あたり-2%</span>
+<span id="L114"><span class="lineNum">     114</span>              :         coeffCraftCost      = -3 // 素材消費: スキルLv1あたり-3%</span>
+<span id="L115"><span class="lineNum">     115</span>              :         coeffSmithQuality   = 3  // 合成品質: スキルLv1あたり+3%</span>
+<span id="L116"><span class="lineNum">     116</span>              :         coeffBuyPrice       = -2 // 買値: スキルLv1あたり-2%</span>
+<span id="L117"><span class="lineNum">     117</span>              :         coeffSellPrice      = 2  // 売値: スキルLv1あたり+2%</span>
+<span id="L118"><span class="lineNum">     118</span>              :         coeffHeavyArmor     = -5 // 重装備ペナルティ: スキルLv1あたり-5%</span>
+<span id="L119"><span class="lineNum">     119</span>              : )</span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              : // ModifierSource は効果倍率の算出元を表す。</span>
+<span id="L122"><span class="lineNum">     122</span>              : // スキル以外の要因（健康状態など）にも対応できる汎用的な構造にしている。</span>
+<span id="L123"><span class="lineNum">     123</span>              : type ModifierSource struct {</span>
+<span id="L124"><span class="lineNum">     124</span>              :         Label string // 表示名。例: &quot;刀剣 Lv2&quot;, &quot;低体温&quot;</span>
+<span id="L125"><span class="lineNum">     125</span>              :         Value int    // この要因による変化量。例: +10, -15</span>
+<span id="L126"><span class="lineNum">     126</span>              : }</span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span>              : // CharModifiers はエンティティの効果倍率を集約するコンポーネント。</span>
+<span id="L129"><span class="lineNum">     129</span>              : // スキル、健康状態など複数の要因から算出される。100が基準値で変化なし。</span>
+<span id="L130"><span class="lineNum">     130</span>              : type CharModifiers struct {</span>
+<span id="L131"><span class="lineNum">     131</span>              :         WeaponDamage   map[SkillID]int     // 武器ダメージ倍率%</span>
+<span id="L132"><span class="lineNum">     132</span>              :         WeaponAccuracy map[SkillID]int     // 武器命中倍率%</span>
+<span id="L133"><span class="lineNum">     133</span>              :         ElementResist  map[ElementType]int // 元素耐性倍率%</span>
+<span id="L134"><span class="lineNum">     134</span>              :         ColdProgress   int                 // 低体温進行倍率%</span>
+<span id="L135"><span class="lineNum">     135</span>              :         HeatProgress   int                 // 高体温進行倍率%</span>
+<span id="L136"><span class="lineNum">     136</span>              :         HungerProgress int                 // 空腹進行倍率%</span>
+<span id="L137"><span class="lineNum">     137</span>              :         HealingEffect  int                 // 回復効果倍率%</span>
+<span id="L138"><span class="lineNum">     138</span>              :         MaxWeight      int                 // 最大所持重量倍率%</span>
+<span id="L139"><span class="lineNum">     139</span>              :         Exploration    int                 // TODO: アイテム発見システム実装時に適用する。アイテム発見率倍率%</span>
+<span id="L140"><span class="lineNum">     140</span>              :         EnemyVision    int                 // 敵視界距離倍率%</span>
+<span id="L141"><span class="lineNum">     141</span>              :         NightVision    int                 // TODO: 暗所視界システム実装時に適用する。暗所視界倍率%</span>
+<span id="L142"><span class="lineNum">     142</span>              :         MoveCost       int                 // 移動APコスト倍率%</span>
+<span id="L143"><span class="lineNum">     143</span>              :         CraftCost      int                 // 素材消費量倍率%</span>
+<span id="L144"><span class="lineNum">     144</span>              :         SmithQuality   int                 // 合成品質倍率%</span>
+<span id="L145"><span class="lineNum">     145</span>              :         BuyPrice       int                 // 買値倍率%</span>
+<span id="L146"><span class="lineNum">     146</span>              :         SellPrice      int                 // 売値倍率%</span>
+<span id="L147"><span class="lineNum">     147</span>              :         HeavyArmor     int                 // 重装備AGIペナルティ倍率%</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span>              :         // Sources は各効果の算出元を保持する。</span>
+<span id="L150"><span class="lineNum">     150</span>              :         // 1つの効果に複数の要因が影響しうるためスライスにしている。</span>
+<span id="L151"><span class="lineNum">     151</span>              :         Sources map[ModifierKey][]ModifierSource</span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
+<span id="L154"><span class="lineNum">     154</span>              : // RecalculateCharModifiers はスキル、能力値、健康状態から全効果倍率を計算する。</span>
+<span id="L155"><span class="lineNum">     155</span>              : // abils, hs は nil でもよい。</span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus) *CharModifiers {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         e := &amp;CharModifiers{}</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         src := make(map[ModifierKey][]ModifierSource)</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           2 :         calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 v := skills.Get(skillID).Value</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 bonus := v * coeff</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 src[key] = append(src[key], ModifierSource{</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                         Label: fmt.Sprintf(&quot;%s Lv%d&quot;, SkillName(skillID), v),</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                         Value: bonus,</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 // 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :                 if abils != nil {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         ablID := SkillAbilityID(skillID)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         ablVal := abils.ValueOf(ablID)</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         ablCoeff := 1</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           2 :                         if coeff &lt; 0 {</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                                 ablCoeff = -1</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                         ablBonus := ablVal * ablCoeff</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                         src[key] = append(src[key], ModifierSource{</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                                 Label: fmt.Sprintf(&quot;%s %d&quot;, AbilityName(ablID), ablVal),</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                                 Value: ablBonus,</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                         })</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                         bonus += ablBonus</span></span>
+<span id="L182"><span class="lineNum">     182</span>              :                 }</span>
+<span id="L183"><span class="lineNum">     183</span>              : </span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 return 100 + bonus</span></span>
+<span id="L185"><span class="lineNum">     185</span>              :         }</span>
+<span id="L186"><span class="lineNum">     186</span>              : </span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         e.WeaponDamage = make(map[SkillID]int, len(weaponSkillIDs))</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         e.WeaponAccuracy = make(map[SkillID]int, len(weaponSkillIDs))</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         for _, id := range weaponSkillIDs {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 e.WeaponDamage[id] = calcEffect(WeaponDamageKey(id), id, coeffWeaponDamage)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 e.WeaponAccuracy[id] = calcEffect(WeaponAccuracyKey(id), id, coeffWeaponAccuracy)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         e.ElementResist = map[ElementType]int{</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 ElementTypeFire:    calcEffect(ModFireResist, SkillFireResist, coeffElementResist),</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 ElementTypeThunder: calcEffect(ModThunderResist, SkillThunderResist, coeffElementResist),</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 ElementTypeChill:   calcEffect(ModChillResist, SkillChillResist, coeffElementResist),</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 ElementTypePhoton:  calcEffect(ModPhotonResist, SkillPhotonResist, coeffElementResist),</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         e.ColdProgress = calcEffect(ModColdProgress, SkillColdResist, coeffColdProgress)</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         e.HeatProgress = calcEffect(ModHeatProgress, SkillHeatResist, coeffHeatProgress)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         e.HungerProgress = calcEffect(ModHungerProgress, SkillHungerResist, coeffHungerProgress)</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         e.HealingEffect = calcEffect(ModHealingEffect, SkillHealing, coeffHealingEffect)</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         e.MaxWeight = calcEffect(ModMaxWeight, SkillWeightBearing, coeffMaxWeight)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         e.Exploration = calcEffect(ModExploration, SkillExploration, coeffExploration)</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         e.EnemyVision = calcEffect(ModEnemyVision, SkillStealth, coeffEnemyVision)</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         e.NightVision = calcEffect(ModNightVision, SkillNightVision, coeffNightVision)</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         e.MoveCost = calcEffect(ModMoveCost, SkillSprinting, coeffMoveCost)</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         e.CraftCost = calcEffect(ModCraftCost, SkillCrafting, coeffCraftCost)</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         e.SmithQuality = calcEffect(ModSmithQuality, SkillSmithing, coeffSmithQuality)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         e.BuyPrice = calcEffect(ModBuyPrice, SkillNegotiation, coeffBuyPrice)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         e.SellPrice = calcEffect(ModSellPrice, SkillNegotiation, coeffSellPrice)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         e.HeavyArmor = calcEffect(ModHeavyArmor, SkillHeavyArmor, coeffHeavyArmor)</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         // 健康状態によるペナルティ</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           2 :         if hs != nil {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 wb := &amp;hs.Parts[BodyPartWholeBody]</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :                 for _, cond := range wb.Conditions {</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           2 :                         if penalty := temperatureMovePenalty(cond.Severity); penalty != 0 {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                                 e.MoveCost += penalty</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           1 :                                 src[ModMoveCost] = append(src[ModMoveCost], ModifierSource{</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                                         Label: ConditionTypeDisplayName(cond.Type),</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                                         Value: penalty,</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                                 })</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L227"><span class="lineNum">     227</span>              :                 }</span>
+<span id="L228"><span class="lineNum">     228</span>              :         }</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         e.Sources = src</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         return e</span></span>
+<span id="L232"><span class="lineNum">     232</span>              : }</span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span>              : // temperatureMovePenalty は体温異常の重症度に応じた移動コスト増加量を返す</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 : func temperatureMovePenalty(severity Severity) int {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         switch severity {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         case SeveritySevere:</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 return 30</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         case SeverityMedium:</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 return 20</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         case SeverityMinor:</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                 return 10</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L245"><span class="lineNum">     245</span>              :         }</span>
+<span id="L246"><span class="lineNum">     246</span>              : }</span>
         </pre>
               </td>
             </tr>

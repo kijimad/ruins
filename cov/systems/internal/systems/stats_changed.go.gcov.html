@@ -4,7 +4,7 @@
 
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <title>LCOV - coverage.lcov - systems/internal/systems/equipment_changed.go</title>
+  <title>LCOV - coverage.lcov - systems/internal/systems/stats_changed.go</title>
   <link rel="stylesheet" type="text/css" href="../../../gcov.css">
 </head>
 
@@ -19,7 +19,7 @@
                 <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">systems/internal/systems</a> - equipment_changed.go<span style="font-size: 80%;"> (source / <a href="equipment_changed.go.func-c.html">functions</a>)</span></td>
+            <td width="10%" class="headerValue"><a href="../../../index.html">top level</a> - <a href="index.html">systems/internal/systems</a> - stats_changed.go<span style="font-size: 80%;"> (source / <a href="stats_changed.go.func-c.html">functions</a>)</span></td>
             <td width="5%"></td>
             <td width="5%"></td>
             <td width="5%" class="headerCovTableHead">Coverage</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -69,28 +69,28 @@
 <span id="L7"><span class="lineNum">       7</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L8"><span class="lineNum">       8</span>              : )</span>
 <span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // EquipmentChangedSystem は装備変更のダーティフラグが立ったら、ステータス補正まわりを再計算する</span>
+<span id="L10"><span class="lineNum">      10</span>              : // StatsChangedSystem はステータス再計算のダーティフラグが立ったら、ステータス補正まわりを再計算する</span>
 <span id="L11"><span class="lineNum">      11</span>              : // TODO: 最大HP/SPの更新はここでやったほうがよさそう</span>
 <span id="L12"><span class="lineNum">      12</span>              : // TODO: マイナスにならないようにする</span>
-<span id="L13"><span class="lineNum">      13</span>              : type EquipmentChangedSystem struct{}</span>
+<span id="L13"><span class="lineNum">      13</span>              : type StatsChangedSystem struct{}</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // String はシステム名を返す</span>
 <span id="L16"><span class="lineNum">      16</span>              : // w.Updater interfaceを実装</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys EquipmentChangedSystem) String() string {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         return &quot;EquipmentChangedSystem&quot;</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys StatsChangedSystem) String() string {</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         return &quot;StatsChangedSystem&quot;</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span>              : // Update は装備変更フラグをチェックし、必要に応じてステータスを再計算する</span>
+<span id="L21"><span class="lineNum">      21</span>              : // Update はステータス再計算フラグをチェックし、必要に応じてステータスを再計算する</span>
 <span id="L22"><span class="lineNum">      22</span>              : // w.Updater interfaceを実装</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *EquipmentChangedSystem) Update(world w.World) error {</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *StatsChangedSystem) Update(world w.World) error {</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         var updateErr error</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         // EquipmentChangedが付与されたエンティティを処理</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         // StatsChangedが付与されたエンティティを処理</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 world.Components.EquipmentChanged,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 world.Components.StatsChanged,</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 world.Components.Abilities,</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 entity.RemoveComponent(world.Components.EquipmentChanged)</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 entity.RemoveComponent(world.Components.StatsChanged)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 abils := world.Components.Abilities.Get(entity).(*gc.Abilities)</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 // Abilities初期化</span></span>

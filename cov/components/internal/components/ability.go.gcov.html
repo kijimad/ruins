@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">16</td>
-            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">21</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-22 10:28:15</td>
+            <td class="headerValue">2026-03-23 15:04:04</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -62,65 +62,76 @@
 <pre class="source">
 <span id="L1"><span class="lineNum">       1</span>              : package components</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
-<span id="L3"><span class="lineNum">       3</span>              : // Ability は変動するパラメータ値</span>
-<span id="L4"><span class="lineNum">       4</span>              : type Ability struct {</span>
-<span id="L5"><span class="lineNum">       5</span>              :         Base     int // 固有の値</span>
-<span id="L6"><span class="lineNum">       6</span>              :         Modifier int // 装備や健康状態で変動する値</span>
-<span id="L7"><span class="lineNum">       7</span>              :         Total    int // 計算した現在値。算出される値のメモ</span>
-<span id="L8"><span class="lineNum">       8</span>              : }</span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // Abilities はエンティティが持つ能力値。各種計算式で使う</span>
-<span id="L11"><span class="lineNum">      11</span>              : type Abilities struct {</span>
-<span id="L12"><span class="lineNum">      12</span>              :         Vitality  Ability // 体力。丈夫さ、持久力、しぶとさ。HPやSPに影響する</span>
-<span id="L13"><span class="lineNum">      13</span>              :         Strength  Ability // 筋力。主に近接攻撃のダメージに影響する</span>
-<span id="L14"><span class="lineNum">      14</span>              :         Sensation Ability // 感覚。主に射撃攻撃のダメージに影響する</span>
-<span id="L15"><span class="lineNum">      15</span>              :         Dexterity Ability // 器用。攻撃時の命中率に影響する</span>
-<span id="L16"><span class="lineNum">      16</span>              :         Agility   Ability // 敏捷。回避率、行動の速さに影響する</span>
-<span id="L17"><span class="lineNum">      17</span>              :         Defense   Ability // 防御。被弾ダメージを軽減させる</span>
-<span id="L18"><span class="lineNum">      18</span>              : }</span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span>              : // AbilityID は能力値の識別子</span>
-<span id="L21"><span class="lineNum">      21</span>              : type AbilityID int</span>
-<span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              : // 能力値ID定数</span>
-<span id="L24"><span class="lineNum">      24</span>              : const (</span>
-<span id="L25"><span class="lineNum">      25</span>              :         AblSTR AbilityID = iota // 筋力</span>
-<span id="L26"><span class="lineNum">      26</span>              :         AblSEN                  // 感覚</span>
-<span id="L27"><span class="lineNum">      27</span>              :         AblDEX                  // 器用</span>
-<span id="L28"><span class="lineNum">      28</span>              :         AblAGI                  // 敏捷</span>
-<span id="L29"><span class="lineNum">      29</span>              :         AblVIT                  // 体力</span>
-<span id="L30"><span class="lineNum">      30</span>              :         AblDEF                  // 防御</span>
-<span id="L31"><span class="lineNum">      31</span>              : )</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : // AbilityName は能力値IDの表示名を返す</span>
-<span id="L34"><span class="lineNum">      34</span>              : var AbilityName = map[AbilityID]string{</span>
-<span id="L35"><span class="lineNum">      35</span>              :         AblSTR: &quot;STR&quot;,</span>
-<span id="L36"><span class="lineNum">      36</span>              :         AblSEN: &quot;SEN&quot;,</span>
-<span id="L37"><span class="lineNum">      37</span>              :         AblDEX: &quot;DEX&quot;,</span>
-<span id="L38"><span class="lineNum">      38</span>              :         AblAGI: &quot;AGI&quot;,</span>
-<span id="L39"><span class="lineNum">      39</span>              :         AblVIT: &quot;VIT&quot;,</span>
-<span id="L40"><span class="lineNum">      40</span>              :         AblDEF: &quot;DEF&quot;,</span>
-<span id="L41"><span class="lineNum">      41</span>              : }</span>
-<span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span>              : // ValueOf は指定された能力値IDに対応するTotal値を返す</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC tlaBgGNC">           1 : func (a *Abilities) ValueOf(id AbilityID) int {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         switch id {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         case AblSTR:</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return a.Strength.Total</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         case AblSEN:</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return a.Sensation.Total</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         case AblDEX:</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 return a.Dexterity.Total</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         case AblAGI:</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return a.Agility.Total</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         case AblVIT:</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 return a.Vitality.Total</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         case AblDEF:</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return a.Defense.Total</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return 0</span></span>
-<span id="L60"><span class="lineNum">      60</span>              :         }</span>
-<span id="L61"><span class="lineNum">      61</span>              : }</span>
+<span id="L3"><span class="lineNum">       3</span>              : import &quot;fmt&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              : </span>
+<span id="L5"><span class="lineNum">       5</span>              : // Ability は変動するパラメータ値</span>
+<span id="L6"><span class="lineNum">       6</span>              : type Ability struct {</span>
+<span id="L7"><span class="lineNum">       7</span>              :         Base     int // 固有の値</span>
+<span id="L8"><span class="lineNum">       8</span>              :         Modifier int // 装備や健康状態で変動する値</span>
+<span id="L9"><span class="lineNum">       9</span>              :         Total    int // 計算した現在値。算出される値のメモ</span>
+<span id="L10"><span class="lineNum">      10</span>              : }</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // Abilities はエンティティが持つ能力値。各種計算式で使う</span>
+<span id="L13"><span class="lineNum">      13</span>              : type Abilities struct {</span>
+<span id="L14"><span class="lineNum">      14</span>              :         Vitality  Ability // 体力。丈夫さ、持久力、しぶとさ。HPやSPに影響する</span>
+<span id="L15"><span class="lineNum">      15</span>              :         Strength  Ability // 筋力。主に近接攻撃のダメージに影響する</span>
+<span id="L16"><span class="lineNum">      16</span>              :         Sensation Ability // 感覚。主に射撃攻撃のダメージに影響する</span>
+<span id="L17"><span class="lineNum">      17</span>              :         Dexterity Ability // 器用。攻撃時の命中率に影響する</span>
+<span id="L18"><span class="lineNum">      18</span>              :         Agility   Ability // 敏捷。回避率、行動の速さに影響する</span>
+<span id="L19"><span class="lineNum">      19</span>              :         Defense   Ability // 防御。被弾ダメージを軽減させる</span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // AbilityID は能力値の識別子</span>
+<span id="L23"><span class="lineNum">      23</span>              : type AbilityID int</span>
+<span id="L24"><span class="lineNum">      24</span>              : </span>
+<span id="L25"><span class="lineNum">      25</span>              : // 能力値ID定数</span>
+<span id="L26"><span class="lineNum">      26</span>              : const (</span>
+<span id="L27"><span class="lineNum">      27</span>              :         AblSTR AbilityID = iota // 筋力</span>
+<span id="L28"><span class="lineNum">      28</span>              :         AblSEN                  // 感覚</span>
+<span id="L29"><span class="lineNum">      29</span>              :         AblDEX                  // 器用</span>
+<span id="L30"><span class="lineNum">      30</span>              :         AblAGI                  // 敏捷</span>
+<span id="L31"><span class="lineNum">      31</span>              :         AblVIT                  // 体力</span>
+<span id="L32"><span class="lineNum">      32</span>              :         AblDEF                  // 防御</span>
+<span id="L33"><span class="lineNum">      33</span>              : )</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // abilityName は能力値IDの表示名マップ</span>
+<span id="L36"><span class="lineNum">      36</span>              : var abilityName = map[AbilityID]string{</span>
+<span id="L37"><span class="lineNum">      37</span>              :         AblSTR: &quot;STR&quot;,</span>
+<span id="L38"><span class="lineNum">      38</span>              :         AblSEN: &quot;SEN&quot;,</span>
+<span id="L39"><span class="lineNum">      39</span>              :         AblDEX: &quot;DEX&quot;,</span>
+<span id="L40"><span class="lineNum">      40</span>              :         AblAGI: &quot;AGI&quot;,</span>
+<span id="L41"><span class="lineNum">      41</span>              :         AblVIT: &quot;VIT&quot;,</span>
+<span id="L42"><span class="lineNum">      42</span>              :         AblDEF: &quot;DEF&quot;,</span>
+<span id="L43"><span class="lineNum">      43</span>              : }</span>
+<span id="L44"><span class="lineNum">      44</span>              : </span>
+<span id="L45"><span class="lineNum">      45</span>              : // AbilityName は能力値IDの表示名を返す。未定義ならpanicする</span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           1 : func AbilityName(id AbilityID) string {</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         name, ok := abilityName[id]</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 panic(fmt.Sprintf(&quot;未定義の能力値ID: %d&quot;, id))</span></span>
+<span id="L50"><span class="lineNum">      50</span>              :         }</span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         return name</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : }</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              : // ValueOf は指定された能力値IDに対応するTotal値を返す</span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 : func (a *Abilities) ValueOf(id AbilityID) int {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         switch id {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         case AblSTR:</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return a.Strength.Total</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         case AblSEN:</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 return a.Sensation.Total</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         case AblDEX:</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 return a.Dexterity.Total</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         case AblAGI:</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 return a.Agility.Total</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         case AblVIT:</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 return a.Vitality.Total</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         case AblDEF:</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 return a.Defense.Total</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L71"><span class="lineNum">      71</span>              :         }</span>
+<span id="L72"><span class="lineNum">      72</span>              : }</span>
         </pre>
               </td>
             </tr>
