@@ -1,5 +1,7 @@
 package components
 
+import "fmt"
+
 // SkillID はスキルの識別子
 type SkillID string
 
@@ -35,9 +37,9 @@ const (
 	SkillPhotonResist  SkillID = "photon_resist"  // 耐光
 )
 
-// SkillAbility はスキルIDから対応する能力値IDへのマッピング。
+// skillAbility はスキルIDから対応する能力値IDへのマッピング。
 // 能力値が高いほど、対応するスキルの成長が速くなる。
-var SkillAbility = map[SkillID]AbilityID{
+var skillAbility = map[SkillID]AbilityID{
 	SkillSword:         AblSTR,
 	SkillSpear:         AblSTR,
 	SkillFist:          AblSTR,
@@ -66,6 +68,15 @@ var SkillAbility = map[SkillID]AbilityID{
 	SkillThunderResist: AblDEF,
 	SkillChillResist:   AblDEF,
 	SkillPhotonResist:  AblDEF,
+}
+
+// SkillAbilityID はスキルに対応する能力値IDを返す
+func SkillAbilityID(id SkillID) AbilityID {
+	ablID, ok := skillAbility[id]
+	if !ok {
+		panic(fmt.Sprintf("スキル%qに対応する能力値が定義されていません", id))
+	}
+	return ablID
 }
 
 // SkillName はスキルIDの表示名を返す

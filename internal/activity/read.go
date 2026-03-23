@@ -218,10 +218,8 @@ func (ra *ReadActivity) getSkillAbilityValue(book *gc.Book, actor ecs.Entity, wo
 		return 0
 	}
 	abils := abilsComp.(*gc.Abilities)
-	if abilID, ok := gc.SkillAbility[book.Skill.TargetSkill]; ok {
-		return abils.ValueOf(abilID)
-	}
-	return 0
+	ablID := gc.SkillAbilityID(book.Skill.TargetSkill)
+	return abils.ValueOf(ablID)
 }
 
 // getBook は対象エンティティのBookコンポーネントを取得する

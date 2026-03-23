@@ -140,7 +140,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 
 		// 対応する能力値による補正。能力値1ポイントにつきスキル係数と同じ方向に±1%
 		if abils != nil {
-			ablID := SkillAbility[skillID]
+			ablID := SkillAbilityID(skillID)
 			ablVal := abils.ValueOf(ablID)
 			ablCoeff := 1
 			if coeff < 0 {

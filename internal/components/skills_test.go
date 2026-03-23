@@ -99,11 +99,17 @@ func TestAllSkillIDs(t *testing.T) {
 func TestSkillAbilityMapping(t *testing.T) {
 	t.Parallel()
 
-	// 全スキルにSkillAbilityマッピングがある
+	// 全スキルにSkillAbilityIDマッピングがある
 	for _, id := range AllSkillIDs {
-		_, ok := SkillAbility[id]
-		assert.True(t, ok, "スキル %s に対応する能力値がマッピングされている", id)
+		assert.NotPanics(t, func() {
+			SkillAbilityID(id)
+		}, "スキル %s に対応する能力値がマッピングされている", id)
 	}
+
+	// 未定義のスキルIDはpanicする
+	assert.Panics(t, func() {
+		SkillAbilityID("undefined_skill")
+	})
 }
 
 func TestSkillNameMapping(t *testing.T) {

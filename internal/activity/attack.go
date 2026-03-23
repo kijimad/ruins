@@ -459,10 +459,7 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 		return
 	}
 	abils := abilsComp.(*gc.Abilities)
-	ablID, ok := gc.SkillAbility[skillID]
-	if !ok {
-		return
-	}
+	ablID := gc.SkillAbilityID(skillID)
 
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
 		recalculateCharModifiers(actor, world, skills)
