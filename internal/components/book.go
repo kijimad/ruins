@@ -23,9 +23,7 @@ func (b *Book) CanRead(skills *Skills) error {
 	}
 	playerLevel := 0
 	if skills != nil {
-		if s, ok := skills.Data[b.Skill.TargetSkill]; ok {
-			playerLevel = s.Value
-		}
+		playerLevel = skills.Get(b.Skill.TargetSkill).Value
 	}
 	if playerLevel < b.Skill.RequiredLevel {
 		return fmt.Errorf("この本を読むには%sスキルがレベル%d以上必要です（現在: %d）",

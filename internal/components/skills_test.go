@@ -47,12 +47,17 @@ func TestNewSkills(t *testing.T) {
 
 	assert.Equal(t, len(AllSkillIDs), len(skills.Data), "全スキルが初期化される")
 	for _, id := range AllSkillIDs {
-		s := skills.Data[id]
+		s := skills.Get(id)
 		assert.NotNil(t, s, "スキル %s が存在する", id)
 		assert.Equal(t, 0, s.Value, "初期スキル値は0")
 		assert.Equal(t, 0, s.Exp.Current, "初期経験値は0")
 		assert.Equal(t, LevelUpExp, s.Exp.Max, "経験値上限はLevelUpExp")
 	}
+
+	// 未定義のスキルIDはpanicする
+	assert.Panics(t, func() {
+		skills.Get("undefined_skill")
+	})
 }
 
 func TestWeaponSkillID(t *testing.T) {

@@ -163,10 +163,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	}
 	skills := skillsComp.(*gc.Skills)
 
-	s, ok := skills.Data[effect.TargetSkill]
-	if !ok {
-		return
-	}
+	s := skills.Get(effect.TargetSkill)
 
 	// 経験値効率を計算
 	efficiency := gc.ReadingEfficiency(s.Value, effect.MaxLevel)

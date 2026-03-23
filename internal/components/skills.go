@@ -184,6 +184,15 @@ type Skills struct {
 	Data map[SkillID]*Skill
 }
 
+// Get は指定されたスキルIDのSkillを返す。未定義ならpanicする
+func (s *Skills) Get(id SkillID) *Skill {
+	sk, ok := s.Data[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義のスキルID: %q", id))
+	}
+	return sk
+}
+
 // LevelUpExp はスキルアップに必要な経験値
 const LevelUpExp = 100
 

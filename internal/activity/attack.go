@@ -448,10 +448,7 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 	if !ok {
 		return
 	}
-	s, ok := skills.Data[skillID]
-	if !ok {
-		return
-	}
+	s := skills.Get(skillID)
 
 	// 対応する能力値を取得して成長速度に反映する
 	abilsComp := world.Components.Abilities.Get(actor)

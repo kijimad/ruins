@@ -189,9 +189,7 @@ func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, p
 	// 職業のスキル初期値を設定
 	skills := world.Components.Skills.Get(player).(*gc.Skills)
 	for _, ps := range prof.Skills {
-		if s, ok := skills.Data[gc.SkillID(ps.ID)]; ok {
-			s.Value = ps.Value
-		}
+		skills.Get(gc.SkillID(ps.ID)).Value = ps.Value
 	}
 	modifiers := gc.RecalculateCharModifiers(skills, abils, nil)
 	player.AddComponent(world.Components.CharModifiers, modifiers)

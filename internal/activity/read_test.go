@@ -81,7 +81,7 @@ func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
 	actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
 
 	skills := gc.NewSkills()
-	skills.Data[gc.SkillSword].Value = 3
+	skills.Get(gc.SkillSword).Value = 3
 	actor.AddComponent(world.Components.Skills, skills)
 
 	bookEntity := world.Manager.NewEntity()
@@ -174,10 +174,10 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 		Target:       &bookEntity,
 	}
 
-	before := skills.Data[gc.SkillSword].Exp.Current
+	before := skills.Get(gc.SkillSword).Exp.Current
 	err := ra.DoTurn(comp, actor, world)
 	assert.NoError(t, err)
-	assert.Greater(t, skills.Data[gc.SkillSword].Exp.Current, before, "経験値が増加する")
+	assert.Greater(t, skills.Get(gc.SkillSword).Exp.Current, before, "経験値が増加する")
 }
 
 func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
@@ -209,7 +209,7 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 
 	err := ra.DoTurn(comp, actor, world)
 	assert.NoError(t, err)
-	assert.Equal(t, 0, skills.Data[gc.SkillSword].Exp.Current, "難しすぎて経験値を得られない")
+	assert.Equal(t, 0, skills.Get(gc.SkillSword).Exp.Current, "難しすぎて経験値を得られない")
 	assert.Equal(t, 10, book.Effort.Current, "工数は進む")
 }
 
@@ -287,7 +287,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	actor.AddComponent(world.Components.Player, nil)
 
 	skills := gc.NewSkills()
-	skills.Data[gc.SkillSword].Exp.Current = 95 // スキルアップ直前
+	skills.Get(gc.SkillSword).Exp.Current = 95 // スキルアップ直前
 	actor.AddComponent(world.Components.Skills, skills)
 
 	abils := &gc.Abilities{Strength: gc.Ability{Total: 5}}
@@ -313,7 +313,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 	err := ra.DoTurn(comp, actor, world)
 	assert.NoError(t, err)
 
-	assert.Equal(t, 1, skills.Data[gc.SkillSword].Value, "スキルアップしている")
+	assert.Equal(t, 1, skills.Get(gc.SkillSword).Value, "スキルアップしている")
 
 	// StatsChangedフラグが立っている
 	assert.True(t, actor.HasComponent(world.Components.StatsChanged), "再計算フラグが立っている")

@@ -131,7 +131,7 @@ func RecalculateCharModifiers(skills *Skills, abils *Abilities, hs *HealthStatus
 	src := make(map[ModifierKey][]ModifierSource)
 
 	calcEffect := func(key ModifierKey, skillID SkillID, coeff int) int {
-		v := skills.Data[skillID].Value
+		v := skills.Get(skillID).Value
 		bonus := v * coeff
 		src[key] = append(src[key], ModifierSource{
 			Label: fmt.Sprintf("%s Lv%d", SkillName[skillID], v),

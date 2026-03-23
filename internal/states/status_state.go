@@ -244,10 +244,7 @@ func (st *StatusState) createSkillItems(world w.World, playerEntity ecs.Entity) 
 			Description: fmt.Sprintf("%sカテゴリのスキル", cat.Name),
 		})
 		for _, id := range cat.IDs {
-			s, ok := skills.Data[id]
-			if !ok {
-				continue
-			}
+			s := skills.Get(id)
 			name := gc.SkillName[id]
 			expFrac := 0
 			if s.Exp.Max > 0 {
