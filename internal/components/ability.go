@@ -1,5 +1,7 @@
 package components
 
+import "fmt"
+
 // Ability は変動するパラメータ値
 type Ability struct {
 	Base     int // 固有の値
@@ -30,14 +32,23 @@ const (
 	AblDEF                  // 防御
 )
 
-// AbilityName は能力値IDの表示名を返す
-var AbilityName = map[AbilityID]string{
+// abilityName は能力値IDの表示名マップ
+var abilityName = map[AbilityID]string{
 	AblSTR: "STR",
 	AblSEN: "SEN",
 	AblDEX: "DEX",
 	AblAGI: "AGI",
 	AblVIT: "VIT",
 	AblDEF: "DEF",
+}
+
+// AbilityName は能力値IDの表示名を返す。未定義ならpanicする
+func AbilityName(id AbilityID) string {
+	name, ok := abilityName[id]
+	if !ok {
+		panic(fmt.Sprintf("未定義の能力値ID: %d", id))
+	}
+	return name
 }
 
 // ValueOf は指定された能力値IDに対応するTotal値を返す

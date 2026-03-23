@@ -195,7 +195,7 @@ func addBookInfo(targetContainer *widget.Container, book *gc.Book, world w.World
 	styled.NewTableHeaderRow(table, columnWidths, []string{"本", ""}, res)
 
 	if book.Skill != nil {
-		skillName := gc.SkillName[book.Skill.TargetSkill]
+		skillName := gc.SkillName(book.Skill.TargetSkill)
 		styled.NewTableRow(table, columnWidths, []string{"スキル", skillName}, specTableAligns, nil, res)
 
 		lvRange := fmt.Sprintf("%d %s %d", book.Skill.RequiredLevel, consts.IconArrowRight, book.Skill.MaxLevel)

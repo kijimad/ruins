@@ -57,7 +57,6 @@ func TestGainExp_DecaysWithLevel(t *testing.T) {
 func TestGainExp_MinimumExpIsOne(t *testing.T) {
 	t.Parallel()
 
-	// MaxLevel=100がデフォルトなので、上限なしテストにはgainExpを直接使う
 	s := newTestSkill(50, 0)
 	before := s.Exp.Current
 	GainExp(s, 0)

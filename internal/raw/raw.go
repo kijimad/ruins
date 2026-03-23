@@ -444,7 +444,7 @@ func newBookFromRaw(raw *BookRaw) (*gc.Book, error) {
 	}
 
 	skillID := gc.SkillID(raw.Skill.TargetSkill)
-	if _, ok := gc.SkillName[skillID]; !ok {
+	if !gc.HasSkillName(skillID) {
 		return nil, fmt.Errorf("未定義のスキルID: %q", raw.Skill.TargetSkill)
 	}
 

@@ -17,7 +17,6 @@ var growthConfig = struct {
 
 // GainExp はスキルに経験値を加算する。スキルアップしたらtrueを返す。
 // abilityValueは対応する能力値で、高いほど獲得経験値が増える。
-// 式: exp = BaseExp * (100 + abilValue*AbilBonus) / 100 * 100 / (100 + currentValue*DecayPerLevel)
 func GainExp(s *gc.Skill, abilityValue int) bool {
 	return gainExp(s, abilityValue, growthConfig.BaseExp)
 }

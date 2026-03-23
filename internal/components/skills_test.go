@@ -122,10 +122,16 @@ func TestSkillNameMapping(t *testing.T) {
 
 	// 全スキルにSkillNameがある
 	for _, id := range AllSkillIDs {
-		name, ok := SkillName[id]
-		assert.True(t, ok, "スキル %s に表示名がある", id)
-		assert.NotEmpty(t, name, "スキル %s の表示名が空でない", id)
+		assert.NotPanics(t, func() {
+			name := SkillName(id)
+			assert.NotEmpty(t, name, "スキル %s の表示名が空でない", id)
+		})
 	}
+
+	// 未定義のスキルIDはpanicする
+	assert.Panics(t, func() {
+		SkillName("undefined_skill")
+	})
 }
 
 func TestSkillDescriptionMapping(t *testing.T) {
@@ -133,10 +139,80 @@ func TestSkillDescriptionMapping(t *testing.T) {
 
 	// 全スキルにSkillDescriptionがある
 	for _, id := range AllSkillIDs {
-		info, ok := SkillDescription[id]
-		assert.True(t, ok, "スキル %s に詳細情報がある", id)
-		assert.NotEmpty(t, info.Summary, "スキル %s の概要が空でない", id)
-		assert.NotEmpty(t, info.GainedBy, "スキル %s の獲得条件が空でない", id)
-		assert.NotEmpty(t, info.Effect, "スキル %s の効果が空でない", id)
+		assert.NotPanics(t, func() {
+			info := SkillDescription(id)
+			assert.NotEmpty(t, info.Summary, "スキル %s の概要が空でない", id)
+			assert.NotEmpty(t, info.GainedBy, "スキル %s の獲得条件が空でない", id)
+			assert.NotEmpty(t, info.Effect, "スキル %s の効果が空でない", id)
+		})
 	}
+
+	// 未定義のスキルIDはpanicする
+	assert.Panics(t, func() {
+		SkillDescription("undefined_skill")
+	})
+}
+
+func TestAbilityNameMapping(t *testing.T) {
+	t.Parallel()
+
+	for _, id := range []AbilityID{AblSTR, AblSEN, AblDEX, AblAGI, AblVIT, AblDEF} {
+		assert.NotPanics(t, func() {
+			name := AbilityName(id)
+			assert.NotEmpty(t, name)
+		})
+	}
+
+	// 未定義の能力値IDはpanicする
+	assert.Panics(t, func() {
+		AbilityName(AbilityID(99))
+	})
+}
+
+func TestWeaponDamageKeyMapping(t *testing.T) {
+	t.Parallel()
+
+	for _, id := range weaponSkillIDs {
+		assert.NotPanics(t, func() {
+			key := WeaponDamageKey(id)
+			assert.NotEmpty(t, key)
+		})
+	}
+
+	// 未定義の武器スキルIDはpanicする
+	assert.Panics(t, func() {
+		WeaponDamageKey("undefined_skill")
+	})
+}
+
+func TestWeaponAccuracyKeyMapping(t *testing.T) {
+	t.Parallel()
+
+	for _, id := range weaponSkillIDs {
+		assert.NotPanics(t, func() {
+			key := WeaponAccuracyKey(id)
+			assert.NotEmpty(t, key)
+		})
+	}
+
+	// 未定義の武器スキルIDはpanicする
+	assert.Panics(t, func() {
+		WeaponAccuracyKey("undefined_skill")
+	})
+}
+
+func TestElementResistKeyMapping(t *testing.T) {
+	t.Parallel()
+
+	for _, elem := range []ElementType{ElementTypeFire, ElementTypeThunder, ElementTypeChill, ElementTypePhoton} {
+		assert.NotPanics(t, func() {
+			key := ElementResistKey(elem)
+			assert.NotEmpty(t, key)
+		})
+	}
+
+	// 未定義の元素タイプはpanicする
+	assert.Panics(t, func() {
+		ElementResistKey("undefined_element")
+	})
 }

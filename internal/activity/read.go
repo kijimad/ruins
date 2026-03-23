@@ -177,7 +177,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 	if leveledUp {
 		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
-		name := gc.SkillName[effect.TargetSkill]
+		name := gc.SkillName(effect.TargetSkill)
 		gamelog.New(gamelog.FieldLog).
 			Append(fmt.Sprintf("%sスキルが %d に上がった", name, s.Value)).
 			Log()
