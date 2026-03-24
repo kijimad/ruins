@@ -52,6 +52,7 @@ type EntitySpec struct {
 
 	// member ================
 	Player        *Player
+	Profession    *Profession
 	Hunger        *Hunger
 	Wallet        *Wallet
 	FactionType   *FactionType
@@ -118,7 +119,8 @@ type Components struct {
 	TileTemperature *ecs.SliceComponent
 
 	// member ================
-	Player         *ecs.NullComponent `save:"true"`
+	Player         *ecs.NullComponent  `save:"true"`
+	Profession     *ecs.SliceComponent `save:"true"`
 	Hunger         *ecs.SliceComponent
 	Wallet         *ecs.SliceComponent `save:"true"`
 	FactionAlly    *ecs.NullComponent  `save:"true"`
@@ -238,6 +240,11 @@ type Wearable struct {
 
 // Player は操作対象の主人公キャラクター
 type Player struct{}
+
+// Profession はプレイヤーが選択した職業を保持する。ラン終了時の再適用に使う
+type Profession struct {
+	ID string // raw.Profession.ID に対応する
+}
 
 // Dead はキャラクターが死亡している状態を示すマーカーコンポーネント
 // 死亡時の処理(ドロップ/統計処理/ゲームログ...)を共通化するために使う

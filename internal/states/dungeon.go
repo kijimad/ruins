@@ -505,9 +505,9 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
 	case resources.WarpEscapeEvent:
-		// 街へ帰還
+		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewFadeoutAnimationState(NewTownState()),
+			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil

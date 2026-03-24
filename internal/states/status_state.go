@@ -119,7 +119,9 @@ func NewStatusState() es.State[w.World] {
 // ================
 
 type statusProps struct {
-	Tabs []statusTabData
+	PlayerName     string
+	ProfessionName string
+	Tabs           []statusTabData
 }
 
 type statusTabData struct {
@@ -158,8 +160,22 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 		}
 	}
 
+	playerName := ""
+	if playerEntity.HasComponent(world.Components.Name) {
+		playerName = world.Components.Name.Get(playerEntity).(*gc.Name).Name
+	}
+	professionName := ""
+	if playerEntity.HasComponent(world.Components.Profession) {
+		profComp := world.Components.Profession.Get(playerEntity).(*gc.Profession)
+		if prof, err := world.Resources.RawMaster.GetProfession(profComp.ID); err == nil {
+			professionName = prof.Name
+		}
+	}
+
 	return statusProps{
-		Tabs: st.createTabs(world, playerEntity, envTemp),
+		PlayerName:     playerName,
+		ProfessionName: professionName,
+		Tabs:           st.createTabs(world, playerEntity, envTemp),
 	}
 }
 
@@ -415,7 +431,11 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText("ステータス", res))
+	titleText := props.PlayerName
+	if props.ProfessionName != "" {
+		titleText += " / " + props.ProfessionName
+	}
+	root.AddChild(styled.NewTitleText(titleText, res))
 	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
 	root.AddChild(widget.NewContainer())
 

@@ -32,6 +32,10 @@ func InitNewGameData(world w.World) {
 		System("Spaceキー: アクションメニューを開く。").
 		Log()
 
-	// プレイヤー生成
-	_, _ = SpawnPlayer(world, 5, 5, "Ash")
+	// プレイヤー生成し、デフォルトの職業を適用する
+	player, _ := SpawnPlayer(world, 5, 5, "Ash")
+	professions := world.Resources.RawMaster.Raws.Professions
+	if len(professions) > 0 {
+		ApplyProfession(world, player, professions[0])
+	}
 }

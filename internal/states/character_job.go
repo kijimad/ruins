@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -18,7 +17,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // CharacterJobState はキャラクター職業選択画面のステート
@@ -161,7 +159,11 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	}
 
 	player, _ := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
-	st.applyProfession(world, player, prof)
+	worldhelper.ApplyProfession(world, player, prof)
+
+	// プレイヤー名を上書き
+	name := world.Components.Name.Get(player).(*gc.Name)
+	name.Name = st.playerName
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
@@ -169,55 +171,6 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	})
 
 	return st.ConsumeTransition(), nil
-}
-
-// applyProfession はプレイヤーエンティティに職業の属性値・スキルを適用する
-func (st *CharacterJobState) applyProfession(world w.World, player ecs.Entity, prof raw.Profession) {
-	// プレイヤー名を上書き
-	name := world.Components.Name.Get(player).(*gc.Name)
-	name.Name = st.playerName
-
-	// 職業の属性値で上書き
-	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
-	abils.Strength = gc.Ability{Base: prof.Abilities.Strength}
-	abils.Sensation = gc.Ability{Base: prof.Abilities.Sensation}
-	abils.Dexterity = gc.Ability{Base: prof.Abilities.Dexterity}
-	abils.Agility = gc.Ability{Base: prof.Abilities.Agility}
-	abils.Vitality = gc.Ability{Base: prof.Abilities.Vitality}
-	abils.Defense = gc.Ability{Base: prof.Abilities.Defense}
-
-	// 職業のスキル初期値を設定
-	skills := world.Components.Skills.Get(player).(*gc.Skills)
-	for _, ps := range prof.Skills {
-		skills.Get(gc.SkillID(ps.ID)).Value = ps.Value
-	}
-	modifiers := gc.RecalculateCharModifiers(skills, abils, nil)
-	player.AddComponent(world.Components.CharModifiers, modifiers)
-
-	// 属性値変更後にHP/SP/EP/APを再計算
-	_ = worldhelper.FullRecover(world, player)
-
-	// 初期アイテムをバックパックに付与
-	for _, profItem := range prof.Items {
-		if _, err := worldhelper.SpawnItem(world, profItem.Name, profItem.Count, gc.ItemLocationInPlayerBackpack); err != nil {
-			log.Printf("職業の初期アイテム生成に失敗: %s: %v", profItem.Name, err)
-		}
-	}
-
-	// 初期装備を付与して装備する
-	for _, equip := range prof.Equips {
-		item, err := worldhelper.SpawnItem(world, equip.Name, 1, gc.ItemLocationInPlayerBackpack)
-		if err != nil {
-			log.Printf("職業の初期装備生成に失敗: %s: %v", equip.Name, err)
-			continue
-		}
-		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
-		if !ok {
-			log.Printf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
-			continue
-		}
-		worldhelper.MoveToEquip(world, item, player, slot)
-	}
 }
 
 // ================
