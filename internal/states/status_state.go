@@ -119,9 +119,8 @@ func NewStatusState() es.State[w.World] {
 // ================
 
 type statusProps struct {
-	PlayerName     string
-	ProfessionName string
-	Tabs           []statusTabData
+	PlayerName string
+	Tabs       []statusTabData
 }
 
 type statusTabData struct {
@@ -173,9 +172,8 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 	}
 
 	return statusProps{
-		PlayerName:     playerName,
-		ProfessionName: professionName,
-		Tabs:           st.createTabs(world, playerEntity, envTemp),
+		PlayerName: playerName,
+		Tabs:       st.createTabs(world, playerEntity, envTemp, professionName),
 	}
 }
 
@@ -188,9 +186,9 @@ const (
 	tabHealth    = "health"
 )
 
-func (st *StatusState) createTabs(world w.World, playerEntity ecs.Entity, envTemp int) []statusTabData {
+func (st *StatusState) createTabs(world w.World, playerEntity ecs.Entity, envTemp int, professionName string) []statusTabData {
 	return []statusTabData{
-		{ID: tabBasic, Label: "基本", Items: st.createBasicItems(world, playerEntity, envTemp)},
+		{ID: tabBasic, Label: "基本", Items: st.createBasicItems(world, playerEntity, envTemp, professionName)},
 		{ID: tabAbilities, Label: "能力", Items: st.createAbilityItems(world, playerEntity)},
 		{ID: tabSkills, Label: "スキル", Items: st.createSkillItems(world, playerEntity)},
 		{ID: tabEffects, Label: "効果", Items: st.createEffectItems(world, playerEntity)},
@@ -198,8 +196,12 @@ func (st *StatusState) createTabs(world w.World, playerEntity ecs.Entity, envTem
 	}
 }
 
-func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, envTemp int) []statusItemData {
+func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, envTemp int, professionName string) []statusItemData {
 	items := []statusItemData{}
+
+	if professionName != "" {
+		items = append(items, statusItemData{Label: "職業", Value: professionName, Description: "職業"})
+	}
 
 	if playerEntity.HasComponent(world.Components.Pools) {
 		pools := world.Components.Pools.Get(playerEntity).(*gc.Pools)
@@ -431,11 +433,7 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	titleText := props.PlayerName
-	if props.ProfessionName != "" {
-		titleText += " / " + props.ProfessionName
-	}
-	root.AddChild(styled.NewTitleText(titleText, res))
+	root.AddChild(styled.NewTitleText(props.PlayerName, res))
 	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
 	root.AddChild(widget.NewContainer())
 
