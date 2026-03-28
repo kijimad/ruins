@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -67,7 +66,7 @@ func (st *AutoSellState) OnStart(world w.World) error {
 
 	result, err := worldhelper.PreviewEndRun(world, playerEntity)
 	if err != nil {
-		log.Printf("プレビュー生成でエラー: %v", err)
+		return fmt.Errorf("プレビュー生成に失敗: %w", err)
 	}
 	st.preview = result
 	st.mount = hooks.NewMount[autoSellProps]()
@@ -131,7 +130,7 @@ func (st *AutoSellState) DoAction(world w.World, action inputmapper.ActionID) (e
 			return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの取得に失敗: %w", err)
 		}
 		if err := worldhelper.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil {
-			log.Printf("売却実行でエラー: %v", err)
+			return es.Transition[w.World]{}, fmt.Errorf("売却実行に失敗: %w", err)
 		}
 		return es.Transition[w.World]{
 			Type:          es.TransReplace,
