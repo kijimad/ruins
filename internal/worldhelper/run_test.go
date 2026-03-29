@@ -17,7 +17,7 @@ func TestPreviewEndRun(t *testing.T) {
 	prof := world.Resources.RawMaster.Raws.Professions[0]
 	player, err := SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
-	ApplyProfession(world, player, prof)
+	require.NoError(t, ApplyProfession(world, player, prof))
 
 	// バックパックにアイテムを追加する
 	item1, err := SpawnItem(world, "回復薬", 1, gc.ItemLocationInPlayerBackpack)
@@ -31,25 +31,19 @@ func TestPreviewEndRun(t *testing.T) {
 
 	assert.Greater(t, result.Total, 0, "売却合計が0より大きい")
 
-	// 追加した回復薬が集約されていることを確認する
+	// 追加した回復薬が個別エンティティとして含まれていることを確認する
 	healingCount := 0
 	for _, item := range result.Items {
 		if item.Name == "回復薬" {
-			healingCount = item.Count
+			healingCount++
+			assert.NotZero(t, item.Entity, "エンティティが設定されている")
 		}
 	}
-	assert.GreaterOrEqual(t, healingCount, 2, "追加した回復薬が含まれて集約されている")
+	assert.GreaterOrEqual(t, healingCount, 2, "追加した回復薬が個別に含まれている")
 
 	// プレビュー段階ではエンティティが残っていることを確認する
 	assert.True(t, item1.HasComponent(world.Components.Item), "プレビュー段階ではアイテム1が残っている")
 	assert.True(t, item2.HasComponent(world.Components.Item), "プレビュー段階ではアイテム2が残っている")
-
-	// 代表エンティティが設定されていることを確認する
-	for _, item := range result.Items {
-		if item.Name == "回復薬" {
-			assert.NotZero(t, item.Entity, "代表エンティティが設定されている")
-		}
-	}
 }
 
 func TestExecuteEndRun(t *testing.T) {
@@ -59,7 +53,7 @@ func TestExecuteEndRun(t *testing.T) {
 	prof := world.Resources.RawMaster.Raws.Professions[0]
 	player, err := SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
-	ApplyProfession(world, player, prof)
+	require.NoError(t, ApplyProfession(world, player, prof))
 
 	walletBefore := world.Components.Wallet.Get(player).(*gc.Wallet).Currency
 

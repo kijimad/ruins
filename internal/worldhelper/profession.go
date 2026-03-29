@@ -1,7 +1,7 @@
 package worldhelper
 
 import (
-	"log"
+	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -11,7 +11,7 @@ import (
 
 // ApplyProfession はプレイヤーエンティティに職業の属性値・スキル・装備を適用する。
 // 職業選択時とラン終了時の再適用で使う。
-func ApplyProfession(world w.World, player ecs.Entity, prof raw.Profession) {
+func ApplyProfession(world w.World, player ecs.Entity, prof raw.Profession) error {
 	// 職業IDを保持する
 	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.ID})
 
@@ -39,7 +39,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof raw.Profession) {
 	// 初期アイテムをバックパックに付与
 	for _, profItem := range prof.Items {
 		if _, err := SpawnItem(world, profItem.Name, profItem.Count, gc.ItemLocationInPlayerBackpack); err != nil {
-			log.Printf("職業の初期アイテム生成に失敗: %s: %v", profItem.Name, err)
+			return fmt.Errorf("職業の初期アイテム生成に失敗: %s: %w", profItem.Name, err)
 		}
 	}
 
@@ -47,14 +47,14 @@ func ApplyProfession(world w.World, player ecs.Entity, prof raw.Profession) {
 	for _, equip := range prof.Equips {
 		item, err := SpawnItem(world, equip.Name, 1, gc.ItemLocationInPlayerBackpack)
 		if err != nil {
-			log.Printf("職業の初期装備生成に失敗: %s: %v", equip.Name, err)
-			continue
+			return fmt.Errorf("職業の初期装備生成に失敗: %s: %w", equip.Name, err)
 		}
 		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
 		if !ok {
-			log.Printf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
-			continue
+			return fmt.Errorf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
 		}
 		MoveToEquip(world, item, player, slot)
 	}
+
+	return nil
 }

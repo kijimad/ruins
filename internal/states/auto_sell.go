@@ -6,6 +6,7 @@ import (
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
@@ -164,7 +165,7 @@ func (st *AutoSellState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(widget.NewContainer())
 
 	// row2: アイテムリスト | 空 | スペック
-	root.AddChild(st.buildItemContainer(props, itemIndex, res))
+	root.AddChild(st.buildItemContainer(world, props, itemIndex, res))
 	root.AddChild(widget.NewContainer())
 	root.AddChild(st.buildSpecContainer(world, props, itemIndex, res))
 
@@ -176,7 +177,7 @@ func (st *AutoSellState) buildUI(world w.World) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
-func (st *AutoSellState) buildItemContainer(props autoSellProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, itemIndex int, res *resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
 	if len(props.Items) == 0 {
@@ -184,7 +185,7 @@ func (st *AutoSellState) buildItemContainer(props autoSellProps, itemIndex int, 
 		return container
 	}
 
-	columnWidths := []int{20, 120, 40, 80}
+	columnWidths := []int{20, 120, 50, 80}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
 	pg := pagination.New(itemIndex, len(props.Items), autoSellItemsPerPage)
@@ -199,8 +200,10 @@ func (st *AutoSellState) buildItemContainer(props autoSellProps, itemIndex int, 
 	for _, entry := range pagination.VisibleEntries(props.Items, pg) {
 		isSelected := pg.IsSelectedInPage(entry.Index)
 		countStr := ""
-		if entry.Item.Count > 1 {
-			countStr = fmt.Sprintf("%d", entry.Item.Count)
+		entity := entry.Item.Entity
+		if entity.HasComponent(world.Components.Stackable) {
+			count := world.Components.Item.Get(entity).(*gc.Item).Count
+			countStr = fmt.Sprintf("%d", count)
 		}
 		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, countStr, worldhelper.FormatCurrency(entry.Item.Price)}, aligns, &isSelected, res)
 	}

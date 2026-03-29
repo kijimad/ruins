@@ -158,8 +158,13 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 		world.Manager.DeleteEntity(existing)
 	}
 
-	player, _ := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
-	worldhelper.ApplyProfession(world, player, prof)
+	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	if err != nil {
+		return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+	}
+	if err := worldhelper.ApplyProfession(world, player, prof); err != nil {
+		return es.Transition[w.World]{}, fmt.Errorf("職業の適用に失敗: %w", err)
+	}
 
 	// プレイヤー名を上書き
 	name := world.Components.Name.Get(player).(*gc.Name)

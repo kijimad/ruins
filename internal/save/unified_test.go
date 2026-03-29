@@ -161,7 +161,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 
 			// InitNewGameDataを使用してリアルなゲームデータを作成
-			worldhelper.InitNewGameData(world)
+			require.NoError(t, worldhelper.InitNewGameData(world))
 
 			sm := createTestSerializationManager(t)
 			jsonStr, err := sm.GenerateWorldJSON(world)

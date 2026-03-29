@@ -2,6 +2,7 @@ package worldhelper
 
 import (
 	"fmt"
+	"sort"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -10,9 +11,8 @@ import (
 
 // SoldItem は売却対象アイテム1件の情報
 type SoldItem struct {
-	Entity ecs.Entity // 同名グループの代表エンティティ。スペック表示に使う
+	Entity ecs.Entity
 	Name   string
-	Count  int
 	Price  int
 }
 
@@ -77,7 +77,7 @@ func unequipAll(world w.World, playerEntity ecs.Entity) {
 	}
 }
 
-// collectBackpackItems はバックパック内の全アイテムを収集し、同名アイテムを集約して返す。
+// collectBackpackItems はバックパック内の全アイテムを収集して返す。
 // エンティティは削除しない。
 func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult {
 	sellPriceMod := 100
@@ -86,13 +86,8 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 		sellPriceMod = mods.SellPrice
 	}
 
-	type itemInfo struct {
-		entity ecs.Entity
-		name   string
-		count  int
-		price  int
-	}
-	var items []itemInfo
+	var items []SoldItem
+	total := 0
 	world.Manager.Join(
 		world.Components.Item,
 		world.Components.ItemLocationInPlayerBackpack,
@@ -101,38 +96,23 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 		if entity.HasComponent(world.Components.Name) {
 			name = world.Components.Name.Get(entity).(*gc.Name).Name
 		}
-		count := world.Components.Item.Get(entity).(*gc.Item).Count
 
 		price := 0
 		if entity.HasComponent(world.Components.Value) {
+			count := world.Components.Item.Get(entity).(*gc.Item).Count
 			baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
 			price = CalculateSellPrice(baseValue) * count * sellPriceMod / 100
 		}
 
-		items = append(items, itemInfo{entity: entity, name: name, count: count, price: price})
+		items = append(items, SoldItem{Entity: entity, Name: name, Price: price})
+		total += price
 	}))
 
-	// 同名アイテムを集約する
-	merged := map[string]*SoldItem{}
-	var order []string
-	total := 0
-	for _, it := range items {
-		if existing, ok := merged[it.name]; ok {
-			existing.Count += it.count
-			existing.Price += it.price
-		} else {
-			merged[it.name] = &SoldItem{Entity: it.entity, Name: it.name, Count: it.count, Price: it.price}
-			order = append(order, it.name)
-		}
-		total += it.price
-	}
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Name < items[j].Name
+	})
 
-	soldItems := make([]SoldItem, 0, len(order))
-	for _, name := range order {
-		soldItems = append(soldItems, *merged[name])
-	}
-
-	return AutoSellResult{Items: soldItems, Total: total}
+	return AutoSellResult{Items: items, Total: total}
 }
 
 // reapplyProfession はプレイヤーの職業を再適用する
@@ -147,6 +127,5 @@ func reapplyProfession(world w.World, playerEntity ecs.Entity) error {
 		return fmt.Errorf("職業データの取得に失敗: %w", err)
 	}
 
-	ApplyProfession(world, playerEntity, prof)
-	return nil
+	return ApplyProfession(world, playerEntity, prof)
 }
