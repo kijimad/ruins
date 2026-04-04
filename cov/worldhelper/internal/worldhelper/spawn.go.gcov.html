@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.5&nbsp;%</td>
+            <td class="headerCovTableEntryMed">76.1&nbsp;%</td>
             <td class="headerCovTableEntry">376</td>
-            <td class="headerCovTableEntry">284</td>
+            <td class="headerCovTableEntry">286</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-23 15:04:04</td>
+            <td class="headerValue">2026-04-04 05:40:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -454,10 +454,10 @@
 <span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         // バックパックに追加した場合はインベントリ重量を再計算する</span></span>
 <span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           2 :         if locationType == gc.ItemLocationInPlayerBackpack {</span></span>
 <span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :                 var playerEntity ecs.Entity</span></span>
-<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 :                 world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {</span></span>
-<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC tlaBgUNC">           0 :                         playerEntity = e</span></span>
-<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 }))</span></span>
-<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC tlaBgGNC">           1 :                 if playerEntity != 0 {</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           2 :                 world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :                         playerEntity = e</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                 }))</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 if playerEntity != 0 {</span></span>
 <span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC tlaBgUNC">           0 :                         UpdateCarryingWeight(world, playerEntity)</span></span>
 <span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L401"><span class="lineNum">     401</span>              :         }</span>

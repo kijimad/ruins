@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">17.5&nbsp;%</td>
-            <td class="headerCovTableEntry">549</td>
+            <td class="headerCovTableEntryLo">17.6&nbsp;%</td>
+            <td class="headerCovTableEntry">547</td>
             <td class="headerCovTableEntry">96</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-23 15:04:04</td>
+            <td class="headerValue">2026-04-04 05:40:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -763,85 +763,83 @@
 <span id="L701"><span class="lineNum">     701</span> <span class="tlaUNC">           0 :                 return</span></span>
 <span id="L702"><span class="lineNum">     702</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L703"><span class="lineNum">     703</span>              : </span>
-<span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC">           0 :         views.AddMemberStatusText(container, player, world)</span></span>
-<span id="L705"><span class="lineNum">     705</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L706"><span class="lineNum">     706</span> <span class="tlaUNC">           0 :         if !player.HasComponent(world.Components.Abilities) {</span></span>
-<span id="L707"><span class="lineNum">     707</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L708"><span class="lineNum">     708</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L709"><span class="lineNum">     709</span>              : </span>
-<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 :         columnWidths := []int{50, 30, 40}</span></span>
-<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}</span></span>
+<span id="L704"><span class="lineNum">     704</span> <span class="tlaUNC">           0 :         if !player.HasComponent(world.Components.Abilities) {</span></span>
+<span id="L705"><span class="lineNum">     705</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L706"><span class="lineNum">     706</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L707"><span class="lineNum">     707</span>              : </span>
+<span id="L708"><span class="lineNum">     708</span> <span class="tlaUNC">           0 :         columnWidths := []int{50, 30, 40}</span></span>
+<span id="L709"><span class="lineNum">     709</span> <span class="tlaUNC">           0 :         aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}</span></span>
+<span id="L710"><span class="lineNum">     710</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L711"><span class="lineNum">     711</span> <span class="tlaUNC">           0 :         abils := world.Components.Abilities.Get(player).(*gc.Abilities)</span></span>
 <span id="L712"><span class="lineNum">     712</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC">           0 :         abils := world.Components.Abilities.Get(player).(*gc.Abilities)</span></span>
-<span id="L714"><span class="lineNum">     714</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :         table := styled.NewTableContainer(columnWidths, res)</span></span>
-<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf(&quot;%d&quot;, abils.Vitality.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Vitality.Modifier)}, aligns, nil, res)</span></span>
-<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf(&quot;%d&quot;, abils.Strength.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Strength.Modifier)}, aligns, nil, res)</span></span>
-<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf(&quot;%d&quot;, abils.Sensation.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Sensation.Modifier)}, aligns, nil, res)</span></span>
-<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf(&quot;%d&quot;, abils.Dexterity.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Dexterity.Modifier)}, aligns, nil, res)</span></span>
-<span id="L720"><span class="lineNum">     720</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf(&quot;%d&quot;, abils.Agility.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Agility.Modifier)}, aligns, nil, res)</span></span>
-<span id="L721"><span class="lineNum">     721</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf(&quot;%d&quot;, abils.Defense.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Defense.Modifier)}, aligns, nil, res)</span></span>
-<span id="L722"><span class="lineNum">     722</span> <span class="tlaUNC">           0 :         container.AddChild(table)</span></span>
-<span id="L723"><span class="lineNum">     723</span>              : }</span>
-<span id="L724"><span class="lineNum">     724</span>              : </span>
-<span id="L725"><span class="lineNum">     725</span>              : // buildSlotDescContainer はスロット選択画面の説明文を構築する</span>
-<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC">           0 : func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
-<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
-<span id="L729"><span class="lineNum">     729</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>
-<span id="L731"><span class="lineNum">     731</span> <span class="tlaUNC">           0 :                 item := tabs[tabIndex].Items[itemIndex]</span></span>
-<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :                 if item.Entity != nil &amp;&amp; (*item.Entity).HasComponent(world.Components.Description) {</span></span>
-<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :                         descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)</span></span>
-<span id="L734"><span class="lineNum">     734</span> <span class="tlaUNC">           0 :                         desc = descComp.Description</span></span>
-<span id="L735"><span class="lineNum">     735</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L736"><span class="lineNum">     736</span>              :         }</span>
-<span id="L737"><span class="lineNum">     737</span>              : </span>
-<span id="L738"><span class="lineNum">     738</span> <span class="tlaUNC">           0 :         if desc == &quot;&quot; {</span></span>
-<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :                 desc = &quot; &quot;</span></span>
-<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L741"><span class="lineNum">     741</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(desc, res))</span></span>
-<span id="L742"><span class="lineNum">     742</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L743"><span class="lineNum">     743</span>              : }</span>
-<span id="L744"><span class="lineNum">     744</span>              : </span>
-<span id="L745"><span class="lineNum">     745</span>              : // buildEquipDescContainer は装備選択画面の説明文を構築する</span>
-<span id="L746"><span class="lineNum">     746</span> <span class="tlaUNC">           0 : func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipItemData, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L747"><span class="lineNum">     747</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
-<span id="L748"><span class="lineNum">     748</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
-<span id="L749"><span class="lineNum">     749</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L750"><span class="lineNum">     750</span> <span class="tlaUNC">           0 :         if itemIndex &lt; len(items) {</span></span>
-<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :                 item := items[itemIndex]</span></span>
-<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :                 if item.EquipEntity.HasComponent(world.Components.Description) {</span></span>
-<span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC">           0 :                         descComp := world.Components.Description.Get(item.EquipEntity).(*gc.Description)</span></span>
-<span id="L754"><span class="lineNum">     754</span> <span class="tlaUNC">           0 :                         desc = descComp.Description</span></span>
-<span id="L755"><span class="lineNum">     755</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L756"><span class="lineNum">     756</span>              :         }</span>
-<span id="L757"><span class="lineNum">     757</span>              : </span>
-<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 :         if desc == &quot;&quot; {</span></span>
-<span id="L759"><span class="lineNum">     759</span> <span class="tlaUNC">           0 :                 desc = &quot; &quot;</span></span>
-<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L761"><span class="lineNum">     761</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(desc, res))</span></span>
-<span id="L762"><span class="lineNum">     762</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L763"><span class="lineNum">     763</span>              : }</span>
-<span id="L764"><span class="lineNum">     764</span>              : </span>
-<span id="L765"><span class="lineNum">     765</span> <span class="tlaUNC">           0 : func (st *EquipMenuState) buildActionWindow(world w.World, windowProps windowScreenProps) *widget.Window {</span></span>
-<span id="L766"><span class="lineNum">     766</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L767"><span class="lineNum">     767</span> <span class="tlaUNC">           0 :         actionIndex, _ := hooks.GetState[int](st.windowMount, &quot;equip_window_index&quot;)</span></span>
-<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems(world, windowProps.SlotData)</span></span>
-<span id="L769"><span class="lineNum">     769</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
-<span id="L771"><span class="lineNum">     771</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
-<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :         window := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
-<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
-<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
-<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
-<span id="L777"><span class="lineNum">     777</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
-<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L779"><span class="lineNum">     779</span>              : </span>
-<span id="L780"><span class="lineNum">     780</span> <span class="tlaUNC">           0 :         window.SetLocation(getCenterWinRect(world))</span></span>
-<span id="L781"><span class="lineNum">     781</span> <span class="tlaUNC">           0 :         return window</span></span>
-<span id="L782"><span class="lineNum">     782</span>              : }</span>
+<span id="L713"><span class="lineNum">     713</span> <span class="tlaUNC">           0 :         table := styled.NewTableContainer(columnWidths, res)</span></span>
+<span id="L714"><span class="lineNum">     714</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf(&quot;%d&quot;, abils.Vitality.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Vitality.Modifier)}, aligns, nil, res)</span></span>
+<span id="L715"><span class="lineNum">     715</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.StrengthLabel, fmt.Sprintf(&quot;%d&quot;, abils.Strength.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Strength.Modifier)}, aligns, nil, res)</span></span>
+<span id="L716"><span class="lineNum">     716</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.SensationLabel, fmt.Sprintf(&quot;%d&quot;, abils.Sensation.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Sensation.Modifier)}, aligns, nil, res)</span></span>
+<span id="L717"><span class="lineNum">     717</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.DexterityLabel, fmt.Sprintf(&quot;%d&quot;, abils.Dexterity.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Dexterity.Modifier)}, aligns, nil, res)</span></span>
+<span id="L718"><span class="lineNum">     718</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf(&quot;%d&quot;, abils.Agility.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Agility.Modifier)}, aligns, nil, res)</span></span>
+<span id="L719"><span class="lineNum">     719</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{consts.DefenseLabel, fmt.Sprintf(&quot;%d&quot;, abils.Defense.Total), fmt.Sprintf(&quot;(%+d)&quot;, abils.Defense.Modifier)}, aligns, nil, res)</span></span>
+<span id="L720"><span class="lineNum">     720</span> <span class="tlaUNC">           0 :         container.AddChild(table)</span></span>
+<span id="L721"><span class="lineNum">     721</span>              : }</span>
+<span id="L722"><span class="lineNum">     722</span>              : </span>
+<span id="L723"><span class="lineNum">     723</span>              : // buildSlotDescContainer はスロット選択画面の説明文を構築する</span>
+<span id="L724"><span class="lineNum">     724</span> <span class="tlaUNC">           0 : func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L725"><span class="lineNum">     725</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
+<span id="L726"><span class="lineNum">     726</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
+<span id="L727"><span class="lineNum">     727</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L728"><span class="lineNum">     728</span> <span class="tlaUNC">           0 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>
+<span id="L729"><span class="lineNum">     729</span> <span class="tlaUNC">           0 :                 item := tabs[tabIndex].Items[itemIndex]</span></span>
+<span id="L730"><span class="lineNum">     730</span> <span class="tlaUNC">           0 :                 if item.Entity != nil &amp;&amp; (*item.Entity).HasComponent(world.Components.Description) {</span></span>
+<span id="L731"><span class="lineNum">     731</span> <span class="tlaUNC">           0 :                         descComp := world.Components.Description.Get(*item.Entity).(*gc.Description)</span></span>
+<span id="L732"><span class="lineNum">     732</span> <span class="tlaUNC">           0 :                         desc = descComp.Description</span></span>
+<span id="L733"><span class="lineNum">     733</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L734"><span class="lineNum">     734</span>              :         }</span>
+<span id="L735"><span class="lineNum">     735</span>              : </span>
+<span id="L736"><span class="lineNum">     736</span> <span class="tlaUNC">           0 :         if desc == &quot;&quot; {</span></span>
+<span id="L737"><span class="lineNum">     737</span> <span class="tlaUNC">           0 :                 desc = &quot; &quot;</span></span>
+<span id="L738"><span class="lineNum">     738</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L739"><span class="lineNum">     739</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(desc, res))</span></span>
+<span id="L740"><span class="lineNum">     740</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L741"><span class="lineNum">     741</span>              : }</span>
+<span id="L742"><span class="lineNum">     742</span>              : </span>
+<span id="L743"><span class="lineNum">     743</span>              : // buildEquipDescContainer は装備選択画面の説明文を構築する</span>
+<span id="L744"><span class="lineNum">     744</span> <span class="tlaUNC">           0 : func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipItemData, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L745"><span class="lineNum">     745</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
+<span id="L746"><span class="lineNum">     746</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
+<span id="L747"><span class="lineNum">     747</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L748"><span class="lineNum">     748</span> <span class="tlaUNC">           0 :         if itemIndex &lt; len(items) {</span></span>
+<span id="L749"><span class="lineNum">     749</span> <span class="tlaUNC">           0 :                 item := items[itemIndex]</span></span>
+<span id="L750"><span class="lineNum">     750</span> <span class="tlaUNC">           0 :                 if item.EquipEntity.HasComponent(world.Components.Description) {</span></span>
+<span id="L751"><span class="lineNum">     751</span> <span class="tlaUNC">           0 :                         descComp := world.Components.Description.Get(item.EquipEntity).(*gc.Description)</span></span>
+<span id="L752"><span class="lineNum">     752</span> <span class="tlaUNC">           0 :                         desc = descComp.Description</span></span>
+<span id="L753"><span class="lineNum">     753</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L754"><span class="lineNum">     754</span>              :         }</span>
+<span id="L755"><span class="lineNum">     755</span>              : </span>
+<span id="L756"><span class="lineNum">     756</span> <span class="tlaUNC">           0 :         if desc == &quot;&quot; {</span></span>
+<span id="L757"><span class="lineNum">     757</span> <span class="tlaUNC">           0 :                 desc = &quot; &quot;</span></span>
+<span id="L758"><span class="lineNum">     758</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L759"><span class="lineNum">     759</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(desc, res))</span></span>
+<span id="L760"><span class="lineNum">     760</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L761"><span class="lineNum">     761</span>              : }</span>
+<span id="L762"><span class="lineNum">     762</span>              : </span>
+<span id="L763"><span class="lineNum">     763</span> <span class="tlaUNC">           0 : func (st *EquipMenuState) buildActionWindow(world w.World, windowProps windowScreenProps) *widget.Window {</span></span>
+<span id="L764"><span class="lineNum">     764</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
+<span id="L765"><span class="lineNum">     765</span> <span class="tlaUNC">           0 :         actionIndex, _ := hooks.GetState[int](st.windowMount, &quot;equip_window_index&quot;)</span></span>
+<span id="L766"><span class="lineNum">     766</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems(world, windowProps.SlotData)</span></span>
+<span id="L767"><span class="lineNum">     767</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L768"><span class="lineNum">     768</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
+<span id="L769"><span class="lineNum">     769</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
+<span id="L770"><span class="lineNum">     770</span> <span class="tlaUNC">           0 :         window := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
+<span id="L771"><span class="lineNum">     771</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L772"><span class="lineNum">     772</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
+<span id="L773"><span class="lineNum">     773</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
+<span id="L774"><span class="lineNum">     774</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
+<span id="L775"><span class="lineNum">     775</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
+<span id="L776"><span class="lineNum">     776</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L777"><span class="lineNum">     777</span>              : </span>
+<span id="L778"><span class="lineNum">     778</span> <span class="tlaUNC">           0 :         window.SetLocation(getCenterWinRect(world))</span></span>
+<span id="L779"><span class="lineNum">     779</span> <span class="tlaUNC">           0 :         return window</span></span>
+<span id="L780"><span class="lineNum">     780</span>              : }</span>
         </pre>
               </td>
             </tr>

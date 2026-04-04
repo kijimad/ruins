@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">185</td>
+            <td class="headerCovTableEntry">176</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-23 15:04:04</td>
+            <td class="headerValue">2026-04-04 05:40:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -203,7 +203,7 @@
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         columnWidths := []int{70, 80}</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         table := styled.NewTableContainer(columnWidths, res)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{&quot;変換&quot;, worldhelper.FormatCurrency(value.Value)}, specTableAligns, nil, res)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         styled.NewTableRow(table, columnWidths, []string{&quot;価値&quot;, worldhelper.FormatCurrency(value.Value)}, specTableAligns, nil, res)</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         targetContainer.AddChild(table)</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L147"><span class="lineNum">     147</span>              : </span>
@@ -290,19 +290,6 @@
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf(&quot;%+d&quot;, equipBonus.Agility)}, specTableAligns, nil, res)</span></span>
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L230"><span class="lineNum">     230</span>              : }</span>
-<span id="L231"><span class="lineNum">     231</span>              : </span>
-<span id="L232"><span class="lineNum">     232</span>              : // AddMemberStatusText はメンバーの名前とHPを簡易テキスト表示で追加する</span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 : func AddMemberStatusText(targetContainer *widget.Container, entity ecs.Entity, world w.World) {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         if !entity.HasComponent(world.Components.Name) || !entity.HasComponent(world.Components.Pools) {</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L237"><span class="lineNum">     237</span>              : </span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         name := world.Components.Name.Get(entity).(*gc.Name)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         pools := world.Components.Pools.Get(entity).(*gc.Pools)</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         targetContainer.AddChild(styled.NewMenuText(name.Name, world.Resources.UIResources))</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         targetContainer.AddChild(styled.NewBodyText(fmt.Sprintf(&quot;%s %3d/%3d&quot;, consts.HPLabel, pools.HP.Current, pools.HP.Max), consts.TextColor, world.Resources.UIResources))</span></span>
-<span id="L243"><span class="lineNum">     243</span>              : }</span>
         </pre>
               </td>
             </tr>

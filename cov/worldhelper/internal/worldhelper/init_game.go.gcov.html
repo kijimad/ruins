@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">24</td>
-            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryMed">87.9&nbsp;%</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">29</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-03-23 15:04:04</td>
+            <td class="headerValue">2026-04-04 05:40:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,40 +63,53 @@
 <span id="L1"><span class="lineNum">       1</span>              : package worldhelper</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              : )</span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // InitNewGameData は新規ゲーム開始時の初期データを設定する</span>
-<span id="L10"><span class="lineNum">      10</span>              : // プレイヤーが存在しない場合のみ実行される</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC tlaBgGNC">           1 : func InitNewGameData(world w.World) {</span></span>
-<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC">           1 :         // 既にプレイヤーが存在する場合は何もしない</span></span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         hasPlayer := false</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           2 :         world.Manager.Join(world.Components.Player, world.Components.FactionAlly).Visit(ecs.Visit(func(_ ecs.Entity) {</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :                 hasPlayer = true</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :         }))</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           2 :         if hasPlayer {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span>              :         // 新しいゲーム開始時のみゲームログをクリア</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         gamelog.FieldLog.Clear()</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         gamelog.SceneLog.Clear()</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         // 操作ガイドを表示</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 System(&quot;WASD: 移動する。&quot;).</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 System(&quot;Mキー: 拠点メニューを開く。&quot;).</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 System(&quot;Spaceキー: アクションメニューを開く。&quot;).</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         // プレイヤー生成</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         _, _ = SpawnPlayer(world, 5, 5, &quot;Ash&quot;)</span></span>
-<span id="L37"><span class="lineNum">      37</span>              : }</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // InitNewGameData は新規ゲーム開始時の初期データを設定する。</span>
+<span id="L12"><span class="lineNum">      12</span>              : // プレイヤーが存在しない場合のみ実行される。</span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 : func InitNewGameData(world w.World) error {</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         // 既にプレイヤーが存在する場合は何もしない</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         hasPlayer := false</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           2 :         world.Manager.Join(world.Components.Player, world.Components.FactionAlly).Visit(ecs.Visit(func(_ ecs.Entity) {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 hasPlayer = true</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }))</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if hasPlayer {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              :         // 新しいゲーム開始時のみゲームログをクリア</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         gamelog.FieldLog.Clear()</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         gamelog.SceneLog.Clear()</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         // 操作ガイドを表示</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 System(&quot;WASD: 移動する。&quot;).</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 System(&quot;Mキー: 拠点メニューを開く。&quot;).</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 System(&quot;Spaceキー: アクションメニューを開く。&quot;).</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         // プレイヤー生成し、デフォルトの職業を適用する</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         player, err := SpawnPlayer(world, 5, 5, &quot;Ash&quot;)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;プレイヤーの生成に失敗: %w&quot;, err)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 :         professions := world.Resources.RawMaster.Raws.Professions</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         if len(professions) &gt; 0 {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 if err := ApplyProfession(world, player, professions[0]); err != nil {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;デフォルト職業の適用に失敗: %w&quot;, err)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L47"><span class="lineNum">      47</span>              :         }</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
         </pre>
               </td>
             </tr>
