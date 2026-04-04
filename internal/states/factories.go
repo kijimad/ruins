@@ -416,6 +416,13 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("探索結果", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{NewAutoSellState()},
+			})
+			return nil
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,

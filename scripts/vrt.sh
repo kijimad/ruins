@@ -32,3 +32,4 @@ cmd CharacterJob
 cmd SaveMenu
 cmd ShopMenu
 cmd Town
+cmd AutoSell

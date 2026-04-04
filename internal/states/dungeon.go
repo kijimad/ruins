@@ -61,7 +61,9 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// メインメニューからの新規開始: 実行
 	// セーブデータロード後の再開: 無視
 	// 階層移動: 無視
-	worldhelper.InitNewGameData(world)
+	if err := worldhelper.InitNewGameData(world); err != nil {
+		return err
+	}
 
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
@@ -505,9 +507,9 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
 	case resources.WarpEscapeEvent:
-		// 街へ帰還
+		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-			NewFadeoutAnimationState(NewTownState()),
+			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil

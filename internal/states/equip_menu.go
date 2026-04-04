@@ -701,8 +701,6 @@ func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.C
 		return
 	}
 
-	views.AddMemberStatusText(container, player, world)
-
 	if !player.HasComponent(world.Components.Abilities) {
 		return
 	}

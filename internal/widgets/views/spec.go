@@ -141,7 +141,7 @@ func addValueInfo(targetContainer *widget.Container, value *gc.Value, world w.Wo
 	columnWidths := []int{70, 80}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"変換", worldhelper.FormatCurrency(value.Value)}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{"価値", worldhelper.FormatCurrency(value.Value)}, specTableAligns, nil, res)
 	targetContainer.AddChild(table)
 }
 
@@ -227,17 +227,4 @@ func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonu
 	if equipBonus.Agility != 0 {
 		styled.NewTableRow(table, columnWidths, []string{consts.AgilityLabel, fmt.Sprintf("%+d", equipBonus.Agility)}, specTableAligns, nil, res)
 	}
-}
-
-// AddMemberStatusText はメンバーの名前とHPを簡易テキスト表示で追加する
-func AddMemberStatusText(targetContainer *widget.Container, entity ecs.Entity, world w.World) {
-	if !entity.HasComponent(world.Components.Name) || !entity.HasComponent(world.Components.Pools) {
-		return
-	}
-
-	name := world.Components.Name.Get(entity).(*gc.Name)
-	pools := world.Components.Pools.Get(entity).(*gc.Pools)
-
-	targetContainer.AddChild(styled.NewMenuText(name.Name, world.Resources.UIResources))
-	targetContainer.AddChild(styled.NewBodyText(fmt.Sprintf("%s %3d/%3d", consts.HPLabel, pools.HP.Current, pools.HP.Max), consts.TextColor, world.Resources.UIResources))
 }
