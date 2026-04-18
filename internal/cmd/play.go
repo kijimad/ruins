@@ -101,9 +101,8 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 
 	// 開始ステートの決定
 	var initialState es.State[w.World]
-	switch cfg.StartingState {
-	case "town":
-		// 開発用ショートカット: プレイヤーを生成して拠点から開始する
+	if cfg.QuickStart {
+		// キャラクター作成をスキップして拠点から開始する
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		if err != nil {
 			return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
@@ -116,10 +115,8 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		}
 		stateFactory := gs.NewTownState()
 		initialState = stateFactory()
-	case "main_menu":
+	} else {
 		initialState = &gs.MainMenuState{}
-	default:
-		log.Fatalf("無効なstate: %s", cfg.StartingState)
 	}
 
 	stateMachine, err := es.Init(initialState, world)

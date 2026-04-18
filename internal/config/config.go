@@ -37,8 +37,8 @@ type Config struct {
 	NoEncounter   bool   `env:"RUINS_NO_ENCOUNTER"`
 
 	// ゲーム設定
-	StartingState    string `env:"RUINS_STARTING_STATE"`
-	DisableAnimation bool   `env:"RUINS_DISABLE_ANIMATION"`
+	QuickStart       bool `env:"RUINS_QUICK_START"`
+	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
 
 	// 乱数シード。環境変数で指定すると再現可能になる
 	// 未指定の場合は自動生成される
@@ -109,8 +109,8 @@ func (c *Config) applyProductionDefaults() {
 	}
 
 	// ゲーム設定
-	if os.Getenv("RUINS_STARTING_STATE") == "" {
-		c.StartingState = "main_menu"
+	if os.Getenv("RUINS_QUICK_START") == "" {
+		c.QuickStart = false
 	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
@@ -178,8 +178,8 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 
 	// ゲーム設定
-	if os.Getenv("RUINS_STARTING_STATE") == "" {
-		c.StartingState = "town"
+	if os.Getenv("RUINS_QUICK_START") == "" {
+		c.QuickStart = true
 	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
