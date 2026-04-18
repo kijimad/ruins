@@ -17,43 +17,57 @@ const (
 
 // Config はアプリケーションの設定を管理する
 type Config struct {
-	// 環境プロファイル
+	// 設定のデフォルト値を決定するプロファイル
 	Profile Profile `env:"RUINS_PROFILE" envDefault:"production"`
 
-	// ゲームウィンドウ設定
-	WindowWidth  int  `env:"RUINS_WINDOW_WIDTH"`
-	WindowHeight int  `env:"RUINS_WINDOW_HEIGHT"`
-	Fullscreen   bool `env:"RUINS_FULLSCREEN"`
+	// ゲームウィンドウの幅（ピクセル）
+	WindowWidth int `env:"RUINS_WINDOW_WIDTH"`
+	// ゲームウィンドウの高さ（ピクセル）
+	WindowHeight int `env:"RUINS_WINDOW_HEIGHT"`
+	// フルスクリーンで起動するかどうか
+	Fullscreen bool `env:"RUINS_FULLSCREEN"`
 
-	// デバッグ設定
-	Debug         bool   `env:"RUINS_DEBUG"`
-	LogLevel      string `env:"RUINS_LOG_LEVEL"`
+	// デバッグモードを有効にする。有効時は設定情報をログ出力する
+	Debug bool `env:"RUINS_DEBUG"`
+	// ログレベルを指定する
+	LogLevel string `env:"RUINS_LOG_LEVEL"`
+	// 出力するログカテゴリをカンマ区切りで指定する
 	LogCategories string `env:"RUINS_LOG_CATEGORIES"`
-	DebugPProf    bool   `env:"RUINS_DEBUG_PPROF"`
-	PProfPort     int    `env:"RUINS_PPROF_PORT"`
-	ShowMonitor   bool   `env:"RUINS_SHOW_MONITOR"`
-	ShowAIDebug   bool   `env:"RUINS_SHOW_AI_DEBUG"`
-	ShowMapDebug  bool   `env:"RUINS_SHOW_MAP_DEBUG"`
-	NoEncounter   bool   `env:"RUINS_NO_ENCOUNTER"`
+	// pprofサーバーを起動するかどうか
+	DebugPProf bool `env:"RUINS_DEBUG_PPROF"`
+	// pprofサーバーのポート番号
+	PProfPort int `env:"RUINS_PPROF_PORT"`
+	// パフォーマンスモニターを表示するかどうか
+	ShowMonitor bool `env:"RUINS_SHOW_MONITOR"`
+	// AI行動のデバッグ表示を有効にするかどうか
+	ShowAIDebug bool `env:"RUINS_SHOW_AI_DEBUG"`
+	// マップのデバッグ表示を有効にするかどうか
+	ShowMapDebug bool `env:"RUINS_SHOW_MAP_DEBUG"`
+	// エンカウントを無効化するかどうか
+	NoEncounter bool `env:"RUINS_NO_ENCOUNTER"`
 
-	// ゲーム設定
-	QuickStart       bool `env:"RUINS_QUICK_START"`
+	// キャラクター作成をスキップして拠点から開始するかどうか
+	QuickStart bool `env:"RUINS_QUICK_START"`
+	// アニメーション演出を無効化するかどうか
 	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
 
-	// 乱数シード。環境変数で指定すると再現可能になる
-	// 未指定の場合は自動生成される
+	// 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
 	Seed uint64 `env:"RUINS_SEED"`
-
 	// 乱数生成器。Seedから生成される
 	RNG *rand.Rand
 
-	// パフォーマンス設定
-	TargetFPS     int    `env:"RUINS_TARGET_FPS"`
-	ProfileMemory bool   `env:"RUINS_PROFILE_MEMORY"`
-	ProfileCPU    bool   `env:"RUINS_PROFILE_CPU"`
-	ProfileMutex  bool   `env:"RUINS_PROFILE_MUTEX"`
-	ProfileTrace  bool   `env:"RUINS_PROFILE_TRACE"`
-	ProfilePath   string `env:"RUINS_PROFILE_PATH"`
+	// 描画のターゲットFPS
+	TargetFPS int `env:"RUINS_TARGET_FPS"`
+	// メモリプロファイルを取得するかどうか
+	ProfileMemory bool `env:"RUINS_PROFILE_MEMORY"`
+	// CPUプロファイルを取得するかどうか
+	ProfileCPU bool `env:"RUINS_PROFILE_CPU"`
+	// Mutexプロファイルを取得するかどうか
+	ProfileMutex bool `env:"RUINS_PROFILE_MUTEX"`
+	// トレースプロファイルを取得するかどうか
+	ProfileTrace bool `env:"RUINS_PROFILE_TRACE"`
+	// プロファイル出力先のディレクトリパス
+	ProfilePath string `env:"RUINS_PROFILE_PATH"`
 }
 
 // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
