@@ -295,13 +295,13 @@
 				
 				<option value="file119">github.com/kijimaD/ruins/internal/states/auto_sell.go (0.0%)</option>
 				
-				<option value="file120">github.com/kijimaD/ruins/internal/states/character_job.go (14.3%)</option>
+				<option value="file120">github.com/kijimaD/ruins/internal/states/character_job.go (13.9%)</option>
 				
 				<option value="file121">github.com/kijimaD/ruins/internal/states/character_naming.go (37.5%)</option>
 				
 				<option value="file122">github.com/kijimaD/ruins/internal/states/craft_menu.go (21.2%)</option>
 				
-				<option value="file123">github.com/kijimaD/ruins/internal/states/dungeon.go (9.9%)</option>
+				<option value="file123">github.com/kijimaD/ruins/internal/states/dungeon.go (10.0%)</option>
 				
 				<option value="file124">github.com/kijimaD/ruins/internal/states/equip_menu.go (15.7%)</option>
 				
@@ -315,7 +315,7 @@
 				
 				<option value="file129">github.com/kijimaD/ruins/internal/states/look_around.go (10.7%)</option>
 				
-				<option value="file130">github.com/kijimaD/ruins/internal/states/main_menu.go (24.6%)</option>
+				<option value="file130">github.com/kijimaD/ruins/internal/states/main_menu.go (25.8%)</option>
 				
 				<option value="file131">github.com/kijimaD/ruins/internal/states/message.go (0.0%)</option>
 				
@@ -419,37 +419,35 @@
 				
 				<option value="file181">github.com/kijimaD/ruins/internal/worldhelper/equipment.go (0.0%)</option>
 				
-				<option value="file182">github.com/kijimaD/ruins/internal/worldhelper/init_game.go (88.9%)</option>
+				<option value="file182">github.com/kijimaD/ruins/internal/worldhelper/interaction.go (100.0%)</option>
 				
-				<option value="file183">github.com/kijimaD/ruins/internal/worldhelper/interaction.go (100.0%)</option>
+				<option value="file183">github.com/kijimaD/ruins/internal/worldhelper/inventory.go (95.8%)</option>
 				
-				<option value="file184">github.com/kijimaD/ruins/internal/worldhelper/inventory.go (95.8%)</option>
+				<option value="file184">github.com/kijimaD/ruins/internal/worldhelper/item_format.go (100.0%)</option>
 				
-				<option value="file185">github.com/kijimaD/ruins/internal/worldhelper/item_format.go (100.0%)</option>
+				<option value="file185">github.com/kijimaD/ruins/internal/worldhelper/item_location.go (82.4%)</option>
 				
-				<option value="file186">github.com/kijimaD/ruins/internal/worldhelper/item_location.go (82.4%)</option>
+				<option value="file186">github.com/kijimaD/ruins/internal/worldhelper/profession.go (85.2%)</option>
 				
-				<option value="file187">github.com/kijimaD/ruins/internal/worldhelper/profession.go (85.2%)</option>
+				<option value="file187">github.com/kijimaD/ruins/internal/worldhelper/query.go (60.0%)</option>
 				
-				<option value="file188">github.com/kijimaD/ruins/internal/worldhelper/query.go (60.0%)</option>
+				<option value="file188">github.com/kijimaD/ruins/internal/worldhelper/run.go (93.8%)</option>
 				
-				<option value="file189">github.com/kijimaD/ruins/internal/worldhelper/run.go (93.8%)</option>
+				<option value="file189">github.com/kijimaD/ruins/internal/worldhelper/shop.go (60.4%)</option>
 				
-				<option value="file190">github.com/kijimaD/ruins/internal/worldhelper/shop.go (60.4%)</option>
+				<option value="file190">github.com/kijimaD/ruins/internal/worldhelper/sort.go (100.0%)</option>
 				
-				<option value="file191">github.com/kijimaD/ruins/internal/worldhelper/sort.go (100.0%)</option>
+				<option value="file191">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (77.1%)</option>
 				
-				<option value="file192">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (77.1%)</option>
+				<option value="file192">github.com/kijimaD/ruins/internal/worldhelper/spawn_prop.go (20.4%)</option>
 				
-				<option value="file193">github.com/kijimaD/ruins/internal/worldhelper/spawn_prop.go (20.4%)</option>
+				<option value="file193">github.com/kijimaD/ruins/internal/worldhelper/stackable.go (75.0%)</option>
 				
-				<option value="file194">github.com/kijimaD/ruins/internal/worldhelper/stackable.go (75.0%)</option>
+				<option value="file194">github.com/kijimaD/ruins/internal/worldhelper/turn.go (0.0%)</option>
 				
-				<option value="file195">github.com/kijimaD/ruins/internal/worldhelper/turn.go (0.0%)</option>
+				<option value="file195">github.com/kijimaD/ruins/internal/worldhelper/weight.go (92.9%)</option>
 				
-				<option value="file196">github.com/kijimaD/ruins/internal/worldhelper/weight.go (92.9%)</option>
-				
-				<option value="file197">github.com/kijimaD/ruins/main.go (0.0%)</option>
+				<option value="file196">github.com/kijimaD/ruins/main.go (0.0%)</option>
 				
 				</select>
 			</div>
@@ -4542,6 +4540,7 @@ import (
         es "github.com/kijimaD/ruins/internal/engine/states"
         gs "github.com/kijimaD/ruins/internal/states"
         w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // CmdPlay はゲームをプレイするコマンド
@@ -4623,15 +4622,23 @@ func runPlay(_ context.Context, _ *cli.Command) error <span class="cov0" title="
 
         // 開始ステートの決定
         <span class="cov0" title="0">var initialState es.State[w.World]
-        switch cfg.StartingState </span>{
-        case "town":<span class="cov0" title="0">
-                stateFactory := gs.NewTownState()
+        if cfg.QuickStart </span><span class="cov0" title="0">{
+                // キャラクター作成をスキップして拠点から開始する
+                player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+                if err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
+                }</span>
+                <span class="cov0" title="0">professions := world.Resources.RawMaster.Raws.Professions
+                if len(professions) &gt; 0 </span><span class="cov0" title="0">{
+                        if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("職業の適用に失敗: %w", err)
+                        }</span>
+                }
+                <span class="cov0" title="0">stateFactory := gs.NewTownState()
                 initialState = stateFactory()</span>
-        case "main_menu":<span class="cov0" title="0">
-                initialState = &amp;gs.MainMenuState{}</span>
-        default:<span class="cov0" title="0">
-                log.Fatalf("無効なstate: %s", cfg.StartingState)</span>
-        }
+        } else<span class="cov0" title="0"> {
+                initialState = &amp;gs.MainMenuState{}
+        }</span>
 
         <span class="cov0" title="0">stateMachine, err := es.Init(initialState, world)
         if err != nil </span><span class="cov0" title="0">{
@@ -7351,43 +7358,57 @@ const (
 
 // Config はアプリケーションの設定を管理する
 type Config struct {
-        // 環境プロファイル
+        // 設定のデフォルト値を決定するプロファイル
         Profile Profile `env:"RUINS_PROFILE" envDefault:"production"`
 
-        // ゲームウィンドウ設定
-        WindowWidth  int  `env:"RUINS_WINDOW_WIDTH"`
-        WindowHeight int  `env:"RUINS_WINDOW_HEIGHT"`
-        Fullscreen   bool `env:"RUINS_FULLSCREEN"`
+        // ゲームウィンドウの幅（ピクセル）
+        WindowWidth int `env:"RUINS_WINDOW_WIDTH"`
+        // ゲームウィンドウの高さ（ピクセル）
+        WindowHeight int `env:"RUINS_WINDOW_HEIGHT"`
+        // フルスクリーンで起動するかどうか
+        Fullscreen bool `env:"RUINS_FULLSCREEN"`
 
-        // デバッグ設定
-        Debug         bool   `env:"RUINS_DEBUG"`
-        LogLevel      string `env:"RUINS_LOG_LEVEL"`
+        // デバッグモードを有効にする。有効時は設定情報をログ出力する
+        Debug bool `env:"RUINS_DEBUG"`
+        // ログレベルを指定する
+        LogLevel string `env:"RUINS_LOG_LEVEL"`
+        // 出力するログカテゴリをカンマ区切りで指定する
         LogCategories string `env:"RUINS_LOG_CATEGORIES"`
-        DebugPProf    bool   `env:"RUINS_DEBUG_PPROF"`
-        PProfPort     int    `env:"RUINS_PPROF_PORT"`
-        ShowMonitor   bool   `env:"RUINS_SHOW_MONITOR"`
-        ShowAIDebug   bool   `env:"RUINS_SHOW_AI_DEBUG"`
-        ShowMapDebug  bool   `env:"RUINS_SHOW_MAP_DEBUG"`
-        NoEncounter   bool   `env:"RUINS_NO_ENCOUNTER"`
+        // pprofサーバーを起動するかどうか
+        DebugPProf bool `env:"RUINS_DEBUG_PPROF"`
+        // pprofサーバーのポート番号
+        PProfPort int `env:"RUINS_PPROF_PORT"`
+        // パフォーマンスモニターを表示するかどうか
+        ShowMonitor bool `env:"RUINS_SHOW_MONITOR"`
+        // AI行動のデバッグ表示を有効にするかどうか
+        ShowAIDebug bool `env:"RUINS_SHOW_AI_DEBUG"`
+        // マップのデバッグ表示を有効にするかどうか
+        ShowMapDebug bool `env:"RUINS_SHOW_MAP_DEBUG"`
+        // エンカウントを無効化するかどうか
+        NoEncounter bool `env:"RUINS_NO_ENCOUNTER"`
 
-        // ゲーム設定
-        StartingState    string `env:"RUINS_STARTING_STATE"`
-        DisableAnimation bool   `env:"RUINS_DISABLE_ANIMATION"`
+        // キャラクター作成をスキップして拠点から開始するかどうか
+        QuickStart bool `env:"RUINS_QUICK_START"`
+        // アニメーション演出を無効化するかどうか
+        DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
 
-        // 乱数シード。環境変数で指定すると再現可能になる
-        // 未指定の場合は自動生成される
+        // 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される
         Seed uint64 `env:"RUINS_SEED"`
-
         // 乱数生成器。Seedから生成される
         RNG *rand.Rand
 
-        // パフォーマンス設定
-        TargetFPS     int    `env:"RUINS_TARGET_FPS"`
-        ProfileMemory bool   `env:"RUINS_PROFILE_MEMORY"`
-        ProfileCPU    bool   `env:"RUINS_PROFILE_CPU"`
-        ProfileMutex  bool   `env:"RUINS_PROFILE_MUTEX"`
-        ProfileTrace  bool   `env:"RUINS_PROFILE_TRACE"`
-        ProfilePath   string `env:"RUINS_PROFILE_PATH"`
+        // 描画のターゲットFPS
+        TargetFPS int `env:"RUINS_TARGET_FPS"`
+        // メモリプロファイルを取得するかどうか
+        ProfileMemory bool `env:"RUINS_PROFILE_MEMORY"`
+        // CPUプロファイルを取得するかどうか
+        ProfileCPU bool `env:"RUINS_PROFILE_CPU"`
+        // Mutexプロファイルを取得するかどうか
+        ProfileMutex bool `env:"RUINS_PROFILE_MUTEX"`
+        // トレースプロファイルを取得するかどうか
+        ProfileTrace bool `env:"RUINS_PROFILE_TRACE"`
+        // プロファイル出力先のディレクトリパス
+        ProfilePath string `env:"RUINS_PROFILE_PATH"`
 }
 
 // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する
@@ -7443,8 +7464,8 @@ func (c *Config) applyProductionDefaults() <span class="cov0" title="0">{
         }</span>
 
         // ゲーム設定
-        <span class="cov0" title="0">if os.Getenv("RUINS_STARTING_STATE") == "" </span><span class="cov0" title="0">{
-                c.StartingState = "main_menu"
+        <span class="cov0" title="0">if os.Getenv("RUINS_QUICK_START") == "" </span><span class="cov0" title="0">{
+                c.QuickStart = false
         }</span>
         <span class="cov0" title="0">if os.Getenv("RUINS_DISABLE_ANIMATION") == "" </span><span class="cov0" title="0">{
                 c.DisableAnimation = false
@@ -7512,8 +7533,8 @@ func (c *Config) applyDevelopmentDefaults() <span class="cov0" title="0">{
         }</span>
 
         // ゲーム設定
-        <span class="cov0" title="0">if os.Getenv("RUINS_STARTING_STATE") == "" </span><span class="cov0" title="0">{
-                c.StartingState = "town"
+        <span class="cov0" title="0">if os.Getenv("RUINS_QUICK_START") == "" </span><span class="cov0" title="0">{
+                c.QuickStart = true
         }</span>
         <span class="cov0" title="0">if os.Getenv("RUINS_DISABLE_ANIMATION") == "" </span><span class="cov0" title="0">{
                 c.DisableAnimation = false
@@ -7612,7 +7633,6 @@ func (c *Config) String() string <span class="cov0" title="0">{
         Profile: %s,
         WindowWidth: %d, WindowHeight: %d, Fullscreen: %t,
         Debug: %t, LogLevel: %s, LogCategories: %s, DebugPProf: %t, PProfPort: %d,
-        StartingState: %s,
         Seed: %d,
         TargetFPS: %d,
         ProfileMemory: %t, ProfileCPU: %t, ProfileMutex: %t, ProfileTrace: %t,
@@ -7621,7 +7641,6 @@ func (c *Config) String() string <span class="cov0" title="0">{
                 c.Profile,
                 c.WindowWidth, c.WindowHeight, c.Fullscreen,
                 c.Debug, c.LogLevel, c.LogCategories, c.DebugPProf, c.PProfPort,
-                c.StartingState,
                 c.Seed,
                 c.TargetFPS,
                 c.ProfileMemory, c.ProfileCPU, c.ProfileMutex, c.ProfileTrace,
@@ -8595,8 +8614,6 @@ const (
         DefaultMaxLogSize = 1000
         // FieldLogMaxSize はフィールドログの最大サイズ
         FieldLogMaxSize = 100
-        // SceneLogMaxSize はシーンログの最大サイズ
-        SceneLogMaxSize = 200
 )
 
 // SafeSlice はスレッドセーフなログストレージ
@@ -18871,6 +18888,7 @@ import (
         "github.com/kijimaD/ruins/internal/config"
         "github.com/kijimaD/ruins/internal/consts"
         es "github.com/kijimaD/ruins/internal/engine/states"
+        "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/hooks"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/raw"
@@ -19030,6 +19048,11 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
         // プレイヤー名を上書き
         <span class="cov0" title="0">name := world.Components.Name.Get(player).(*gc.Name)
         name.Name = st.playerName
+
+        // 操作ガイドを表示する
+        gamelog.New(gamelog.FieldLog).System("WASD: 移動する。").Log()
+        gamelog.New(gamelog.FieldLog).System("Mキー: 拠点メニューを開く。").Log()
+        gamelog.New(gamelog.FieldLog).System("Spaceキー: アクションメニューを開く。").Log()
 
         st.SetTransition(es.Transition[w.World]{
                 Type:          es.TransReplace,
@@ -20145,15 +20168,7 @@ func (st *DungeonState) OnResume(_ w.World) error <span class="cov0" title="0">{
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error <span class="cov0" title="0">{
-        // デバッグデータを初期化する。プレイヤーが存在しない場合のみ実行される
-        // メインメニューからの新規開始: 実行
-        // セーブデータロード後の再開: 無視
-        // 階層移動: 無視
-        if err := worldhelper.InitNewGameData(world); err != nil </span><span class="cov0" title="0">{
-                return err
-        }</span>
-
-        <span class="cov0" title="0">screenWidth := world.Resources.ScreenDimensions.Width
+        screenWidth := world.Resources.ScreenDimensions.Width
         screenHeight := world.Resources.ScreenDimensions.Height
         if screenWidth &gt; 0 &amp;&amp; screenHeight &gt; 0 </span><span class="cov0" title="0">{
                 baseImage = ebiten.NewImage(screenWidth, screenHeight)
@@ -23447,6 +23462,7 @@ import (
         "github.com/kijimaD/ruins/internal/config"
         "github.com/kijimaD/ruins/internal/consts"
         es "github.com/kijimaD/ruins/internal/engine/states"
+        "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/hooks"
         "github.com/kijimaD/ruins/internal/inputmapper"
         "github.com/kijimaD/ruins/internal/widgets/styled"
@@ -23479,6 +23495,7 @@ func (st *MainMenuState) OnResume(_ w.World) error <span class="cov0" title="0">
 func (st *MainMenuState) OnStart(world w.World) error <span class="cov8" title="1">{
         // ワールドをクリアする。前のゲーム状態を削除する
         world.Manager.DeleteAllEntities()
+        gamelog.FieldLog.Clear()
 
         st.menuMount = hooks.NewMount[mainMenuProps]()
         return nil
@@ -28363,10 +28380,17 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error <span cla
                 return fmt.Errorf("InitWorld failed: %w", err)
         }</span>
 
-        // デバッグデータを初期化
-        <span class="cov0" title="0">if err := worldhelper.InitNewGameData(world); err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("InitNewGameData failed: %w", err)
+        // プレイヤーを生成する
+        <span class="cov0" title="0">player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+        if err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("SpawnPlayer failed: %w", err)
         }</span>
+        <span class="cov0" title="0">professions := world.Resources.RawMaster.Raws.Professions
+        if len(professions) &gt; 0 </span><span class="cov0" title="0">{
+                if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("ApplyProfession failed: %w", err)
+                }</span>
+        }
 
         <span class="cov0" title="0">for _, updater := range []w.Updater{
                 &amp;gs.StatsChangedSystem{},
@@ -33172,58 +33196,6 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity <span cla
 		<pre class="file" id="file182" style="display: none">package worldhelper
 
 import (
-        "fmt"
-
-        "github.com/kijimaD/ruins/internal/gamelog"
-        w "github.com/kijimaD/ruins/internal/world"
-        ecs "github.com/x-hgg-x/goecs/v2"
-)
-
-// InitNewGameData は新規ゲーム開始時の初期データを設定する。
-// プレイヤーが存在しない場合のみ実行される。
-func InitNewGameData(world w.World) error <span class="cov8" title="1">{
-        // 既にプレイヤーが存在する場合は何もしない
-        hasPlayer := false
-        world.Manager.Join(world.Components.Player, world.Components.FactionAlly).Visit(ecs.Visit(func(_ ecs.Entity) </span><span class="cov8" title="1">{
-                hasPlayer = true
-        }</span>))
-        <span class="cov8" title="1">if hasPlayer </span><span class="cov8" title="1">{
-                return nil
-        }</span>
-
-        // 新しいゲーム開始時のみゲームログをクリア
-        <span class="cov8" title="1">gamelog.FieldLog.Clear()
-        gamelog.SceneLog.Clear()
-        // 操作ガイドを表示
-        gamelog.New(gamelog.FieldLog).
-                System("WASD: 移動する。").
-                Log()
-        gamelog.New(gamelog.FieldLog).
-                System("Mキー: 拠点メニューを開く。").
-                Log()
-        gamelog.New(gamelog.FieldLog).
-                System("Spaceキー: アクションメニューを開く。").
-                Log()
-
-        // プレイヤー生成し、デフォルトの職業を適用する
-        player, err := SpawnPlayer(world, 5, 5, "Ash")
-        if err != nil </span><span class="cov0" title="0">{
-                return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
-        }</span>
-        <span class="cov8" title="1">professions := world.Resources.RawMaster.Raws.Professions
-        if len(professions) &gt; 0 </span><span class="cov8" title="1">{
-                if err := ApplyProfession(world, player, professions[0]); err != nil </span><span class="cov0" title="0">{
-                        return fmt.Errorf("デフォルト職業の適用に失敗: %w", err)
-                }</span>
-        }
-
-        <span class="cov8" title="1">return nil</span>
-}
-</pre>
-		
-		<pre class="file" id="file183" style="display: none">package worldhelper
-
-import (
         gc "github.com/kijimaD/ruins/internal/components"
 )
 
@@ -33246,7 +33218,7 @@ func IsInActivationRange(playerGrid, triggerGrid *gc.GridElement, activationRang
 }
 </pre>
 		
-		<pre class="file" id="file184" style="display: none">package worldhelper
+		<pre class="file" id="file183" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -33316,7 +33288,7 @@ func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error <spa
 }
 </pre>
 		
-		<pre class="file" id="file185" style="display: none">package worldhelper
+		<pre class="file" id="file184" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -33349,7 +33321,7 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string <span class="co
 }
 </pre>
 		
-		<pre class="file" id="file186" style="display: none">package worldhelper
+		<pre class="file" id="file185" style="display: none">package worldhelper
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
@@ -33418,7 +33390,7 @@ func setItemLocation(world w.World, item ecs.Entity, locType ItemLocationType, d
 }
 </pre>
 		
-		<pre class="file" id="file187" style="display: none">package worldhelper
+		<pre class="file" id="file186" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -33480,7 +33452,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof raw.Profession) erro
 }
 </pre>
 		
-		<pre class="file" id="file188" style="display: none">package worldhelper
+		<pre class="file" id="file187" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -33532,7 +33504,7 @@ func GetEntitiesAt(world w.World, x, y consts.Tile) []ecs.Entity <span class="co
 }
 </pre>
 		
-		<pre class="file" id="file189" style="display: none">package worldhelper
+		<pre class="file" id="file188" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -33665,7 +33637,7 @@ func reapplyProfession(world w.World, playerEntity ecs.Entity) error <span class
 }
 </pre>
 		
-		<pre class="file" id="file190" style="display: none">package worldhelper
+		<pre class="file" id="file189" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -33802,7 +33774,7 @@ func GetShopInventory() []string <span class="cov8" title="1">{
 }</span>
 </pre>
 		
-		<pre class="file" id="file191" style="display: none">package worldhelper
+		<pre class="file" id="file190" style="display: none">package worldhelper
 
 import (
         "sort"
@@ -33856,7 +33828,7 @@ func SortEntities(world w.World, entities []ecs.Entity) []ecs.Entity <span class
 }
 </pre>
 		
-		<pre class="file" id="file192" style="display: none">package worldhelper
+		<pre class="file" id="file191" style="display: none">package worldhelper
 
 import (
         "errors"
@@ -34395,7 +34367,7 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error <span class
 }
 </pre>
 		
-		<pre class="file" id="file193" style="display: none">package worldhelper
+		<pre class="file" id="file192" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -34541,7 +34513,7 @@ func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOr
 }
 </pre>
 		
-		<pre class="file" id="file194" style="display: none">package worldhelper
+		<pre class="file" id="file193" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -34613,7 +34585,7 @@ func ChangeStackableCount(world w.World, name string, amount int) error <span cl
 }
 </pre>
 		
-		<pre class="file" id="file195" style="display: none">package worldhelper
+		<pre class="file" id="file194" style="display: none">package worldhelper
 
 import (
         "fmt"
@@ -34721,7 +34693,7 @@ func RestoreAllActionPoints(world w.World) error <span class="cov0" title="0">{
 }
 </pre>
 		
-		<pre class="file" id="file196" style="display: none">package worldhelper
+		<pre class="file" id="file195" style="display: none">package worldhelper
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
@@ -34807,7 +34779,7 @@ func calculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 <s
 }
 </pre>
 		
-		<pre class="file" id="file197" style="display: none">// Package main はRuinsゲームのエントリーポイント
+		<pre class="file" id="file196" style="display: none">// Package main はRuinsゲームのエントリーポイント
 package main
 
 import (

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-17 15:23:58</td>
+            <td class="headerValue">2026-04-18 08:59:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,139 +73,137 @@
 <span id="L11"><span class="lineNum">      11</span>              :         DefaultMaxLogSize = 1000</span>
 <span id="L12"><span class="lineNum">      12</span>              :         // FieldLogMaxSize はフィールドログの最大サイズ</span>
 <span id="L13"><span class="lineNum">      13</span>              :         FieldLogMaxSize = 100</span>
-<span id="L14"><span class="lineNum">      14</span>              :         // SceneLogMaxSize はシーンログの最大サイズ</span>
-<span id="L15"><span class="lineNum">      15</span>              :         SceneLogMaxSize = 200</span>
-<span id="L16"><span class="lineNum">      16</span>              : )</span>
-<span id="L17"><span class="lineNum">      17</span>              : </span>
-<span id="L18"><span class="lineNum">      18</span>              : // SafeSlice はスレッドセーフなログストレージ</span>
-<span id="L19"><span class="lineNum">      19</span>              : type SafeSlice struct {</span>
-<span id="L20"><span class="lineNum">      20</span>              :         coloredEntries []LogEntry</span>
-<span id="L21"><span class="lineNum">      21</span>              :         maxSize        int</span>
-<span id="L22"><span class="lineNum">      22</span>              :         mu             sync.Mutex</span>
-<span id="L23"><span class="lineNum">      23</span>              : }</span>
-<span id="L24"><span class="lineNum">      24</span>              : </span>
-<span id="L25"><span class="lineNum">      25</span>              : // NewSafeSlice は指定されたサイズの新しいSafeSliceを作成する</span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 : func NewSafeSlice(maxSize int) *SafeSlice {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if maxSize &lt;= 0 {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 maxSize = DefaultMaxLogSize</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return &amp;SafeSlice{</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                 coloredEntries: make([]LogEntry, 0, maxSize),</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 maxSize:        maxSize,</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L34"><span class="lineNum">      34</span>              : }</span>
-<span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span>              : // Push は新しいログを追加</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 : func (s *SafeSlice) Push(message string) {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         // 単純な文字列を色付きログエントリに変換</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         entry := LogEntry{</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 Fragments: []LogFragment{{</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                         Text:  message,</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                         Color: consts.ColorWhite, // デフォルト色は白</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 }},</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         s.pushColoredEntry(entry)</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              : // GetRecent は最新N行を表示順で取得（文字列版）</span>
-<span id="L49"><span class="lineNum">      49</span>              : // 色付きエントリから文字列に変換して返す</span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetRecent(lines int) []string {</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         entries := s.GetRecentEntries(lines)</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         result := make([]string, len(entries))</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           2 :         for i, entry := range entries {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 result[i] = entry.Text() // LogEntryのTextメソッドで全フラグメントを結合</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L57"><span class="lineNum">      57</span>              : }</span>
-<span id="L58"><span class="lineNum">      58</span>              : </span>
-<span id="L59"><span class="lineNum">      59</span>              : // GetHistory は全履歴を表示順で取得（文字列版）</span>
-<span id="L60"><span class="lineNum">      60</span>              : // 色付きエントリから文字列に変換して返す</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetHistory() []string {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         entries := s.GetHistoryEntries()</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         result := make([]string, len(entries))</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           2 :         for i, entry := range entries {</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 result[i] = entry.Text()</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L68"><span class="lineNum">      68</span>              : }</span>
-<span id="L69"><span class="lineNum">      69</span>              : </span>
-<span id="L70"><span class="lineNum">      70</span>              : // Clear は全ログを削除</span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func (s *SafeSlice) Clear() {</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         s.coloredEntries = []LogEntry{}</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L77"><span class="lineNum">      77</span>              : </span>
-<span id="L78"><span class="lineNum">      78</span>              : // Count は現在のログ行数</span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func (s *SafeSlice) Count() int {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return len(s.coloredEntries)</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              : // MaxHistory は履歴の最大保持行数</span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : func (s *SafeSlice) MaxHistory() int {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         return s.maxSize</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L90"><span class="lineNum">      90</span>              : </span>
-<span id="L91"><span class="lineNum">      91</span>              : // pushColoredEntry は色付きエントリを内部的に追加する</span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 : func (s *SafeSlice) pushColoredEntry(entry LogEntry) {</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         // 新しいエントリを追加</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         s.coloredEntries = append(s.coloredEntries, entry)</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         // 最大サイズを超えた場合、古いものから削除（FIFO）</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           2 :         if len(s.coloredEntries) &gt; s.maxSize {</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 keepCount := s.maxSize</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 if keepCount &gt; len(s.coloredEntries) {</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC tlaBgUNC">           0 :                         keepCount = len(s.coloredEntries)</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L105"><span class="lineNum">     105</span>              : </span>
-<span id="L106"><span class="lineNum">     106</span>              :                 // 新しいスライスに最新の要素をコピー</span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC tlaBgGNC">           1 :                 newEntries := make([]LogEntry, keepCount)</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 copy(newEntries, s.coloredEntries[len(s.coloredEntries)-keepCount:])</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 s.coloredEntries = newEntries</span></span>
-<span id="L110"><span class="lineNum">     110</span>              :         }</span>
-<span id="L111"><span class="lineNum">     111</span>              : }</span>
-<span id="L112"><span class="lineNum">     112</span>              : </span>
-<span id="L113"><span class="lineNum">     113</span>              : // GetRecentEntries は最新のN行の色付きエントリを表示順で取得</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetRecentEntries(lines int) []LogEntry {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         // 負の値や0の場合は空のスライスを返す</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :         if lines &lt;= 0 || len(s.coloredEntries) == 0 {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 return []LogEntry{}</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span>              :         // 要求された行数とコンテンツの長さの小さい方を使用</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         actualLines := lines</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           2 :         if actualLines &gt; len(s.coloredEntries) {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 actualLines = len(s.coloredEntries)</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span>              : </span>
-<span id="L129"><span class="lineNum">     129</span>              :         // 最新のactualLines行を取得（表示順）</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         startIndex := len(s.coloredEntries) - actualLines</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         result := make([]LogEntry, actualLines)</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         copy(result, s.coloredEntries[startIndex:])</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L135"><span class="lineNum">     135</span>              : }</span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span>              : // GetHistoryEntries は全色付きエントリ履歴を表示順で取得</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetHistoryEntries() []LogEntry {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         result := make([]LogEntry, len(s.coloredEntries))</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         copy(result, s.coloredEntries)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return result</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L14"><span class="lineNum">      14</span>              : )</span>
+<span id="L15"><span class="lineNum">      15</span>              : </span>
+<span id="L16"><span class="lineNum">      16</span>              : // SafeSlice はスレッドセーフなログストレージ</span>
+<span id="L17"><span class="lineNum">      17</span>              : type SafeSlice struct {</span>
+<span id="L18"><span class="lineNum">      18</span>              :         coloredEntries []LogEntry</span>
+<span id="L19"><span class="lineNum">      19</span>              :         maxSize        int</span>
+<span id="L20"><span class="lineNum">      20</span>              :         mu             sync.Mutex</span>
+<span id="L21"><span class="lineNum">      21</span>              : }</span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // NewSafeSlice は指定されたサイズの新しいSafeSliceを作成する</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func NewSafeSlice(maxSize int) *SafeSlice {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           2 :         if maxSize &lt;= 0 {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 maxSize = DefaultMaxLogSize</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return &amp;SafeSlice{</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 coloredEntries: make([]LogEntry, 0, maxSize),</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 maxSize:        maxSize,</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L32"><span class="lineNum">      32</span>              : }</span>
+<span id="L33"><span class="lineNum">      33</span>              : </span>
+<span id="L34"><span class="lineNum">      34</span>              : // Push は新しいログを追加</span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func (s *SafeSlice) Push(message string) {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         // 単純な文字列を色付きログエントリに変換</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         entry := LogEntry{</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 Fragments: []LogFragment{{</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                         Text:  message,</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         Color: consts.ColorWhite, // デフォルト色は白</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 }},</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         s.pushColoredEntry(entry)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L45"><span class="lineNum">      45</span>              : </span>
+<span id="L46"><span class="lineNum">      46</span>              : // GetRecent は最新N行を表示順で取得（文字列版）</span>
+<span id="L47"><span class="lineNum">      47</span>              : // 色付きエントリから文字列に変換して返す</span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetRecent(lines int) []string {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         entries := s.GetRecentEntries(lines)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         result := make([]string, len(entries))</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         for i, entry := range entries {</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 result[i] = entry.Text() // LogEntryのTextメソッドで全フラグメントを結合</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L55"><span class="lineNum">      55</span>              : }</span>
+<span id="L56"><span class="lineNum">      56</span>              : </span>
+<span id="L57"><span class="lineNum">      57</span>              : // GetHistory は全履歴を表示順で取得（文字列版）</span>
+<span id="L58"><span class="lineNum">      58</span>              : // 色付きエントリから文字列に変換して返す</span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetHistory() []string {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         entries := s.GetHistoryEntries()</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         result := make([]string, len(entries))</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :         for i, entry := range entries {</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 result[i] = entry.Text()</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L66"><span class="lineNum">      66</span>              : }</span>
+<span id="L67"><span class="lineNum">      67</span>              : </span>
+<span id="L68"><span class="lineNum">      68</span>              : // Clear は全ログを削除</span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : func (s *SafeSlice) Clear() {</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         s.coloredEntries = []LogEntry{}</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L75"><span class="lineNum">      75</span>              : </span>
+<span id="L76"><span class="lineNum">      76</span>              : // Count は現在のログ行数</span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func (s *SafeSlice) Count() int {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         return len(s.coloredEntries)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L83"><span class="lineNum">      83</span>              : </span>
+<span id="L84"><span class="lineNum">      84</span>              : // MaxHistory は履歴の最大保持行数</span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 : func (s *SafeSlice) MaxHistory() int {</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         return s.maxSize</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L88"><span class="lineNum">      88</span>              : </span>
+<span id="L89"><span class="lineNum">      89</span>              : // pushColoredEntry は色付きエントリを内部的に追加する</span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : func (s *SafeSlice) pushColoredEntry(entry LogEntry) {</span></span>
+<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         // 新しいエントリを追加</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         s.coloredEntries = append(s.coloredEntries, entry)</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         // 最大サイズを超えた場合、古いものから削除（FIFO）</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           2 :         if len(s.coloredEntries) &gt; s.maxSize {</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :                 keepCount := s.maxSize</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :                 if keepCount &gt; len(s.coloredEntries) {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC tlaBgUNC">           0 :                         keepCount = len(s.coloredEntries)</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L103"><span class="lineNum">     103</span>              : </span>
+<span id="L104"><span class="lineNum">     104</span>              :                 // 新しいスライスに最新の要素をコピー</span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC tlaBgGNC">           1 :                 newEntries := make([]LogEntry, keepCount)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 copy(newEntries, s.coloredEntries[len(s.coloredEntries)-keepCount:])</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 s.coloredEntries = newEntries</span></span>
+<span id="L108"><span class="lineNum">     108</span>              :         }</span>
+<span id="L109"><span class="lineNum">     109</span>              : }</span>
+<span id="L110"><span class="lineNum">     110</span>              : </span>
+<span id="L111"><span class="lineNum">     111</span>              : // GetRecentEntries は最新のN行の色付きエントリを表示順で取得</span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetRecentEntries(lines int) []LogEntry {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         // 負の値や0の場合は空のスライスを返す</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           2 :         if lines &lt;= 0 || len(s.coloredEntries) == 0 {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                 return []LogEntry{}</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span>              : </span>
+<span id="L121"><span class="lineNum">     121</span>              :         // 要求された行数とコンテンツの長さの小さい方を使用</span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :         actualLines := lines</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           2 :         if actualLines &gt; len(s.coloredEntries) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                 actualLines = len(s.coloredEntries)</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span>              :         // 最新のactualLines行を取得（表示順）</span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         startIndex := len(s.coloredEntries) - actualLines</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         result := make([]LogEntry, actualLines)</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         copy(result, s.coloredEntries[startIndex:])</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : }</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : // GetHistoryEntries は全色付きエントリ履歴を表示順で取得</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 : func (s *SafeSlice) GetHistoryEntries() []LogEntry {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         s.mu.Lock()</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         defer s.mu.Unlock()</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         result := make([]LogEntry, len(s.coloredEntries))</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         copy(result, s.coloredEntries)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return result</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

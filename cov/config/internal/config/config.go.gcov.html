@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-17 15:23:58</td>
+            <td class="headerValue">2026-04-18 08:59:28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,214 +79,228 @@
 <span id="L17"><span class="lineNum">      17</span>              : </span>
 <span id="L18"><span class="lineNum">      18</span>              : // Config はアプリケーションの設定を管理する</span>
 <span id="L19"><span class="lineNum">      19</span>              : type Config struct {</span>
-<span id="L20"><span class="lineNum">      20</span>              :         // 環境プロファイル</span>
+<span id="L20"><span class="lineNum">      20</span>              :         // 設定のデフォルト値を決定するプロファイル</span>
 <span id="L21"><span class="lineNum">      21</span>              :         Profile Profile `env:&quot;RUINS_PROFILE&quot; envDefault:&quot;production&quot;`</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
-<span id="L23"><span class="lineNum">      23</span>              :         // ゲームウィンドウ設定</span>
-<span id="L24"><span class="lineNum">      24</span>              :         WindowWidth  int  `env:&quot;RUINS_WINDOW_WIDTH&quot;`</span>
-<span id="L25"><span class="lineNum">      25</span>              :         WindowHeight int  `env:&quot;RUINS_WINDOW_HEIGHT&quot;`</span>
-<span id="L26"><span class="lineNum">      26</span>              :         Fullscreen   bool `env:&quot;RUINS_FULLSCREEN&quot;`</span>
-<span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              :         // デバッグ設定</span>
-<span id="L29"><span class="lineNum">      29</span>              :         Debug         bool   `env:&quot;RUINS_DEBUG&quot;`</span>
-<span id="L30"><span class="lineNum">      30</span>              :         LogLevel      string `env:&quot;RUINS_LOG_LEVEL&quot;`</span>
-<span id="L31"><span class="lineNum">      31</span>              :         LogCategories string `env:&quot;RUINS_LOG_CATEGORIES&quot;`</span>
-<span id="L32"><span class="lineNum">      32</span>              :         DebugPProf    bool   `env:&quot;RUINS_DEBUG_PPROF&quot;`</span>
-<span id="L33"><span class="lineNum">      33</span>              :         PProfPort     int    `env:&quot;RUINS_PPROF_PORT&quot;`</span>
-<span id="L34"><span class="lineNum">      34</span>              :         ShowMonitor   bool   `env:&quot;RUINS_SHOW_MONITOR&quot;`</span>
-<span id="L35"><span class="lineNum">      35</span>              :         ShowAIDebug   bool   `env:&quot;RUINS_SHOW_AI_DEBUG&quot;`</span>
-<span id="L36"><span class="lineNum">      36</span>              :         ShowMapDebug  bool   `env:&quot;RUINS_SHOW_MAP_DEBUG&quot;`</span>
-<span id="L37"><span class="lineNum">      37</span>              :         NoEncounter   bool   `env:&quot;RUINS_NO_ENCOUNTER&quot;`</span>
-<span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              :         // ゲーム設定</span>
-<span id="L40"><span class="lineNum">      40</span>              :         StartingState    string `env:&quot;RUINS_STARTING_STATE&quot;`</span>
-<span id="L41"><span class="lineNum">      41</span>              :         DisableAnimation bool   `env:&quot;RUINS_DISABLE_ANIMATION&quot;`</span>
-<span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span>              :         // 乱数シード。環境変数で指定すると再現可能になる</span>
-<span id="L44"><span class="lineNum">      44</span>              :         // 未指定の場合は自動生成される</span>
-<span id="L45"><span class="lineNum">      45</span>              :         Seed uint64 `env:&quot;RUINS_SEED&quot;`</span>
-<span id="L46"><span class="lineNum">      46</span>              : </span>
-<span id="L47"><span class="lineNum">      47</span>              :         // 乱数生成器。Seedから生成される</span>
-<span id="L48"><span class="lineNum">      48</span>              :         RNG *rand.Rand</span>
-<span id="L49"><span class="lineNum">      49</span>              : </span>
-<span id="L50"><span class="lineNum">      50</span>              :         // パフォーマンス設定</span>
-<span id="L51"><span class="lineNum">      51</span>              :         TargetFPS     int    `env:&quot;RUINS_TARGET_FPS&quot;`</span>
-<span id="L52"><span class="lineNum">      52</span>              :         ProfileMemory bool   `env:&quot;RUINS_PROFILE_MEMORY&quot;`</span>
-<span id="L53"><span class="lineNum">      53</span>              :         ProfileCPU    bool   `env:&quot;RUINS_PROFILE_CPU&quot;`</span>
-<span id="L54"><span class="lineNum">      54</span>              :         ProfileMutex  bool   `env:&quot;RUINS_PROFILE_MUTEX&quot;`</span>
-<span id="L55"><span class="lineNum">      55</span>              :         ProfileTrace  bool   `env:&quot;RUINS_PROFILE_TRACE&quot;`</span>
-<span id="L56"><span class="lineNum">      56</span>              :         ProfilePath   string `env:&quot;RUINS_PROFILE_PATH&quot;`</span>
-<span id="L57"><span class="lineNum">      57</span>              : }</span>
+<span id="L23"><span class="lineNum">      23</span>              :         // ゲームウィンドウの幅（ピクセル）</span>
+<span id="L24"><span class="lineNum">      24</span>              :         WindowWidth int `env:&quot;RUINS_WINDOW_WIDTH&quot;`</span>
+<span id="L25"><span class="lineNum">      25</span>              :         // ゲームウィンドウの高さ（ピクセル）</span>
+<span id="L26"><span class="lineNum">      26</span>              :         WindowHeight int `env:&quot;RUINS_WINDOW_HEIGHT&quot;`</span>
+<span id="L27"><span class="lineNum">      27</span>              :         // フルスクリーンで起動するかどうか</span>
+<span id="L28"><span class="lineNum">      28</span>              :         Fullscreen bool `env:&quot;RUINS_FULLSCREEN&quot;`</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              :         // デバッグモードを有効にする。有効時は設定情報をログ出力する</span>
+<span id="L31"><span class="lineNum">      31</span>              :         Debug bool `env:&quot;RUINS_DEBUG&quot;`</span>
+<span id="L32"><span class="lineNum">      32</span>              :         // ログレベルを指定する</span>
+<span id="L33"><span class="lineNum">      33</span>              :         LogLevel string `env:&quot;RUINS_LOG_LEVEL&quot;`</span>
+<span id="L34"><span class="lineNum">      34</span>              :         // 出力するログカテゴリをカンマ区切りで指定する</span>
+<span id="L35"><span class="lineNum">      35</span>              :         LogCategories string `env:&quot;RUINS_LOG_CATEGORIES&quot;`</span>
+<span id="L36"><span class="lineNum">      36</span>              :         // pprofサーバーを起動するかどうか</span>
+<span id="L37"><span class="lineNum">      37</span>              :         DebugPProf bool `env:&quot;RUINS_DEBUG_PPROF&quot;`</span>
+<span id="L38"><span class="lineNum">      38</span>              :         // pprofサーバーのポート番号</span>
+<span id="L39"><span class="lineNum">      39</span>              :         PProfPort int `env:&quot;RUINS_PPROF_PORT&quot;`</span>
+<span id="L40"><span class="lineNum">      40</span>              :         // パフォーマンスモニターを表示するかどうか</span>
+<span id="L41"><span class="lineNum">      41</span>              :         ShowMonitor bool `env:&quot;RUINS_SHOW_MONITOR&quot;`</span>
+<span id="L42"><span class="lineNum">      42</span>              :         // AI行動のデバッグ表示を有効にするかどうか</span>
+<span id="L43"><span class="lineNum">      43</span>              :         ShowAIDebug bool `env:&quot;RUINS_SHOW_AI_DEBUG&quot;`</span>
+<span id="L44"><span class="lineNum">      44</span>              :         // マップのデバッグ表示を有効にするかどうか</span>
+<span id="L45"><span class="lineNum">      45</span>              :         ShowMapDebug bool `env:&quot;RUINS_SHOW_MAP_DEBUG&quot;`</span>
+<span id="L46"><span class="lineNum">      46</span>              :         // エンカウントを無効化するかどうか</span>
+<span id="L47"><span class="lineNum">      47</span>              :         NoEncounter bool `env:&quot;RUINS_NO_ENCOUNTER&quot;`</span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span>              :         // キャラクター作成をスキップして拠点から開始するかどうか</span>
+<span id="L50"><span class="lineNum">      50</span>              :         QuickStart bool `env:&quot;RUINS_QUICK_START&quot;`</span>
+<span id="L51"><span class="lineNum">      51</span>              :         // アニメーション演出を無効化するかどうか</span>
+<span id="L52"><span class="lineNum">      52</span>              :         DisableAnimation bool `env:&quot;RUINS_DISABLE_ANIMATION&quot;`</span>
+<span id="L53"><span class="lineNum">      53</span>              : </span>
+<span id="L54"><span class="lineNum">      54</span>              :         // 乱数シード。環境変数で指定すると再現可能になる。未指定の場合は自動生成される</span>
+<span id="L55"><span class="lineNum">      55</span>              :         Seed uint64 `env:&quot;RUINS_SEED&quot;`</span>
+<span id="L56"><span class="lineNum">      56</span>              :         // 乱数生成器。Seedから生成される</span>
+<span id="L57"><span class="lineNum">      57</span>              :         RNG *rand.Rand</span>
 <span id="L58"><span class="lineNum">      58</span>              : </span>
-<span id="L59"><span class="lineNum">      59</span>              : // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する</span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 : func (c *Config) ApplyProfileDefaults() {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         switch c.Profile {</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         case ProfileProduction:</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 c.applyProductionDefaults()</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         case ProfileDevelopment:</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                 c.applyDevelopmentDefaults()</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                 // デフォルトは本番設定</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 c.applyProductionDefaults()</span></span>
-<span id="L69"><span class="lineNum">      69</span>              :         }</span>
-<span id="L70"><span class="lineNum">      70</span>              : }</span>
-<span id="L71"><span class="lineNum">      71</span>              : </span>
-<span id="L72"><span class="lineNum">      72</span>              : // applyProductionDefaults は本番環境のデフォルト値を設定</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : func (c *Config) applyProductionDefaults() {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         // ウィンドウ設定</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_WIDTH&quot;) == &quot;&quot; {</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 c.WindowWidth = 960</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_HEIGHT&quot;) == &quot;&quot; {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 c.WindowHeight = 720</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_FULLSCREEN&quot;) == &quot;&quot; {</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                 c.Fullscreen = false</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L84"><span class="lineNum">      84</span>              : </span>
-<span id="L85"><span class="lineNum">      85</span>              :         // デバッグ設定</span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG&quot;) == &quot;&quot; {</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :                 c.Debug = false</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_LEVEL&quot;) == &quot;&quot; {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 c.LogLevel = &quot;info&quot;</span></span>
+<span id="L59"><span class="lineNum">      59</span>              :         // 描画のターゲットFPS</span>
+<span id="L60"><span class="lineNum">      60</span>              :         TargetFPS int `env:&quot;RUINS_TARGET_FPS&quot;`</span>
+<span id="L61"><span class="lineNum">      61</span>              :         // メモリプロファイルを取得するかどうか</span>
+<span id="L62"><span class="lineNum">      62</span>              :         ProfileMemory bool `env:&quot;RUINS_PROFILE_MEMORY&quot;`</span>
+<span id="L63"><span class="lineNum">      63</span>              :         // CPUプロファイルを取得するかどうか</span>
+<span id="L64"><span class="lineNum">      64</span>              :         ProfileCPU bool `env:&quot;RUINS_PROFILE_CPU&quot;`</span>
+<span id="L65"><span class="lineNum">      65</span>              :         // Mutexプロファイルを取得するかどうか</span>
+<span id="L66"><span class="lineNum">      66</span>              :         ProfileMutex bool `env:&quot;RUINS_PROFILE_MUTEX&quot;`</span>
+<span id="L67"><span class="lineNum">      67</span>              :         // トレースプロファイルを取得するかどうか</span>
+<span id="L68"><span class="lineNum">      68</span>              :         ProfileTrace bool `env:&quot;RUINS_PROFILE_TRACE&quot;`</span>
+<span id="L69"><span class="lineNum">      69</span>              :         // プロファイル出力先のディレクトリパス</span>
+<span id="L70"><span class="lineNum">      70</span>              :         ProfilePath string `env:&quot;RUINS_PROFILE_PATH&quot;`</span>
+<span id="L71"><span class="lineNum">      71</span>              : }</span>
+<span id="L72"><span class="lineNum">      72</span>              : </span>
+<span id="L73"><span class="lineNum">      73</span>              : // ApplyProfileDefaults はプロファイルに基づいてデフォルト値を設定する</span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC tlaBgUNC">           0 : func (c *Config) ApplyProfileDefaults() {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         switch c.Profile {</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         case ProfileProduction:</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 c.applyProductionDefaults()</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         case ProfileDevelopment:</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 c.applyDevelopmentDefaults()</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 // デフォルトは本番設定</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                 c.applyProductionDefaults()</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         }</span>
+<span id="L84"><span class="lineNum">      84</span>              : }</span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // applyProductionDefaults は本番環境のデフォルト値を設定</span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 : func (c *Config) applyProductionDefaults() {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         // ウィンドウ設定</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_WIDTH&quot;) == &quot;&quot; {</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 c.WindowWidth = 960</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_CATEGORIES&quot;) == &quot;&quot; {</span></span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 c.LogCategories = &quot;&quot;</span></span>
+<span id="L92"><span class="lineNum">      92</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_HEIGHT&quot;) == &quot;&quot; {</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                 c.WindowHeight = 720</span></span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG_PPROF&quot;) == &quot;&quot; {</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 c.DebugPProf = false</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_FULLSCREEN&quot;) == &quot;&quot; {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 c.Fullscreen = false</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PPROF_PORT&quot;) == &quot;&quot; {</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 :                 c.PProfPort = 6060</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MONITOR&quot;) == &quot;&quot; {</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                 c.ShowMonitor = false</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MAP_DEBUG&quot;) == &quot;&quot; {</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :                 c.ShowMapDebug = false</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_NO_ENCOUNTER&quot;) == &quot;&quot; {</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                 c.NoEncounter = false</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L110"><span class="lineNum">     110</span>              : </span>
-<span id="L111"><span class="lineNum">     111</span>              :         // ゲーム設定</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_STARTING_STATE&quot;) == &quot;&quot; {</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 c.StartingState = &quot;main_menu&quot;</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span>              :         // デバッグ設定</span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG&quot;) == &quot;&quot; {</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                 c.Debug = false</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_LEVEL&quot;) == &quot;&quot; {</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :                 c.LogLevel = &quot;info&quot;</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_CATEGORIES&quot;) == &quot;&quot; {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 c.LogCategories = &quot;&quot;</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG_PPROF&quot;) == &quot;&quot; {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 c.DebugPProf = false</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PPROF_PORT&quot;) == &quot;&quot; {</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 c.PProfPort = 6060</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DISABLE_ANIMATION&quot;) == &quot;&quot; {</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 c.DisableAnimation = false</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MONITOR&quot;) == &quot;&quot; {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 c.ShowMonitor = false</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L118"><span class="lineNum">     118</span>              : </span>
-<span id="L119"><span class="lineNum">     119</span>              :         // パフォーマンス設定</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_TARGET_FPS&quot;) == &quot;&quot; {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                 c.TargetFPS = 60</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L123"><span class="lineNum">     123</span>              : </span>
-<span id="L124"><span class="lineNum">     124</span>              :         // プロファイル設定</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MEMORY&quot;) == &quot;&quot; {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 c.ProfileMemory = false</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_CPU&quot;) == &quot;&quot; {</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                 c.ProfileCPU = false</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MUTEX&quot;) == &quot;&quot; {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 c.ProfileMutex = false</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_TRACE&quot;) == &quot;&quot; {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 c.ProfileTrace = false</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MAP_DEBUG&quot;) == &quot;&quot; {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 c.ShowMapDebug = false</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_NO_ENCOUNTER&quot;) == &quot;&quot; {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 c.NoEncounter = false</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L124"><span class="lineNum">     124</span>              : </span>
+<span id="L125"><span class="lineNum">     125</span>              :         // ゲーム設定</span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_QUICK_START&quot;) == &quot;&quot; {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                 c.QuickStart = false</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DISABLE_ANIMATION&quot;) == &quot;&quot; {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                 c.DisableAnimation = false</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L132"><span class="lineNum">     132</span>              : </span>
+<span id="L133"><span class="lineNum">     133</span>              :         // パフォーマンス設定</span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_TARGET_FPS&quot;) == &quot;&quot; {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 c.TargetFPS = 60</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_PATH&quot;) == &quot;&quot; {</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 c.ProfilePath = &quot;.&quot;</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L140"><span class="lineNum">     140</span>              : }</span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span>              : // applyDevelopmentDefaults は開発環境のデフォルト値を設定</span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 : func (c *Config) applyDevelopmentDefaults() {</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_WIDTH&quot;) == &quot;&quot; {</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 c.WindowWidth = 960</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_HEIGHT&quot;) == &quot;&quot; {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 c.WindowHeight = 720</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_FULLSCREEN&quot;) == &quot;&quot; {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 c.Fullscreen = false</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              : </span>
-<span id="L154"><span class="lineNum">     154</span>              :         // デバッグ設定</span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG&quot;) == &quot;&quot; {</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 c.Debug = true</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_LEVEL&quot;) == &quot;&quot; {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 c.LogLevel = &quot;info&quot;</span></span>
+<span id="L137"><span class="lineNum">     137</span>              : </span>
+<span id="L138"><span class="lineNum">     138</span>              :         // プロファイル設定</span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MEMORY&quot;) == &quot;&quot; {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 c.ProfileMemory = false</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_CPU&quot;) == &quot;&quot; {</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 c.ProfileCPU = false</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MUTEX&quot;) == &quot;&quot; {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 c.ProfileMutex = false</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_TRACE&quot;) == &quot;&quot; {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 c.ProfileTrace = false</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_PATH&quot;) == &quot;&quot; {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 c.ProfilePath = &quot;.&quot;</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : }</span>
+<span id="L155"><span class="lineNum">     155</span>              : </span>
+<span id="L156"><span class="lineNum">     156</span>              : // applyDevelopmentDefaults は開発環境のデフォルト値を設定</span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 : func (c *Config) applyDevelopmentDefaults() {</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_WIDTH&quot;) == &quot;&quot; {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 c.WindowWidth = 960</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_CATEGORIES&quot;) == &quot;&quot; {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 c.LogCategories = &quot;&quot;</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_WINDOW_HEIGHT&quot;) == &quot;&quot; {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 c.WindowHeight = 720</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG_PPROF&quot;) == &quot;&quot; {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 c.DebugPProf = true</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_FULLSCREEN&quot;) == &quot;&quot; {</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 c.Fullscreen = false</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PPROF_PORT&quot;) == &quot;&quot; {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 c.PProfPort = 6060</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MONITOR&quot;) == &quot;&quot; {</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                 c.ShowMonitor = false</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MAP_DEBUG&quot;) == &quot;&quot; {</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 c.ShowMapDebug = false</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_NO_ENCOUNTER&quot;) == &quot;&quot; {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                 c.NoEncounter = false</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span>              :         // ゲーム設定</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_STARTING_STATE&quot;) == &quot;&quot; {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 c.StartingState = &quot;town&quot;</span></span>
+<span id="L167"><span class="lineNum">     167</span>              : </span>
+<span id="L168"><span class="lineNum">     168</span>              :         // デバッグ設定</span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG&quot;) == &quot;&quot; {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 c.Debug = true</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_LEVEL&quot;) == &quot;&quot; {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 c.LogLevel = &quot;info&quot;</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_LOG_CATEGORIES&quot;) == &quot;&quot; {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 c.LogCategories = &quot;&quot;</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DEBUG_PPROF&quot;) == &quot;&quot; {</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 c.DebugPProf = true</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PPROF_PORT&quot;) == &quot;&quot; {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 c.PProfPort = 6060</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DISABLE_ANIMATION&quot;) == &quot;&quot; {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 c.DisableAnimation = false</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MONITOR&quot;) == &quot;&quot; {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 c.ShowMonitor = false</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L187"><span class="lineNum">     187</span>              : </span>
-<span id="L188"><span class="lineNum">     188</span>              :         // パフォーマンス設定</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_TARGET_FPS&quot;) == &quot;&quot; {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 c.TargetFPS = 60</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : </span>
-<span id="L193"><span class="lineNum">     193</span>              :         // プロファイル設定</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MEMORY&quot;) == &quot;&quot; {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 c.ProfileMemory = true</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_CPU&quot;) == &quot;&quot; {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                 c.ProfileCPU = false</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MUTEX&quot;) == &quot;&quot; {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                 c.ProfileMutex = false</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_TRACE&quot;) == &quot;&quot; {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 c.ProfileTrace = false</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_SHOW_MAP_DEBUG&quot;) == &quot;&quot; {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 c.ShowMapDebug = false</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_NO_ENCOUNTER&quot;) == &quot;&quot; {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 c.NoEncounter = false</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span>              :         // ゲーム設定</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_QUICK_START&quot;) == &quot;&quot; {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 c.QuickStart = true</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_DISABLE_ANIMATION&quot;) == &quot;&quot; {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 c.DisableAnimation = false</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span>              :         // パフォーマンス設定</span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_TARGET_FPS&quot;) == &quot;&quot; {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 c.TargetFPS = 60</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_PATH&quot;) == &quot;&quot; {</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 c.ProfilePath = &quot;./profiles&quot; // 開発時は専用フォルダ</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L209"><span class="lineNum">     209</span>              : }</span>
-<span id="L210"><span class="lineNum">     210</span>              : </span>
-<span id="L211"><span class="lineNum">     211</span>              : // Validate は設定値の妥当性を検証する</span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC tlaBgGNC">           1 : func (c *Config) Validate() error {</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           2 :         if c.WindowWidth &lt; 320 {</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 c.WindowWidth = 320</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :         if c.WindowHeight &lt; 240 {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 c.WindowHeight = 240</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           2 :         if c.TargetFPS &lt; 1 {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :                 c.TargetFPS = 60</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :         if c.PProfPort &lt; 1024 || c.PProfPort &gt; 65535 {</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :                 c.PProfPort = 6060</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L225"><span class="lineNum">     225</span>              : </span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L227"><span class="lineNum">     227</span>              : }</span>
+<span id="L206"><span class="lineNum">     206</span>              : </span>
+<span id="L207"><span class="lineNum">     207</span>              :         // プロファイル設定</span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MEMORY&quot;) == &quot;&quot; {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 c.ProfileMemory = true</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_CPU&quot;) == &quot;&quot; {</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                 c.ProfileCPU = false</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_MUTEX&quot;) == &quot;&quot; {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 c.ProfileMutex = false</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_TRACE&quot;) == &quot;&quot; {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 c.ProfileTrace = false</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         if os.Getenv(&quot;RUINS_PROFILE_PATH&quot;) == &quot;&quot; {</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 c.ProfilePath = &quot;./profiles&quot; // 開発時は専用フォルダ</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L223"><span class="lineNum">     223</span>              : }</span>
+<span id="L224"><span class="lineNum">     224</span>              : </span>
+<span id="L225"><span class="lineNum">     225</span>              : // Validate は設定値の妥当性を検証する</span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 : func (c *Config) Validate() error {</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           2 :         if c.WindowWidth &lt; 320 {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 c.WindowWidth = 320</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           2 :         if c.WindowHeight &lt; 240 {</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 c.WindowHeight = 240</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :         if c.TargetFPS &lt; 1 {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 c.TargetFPS = 60</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           2 :         if c.PProfPort &lt; 1024 || c.PProfPort &gt; 65535 {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 c.PProfPort = 6060</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L239"><span class="lineNum">     239</span>              : </span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : }</span>
         </pre>
               </td>
             </tr>
