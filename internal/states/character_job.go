@@ -10,6 +10,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/raw"
@@ -169,6 +170,11 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	// プレイヤー名を上書き
 	name := world.Components.Name.Get(player).(*gc.Name)
 	name.Name = st.playerName
+
+	// 操作ガイドを表示する
+	gamelog.New(gamelog.FieldLog).System("WASD: 移動する。").Log()
+	gamelog.New(gamelog.FieldLog).System("Mキー: 拠点メニューを開く。").Log()
+	gamelog.New(gamelog.FieldLog).System("Spaceキー: アクションメニューを開く。").Log()
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,

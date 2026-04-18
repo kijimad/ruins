@@ -101,9 +101,16 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		return fmt.Errorf("InitWorld failed: %w", err)
 	}
 
-	// デバッグデータを初期化
-	if err := worldhelper.InitNewGameData(world); err != nil {
-		return fmt.Errorf("InitNewGameData failed: %w", err)
+	// プレイヤーを生成する
+	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	if err != nil {
+		return fmt.Errorf("SpawnPlayer failed: %w", err)
+	}
+	professions := world.Resources.RawMaster.Raws.Professions
+	if len(professions) > 0 {
+		if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil {
+			return fmt.Errorf("ApplyProfession failed: %w", err)
+		}
 	}
 
 	for _, updater := range []w.Updater{

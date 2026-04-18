@@ -153,15 +153,20 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			"エンティティ作成順序による差異")
 	})
 
-	t.Run("InitNewGameDataの決定性確認", func(t *testing.T) {
+	t.Run("プレイヤー生成の決定性確認", func(t *testing.T) {
 		t.Parallel()
 		var jsonStrings []string
 
 		for session := 0; session < 3; session++ {
 			world := testutil.InitTestWorld(t)
 
-			// InitNewGameDataを使用してリアルなゲームデータを作成
-			require.NoError(t, worldhelper.InitNewGameData(world))
+			// プレイヤーを生成してリアルなゲームデータを作成
+			player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+			require.NoError(t, err)
+			professions := world.Resources.RawMaster.Raws.Professions
+			if len(professions) > 0 {
+				require.NoError(t, worldhelper.ApplyProfession(world, player, professions[0]))
+			}
 
 			sm := createTestSerializationManager(t)
 			jsonStr, err := sm.GenerateWorldJSON(world)
@@ -169,13 +174,13 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			jsonStrings = append(jsonStrings, jsonStr)
 		}
 
-		// InitNewGameDataが決定的であることを確認
+		// プレイヤー生成が決定的であることを確認
 		baseJSON := normalizeJSONForComparison(jsonStrings[0])
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
 
 			if baseJSON != normalizedJSON {
-				t.Errorf("InitNewGameDataセッション %d のJSONが一致しません（修正後も非決定的）", i+1)
+				t.Errorf("プレイヤー生成セッション %d のJSONが一致しません（非決定的）", i+1)
 
 				// 差分の詳細を表示
 				baseLines := strings.Split(baseJSON, "\n")
@@ -202,7 +207,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		for i := 1; i < len(jsonStrings); i++ {
 			normalizedJSON := normalizeJSONForComparison(jsonStrings[i])
 			assert.Equal(t, baseJSON, normalizedJSON,
-				"InitNewGameDataセッション %d のJSONが初回と異なります", i+1)
+				"プレイヤー生成セッション %d のJSONが初回と異なります", i+1)
 		}
 	})
 

@@ -57,14 +57,6 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
-	// デバッグデータを初期化する。プレイヤーが存在しない場合のみ実行される
-	// メインメニューからの新規開始: 実行
-	// セーブデータロード後の再開: 無視
-	// 階層移動: 無視
-	if err := worldhelper.InitNewGameData(world); err != nil {
-		return err
-	}
-
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
