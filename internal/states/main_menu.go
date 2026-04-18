@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -43,6 +44,7 @@ func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
 	world.Manager.DeleteAllEntities()
+	gamelog.FieldLog.Clear()
 
 	st.menuMount = hooks.NewMount[mainMenuProps]()
 	return nil
