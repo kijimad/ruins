@@ -57,13 +57,6 @@ func (st *DungeonState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
-	// ゲームログが空の場合は操作ガイドを表示する
-	if gamelog.FieldLog.Count() == 0 {
-		gamelog.New(gamelog.FieldLog).System("WASD: 移動する。").Log()
-		gamelog.New(gamelog.FieldLog).System("Mキー: 拠点メニューを開く。").Log()
-		gamelog.New(gamelog.FieldLog).System("Spaceキー: アクションメニューを開く。").Log()
-	}
-
 	screenWidth := world.Resources.ScreenDimensions.Width
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
