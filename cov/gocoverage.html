@@ -21764,77 +21764,69 @@ func NewDebugMenuState() es.State[w.World] <span class="cov0" title="0">{
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("オープニング", func(_ w.World) error <span class="cov0" title="0">{
-                        // 1ページ目: 町医者 - 診断
-                        page1 := &amp;messagedata.MessageData{Speaker: "町医者"}
-                        page1.AddText("お母様の容態ですが...\n").
-                                AddText("残念ながら、").
-                                AddKeyword("地髄欠乏症").
-                                AddText("です。\n").
-                                AddText("現代でも治療の難しい病の1つとされています。")
+                        // 1a: 暗転で「大穴の中に、街がある。」
+                        page1a := &amp;messagedata.MessageData{Speaker: ""}
+                        page1a.AddText("大穴の中に、街がある。")
 
-                        // 2ページ目: 町医者 - 闇医者を勧める
-                        page2 := &amp;messagedata.MessageData{Speaker: "町医者"}
-                        page2.AddText("ただ、可能性はあります。\n西の果ての").
-                                AddKeyword("ハシマ").
-                                AddText("では").
-                                AddKeyword("地髄").
-                                AddText("研究が進んでいて、\n腕の立つ医者がいます。\n\n").
-                                AddText("訪ねてみるといいでしょう。")
+                        // 1b: 街画像に切り替えて続き
+                        page1b := &amp;messagedata.MessageData{Speaker: ""}
+                        page1b.AddText("遺跡から冷気が吹き上がる中で、人が暮らしている。\n").
+                                AddText("この穴の底が、古代文明の遺跡だ。")
 
-                        // 3ページ目: 場面転換 - ハシマへ
+                        // 2ページ目: 遺跡のリスクリターン
+                        page2 := &amp;messagedata.MessageData{Speaker: ""}
+                        page2.AddText("遺跡には怪物と罠、そして宝がある。\n").
+                                AddText("降りた者の半分は戻らない。\n").
+                                AddText("それでも人は降りる。\nここではそうやって食うしかない。")
+
+                        // 3ページ目: 拾い屋の声
                         page3 := &amp;messagedata.MessageData{Speaker: ""}
-                        page3.AddText("* * *\n\n").
-                                AddText("ハシマの診療所 ----")
+                        page3.AddText("「最下層を目指したやつ、また死んだらしいな。」\n\n").
+                                AddText("「たまにいるんだよな、そういう命知らずが。」\n").
+                                AddText("「その前のやつも、その前のやつも死んだ。」\n\n").
+                                AddText("「でさ、また来たらしいぜ。新しい").
+                                AddKeyword("拾い屋").
+                                AddText("が。」")
 
-                        // 4ページ目: 闇医者 - 街の説明
-                        page4 := &amp;messagedata.MessageData{Speaker: "闇医者"}
-                        page4.AddText("よくここまで来たな。大変な街じゃろう。\n").
-                                AddText("どいつもこいつも一攫千金を目指してギラついておる。\n").
-                                AddText("まさに大陸のゴールドラッシュの様相じゃ。")
-
-                        // 5ページ目: 闇医者 - 治療法と費用
-                        page5 := &amp;messagedata.MessageData{Speaker: "闇医者"}
-                        page5.AddText("さて、あんたの母親じゃが、\nわしが経験論的に編み出した手法によって\n治療できると確信しとる!\n\n").
-                                AddText("超高純度の精製地髄を投与して\nショックを与えれば、目覚める。\n\n").
-                                AddText("それに必要な地髄量は...").
-                                AddKeyword(worldhelper.FormatCurrency(10000000)).
-                                AddText("分だ。\n\n")
-
-                        // 6ページ目: 闇医者 - 採掘を勧める
-                        page6 := &amp;messagedata.MessageData{Speaker: "闇医者"}
-                        page6.AddText("一般人が用意できる量ではないが、方法はある。\n\n").
-                                AddText("...地髄を直接採取するのだ。\n\n").
-                                AddKeyword("ハシマ").
-                                AddText("のすぐ近くに").
-                                AddKeyword("遺跡").
-                                AddText("がある。\n\n").
-                                AddText("深層まで潜れば必要な量が手に入るじゃろう...\n")
-
-                        // page1→page2（町医者シーン）
-                        page1.NextMessages = []*messagedata.MessageData{page2}
-
-                        // page3→page4→page5→page6（闇医者シーン）
-                        page3.NextMessages = []*messagedata.MessageData{page4}
-                        page4.NextMessages = []*messagedata.MessageData{page5}
-                        page5.NextMessages = []*messagedata.MessageData{page6}
-
-                        // page2終了時に闇医者シーンへ遷移
+                        // page2終了時にpage3へ
                         page2.OnComplete = func() </span><span class="cov0" title="0">{
                                 messageState.SetTransition(es.Transition[w.World]{
                                         Type: es.TransPush,
                                         NewStateFuncs: []es.StateFactory[w.World]{
                                                 func() es.State[w.World] </span><span class="cov0" title="0">{
+                                                        // TODO: 酒場背景を使う
                                                         return NewMessageState(page3, WithBackgroundKey("bg", "hospital1"))
                                                 }</span>},
                                 })
                         }
 
-                        // 最初に町医者シーンを表示
+                        // page1b終了時にpage2へ
+                        <span class="cov0" title="0">page1b.OnComplete = func() </span><span class="cov0" title="0">{
+                                messageState.SetTransition(es.Transition[w.World]{
+                                        Type: es.TransPush,
+                                        NewStateFuncs: []es.StateFactory[w.World]{
+                                                func() es.State[w.World] </span><span class="cov0" title="0">{
+                                                        return NewMessageState(page2, WithBackgroundKey("bg", "black1"))
+                                                }</span>},
+                                })
+                        }
+
+                        // page1a終了時に街画像に切り替えてpage1bへ
+                        <span class="cov0" title="0">page1a.OnComplete = func() </span><span class="cov0" title="0">{
+                                messageState.SetTransition(es.Transition[w.World]{
+                                        Type: es.TransPush,
+                                        NewStateFuncs: []es.StateFactory[w.World]{
+                                                func() es.State[w.World] </span><span class="cov0" title="0">{
+                                                        return NewMessageState(page1b, WithBackgroundKey("bg", "town1"))
+                                                }</span>},
+                                })
+                        }
+
                         <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPush,
                                 NewStateFuncs: []es.StateFactory[w.World]{
                                         func() es.State[w.World] </span><span class="cov0" title="0">{
-                                                return NewMessageState(page1, WithBackgroundKey("bg", "hospital2"))
+                                                return NewMessageState(page1a, WithBackgroundKey("bg", "black1"))
                                         }</span>,
                                 }})
                         <span class="cov0" title="0">return nil</span>
