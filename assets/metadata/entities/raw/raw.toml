@@ -1684,6 +1684,24 @@
     Strength  = 4
     Vitality  = 5
 
+    # Boss ================
+
+[[Members]]
+  # TODO: スプライトを用意する
+  AnimKeys        = ["slime_0", "slime_1"]
+  IsBoss          = true
+  Name            = "凍晶化した猟師"
+  SpriteKey       = "slime_0"
+  SpriteSheetName = "field"
+
+  [Members.Abilities]
+    Agility   = 12
+    Defense   = 15
+    Dexterity = 10
+    Sensation = 8
+    Strength  = 18
+    Vitality  = 40
+
     # NPC ================
 
 [[Members]]
@@ -1786,6 +1804,12 @@
 
 [[CommandTables]]
   Name = "灰の偶像"
+  [[CommandTables.Entries]]
+    Weapon = "体当たり"
+    Weight = 1.0
+
+[[CommandTables]]
+  Name = "凍晶化した猟師"
   [[CommandTables.Entries]]
     Weapon = "体当たり"
     Weight = 1.0
@@ -2384,6 +2408,19 @@
       R = 255
 
   [Props.DungeonGateTrigger]
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "プレイヤーが踏むと扉をロックするトリガー"
+  Name        = "door_lock_trigger"
+
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "door_lock_trigger"
+    SpriteSheetName = "field"
+
+  [Props.DoorLockTrigger]
 
     # enemy tables ================
 

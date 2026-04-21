@@ -90,7 +90,11 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			}
 		} else {
 			// 敵NPCの場合
-			_, err := worldhelper.SpawnEnemy(world, npc.X, npc.Y, npc.Name)
+			var opts []worldhelper.SpawnEnemyOption
+			if member.IsBoss {
+				opts = append(opts, worldhelper.WithBoss())
+			}
+			_, err := worldhelper.SpawnEnemy(world, npc.X, npc.Y, npc.Name, opts...)
 			if err != nil {
 				return resources.Level{}, fmt.Errorf("敵NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
@@ -126,7 +130,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
 			doorComp.Orientation = orientation
 			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
-				return resources.Level{}, fmt.Errorf("ドア初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
+				return resources.Level{}, fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}
 	}
@@ -152,7 +156,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 	return level, nil
 }
 
-// detectDoorOrientation は隣接タイルからドアの向きを判定する
+// detectDoorOrientation は隣接タイルから扉の向きを判定する
 // 左右が壁の場合は縦向き、上下が壁の場合は横向き
 func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {
 	width := int(metaPlan.Level.TileWidth)

@@ -2,6 +2,7 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -69,6 +70,27 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			logger.Debug("ドロップアイテム生成失敗", "error", err, "material", materialName)
 		} else {
 			logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
+		}
+	}
+
+	// ボス撃破時の処理: 扉アンロック + クリアフラグ
+	for _, entity := range toDelete {
+		if entity.HasComponent(world.Components.Boss) {
+			// 全扉をアンロックして開く
+			if worldhelper.UnlockAllDoors(world) > 0 {
+				gamelog.New(gamelog.FieldLog).
+					Append("どこかで扉が開いたようだ。").
+					Log()
+			}
+
+			// DoorLockTriggerエンティティを削除する。ボス撃破後はトリガー不要
+			worldhelper.DeleteDoorLockTriggers(world)
+
+			// ダンジョンクリアフラグを立てる
+			dungeonName := world.Resources.Dungeon.DefinitionName
+			world.Resources.GameProgress.MarkDungeonCleared(dungeonName)
+
+			logger.Debug("ボス撃破: 扉アンロック+クリアフラグ", "dungeon", dungeonName)
 		}
 	}
 

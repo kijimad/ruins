@@ -31,10 +31,11 @@ var (
 	// DungeonForest は森ダンジョン定義
 	DungeonForest = Definition{
 		Name:            "亡者の森",
-		TotalFloors:     10,
+		TotalFloors:     20,
 		EnemyTableName:  "森",
 		ItemTableName:   "森",
 		BaseTemperature: 0, // 寒い
+		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 2},
@@ -45,10 +46,11 @@ var (
 	// DungeonCave は洞窟ダンジョン定義
 	DungeonCave = Definition{
 		Name:            "灰の洞窟",
-		TotalFloors:     15,
+		TotalFloors:     20,
 		EnemyTableName:  "洞窟",
 		ItemTableName:   "洞窟",
 		BaseTemperature: 5, // 寒い
+		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
@@ -63,6 +65,7 @@ var (
 		EnemyTableName:  "廃墟",
 		ItemTableName:   "廃墟",
 		BaseTemperature: 15, // やや快適
+		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
 			{PlannerType: mapplanner.PlannerTypeRuins, Weight: 3},

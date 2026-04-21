@@ -77,11 +77,11 @@ func TestExecuteInteraction_InvalidWay(t *testing.T) {
 	assert.Contains(t, err.Error(), "無効なActivationWay")
 }
 
-// TestExecuteInteraction_Door はドア相互作用の動作を確認
+// TestExecuteInteraction_Door は扉相互作用の動作を確認
 func TestExecuteInteraction_Door(t *testing.T) {
 	t.Parallel()
 
-	t.Run("閉じたドアを開く", func(t *testing.T) {
+	t.Run("閉じた扉を開く", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -90,7 +90,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
-		// ドアを作成（閉じている）
+		// 扉を作成（閉じている）
 		doorEntity := world.Manager.NewEntity()
 		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
@@ -105,14 +105,14 @@ func TestExecuteInteraction_Door(t *testing.T) {
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
-		assert.True(t, result.Success, "ドア相互作用が成功するべき")
+		assert.True(t, result.Success, "扉相互作用が成功するべき")
 
-		// ドアが開いていることを確認
+		// 扉が開いていることを確認
 		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
-		assert.True(t, doorComp.IsOpen, "ドアが開いているべき")
+		assert.True(t, doorComp.IsOpen, "扉が開いているべき")
 	})
 
-	t.Run("開いたドアを閉じる", func(t *testing.T) {
+	t.Run("開いた扉を閉じる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -121,7 +121,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
-		// ドアを作成（開いている）
+		// 扉を作成（開いている）
 		doorEntity := world.Manager.NewEntity()
 		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
@@ -134,11 +134,11 @@ func TestExecuteInteraction_Door(t *testing.T) {
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
-		assert.True(t, result.Success, "ドア相互作用が成功するべき")
+		assert.True(t, result.Success, "扉相互作用が成功するべき")
 
-		// ドアが閉じていることを確認
+		// 扉が閉じていることを確認
 		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
-		assert.False(t, doorComp.IsOpen, "ドアが閉じているべき")
+		assert.False(t, doorComp.IsOpen, "扉が閉じているべき")
 	})
 }
 
@@ -370,6 +370,121 @@ func TestExecuteInteraction_DungeonGate(t *testing.T) {
 	require.NotNil(t, result)
 	assert.True(t, result.Success, "ダンジョンゲート相互作用が成功するべき")
 	assert.Equal(t, gc.BehaviorDungeonGate, result.ActivityName)
+}
+
+// TestExecuteInteraction_DoorLock はドアロック相互作用の動作を確認
+func TestExecuteInteraction_DoorLock(t *testing.T) {
+	t.Parallel()
+
+	t.Run("全扉をロックする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		// 扉を2つ作成
+		door1 := world.Manager.NewEntity()
+		door1.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
+		door2 := world.Manager.NewEntity()
+		door2.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationVertical})
+
+		// DoorLockTriggerエンティティを作成
+		trigger := world.Manager.NewEntity()
+		trigger.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.DoorLockInteraction{},
+		})
+
+		result, err := ExecuteInteraction(player, trigger, world)
+		require.NoError(t, err)
+		assert.True(t, result.Success)
+
+		// 全扉がロックされていることを確認
+		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
+		doorComp2 := world.Components.Door.Get(door2).(*gc.Door)
+		assert.True(t, doorComp1.Locked, "扉1がロックされるべき")
+		assert.True(t, doorComp2.Locked, "扉2がロックされるべき")
+	})
+
+	t.Run("既にロック済みの扉はスキップする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+
+		// 既ロックの扉
+		door := world.Manager.NewEntity()
+		door.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Locked: true})
+
+		trigger := world.Manager.NewEntity()
+		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.DoorLockInteraction{},
+		})
+
+		result, err := ExecuteInteraction(player, trigger, world)
+		require.NoError(t, err)
+		assert.True(t, result.Success)
+	})
+
+	t.Run("開いている扉を閉じてからロックする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+
+		// 開いた扉を作成
+		door := world.Manager.NewEntity()
+		door.AddComponent(world.Components.Door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
+		door.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{SpriteSheetName: "field", SpriteKey: "door_horizontal_open"})
+
+		trigger := world.Manager.NewEntity()
+		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.DoorLockInteraction{},
+		})
+
+		result, err := ExecuteInteraction(player, trigger, world)
+		require.NoError(t, err)
+		assert.True(t, result.Success)
+
+		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
+		assert.True(t, doorComp.Locked, "扉がロックされるべき")
+	})
+}
+
+// TestExecuteInteraction_Door_Locked はロック済み扉の相互作用を確認
+func TestExecuteInteraction_Door_Locked(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ロックされた扉は開けない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		doorEntity := world.Manager.NewEntity()
+		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Locked: true, Orientation: gc.DoorOrientationHorizontal})
+		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.DoorInteraction{},
+		})
+		doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
+
+		result, err := ExecuteInteraction(player, doorEntity, world)
+		require.NoError(t, err)
+		require.NotNil(t, result)
+
+		// ロック済み扉は開かない
+		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		assert.False(t, doorComp.IsOpen, "ロックされた扉は開かないべき")
+	})
 }
 
 // TestExecuteInteraction_Door_NoDoorComponent はDoorコンポーネントがない場合のエラーを確認

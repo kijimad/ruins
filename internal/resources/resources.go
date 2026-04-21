@@ -19,7 +19,8 @@ type Resources struct {
 	RawMaster        *raw.Master
 
 	// 動的
-	Dungeon *Dungeon
+	Dungeon      *Dungeon
+	GameProgress *GameProgress
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -45,14 +46,9 @@ func (r *Resources) SetScreenDimensions(width, height int) {
 	r.ScreenDimensions.Height = height
 }
 
-// InitializeResources は ResourceInitializer インターフェースを実装
+// InitializeResources は engine/resources.ResourceInitializer インターフェースを実装する
 func (r *Resources) InitializeResources() error {
-	r.ScreenDimensions = &ScreenDimensions{}
-	r.SpriteSheets = &map[string]components.SpriteSheet{}
-	r.Fonts = &map[string]Font{}
-	r.Faces = &map[string]text.Face{}
-	r.UIResources = &UIResources{}
-	r.RawMaster = nil
+	*r = *InitGameResources()
 	return nil
 }
 
@@ -64,5 +60,6 @@ func InitGameResources() *Resources {
 		Fonts:            &map[string]Font{},
 		Faces:            &map[string]text.Face{},
 		UIResources:      &UIResources{},
+		GameProgress:     NewGameProgress(),
 	}
 }

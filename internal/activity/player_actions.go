@@ -40,14 +40,19 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 			if interactableEntity.HasComponent(world.Components.Door) {
 				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
 				if !door.IsOpen {
-					// 閉じているドアは開く相互作用を実行
+					// ロックされた扉は開けない
+					if door.Locked {
+						gamelog.New(gamelog.FieldLog).Append("扉はロックされている。").Log()
+						return nil
+					}
+					// 閉じている扉は開く相互作用を実行
 					_, err := ExecuteInteraction(entity, interactableEntity, world)
 					return err
 				}
-				// 開いているドアは通過可能なので、相互作用を実行せずに下の移動処理に進む
+				// 開いている扉は通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
 		} else {
-			// ドア以外のOnCollision相互作用（攻撃など）を実行
+			// 扉以外のOnCollision相互作用（攻撃など）を実行
 			_, err := ExecuteInteraction(entity, interactableEntity, world)
 			return err
 		}

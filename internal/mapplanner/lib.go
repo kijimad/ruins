@@ -461,6 +461,15 @@ var (
 			return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
 		},
 	}
+
+	// PlannerTypeBossFloor はボスフロアのプランナータイプ
+	PlannerTypeBossFloor = PlannerType{
+		Name:              "ボスフロア",
+		UseFixedPortalPos: true,
+		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
+			return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
+		},
+	}
 )
 
 // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する

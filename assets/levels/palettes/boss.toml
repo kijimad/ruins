@@ -1,0 +1,20 @@
+# ボスフロア用パレット
+
+[palette]
+  description = "ボスフロア用パレット"
+  id          = "boss"
+
+  # 地形の定義
+  [palette.terrain]
+    "!" = "floor" # ドアロックトリガーの下は床
+    "<" = "floor" # 帰還ポータルの下は床
+    "M" = "floor" # ボスNPCの下は床
+
+  # NPCの定義
+  [palette.npcs]
+    "M" = "凍晶化した猟師"
+
+  # Propsの定義
+  [palette.props]
+    "!" = "door_lock_trigger" # ドアロックトリガー
+    "<" = "warp_escape"       # 帰還ポータル

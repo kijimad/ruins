@@ -81,9 +81,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
 
 	// ビルダータイプを決定
-	// st.BuilderTypeが直接指定されている場合はそれを使用、それ以外はプールから選択する
 	var builderType mapplanner.PlannerType
-	if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name {
+	// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
+	if def.BossPlannerType != nil && st.Depth == def.TotalFloors {
+		builderType = *def.BossPlannerType
+	} else if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name {
 		var err error
 		builderType, err = dungeon.SelectPlanner(def, stageRNG)
 		if err != nil {

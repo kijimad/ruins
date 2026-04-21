@@ -18,6 +18,8 @@ const (
 	TemplateTypeSmallTown
 	// TemplateTypeTownPlaza は町の広場
 	TemplateTypeTownPlaza
+	// TemplateTypeBossFloor はボスフロア
+	TemplateTypeBossFloor
 )
 
 // NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
@@ -52,6 +54,8 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		templateName = "50x50_small_town"
 	case TemplateTypeTownPlaza:
 		templateName = "50x20_town_plaza"
+	case TemplateTypeBossFloor:
+		templateName = "50x50_boss_floor"
 	default:
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}

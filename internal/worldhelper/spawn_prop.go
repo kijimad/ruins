@@ -33,9 +33,9 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	return entities[len(entities)-1], nil
 }
 
-// SpawnDoor はドアを生成する
+// SpawnDoor は扉を生成する
 func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorOrientation) (ecs.Entity, error) {
-	// スプライトキーを決定（閉じたドア）
+	// スプライトキーを決定（閉じた扉）
 	var spriteKey string
 	if orientation == gc.DoorOrientationHorizontal {
 		spriteKey = "door_horizontal_closed"
@@ -45,8 +45,8 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 
 	// EntitySpecを構築
 	entitySpec := gc.EntitySpec{
-		Name:        &gc.Name{Name: "ドア"},
-		Description: &gc.Description{Description: "開閉できるドア"},
+		Name:        &gc.Name{Name: "扉"},
+		Description: &gc.Description{Description: "開閉できる扉"},
 		GridElement: &gc.GridElement{X: x, Y: y},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
@@ -75,27 +75,72 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 	return ents[len(ents)-1], nil
 }
 
-// OpenDoor はドアを開く
+// OpenDoor は扉を開く
 func OpenDoor(world w.World, doorEntity ecs.Entity) error {
 	if !doorEntity.HasComponent(world.Components.Door) {
-		return fmt.Errorf("エンティティはドアではありません")
+		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, true)
 }
 
-// CloseDoor はドアを閉じる
+// CloseDoor は扉を閉じる
 func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 	if !doorEntity.HasComponent(world.Components.Door) {
-		return fmt.Errorf("エンティティはドアではありません")
+		return fmt.Errorf("エンティティは扉ではありません")
 	}
 
 	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
 	return updateDoorState(world, doorEntity, doorComp.Orientation, false)
 }
 
-// updateDoorState はドアの向きと開閉状態に応じて、状態を更新する
+// LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
+func LockAllDoors(world w.World) int {
+	locked := 0
+	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		if doorComp.Locked {
+			return
+		}
+		if doorComp.IsOpen {
+			_ = CloseDoor(world, doorEntity)
+		}
+		doorComp.Locked = true
+		locked++
+	}))
+	return locked
+}
+
+// UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
+func UnlockAllDoors(world w.World) int {
+	opened := 0
+	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp.Locked = false
+		if !doorComp.IsOpen {
+			_ = OpenDoor(world, doorEntity)
+			opened++
+		}
+	}))
+	return opened
+}
+
+// DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
+func DeleteDoorLockTriggers(world w.World) {
+	var toDelete []ecs.Entity
+	world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
+		interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
+		if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
+			toDelete = append(toDelete, triggerEntity)
+		}
+	}))
+	for _, entity := range toDelete {
+		world.Manager.DeleteEntity(entity)
+	}
+}
+
+// updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
 func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error {
 	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
 	doorComp.Orientation = orientation
