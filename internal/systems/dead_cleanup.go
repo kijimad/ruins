@@ -77,38 +77,18 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	for _, entity := range toDelete {
 		if entity.HasComponent(world.Components.Boss) {
 			// 全扉をアンロックして開く
-			opened := false
-			world.Manager.Join(
-				world.Components.Door,
-			).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
-				doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
-				doorComp.Locked = false
-				if !doorComp.IsOpen {
-					_ = worldhelper.OpenDoor(world, doorEntity)
-					opened = true
-				}
-			}))
-			if opened {
+			if worldhelper.UnlockAllDoors(world) > 0 {
 				gamelog.New(gamelog.FieldLog).
 					Append("どこかで扉が開いたようだ。").
 					Log()
 			}
 
 			// DoorLockTriggerエンティティを削除する。ボス撃破後はトリガー不要
-			world.Manager.Join(
-				world.Components.Interactable,
-			).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
-				interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
-				if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
-					world.Manager.DeleteEntity(triggerEntity)
-				}
-			}))
+			worldhelper.DeleteDoorLockTriggers(world)
 
 			// ダンジョンクリアフラグを立てる
 			dungeonName := world.Resources.Dungeon.DefinitionName
-			if world.Resources.GameProgress != nil {
-				world.Resources.GameProgress.MarkDungeonCleared(dungeonName)
-			}
+			world.Resources.GameProgress.MarkDungeonCleared(dungeonName)
 
 			logger.Debug("ボス撃破: 扉アンロック+クリアフラグ", "dungeon", dungeonName)
 		}

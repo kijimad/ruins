@@ -95,6 +95,51 @@ func CloseDoor(world w.World, doorEntity ecs.Entity) error {
 	return updateDoorState(world, doorEntity, doorComp.Orientation, false)
 }
 
+// LockAllDoors は全扉を閉じてロックする。ロックされた扉の数を返す
+func LockAllDoors(world w.World) int {
+	locked := 0
+	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		if doorComp.Locked {
+			return
+		}
+		if doorComp.IsOpen {
+			_ = CloseDoor(world, doorEntity)
+		}
+		doorComp.Locked = true
+		locked++
+	}))
+	return locked
+}
+
+// UnlockAllDoors は全扉をアンロックして開く。開かれた扉の数を返す
+func UnlockAllDoors(world w.World) int {
+	opened := 0
+	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		doorComp.Locked = false
+		if !doorComp.IsOpen {
+			_ = OpenDoor(world, doorEntity)
+			opened++
+		}
+	}))
+	return opened
+}
+
+// DeleteDoorLockTriggers はDoorLockInteractionを持つエンティティを全削除する
+func DeleteDoorLockTriggers(world w.World) {
+	var toDelete []ecs.Entity
+	world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
+		interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
+		if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
+			toDelete = append(toDelete, triggerEntity)
+		}
+	}))
+	for _, entity := range toDelete {
+		world.Manager.DeleteEntity(entity)
+	}
+}
+
 // updateDoorState は扉の向きと開閉状態に応じて、状態を更新する
 func updateDoorState(world w.World, doorEntity ecs.Entity, orientation gc.DoorOrientation, isOpen bool) error {
 	doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)

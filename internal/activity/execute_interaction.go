@@ -88,24 +88,12 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 }
 
 func executeDoorLock(world w.World) (*ActionResult, error) {
-	locked := false
-	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
-		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
-		if doorComp.Locked {
-			return
-		}
-		if doorComp.IsOpen {
-			_ = worldhelper.CloseDoor(world, doorEntity)
-		}
-		doorComp.Locked = true
-		locked = true
-	}))
-	if locked {
+	if worldhelper.LockAllDoors(world) > 0 {
 		gamelog.New(gamelog.FieldLog).
 			Append("どこかで扉が閉じたようだ。").
 			Log()
 	}
-	return &ActionResult{Success: true, ActivityName: gc.BehaviorName("DoorLock"), Message: "扉ロック"}, nil
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorDoorLock, Message: "扉ロック"}, nil
 }
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {

@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -209,18 +210,20 @@ func TestSpawnNPCHasAIMoveFSM(t *testing.T) {
 func TestSpawnEnemy_WithBoss(t *testing.T) {
 	t.Parallel()
 
-	world := testutil.InitTestWorld(t)
-
-	spriteSheets := make(map[string]gc.SpriteSheet)
-	spriteSheets["field"] = gc.SpriteSheet{
-		Sprites: map[string]gc.Sprite{
-			"red_ball": {Width: 32, Height: 32},
-		},
+	initSpriteSheets := func(world w.World) {
+		spriteSheets := make(map[string]gc.SpriteSheet)
+		spriteSheets["field"] = gc.SpriteSheet{
+			Sprites: map[string]gc.Sprite{
+				"red_ball": {Width: 32, Height: 32},
+			},
+		}
+		world.Resources.SpriteSheets = &spriteSheets
 	}
-	world.Resources.SpriteSheets = &spriteSheets
 
 	t.Run("WithBossオプションでBossコンポーネントが付与される", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		initSpriteSheets(world)
 		enemy, err := SpawnEnemy(world, 5, 5, "火の玉", WithBoss())
 		require.NoError(t, err)
 		assert.True(t, enemy.HasComponent(world.Components.Boss), "Bossコンポーネントを持つべき")
@@ -228,6 +231,8 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 
 	t.Run("オプションなしではBossコンポーネントが付与されない", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		initSpriteSheets(world)
 		enemy, err := SpawnEnemy(world, 6, 6, "火の玉")
 		require.NoError(t, err)
 		assert.False(t, enemy.HasComponent(world.Components.Boss), "Bossコンポーネントを持つべきではない")
@@ -364,6 +369,154 @@ func TestSpawnDoor(t *testing.T) {
 		// Doorコンポーネントを確認
 		doorComp := world.Components.Door.Get(door).(*gc.Door)
 		assert.Equal(t, gc.DoorOrientationHorizontal, doorComp.Orientation)
+	})
+}
+
+func TestLockAllDoors(t *testing.T) {
+	t.Parallel()
+
+	t.Run("全扉を閉じてロックする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		door1, err := SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		door2, err := SpawnDoor(world, 6, 6, gc.DoorOrientationVertical)
+		require.NoError(t, err)
+
+		locked := LockAllDoors(world)
+
+		assert.Equal(t, 2, locked)
+		assert.True(t, world.Components.Door.Get(door1).(*gc.Door).Locked)
+		assert.True(t, world.Components.Door.Get(door2).(*gc.Door).Locked)
+	})
+
+	t.Run("開いた扉を閉じてからロックする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		door, err := SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		require.NoError(t, OpenDoor(world, door))
+
+		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		assert.True(t, doorComp.IsOpen)
+
+		locked := LockAllDoors(world)
+
+		assert.Equal(t, 1, locked)
+		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
+		assert.True(t, doorComp.Locked, "扉がロックされるべき")
+	})
+
+	t.Run("既にロック済みの扉はスキップする", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		door, err := SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		world.Components.Door.Get(door).(*gc.Door).Locked = true
+
+		locked := LockAllDoors(world)
+
+		assert.Equal(t, 0, locked)
+	})
+
+	t.Run("扉がない場合は0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		locked := LockAllDoors(world)
+
+		assert.Equal(t, 0, locked)
+	})
+}
+
+func TestUnlockAllDoors(t *testing.T) {
+	t.Parallel()
+
+	t.Run("全扉をアンロックして開く", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		door1, err := SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		door2, err := SpawnDoor(world, 6, 6, gc.DoorOrientationVertical)
+		require.NoError(t, err)
+
+		// ロックする
+		world.Components.Door.Get(door1).(*gc.Door).Locked = true
+		world.Components.Door.Get(door2).(*gc.Door).Locked = true
+
+		opened := UnlockAllDoors(world)
+
+		assert.Equal(t, 2, opened)
+		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
+		doorComp2 := world.Components.Door.Get(door2).(*gc.Door)
+		assert.False(t, doorComp1.Locked)
+		assert.True(t, doorComp1.IsOpen)
+		assert.False(t, doorComp2.Locked)
+		assert.True(t, doorComp2.IsOpen)
+	})
+
+	t.Run("既に開いている扉はカウントしない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		door, err := SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
+		require.NoError(t, err)
+		require.NoError(t, OpenDoor(world, door))
+		world.Components.Door.Get(door).(*gc.Door).Locked = true
+
+		opened := UnlockAllDoors(world)
+
+		assert.Equal(t, 0, opened)
+		doorComp := world.Components.Door.Get(door).(*gc.Door)
+		assert.False(t, doorComp.Locked, "アンロックされるべき")
+		assert.True(t, doorComp.IsOpen, "開いたままであるべき")
+	})
+}
+
+func TestDeleteDoorLockTriggers(t *testing.T) {
+	t.Parallel()
+
+	t.Run("DoorLockInteractionを持つエンティティだけ削除する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// DoorLockTriggerを2つ作成
+		trigger1 := world.Manager.NewEntity()
+		trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorLockInteraction{}})
+		trigger2 := world.Manager.NewEntity()
+		trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorLockInteraction{}})
+
+		// 他のInteractableも作成
+		other := world.Manager.NewEntity()
+		other.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorInteraction{}})
+
+		DeleteDoorLockTriggers(world)
+
+		// DoorLockTriggerは削除されている
+		count := 0
+		world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(entity ecs.Entity) {
+			interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+			if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
+				count++
+			}
+		}))
+		assert.Equal(t, 0, count, "DoorLockTriggerは全削除されるべき")
+
+		// 他のInteractableは残っている
+		assert.True(t, other.HasComponent(world.Components.Interactable), "DoorInteractionは残るべき")
+	})
+
+	t.Run("対象がない場合でもエラーにならない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		assert.NotPanics(t, func() {
+			DeleteDoorLockTriggers(world)
+		})
 	})
 }
 
