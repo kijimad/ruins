@@ -30,8 +30,6 @@ type Dungeon struct {
 	GameTime GameTime
 	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
 	SelectedWeaponSlot int
-	// IsBossFloor は現在の階がボスフロアかどうか
-	IsBossFloor bool
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

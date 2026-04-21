@@ -85,7 +85,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	// 最終階層かつBossPlannerTypeが設定されている場合はボスフロアを使用する
 	if def.BossPlannerType != nil && st.Depth == def.TotalFloors {
 		builderType = *def.BossPlannerType
-		world.Resources.Dungeon.IsBossFloor = true
 	} else if st.BuilderType.Name == mapplanner.PlannerTypeRandom.Name {
 		var err error
 		builderType, err = dungeon.SelectPlanner(def, stageRNG)
