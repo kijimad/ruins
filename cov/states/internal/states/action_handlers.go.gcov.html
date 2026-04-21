@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-20 13:50:09</td>
+            <td class="headerValue">2026-04-21 15:16:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -117,7 +117,7 @@
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         switch portalData := interactable.Data.(type) {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         case gc.DoorInteraction:</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 // ドアの状態に応じたアクションを生成</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 // 扉の状態に応じたアクションを生成</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 if interactableEntity.HasComponent(world.Components.Door) {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                         door := world.Components.Door.Get(interactableEntity).(*gc.Door)</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                         var label string</span></span>
