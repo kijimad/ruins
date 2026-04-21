@@ -102,21 +102,6 @@ func TestForestPlanner(t *testing.T) {
 		}
 	})
 
-	t.Run("上端から下端への接続性が保たれる", func(t *testing.T) {
-		t.Parallel()
-		// 多数シードで接続性を確認し、縦通路で上下端への接続が保証されていることを検証する
-		for seed := uint64(0); seed < 50; seed++ {
-			chain, err := NewForestPlanner(30, 30, seed)
-			require.NoError(t, err, "seed=%d", seed)
-			chain.PlanData.RawMaster = CreateTestRawMaster()
-			err = chain.Plan()
-			require.NoError(t, err, "seed=%d", seed)
-
-			pf := NewPathFinder(&chain.PlanData)
-			err = pf.ValidateConnectivity()
-			assert.NoError(t, err, "seed=%dで接続性検証に失敗した", seed)
-		}
-	})
 }
 
 func TestForestPlannerConnectivityIntegration(t *testing.T) {

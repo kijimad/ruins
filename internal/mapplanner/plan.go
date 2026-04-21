@@ -92,13 +92,8 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		return nil, ErrPlayerPlacement
 	}
 
-	// 接続性検証: 最上列と最下列が接続されているかをチェックする
-	pathFinder := NewPathFinder(&chain.PlanData)
-	if err := pathFinder.ValidateConnectivity(); err != nil {
-		return nil, err
-	}
-
 	// ポータル到達性検証: プレイヤー開始位置から全ポータルへ到達可能かチェック
+	pathFinder := NewPathFinder(&chain.PlanData)
 	if err := pathFinder.ValidatePortalReachability(); err != nil {
 		return nil, err
 	}

@@ -125,51 +125,6 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
 	return len(path) > 0
 }
 
-// ValidateConnectivity は最上列と最下列の接続性を検証する
-// 最上列の歩行可能なタイルのいずれかから最下列に到達できるかをチェックする
-// 橋の結合前に呼ばれる
-func (pf *PathFinder) ValidateConnectivity() error {
-	width := int(pf.planData.Level.TileWidth)
-	height := int(pf.planData.Level.TileHeight)
-
-	// 最上列と最下列の歩行可能タイル数を数える
-	topWalkableCount := 0
-	bottomWalkableCount := 0
-	for x := 0; x < width; x++ {
-		if pf.IsWalkable(x, 0) {
-			topWalkableCount++
-		}
-		if pf.IsWalkable(x, height-1) {
-			bottomWalkableCount++
-		}
-	}
-
-	if topWalkableCount == 0 {
-		return fmt.Errorf("%w: 最上列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
-	}
-	if bottomWalkableCount == 0 {
-		return fmt.Errorf("%w: 最下列に歩行可能タイルが存在しません (width=%d, height=%d)", ErrConnectivity, width, height)
-	}
-
-	// 最上列の歩行可能なタイルを全て試し、いずれかから最下列に到達できるかチェック
-	for topX := 0; topX < width; topX++ {
-		if !pf.IsWalkable(topX, 0) {
-			continue
-		}
-		for bottomX := 0; bottomX < width; bottomX++ {
-			if !pf.IsWalkable(bottomX, height-1) {
-				continue
-			}
-			if pf.IsReachable(topX, 0, bottomX, height-1) {
-				return nil
-			}
-		}
-	}
-
-	return fmt.Errorf("%w: 最上列から最下列への到達不可 (width=%d, height=%d, 最上列歩行可能タイル数=%d, 最下列歩行可能タイル数=%d)",
-		ErrConnectivity, width, height, topWalkableCount, bottomWalkableCount)
-}
-
 // ValidatePortalReachability はプレイヤー開始位置から全ポータルへの到達性を検証する
 func (pf *PathFinder) ValidatePortalReachability() error {
 	// プレイヤー開始位置を取得
