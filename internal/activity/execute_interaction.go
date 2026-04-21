@@ -4,8 +4,10 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -32,6 +34,8 @@ func ExecuteInteraction(actor ecs.Entity, interactable ecs.Entity, world w.World
 		return executeDungeonGate(world)
 	case gc.DoorInteraction:
 		return executeDoor(actor, interactable, world)
+	case gc.DoorLockInteraction:
+		return executeDoorLock(world)
 	case gc.TalkInteraction:
 		return executeTalk(actor, interactable, world)
 	case gc.ItemInteraction:
@@ -81,6 +85,27 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 		return Execute(&CloseDoorActivity{}, params, world)
 	}
 	return Execute(&OpenDoorActivity{}, params, world)
+}
+
+func executeDoorLock(world w.World) (*ActionResult, error) {
+	locked := false
+	world.Manager.Join(world.Components.Door).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+		doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+		if doorComp.Locked {
+			return
+		}
+		if doorComp.IsOpen {
+			_ = worldhelper.CloseDoor(world, doorEntity)
+		}
+		doorComp.Locked = true
+		locked = true
+	}))
+	if locked {
+		gamelog.New(gamelog.FieldLog).
+			Append("どこかで扉が閉じたようだ。").
+			Log()
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorName("DoorLock"), Message: "扉ロック"}, nil
 }
 
 func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*ActionResult, error) {

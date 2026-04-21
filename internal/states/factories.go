@@ -164,6 +164,14 @@ func NewDebugMenuState() es.State[w.World] {
 				}})
 			return nil
 		}).
+		WithChoice("ダンジョン開始(ボス部屋)", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransReplace,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					NewDungeonState(1, WithBuilderType(mapplanner.PlannerTypeBossFloor)),
+				}})
+			return nil
+		}).
 		WithChoice("市街地開始", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,

@@ -30,7 +30,7 @@ func TestGetDungeonByName(t *testing.T) {
 		d, found := GetDungeon("亡者の森")
 		assert.True(t, found)
 		assert.Equal(t, "亡者の森", d.Name)
-		assert.Equal(t, 10, d.TotalFloors)
+		assert.Equal(t, 20, d.TotalFloors)
 	})
 
 	t.Run("存在しないダンジョンはfalseを返す", func(t *testing.T) {
@@ -46,7 +46,7 @@ func TestDefinitions(t *testing.T) {
 	t.Run("DungeonForestの設定が正しい", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "亡者の森", DungeonForest.Name)
-		assert.Equal(t, 10, DungeonForest.TotalFloors)
+		assert.Equal(t, 20, DungeonForest.TotalFloors)
 		assert.Equal(t, "森", DungeonForest.EnemyTableName)
 		assert.Equal(t, "森", DungeonForest.ItemTableName)
 		assert.NotEmpty(t, DungeonForest.PlannerPool)
@@ -55,7 +55,7 @@ func TestDefinitions(t *testing.T) {
 	t.Run("DungeonCaveの設定が正しい", func(t *testing.T) {
 		t.Parallel()
 		assert.Equal(t, "灰の洞窟", DungeonCave.Name)
-		assert.Equal(t, 15, DungeonCave.TotalFloors)
+		assert.Equal(t, 20, DungeonCave.TotalFloors)
 		assert.Equal(t, "洞窟", DungeonCave.EnemyTableName)
 		assert.Equal(t, "洞窟", DungeonCave.ItemTableName)
 		assert.NotEmpty(t, DungeonCave.PlannerPool)

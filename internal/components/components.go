@@ -126,6 +126,7 @@ type Components struct {
 	FactionAlly    *ecs.NullComponent  `save:"true"`
 	FactionEnemy   *ecs.NullComponent
 	FactionNeutral *ecs.NullComponent `save:"true"`
+	Boss           *ecs.NullComponent // ボスエンティティのマーカー
 	Dialog         *ecs.SliceComponent
 	Dead           *ecs.NullComponent
 	TurnBased      *ecs.SliceComponent `save:"true"`
@@ -427,18 +428,19 @@ type LightSource struct {
 	Enabled bool        // 有効/無効
 }
 
-// Door は開閉可能なドアコンポーネント
+// Door は開閉可能な扉コンポーネント
 type Door struct {
 	IsOpen      bool            // 開いているかどうか
-	Orientation DoorOrientation // ドアの向き
+	Orientation DoorOrientation // 扉の向き
+	Locked      bool            // ロック中は開閉不可
 }
 
-// DoorOrientation はドアの向き
+// DoorOrientation は扉の向き
 type DoorOrientation int
 
 const (
-	// DoorOrientationHorizontal は横向きのドア
+	// DoorOrientationHorizontal は横向きの扉
 	DoorOrientationHorizontal DoorOrientation = iota
-	// DoorOrientationVertical は縦向きのドア
+	// DoorOrientationVertical は縦向きの扉
 	DoorOrientationVertical
 )

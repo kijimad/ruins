@@ -86,7 +86,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 				Message:      currentActivity.CancelReason,
 			}
 			setLastResult(params.Actor, result, world)
-			return result, fmt.Errorf("アクション失敗: %s", currentActivity.CancelReason)
+			return result, nil
 		}
 	}
 

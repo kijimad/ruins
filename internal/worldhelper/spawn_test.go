@@ -206,6 +206,34 @@ func TestSpawnNPCHasAIMoveFSM(t *testing.T) {
 	assert.True(t, enemyFound, "SpawnEnemyで生成されたエンティティはAIMoveFSMコンポーネントを持つべき")
 }
 
+func TestSpawnEnemy_WithBoss(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	spriteSheets := make(map[string]gc.SpriteSheet)
+	spriteSheets["field"] = gc.SpriteSheet{
+		Sprites: map[string]gc.Sprite{
+			"red_ball": {Width: 32, Height: 32},
+		},
+	}
+	world.Resources.SpriteSheets = &spriteSheets
+
+	t.Run("WithBossオプションでBossコンポーネントが付与される", func(t *testing.T) {
+		t.Parallel()
+		enemy, err := SpawnEnemy(world, 5, 5, "火の玉", WithBoss())
+		require.NoError(t, err)
+		assert.True(t, enemy.HasComponent(world.Components.Boss), "Bossコンポーネントを持つべき")
+	})
+
+	t.Run("オプションなしではBossコンポーネントが付与されない", func(t *testing.T) {
+		t.Parallel()
+		enemy, err := SpawnEnemy(world, 6, 6, "火の玉")
+		require.NoError(t, err)
+		assert.False(t, enemy.HasComponent(world.Components.Boss), "Bossコンポーネントを持つべきではない")
+	})
+}
+
 func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	t.Parallel()
 
@@ -297,7 +325,7 @@ func TestSpawnItem(t *testing.T) {
 func TestSpawnDoor(t *testing.T) {
 	t.Parallel()
 
-	t.Run("縦向きドアのスポーン", func(t *testing.T) {
+	t.Run("縦向き扉のスポーン", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -322,7 +350,7 @@ func TestSpawnDoor(t *testing.T) {
 		assert.True(t, door.HasComponent(world.Components.BlockView))
 	})
 
-	t.Run("横向きドアのスポーン", func(t *testing.T) {
+	t.Run("横向き扉のスポーン", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -466,6 +494,7 @@ func TestCalculateSpeed(t *testing.T) {
 		entity.AddComponent(world.Components.CharModifiers, mods)
 
 		coldSpeed := CalculateSpeed(world, entity)
+		t.Logf("normalSpeed=%d coldSpeed=%d hasMods=%v moveCost=%d", normalSpeed, coldSpeed, entity.HasComponent(world.Components.CharModifiers), mods.MoveCost)
 		assert.Less(t, coldSpeed, normalSpeed, "低体温によりSpeedが低下するべき")
 	})
 

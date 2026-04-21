@@ -55,7 +55,7 @@ func (d DungeonGateInteraction) Config() InteractionConfig {
 	}
 }
 
-// DoorInteraction はドアの相互作用
+// DoorInteraction は扉の相互作用
 type DoorInteraction struct{}
 
 // Config は相互作用設定を返す
@@ -63,6 +63,17 @@ func (t DoorInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeAdjacent,
 		ActivationWay:   ActivationWayOnCollision,
+	}
+}
+
+// DoorLockInteraction はプレイヤーが踏むと全扉をロックする相互作用
+type DoorLockInteraction struct{}
+
+// Config は相互作用設定を返す
+func (d DoorLockInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayAuto,
 	}
 }
 

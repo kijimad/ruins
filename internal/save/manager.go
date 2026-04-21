@@ -172,7 +172,7 @@ func (sm *SerializationManager) LoadWorld(world w.World, slotName string) error 
 
 // extractWorldData はワールドからセーブデータを抽出
 // プレイヤーエンティティとその所持アイテム（バックパック・装備）のみを保存する
-// 地形、ドア、フィールドアイテム、敵などは毎回再生成し、保存しない
+// 地形、扉、フィールドアイテム、敵などは毎回再生成し、保存しない
 func (sm *SerializationManager) extractWorldData(world w.World) WorldSaveData {
 	entities := []EntitySaveData{}
 	processedEntities := make(map[ecs.Entity]bool) // 重複処理防止

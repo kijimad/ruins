@@ -23,8 +23,8 @@
 // - 発動方式はActivationWay（Auto, Manual, OnCollision）で制御
 //   - Auto: 範囲内に入ったら即座に発動
 //   - Manual: Enterキーやアクションメニューで発動
-//   - OnCollision: 移動先として指定された時に発動（ドア開閉、会話、近接攻撃等）
+//   - OnCollision: 移動先として指定された時に発動（扉開閉、会話、近接攻撃等）
 //
-// - 環境オブジェクト（ドア、アイテム）だけでなく、エンティティ（NPC、敵）も持つことができる
+// - 環境オブジェクト（扉、アイテム）だけでなく、エンティティ（NPC、敵）も持つことができる
 // - MeleeInteractionは敵が「攻撃可能な対象」であることを示す
 package components

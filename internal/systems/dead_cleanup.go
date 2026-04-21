@@ -2,6 +2,7 @@ package systems
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -69,6 +70,47 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 			logger.Debug("ドロップアイテム生成失敗", "error", err, "material", materialName)
 		} else {
 			logger.Debug("ドロップアイテム生成", "material", materialName, "x", gridElement.X, "y", gridElement.Y)
+		}
+	}
+
+	// ボス撃破時の処理: 扉アンロック + クリアフラグ
+	for _, entity := range toDelete {
+		if entity.HasComponent(world.Components.Boss) {
+			// 全扉をアンロックして開く
+			opened := false
+			world.Manager.Join(
+				world.Components.Door,
+			).Visit(ecs.Visit(func(doorEntity ecs.Entity) {
+				doorComp := world.Components.Door.Get(doorEntity).(*gc.Door)
+				doorComp.Locked = false
+				if !doorComp.IsOpen {
+					_ = worldhelper.OpenDoor(world, doorEntity)
+					opened = true
+				}
+			}))
+			if opened {
+				gamelog.New(gamelog.FieldLog).
+					Append("どこかで扉が開いたようだ。").
+					Log()
+			}
+
+			// DoorLockTriggerエンティティを削除する。ボス撃破後はトリガー不要
+			world.Manager.Join(
+				world.Components.Interactable,
+			).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
+				interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
+				if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
+					world.Manager.DeleteEntity(triggerEntity)
+				}
+			}))
+
+			// ダンジョンクリアフラグを立てる
+			dungeonName := world.Resources.Dungeon.DefinitionName
+			if world.Resources.GameProgress != nil {
+				world.Resources.GameProgress.MarkDungeonCleared(dungeonName)
+			}
+
+			logger.Debug("ボス撃破: 扉アンロック+クリアフラグ", "dungeon", dungeonName)
 		}
 	}
 

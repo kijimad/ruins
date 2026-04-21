@@ -55,7 +55,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 
 	switch portalData := interactable.Data.(type) {
 	case gc.DoorInteraction:
-		// ドアの状態に応じたアクションを生成
+		// 扉の状態に応じたアクションを生成
 		if interactableEntity.HasComponent(world.Components.Door) {
 			door := world.Components.Door.Get(interactableEntity).(*gc.Door)
 			var label string

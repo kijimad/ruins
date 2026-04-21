@@ -111,7 +111,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 		abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
 		abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
 
-	// 外部から設定された視界更新フラグをチェックする(ドア開閉時など)
+	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
 	if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
 		needsUpdate = true
 		world.Resources.Dungeon.NeedsForceUpdate = false

@@ -137,6 +137,7 @@ type RecipeInput struct {
 type Member struct {
 	Name            string
 	Player          *bool
+	IsBoss          bool
 	Abilities       Abilities
 	SpriteSheetName string
 	SpriteKey       string
@@ -703,13 +704,17 @@ type PropRaw struct {
 	BlockView          bool
 	LightSource        *gc.LightSource
 	Door               *DoorRaw
+	DoorLockTrigger    *DoorLockTriggerRaw    // 扉ロックトリガー
 	WarpNextTrigger    *WarpNextTriggerRaw    // 次階層ワープのトリガー
 	WarpEscapeTrigger  *WarpEscapeTriggerRaw  // 脱出ワープのトリガー
 	DungeonGateTrigger *DungeonGateTriggerRaw // ダンジョン選択ゲートのトリガー
 }
 
-// DoorRaw はドアのローデータ
+// DoorRaw は扉のローデータ
 type DoorRaw struct{}
+
+// DoorLockTriggerRaw は扉ロックトリガーのローデータ
+type DoorLockTriggerRaw struct{}
 
 // WarpNextTriggerRaw は次階層ワープトリガーのローデータ
 type WarpNextTriggerRaw struct{}
@@ -820,8 +825,13 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 			IsOpen:      false,
 			Orientation: gc.DoorOrientationHorizontal,
 		}
-		// ドアは相互作用可能
+		// 扉は相互作用可能
 		entitySpec.Interactable = &gc.Interactable{Data: gc.DoorInteraction{}}
+	}
+
+	// 扉ロックトリガー
+	if propRaw.DoorLockTrigger != nil {
+		entitySpec.Interactable = &gc.Interactable{Data: gc.DoorLockInteraction{}}
 	}
 
 	// 次階層ワープトリガー

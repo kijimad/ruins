@@ -288,8 +288,18 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	return npcEntity, nil
 }
 
+// SpawnEnemyOption はSpawnEnemyの振る舞いを変更する関数オプション
+type SpawnEnemyOption func(ecs.Entity, w.World)
+
+// WithBoss はボスコンポーネントを付与するオプション
+func WithBoss() SpawnEnemyOption {
+	return func(entity ecs.Entity, world w.World) {
+		entity.AddComponent(world.Components.Boss, &ecs.NullComponent{})
+	}
+}
+
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
-func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
+func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
 	rawMaster := world.Resources.RawMaster
 
@@ -339,6 +349,11 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string) (ecs.Entity, e
 		}
 		actionPoints.AP.Current = maxAP
 		actionPoints.AP.Max = maxAP
+	}
+
+	// オプションを適用する
+	for _, opt := range opts {
+		opt(npcEntity, world)
 	}
 
 	return npcEntity, nil
