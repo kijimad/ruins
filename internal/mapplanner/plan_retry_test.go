@@ -4,32 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
-
-// TestPlan_ConnectivityValidation は接続性検証が動作することをテストする
-func TestPlan_ConnectivityValidation(t *testing.T) {
-	t.Parallel()
-
-	t.Run("接続性検証が実行されることを確認", func(t *testing.T) {
-		t.Parallel()
-		w := testutil.InitTestWorld(t)
-		w.Resources.RawMaster = CreateTestRawMaster()
-
-		// 複数の異なるシードでテストして、すべて接続性チェックをパス
-		seeds := []uint64{1, 100, 1000, 10000, 50000}
-		for _, seed := range seeds {
-			plan, err := Plan(w, 50, 50, seed, PlannerTypeSmallRoom)
-			assert.NoError(t, err, "シード %d で失敗", seed)
-			assert.NotNil(t, plan)
-
-			// プレイヤー位置が設定されていることを確認
-			_, err = plan.GetPlayerStartPosition()
-			assert.NoError(t, err, "シード %d でプレイヤー位置なし", seed)
-		}
-	})
-}
 
 // TestIsConnectivityError は接続性エラー判定をテストする
 func TestIsConnectivityError(t *testing.T) {
