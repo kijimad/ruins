@@ -3,6 +3,7 @@ package mapplanner
 import (
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
@@ -109,6 +110,49 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		}
 	})
 
+	t.Run("歩行可能タイルが孤立している場合はErrConnectivityを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		world.Resources.RawMaster = CreateTestRawMaster()
+
+		// 全面壁のマップに1マスだけ床を置く（孤立した歩行可能タイル）
+		chain := NewPlannerChain(10, 10, 99999)
+		chain.PlanData.RawMaster = CreateTestRawMaster()
+		for i := range chain.PlanData.Tiles {
+			chain.PlanData.Tiles[i] = chain.PlanData.GetTile("wall")
+		}
+		// (5,5) だけ床にする
+		idx := chain.PlanData.Level.XYTileIndex(5, 5)
+		chain.PlanData.Tiles[idx] = chain.PlanData.GetTile("floor")
+		// SpawnPointsで開始位置を設定
+		chain.PlanData.SpawnPoints = append(chain.PlanData.SpawnPoints, maptemplate.SpawnPoint{X: 5, Y: 5})
+
+		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+		err := planner.PlanMeta(&chain.PlanData)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, ErrConnectivity)
+		assert.Contains(t, err.Error(), "NextPortal")
+	})
+
+	t.Run("GetPlayerStartPositionが失敗した場合はErrConnectivityを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+
+		// 全面壁のマップ（歩行可能タイルなし）
+		chain := NewPlannerChain(5, 5, 12345)
+		chain.PlanData.RawMaster = CreateTestRawMaster()
+		for i := range chain.PlanData.Tiles {
+			chain.PlanData.Tiles[i] = chain.PlanData.GetTile("wall")
+		}
+
+		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
+		err := planner.PlanMeta(&chain.PlanData)
+		assert.Error(t, err)
+		assert.ErrorIs(t, err, ErrConnectivity)
+	})
+
 	t.Run("Dungeonがnilの場合エラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -123,7 +167,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
 		err = planner.PlanMeta(&chain.PlanData)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "Dungeonが初期化されてない")
+		assert.Contains(t, err.Error(), "Dungeonが初期化されていません")
 	})
 
 	t.Run("配置されたポータルはプレイヤーから到達可能", func(t *testing.T) {

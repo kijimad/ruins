@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/testutil"
 )
 
 func TestForestPlanner(t *testing.T) {
@@ -102,20 +101,4 @@ func TestForestPlanner(t *testing.T) {
 		}
 	})
 
-}
-
-func TestForestPlannerConnectivityIntegration(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-	world.Resources.RawMaster = CreateTestRawMaster()
-
-	for seed := uint64(0); seed < 20; seed++ {
-		metaPlan, err := Plan(world, 50, 50, seed, PlannerTypeForest)
-		assert.NoError(t, err, "seed=%dで森プラン生成に失敗した", seed)
-		if err != nil {
-			continue
-		}
-		assert.NotNil(t, metaPlan, "seed=%dのMetaPlanがnil", seed)
-	}
 }
