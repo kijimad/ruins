@@ -197,7 +197,7 @@
 				
 				<option value="file70">github.com/kijimaD/ruins/internal/mapplanner/big_room.go (85.0%)</option>
 				
-				<option value="file71">github.com/kijimaD/ruins/internal/mapplanner/cave_planner.go (70.5%)</option>
+				<option value="file71">github.com/kijimaD/ruins/internal/mapplanner/cave_planner.go (79.5%)</option>
 				
 				<option value="file72">github.com/kijimaD/ruins/internal/mapplanner/convert_isolated_walls.go (100.0%)</option>
 				
@@ -211,29 +211,29 @@
 				
 				<option value="file77">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (85.7%)</option>
 				
-				<option value="file78">github.com/kijimaD/ruins/internal/mapplanner/lib.go (78.0%)</option>
+				<option value="file78">github.com/kijimaD/ruins/internal/mapplanner/lib.go (79.1%)</option>
 				
 				<option value="file79">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
-				<option value="file80">github.com/kijimaD/ruins/internal/mapplanner/pathfinder.go (94.8%)</option>
+				<option value="file80">github.com/kijimaD/ruins/internal/mapplanner/pathfinder.go (94.5%)</option>
 				
-				<option value="file81">github.com/kijimaD/ruins/internal/mapplanner/plan.go (72.2%)</option>
+				<option value="file81">github.com/kijimaD/ruins/internal/mapplanner/plan.go (72.7%)</option>
 				
 				<option value="file82">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
 				<option value="file83">github.com/kijimaD/ruins/internal/mapplanner/room_draw.go (100.0%)</option>
 				
-				<option value="file84">github.com/kijimaD/ruins/internal/mapplanner/ruins_planner.go (97.2%)</option>
+				<option value="file84">github.com/kijimaD/ruins/internal/mapplanner/ruins_planner.go (99.1%)</option>
 				
-				<option value="file85">github.com/kijimaD/ruins/internal/mapplanner/template_planner.go (92.3%)</option>
+				<option value="file85">github.com/kijimaD/ruins/internal/mapplanner/template_planner.go (97.4%)</option>
 				
-				<option value="file86">github.com/kijimaD/ruins/internal/mapplanner/template_planner_factory.go (0.0%)</option>
+				<option value="file86">github.com/kijimaD/ruins/internal/mapplanner/template_planner_factory.go (60.0%)</option>
 				
 				<option value="file87">github.com/kijimaD/ruins/internal/mapplanner/test_helper.go (100.0%)</option>
 				
 				<option value="file88">github.com/kijimaD/ruins/internal/mapplanner/wall_type.go (90.9%)</option>
 				
-				<option value="file89">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (100.0%)</option>
+				<option value="file89">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (96.8%)</option>
 				
 				<option value="file90">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (32.2%)</option>
 				
@@ -10670,11 +10670,11 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error <span class="cov8" t
                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 
                         // 現在が壁で、隣接に床がある場合
-                        if planData.Tiles[idx].BlockPass </span><span class="cov0" title="0">{
+                        if planData.Tiles[idx].BlockPass </span><span class="cov8" title="1">{
                                 adjacentFloorCount := c.countAdjacentFloors(planData, x, y)
 
                                 // 隣接する床が2個以上ある場合、30%の確率で床にする
-                                if adjacentFloorCount &gt;= 2 &amp;&amp; planData.RNG.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
+                                if adjacentFloorCount &gt;= 2 &amp;&amp; planData.RNG.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                                         newTiles[idx] = planData.GetTile("floor")
                                 }</span>
                         }
@@ -10686,7 +10686,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error <span class="cov8" t
 }
 
 // countAdjacentFloors は隣接する床タイルの数を数える
-func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int <span class="cov0" title="0">{
+func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int <span class="cov8" title="1">{
         count := 0
         width := int(planData.Level.TileWidth)
         height := int(planData.Level.TileHeight)
@@ -10694,18 +10694,18 @@ func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, center
         // 4方向の隣接タイルをチェック
         directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
 
-        for _, dir := range directions </span><span class="cov0" title="0">{
+        for _, dir := range directions </span><span class="cov8" title="1">{
                 x, y := centerX+dir[0], centerY+dir[1]
 
-                if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span><span class="cov0" title="0">{
+                if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height </span><span class="cov8" title="1">{
                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
-                        if !planData.Tiles[idx].BlockPass </span><span class="cov0" title="0">{
+                        if !planData.Tiles[idx].BlockPass </span><span class="cov8" title="1">{
                                 count++
                         }</span>
                 }
         }
 
-        <span class="cov0" title="0">return count</span>
+        <span class="cov8" title="1">return count</span>
 }
 
 // CaveStalactites は鍾乳石や岩の障害物を配置する
@@ -12049,7 +12049,7 @@ var (
         PlannerTypeTown = PlannerType{
                 Name:              "市街地",
                 UseFixedPortalPos: true,
-                PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) <span class="cov0" title="0">{
+                PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) <span class="cov8" title="1">{
                         return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
                 }</span>,
         }
@@ -12074,7 +12074,7 @@ var (
         PlannerTypeTownPlaza = PlannerType{
                 Name:              "広場",
                 UseFixedPortalPos: true,
-                PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) <span class="cov0" title="0">{
+                PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) <span class="cov8" title="1">{
                         return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)
                 }</span>,
         }
@@ -12083,7 +12083,7 @@ var (
         PlannerTypeBossFloor = PlannerType{
                 Name:              "ボスフロア",
                 UseFixedPortalPos: true,
-                PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) <span class="cov0" title="0">{
+                PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) <span class="cov8" title="1">{
                         return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
                 }</span>,
         }
@@ -12134,70 +12134,8 @@ func (bm *MetaPlan) GetTile(name string) raw.TileRaw <span class="cov8" title="1
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 // ポータルへの到達性も確認し、到達可能な位置を返す
 func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) <span class="cov8" title="1">{
-        // SpawnPointsが設定されていればそれを使用（テンプレートマップ用）
-        if len(bm.SpawnPoints) &gt; 0 </span><span class="cov0" title="0">{
-                return consts.Coord[int]{X: bm.SpawnPoints[0].X, Y: bm.SpawnPoints[0].Y}, nil
-        }</span>
-
-        // プロシージャルマップ用: 自動的に歩行可能でポータルに到達可能な位置を探す
-        <span class="cov8" title="1">width := int(bm.Level.TileWidth)
-        height := int(bm.Level.TileHeight)
-
-        // 到達性チェック用のPathFinderを作成
-        pf := NewPathFinder(bm)
-
-        // 候補位置を試す（中央から外側へ）
-        attempts := []consts.Coord[int]{
-                {X: width / 2, Y: height / 2},         // 中央
-                {X: width / 4, Y: height / 4},         // 左上寄り
-                {X: 3 * width / 4, Y: height / 4},     // 右上寄り
-                {X: width / 4, Y: 3 * height / 4},     // 左下寄り
-                {X: 3 * width / 4, Y: 3 * height / 4}, // 右下寄り
-        }
-
-        for _, pos := range attempts </span><span class="cov8" title="1">{
-                if bm.isValidSpawnPosition(pf, pos.X, pos.Y) </span><span class="cov8" title="1">{
-                        return pos, nil
-                }</span>
-        }
-
-        // 見つからない場合は全体をスキャン
-        <span class="cov8" title="1">for _i, tile := range bm.Tiles </span><span class="cov8" title="1">{
-                if !tile.BlockPass </span><span class="cov8" title="1">{
-                        i := resources.TileIdx(_i)
-                        x, y := bm.Level.XYTileCoord(i)
-                        if bm.isValidSpawnPosition(pf, int(x), int(y)) </span><span class="cov8" title="1">{
-                                return consts.Coord[int]{X: int(x), Y: int(y)}, nil
-                        }</span>
-                }
-        }
-
-        <span class="cov0" title="0">return consts.Coord[int]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")</span>
-}
-
-// isValidSpawnPosition は指定位置がスポーン可能かつポータルに到達可能かを判定する
-func (bm *MetaPlan) isValidSpawnPosition(pf *PathFinder, x, y int) bool <span class="cov8" title="1">{
-        idx := bm.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
-        if int(idx) &gt;= len(bm.Tiles) || bm.Tiles[idx].BlockPass </span><span class="cov8" title="1">{
-                return false
-        }</span>
-
-        // NextPortalsへの到達性をチェック
-        <span class="cov8" title="1">for _, portal := range bm.NextPortals </span><span class="cov8" title="1">{
-                if !pf.IsReachable(x, y, portal.X, portal.Y) </span><span class="cov0" title="0">{
-                        return false
-                }</span>
-        }
-
-        // EscapePortalsへの到達性をチェック
-        <span class="cov8" title="1">for _, portal := range bm.EscapePortals </span><span class="cov8" title="1">{
-                if !pf.IsReachable(x, y, portal.X, portal.Y) </span><span class="cov0" title="0">{
-                        return false
-                }</span>
-        }
-
-        <span class="cov8" title="1">return true</span>
-}
+        return NewPathFinder(bm).FindPlayerStartPosition()
+}</span>
 </pre>
 		
 		<pre class="file" id="file79" style="display: none">package mapplanner
@@ -12327,6 +12265,7 @@ import (
         "fmt"
 
         "github.com/kijimaD/ruins/internal/consts"
+        "github.com/kijimaD/ruins/internal/resources"
 )
 
 // PathFinder はパスファインディング機能を提供する
@@ -12448,10 +12387,123 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool <span c
         return len(path) &gt; 0
 }</span>
 
+// countReachableFrom は指定位置からBFSで到達可能な歩行可能タイル数を返す
+func (pf *PathFinder) countReachableFrom(startX, startY int) int <span class="cov8" title="1">{
+        width := int(pf.planData.Level.TileWidth)
+        height := int(pf.planData.Level.TileHeight)
+
+        if !pf.IsWalkable(startX, startY) </span><span class="cov0" title="0">{
+                return 0
+        }</span>
+
+        <span class="cov8" title="1">visited := make([][]bool, width)
+        for i := range visited </span><span class="cov8" title="1">{
+                visited[i] = make([]bool, height)
+        }</span>
+
+        <span class="cov8" title="1">type pos struct{ x, y int }
+        queue := []pos{{startX, startY}}
+        visited[startX][startY] = true
+        count := 0
+
+        directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+        for len(queue) &gt; 0 </span><span class="cov8" title="1">{
+                cur := queue[0]
+                queue = queue[1:]
+                count++
+
+                for _, d := range directions </span><span class="cov8" title="1">{
+                        nx, ny := cur.x+d[0], cur.y+d[1]
+                        if nx &gt;= 0 &amp;&amp; nx &lt; width &amp;&amp; ny &gt;= 0 &amp;&amp; ny &lt; height &amp;&amp; !visited[nx][ny] &amp;&amp; pf.IsWalkable(nx, ny) </span><span class="cov8" title="1">{
+                                visited[nx][ny] = true
+                                queue = append(queue, pos{nx, ny})
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return count</span>
+}
+
+// minReachableTiles はスポーン位置から到達可能なタイルの最小数。
+// 小さな孤立部屋にスポーンしてポータルが至近距離に配置される問題を防ぐ
+const minReachableTiles = 100
+
+// FindPlayerStartPosition はプレイヤーの開始位置を探す
+func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) <span class="cov8" title="1">{
+        planData := pf.planData
+
+        // SpawnPointsが設定されていればそれを使用（テンプレートマップ用）
+        if len(planData.SpawnPoints) &gt; 0 </span><span class="cov8" title="1">{
+                return consts.Coord[int]{X: planData.SpawnPoints[0].X, Y: planData.SpawnPoints[0].Y}, nil
+        }</span>
+
+        // プロシージャルマップ用: 歩行可能でポータルに到達可能な位置を探す
+        <span class="cov8" title="1">width := int(planData.Level.TileWidth)
+        height := int(planData.Level.TileHeight)
+
+        // 候補位置を試す（中央から外側へ）
+        attempts := []consts.Coord[int]{
+                {X: width / 2, Y: height / 2},
+                {X: width / 4, Y: height / 4},
+                {X: 3 * width / 4, Y: height / 4},
+                {X: width / 4, Y: 3 * height / 4},
+                {X: 3 * width / 4, Y: 3 * height / 4},
+        }
+
+        for _, pos := range attempts </span><span class="cov8" title="1">{
+                if pf.isValidSpawnPosition(pos.X, pos.Y) </span><span class="cov8" title="1">{
+                        return pos, nil
+                }</span>
+        }
+
+        // 見つからない場合は全体をスキャン
+        <span class="cov8" title="1">for _i, tile := range planData.Tiles </span><span class="cov8" title="1">{
+                if !tile.BlockPass </span><span class="cov8" title="1">{
+                        i := resources.TileIdx(_i)
+                        x, y := planData.Level.XYTileCoord(i)
+                        if pf.isValidSpawnPosition(int(x), int(y)) </span><span class="cov8" title="1">{
+                                return consts.Coord[int]{X: int(x), Y: int(y)}, nil
+                        }</span>
+                }
+        }
+
+        <span class="cov8" title="1">return consts.Coord[int]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")</span>
+}
+
+// isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する
+func (pf *PathFinder) isValidSpawnPosition(x, y int) bool <span class="cov8" title="1">{
+        planData := pf.planData
+        idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+        if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        // 到達可能なタイル数が十分であることを確認する。
+        // 単一BFSで済むため、複数BFSを要するポータル到達性チェックより先に行う
+        <span class="cov8" title="1">if pf.countReachableFrom(x, y) &lt; minReachableTiles </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        // NextPortalsへの到達性をチェック
+        <span class="cov8" title="1">for _, portal := range planData.NextPortals </span><span class="cov8" title="1">{
+                if !pf.IsReachable(x, y, portal.X, portal.Y) </span><span class="cov0" title="0">{
+                        return false
+                }</span>
+        }
+
+        // EscapePortalsへの到達性をチェック
+        <span class="cov8" title="1">for _, portal := range planData.EscapePortals </span><span class="cov8" title="1">{
+                if !pf.IsReachable(x, y, portal.X, portal.Y) </span><span class="cov0" title="0">{
+                        return false
+                }</span>
+        }
+
+        <span class="cov8" title="1">return true</span>
+}
+
 // ValidatePortalReachability はプレイヤー開始位置から全ポータルへの到達性を検証する
 func (pf *PathFinder) ValidatePortalReachability() error <span class="cov8" title="1">{
         // プレイヤー開始位置を取得
-        playerPos, err := pf.planData.GetPlayerStartPosition()
+        playerPos, err := pf.FindPlayerStartPosition()
         if err != nil </span><span class="cov0" title="0">{
                 return fmt.Errorf("%w: プレイヤー開始位置が設定されていません", ErrConnectivity)
         }</span>
@@ -12494,8 +12546,6 @@ const (
 var (
         // ErrConnectivity は接続性エラーを表す
         ErrConnectivity = errors.New("マップ接続性エラー")
-        // ErrPlayerPlacement はプレイヤー配置エラーを表す
-        ErrPlayerPlacement = errors.New("プレイヤー配置可能な床タイルが見つかりません")
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
@@ -12519,7 +12569,7 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
                 <span class="cov0" title="0">lastErr = err
 
                 // 接続性エラー以外は即座に失敗
-                if !isConnectivityError(err) </span><span class="cov0" title="0">{
+                if !errors.Is(err, ErrConnectivity) </span><span class="cov0" title="0">{
                         return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
                 }</span>
         }
@@ -12565,11 +12615,6 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
                 return nil, err
         }</span>
 
-        // 基本的な検証: プレイヤー開始位置があるか確認
-        <span class="cov8" title="1">if _, playerErr := chain.PlanData.GetPlayerStartPosition(); playerErr != nil </span><span class="cov0" title="0">{
-                return nil, ErrPlayerPlacement
-        }</span>
-
         // ポータル到達性検証: プレイヤー開始位置から全ポータルへ到達可能かチェック
         <span class="cov8" title="1">pathFinder := NewPathFinder(&amp;chain.PlanData)
         if err := pathFinder.ValidatePortalReachability(); err != nil </span><span class="cov0" title="0">{
@@ -12578,11 +12623,6 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 
         <span class="cov8" title="1">return &amp;chain.PlanData, nil</span>
 }
-
-// isConnectivityError は接続性エラーかどうかを判定する
-func isConnectivityError(err error) bool <span class="cov8" title="1">{
-        return errors.Is(err, ErrConnectivity) || errors.Is(err, ErrPlayerPlacement)
-}</span>
 </pre>
 		
 		<pre class="file" id="file82" style="display: none">package mapplanner
@@ -12902,7 +12942,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
         for currentX != center2X </span><span class="cov8" title="1">{
                 if currentX &lt; center2X </span><span class="cov8" title="1">{
                         currentX++
-                }</span> else<span class="cov0" title="0"> {
+                }</span> else<span class="cov8" title="1"> {
                         currentX--
                 }</span>
 
@@ -12917,7 +12957,7 @@ func (r RuinsCorridors) createRuinedPath(planData *MetaPlan, room1, room2 gc.Rec
 
         // 垂直方向に移動
         <span class="cov8" title="1">for currentY != center2Y </span><span class="cov8" title="1">{
-                if currentY &lt; center2Y </span><span class="cov0" title="0">{
+                if currentY &lt; center2Y </span><span class="cov8" title="1">{
                         currentY++
                 }</span> else<span class="cov8" title="1"> {
                         currentY--
@@ -13029,7 +13069,7 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error <span class="cov8" 
                                 switch propName </span>{
                                 case "warp_next":<span class="cov0" title="0">
                                         metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[int]{X: x, Y: y})</span>
-                                case "warp_escape":<span class="cov0" title="0">
+                                case "warp_escape":<span class="cov8" title="1">
                                         metaPlan.EscapePortals = append(metaPlan.EscapePortals, consts.Coord[int]{X: x, Y: y})</span>
                                 default:<span class="cov8" title="1">
                                         metaPlan.Props = append(metaPlan.Props, PropsSpec{
@@ -13039,7 +13079,7 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error <span class="cov8" 
                                 }
                         }
 
-                        <span class="cov8" title="1">if npcName, ok := p.Palette.GetNPC(charStr); ok </span><span class="cov0" title="0">{
+                        <span class="cov8" title="1">if npcName, ok := p.Palette.GetNPC(charStr); ok </span><span class="cov8" title="1">{
                                 metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
                                         Coord: consts.Coord[int]{X: x, Y: y},
                                         Name:  npcName,
@@ -13094,7 +13134,7 @@ const (
 )
 
 // NewPlannerChainByTemplateType は指定されたテンプレートタイプでプランナーチェーンを作成する
-func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*PlannerChain, error) <span class="cov0" title="0">{
+func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*PlannerChain, error) <span class="cov8" title="1">{
         // テンプレートローダーを作成
         templateLoader := maptemplate.NewTemplateLoader()
 
@@ -13108,14 +13148,14 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
         }</span>
 
         // すべてのパレットを事前登録
-        <span class="cov0" title="0">if err := templateLoader.RegisterAllPalettes([]string{
+        <span class="cov8" title="1">if err := templateLoader.RegisterAllPalettes([]string{
                 "levels/palettes",
         }); err != nil </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("パレット登録エラー: %w", err)
         }</span>
 
         // テンプレート名を決定
-        <span class="cov0" title="0">var templateName string
+        <span class="cov8" title="1">var templateName string
         switch templateType </span>{
         case TemplateTypeSmallRoom:<span class="cov0" title="0">
                 templateName = "10x10_small_room"</span>
@@ -13123,27 +13163,27 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
                 templateName = "15x12_office_building"</span>
         case TemplateTypeSmallTown:<span class="cov0" title="0">
                 templateName = "50x50_small_town"</span>
-        case TemplateTypeTownPlaza:<span class="cov0" title="0">
+        case TemplateTypeTownPlaza:<span class="cov8" title="1">
                 templateName = "50x20_town_plaza"</span>
-        case TemplateTypeBossFloor:<span class="cov0" title="0">
+        case TemplateTypeBossFloor:<span class="cov8" title="1">
                 templateName = "50x50_boss_floor"</span>
         default:<span class="cov0" title="0">
                 return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)</span>
         }
 
         // テンプレート名を指定して展開済みテンプレートとパレットを取得
-        <span class="cov0" title="0">template, palette, err := templateLoader.LoadTemplateByName(templateName, seed)
+        <span class="cov8" title="1">template, palette, err := templateLoader.LoadTemplateByName(templateName, seed)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("テンプレート読み込みエラー: %w", err)
         }</span>
 
         // テンプレートプランナーチェーンを作成
-        <span class="cov0" title="0">chain, err := NewTemplatePlannerChain(template, palette, seed)
+        <span class="cov8" title="1">chain, err := NewTemplatePlannerChain(template, palette, seed)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, err
         }</span>
 
-        <span class="cov0" title="0">return chain, nil</span>
+        <span class="cov8" title="1">return chain, nil</span>
 }
 </pre>
 		
@@ -13356,34 +13396,47 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error <span class="cov8" ti
         }</span>
 
         // プロシージャルマップの場合はランダム配置（到達可能な位置のみ）
-        <span class="cov8" title="1">playerPos, _ := planData.GetPlayerStartPosition()
-        pathFinder := NewPathFinder(planData)
+        <span class="cov8" title="1">pathFinder := NewPathFinder(planData)
+        playerPos, err := pathFinder.FindPlayerStartPosition()
+        if err != nil </span><span class="cov8" title="1">{
+                return fmt.Errorf("%w: %v", ErrConnectivity, err)
+        }</span>
 
         // 次の階へ進むポータルを配置する
+        <span class="cov8" title="1">placed := false
         for attempt := 0; attempt &lt; maxPortalPlacementAttempts; attempt++ </span><span class="cov8" title="1">{
                 x := planData.RNG.IntN(int(planData.Level.TileWidth))
                 y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
                 if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) &amp;&amp; pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) </span><span class="cov8" title="1">{
                         planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: x, Y: y})
+                        placed = true
                         break</span>
                 }
         }
+        <span class="cov8" title="1">if !placed </span><span class="cov8" title="1">{
+                return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
+        }</span>
 
         <span class="cov8" title="1">if p.world.Resources.Dungeon == nil </span><span class="cov8" title="1">{
-                return fmt.Errorf("Dungeonが初期化されてない")
+                return fmt.Errorf("Dungeonが初期化されていません")
         }</span>
         // 間隔ごとに帰還ポータルを配置する
         <span class="cov8" title="1">if p.world.Resources.Dungeon.Depth%escapePortalInterval == 0 </span><span class="cov8" title="1">{
+                placed = false
                 for attempt := 0; attempt &lt; maxPortalPlacementAttempts; attempt++ </span><span class="cov8" title="1">{
                         x := planData.RNG.IntN(int(planData.Level.TileWidth))
                         y := planData.RNG.IntN(int(planData.Level.TileHeight))
 
                         if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) &amp;&amp; pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) </span><span class="cov8" title="1">{
                                 planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: x, Y: y})
+                                placed = true
                                 break</span>
                         }
                 }
+                <span class="cov8" title="1">if !placed </span><span class="cov0" title="0">{
+                        return fmt.Errorf("%w: EscapePortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
+                }</span>
         }
 
         <span class="cov8" title="1">return nil</span>

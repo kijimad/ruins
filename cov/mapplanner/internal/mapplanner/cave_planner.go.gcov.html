@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">71.0&nbsp;%</td>
+            <td class="headerCovTableEntryMed">80.2&nbsp;%</td>
             <td class="headerCovTableEntry">248</td>
-            <td class="headerCovTableEntry">176</td>
+            <td class="headerCovTableEntry">199</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-21 15:16:08</td>
+            <td class="headerValue">2026-04-22 16:25:14</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -271,49 +271,49 @@
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         // 現在が壁で、隣接に床がある場合</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                         if planData.Tiles[idx].BlockPass {</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC tlaBgUNC">           0 :                                 adjacentFloorCount := c.countAdjacentFloors(planData, x, y)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                                 // 隣接する床が2個以上ある場合、30%の確率で床にする</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                                 if adjacentFloorCount &gt;= 2 &amp;&amp; planData.RNG.Float64() &lt; 0.3 {</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                                         newTiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                                 }</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           2 :                         if planData.Tiles[idx].BlockPass {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                                 adjacentFloorCount := c.countAdjacentFloors(planData, x, y)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                                 // 隣接する床が2個以上ある場合、30%の確率で床にする</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :                                 if adjacentFloorCount &gt;= 2 &amp;&amp; planData.RNG.Float64() &lt; 0.3 {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                                         newTiles[idx] = planData.GetTile(&quot;floor&quot;)</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L219"><span class="lineNum">     219</span>              :                         }</span>
 <span id="L220"><span class="lineNum">     220</span>              :                 }</span>
 <span id="L221"><span class="lineNum">     221</span>              :         }</span>
 <span id="L222"><span class="lineNum">     222</span>              : </span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 :         planData.Tiles = newTiles</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         planData.Tiles = newTiles</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L225"><span class="lineNum">     225</span>              : }</span>
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span>              : // countAdjacentFloors は隣接する床タイルの数を数える</span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC tlaBgUNC">           0 : func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         count := 0</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         width := int(planData.Level.TileWidth)</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         height := int(planData.Level.TileHeight)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         // 4方向の隣接タイルをチェック</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :         directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :         for _, dir := range directions {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 x, y := centerX+dir[0], centerY+dir[1]</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height {</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                         if !planData.Tiles[idx].BlockPass {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                                 count++</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 : func (c CavePathWidener) countAdjacentFloors(planData *MetaPlan, centerX, centerY int) int {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         count := 0</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         width := int(planData.Level.TileWidth)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         height := int(planData.Level.TileHeight)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 :         // 4方向の隣接タイルをチェック</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           2 :         for _, dir := range directions {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 x, y := centerX+dir[0], centerY+dir[1]</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           2 :                 if x &gt;= 0 &amp;&amp; x &lt; width &amp;&amp; y &gt;= 0 &amp;&amp; y &lt; height {</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           2 :                         if !planData.Tiles[idx].BlockPass {</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                                 count++</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L244"><span class="lineNum">     244</span>              :                 }</span>
 <span id="L245"><span class="lineNum">     245</span>              :         }</span>
 <span id="L246"><span class="lineNum">     246</span>              : </span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         return count</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         return count</span></span>
 <span id="L248"><span class="lineNum">     248</span>              : }</span>
 <span id="L249"><span class="lineNum">     249</span>              : </span>
 <span id="L250"><span class="lineNum">     250</span>              : // CaveStalactites は鍾乳石や岩の障害物を配置する</span>
 <span id="L251"><span class="lineNum">     251</span>              : type CaveStalactites struct{}</span>
 <span id="L252"><span class="lineNum">     252</span>              : </span>
 <span id="L253"><span class="lineNum">     253</span>              : // PlanMeta は洞窟内に鍾乳石を配置する</span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC tlaBgGNC">           1 : func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 : func (c CaveStalactites) PlanMeta(planData *MetaPlan) error {</span></span>
 <span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         width := int(planData.Level.TileWidth)</span></span>
 <span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         height := int(planData.Level.TileHeight)</span></span>
 <span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 : </span></span>
