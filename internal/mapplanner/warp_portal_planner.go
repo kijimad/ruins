@@ -35,11 +35,11 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	// プロシージャルマップの場合はランダム配置（到達可能な位置のみ）
-	playerPos, err := planData.GetPlayerStartPosition()
+	pathFinder := NewPathFinder(planData)
+	playerPos, err := pathFinder.FindPlayerStartPosition()
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrConnectivity, err)
 	}
-	pathFinder := NewPathFinder(planData)
 
 	// 次の階へ進むポータルを配置する
 	placed := false
@@ -58,7 +58,7 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	}
 
 	if p.world.Resources.Dungeon == nil {
-		return fmt.Errorf("Dungeonが初期化されてない")
+		return fmt.Errorf("Dungeonが初期化されていません")
 	}
 	// 間隔ごとに帰還ポータルを配置する
 	if p.world.Resources.Dungeon.Depth%escapePortalInterval == 0 {

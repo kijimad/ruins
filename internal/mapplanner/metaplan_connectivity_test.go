@@ -123,32 +123,5 @@ func assertMapConnectivity(t *testing.T, plan *MetaPlan) {
 
 // countReachableTiles はBFSで指定位置から到達可能な歩行可能タイル数を返す
 func countReachableTiles(pf *PathFinder, startX, startY int) int {
-	width := int(pf.planData.Level.TileWidth)
-	height := int(pf.planData.Level.TileHeight)
-
-	visited := make([][]bool, width)
-	for i := range visited {
-		visited[i] = make([]bool, height)
-	}
-
-	type pos struct{ x, y int }
-	queue := []pos{{startX, startY}}
-	visited[startX][startY] = true
-	count := 0
-
-	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-		count++
-
-		for _, d := range directions {
-			nx, ny := cur.x+d[0], cur.y+d[1]
-			if nx >= 0 && nx < width && ny >= 0 && ny < height && !visited[nx][ny] && pf.IsWalkable(nx, ny) {
-				visited[nx][ny] = true
-				queue = append(queue, pos{nx, ny})
-			}
-		}
-	}
-	return count
+	return pf.countReachableFrom(startX, startY)
 }

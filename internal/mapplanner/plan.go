@@ -16,8 +16,6 @@ const (
 var (
 	// ErrConnectivity は接続性エラーを表す
 	ErrConnectivity = errors.New("マップ接続性エラー")
-	// ErrPlayerPlacement はプレイヤー配置エラーを表す
-	ErrPlayerPlacement = errors.New("プレイヤー配置可能な床タイルが見つかりません")
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
@@ -41,7 +39,7 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
 		lastErr = err
 
 		// 接続性エラー以外は即座に失敗
-		if !isConnectivityError(err) {
+		if !errors.Is(err, ErrConnectivity) {
 			return nil, fmt.Errorf("プラン生成失敗 (PlannerType=%s, seed=%d): %w", plannerType.Name, seed, err)
 		}
 	}
@@ -87,11 +85,6 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 		return nil, err
 	}
 
-	// 基本的な検証: プレイヤー開始位置があるか確認
-	if _, playerErr := chain.PlanData.GetPlayerStartPosition(); playerErr != nil {
-		return nil, ErrPlayerPlacement
-	}
-
 	// ポータル到達性検証: プレイヤー開始位置から全ポータルへ到達可能かチェック
 	pathFinder := NewPathFinder(&chain.PlanData)
 	if err := pathFinder.ValidatePortalReachability(); err != nil {
@@ -99,9 +92,4 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	}
 
 	return &chain.PlanData, nil
-}
-
-// isConnectivityError は接続性エラーかどうかを判定する
-func isConnectivityError(err error) bool {
-	return errors.Is(err, ErrConnectivity) || errors.Is(err, ErrPlayerPlacement)
 }

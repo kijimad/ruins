@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/resources"
 )
 
 // PathFinder はパスファインディング機能を提供する
@@ -125,10 +126,123 @@ func (pf *PathFinder) IsReachable(startX, startY, goalX, goalY int) bool {
 	return len(path) > 0
 }
 
+// countReachableFrom は指定位置からBFSで到達可能な歩行可能タイル数を返す
+func (pf *PathFinder) countReachableFrom(startX, startY int) int {
+	width := int(pf.planData.Level.TileWidth)
+	height := int(pf.planData.Level.TileHeight)
+
+	if !pf.IsWalkable(startX, startY) {
+		return 0
+	}
+
+	visited := make([][]bool, width)
+	for i := range visited {
+		visited[i] = make([]bool, height)
+	}
+
+	type pos struct{ x, y int }
+	queue := []pos{{startX, startY}}
+	visited[startX][startY] = true
+	count := 0
+
+	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+	for len(queue) > 0 {
+		cur := queue[0]
+		queue = queue[1:]
+		count++
+
+		for _, d := range directions {
+			nx, ny := cur.x+d[0], cur.y+d[1]
+			if nx >= 0 && nx < width && ny >= 0 && ny < height && !visited[nx][ny] && pf.IsWalkable(nx, ny) {
+				visited[nx][ny] = true
+				queue = append(queue, pos{nx, ny})
+			}
+		}
+	}
+	return count
+}
+
+// minReachableTiles はスポーン位置から到達可能なタイルの最小数。
+// 小さな孤立部屋にスポーンしてポータルが至近距離に配置される問題を防ぐ
+const minReachableTiles = 100
+
+// FindPlayerStartPosition はプレイヤーの開始位置を探す
+func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) {
+	planData := pf.planData
+
+	// SpawnPointsが設定されていればそれを使用（テンプレートマップ用）
+	if len(planData.SpawnPoints) > 0 {
+		return consts.Coord[int]{X: planData.SpawnPoints[0].X, Y: planData.SpawnPoints[0].Y}, nil
+	}
+
+	// プロシージャルマップ用: 歩行可能でポータルに到達可能な位置を探す
+	width := int(planData.Level.TileWidth)
+	height := int(planData.Level.TileHeight)
+
+	// 候補位置を試す（中央から外側へ）
+	attempts := []consts.Coord[int]{
+		{X: width / 2, Y: height / 2},
+		{X: width / 4, Y: height / 4},
+		{X: 3 * width / 4, Y: height / 4},
+		{X: width / 4, Y: 3 * height / 4},
+		{X: 3 * width / 4, Y: 3 * height / 4},
+	}
+
+	for _, pos := range attempts {
+		if pf.isValidSpawnPosition(pos.X, pos.Y) {
+			return pos, nil
+		}
+	}
+
+	// 見つからない場合は全体をスキャン
+	for _i, tile := range planData.Tiles {
+		if !tile.BlockPass {
+			i := resources.TileIdx(_i)
+			x, y := planData.Level.XYTileCoord(i)
+			if pf.isValidSpawnPosition(int(x), int(y)) {
+				return consts.Coord[int]{X: int(x), Y: int(y)}, nil
+			}
+		}
+	}
+
+	return consts.Coord[int]{}, fmt.Errorf("ポータルに到達可能な歩行可能タイルが見つかりません")
+}
+
+// isValidSpawnPosition は指定位置がスポーン可能かつ十分な広さに到達可能かを判定する
+func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
+	planData := pf.planData
+	idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+	if int(idx) >= len(planData.Tiles) || planData.Tiles[idx].BlockPass {
+		return false
+	}
+
+	// 到達可能なタイル数が十分であることを確認する。
+	// 単一BFSで済むため、複数BFSを要するポータル到達性チェックより先に行う
+	if pf.countReachableFrom(x, y) < minReachableTiles {
+		return false
+	}
+
+	// NextPortalsへの到達性をチェック
+	for _, portal := range planData.NextPortals {
+		if !pf.IsReachable(x, y, portal.X, portal.Y) {
+			return false
+		}
+	}
+
+	// EscapePortalsへの到達性をチェック
+	for _, portal := range planData.EscapePortals {
+		if !pf.IsReachable(x, y, portal.X, portal.Y) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // ValidatePortalReachability はプレイヤー開始位置から全ポータルへの到達性を検証する
 func (pf *PathFinder) ValidatePortalReachability() error {
 	// プレイヤー開始位置を取得
-	playerPos, err := pf.planData.GetPlayerStartPosition()
+	playerPos, err := pf.FindPlayerStartPosition()
 	if err != nil {
 		return fmt.Errorf("%w: プレイヤー開始位置が設定されていません", ErrConnectivity)
 	}

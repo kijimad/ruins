@@ -167,7 +167,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		planner := NewPortalPlanner(world, PlannerTypeSmallRoom)
 		err = planner.PlanMeta(&chain.PlanData)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "Dungeonが初期化されてない")
+		assert.Contains(t, err.Error(), "Dungeonが初期化されていません")
 	})
 
 	t.Run("配置されたポータルはプレイヤーから到達可能", func(t *testing.T) {
