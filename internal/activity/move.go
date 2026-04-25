@@ -46,7 +46,8 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveNoGridElement
 	}
 
-	if !CanMoveTo(world, destX, destY, actor) {
+	actorGrid := gridElement.(*gc.GridElement)
+	if !CanMoveTo(world, destX, destY, int(actorGrid.X), int(actorGrid.Y), actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -89,7 +90,8 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	}
 
 	// 移動可能かチェック
-	if !CanMoveTo(world, int(comp.Destination.X), int(comp.Destination.Y), actor) {
+	grid := gridElement.(*gc.GridElement)
+	if !CanMoveTo(world, int(comp.Destination.X), int(comp.Destination.Y), int(grid.X), int(grid.Y), actor) {
 		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid
 	}

@@ -151,6 +151,8 @@ var (
 	AttackFist = AttackType{Type: "FIST", Range: AttackRangeMelee, Label: "格闘"}
 	// AttackCanon は大砲
 	AttackCanon = AttackType{Type: "CANON", Range: AttackRangeRanged, Label: "大砲"}
+	// AttackBow は弓
+	AttackBow = AttackType{Type: "BOW", Range: AttackRangeRanged, Label: "弓"}
 )
 
 // AllAttackTypes は定義済みの全AttackTypeのリスト
@@ -162,6 +164,7 @@ var AllAttackTypes = []AttackType{
 	AttackRifle,
 	AttackFist,
 	AttackCanon,
+	AttackBow,
 }
 
 // Valid はAttackTypeの値が有効かを検証する
@@ -183,6 +186,27 @@ func ParseAttackType(s string) (AttackType, error) {
 		}
 	}
 	return AttackType{}, fmt.Errorf("invalid attack type: %s: %w", s, ErrInvalidEnumType)
+}
+
+// RangeParams は遠距離武器の射程パラメータ
+type RangeParams struct {
+	OptimalRange   int // 最適射程。この距離内はペナルティなし
+	MaxRange       int // 最大射程。超過で射撃不可
+	PenaltyPerTile int // 最適射程超過時の1タイルあたり命中率ペナルティ(%)
+}
+
+// rangeParamsMap は武器種別ごとの射程パラメータ
+var rangeParamsMap = map[string]RangeParams{
+	AttackBow.Type:     {OptimalRange: 4, MaxRange: 10, PenaltyPerTile: 5},
+	AttackHandgun.Type: {OptimalRange: 3, MaxRange: 8, PenaltyPerTile: 8},
+	AttackRifle.Type:   {OptimalRange: 8, MaxRange: 16, PenaltyPerTile: 3},
+	AttackCanon.Type:   {OptimalRange: 6, MaxRange: 12, PenaltyPerTile: 5},
+}
+
+// GetRangeParams は武器種別の射程パラメータを返す。未定義ならfalseを返す
+func GetRangeParams(attackType AttackType) (RangeParams, bool) {
+	params, ok := rangeParamsMap[attackType.Type]
+	return params, ok
 }
 
 // ================

@@ -48,7 +48,8 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 	return enemies, nil
 }
 
-// IsInVision はプレイヤーから指定座標が見えるかをチェックする
+// IsInVision はプレイヤーから指定座標が現在見えるかをチェックする。
+// リアルタイムの可視性データを使用し、暗闇のタイルは見えないと判定する
 func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	// 距離チェック（視界範囲外は見えない）
 	dx := targetX - playerX
@@ -60,9 +61,12 @@ func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 		return false
 	}
 
-	// 探索済みタイルかチェック（探索済みなら見える）
+	if world.Resources.Dungeon.VisibleTiles == nil {
+		panic("VisibleTilesが初期化されていません。visionシステムが先に実行される必要があります")
+	}
+
 	gridElement := gc.GridElement{X: consts.Tile(targetX), Y: consts.Tile(targetY)}
-	return world.Resources.Dungeon.ExploredTiles[gridElement]
+	return world.Resources.Dungeon.VisibleTiles[gridElement]
 }
 
 // GetVisibleItems は視界内のアイテムエンティティをすべて取得して返す

@@ -30,6 +30,8 @@ type Dungeon struct {
 	GameTime GameTime
 	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
 	SelectedWeaponSlot int
+	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される
+	VisibleTiles map[gc.GridElement]bool
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

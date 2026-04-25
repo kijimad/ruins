@@ -308,9 +308,12 @@
   Weight          = 2.0
 
   [Items.Weapon]
-    Cost        = 2
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "9mm"
+    Cost         = 2
+    MagazineSize = 6
+    ReloadEffort = 20
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 95
@@ -328,9 +331,12 @@
   Weight          = 2.0
 
   [Items.Weapon]
-    Cost        = 2
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "energy_cell"
+    Cost         = 2
+    MagazineSize = 6
+    ReloadEffort = 20
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 90
@@ -348,9 +354,12 @@
   Weight          = 10.0
 
   [Items.Weapon]
-    Cost        = 3
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "rifle"
+    Cost         = 3
+    MagazineSize = 10
+    ReloadEffort = 30
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 80
@@ -368,9 +377,12 @@
   Weight          = 10.0
 
   [Items.Weapon]
-    Cost        = 3
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "rifle"
+    Cost         = 3
+    MagazineSize = 10
+    ReloadEffort = 30
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 80
@@ -388,9 +400,12 @@
   Weight          = 20.0
 
   [Items.Weapon]
-    Cost        = 14
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "shell"
+    Cost         = 14
+    MagazineSize = 1
+    ReloadEffort = 40
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 85
@@ -408,9 +423,12 @@
   Weight          = 120.0
 
   [Items.Weapon]
-    Cost        = 14
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "shell"
+    Cost         = 14
+    MagazineSize = 1
+    ReloadEffort = 40
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 90
@@ -428,9 +446,12 @@
   Weight          = 140.0
 
   [Items.Weapon]
-    Cost        = 10
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "shell"
+    Cost         = 10
+    MagazineSize = 1
+    ReloadEffort = 40
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 90
@@ -448,9 +469,12 @@
   Weight          = 1.0
 
   [Items.Weapon]
-    Cost        = 8
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "shell"
+    Cost         = 8
+    MagazineSize = 1
+    ReloadEffort = 40
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 80
@@ -488,9 +512,12 @@
   Weight          = 4.0
 
   [Items.Weapon]
-    Cost        = 9
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
+    AmmoTag      = "shell"
+    Cost         = 9
+    MagazineSize = 1
+    ReloadEffort = 40
+    TargetGroup  = "ENEMY"
+    TargetNum    = "SINGLE"
 
   [Items.Attack]
     Accuracy       = 75
@@ -1040,6 +1067,84 @@
 
   [Items.EquipBonus]
     Agility = -1
+
+    # ammo ================
+
+[[Items]]
+  Description     = "標準的な9mm口径の弾薬"
+  Name            = "9mm FMJ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 5
+  Weight          = 0.01
+
+  [Items.Ammo]
+    AmmoTag = "9mm"
+
+[[Items]]
+  Description     = "軟質弾頭で生体に高い殺傷力を発揮する9mm弾"
+  Name            = "9mm HP"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 8
+  Weight          = 0.01
+
+  [Items.Ammo]
+    AccuracyBonus = -5
+    AmmoTag       = "9mm"
+    DamageBonus   = 3
+
+[[Items]]
+  Description     = "硬質弾芯で装甲を貫通する9mm弾"
+  Name            = "9mm AP"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 10
+  Weight          = 0.01
+
+  [Items.Ammo]
+    AccuracyBonus = 5
+    AmmoTag       = "9mm"
+    DamageBonus   = -2
+
+[[Items]]
+  Description     = "小型のエネルギー電池"
+  Name            = "エネルギーセル"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 10
+  Weight          = 0.02
+
+  [Items.Ammo]
+    AmmoTag = "energy_cell"
+
+[[Items]]
+  Description     = "汎用ライフル弾"
+  Name            = "ライフル弾"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 8
+  Weight          = 0.02
+
+  [Items.Ammo]
+    AmmoTag = "rifle"
+
+[[Items]]
+  Description     = "大口径の砲弾"
+  Name            = "砲弾"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 20
+  Weight          = 0.5
+
+  [Items.Ammo]
+    AmmoTag = "shell"
 
     # material ================
 
@@ -1740,6 +1845,16 @@
     Strength  = 5
     Vitality  = 10
 
+  [Members.LightSource]
+    Enabled = true
+    Radius  = 3
+
+    [Members.LightSource.Color]
+      A = 255
+      B = 50
+      G = 100
+      R = 255
+
 [[Members]]
   AnimKeys        = ["doctor_0", "doctor_1"]
   FactionType     = "FactionNeutral"
@@ -1757,6 +1872,16 @@
     Sensation = 15
     Strength  = 5
     Vitality  = 10
+
+  [Members.LightSource]
+    Enabled = true
+    Radius  = 3
+
+    [Members.LightSource.Color]
+      A = 255
+      B = 50
+      G = 100
+      R = 255
 
 [[Members]]
   AnimKeys        = ["dark_doctor_0", "dark_doctor_1"]
@@ -2626,6 +2751,9 @@
   [[Professions.Items]]
     Count = 1
     Name  = "回復薬"
+  [[Professions.Items]]
+    Count = 30
+    Name  = "9mm FMJ"
   [[Professions.Equips]]
     Name = "ハンドガン"
     Slot = "WEAPON1"
@@ -2725,6 +2853,9 @@
   [[Professions.Items]]
     Count = 2
     Name  = "緑ハーブ"
+  [[Professions.Items]]
+    Count = 30
+    Name  = "9mm FMJ"
   [[Professions.Equips]]
     Name = "ハンドガン"
     Slot = "WEAPON1"

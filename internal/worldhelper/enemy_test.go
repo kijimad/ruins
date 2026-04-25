@@ -36,8 +36,10 @@ func TestGetVisibleEnemies(t *testing.T) {
 		require.NoError(t, err)
 		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "ゴブリン"})
 
-		// 探索済みタイルに設定
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 12, Y: 12}] = true
+		// 可視タイルに設定
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{
+			{X: 12, Y: 12}: true,
+		}
 
 		enemies, err := GetVisibleEnemies(world)
 		require.NoError(t, err)
@@ -67,7 +69,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		_, err := SpawnEnemy(world, 50, 50, "火の玉")
 		require.NoError(t, err)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 
 		enemies, err := GetVisibleEnemies(world)
 		require.NoError(t, err)
@@ -83,7 +85,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 		_, err := SpawnEnemy(world, 5, 5, "火の玉")
 		require.NoError(t, err)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 
 		enemies, err := GetVisibleEnemies(world)
 
@@ -104,8 +106,9 @@ func TestGetVisibleEnemies(t *testing.T) {
 		_, err := SpawnEnemy(world, 11, 10, "火の玉")
 		require.NoError(t, err)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{
+			{X: 11, Y: 10}: true,
+		}
 
 		enemies, err := GetVisibleEnemies(world)
 		require.NoError(t, err)
@@ -134,8 +137,10 @@ func TestGetVisibleItems(t *testing.T) {
 		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12))
 		require.NoError(t, err)
 
-		// 探索済みタイルに設定
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 12, Y: 12}] = true
+		// 可視タイルに設定
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{
+			{X: 12, Y: 12}: true,
+		}
 
 		items, err := GetVisibleItems(world)
 		require.NoError(t, err)
@@ -170,7 +175,7 @@ func TestGetVisibleItems(t *testing.T) {
 		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50))
 		require.NoError(t, err)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 
 		items, err := GetVisibleItems(world)
 		require.NoError(t, err)
@@ -191,8 +196,9 @@ func TestGetVisibleItems(t *testing.T) {
 		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10))
 		require.NoError(t, err)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 10}] = true
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{
+			{X: 11, Y: 10}: true,
+		}
 
 		items, err := GetVisibleItems(world)
 		require.NoError(t, err)
@@ -208,38 +214,48 @@ func TestGetVisibleItems(t *testing.T) {
 func TestIsInVision(t *testing.T) {
 	t.Parallel()
 
-	t.Run("探索済みタイルは視界内と判定される", func(t *testing.T) {
+	t.Run("VisibleTilesがnilならpanicする", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 5, Y: 5}] = true
+		world.Resources.Dungeon.VisibleTiles = nil
 
-		result := IsInVision(world, 0, 0, 5, 5)
-
-		assert.True(t, result, "探索済みタイルは視界内であるべき")
-	})
-
-	t.Run("探索済みでないタイルは視界外と判定される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-
-		result := IsInVision(world, 0, 0, 5, 5)
-
-		assert.False(t, result, "探索済みでないタイルは視界外であるべき")
+		assert.Panics(t, func() {
+			IsInVision(world, 0, 0, 5, 5)
+		})
 	})
 
 	t.Run("視界半径外は視界外と判定される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-		world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 100, Y: 100}] = true
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{
+			{X: 100, Y: 100}: true,
+		}
 
-		result := IsInVision(world, 0, 0, 100, 100)
+		assert.False(t, IsInVision(world, 0, 0, 100, 100))
+	})
 
-		assert.False(t, result, "視界半径外は視界外であるべき")
+	t.Run("VisibleTilesに含まれるタイルは視界内と判定される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{
+			{X: 5, Y: 5}: true,
+		}
+
+		assert.True(t, IsInVision(world, 0, 0, 5, 5))
+	})
+
+	t.Run("探索済みでもVisibleTilesに含まれないタイルは視界外と判定される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		world.Resources.Dungeon.ExploredTiles = map[gc.GridElement]bool{
+			{X: 5, Y: 5}: true,
+		}
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
+
+		assert.False(t, IsInVision(world, 0, 0, 5, 5), "暗闘のタイルは探索済みでも視界外であるべき")
 	})
 }

@@ -28,6 +28,7 @@ type EntitySpec struct {
 	Wearable         *Wearable
 	Abilities        *Abilities
 	Weapon           *Weapon
+	Ammo             *Ammo
 	Stackable        *Stackable
 	ItemLocationType *ItemLocationType
 
@@ -95,6 +96,7 @@ type Components struct {
 	Wearable                     *ecs.SliceComponent `save:"true"`
 	Abilities                    *ecs.SliceComponent `save:"true"`
 	Weapon                       *ecs.SliceComponent `save:"true"`
+	Ammo                         *ecs.SliceComponent `save:"true"`
 	Stackable                    *ecs.SliceComponent `save:"true"`
 	ItemLocationInPlayerBackpack *ecs.NullComponent  `save:"true"`
 	ItemLocationEquipped         *ecs.SliceComponent `save:"true"`
@@ -320,8 +322,22 @@ type InventoryChanged struct{}
 
 // Weapon は戦闘中に選択する武器コマンド
 type Weapon struct {
-	TargetType TargetType
-	Cost       int
+	TargetType   TargetType
+	Cost         int
+	Magazine     int    // 現在の装弾数
+	MagazineSize int    // 最大装弾数。0なら弾薬不要の近接武器
+	ReloadEffort int    // リロード完了に必要な総工数
+	AmmoTag      string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
+	// 装填中の弾薬による修正値。リロード時に設定される
+	LoadedDamageBonus   int
+	LoadedAccuracyBonus int
+}
+
+// Ammo は弾薬アイテムの性能を定義する
+type Ammo struct {
+	AmmoTag       string // 口径タグ。武器の AmmoTag とマッチする
+	DamageBonus   int    // ダメージ修正値
+	AccuracyBonus int    // 命中率修正値
 }
 
 // Attack は攻撃の性質。攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する

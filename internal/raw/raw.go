@@ -57,6 +57,7 @@ type Item struct {
 	Wearable          *Wearable
 	EquipBonus        *EquipBonus
 	Weapon            *Weapon
+	Ammo              *Ammo
 	Attack            *Attack
 	Book              *BookRaw
 }
@@ -90,9 +91,19 @@ type Consumable struct {
 
 // Weapon は武器アイテムの設定
 type Weapon struct {
-	Cost        int
-	TargetGroup string
-	TargetNum   string
+	Cost         int
+	TargetGroup  string
+	TargetNum    string
+	MagazineSize int    // 最大装弾数。0なら近接武器
+	ReloadEffort int    // リロード完了に必要な総工数
+	AmmoTag      string // 使用する弾薬アイテムのタグ
+}
+
+// Ammo は弾薬アイテムの設定
+type Ammo struct {
+	AmmoTag       string // 口径タグ
+	DamageBonus   int    // ダメージ修正値
+	AccuracyBonus int    // 命中率修正値
 }
 
 // Attack は攻撃性能の設定
@@ -347,7 +358,19 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 				TargetGroup: gc.TargetGroupType(item.Weapon.TargetGroup),
 				TargetNum:   gc.TargetNumType(item.Weapon.TargetNum),
 			},
-			Cost: item.Weapon.Cost,
+			Cost:         item.Weapon.Cost,
+			Magazine:     item.Weapon.MagazineSize,
+			MagazineSize: item.Weapon.MagazineSize,
+			ReloadEffort: item.Weapon.ReloadEffort,
+			AmmoTag:      item.Weapon.AmmoTag,
+		}
+	}
+
+	if item.Ammo != nil {
+		entitySpec.Ammo = &gc.Ammo{
+			AmmoTag:       item.Ammo.AmmoTag,
+			DamageBonus:   item.Ammo.DamageBonus,
+			AccuracyBonus: item.Ammo.AccuracyBonus,
 		}
 	}
 

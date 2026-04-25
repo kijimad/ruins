@@ -29,6 +29,7 @@ const (
 	ModSwordDamage   ModifierKey = "sword_damage"
 	ModSpearDamage   ModifierKey = "spear_damage"
 	ModFistDamage    ModifierKey = "fist_damage"
+	ModBowDamage     ModifierKey = "bow_damage"
 	ModHandgunDamage ModifierKey = "handgun_damage"
 	ModRifleDamage   ModifierKey = "rifle_damage"
 	ModCannonDamage  ModifierKey = "cannon_damage"
@@ -36,6 +37,7 @@ const (
 	ModSwordAccuracy   ModifierKey = "sword_accuracy"
 	ModSpearAccuracy   ModifierKey = "spear_accuracy"
 	ModFistAccuracy    ModifierKey = "fist_accuracy"
+	ModBowAccuracy     ModifierKey = "bow_accuracy"
 	ModHandgunAccuracy ModifierKey = "handgun_accuracy"
 	ModRifleAccuracy   ModifierKey = "rifle_accuracy"
 	ModCannonAccuracy  ModifierKey = "cannon_accuracy"
@@ -46,6 +48,7 @@ var weaponDamageKeys = map[SkillID]ModifierKey{
 	SkillSword:   ModSwordDamage,
 	SkillSpear:   ModSpearDamage,
 	SkillFist:    ModFistDamage,
+	SkillBow:     ModBowDamage,
 	SkillHandgun: ModHandgunDamage,
 	SkillRifle:   ModRifleDamage,
 	SkillCannon:  ModCannonDamage,
@@ -65,6 +68,7 @@ var weaponAccuracyKeys = map[SkillID]ModifierKey{
 	SkillSword:   ModSwordAccuracy,
 	SkillSpear:   ModSpearAccuracy,
 	SkillFist:    ModFistAccuracy,
+	SkillBow:     ModBowAccuracy,
 	SkillHandgun: ModHandgunAccuracy,
 	SkillRifle:   ModRifleAccuracy,
 	SkillCannon:  ModCannonAccuracy,

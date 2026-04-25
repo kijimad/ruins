@@ -131,47 +131,12 @@ func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 
 	log.Debug("攻撃実行", "attacker", actor, "target", target)
 
-	// 攻撃方法を取得
-	attack, attackMethodName, err := aa.getAttackParams(actor, world)
+	attack, attackMethodName, err := getAttackParams(actor, world)
 	if err != nil {
 		return fmt.Errorf("攻撃パラメータの取得に失敗: %w", err)
 	}
 
-	hit, criticalHit := aa.rollHitCheck(actor, target, world, attack)
-	if !hit {
-		aa.logAttackResult(actor, target, world, false, false, 0, attackMethodName)
-		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
-		return nil
-	}
-
-	damage := aa.calculateDamage(actor, target, world, attack, criticalHit)
-	if damage < 0 {
-		damage = 0
-	}
-
-	// ダメージを適用
-	pools := world.Components.Pools.Get(target).(*gc.Pools)
-	beforeHP := pools.HP.Current
-	pools.HP.Current -= damage
-	if pools.HP.Current < 0 {
-		pools.HP.Current = 0
-	}
-
-	// 攻撃とダメージを1行でログ出力
-	aa.logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
-
-	// 攻撃成功時にスキル成長
-	aa.growWeaponSkill(actor, world, attack)
-
-	// ダメージエフェクトを生成
-	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
-
-	// 死亡チェックと死亡ログ
-	if pools.HP.Current <= 0 && beforeHP > 0 {
-		target.AddComponent(world.Components.Dead, &gc.Dead{})
-		aa.logDeath(world, target)
-	}
-
+	applyAttackDamage(actor, target, world, attack, attackMethodName, 0)
 	return nil
 }
 
@@ -215,93 +180,8 @@ func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) b
 	return abils != nil
 }
 
-func (aa *AttackActivity) rollHitCheck(attacker, target ecs.Entity, world w.World, attack *gc.Attack) (hit bool, critical bool) {
-	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
-	attackerDexterity := attackerAbils.Dexterity.Total
-
-	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
-	targetAgility := targetAbils.Agility.Total
-
-	baseHitRate := BaseHitRate + (attackerDexterity-targetAgility)*HitRatePerStatPoint
-
-	weaponAccuracy := aa.getWeaponAccuracy(attacker, world)
-	baseHitRate += weaponAccuracy
-
-	// 武器スキルによる命中倍率を適用
-	baseHitRate = baseHitRate * getSkillMult(attacker, attack, world, false) / 100
-
-	if baseHitRate > MaxHitRate {
-		baseHitRate = MaxHitRate
-	}
-	if baseHitRate < MinHitRate {
-		baseHitRate = MinHitRate
-	}
-
-	roll := world.Config.RNG.IntN(DiceMax) + 1
-	hit = roll <= baseHitRate
-	critical = roll <= CriticalHitThreshold
-
-	return hit, critical
-}
-
-func (aa *AttackActivity) calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Attack, critical bool) int {
-	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
-
-	// 武器の射程に応じて基礎能力値を切り替える
-	baseAbil := attackerAbils.Strength.Total
-	if attack != nil && attack.AttackCategory.Range == gc.AttackRangeRanged {
-		baseAbil = attackerAbils.Sensation.Total
-	}
-
-	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
-	targetDefense := targetAbils.Defense.Total
-
-	baseDamage := baseAbil + world.Config.RNG.IntN(DamageRandomRange) + 1
-
-	weaponDamage := aa.getWeaponDamage(attacker, world)
-	baseDamage += weaponDamage
-
-	// 武器スキルによるダメージ倍率を適用
-	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
-
-	if critical {
-		baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
-	}
-
-	// 元素耐性による軽減
-	if attack != nil && attack.Element != gc.ElementTypeNone {
-		baseDamage = applyElementResist(baseDamage, target, attack.Element, world)
-	}
-
-	finalDamage := baseDamage - targetDefense
-	if finalDamage < MinDamage {
-		finalDamage = MinDamage
-	}
-
-	return finalDamage
-}
-
-// getWeaponDamage は攻撃者の武器から攻撃力を取得する
-func (aa *AttackActivity) getWeaponDamage(attacker ecs.Entity, world w.World) int {
-	attack, _, err := aa.getAttackParams(attacker, world)
-	if err != nil || attack == nil {
-		return 0
-	}
-	return attack.Damage
-}
-
-// getWeaponAccuracy は攻撃者の武器から命中率を取得する
-func (aa *AttackActivity) getWeaponAccuracy(attacker ecs.Entity, world w.World) int {
-	attack, _, err := aa.getAttackParams(attacker, world)
-	if err != nil || attack == nil {
-		return 0
-	}
-	// Accuracyは0-100なので、BaseHitRateとの差分を返す
-	return attack.Accuracy - BaseHitRate
-}
-
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
-func (aa *AttackActivity) getBareHandsAttack(world w.World) (*gc.Attack, string, error) {
+func getBareHandsAttack(world w.World) (*gc.Attack, string, error) {
 	rawMaster := world.Resources.RawMaster
 	bareHandsSpec, err := rawMaster.NewWeaponSpec("素手")
 	if err != nil {
@@ -315,7 +195,7 @@ func (aa *AttackActivity) getBareHandsAttack(world w.World) (*gc.Attack, string,
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
-func (aa *AttackActivity) getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, error) {
+func getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.Player) {
 		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
@@ -336,7 +216,7 @@ func (aa *AttackActivity) getAttackParams(attacker ecs.Entity, world w.World) (*
 		}
 
 		// 武器が装備されていない場合は素手武器を使用
-		return aa.getBareHandsAttack(world)
+		return getBareHandsAttack(world)
 	}
 
 	// 敵の場合: CommandTableから攻撃パラメータを取得
@@ -347,45 +227,10 @@ func (aa *AttackActivity) getAttackParams(attacker ecs.Entity, world w.World) (*
 		}
 
 		// CommandTableから取得できない場合は素手武器を使用
-		return aa.getBareHandsAttack(world)
+		return getBareHandsAttack(world)
 	}
 
 	return nil, "", fmt.Errorf("攻撃パラメータを取得できません: 攻撃者にPlayerまたはCommandTableコンポーネントがありません")
-}
-
-// logAttackResult は攻撃結果をログに出力する（ダメージも含む）
-func (aa *AttackActivity) logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {
-	// プレイヤーが関わる攻撃のみログ出力
-	if !attacker.HasComponent(world.Components.Player) && !target.HasComponent(world.Components.Player) {
-		return
-	}
-
-	// 攻撃者名とターゲット名を取得
-	attackerName := worldhelper.GetEntityName(attacker, world)
-	targetName := worldhelper.GetEntityName(target, world)
-
-	gamelog.New(gamelog.FieldLog).
-		Build(func(l *gamelog.Logger) {
-			worldhelper.AppendNameWithColor(l, attacker, attackerName, world)
-		}).
-		Append(" は ").
-		Build(func(l *gamelog.Logger) {
-			// 攻撃方法がある場合は表示
-			if attackMethodName != "" {
-				l.Append(attackMethodName).Append(" で ")
-			}
-			worldhelper.AppendNameWithColor(l, target, targetName, world)
-		}).
-		Build(func(l *gamelog.Logger) {
-			if !hit {
-				l.Append(" を攻撃したが外れた。")
-			} else if critical {
-				l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
-			} else {
-				l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
-			}
-		}).
-		Log()
 }
 
 // getSkillMult は事前計算済みのスキル倍率(%)を返す。
@@ -432,9 +277,120 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 	return reduced
 }
 
-// growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する。
-// Skillsコンポーネントを持たないエンティティではスキップする。
-func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attack *gc.Attack) {
+// applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
+// ShootActivityからも使用される
+func applyAttackDamage(actor, target ecs.Entity, world w.World, attack *gc.Attack, attackMethodName string, hitRateModifier int) {
+	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
+	if !hit {
+		logAttackResult(actor, target, world, false, false, 0, attackMethodName)
+		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
+		return
+	}
+
+	damage := calculateDamage(actor, target, world, attack, criticalHit)
+	if damage < 0 {
+		damage = 0
+	}
+
+	pools := world.Components.Pools.Get(target).(*gc.Pools)
+	beforeHP := pools.HP.Current
+	pools.HP.Current -= damage
+	if pools.HP.Current < 0 {
+		pools.HP.Current = 0
+	}
+
+	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
+	growWeaponSkill(actor, world, attack)
+	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
+
+	// 被ダメージで中断可能なアクティビティをキャンセルする
+	if comp := worldhelper.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
+		CancelActivity(target, "攻撃を受けた", world)
+	}
+
+	if pools.HP.Current <= 0 && beforeHP > 0 {
+		target.AddComponent(world.Components.Dead, &gc.Dead{})
+		logDeath(world, target)
+	}
+}
+
+// rollHitCheckWithModifier は命中判定を行う。modifierは追加の命中率補正（負値でペナルティ）
+func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack *gc.Attack, modifier int) (hit bool, critical bool) {
+	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+	attackerDexterity := attackerAbils.Dexterity.Total
+
+	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
+	targetAgility := targetAbils.Agility.Total
+
+	baseHitRate := BaseHitRate + (attackerDexterity-targetAgility)*HitRatePerStatPoint
+
+	weaponAccuracy := getWeaponAccuracyFromAttack(attack)
+	baseHitRate += weaponAccuracy
+
+	baseHitRate = baseHitRate * getSkillMult(attacker, attack, world, false) / 100
+
+	baseHitRate += modifier
+
+	if baseHitRate > MaxHitRate {
+		baseHitRate = MaxHitRate
+	}
+	if baseHitRate < MinHitRate {
+		baseHitRate = MinHitRate
+	}
+
+	roll := world.Config.RNG.IntN(DiceMax) + 1
+	hit = roll <= baseHitRate
+	critical = roll <= CriticalHitThreshold
+
+	return hit, critical
+}
+
+// getWeaponAccuracyFromAttack はAttackから命中率補正を取得する
+func getWeaponAccuracyFromAttack(attack *gc.Attack) int {
+	if attack == nil {
+		return 0
+	}
+	return attack.Accuracy - BaseHitRate
+}
+
+// calculateDamage はダメージ計算を行う
+func calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Attack, critical bool) int {
+	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
+
+	baseAbil := attackerAbils.Strength.Total
+	if attack != nil && attack.AttackCategory.Range == gc.AttackRangeRanged {
+		baseAbil = attackerAbils.Sensation.Total
+	}
+
+	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
+	targetDefense := targetAbils.Defense.Total
+
+	baseDamage := baseAbil + world.Config.RNG.IntN(DamageRandomRange) + 1
+
+	if attack != nil {
+		baseDamage += attack.Damage
+	}
+
+	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
+
+	if critical {
+		baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
+	}
+
+	if attack != nil && attack.Element != gc.ElementTypeNone {
+		baseDamage = applyElementResist(baseDamage, target, attack.Element, world)
+	}
+
+	finalDamage := baseDamage - targetDefense
+	if finalDamage < MinDamage {
+		finalDamage = MinDamage
+	}
+
+	return finalDamage
+}
+
+// growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
+func growWeaponSkill(actor ecs.Entity, world w.World, attack *gc.Attack) {
 	if attack == nil {
 		return
 	}
@@ -450,7 +406,6 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 	}
 	s := skills.Get(skillID)
 
-	// 対応する能力値を取得して成長速度に反映する
 	abilsComp := world.Components.Abilities.Get(actor)
 	if abilsComp == nil {
 		return
@@ -468,8 +423,40 @@ func (aa *AttackActivity) growWeaponSkill(actor ecs.Entity, world w.World, attac
 	}
 }
 
+// logAttackResult は攻撃結果をログに出力する
+func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {
+	if !attacker.HasComponent(world.Components.Player) && !target.HasComponent(world.Components.Player) {
+		return
+	}
+
+	attackerName := worldhelper.GetEntityName(attacker, world)
+	targetName := worldhelper.GetEntityName(target, world)
+
+	gamelog.New(gamelog.FieldLog).
+		Build(func(l *gamelog.Logger) {
+			worldhelper.AppendNameWithColor(l, attacker, attackerName, world)
+		}).
+		Append(" は ").
+		Build(func(l *gamelog.Logger) {
+			if attackMethodName != "" {
+				l.Append(attackMethodName).Append(" で ")
+			}
+			worldhelper.AppendNameWithColor(l, target, targetName, world)
+		}).
+		Build(func(l *gamelog.Logger) {
+			if !hit {
+				l.Append(" を攻撃したが外れた。")
+			} else if critical {
+				l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
+			} else {
+				l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
+			}
+		}).
+		Log()
+}
+
 // logDeath は死亡ログを出力する
-func (aa *AttackActivity) logDeath(world w.World, target ecs.Entity) {
+func logDeath(world w.World, target ecs.Entity) {
 	targetName := worldhelper.GetEntityName(target, world)
 
 	gamelog.New(gamelog.FieldLog).
