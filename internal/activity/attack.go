@@ -303,14 +303,16 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack *gc.Attac
 	growWeaponSkill(actor, world, attack)
 	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
 
-	// 被ダメージで中断可能なアクティビティをキャンセルする
-	if comp := worldhelper.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
-		CancelActivity(target, "攻撃を受けた", world)
-	}
-
 	if pools.HP.Current <= 0 && beforeHP > 0 {
+		// 死亡時はすべてのアクティビティをキャンセルする
+		if worldhelper.GetActivity(world, target) != nil {
+			CancelActivity(target, "死亡", world)
+		}
 		target.AddComponent(world.Components.Dead, &gc.Dead{})
 		logDeath(world, target)
+	} else if comp := worldhelper.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
+		// 被ダメージで中断可能なアクティビティをキャンセルする
+		CancelActivity(target, "攻撃を受けた", world)
 	}
 }
 

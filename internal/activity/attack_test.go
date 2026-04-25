@@ -355,7 +355,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 
 		target := world.Manager.NewEntity()
 		target.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: 100, Max: 100},
+			HP: gc.Pool{Current: 10000, Max: 10000},
 		})
 		target.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
@@ -375,17 +375,56 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		})
 
 		attack := &gc.Attack{
-			Damage:         100,
+			Damage:         1,
 			AttackCategory: gc.AttackFist,
 		}
 
 		applyAttackDamage(attacker, target, world, attack, "テスト攻撃", 0)
 
-		// 中断不可なのでアクティビティは必ず残る
+		// 中断不可なので生存中はアクティビティが残る
 		assert.True(t, target.HasComponent(world.Components.Activity),
 			"中断不可のアクティビティは被ダメージでも残る")
-		activity := world.Components.Activity.Get(target).(*gc.Activity)
-		assert.Equal(t, gc.ActivityStateRunning, activity.State)
+		activityComp := world.Components.Activity.Get(target).(*gc.Activity)
+		assert.Equal(t, gc.ActivityStateRunning, activityComp.State)
+	})
+
+	t.Run("死亡時は中断不可のアクティビティもキャンセルされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		target := world.Manager.NewEntity()
+		target.AddComponent(world.Components.Pools, &gc.Pools{
+			HP: gc.Pool{Current: 1, Max: 100},
+		})
+		target.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Agility: gc.Ability{Total: 0},
+		})
+
+		// 中断不可のアクティビティ（攻撃）を設定
+		aa := &AttackActivity{}
+		comp, err := NewActivity(aa, 1)
+		require.NoError(t, err)
+		comp.State = gc.ActivityStateRunning
+		target.AddComponent(world.Components.Activity, comp)
+
+		attacker := world.Manager.NewEntity()
+		attacker.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Strength:  gc.Ability{Total: 50},
+			Dexterity: gc.Ability{Total: 99},
+		})
+
+		attack := &gc.Attack{
+			Damage:         999,
+			AttackCategory: gc.AttackFist,
+		}
+
+		applyAttackDamage(attacker, target, world, attack, "テスト攻撃", 0)
+
+		// 死亡時はアクティビティがキャンセルされて削除される（命中した場合）
+		if target.HasComponent(world.Components.Dead) {
+			assert.False(t, target.HasComponent(world.Components.Activity),
+				"死亡時はアクティビティが削除される")
+		}
 	})
 }
 
