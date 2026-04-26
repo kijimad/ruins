@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.0&nbsp;%</td>
-            <td class="headerCovTableEntry">100</td>
-            <td class="headerCovTableEntry">83</td>
+            <td class="headerCovTableEntryMed">81.8&nbsp;%</td>
+            <td class="headerCovTableEntry">99</td>
+            <td class="headerCovTableEntry">81</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-22 16:25:14</td>
+            <td class="headerValue">2026-04-26 11:50:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -173,48 +173,47 @@
 <span id="L111"><span class="lineNum">     111</span>              : // runTurnEndSystems はターン終了時に実行するシステム群を呼び出す</span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : func runTurnEndSystems(world w.World) error {</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         for _, updater := range []w.Updater{</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 &amp;DeadCleanupSystem{},</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 &amp;AutoInteractionSystem{},</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 &amp;TemperatureSystem{},</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           2 :         } {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           2 :                 if sys, ok := world.Updaters[updater.String()]; ok {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                         if err := sys.Update(world); err != nil {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 :                                 return err</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L122"><span class="lineNum">     122</span>              :                 }</span>
-<span id="L123"><span class="lineNum">     123</span>              :         }</span>
-<span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L126"><span class="lineNum">     126</span>              : }</span>
-<span id="L127"><span class="lineNum">     127</span>              : </span>
-<span id="L128"><span class="lineNum">     128</span>              : // processPlayerContinuousActivity はプレイヤーの継続アクションを処理する</span>
-<span id="L129"><span class="lineNum">     129</span>              : // 継続アクションが進行中の場合は true を返し、ターンを進める</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 : func processPlayerContinuousActivity(world w.World) bool {</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         // プレイヤーエンティティを取得</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span>              :         // プレイヤーの継続アクションをチェック</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           2 :         if !worldhelper.HasActivity(world, playerEntity) {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         log.Debug(&quot;プレイヤー継続アクション処理&quot;)</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         // 継続アクションの1ターン分を処理</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         activity.ProcessTurn(world)</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           2 :         if !worldhelper.HasActivity(world, playerEntity) {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;プレイヤー継続アクション完了&quot;)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span>              :         // 継続中でも完了でもターンコストを消費する</span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         worldhelper.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         return true</span></span>
-<span id="L155"><span class="lineNum">     155</span>              : }</span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 &amp;AutoInteractionSystem{},</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 &amp;TemperatureSystem{},</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :         } {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 if sys, ok := world.Updaters[updater.String()]; ok {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                         if err := sys.Update(world); err != nil {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                                 return err</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L121"><span class="lineNum">     121</span>              :                 }</span>
+<span id="L122"><span class="lineNum">     122</span>              :         }</span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L125"><span class="lineNum">     125</span>              : }</span>
+<span id="L126"><span class="lineNum">     126</span>              : </span>
+<span id="L127"><span class="lineNum">     127</span>              : // processPlayerContinuousActivity はプレイヤーの継続アクションを処理する</span>
+<span id="L128"><span class="lineNum">     128</span>              : // 継続アクションが進行中の場合は true を返し、ターンを進める</span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 : func processPlayerContinuousActivity(world w.World) bool {</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         // プレイヤーエンティティを取得</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :         playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L135"><span class="lineNum">     135</span>              : </span>
+<span id="L136"><span class="lineNum">     136</span>              :         // プレイヤーの継続アクションをチェック</span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           2 :         if !worldhelper.HasActivity(world, playerEntity) {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : </span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         log.Debug(&quot;プレイヤー継続アクション処理&quot;)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         // 継続アクションの1ターン分を処理</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         activity.ProcessTurn(world)</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           2 :         if !worldhelper.HasActivity(world, playerEntity) {</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;プレイヤー継続アクション完了&quot;)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L150"><span class="lineNum">     150</span>              : </span>
+<span id="L151"><span class="lineNum">     151</span>              :         // 継続中でも完了でもターンコストを消費する</span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         worldhelper.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         return true</span></span>
+<span id="L154"><span class="lineNum">     154</span>              : }</span>
         </pre>
               </td>
             </tr>

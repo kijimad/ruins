@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">8.8&nbsp;%</td>
-            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryLo">10.3&nbsp;%</td>
+            <td class="headerCovTableEntry">29</td>
             <td class="headerCovTableEntry">3</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-22 16:25:14</td>
+            <td class="headerValue">2026-04-26 11:50:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,64 +63,58 @@
 <span id="L1"><span class="lineNum">       1</span>              : package aiinput</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              : )</span>
-<span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // VisionSystem はAIの視界判定システム</span>
-<span id="L12"><span class="lineNum">      12</span>              : type VisionSystem interface {</span>
-<span id="L13"><span class="lineNum">      13</span>              :         CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, vision *gc.AIVision) bool</span>
-<span id="L14"><span class="lineNum">      14</span>              : }</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : // DefaultVisionSystem は標準的な視界判定実装</span>
-<span id="L17"><span class="lineNum">      17</span>              : type DefaultVisionSystem struct{}</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // NewVisionSystem は新しいVisionSystemを作成する</span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func NewVisionSystem() VisionSystem {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return &amp;DefaultVisionSystem{}</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L23"><span class="lineNum">      23</span>              : </span>
-<span id="L24"><span class="lineNum">      24</span>              : // CanSeeTarget はターゲットが視界内にいるかチェック</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 : func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, vision *gc.AIVision) bool {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         aiGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         // 距離計算（タイル単位）</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         dx := float64(int(targetGrid.X) - int(aiGrid.X))</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         dy := float64(int(targetGrid.Y) - int(aiGrid.Y))</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         distance := math.Sqrt(dx*dx + dy*dy)</span></span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              : )</span>
+<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L10"><span class="lineNum">      10</span>              : // VisionSystem はAIの視界判定システム</span>
+<span id="L11"><span class="lineNum">      11</span>              : type VisionSystem interface {</span>
+<span id="L12"><span class="lineNum">      12</span>              :         CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, vision *gc.AIVision) bool</span>
+<span id="L13"><span class="lineNum">      13</span>              : }</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // DefaultVisionSystem は標準的な視界判定実装</span>
+<span id="L16"><span class="lineNum">      16</span>              : type DefaultVisionSystem struct{}</span>
+<span id="L17"><span class="lineNum">      17</span>              : </span>
+<span id="L18"><span class="lineNum">      18</span>              : // NewVisionSystem は新しいVisionSystemを作成する</span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC tlaBgGNC">           1 : func NewVisionSystem() VisionSystem {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         return &amp;DefaultVisionSystem{}</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : </span>
+<span id="L23"><span class="lineNum">      23</span>              : // CanSeeTarget はターゲットが視界内にいるかチェック</span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 : func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, vision *gc.AIVision) bool {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         aiGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         // 距離計算（タイル単位）</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         distance := geometry.Distance(float64(aiGrid.X), float64(aiGrid.Y), float64(targetGrid.X), float64(targetGrid.Y))</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         // 視界距離内かチェック（タイル単位で計算）</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         viewDistanceInTiles := float64(vision.ViewDistance) / 32.0 // 仮にタイル1つ=32ピクセル</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         // 視界距離内かチェック（タイル単位で計算）</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         viewDistanceInTiles := float64(vision.ViewDistance) / 32.0 // 仮にタイル1つ=32ピクセル</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         // ターゲットの隠密スキルによる被発見距離倍率を適用する</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         if targetEntity.HasComponent(world.Components.CharModifiers) {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 mods := world.Components.CharModifiers.Get(targetEntity).(*gc.CharModifiers)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 viewDistanceInTiles = viewDistanceInTiles * float64(mods.EnemyVision) / 100</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         // ターゲットの隠密スキルによる被発見距離倍率を適用する</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         if targetEntity.HasComponent(world.Components.CharModifiers) {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 mods := world.Components.CharModifiers.Get(targetEntity).(*gc.CharModifiers)</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 viewDistanceInTiles = viewDistanceInTiles * float64(mods.EnemyVision) / 100</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span>              : </span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         return distance &lt;= viewDistanceInTiles</span></span>
+<span id="L41"><span class="lineNum">      41</span>              : }</span>
 <span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         return distance &lt;= viewDistanceInTiles</span></span>
-<span id="L44"><span class="lineNum">      44</span>              : }</span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // CalculateDistance は2つのエンティティ間の距離を計算（タイル単位）</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : func (vs *DefaultVisionSystem) CalculateDistance(world w.World, entity1, entity2 ecs.Entity) float64 {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         grid1 := world.Components.GridElement.Get(entity1).(*gc.GridElement)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         grid2 := world.Components.GridElement.Get(entity2).(*gc.GridElement)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         dx := float64(int(grid2.X) - int(grid1.X))</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         dy := float64(int(grid2.Y) - int(grid1.Y))</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         return math.Sqrt(dx*dx + dy*dy)</span></span>
+<span id="L43"><span class="lineNum">      43</span>              : // CalculateDistance は2つのエンティティ間の距離を計算（タイル単位）</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 : func (vs *DefaultVisionSystem) CalculateDistance(world w.World, entity1, entity2 ecs.Entity) float64 {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         grid1 := world.Components.GridElement.Get(entity1).(*gc.GridElement)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         grid2 := world.Components.GridElement.Get(entity2).(*gc.GridElement)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         return geometry.Distance(float64(grid1.X), float64(grid1.Y), float64(grid2.X), float64(grid2.Y))</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // IsInRange は指定した範囲内にターゲットがいるかチェック</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 : func (vs *DefaultVisionSystem) IsInRange(world w.World, aiEntity, targetEntity ecs.Entity, rangeInTiles float64) bool {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         distance := vs.CalculateDistance(world, aiEntity, targetEntity)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         return distance &lt;= rangeInTiles</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L56"><span class="lineNum">      56</span>              : </span>
-<span id="L57"><span class="lineNum">      57</span>              : // IsInRange は指定した範囲内にターゲットがいるかチェック</span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 : func (vs *DefaultVisionSystem) IsInRange(world w.World, aiEntity, targetEntity ecs.Entity, rangeInTiles float64) bool {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         distance := vs.CalculateDistance(world, aiEntity, targetEntity)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         return distance &lt;= rangeInTiles</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

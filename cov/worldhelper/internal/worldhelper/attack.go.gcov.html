@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">72.1&nbsp;%</td>
-            <td class="headerCovTableEntry">43</td>
-            <td class="headerCovTableEntry">31</td>
+            <td class="headerCovTableEntryLo">50.9&nbsp;%</td>
+            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntry">27</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-22 16:25:14</td>
+            <td class="headerValue">2026-04-26 11:50:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,67 +70,73 @@
 <span id="L8"><span class="lineNum">       8</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
-<span id="L11"><span class="lineNum">      11</span>              : // GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択する</span>
-<span id="L12"><span class="lineNum">      12</span>              : // 武器エンティティを生成せずに攻撃パラメータを取得する</span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC tlaBgGNC">           1 : func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (*gc.Attack, string, error) {</span></span>
-<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         // CommandTableコンポーネントを取得</span></span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         commandTableComp := world.Components.CommandTable.Get(enemyEntity)</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           2 :         if commandTableComp == nil {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;enemy has no CommandTable component&quot;)</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         commandTableName := commandTableComp.(*gc.CommandTable).Name</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         rawMaster := world.Resources.RawMaster</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         // CommandTableを取得</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         commandTable, err := rawMaster.GetCommandTable(commandTableName)</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to get command table: %w&quot;, err)</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L28"><span class="lineNum">      28</span>              : </span>
-<span id="L29"><span class="lineNum">      29</span>              :         // 重み付きランダムで武器名を選択</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 :         weaponName, err := commandTable.SelectByWeight(world.Config.RNG)</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to select weapon: %w&quot;, err)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC tlaBgGNC">           1 :         if weaponName == &quot;&quot; {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;no weapon selected from command table&quot;)</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span>              :         // 武器名からEntitySpecを取得（エンティティは生成しない）</span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC tlaBgGNC">           1 :         weaponSpec, err := rawMaster.NewWeaponSpec(weaponName)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to get weapon spec: %w&quot;, err)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L43"><span class="lineNum">      43</span>              : </span>
-<span id="L44"><span class="lineNum">      44</span>              :         // Attackコンポーネントがない場合はエラー</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 :         if weaponSpec.Attack == nil {</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon %s has no Attack component&quot;, weaponName)</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L11"><span class="lineNum">      11</span>              : // GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択し、Meleeパラメータを返す</span>
+<span id="L12"><span class="lineNum">      12</span> <span class="tlaGNC tlaBgGNC">           1 : func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attacker, string, error) {</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           1 :         // CommandTableコンポーネントを取得</span></span>
+<span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         commandTableComp := world.Components.CommandTable.Get(enemyEntity)</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           2 :         if commandTableComp == nil {</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;enemy has no CommandTable component&quot;)</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         commandTableName := commandTableComp.(*gc.CommandTable).Name</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         rawMaster := world.Resources.RawMaster</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         // CommandTableを取得</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         commandTable, err := rawMaster.GetCommandTable(commandTableName)</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to get command table: %w&quot;, err)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              :         // 重み付きランダムで武器名を選択</span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 :         weaponName, err := commandTable.SelectByWeight(world.Config.RNG)</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to select weapon: %w&quot;, err)</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC tlaBgGNC">           1 :         if weaponName == &quot;&quot; {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;no weapon selected from command table&quot;)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span>              :         // 武器名からEntitySpecを取得（エンティティは生成しない）</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 :         weaponSpec, err := rawMaster.NewWeaponSpec(weaponName)</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;failed to get weapon spec: %w&quot;, err)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 :         if weaponSpec.Melee == nil {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon %s has no Melee component&quot;, weaponName)</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC tlaBgGNC">           1 :         return weaponSpec.Melee, weaponName, nil</span></span>
+<span id="L47"><span class="lineNum">      47</span>              : }</span>
 <span id="L48"><span class="lineNum">      48</span>              : </span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC tlaBgGNC">           1 :         return weaponSpec.Attack, weaponName, nil</span></span>
-<span id="L50"><span class="lineNum">      50</span>              : }</span>
-<span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : // GetAttackFromWeapon は武器エンティティから攻撃パラメータを取得する</span>
-<span id="L53"><span class="lineNum">      53</span>              : // プレイヤーが装備している武器エンティティから攻撃情報を取得する</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func GetAttackFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Attack, string, error) {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         // Attackコンポーネントを取得</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         attackComp := world.Components.Attack.Get(weaponEntity)</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if attackComp == nil {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon has no Attack component&quot;)</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              :         // 名前を取得</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         nameComp := world.Components.Name.Get(weaponEntity)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         if nameComp == nil {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon has no Name component&quot;)</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L66"><span class="lineNum">      66</span>              : </span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           1 :         attack := attackComp.(*gc.Attack)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         weaponName := nameComp.(*gc.Name).Name</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         return attack, weaponName, nil</span></span>
-<span id="L71"><span class="lineNum">      71</span>              : }</span>
+<span id="L49"><span class="lineNum">      49</span>              : // GetMeleeFromWeapon は武器エンティティからMeleeコンポーネントを取得する</span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, string, error) {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :         nameComp := world.Components.Name.Get(weaponEntity)</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :         if nameComp == nil {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon has no Name component&quot;)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC tlaBgGNC">           1 :         name := nameComp.(*gc.Name).Name</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         meleeComp := world.Components.Melee.Get(weaponEntity)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         if meleeComp == nil {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon %s has no Melee component&quot;, name)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :         return meleeComp.(*gc.Melee), name, nil</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : }</span>
+<span id="L63"><span class="lineNum">      63</span>              : </span>
+<span id="L64"><span class="lineNum">      64</span>              : // GetFireFromWeapon は武器エンティティからFireコンポーネントを取得する</span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 : func GetFireFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Fire, string, error) {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         nameComp := world.Components.Name.Get(weaponEntity)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         if nameComp == nil {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon has no Name component&quot;)</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         name := nameComp.(*gc.Name).Name</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :         fireComp := world.Components.Fire.Get(weaponEntity)</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :         if fireComp == nil {</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;weapon %s has no Fire component&quot;, name)</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :         return fireComp.(*gc.Fire), name, nil</span></span>
+<span id="L77"><span class="lineNum">      77</span>              : }</span>
         </pre>
               </td>
             </tr>
