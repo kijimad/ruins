@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
@@ -215,6 +216,33 @@ func TestDeadCleanupSystem_WithDropTableNoDrops(t *testing.T) {
 
 	// シード1ではドロップしない
 	assert.Equal(t, itemCountBefore, itemCountAfter, "シード1ではドロップしないはず")
+}
+
+func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	// アクティビティを持つ死亡エンティティを作成
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
+	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+
+	aa := &activity.AttackActivity{}
+	comp, err := activity.NewActivity(aa, 1)
+	require.NoError(t, err)
+	comp.State = gc.ActivityStateRunning
+	enemy.AddComponent(world.Components.Activity, comp)
+
+	// DeadCleanupSystemを実行
+	sys := &DeadCleanupSystem{}
+	require.NoError(t, sys.Update(world))
+
+	// エンティティが削除され、アクティビティも消えている
+	assert.False(t, enemy.HasComponent(world.Components.Activity),
+		"死亡エンティティのアクティビティはキャンセルされるべき")
+	assert.False(t, enemy.HasComponent(world.Components.Name),
+		"死亡エンティティは削除されるべき")
 }
 
 func TestDeadCleanupSystem_SpawnsSpriteFadeoutEffect(t *testing.T) {

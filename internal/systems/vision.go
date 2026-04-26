@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -48,14 +49,6 @@ type coloredDarknessCacheKey struct {
 	G             uint8
 	B             uint8
 	DarknessLevel int
-}
-
-// abs は絶対値を返す
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }
 
 // ClearVisionCaches は全ての視界関連キャッシュをクリアする（階移動時などに使用）
@@ -108,8 +101,8 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
 	needsUpdate := !playerPositionCache.isInitialized ||
-		abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
-		abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
+		geometry.Abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
+		geometry.Abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
 	if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
@@ -141,6 +134,18 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 				}
 			}
 		}
+
+		// 現在フレームで見えているタイルをリソースに反映する
+		visibleTiles := make(map[gc.GridElement]bool)
+		for _, tileData := range visibilityData {
+			if tileData.Visible {
+				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+				if li, ok := lightSourceCache[gridElement]; ok && li.Darkness < 1.0 {
+					visibleTiles[gridElement] = true
+				}
+			}
+		}
+		world.Resources.Dungeon.VisibleTiles = visibleTiles
 
 		// キャッシュ更新
 		playerPositionCache.lastPlayerX = playerPos.X
@@ -180,7 +185,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 			tileY := playerTileY + dy
 
 			// 早期距離チェック（枝払い）
-			if abs(dx) > maxTileDistance || abs(dy) > maxTileDistance {
+			if geometry.Abs(dx) > maxTileDistance || geometry.Abs(dy) > maxTileDistance {
 				continue
 			}
 
@@ -247,7 +252,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 	targetTileY := int(targetY / float64(consts.TileSize))
 
 	// 同じタイルまたは隣接タイルは常に見える
-	if abs(targetTileX-playerTileX) <= 1 && abs(targetTileY-playerTileY) <= 1 {
+	if geometry.Abs(targetTileX-playerTileX) <= 1 && geometry.Abs(targetTileY-playerTileY) <= 1 {
 		raycastCache[cacheKey] = true
 		return true
 	}
@@ -265,8 +270,8 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 
 // bresenhamLineOfSight はブレゼンハムアルゴリズムを使用したタイルベース視線判定
 func bresenhamLineOfSight(world w.World, x0, y0, x1, y1 int) bool {
-	dx := abs(x1 - x0)
-	dy := abs(y1 - y0)
+	dx := geometry.Abs(x1 - x0)
+	dy := geometry.Abs(y1 - y0)
 
 	var sx, sy int
 	if x0 < x1 {
@@ -375,9 +380,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 		lightGrid := world.Components.GridElement.Get(lightEntity).(*gc.GridElement)
 
 		// 距離計算（タイル単位）
-		dx := float64(tileX - int(lightGrid.X))
-		dy := float64(tileY - int(lightGrid.Y))
-		distance := math.Sqrt(dx*dx + dy*dy)
+		distance := geometry.Distance(float64(tileX), float64(tileY), float64(lightGrid.X), float64(lightGrid.Y))
 
 		// 光源範囲内かチェック
 		if distance <= float64(lightSource.Radius) {
@@ -470,33 +473,29 @@ func renderDistanceBasedDarkness(world w.World, screen *ebiten.Image, visibility
 			tileKey := fmt.Sprintf("%d,%d", tileX, tileY)
 			gridElement := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
-			var lightInfo LightInfo
+			// タイルの状態を判定
+			tileData, inVisionRange := visibilityData[tileKey]
+			visible := inVisionRange && tileData.Visible
+			explored := world.Resources.Dungeon.ExploredTiles[gridElement]
 
-			// 視界データをチェック
-			if tileData, exists := visibilityData[tileKey]; exists {
-				if tileData.Visible {
-					// 視界内: 光源の有無で効果を決定
-					info := calculateLightSourceDarkness(world, tileX, tileY)
-					if info.Darkness < 1.0 {
-						// 光源範囲内: 光源の色味を薄く表示
-						lightInfo = LightInfo{Darkness: 0.15, Color: info.Color}
-					} else {
-						// 光源範囲外: 薄い黒フィルター
-						lightInfo = LightInfo{Darkness: 0.3, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
-					}
-				} else {
-					// 視界範囲内だが見えないタイル（壁で遮蔽）: 完全に暗い
-					lightInfo = LightInfo{Darkness: 1.0, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
-				}
-			} else {
-				// 視界範囲外
-				if !world.Resources.Dungeon.ExploredTiles[gridElement] {
-					// 未探索タイル: 描画しない
-					continue
-				}
-				// 探索済み視界外タイル: 完全に暗い
-				lightInfo = LightInfo{Darkness: 1.0, Color: color.RGBA{R: 0, G: 0, B: 0, A: 255}}
+			// 光源情報を取得（視界内で見えているタイルのみ）
+			var hasLightSource bool
+			var lightColor color.RGBA
+			if visible {
+				info := calculateLightSourceDarkness(world, tileX, tileY)
+				hasLightSource = info.Darkness < 1.0
+				lightColor = info.Color
 			}
+
+			level := determineTileDarkness(inVisionRange, visible, explored, hasLightSource)
+			if level == TileDarknessSkip {
+				continue
+			}
+			// 光源色は明るいタイルのみ反映し、それ以外は黒
+			if level != TileDarknessLit {
+				lightColor = color.RGBA{R: 0, G: 0, B: 0, A: 255}
+			}
+			lightInfo := LightInfo{Darkness: level.DarknessValue(), Color: lightColor}
 
 			// 暗闇レベルが0より大きい場合のみ描画
 			if lightInfo.Darkness > 0.0 {
@@ -514,6 +513,56 @@ func renderDistanceBasedDarkness(world w.World, screen *ebiten.Image, visibility
 // DarknessLevels は暗闇の段階数を定義する
 // 少ない段階数のほうが見た目が自然になる
 const DarknessLevels = 4
+
+// TileDarknessLevel はタイルの暗さの段階を表す
+type TileDarknessLevel int
+
+const (
+	// TileDarknessSkip は描画をスキップする（未探索かつ視界外）
+	TileDarknessSkip TileDarknessLevel = iota
+	// TileDarknessLit は光源範囲内で最も明るい状態
+	TileDarknessLit
+	// TileDarknessVisible は視界内だが光源範囲外
+	TileDarknessVisible
+	// TileDarknessExplored は探索済みだが現在見えていない状態
+	TileDarknessExplored
+	// TileDarknessFull は完全に黒い状態
+	TileDarknessFull
+)
+
+// tileDarknessValues は各段階に対応する暗さの値。
+// DarknessLevels=4のときceil量子化されるため、完全な黒にしたくない段階は0.75以下にする
+var tileDarknessValues = map[TileDarknessLevel]float64{
+	TileDarknessLit:      0.15,
+	TileDarknessVisible:  0.3,
+	TileDarknessExplored: 0.75,
+	TileDarknessFull:     1.0,
+}
+
+// DarknessValue は暗さの段階から描画用の具体値を返す
+func (d TileDarknessLevel) DarknessValue() float64 {
+	return tileDarknessValues[d]
+}
+
+// determineTileDarkness はタイルの条件から暗さの段階を決定する
+func determineTileDarkness(inVisionRange, visible, explored, hasLightSource bool) TileDarknessLevel {
+	if inVisionRange {
+		if visible {
+			if hasLightSource {
+				return TileDarknessLit
+			}
+			return TileDarknessVisible
+		}
+		if explored {
+			return TileDarknessExplored
+		}
+		return TileDarknessFull
+	}
+	if !explored {
+		return TileDarknessSkip
+	}
+	return TileDarknessExplored
+}
 
 // initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
 func initializeDarknessCache(tileSize int) {

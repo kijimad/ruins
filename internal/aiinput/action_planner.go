@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -68,7 +69,8 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 		destX := int(aiGrid.X) + candidate.x
 		destY := int(aiGrid.Y) + candidate.y
 
-		if activity.CanMoveTo(world, destX, destY, aiEntity) {
+		fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
 			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
@@ -110,7 +112,8 @@ func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs
 		destX := int(aiGrid.X) + direction.x
 		destY := int(aiGrid.Y) + direction.y
 
-		if activity.CanMoveTo(world, destX, destY, aiEntity) {
+		fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
 			return &activity.MoveActivity{}, activity.ActionParams{
 				Actor:       aiEntity,
@@ -145,16 +148,7 @@ func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandid
 		candidates = append(candidates, MoveCandidate{moveX, moveY})
 
 		// 代替案として軸に沿った移動
-		absDx := dx
-		if absDx < 0 {
-			absDx = -absDx
-		}
-		absDy := dy
-		if absDy < 0 {
-			absDy = -absDy
-		}
-
-		if absDx > absDy {
+		if geometry.Abs(dx) > geometry.Abs(dy) {
 			candidates = append(candidates, MoveCandidate{moveX, 0})
 			candidates = append(candidates, MoveCandidate{0, moveY})
 		} else {
@@ -188,23 +182,5 @@ func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandid
 
 // isAdjacent は2つのタイルが隣接しているかを判定する（同じタイルは除く）
 func (ap *DefaultActionPlanner) isAdjacent(aiGrid, playerGrid *gc.GridElement) bool {
-	dx := int(playerGrid.X) - int(aiGrid.X)
-	dy := int(playerGrid.Y) - int(aiGrid.Y)
-
-	// 絶対値で距離を計算（チェビシェフ距離）
-	absDx := dx
-	if absDx < 0 {
-		absDx = -absDx
-	}
-	absDy := dy
-	if absDy < 0 {
-		absDy = -absDy
-	}
-
-	// 隣接タイル（距離1だが同じタイルは除く）
-	maxDistance := absDx
-	if absDy > maxDistance {
-		maxDistance = absDy
-	}
-	return maxDistance == 1
+	return geometry.IsAdjacent(int(aiGrid.X), int(aiGrid.Y), int(playerGrid.X), int(playerGrid.Y))
 }

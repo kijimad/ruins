@@ -103,6 +103,95 @@ func TestTurnSystem_Update(t *testing.T) {
 	})
 }
 
+// TestDeadCleanupBeforeTurnSystem はDungeonState.Updateと同じ実行順序
+// （DeadCleanupSystem → TurnSystem）で、複数回行動時にDeadが即座に消えることを検証する
+func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
+	t.Parallel()
+
+	// runFrame はDungeonState.Updateのシステム実行順序を模擬する
+	runFrame := func(world w.World) error {
+		deadSys := &DeadCleanupSystem{}
+		if err := deadSys.Update(world); err != nil {
+			return err
+		}
+		turnSys := &TurnSystem{}
+		return turnSys.Update(world)
+	}
+
+	t.Run("APが余っているPlayerPhase中でもDeadエンティティが削除される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 200
+
+		turnState, err := worldhelper.GetTurnState(world)
+		require.NoError(t, err)
+		turnState.Phase = gc.TurnPhasePlayer
+
+		// 敵を作成してDeadコンポーネントを付与（射撃で倒された状態を模擬）
+		enemy := world.Manager.NewEntity()
+		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "スライム"})
+		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		err = runFrame(world)
+		require.NoError(t, err)
+
+		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase)
+		assert.Equal(t, 200, turnBased.AP.Current, "APは消費されていない")
+		assert.False(t, enemy.HasComponent(world.Components.Name),
+			"PlayerPhase中でもDeadエンティティは削除されるべき")
+	})
+
+	t.Run("複数回行動の間にDeadエンティティが消える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		turnBased.AP.Current = 300
+
+		turnState, err := worldhelper.GetTurnState(world)
+		require.NoError(t, err)
+		turnState.Phase = gc.TurnPhasePlayer
+
+		// 1回目の行動: 敵1を倒す
+		enemy1 := world.Manager.NewEntity()
+		enemy1.AddComponent(world.Components.Name, &gc.Name{Name: "スライム1"})
+		enemy1.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		worldhelper.ConsumeActionPoints(world, player, 100) // AP: 300 -> 200
+
+		err = runFrame(world)
+		require.NoError(t, err)
+
+		assert.False(t, enemy1.HasComponent(world.Components.Name),
+			"1回目の行動後にDeadエンティティが削除されるべき")
+		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
+			"APが残っているのでPlayerPhaseのまま")
+
+		// 2回目の行動: 敵2を倒す
+		enemy2 := world.Manager.NewEntity()
+		enemy2.AddComponent(world.Components.Name, &gc.Name{Name: "スライム2"})
+		enemy2.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		worldhelper.ConsumeActionPoints(world, player, 100) // AP: 200 -> 100
+
+		err = runFrame(world)
+		require.NoError(t, err)
+
+		assert.False(t, enemy2.HasComponent(world.Components.Name),
+			"2回目の行動後にDeadエンティティが削除されるべき")
+		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase,
+			"APが残っているのでPlayerPhaseのまま")
+	})
+}
+
 func TestProcessTurnEnd(t *testing.T) {
 	t.Parallel()
 

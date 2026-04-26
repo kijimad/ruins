@@ -43,13 +43,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	weaponItem.AddComponent(w.Components.Item, &gc.Item{})
 	weaponItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト武器"})
 	weaponItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
-	weaponItem.AddComponent(w.Components.Weapon, &gc.Weapon{
-		TargetType: gc.TargetType{
-			TargetGroup: gc.TargetGroupAlly,
-			TargetNum:   gc.TargetSingle,
-		},
-		Cost: 3,
-	})
+	weaponItem.AddComponent(w.Components.Weapon, &gc.Weapon{})
 
 	// 素材アイテムを作成
 	materialItem := w.Manager.NewEntity()
@@ -70,12 +64,12 @@ func TestSaveLoadItemTypes(t *testing.T) {
 		},
 	})
 
-	// 攻撃属性を持つアイテムを作成
+	// 近接攻撃属性を持つアイテムを作成
 	attackItem := w.Manager.NewEntity()
 	attackItem.AddComponent(w.Components.Item, &gc.Item{})
 	attackItem.AddComponent(w.Components.Name, &gc.Name{Name: "テスト武器"})
 	attackItem.AddComponent(w.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
-	attackItem.AddComponent(w.Components.Attack, &gc.Attack{
+	attackItem.AddComponent(w.Components.Melee, &gc.Melee{
 		Damage:      50,
 		Accuracy:    90,
 		AttackCount: 1,
@@ -144,10 +138,7 @@ func TestSaveLoadItemTypes(t *testing.T) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト武器", name.Name)
 
-		weapon := newWorld.Components.Weapon.Get(entity).(*gc.Weapon)
-		assert.Equal(t, gc.TargetGroupAlly, weapon.TargetType.TargetGroup)
-		assert.Equal(t, gc.TargetSingle, weapon.TargetType.TargetNum)
-		assert.Equal(t, 3, weapon.Cost)
+		_ = newWorld.Components.Weapon.Get(entity).(*gc.Weapon)
 
 		weaponCount++
 	}))
@@ -187,25 +178,25 @@ func TestSaveLoadItemTypes(t *testing.T) {
 	}))
 	assert.Equal(t, 1, consumableCount, "消費アイテムが正しくロードされていない")
 
-	// 攻撃属性を持つアイテムが正しくロードされたか確認
-	attackCount := 0
+	// 近接攻撃属性を持つアイテムが正しくロードされたか確認
+	meleeCount := 0
 	newWorld.Manager.Join(
 		newWorld.Components.Item,
-		newWorld.Components.Attack,
+		newWorld.Components.Melee,
 		newWorld.Components.ItemLocationInPlayerBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := newWorld.Components.Name.Get(entity).(*gc.Name)
 		assert.Equal(t, "テスト武器", name.Name)
 
-		attack := newWorld.Components.Attack.Get(entity).(*gc.Attack)
-		assert.Equal(t, 50, attack.Damage)
-		assert.Equal(t, 90, attack.Accuracy)
-		assert.Equal(t, 1, attack.AttackCount)
-		assert.Equal(t, gc.ElementTypeNone, attack.Element)
+		melee := newWorld.Components.Melee.Get(entity).(*gc.Melee)
+		assert.Equal(t, 50, melee.Damage)
+		assert.Equal(t, 90, melee.Accuracy)
+		assert.Equal(t, 1, melee.AttackCount)
+		assert.Equal(t, gc.ElementTypeNone, melee.Element)
 
-		attackCount++
+		meleeCount++
 	}))
-	assert.Equal(t, 1, attackCount, "攻撃アイテムが正しくロードされていない")
+	assert.Equal(t, 1, meleeCount, "近接攻撃アイテムが正しくロードされていない")
 
 	// レシピを持つアイテムが正しくロードされたか確認
 	recipeCount := 0

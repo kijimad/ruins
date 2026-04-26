@@ -78,13 +78,13 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 				// 順序: Name -> GridElement -> Attack
 				entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストエンティティ"})
 				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
-				entity.AddComponent(world.Components.Attack, &gc.Attack{
+				entity.AddComponent(world.Components.Melee, &gc.Melee{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
 			case 1:
 				// 順序: Attack -> Name -> GridElement
-				entity.AddComponent(world.Components.Attack, &gc.Attack{
+				entity.AddComponent(world.Components.Melee, &gc.Melee{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
@@ -93,7 +93,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			case 2:
 				// 順序: GridElement -> Attack -> Name
 				entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(1)})
-				entity.AddComponent(world.Components.Attack, &gc.Attack{
+				entity.AddComponent(world.Components.Melee, &gc.Melee{
 					Accuracy: 85, Damage: 20, AttackCount: 1,
 					Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 				})
@@ -402,7 +402,7 @@ func createStandardTestWorld(t *testing.T) w.World {
 	weapon := world.Manager.NewEntity()
 	weapon.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
 	weapon.AddComponent(world.Components.Item, &gc.Item{})
-	weapon.AddComponent(world.Components.Attack, &gc.Attack{
+	weapon.AddComponent(world.Components.Melee, &gc.Melee{
 		Accuracy: 90, Damage: 25, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 	})
@@ -454,7 +454,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	sword.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
 	sword.AddComponent(world.Components.Item, &gc.Item{})
 	sword.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
-	sword.AddComponent(world.Components.Attack, &gc.Attack{
+	sword.AddComponent(world.Components.Melee, &gc.Melee{
 		Accuracy: 100, Damage: 8, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackSword,
 	})
@@ -465,7 +465,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	handgun.AddComponent(world.Components.Name, &gc.Name{Name: "ハンドガン"})
 	handgun.AddComponent(world.Components.Item, &gc.Item{})
 	handgun.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
-	handgun.AddComponent(world.Components.Attack, &gc.Attack{
+	handgun.AddComponent(world.Components.Melee, &gc.Melee{
 		Accuracy: 85, Damage: 12, AttackCount: 1,
 		Element: gc.ElementTypeNone, AttackCategory: gc.AttackHandgun,
 	})

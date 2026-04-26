@@ -12,6 +12,7 @@ const (
 	SkillFist          SkillID = "fist"           // 格闘
 	SkillWeightBearing SkillID = "weight_bearing" // 荷重
 
+	SkillBow         SkillID = "bow"         // 弓術
 	SkillHandgun     SkillID = "handgun"     // 拳銃
 	SkillRifle       SkillID = "rifle"       // 小銃
 	SkillCannon      SkillID = "cannon"      // 砲撃
@@ -45,6 +46,7 @@ var skillAbility = map[SkillID]AbilityID{
 	SkillFist:          AblSTR,
 	SkillWeightBearing: AblSTR,
 
+	SkillBow:         AblSEN,
 	SkillHandgun:     AblSEN,
 	SkillRifle:       AblSEN,
 	SkillCannon:      AblSEN,
@@ -85,6 +87,7 @@ var skillName = map[SkillID]string{
 	SkillSpear:         "長物",
 	SkillFist:          "格闘",
 	SkillWeightBearing: "荷重",
+	SkillBow:           "弓術",
 	SkillHandgun:       "拳銃",
 	SkillRifle:         "小銃",
 	SkillCannon:        "砲撃",
@@ -134,6 +137,7 @@ var skillDescription = map[SkillID]SkillInfo{
 	SkillSpear:         {Summary: "槍や棒などの長物を扱う技術", GainedBy: "長物で攻撃すると上がる", Effect: "長物のダメージと命中が上昇する"},
 	SkillFist:          {Summary: "素手や拳で戦う技術", GainedBy: "格闘で攻撃すると上がる", Effect: "格闘のダメージと命中が上昇する"},
 	SkillWeightBearing: {Summary: "重い荷物を運ぶ能力", GainedBy: "重い装備で行動すると上がる", Effect: "最大荷重が上昇する"},
+	SkillBow:           {Summary: "弓を扱う技術", GainedBy: "弓で攻撃すると上がる", Effect: "弓のダメージと命中が上昇する"},
 	SkillHandgun:       {Summary: "拳銃の射撃技術", GainedBy: "拳銃で攻撃すると上がる", Effect: "拳銃のダメージと命中が上昇する"},
 	SkillRifle:         {Summary: "小銃の射撃技術", GainedBy: "小銃で攻撃すると上がる", Effect: "小銃のダメージと命中が上昇する"},
 	SkillCannon:        {Summary: "大型火器の運用技術", GainedBy: "砲撃で攻撃すると上がる", Effect: "砲撃のダメージと命中が上昇する"},
@@ -174,7 +178,7 @@ type SkillCategory struct {
 // 表示順序はこのスライスの順序に従う。
 var SkillCategories = []SkillCategory{
 	{Name: "近接", IDs: []SkillID{SkillSword, SkillSpear, SkillFist}},
-	{Name: "射撃", IDs: []SkillID{SkillHandgun, SkillRifle, SkillCannon}},
+	{Name: "射撃", IDs: []SkillID{SkillBow, SkillHandgun, SkillRifle, SkillCannon}},
 	{Name: "技巧", IDs: []SkillID{SkillCrafting, SkillSmithing, SkillNegotiation}},
 	{Name: "機動", IDs: []SkillID{SkillSprinting, SkillStealth, SkillNightVision, SkillWeightBearing}},
 	{Name: "生存", IDs: []SkillID{SkillColdResist, SkillHeatResist, SkillHungerResist, SkillHealing, SkillExploration}},
@@ -194,7 +198,7 @@ var AllSkillIDs = func() []SkillID {
 // weaponSkillIDs は武器に対応するスキルIDのリスト
 var weaponSkillIDs = []SkillID{
 	SkillSword, SkillSpear, SkillFist,
-	SkillHandgun, SkillRifle, SkillCannon,
+	SkillBow, SkillHandgun, SkillRifle, SkillCannon,
 }
 
 // Skill は個別のスキル
@@ -234,6 +238,7 @@ var weaponSkillMap = map[string]SkillID{
 	AttackSword.Type:   SkillSword,
 	AttackSpear.Type:   SkillSpear,
 	AttackFist.Type:    SkillFist,
+	AttackBow.Type:     SkillBow,
 	AttackHandgun.Type: SkillHandgun,
 	AttackRifle.Type:   SkillRifle,
 	AttackCanon.Type:   SkillCannon,

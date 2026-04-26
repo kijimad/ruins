@@ -111,7 +111,6 @@ func processTurnEnd(world w.World) error {
 // runTurnEndSystems はターン終了時に実行するシステム群を呼び出す
 func runTurnEndSystems(world w.World) error {
 	for _, updater := range []w.Updater{
-		&DeadCleanupSystem{},
 		&AutoInteractionSystem{},
 		&TemperatureSystem{},
 	} {

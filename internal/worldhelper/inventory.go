@@ -31,6 +31,29 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 	return foundEntity, found
 }
 
+// FindAmmoInInventory は口径タグでバックパック内の弾薬アイテムを検索する
+func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
+	var foundEntity ecs.Entity
+	var found bool
+
+	world.Manager.Join(
+		world.Components.Stackable,
+		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.Ammo,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if found {
+			return
+		}
+		ammo := world.Components.Ammo.Get(entity).(*gc.Ammo)
+		if ammo.AmmoTag == ammoTag {
+			foundEntity = entity
+			found = true
+		}
+	}))
+
+	return foundEntity, found
+}
+
 // ChangeItemCount は対象アイテムの個数を変更する。Stackable/非Stackableに関わらず使用できる。
 // 使用、売却、破棄、拾得など、個数を変更する全ての用途で使用する。
 // 個数が0以下になった場合はエンティティを削除する。

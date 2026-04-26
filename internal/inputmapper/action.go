@@ -46,6 +46,8 @@ const (
 // 戦闘系アクション
 const (
 	ActionAttack            ActionID = "attack"
+	ActionShoot             ActionID = "shoot"
+	ActionReload            ActionID = "reload"
 	ActionSwitchWeaponSlot1 ActionID = "switch_weapon_slot_1"
 	ActionSwitchWeaponSlot2 ActionID = "switch_weapon_slot_2"
 	ActionSwitchWeaponSlot3 ActionID = "switch_weapon_slot_3"

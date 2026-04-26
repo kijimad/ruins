@@ -25,6 +25,8 @@ var behaviors = map[gc.BehaviorName]Behavior{
 	gc.BehaviorOpenDoor:  &OpenDoorActivity{},
 	gc.BehaviorCloseDoor: &CloseDoorActivity{},
 	gc.BehaviorRead:      &ReadActivity{},
+	gc.BehaviorShoot:     &ShootActivity{},
+	gc.BehaviorReload:    &ReloadActivity{},
 }
 
 // GetBehavior は名前からBehavior実装を取得する

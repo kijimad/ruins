@@ -194,6 +194,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	for _, updater := range []w.Updater{
 		&gs.AnimationSystem{},
+		&gs.DeadCleanupSystem{},
 		&gs.TurnSystem{},
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
@@ -271,6 +272,11 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 		return inputmapper.ActionOpenFieldInfo, true
 	}
 
+	// 射撃モード
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyF) {
+		return inputmapper.ActionShoot, true
+	}
+
 	// 8方向移動キー入力（キーリピート対応）
 	// 斜め移動は両方のキーがリピート判定で真になる場合のみ
 	upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
@@ -339,14 +345,13 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionShoot:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
 		if !worldhelper.CanPlayerAct(world) {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
-		// プレイヤーが継続アクション中は新しいアクションを受け付けない
 		// プレイヤーが継続アクション中は新しいアクションを受け付けない
 		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && worldhelper.HasActivity(world, playerEntity) {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
@@ -368,6 +373,10 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	case inputmapper.ActionOpenFieldInfo:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return &LookAroundState{} },
+		}}, nil
+	case inputmapper.ActionShoot:
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return &ShootingState{} },
 		}}, nil
 
 	// 移動系アクション

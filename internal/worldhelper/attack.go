@@ -8,9 +8,8 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択する
-// 武器エンティティを生成せずに攻撃パラメータを取得する
-func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (*gc.Attack, string, error) {
+// GetAttackFromCommandTable は敵のCommandTableからランダムに攻撃を選択し、Meleeパラメータを返す
+func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attacker, string, error) {
 	// CommandTableコンポーネントを取得
 	commandTableComp := world.Components.CommandTable.Get(enemyEntity)
 	if commandTableComp == nil {
@@ -41,31 +40,38 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (*gc.Attac
 		return nil, "", fmt.Errorf("failed to get weapon spec: %w", err)
 	}
 
-	// Attackコンポーネントがない場合はエラー
-	if weaponSpec.Attack == nil {
-		return nil, "", fmt.Errorf("weapon %s has no Attack component", weaponName)
+	if weaponSpec.Melee == nil {
+		return nil, "", fmt.Errorf("weapon %s has no Melee component", weaponName)
 	}
-
-	return weaponSpec.Attack, weaponName, nil
+	return weaponSpec.Melee, weaponName, nil
 }
 
-// GetAttackFromWeapon は武器エンティティから攻撃パラメータを取得する
-// プレイヤーが装備している武器エンティティから攻撃情報を取得する
-func GetAttackFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Attack, string, error) {
-	// Attackコンポーネントを取得
-	attackComp := world.Components.Attack.Get(weaponEntity)
-	if attackComp == nil {
-		return nil, "", fmt.Errorf("weapon has no Attack component")
-	}
-
-	// 名前を取得
+// GetMeleeFromWeapon は武器エンティティからMeleeコンポーネントを取得する
+func GetMeleeFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Melee, string, error) {
 	nameComp := world.Components.Name.Get(weaponEntity)
 	if nameComp == nil {
 		return nil, "", fmt.Errorf("weapon has no Name component")
 	}
+	name := nameComp.(*gc.Name).Name
 
-	attack := attackComp.(*gc.Attack)
-	weaponName := nameComp.(*gc.Name).Name
+	meleeComp := world.Components.Melee.Get(weaponEntity)
+	if meleeComp == nil {
+		return nil, "", fmt.Errorf("weapon %s has no Melee component", name)
+	}
+	return meleeComp.(*gc.Melee), name, nil
+}
 
-	return attack, weaponName, nil
+// GetFireFromWeapon は武器エンティティからFireコンポーネントを取得する
+func GetFireFromWeapon(world w.World, weaponEntity ecs.Entity) (*gc.Fire, string, error) {
+	nameComp := world.Components.Name.Get(weaponEntity)
+	if nameComp == nil {
+		return nil, "", fmt.Errorf("weapon has no Name component")
+	}
+	name := nameComp.(*gc.Name).Name
+
+	fireComp := world.Components.Fire.Get(weaponEntity)
+	if fireComp == nil {
+		return nil, "", fmt.Errorf("weapon %s has no Fire component", name)
+	}
+	return fireComp.(*gc.Fire), name, nil
 }

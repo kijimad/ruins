@@ -58,7 +58,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	canMove := CanMoveTo(world, newX, newY, entity)
+	canMove := CanMoveTo(world, newX, newY, currentX, currentY, entity)
 	if canMove {
 		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 		params := ActionParams{

@@ -35,12 +35,24 @@ import (
 //
 //   - TileWall → BlockPass付きエンティティ (通行不可)
 //   - TileFloor → 通行可能エンティティ
-func CanMoveTo(world w.World, tileX, tileY int, movingEntity ecs.Entity) bool {
+//
+// CanMoveTo は指定位置に移動可能かチェックする。
+// fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する
+func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {
 	// 基本的な境界チェック（実際のマップサイズを使用）
 	mapWidth := int(world.Resources.Dungeon.Level.TileWidth)
 	mapHeight := int(world.Resources.Dungeon.Level.TileHeight)
 	if tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight {
 		return false
+	}
+
+	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
+	dx := tileX - fromX
+	dy := tileY - fromY
+	if dx != 0 && dy != 0 {
+		if isBlockedAt(world, fromX+dx, fromY, movingEntity) && isBlockedAt(world, fromX, fromY+dy, movingEntity) {
+			return false
+		}
 	}
 
 	// 他のエンティティとの衝突チェック
@@ -104,4 +116,26 @@ func CanMoveTo(world w.World, tileX, tileY int, movingEntity ecs.Entity) bool {
 	}
 
 	return canMove
+}
+
+// isBlockedAt は指定座標にBlockPassエンティティがあるかをチェックする
+func isBlockedAt(world w.World, tileX, tileY int, movingEntity ecs.Entity) bool {
+	blocked := false
+	world.Manager.Join(
+		world.Components.GridElement,
+		world.Components.BlockPass,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if entity == movingEntity || entity.HasComponent(world.Components.Dead) {
+			return
+		}
+		gridElement := world.Components.GridElement.Get(entity)
+		if gridElement == nil {
+			return
+		}
+		grid := gridElement.(*gc.GridElement)
+		if int(grid.X) == tileX && int(grid.Y) == tileY {
+			blocked = true
+		}
+	}))
+	return blocked
 }

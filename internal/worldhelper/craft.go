@@ -105,11 +105,15 @@ func randomize(world w.World, entity ecs.Entity, smithQualityPct int) {
 	// 品質ボーナス: 100%→+0, 130%→+3, 50%→-5
 	qualityBonus := (smithQualityPct - 100) / 10
 
-	if entity.HasComponent(world.Components.Attack) {
-		attack := world.Components.Attack.Get(entity).(*gc.Attack)
-
-		attack.Accuracy += (-10 + rand.IntN(20)) + qualityBonus // -10 ~ +9 + 品質ボーナス
-		attack.Damage += (-5 + rand.IntN(15)) + qualityBonus    // -5  ~ +9 + 品質ボーナス
+	if entity.HasComponent(world.Components.Melee) {
+		melee := world.Components.Melee.Get(entity).(*gc.Melee)
+		melee.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
+		melee.Damage += (-5 + rand.IntN(15)) + qualityBonus
+	}
+	if entity.HasComponent(world.Components.Fire) {
+		fire := world.Components.Fire.Get(entity).(*gc.Fire)
+		fire.Accuracy += (-10 + rand.IntN(20)) + qualityBonus
+		fire.Damage += (-5 + rand.IntN(15)) + qualityBonus
 	}
 	if entity.HasComponent(world.Components.Wearable) {
 		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
