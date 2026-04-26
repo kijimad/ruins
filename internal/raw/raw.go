@@ -58,7 +58,8 @@ type Item struct {
 	EquipBonus        *EquipBonus
 	Weapon            *Weapon
 	Ammo              *Ammo
-	Attack            *Attack
+	Melee             *MeleeRaw
+	Fire              *FireRaw
 	Book              *BookRaw
 }
 
@@ -89,15 +90,8 @@ type Consumable struct {
 	TargetNum   string
 }
 
-// Weapon は武器アイテムの設定
-type Weapon struct {
-	Cost         int
-	TargetGroup  string
-	TargetNum    string
-	MagazineSize int    // 最大装弾数。0なら近接武器
-	ReloadEffort int    // リロード完了に必要な総工数
-	AmmoTag      string // 使用する弾薬アイテムのタグ
-}
+// Weapon は武器マーカー
+type Weapon struct{}
 
 // Ammo は弾薬アイテムの設定
 type Ammo struct {
@@ -106,13 +100,112 @@ type Ammo struct {
 	AccuracyBonus int    // 命中率修正値
 }
 
-// Attack は攻撃性能の設定
-type Attack struct {
+// MeleeRaw は近接攻撃の設定
+type MeleeRaw struct {
 	Accuracy       int    // 命中率
 	Damage         int    // 攻撃力
 	AttackCount    int    // 攻撃回数
 	Element        string // 攻撃属性
 	AttackCategory string // 攻撃種別
+	Cost           int    // 行動コスト
+	TargetGroup    string // 対象グループ
+	TargetNum      string // 対象数
+}
+
+// FireRaw は遠距離攻撃の設定
+type FireRaw struct {
+	Accuracy       int    // 命中率
+	Damage         int    // 攻撃力
+	AttackCount    int    // 攻撃回数
+	Element        string // 攻撃属性
+	AttackCategory string // 攻撃種別
+	Cost           int    // 行動コスト
+	TargetGroup    string // 対象グループ
+	TargetNum      string // 対象数
+	MagazineSize   int    // 最大装弾数
+	ReloadEffort   int    // リロード完了に必要な総工数
+	AmmoTag        string // 使用する弾薬アイテムのタグ
+}
+
+// parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
+func parseTargetType(targetGroup, targetNum string) (gc.TargetType, error) {
+	if targetGroup == "" {
+		return gc.TargetType{}, nil
+	}
+	if err := gc.TargetGroupType(targetGroup).Valid(); err != nil {
+		return gc.TargetType{}, fmt.Errorf("invalid attack target group: %w", err)
+	}
+	if err := gc.TargetNumType(targetNum).Valid(); err != nil {
+		return gc.TargetType{}, fmt.Errorf("invalid attack target num: %w", err)
+	}
+	return gc.TargetType{
+		TargetGroup: gc.TargetGroupType(targetGroup),
+		TargetNum:   gc.TargetNumType(targetNum),
+	}, nil
+}
+
+// parseAttackType はAttackCategory文字列をパース・検証する
+func parseAttackType(category string) (gc.AttackType, error) {
+	attackType, err := gc.ParseAttackType(category)
+	if err != nil {
+		return gc.AttackType{}, err
+	}
+	if err := attackType.Valid(); err != nil {
+		return gc.AttackType{}, err
+	}
+	return attackType, nil
+}
+
+// parseMeleeRaw はMeleeRawからgc.Meleeを生成する
+func parseMeleeRaw(raw *MeleeRaw) (*gc.Melee, error) {
+	if err := gc.ElementType(raw.Element).Valid(); err != nil {
+		return nil, err
+	}
+	attackType, err := parseAttackType(raw.AttackCategory)
+	if err != nil {
+		return nil, err
+	}
+	targetType, err := parseTargetType(raw.TargetGroup, raw.TargetNum)
+	if err != nil {
+		return nil, err
+	}
+	return &gc.Melee{
+		Accuracy:       raw.Accuracy,
+		Damage:         raw.Damage,
+		AttackCount:    raw.AttackCount,
+		Element:        gc.ElementType(raw.Element),
+		AttackCategory: attackType,
+		Cost:           raw.Cost,
+		TargetType:     targetType,
+	}, nil
+}
+
+// parseFireRaw はFireRawからgc.Fireを生成する
+func parseFireRaw(raw *FireRaw) (*gc.Fire, error) {
+	if err := gc.ElementType(raw.Element).Valid(); err != nil {
+		return nil, err
+	}
+	attackType, err := parseAttackType(raw.AttackCategory)
+	if err != nil {
+		return nil, err
+	}
+	targetType, err := parseTargetType(raw.TargetGroup, raw.TargetNum)
+	if err != nil {
+		return nil, err
+	}
+	return &gc.Fire{
+		Accuracy:       raw.Accuracy,
+		Damage:         raw.Damage,
+		AttackCount:    raw.AttackCount,
+		Element:        gc.ElementType(raw.Element),
+		AttackCategory: attackType,
+		Cost:           raw.Cost,
+		TargetType:     targetType,
+		Magazine:       raw.MagazineSize,
+		MagazineSize:   raw.MagazineSize,
+		ReloadEffort:   raw.ReloadEffort,
+		AmmoTag:        raw.AmmoTag,
+	}, nil
 }
 
 // Wearable は装備可能アイテムの設定
@@ -345,26 +438,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
 	}
 
-	if item.Weapon != nil {
-		if err := gc.TargetGroupType(item.Weapon.TargetGroup).Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("%s: %w", "invalid weapon target group type", err)
-		}
-		if err := gc.TargetNumType(item.Weapon.TargetNum).Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("%s: %w", "invalid weapon target num type", err)
-		}
-
-		entitySpec.Weapon = &gc.Weapon{
-			TargetType: gc.TargetType{
-				TargetGroup: gc.TargetGroupType(item.Weapon.TargetGroup),
-				TargetNum:   gc.TargetNumType(item.Weapon.TargetNum),
-			},
-			Cost:         item.Weapon.Cost,
-			Magazine:     item.Weapon.MagazineSize,
-			MagazineSize: item.Weapon.MagazineSize,
-			ReloadEffort: item.Weapon.ReloadEffort,
-			AmmoTag:      item.Weapon.AmmoTag,
-		}
-	}
+	applyWeaponSpec(item, &entitySpec)
 
 	if item.Ammo != nil {
 		entitySpec.Ammo = &gc.Ammo{
@@ -374,25 +448,19 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	if item.Attack != nil {
-		if err := gc.ElementType(item.Attack.Element).Valid(); err != nil {
-			return gc.EntitySpec{}, err
-		}
-		attackType, err := gc.ParseAttackType(item.Attack.AttackCategory)
+	if item.Melee != nil {
+		melee, err := parseMeleeRaw(item.Melee)
 		if err != nil {
 			return gc.EntitySpec{}, err
 		}
-		if err := attackType.Valid(); err != nil {
+		entitySpec.Melee = melee
+	}
+	if item.Fire != nil {
+		fire, err := parseFireRaw(item.Fire)
+		if err != nil {
 			return gc.EntitySpec{}, err
 		}
-
-		entitySpec.Attack = &gc.Attack{
-			Accuracy:       item.Attack.Accuracy,
-			Damage:         item.Attack.Damage,
-			AttackCount:    item.Attack.AttackCount,
-			Element:        gc.ElementType(item.Attack.Element),
-			AttackCategory: attackType,
-		}
+		entitySpec.Fire = fire
 	}
 
 	var bonus gc.EquipBonus
@@ -444,6 +512,13 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
 
 	return entitySpec, nil
+}
+
+// applyWeaponSpec はItemのWeaponマーカーをEntitySpecに適用する
+func applyWeaponSpec(item Item, spec *gc.EntitySpec) {
+	if item.Weapon != nil {
+		spec.Weapon = &gc.Weapon{}
+	}
 }
 
 // newProvidesHealingFromRaw はProvidesHealingRawからProvidesHealingコンポーネントを生成する
@@ -509,8 +584,11 @@ func (rw *Master) NewRecipeSpec(name string) (gc.EntitySpec, error) {
 	if itemSpec.Weapon != nil {
 		entitySpec.Weapon = itemSpec.Weapon
 	}
-	if itemSpec.Attack != nil {
-		entitySpec.Attack = itemSpec.Attack
+	if itemSpec.Melee != nil {
+		entitySpec.Melee = itemSpec.Melee
+	}
+	if itemSpec.Fire != nil {
+		entitySpec.Fire = itemSpec.Fire
 	}
 	if itemSpec.Wearable != nil {
 		entitySpec.Wearable = itemSpec.Wearable

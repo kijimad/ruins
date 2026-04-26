@@ -329,14 +329,12 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 	drawText(fmt.Sprintf("武器: %s", weaponName))
 
 	// 残弾表示
-	weaponComp := world.Components.Weapon.Get(*weaponEntity)
-	if weaponComp != nil {
-		weapon := weaponComp.(*gc.Weapon)
-		if weapon.MagazineSize > 0 {
-			drawText(fmt.Sprintf("残弾: %d/%d", weapon.Magazine, weapon.MagazineSize))
-		} else {
-			drawText("近接武器")
-		}
+	fireComp := world.Components.Fire.Get(*weaponEntity)
+	if fireComp != nil {
+		fire := fireComp.(*gc.Fire)
+		drawText(fmt.Sprintf("残弾: %d/%d", fire.Magazine, fire.MagazineSize))
+	} else {
+		drawText("近接武器")
 	}
 }
 

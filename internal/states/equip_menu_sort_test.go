@@ -65,21 +65,21 @@ func TestEquipMenuWeaponSortIntegration(t *testing.T) {
 	weapon1.AddComponent(world.Components.Item, &gc.Item{})
 	weapon1.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	weapon1.AddComponent(world.Components.Weapon, &gc.Weapon{})
-	weapon1.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackSword})
+	weapon1.AddComponent(world.Components.Melee, &gc.Melee{AttackCategory: gc.AttackSword})
 
 	weapon2 := world.Manager.NewEntity()
 	weapon2.AddComponent(world.Components.Name, &gc.Name{Name: "Fire Weapon"})
 	weapon2.AddComponent(world.Components.Item, &gc.Item{})
 	weapon2.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	weapon2.AddComponent(world.Components.Weapon, &gc.Weapon{})
-	weapon2.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackSpear})
+	weapon2.AddComponent(world.Components.Melee, &gc.Melee{AttackCategory: gc.AttackSpear})
 
 	weapon3 := world.Manager.NewEntity()
 	weapon3.AddComponent(world.Components.Name, &gc.Name{Name: "Ice Weapon"})
 	weapon3.AddComponent(world.Components.Item, &gc.Item{})
 	weapon3.AddComponent(world.Components.ItemLocationInPlayerBackpack, gc.LocationInPlayerBackpack{})
 	weapon3.AddComponent(world.Components.Weapon, &gc.Weapon{})
-	weapon3.AddComponent(world.Components.Attack, &gc.Attack{AttackCategory: gc.AttackFist})
+	weapon3.AddComponent(world.Components.Melee, &gc.Melee{AttackCategory: gc.AttackFist})
 
 	// queryEquipableItemsForSlotのテスト（武器スロット1）
 	weapons := state.queryEquipableItemsForSlot(world, gc.SlotWeapon1)

@@ -136,7 +136,7 @@ func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 		return fmt.Errorf("攻撃パラメータの取得に失敗: %w", err)
 	}
 
-	applyAttackDamage(actor, target, world, attack, attackMethodName, 0)
+	applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
 	return nil
 }
 
@@ -181,21 +181,21 @@ func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) b
 }
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
-func getBareHandsAttack(world w.World) (*gc.Attack, string, error) {
+func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
 	rawMaster := world.Resources.RawMaster
 	bareHandsSpec, err := rawMaster.NewWeaponSpec("素手")
 	if err != nil {
 		return nil, "", fmt.Errorf("素手武器が見つかりません: %w", err)
 	}
-	if bareHandsSpec.Attack == nil {
-		return nil, "", fmt.Errorf("素手武器にAttackコンポーネントがありません")
+	if bareHandsSpec.Melee == nil {
+		return nil, "", fmt.Errorf("素手武器にMeleeコンポーネントがありません")
 	}
-	return bareHandsSpec.Attack, "素手", nil
+	return bareHandsSpec.Melee, "素手", nil
 }
 
 // getAttackParams は攻撃者の武器から攻撃パラメータと攻撃方法名を取得する
 // 戻り値: (攻撃パラメータ, 攻撃方法名, エラー)
-func getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, error) {
+func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, error) {
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.Player) {
 		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
@@ -209,7 +209,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, er
 		weapon := weapons[weaponIndex]
 		if weapon != nil {
 			// 装備している武器から攻撃パラメータを取得
-			attack, weaponName, err := worldhelper.GetAttackFromWeapon(world, *weapon)
+			attack, weaponName, err := worldhelper.GetMeleeFromWeapon(world, *weapon)
 			if err == nil && attack != nil {
 				return attack, weaponName, nil
 			}
@@ -236,7 +236,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (*gc.Attack, string, er
 // getSkillMult は事前計算済みのスキル倍率(%)を返す。
 // isDamageがtrueならWeaponDamage、falseならWeaponAccuracyを参照する。
 // Effectsコンポーネントを持たないエンティティでは100(等倍)を返す。
-func getSkillMult(entity ecs.Entity, attack *gc.Attack, world w.World, isDamage bool) int {
+func getSkillMult(entity ecs.Entity, attack gc.Attacker, world w.World, isDamage bool) int {
 	if attack == nil {
 		return 100
 	}
@@ -244,7 +244,7 @@ func getSkillMult(entity ecs.Entity, attack *gc.Attack, world w.World, isDamage 
 		return 100
 	}
 	effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
-	skillID, ok := gc.WeaponSkillID(attack.AttackCategory)
+	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
 		return 100
 	}
@@ -279,7 +279,7 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
 // ShootActivityからも使用される
-func applyAttackDamage(actor, target ecs.Entity, world w.World, attack *gc.Attack, attackMethodName string, hitRateModifier int) {
+func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName string, hitRateModifier int, damageModifier int) {
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
 	if !hit {
 		logAttackResult(actor, target, world, false, false, 0, attackMethodName)
@@ -287,7 +287,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack *gc.Attac
 		return
 	}
 
-	damage := calculateDamage(actor, target, world, attack, criticalHit)
+	damage := calculateDamage(actor, target, world, attack, criticalHit, damageModifier)
 	if damage < 0 {
 		damage = 0
 	}
@@ -316,51 +316,51 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack *gc.Attac
 	}
 }
 
-// rollHitCheckWithModifier は命中判定を行う。modifierは追加の命中率補正（負値でペナルティ）
-func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack *gc.Attack, modifier int) (hit bool, critical bool) {
+// calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
+func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
 	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
-	attackerDexterity := attackerAbils.Dexterity.Total
-
 	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
-	targetAgility := targetAbils.Agility.Total
 
-	baseHitRate := BaseHitRate + (attackerDexterity-targetAgility)*HitRatePerStatPoint
+	hitRate := BaseHitRate + (attackerAbils.Dexterity.Total-targetAbils.Agility.Total)*HitRatePerStatPoint
+	hitRate += getWeaponAccuracyFromAttack(attack)
+	hitRate = hitRate * getSkillMult(attacker, attack, world, false) / 100
+	hitRate += modifier
 
-	weaponAccuracy := getWeaponAccuracyFromAttack(attack)
-	baseHitRate += weaponAccuracy
-
-	baseHitRate = baseHitRate * getSkillMult(attacker, attack, world, false) / 100
-
-	baseHitRate += modifier
-
-	if baseHitRate > MaxHitRate {
-		baseHitRate = MaxHitRate
+	if hitRate > MaxHitRate {
+		hitRate = MaxHitRate
 	}
-	if baseHitRate < MinHitRate {
-		baseHitRate = MinHitRate
+	if hitRate < MinHitRate {
+		hitRate = MinHitRate
 	}
+
+	return hitRate
+}
+
+// rollHitCheckWithModifier は命中判定を行う。modifierは追加の命中率補正（負値でペナルティ）
+func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) (hit bool, critical bool) {
+	hitRate := calculateHitRate(attacker, target, world, attack, modifier)
 
 	roll := world.Config.RNG.IntN(DiceMax) + 1
-	hit = roll <= baseHitRate
+	hit = roll <= hitRate
 	critical = roll <= CriticalHitThreshold
 
 	return hit, critical
 }
 
-// getWeaponAccuracyFromAttack はAttackから命中率補正を取得する
-func getWeaponAccuracyFromAttack(attack *gc.Attack) int {
+// getWeaponAccuracyFromAttack はAttackerから命中率補正を取得する
+func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
 	if attack == nil {
 		return 0
 	}
-	return attack.Accuracy - BaseHitRate
+	return attack.GetAccuracy() - BaseHitRate
 }
 
 // calculateDamage はダメージ計算を行う
-func calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Attack, critical bool) int {
+func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attacker, critical bool, damageModifier int) int {
 	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
 
 	baseAbil := attackerAbils.Strength.Total
-	if attack != nil && attack.AttackCategory.Range == gc.AttackRangeRanged {
+	if attack != nil && attack.GetAttackCategory().Range == gc.AttackRangeRanged {
 		baseAbil = attackerAbils.Sensation.Total
 	}
 
@@ -370,8 +370,9 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Atta
 	baseDamage := baseAbil + world.Config.RNG.IntN(DamageRandomRange) + 1
 
 	if attack != nil {
-		baseDamage += attack.Damage
+		baseDamage += attack.GetDamage()
 	}
+	baseDamage += damageModifier
 
 	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
@@ -379,8 +380,8 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Atta
 		baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
 	}
 
-	if attack != nil && attack.Element != gc.ElementTypeNone {
-		baseDamage = applyElementResist(baseDamage, target, attack.Element, world)
+	if attack != nil && attack.GetElement() != gc.ElementTypeNone {
+		baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
 	}
 
 	finalDamage := baseDamage - targetDefense
@@ -392,7 +393,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack *gc.Atta
 }
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
-func growWeaponSkill(actor ecs.Entity, world w.World, attack *gc.Attack) {
+func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if attack == nil {
 		return
 	}
@@ -402,7 +403,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack *gc.Attack) {
 	}
 	skills := skillsComp.(*gc.Skills)
 
-	skillID, ok := gc.WeaponSkillID(attack.AttackCategory)
+	skillID, ok := gc.WeaponSkillID(attack.GetAttackCategory())
 	if !ok {
 		return
 	}

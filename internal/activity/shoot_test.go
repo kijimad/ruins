@@ -88,8 +88,8 @@ func TestShootActivity_Validate(t *testing.T) {
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
 		// マガジンを空にする
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire.Magazine = 0
 
 		sa := &ShootActivity{}
 		activity, err := NewActivity(sa, 1)
@@ -147,7 +147,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		activity.Target = &enemy
 
 		err = sa.Validate(activity, player, world)
-		assert.ErrorIs(t, err, ErrShootNotRangedWeapon)
+		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
 	})
 
 	t.Run("射線上に壁があるとエラー", func(t *testing.T) {
@@ -204,8 +204,8 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		before := weapon.Magazine
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		before := fire.Magazine
 
 		sa := &ShootActivity{}
 		comp, err := NewActivity(sa, 1)
@@ -215,7 +215,7 @@ func TestShootActivity_DoTurn(t *testing.T) {
 		err = sa.DoTurn(comp, player, world)
 		require.NoError(t, err)
 
-		assert.Equal(t, before-1, weapon.Magazine)
+		assert.Equal(t, before-1, fire.Magazine)
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 	})
 
@@ -240,8 +240,8 @@ func TestExecuteShootAction(t *testing.T) {
 		t.Parallel()
 		world, player, enemy, weaponEntity := setupShootingWorld(t)
 
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		before := weapon.Magazine
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		before := fire.Magazine
 
 		err := ExecuteShootAction(player, enemy, world)
 		require.NoError(t, err)
@@ -249,7 +249,7 @@ func TestExecuteShootAction(t *testing.T) {
 		// 1ターンアクションなので即時完了し、Activityは残らない
 		assert.False(t, player.HasComponent(world.Components.Activity))
 		// 弾薬が消費されている
-		assert.Equal(t, before-1, weapon.Magazine)
+		assert.Equal(t, before-1, fire.Magazine)
 	})
 
 	t.Run("近接武器では射撃しない", func(t *testing.T) {
@@ -484,8 +484,8 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		target := world.Manager.NewEntity()
 		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 0})
 
-		attack := &gc.Attack{AttackCategory: gc.AttackHandgun}
-		mod := calculateRangedHitModifier(actor, target, attack, world)
+		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
+		mod := calculateRangedHitModifier(actor, target, fire, world)
 		assert.Equal(t, 0, mod)
 	})
 
@@ -499,8 +499,8 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		target := world.Manager.NewEntity()
 		target.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 0})
 
-		attack := &gc.Attack{AttackCategory: gc.AttackHandgun}
-		mod := calculateRangedHitModifier(actor, target, attack, world)
+		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
+		mod := calculateRangedHitModifier(actor, target, fire, world)
 		assert.Less(t, mod, 0)
 	})
 
@@ -517,33 +517,24 @@ func TestCalculateRangedHitModifier(t *testing.T) {
 		cover.AddComponent(world.Components.GridElement, &gc.GridElement{X: 2, Y: 0})
 		cover.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 
-		attack := &gc.Attack{AttackCategory: gc.AttackHandgun}
-		mod := calculateRangedHitModifier(actor, target, attack, world)
+		fire := &gc.Fire{AttackCategory: gc.AttackHandgun}
+		mod := calculateRangedHitModifier(actor, target, fire, world)
 		assert.Equal(t, -CoverPenaltyPerObject, mod)
 	})
 }
 
-// === getEquippedRangedWeapon テスト ===
+// === getEquippedFire テスト ===
 
-func TestGetEquippedRangedWeapon(t *testing.T) {
+func TestGetEquippedFire(t *testing.T) {
 	t.Parallel()
 
 	t.Run("遠距離武器が取得できる", func(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
-		weapon, err := getEquippedRangedWeapon(player, world)
+		fire, _, err := getEquippedFire(player, world)
 		require.NoError(t, err)
-		assert.Greater(t, weapon.MagazineSize, 0)
-	})
-
-	t.Run("プレイヤー以外はエラー", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		npc := world.Manager.NewEntity()
-		_, err := getEquippedRangedWeapon(npc, world)
-		assert.Error(t, err)
+		assert.Greater(t, fire.MagazineSize, 0)
 	})
 
 	t.Run("武器未装備でエラー", func(t *testing.T) {
@@ -554,8 +545,8 @@ func TestGetEquippedRangedWeapon(t *testing.T) {
 		require.NoError(t, err)
 		world.Resources.Dungeon.SelectedWeaponSlot = 1
 
-		_, err = getEquippedRangedWeapon(player, world)
-		assert.ErrorIs(t, err, ErrShootNotRangedWeapon)
+		_, _, err = getEquippedFire(player, world)
+		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
 	})
 }
 

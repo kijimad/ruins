@@ -21,7 +21,8 @@ type EntitySpec struct {
 	Item             *Item
 	Consumable       *Consumable
 	Pools            *Pools
-	Attack           *Attack
+	Melee            *Melee
+	Fire             *Fire
 	Value            *Value
 	Weight           *Weight
 	Recipe           *Recipe
@@ -89,7 +90,8 @@ type Components struct {
 	Item                         *ecs.SliceComponent `save:"true"`
 	Consumable                   *ecs.SliceComponent `save:"true"`
 	Pools                        *ecs.SliceComponent `save:"true"`
-	Attack                       *ecs.SliceComponent `save:"true"`
+	Melee                        *ecs.SliceComponent `save:"true"`
+	Fire                         *ecs.SliceComponent `save:"true"`
 	Value                        *ecs.SliceComponent `save:"true"`
 	Weight                       *ecs.SliceComponent `save:"true"`
 	Recipe                       *ecs.SliceComponent `save:"true"`
@@ -320,18 +322,8 @@ type StatsChanged struct{}
 // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
 type InventoryChanged struct{}
 
-// Weapon は戦闘中に選択する武器コマンド
-type Weapon struct {
-	TargetType   TargetType
-	Cost         int
-	Magazine     int    // 現在の装弾数
-	MagazineSize int    // 最大装弾数。0なら弾薬不要の近接武器
-	ReloadEffort int    // リロード完了に必要な総工数
-	AmmoTag      string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
-	// 装填中の弾薬による修正値。リロード時に設定される
-	LoadedDamageBonus   int
-	LoadedAccuracyBonus int
-}
+// Weapon は武器マーカー。武器スロットへの装備やインベントリでの武器判定に使用する
+type Weapon struct{}
 
 // Ammo は弾薬アイテムの性能を定義する
 type Ammo struct {
@@ -340,14 +332,89 @@ type Ammo struct {
 	AccuracyBonus int    // 命中率修正値
 }
 
-// Attack は攻撃の性質。攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する
-type Attack struct {
+// Attacker は近接・遠距離攻撃の共通インターフェース。
+// ダメージ計算や命中判定など攻撃種別を問わない共通処理で使用する
+type Attacker interface {
+	GetAccuracy() int
+	GetDamage() int
+	GetAttackCount() int
+	GetElement() ElementType
+	GetAttackCategory() AttackType
+	GetCost() int
+	GetTargetType() TargetType
+}
+
+// Melee は近接攻撃の性質。近接攻撃毎にこの数値と作用対象のステータスを加味して、最終的なダメージ量を決定する
+type Melee struct {
 	Accuracy       int         // 命中率
 	Damage         int         // 攻撃力
 	AttackCount    int         // 攻撃回数
 	Element        ElementType // 攻撃属性
 	AttackCategory AttackType  // 攻撃種別
+	Cost           int         // 行動コスト
+	TargetType     TargetType  // 対象タイプ
 }
+
+// GetAccuracy はAttackerの実装
+func (m *Melee) GetAccuracy() int { return m.Accuracy }
+
+// GetDamage はAttackerの実装
+func (m *Melee) GetDamage() int { return m.Damage }
+
+// GetAttackCount はAttackerの実装
+func (m *Melee) GetAttackCount() int { return m.AttackCount }
+
+// GetElement はAttackerの実装
+func (m *Melee) GetElement() ElementType { return m.Element }
+
+// GetAttackCategory はAttackerの実装
+func (m *Melee) GetAttackCategory() AttackType { return m.AttackCategory }
+
+// GetCost はAttackerの実装
+func (m *Melee) GetCost() int { return m.Cost }
+
+// GetTargetType はAttackerの実装
+func (m *Melee) GetTargetType() TargetType { return m.TargetType }
+
+// Fire は遠距離攻撃の性質。射撃パラメータと弾薬管理を含む
+type Fire struct {
+	// 攻撃パラメータ
+	Accuracy       int         // 命中率
+	Damage         int         // 攻撃力
+	AttackCount    int         // 攻撃回数
+	Element        ElementType // 攻撃属性
+	AttackCategory AttackType  // 攻撃種別
+	Cost           int         // 行動コスト
+	TargetType     TargetType  // 対象タイプ
+	// 弾薬管理
+	Magazine            int    // 現在の装弾数
+	MagazineSize        int    // 最大装弾数
+	ReloadEffort        int    // リロード完了に必要な総工数
+	AmmoTag             string // 使用する弾薬の口径タグ。Ammoコンポーネントの AmmoTag とマッチする
+	LoadedDamageBonus   int    // 装填中の弾薬によるダメージ修正値。リロード時に設定される
+	LoadedAccuracyBonus int    // 装填中の弾薬による命中修正値。リロード時に設定される
+}
+
+// GetAccuracy はAttackerの実装
+func (f *Fire) GetAccuracy() int { return f.Accuracy }
+
+// GetDamage はAttackerの実装
+func (f *Fire) GetDamage() int { return f.Damage }
+
+// GetAttackCount はAttackerの実装
+func (f *Fire) GetAttackCount() int { return f.AttackCount }
+
+// GetElement はAttackerの実装
+func (f *Fire) GetElement() ElementType { return f.Element }
+
+// GetAttackCategory はAttackerの実装
+func (f *Fire) GetAttackCategory() AttackType { return f.AttackCategory }
+
+// GetCost はAttackerの実装
+func (f *Fire) GetCost() int { return f.Cost }
+
+// GetTargetType はAttackerの実装
+func (f *Fire) GetTargetType() TargetType { return f.TargetType }
 
 // CommandTable はAI用の、戦闘コマンドテーブル名
 type CommandTable struct {

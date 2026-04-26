@@ -228,16 +228,16 @@
   Weight          = 0
 
   [Items.Weapon]
-    Cost        = 1
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
     Accuracy       = 100
     AttackCategory = "FIST"
     AttackCount    = 1
+    Cost           = 1
     Damage         = 3
     Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "勢いをつけて体を接触させてダメージを与える"
@@ -248,16 +248,16 @@
   Weight          = 0
 
   [Items.Weapon]
-    Cost        = 0
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
     Accuracy       = 100
     AttackCategory = "FIST"
     AttackCount    = 1
+    Cost           = 0
     Damage         = 4
     Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "旅行の土産でおなじみの、木でできた刃のない刀"
@@ -268,16 +268,16 @@
   Weight          = 2.0
 
   [Items.Weapon]
-    Cost        = 2
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
     Accuracy       = 100
     AttackCategory = "SWORD"
     AttackCount    = 1
+    Cost           = 2
     Damage         = 8
     Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "鉄で作られたナイフ"
@@ -288,16 +288,16 @@
   Weight          = 1.0
 
   [Items.Weapon]
-    Cost        = 2
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
     Accuracy       = 100
     AttackCategory = "SWORD"
     AttackCount    = 1
+    Cost           = 2
     Damage         = 9
     Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "樹脂素材を多用した自動拳銃"
@@ -308,19 +308,29 @@
   Weight          = 2.0
 
   [Items.Weapon]
-    AmmoTag      = "9mm"
-    Cost         = 2
-    MagazineSize = 6
-    ReloadEffort = 20
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 90
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 4
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 95
+    AmmoTag        = "9mm"
     AttackCategory = "HANDGUN"
     AttackCount    = 1
+    Cost           = 2
     Damage         = 14
     Element        = "NONE"
+    MagazineSize   = 6
+    ReloadEffort   = 20
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "光線を発射する拳銃"
@@ -331,19 +341,29 @@
   Weight          = 2.0
 
   [Items.Weapon]
-    AmmoTag      = "energy_cell"
-    Cost         = 2
-    MagazineSize = 6
-    ReloadEffort = 20
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
     Accuracy       = 90
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 4
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
+    Accuracy       = 90
+    AmmoTag        = "energy_cell"
     AttackCategory = "HANDGUN"
     AttackCount    = 1
+    Cost           = 2
     Damage         = 20
     Element        = "PHOTON"
+    MagazineSize   = 6
+    ReloadEffort   = 20
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "放電物質を投射する擲弾銃"
@@ -354,19 +374,29 @@
   Weight          = 10.0
 
   [Items.Weapon]
-    AmmoTag      = "rifle"
-    Cost         = 3
-    MagazineSize = 10
-    ReloadEffort = 30
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 85
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 2
+    Damage         = 6
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 80
+    AmmoTag        = "rifle"
     AttackCategory = "RIFLE"
     AttackCount    = 1
+    Cost           = 3
     Damage         = 26
     Element        = "THUNDER"
+    MagazineSize   = 10
+    ReloadEffort   = 30
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "極低温物質を投射する擲弾銃"
@@ -377,19 +407,29 @@
   Weight          = 10.0
 
   [Items.Weapon]
-    AmmoTag      = "rifle"
-    Cost         = 3
-    MagazineSize = 10
-    ReloadEffort = 30
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 85
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 2
+    Damage         = 6
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 80
+    AmmoTag        = "rifle"
     AttackCategory = "RIFLE"
     AttackCount    = 1
+    Cost           = 3
     Damage         = 25
     Element        = "CHILL"
+    MagazineSize   = 10
+    ReloadEffort   = 30
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "成形炸薬弾を投射する対戦車ロケット弾発射機"
@@ -400,19 +440,29 @@
   Weight          = 20.0
 
   [Items.Weapon]
-    AmmoTag      = "shell"
-    Cost         = 14
-    MagazineSize = 1
-    ReloadEffort = 40
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 80
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 3
+    Damage         = 8
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 85
+    AmmoTag        = "shell"
     AttackCategory = "CANON"
     AttackCount    = 1
+    Cost           = 14
     Damage         = 34
     Element        = "NONE"
+    MagazineSize   = 1
+    ReloadEffort   = 40
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "取り回しがよい車両用の大砲"
@@ -423,19 +473,29 @@
   Weight          = 120.0
 
   [Items.Weapon]
-    AmmoTag      = "shell"
-    Cost         = 14
-    MagazineSize = 1
-    ReloadEffort = 40
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 75
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 4
+    Damage         = 10
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 90
+    AmmoTag        = "shell"
     AttackCategory = "CANON"
     AttackCount    = 1
+    Cost           = 14
     Damage         = 34
     Element        = "NONE"
+    MagazineSize   = 1
+    ReloadEffort   = 40
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "車載型の空冷式機関銃"
@@ -446,19 +506,29 @@
   Weight          = 140.0
 
   [Items.Weapon]
-    AmmoTag      = "shell"
-    Cost         = 10
-    MagazineSize = 1
-    ReloadEffort = 40
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 75
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 4
+    Damage         = 10
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 90
+    AmmoTag        = "shell"
     AttackCategory = "CANON"
     AttackCount    = 4
+    Cost           = 10
     Damage         = 8
     Element        = "NONE"
+    MagazineSize   = 1
+    ReloadEffort   = 40
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "濃度の高い強酸性の液体"
@@ -469,19 +539,29 @@
   Weight          = 1.0
 
   [Items.Weapon]
-    AmmoTag      = "shell"
-    Cost         = 8
-    MagazineSize = 1
-    ReloadEffort = 40
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 85
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 3
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 80
+    AmmoTag        = "shell"
     AttackCategory = "CANON"
     AttackCount    = 1
+    Cost           = 8
     Damage         = 14
     Element        = "NONE"
+    MagazineSize   = 1
+    ReloadEffort   = 40
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "氷の結晶で作られた槍"
@@ -492,16 +572,16 @@
   Weight          = 1.8
 
   [Items.Weapon]
-    Cost        = 4
-    TargetGroup = "ENEMY"
-    TargetNum   = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
     Accuracy       = 80
     AttackCategory = "SPEAR"
     AttackCount    = 2
+    Cost           = 4
     Damage         = 15
     Element        = "CHILL"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "高速に射出する砲"
@@ -512,19 +592,29 @@
   Weight          = 4.0
 
   [Items.Weapon]
-    AmmoTag      = "shell"
-    Cost         = 9
-    MagazineSize = 1
-    ReloadEffort = 40
-    TargetGroup  = "ENEMY"
-    TargetNum    = "SINGLE"
 
-  [Items.Attack]
+  [Items.Melee]
+    Accuracy       = 85
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 5
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+  [Items.Fire]
     Accuracy       = 75
+    AmmoTag        = "shell"
     AttackCategory = "CANON"
     AttackCount    = 3
+    Cost           = 9
     Damage         = 12
     Element        = "NONE"
+    MagazineSize   = 1
+    ReloadEffort   = 40
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
     # wearable ================
 
@@ -1906,11 +1996,8 @@
 [[CommandTables]]
   Name = "軽戦車"
   [[CommandTables.Entries]]
-    Weapon = "50ミリ砲"
-    Weight = 0.5
-  [[CommandTables.Entries]]
-    Weapon = "M1919重機関銃"
-    Weight = 0.5
+    Weapon = "体当たり"
+    Weight = 1.0
 
 [[CommandTables]]
   Name = "スライム"
@@ -1922,10 +2009,7 @@
   Name = "火の玉"
   [[CommandTables.Entries]]
     Weapon = "体当たり"
-    Weight = 0.8
-  [[CommandTables.Entries]]
-    Weapon = "溶解液"
-    Weight = 0.2
+    Weight = 1.0
 
 [[CommandTables]]
   Name = "灰の偶像"

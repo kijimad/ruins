@@ -39,17 +39,17 @@ func (ra *ReloadActivity) Name() gc.BehaviorName {
 
 // Validate はリロードの検証を行う
 func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	weapon, err := getEquippedRangedWeapon(actor, world)
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
 	}
 
-	if weapon.Magazine >= weapon.MagazineSize {
+	if fire.Magazine >= fire.MagazineSize {
 		return ErrReloadNotNeeded
 	}
 
 	// 弾薬の在庫チェック
-	_, found := worldhelper.FindAmmoInInventory(world, weapon.AmmoTag)
+	_, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag)
 	if !found {
 		return ErrReloadNoAmmo
 	}
@@ -59,13 +59,13 @@ func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 
 // Start はリロード開始時の処理
 func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	weapon, err := getEquippedRangedWeapon(actor, world)
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
 	}
 
 	// 最大ターン数の見積もり（最低能力の場合）
-	maxTurns := (weapon.ReloadEffort + BaseReloadEffort - 1) / BaseReloadEffort
+	maxTurns := (fire.ReloadEffort + BaseReloadEffort - 1) / BaseReloadEffort
 	if maxTurns < 1 {
 		maxTurns = 1
 	}
@@ -83,14 +83,14 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 // DoTurn はリロードの1ターン分の処理
 func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	weapon, err := getEquippedRangedWeapon(actor, world)
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		Cancel(comp, "遠距離武器が装備されていません")
 		return err
 	}
 
 	// 1ターンあたりの工数を計算
-	effortPerTurn := ra.calcEffortPerTurn(actor, world)
+	effortPerTurn := ra.calcEffortPerTurn(actor, fire, world)
 	ra.effortAccum += effortPerTurn
 
 	// 空腹進行
@@ -99,10 +99,10 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	comp.TurnsLeft--
 
 	// 工数が目標に達したら装填完了
-	if ra.effortAccum >= weapon.ReloadEffort {
+	if ra.effortAccum >= fire.ReloadEffort {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
-		needed := weapon.MagazineSize - weapon.Magazine
-		ammoEntity, found := worldhelper.FindAmmoInInventory(world, weapon.AmmoTag)
+		needed := fire.MagazineSize - fire.Magazine
+		ammoEntity, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag)
 		if !found {
 			Cancel(comp, "弾薬がなくなった")
 			return nil
@@ -116,16 +116,16 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 		// 装填した弾薬の修正値を記録する
 		ammoComp := world.Components.Ammo.Get(ammoEntity).(*gc.Ammo)
-		weapon.LoadedDamageBonus = ammoComp.DamageBonus
-		weapon.LoadedAccuracyBonus = ammoComp.AccuracyBonus
+		fire.LoadedDamageBonus = ammoComp.DamageBonus
+		fire.LoadedAccuracyBonus = ammoComp.AccuracyBonus
 
-		weapon.Magazine += loaded
+		fire.Magazine += loaded
 		if err := worldhelper.ChangeItemCount(world, ammoEntity, -loaded); err != nil {
 			return fmt.Errorf("弾薬の消費に失敗: %w", err)
 		}
 
 		gamelog.New(gamelog.FieldLog).
-			Append(fmt.Sprintf("装填完了（%d/%d）", weapon.Magazine, weapon.MagazineSize)).
+			Append(fmt.Sprintf("装填完了（%d/%d）", fire.Magazine, fire.MagazineSize)).
 			Log()
 
 		Complete(comp)
@@ -155,7 +155,7 @@ func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 }
 
 // calcEffortPerTurn は1ターンあたりの装填工数を計算する
-func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, world w.World) int {
+func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, fire *gc.Fire, world w.World) int {
 	effort := BaseReloadEffort
 
 	// DEXを加算
@@ -166,15 +166,12 @@ func (ra *ReloadActivity) calcEffortPerTurn(actor ecs.Entity, world w.World) int
 	}
 
 	// 武器スキルレベルを加算
-	attack, _, err := getAttackParams(actor, world)
-	if err == nil && attack != nil {
-		skillID, ok := gc.WeaponSkillID(attack.AttackCategory)
-		if ok {
-			skillsComp := world.Components.Skills.Get(actor)
-			if skillsComp != nil {
-				skills := skillsComp.(*gc.Skills)
-				effort += skills.Get(skillID).Value
-			}
+	skillID, ok := gc.WeaponSkillID(fire.AttackCategory)
+	if ok {
+		skillsComp := world.Components.Skills.Get(actor)
+		if skillsComp != nil {
+			skills := skillsComp.(*gc.Skills)
+			effort += skills.Get(skillID).Value
 		}
 	}
 

@@ -25,7 +25,7 @@ var (
 	ErrTargetNoPoolsComponent = errors.New("ターゲットにPoolsコンポーネントがありません")
 
 	// 射撃関連エラー
-	ErrShootNotRangedWeapon    = errors.New("遠距離武器を装備していません")
+	ErrShootNoFireWeapon       = errors.New("遠距離武器を装備していません")
 	ErrShootNoAmmo             = errors.New("弾切れです。リロードしてください")
 	ErrShootLineOfSightBlocked = errors.New("射線が遮られています")
 	ErrReloadNotNeeded         = errors.New("リロードの必要がありません")

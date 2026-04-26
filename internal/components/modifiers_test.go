@@ -241,7 +241,7 @@ func TestRecalculateCharModifiers_AllFactors(t *testing.T) {
 	assert.Len(t, sources, 3, "スキル、能力値、健康状態の3つのソースがある")
 }
 
-func TestRecalculateCharModifiers_RangedWeaponAbility(t *testing.T) {
+func TestRecalculateCharModifiers_FireAbility(t *testing.T) {
 	t.Parallel()
 
 	skills := NewSkills()

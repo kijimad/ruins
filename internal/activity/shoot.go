@@ -52,26 +52,21 @@ func (sa *ShootActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.W
 	}
 
 	// 遠距離武器が装備されているか
-	weapon, err := getEquippedRangedWeapon(actor, world)
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return err
 	}
 
 	// 残弾チェック
-	if weapon.Magazine <= 0 {
+	if fire.Magazine <= 0 {
 		return ErrShootNoAmmo
 	}
 
 	// 射程・射線チェック
-	attack, _, err := getAttackParams(actor, world)
-	if err != nil {
-		return err
-	}
-
 	distance := EntityDistance(actor, *comp.Target, world)
-	rangeParams, ok := gc.GetRangeParams(attack.AttackCategory)
+	rangeParams, ok := gc.GetRangeParams(fire.AttackCategory)
 	if !ok {
-		return ErrShootNotRangedWeapon
+		return ErrShootNoFireWeapon
 	}
 	if distance > float64(rangeParams.MaxRange) {
 		return ErrAttackOutOfRange
@@ -101,30 +96,21 @@ func (sa *ShootActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	target := *comp.Target
 
 	// 装備武器を取得
-	weapon, err := getEquippedRangedWeapon(actor, world)
+	fire, weaponName, err := getEquippedFire(actor, world)
 	if err != nil {
 		Cancel(comp, "遠距離武器が装備されていません")
 		return err
 	}
 
-	attack, attackMethodName, err := getAttackParams(actor, world)
-	if err != nil {
-		Cancel(comp, "攻撃パラメータの取得に失敗")
-		return err
-	}
-
 	// 弾薬消費
-	weapon.Magazine--
-
-	// 弾薬による修正を適用
-	attack.Damage += weapon.LoadedDamageBonus
+	fire.Magazine--
 
 	// 命中率修正を計算（距離ペナルティ + 遮蔽ペナルティ + 弾薬修正）
-	hitModifier := calculateRangedHitModifier(actor, target, attack, world)
-	hitModifier += weapon.LoadedAccuracyBonus
+	hitModifier := calculateRangedHitModifier(actor, target, fire, world)
+	hitModifier += fire.LoadedAccuracyBonus
 
 	// ダメージ適用（共通関数を使用）
-	applyAttackDamage(actor, target, world, attack, attackMethodName, hitModifier)
+	applyAttackDamage(actor, target, world, fire, weaponName, hitModifier, fire.LoadedDamageBonus)
 
 	// 空腹進行
 	progressHunger(actor, world)
@@ -145,13 +131,34 @@ func (sa *ShootActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 	return nil
 }
 
+// getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
+func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) {
+	selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
+	weaponIndex := selectedSlot - 1
+	if weaponIndex < 0 || weaponIndex >= 5 {
+		return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
+	}
+
+	weapons := worldhelper.GetWeapons(world, actor)
+	weaponEntity := weapons[weaponIndex]
+	if weaponEntity == nil {
+		return nil, "", ErrShootNoFireWeapon
+	}
+
+	fire, name, err := worldhelper.GetFireFromWeapon(world, *weaponEntity)
+	if err != nil {
+		return nil, "", ErrShootNoFireWeapon
+	}
+	return fire, name, nil
+}
+
 // calculateRangedHitModifier は距離と遮蔽による命中率修正を計算する
-func calculateRangedHitModifier(actor, target ecs.Entity, attack *gc.Attack, world w.World) int {
+func calculateRangedHitModifier(actor, target ecs.Entity, attack gc.Attacker, world w.World) int {
 	modifier := 0
 
 	// 距離ペナルティ
 	distance := EntityDistance(actor, target, world)
-	rangeParams, ok := gc.GetRangeParams(attack.AttackCategory)
+	rangeParams, ok := gc.GetRangeParams(attack.GetAttackCategory())
 	if ok && distance > float64(rangeParams.OptimalRange) {
 		excess := int(distance) - rangeParams.OptimalRange
 		modifier -= excess * rangeParams.PenaltyPerTile
@@ -245,37 +252,6 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 	return false, coverCount
 }
 
-// getEquippedRangedWeapon はプレイヤーの装備中の遠距離武器を取得する
-func getEquippedRangedWeapon(actor ecs.Entity, world w.World) (*gc.Weapon, error) {
-	if !actor.HasComponent(world.Components.Player) {
-		return nil, fmt.Errorf("射撃はプレイヤーのみ使用可能です")
-	}
-
-	selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
-	weaponIndex := selectedSlot - 1
-	if weaponIndex < 0 || weaponIndex >= 5 {
-		return nil, fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
-	}
-
-	weapons := worldhelper.GetWeapons(world, actor)
-	weaponEntity := weapons[weaponIndex]
-	if weaponEntity == nil {
-		return nil, ErrShootNotRangedWeapon
-	}
-
-	weaponComp := world.Components.Weapon.Get(*weaponEntity)
-	if weaponComp == nil {
-		return nil, ErrShootNotRangedWeapon
-	}
-	weapon := weaponComp.(*gc.Weapon)
-
-	if weapon.MagazineSize <= 0 {
-		return nil, ErrShootNotRangedWeapon
-	}
-
-	return weapon, nil
-}
-
 // CanShootTarget はactorからtargetに射撃可能かを判定する。
 // 射撃対象選択UIでのフィルタリング用
 func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
@@ -290,33 +266,15 @@ func CanShootTarget(actor, target ecs.Entity, world w.World) bool {
 
 // CalculateShootHitRate は射撃の命中率を計算して返す。情報パネル表示用
 func CalculateShootHitRate(actor, target ecs.Entity, world w.World) int {
-	attack, _, err := getAttackParams(actor, world)
+	fire, _, err := getEquippedFire(actor, world)
 	if err != nil {
 		return 0
 	}
 
-	attackerAbils := world.Components.Abilities.Get(actor).(*gc.Abilities)
-	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
+	modifier := calculateRangedHitModifier(actor, target, fire, world)
+	modifier += fire.LoadedAccuracyBonus
 
-	hitRate := BaseHitRate + (attackerAbils.Dexterity.Total-targetAbils.Agility.Total)*HitRatePerStatPoint
-	hitRate += getWeaponAccuracyFromAttack(attack)
-	hitRate = hitRate * getSkillMult(actor, attack, world, false) / 100
-	hitRate += calculateRangedHitModifier(actor, target, attack, world)
-
-	// 装填中の弾薬による命中修正
-	weapon, weaponErr := getEquippedRangedWeapon(actor, world)
-	if weaponErr == nil {
-		hitRate += weapon.LoadedAccuracyBonus
-	}
-
-	if hitRate > MaxHitRate {
-		hitRate = MaxHitRate
-	}
-	if hitRate < MinHitRate {
-		hitRate = MinHitRate
-	}
-
-	return hitRate
+	return calculateHitRate(actor, target, world, fire, modifier)
 }
 
 // ExecuteShootAction は射撃アクションを実行する

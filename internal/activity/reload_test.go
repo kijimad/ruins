@@ -27,8 +27,8 @@ func TestReloadActivity_Validate(t *testing.T) {
 		world, player, _, weaponEntity := setupShootingWorld(t)
 
 		// マガジンを空にする
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire.Magazine = 0
 
 		ra := &ReloadActivity{}
 		comp, err := NewActivity(ra, 1)
@@ -63,8 +63,8 @@ func TestReloadActivity_Validate(t *testing.T) {
 		world.Resources.Dungeon.SelectedWeaponSlot = 1
 
 		// マガジンを空にする（弾薬アイテムは持っていない）
-		weapon := world.Components.Weapon.Get(we).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(we).(*gc.Fire)
+		fire.Magazine = 0
 
 		ra := &ReloadActivity{}
 		comp, err := NewActivity(ra, 1)
@@ -91,7 +91,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		err = ra.Validate(comp, player, world)
-		assert.ErrorIs(t, err, ErrShootNotRangedWeapon)
+		assert.ErrorIs(t, err, ErrShootNoFireWeapon)
 	})
 }
 
@@ -102,8 +102,8 @@ func TestReloadActivity_Start(t *testing.T) {
 		t.Parallel()
 		world, player, _, weaponEntity := setupShootingWorld(t)
 
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire.Magazine = 0
 
 		ra := &ReloadActivity{}
 		comp, err := NewActivity(ra, 1)
@@ -124,8 +124,8 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world, player, _, weaponEntity := setupShootingWorld(t)
 
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire.Magazine = 0
 
 		ra := &ReloadActivity{}
 		comp, err := NewActivity(ra, 1)
@@ -144,7 +144,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		}
 
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Greater(t, weapon.Magazine, 0)
+		assert.Greater(t, fire.Magazine, 0)
 	})
 
 	t.Run("弾薬が不足していたら持っている分だけ装填する", func(t *testing.T) {
@@ -159,8 +159,8 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		world.Resources.Dungeon.SelectedWeaponSlot = 1
 
-		weapon := world.Components.Weapon.Get(we).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(we).(*gc.Fire)
+		fire.Magazine = 0
 
 		// 弾薬を2発だけ持たせる
 		_, err = worldhelper.SpawnItem(world, "9mm FMJ", 2, gc.ItemLocationInPlayerBackpack)
@@ -182,7 +182,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		}
 
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-		assert.Equal(t, 2, weapon.Magazine)
+		assert.Equal(t, 2, fire.Magazine)
 	})
 }
 
@@ -193,8 +193,11 @@ func TestReloadActivity_CalcEffortPerTurn(t *testing.T) {
 		t.Parallel()
 		world, player, _, _ := setupShootingWorld(t)
 
+		fire, _, err := getEquippedFire(player, world)
+		require.NoError(t, err)
+
 		ra := &ReloadActivity{}
-		effort := ra.calcEffortPerTurn(player, world)
+		effort := ra.calcEffortPerTurn(player, fire, world)
 
 		// BaseReloadEffort + DEX + weaponSkill
 		assert.Greater(t, effort, BaseReloadEffort)
@@ -202,14 +205,16 @@ func TestReloadActivity_CalcEffortPerTurn(t *testing.T) {
 
 	t.Run("Abilitiesなしなら基本工数のみ", func(t *testing.T) {
 		t.Parallel()
-		world := testutil.InitTestWorld(t)
+		world, player, _, _ := setupShootingWorld(t)
 
-		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.Player, &gc.Player{})
-		world.Resources.Dungeon.SelectedWeaponSlot = 1
+		fire, _, err := getEquippedFire(player, world)
+		require.NoError(t, err)
+
+		// Abilitiesを削除
+		player.RemoveComponent(world.Components.Abilities)
 
 		ra := &ReloadActivity{}
-		effort := ra.calcEffortPerTurn(actor, world)
+		effort := ra.calcEffortPerTurn(player, fire, world)
 		assert.Equal(t, BaseReloadEffort, effort)
 	})
 }
@@ -221,8 +226,8 @@ func TestExecuteReloadAction(t *testing.T) {
 		t.Parallel()
 		world, player, _, weaponEntity := setupShootingWorld(t)
 
-		weapon := world.Components.Weapon.Get(weaponEntity).(*gc.Weapon)
-		weapon.Magazine = 0
+		fire := world.Components.Fire.Get(weaponEntity).(*gc.Fire)
+		fire.Magazine = 0
 
 		err := ExecuteReloadAction(player, world)
 		require.NoError(t, err)

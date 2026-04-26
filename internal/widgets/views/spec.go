@@ -19,17 +19,18 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 	targetContainer.RemoveChildren()
 
 	// 各コンポーネントの情報を追加
-	if entity.HasComponent(world.Components.Attack) {
-		attack := world.Components.Attack.Get(entity).(*gc.Attack)
-		addAttackInfo(targetContainer, attack, world)
+	if entity.HasComponent(world.Components.Melee) {
+		melee := world.Components.Melee.Get(entity).(*gc.Melee)
+		addAttackerInfo(targetContainer, melee, world)
+	}
+	if entity.HasComponent(world.Components.Fire) {
+		fire := world.Components.Fire.Get(entity).(*gc.Fire)
+		addAttackerInfo(targetContainer, fire, world)
+		addFireAmmoInfo(targetContainer, fire, world)
 	}
 	if entity.HasComponent(world.Components.Wearable) {
 		wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
 		addWearableInfo(targetContainer, wearable, world)
-	}
-	if entity.HasComponent(world.Components.Weapon) {
-		weapon := world.Components.Weapon.Get(entity).(*gc.Weapon)
-		addWeaponInfo(targetContainer, weapon, world)
 	}
 	if entity.HasComponent(world.Components.ProvidesHealing) {
 		healing := world.Components.ProvidesHealing.Get(entity).(*gc.ProvidesHealing)
@@ -58,14 +59,15 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
 	targetContainer.RemoveChildren()
 
-	if spec.Attack != nil {
-		addAttackInfo(targetContainer, spec.Attack, world)
+	if spec.Melee != nil {
+		addAttackerInfo(targetContainer, spec.Melee, world)
+	}
+	if spec.Fire != nil {
+		addAttackerInfo(targetContainer, spec.Fire, world)
+		addFireAmmoInfo(targetContainer, spec.Fire, world)
 	}
 	if spec.Wearable != nil {
 		addWearableInfo(targetContainer, spec.Wearable, world)
-	}
-	if spec.Weapon != nil {
-		addWeaponInfo(targetContainer, spec.Weapon, world)
 	}
 	if spec.ProvidesHealing != nil {
 		addHealingInfo(targetContainer, spec.ProvidesHealing, world)
@@ -87,19 +89,21 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 // specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）
 var specTableAligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
 
-// addAttackInfo はAttackコンポーネントの情報を追加する
-func addAttackInfo(targetContainer *widget.Container, attack *gc.Attack, world w.World) {
+// addAttackerInfo は攻撃パラメータの共通表示を行う
+func addAttackerInfo(targetContainer *widget.Container, attack gc.Attacker, world w.World) {
 	res := world.Resources.UIResources
 	columnWidths := []int{70, 80}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableHeaderRow(table, columnWidths, []string{attack.AttackCategory.Label, ""}, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.DamageLabel, strconv.Itoa(attack.Damage)}, specTableAligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.AccuracyLabel, strconv.Itoa(attack.Accuracy)}, specTableAligns, nil, res)
-	styled.NewTableRow(table, columnWidths, []string{consts.AttackCountLabel, strconv.Itoa(attack.AttackCount)}, specTableAligns, nil, res)
+	styled.NewTableHeaderRow(table, columnWidths, []string{attack.GetAttackCategory().Label, ""}, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.DamageLabel, strconv.Itoa(attack.GetDamage())}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AccuracyLabel, strconv.Itoa(attack.GetAccuracy())}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{consts.AttackCountLabel, strconv.Itoa(attack.GetAttackCount())}, specTableAligns, nil, res)
 
-	if attack.Element != gc.ElementTypeNone {
-		styled.NewTableRow(table, columnWidths, []string{"属性", attack.Element.String()}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{"コスト", strconv.Itoa(attack.GetCost())}, specTableAligns, nil, res)
+
+	if attack.GetElement() != gc.ElementTypeNone {
+		styled.NewTableRow(table, columnWidths, []string{"属性", attack.GetElement().String()}, specTableAligns, nil, res)
 	}
 
 	targetContainer.AddChild(table)
@@ -125,13 +129,24 @@ func addWearableInfo(targetContainer *widget.Container, wearable *gc.Wearable, w
 	targetContainer.AddChild(table)
 }
 
-// addWeaponInfo はWeaponコンポーネントの情報を追加する
-func addWeaponInfo(targetContainer *widget.Container, weapon *gc.Weapon, world w.World) {
+// addFireAmmoInfo はFireの射程・弾薬関連情報を追加する
+func addFireAmmoInfo(targetContainer *widget.Container, fire *gc.Fire, world w.World) {
 	res := world.Resources.UIResources
 	columnWidths := []int{70, 80}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"コスト", strconv.Itoa(weapon.Cost)}, specTableAligns, nil, res)
+
+	if rangeParams, ok := gc.GetRangeParams(fire.AttackCategory); ok {
+		styled.NewTableRow(table, columnWidths, []string{"適射程", strconv.Itoa(rangeParams.OptimalRange)}, specTableAligns, nil, res)
+		styled.NewTableRow(table, columnWidths, []string{"射程長", strconv.Itoa(rangeParams.MaxRange)}, specTableAligns, nil, res)
+	}
+
+	if fire.MagazineSize > 0 {
+		ammo := fmt.Sprintf("%d/%d", fire.Magazine, fire.MagazineSize)
+		styled.NewTableRow(table, columnWidths, []string{"弾数", ammo}, specTableAligns, nil, res)
+		styled.NewTableRow(table, columnWidths, []string{"装填", strconv.Itoa(fire.ReloadEffort)}, specTableAligns, nil, res)
+	}
+
 	targetContainer.AddChild(table)
 }
 
