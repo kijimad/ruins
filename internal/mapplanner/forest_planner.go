@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 )
 
 // ForestPlanner は森風レイアウトを生成するビルダー
@@ -71,9 +72,7 @@ func (f ForestTerrain) createCircularClearing(planData *MetaPlan, clearing gc.Re
 
 	for x := clearing.X1 - 1; x <= clearing.X2+1; x++ {
 		for y := clearing.Y1 - 1; y <= clearing.Y2+1; y++ {
-			dx := float64(x) - centerX
-			dy := float64(y) - centerY
-			distance := math.Sqrt(dx*dx + dy*dy)
+			distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
 			if distance <= radius {
 				idx := planData.Level.XYTileIndex(x, y)
@@ -126,9 +125,7 @@ func (f ForestTrees) calculateTreeDensity(planData *MetaPlan, x, y int) float64 
 		centerX := float64(clearing.X1+clearing.X2) / 2.0
 		centerY := float64(clearing.Y1+clearing.Y2) / 2.0
 
-		dx := float64(x) - centerX
-		dy := float64(y) - centerY
-		distance := math.Sqrt(dx*dx + dy*dy)
+		distance := geometry.Distance(float64(x), float64(y), centerX, centerY)
 
 		if distance < minDistanceToClearing {
 			minDistanceToClearing = distance
@@ -240,9 +237,7 @@ func (f ForestPaths) shouldCreatePath(planData *MetaPlan, room1, room2 gc.Rect) 
 	center2X := float64(room2.X1+room2.X2) / 2.0
 	center2Y := float64(room2.Y1+room2.Y2) / 2.0
 
-	dx := center1X - center2X
-	dy := center1Y - center2Y
-	distance := math.Sqrt(dx*dx + dy*dy)
+	distance := geometry.Distance(center1X, center1Y, center2X, center2Y)
 
 	// 近い空き地ほど繋がりやすい
 	if distance < 15 {
@@ -323,7 +318,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 				nx, ny := x+dx, y+dy
 				// 上端・下端行には描画しない（ForestPathsで保証した接続性を壊さないため）
 				if nx >= 0 && nx < width && ny > 0 && ny < height-1 {
-					distance := math.Sqrt(float64(dx*dx + dy*dy))
+					distance := geometry.Distance(float64(nx), float64(ny), float64(x), float64(y))
 					if distance <= float64(radius) {
 						idx := planData.Level.XYTileIndex(consts.Tile(nx), consts.Tile(ny))
 						planData.Tiles[idx] = planData.GetTile("floor")

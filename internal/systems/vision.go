@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -48,14 +49,6 @@ type coloredDarknessCacheKey struct {
 	G             uint8
 	B             uint8
 	DarknessLevel int
-}
-
-// abs は絶対値を返す
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
 }
 
 // ClearVisionCaches は全ての視界関連キャッシュをクリアする（階移動時などに使用）
@@ -108,8 +101,8 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
 	needsUpdate := !playerPositionCache.isInitialized ||
-		abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
-		abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
+		geometry.Abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
+		geometry.Abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
 	if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
@@ -192,7 +185,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 			tileY := playerTileY + dy
 
 			// 早期距離チェック（枝払い）
-			if abs(dx) > maxTileDistance || abs(dy) > maxTileDistance {
+			if geometry.Abs(dx) > maxTileDistance || geometry.Abs(dy) > maxTileDistance {
 				continue
 			}
 
@@ -259,7 +252,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 	targetTileY := int(targetY / float64(consts.TileSize))
 
 	// 同じタイルまたは隣接タイルは常に見える
-	if abs(targetTileX-playerTileX) <= 1 && abs(targetTileY-playerTileY) <= 1 {
+	if geometry.Abs(targetTileX-playerTileX) <= 1 && geometry.Abs(targetTileY-playerTileY) <= 1 {
 		raycastCache[cacheKey] = true
 		return true
 	}
@@ -277,8 +270,8 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 
 // bresenhamLineOfSight はブレゼンハムアルゴリズムを使用したタイルベース視線判定
 func bresenhamLineOfSight(world w.World, x0, y0, x1, y1 int) bool {
-	dx := abs(x1 - x0)
-	dy := abs(y1 - y0)
+	dx := geometry.Abs(x1 - x0)
+	dy := geometry.Abs(y1 - y0)
 
 	var sx, sy int
 	if x0 < x1 {
@@ -387,9 +380,7 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 		lightGrid := world.Components.GridElement.Get(lightEntity).(*gc.GridElement)
 
 		// 距離計算（タイル単位）
-		dx := float64(tileX - int(lightGrid.X))
-		dy := float64(tileY - int(lightGrid.Y))
-		distance := math.Sqrt(dx*dx + dy*dy)
+		distance := geometry.Distance(float64(tileX), float64(tileY), float64(lightGrid.X), float64(lightGrid.Y))
 
 		// 光源範囲内かチェック
 		if distance <= float64(lightSource.Radius) {

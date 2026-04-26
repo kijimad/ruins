@@ -2,11 +2,11 @@ package activity
 
 import (
 	"fmt"
-	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -165,9 +165,7 @@ func (aa *AttackActivity) isInRange(attacker, target ecs.Entity, world w.World) 
 	attackerPos := attackerGrid.(*gc.GridElement)
 	targetPos := targetGrid.(*gc.GridElement)
 
-	dx := float64(attackerPos.X - targetPos.X)
-	dy := float64(attackerPos.Y - targetPos.Y)
-	distance := math.Sqrt(dx*dx + dy*dy)
+	distance := geometry.Distance(float64(attackerPos.X), float64(attackerPos.Y), float64(targetPos.X), float64(targetPos.Y))
 
 	// TODO: 遠距離武器の場合は射程を武器から取得
 	return distance <= MeleeAttackRange

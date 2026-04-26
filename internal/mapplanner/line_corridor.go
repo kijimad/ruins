@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/resources"
 )
 
@@ -28,7 +29,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			isExist := connected[j]
 			if i != j && !isExist {
 				oCenterX, oCenterY := otherRoom.Center()
-				distance := math.Sqrt(math.Pow(float64(centerX-oCenterX), 2) + math.Pow(float64(centerY-oCenterY), 2))
+				distance := geometry.Distance(float64(centerX), float64(centerY), float64(oCenterX), float64(oCenterY))
 				roomDistances[j] = float64(distance)
 			}
 		}

@@ -2,10 +2,10 @@ package worldhelper
 
 import (
 	"fmt"
-	"math"
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -52,9 +52,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 // リアルタイムの可視性データを使用し、暗闇のタイルは見えないと判定する
 func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	// 距離チェック（視界範囲外は見えない）
-	dx := targetX - playerX
-	dy := targetY - playerY
-	distanceInPixels := math.Sqrt(float64(dx*dx+dy*dy)) * float64(consts.TileSize)
+	distanceInPixels := geometry.Distance(float64(playerX), float64(playerY), float64(targetX), float64(targetY)) * float64(consts.TileSize)
 	visionRadius := consts.VisionRadiusTiles * float64(consts.TileSize)
 
 	if distanceInPixels > visionRadius {

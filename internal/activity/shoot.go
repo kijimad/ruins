@@ -7,6 +7,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -182,55 +183,7 @@ func EntityDistance(a, b ecs.Entity, world w.World) float64 {
 	}
 	aPos := aGrid.(*gc.GridElement)
 	bPos := bGrid.(*gc.GridElement)
-	dx := float64(aPos.X - bPos.X)
-	dy := float64(aPos.Y - bPos.Y)
-	return math.Sqrt(dx*dx + dy*dy)
-}
-
-// bresenhamLine はBresenhamアルゴリズムで2点間の全座標を返す。始点と終点は含まない
-func bresenhamLine(x0, y0, x1, y1 int) []consts.Coord[int] {
-	var points []consts.Coord[int]
-
-	dx := abs(x1 - x0)
-	dy := abs(y1 - y0)
-	sx := 1
-	if x0 > x1 {
-		sx = -1
-	}
-	sy := 1
-	if y0 > y1 {
-		sy = -1
-	}
-	err := dx - dy
-
-	x, y := x0, y0
-	for {
-		// 始点と終点は除外
-		if (x != x0 || y != y0) && (x != x1 || y != y1) {
-			points = append(points, consts.Coord[int]{X: x, Y: y})
-		}
-		if x == x1 && y == y1 {
-			break
-		}
-		e2 := 2 * err
-		if e2 > -dy {
-			err -= dy
-			x += sx
-		}
-		if e2 < dx {
-			err += dx
-			y += sy
-		}
-	}
-
-	return points
-}
-
-func abs(x int) int {
-	if x < 0 {
-		return -x
-	}
-	return x
+	return geometry.Distance(float64(aPos.X), float64(aPos.Y), float64(bPos.X), float64(bPos.Y))
 }
 
 // checkLineOfSight は射線上の壁と遮蔽物を1パスでチェックする。
@@ -239,7 +192,7 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 	aPos := world.Components.GridElement.Get(actor).(*gc.GridElement)
 	tPos := world.Components.GridElement.Get(target).(*gc.GridElement)
 
-	points := bresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
+	points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
 	for _, p := range points {
 		entities := worldhelper.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
 		for _, e := range entities {

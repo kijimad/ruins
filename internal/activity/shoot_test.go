@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -374,43 +373,6 @@ func TestEntityDistance(t *testing.T) {
 		b := world.Manager.NewEntity()
 
 		assert.Equal(t, math.MaxFloat64, EntityDistance(a, b, world))
-	})
-}
-
-// === bresenhamLine テスト ===
-
-func TestBresenhamLine(t *testing.T) {
-	t.Parallel()
-
-	t.Run("水平線は始点終点を含まない", func(t *testing.T) {
-		t.Parallel()
-		points := bresenhamLine(0, 0, 4, 0)
-		assert.Len(t, points, 3) // (1,0),(2,0),(3,0)
-		for _, p := range points {
-			assert.Equal(t, 0, p.Y)
-		}
-	})
-
-	t.Run("同じ座標なら空", func(t *testing.T) {
-		t.Parallel()
-		points := bresenhamLine(5, 5, 5, 5)
-		assert.Empty(t, points)
-	})
-
-	t.Run("隣接は空", func(t *testing.T) {
-		t.Parallel()
-		points := bresenhamLine(0, 0, 1, 0)
-		assert.Empty(t, points)
-	})
-
-	t.Run("斜め線", func(t *testing.T) {
-		t.Parallel()
-		points := bresenhamLine(0, 0, 3, 3)
-		assert.NotEmpty(t, points)
-		for _, p := range points {
-			assert.NotEqual(t, consts.Coord[int]{X: 0, Y: 0}, p)
-			assert.NotEqual(t, consts.Coord[int]{X: 3, Y: 3}, p)
-		}
 	})
 }
 

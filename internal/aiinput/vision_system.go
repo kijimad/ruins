@@ -1,9 +1,8 @@
 package aiinput
 
 import (
-	"math"
-
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -27,9 +26,7 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 	targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)
 
 	// 距離計算（タイル単位）
-	dx := float64(int(targetGrid.X) - int(aiGrid.X))
-	dy := float64(int(targetGrid.Y) - int(aiGrid.Y))
-	distance := math.Sqrt(dx*dx + dy*dy)
+	distance := geometry.Distance(float64(aiGrid.X), float64(aiGrid.Y), float64(targetGrid.X), float64(targetGrid.Y))
 
 	// 視界距離内かチェック（タイル単位で計算）
 	viewDistanceInTiles := float64(vision.ViewDistance) / 32.0 // 仮にタイル1つ=32ピクセル
@@ -48,10 +45,7 @@ func (vs *DefaultVisionSystem) CalculateDistance(world w.World, entity1, entity2
 	grid1 := world.Components.GridElement.Get(entity1).(*gc.GridElement)
 	grid2 := world.Components.GridElement.Get(entity2).(*gc.GridElement)
 
-	dx := float64(int(grid2.X) - int(grid1.X))
-	dy := float64(int(grid2.Y) - int(grid1.Y))
-
-	return math.Sqrt(dx*dx + dy*dy)
+	return geometry.Distance(float64(grid1.X), float64(grid1.Y), float64(grid2.X), float64(grid2.Y))
 }
 
 // IsInRange は指定した範囲内にターゲットがいるかチェック
