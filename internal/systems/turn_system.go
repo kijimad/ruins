@@ -27,15 +27,6 @@ func (sys *TurnSystem) Update(world w.World) error {
 		return err
 	}
 
-	// Deadコンポーネントを持つエンティティを即座に削除する。
-	// プレイヤーのAPが残っている場合、TurnPhasePlayerで止まりTurnPhaseEndまで到達しないため、
-	// フェーズに関係なく毎フレーム実行して死体の表示遅延を防ぐ
-	if deadSys, ok := world.Updaters[(&DeadCleanupSystem{}).String()]; ok {
-		if err := deadSys.Update(world); err != nil {
-			return err
-		}
-	}
-
 	switch turnState.Phase {
 	case gc.TurnPhasePlayer:
 		// プレイヤーが継続アクション中かチェック

@@ -103,8 +103,20 @@ func TestTurnSystem_Update(t *testing.T) {
 	})
 }
 
-func TestTurnSystem_DeadCleanupDuringPlayerTurn(t *testing.T) {
+// TestDeadCleanupBeforeTurnSystem はDungeonState.Updateと同じ実行順序
+// （DeadCleanupSystem → TurnSystem）で、複数回行動時にDeadが即座に消えることを検証する
+func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 	t.Parallel()
+
+	// runFrame はDungeonState.Updateのシステム実行順序を模擬する
+	runFrame := func(world w.World) error {
+		deadSys := &DeadCleanupSystem{}
+		if err := deadSys.Update(world); err != nil {
+			return err
+		}
+		turnSys := &TurnSystem{}
+		return turnSys.Update(world)
+	}
 
 	t.Run("APが余っているPlayerPhase中でもDeadエンティティが削除される", func(t *testing.T) {
 		t.Parallel()
@@ -113,7 +125,6 @@ func TestTurnSystem_DeadCleanupDuringPlayerTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		// APを十分に高く設定して複数回行動できる状態にする
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		turnBased.AP.Current = 200
 
@@ -126,19 +137,11 @@ func TestTurnSystem_DeadCleanupDuringPlayerTurn(t *testing.T) {
 		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "スライム"})
 		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
 
-		// DeadCleanupSystemをUpdatersに登録
-		deadCleanup := &DeadCleanupSystem{}
-		world.Updaters[deadCleanup.String()] = deadCleanup
-
-		sys := &TurnSystem{}
-		err = sys.Update(world)
+		err = runFrame(world)
 		require.NoError(t, err)
 
-		// PlayerPhaseのままであること（APが残っているので遷移しない）
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase)
 		assert.Equal(t, 200, turnBased.AP.Current, "APは消費されていない")
-
-		// Deadエンティティが削除されていること
 		assert.False(t, enemy.HasComponent(world.Components.Name),
 			"PlayerPhase中でもDeadエンティティは削除されるべき")
 	})
@@ -157,10 +160,6 @@ func TestTurnSystem_DeadCleanupDuringPlayerTurn(t *testing.T) {
 		require.NoError(t, err)
 		turnState.Phase = gc.TurnPhasePlayer
 
-		deadCleanup := &DeadCleanupSystem{}
-		world.Updaters[deadCleanup.String()] = deadCleanup
-		sys := &TurnSystem{}
-
 		// 1回目の行動: 敵1を倒す
 		enemy1 := world.Manager.NewEntity()
 		enemy1.AddComponent(world.Components.Name, &gc.Name{Name: "スライム1"})
@@ -168,7 +167,7 @@ func TestTurnSystem_DeadCleanupDuringPlayerTurn(t *testing.T) {
 
 		worldhelper.ConsumeActionPoints(world, player, 100) // AP: 300 -> 200
 
-		err = sys.Update(world)
+		err = runFrame(world)
 		require.NoError(t, err)
 
 		assert.False(t, enemy1.HasComponent(world.Components.Name),
@@ -183,7 +182,7 @@ func TestTurnSystem_DeadCleanupDuringPlayerTurn(t *testing.T) {
 
 		worldhelper.ConsumeActionPoints(world, player, 100) // AP: 200 -> 100
 
-		err = sys.Update(world)
+		err = runFrame(world)
 		require.NoError(t, err)
 
 		assert.False(t, enemy2.HasComponent(world.Components.Name),

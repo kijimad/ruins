@@ -194,6 +194,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 
 	for _, updater := range []w.Updater{
 		&gs.AnimationSystem{},
+		&gs.DeadCleanupSystem{},
 		&gs.TurnSystem{},
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
