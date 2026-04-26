@@ -12,7 +12,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -115,19 +114,17 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 		}
 
 	case inputmapper.ActionShoot:
-		if len(st.enemies) == 0 {
-			gamelog.New(gamelog.FieldLog).Append("射撃対象がいません").Log()
+		if len(st.enemies) > 0 {
+			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			if err != nil {
+				return es.Transition[w.World]{}, err
+			}
+			target := st.enemies[st.targetIndex]
+			if err := activity.ExecuteShootAction(playerEntity, target, world); err != nil {
+				return es.Transition[w.World]{}, err
+			}
 			return es.Transition[w.World]{Type: es.TransPop}, nil
 		}
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
-		if err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		target := st.enemies[st.targetIndex]
-		if err := activity.ExecuteShootAction(playerEntity, target, world); err != nil {
-			return es.Transition[w.World]{}, err
-		}
-		return es.Transition[w.World]{Type: es.TransPop}, nil
 
 	case inputmapper.ActionReload:
 		playerEntity, err := worldhelper.GetPlayerEntity(world)
@@ -144,6 +141,30 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 	}
 
 	return st.ConsumeTransition(), nil
+}
+
+// checkFireWeaponStatus は選択中の武器の射撃可否をチェックし、不可の場合は理由メッセージを返す。
+// 射撃可能な場合は空文字を返す
+func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
+	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return ""
+	}
+	selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
+	weapons := worldhelper.GetWeapons(world, playerEntity)
+	weaponIndex := selectedSlot - 1
+	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
+		return "射撃武器が装備されていません"
+	}
+	fireComp := world.Components.Fire.Get(*weapons[weaponIndex])
+	if fireComp == nil {
+		return "射撃武器が装備されていません"
+	}
+	fire := fireComp.(*gc.Fire)
+	if fire.Magazine <= 0 {
+		return "装填されていません"
+	}
+	return ""
 }
 
 // refreshEnemies は射撃可能な敵一覧を距離順で更新する。
@@ -294,7 +315,9 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	y += 5
 
 	// ターゲット情報
-	if len(st.enemies) == 0 {
+	if msg := st.checkFireWeaponStatus(world); msg != "" {
+		drawText(msg)
+	} else if len(st.enemies) == 0 {
 		drawText("射撃対象がいません")
 	} else {
 		target := st.enemies[st.targetIndex]
