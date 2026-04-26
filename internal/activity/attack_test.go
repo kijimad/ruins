@@ -336,7 +336,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: gc.AttackFist,
 		}
 
-		applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0)
+		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// アクティビティがキャンセルされている（命中時）、または残っている（ミス時）
 		currentComp := world.Components.Activity.Get(target)
@@ -379,7 +379,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: gc.AttackFist,
 		}
 
-		applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0)
+		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
 		// 中断不可なので生存中はアクティビティが残る
 		assert.True(t, target.HasComponent(world.Components.Activity),
@@ -418,12 +418,13 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 			AttackCategory: gc.AttackFist,
 		}
 
-		applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0)
+		require.NoError(t, applyAttackDamage(attacker, target, world, melee, "テスト攻撃", 0, 0))
 
-		// 死亡時はアクティビティがキャンセルされて削除される（命中した場合）
+		// 死亡時のアクティビティキャンセルはDeadCleanupSystemが担当する
+		// applyAttackDamage時点ではアクティビティはまだ残っている
 		if target.HasComponent(world.Components.Dead) {
-			assert.False(t, target.HasComponent(world.Components.Activity),
-				"死亡時はアクティビティが削除される")
+			assert.True(t, target.HasComponent(world.Components.Activity),
+				"applyAttackDamage時点ではアクティビティは削除されない")
 		}
 	})
 }

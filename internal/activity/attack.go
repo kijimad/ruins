@@ -136,8 +136,7 @@ func (aa *AttackActivity) performAttack(comp *gc.Activity, actor ecs.Entity, wor
 		return fmt.Errorf("攻撃パラメータの取得に失敗: %w", err)
 	}
 
-	applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
-	return nil
+	return applyAttackDamage(actor, target, world, attack, attackMethodName, 0, 0)
 }
 
 func (aa *AttackActivity) canAttack(comp *gc.Activity, actor ecs.Entity, world w.World) bool {
@@ -279,12 +278,16 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 
 // applyAttackDamage はダメージ適用・ログ出力・スキル成長・死亡処理を一括で行う共通関数。
 // ShootActivityからも使用される
-func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName string, hitRateModifier int, damageModifier int) {
+func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attacker, attackMethodName string, hitRateModifier int, damageModifier int) error {
+	if attack == nil {
+		return fmt.Errorf("attack must not be nil")
+	}
+
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
 	if !hit {
 		logAttackResult(actor, target, world, false, false, 0, attackMethodName)
 		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
-		return
+		return nil
 	}
 
 	damage := calculateDamage(actor, target, world, attack, criticalHit, damageModifier)
@@ -292,28 +295,17 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 		damage = 0
 	}
 
-	pools := world.Components.Pools.Get(target).(*gc.Pools)
-	beforeHP := pools.HP.Current
-	pools.HP.Current -= damage
-	if pools.HP.Current < 0 {
-		pools.HP.Current = 0
-	}
-
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
 	growWeaponSkill(actor, world, attack)
 	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
+	worldhelper.ApplyDamage(world, target, damage, actor)
 
-	if pools.HP.Current <= 0 && beforeHP > 0 {
-		// 死亡時はすべてのアクティビティをキャンセルする
-		if worldhelper.GetActivity(world, target) != nil {
-			CancelActivity(target, "死亡", world)
-		}
-		target.AddComponent(world.Components.Dead, &gc.Dead{})
-		logDeath(world, target)
-	} else if comp := worldhelper.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
-		// 被ダメージで中断可能なアクティビティをキャンセルする
+	// 被ダメージで中断可能なアクティビティをキャンセルする
+	if comp := worldhelper.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
 		CancelActivity(target, "攻撃を受けた", world)
 	}
+
+	return nil
 }
 
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
@@ -349,9 +341,6 @@ func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack
 
 // getWeaponAccuracyFromAttack はAttackerから命中率補正を取得する
 func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
-	if attack == nil {
-		return 0
-	}
 	return attack.GetAccuracy() - BaseHitRate
 }
 
@@ -360,7 +349,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
 
 	baseAbil := attackerAbils.Strength.Total
-	if attack != nil && attack.GetAttackCategory().Range == gc.AttackRangeRanged {
+	if attack.GetAttackCategory().Range == gc.AttackRangeRanged {
 		baseAbil = attackerAbils.Sensation.Total
 	}
 
@@ -368,10 +357,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	targetDefense := targetAbils.Defense.Total
 
 	baseDamage := baseAbil + world.Config.RNG.IntN(DamageRandomRange) + 1
-
-	if attack != nil {
-		baseDamage += attack.GetDamage()
-	}
+	baseDamage += attack.GetDamage()
 	baseDamage += damageModifier
 
 	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
@@ -380,7 +366,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
 	}
 
-	if attack != nil && attack.GetElement() != gc.ElementTypeNone {
+	if attack.GetElement() != gc.ElementTypeNone {
 		baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
 	}
 
@@ -394,9 +380,6 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
 // growWeaponSkill は攻撃成功時に武器スキルの経験値を加算する
 func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
-	if attack == nil {
-		return
-	}
 	skillsComp := world.Components.Skills.Get(actor)
 	if skillsComp == nil {
 		return
@@ -455,17 +438,5 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 				l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
 			}
 		}).
-		Log()
-}
-
-// logDeath は死亡ログを出力する
-func logDeath(world w.World, target ecs.Entity) {
-	targetName := worldhelper.GetEntityName(target, world)
-
-	gamelog.New(gamelog.FieldLog).
-		Build(func(l *gamelog.Logger) {
-			worldhelper.AppendNameWithColor(l, target, targetName, world)
-		}).
-		Append(" は倒れた。").
 		Log()
 }

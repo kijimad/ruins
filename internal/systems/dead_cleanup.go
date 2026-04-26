@@ -1,6 +1,7 @@
 package systems
 
 import (
+	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
@@ -32,6 +33,13 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		toDelete = append(toDelete, entity)
 	}))
+
+	// 死亡エンティティのアクティビティをキャンセルする
+	for _, entity := range toDelete {
+		if worldhelper.GetActivity(world, entity) != nil {
+			activity.CancelActivity(entity, "死亡", world)
+		}
+	}
 
 	// ドロップアイテム生成
 	rawMaster := world.Resources.RawMaster
