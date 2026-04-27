@@ -147,6 +147,15 @@ func (st *DungeonState) OnStart(world w.World) error {
 		Effects: []gc.VisualEffect{titleEffect},
 	})
 
+	// 街に帰還した際の全クリア判定
+	if def.Name == dungeon.DungeonTown.Name {
+		gp := world.Resources.GameProgress
+		dungeonNames := dungeon.GetAllDungeonNames()
+		if gp.IsAllCleared(dungeonNames) {
+			gp.SetEventActive(resources.EventAllCleared)
+		}
+	}
+
 	return nil
 }
 
@@ -183,6 +192,14 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
+	// 全クリアイベントの表示
+	if world.Resources.GameProgress.IsEventUnseen(resources.EventAllCleared) {
+		world.Resources.GameProgress.MarkEventSeen(resources.EventAllCleared)
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return NewAllClearEventState() },
+		}}, nil
+	}
+
 	// キー入力をActionに変換
 	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -517,8 +534,8 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 	case resources.GameClearEvent:
 		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
 	case resources.OpenDungeonSelectEvent:
-		// ダンジョン選択メニューを開く
-		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectMenuState}}, nil
+		// ダンジョン選択画面を開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
 	}
 
 	// NoneEventまたは未知のイベントの場合は何もしない

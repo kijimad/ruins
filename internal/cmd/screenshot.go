@@ -76,6 +76,8 @@ func runScreenshot(_ context.Context, cmd *cli.Command) error {
 		return vrt.RunTestGame(mode, townStateFactory(), &gs.ShopMenuState{})
 	case gs.AutoSellState{}.String():
 		return vrt.RunTestGame(mode, townStateFactory(), gs.NewAutoSellState()())
+	case gs.DungeonSelectState{}.String():
+		return vrt.RunTestGame(mode, townStateFactory(), gs.NewDungeonSelectState())
 	default:
 		return fmt.Errorf("スクリーンショット実行時に対応してないステートが指定された: %s", mode)
 	}
