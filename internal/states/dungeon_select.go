@@ -172,14 +172,7 @@ func (st *DungeonSelectState) handleSelection() (es.Transition[w.World], error) 
 	if !ok {
 		return es.Transition[w.World]{}, fmt.Errorf("dselectの取得に失敗")
 	}
-	props := st.mount.GetProps()
-	idx := menuState.ItemIndex
-
-	if idx >= len(props.Items) {
-		return es.Transition[w.World]{Type: es.TransNone}, nil
-	}
-
-	item := props.Items[idx]
+	item := st.mount.GetProps().Items[menuState.ItemIndex]
 	if item.IsCancel {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
