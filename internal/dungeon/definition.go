@@ -5,6 +5,8 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 // Definition はダンジョンの設定を保持する
 type Definition struct {
 	Name            string                  // ダンジョン名
+	Description     string                  // ダンジョン説明文
+	ImageKey        string                  // 背景画像のスプライトキー
 	TotalFloors     int                     // 総階層数
 	EnemyTableName  string                  // 敵テーブル名
 	ItemTableName   string                  // アイテムテーブル名

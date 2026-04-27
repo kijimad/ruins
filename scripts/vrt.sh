@@ -33,3 +33,4 @@ cmd SaveMenu
 cmd ShopMenu
 cmd Town
 cmd AutoSell
+cmd DungeonSelect

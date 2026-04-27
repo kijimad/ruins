@@ -116,6 +116,13 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("全ダンジョン踏破", func(world w.World) error {
+			for _, name := range dungeon.GetAllDungeonNames() {
+				world.Resources.GameProgress.MarkDungeonCleared(name)
+			}
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return nil
+		}).
 		WithChoice("ダンジョン開始(大部屋)", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransReplace,
@@ -476,32 +483,9 @@ func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	return NewDungeonState(0, allOpts...)
 }
 
-// NewDungeonSelectMenuState はダンジョン選択メニューのStateを作成するファクトリー関数
-// DungeonGateInteractionの発動時に呼ばれる
-func NewDungeonSelectMenuState() es.State[w.World] {
-	messageState := &MessageState{}
-
-	msg := messagedata.NewSystemMessage("")
-
-	for _, d := range dungeon.GetAllDungeons() {
-		msg = msg.WithChoice(d.Name, func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type: es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{
-					NewFadeoutAnimationState(NewDungeonState(1, WithDefinitionName(d.Name))),
-				},
-			})
-			return nil
-		})
-	}
-
-	msg = msg.WithChoice("やめる", func(_ w.World) error {
-		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		return nil
-	})
-
-	messageState.messageData = msg
-	return messageState
+// NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
+func NewDungeonSelectState() es.State[w.World] {
+	return &DungeonSelectState{}
 }
 
 // NewMainMenuState は新しいMainMenuStateインスタンスを作成するファクトリー関数
@@ -557,6 +541,20 @@ func NewDungeonCompleteEndingState() es.State[w.World] {
 	// MessageStateにMessageDataを設定
 	messageState.messageData = messageData
 
+	return messageState
+}
+
+// NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
+func NewAllClearEventState() es.State[w.World] {
+	messageState := &MessageState{}
+
+	messageData := messagedata.NewSystemMessage("すべての遺跡を踏破した。\n\n大穴の底に眠っていた古代の気配が、ようやく静まった。").
+		WithChoice("閉じる", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return nil
+		})
+
+	messageState.messageData = messageData
 	return messageState
 }
 
@@ -887,29 +885,4 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 	})
 
 	return persistentState
-}
-
-// NewDungeonSelectState はダンジョン選択画面のStateを作成するファクトリー関数
-func NewDungeonSelectState() es.State[w.World] {
-	messageState := &MessageState{}
-
-	msg := messagedata.NewSystemMessage("")
-
-	for _, d := range dungeon.GetAllDungeons() {
-		msg = msg.WithChoice(d.Name, func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: []es.StateFactory[w.World]{NewDungeonState(1, WithDefinitionName(d.Name))},
-			})
-			return nil
-		})
-	}
-
-	msg = msg.WithChoice("戻る", func(_ w.World) error {
-		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-		return nil
-	})
-
-	messageState.messageData = msg
-	return messageState
 }
