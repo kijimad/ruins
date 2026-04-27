@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">56</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-26 11:50:30</td>
+            <td class="headerValue">2026-04-27 14:44:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -138,10 +138,12 @@
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), &amp;gs.ShopMenuState{})</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         case gs.AutoSellState{}.String():</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewAutoSellState()())</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スクリーンショット実行時に対応してないステートが指定された: %s&quot;, mode)</span></span>
-<span id="L81"><span class="lineNum">      81</span>              :         }</span>
-<span id="L82"><span class="lineNum">      82</span>              : }</span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :         case gs.DungeonSelectState{}.String():</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                 return vrt.RunTestGame(mode, townStateFactory(), gs.NewDungeonSelectState())</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スクリーンショット実行時に対応してないステートが指定された: %s&quot;, mode)</span></span>
+<span id="L83"><span class="lineNum">      83</span>              :         }</span>
+<span id="L84"><span class="lineNum">      84</span>              : }</span>
         </pre>
               </td>
             </tr>

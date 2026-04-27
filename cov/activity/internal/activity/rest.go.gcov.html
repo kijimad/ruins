@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">60.2&nbsp;%</td>
+            <td class="headerCovTableEntryLo">64.2&nbsp;%</td>
             <td class="headerCovTableEntry">123</td>
-            <td class="headerCovTableEntry">74</td>
+            <td class="headerCovTableEntry">79</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-26 11:50:30</td>
+            <td class="headerValue">2026-04-27 14:44:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -192,21 +192,21 @@
 <span id="L130"><span class="lineNum">     130</span>              : }</span>
 <span id="L131"><span class="lineNum">     131</span>              : </span>
 <span id="L132"><span class="lineNum">     132</span>              : // Canceled は休息キャンセル時の処理を実行する</span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 : func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         // プレイヤーの場合のみ中断時のメッセージを表示</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         if actor.HasComponent(world.Components.Player) {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC tlaBgGNC">           1 : func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :         // プレイヤーの場合のみ中断時のメッセージを表示</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         if actor.HasComponent(world.Components.Player) {</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC tlaBgUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                         Append(&quot;休息が中断された: &quot;).</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                         Append(comp.CancelReason).</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L141"><span class="lineNum">     141</span>              : </span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         log.Debug(&quot;休息中断&quot;, &quot;reason&quot;, comp.CancelReason, &quot;progress&quot;, GetProgressPercent(comp))</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC tlaBgGNC">           1 :         log.Debug(&quot;休息中断&quot;, &quot;reason&quot;, comp.CancelReason, &quot;progress&quot;, GetProgressPercent(comp))</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L144"><span class="lineNum">     144</span>              : }</span>
 <span id="L145"><span class="lineNum">     145</span>              : </span>
 <span id="L146"><span class="lineNum">     146</span>              : // performHealing はHP回復処理を実行する</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 : func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         // Poolsコンポーネントを取得</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         poolsComponent := world.Components.Pools.Get(actor)</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           2 :         if poolsComponent == nil {</span></span>
