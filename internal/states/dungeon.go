@@ -193,8 +193,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// 全クリアイベントの表示
-	if ev := world.Resources.GameProgress.GetEvent(resources.EventAllCleared); ev != nil && ev.Active && !ev.Seen {
-		ev.Seen = true
+	if world.Resources.GameProgress.IsEventUnseen(resources.EventAllCleared) {
+		world.Resources.GameProgress.MarkEventSeen(resources.EventAllCleared)
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return NewAllClearEventState() },
 		}}, nil

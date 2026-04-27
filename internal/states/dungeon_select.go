@@ -141,7 +141,7 @@ type dungeonSelectItem struct {
 	Name        string
 	Description string
 	Cleared     bool
-	ImageKey    string // bgスプライトシート内のキー。空なら画像なし
+	ImageKey    string // bgスプライトシート内のキー
 	IsCancel    bool   // 「やめる」項目
 }
 

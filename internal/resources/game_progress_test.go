@@ -36,20 +36,16 @@ func TestGameProgress_EventState(t *testing.T) {
 	t.Parallel()
 	gp := NewGameProgress()
 
-	// 未登録イベントはnilを返す
-	assert.Nil(t, gp.GetEvent(EventAllCleared))
+	// 未登録イベントは未視聴ではない
+	assert.False(t, gp.IsEventUnseen(EventAllCleared))
 
-	// Activeを設定
+	// Activeを設定すると未視聴になる
 	gp.SetEventActive(EventAllCleared)
-	ev := gp.GetEvent(EventAllCleared)
-	assert.NotNil(t, ev)
-	assert.True(t, ev.Active)
-	assert.False(t, ev.Seen)
+	assert.True(t, gp.IsEventUnseen(EventAllCleared))
 
-	// Seenを設定
-	ev.Seen = true
-	ev2 := gp.GetEvent(EventAllCleared)
-	assert.True(t, ev2.Seen)
+	// Seenを設定すると未視聴ではなくなる
+	gp.MarkEventSeen(EventAllCleared)
+	assert.False(t, gp.IsEventUnseen(EventAllCleared))
 }
 
 func TestGameProgress_IsAllCleared_EmptyList(t *testing.T) {

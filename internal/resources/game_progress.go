@@ -15,14 +15,14 @@ type EventState struct {
 // ダンジョンクリアフラグなど、冒険をまたいで残るデータを管理する。
 type GameProgress struct {
 	ClearedDungeons map[string]bool
-	Events          map[string]*EventState
+	Events          map[string]EventState
 }
 
 // NewGameProgress は初期化された GameProgress を返す
 func NewGameProgress() *GameProgress {
 	return &GameProgress{
 		ClearedDungeons: make(map[string]bool),
-		Events:          make(map[string]*EventState),
+		Events:          make(map[string]EventState),
 	}
 }
 
@@ -48,13 +48,20 @@ func (gp *GameProgress) IsAllCleared(dungeonNames []string) bool {
 
 // SetEventActive はイベントをActive状態にする
 func (gp *GameProgress) SetEventActive(eventID string) {
-	if gp.Events[eventID] == nil {
-		gp.Events[eventID] = &EventState{}
-	}
-	gp.Events[eventID].Active = true
+	ev := gp.Events[eventID]
+	ev.Active = true
+	gp.Events[eventID] = ev
 }
 
-// GetEvent はイベントの状態を返す。未登録の場合はnilを返す
-func (gp *GameProgress) GetEvent(eventID string) *EventState {
-	return gp.Events[eventID]
+// MarkEventSeen はイベントを視聴済みにする
+func (gp *GameProgress) MarkEventSeen(eventID string) {
+	ev := gp.Events[eventID]
+	ev.Seen = true
+	gp.Events[eventID] = ev
+}
+
+// IsEventUnseen はイベントが未視聴かを返す
+func (gp *GameProgress) IsEventUnseen(eventID string) bool {
+	ev, ok := gp.Events[eventID]
+	return ok && ev.Active && !ev.Seen
 }
