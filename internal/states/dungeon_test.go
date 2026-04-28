@@ -338,7 +338,7 @@ func TestHandleMoveInput_ShiftDelegates(t *testing.T) {
 	t.Parallel()
 
 	mock := input.NewMockKeyboardInput()
-	mock.SetKeyPressed(ebiten.KeyShiftLeft, true)
+	mock.SetKeyPressed(ebiten.KeyShift, true)
 	mock.SetKeyPressed(ebiten.KeyW, true)
 	mock.SetKeyPressedWithRepeat(ebiten.KeyA, true)
 
@@ -352,7 +352,7 @@ func TestHandleMoveInput_ShiftSingleKeyNoAction(t *testing.T) {
 	t.Parallel()
 
 	mock := input.NewMockKeyboardInput()
-	mock.SetKeyPressed(ebiten.KeyShiftLeft, true)
+	mock.SetKeyPressed(ebiten.KeyShift, true)
 	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
 
 	_, ok := handleMoveInput(mock)

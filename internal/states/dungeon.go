@@ -555,16 +555,16 @@ func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.Spa
 
 // handleMoveInput は8方向移動のキー入力を処理する
 func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
+	// Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける。
+	// IsKeyPressedWithRepeatは副作用があるため、Shift判定を先に行い不要な呼び出しを避ける
+	if keyboardInput.IsKeyPressed(ebiten.KeyShift) {
+		return handleShiftDiagonalInput(keyboardInput)
+	}
+
 	upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
 	downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
 	leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
 	rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
-
-	// Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける
-	shiftPressed := keyboardInput.IsKeyPressed(ebiten.KeyShiftLeft) || keyboardInput.IsKeyPressed(ebiten.KeyShiftRight)
-	if shiftPressed {
-		return handleShiftDiagonalInput(keyboardInput)
-	}
 
 	if upPressed {
 		return inputmapper.ActionMoveNorth, true
