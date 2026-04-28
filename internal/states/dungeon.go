@@ -583,28 +583,24 @@ func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, b
 }
 
 // handleShiftDiagonalInput はShift押下中の斜め移動入力を処理する。
-// 片方はIsKeyPressedで押しっぱなし判定、もう片方はIsKeyPressedWithRepeatでリピート制御する。
-// これにより片方を押しっぱなしでもう片方を押すだけで成立し、かつ通常移動と同じリピート速度になる
+// 縦軸のIsKeyPressedWithRepeatのみをリピートタイミングの制御に使い、横軸はIsKeyPressedで判定する。
+// 両軸のリピートをOR条件にするとリピート頻度が2倍になるため、片軸のみをドライバーにする
 func handleShiftDiagonalInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
-	upHeld := keyboardInput.IsKeyPressed(ebiten.KeyW) || keyboardInput.IsKeyPressed(ebiten.KeyUp)
-	downHeld := keyboardInput.IsKeyPressed(ebiten.KeyS) || keyboardInput.IsKeyPressed(ebiten.KeyDown)
-	leftHeld := keyboardInput.IsKeyPressed(ebiten.KeyA) || keyboardInput.IsKeyPressed(ebiten.KeyLeft)
-	rightHeld := keyboardInput.IsKeyPressed(ebiten.KeyD) || keyboardInput.IsKeyPressed(ebiten.KeyRight)
 	upRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
 	downRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
-	leftRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
-	rightRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
-	// 片方がリピートタイミングかつもう片方が押されていれば斜め移動する
-	if (upRepeat && leftHeld) || (upHeld && leftRepeat) {
+	leftHeld := keyboardInput.IsKeyPressed(ebiten.KeyA) || keyboardInput.IsKeyPressed(ebiten.KeyLeft)
+	rightHeld := keyboardInput.IsKeyPressed(ebiten.KeyD) || keyboardInput.IsKeyPressed(ebiten.KeyRight)
+
+	if upRepeat && leftHeld {
 		return inputmapper.ActionMoveNorthWest, true
 	}
-	if (upRepeat && rightHeld) || (upHeld && rightRepeat) {
+	if upRepeat && rightHeld {
 		return inputmapper.ActionMoveNorthEast, true
 	}
-	if (downRepeat && leftHeld) || (downHeld && leftRepeat) {
+	if downRepeat && leftHeld {
 		return inputmapper.ActionMoveSouthWest, true
 	}
-	if (downRepeat && rightHeld) || (downHeld && rightRepeat) {
+	if downRepeat && rightHeld {
 		return inputmapper.ActionMoveSouthEast, true
 	}
 	return "", false

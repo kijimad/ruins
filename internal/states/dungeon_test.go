@@ -280,33 +280,34 @@ func TestHandleMoveInput_NoShiftNoDiagonal(t *testing.T) {
 	assert.Equal(t, inputmapper.ActionMoveNorth, action)
 }
 
-// TestHandleShiftDiagonalInput は斜め移動の各方向を検証する
+// TestHandleShiftDiagonalInput は斜め移動の各方向を検証する。
+// 縦軸のRepeatのみをタイミングドライバーとして使い、横軸はHeld判定のみ行う
 func TestHandleShiftDiagonalInput(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name      string
-		heldKey   ebiten.Key
-		repeatKey ebiten.Key
-		expected  inputmapper.ActionID
+		name          string
+		verticalKey   ebiten.Key
+		horizontalKey ebiten.Key
+		expected      inputmapper.ActionID
 	}{
-		{"左上（W押しっぱなし+A）", ebiten.KeyW, ebiten.KeyA, inputmapper.ActionMoveNorthWest},
-		{"右上（W押しっぱなし+D）", ebiten.KeyW, ebiten.KeyD, inputmapper.ActionMoveNorthEast},
-		{"左下（S押しっぱなし+A）", ebiten.KeyS, ebiten.KeyA, inputmapper.ActionMoveSouthWest},
-		{"右下（S押しっぱなし+D）", ebiten.KeyS, ebiten.KeyD, inputmapper.ActionMoveSouthEast},
-		{"左上（A押しっぱなし+W）", ebiten.KeyA, ebiten.KeyW, inputmapper.ActionMoveNorthWest},
-		{"右上（D押しっぱなし+W）", ebiten.KeyD, ebiten.KeyW, inputmapper.ActionMoveNorthEast},
-		{"左下（A押しっぱなし+S）", ebiten.KeyA, ebiten.KeyS, inputmapper.ActionMoveSouthWest},
-		{"右下（D押しっぱなし+S）", ebiten.KeyD, ebiten.KeyS, inputmapper.ActionMoveSouthEast},
+		{"左上（W+A）", ebiten.KeyW, ebiten.KeyA, inputmapper.ActionMoveNorthWest},
+		{"右上（W+D）", ebiten.KeyW, ebiten.KeyD, inputmapper.ActionMoveNorthEast},
+		{"左下（S+A）", ebiten.KeyS, ebiten.KeyA, inputmapper.ActionMoveSouthWest},
+		{"右下（S+D）", ebiten.KeyS, ebiten.KeyD, inputmapper.ActionMoveSouthEast},
+		{"左上（矢印）", ebiten.KeyUp, ebiten.KeyLeft, inputmapper.ActionMoveNorthWest},
+		{"右上（矢印）", ebiten.KeyUp, ebiten.KeyRight, inputmapper.ActionMoveNorthEast},
+		{"左下（矢印）", ebiten.KeyDown, ebiten.KeyLeft, inputmapper.ActionMoveSouthWest},
+		{"右下（矢印）", ebiten.KeyDown, ebiten.KeyRight, inputmapper.ActionMoveSouthEast},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			mock := input.NewMockKeyboardInput()
-			// 片方はHeld（押しっぱなし）、もう片方はRepeat（リピートタイミング）
-			mock.SetKeyPressed(tt.heldKey, true)
-			mock.SetKeyPressedWithRepeat(tt.repeatKey, true)
+			// 縦軸はRepeatで発火し、横軸はHeldで判定する
+			mock.SetKeyPressedWithRepeat(tt.verticalKey, true)
+			mock.SetKeyPressed(tt.horizontalKey, true)
 
 			action, ok := handleShiftDiagonalInput(mock)
 			assert.True(t, ok)
@@ -339,8 +340,8 @@ func TestHandleMoveInput_ShiftDelegates(t *testing.T) {
 
 	mock := input.NewMockKeyboardInput()
 	mock.SetKeyPressed(ebiten.KeyShift, true)
-	mock.SetKeyPressed(ebiten.KeyW, true)
-	mock.SetKeyPressedWithRepeat(ebiten.KeyA, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
+	mock.SetKeyPressed(ebiten.KeyA, true)
 
 	action, ok := handleMoveInput(mock)
 	assert.True(t, ok)
