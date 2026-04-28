@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -230,6 +232,132 @@ func TestDoActionTurnManagement(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestHandleMoveInput_Cardinal は通常移動で4方向のみ受け付けることを検証する
+func TestHandleMoveInput_Cardinal(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		key      ebiten.Key
+		expected inputmapper.ActionID
+	}{
+		{"上", ebiten.KeyW, inputmapper.ActionMoveNorth},
+		{"下", ebiten.KeyS, inputmapper.ActionMoveSouth},
+		{"左", ebiten.KeyA, inputmapper.ActionMoveWest},
+		{"右", ebiten.KeyD, inputmapper.ActionMoveEast},
+		{"上矢印", ebiten.KeyUp, inputmapper.ActionMoveNorth},
+		{"下矢印", ebiten.KeyDown, inputmapper.ActionMoveSouth},
+		{"左矢印", ebiten.KeyLeft, inputmapper.ActionMoveWest},
+		{"右矢印", ebiten.KeyRight, inputmapper.ActionMoveEast},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			mock := input.NewMockKeyboardInput()
+			mock.SetKeyPressedWithRepeat(tt.key, true)
+
+			action, ok := handleMoveInput(mock)
+			assert.True(t, ok)
+			assert.Equal(t, tt.expected, action)
+		})
+	}
+}
+
+// TestHandleMoveInput_NoShiftNoDiagonal はShiftなしでは2キー同時押しでも斜め移動しないことを検証する
+func TestHandleMoveInput_NoShiftNoDiagonal(t *testing.T) {
+	t.Parallel()
+
+	mock := input.NewMockKeyboardInput()
+	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyA, true)
+
+	action, ok := handleMoveInput(mock)
+	assert.True(t, ok)
+	// Shiftなしでは最初にマッチした方向（上）が返る
+	assert.Equal(t, inputmapper.ActionMoveNorth, action)
+}
+
+// TestHandleShiftDiagonalInput は斜め移動の各方向を検証する。
+// 縦軸のRepeatのみをタイミングドライバーとして使い、横軸はHeld判定のみ行う
+func TestHandleShiftDiagonalInput(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		verticalKey   ebiten.Key
+		horizontalKey ebiten.Key
+		expected      inputmapper.ActionID
+	}{
+		{"左上（W+A）", ebiten.KeyW, ebiten.KeyA, inputmapper.ActionMoveNorthWest},
+		{"右上（W+D）", ebiten.KeyW, ebiten.KeyD, inputmapper.ActionMoveNorthEast},
+		{"左下（S+A）", ebiten.KeyS, ebiten.KeyA, inputmapper.ActionMoveSouthWest},
+		{"右下（S+D）", ebiten.KeyS, ebiten.KeyD, inputmapper.ActionMoveSouthEast},
+		{"左上（矢印）", ebiten.KeyUp, ebiten.KeyLeft, inputmapper.ActionMoveNorthWest},
+		{"右上（矢印）", ebiten.KeyUp, ebiten.KeyRight, inputmapper.ActionMoveNorthEast},
+		{"左下（矢印）", ebiten.KeyDown, ebiten.KeyLeft, inputmapper.ActionMoveSouthWest},
+		{"右下（矢印）", ebiten.KeyDown, ebiten.KeyRight, inputmapper.ActionMoveSouthEast},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			mock := input.NewMockKeyboardInput()
+			// 縦軸はRepeatで発火し、横軸はHeldで判定する
+			mock.SetKeyPressedWithRepeat(tt.verticalKey, true)
+			mock.SetKeyPressed(tt.horizontalKey, true)
+
+			action, ok := handleShiftDiagonalInput(mock)
+			assert.True(t, ok)
+			assert.Equal(t, tt.expected, action)
+		})
+	}
+}
+
+// TestHandleShiftDiagonalInput_SingleKey はShift中に1キーだけでは移動しないことを検証する
+func TestHandleShiftDiagonalInput_SingleKey(t *testing.T) {
+	t.Parallel()
+
+	keys := []ebiten.Key{ebiten.KeyW, ebiten.KeyA, ebiten.KeyS, ebiten.KeyD}
+	for _, key := range keys {
+		t.Run(key.String(), func(t *testing.T) {
+			t.Parallel()
+			mock := input.NewMockKeyboardInput()
+			mock.SetKeyPressed(key, true)
+			mock.SetKeyPressedWithRepeat(key, true)
+
+			_, ok := handleShiftDiagonalInput(mock)
+			assert.False(t, ok, "1キーのみでは斜め移動しないべき")
+		})
+	}
+}
+
+// TestHandleMoveInput_ShiftDelegates はShift押下中にhandleShiftDiagonalInputへ委譲されることを検証する
+func TestHandleMoveInput_ShiftDelegates(t *testing.T) {
+	t.Parallel()
+
+	mock := input.NewMockKeyboardInput()
+	mock.SetKeyPressed(ebiten.KeyShift, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
+	mock.SetKeyPressed(ebiten.KeyA, true)
+
+	action, ok := handleMoveInput(mock)
+	assert.True(t, ok)
+	assert.Equal(t, inputmapper.ActionMoveNorthWest, action)
+}
+
+// TestHandleMoveInput_ShiftSingleKeyNoAction はShift+単一キーでは移動しないことを検証する
+func TestHandleMoveInput_ShiftSingleKeyNoAction(t *testing.T) {
+	t.Parallel()
+
+	mock := input.NewMockKeyboardInput()
+	mock.SetKeyPressed(ebiten.KeyShift, true)
+	mock.SetKeyPressedWithRepeat(ebiten.KeyW, true)
+
+	_, ok := handleMoveInput(mock)
+	assert.False(t, ok, "Shift+単一キーでは移動しないべき")
 }
 
 // TestDoActionUIActionsAlwaysWork はUI系アクションはターンフェーズに関わらず動作する
