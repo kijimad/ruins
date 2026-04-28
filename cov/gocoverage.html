@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -183,7 +183,7 @@
 				
 				<option value="file63">github.com/kijimaD/ruins/internal/input/keyboard.go (31.0%)</option>
 				
-				<option value="file64">github.com/kijimaD/ruins/internal/input/mock_keyboard.go (100.0%)</option>
+				<option value="file64">github.com/kijimaD/ruins/internal/input/mock_keyboard.go (80.0%)</option>
 				
 				<option value="file65">github.com/kijimaD/ruins/internal/loader/loader.go (78.4%)</option>
 				
@@ -309,7 +309,7 @@
 				
 				<option value="file126">github.com/kijimaD/ruins/internal/states/craft_menu.go (21.2%)</option>
 				
-				<option value="file127">github.com/kijimaD/ruins/internal/states/dungeon.go (9.3%)</option>
+				<option value="file127">github.com/kijimaD/ruins/internal/states/dungeon.go (19.5%)</option>
 				
 				<option value="file128">github.com/kijimaD/ruins/internal/states/dungeon_select.go (0.0%)</option>
 				
@@ -1491,7 +1491,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
                         if !hit </span><span class="cov0" title="0">{
                                 l.Append(" を攻撃したが外れた。")
-                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov8" title="1">{
+                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
                         }</span> else<span class="cov8" title="1"> {
                                 l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
@@ -9925,17 +9925,19 @@ import (
 
 // MockKeyboardInput はテスト用のモックキーボード入力実装
 type MockKeyboardInput struct {
-        pressedKeys          map[ebiten.Key]bool
-        justPressedKeys      map[ebiten.Key]bool
-        previousEnterSession bool // 前回のEnterキーセッション状態
+        pressedKeys           map[ebiten.Key]bool
+        justPressedKeys       map[ebiten.Key]bool
+        pressedWithRepeatKeys map[ebiten.Key]bool
+        previousEnterSession  bool // 前回のEnterキーセッション状態
 }
 
 // NewMockKeyboardInput はモックキーボード入力を作成する
 func NewMockKeyboardInput() *MockKeyboardInput <span class="cov8" title="1">{
         return &amp;MockKeyboardInput{
-                pressedKeys:          make(map[ebiten.Key]bool),
-                justPressedKeys:      make(map[ebiten.Key]bool),
-                previousEnterSession: false,
+                pressedKeys:           make(map[ebiten.Key]bool),
+                justPressedKeys:       make(map[ebiten.Key]bool),
+                pressedWithRepeatKeys: make(map[ebiten.Key]bool),
+                previousEnterSession:  false,
         }
 }</span>
 
@@ -9949,10 +9951,31 @@ func (m *MockKeyboardInput) SetKeyPressed(key ebiten.Key, pressed bool) <span cl
         m.pressedKeys[key] = pressed
 }</span>
 
+// IsKeyJustPressed はキーが今フレームで初めて押されたかを返す
+func (m *MockKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool <span class="cov0" title="0">{
+        return m.justPressedKeys[key]
+}</span>
+
+// SetKeyJustPressed はテスト用にキーのJustPressed状態を設定する
+func (m *MockKeyboardInput) SetKeyJustPressed(key ebiten.Key, pressed bool) <span class="cov0" title="0">{
+        m.justPressedKeys[key] = pressed
+}</span>
+
+// IsKeyPressedWithRepeat はキーリピート付きの押下判定を返す
+func (m *MockKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool <span class="cov0" title="0">{
+        return m.pressedWithRepeatKeys[key]
+}</span>
+
+// SetKeyPressedWithRepeat はテスト用にキーのリピート付き押下状態を設定する
+func (m *MockKeyboardInput) SetKeyPressedWithRepeat(key ebiten.Key, pressed bool) <span class="cov0" title="0">{
+        m.pressedWithRepeatKeys[key] = pressed
+}</span>
+
 // Reset は全てのキー状態をリセットする
 func (m *MockKeyboardInput) Reset() <span class="cov8" title="1">{
         m.pressedKeys = make(map[ebiten.Key]bool)
         m.justPressedKeys = make(map[ebiten.Key]bool)
+        m.pressedWithRepeatKeys = make(map[ebiten.Key]bool)
         m.previousEnterSession = false
 }</span>
 
@@ -21287,36 +21310,9 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
                 return inputmapper.ActionShoot, true
         }</span>
 
-        // 8方向移動キー入力（キーリピート対応）
-        // 斜め移動は両方のキーがリピート判定で真になる場合のみ
-        <span class="cov0" title="0">upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
-        downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
-        leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
-        rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
-
-        if upPressed &amp;&amp; leftPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveNorthWest, true
-        }</span>
-        <span class="cov0" title="0">if upPressed &amp;&amp; rightPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveNorthEast, true
-        }</span>
-        <span class="cov0" title="0">if downPressed &amp;&amp; leftPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveSouthWest, true
-        }</span>
-        <span class="cov0" title="0">if downPressed &amp;&amp; rightPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveSouthEast, true
-        }</span>
-        <span class="cov0" title="0">if upPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveNorth, true
-        }</span>
-        <span class="cov0" title="0">if downPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveSouth, true
-        }</span>
-        <span class="cov0" title="0">if leftPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveWest, true
-        }</span>
-        <span class="cov0" title="0">if rightPressed </span><span class="cov0" title="0">{
-                return inputmapper.ActionMoveEast, true
+        // 移動入力
+        <span class="cov0" title="0">if action, ok := handleMoveInput(keyboardInput); ok </span><span class="cov0" title="0">{
+                return action, true
         }</span>
 
         // 待機キー（キーリピート対応）
@@ -21571,6 +21567,59 @@ func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.Spa
                 })</span>
         }
         <span class="cov0" title="0">return result</span>
+}
+
+// handleMoveInput は8方向移動のキー入力を処理する
+func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov8" title="1">{
+        // Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける。
+        // IsKeyPressedWithRepeatは副作用があるため、Shift判定を先に行い不要な呼び出しを避ける
+        if keyboardInput.IsKeyPressed(ebiten.KeyShift) </span><span class="cov8" title="1">{
+                return handleShiftDiagonalInput(keyboardInput)
+        }</span>
+
+        <span class="cov8" title="1">upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
+        downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
+        leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
+        rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
+
+        if upPressed </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveNorth, true
+        }</span>
+        <span class="cov8" title="1">if downPressed </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveSouth, true
+        }</span>
+        <span class="cov8" title="1">if leftPressed </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveWest, true
+        }</span>
+        <span class="cov8" title="1">if rightPressed </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveEast, true
+        }</span>
+
+        <span class="cov0" title="0">return "", false</span>
+}
+
+// handleShiftDiagonalInput はShift押下中の斜め移動入力を処理する。
+// 縦軸のIsKeyPressedWithRepeatのみをリピートタイミングの制御に使い、横軸はIsKeyPressedで判定する。
+// 両軸のリピートをOR条件にするとリピート頻度が2倍になるため、片軸のみをドライバーにする
+func handleShiftDiagonalInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) <span class="cov8" title="1">{
+        upRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
+        downRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
+        leftHeld := keyboardInput.IsKeyPressed(ebiten.KeyA) || keyboardInput.IsKeyPressed(ebiten.KeyLeft)
+        rightHeld := keyboardInput.IsKeyPressed(ebiten.KeyD) || keyboardInput.IsKeyPressed(ebiten.KeyRight)
+
+        if upRepeat &amp;&amp; leftHeld </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveNorthWest, true
+        }</span>
+        <span class="cov8" title="1">if upRepeat &amp;&amp; rightHeld </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveNorthEast, true
+        }</span>
+        <span class="cov8" title="1">if downRepeat &amp;&amp; leftHeld </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveSouthWest, true
+        }</span>
+        <span class="cov8" title="1">if downRepeat &amp;&amp; rightHeld </span><span class="cov8" title="1">{
+                return inputmapper.ActionMoveSouthEast, true
+        }</span>
+        <span class="cov8" title="1">return "", false</span>
 }
 
 // filterEnemyEntries は敵テーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
