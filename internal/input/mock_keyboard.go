@@ -6,17 +6,19 @@ import (
 
 // MockKeyboardInput はテスト用のモックキーボード入力実装
 type MockKeyboardInput struct {
-	pressedKeys          map[ebiten.Key]bool
-	justPressedKeys      map[ebiten.Key]bool
-	previousEnterSession bool // 前回のEnterキーセッション状態
+	pressedKeys           map[ebiten.Key]bool
+	justPressedKeys       map[ebiten.Key]bool
+	pressedWithRepeatKeys map[ebiten.Key]bool
+	previousEnterSession  bool // 前回のEnterキーセッション状態
 }
 
 // NewMockKeyboardInput はモックキーボード入力を作成する
 func NewMockKeyboardInput() *MockKeyboardInput {
 	return &MockKeyboardInput{
-		pressedKeys:          make(map[ebiten.Key]bool),
-		justPressedKeys:      make(map[ebiten.Key]bool),
-		previousEnterSession: false,
+		pressedKeys:           make(map[ebiten.Key]bool),
+		justPressedKeys:       make(map[ebiten.Key]bool),
+		pressedWithRepeatKeys: make(map[ebiten.Key]bool),
+		previousEnterSession:  false,
 	}
 }
 
@@ -30,10 +32,31 @@ func (m *MockKeyboardInput) SetKeyPressed(key ebiten.Key, pressed bool) {
 	m.pressedKeys[key] = pressed
 }
 
+// IsKeyJustPressed はキーが今フレームで初めて押されたかを返す
+func (m *MockKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool {
+	return m.justPressedKeys[key]
+}
+
+// SetKeyJustPressed はテスト用にキーのJustPressed状態を設定する
+func (m *MockKeyboardInput) SetKeyJustPressed(key ebiten.Key, pressed bool) {
+	m.justPressedKeys[key] = pressed
+}
+
+// IsKeyPressedWithRepeat はキーリピート付きの押下判定を返す
+func (m *MockKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool {
+	return m.pressedWithRepeatKeys[key]
+}
+
+// SetKeyPressedWithRepeat はテスト用にキーのリピート付き押下状態を設定する
+func (m *MockKeyboardInput) SetKeyPressedWithRepeat(key ebiten.Key, pressed bool) {
+	m.pressedWithRepeatKeys[key] = pressed
+}
+
 // Reset は全てのキー状態をリセットする
 func (m *MockKeyboardInput) Reset() {
 	m.pressedKeys = make(map[ebiten.Key]bool)
 	m.justPressedKeys = make(map[ebiten.Key]bool)
+	m.pressedWithRepeatKeys = make(map[ebiten.Key]bool)
 	m.previousEnterSession = false
 }
 

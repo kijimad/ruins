@@ -294,36 +294,9 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 		return inputmapper.ActionShoot, true
 	}
 
-	// 8方向移動キー入力（キーリピート対応）
-	// 斜め移動は両方のキーがリピート判定で真になる場合のみ
-	upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
-	downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
-	leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
-	rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
-
-	if upPressed && leftPressed {
-		return inputmapper.ActionMoveNorthWest, true
-	}
-	if upPressed && rightPressed {
-		return inputmapper.ActionMoveNorthEast, true
-	}
-	if downPressed && leftPressed {
-		return inputmapper.ActionMoveSouthWest, true
-	}
-	if downPressed && rightPressed {
-		return inputmapper.ActionMoveSouthEast, true
-	}
-	if upPressed {
-		return inputmapper.ActionMoveNorth, true
-	}
-	if downPressed {
-		return inputmapper.ActionMoveSouth, true
-	}
-	if leftPressed {
-		return inputmapper.ActionMoveWest, true
-	}
-	if rightPressed {
-		return inputmapper.ActionMoveEast, true
+	// 移動入力
+	if action, ok := handleMoveInput(keyboardInput); ok {
+		return action, true
 	}
 
 	// 待機キー（キーリピート対応）
@@ -578,6 +551,63 @@ func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.Spa
 		})
 	}
 	return result
+}
+
+// handleMoveInput は8方向移動のキー入力を処理する
+func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
+	upPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
+	downPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
+	leftPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
+	rightPressed := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
+
+	// Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける
+	shiftPressed := keyboardInput.IsKeyPressed(ebiten.KeyShiftLeft) || keyboardInput.IsKeyPressed(ebiten.KeyShiftRight)
+	if shiftPressed {
+		return handleShiftDiagonalInput(keyboardInput)
+	}
+
+	if upPressed {
+		return inputmapper.ActionMoveNorth, true
+	}
+	if downPressed {
+		return inputmapper.ActionMoveSouth, true
+	}
+	if leftPressed {
+		return inputmapper.ActionMoveWest, true
+	}
+	if rightPressed {
+		return inputmapper.ActionMoveEast, true
+	}
+
+	return "", false
+}
+
+// handleShiftDiagonalInput はShift押下中の斜め移動入力を処理する。
+// 片方はIsKeyPressedで押しっぱなし判定、もう片方はIsKeyPressedWithRepeatでリピート制御する。
+// これにより片方を押しっぱなしでもう片方を押すだけで成立し、かつ通常移動と同じリピート速度になる
+func handleShiftDiagonalInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
+	upHeld := keyboardInput.IsKeyPressed(ebiten.KeyW) || keyboardInput.IsKeyPressed(ebiten.KeyUp)
+	downHeld := keyboardInput.IsKeyPressed(ebiten.KeyS) || keyboardInput.IsKeyPressed(ebiten.KeyDown)
+	leftHeld := keyboardInput.IsKeyPressed(ebiten.KeyA) || keyboardInput.IsKeyPressed(ebiten.KeyLeft)
+	rightHeld := keyboardInput.IsKeyPressed(ebiten.KeyD) || keyboardInput.IsKeyPressed(ebiten.KeyRight)
+	upRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyW) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyUp)
+	downRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyS) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyDown)
+	leftRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyA) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyLeft)
+	rightRepeat := keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyD) || keyboardInput.IsKeyPressedWithRepeat(ebiten.KeyRight)
+	// 片方がリピートタイミングかつもう片方が押されていれば斜め移動する
+	if (upRepeat && leftHeld) || (upHeld && leftRepeat) {
+		return inputmapper.ActionMoveNorthWest, true
+	}
+	if (upRepeat && rightHeld) || (upHeld && rightRepeat) {
+		return inputmapper.ActionMoveNorthEast, true
+	}
+	if (downRepeat && leftHeld) || (downHeld && leftRepeat) {
+		return inputmapper.ActionMoveSouthWest, true
+	}
+	if (downRepeat && rightHeld) || (downHeld && rightRepeat) {
+		return inputmapper.ActionMoveSouthEast, true
+	}
+	return "", false
 }
 
 // filterEnemyEntries は敵テーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
