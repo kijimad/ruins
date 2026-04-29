@@ -66,7 +66,7 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	}
 
 	// Props更新
-	st.menuMount.SetProps(st.fetchProps())
+	st.menuMount.SetProps(st.fetchProps(world))
 	props := st.menuMount.GetProps()
 	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -135,10 +135,17 @@ type mainMenuItem struct {
 	Transition es.Transition[w.World]
 }
 
-func (st *MainMenuState) fetchProps() mainMenuProps {
+func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
+	var startFuncs []es.StateFactory[w.World]
+	if world.Config.QuickStart {
+		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
+	} else {
+		startFuncs = []es.StateFactory[w.World]{func() es.State[w.World] { return NewOpeningState(NewCharacterNamingState) }}
+	}
+
 	return mainMenuProps{
 		Items: []mainMenuItem{
-			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState}}},
+			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
 			{Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
 			{Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}},
 		},
