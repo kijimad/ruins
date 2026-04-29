@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">20.9&nbsp;%</td>
-            <td class="headerCovTableEntry">406</td>
+            <td class="headerCovTableEntryLo">20.6&nbsp;%</td>
+            <td class="headerCovTableEntry">413</td>
             <td class="headerCovTableEntry">85</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-29 02:59:34</td>
+            <td class="headerValue">2026-04-29 15:57:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -437,203 +437,210 @@
 <span id="L375"><span class="lineNum">     375</span>              : </span>
 <span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         selectedAction := actionItems[actionIndex]</span></span>
 <span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         case &quot;購入する&quot;:</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                 worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                         _ = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 st.subState = shopSubStateMenu</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         case &quot;売却する&quot;:</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                 worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :                         _ = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)</span></span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                 })</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :                 st.subState = shopSubStateMenu</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :         case TextClose:</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                 st.subState = shopSubStateMenu</span></span>
-<span id="L391"><span class="lineNum">     391</span>              :         }</span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L393"><span class="lineNum">     393</span>              : }</span>
-<span id="L394"><span class="lineNum">     394</span>              : </span>
-<span id="L395"><span class="lineNum">     395</span>              : // ================</span>
-<span id="L396"><span class="lineNum">     396</span>              : // buildUI</span>
-<span id="L397"><span class="lineNum">     397</span>              : // ================</span>
-<span id="L398"><span class="lineNum">     398</span>              : </span>
-<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {</span></span>
-<span id="L400"><span class="lineNum">     400</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L401"><span class="lineNum">     401</span> <span class="tlaUNC">           0 :         props := st.menuMount.GetProps()</span></span>
-<span id="L402"><span class="lineNum">     402</span> <span class="tlaUNC">           0 :         menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, &quot;shop&quot;)</span></span>
-<span id="L403"><span class="lineNum">     403</span> <span class="tlaUNC">           0 :         tabIndex := menuState.TabIndex</span></span>
-<span id="L404"><span class="lineNum">     404</span> <span class="tlaUNC">           0 :         itemIndex := menuState.ItemIndex</span></span>
-<span id="L405"><span class="lineNum">     405</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 :         root := styled.NewItemGridContainer(</span></span>
-<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
-<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         // 1行目: タイトル、カテゴリ、所持金</span></span>
-<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         root.AddChild(styled.NewTitleText(&quot;店&quot;, res))</span></span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))</span></span>
-<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCurrencyContainer(props.Currency, res))</span></span>
-<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         // 2行目: アイテム一覧、空、性能表示</span></span>
-<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))</span></span>
-<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         root.AddChild(widget.NewContainer())</span></span>
-<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildSpecContainer(world, props, tabIndex, itemIndex, res))</span></span>
-<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         // 3行目: 説明文</span></span>
-<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         root.AddChild(widget.NewContainer())</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         root.AddChild(widget.NewContainer())</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :         eui := &amp;ebitenui.UI{Container: root}</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         var actionErr error</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         switch selectedAction {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :         case &quot;購入する&quot;:</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                 worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                         actionErr = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                 if actionErr != nil {</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;購入に失敗: %w&quot;, actionErr)</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                 st.subState = shopSubStateMenu</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         case &quot;売却する&quot;:</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaUNC">           0 :                 worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaUNC">           0 :                         actionErr = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :                 })</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaUNC">           0 :                 if actionErr != nil {</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;売却に失敗: %w&quot;, actionErr)</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :                 st.subState = shopSubStateMenu</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :         case TextClose:</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :                 st.subState = shopSubStateMenu</span></span>
+<span id="L398"><span class="lineNum">     398</span>              :         }</span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L400"><span class="lineNum">     400</span>              : }</span>
+<span id="L401"><span class="lineNum">     401</span>              : </span>
+<span id="L402"><span class="lineNum">     402</span>              : // ================</span>
+<span id="L403"><span class="lineNum">     403</span>              : // buildUI</span>
+<span id="L404"><span class="lineNum">     404</span>              : // ================</span>
+<span id="L405"><span class="lineNum">     405</span>              : </span>
+<span id="L406"><span class="lineNum">     406</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {</span></span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaUNC">           0 :         props := st.menuMount.GetProps()</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, &quot;shop&quot;)</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaUNC">           0 :         tabIndex := menuState.TabIndex</span></span>
+<span id="L411"><span class="lineNum">     411</span> <span class="tlaUNC">           0 :         itemIndex := menuState.ItemIndex</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         root := styled.NewItemGridContainer(</span></span>
+<span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
+<span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L416"><span class="lineNum">     416</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L417"><span class="lineNum">     417</span> <span class="tlaUNC">           0 :         // 1行目: タイトル、カテゴリ、所持金</span></span>
+<span id="L418"><span class="lineNum">     418</span> <span class="tlaUNC">           0 :         root.AddChild(styled.NewTitleText(&quot;店&quot;, res))</span></span>
+<span id="L419"><span class="lineNum">     419</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))</span></span>
+<span id="L420"><span class="lineNum">     420</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildCurrencyContainer(props.Currency, res))</span></span>
+<span id="L421"><span class="lineNum">     421</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaUNC">           0 :         // 2行目: アイテム一覧、空、性能表示</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaUNC">           0 :         root.AddChild(widget.NewContainer())</span></span>
+<span id="L425"><span class="lineNum">     425</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildSpecContainer(world, props, tabIndex, itemIndex, res))</span></span>
 <span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         // ウィンドウを追加</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :         if st.subState == shopSubStateWindow {</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :                 actionWindow := st.buildActionWindow(world, st.windowMount.GetProps())</span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :                 eui.AddWindow(actionWindow)</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L432"><span class="lineNum">     432</span>              : </span>
-<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :         return eui</span></span>
-<span id="L434"><span class="lineNum">     434</span>              : }</span>
-<span id="L435"><span class="lineNum">     435</span>              : </span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
-<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :                 color := consts.ForegroundColor</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 if isSelected {</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                         color = consts.TextColor</span></span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))</span></span>
-<span id="L445"><span class="lineNum">     445</span>              :         }</span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L447"><span class="lineNum">     447</span>              : }</span>
-<span id="L448"><span class="lineNum">     448</span>              : </span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCurrencyContainer(currency int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(worldhelper.FormatCurrency(currency), res))</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L454"><span class="lineNum">     454</span>              : </span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
-<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(tabs) {</span></span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :                 return container</span></span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L460"><span class="lineNum">     460</span>              : </span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :         currentTab := tabs[tabIndex]</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :         pg := pagination.New(itemIndex, len(currentTab.Items), shopItemsPerPage)</span></span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         // ページインジケーター（上部固定位置、右寄せ）</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :         pageText := pg.GetPageText()</span></span>
-<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :         if pageText == &quot;&quot; {</span></span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                 pageText = &quot; &quot;</span></span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewPageIndicator(pageText, res))</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         // 3行目: 説明文</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 :         root.AddChild(st.buildDescContainer(world, props.Tabs, tabIndex, itemIndex, res))</span></span>
+<span id="L429"><span class="lineNum">     429</span> <span class="tlaUNC">           0 :         root.AddChild(widget.NewContainer())</span></span>
+<span id="L430"><span class="lineNum">     430</span> <span class="tlaUNC">           0 :         root.AddChild(widget.NewContainer())</span></span>
+<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :         eui := &amp;ebitenui.UI{Container: root}</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         // ウィンドウを追加</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :         if st.subState == shopSubStateWindow {</span></span>
+<span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :                 actionWindow := st.buildActionWindow(world, st.windowMount.GetProps())</span></span>
+<span id="L437"><span class="lineNum">     437</span> <span class="tlaUNC">           0 :                 eui.AddWindow(actionWindow)</span></span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L439"><span class="lineNum">     439</span>              : </span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         return eui</span></span>
+<span id="L441"><span class="lineNum">     441</span>              : }</span>
+<span id="L442"><span class="lineNum">     442</span>              : </span>
+<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
+<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
+<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
+<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :                 color := consts.ForegroundColor</span></span>
+<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :                 if isSelected {</span></span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                         color = consts.TextColor</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))</span></span>
+<span id="L452"><span class="lineNum">     452</span>              :         }</span>
+<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L454"><span class="lineNum">     454</span>              : }</span>
+<span id="L455"><span class="lineNum">     455</span>              : </span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCurrencyContainer(currency int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(worldhelper.FormatCurrency(currency), res))</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L461"><span class="lineNum">     461</span>              : </span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(tabs) {</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                 return container</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :         currentTab := tabs[tabIndex]</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :         pg := pagination.New(itemIndex, len(currentTab.Items), shopItemsPerPage)</span></span>
 <span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :         // 購入タブ: カーソル、名前、価格の3列</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :         // 売却タブ: カーソル、名前、価格、個数の4列</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :         if currentTab.ID == &quot;buy&quot; {</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                 columnWidths := []int{20, 150, 80}</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :                 aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 :                 table := styled.NewTableContainer(columnWidths, res)</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :                 for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :                         isSelected := pg.IsSelectedInPage(entry.Index)</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                         priceStr := worldhelper.FormatCurrency(entry.Item.Price)</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                         styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, entry.Item.Label, priceStr}, aligns, &amp;isSelected, res)</span></span>
-<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 :                 container.AddChild(table)</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                 columnWidths := []int{20, 150, 80, 40}</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                 aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                 table := styled.NewTableContainer(columnWidths, res)</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                 for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                         isSelected := pg.IsSelectedInPage(entry.Index)</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                         priceStr := worldhelper.FormatCurrency(entry.Item.Price)</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :                         countStr := &quot;&quot;</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                         if entry.Item.Count &gt; 1 {</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :                                 countStr = fmt.Sprintf(&quot;x%d&quot;, entry.Item.Count)</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                         styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, entry.Item.Label, priceStr, countStr}, aligns, &amp;isSelected, res)</span></span>
-<span id="L497"><span class="lineNum">     497</span>              :                 }</span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                 container.AddChild(table)</span></span>
-<span id="L499"><span class="lineNum">     499</span>              :         }</span>
-<span id="L500"><span class="lineNum">     500</span>              : </span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :         if len(currentTab.Items) == 0 {</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :                 if currentTab.ID == &quot;sell&quot; {</span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewDescriptionText(&quot;売却可能なアイテムがありません&quot;, res))</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :                 } else {</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewDescriptionText(&quot;(商品なし)&quot;, res))</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L507"><span class="lineNum">     507</span>              :         }</span>
-<span id="L508"><span class="lineNum">     508</span>              : </span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L510"><span class="lineNum">     510</span>              : }</span>
-<span id="L511"><span class="lineNum">     511</span>              : </span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer(</span></span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                 return container</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :         tab := props.Tabs[tabIndex]</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :         if itemIndex &gt;= len(tab.Items) {</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                 return container</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :         item := tab.Items[itemIndex]</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         // RawMasterからEntitySpecを取得して性能を表示</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         rawMaster := world.Resources.RawMaster</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :         spec, err := rawMaster.NewItemSpec(item.Label)</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :                 return container</span></span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L532"><span class="lineNum">     532</span>              : </span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :         views.UpdateSpecFromSpec(world, container, spec)</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L535"><span class="lineNum">     535</span>              : }</span>
-<span id="L536"><span class="lineNum">     536</span>              : </span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :                 item := tabs[tabIndex].Items[itemIndex]</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :                 rawMaster := world.Resources.RawMaster</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 spec, err := rawMaster.NewItemSpec(item.Label)</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 if err == nil &amp;&amp; spec.Description != nil {</span></span>
-<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :                         desc = spec.Description.Description</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L548"><span class="lineNum">     548</span>              :         }</span>
-<span id="L549"><span class="lineNum">     549</span>              : </span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :         if desc == &quot;&quot; {</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :                 desc = &quot; &quot;</span></span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(desc, res))</span></span>
-<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :         return container</span></span>
-<span id="L555"><span class="lineNum">     555</span>              : }</span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :         // ページインジケーター（上部固定位置、右寄せ）</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :         pageText := pg.GetPageText()</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :         if pageText == &quot;&quot; {</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                 pageText = &quot; &quot;</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewPageIndicator(pageText, res))</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         // 購入タブ: カーソル、名前、価格の3列</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         // 売却タブ: カーソル、名前、価格、個数の4列</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         if currentTab.ID == &quot;buy&quot; {</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 columnWidths := []int{20, 150, 80}</span></span>
+<span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :                 aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}</span></span>
+<span id="L483"><span class="lineNum">     483</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :                 table := styled.NewTableContainer(columnWidths, res)</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                 for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :                         isSelected := pg.IsSelectedInPage(entry.Index)</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :                         priceStr := worldhelper.FormatCurrency(entry.Item.Price)</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :                         styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, entry.Item.Label, priceStr}, aligns, &amp;isSelected, res)</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                 container.AddChild(table)</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         } else {</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :                 columnWidths := []int{20, 150, 80, 40}</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :                 aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                 table := styled.NewTableContainer(columnWidths, res)</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :                 for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :                         isSelected := pg.IsSelectedInPage(entry.Index)</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                         priceStr := worldhelper.FormatCurrency(entry.Item.Price)</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                         countStr := &quot;&quot;</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :                         if entry.Item.Count &gt; 1 {</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :                                 countStr = fmt.Sprintf(&quot;x%d&quot;, entry.Item.Count)</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :                         styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, entry.Item.Label, priceStr, countStr}, aligns, &amp;isSelected, res)</span></span>
+<span id="L504"><span class="lineNum">     504</span>              :                 }</span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :                 container.AddChild(table)</span></span>
+<span id="L506"><span class="lineNum">     506</span>              :         }</span>
+<span id="L507"><span class="lineNum">     507</span>              : </span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         if len(currentTab.Items) == 0 {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                 if currentTab.ID == &quot;sell&quot; {</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewDescriptionText(&quot;売却可能なアイテムがありません&quot;, res))</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                 } else {</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewDescriptionText(&quot;(商品なし)&quot;, res))</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L514"><span class="lineNum">     514</span>              :         }</span>
+<span id="L515"><span class="lineNum">     515</span>              : </span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L517"><span class="lineNum">     517</span>              : }</span>
+<span id="L518"><span class="lineNum">     518</span>              : </span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer(</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(props.Tabs) {</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                 return container</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         tab := props.Tabs[tabIndex]</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :         if itemIndex &gt;= len(tab.Items) {</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :                 return container</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :         item := tab.Items[itemIndex]</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :         // RawMasterからEntitySpecを取得して性能を表示</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         rawMaster := world.Resources.RawMaster</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :         spec, err := rawMaster.NewItemSpec(item.Label)</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :                 return container</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L539"><span class="lineNum">     539</span>              : </span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         views.UpdateSpecFromSpec(world, container, spec)</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L542"><span class="lineNum">     542</span>              : }</span>
+<span id="L543"><span class="lineNum">     543</span>              : </span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                 item := tabs[tabIndex].Items[itemIndex]</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :                 rawMaster := world.Resources.RawMaster</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaUNC">           0 :                 spec, err := rawMaster.NewItemSpec(item.Label)</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :                 if err == nil &amp;&amp; spec.Description != nil {</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :                         desc = spec.Description.Description</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L555"><span class="lineNum">     555</span>              :         }</span>
 <span id="L556"><span class="lineNum">     556</span>              : </span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildActionWindow(world w.World, windowProps shopWindowProps) *widget.Window {</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         actionIndex, _ := hooks.GetState[int](st.windowMount, &quot;shop_window_index&quot;)</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems(world, windowProps.SelectedItem)</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :         window := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L571"><span class="lineNum">     571</span>              : </span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :         window.SetLocation(getCenterWinRect(world))</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         return window</span></span>
-<span id="L574"><span class="lineNum">     574</span>              : }</span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :         if desc == &quot;&quot; {</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :                 desc = &quot; &quot;</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(desc, res))</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :         return container</span></span>
+<span id="L562"><span class="lineNum">     562</span>              : }</span>
+<span id="L563"><span class="lineNum">     563</span>              : </span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildActionWindow(world w.World, windowProps shopWindowProps) *widget.Window {</span></span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :         actionIndex, _ := hooks.GetState[int](st.windowMount, &quot;shop_window_index&quot;)</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :         actionItems := st.getActionItems(world, windowProps.SelectedItem)</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :         window := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L578"><span class="lineNum">     578</span>              : </span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :         window.SetLocation(getCenterWinRect(world))</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :         return window</span></span>
+<span id="L581"><span class="lineNum">     581</span>              : }</span>
         </pre>
               </td>
             </tr>

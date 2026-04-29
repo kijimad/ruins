@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">90</td>
-            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntry">80</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-29 02:59:34</td>
+            <td class="headerValue">2026-04-29 15:57:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,159 +65,148 @@
 <span id="L3"><span class="lineNum">       3</span>              : </span>
 <span id="L4"><span class="lineNum">       4</span>              : import (</span>
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;image/color&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              : )</span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
-<span id="L10"><span class="lineNum">      10</span>              : // MessageData はメッセージウィンドウに表示するデータ</span>
-<span id="L11"><span class="lineNum">      11</span>              : type MessageData struct {</span>
-<span id="L12"><span class="lineNum">      12</span>              :         Speaker          string</span>
-<span id="L13"><span class="lineNum">      13</span>              :         Choices          []Choice</span>
-<span id="L14"><span class="lineNum">      14</span>              :         OnComplete       func()          // メッセージ完了時のコールバック</span>
-<span id="L15"><span class="lineNum">      15</span>              :         NextMessages     []*MessageData  // 次に表示するメッセージ群</span>
-<span id="L16"><span class="lineNum">      16</span>              :         TextSegmentLines [][]TextSegment // 行ごとの色付きテキストセグメント</span>
-<span id="L17"><span class="lineNum">      17</span>              : }</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // TextSegment は色付きテキストのセグメント</span>
-<span id="L20"><span class="lineNum">      20</span>              : type TextSegment struct {</span>
-<span id="L21"><span class="lineNum">      21</span>              :         Text            string</span>
-<span id="L22"><span class="lineNum">      22</span>              :         Color           *color.RGBA // nilの場合はデフォルト色</span>
-<span id="L23"><span class="lineNum">      23</span>              :         BackgroundColor *color.RGBA // nilの場合は背景なし</span>
-<span id="L24"><span class="lineNum">      24</span>              : }</span>
-<span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span>              : // Choice は選択肢のデータ</span>
-<span id="L27"><span class="lineNum">      27</span>              : type Choice struct {</span>
-<span id="L28"><span class="lineNum">      28</span>              :         Text        string</span>
-<span id="L29"><span class="lineNum">      29</span>              :         Action      func(w.World) error // 選択時に実行する</span>
-<span id="L30"><span class="lineNum">      30</span>              :         MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ</span>
-<span id="L31"><span class="lineNum">      31</span>              :         Disabled    bool</span>
-<span id="L32"><span class="lineNum">      32</span>              : }</span>
-<span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : // NewDialogMessage は会話メッセージを作成する</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 : func NewDialogMessage(text, speaker string) *MessageData {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         msg := &amp;MessageData{</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 Speaker: speaker,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         msg.AddText(text)</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         return msg</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L42"><span class="lineNum">      42</span>              : </span>
-<span id="L43"><span class="lineNum">      43</span>              : // NewSystemMessage はシステムメッセージを作成する</span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : func NewSystemMessage(text string) *MessageData {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         msg := &amp;MessageData{</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 Speaker: &quot;&quot;,</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         msg.AddText(text)</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return msg</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L51"><span class="lineNum">      51</span>              : </span>
-<span id="L52"><span class="lineNum">      52</span>              : // WithChoice は選択肢を追加する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func (m *MessageData) WithChoice(text string, action func(w.World) error) *MessageData {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         m.Choices = append(m.Choices, Choice{</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 Text:   text,</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 Action: action,</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : // WithChoiceMessage は選択肢にメッセージを関連付けて追加する</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 : func (m *MessageData) WithChoiceMessage(text string, messageData *MessageData) *MessageData {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :         m.Choices = append(m.Choices, Choice{</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 Text:        text,</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 MessageData: messageData,</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L69"><span class="lineNum">      69</span>              : </span>
-<span id="L70"><span class="lineNum">      70</span>              : // WithOnComplete は完了時のコールバックを設定する</span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func (m *MessageData) WithOnComplete(callback func()) *MessageData {</span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         m.OnComplete = callback</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L75"><span class="lineNum">      75</span>              : </span>
-<span id="L76"><span class="lineNum">      76</span>              : // DialogMessage は会話メッセージを連鎖</span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func (m *MessageData) DialogMessage(text, speaker string) *MessageData {</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         m.NextMessages = append(m.NextMessages, NewDialogMessage(text, speaker))</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L81"><span class="lineNum">      81</span>              : </span>
-<span id="L82"><span class="lineNum">      82</span>              : // SystemMessage はシステムメッセージを連鎖</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 : func (m *MessageData) SystemMessage(text string) *MessageData {</span></span>
-<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         m.NextMessages = append(m.NextMessages, NewSystemMessage(text))</span></span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L87"><span class="lineNum">      87</span>              : </span>
-<span id="L88"><span class="lineNum">      88</span>              : // HasNextMessages は次のメッセージがあるかを確認</span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 : func (m *MessageData) HasNextMessages() bool {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :         return len(m.NextMessages) &gt; 0</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span>              : // GetNextMessages は次のメッセージ群を取得</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 : func (m *MessageData) GetNextMessages() []*MessageData {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return m.NextMessages</span></span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;strings&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              : )</span>
+<span id="L10"><span class="lineNum">      10</span>              : </span>
+<span id="L11"><span class="lineNum">      11</span>              : // MessageData はメッセージウィンドウに表示するデータ</span>
+<span id="L12"><span class="lineNum">      12</span>              : type MessageData struct {</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Speaker          string</span>
+<span id="L14"><span class="lineNum">      14</span>              :         Choices          []Choice</span>
+<span id="L15"><span class="lineNum">      15</span>              :         OnComplete       func()          // メッセージ完了時のコールバック</span>
+<span id="L16"><span class="lineNum">      16</span>              :         nextMessages     []*MessageData  // 次に表示するメッセージ群</span>
+<span id="L17"><span class="lineNum">      17</span>              :         TextSegmentLines [][]TextSegment // 行ごとの色付きテキストセグメント</span>
+<span id="L18"><span class="lineNum">      18</span>              :         BackgroundKey    string          // 背景スプライトキー。空なら前の背景を維持する</span>
+<span id="L19"><span class="lineNum">      19</span>              : }</span>
+<span id="L20"><span class="lineNum">      20</span>              : </span>
+<span id="L21"><span class="lineNum">      21</span>              : // TextSegment は色付きテキストのセグメント</span>
+<span id="L22"><span class="lineNum">      22</span>              : type TextSegment struct {</span>
+<span id="L23"><span class="lineNum">      23</span>              :         Text            string</span>
+<span id="L24"><span class="lineNum">      24</span>              :         Color           *color.RGBA // nilの場合はデフォルト色</span>
+<span id="L25"><span class="lineNum">      25</span>              :         BackgroundColor *color.RGBA // nilの場合は背景なし</span>
+<span id="L26"><span class="lineNum">      26</span>              : }</span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span>              : // Choice は選択肢のデータ</span>
+<span id="L29"><span class="lineNum">      29</span>              : type Choice struct {</span>
+<span id="L30"><span class="lineNum">      30</span>              :         Text        string</span>
+<span id="L31"><span class="lineNum">      31</span>              :         Action      func(w.World) error // 選択時に実行する</span>
+<span id="L32"><span class="lineNum">      32</span>              :         MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ</span>
+<span id="L33"><span class="lineNum">      33</span>              :         Disabled    bool</span>
+<span id="L34"><span class="lineNum">      34</span>              : }</span>
+<span id="L35"><span class="lineNum">      35</span>              : </span>
+<span id="L36"><span class="lineNum">      36</span>              : // ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す</span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC tlaBgGNC">           1 : func ChainMessages(pages ...*MessageData) *MessageData {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; len(pages)-1; i++ {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 pages[i].nextMessages = []*MessageData{pages[i+1]}</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         return pages[0]</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : }</span>
+<span id="L43"><span class="lineNum">      43</span>              : </span>
+<span id="L44"><span class="lineNum">      44</span>              : // NewDialogMessage は会話メッセージを作成する</span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 : func NewDialogMessage(text, speaker string) *MessageData {</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         msg := &amp;MessageData{</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 Speaker: speaker,</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         msg.AddText(text)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         return msg</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L52"><span class="lineNum">      52</span>              : </span>
+<span id="L53"><span class="lineNum">      53</span>              : // NewSystemMessage はシステムメッセージを作成する</span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func NewSystemMessage(text string) *MessageData {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         msg := &amp;MessageData{</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                 Speaker: &quot;&quot;,</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         msg.AddText(text)</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         return msg</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : // WithChoice は選択肢を追加する</span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 : func (m *MessageData) WithChoice(text string, action func(w.World) error) *MessageData {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         m.Choices = append(m.Choices, Choice{</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 Text:   text,</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 Action: action,</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L70"><span class="lineNum">      70</span>              : </span>
+<span id="L71"><span class="lineNum">      71</span>              : // WithChoiceMessage は選択肢にメッセージを関連付けて追加する</span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 : func (m *MessageData) WithChoiceMessage(text string, messageData *MessageData) *MessageData {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :         m.Choices = append(m.Choices, Choice{</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 Text:        text,</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                 MessageData: messageData,</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : // WithOnComplete は完了時のコールバックを設定する</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 : func (m *MessageData) WithOnComplete(callback func()) *MessageData {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         m.OnComplete = callback</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L85"><span class="lineNum">      85</span>              : </span>
+<span id="L86"><span class="lineNum">      86</span>              : // DialogMessage は会話メッセージを連鎖</span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 : func (m *MessageData) DialogMessage(text, speaker string) *MessageData {</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         m.nextMessages = append(m.nextMessages, NewDialogMessage(text, speaker))</span></span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span>              : // SystemMessage はシステムメッセージを連鎖</span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 : func (m *MessageData) SystemMessage(text string) *MessageData {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         m.nextMessages = append(m.nextMessages, NewSystemMessage(text))</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         return m</span></span>
 <span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L97"><span class="lineNum">      97</span>              : </span>
-<span id="L98"><span class="lineNum">      98</span>              : // ensureCurrentLine は現在の行が存在することを保証する</span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : func (m *MessageData) ensureCurrentLine() {</span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           2 :         if len(m.TextSegmentLines) == 0 {</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                 m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L103"><span class="lineNum">     103</span>              : }</span>
-<span id="L104"><span class="lineNum">     104</span>              : </span>
-<span id="L105"><span class="lineNum">     105</span>              : // AddText は通常テキストを追加する</span>
-<span id="L106"><span class="lineNum">     106</span>              : // テキストに改行文字(\n)が含まれている場合、自動的に新しい行に分割する</span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 : func (m *MessageData) AddText(text string) *MessageData {</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :         m.ensureCurrentLine()</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         // 改行文字で分割</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :         lines := splitByNewline(text)</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :         for i, line := range lines {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           2 :                 if i &gt; 0 {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                         // 2行目以降は新しい行を作成</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                         m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L118"><span class="lineNum">     118</span>              : </span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 currentLineIdx := len(m.TextSegmentLines) - 1</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 m.TextSegmentLines[currentLineIdx] = append(m.TextSegmentLines[currentLineIdx], TextSegment{Text: line})</span></span>
-<span id="L121"><span class="lineNum">     121</span>              :         }</span>
-<span id="L122"><span class="lineNum">     122</span>              : </span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L124"><span class="lineNum">     124</span>              : }</span>
-<span id="L125"><span class="lineNum">     125</span>              : </span>
-<span id="L126"><span class="lineNum">     126</span>              : // splitByNewline は改行文字で文字列を分割する</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 : func splitByNewline(text string) []string {</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         var lines []string</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         var current string</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           2 :         for _, r := range text {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :                 if r == '\n' {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         lines = append(lines, current)</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                         current = &quot;&quot;</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           2 :                 } else {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         current += string(r)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L138"><span class="lineNum">     138</span>              :         }</span>
-<span id="L139"><span class="lineNum">     139</span>              : </span>
-<span id="L140"><span class="lineNum">     140</span>              :         // 最後の行を追加</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         lines = append(lines, current)</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         return lines</span></span>
-<span id="L144"><span class="lineNum">     144</span>              : }</span>
-<span id="L145"><span class="lineNum">     145</span>              : </span>
-<span id="L146"><span class="lineNum">     146</span>              : // AddKeyword はキーワード（赤色背景）テキストを追加する</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : func (m *MessageData) AddKeyword(text string) *MessageData {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         m.ensureCurrentLine()</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         importantColor := color.RGBA{255, 100, 100, 255}</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         importantBgColor := color.RGBA{80, 20, 20, 180}</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         currentLineIdx := len(m.TextSegmentLines) - 1</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         m.TextSegmentLines[currentLineIdx] = append(m.TextSegmentLines[currentLineIdx], TextSegment{</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 Text:            text,</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 Color:           &amp;importantColor,</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 BackgroundColor: &amp;importantBgColor,</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return m</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : // HasNextMessages は次のメッセージがあるかを確認する</span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 : func (m *MessageData) HasNextMessages() bool {</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         return len(m.nextMessages) &gt; 0</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L102"><span class="lineNum">     102</span>              : </span>
+<span id="L103"><span class="lineNum">     103</span>              : // GetNextMessages は次のメッセージ群を取得する</span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 : func (m *MessageData) GetNextMessages() []*MessageData {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         return m.nextMessages</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L107"><span class="lineNum">     107</span>              : </span>
+<span id="L108"><span class="lineNum">     108</span>              : // ensureCurrentLine は現在の行が存在することを保証する</span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 : func (m *MessageData) ensureCurrentLine() {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           2 :         if len(m.TextSegmentLines) == 0 {</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                 m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L113"><span class="lineNum">     113</span>              : }</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              : // AddText は通常テキストを追加する</span>
+<span id="L116"><span class="lineNum">     116</span>              : // テキストに改行文字(\n)が含まれている場合、自動的に新しい行に分割する</span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : func (m *MessageData) AddText(text string) *MessageData {</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         m.ensureCurrentLine()</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         lines := strings.Split(text, &quot;\n&quot;)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           2 :         for i, line := range lines {</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           2 :                 if i &gt; 0 {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                         // 2行目以降は新しい行を作成</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         m.TextSegmentLines = append(m.TextSegmentLines, []TextSegment{})</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L127"><span class="lineNum">     127</span>              : </span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                 currentLineIdx := len(m.TextSegmentLines) - 1</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                 m.TextSegmentLines[currentLineIdx] = append(m.TextSegmentLines[currentLineIdx], TextSegment{Text: line})</span></span>
+<span id="L130"><span class="lineNum">     130</span>              :         }</span>
+<span id="L131"><span class="lineNum">     131</span>              : </span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L133"><span class="lineNum">     133</span>              : }</span>
+<span id="L134"><span class="lineNum">     134</span>              : </span>
+<span id="L135"><span class="lineNum">     135</span>              : // AddKeyword はキーワード（赤色背景）テキストを追加する</span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 : func (m *MessageData) AddKeyword(text string) *MessageData {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         m.ensureCurrentLine()</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :         importantColor := color.RGBA{255, 100, 100, 255}</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         importantBgColor := color.RGBA{80, 20, 20, 180}</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         currentLineIdx := len(m.TextSegmentLines) - 1</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         m.TextSegmentLines[currentLineIdx] = append(m.TextSegmentLines[currentLineIdx], TextSegment{</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 Text:            text,</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 Color:           &amp;importantColor,</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 BackgroundColor: &amp;importantBgColor,</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         return m</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

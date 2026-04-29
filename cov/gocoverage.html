@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -305,17 +305,17 @@
 				
 				<option value="file124">github.com/kijimaD/ruins/internal/states/character_job.go (13.9%)</option>
 				
-				<option value="file125">github.com/kijimaD/ruins/internal/states/character_naming.go (37.5%)</option>
+				<option value="file125">github.com/kijimaD/ruins/internal/states/character_naming.go (37.0%)</option>
 				
 				<option value="file126">github.com/kijimaD/ruins/internal/states/craft_menu.go (21.2%)</option>
 				
-				<option value="file127">github.com/kijimaD/ruins/internal/states/dungeon.go (19.5%)</option>
+				<option value="file127">github.com/kijimaD/ruins/internal/states/dungeon.go (19.8%)</option>
 				
 				<option value="file128">github.com/kijimaD/ruins/internal/states/dungeon_select.go (0.0%)</option>
 				
 				<option value="file129">github.com/kijimaD/ruins/internal/states/equip_menu.go (15.7%)</option>
 				
-				<option value="file130">github.com/kijimaD/ruins/internal/states/factories.go (2.6%)</option>
+				<option value="file130">github.com/kijimaD/ruins/internal/states/factories.go (7.5%)</option>
 				
 				<option value="file131">github.com/kijimaD/ruins/internal/states/fadeout_animation.go (0.0%)</option>
 				
@@ -325,7 +325,7 @@
 				
 				<option value="file134">github.com/kijimaD/ruins/internal/states/look_around.go (10.7%)</option>
 				
-				<option value="file135">github.com/kijimaD/ruins/internal/states/main_menu.go (25.8%)</option>
+				<option value="file135">github.com/kijimaD/ruins/internal/states/main_menu.go (29.0%)</option>
 				
 				<option value="file136">github.com/kijimaD/ruins/internal/states/message.go (0.0%)</option>
 				
@@ -333,7 +333,7 @@
 				
 				<option value="file138">github.com/kijimaD/ruins/internal/states/shooting.go (0.0%)</option>
 				
-				<option value="file139">github.com/kijimaD/ruins/internal/states/shop_menu.go (18.6%)</option>
+				<option value="file139">github.com/kijimaD/ruins/internal/states/shop_menu.go (18.3%)</option>
 				
 				<option value="file140">github.com/kijimaD/ruins/internal/states/status_state.go (44.5%)</option>
 				
@@ -1343,7 +1343,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1489,7 +1489,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov8" title="1">worldhelper.AppendNameWithColor(l, target, targetName, world)</span>
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
-                        if !hit </span><span class="cov0" title="0">{
+                        if !hit </span><span class="cov8" title="1">{
                                 l.Append(" を攻撃したが外れた。")
                         }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
@@ -8353,7 +8353,7 @@ var (
         DungeonForest = Definition{
                 Name:            "亡者の森",
                 Description:     "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
-                ImageKey:        "hospital1",
+                ImageKey:        "forest1",
                 TotalFloors:     20,
                 EnemyTableName:  "森",
                 ItemTableName:   "森",
@@ -8370,7 +8370,7 @@ var (
         DungeonCave = Definition{
                 Name:            "灰の洞窟",
                 Description:     "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
-                ImageKey:        "hospital2",
+                ImageKey:        "cave1",
                 TotalFloors:     20,
                 EnemyTableName:  "洞窟",
                 ItemTableName:   "洞窟",
@@ -8387,7 +8387,7 @@ var (
         DungeonRuins = Definition{
                 Name:            "忘却の廃都",
                 Description:     "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
-                ImageKey:        "keyvisual2",
+                ImageKey:        "city1",
                 TotalFloors:     20,
                 EnemyTableName:  "廃墟",
                 ItemTableName:   "廃墟",
@@ -15156,8 +15156,7 @@ var DialogueTable = map[string]func(speakerName string) *MessageData{
 
 救えない世の中だな。」`)
 
-                msg1.NextMessages = append(msg1.NextMessages, msg2)
-                return msg1
+                return ChainMessages(msg1, msg2)
         }</span>,
 }
 
@@ -15176,6 +15175,7 @@ package messagedata
 
 import (
         "image/color"
+        "strings"
 
         w "github.com/kijimaD/ruins/internal/world"
 )
@@ -15185,8 +15185,9 @@ type MessageData struct {
         Speaker          string
         Choices          []Choice
         OnComplete       func()          // メッセージ完了時のコールバック
-        NextMessages     []*MessageData  // 次に表示するメッセージ群
+        nextMessages     []*MessageData  // 次に表示するメッセージ群
         TextSegmentLines [][]TextSegment // 行ごとの色付きテキストセグメント
+        BackgroundKey    string          // 背景スプライトキー。空なら前の背景を維持する
 }
 
 // TextSegment は色付きテキストのセグメント
@@ -15202,6 +15203,14 @@ type Choice struct {
         Action      func(w.World) error // 選択時に実行する
         MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ
         Disabled    bool
+}
+
+// ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す
+func ChainMessages(pages ...*MessageData) *MessageData <span class="cov8" title="1">{
+        for i := 0; i &lt; len(pages)-1; i++ </span><span class="cov8" title="1">{
+                pages[i].nextMessages = []*MessageData{pages[i+1]}
+        }</span>
+        <span class="cov8" title="1">return pages[0]</span>
 }
 
 // NewDialogMessage は会話メッセージを作成する
@@ -15248,24 +15257,24 @@ func (m *MessageData) WithOnComplete(callback func()) *MessageData <span class="
 
 // DialogMessage は会話メッセージを連鎖
 func (m *MessageData) DialogMessage(text, speaker string) *MessageData <span class="cov8" title="1">{
-        m.NextMessages = append(m.NextMessages, NewDialogMessage(text, speaker))
+        m.nextMessages = append(m.nextMessages, NewDialogMessage(text, speaker))
         return m
 }</span>
 
 // SystemMessage はシステムメッセージを連鎖
 func (m *MessageData) SystemMessage(text string) *MessageData <span class="cov8" title="1">{
-        m.NextMessages = append(m.NextMessages, NewSystemMessage(text))
+        m.nextMessages = append(m.nextMessages, NewSystemMessage(text))
         return m
 }</span>
 
-// HasNextMessages は次のメッセージがあるかを確認
+// HasNextMessages は次のメッセージがあるかを確認する
 func (m *MessageData) HasNextMessages() bool <span class="cov8" title="1">{
-        return len(m.NextMessages) &gt; 0
+        return len(m.nextMessages) &gt; 0
 }</span>
 
-// GetNextMessages は次のメッセージ群を取得
+// GetNextMessages は次のメッセージ群を取得する
 func (m *MessageData) GetNextMessages() []*MessageData <span class="cov8" title="1">{
-        return m.NextMessages
+        return m.nextMessages
 }</span>
 
 // ensureCurrentLine は現在の行が存在することを保証する
@@ -15280,8 +15289,7 @@ func (m *MessageData) ensureCurrentLine() <span class="cov8" title="1">{
 func (m *MessageData) AddText(text string) *MessageData <span class="cov8" title="1">{
         m.ensureCurrentLine()
 
-        // 改行文字で分割
-        lines := splitByNewline(text)
+        lines := strings.Split(text, "\n")
 
         for i, line := range lines </span><span class="cov8" title="1">{
                 if i &gt; 0 </span><span class="cov8" title="1">{
@@ -15294,26 +15302,6 @@ func (m *MessageData) AddText(text string) *MessageData <span class="cov8" title
         }
 
         <span class="cov8" title="1">return m</span>
-}
-
-// splitByNewline は改行文字で文字列を分割する
-func splitByNewline(text string) []string <span class="cov8" title="1">{
-        var lines []string
-        var current string
-
-        for _, r := range text </span><span class="cov8" title="1">{
-                if r == '\n' </span><span class="cov8" title="1">{
-                        lines = append(lines, current)
-                        current = ""
-                }</span> else<span class="cov8" title="1"> {
-                        current += string(r)
-                }</span>
-        }
-
-        // 最後の行を追加
-        <span class="cov8" title="1">lines = append(lines, current)
-
-        return lines</span>
 }
 
 // AddKeyword はキーワード（赤色背景）テキストを追加する
@@ -20252,9 +20240,11 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 // Draw はスクリーンに描画する
 func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error <span class="cov0" title="0">{
         screen.Fill(consts.BlackColor)
-        st.widget.Draw(screen)
-        return nil
-}</span>
+        if st.widget != nil </span><span class="cov0" title="0">{
+                st.widget.Draw(screen)
+        }</span>
+        <span class="cov0" title="0">return nil</span>
+}
 
 // HandleInput はキー入力をActionに変換する
 func (st *CharacterNamingState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) <span class="cov0" title="0">{
@@ -21525,10 +21515,6 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
                         return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
                                 func() es.State[w.World] </span><span class="cov0" title="0">{ return NewDoctorDialogState(speakerName) }</span>,
                         }}, nil
-                case "dark_doctor_greeting":<span class="cov0" title="0">
-                        return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-                                func() es.State[w.World] </span><span class="cov0" title="0">{ return NewDarkDoctorDialogState(speakerName, world) }</span>,
-                        }}, nil
                 default:<span class="cov0" title="0">
                         // 通常の会話はdialoguesから取得
                         dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)
@@ -21547,8 +21533,6 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
                         NewFadeoutAnimationState(NewAutoSellState()),
                 }}, nil</span>
-        case resources.GameClearEvent:<span class="cov0" title="0">
-                return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil</span>
         case resources.OpenDungeonSelectEvent:<span class="cov0" title="0">
                 // ダンジョン選択画面を開く
                 return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil</span>
@@ -21741,8 +21725,11 @@ func (st *DungeonSelectState) Update(world w.World) (es.Transition[w.World], err
 // Draw はステートの描画処理
 func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error <span class="cov0" title="0">{
         // 右半分に選択中ダンジョンの背景画像を描画する
-        menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
-        props := st.mount.GetProps()
+        menuState, ok := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
+        if !ok </span><span class="cov0" title="0">{
+                return fmt.Errorf("dselectステートの取得に失敗")
+        }</span>
+        <span class="cov0" title="0">props := st.mount.GetProps()
         idx := menuState.ItemIndex
 
         if idx &lt; len(props.Items) &amp;&amp; !props.Items[idx].IsCancel </span><span class="cov0" title="0">{
@@ -21750,23 +21737,27 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error <s
                 if item.ImageKey == "" </span><span class="cov0" title="0">{
                         return fmt.Errorf("ダンジョンのImageKeyが未設定です: %s", item.Name)
                 }</span>
-                <span class="cov0" title="0">bgSheet := (*world.Resources.SpriteSheets)["bg"]
-                sprite, ok := bgSheet.Sprites[item.ImageKey]
+                <span class="cov0" title="0">bgSheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+                if !sheetOK </span><span class="cov0" title="0">{
+                        return fmt.Errorf("bgスプライトシートが存在しない")
+                }</span>
+                <span class="cov0" title="0">sprite, ok := bgSheet.Sprites[item.ImageKey]
                 if !ok </span><span class="cov0" title="0">{
                         return fmt.Errorf("スプライトが見つかりません: %s", item.ImageKey)
                 }</span>
                 <span class="cov0" title="0">rect := image.Rect(sprite.X, sprite.Y, sprite.X+sprite.Width, sprite.Y+sprite.Height)
                 bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
 
-                // 右パネル位置にスケーリングして描画する
+                // 右パネル位置にパディング付きでスケーリングして描画する
+                padding := 12.0
                 op := &amp;ebiten.DrawImageOptions{}
-                panelX := float64(dungeonSelectLeftWidth)
-                panelW := float64(consts.MinGameWidth - dungeonSelectLeftWidth)
-                panelH := float64(dungeonSelectImageHeight)
+                panelX := float64(dungeonSelectLeftWidth) + padding
+                panelW := float64(consts.MinGameWidth-dungeonSelectLeftWidth) - padding*2
+                panelH := float64(dungeonSelectImageHeight) - padding
                 scaleX := panelW / float64(sprite.Width)
                 scaleY := panelH / float64(sprite.Height)
                 op.GeoM.Scale(scaleX, scaleY)
-                op.GeoM.Translate(panelX, 0)
+                op.GeoM.Translate(panelX, padding)
                 screen.DrawImage(bgImage, op)</span>
         }
 
@@ -21796,7 +21787,7 @@ func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (
 
 // レイアウト定数
 const (
-        dungeonSelectLeftWidth   = 240
+        dungeonSelectLeftWidth   = 160
         dungeonSelectImageHeight = 480
 )
 
@@ -22920,12 +22911,18 @@ func NewDebugMenuState() es.State[w.World] <span class="cov0" title="0">{
                 }).
                 WithChoice("アイテム入手イベント", func(world w.World) error <span class="cov0" title="0">{
                         // アイテムを実際にインベントリに追加
-                        _ = worldhelper.ChangeStackableCount(world, "鉄", 1)
-                        _ = worldhelper.ChangeStackableCount(world, "木の棒", 1)
-                        _ = worldhelper.ChangeStackableCount(world, "フェライトコア", 2)
+                        if err := worldhelper.ChangeStackableCount(world, "鉄", 1); err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("アイテム追加に失敗: %w", err)
+                        }</span>
+                        <span class="cov0" title="0">if err := worldhelper.ChangeStackableCount(world, "木の棒", 1); err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("アイテム追加に失敗: %w", err)
+                        }</span>
+                        <span class="cov0" title="0">if err := worldhelper.ChangeStackableCount(world, "フェライトコア", 2); err != nil </span><span class="cov0" title="0">{
+                                return fmt.Errorf("アイテム追加に失敗: %w", err)
+                        }</span>
 
                         // アイテム入手完了後の表示用メッセージを生成
-                        messageText := "宝箱を発見した。\n\n" +
+                        <span class="cov0" title="0">messageText := "宝箱を発見した。\n\n" +
                                 "鉄を手に入れた。\n" +
                                 "木の棒を手に入れた。\n" +
                                 "フェライトコアを2個手に入れた。\n"
@@ -23022,105 +23019,34 @@ func NewDebugMenuState() es.State[w.World] <span class="cov0" title="0">{
                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
                         return nil
                 }</span>).
-                WithChoice("ゲーム開始メッセージ", func(_ w.World) error <span class="cov0" title="0">{
-                        messageState.SetTransition(es.Transition[w.World]{
-                                Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{NewGameStartMessageState}})
-                        return nil
-                }</span>).
                 WithChoice("背景付きメッセージテスト", func(_ w.World) error <span class="cov0" title="0">{
-                        testMessage := messagedata.NewDialogMessage("これは背景付きメッセージのテストです。\nroom1.pngが背景に表示されています。", "システム")
+                        testMessage := messagedata.NewDialogMessage("これは背景付きメッセージのテストです。", "システム")
+                        testMessage.BackgroundKey = "hospital1"
                         messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPush,
                                 NewStateFuncs: []es.StateFactory[w.World]{
                                         func() es.State[w.World] </span><span class="cov0" title="0">{
-                                                return NewMessageState(testMessage, WithBackgroundKey("bg", "hospital1"))
+                                                return NewMessageState(testMessage)
                                         }</span>,
                                 }})
                         <span class="cov0" title="0">return nil</span>
                 }).
                 WithChoice("オープニング", func(_ w.World) error <span class="cov0" title="0">{
-                        // 1a: 暗転で「大穴の中に、街がある。」
-                        page1a := &amp;messagedata.MessageData{Speaker: ""}
-                        page1a.AddText("大穴の中に、街がある。")
-
-                        // 1b: 街画像に切り替えて続き
-                        page1b := &amp;messagedata.MessageData{Speaker: ""}
-                        page1b.AddText("遺跡から冷気が吹き上がる中で、人が暮らしている。\n").
-                                AddText("この穴の底が、古代文明の遺跡だ。")
-
-                        // 2ページ目: 遺跡のリスクリターン
-                        page2 := &amp;messagedata.MessageData{Speaker: ""}
-                        page2.AddText("遺跡には怪物と罠、そして宝がある。\n").
-                                AddText("降りた者の半分は戻らない。\n").
-                                AddText("それでも人は降りる。\nここではそうやって食うしかない。")
-
-                        // 3ページ目: 拾い屋の声
-                        page3 := &amp;messagedata.MessageData{Speaker: ""}
-                        page3.AddText("「最下層を目指したやつ、また死んだらしいな。」\n\n").
-                                AddText("「たまにいるんだよな、そういう命知らずが。」\n").
-                                AddText("「その前のやつも、その前のやつも死んだ。」\n\n").
-                                AddText("「でさ、また来たらしいぜ。新しい").
-                                AddKeyword("拾い屋").
-                                AddText("が。」")
-
-                        // page2終了時にpage3へ
-                        page2.OnComplete = func() </span><span class="cov0" title="0">{
-                                messageState.SetTransition(es.Transition[w.World]{
-                                        Type: es.TransPush,
-                                        NewStateFuncs: []es.StateFactory[w.World]{
-                                                func() es.State[w.World] </span><span class="cov0" title="0">{
-                                                        // TODO: 酒場背景を使う
-                                                        return NewMessageState(page3, WithBackgroundKey("bg", "hospital1"))
-                                                }</span>},
-                                })
-                        }
-
-                        // page1b終了時にpage2へ
-                        <span class="cov0" title="0">page1b.OnComplete = func() </span><span class="cov0" title="0">{
-                                messageState.SetTransition(es.Transition[w.World]{
-                                        Type: es.TransPush,
-                                        NewStateFuncs: []es.StateFactory[w.World]{
-                                                func() es.State[w.World] </span><span class="cov0" title="0">{
-                                                        return NewMessageState(page2, WithBackgroundKey("bg", "black1"))
-                                                }</span>},
-                                })
-                        }
-
-                        // page1a終了時に街画像に切り替えてpage1bへ
-                        <span class="cov0" title="0">page1a.OnComplete = func() </span><span class="cov0" title="0">{
-                                messageState.SetTransition(es.Transition[w.World]{
-                                        Type: es.TransPush,
-                                        NewStateFuncs: []es.StateFactory[w.World]{
-                                                func() es.State[w.World] </span><span class="cov0" title="0">{
-                                                        return NewMessageState(page1b, WithBackgroundKey("bg", "town1"))
-                                                }</span>},
-                                })
-                        }
-
-                        <span class="cov0" title="0">messageState.SetTransition(es.Transition[w.World]{
+                        messageState.SetTransition(es.Transition[w.World]{
+                                Type:          es.TransPush,
+                                NewStateFuncs: []es.StateFactory[w.World]{NewOpeningState},
+                        })
+                        return nil
+                }</span>).
+                WithChoice("全クリアイベント", func(_ w.World) error <span class="cov0" title="0">{
+                        messageState.SetTransition(es.Transition[w.World]{
                                 Type: es.TransPush,
                                 NewStateFuncs: []es.StateFactory[w.World]{
-                                        func() es.State[w.World] </span><span class="cov0" title="0">{
-                                                return NewMessageState(page1a, WithBackgroundKey("bg", "black1"))
-                                        }</span>,
-                                }})
+                                        func() es.State[w.World] </span><span class="cov0" title="0">{ return NewAllClearEventState() }</span>,
+                                },
+                        })
                         <span class="cov0" title="0">return nil</span>
                 }).
-                WithChoice("資金収集エンディング", func(_ w.World) error <span class="cov0" title="0">{
-                        messageState.SetTransition(es.Transition[w.World]{
-                                Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},
-                        })
-                        return nil
-                }</span>).
-                WithChoice("調停者エンディング", func(_ w.World) error <span class="cov0" title="0">{
-                        messageState.SetTransition(es.Transition[w.World]{
-                                Type:          es.TransPush,
-                                NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState},
-                        })
-                        return nil
-                }</span>).
                 WithChoice("次の階層に進む", func(world w.World) error <span class="cov0" title="0">{
                         currentDepth := world.Resources.Dungeon.Depth
 
@@ -23237,37 +23163,6 @@ func NewGameOverMessageState() es.State[w.World] <span class="cov0" title="0">{
         return messageState</span>
 }
 
-// NewDungeonCompleteEndingState はダンジョン踏破エンディングのStateを作成するファクトリー関数
-func NewDungeonCompleteEndingState() es.State[w.World] <span class="cov0" title="0">{
-        messageState := &amp;MessageState{}
-
-        // ゲームクリアメッセージを作成（選択肢付き）
-        messageData := messagedata.NewSystemMessage(`地中から大気まで濃密な地髄に溢れた。
-長い眠りについていた人々は目覚めだした。
-
-不毛だった大地には風が吹き、若草が芽吹きだした。
-
-人々は忘れかけた希望の感覚に
-酔いしれるのであった...。
-
-----------
-[TRUE END]
-----------`).
-                WithChoice("閉じる", func(_ w.World) error </span><span class="cov0" title="0">{
-                        // 町に遷移
-                        messageState.SetTransition(es.Transition[w.World]{
-                                Type:          es.TransReplace,
-                                NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
-                        })
-                        return nil
-                }</span>)
-
-        // MessageStateにMessageDataを設定
-        <span class="cov0" title="0">messageState.messageData = messageData
-
-        return messageState</span>
-}
-
 // NewAllClearEventState は全ダンジョンクリア時のイベントStateを作成するファクトリー関数
 func NewAllClearEventState() es.State[w.World] <span class="cov0" title="0">{
         messageState := &amp;MessageState{}
@@ -23281,96 +23176,6 @@ func NewAllClearEventState() es.State[w.World] <span class="cov0" title="0">{
         <span class="cov0" title="0">messageState.messageData = messageData
         return messageState</span>
 }
-
-// NewCurrencyCollectionEndingState は資金収集エンディングのStateFactoryを作成する
-func NewCurrencyCollectionEndingState() es.StateFactory[w.World] <span class="cov0" title="0">{
-        return func() es.State[w.World] </span><span class="cov0" title="0">{
-                // 1ページ目: 治療費を集めた主人公
-                ending1 := &amp;messagedata.MessageData{Speaker: ""}
-                ending1.AddText(
-                        `遺跡への潜行を繰り返し、
-
-ついに` + worldhelper.FormatCurrency(10000000) + `を集めた。`)
-
-                // 2ページ目: 医師の反応
-                ending2 := &amp;messagedata.MessageData{Speaker: "医師"}
-                ending2.AddText(
-                        `「...本当に集めてきたのですか。
-
-これだけの高純度地髄を、こんな短期間で...。」`)
-
-                // 3ページ目: 治療開始
-                ending3 := &amp;messagedata.MessageData{Speaker: "医師"}
-                ending3.AddText(
-                        `すぐに治療を始めます。
-地髄の精製と投与には時間がかかりますが、
-
-お母さんは必ず目を覚ますでしょう。`)
-
-                // 4ページ目: 回復
-                ending4 := &amp;messagedata.MessageData{Speaker: ""}
-                ending4.AddText(
-                        `数日後...
-
-母は目を覚ました。
-虚ろに落ちる前の、穏やかな表情で。`)
-
-                // 5ページ目: エンディング
-                ending5 := &amp;messagedata.MessageData{Speaker: ""}
-                ending5.AddText(
-                        `命を賭けた潜行の日々は終わった。
-
-しかし、遺跡の最深部には
-まだ誰も到達していない。
-
-いつかまた、あの場所に戻る日が
-来るかもしれない。
-
-------------
-[NORMAL END]
-------------`)
-
-                messageState := NewMessageState(ending1, WithBackgroundKey("bg", "hospital1"))
-
-                // 最後のメッセージに街への遷移を追加
-                ending5.WithChoice("閉じる", func(_ w.World) error </span><span class="cov0" title="0">{
-                        if ms, ok := messageState.(*MessageState); ok </span><span class="cov0" title="0">{
-                                ms.SetTransition(es.Transition[w.World]{
-                                        Type:          es.TransReplace,
-                                        NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},
-                                })
-                        }</span>
-                        <span class="cov0" title="0">return nil</span>
-                })
-
-                <span class="cov0" title="0">ending1.NextMessages = []*messagedata.MessageData{ending2}
-                ending2.NextMessages = []*messagedata.MessageData{ending3}
-                ending3.NextMessages = []*messagedata.MessageData{ending4}
-                ending4.NextMessages = []*messagedata.MessageData{ending5}
-
-                return messageState</span>
-        }
-}
-
-// NewGameStartMessageState はゲーム開始時の目的を説明するMessageStateを作成するファクトリー関数
-func NewGameStartMessageState() es.State[w.World] <span class="cov0" title="0">{
-        messageState := &amp;MessageState{}
-
-        // メッセージを作成
-        messageData := messagedata.NewDialogMessage(`「あんた、遺跡の『珠狙い』だろ?
-外からこの街に来る異常に若い連中はみんなそうさ。
-向こう見ずで破滅的で、...
-どうしようもない事情を持ってる。」
-
-「あんたは...、そうか、母親が...。
-言っちゃ悪いが、そういう奴らはここでは珍しくない。
-どんな事情があるにせよ、遺跡で辿る結末は1つさ。」`, "老兵")
-
-        // MessageStateにMessageDataを設定
-        messageState.messageData = messageData
-
-        return messageState
-}</span>
 
 // NewSaveMenuState は新しいSaveMenuStateインスタンスを作成するファクトリー関数
 func NewSaveMenuState() es.State[w.World] <span class="cov0" title="0">{
@@ -23477,11 +23282,9 @@ func NewLoadMenuState() es.State[w.World] <span class="cov0" title="0">{
 }
 
 // NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数
-// オプションを指定することで背景画像などをカスタマイズできる
-func NewMessageState(messageData *messagedata.MessageData, opts ...MessageStateOption) es.State[w.World] <span class="cov0" title="0">{
+func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] <span class="cov8" title="1">{
         return &amp;MessageState{
                 messageData: messageData,
-                options:     opts,
         }
 }</span>
 
@@ -23577,39 +23380,33 @@ func NewDoctorDialogState(speakerName string) es.State[w.World] <span class="cov
         <span class="cov0" title="0">return persistentState</span>
 }
 
-// NewDarkDoctorDialogState は闇医者との会話ステートを作成
-func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.World] <span class="cov0" title="0">{
-        persistentState := NewPersistentMessageState(nil)
+// NewOpeningState はオープニングを表示するStateを作成するファクトリー関数
+// 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む
+func NewOpeningState() es.State[w.World] <span class="cov8" title="1">{
+        // 1. 黒背景: 荒野の大穴
+        page1a := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
+        page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
 
-        // プレイヤーの所持金を確認
-        player, _ := worldhelper.GetPlayerEntity(world)
-        requiredAmount := 10000000
-        hasEnoughMoney := worldhelper.HasCurrency(world, player, requiredAmount)
+        // 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
+        blank := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
+        page1b := &amp;messagedata.MessageData{Speaker: ""}
+        page1b.AddText("穴の底には古代文明の遺跡がある。\n").
+                AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
+                AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
 
-        persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-                AddText(`治療費` + worldhelper.FormatCurrency(10000000) + `を用意できたかい?`)
+        // 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
+        blankBar := &amp;messagedata.MessageData{Speaker: "", BackgroundKey: "bar1"}
+        page2 := &amp;messagedata.MessageData{Speaker: ""}
+        page2.AddText("「聞いたか。底狙いの奴、また一人消えたってよ。」\n").
+                AddText("「何人目だ。」\n").
+                AddText("「さあな。数えるのはとっくにやめた。」\n\n").
+                AddText("「でさ、次の").
+                AddKeyword("拾い屋").
+                AddText("が来たんだが...そいつも底狙いだと。」\n")
 
-        // 必要額以上持っている場合のみ「はい」選択肢を表示
-        if hasEnoughMoney </span><span class="cov0" title="0">{
-                persistentState.messageData = persistentState.messageData.WithChoice("はい", func(world w.World) error </span><span class="cov0" title="0">{
-                        // 通貨を消費
-                        if worldhelper.ConsumeCurrency(world, player, requiredAmount) </span><span class="cov0" title="0">{
-                                persistentState.SetTransition(es.Transition[w.World]{
-                                        Type:          es.TransSwitch,
-                                        NewStateFuncs: []es.StateFactory[w.World]{NewCurrencyCollectionEndingState()},
-                                })
-                        }</span>
-                        <span class="cov0" title="0">return nil</span>
-                })
-        }
-
-        <span class="cov0" title="0">persistentState.messageData = persistentState.messageData.WithChoice("まだだ", func(_ w.World) error </span><span class="cov0" title="0">{
-                persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-                return nil
-        }</span>)
-
-        <span class="cov0" title="0">return persistentState</span>
-}
+        first := messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
+        return NewMessageState(first)
+}</span>
 </pre>
 		
 		<pre class="file" id="file131" style="display: none">package states
@@ -24687,7 +24484,6 @@ func (st *LookAroundState) drawTileTemperature(world w.World, entities []ecs.Ent
 
 import (
         "fmt"
-        "image"
         "strings"
 
         "github.com/ebitenui/ebitenui"
@@ -24751,7 +24547,7 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) <
         }
 
         // Props更新
-        <span class="cov0" title="0">st.menuMount.SetProps(st.fetchProps())
+        <span class="cov0" title="0">st.menuMount.SetProps(st.fetchProps(world))
         props := st.menuMount.GetProps()
         hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
                 TabCount:   1,
@@ -24770,20 +24566,15 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) <
 // Draw はスクリーンに描画する
 func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error <span class="cov0" title="0">{
         // 背景画像を描画
-        bgSheet := (*world.Resources.SpriteSheets)["bg"]
-        bgSprite := bgSheet.Sprites["title1"]
-        rect := image.Rect(
-                bgSprite.X,
-                bgSprite.Y,
-                bgSprite.X+bgSprite.Width,
-                bgSprite.Y+bgSprite.Height,
-        )
-        bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
-        screen.DrawImage(bgImage, nil)
+        bgImage, err := loadBackgroundImage(world, "title1")
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov0" title="0">screen.DrawImage(bgImage, nil)
 
         st.widget.Draw(screen)
-        return nil
-}</span>
+        return nil</span>
+}
 
 // HandleInput はキー入力をActionに変換する
 func (st *MainMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) <span class="cov8" title="1">{
@@ -24820,15 +24611,22 @@ type mainMenuItem struct {
         Transition es.Transition[w.World]
 }
 
-func (st *MainMenuState) fetchProps() mainMenuProps <span class="cov8" title="1">{
-        return mainMenuProps{
+func (st *MainMenuState) fetchProps(world w.World) mainMenuProps <span class="cov8" title="1">{
+        var startFuncs []es.StateFactory[w.World]
+        if world.Config.QuickStart </span><span class="cov8" title="1">{
+                startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
+        }</span> else<span class="cov0" title="0"> {
+                startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
+        }</span>
+
+        <span class="cov8" title="1">return mainMenuProps{
                 Items: []mainMenuItem{
-                        {Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState}}},
+                        {Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
                         {Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
                         {Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}},
                 },
-        }
-}</span>
+        }</span>
+}
 
 func (st *MainMenuState) handleSelection() (es.Transition[w.World], error) <span class="cov8" title="1">{
         props := st.menuMount.GetProps()
@@ -24919,6 +24717,7 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI <span class="cov0" 
 		<pre class="file" id="file136" style="display: none">package states
 
 import (
+        "fmt"
         "image"
 
         "github.com/hajimehoshi/ebiten/v2"
@@ -24934,7 +24733,7 @@ type MessageState struct {
         messageData     *messagedata.MessageData
         messageWindow   *messagewindow.Window
         backgroundImage *ebiten.Image
-        options         []MessageStateOption
+        currentBgKey    string
 }
 
 func (st MessageState) String() string <span class="cov0" title="0">{
@@ -24951,22 +24750,56 @@ func (st *MessageState) OnResume(_ w.World) error <span class="cov0" title="0">{
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *MessageState) OnStart(world w.World) error <span class="cov0" title="0">{
-        for _, opt := range st.options </span><span class="cov0" title="0">{
-                opt(st, world)
-        }</span>
+        if st.messageData.BackgroundKey != "" </span><span class="cov0" title="0">{
+                bgImage, err := loadBackgroundImage(world, st.messageData.BackgroundKey)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov0" title="0">st.backgroundImage = bgImage
+                st.currentBgKey = st.messageData.BackgroundKey</span>
+        }
 
-        // メッセージデータからキュー対応メッセージウィンドウを構築
-        <span class="cov0" title="0">st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)
+        <span class="cov0" title="0">st.messageWindow = messagewindow.NewWindow(world, st.messageData)
         return nil</span>
 }
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *MessageState) OnStop(_ w.World) error <span class="cov0" title="0">{ return nil }</span>
 
+// loadBackgroundImage はスプライトシートから背景画像を読み込んで返す。
+// 無効なspriteKeyが指定された場合はエラーを返す。
+func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) <span class="cov0" title="0">{
+        sheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+        if !sheetOK </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("bgスプライトシートが存在しない")
+        }</span>
+        <span class="cov0" title="0">sprite, ok := sheet.Sprites[spriteKey]
+        if !ok </span><span class="cov0" title="0">{
+                return nil, fmt.Errorf("無効なBackgroundKey: %q がbgスプライトシートに存在しない", spriteKey)
+        }</span>
+        <span class="cov0" title="0">rect := image.Rect(
+                sprite.X,
+                sprite.Y,
+                sprite.X+sprite.Width,
+                sprite.Y+sprite.Height,
+        )
+        return sheet.Texture.Image.SubImage(rect).(*ebiten.Image), nil</span>
+}
+
 // Update はゲームステートの更新処理を行う
-func (st *MessageState) Update(_ w.World) (es.Transition[w.World], error) <span class="cov0" title="0">{
+func (st *MessageState) Update(world w.World) (es.Transition[w.World], error) <span class="cov0" title="0">{
         if st.messageWindow != nil </span><span class="cov0" title="0">{
-                if err := st.messageWindow.Update(); err != nil </span><span class="cov0" title="0">{
+                // 現在のメッセージの背景キーが変わっていたら背景を更新する
+                if key := st.messageWindow.CurrentMessage().BackgroundKey; key != "" &amp;&amp; key != st.currentBgKey </span><span class="cov0" title="0">{
+                        bgImage, err := loadBackgroundImage(world, key)
+                        if err != nil </span><span class="cov0" title="0">{
+                                return es.Transition[w.World]{Type: es.TransNone}, err
+                        }</span>
+                        <span class="cov0" title="0">st.backgroundImage = bgImage
+                        st.currentBgKey = key</span>
+                }
+
+                <span class="cov0" title="0">if err := st.messageWindow.Update(); err != nil </span><span class="cov0" title="0">{
                         return es.Transition[w.World]{Type: es.TransNone}, err
                 }</span>
 
@@ -24996,27 +24829,6 @@ func (st *MessageState) Draw(_ w.World, screen *ebiten.Image) error <span class=
                 st.messageWindow.Draw(screen)
         }</span>
         <span class="cov0" title="0">return nil</span>
-}
-
-// MessageStateOption はMessageStateのオプション設定を行う関数型
-type MessageStateOption func(*MessageState, w.World)
-
-// WithBackgroundKey はスプライトシートとスプライトキーを指定して背景画像を設定する
-func WithBackgroundKey(sheetName, spriteKey string) MessageStateOption <span class="cov0" title="0">{
-        return func(st *MessageState, world w.World) </span><span class="cov0" title="0">{
-                sheet := (*world.Resources.SpriteSheets)[sheetName]
-                sprite := sheet.Sprites[spriteKey]
-
-                // スプライト領域を切り出し
-                rect := image.Rect(
-                        sprite.X,
-                        sprite.Y,
-                        sprite.X+sprite.Width,
-                        sprite.Y+sprite.Height,
-                )
-                subImage := sheet.Texture.Image.SubImage(rect)
-                st.backgroundImage = subImage.(*ebiten.Image)
-        }</span>
 }
 </pre>
 		
@@ -25073,7 +24885,7 @@ func (st *PersistentMessageState) Update(_ w.World) (es.Transition[w.World], err
 func (st *PersistentMessageState) OnResume(world w.World) error <span class="cov0" title="0">{
         // メッセージウィンドウを強制的に再構築
         if st.messageData != nil </span><span class="cov0" title="0">{
-                st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)
+                st.messageWindow = messagewindow.NewWindow(world, st.messageData)
         }</span>
         <span class="cov0" title="0">return nil</span>
 }
@@ -25845,16 +25657,23 @@ func (st *ShopMenuState) executeActionItem(world w.World) error <span class="cov
 
         <span class="cov0" title="0">selectedAction := actionItems[actionIndex]
 
+        var actionErr error
         switch selectedAction </span>{
         case "購入する":<span class="cov0" title="0">
                 worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) </span><span class="cov0" title="0">{
-                        _ = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
+                        actionErr = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
                 }</span>)
+                <span class="cov0" title="0">if actionErr != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("購入に失敗: %w", actionErr)
+                }</span>
                 <span class="cov0" title="0">st.subState = shopSubStateMenu</span>
         case "売却する":<span class="cov0" title="0">
                 worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) </span><span class="cov0" title="0">{
-                        _ = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
+                        actionErr = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
                 }</span>)
+                <span class="cov0" title="0">if actionErr != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("売却に失敗: %w", actionErr)
+                }</span>
                 <span class="cov0" title="0">st.subState = shopSubStateMenu</span>
         case TextClose:<span class="cov0" title="0">
                 st.subState = shopSubStateMenu</span>
@@ -30374,22 +30193,22 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) <
         drawOutlinedText(screen, floorText, info.headingFace, x, y, color.White)
 }</span>
 
+// ゲージ共通のレイアウト定数
+const (
+        gaugeBaseX   = 10.0  // 左マージン
+        gaugeBaseY   = 20.0  // 最初のゲージの上マージン。gaugeBaseXと統一する
+        gaugeWidth   = 120.0 // ゲージの幅
+        gaugeHeight  = 20.0  // ゲージの高さ
+        gaugeSpacing = 4.0   // ゲージ間の間隔
+)
+
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) <span class="cov0" title="0">{
-        // HPゲージの設定
-        const (
-                baseX    = 10.0  // 左マージン
-                y        = 50.0  // 上マージン
-                width    = 120.0 // ゲージの幅
-                height   = 20.0  // ゲージの高さ
-                labelGap = 4.0   // ラベルとゲージの間隔
-        )
-
-        // ゲージの開始位置
-        gageX := float32(baseX)
+        y := gaugeBaseY
+        gageX := float32(gaugeBaseX)
 
         // 背景（暗い赤い領域）を描画
-        vector.FillRect(screen, gageX, float32(y), float32(width), float32(height), color.RGBA{100, 0, 0, 255}, false)
+        vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{100, 0, 0, 255}, false)
 
         // HP比率を計算
         if maxHP &gt; 0 </span><span class="cov0" title="0">{
@@ -30413,35 +30232,25 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
                         barColor = color.RGBA{255, intensity, 0, 255}
                 }</span>
 
-                // 現在のHPバーを描画
-                <span class="cov0" title="0">currentWidth := float32(width) * hpRatio
-                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(height), barColor, false)</span>
+                <span class="cov0" title="0">currentWidth := float32(gaugeWidth) * hpRatio
+                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)</span>
         }
 
         // 数値をゲージの中央に描画
         <span class="cov0" title="0">hpText := fmt.Sprintf("%d/%d", currentHP, maxHP)
         textWidth, _ := text.Measure(hpText, info.bodyFace, 0)
-        textX := float64(gageX) + float64(width)/2 - textWidth/2
-        textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
+        textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
+        textY := y + float64(gaugeHeight)/2 - 6.0
         drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, color.White)</span>
 }
 
 // drawStaminaBar はプレイヤーのスタミナポイントゲージを描画する
 func (info *GameInfo) drawStaminaBar(screen *ebiten.Image, currentSP, maxSP int) <span class="cov0" title="0">{
-        // SPゲージの設定
-        const (
-                baseX    = 10.0  // 左マージン
-                y        = 76.0  // 上マージン
-                width    = 120.0 // ゲージの幅
-                height   = 20.0  // ゲージの高さ
-                labelGap = 4.0   // ラベルとゲージの間隔
-        )
-
-        // ゲージの開始位置
-        gageX := float32(baseX)
+        y := gaugeBaseY + (gaugeHeight+gaugeSpacing)*1
+        gageX := float32(gaugeBaseX)
 
         // 背景（暗いグレー領域）を描画
-        vector.FillRect(screen, gageX, float32(y), float32(width), float32(height), color.RGBA{100, 100, 100, 255}, false)
+        vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{100, 100, 100, 255}, false)
 
         // SP比率を計算
         if maxSP &gt; 0 </span><span class="cov0" title="0">{
@@ -30455,43 +30264,30 @@ func (info *GameInfo) drawStaminaBar(screen *ebiten.Image, currentSP, maxSP int)
 
                 <span class="cov0" title="0">var barColor color.RGBA
                 if spRatio &gt; 0.5 </span><span class="cov0" title="0">{
-                        // 明るい黄色・オレンジ（SP 50%以上）
                         barColor = color.RGBA{255, 200, 0, 255}
                 }</span> else<span class="cov0" title="0"> {
-                        // やや暗い黄色・オレンジ（SP 50%以下）
                         intensity := uint8(spRatio * 2.0 * 200)
                         barColor = color.RGBA{255, intensity, 0, 255}
                 }</span>
 
-                // 現在のSPバーを描画
-                <span class="cov0" title="0">currentWidth := float32(width) * spRatio
-                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(height), barColor, false)</span>
+                <span class="cov0" title="0">currentWidth := float32(gaugeWidth) * spRatio
+                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)</span>
         }
 
-        // 数値をゲージの中央に描画（垂直方向にも中央配置）
         <span class="cov0" title="0">spText := fmt.Sprintf("%d/%d", currentSP, maxSP)
         textWidth, _ := text.Measure(spText, info.bodyFace, 0)
-        textX := float64(gageX) + float64(width)/2 - textWidth/2
-        textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
+        textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
+        textY := y + float64(gaugeHeight)/2 - 6.0
         drawOutlinedText(screen, spText, info.bodyFace, textX, textY, color.White)</span>
 }
 
 // drawElectricityBar はプレイヤーの電力ポイントゲージを描画する
 func (info *GameInfo) drawElectricityBar(screen *ebiten.Image, currentEP, maxEP int) <span class="cov0" title="0">{
-        // EPゲージの設定
-        const (
-                baseX    = 10.0  // 左マージン
-                y        = 102.0 // 上マージン
-                width    = 120.0 // ゲージの幅
-                height   = 20.0  // ゲージの高さ
-                labelGap = 4.0   // ラベルとゲージの間隔
-        )
-
-        // ゲージの開始位置
-        gageX := float32(baseX)
+        y := gaugeBaseY + (gaugeHeight+gaugeSpacing)*2
+        gageX := float32(gaugeBaseX)
 
         // 背景（暗い青い領域）を描画
-        vector.FillRect(screen, gageX, float32(y), float32(width), float32(height), color.RGBA{0, 0, 80, 255}, false)
+        vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{0, 0, 80, 255}, false)
 
         // EP比率を計算
         if maxEP &gt; 0 </span><span class="cov0" title="0">{
@@ -30503,28 +30299,23 @@ func (info *GameInfo) drawElectricityBar(screen *ebiten.Image, currentEP, maxEP 
                         epRatio = 0.0
                 }</span>
 
-                // 現在のEP（青系のグラデーション、電力らしい色）
                 <span class="cov0" title="0">var barColor color.RGBA
                 if epRatio &gt; 0.5 </span><span class="cov0" title="0">{
-                        // シアンから青へ（EP 50%以上）
                         intensity := uint8((1.0 - epRatio) * 2.0 * 100)
                         barColor = color.RGBA{intensity, 200, 255, 255}
                 }</span> else<span class="cov0" title="0"> {
-                        // 青から暗い青へ（EP 50%以下）
                         intensity := uint8(epRatio * 2.0 * 200)
                         barColor = color.RGBA{0, intensity, 100 + uint8(epRatio*155), 255}
                 }</span>
 
-                // 現在のEPバーを描画
-                <span class="cov0" title="0">currentWidth := float32(width) * epRatio
-                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(height), barColor, false)</span>
+                <span class="cov0" title="0">currentWidth := float32(gaugeWidth) * epRatio
+                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)</span>
         }
 
-        // 数値をゲージの中央に描画（垂直方向にも中央配置）
         <span class="cov0" title="0">epText := fmt.Sprintf("%d/%d", currentEP, maxEP)
         textWidth, _ := text.Measure(epText, info.bodyFace, 0)
-        textX := float64(gageX) + float64(width)/2 - textWidth/2
-        textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
+        textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
+        textY := y + float64(gaugeHeight)/2 - 6.0
         drawOutlinedText(screen, epText, info.bodyFace, textX, textY, color.White)</span>
 }
 
@@ -31363,23 +31154,11 @@ type MessageContent struct {
         TextSegmentLines [][]messagedata.TextSegment // 行ごとの色付きテキストセグメント
 }
 
-// Builder はメッセージウィンドウを構築するためのビルダー
-type Builder struct {
-        world w.World
-}
-
-// NewBuilder は新しいBuilderを作成する
-func NewBuilder(world w.World) *Builder <span class="cov0" title="0">{
-        return &amp;Builder{
-                world: world,
-        }
-}</span>
-
-// Build はMessageDataからウィンドウを構築する
-func (b *Builder) Build(initialMessage *messagedata.MessageData) *Window <span class="cov0" title="0">{
+// NewWindow はMessageDataからメッセージウィンドウを構築する
+func NewWindow(world w.World, initialMessage *messagedata.MessageData) *Window <span class="cov0" title="0">{
         window := &amp;Window{
                 config:         DefaultConfig(),
-                world:          b.world,
+                world:          world,
                 isOpen:         true,
                 queueManager:   NewQueueManager(),
                 currentMessage: initialMessage,
@@ -31604,12 +31383,11 @@ import (
 
 // Window はメッセージウィンドウを表す
 type Window struct {
-        config   Config
-        content  MessageContent
-        world    w.World
-        onClose  func()
-        onChoice func(choice Choice)
-
+        config      Config
+        content     MessageContent
+        world       w.World
+        onClose     func()
+        onChoice    func(choice Choice)
         isOpen      bool
         ui          *ebitenui.UI
         initialized bool
@@ -31680,6 +31458,11 @@ func (w *Window) IsOpen() bool <span class="cov0" title="0">{
 // IsClosed はウィンドウが閉じているかを返す
 func (w *Window) IsClosed() bool <span class="cov0" title="0">{
         return !w.isOpen
+}</span>
+
+// CurrentMessage は現在表示中のメッセージデータを返す
+func (w *Window) CurrentMessage() *messagedata.MessageData <span class="cov0" title="0">{
+        return w.currentMessage
 }</span>
 
 // Close はウィンドウを閉じる

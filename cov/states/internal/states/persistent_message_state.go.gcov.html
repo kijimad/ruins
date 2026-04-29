@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-29 02:59:34</td>
+            <td class="headerValue">2026-04-29 15:57:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -113,7 +113,7 @@
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : func (st *PersistentMessageState) OnResume(world w.World) error {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         // メッセージウィンドウを強制的に再構築</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         if st.messageData != nil {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 st.messageWindow = messagewindow.NewWindow(world, st.messageData)</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         return nil</span></span>
 <span id="L57"><span class="lineNum">      57</span>              : }</span>

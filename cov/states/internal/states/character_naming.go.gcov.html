@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">31.4&nbsp;%</td>
-            <td class="headerCovTableEntry">188</td>
+            <td class="headerCovTableEntryLo">31.2&nbsp;%</td>
+            <td class="headerCovTableEntry">189</td>
             <td class="headerCovTableEntry">59</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-04-29 02:59:34</td>
+            <td class="headerValue">2026-04-29 15:57:12</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -183,172 +183,174 @@
 <span id="L121"><span class="lineNum">     121</span>              : // Draw はスクリーンに描画する</span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 : func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         screen.Fill(consts.BlackColor)</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         st.widget.Draw(screen)</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L127"><span class="lineNum">     127</span>              : </span>
-<span id="L128"><span class="lineNum">     128</span>              : // HandleInput はキー入力をActionに変換する</span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 : func (st *CharacterNamingState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 return inputmapper.ActionMenuSelect, true</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 return inputmapper.ActionMenuCancel, true</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         return &quot;&quot;, false</span></span>
-<span id="L138"><span class="lineNum">     138</span>              : }</span>
-<span id="L139"><span class="lineNum">     139</span>              : </span>
-<span id="L140"><span class="lineNum">     140</span>              : // DoAction はActionを実行する</span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         switch action {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                 return st.cancel(world), nil</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 return st.confirmName(world), nil</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;characterNaming: 未対応のアクション: %s&quot;, action)</span></span>
-<span id="L149"><span class="lineNum">     149</span>              :         }</span>
-<span id="L150"><span class="lineNum">     150</span>              : }</span>
-<span id="L151"><span class="lineNum">     151</span>              : </span>
-<span id="L152"><span class="lineNum">     152</span>              : // ================</span>
-<span id="L153"><span class="lineNum">     153</span>              : // Props</span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         if st.widget != nil {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 st.widget.Draw(screen)</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : }</span>
+<span id="L129"><span class="lineNum">     129</span>              : </span>
+<span id="L130"><span class="lineNum">     130</span>              : // HandleInput はキー入力をActionに変換する</span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : func (st *CharacterNamingState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         keyboardInput := input.GetSharedKeyboardInput()</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         if keyboardInput.IsEnterJustPressedOnce() {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 return inputmapper.ActionMenuSelect, true</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         if keyboardInput.IsKeyJustPressed(ebiten.KeyEscape) {</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 return inputmapper.ActionMenuCancel, true</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         return &quot;&quot;, false</span></span>
+<span id="L140"><span class="lineNum">     140</span>              : }</span>
+<span id="L141"><span class="lineNum">     141</span>              : </span>
+<span id="L142"><span class="lineNum">     142</span>              : // DoAction はActionを実行する</span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         switch action {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 return st.cancel(world), nil</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :         case inputmapper.ActionMenuSelect:</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 return st.confirmName(world), nil</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         default:</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 return es.Transition[w.World]{}, fmt.Errorf(&quot;characterNaming: 未対応のアクション: %s&quot;, action)</span></span>
+<span id="L151"><span class="lineNum">     151</span>              :         }</span>
+<span id="L152"><span class="lineNum">     152</span>              : }</span>
+<span id="L153"><span class="lineNum">     153</span>              : </span>
 <span id="L154"><span class="lineNum">     154</span>              : // ================</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // namingProps は名前入力画面のProps</span>
-<span id="L157"><span class="lineNum">     157</span>              : type namingProps struct {</span>
-<span id="L158"><span class="lineNum">     158</span>              :         CurrentName  string</span>
-<span id="L159"><span class="lineNum">     159</span>              :         ErrorMessage string</span>
-<span id="L160"><span class="lineNum">     160</span>              : }</span>
-<span id="L161"><span class="lineNum">     161</span>              : </span>
-<span id="L162"><span class="lineNum">     162</span>              : // confirmName は名前を確定する</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World] {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         props := st.mount.GetProps()</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         name := props.CurrentName</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         nameLen := utf8.RuneCountInString(name)</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :         if nameLen &lt; nameMinLength || nameLen &gt; nameMaxLength {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 st.mount.SetProps(namingProps{</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         CurrentName:  props.CurrentName,</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                         ErrorMessage: &quot;名前は1〜10文字で入力してください&quot;,</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 })</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 _, startTimer, _ := hooks.UseTimer(st.mount.Store(), &quot;errorTimer&quot;, errorDisplayTime)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 startTimer()</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L177"><span class="lineNum">     177</span>              : </span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 // 既存プレイヤーの名前を変更した</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :                 if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         nameComp.(*gc.Name).Name = name</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}</span></span>
-<span id="L185"><span class="lineNum">     185</span>              :         }</span>
-<span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span>              :         // 職業選択画面へ遷移</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         return es.Transition[w.World]{</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 Type:          es.TransPush,</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 NewStateFuncs: []es.StateFactory[w.World]{NewCharacterJobState(name)},</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L192"><span class="lineNum">     192</span>              : }</span>
-<span id="L193"><span class="lineNum">     193</span>              : </span>
-<span id="L194"><span class="lineNum">     194</span>              : // cancel はキャンセルする</span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         _, err := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         return es.Transition[w.World]{</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 Type:          es.TransReplace,</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState},</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L204"><span class="lineNum">     204</span>              : }</span>
-<span id="L205"><span class="lineNum">     205</span>              : </span>
-<span id="L206"><span class="lineNum">     206</span>              : // ================</span>
-<span id="L207"><span class="lineNum">     207</span>              : // buildUI</span>
+<span id="L155"><span class="lineNum">     155</span>              : // Props</span>
+<span id="L156"><span class="lineNum">     156</span>              : // ================</span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              : // namingProps は名前入力画面のProps</span>
+<span id="L159"><span class="lineNum">     159</span>              : type namingProps struct {</span>
+<span id="L160"><span class="lineNum">     160</span>              :         CurrentName  string</span>
+<span id="L161"><span class="lineNum">     161</span>              :         ErrorMessage string</span>
+<span id="L162"><span class="lineNum">     162</span>              : }</span>
+<span id="L163"><span class="lineNum">     163</span>              : </span>
+<span id="L164"><span class="lineNum">     164</span>              : // confirmName は名前を確定する</span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World] {</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         props := st.mount.GetProps()</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         name := props.CurrentName</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         nameLen := utf8.RuneCountInString(name)</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           2 :         if nameLen &lt; nameMinLength || nameLen &gt; nameMaxLength {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 st.mount.SetProps(namingProps{</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         CurrentName:  props.CurrentName,</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         ErrorMessage: &quot;名前は1〜10文字で入力してください&quot;,</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 })</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 _, startTimer, _ := hooks.UseTimer(st.mount.Store(), &quot;errorTimer&quot;, errorDisplayTime)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 startTimer()</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransNone}</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L179"><span class="lineNum">     179</span>              : </span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 // 既存プレイヤーの名前を変更した</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           2 :                 if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                         nameComp.(*gc.Name).Name = name</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}</span></span>
+<span id="L187"><span class="lineNum">     187</span>              :         }</span>
+<span id="L188"><span class="lineNum">     188</span>              : </span>
+<span id="L189"><span class="lineNum">     189</span>              :         // 職業選択画面へ遷移</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         return es.Transition[w.World]{</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 Type:          es.TransPush,</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 NewStateFuncs: []es.StateFactory[w.World]{NewCharacterJobState(name)},</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L194"><span class="lineNum">     194</span>              : }</span>
+<span id="L195"><span class="lineNum">     195</span>              : </span>
+<span id="L196"><span class="lineNum">     196</span>              : // cancel はキャンセルする</span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         _, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           2 :         if err == nil {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 return es.Transition[w.World]{Type: es.TransPop}</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         return es.Transition[w.World]{</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 Type:          es.TransReplace,</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 NewStateFuncs: []es.StateFactory[w.World]{NewMainMenuState},</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L206"><span class="lineNum">     206</span>              : }</span>
+<span id="L207"><span class="lineNum">     207</span>              : </span>
 <span id="L208"><span class="lineNum">     208</span>              : // ================</span>
-<span id="L209"><span class="lineNum">     209</span>              : </span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         props := st.mount.GetProps()</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         rootContainer := widget.NewContainer(</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         centerContainer := widget.NewContainer(</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewRowLayout(</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                         widget.RowLayoutOpts.Direction(widget.DirectionVertical),</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                         widget.RowLayoutOpts.Spacing(20),</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                 )),</span></span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.WidgetOpts(</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                                 HorizontalPosition: widget.AnchorLayoutPositionCenter,</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                                 VerticalPosition:   widget.AnchorLayoutPositionCenter,</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                         }),</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         titleLabel := widget.NewText(</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(&quot;名前&quot;, &amp;res.Text.TitleFontFace, consts.PrimaryColor),</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                         }),</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         // テキスト入力を作成</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :         textInput := hooks.UseRef(st.mount.Store(), &quot;textInput&quot;, func() *widget.TextInput {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                 ti := widget.NewTextInput(</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.WidgetOpts(</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                                         Position: widget.RowLayoutPositionCenter,</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                                         Stretch:  true,</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                                 }),</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                                 widget.WidgetOpts.MinSize(300, 0),</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                         ),</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Image(res.TextInput.Image),</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Face(&amp;res.TextInput.Face),</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Color(res.TextInput.Color),</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Padding(&amp;res.TextInput.Padding),</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Placeholder(&quot;名前&quot;),</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                 )</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                 ti.SetText(props.CurrentName)</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 ti.Focus(true)</span></span>
-<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                 return ti</span></span>
-<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L260"><span class="lineNum">     260</span>              : </span>
-<span id="L261"><span class="lineNum">     261</span>              :         // エラーメッセージ</span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :         errorText := widget.NewText(</span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(props.ErrorMessage, &amp;res.Text.SmallFace, consts.DangerColor),</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                                 Position: widget.RowLayoutPositionStart,</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                         }),</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         // 操作ヒント</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         hintLabel := widget.NewText(</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(consts.IconKeyEnter+&quot; 決定 / &quot;+consts.IconKeyEsc+&quot; 戻る&quot;, &amp;res.Text.SmallFace, consts.SecondaryColor),</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                         }),</span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                 ),</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :         )</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(titleLabel)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(textInput)</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(errorText)</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(hintLabel)</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         rootContainer.AddChild(centerContainer)</span></span>
+<span id="L209"><span class="lineNum">     209</span>              : // buildUI</span>
+<span id="L210"><span class="lineNum">     210</span>              : // ================</span>
+<span id="L211"><span class="lineNum">     211</span>              : </span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         res := world.Resources.UIResources</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         props := st.mount.GetProps()</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         rootContainer := widget.NewContainer(</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         centerContainer := widget.NewContainer(</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewRowLayout(</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaUNC">           0 :                         widget.RowLayoutOpts.Direction(widget.DirectionVertical),</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :                         widget.RowLayoutOpts.Spacing(20),</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 )),</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.WidgetOpts(</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                                 HorizontalPosition: widget.AnchorLayoutPositionCenter,</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :                                 VerticalPosition:   widget.AnchorLayoutPositionCenter,</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :                         }),</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         titleLabel := widget.NewText(</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(&quot;名前&quot;, &amp;res.Text.TitleFontFace, consts.PrimaryColor),</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                         }),</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         // テキスト入力を作成</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         textInput := hooks.UseRef(st.mount.Store(), &quot;textInput&quot;, func() *widget.TextInput {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 ti := widget.NewTextInput(</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.WidgetOpts(</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                                 widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                                         Position: widget.RowLayoutPositionCenter,</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                                         Stretch:  true,</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                                 }),</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                                 widget.WidgetOpts.MinSize(300, 0),</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                         ),</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Image(res.TextInput.Image),</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Face(&amp;res.TextInput.Face),</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Color(res.TextInput.Color),</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Padding(&amp;res.TextInput.Padding),</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :                         widget.TextInputOpts.Placeholder(&quot;名前&quot;),</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :                 )</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaUNC">           0 :                 ti.SetText(props.CurrentName)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaUNC">           0 :                 ti.Focus(true)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaUNC">           0 :                 return ti</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L262"><span class="lineNum">     262</span>              : </span>
+<span id="L263"><span class="lineNum">     263</span>              :         // エラーメッセージ</span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaUNC">           0 :         errorText := widget.NewText(</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(props.ErrorMessage, &amp;res.Text.SmallFace, consts.DangerColor),</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                                 Position: widget.RowLayoutPositionStart,</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                         }),</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         // 操作ヒント</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         hintLabel := widget.NewText(</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(consts.IconKeyEnter+&quot; 決定 / &quot;+consts.IconKeyEsc+&quot; 戻る&quot;, &amp;res.Text.SmallFace, consts.SecondaryColor),</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC">           0 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaUNC">           0 :                         }),</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaUNC">           0 :                 ),</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaUNC">           0 :         )</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(titleLabel)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(textInput)</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(errorText)</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         centerContainer.AddChild(hintLabel)</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         return &amp;ebitenui.UI{Container: rootContainer}</span></span>
-<span id="L289"><span class="lineNum">     289</span>              : }</span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         rootContainer.AddChild(centerContainer)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :         return &amp;ebitenui.UI{Container: rootContainer}</span></span>
+<span id="L291"><span class="lineNum">     291</span>              : }</span>
         </pre>
               </td>
             </tr>
