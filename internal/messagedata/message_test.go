@@ -369,3 +369,34 @@ func TestComplexScenarios(t *testing.T) {
 		assert.True(t, actionCalled)
 	})
 }
+
+func TestChainMessages(t *testing.T) {
+	t.Parallel()
+
+	t.Run("複数ページを直列連結する", func(t *testing.T) {
+		t.Parallel()
+
+		page1 := NewSystemMessage("1ページ目")
+		page2 := NewSystemMessage("2ページ目")
+		page3 := NewSystemMessage("3ページ目")
+
+		first := ChainMessages(page1, page2, page3)
+
+		assert.Equal(t, page1, first)
+		require.Len(t, page1.NextMessages, 1)
+		assert.Equal(t, page2, page1.NextMessages[0])
+		require.Len(t, page2.NextMessages, 1)
+		assert.Equal(t, page3, page2.NextMessages[0])
+		assert.Empty(t, page3.NextMessages)
+	})
+
+	t.Run("1ページだけの場合はそのまま返す", func(t *testing.T) {
+		t.Parallel()
+
+		page := NewSystemMessage("単体")
+		first := ChainMessages(page)
+
+		assert.Equal(t, page, first)
+		assert.Empty(t, page.NextMessages)
+	})
+}

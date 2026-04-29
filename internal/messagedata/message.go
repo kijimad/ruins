@@ -14,6 +14,7 @@ type MessageData struct {
 	OnComplete       func()          // メッセージ完了時のコールバック
 	NextMessages     []*MessageData  // 次に表示するメッセージ群
 	TextSegmentLines [][]TextSegment // 行ごとの色付きテキストセグメント
+	BackgroundKey    string          // 背景スプライトキー。空なら前の背景を維持する
 }
 
 // TextSegment は色付きテキストのセグメント
@@ -29,6 +30,14 @@ type Choice struct {
 	Action      func(w.World) error // 選択時に実行する
 	MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ
 	Disabled    bool
+}
+
+// ChainMessages は複数のメッセージをNextMessagesで直列連結し、先頭を返す
+func ChainMessages(pages ...*MessageData) *MessageData {
+	for i := 0; i < len(pages)-1; i++ {
+		pages[i].NextMessages = []*MessageData{pages[i+1]}
+	}
+	return pages[0]
 }
 
 // NewDialogMessage は会話メッセージを作成する

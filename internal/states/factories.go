@@ -306,11 +306,12 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("背景付きメッセージテスト", func(_ w.World) error {
 			testMessage := messagedata.NewDialogMessage("これは背景付きメッセージのテストです。\nroom1.pngが背景に表示されています。", "システム")
+			testMessage.BackgroundKey = "hospital1"
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{
 					func() es.State[w.World] {
-						return NewMessageState(testMessage, WithBackgroundKey("bg", "hospital1"))
+						return NewMessageState(testMessage)
 					},
 				}})
 			return nil
@@ -545,7 +546,8 @@ func NewCurrencyCollectionEndingState() es.StateFactory[w.World] {
 [NORMAL END]
 ------------`)
 
-		messageState := NewMessageState(ending1, WithBackgroundKey("bg", "hospital1"))
+		ending1.BackgroundKey = "hospital1"
+		messageState := NewMessageState(ending1)
 
 		// 最後のメッセージに街への遷移を追加
 		ending5.WithChoice("閉じる", func(_ w.World) error {
@@ -558,10 +560,7 @@ func NewCurrencyCollectionEndingState() es.StateFactory[w.World] {
 			return nil
 		})
 
-		ending1.NextMessages = []*messagedata.MessageData{ending2}
-		ending2.NextMessages = []*messagedata.MessageData{ending3}
-		ending3.NextMessages = []*messagedata.MessageData{ending4}
-		ending4.NextMessages = []*messagedata.MessageData{ending5}
+		messagedata.ChainMessages(ending1, ending2, ending3, ending4, ending5)
 
 		return messageState
 	}
@@ -692,11 +691,9 @@ func NewLoadMenuState() es.State[w.World] {
 }
 
 // NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数
-// オプションを指定することで背景画像などをカスタマイズできる
-func NewMessageState(messageData *messagedata.MessageData, opts ...MessageStateOption) es.State[w.World] {
+func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] {
 	return &MessageState{
 		messageData: messageData,
-		options:     opts,
 	}
 }
 
@@ -830,31 +827,26 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 // 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む
 func NewOpeningState() es.State[w.World] {
 	// 1. 黒背景: 荒野の大穴
-	page1a := &messagedata.MessageData{Speaker: "", BackgroundSheet: "bg", BackgroundKey: "black1"}
+	page1a := &messagedata.MessageData{Speaker: "", BackgroundKey: "black1"}
 	page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
 
 	// 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
-	blank := &messagedata.MessageData{Speaker: "", BackgroundSheet: "bg", BackgroundKey: "hole1"}
+	blank := &messagedata.MessageData{Speaker: "", BackgroundKey: "hole1"}
 	page1b := &messagedata.MessageData{Speaker: ""}
 	page1b.AddText("穴の底には古代文明の遺跡がある。\n").
 		AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
 		AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
 
 	// 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
-	blankBar := &messagedata.MessageData{Speaker: "", BackgroundSheet: "bg", BackgroundKey: "bar1"}
+	blankBar := &messagedata.MessageData{Speaker: "", BackgroundKey: "bar1"}
 	page2 := &messagedata.MessageData{Speaker: ""}
-	page2.AddText("「聞いたか。最深部狙いの奴、また一人消えたってよ。」\n").
+	page2.AddText("「聞いたか。底狙いの奴、また一人消えたってよ。」\n").
 		AddText("「何人目だ。」\n").
 		AddText("「さあな。数えるのはとっくにやめた。」\n\n").
 		AddText("「でさ、次の").
 		AddKeyword("拾い屋").
-		AddText("が来たんだが...そいつも最深部狙いだと。」\n")
+		AddText("が来たんだが...そいつも底狙いだと。」\n")
 
-	// NextMessagesで直列連結
-	page1a.NextMessages = []*messagedata.MessageData{blank}
-	blank.NextMessages = []*messagedata.MessageData{page1b}
-	page1b.NextMessages = []*messagedata.MessageData{blankBar}
-	blankBar.NextMessages = []*messagedata.MessageData{page2}
-
-	return NewMessageState(page1a)
+	first := messagedata.ChainMessages(page1a, blank, page1b, blankBar, page2)
+	return NewMessageState(first)
 }
