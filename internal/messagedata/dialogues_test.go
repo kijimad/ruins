@@ -17,7 +17,7 @@ func TestGetDialogue(t *testing.T) {
 		// 複数ページの会話なので、TextSegmentLinesが存在することを確認
 		assert.NotEmpty(t, msg.TextSegmentLines, "会話にテキストが含まれているべき")
 		// 2ページ目が存在することを確認
-		assert.Len(t, msg.NextMessages, 1, "2ページ目が存在するべき")
+		assert.Len(t, msg.nextMessages, 1, "2ページ目が存在するべき")
 		// 1ページ目の2番目のテキストセグメントを確認（1番目は空文字列）
 		if len(msg.TextSegmentLines) > 0 && len(msg.TextSegmentLines[0]) > 1 {
 			assert.Equal(t, "「あんた、", msg.TextSegmentLines[0][1].Text)
@@ -43,6 +43,6 @@ func TestGetDialogue(t *testing.T) {
 		// 複数ページの会話なので、TextSegmentLinesが存在することを確認
 		assert.NotEmpty(t, msg.TextSegmentLines, "会話にテキストが含まれているべき")
 		// 2ページ目が存在することを確認
-		assert.Len(t, msg.NextMessages, 1, "2ページ目が存在するべき")
+		assert.Len(t, msg.nextMessages, 1, "2ページ目が存在するべき")
 	})
 }

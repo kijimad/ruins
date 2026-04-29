@@ -299,7 +299,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("背景付きメッセージテスト", func(_ w.World) error {
-			testMessage := messagedata.NewDialogMessage("これは背景付きメッセージのテストです。\nroom1.pngが背景に表示されています。", "システム")
+			testMessage := messagedata.NewDialogMessage("これは背景付きメッセージのテストです。", "システム")
 			testMessage.BackgroundKey = "hospital1"
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPush,

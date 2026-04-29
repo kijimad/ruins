@@ -27,8 +27,7 @@ var DialogueTable = map[string]func(speakerName string) *MessageData{
 
 救えない世の中だな。」`)
 
-		msg1.NextMessages = append(msg1.NextMessages, msg2)
-		return msg1
+		return ChainMessages(msg1, msg2)
 	},
 }
 

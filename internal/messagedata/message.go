@@ -12,7 +12,7 @@ type MessageData struct {
 	Speaker          string
 	Choices          []Choice
 	OnComplete       func()          // メッセージ完了時のコールバック
-	NextMessages     []*MessageData  // 次に表示するメッセージ群
+	nextMessages     []*MessageData  // 次に表示するメッセージ群
 	TextSegmentLines [][]TextSegment // 行ごとの色付きテキストセグメント
 	BackgroundKey    string          // 背景スプライトキー。空なら前の背景を維持する
 }
@@ -32,10 +32,10 @@ type Choice struct {
 	Disabled    bool
 }
 
-// ChainMessages は複数のメッセージをNextMessagesで直列連結し、先頭を返す
+// ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す
 func ChainMessages(pages ...*MessageData) *MessageData {
 	for i := 0; i < len(pages)-1; i++ {
-		pages[i].NextMessages = []*MessageData{pages[i+1]}
+		pages[i].nextMessages = []*MessageData{pages[i+1]}
 	}
 	return pages[0]
 }
@@ -84,24 +84,24 @@ func (m *MessageData) WithOnComplete(callback func()) *MessageData {
 
 // DialogMessage は会話メッセージを連鎖
 func (m *MessageData) DialogMessage(text, speaker string) *MessageData {
-	m.NextMessages = append(m.NextMessages, NewDialogMessage(text, speaker))
+	m.nextMessages = append(m.nextMessages, NewDialogMessage(text, speaker))
 	return m
 }
 
 // SystemMessage はシステムメッセージを連鎖
 func (m *MessageData) SystemMessage(text string) *MessageData {
-	m.NextMessages = append(m.NextMessages, NewSystemMessage(text))
+	m.nextMessages = append(m.nextMessages, NewSystemMessage(text))
 	return m
 }
 
-// HasNextMessages は次のメッセージがあるかを確認
+// HasNextMessages は次のメッセージがあるかを確認する
 func (m *MessageData) HasNextMessages() bool {
-	return len(m.NextMessages) > 0
+	return len(m.nextMessages) > 0
 }
 
-// GetNextMessages は次のメッセージ群を取得
+// GetNextMessages は次のメッセージ群を取得する
 func (m *MessageData) GetNextMessages() []*MessageData {
-	return m.NextMessages
+	return m.nextMessages
 }
 
 // ensureCurrentLine は現在の行が存在することを保証する
