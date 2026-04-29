@@ -3,6 +3,7 @@ package messagedata
 
 import (
 	"image/color"
+	"strings"
 
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -116,8 +117,7 @@ func (m *MessageData) ensureCurrentLine() {
 func (m *MessageData) AddText(text string) *MessageData {
 	m.ensureCurrentLine()
 
-	// 改行文字で分割
-	lines := splitByNewline(text)
+	lines := strings.Split(text, "\n")
 
 	for i, line := range lines {
 		if i > 0 {
@@ -130,26 +130,6 @@ func (m *MessageData) AddText(text string) *MessageData {
 	}
 
 	return m
-}
-
-// splitByNewline は改行文字で文字列を分割する
-func splitByNewline(text string) []string {
-	var lines []string
-	var current string
-
-	for _, r := range text {
-		if r == '\n' {
-			lines = append(lines, current)
-			current = ""
-		} else {
-			current += string(r)
-		}
-	}
-
-	// 最後の行を追加
-	lines = append(lines, current)
-
-	return lines
 }
 
 // AddKeyword はキーワード（赤色背景）テキストを追加する
