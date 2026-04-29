@@ -140,7 +140,7 @@ func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 	if world.Config.QuickStart {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
 	} else {
-		startFuncs = []es.StateFactory[w.World]{func() es.State[w.World] { return NewOpeningState(NewCharacterNamingState) }}
+		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
 	}
 
 	return mainMenuProps{

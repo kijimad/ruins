@@ -121,7 +121,9 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 // Draw はスクリーンに描画する
 func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(consts.BlackColor)
-	st.widget.Draw(screen)
+	if st.widget != nil {
+		st.widget.Draw(screen)
+	}
 	return nil
 }
 

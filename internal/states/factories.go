@@ -318,7 +318,7 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("オープニング", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewOpeningState() }},
+				NewStateFuncs: []es.StateFactory[w.World]{NewOpeningState},
 			})
 			return nil
 		}).
@@ -826,25 +826,22 @@ func NewDarkDoctorDialogState(speakerName string, world w.World) es.State[w.Worl
 	return persistentState
 }
 
-// NewOpeningState はオープニングを表示するStateを作成する
-// nextStatesを指定すると完了後にそのステートへ遷移する。未指定ならポップする
-func NewOpeningState(nextStates ...es.StateFactory[w.World]) es.State[w.World] {
-	openingState := &MessageState{}
-
-	// page1a: 黒背景で荒野の大穴
-	page1a := &messagedata.MessageData{Speaker: ""}
+// NewOpeningState はオープニングを表示するStateを作成するファクトリー関数
+// 完了後はポップする。後続ステートが必要な場合は呼び出し側でスタックに積む
+func NewOpeningState() es.State[w.World] {
+	// 1. 黒背景: 荒野の大穴
+	page1a := &messagedata.MessageData{Speaker: "", BackgroundSheet: "bg", BackgroundKey: "black1"}
 	page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
 
-	// 穴背景: 空ページ→page1b をNextMessagesで連結してチラつきを防ぐ
-	blank := &messagedata.MessageData{Speaker: ""}
+	// 2. 穴背景: 空ページ（背景だけ見せる）→ 遺跡の説明
+	blank := &messagedata.MessageData{Speaker: "", BackgroundSheet: "bg", BackgroundKey: "hole1"}
 	page1b := &messagedata.MessageData{Speaker: ""}
 	page1b.AddText("穴の底には古代文明の遺跡がある。\n").
 		AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
 		AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
-	blank.NextMessages = []*messagedata.MessageData{page1b}
 
-	// 酒場背景: 空ページ→page2 をNextMessagesで連結してチラつきを防ぐ
-	blankBar := &messagedata.MessageData{Speaker: ""}
+	// 3. 酒場背景: 空ページ（背景だけ見せる）→ 拾い屋の噂
+	blankBar := &messagedata.MessageData{Speaker: "", BackgroundSheet: "bg", BackgroundKey: "bar1"}
 	page2 := &messagedata.MessageData{Speaker: ""}
 	page2.AddText("「聞いたか。最深部狙いの奴、また一人消えたってよ。」\n").
 		AddText("「何人目だ。」\n").
@@ -852,41 +849,12 @@ func NewOpeningState(nextStates ...es.StateFactory[w.World]) es.State[w.World] {
 		AddText("「でさ、次の").
 		AddKeyword("拾い屋").
 		AddText("が来たんだが...そいつも最深部狙いだと。」\n")
+
+	// NextMessagesで直列連結
+	page1a.NextMessages = []*messagedata.MessageData{blank}
+	blank.NextMessages = []*messagedata.MessageData{page1b}
+	page1b.NextMessages = []*messagedata.MessageData{blankBar}
 	blankBar.NextMessages = []*messagedata.MessageData{page2}
 
-	// オープニング完了後の遷移
-	if len(nextStates) > 0 {
-		page2.OnComplete = func() {
-			openingState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransReplace,
-				NewStateFuncs: nextStates,
-			})
-		}
-	}
-
-	// page1b終了時に酒場背景へ遷移
-	page1b.OnComplete = func() {
-		openingState.SetTransition(es.Transition[w.World]{
-			Type: es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] {
-					return NewMessageState(blankBar, WithBackgroundKey("bg", "bar1"))
-				}},
-		})
-	}
-
-	// page1a終了時に穴背景へ遷移
-	page1a.OnComplete = func() {
-		openingState.SetTransition(es.Transition[w.World]{
-			Type: es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] {
-					return NewMessageState(blank, WithBackgroundKey("bg", "hole1"))
-				}},
-		})
-	}
-
-	openingState.messageData = page1a
-	openingState.options = []MessageStateOption{WithBackgroundKey("bg", "black1")}
-	return openingState
+	return NewMessageState(page1a)
 }
