@@ -1,26 +1,26 @@
 {
-  "checksum": "fbd8d7884adbb2fe2d115ddfd163ab8cf93d81f1e21fe894f32526ff99c8e56f",
-  "timestamp": "2026-01-21T18:27:49.157587005+09:00",
+  "checksum": "44b4859bd19d52ce533ad21a0ab933e0507e2be8b7a1f6aa7955012768f6440b",
+  "timestamp": "2026-04-29T10:37:50.198817341+09:00",
   "version": "1.0.0",
   "world": {
     "entities": [
       {
         "components": {
-          "Attributes": {
+          "Abilities": {
             "Agility": {
               "Base": 5,
-              "Modifier": -4,
-              "Total": 1
+              "Modifier": 0,
+              "Total": 5
             },
             "Defense": {
-              "Base": 0,
-              "Modifier": 8,
-              "Total": 8
+              "Base": 5,
+              "Modifier": 0,
+              "Total": 5
             },
             "Dexterity": {
-              "Base": 6,
+              "Base": 5,
               "Modifier": 0,
-              "Total": 6
+              "Total": 5
             },
             "Sensation": {
               "Base": 5,
@@ -28,24 +28,28 @@
               "Total": 5
             },
             "Strength": {
-              "Base": 50,
+              "Base": 5,
               "Modifier": 0,
-              "Total": 50
+              "Total": 5
             },
             "Vitality": {
-              "Base": 50,
+              "Base": 5,
               "Modifier": 0,
-              "Total": 50
+              "Total": 5
             }
           },
           "Camera": {
-            "Scale": 0.9994924712139436,
-            "ScaleTo": 1
+            "Scale": 1,
+            "ScaleTo": 1,
+            "TargetX": 784,
+            "TargetY": 336,
+            "X": 784,
+            "Y": 336
           },
           "FactionAllyData": {},
           "GridElement": {
-            "X": 23,
-            "Y": 42
+            "X": 24,
+            "Y": 10
           },
           "LightSource": {
             "Color": {
@@ -55,28 +59,28 @@
               "R": 255
             },
             "Enabled": true,
-            "Radius": 10
+            "Radius": 4
           },
           "Name": {
-            "Name": "セレスティン"
+            "Name": "Ash"
           },
           "Player": {},
           "Pools": {
             "EP": {
-              "Current": 71,
-              "Max": 71
+              "Current": 70,
+              "Max": 70
             },
             "HP": {
-              "Current": 485,
-              "Max": 485
+              "Current": 80,
+              "Max": 80
             },
             "SP": {
-              "Current": 107,
-              "Max": 107
+              "Current": 20,
+              "Max": 20
             },
             "Weight": {
-              "Current": 77.7,
-              "Max": 110
+              "Current": 2.4000000000000004,
+              "Max": 21
             }
           },
           "SpriteRender": {
@@ -106,9 +110,10 @@
           },
           "TurnBased": {
             "AP": {
-              "Current": 109,
-              "Max": 109
-            }
+              "Current": 120,
+              "Max": 120
+            },
+            "Speed": 0
           },
           "Wallet": {
             "Currency": 1000
@@ -121,15 +126,25 @@
       },
       {
         "components": {
+          "Consumable": {
+            "TargetType": {
+              "TargetGroup": "ALLY",
+              "TargetNum": "SINGLE"
+            },
+            "UsableScene": "ANY"
+          },
           "Description": {
-            "Description": "衝撃吸収性に優れた産業用の帽子"
+            "Description": "焼きたてのパン。空腹を満たす"
           },
           "Item": {
-            "Count": 1
+            "Count": 3
           },
           "LocationInPlayerBackpack": {},
           "Name": {
-            "Name": "作業用ヘルメット"
+            "Name": "パン"
+          },
+          "ProvidesNutrition": {
+            "Amount": 100
           },
           "SpriteRender": {
             "AnimKeys": null,
@@ -150,22 +165,12 @@
               "Filter": 0,
               "GeoM": {}
             },
-            "SpriteKey": "construction_helmet",
+            "SpriteKey": "food_item",
             "SpriteSheetName": "field"
           },
+          "Stackable": {},
           "Value": {
-            "Value": 150
-          },
-          "Wearable": {
-            "Defense": 4,
-            "EquipBonus": {
-              "Agility": -2,
-              "Dexterity": 0,
-              "Sensation": 0,
-              "Strength": 0,
-              "Vitality": 4
-            },
-            "EquipmentCategory": "HEAD"
+            "Value": 30
           }
         },
         "stable_id": {
@@ -175,69 +180,25 @@
       },
       {
         "components": {
-          "Description": {
-            "Description": "よくなめされた革で成形された長靴"
-          },
-          "Item": {
-            "Count": 1
-          },
-          "LocationInPlayerBackpack": {},
-          "Name": {
-            "Name": "革のブーツ"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
+          "Consumable": {
+            "TargetType": {
+              "TargetGroup": "ALLY",
+              "TargetNum": "SINGLE"
             },
-            "SpriteKey": "field_item",
-            "SpriteSheetName": "field"
+            "UsableScene": "ANY"
           },
-          "Value": {
-            "Value": 120
-          },
-          "Wearable": {
-            "Defense": 3,
-            "EquipBonus": {
-              "Agility": -2,
-              "Dexterity": 0,
-              "Sensation": 0,
-              "Strength": 0,
-              "Vitality": 0
-            },
-            "EquipmentCategory": "LEGS"
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 3
-        }
-      },
-      {
-        "components": {
           "Description": {
-            "Description": "赤く光る鉱物。高価な装飾用に加工される"
+            "Description": "固いビスケット。保存食として優秀"
           },
           "Item": {
             "Count": 2
           },
           "LocationInPlayerBackpack": {},
           "Name": {
-            "Name": "ルビー原石"
+            "Name": "ビスケット"
+          },
+          "ProvidesNutrition": {
+            "Amount": 90
           },
           "SpriteRender": {
             "AnimKeys": null,
@@ -258,17 +219,17 @@
               "Filter": 0,
               "GeoM": {}
             },
-            "SpriteKey": "field_item",
+            "SpriteKey": "biscuit",
             "SpriteSheetName": "field"
           },
           "Stackable": {},
           "Value": {
-            "Value": 500
+            "Value": 25
           }
         },
         "stable_id": {
           "generation": 0,
-          "index": 4
+          "index": 3
         }
       },
       {
@@ -284,7 +245,7 @@
             "Description": "体力を半分程度回復する"
           },
           "Item": {
-            "Count": 3
+            "Count": 1
           },
           "LocationInPlayerBackpack": {},
           "Name": {
@@ -325,458 +286,75 @@
         },
         "stable_id": {
           "generation": 0,
+          "index": 4
+        }
+      },
+      {
+        "components": {
+          "Description": {
+            "Description": "ありふれた布の帽子"
+          },
+          "Item": {
+            "Count": 1
+          },
+          "LocationEquipped": {
+            "EquipmentSlot": 0,
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
+          "Name": {
+            "Name": "布の帽子"
+          },
+          "SpriteRender": {
+            "AnimKeys": null,
+            "Depth": 1,
+            "Options": {
+              "Blend": {
+                "BlendFactorDestinationAlpha": 0,
+                "BlendFactorDestinationRGB": 0,
+                "BlendFactorSourceAlpha": 0,
+                "BlendFactorSourceRGB": 0,
+                "BlendOperationAlpha": 0,
+                "BlendOperationRGB": 0
+              },
+              "ColorM": {},
+              "ColorScale": {},
+              "CompositeMode": 0,
+              "DisableMipmaps": false,
+              "Filter": 0,
+              "GeoM": {}
+            },
+            "SpriteKey": "field_item",
+            "SpriteSheetName": "field"
+          },
+          "Value": {
+            "Value": 10
+          },
+          "Wearable": {
+            "Defense": 0,
+            "EquipBonus": {
+              "Agility": 0,
+              "Dexterity": 0,
+              "Sensation": 0,
+              "Strength": 0,
+              "Vitality": 0
+            },
+            "EquipmentCategory": "HEAD",
+            "InsulationCold": 2,
+            "InsulationHeat": 2
+          }
+        },
+        "stable_id": {
+          "generation": 0,
           "index": 5
         }
       },
       {
         "components": {
-          "Consumable": {
-            "TargetType": {
-              "TargetGroup": "ENEMY",
-              "TargetNum": "ALL"
-            },
-            "UsableScene": "BATTLE"
-          },
           "Description": {
-            "Description": "爆発と破片で被害を与える手投げ弾"
-          },
-          "InflictsDamage": {
-            "Amount": 20
-          },
-          "Item": {
-            "Count": 5
-          },
-          "LocationInPlayerBackpack": {},
-          "Name": {
-            "Name": "手榴弾"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "field_item",
-            "SpriteSheetName": "field"
-          },
-          "Stackable": {},
-          "Value": {
-            "Value": 150
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 6
-        }
-      },
-      {
-        "components": {
-          "Consumable": {
-            "TargetType": {
-              "TargetGroup": "ALLY",
-              "TargetNum": "SINGLE"
-            },
-            "UsableScene": "ANY"
-          },
-          "Description": {
-            "Description": "焼きたてのパン。空腹を満たす"
-          },
-          "Item": {
-            "Count": 10
-          },
-          "LocationInPlayerBackpack": {},
-          "Name": {
-            "Name": "パン"
-          },
-          "ProvidesNutrition": {
-            "Amount": 100
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "food_item",
-            "SpriteSheetName": "field"
-          },
-          "Stackable": {},
-          "Value": {
-            "Value": 30
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 7
-        }
-      },
-      {
-        "components": {
-          "Description": {
-            "Description": "加工しやすく産業の中核をなす金属"
-          },
-          "Item": {
-            "Count": 14
-          },
-          "LocationInPlayerBackpack": {},
-          "Name": {
-            "Name": "鉄"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "field_item",
-            "SpriteSheetName": "field"
-          },
-          "Stackable": {}
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 8
-        }
-      },
-      {
-        "components": {
-          "Consumable": {
-            "TargetType": {
-              "TargetGroup": "ALLY",
-              "TargetNum": "SINGLE"
-            },
-            "UsableScene": "ANY"
-          },
-          "Description": {
-            "Description": "炭酸飲料。爽快感がある"
-          },
-          "Item": {
-            "Count": 2
-          },
-          "LocationInPlayerBackpack": {},
-          "Name": {
-            "Name": "コーラ"
-          },
-          "ProvidesNutrition": {
-            "Amount": 80
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "bottled_cola",
-            "SpriteSheetName": "field"
-          },
-          "Stackable": {},
-          "Value": {
-            "Value": 25
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 9
-        }
-      },
-      {
-        "components": {
-          "Description": {
-            "Description": "よい香りに鎮静・興奮などの作用がある植物"
-          },
-          "Item": {
-            "Count": 2
-          },
-          "LocationInPlayerBackpack": {},
-          "Name": {
-            "Name": "緑ハーブ"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "green_herb",
-            "SpriteSheetName": "field"
-          },
-          "Stackable": {}
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 10
-        }
-      },
-      {
-        "components": {
-          "Attack": {
-            "Accuracy": 100,
-            "AttackCategory": {
-              "Label": "刀剣",
-              "Range": "MELEE",
-              "Type": "SWORD"
-            },
-            "AttackCount": 1,
-            "Damage": 8,
-            "Element": "NONE"
-          },
-          "Description": {
-            "Description": "旅行の土産でおなじみの、木でできた刃のない刀"
-          },
-          "Item": {
-            "Count": 1
-          },
-          "LocationEquipped": {
-            "EquipmentSlot": 4,
-            "OwnerRef": {
-              "generation": 0,
-              "index": 1
-            }
-          },
-          "Name": {
-            "Name": "木刀"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "wooden_sword",
-            "SpriteSheetName": "field"
-          },
-          "Value": {
-            "Value": 80
-          },
-          "Weapon": {
-            "Cost": 2,
-            "TargetType": {
-              "TargetGroup": "ENEMY",
-              "TargetNum": "SINGLE"
-            }
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 11
-        }
-      },
-      {
-        "components": {
-          "Attack": {
-            "Accuracy": 95,
-            "AttackCategory": {
-              "Label": "拳銃",
-              "Range": "RANGED",
-              "Type": "HANDGUN"
-            },
-            "AttackCount": 1,
-            "Damage": 14,
-            "Element": "NONE"
-          },
-          "Description": {
-            "Description": "樹脂素材を多用した自動拳銃"
-          },
-          "Item": {
-            "Count": 1
-          },
-          "LocationEquipped": {
-            "EquipmentSlot": 5,
-            "OwnerRef": {
-              "generation": 0,
-              "index": 1
-            }
-          },
-          "Name": {
-            "Name": "ハンドガン"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "handgun",
-            "SpriteSheetName": "field"
-          },
-          "Value": {
-            "Value": 150
-          },
-          "Weapon": {
-            "Cost": 2,
-            "TargetType": {
-              "TargetGroup": "ENEMY",
-              "TargetNum": "SINGLE"
-            }
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 12
-        }
-      },
-      {
-        "components": {
-          "Attack": {
-            "Accuracy": 85,
-            "AttackCategory": {
-              "Label": "大砲",
-              "Range": "RANGED",
-              "Type": "CANON"
-            },
-            "AttackCount": 1,
-            "Damage": 34,
-            "Element": "NONE"
-          },
-          "Description": {
-            "Description": "成形炸薬弾を投射する対戦車ロケット弾発射機"
-          },
-          "Item": {
-            "Count": 1
-          },
-          "LocationEquipped": {
-            "EquipmentSlot": 7,
-            "OwnerRef": {
-              "generation": 0,
-              "index": 1
-            }
-          },
-          "Name": {
-            "Name": "M72 LAW"
-          },
-          "SpriteRender": {
-            "AnimKeys": null,
-            "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "field_item",
-            "SpriteSheetName": "field"
-          },
-          "Value": {
-            "Value": 480
-          },
-          "Weapon": {
-            "Cost": 14,
-            "TargetType": {
-              "TargetGroup": "ENEMY",
-              "TargetNum": "SINGLE"
-            }
-          }
-        },
-        "stable_id": {
-          "generation": 0,
-          "index": 13
-        }
-      },
-      {
-        "components": {
-          "Description": {
-            "Description": "伝統的な意匠が施されたずっしりと重い鎧"
+            "Description": "普段着のシャツ。防御力は期待できない"
           },
           "Item": {
             "Count": 1
@@ -789,7 +367,7 @@
             }
           },
           "Name": {
-            "Name": "西洋鎧"
+            "Name": "布のシャツ"
           },
           "SpriteRender": {
             "AnimKeys": null,
@@ -814,53 +392,44 @@
             "SpriteSheetName": "field"
           },
           "Value": {
-            "Value": 400
+            "Value": 15
           },
           "Wearable": {
-            "Defense": 8,
+            "Defense": 0,
             "EquipBonus": {
-              "Agility": -4,
+              "Agility": 0,
               "Dexterity": 0,
               "Sensation": 0,
               "Strength": 0,
               "Vitality": 0
             },
-            "EquipmentCategory": "TORSO"
+            "EquipmentCategory": "TORSO",
+            "InsulationCold": 2,
+            "InsulationHeat": 2
           }
         },
         "stable_id": {
           "generation": 0,
-          "index": 14
+          "index": 6
         }
       },
       {
         "components": {
-          "Attack": {
-            "Accuracy": 90,
-            "AttackCategory": {
-              "Label": "拳銃",
-              "Range": "RANGED",
-              "Type": "HANDGUN"
-            },
-            "AttackCount": 1,
-            "Damage": 20,
-            "Element": "PHOTON"
-          },
           "Description": {
-            "Description": "光線を発射する拳銃"
+            "Description": "薄い布地の袖カバー"
           },
           "Item": {
             "Count": 1
           },
           "LocationEquipped": {
-            "EquipmentSlot": 6,
+            "EquipmentSlot": 2,
             "OwnerRef": {
               "generation": 0,
               "index": 1
             }
           },
           "Name": {
-            "Name": "レイガン"
+            "Name": "布の腕巻き"
           },
           "SpriteRender": {
             "AnimKeys": null,
@@ -881,25 +450,221 @@
               "Filter": 0,
               "GeoM": {}
             },
-            "SpriteKey": "laser_gun",
+            "SpriteKey": "field_item",
             "SpriteSheetName": "field"
           },
           "Value": {
-            "Value": 280
+            "Value": 8
           },
-          "Weapon": {
-            "Cost": 2,
-            "TargetType": {
-              "TargetGroup": "ENEMY",
-              "TargetNum": "SINGLE"
-            }
+          "Wearable": {
+            "Defense": 0,
+            "EquipBonus": {
+              "Agility": 0,
+              "Dexterity": 0,
+              "Sensation": 0,
+              "Strength": 0,
+              "Vitality": 0
+            },
+            "EquipmentCategory": "ARMS",
+            "InsulationCold": 1,
+            "InsulationHeat": 1
           }
         },
         "stable_id": {
           "generation": 0,
-          "index": 15
+          "index": 7
+        }
+      },
+      {
+        "components": {
+          "Description": {
+            "Description": "薄手の布手袋"
+          },
+          "Item": {
+            "Count": 1
+          },
+          "LocationEquipped": {
+            "EquipmentSlot": 3,
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
+          "Name": {
+            "Name": "布の手袋"
+          },
+          "SpriteRender": {
+            "AnimKeys": null,
+            "Depth": 1,
+            "Options": {
+              "Blend": {
+                "BlendFactorDestinationAlpha": 0,
+                "BlendFactorDestinationRGB": 0,
+                "BlendFactorSourceAlpha": 0,
+                "BlendFactorSourceRGB": 0,
+                "BlendOperationAlpha": 0,
+                "BlendOperationRGB": 0
+              },
+              "ColorM": {},
+              "ColorScale": {},
+              "CompositeMode": 0,
+              "DisableMipmaps": false,
+              "Filter": 0,
+              "GeoM": {}
+            },
+            "SpriteKey": "field_item",
+            "SpriteSheetName": "field"
+          },
+          "Value": {
+            "Value": 8
+          },
+          "Wearable": {
+            "Defense": 0,
+            "EquipBonus": {
+              "Agility": 0,
+              "Dexterity": 0,
+              "Sensation": 0,
+              "Strength": 0,
+              "Vitality": 0
+            },
+            "EquipmentCategory": "HANDS",
+            "InsulationCold": 1,
+            "InsulationHeat": 1
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 8
+        }
+      },
+      {
+        "components": {
+          "Description": {
+            "Description": "ごく普通のズボン"
+          },
+          "Item": {
+            "Count": 1
+          },
+          "LocationEquipped": {
+            "EquipmentSlot": 4,
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
+          "Name": {
+            "Name": "布のズボン"
+          },
+          "SpriteRender": {
+            "AnimKeys": null,
+            "Depth": 1,
+            "Options": {
+              "Blend": {
+                "BlendFactorDestinationAlpha": 0,
+                "BlendFactorDestinationRGB": 0,
+                "BlendFactorSourceAlpha": 0,
+                "BlendFactorSourceRGB": 0,
+                "BlendOperationAlpha": 0,
+                "BlendOperationRGB": 0
+              },
+              "ColorM": {},
+              "ColorScale": {},
+              "CompositeMode": 0,
+              "DisableMipmaps": false,
+              "Filter": 0,
+              "GeoM": {}
+            },
+            "SpriteKey": "field_item",
+            "SpriteSheetName": "field"
+          },
+          "Value": {
+            "Value": 12
+          },
+          "Wearable": {
+            "Defense": 0,
+            "EquipBonus": {
+              "Agility": 0,
+              "Dexterity": 0,
+              "Sensation": 0,
+              "Strength": 0,
+              "Vitality": 0
+            },
+            "EquipmentCategory": "LEGS",
+            "InsulationCold": 2,
+            "InsulationHeat": 2
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 9
+        }
+      },
+      {
+        "components": {
+          "Description": {
+            "Description": "底の薄い布靴"
+          },
+          "Item": {
+            "Count": 1
+          },
+          "LocationEquipped": {
+            "EquipmentSlot": 5,
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
+          "Name": {
+            "Name": "布の靴"
+          },
+          "SpriteRender": {
+            "AnimKeys": null,
+            "Depth": 1,
+            "Options": {
+              "Blend": {
+                "BlendFactorDestinationAlpha": 0,
+                "BlendFactorDestinationRGB": 0,
+                "BlendFactorSourceAlpha": 0,
+                "BlendFactorSourceRGB": 0,
+                "BlendOperationAlpha": 0,
+                "BlendOperationRGB": 0
+              },
+              "ColorM": {},
+              "ColorScale": {},
+              "CompositeMode": 0,
+              "DisableMipmaps": false,
+              "Filter": 0,
+              "GeoM": {}
+            },
+            "SpriteKey": "field_item",
+            "SpriteSheetName": "field"
+          },
+          "Value": {
+            "Value": 10
+          },
+          "Wearable": {
+            "Defense": 0,
+            "EquipBonus": {
+              "Agility": 0,
+              "Dexterity": 0,
+              "Sensation": 0,
+              "Strength": 0,
+              "Vitality": 0
+            },
+            "EquipmentCategory": "FEET",
+            "InsulationCold": 1,
+            "InsulationHeat": 1
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 10
         }
       }
-    ]
+    ],
+    "game_progress": {
+      "cleared_dungeons": {},
+      "events": {}
+    }
   }
 }

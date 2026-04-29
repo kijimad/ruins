@@ -111,3 +111,83 @@ func TestSaveSlotInfo(t *testing.T) {
 
 	t.Logf("All save files created successfully")
 }
+
+// TestSaveLoadGameProgress はGameProgressのセーブ・ロードを検証する
+func TestSaveLoadGameProgress(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ダンジョンクリアフラグの保存と復元", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// プレイヤーを作成（セーブ対象のエンティティが必要）
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+
+		// ダンジョンクリアフラグを設定
+		world.Resources.GameProgress.MarkDungeonCleared("遺跡")
+		world.Resources.GameProgress.MarkDungeonCleared("洞窟")
+
+		// JSON生成→復元のラウンドトリップ
+		sm := createTestSerializationManager(t)
+		jsonStr, err := sm.GenerateWorldJSON(world)
+		require.NoError(t, err)
+
+		newWorld := testutil.InitTestWorld(t)
+		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
+		require.NoError(t, err)
+
+		// 復元後のGameProgressを検証
+		assert.True(t, newWorld.Resources.GameProgress.IsDungeonCleared("遺跡"))
+		assert.True(t, newWorld.Resources.GameProgress.IsDungeonCleared("洞窟"))
+		assert.False(t, newWorld.Resources.GameProgress.IsDungeonCleared("森林"))
+	})
+
+	t.Run("イベント状態の保存と復元", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+
+		// イベント状態を設定
+		world.Resources.GameProgress.SetEventActive("all_cleared")
+		world.Resources.GameProgress.MarkEventSeen("all_cleared")
+
+		sm := createTestSerializationManager(t)
+		jsonStr, err := sm.GenerateWorldJSON(world)
+		require.NoError(t, err)
+
+		newWorld := testutil.InitTestWorld(t)
+		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
+		require.NoError(t, err)
+
+		// 視聴済みイベントはIsEventUnseenがfalseになる
+		assert.False(t, newWorld.Resources.GameProgress.IsEventUnseen("all_cleared"))
+		ev := newWorld.Resources.GameProgress.Events["all_cleared"]
+		assert.True(t, ev.Active)
+		assert.True(t, ev.Seen)
+	})
+
+	t.Run("空のGameProgressの保存と復元", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+
+		sm := createTestSerializationManager(t)
+		jsonStr, err := sm.GenerateWorldJSON(world)
+		require.NoError(t, err)
+
+		newWorld := testutil.InitTestWorld(t)
+		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
+		require.NoError(t, err)
+
+		assert.Empty(t, newWorld.Resources.GameProgress.ClearedDungeons)
+		assert.Empty(t, newWorld.Resources.GameProgress.Events)
+	})
+}
