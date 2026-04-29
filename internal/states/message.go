@@ -1,6 +1,7 @@
 package states
 
 import (
+	"fmt"
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -34,7 +35,11 @@ func (st *MessageState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *MessageState) OnStart(world w.World) error {
 	if st.messageData.BackgroundKey != "" {
-		st.backgroundImage = loadBackgroundImage(world, st.messageData.BackgroundKey)
+		bgImage, err := loadBackgroundImage(world, st.messageData.BackgroundKey)
+		if err != nil {
+			return err
+		}
+		st.backgroundImage = bgImage
 		st.currentBgKey = st.messageData.BackgroundKey
 	}
 
@@ -45,17 +50,21 @@ func (st *MessageState) OnStart(world w.World) error {
 // OnStop はステートが停止される際に呼ばれる
 func (st *MessageState) OnStop(_ w.World) error { return nil }
 
-// loadBackgroundImage はスプライトシートから背景画像を読み込んで返す
-func loadBackgroundImage(world w.World, spriteKey string) *ebiten.Image {
+// loadBackgroundImage はスプライトシートから背景画像を読み込んで返す。
+// 無効なspriteKeyが指定された場合はエラーを返す。
+func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) {
 	sheet := (*world.Resources.SpriteSheets)["bg"]
-	sprite := sheet.Sprites[spriteKey]
+	sprite, ok := sheet.Sprites[spriteKey]
+	if !ok {
+		return nil, fmt.Errorf("無効なBackgroundKey: %q がbgスプライトシートに存在しない", spriteKey)
+	}
 	rect := image.Rect(
 		sprite.X,
 		sprite.Y,
 		sprite.X+sprite.Width,
 		sprite.Y+sprite.Height,
 	)
-	return sheet.Texture.Image.SubImage(rect).(*ebiten.Image)
+	return sheet.Texture.Image.SubImage(rect).(*ebiten.Image), nil
 }
 
 // Update はゲームステートの更新処理を行う
@@ -63,7 +72,11 @@ func (st *MessageState) Update(world w.World) (es.Transition[w.World], error) {
 	if st.messageWindow != nil {
 		// 現在のメッセージの背景キーが変わっていたら背景を更新する
 		if key := st.messageWindow.CurrentMessage().BackgroundKey; key != "" && key != st.currentBgKey {
-			st.backgroundImage = loadBackgroundImage(world, key)
+			bgImage, err := loadBackgroundImage(world, key)
+			if err != nil {
+				return es.Transition[w.World]{Type: es.TransNone}, err
+			}
+			st.backgroundImage = bgImage
 			st.currentBgKey = key
 		}
 

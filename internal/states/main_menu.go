@@ -84,7 +84,11 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
 // Draw はスクリーンに描画する
 func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 	// 背景画像を描画
-	screen.DrawImage(loadBackgroundImage(world, "title1"), nil)
+	bgImage, err := loadBackgroundImage(world, "title1")
+	if err != nil {
+		return err
+	}
+	screen.DrawImage(bgImage, nil)
 
 	st.widget.Draw(screen)
 	return nil
