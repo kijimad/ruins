@@ -32,7 +32,7 @@ var (
 	DungeonForest = Definition{
 		Name:            "亡者の森",
 		Description:     "凍りついた森に、かつて猟師たちが分け入った。\n戻った者は少ない。冷気が骨まで届く。",
-		ImageKey:        "hospital1",
+		ImageKey:        "forest1",
 		TotalFloors:     20,
 		EnemyTableName:  "森",
 		ItemTableName:   "森",
@@ -49,7 +49,7 @@ var (
 	DungeonCave = Definition{
 		Name:            "灰の洞窟",
 		Description:     "灰色の岩壁に凍晶が脈のように走っている。\n奥に進むほど、静かになる。",
-		ImageKey:        "hospital2",
+		ImageKey:        "cave1",
 		TotalFloors:     20,
 		EnemyTableName:  "洞窟",
 		ItemTableName:   "洞窟",
@@ -66,7 +66,7 @@ var (
 	DungeonRuins = Definition{
 		Name:            "忘却の廃都",
 		Description:     "古代の都市が、そのまま凍りついている。\n誰が何を忘れたのか、もう誰も知らない。",
-		ImageKey:        "keyvisual2",
+		ImageKey:        "city1",
 		TotalFloors:     20,
 		EnemyTableName:  "廃墟",
 		ItemTableName:   "廃墟",

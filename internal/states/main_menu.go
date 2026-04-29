@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image"
 	"strings"
 
 	"github.com/ebitenui/ebitenui"
@@ -66,7 +65,7 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	}
 
 	// Props更新
-	st.menuMount.SetProps(st.fetchProps())
+	st.menuMount.SetProps(st.fetchProps(world))
 	props := st.menuMount.GetProps()
 	hooks.UseTabMenu(st.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -85,15 +84,10 @@ func (st *MainMenuState) Update(world w.World) (es.Transition[w.World], error) {
 // Draw はスクリーンに描画する
 func (st *MainMenuState) Draw(world w.World, screen *ebiten.Image) error {
 	// 背景画像を描画
-	bgSheet := (*world.Resources.SpriteSheets)["bg"]
-	bgSprite := bgSheet.Sprites["title1"]
-	rect := image.Rect(
-		bgSprite.X,
-		bgSprite.Y,
-		bgSprite.X+bgSprite.Width,
-		bgSprite.Y+bgSprite.Height,
-	)
-	bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
+	bgImage, err := loadBackgroundImage(world, "title1")
+	if err != nil {
+		return err
+	}
 	screen.DrawImage(bgImage, nil)
 
 	st.widget.Draw(screen)
@@ -135,10 +129,17 @@ type mainMenuItem struct {
 	Transition es.Transition[w.World]
 }
 
-func (st *MainMenuState) fetchProps() mainMenuProps {
+func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
+	var startFuncs []es.StateFactory[w.World]
+	if world.Config.QuickStart {
+		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
+	} else {
+		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
+	}
+
 	return mainMenuProps{
 		Items: []mainMenuItem{
-			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewCharacterNamingState}}},
+			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
 			{Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
 			{Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}},
 		},

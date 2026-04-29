@@ -51,7 +51,7 @@ func (st *PersistentMessageState) Update(_ w.World) (es.Transition[w.World], err
 func (st *PersistentMessageState) OnResume(world w.World) error {
 	// メッセージウィンドウを強制的に再構築
 	if st.messageData != nil {
-		st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)
+		st.messageWindow = messagewindow.NewWindow(world, st.messageData)
 	}
 	return nil
 }

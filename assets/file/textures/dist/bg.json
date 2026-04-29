@@ -1,6 +1,6 @@
 { "frames": [
    {
-    "filename": "black1_",
+    "filename": "bar1_",
     "frame": { "x": 0, "y": 0, "w": 960, "h": 720 },
     "rotated": false,
     "trimmed": false,
@@ -9,7 +9,7 @@
     "duration": 100
    },
    {
-    "filename": "hospital1_",
+    "filename": "black1_",
     "frame": { "x": 960, "y": 0, "w": 960, "h": 720 },
     "rotated": false,
     "trimmed": false,
@@ -18,7 +18,7 @@
     "duration": 100
    },
    {
-    "filename": "hospital2_",
+    "filename": "cave1_",
     "frame": { "x": 1920, "y": 0, "w": 960, "h": 720 },
     "rotated": false,
     "trimmed": false,
@@ -27,7 +27,7 @@
     "duration": 100
    },
    {
-    "filename": "keyvisual2_",
+    "filename": "city1_",
     "frame": { "x": 0, "y": 720, "w": 960, "h": 720 },
     "rotated": false,
     "trimmed": false,
@@ -36,7 +36,7 @@
     "duration": 100
    },
    {
-    "filename": "title1_",
+    "filename": "forest1_",
     "frame": { "x": 960, "y": 720, "w": 960, "h": 720 },
     "rotated": false,
     "trimmed": false,
@@ -45,8 +45,35 @@
     "duration": 100
    },
    {
-    "filename": "town1_",
+    "filename": "hole1_",
     "frame": { "x": 1920, "y": 720, "w": 960, "h": 720 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 960, "h": 720 },
+    "sourceSize": { "w": 960, "h": 720 },
+    "duration": 100
+   },
+   {
+    "filename": "hospital1_",
+    "frame": { "x": 0, "y": 1440, "w": 960, "h": 720 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 960, "h": 720 },
+    "sourceSize": { "w": 960, "h": 720 },
+    "duration": 100
+   },
+   {
+    "filename": "hospital2_",
+    "frame": { "x": 960, "y": 1440, "w": 960, "h": 720 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 960, "h": 720 },
+    "sourceSize": { "w": 960, "h": 720 },
+    "duration": 100
+   },
+   {
+    "filename": "title1_",
+    "frame": { "x": 1920, "y": 1440, "w": 960, "h": 720 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 960, "h": 720 },
@@ -59,7 +86,7 @@
   "version": "1.3.13-x64",
   "image": "bg.png",
   "format": "RGBA8888",
-  "size": { "w": 2880, "h": 1440 },
+  "size": { "w": 2880, "h": 2160 },
   "scale": "1"
  }
 }

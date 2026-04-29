@@ -97,3 +97,6 @@ help                 ヘルプを表示する
 画像。
 
 - https://www.pixilart.com
+- https://pixabay.com/photos/forest-fog-woods-trees-mystical-3394066/
+- https://pixabay.com/photos/beer-drink-alcohol-heineken-bar-5940890/
+- https://pixabay.com/photos/lost-places-monastery-past-masonry-4019367/

@@ -74,7 +74,10 @@ func (st *DungeonSelectState) Update(world w.World) (es.Transition[w.World], err
 // Draw はステートの描画処理
 func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 	// 右半分に選択中ダンジョンの背景画像を描画する
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
+	if !ok {
+		return fmt.Errorf("dselectステートの取得に失敗")
+	}
 	props := st.mount.GetProps()
 	idx := menuState.ItemIndex
 
@@ -83,7 +86,10 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 		if item.ImageKey == "" {
 			return fmt.Errorf("ダンジョンのImageKeyが未設定です: %s", item.Name)
 		}
-		bgSheet := (*world.Resources.SpriteSheets)["bg"]
+		bgSheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+		if !sheetOK {
+			return fmt.Errorf("bgスプライトシートが存在しない")
+		}
 		sprite, ok := bgSheet.Sprites[item.ImageKey]
 		if !ok {
 			return fmt.Errorf("スプライトが見つかりません: %s", item.ImageKey)
@@ -91,15 +97,16 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 		rect := image.Rect(sprite.X, sprite.Y, sprite.X+sprite.Width, sprite.Y+sprite.Height)
 		bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
 
-		// 右パネル位置にスケーリングして描画する
+		// 右パネル位置にパディング付きでスケーリングして描画する
+		padding := 12.0
 		op := &ebiten.DrawImageOptions{}
-		panelX := float64(dungeonSelectLeftWidth)
-		panelW := float64(consts.MinGameWidth - dungeonSelectLeftWidth)
-		panelH := float64(dungeonSelectImageHeight)
+		panelX := float64(dungeonSelectLeftWidth) + padding
+		panelW := float64(consts.MinGameWidth-dungeonSelectLeftWidth) - padding*2
+		panelH := float64(dungeonSelectImageHeight) - padding
 		scaleX := panelW / float64(sprite.Width)
 		scaleY := panelH / float64(sprite.Height)
 		op.GeoM.Scale(scaleX, scaleY)
-		op.GeoM.Translate(panelX, 0)
+		op.GeoM.Translate(panelX, padding)
 		screen.DrawImage(bgImage, op)
 	}
 
@@ -129,7 +136,7 @@ func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (
 
 // レイアウト定数
 const (
-	dungeonSelectLeftWidth   = 240
+	dungeonSelectLeftWidth   = 160
 	dungeonSelectImageHeight = 480
 )
 

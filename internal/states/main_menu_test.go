@@ -29,7 +29,7 @@ func TestMainMenuState_FetchProps(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 
 	assert.Equal(t, 3, len(props.Items), "メニュー項目は3つ")
 	assert.Equal(t, "開始", props.Items[0].Label)
@@ -44,7 +44,7 @@ func TestMainMenuState_Navigation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -77,7 +77,7 @@ func TestMainMenuState_CircularNavigation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -152,7 +152,7 @@ func TestMainMenuState_Selection_Start(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -173,7 +173,7 @@ func TestMainMenuState_Selection_Load(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,
@@ -197,7 +197,7 @@ func TestMainMenuState_Selection_Exit(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	require.NoError(t, state.OnStart(world))
 
-	props := state.fetchProps()
+	props := state.fetchProps(world)
 	state.menuMount.SetProps(props)
 	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
 		TabCount:   1,

@@ -1973,25 +1973,7 @@
       G = 100
       R = 255
 
-[[Members]]
-  AnimKeys        = ["dark_doctor_0", "dark_doctor_1"]
-  FactionType     = "FactionNeutral"
-  Name            = "闇医者"
-  SpriteKey       = "dark_doctor_0"
-  SpriteSheetName = "field"
-
-  [Members.Dialog]
-    MessageKey = "dark_doctor_greeting"
-
-  [Members.Abilities]
-    Agility   = 7
-    Defense   = 5
-    Dexterity = 10
-    Sensation = 15
-    Strength  = 5
-    Vitality  = 10
-
-    # command table ================
+      # command table ================
 
 [[CommandTables]]
   Name = "軽戦車"

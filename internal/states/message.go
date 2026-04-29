@@ -1,6 +1,7 @@
 package states
 
 import (
+	"fmt"
 	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -16,7 +17,7 @@ type MessageState struct {
 	messageData     *messagedata.MessageData
 	messageWindow   *messagewindow.Window
 	backgroundImage *ebiten.Image
-	options         []MessageStateOption
+	currentBgKey    string
 }
 
 func (st MessageState) String() string {
@@ -33,21 +34,55 @@ func (st *MessageState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *MessageState) OnStart(world w.World) error {
-	for _, opt := range st.options {
-		opt(st, world)
+	if st.messageData.BackgroundKey != "" {
+		bgImage, err := loadBackgroundImage(world, st.messageData.BackgroundKey)
+		if err != nil {
+			return err
+		}
+		st.backgroundImage = bgImage
+		st.currentBgKey = st.messageData.BackgroundKey
 	}
 
-	// メッセージデータからキュー対応メッセージウィンドウを構築
-	st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)
+	st.messageWindow = messagewindow.NewWindow(world, st.messageData)
 	return nil
 }
 
 // OnStop はステートが停止される際に呼ばれる
 func (st *MessageState) OnStop(_ w.World) error { return nil }
 
+// loadBackgroundImage はスプライトシートから背景画像を読み込んで返す。
+// 無効なspriteKeyが指定された場合はエラーを返す。
+func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) {
+	sheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+	if !sheetOK {
+		return nil, fmt.Errorf("bgスプライトシートが存在しない")
+	}
+	sprite, ok := sheet.Sprites[spriteKey]
+	if !ok {
+		return nil, fmt.Errorf("無効なBackgroundKey: %q がbgスプライトシートに存在しない", spriteKey)
+	}
+	rect := image.Rect(
+		sprite.X,
+		sprite.Y,
+		sprite.X+sprite.Width,
+		sprite.Y+sprite.Height,
+	)
+	return sheet.Texture.Image.SubImage(rect).(*ebiten.Image), nil
+}
+
 // Update はゲームステートの更新処理を行う
-func (st *MessageState) Update(_ w.World) (es.Transition[w.World], error) {
+func (st *MessageState) Update(world w.World) (es.Transition[w.World], error) {
 	if st.messageWindow != nil {
+		// 現在のメッセージの背景キーが変わっていたら背景を更新する
+		if key := st.messageWindow.CurrentMessage().BackgroundKey; key != "" && key != st.currentBgKey {
+			bgImage, err := loadBackgroundImage(world, key)
+			if err != nil {
+				return es.Transition[w.World]{Type: es.TransNone}, err
+			}
+			st.backgroundImage = bgImage
+			st.currentBgKey = key
+		}
+
 		if err := st.messageWindow.Update(); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
@@ -78,25 +113,4 @@ func (st *MessageState) Draw(_ w.World, screen *ebiten.Image) error {
 		st.messageWindow.Draw(screen)
 	}
 	return nil
-}
-
-// MessageStateOption はMessageStateのオプション設定を行う関数型
-type MessageStateOption func(*MessageState, w.World)
-
-// WithBackgroundKey はスプライトシートとスプライトキーを指定して背景画像を設定する
-func WithBackgroundKey(sheetName, spriteKey string) MessageStateOption {
-	return func(st *MessageState, world w.World) {
-		sheet := (*world.Resources.SpriteSheets)[sheetName]
-		sprite := sheet.Sprites[spriteKey]
-
-		// スプライト領域を切り出し
-		rect := image.Rect(
-			sprite.X,
-			sprite.Y,
-			sprite.X+sprite.Width,
-			sprite.Y+sprite.Height,
-		)
-		subImage := sheet.Texture.Image.SubImage(rect)
-		st.backgroundImage = subImage.(*ebiten.Image)
-	}
 }

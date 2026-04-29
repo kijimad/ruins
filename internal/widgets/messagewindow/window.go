@@ -19,12 +19,11 @@ import (
 
 // Window はメッセージウィンドウを表す
 type Window struct {
-	config   Config
-	content  MessageContent
-	world    w.World
-	onClose  func()
-	onChoice func(choice Choice)
-
+	config      Config
+	content     MessageContent
+	world       w.World
+	onClose     func()
+	onChoice    func(choice Choice)
 	isOpen      bool
 	ui          *ebitenui.UI
 	initialized bool
@@ -95,6 +94,11 @@ func (w *Window) IsOpen() bool {
 // IsClosed はウィンドウが閉じているかを返す
 func (w *Window) IsClosed() bool {
 	return !w.isOpen
+}
+
+// CurrentMessage は現在表示中のメッセージデータを返す
+func (w *Window) CurrentMessage() *messagedata.MessageData {
+	return w.currentMessage
 }
 
 // Close はウィンドウを閉じる

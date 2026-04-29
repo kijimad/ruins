@@ -482,10 +482,6 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() es.State[w.World] { return NewDoctorDialogState(speakerName) },
 			}}, nil
-		case "dark_doctor_greeting":
-			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return NewDarkDoctorDialogState(speakerName, world) },
-			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得
 			dialogMessage := messagedata.GetDialogue(e.MessageKey, speakerName)
@@ -504,8 +500,6 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
-	case resources.GameClearEvent:
-		return es.Transition[w.World]{Type: es.TransSwitch, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonCompleteEndingState}}, nil
 	case resources.OpenDungeonSelectEvent:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil

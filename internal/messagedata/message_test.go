@@ -30,7 +30,7 @@ func TestNewDialogMessage(t *testing.T) {
 		assert.Equal(t, speaker, msg.Speaker)
 		assert.Empty(t, msg.Choices)
 		assert.Nil(t, msg.OnComplete)
-		assert.Empty(t, msg.NextMessages)
+		assert.Empty(t, msg.nextMessages)
 	})
 
 	t.Run("空の話者名でも作成可能", func(t *testing.T) {
@@ -65,7 +65,7 @@ func TestNewSystemMessage(t *testing.T) {
 		assert.Equal(t, "", msg.Speaker)
 		assert.Empty(t, msg.Choices)
 		assert.Nil(t, msg.OnComplete)
-		assert.Empty(t, msg.NextMessages)
+		assert.Empty(t, msg.nextMessages)
 	})
 
 	t.Run("空のテキストでも作成可能", func(t *testing.T) {
@@ -184,8 +184,8 @@ func TestMessageChaining(t *testing.T) {
 		msg := NewSystemMessage("システムメッセージ").
 			DialogMessage("会話メッセージ", "キャラクター")
 
-		require.Len(t, msg.NextMessages, 1)
-		nextMsg := msg.NextMessages[0]
+		require.Len(t, msg.nextMessages, 1)
+		nextMsg := msg.nextMessages[0]
 		assert.Equal(t, "会話メッセージ", getMessageText(nextMsg))
 		assert.Equal(t, "キャラクター", nextMsg.Speaker)
 	})
@@ -196,8 +196,8 @@ func TestMessageChaining(t *testing.T) {
 		msg := NewDialogMessage("会話", "キャラクター").
 			SystemMessage("システム通知")
 
-		require.Len(t, msg.NextMessages, 1)
-		nextMsg := msg.NextMessages[0]
+		require.Len(t, msg.nextMessages, 1)
+		nextMsg := msg.nextMessages[0]
 		assert.Equal(t, "システム通知", getMessageText(nextMsg))
 	})
 
@@ -207,8 +207,8 @@ func TestMessageChaining(t *testing.T) {
 		msg := NewSystemMessage("開始").
 			SystemMessage("イベント発生")
 
-		require.Len(t, msg.NextMessages, 1)
-		nextMsg := msg.NextMessages[0]
+		require.Len(t, msg.nextMessages, 1)
+		nextMsg := msg.nextMessages[0]
 		assert.Equal(t, "イベント発生", getMessageText(nextMsg))
 		assert.Equal(t, "", nextMsg.Speaker)
 	})
@@ -221,11 +221,11 @@ func TestMessageChaining(t *testing.T) {
 			DialogMessage("やったか？", "主人公").
 			SystemMessage("勝利！")
 
-		assert.Len(t, msg.NextMessages, 3)
-		assert.Equal(t, "攻撃", getMessageText(msg.NextMessages[0]))
-		assert.Equal(t, "やったか？", getMessageText(msg.NextMessages[1]))
-		assert.Equal(t, "主人公", msg.NextMessages[1].Speaker)
-		assert.Equal(t, "勝利！", getMessageText(msg.NextMessages[2]))
+		assert.Len(t, msg.nextMessages, 3)
+		assert.Equal(t, "攻撃", getMessageText(msg.nextMessages[0]))
+		assert.Equal(t, "やったか？", getMessageText(msg.nextMessages[1]))
+		assert.Equal(t, "主人公", msg.nextMessages[1].Speaker)
+		assert.Equal(t, "勝利！", getMessageText(msg.nextMessages[2]))
 	})
 
 	t.Run("HasNextMessagesメソッド", func(t *testing.T) {
@@ -317,14 +317,14 @@ func TestComplexScenarios(t *testing.T) {
 		assert.Equal(t, "戦う", fightChoice.Text)
 		require.NotNil(t, fightChoice.MessageData)
 		assert.Equal(t, "戦闘開始", getMessageText(fightChoice.MessageData))
-		assert.Len(t, fightChoice.MessageData.NextMessages, 3)
+		assert.Len(t, fightChoice.MessageData.nextMessages, 3)
 
 		// 逃げるの選択肢
 		escapeChoice := encounterMsg.Choices[1]
 		assert.Equal(t, "逃げる", escapeChoice.Text)
 		require.NotNil(t, escapeChoice.MessageData)
 		assert.Equal(t, "逃走成功", getMessageText(escapeChoice.MessageData))
-		assert.Len(t, escapeChoice.MessageData.NextMessages, 1)
+		assert.Len(t, escapeChoice.MessageData.nextMessages, 1)
 	})
 
 	t.Run("全機能を組み合わせたメッセージ", func(t *testing.T) {
@@ -351,11 +351,11 @@ func TestComplexScenarios(t *testing.T) {
 		assert.Equal(t, "説明付き", msg.Choices[1].Text)
 
 		// 連鎖メッセージの確認
-		assert.Len(t, msg.NextMessages, 3)
-		assert.Equal(t, "次のメッセージ", getMessageText(msg.NextMessages[0]))
-		assert.Equal(t, "システム通知", getMessageText(msg.NextMessages[1]))
-		assert.Equal(t, "最後の会話", getMessageText(msg.NextMessages[2]))
-		assert.Equal(t, "別キャラクター", msg.NextMessages[2].Speaker)
+		assert.Len(t, msg.nextMessages, 3)
+		assert.Equal(t, "次のメッセージ", getMessageText(msg.nextMessages[0]))
+		assert.Equal(t, "システム通知", getMessageText(msg.nextMessages[1]))
+		assert.Equal(t, "最後の会話", getMessageText(msg.nextMessages[2]))
+		assert.Equal(t, "別キャラクター", msg.nextMessages[2].Speaker)
 
 		// コールバックの実行
 		require.NotNil(t, msg.OnComplete)
@@ -367,5 +367,36 @@ func TestComplexScenarios(t *testing.T) {
 		err := msg.Choices[0].Action(w.World{})
 		require.NoError(t, err)
 		assert.True(t, actionCalled)
+	})
+}
+
+func TestChainMessages(t *testing.T) {
+	t.Parallel()
+
+	t.Run("複数ページを直列連結する", func(t *testing.T) {
+		t.Parallel()
+
+		page1 := NewSystemMessage("1ページ目")
+		page2 := NewSystemMessage("2ページ目")
+		page3 := NewSystemMessage("3ページ目")
+
+		first := ChainMessages(page1, page2, page3)
+
+		assert.Equal(t, page1, first)
+		require.Len(t, page1.nextMessages, 1)
+		assert.Equal(t, page2, page1.nextMessages[0])
+		require.Len(t, page2.nextMessages, 1)
+		assert.Equal(t, page3, page2.nextMessages[0])
+		assert.Empty(t, page3.nextMessages)
+	})
+
+	t.Run("1ページだけの場合はそのまま返す", func(t *testing.T) {
+		t.Parallel()
+
+		page := NewSystemMessage("単体")
+		first := ChainMessages(page)
+
+		assert.Equal(t, page, first)
+		assert.Empty(t, page.nextMessages)
 	})
 }

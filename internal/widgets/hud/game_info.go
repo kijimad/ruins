@@ -73,22 +73,22 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
 	drawOutlinedText(screen, floorText, info.headingFace, x, y, color.White)
 }
 
+// ゲージ共通のレイアウト定数
+const (
+	gaugeBaseX   = 10.0  // 左マージン
+	gaugeBaseY   = 20.0  // 最初のゲージの上マージン。gaugeBaseXと統一する
+	gaugeWidth   = 120.0 // ゲージの幅
+	gaugeHeight  = 20.0  // ゲージの高さ
+	gaugeSpacing = 4.0   // ゲージ間の間隔
+)
+
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
-	// HPゲージの設定
-	const (
-		baseX    = 10.0  // 左マージン
-		y        = 50.0  // 上マージン
-		width    = 120.0 // ゲージの幅
-		height   = 20.0  // ゲージの高さ
-		labelGap = 4.0   // ラベルとゲージの間隔
-	)
-
-	// ゲージの開始位置
-	gageX := float32(baseX)
+	y := gaugeBaseY
+	gageX := float32(gaugeBaseX)
 
 	// 背景（暗い赤い領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(width), float32(height), color.RGBA{100, 0, 0, 255}, false)
+	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{100, 0, 0, 255}, false)
 
 	// HP比率を計算
 	if maxHP > 0 {
@@ -112,35 +112,25 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 			barColor = color.RGBA{255, intensity, 0, 255}
 		}
 
-		// 現在のHPバーを描画
-		currentWidth := float32(width) * hpRatio
-		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(height), barColor, false)
+		currentWidth := float32(gaugeWidth) * hpRatio
+		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)
 	}
 
 	// 数値をゲージの中央に描画
 	hpText := fmt.Sprintf("%d/%d", currentHP, maxHP)
 	textWidth, _ := text.Measure(hpText, info.bodyFace, 0)
-	textX := float64(gageX) + float64(width)/2 - textWidth/2
-	textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
+	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
+	textY := y + float64(gaugeHeight)/2 - 6.0
 	drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, color.White)
 }
 
 // drawStaminaBar はプレイヤーのスタミナポイントゲージを描画する
 func (info *GameInfo) drawStaminaBar(screen *ebiten.Image, currentSP, maxSP int) {
-	// SPゲージの設定
-	const (
-		baseX    = 10.0  // 左マージン
-		y        = 76.0  // 上マージン
-		width    = 120.0 // ゲージの幅
-		height   = 20.0  // ゲージの高さ
-		labelGap = 4.0   // ラベルとゲージの間隔
-	)
-
-	// ゲージの開始位置
-	gageX := float32(baseX)
+	y := gaugeBaseY + (gaugeHeight+gaugeSpacing)*1
+	gageX := float32(gaugeBaseX)
 
 	// 背景（暗いグレー領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(width), float32(height), color.RGBA{100, 100, 100, 255}, false)
+	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{100, 100, 100, 255}, false)
 
 	// SP比率を計算
 	if maxSP > 0 {
@@ -154,43 +144,30 @@ func (info *GameInfo) drawStaminaBar(screen *ebiten.Image, currentSP, maxSP int)
 
 		var barColor color.RGBA
 		if spRatio > 0.5 {
-			// 明るい黄色・オレンジ（SP 50%以上）
 			barColor = color.RGBA{255, 200, 0, 255}
 		} else {
-			// やや暗い黄色・オレンジ（SP 50%以下）
 			intensity := uint8(spRatio * 2.0 * 200)
 			barColor = color.RGBA{255, intensity, 0, 255}
 		}
 
-		// 現在のSPバーを描画
-		currentWidth := float32(width) * spRatio
-		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(height), barColor, false)
+		currentWidth := float32(gaugeWidth) * spRatio
+		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)
 	}
 
-	// 数値をゲージの中央に描画（垂直方向にも中央配置）
 	spText := fmt.Sprintf("%d/%d", currentSP, maxSP)
 	textWidth, _ := text.Measure(spText, info.bodyFace, 0)
-	textX := float64(gageX) + float64(width)/2 - textWidth/2
-	textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
+	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
+	textY := y + float64(gaugeHeight)/2 - 6.0
 	drawOutlinedText(screen, spText, info.bodyFace, textX, textY, color.White)
 }
 
 // drawElectricityBar はプレイヤーの電力ポイントゲージを描画する
 func (info *GameInfo) drawElectricityBar(screen *ebiten.Image, currentEP, maxEP int) {
-	// EPゲージの設定
-	const (
-		baseX    = 10.0  // 左マージン
-		y        = 102.0 // 上マージン
-		width    = 120.0 // ゲージの幅
-		height   = 20.0  // ゲージの高さ
-		labelGap = 4.0   // ラベルとゲージの間隔
-	)
-
-	// ゲージの開始位置
-	gageX := float32(baseX)
+	y := gaugeBaseY + (gaugeHeight+gaugeSpacing)*2
+	gageX := float32(gaugeBaseX)
 
 	// 背景（暗い青い領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(width), float32(height), color.RGBA{0, 0, 80, 255}, false)
+	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{0, 0, 80, 255}, false)
 
 	// EP比率を計算
 	if maxEP > 0 {
@@ -202,28 +179,23 @@ func (info *GameInfo) drawElectricityBar(screen *ebiten.Image, currentEP, maxEP 
 			epRatio = 0.0
 		}
 
-		// 現在のEP（青系のグラデーション、電力らしい色）
 		var barColor color.RGBA
 		if epRatio > 0.5 {
-			// シアンから青へ（EP 50%以上）
 			intensity := uint8((1.0 - epRatio) * 2.0 * 100)
 			barColor = color.RGBA{intensity, 200, 255, 255}
 		} else {
-			// 青から暗い青へ（EP 50%以下）
 			intensity := uint8(epRatio * 2.0 * 200)
 			barColor = color.RGBA{0, intensity, 100 + uint8(epRatio*155), 255}
 		}
 
-		// 現在のEPバーを描画
-		currentWidth := float32(width) * epRatio
-		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(height), barColor, false)
+		currentWidth := float32(gaugeWidth) * epRatio
+		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)
 	}
 
-	// 数値をゲージの中央に描画（垂直方向にも中央配置）
 	epText := fmt.Sprintf("%d/%d", currentEP, maxEP)
 	textWidth, _ := text.Measure(epText, info.bodyFace, 0)
-	textX := float64(gageX) + float64(width)/2 - textWidth/2
-	textY := y + float64(height)/2 - 6.0 // フォントサイズ16の場合の調整値
+	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
+	textY := y + float64(gaugeHeight)/2 - 6.0
 	drawOutlinedText(screen, epText, info.bodyFace, textX, textY, color.White)
 }
 

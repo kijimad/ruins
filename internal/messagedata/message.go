@@ -3,6 +3,7 @@ package messagedata
 
 import (
 	"image/color"
+	"strings"
 
 	w "github.com/kijimaD/ruins/internal/world"
 )
@@ -12,8 +13,9 @@ type MessageData struct {
 	Speaker          string
 	Choices          []Choice
 	OnComplete       func()          // メッセージ完了時のコールバック
-	NextMessages     []*MessageData  // 次に表示するメッセージ群
+	nextMessages     []*MessageData  // 次に表示するメッセージ群
 	TextSegmentLines [][]TextSegment // 行ごとの色付きテキストセグメント
+	BackgroundKey    string          // 背景スプライトキー。空なら前の背景を維持する
 }
 
 // TextSegment は色付きテキストのセグメント
@@ -29,6 +31,14 @@ type Choice struct {
 	Action      func(w.World) error // 選択時に実行する
 	MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ
 	Disabled    bool
+}
+
+// ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す
+func ChainMessages(pages ...*MessageData) *MessageData {
+	for i := 0; i < len(pages)-1; i++ {
+		pages[i].nextMessages = []*MessageData{pages[i+1]}
+	}
+	return pages[0]
 }
 
 // NewDialogMessage は会話メッセージを作成する
@@ -75,24 +85,24 @@ func (m *MessageData) WithOnComplete(callback func()) *MessageData {
 
 // DialogMessage は会話メッセージを連鎖
 func (m *MessageData) DialogMessage(text, speaker string) *MessageData {
-	m.NextMessages = append(m.NextMessages, NewDialogMessage(text, speaker))
+	m.nextMessages = append(m.nextMessages, NewDialogMessage(text, speaker))
 	return m
 }
 
 // SystemMessage はシステムメッセージを連鎖
 func (m *MessageData) SystemMessage(text string) *MessageData {
-	m.NextMessages = append(m.NextMessages, NewSystemMessage(text))
+	m.nextMessages = append(m.nextMessages, NewSystemMessage(text))
 	return m
 }
 
-// HasNextMessages は次のメッセージがあるかを確認
+// HasNextMessages は次のメッセージがあるかを確認する
 func (m *MessageData) HasNextMessages() bool {
-	return len(m.NextMessages) > 0
+	return len(m.nextMessages) > 0
 }
 
-// GetNextMessages は次のメッセージ群を取得
+// GetNextMessages は次のメッセージ群を取得する
 func (m *MessageData) GetNextMessages() []*MessageData {
-	return m.NextMessages
+	return m.nextMessages
 }
 
 // ensureCurrentLine は現在の行が存在することを保証する
@@ -107,8 +117,7 @@ func (m *MessageData) ensureCurrentLine() {
 func (m *MessageData) AddText(text string) *MessageData {
 	m.ensureCurrentLine()
 
-	// 改行文字で分割
-	lines := splitByNewline(text)
+	lines := strings.Split(text, "\n")
 
 	for i, line := range lines {
 		if i > 0 {
@@ -121,26 +130,6 @@ func (m *MessageData) AddText(text string) *MessageData {
 	}
 
 	return m
-}
-
-// splitByNewline は改行文字で文字列を分割する
-func splitByNewline(text string) []string {
-	var lines []string
-	var current string
-
-	for _, r := range text {
-		if r == '\n' {
-			lines = append(lines, current)
-			current = ""
-		} else {
-			current += string(r)
-		}
-	}
-
-	// 最後の行を追加
-	lines = append(lines, current)
-
-	return lines
 }
 
 // AddKeyword はキーワード（赤色背景）テキストを追加する
