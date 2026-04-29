@@ -16,6 +16,7 @@ type MessageState struct {
 	messageData     *messagedata.MessageData
 	messageWindow   *messagewindow.Window
 	backgroundImage *ebiten.Image
+	currentBgKey    string
 }
 
 func (st MessageState) String() string {
@@ -34,16 +35,10 @@ func (st *MessageState) OnResume(_ w.World) error { return nil }
 func (st *MessageState) OnStart(world w.World) error {
 	if st.messageData.BackgroundKey != "" {
 		st.backgroundImage = loadBackgroundImage(world, st.messageData.BackgroundKey)
+		st.currentBgKey = st.messageData.BackgroundKey
 	}
 
-	// メッセージデータからキュー対応メッセージウィンドウを構築
-	st.messageWindow = messagewindow.NewBuilder(world).
-		WithOnMessageChange(func(msg *messagedata.MessageData) {
-			if msg.BackgroundKey != "" {
-				st.backgroundImage = loadBackgroundImage(world, msg.BackgroundKey)
-			}
-		}).
-		Build(st.messageData)
+	st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)
 	return nil
 }
 
@@ -64,8 +59,14 @@ func loadBackgroundImage(world w.World, spriteKey string) *ebiten.Image {
 }
 
 // Update はゲームステートの更新処理を行う
-func (st *MessageState) Update(_ w.World) (es.Transition[w.World], error) {
+func (st *MessageState) Update(world w.World) (es.Transition[w.World], error) {
 	if st.messageWindow != nil {
+		// 現在のメッセージの背景キーが変わっていたら背景を更新する
+		if key := st.messageWindow.CurrentMessage().BackgroundKey; key != "" && key != st.currentBgKey {
+			st.backgroundImage = loadBackgroundImage(world, key)
+			st.currentBgKey = key
+		}
+
 		if err := st.messageWindow.Update(); err != nil {
 			return es.Transition[w.World]{Type: es.TransNone}, err
 		}
