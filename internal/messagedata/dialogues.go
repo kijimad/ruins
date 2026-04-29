@@ -2,6 +2,9 @@ package messagedata
 
 // DialogueTable は会話データのテーブル
 var DialogueTable = map[string]func(speakerName string) *MessageData{
+	"dark_doctor_greeting": func(speakerName string) *MessageData {
+		return NewDialogMessage("「......。」", speakerName)
+	},
 	"old_soldier_greeting": func(speakerName string) *MessageData {
 		// 1ページ目
 		msg1 := NewDialogMessage("", speakerName).
