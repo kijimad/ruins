@@ -6,6 +6,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // createTestPlanData はテスト用のPlanDataを作成する
@@ -173,5 +175,51 @@ func TestPathFinder_IsReachable(t *testing.T) {
 	// 到達不可能なテスト
 	if pf.IsReachable(1, 1, 3, 3) {
 		t.Error("Expected (1,1) to (3,3) to be not reachable")
+	}
+}
+
+// TestFindPlayerStartPosition_AvoidsNPCs はプレイヤーのスポーン位置がNPCと重複しないことを検証する
+func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
+	t.Parallel()
+
+	// 十分な広さのマップを作成
+	width, height := 15, 15
+	tileCount := width * height
+	tiles := make([]raw.TileRaw, tileCount)
+	planData := &MetaPlan{
+		Level: resources.Level{
+			TileWidth:  consts.Tile(width),
+			TileHeight: consts.Tile(height),
+		},
+		Tiles:     tiles,
+		RawMaster: CreateTestRawMaster(),
+	}
+	for i := range tiles {
+		tiles[i] = planData.GetTile("wall")
+	}
+	// 内側を床にする
+	for y := 1; y < height-1; y++ {
+		for x := 1; x < width-1; x++ {
+			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
+			tiles[idx] = planData.GetTile("floor")
+		}
+	}
+
+	// ポータルを配置
+	planData.NextPortals = []consts.Coord[int]{{X: 1, Y: 1}}
+
+	// 中央付近にNPCを配置してプレイヤーの最優先候補位置を塞ぐ
+	planData.NPCs = []NPCSpec{
+		{Coord: consts.Coord[int]{X: width / 2, Y: height / 2}, Name: "test"},
+	}
+
+	pf := NewPathFinder(planData)
+	pos, err := pf.FindPlayerStartPosition()
+	require.NoError(t, err)
+
+	// プレイヤーのスポーン位置がNPCと重複しないことを検証
+	for _, npc := range planData.NPCs {
+		assert.False(t, pos.X == npc.X && pos.Y == npc.Y,
+			"プレイヤーのスポーン位置(%d,%d)がNPC位置(%d,%d)と重複しています", pos.X, pos.Y, npc.X, npc.Y)
 	}
 }

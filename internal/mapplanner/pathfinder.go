@@ -216,6 +216,11 @@ func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
 		return false
 	}
 
+	// NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ
+	if planData.existPlannedEntityOnTile(x, y) {
+		return false
+	}
+
 	// 到達可能なタイル数が十分であることを確認する。
 	// 単一BFSで済むため、複数BFSを要するポータル到達性チェックより先に行う
 	if pf.countReachableFrom(x, y) < minReachableTiles {
