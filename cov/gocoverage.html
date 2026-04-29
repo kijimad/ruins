@@ -217,11 +217,11 @@
 				
 				<option value="file80">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (85.7%)</option>
 				
-				<option value="file81">github.com/kijimaD/ruins/internal/mapplanner/lib.go (79.1%)</option>
+				<option value="file81">github.com/kijimaD/ruins/internal/mapplanner/lib.go (81.3%)</option>
 				
 				<option value="file82">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
-				<option value="file83">github.com/kijimaD/ruins/internal/mapplanner/pathfinder.go (94.5%)</option>
+				<option value="file83">github.com/kijimaD/ruins/internal/mapplanner/pathfinder.go (94.6%)</option>
 				
 				<option value="file84">github.com/kijimaD/ruins/internal/mapplanner/plan.go (72.7%)</option>
 				
@@ -12347,15 +12347,15 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool <span class="cov8" ti
                 }</span>
         }
 
-        <span class="cov8" title="1">for _, portal := range bm.EscapePortals </span><span class="cov0" title="0">{
-                if portal.X == x &amp;&amp; portal.Y == y </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">for _, portal := range bm.EscapePortals </span><span class="cov8" title="1">{
+                if portal.X == x &amp;&amp; portal.Y == y </span><span class="cov8" title="1">{
                         return true
                 }</span>
         }
 
         // NPCをチェック
         <span class="cov8" title="1">for _, npc := range bm.NPCs </span><span class="cov8" title="1">{
-                if npc.X == x &amp;&amp; npc.Y == y </span><span class="cov0" title="0">{
+                if npc.X == x &amp;&amp; npc.Y == y </span><span class="cov8" title="1">{
                         return true
                 }</span>
         }
@@ -13128,6 +13128,11 @@ func (pf *PathFinder) isValidSpawnPosition(x, y int) bool <span class="cov8" tit
         planData := pf.planData
         idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
         if int(idx) &gt;= len(planData.Tiles) || planData.Tiles[idx].BlockPass </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        // NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ
+        <span class="cov8" title="1">if planData.existPlannedEntityOnTile(x, y) </span><span class="cov8" title="1">{
                 return false
         }</span>
 
