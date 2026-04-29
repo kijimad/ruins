@@ -7,15 +7,15 @@ const (
 
 // EventState はイベントの状態を表す
 type EventState struct {
-	Active bool // 発火条件を満たしている
-	Seen   bool // 視聴済み
+	Active bool `json:"active"` // 発火条件を満たしている
+	Seen   bool `json:"seen"`   // 視聴済み
 }
 
 // GameProgress はゲーム進行に関する永続データを保持する。
 // ダンジョンクリアフラグなど、冒険をまたいで残るデータを管理する。
 type GameProgress struct {
-	ClearedDungeons map[string]bool
-	Events          map[string]EventState
+	ClearedDungeons map[string]bool       `json:"cleared_dungeons"`
+	Events          map[string]EventState `json:"events"`
 }
 
 // NewGameProgress は初期化された GameProgress を返す

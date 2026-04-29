@@ -11,6 +11,7 @@ import (
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -30,7 +31,8 @@ type Data struct {
 
 // WorldSaveData はワールド全体のセーブデータ
 type WorldSaveData struct {
-	Entities []EntitySaveData `json:"entities"`
+	Entities     []EntitySaveData        `json:"entities"`
+	GameProgress *resources.GameProgress `json:"game_progress,omitempty"`
 }
 
 // EntitySaveData は単一エンティティのセーブデータ
@@ -197,9 +199,14 @@ func (sm *SerializationManager) extractWorldData(world w.World) WorldSaveData {
 		return entities[i].StableID.Index < entities[j].StableID.Index
 	})
 
-	return WorldSaveData{
+	worldData := WorldSaveData{
 		Entities: entities,
 	}
+
+	// GameProgressを保存
+	worldData.GameProgress = world.Resources.GameProgress
+
+	return worldData
 }
 
 // processEntityForSave はエンティティを処理してセーブデータに追加
@@ -315,6 +322,11 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData WorldS
 				return fmt.Errorf("failed to resolve references for %s: %w", componentName, err)
 			}
 		}
+	}
+
+	// GameProgressを復元
+	if worldData.GameProgress != nil {
+		*world.Resources.GameProgress = *worldData.GameProgress
 	}
 
 	return nil
@@ -471,6 +483,16 @@ func (sm *SerializationManager) calculateDeterministicHash(data *Data) string {
 	for _, entity := range entities {
 		entityHash := sm.calculateEntityHash(entity)
 		hashParts = append(hashParts, fmt.Sprintf("entity:%s", entityHash))
+	}
+
+	// GameProgressのハッシュを追加
+	if data.World.GameProgress != nil {
+		gpBytes, err := json.Marshal(data.World.GameProgress)
+		if err != nil {
+			panic(fmt.Sprintf("failed to marshal GameProgress for checksum: %v", err))
+		}
+		gpHash := sha256.Sum256(gpBytes)
+		hashParts = append(hashParts, fmt.Sprintf("game_progress:%s", hex.EncodeToString(gpHash[:])))
 	}
 
 	// 全体のハッシュを計算
