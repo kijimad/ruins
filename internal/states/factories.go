@@ -316,60 +316,69 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("オープニング", func(_ w.World) error {
-			// 1a: 暗転で「大穴の中に、街がある。」
+			// page1a: 黒背景で荒野の大穴
 			page1a := &messagedata.MessageData{Speaker: ""}
-			page1a.AddText("大穴の中に、街がある。")
+			page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
 
-			// 1b: 街画像に切り替えて続き
+			// page1b: 街画像で遺跡と宝の話
 			page1b := &messagedata.MessageData{Speaker: ""}
-			page1b.AddText("遺跡から冷気が吹き上がる中で、人が暮らしている。\n").
-				AddText("この穴の底が、古代文明の遺跡だ。")
+			page1b.AddText("穴の底には古代文明の遺跡がある。\n").
+				AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
+				AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
 
-			// 2ページ目: 遺跡のリスクリターン
+			// page2: 酒場背景で拾い屋の噂
 			page2 := &messagedata.MessageData{Speaker: ""}
-			page2.AddText("遺跡には怪物と罠、そして宝がある。\n").
-				AddText("降りた者の半分は戻らない。\n").
-				AddText("それでも人は降りる。\nここではそうやって食うしかない。")
-
-			// 3ページ目: 拾い屋の声
-			page3 := &messagedata.MessageData{Speaker: ""}
-			page3.AddText("「最下層を目指したやつ、また死んだらしいな。」\n\n").
+			page2.AddText("「最下層を目指したやつ、また死んだらしいな。」\n\n").
 				AddText("「たまにいるんだよな、そういう命知らずが。」\n").
 				AddText("「その前のやつも、その前のやつも死んだ。」\n\n").
 				AddText("「でさ、また来たらしいぜ。新しい").
 				AddKeyword("拾い屋").
 				AddText("が。」")
 
-			// page2終了時にpage3へ
-			page2.OnComplete = func() {
+			// page1bとpage2の間に空ページを挟んで間を作る
+			blankBar := &messagedata.MessageData{Speaker: ""}
+
+			blankBar.OnComplete = func() {
 				messageState.SetTransition(es.Transition[w.World]{
 					Type: es.TransPush,
 					NewStateFuncs: []es.StateFactory[w.World]{
 						func() es.State[w.World] {
-							// TODO: 酒場背景を使う
-							return NewMessageState(page3, WithBackgroundKey("bg", "hospital1"))
+							return NewMessageState(page2, WithBackgroundKey("bg", "bar1"))
 						}},
 				})
 			}
 
-			// page1b終了時にpage2へ
+			// page1b終了時に酒場の空ページへ
 			page1b.OnComplete = func() {
 				messageState.SetTransition(es.Transition[w.World]{
 					Type: es.TransPush,
 					NewStateFuncs: []es.StateFactory[w.World]{
 						func() es.State[w.World] {
-							return NewMessageState(page2, WithBackgroundKey("bg", "black1"))
+							return NewMessageState(blankBar, WithBackgroundKey("bg", "bar1"))
 						}},
 				})
 			}
 
-			// page1a終了時に街画像に切り替えてpage1bへ
+			// page1aとpage1bの間に空ページを挟んで間を作る
+			blank := &messagedata.MessageData{Speaker: ""}
+
+			blank.OnComplete = func() {
+				messageState.SetTransition(es.Transition[w.World]{
+					Type: es.TransPush,
+					NewStateFuncs: []es.StateFactory[w.World]{
+						func() es.State[w.World] {
+							return NewMessageState(page1b, WithBackgroundKey("bg", "hole1"))
+						}},
+				})
+			}
+
+			// page1a終了時に空ページへ
 			page1a.OnComplete = func() {
 				messageState.SetTransition(es.Transition[w.World]{
 					Type: es.TransPush,
 					NewStateFuncs: []es.StateFactory[w.World]{
 						func() es.State[w.World] {
-							return NewMessageState(page1b, WithBackgroundKey("bg", "town1"))
+							return NewMessageState(blank, WithBackgroundKey("bg", "hole1"))
 						}},
 				})
 			}
