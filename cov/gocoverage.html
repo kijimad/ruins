@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -287,7 +287,7 @@
 				
 				<option value="file115">github.com/kijimaD/ruins/internal/save/desktop.go (60.0%)</option>
 				
-				<option value="file116">github.com/kijimaD/ruins/internal/save/manager.go (83.9%)</option>
+				<option value="file116">github.com/kijimaD/ruins/internal/save/manager.go (84.1%)</option>
 				
 				<option value="file117">github.com/kijimaD/ruins/internal/save/reflection.go (77.4%)</option>
 				
@@ -1421,7 +1421,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
         }</span>
 
@@ -16718,15 +16718,15 @@ const (
 
 // EventState はイベントの状態を表す
 type EventState struct {
-        Active bool // 発火条件を満たしている
-        Seen   bool // 視聴済み
+        Active bool `json:"active"` // 発火条件を満たしている
+        Seen   bool `json:"seen"`   // 視聴済み
 }
 
 // GameProgress はゲーム進行に関する永続データを保持する。
 // ダンジョンクリアフラグなど、冒険をまたいで残るデータを管理する。
 type GameProgress struct {
-        ClearedDungeons map[string]bool
-        Events          map[string]EventState
+        ClearedDungeons map[string]bool       `json:"cleared_dungeons"`
+        Events          map[string]EventState `json:"events"`
 }
 
 // NewGameProgress は初期化された GameProgress を返す
@@ -17971,6 +17971,7 @@ import (
         "time"
 
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/resources"
         w "github.com/kijimaD/ruins/internal/world"
         ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -17990,7 +17991,8 @@ type Data struct {
 
 // WorldSaveData はワールド全体のセーブデータ
 type WorldSaveData struct {
-        Entities []EntitySaveData `json:"entities"`
+        Entities     []EntitySaveData        `json:"entities"`
+        GameProgress *resources.GameProgress `json:"game_progress,omitempty"`
 }
 
 // EntitySaveData は単一エンティティのセーブデータ
@@ -18157,9 +18159,14 @@ func (sm *SerializationManager) extractWorldData(world w.World) WorldSaveData <s
                 return entities[i].StableID.Index &lt; entities[j].StableID.Index
         }</span>)
 
-        <span class="cov8" title="1">return WorldSaveData{
+        <span class="cov8" title="1">worldData := WorldSaveData{
                 Entities: entities,
-        }</span>
+        }
+
+        // GameProgressを保存
+        worldData.GameProgress = world.Resources.GameProgress
+
+        return worldData</span>
 }
 
 // processEntityForSave はエンティティを処理してセーブデータに追加
@@ -18276,6 +18283,11 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData WorldS
                         }</span>
                 }
         }
+
+        // GameProgressを復元
+        <span class="cov8" title="1">if worldData.GameProgress != nil </span><span class="cov8" title="1">{
+                *world.Resources.GameProgress = *worldData.GameProgress
+        }</span>
 
         <span class="cov8" title="1">return nil</span>
 }
@@ -18432,6 +18444,16 @@ func (sm *SerializationManager) calculateDeterministicHash(data *Data) string <s
                 entityHash := sm.calculateEntityHash(entity)
                 hashParts = append(hashParts, fmt.Sprintf("entity:%s", entityHash))
         }</span>
+
+        // GameProgressのハッシュを追加
+        <span class="cov8" title="1">if data.World.GameProgress != nil </span><span class="cov8" title="1">{
+                gpBytes, err := json.Marshal(data.World.GameProgress)
+                if err != nil </span><span class="cov0" title="0">{
+                        panic(fmt.Sprintf("failed to marshal GameProgress for checksum: %v", err))</span>
+                }
+                <span class="cov8" title="1">gpHash := sha256.Sum256(gpBytes)
+                hashParts = append(hashParts, fmt.Sprintf("game_progress:%s", hex.EncodeToString(gpHash[:])))</span>
+        }
 
         // 全体のハッシュを計算
         <span class="cov8" title="1">finalData := fmt.Sprintf("checksum_data:%s", fmt.Sprintf("%v", hashParts))
