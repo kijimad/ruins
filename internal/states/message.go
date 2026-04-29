@@ -38,7 +38,7 @@ func (st *MessageState) OnStart(world w.World) error {
 		st.currentBgKey = st.messageData.BackgroundKey
 	}
 
-	st.messageWindow = messagewindow.NewBuilder(world).Build(st.messageData)
+	st.messageWindow = messagewindow.NewWindow(world, st.messageData)
 	return nil
 }
 

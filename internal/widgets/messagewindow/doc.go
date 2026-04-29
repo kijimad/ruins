@@ -21,7 +21,7 @@
 //		Text:    "冒険者よ、ようこそ！",
 //		Speaker: "村人",
 //	}
-//	window := messagewindow.NewBuilder(world).Build(messageData)
+//	window := messagewindow.NewWindow(world, messageData)
 //
 //	// ゲームループで更新・描画
 //	window.Update()

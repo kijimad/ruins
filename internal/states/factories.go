@@ -323,6 +323,15 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("全クリアイベント", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type: es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{
+					func() es.State[w.World] { return NewAllClearEventState() },
+				},
+			})
+			return nil
+		}).
 		WithChoice("資金収集エンディング", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
