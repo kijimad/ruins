@@ -375,16 +375,23 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 
 	selectedAction := actionItems[actionIndex]
 
+	var actionErr error
 	switch selectedAction {
 	case "購入する":
 		worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-			_ = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
+			actionErr = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
 		})
+		if actionErr != nil {
+			return fmt.Errorf("購入に失敗: %w", actionErr)
+		}
 		st.subState = shopSubStateMenu
 	case "売却する":
 		worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-			_ = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
+			actionErr = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
 		})
+		if actionErr != nil {
+			return fmt.Errorf("売却に失敗: %w", actionErr)
+		}
 		st.subState = shopSubStateMenu
 	case TextClose:
 		st.subState = shopSubStateMenu

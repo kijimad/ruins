@@ -74,7 +74,10 @@ func (st *DungeonSelectState) Update(world w.World) (es.Transition[w.World], err
 // Draw はステートの描画処理
 func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 	// 右半分に選択中ダンジョンの背景画像を描画する
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
+	if !ok {
+		return fmt.Errorf("dselectステートの取得に失敗")
+	}
 	props := st.mount.GetProps()
 	idx := menuState.ItemIndex
 
@@ -83,7 +86,10 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 		if item.ImageKey == "" {
 			return fmt.Errorf("ダンジョンのImageKeyが未設定です: %s", item.Name)
 		}
-		bgSheet := (*world.Resources.SpriteSheets)["bg"]
+		bgSheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+		if !sheetOK {
+			return fmt.Errorf("bgスプライトシートが存在しない")
+		}
 		sprite, ok := bgSheet.Sprites[item.ImageKey]
 		if !ok {
 			return fmt.Errorf("スプライトが見つかりません: %s", item.ImageKey)

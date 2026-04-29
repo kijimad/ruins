@@ -196,9 +196,15 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("アイテム入手イベント", func(world w.World) error {
 			// アイテムを実際にインベントリに追加
-			_ = worldhelper.ChangeStackableCount(world, "鉄", 1)
-			_ = worldhelper.ChangeStackableCount(world, "木の棒", 1)
-			_ = worldhelper.ChangeStackableCount(world, "フェライトコア", 2)
+			if err := worldhelper.ChangeStackableCount(world, "鉄", 1); err != nil {
+				return fmt.Errorf("アイテム追加に失敗: %w", err)
+			}
+			if err := worldhelper.ChangeStackableCount(world, "木の棒", 1); err != nil {
+				return fmt.Errorf("アイテム追加に失敗: %w", err)
+			}
+			if err := worldhelper.ChangeStackableCount(world, "フェライトコア", 2); err != nil {
+				return fmt.Errorf("アイテム追加に失敗: %w", err)
+			}
 
 			// アイテム入手完了後の表示用メッセージを生成
 			messageText := "宝箱を発見した。\n\n" +
