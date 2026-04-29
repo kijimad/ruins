@@ -320,35 +320,26 @@ func NewDebugMenuState() es.State[w.World] {
 			page1a := &messagedata.MessageData{Speaker: ""}
 			page1a.AddText("見渡すかぎりの荒野に、大穴がひとつ、口を開けている。")
 
-			// page1b: 街画像で遺跡と宝の話
+			// 穴背景: 空ページ→page1b をNextMessagesで連結してチラつきを防ぐ
+			blank := &messagedata.MessageData{Speaker: ""}
 			page1b := &messagedata.MessageData{Speaker: ""}
 			page1b.AddText("穴の底には古代文明の遺跡がある。\n").
 				AddText("宝が出る。怪物も出る。潜った者の半分は帰ってこない。\n").
 				AddText("穴のまわりには潜る者、売る者、買う者で街ができた。")
+			blank.NextMessages = []*messagedata.MessageData{page1b}
 
-			// page2: 酒場背景で拾い屋の噂
-			page2 := &messagedata.MessageData{Speaker: ""}
-			page2.AddText("「最下層を目指したやつ、また死んだらしいな。」\n\n").
-				AddText("「たまにいるんだよな、そういう命知らずが。」\n").
-				AddText("「その前のやつも、その前のやつも死んだ。」\n\n").
-				AddText("「でさ、また来たらしいぜ。新しい").
-				AddKeyword("拾い屋").
-				AddText("が。」")
-
-			// page1bとpage2の間に空ページを挟んで間を作る
+			// 酒場背景: 空ページ→page2 をNextMessagesで連結してチラつきを防ぐ
 			blankBar := &messagedata.MessageData{Speaker: ""}
+			page2 := &messagedata.MessageData{Speaker: ""}
+			page2.AddText("「聞いたか。最深部狙いの奴、また一人消えたってよ。」\n").
+				AddText("「何人目だ。」\n").
+				AddText("「さあな。数えるのはとっくにやめた。」\n\n").
+				AddText("「でさ、次の").
+				AddKeyword("拾い屋").
+				AddText("が来たんだが...そいつも最深部狙いだと。」\n")
+			blankBar.NextMessages = []*messagedata.MessageData{page2}
 
-			blankBar.OnComplete = func() {
-				messageState.SetTransition(es.Transition[w.World]{
-					Type: es.TransPush,
-					NewStateFuncs: []es.StateFactory[w.World]{
-						func() es.State[w.World] {
-							return NewMessageState(page2, WithBackgroundKey("bg", "bar1"))
-						}},
-				})
-			}
-
-			// page1b終了時に酒場の空ページへ
+			// page1b終了時に酒場背景へ遷移
 			page1b.OnComplete = func() {
 				messageState.SetTransition(es.Transition[w.World]{
 					Type: es.TransPush,
@@ -359,20 +350,7 @@ func NewDebugMenuState() es.State[w.World] {
 				})
 			}
 
-			// page1aとpage1bの間に空ページを挟んで間を作る
-			blank := &messagedata.MessageData{Speaker: ""}
-
-			blank.OnComplete = func() {
-				messageState.SetTransition(es.Transition[w.World]{
-					Type: es.TransPush,
-					NewStateFuncs: []es.StateFactory[w.World]{
-						func() es.State[w.World] {
-							return NewMessageState(page1b, WithBackgroundKey("bg", "hole1"))
-						}},
-				})
-			}
-
-			// page1a終了時に空ページへ
+			// page1a終了時に穴背景へ遷移
 			page1a.OnComplete = func() {
 				messageState.SetTransition(es.Transition[w.World]{
 					Type: es.TransPush,
