@@ -91,15 +91,16 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 		rect := image.Rect(sprite.X, sprite.Y, sprite.X+sprite.Width, sprite.Y+sprite.Height)
 		bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
 
-		// 右パネル位置にスケーリングして描画する
+		// 右パネル位置にパディング付きでスケーリングして描画する
+		padding := 12.0
 		op := &ebiten.DrawImageOptions{}
-		panelX := float64(dungeonSelectLeftWidth)
-		panelW := float64(consts.MinGameWidth - dungeonSelectLeftWidth)
-		panelH := float64(dungeonSelectImageHeight)
+		panelX := float64(dungeonSelectLeftWidth) + padding
+		panelW := float64(consts.MinGameWidth-dungeonSelectLeftWidth) - padding*2
+		panelH := float64(dungeonSelectImageHeight) - padding
 		scaleX := panelW / float64(sprite.Width)
 		scaleY := panelH / float64(sprite.Height)
 		op.GeoM.Scale(scaleX, scaleY)
-		op.GeoM.Translate(panelX, 0)
+		op.GeoM.Translate(panelX, padding)
 		screen.DrawImage(bgImage, op)
 	}
 
@@ -129,7 +130,7 @@ func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (
 
 // レイアウト定数
 const (
-	dungeonSelectLeftWidth   = 240
+	dungeonSelectLeftWidth   = 160
 	dungeonSelectImageHeight = 480
 )
 
