@@ -5,6 +5,14 @@ run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
 	go run . play
 
+.PHONY: editor
+editor: ## ゲームデータエディタを起動する(コード変更で自動再起動)
+	@while true; do \
+		setsid go run . editor & PID=$$!; \
+		inotifywait -r -e close_write,moved_to --include '\.go$$' internal/editor/ ; \
+		kill -- -$$PID 2>/dev/null; wait $$PID 2>/dev/null; \
+	done
+
 .PHONY: test
 test: ## テストを実行する
 	RUINS_LOG_LEVEL=ignore \
