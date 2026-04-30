@@ -47,7 +47,7 @@ type Item struct {
 	SpriteSheetName   string
 	SpriteKey         string
 	AnimKeys          []string
-	Value             *int
+	Value             int
 	Weight            *float64 // 重量(kg)
 	InflictsDamage    *int
 	ProvidesNutrition *int  // 空腹度回復量
@@ -487,9 +487,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	if item.Value != nil {
-		entitySpec.Value = &gc.Value{Value: *item.Value}
-	}
+	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {
 		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
