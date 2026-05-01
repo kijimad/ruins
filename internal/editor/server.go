@@ -74,9 +74,11 @@ type memberItem struct {
 
 // memberEditData はメンバー編集テンプレートに渡すデータ
 type memberEditData struct {
-	Index      int
-	Member     raw.Member
-	SheetNames []string
+	Index             int
+	Member            raw.Member
+	SheetNames        []string
+	CommandTableNames []string
+	DropTableNames    []string
 }
 
 // membersData はメンバー一覧テンプレートに渡すデータ
@@ -94,9 +96,9 @@ type recipeItem struct {
 
 // recipeEditData はレシピ編集テンプレートに渡すデータ
 type recipeEditData struct {
-	Index     int
-	Recipe    raw.Recipe
-	ItemNames []string
+	Index       int
+	Recipe      raw.Recipe
+	ItemOptions []itemSelectOption
 }
 
 // recipesData はレシピ一覧テンプレートに渡すデータ
@@ -194,6 +196,7 @@ func NewServer(store *Store, opts ...ServerOption) *Server {
 		},
 	}
 	funcMap["mul"] = func(a, b int) int { return a * b }
+	funcMap["printf"] = fmt.Sprintf
 	funcMap["selectData"] = func(name, value string) map[string]string {
 		return map[string]string{"Name": name, "Value": value}
 	}
@@ -221,7 +224,9 @@ func NewServer(store *Store, opts ...ServerOption) *Server {
 			f.W*scale, f.H*scale, sheetName, f.X*scale, f.Y*scale, size.W*scale, size.H*scale,
 		))
 	}
-	s.templates = template.Must(template.New("").Funcs(funcMap).Parse(templateText))
+	s.templates = template.Must(
+		template.Must(template.New("").Funcs(funcMap).Parse(templateText)).Parse(templateTextExtra),
+	)
 	return s
 }
 
@@ -318,6 +323,54 @@ func (s *Server) ListenAndServe(addr string) error {
 	mux.HandleFunc("POST /recipes/{index}", s.handleRecipeUpdate)
 	mux.HandleFunc("POST /recipes/new", s.handleRecipeCreate)
 	mux.HandleFunc("DELETE /recipes/{index}", s.handleRecipeDelete)
+
+	mux.HandleFunc("GET /command-tables", s.handleCommandTables)
+	mux.HandleFunc("GET /command-tables/{index}/edit", s.handleCommandTableEdit)
+	mux.HandleFunc("POST /command-tables/{index}", s.handleCommandTableUpdate)
+	mux.HandleFunc("POST /command-tables/new", s.handleCommandTableCreate)
+	mux.HandleFunc("DELETE /command-tables/{index}", s.handleCommandTableDelete)
+
+	mux.HandleFunc("GET /drop-tables", s.handleDropTables)
+	mux.HandleFunc("GET /drop-tables/{index}/edit", s.handleDropTableEdit)
+	mux.HandleFunc("POST /drop-tables/{index}", s.handleDropTableUpdate)
+	mux.HandleFunc("POST /drop-tables/new", s.handleDropTableCreate)
+	mux.HandleFunc("DELETE /drop-tables/{index}", s.handleDropTableDelete)
+
+	mux.HandleFunc("GET /item-tables", s.handleItemTables)
+	mux.HandleFunc("GET /item-tables/{index}/edit", s.handleItemTableEdit)
+	mux.HandleFunc("POST /item-tables/{index}", s.handleItemTableUpdate)
+	mux.HandleFunc("POST /item-tables/new", s.handleItemTableCreate)
+	mux.HandleFunc("DELETE /item-tables/{index}", s.handleItemTableDelete)
+
+	mux.HandleFunc("GET /enemy-tables", s.handleEnemyTables)
+	mux.HandleFunc("GET /enemy-tables/{index}/edit", s.handleEnemyTableEdit)
+	mux.HandleFunc("POST /enemy-tables/{index}", s.handleEnemyTableUpdate)
+	mux.HandleFunc("POST /enemy-tables/new", s.handleEnemyTableCreate)
+	mux.HandleFunc("DELETE /enemy-tables/{index}", s.handleEnemyTableDelete)
+
+	mux.HandleFunc("GET /tiles", s.handleTiles)
+	mux.HandleFunc("GET /tiles/{index}/edit", s.handleTileEdit)
+	mux.HandleFunc("POST /tiles/{index}", s.handleTileUpdate)
+	mux.HandleFunc("POST /tiles/new", s.handleTileCreate)
+	mux.HandleFunc("DELETE /tiles/{index}", s.handleTileDelete)
+
+	mux.HandleFunc("GET /props", s.handleProps)
+	mux.HandleFunc("GET /props/{index}/edit", s.handlePropEdit)
+	mux.HandleFunc("POST /props/{index}", s.handlePropUpdate)
+	mux.HandleFunc("POST /props/new", s.handlePropCreate)
+	mux.HandleFunc("DELETE /props/{index}", s.handlePropDelete)
+
+	mux.HandleFunc("GET /professions", s.handleProfessions)
+	mux.HandleFunc("GET /professions/{index}/edit", s.handleProfessionEdit)
+	mux.HandleFunc("POST /professions/{index}", s.handleProfessionUpdate)
+	mux.HandleFunc("POST /professions/new", s.handleProfessionCreate)
+	mux.HandleFunc("DELETE /professions/{index}", s.handleProfessionDelete)
+
+	mux.HandleFunc("GET /sprite-sheets", s.handleSpriteSheets)
+	mux.HandleFunc("GET /sprite-sheets/{index}/edit", s.handleSpriteSheetEdit)
+	mux.HandleFunc("POST /sprite-sheets/{index}", s.handleSpriteSheetUpdate)
+	mux.HandleFunc("POST /sprite-sheets/new", s.handleSpriteSheetCreate)
+	mux.HandleFunc("DELETE /sprite-sheets/{index}", s.handleSpriteSheetDelete)
 
 	mux.HandleFunc("GET /cutter", s.handleCutter)
 	mux.HandleFunc("POST /cutter/upload", s.handleCutterUpload)
@@ -565,9 +618,11 @@ func (s *Server) renderMembers(w http.ResponseWriter, activeIndex int) {
 	data := membersData{Items: rows}
 	if activeIndex >= 0 && activeIndex < len(members) {
 		data.Edit = &memberEditData{
-			Index:      activeIndex,
-			Member:     members[activeIndex],
-			SheetNames: s.sheetNames(),
+			Index:             activeIndex,
+			Member:            members[activeIndex],
+			SheetNames:        s.sheetNames(),
+			CommandTableNames: s.commandTableNames(),
+			DropTableNames:    s.dropTableNames(),
 		}
 	}
 	if err := s.templates.ExecuteTemplate(w, "members", data); err != nil {
@@ -586,9 +641,11 @@ func (s *Server) renderMemberPartial(w http.ResponseWriter, activeIndex int) {
 
 	if activeIndex >= 0 && activeIndex < len(members) {
 		ed := memberEditData{
-			Index:      activeIndex,
-			Member:     members[activeIndex],
-			SheetNames: s.sheetNames(),
+			Index:             activeIndex,
+			Member:            members[activeIndex],
+			SheetNames:        s.sheetNames(),
+			CommandTableNames: s.commandTableNames(),
+			DropTableNames:    s.dropTableNames(),
 		}
 		if err := s.templates.ExecuteTemplate(w, "member-edit", ed); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -620,9 +677,11 @@ func (s *Server) handleMemberEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := memberEditData{
-		Index:      index,
-		Member:     member,
-		SheetNames: s.sheetNames(),
+		Index:             index,
+		Member:            member,
+		SheetNames:        s.sheetNames(),
+		CommandTableNames: s.commandTableNames(),
+		DropTableNames:    s.dropTableNames(),
 	}
 	if err := s.templates.ExecuteTemplate(w, "member-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -700,15 +759,73 @@ func (s *Server) handleMemberDelete(w http.ResponseWriter, r *http.Request) {
 	s.renderMemberPartial(w, -1)
 }
 
-// itemNames はアイテム名の一覧をソート済みで返す
-func (s *Server) itemNames() []string {
-	items := s.store.Items()
-	names := make([]string, len(items))
-	for i, item := range items {
-		names[i] = item.Name
+// commandTableNames はコマンドテーブル名の一覧をソート済みで返す
+func (s *Server) commandTableNames() []string {
+	tables := s.store.CommandTables()
+	names := make([]string, len(tables))
+	for i, t := range tables {
+		names[i] = t.Name
 	}
 	sort.Strings(names)
 	return names
+}
+
+// dropTableNames はドロップテーブル名の一覧をソート済みで返す
+func (s *Server) dropTableNames() []string {
+	tables := s.store.DropTables()
+	names := make([]string, len(tables))
+	for i, t := range tables {
+		names[i] = t.Name
+	}
+	sort.Strings(names)
+	return names
+}
+
+// itemSelectOption はセレクトボックス用のアイテム選択肢
+type itemSelectOption struct {
+	Name  string
+	Label string
+}
+
+// itemOptions はアイテムの選択肢を種別順・名前順で返す
+func (s *Server) itemOptions() []itemSelectOption {
+	items := s.store.Items()
+	// sortItemsで種別順にソート済み（Store.load/save時にソートされている）
+	opts := make([]itemSelectOption, len(items))
+	for i, item := range items {
+		opts[i] = itemSelectOption{
+			Name:  item.Name,
+			Label: itemTypeLabel(item) + item.Name,
+		}
+	}
+	return opts
+}
+
+// itemTypeLabel はアイテムの種別をテキストラベルで返す
+func itemTypeLabel(item raw.Item) string {
+	var labels []string
+	if item.Melee != nil {
+		labels = append(labels, "近")
+	}
+	if item.Fire != nil {
+		labels = append(labels, "射")
+	}
+	if item.Wearable != nil {
+		labels = append(labels, "防")
+	}
+	if item.Consumable != nil {
+		labels = append(labels, "消")
+	}
+	if item.Ammo != nil {
+		labels = append(labels, "弾")
+	}
+	if item.Book != nil {
+		labels = append(labels, "本")
+	}
+	if len(labels) == 0 {
+		return ""
+	}
+	return "[" + strings.Join(labels, "") + "] "
 }
 
 func (s *Server) handleRecipes(w http.ResponseWriter, _ *http.Request) {
@@ -724,9 +841,9 @@ func (s *Server) renderRecipes(w http.ResponseWriter, activeIndex int) {
 	data := recipesData{Items: rows}
 	if activeIndex >= 0 && activeIndex < len(recipes) {
 		data.Edit = &recipeEditData{
-			Index:     activeIndex,
-			Recipe:    recipes[activeIndex],
-			ItemNames: s.itemNames(),
+			Index:       activeIndex,
+			Recipe:      recipes[activeIndex],
+			ItemOptions: s.itemOptions(),
 		}
 	}
 	if err := s.templates.ExecuteTemplate(w, "recipes", data); err != nil {
@@ -744,9 +861,9 @@ func (s *Server) renderRecipePartial(w http.ResponseWriter, activeIndex int) {
 
 	if activeIndex >= 0 && activeIndex < len(recipes) {
 		ed := recipeEditData{
-			Index:     activeIndex,
-			Recipe:    recipes[activeIndex],
-			ItemNames: s.itemNames(),
+			Index:       activeIndex,
+			Recipe:      recipes[activeIndex],
+			ItemOptions: s.itemOptions(),
 		}
 		if err := s.templates.ExecuteTemplate(w, "recipe-edit", ed); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -778,9 +895,9 @@ func (s *Server) handleRecipeEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := recipeEditData{
-		Index:     index,
-		Recipe:    recipe,
-		ItemNames: s.itemNames(),
+		Index:       index,
+		Recipe:      recipe,
+		ItemOptions: s.itemOptions(),
 	}
 	if err := s.templates.ExecuteTemplate(w, "recipe-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -852,6 +969,1323 @@ func (s *Server) handleRecipeDelete(w http.ResponseWriter, r *http.Request) {
 	s.renderRecipePartial(w, -1)
 }
 
+// ================== コマンドテーブル ==================
+
+type commandTableItem struct {
+	Index  int
+	Table  raw.CommandTable
+	Active bool
+}
+
+type commandTableEditData struct {
+	Index       int
+	Table       raw.CommandTable
+	ItemOptions []itemSelectOption
+}
+
+type commandTablesData struct {
+	Items []commandTableItem
+	Edit  *commandTableEditData
+}
+
+func (s *Server) handleCommandTables(w http.ResponseWriter, _ *http.Request) {
+	s.renderCommandTables(w, -1)
+}
+
+func (s *Server) renderCommandTables(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.CommandTables()
+	rows := make([]commandTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = commandTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := commandTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		data.Edit = &commandTableEditData{Index: activeIndex, Table: tables[activeIndex], ItemOptions: s.itemOptions()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "command-tables", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderCommandTablePartial(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.CommandTables()
+	rows := make([]commandTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = commandTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := commandTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		ed := commandTableEditData{Index: activeIndex, Table: tables[activeIndex], ItemOptions: s.itemOptions()}
+		if err := s.templates.ExecuteTemplate(w, "command-table-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">コマンドテーブルを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "ct-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "ct-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleCommandTableEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	ct, err := s.store.CommandTable(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := commandTableEditData{Index: index, Table: ct, ItemOptions: s.itemOptions()}
+	if err := s.templates.ExecuteTemplate(w, "command-table-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findCommandTableIndex(name string) int {
+	for i, t := range s.store.CommandTables() {
+		if t.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleCommandTableUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	ct := parseCommandTableForm(r)
+	if err := s.store.UpdateCommandTable(index, ct); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderCommandTablePartial(w, s.findCommandTableIndex(ct.Name))
+}
+
+func (s *Server) handleCommandTableCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	ct := raw.CommandTable{Name: name}
+	if err := s.store.AddCommandTable(ct); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderCommandTablePartial(w, s.findCommandTableIndex(name))
+}
+
+func (s *Server) handleCommandTableDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteCommandTable(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderCommandTablePartial(w, -1)
+}
+
+func parseCommandTableForm(r *http.Request) raw.CommandTable {
+	ct := raw.CommandTable{Name: r.FormValue("name")}
+	for i := 0; ; i++ {
+		weapon := strings.TrimSpace(r.FormValue(fmt.Sprintf("entry_weapon_%d", i)))
+		if weapon == "" {
+			break
+		}
+		weight, _ := strconv.ParseFloat(r.FormValue(fmt.Sprintf("entry_weight_%d", i)), 64)
+		ct.Entries = append(ct.Entries, raw.CommandTableEntry{Weapon: weapon, Weight: weight})
+	}
+	return ct
+}
+
+// ================== ドロップテーブル ==================
+
+type dropTableItem struct {
+	Index  int
+	Table  raw.DropTable
+	Active bool
+}
+
+type dropTableEditData struct {
+	Index       int
+	Table       raw.DropTable
+	ItemOptions []itemSelectOption
+}
+
+type dropTablesData struct {
+	Items []dropTableItem
+	Edit  *dropTableEditData
+}
+
+func (s *Server) handleDropTables(w http.ResponseWriter, _ *http.Request) {
+	s.renderDropTables(w, -1)
+}
+
+func (s *Server) renderDropTables(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.DropTables()
+	rows := make([]dropTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = dropTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := dropTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		data.Edit = &dropTableEditData{Index: activeIndex, Table: tables[activeIndex], ItemOptions: s.itemOptions()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "drop-tables", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderDropTablePartial(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.DropTables()
+	rows := make([]dropTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = dropTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := dropTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		ed := dropTableEditData{Index: activeIndex, Table: tables[activeIndex], ItemOptions: s.itemOptions()}
+		if err := s.templates.ExecuteTemplate(w, "drop-table-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">ドロップテーブルを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "dt-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "dt-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleDropTableEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	dt, err := s.store.DropTable(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := dropTableEditData{Index: index, Table: dt, ItemOptions: s.itemOptions()}
+	if err := s.templates.ExecuteTemplate(w, "drop-table-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findDropTableIndex(name string) int {
+	for i, t := range s.store.DropTables() {
+		if t.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleDropTableUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	dt := parseDropTableForm(r)
+	if err := s.store.UpdateDropTable(index, dt); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderDropTablePartial(w, s.findDropTableIndex(dt.Name))
+}
+
+func (s *Server) handleDropTableCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	dt := raw.DropTable{Name: name}
+	if err := s.store.AddDropTable(dt); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderDropTablePartial(w, s.findDropTableIndex(name))
+}
+
+func (s *Server) handleDropTableDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteDropTable(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderDropTablePartial(w, -1)
+}
+
+func parseDropTableForm(r *http.Request) raw.DropTable {
+	dt := raw.DropTable{Name: r.FormValue("name")}
+	for i := 0; ; i++ {
+		material := strings.TrimSpace(r.FormValue(fmt.Sprintf("entry_material_%d", i)))
+		if material == "" {
+			break
+		}
+		weight, _ := strconv.ParseFloat(r.FormValue(fmt.Sprintf("entry_weight_%d", i)), 64)
+		dt.Entries = append(dt.Entries, raw.DropTableEntry{Material: material, Weight: weight})
+	}
+	return dt
+}
+
+// ================== アイテムテーブル ==================
+
+type itemTableItem struct {
+	Index  int
+	Table  raw.ItemTable
+	Active bool
+}
+
+type itemTableEditData struct {
+	Index       int
+	Table       raw.ItemTable
+	ItemOptions []itemSelectOption
+}
+
+type itemTablesData struct {
+	Items []itemTableItem
+	Edit  *itemTableEditData
+}
+
+func (s *Server) handleItemTables(w http.ResponseWriter, _ *http.Request) {
+	s.renderItemTables(w, -1)
+}
+
+func (s *Server) renderItemTables(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.ItemTables()
+	rows := make([]itemTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = itemTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := itemTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		data.Edit = &itemTableEditData{Index: activeIndex, Table: tables[activeIndex], ItemOptions: s.itemOptions()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "item-tables", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderItemTablePartial(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.ItemTables()
+	rows := make([]itemTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = itemTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := itemTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		ed := itemTableEditData{Index: activeIndex, Table: tables[activeIndex], ItemOptions: s.itemOptions()}
+		if err := s.templates.ExecuteTemplate(w, "item-table-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">アイテムテーブルを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "it-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "it-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleItemTableEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	it, err := s.store.ItemTable(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := itemTableEditData{Index: index, Table: it, ItemOptions: s.itemOptions()}
+	if err := s.templates.ExecuteTemplate(w, "item-table-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findItemTableIndex(name string) int {
+	for i, t := range s.store.ItemTables() {
+		if t.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleItemTableUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	it := parseItemTableForm(r)
+	if err := s.store.UpdateItemTable(index, it); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderItemTablePartial(w, s.findItemTableIndex(it.Name))
+}
+
+func (s *Server) handleItemTableCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	it := raw.ItemTable{Name: name}
+	if err := s.store.AddItemTable(it); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderItemTablePartial(w, s.findItemTableIndex(name))
+}
+
+func (s *Server) handleItemTableDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteItemTable(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderItemTablePartial(w, -1)
+}
+
+func parseItemTableForm(r *http.Request) raw.ItemTable {
+	it := raw.ItemTable{Name: r.FormValue("name")}
+	for i := 0; ; i++ {
+		itemName := strings.TrimSpace(r.FormValue(fmt.Sprintf("entry_item_%d", i)))
+		if itemName == "" {
+			break
+		}
+		weight, _ := strconv.ParseFloat(r.FormValue(fmt.Sprintf("entry_weight_%d", i)), 64)
+		minDepth, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("entry_min_depth_%d", i)))
+		maxDepth, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("entry_max_depth_%d", i)))
+		it.Entries = append(it.Entries, raw.ItemTableEntry{ItemName: itemName, Weight: weight, MinDepth: minDepth, MaxDepth: maxDepth})
+	}
+	return it
+}
+
+// ================== 敵テーブル ==================
+
+type enemyTableItem struct {
+	Index  int
+	Table  raw.EnemyTable
+	Active bool
+}
+
+type enemyTableEditData struct {
+	Index       int
+	Table       raw.EnemyTable
+	MemberNames []string
+}
+
+type enemyTablesData struct {
+	Items []enemyTableItem
+	Edit  *enemyTableEditData
+}
+
+// memberNames はメンバー名の一覧をソート済みで返す
+func (s *Server) memberNames() []string {
+	members := s.store.Members()
+	names := make([]string, len(members))
+	for i, m := range members {
+		names[i] = m.Name
+	}
+	sort.Strings(names)
+	return names
+}
+
+func (s *Server) handleEnemyTables(w http.ResponseWriter, _ *http.Request) {
+	s.renderEnemyTables(w, -1)
+}
+
+func (s *Server) renderEnemyTables(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.EnemyTables()
+	rows := make([]enemyTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = enemyTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := enemyTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		data.Edit = &enemyTableEditData{Index: activeIndex, Table: tables[activeIndex], MemberNames: s.memberNames()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "enemy-tables", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderEnemyTablePartial(w http.ResponseWriter, activeIndex int) {
+	tables := s.store.EnemyTables()
+	rows := make([]enemyTableItem, len(tables))
+	for i, t := range tables {
+		rows[i] = enemyTableItem{Index: i, Table: t, Active: i == activeIndex}
+	}
+	data := enemyTablesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tables) {
+		ed := enemyTableEditData{Index: activeIndex, Table: tables[activeIndex], MemberNames: s.memberNames()}
+		if err := s.templates.ExecuteTemplate(w, "enemy-table-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">敵テーブルを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "et-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "et-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleEnemyTableEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	et, err := s.store.EnemyTable(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := enemyTableEditData{Index: index, Table: et, MemberNames: s.memberNames()}
+	if err := s.templates.ExecuteTemplate(w, "enemy-table-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findEnemyTableIndex(name string) int {
+	for i, t := range s.store.EnemyTables() {
+		if t.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleEnemyTableUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	et := parseEnemyTableForm(r)
+	if err := s.store.UpdateEnemyTable(index, et); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderEnemyTablePartial(w, s.findEnemyTableIndex(et.Name))
+}
+
+func (s *Server) handleEnemyTableCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	et := raw.EnemyTable{Name: name}
+	if err := s.store.AddEnemyTable(et); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderEnemyTablePartial(w, s.findEnemyTableIndex(name))
+}
+
+func (s *Server) handleEnemyTableDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteEnemyTable(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderEnemyTablePartial(w, -1)
+}
+
+func parseEnemyTableForm(r *http.Request) raw.EnemyTable {
+	et := raw.EnemyTable{Name: r.FormValue("name")}
+	for i := 0; ; i++ {
+		enemyName := strings.TrimSpace(r.FormValue(fmt.Sprintf("entry_enemy_%d", i)))
+		if enemyName == "" {
+			break
+		}
+		weight, _ := strconv.ParseFloat(r.FormValue(fmt.Sprintf("entry_weight_%d", i)), 64)
+		minDepth, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("entry_min_depth_%d", i)))
+		maxDepth, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("entry_max_depth_%d", i)))
+		et.Entries = append(et.Entries, raw.EnemyTableEntry{EnemyName: enemyName, Weight: weight, MinDepth: minDepth, MaxDepth: maxDepth})
+	}
+	return et
+}
+
+// ================== タイル ==================
+
+type tileItem struct {
+	Index  int
+	Tile   raw.TileRaw
+	Active bool
+}
+
+type tileEditData struct {
+	Index      int
+	Tile       raw.TileRaw
+	SheetNames []string
+}
+
+type tilesData struct {
+	Items []tileItem
+	Edit  *tileEditData
+}
+
+func (s *Server) handleTiles(w http.ResponseWriter, _ *http.Request) {
+	s.renderTiles(w, -1)
+}
+
+func (s *Server) renderTiles(w http.ResponseWriter, activeIndex int) {
+	tiles := s.store.Tiles()
+	rows := make([]tileItem, len(tiles))
+	for i, t := range tiles {
+		rows[i] = tileItem{Index: i, Tile: t, Active: i == activeIndex}
+	}
+	data := tilesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tiles) {
+		data.Edit = &tileEditData{Index: activeIndex, Tile: tiles[activeIndex], SheetNames: s.sheetNames()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "tiles", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderTilePartial(w http.ResponseWriter, activeIndex int) {
+	tiles := s.store.Tiles()
+	rows := make([]tileItem, len(tiles))
+	for i, t := range tiles {
+		rows[i] = tileItem{Index: i, Tile: t, Active: i == activeIndex}
+	}
+	data := tilesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(tiles) {
+		ed := tileEditData{Index: activeIndex, Tile: tiles[activeIndex], SheetNames: s.sheetNames()}
+		if err := s.templates.ExecuteTemplate(w, "tile-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">タイルを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "tile-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "tile-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleTileEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	tile, err := s.store.Tile(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := tileEditData{Index: index, Tile: tile, SheetNames: s.sheetNames()}
+	if err := s.templates.ExecuteTemplate(w, "tile-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findTileIndex(name string) int {
+	for i, t := range s.store.Tiles() {
+		if t.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleTileUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	tile, err := s.store.Tile(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	tile = parseTileForm(r, tile)
+	if err := s.store.UpdateTile(index, tile); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderTilePartial(w, s.findTileIndex(tile.Name))
+}
+
+func (s *Server) handleTileCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	tile := raw.TileRaw{Name: name}
+	if err := s.store.AddTile(tile); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderTilePartial(w, s.findTileIndex(name))
+}
+
+func (s *Server) handleTileDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteTile(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderTilePartial(w, -1)
+}
+
+func parseTileForm(r *http.Request, t raw.TileRaw) raw.TileRaw {
+	t.Name = r.FormValue("name")
+	t.Description = r.FormValue("description")
+	t.BlockPass = r.FormValue("block_pass") == "on"
+	t.BlockView = r.FormValue("block_view") == "on"
+	t.SpriteRender.SpriteSheetName = r.FormValue("sprite_sheet_name")
+	t.SpriteRender.SpriteKey = r.FormValue("sprite_key")
+	shelter, _ := strconv.Atoi(r.FormValue("shelter"))
+	t.Shelter = gc.ShelterType(shelter)
+	water, _ := strconv.Atoi(r.FormValue("water"))
+	t.Water = gc.WaterType(water)
+	foliage, _ := strconv.Atoi(r.FormValue("foliage"))
+	t.Foliage = gc.FoliageType(foliage)
+	return t
+}
+
+// ================== 置物 ==================
+
+type propItem struct {
+	Index  int
+	Prop   raw.PropRaw
+	Active bool
+}
+
+type propEditData struct {
+	Index      int
+	Prop       raw.PropRaw
+	SheetNames []string
+}
+
+type propsData struct {
+	Items []propItem
+	Edit  *propEditData
+}
+
+func (s *Server) handleProps(w http.ResponseWriter, _ *http.Request) {
+	s.renderProps(w, -1)
+}
+
+func (s *Server) renderProps(w http.ResponseWriter, activeIndex int) {
+	props := s.store.Props()
+	rows := make([]propItem, len(props))
+	for i, p := range props {
+		rows[i] = propItem{Index: i, Prop: p, Active: i == activeIndex}
+	}
+	data := propsData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(props) {
+		data.Edit = &propEditData{Index: activeIndex, Prop: props[activeIndex], SheetNames: s.sheetNames()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "props", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderPropPartial(w http.ResponseWriter, activeIndex int) {
+	props := s.store.Props()
+	rows := make([]propItem, len(props))
+	for i, p := range props {
+		rows[i] = propItem{Index: i, Prop: p, Active: i == activeIndex}
+	}
+	data := propsData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(props) {
+		ed := propEditData{Index: activeIndex, Prop: props[activeIndex], SheetNames: s.sheetNames()}
+		if err := s.templates.ExecuteTemplate(w, "prop-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">置物を選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "prop-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "prop-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handlePropEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	prop, err := s.store.Prop(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := propEditData{Index: index, Prop: prop, SheetNames: s.sheetNames()}
+	if err := s.templates.ExecuteTemplate(w, "prop-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findPropIndex(name string) int {
+	for i, p := range s.store.Props() {
+		if p.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handlePropUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	prop, err := s.store.Prop(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	prop = parsePropForm(r, prop)
+	if err := s.store.UpdateProp(index, prop); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderPropPartial(w, s.findPropIndex(prop.Name))
+}
+
+func (s *Server) handlePropCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	prop := raw.PropRaw{Name: name}
+	if err := s.store.AddProp(prop); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderPropPartial(w, s.findPropIndex(name))
+}
+
+func (s *Server) handlePropDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteProp(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderPropPartial(w, -1)
+}
+
+func parsePropForm(r *http.Request, p raw.PropRaw) raw.PropRaw {
+	p.Name = r.FormValue("name")
+	p.Description = r.FormValue("description")
+	p.BlockPass = r.FormValue("block_pass") == "on"
+	p.BlockView = r.FormValue("block_view") == "on"
+	p.SpriteRender.SpriteSheetName = r.FormValue("sprite_sheet_name")
+	p.SpriteRender.SpriteKey = r.FormValue("sprite_key")
+
+	animKeysStr := strings.TrimSpace(r.FormValue("anim_keys"))
+	if animKeysStr != "" {
+		keys := strings.Split(animKeysStr, ",")
+		p.AnimKeys = make([]string, 0, len(keys))
+		for _, k := range keys {
+			k = strings.TrimSpace(k)
+			if k != "" {
+				p.AnimKeys = append(p.AnimKeys, k)
+			}
+		}
+	} else {
+		p.AnimKeys = nil
+	}
+
+	if r.FormValue("has_light") == "on" {
+		if p.LightSource == nil {
+			p.LightSource = &gc.LightSource{}
+		}
+		radius, _ := strconv.Atoi(r.FormValue("light_radius"))
+		p.LightSource.Radius = consts.Tile(radius)
+		p.LightSource.Enabled = r.FormValue("light_enabled") == "on"
+		cr, _ := strconv.Atoi(r.FormValue("light_r"))
+		cg, _ := strconv.Atoi(r.FormValue("light_g"))
+		cb, _ := strconv.Atoi(r.FormValue("light_b"))
+		ca, _ := strconv.Atoi(r.FormValue("light_a"))
+		p.LightSource.Color = color.RGBA{R: uint8(cr), G: uint8(cg), B: uint8(cb), A: uint8(ca)}
+	} else {
+		p.LightSource = nil
+	}
+
+	if r.FormValue("has_door") == "on" {
+		p.Door = &raw.DoorRaw{}
+	} else {
+		p.Door = nil
+	}
+	if r.FormValue("has_door_lock_trigger") == "on" {
+		p.DoorLockTrigger = &raw.DoorLockTriggerRaw{}
+	} else {
+		p.DoorLockTrigger = nil
+	}
+	if r.FormValue("has_warp_next") == "on" {
+		p.WarpNextTrigger = &raw.WarpNextTriggerRaw{}
+	} else {
+		p.WarpNextTrigger = nil
+	}
+	if r.FormValue("has_warp_escape") == "on" {
+		p.WarpEscapeTrigger = &raw.WarpEscapeTriggerRaw{}
+	} else {
+		p.WarpEscapeTrigger = nil
+	}
+	if r.FormValue("has_dungeon_gate") == "on" {
+		p.DungeonGateTrigger = &raw.DungeonGateTriggerRaw{}
+	} else {
+		p.DungeonGateTrigger = nil
+	}
+
+	return p
+}
+
+// ================== 職業 ==================
+
+type professionItem struct {
+	Index      int
+	Profession raw.Profession
+	Active     bool
+}
+
+type professionEditData struct {
+	Index       int
+	Profession  raw.Profession
+	ItemOptions []itemSelectOption
+}
+
+type professionsData struct {
+	Items []professionItem
+	Edit  *professionEditData
+}
+
+func (s *Server) handleProfessions(w http.ResponseWriter, _ *http.Request) {
+	s.renderProfessions(w, -1)
+}
+
+func (s *Server) renderProfessions(w http.ResponseWriter, activeIndex int) {
+	profs := s.store.Professions()
+	rows := make([]professionItem, len(profs))
+	for i, p := range profs {
+		rows[i] = professionItem{Index: i, Profession: p, Active: i == activeIndex}
+	}
+	data := professionsData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(profs) {
+		data.Edit = &professionEditData{Index: activeIndex, Profession: profs[activeIndex], ItemOptions: s.itemOptions()}
+	}
+	if err := s.templates.ExecuteTemplate(w, "professions", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderProfessionPartial(w http.ResponseWriter, activeIndex int) {
+	profs := s.store.Professions()
+	rows := make([]professionItem, len(profs))
+	for i, p := range profs {
+		rows[i] = professionItem{Index: i, Profession: p, Active: i == activeIndex}
+	}
+	data := professionsData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(profs) {
+		ed := professionEditData{Index: activeIndex, Profession: profs[activeIndex], ItemOptions: s.itemOptions()}
+		if err := s.templates.ExecuteTemplate(w, "profession-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">職業を選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "prof-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "prof-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleProfessionEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	prof, err := s.store.Profession(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := professionEditData{Index: index, Profession: prof, ItemOptions: s.itemOptions()}
+	if err := s.templates.ExecuteTemplate(w, "profession-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findProfessionIndex(id string) int {
+	for i, p := range s.store.Professions() {
+		if p.ID == id {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleProfessionUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	prof := parseProfessionForm(r)
+	if err := s.store.UpdateProfession(index, prof); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderProfessionPartial(w, s.findProfessionIndex(prof.ID))
+}
+
+func (s *Server) handleProfessionCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	id := strings.TrimSpace(r.FormValue("id"))
+	if id == "" {
+		http.Error(w, "IDは必須です", http.StatusBadRequest)
+		return
+	}
+	prof := raw.Profession{ID: id, Name: r.FormValue("name")}
+	if err := s.store.AddProfession(prof); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderProfessionPartial(w, s.findProfessionIndex(id))
+}
+
+func (s *Server) handleProfessionDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteProfession(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderProfessionPartial(w, -1)
+}
+
+func parseProfessionForm(r *http.Request) raw.Profession {
+	prof := raw.Profession{
+		ID:          r.FormValue("id"),
+		Name:        r.FormValue("name"),
+		Description: r.FormValue("description"),
+	}
+	prof.Abilities.Vitality, _ = strconv.Atoi(r.FormValue("vitality"))
+	prof.Abilities.Strength, _ = strconv.Atoi(r.FormValue("strength"))
+	prof.Abilities.Sensation, _ = strconv.Atoi(r.FormValue("sensation"))
+	prof.Abilities.Dexterity, _ = strconv.Atoi(r.FormValue("dexterity"))
+	prof.Abilities.Agility, _ = strconv.Atoi(r.FormValue("agility"))
+	prof.Abilities.Defense, _ = strconv.Atoi(r.FormValue("defense"))
+
+	for i := 0; ; i++ {
+		skillID := strings.TrimSpace(r.FormValue(fmt.Sprintf("skill_id_%d", i)))
+		if skillID == "" {
+			break
+		}
+		value, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("skill_value_%d", i)))
+		prof.Skills = append(prof.Skills, raw.ProfessionSkill{ID: skillID, Value: value})
+	}
+
+	for i := 0; ; i++ {
+		itemName := strings.TrimSpace(r.FormValue(fmt.Sprintf("prof_item_name_%d", i)))
+		if itemName == "" {
+			break
+		}
+		count, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("prof_item_count_%d", i)))
+		if count <= 0 {
+			count = 1
+		}
+		prof.Items = append(prof.Items, raw.ProfessionItem{Name: itemName, Count: count})
+	}
+
+	for i := 0; ; i++ {
+		equipName := strings.TrimSpace(r.FormValue(fmt.Sprintf("equip_name_%d", i)))
+		if equipName == "" {
+			break
+		}
+		slot := r.FormValue(fmt.Sprintf("equip_slot_%d", i))
+		prof.Equips = append(prof.Equips, raw.ProfessionEquip{Name: equipName, Slot: slot})
+	}
+
+	return prof
+}
+
+// ================== スプライトシート ==================
+
+type spriteSheetItem struct {
+	Index  int
+	Sheet  raw.SpriteSheet
+	Active bool
+}
+
+type spriteSheetEditData struct {
+	Index int
+	Sheet raw.SpriteSheet
+}
+
+type spriteSheetsData struct {
+	Items []spriteSheetItem
+	Edit  *spriteSheetEditData
+}
+
+func (s *Server) handleSpriteSheets(w http.ResponseWriter, _ *http.Request) {
+	s.renderSpriteSheets(w, -1)
+}
+
+func (s *Server) renderSpriteSheets(w http.ResponseWriter, activeIndex int) {
+	sheets := s.store.SpriteSheets()
+	rows := make([]spriteSheetItem, len(sheets))
+	for i, sh := range sheets {
+		rows[i] = spriteSheetItem{Index: i, Sheet: sh, Active: i == activeIndex}
+	}
+	data := spriteSheetsData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(sheets) {
+		data.Edit = &spriteSheetEditData{Index: activeIndex, Sheet: sheets[activeIndex]}
+	}
+	if err := s.templates.ExecuteTemplate(w, "sprite-sheets", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderSpriteSheetPartial(w http.ResponseWriter, activeIndex int) {
+	sheets := s.store.SpriteSheets()
+	rows := make([]spriteSheetItem, len(sheets))
+	for i, sh := range sheets {
+		rows[i] = spriteSheetItem{Index: i, Sheet: sh, Active: i == activeIndex}
+	}
+	data := spriteSheetsData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(sheets) {
+		ed := spriteSheetEditData{Index: activeIndex, Sheet: sheets[activeIndex]}
+		if err := s.templates.ExecuteTemplate(w, "sprite-sheet-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">スプライトシートを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "ss-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "ss-count-oob", data); err != nil {
+		log.Printf("件数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleSpriteSheetEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	ss, err := s.store.SpriteSheetByIndex(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := spriteSheetEditData{Index: index, Sheet: ss}
+	if err := s.templates.ExecuteTemplate(w, "sprite-sheet-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findSpriteSheetIndex(name string) int {
+	for i, sh := range s.store.SpriteSheets() {
+		if sh.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleSpriteSheetUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	ss := raw.SpriteSheet{Name: r.FormValue("name"), Path: r.FormValue("path")}
+	if err := s.store.UpdateSpriteSheet(index, ss); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderSpriteSheetPartial(w, s.findSpriteSheetIndex(ss.Name))
+}
+
+func (s *Server) handleSpriteSheetCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+	ss := raw.SpriteSheet{Name: name}
+	if err := s.store.AddSpriteSheet(ss); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderSpriteSheetPartial(w, s.findSpriteSheetIndex(name))
+}
+
+func (s *Server) handleSpriteSheetDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteSpriteSheet(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderSpriteSheetPartial(w, -1)
+}
+
 // parseRecipeForm はHTTPフォームからRecipe構造体を構築する
 func parseRecipeForm(r *http.Request) raw.Recipe {
 	recipe := raw.Recipe{
@@ -879,6 +2313,8 @@ func parseMemberForm(r *http.Request, m raw.Member) raw.Member {
 	m.SpriteKey = r.FormValue("sprite_key")
 	m.FactionType = r.FormValue("faction_type")
 	m.IsBoss = r.FormValue("is_boss") == "on"
+	m.CommandTableName = r.FormValue("command_table_name")
+	m.DropTableName = r.FormValue("drop_table_name")
 
 	if r.FormValue("player") == "on" {
 		t := true

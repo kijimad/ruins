@@ -1564,12 +1564,14 @@
       R = 255
 
 [[Members]]
-  AnimKeys        = ["slime_0", "slime_1"]
-  FactionType     = ""
-  IsBoss          = false
-  Name            = "スライム"
-  SpriteKey       = "slime_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["slime_0", "slime_1"]
+  CommandTableName = "スライム"
+  DropTableName    = "スライム"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "スライム"
+  SpriteKey        = "slime_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 4
     Defense   = 2
@@ -1579,12 +1581,13 @@
     Vitality  = 5
 
 [[Members]]
-  AnimKeys        = ["slime_0", "slime_1"]
-  FactionType     = ""
-  IsBoss          = true
-  Name            = "凍晶化した猟師"
-  SpriteKey       = "crystal_zombie"
-  SpriteSheetName = "field"
+  AnimKeys         = ["slime_0", "slime_1"]
+  CommandTableName = "凍晶化した猟師"
+  FactionType      = ""
+  IsBoss           = true
+  Name             = "凍晶化した猟師"
+  SpriteKey        = "crystal_zombie"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 12
     Defense   = 15
@@ -1644,12 +1647,14 @@
     MessageKey = "doctor_greeting"
 
 [[Members]]
-  AnimKeys        = ["red_ball_0", "red_ball_1"]
-  FactionType     = ""
-  IsBoss          = false
-  Name            = "火の玉"
-  SpriteKey       = "red_ball_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["red_ball_0", "red_ball_1"]
+  CommandTableName = "火の玉"
+  DropTableName    = "火の玉"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "火の玉"
+  SpriteKey        = "red_ball_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 6
     Defense   = 4
@@ -1667,11 +1672,13 @@
       R = 255
 
 [[Members]]
-  FactionType     = ""
-  IsBoss          = false
-  Name            = "灰の偶像"
-  SpriteKey       = "magic_ring"
-  SpriteSheetName = "field"
+  CommandTableName = "灰の偶像"
+  DropTableName    = "灰の偶像"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "灰の偶像"
+  SpriteKey        = "magic_ring"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 3
     Defense   = 40
@@ -1698,12 +1705,14 @@
     MessageKey = "old_soldier_greeting"
 
 [[Members]]
-  AnimKeys        = ["light_tank_0", "light_tank_1"]
-  FactionType     = ""
-  IsBoss          = false
-  Name            = "軽戦車"
-  SpriteKey       = "light_tank_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["light_tank_0", "light_tank_1"]
+  CommandTableName = "軽戦車"
+  DropTableName    = "軽戦車"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "軽戦車"
+  SpriteKey        = "light_tank_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 5
     Defense   = 5

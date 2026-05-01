@@ -239,16 +239,18 @@ type RecipeInput struct {
 
 // Member はメンバーの情報
 type Member struct {
-	Name            string
-	Player          *bool
-	IsBoss          bool
-	Abilities       Abilities
-	SpriteSheetName string
-	SpriteKey       string
-	AnimKeys        []string
-	LightSource     *gc.LightSource
-	FactionType     string
-	Dialog          *DialogRaw
+	Name             string
+	Player           *bool
+	IsBoss           bool
+	Abilities        Abilities
+	SpriteSheetName  string
+	SpriteKey        string
+	AnimKeys         []string
+	LightSource      *gc.LightSource
+	FactionType      string
+	Dialog           *DialogRaw
+	CommandTableName string // 使用するコマンドテーブル名。空なら紐づけなし
+	DropTableName    string // 使用するドロップテーブル名。空なら紐づけなし
 }
 
 // DialogRaw は会話データのローデータ
@@ -660,16 +662,20 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		entitySpec.Player = &gc.Player{}
 	}
 
-	commandTableIdx, ok := rw.CommandTableIndex[name]
-	if ok && commandTableIdx < len(rw.Raws.CommandTables) {
-		commandTable := rw.Raws.CommandTables[commandTableIdx]
-		entitySpec.CommandTable = &gc.CommandTable{Name: commandTable.Name}
+	if member.CommandTableName != "" {
+		commandTableIdx, ok := rw.CommandTableIndex[member.CommandTableName]
+		if ok && commandTableIdx < len(rw.Raws.CommandTables) {
+			commandTable := rw.Raws.CommandTables[commandTableIdx]
+			entitySpec.CommandTable = &gc.CommandTable{Name: commandTable.Name}
+		}
 	}
 
-	dropTableIdx, ok := rw.DropTableIndex[name]
-	if ok && dropTableIdx < len(rw.Raws.DropTables) {
-		dropTable := rw.Raws.DropTables[dropTableIdx]
-		entitySpec.DropTable = &gc.DropTable{Name: dropTable.Name}
+	if member.DropTableName != "" {
+		dropTableIdx, ok := rw.DropTableIndex[member.DropTableName]
+		if ok && dropTableIdx < len(rw.Raws.DropTables) {
+			dropTable := rw.Raws.DropTables[dropTableIdx]
+			entitySpec.DropTable = &gc.DropTable{Name: dropTable.Name}
+		}
 	}
 
 	if member.LightSource != nil {

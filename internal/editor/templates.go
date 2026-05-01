@@ -12,7 +12,7 @@ var templateText = `
 <script>
 function initTomSelect(root) {
   (root || document).querySelectorAll('select.form-select:not(.tomselected)').forEach(function(el) {
-    new TomSelect(el, {create: false, allowEmptyOption: true});
+    new TomSelect(el, {create: false, allowEmptyOption: true, maxOptions: null});
   });
 }
 initTomSelect();
@@ -29,6 +29,14 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
     <li class="nav-item"><a class="nav-link py-0" href="/">Items</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/members">Members</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/recipes">Recipes</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/command-tables">CmdTbl</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/drop-tables">DropTbl</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/item-tables">ItemTbl</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/enemy-tables">EnemyTbl</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/tiles">Tiles</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/props">Props</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/professions">Professions</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/sprite-sheets">Sheets</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/cutter">Cutter</a></li>
   </ul>
 </nav>
@@ -309,6 +317,22 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
         <option value="FactionNeutral" {{if eq .Member.FactionType "FactionNeutral"}}selected{{end}}>中立</option>
       </select>
     </div>
+    <div class="col-md-3">
+      <label class="form-label">コマンドテーブル</label>
+      <select class="form-select" name="command_table_name">
+        <option value="">-- なし --</option>
+        {{range .CommandTableNames}}<option value="{{.}}" {{selected $.Member.CommandTableName .}}>{{.}}</option>{{end}}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">ドロップテーブル</label>
+      <select class="form-select" name="drop_table_name">
+        <option value="">-- なし --</option>
+        {{range .DropTableNames}}<option value="{{.}}" {{selected $.Member.DropTableName .}}>{{.}}</option>{{end}}
+      </select>
+    </div>
+  </div>
+  <div class="row g-3 mb-3">
     <div class="col-md-3 d-flex align-items-end gap-3">
       <div class="form-check">
         <input class="form-check-input" type="checkbox" name="player" id="player-{{.Index}}" {{if derefBool .Member.Player}}checked{{end}}>
@@ -488,7 +512,7 @@ function addRecipeInput() {
 }
 </script>
 <template id="item-options-template">
-  {{range .ItemNames}}<option value="{{.}}">{{.}}</option>{{end}}
+  {{range .ItemOptions}}<option value="{{.Name}}">{{.Label}}</option>{{end}}
 </template>
 
 <form hx-post="/recipes/{{.Index}}" hx-target="#recipe-edit-panel" hx-swap="innerHTML">
@@ -502,8 +526,8 @@ function addRecipeInput() {
       <label class="form-label">成果物</label>
       <select class="form-select" name="name">
         <option value="">-- 選択 --</option>
-        {{range .ItemNames}}
-        <option value="{{.}}" {{selected $.Recipe.Name .}}>{{.}}</option>
+        {{range .ItemOptions}}
+        <option value="{{.Name}}" {{selected $.Recipe.Name .Name}}>{{.Label}}</option>
         {{end}}
       </select>
     </div>
@@ -516,8 +540,8 @@ function addRecipeInput() {
       <div class="col-md-6">
         <select class="form-select" name="input_name_{{$i}}">
           <option value="">-- 選択 --</option>
-          {{range $.ItemNames}}
-          <option value="{{.}}" {{selected $input.Name .}}>{{.}}</option>
+          {{range $.ItemOptions}}
+          <option value="{{.Name}}" {{selected $input.Name .Name}}>{{.Label}}</option>
           {{end}}
         </select>
       </div>
