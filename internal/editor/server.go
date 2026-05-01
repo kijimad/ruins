@@ -85,6 +85,26 @@ type membersData struct {
 	Edit  *memberEditData
 }
 
+// recipeItem はテンプレートに渡すレシピ行データ
+type recipeItem struct {
+	Index  int
+	Recipe raw.Recipe
+	Active bool
+}
+
+// recipeEditData はレシピ編集テンプレートに渡すデータ
+type recipeEditData struct {
+	Index     int
+	Recipe    raw.Recipe
+	ItemNames []string
+}
+
+// recipesData はレシピ一覧テンプレートに渡すデータ
+type recipesData struct {
+	Items []recipeItem
+	Edit  *recipeEditData
+}
+
 // spriteGridData はスプライトグリッドテンプレートに渡すデータ
 type spriteGridData struct {
 	SheetName string
@@ -292,6 +312,12 @@ func (s *Server) ListenAndServe(addr string) error {
 	mux.HandleFunc("POST /members/{index}", s.handleMemberUpdate)
 	mux.HandleFunc("POST /members/new", s.handleMemberCreate)
 	mux.HandleFunc("DELETE /members/{index}", s.handleMemberDelete)
+
+	mux.HandleFunc("GET /recipes", s.handleRecipes)
+	mux.HandleFunc("GET /recipes/{index}/edit", s.handleRecipeEdit)
+	mux.HandleFunc("POST /recipes/{index}", s.handleRecipeUpdate)
+	mux.HandleFunc("POST /recipes/new", s.handleRecipeCreate)
+	mux.HandleFunc("DELETE /recipes/{index}", s.handleRecipeDelete)
 
 	mux.HandleFunc("GET /cutter", s.handleCutter)
 	mux.HandleFunc("POST /cutter/upload", s.handleCutterUpload)
@@ -672,6 +698,178 @@ func (s *Server) handleMemberDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	s.renderMemberPartial(w, -1)
+}
+
+// itemNames はアイテム名の一覧をソート済みで返す
+func (s *Server) itemNames() []string {
+	items := s.store.Items()
+	names := make([]string, len(items))
+	for i, item := range items {
+		names[i] = item.Name
+	}
+	sort.Strings(names)
+	return names
+}
+
+func (s *Server) handleRecipes(w http.ResponseWriter, _ *http.Request) {
+	s.renderRecipes(w, -1)
+}
+
+func (s *Server) renderRecipes(w http.ResponseWriter, activeIndex int) {
+	recipes := s.store.Recipes()
+	rows := make([]recipeItem, len(recipes))
+	for i, r := range recipes {
+		rows[i] = recipeItem{Index: i, Recipe: r, Active: i == activeIndex}
+	}
+	data := recipesData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(recipes) {
+		data.Edit = &recipeEditData{
+			Index:     activeIndex,
+			Recipe:    recipes[activeIndex],
+			ItemNames: s.itemNames(),
+		}
+	}
+	if err := s.templates.ExecuteTemplate(w, "recipes", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) renderRecipePartial(w http.ResponseWriter, activeIndex int) {
+	recipes := s.store.Recipes()
+	rows := make([]recipeItem, len(recipes))
+	for i, r := range recipes {
+		rows[i] = recipeItem{Index: i, Recipe: r, Active: i == activeIndex}
+	}
+	data := recipesData{Items: rows}
+
+	if activeIndex >= 0 && activeIndex < len(recipes) {
+		ed := recipeEditData{
+			Index:     activeIndex,
+			Recipe:    recipes[activeIndex],
+			ItemNames: s.itemNames(),
+		}
+		if err := s.templates.ExecuteTemplate(w, "recipe-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">レシピを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+
+	if err := s.templates.ExecuteTemplate(w, "recipe-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "recipe-count-oob", data); err != nil {
+		log.Printf("レシピ数OOBレンダリングに失敗: %v", err)
+	}
+}
+
+func (s *Server) handleRecipeEdit(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	recipe, err := s.store.Recipe(index)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	data := recipeEditData{
+		Index:     index,
+		Recipe:    recipe,
+		ItemNames: s.itemNames(),
+	}
+	if err := s.templates.ExecuteTemplate(w, "recipe-edit", data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func (s *Server) findRecipeIndex(name string) int {
+	for i, r := range s.store.Recipes() {
+		if r.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
+func (s *Server) handleRecipeUpdate(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+
+	recipe := parseRecipeForm(r)
+
+	if err := s.store.UpdateRecipe(index, recipe); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	newIndex := s.findRecipeIndex(recipe.Name)
+	s.renderRecipePartial(w, newIndex)
+}
+
+func (s *Server) handleRecipeCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" {
+		http.Error(w, "名前は必須です", http.StatusBadRequest)
+		return
+	}
+
+	recipe := raw.Recipe{Name: name}
+	if err := s.store.AddRecipe(recipe); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	newIndex := s.findRecipeIndex(name)
+	s.renderRecipePartial(w, newIndex)
+}
+
+func (s *Server) handleRecipeDelete(w http.ResponseWriter, r *http.Request) {
+	index, err := strconv.Atoi(r.PathValue("index"))
+	if err != nil {
+		http.Error(w, "無効なインデックス", http.StatusBadRequest)
+		return
+	}
+	if err := s.store.DeleteRecipe(index); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	s.renderRecipePartial(w, -1)
+}
+
+// parseRecipeForm はHTTPフォームからRecipe構造体を構築する
+func parseRecipeForm(r *http.Request) raw.Recipe {
+	recipe := raw.Recipe{
+		Name: r.FormValue("name"),
+	}
+	// 素材は input_name_0, input_amount_0, input_name_1, ... の形式
+	for i := 0; ; i++ {
+		name := strings.TrimSpace(r.FormValue(fmt.Sprintf("input_name_%d", i)))
+		if name == "" {
+			break
+		}
+		amount, _ := strconv.Atoi(r.FormValue(fmt.Sprintf("input_amount_%d", i)))
+		if amount <= 0 {
+			amount = 1
+		}
+		recipe.Inputs = append(recipe.Inputs, raw.RecipeInput{Name: name, Amount: amount})
+	}
+	return recipe
 }
 
 // parseMemberForm はHTTPフォームからMember構造体にフィールドを反映する

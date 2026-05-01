@@ -1,12 +1,34 @@
 package editor
 
 var templateText = `
+{{define "common-head"}}
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
+{{end}}
+
+{{define "tom-select-init"}}
+<script>
+function initTomSelect(root) {
+  (root || document).querySelectorAll('select.form-select:not(.tomselected)').forEach(function(el) {
+    new TomSelect(el, {create: false, allowEmptyOption: true});
+  });
+}
+initTomSelect();
+document.body.addEventListener('htmx:afterSettle', function(e) {
+  initTomSelect(e.detail.target);
+});
+</script>
+{{end}}
+
 {{define "header"}}
-<nav class="navbar navbar-dark bg-dark border-bottom px-3" style="height:40px;min-height:40px;">
+<nav class="navbar navbar-dark bg-dark border-bottom px-3" style="height:40px;min-height:40px;" data-bs-theme="dark">
   <a class="navbar-brand py-0" href="/" style="font-size:14px;">Ruins Editor</a>
   <ul class="navbar-nav flex-row gap-2">
     <li class="nav-item"><a class="nav-link py-0" href="/">Items</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/members">Members</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/recipes">Recipes</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/cutter">Cutter</a></li>
   </ul>
 </nav>
@@ -14,17 +36,16 @@ var templateText = `
 
 {{define "index"}}
 <!DOCTYPE html>
-<html lang="ja" data-bs-theme="dark">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ruins Editor</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  {{template "common-head"}}
   <style>
     .sidebar { width: 280px; min-width: 280px; overflow-y: auto; }
-    .item-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 6px; font-size: 13px; }
-    .item-entry:hover { background: rgba(255,255,255,0.05); }
+    .item-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .item-entry:hover { background: rgba(0,0,0,0.04); }
     .item-entry.active { background: rgba(13,110,253,0.25); border-left: 3px solid #0d6efd; }
     .main-content { flex: 1; overflow-y: auto; padding: 24px; }
     .content-area { height: calc(100vh - 40px); }
@@ -57,6 +78,7 @@ var templateText = `
       {{end}}
     </div>
   </div>
+  {{template "tom-select-init"}}
 </body>
 </html>
 {{end}}
@@ -161,17 +183,16 @@ var templateText = `
 
 {{define "members"}}
 <!DOCTYPE html>
-<html lang="ja" data-bs-theme="dark">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ruins Editor - Members</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  {{template "common-head"}}
   <style>
     .sidebar { width: 280px; min-width: 280px; overflow-y: auto; }
-    .member-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 6px; font-size: 13px; }
-    .member-entry:hover { background: rgba(255,255,255,0.05); }
+    .member-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .member-entry:hover { background: rgba(0,0,0,0.04); }
     .member-entry.active { background: rgba(13,110,253,0.25); border-left: 3px solid #0d6efd; }
     .main-content { flex: 1; overflow-y: auto; padding: 24px; }
     .content-area { height: calc(100vh - 40px); }
@@ -204,6 +225,7 @@ var templateText = `
       {{end}}
     </div>
   </div>
+  {{template "tom-select-init"}}
 </body>
 </html>
 {{end}}
@@ -377,15 +399,153 @@ var templateText = `
 </form>
 {{end}}
 
+{{define "recipes"}}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruins Editor - Recipes</title>
+  {{template "common-head"}}
+  <style>
+    .sidebar { width: 280px; min-width: 280px; overflow-y: auto; }
+    .recipe-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #dee2e6; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .recipe-entry:hover { background: rgba(0,0,0,0.04); }
+    .recipe-entry.active { background: rgba(13,110,253,0.25); border-left: 3px solid #0d6efd; }
+    .main-content { flex: 1; overflow-y: auto; padding: 24px; }
+    .content-area { height: calc(100vh - 40px); }
+  </style>
+</head>
+<body style="overflow:hidden;">
+  {{template "header" .}}
+  <div class="d-flex content-area">
+    <div class="sidebar border-end p-0 d-flex flex-column">
+      <div class="p-2 border-bottom">
+        <form hx-post="/recipes/new" hx-target="#recipe-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+          <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規レシピ">
+          <button type="submit" class="btn btn-primary btn-sm">追加</button>
+        </form>
+      </div>
+      <div id="recipe-count" class="p-1 border-bottom text-secondary" style="font-size:12px;">
+        {{len .Items}} recipes
+      </div>
+      <div id="recipe-list" style="overflow-y:auto;flex:1;">
+        {{range .Items}}
+        {{template "recipe-entry" .}}
+        {{end}}
+      </div>
+    </div>
+    <div class="main-content" id="recipe-edit-panel">
+      {{if .Edit}}
+      {{template "recipe-edit" .Edit}}
+      {{else}}
+      <div class="text-secondary mt-5 text-center">レシピを選択してください</div>
+      {{end}}
+    </div>
+  </div>
+  {{template "tom-select-init"}}
+</body>
+</html>
+{{end}}
+
+{{define "recipe-entry"}}
+<div class="recipe-entry{{if .Active}} active{{end}}" id="rentry-{{.Index}}"
+     hx-get="/recipes/{{.Index}}/edit" hx-target="#recipe-edit-panel" hx-swap="innerHTML"
+     onclick="document.querySelectorAll('.recipe-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+  <span class="text-truncate flex-grow-1">{{.Recipe.Name}}</span>
+  <span class="badge text-bg-secondary">{{len .Recipe.Inputs}}素材</span>
+</div>
+{{end}}
+
+{{define "recipe-list-oob"}}
+<div id="recipe-list" hx-swap-oob="innerHTML:#recipe-list">
+{{range .Items}}
+{{template "recipe-entry" .}}
+{{end}}
+</div>
+{{end}}
+
+{{define "recipe-count-oob"}}
+<div id="recipe-count" hx-swap-oob="innerHTML:#recipe-count">
+  {{len .Items}} recipes
+</div>
+{{end}}
+
+{{define "recipe-edit"}}
+<script>
+var recipeInputIdx = {{len .Recipe.Inputs}};
+function addRecipeInput() {
+  var container = document.getElementById('recipe-inputs');
+  var div = document.createElement('div');
+  div.className = 'row g-2 mb-2 recipe-input-row';
+  div.innerHTML = '<div class="col-md-6"><select class="form-select" name="input_name_' + recipeInputIdx + '"><option value="">-- 選択 --</option>' +
+    document.getElementById('item-options-template').innerHTML +
+    '</select></div><div class="col-md-3"><input type="number" class="form-control" name="input_amount_' + recipeInputIdx + '" value="1" min="1"></div>' +
+    '<div class="col-md-3"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.recipe-input-row\').remove()">削除</button></div>';
+  container.appendChild(div);
+  initTomSelect(div);
+  recipeInputIdx++;
+}
+</script>
+<template id="item-options-template">
+  {{range .ItemNames}}<option value="{{.}}">{{.}}</option>{{end}}
+</template>
+
+<form hx-post="/recipes/{{.Index}}" hx-target="#recipe-edit-panel" hx-swap="innerHTML">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <h5 class="mb-0 me-auto">{{.Recipe.Name}}</h5>
+    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/recipes/{{.Index}}" hx-target="#recipe-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <label class="form-label">成果物</label>
+      <select class="form-select" name="name">
+        <option value="">-- 選択 --</option>
+        {{range .ItemNames}}
+        <option value="{{.}}" {{selected $.Recipe.Name .}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+  </div>
+
+  <h6 class="mb-2">素材</h6>
+  <div id="recipe-inputs">
+    {{range $i, $input := .Recipe.Inputs}}
+    <div class="row g-2 mb-2 recipe-input-row">
+      <div class="col-md-6">
+        <select class="form-select" name="input_name_{{$i}}">
+          <option value="">-- 選択 --</option>
+          {{range $.ItemNames}}
+          <option value="{{.}}" {{selected $input.Name .}}>{{.}}</option>
+          {{end}}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input type="number" class="form-control" name="input_amount_{{$i}}" value="{{$input.Amount}}" min="1">
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.recipe-input-row').remove()">削除</button>
+      </div>
+    </div>
+    {{end}}
+  </div>
+  <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addRecipeInput()">+ 素材を追加</button>
+
+  <div>
+    <button type="submit" class="btn btn-success">保存</button>
+  </div>
+</form>
+{{end}}
+
 {{define "cutter"}}
 <!DOCTYPE html>
-<html lang="ja" data-bs-theme="dark">
+<html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ruins Editor - Sprite Cutter</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  {{template "common-head"}}
   <style>
     .cell-grid {
       display: inline-grid;

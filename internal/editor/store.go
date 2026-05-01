@@ -38,6 +38,7 @@ func (s *Store) load() error {
 	s.raws = raws
 	sortItems(s.raws.Items)
 	sortMembers(s.raws.Members)
+	sortRecipes(s.raws.Recipes)
 	return nil
 }
 
@@ -86,9 +87,17 @@ func sortMembers(members []raw.Member) {
 	})
 }
 
+// sortRecipes はレシピを名前順にソートする
+func sortRecipes(recipes []raw.Recipe) {
+	sort.SliceStable(recipes, func(i, j int) bool {
+		return recipes[i].Name < recipes[j].Name
+	})
+}
+
 func (s *Store) save() (retErr error) {
 	sortItems(s.raws.Items)
 	sortMembers(s.raws.Members)
+	sortRecipes(s.raws.Recipes)
 	f, err := os.Create(s.path)
 	if err != nil {
 		return fmt.Errorf("raw.tomlの書き込みに失敗: %w", err)
@@ -204,5 +213,52 @@ func (s *Store) DeleteMember(index int) error {
 		return fmt.Errorf("メンバーインデックスが範囲外: %d", index)
 	}
 	s.raws.Members = append(s.raws.Members[:index], s.raws.Members[index+1:]...)
+	return s.save()
+}
+
+// Recipes はレシピ一覧を返す
+func (s *Store) Recipes() []raw.Recipe {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Recipes
+}
+
+// Recipe は指定インデックスのレシピを返す
+func (s *Store) Recipe(index int) (raw.Recipe, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if index < 0 || index >= len(s.raws.Recipes) {
+		return raw.Recipe{}, fmt.Errorf("レシピインデックスが範囲外: %d", index)
+	}
+	return s.raws.Recipes[index], nil
+}
+
+// UpdateRecipe は指定インデックスのレシピを更新してファイルに保存する
+func (s *Store) UpdateRecipe(index int, recipe raw.Recipe) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if index < 0 || index >= len(s.raws.Recipes) {
+		return fmt.Errorf("レシピインデックスが範囲外: %d", index)
+	}
+	s.raws.Recipes[index] = recipe
+	return s.save()
+}
+
+// AddRecipe は新しいレシピを追加してファイルに保存する
+func (s *Store) AddRecipe(recipe raw.Recipe) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.raws.Recipes = append(s.raws.Recipes, recipe)
+	return s.save()
+}
+
+// DeleteRecipe は指定インデックスのレシピを削除してファイルに保存する
+func (s *Store) DeleteRecipe(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if index < 0 || index >= len(s.raws.Recipes) {
+		return fmt.Errorf("レシピインデックスが範囲外: %d", index)
+	}
+	s.raws.Recipes = append(s.raws.Recipes[:index], s.raws.Recipes[index+1:]...)
 	return s.save()
 }
