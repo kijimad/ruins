@@ -1,6 +1,16 @@
 package editor
 
 var templateText = `
+{{define "header"}}
+<nav class="navbar navbar-dark bg-dark border-bottom px-3" style="height:40px;min-height:40px;">
+  <a class="navbar-brand py-0" href="/" style="font-size:14px;">Ruins Editor</a>
+  <ul class="navbar-nav flex-row gap-2">
+    <li class="nav-item"><a class="nav-link py-0" href="/">Items</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/cutter">Cutter</a></li>
+  </ul>
+</nav>
+{{end}}
+
 {{define "index"}}
 <!DOCTYPE html>
 <html lang="ja" data-bs-theme="dark">
@@ -11,40 +21,40 @@ var templateText = `
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
   <style>
-    .sidebar { width: 280px; min-width: 280px; height: 100vh; overflow-y: auto; }
+    .sidebar { width: 280px; min-width: 280px; overflow-y: auto; }
     .item-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 6px; font-size: 13px; }
     .item-entry:hover { background: rgba(255,255,255,0.05); }
     .item-entry.active { background: rgba(13,110,253,0.25); border-left: 3px solid #0d6efd; }
-    .main-content { flex: 1; height: 100vh; overflow-y: auto; padding: 24px; }
+    .main-content { flex: 1; overflow-y: auto; padding: 24px; }
+    .content-area { height: calc(100vh - 40px); }
   </style>
 </head>
-<body class="d-flex" style="overflow:hidden;">
-  <div class="sidebar border-end p-0 d-flex flex-column">
-    <div class="p-2 border-bottom">
-      <nav class="mb-2">
-        <a href="/" class="btn btn-outline-light btn-sm me-1">Items</a>
-        <a href="/cutter" class="btn btn-outline-light btn-sm">Cutter</a>
-      </nav>
-      <form hx-post="/items/new" hx-target="#edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
-        <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規アイテム">
-        <button type="submit" class="btn btn-primary btn-sm">追加</button>
-      </form>
+<body style="overflow:hidden;">
+  {{template "header" .}}
+  <div class="d-flex content-area">
+    <div class="sidebar border-end p-0 d-flex flex-column">
+      <div class="p-2 border-bottom">
+        <form hx-post="/items/new" hx-target="#edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+          <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規アイテム">
+          <button type="submit" class="btn btn-primary btn-sm">追加</button>
+        </form>
+      </div>
+      <div id="item-count" class="p-1 border-bottom text-secondary" style="font-size:12px;">
+        {{len .Items}} items
+      </div>
+      <div id="item-list" style="overflow-y:auto;flex:1;">
+        {{range .Items}}
+        {{template "item-entry" .}}
+        {{end}}
+      </div>
     </div>
-    <div id="item-count" class="p-1 border-bottom text-secondary" style="font-size:12px;">
-      {{len .Items}} items
-    </div>
-    <div id="item-list" style="overflow-y:auto;flex:1;">
-      {{range .Items}}
-      {{template "item-entry" .}}
+    <div class="main-content" id="edit-panel">
+      {{if .Edit}}
+      {{template "item-edit" .Edit}}
+      {{else}}
+      <div class="text-secondary mt-5 text-center">アイテムを選択してください</div>
       {{end}}
     </div>
-  </div>
-  <div class="main-content" id="edit-panel">
-    {{if .Edit}}
-    {{template "item-edit" .Edit}}
-    {{else}}
-    <div class="text-secondary mt-5 text-center">アイテムを選択してください</div>
-    {{end}}
   </div>
 </body>
 </html>
@@ -195,11 +205,9 @@ var templateText = `
     }
   </style>
 </head>
-<body class="p-4">
-  <nav class="mb-3">
-    <a href="/" class="btn btn-outline-light btn-sm me-2">Items</a>
-    <a href="/cutter" class="btn btn-outline-light btn-sm">Sprite Cutter</a>
-  </nav>
+<body style="overflow:hidden;">
+  {{template "header" .}}
+  <div style="height:calc(100vh - 40px);overflow-y:auto;padding:24px;">
   <h1 class="mb-3">Sprite Cutter</h1>
   <p class="text-secondary">256x256のスプライトシートPNGをアップロードし、32x32の個別スプライトに切り出して名前をつけて保存します。</p>
 
@@ -253,6 +261,7 @@ var templateText = `
   }
   </script>
   {{end}}
+  </div>
 </body>
 </html>
 {{end}}
