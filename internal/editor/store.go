@@ -37,6 +37,7 @@ func (s *Store) load() error {
 	}
 	s.raws = raws
 	sortItems(s.raws.Items)
+	sortMembers(s.raws.Members)
 	return nil
 }
 
@@ -78,8 +79,16 @@ func itemSortKey(item raw.Item) string {
 	return string(key)
 }
 
+// sortMembers はメンバーを名前順にソートする
+func sortMembers(members []raw.Member) {
+	sort.SliceStable(members, func(i, j int) bool {
+		return members[i].Name < members[j].Name
+	})
+}
+
 func (s *Store) save() (retErr error) {
 	sortItems(s.raws.Items)
+	sortMembers(s.raws.Members)
 	f, err := os.Create(s.path)
 	if err != nil {
 		return fmt.Errorf("raw.tomlの書き込みに失敗: %w", err)
@@ -148,5 +157,52 @@ func (s *Store) DeleteItem(index int) error {
 		return fmt.Errorf("アイテムインデックスが範囲外: %d", index)
 	}
 	s.raws.Items = append(s.raws.Items[:index], s.raws.Items[index+1:]...)
+	return s.save()
+}
+
+// Members はメンバー一覧を返す
+func (s *Store) Members() []raw.Member {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Members
+}
+
+// Member は指定インデックスのメンバーを返す
+func (s *Store) Member(index int) (raw.Member, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	if index < 0 || index >= len(s.raws.Members) {
+		return raw.Member{}, fmt.Errorf("メンバーインデックスが範囲外: %d", index)
+	}
+	return s.raws.Members[index], nil
+}
+
+// UpdateMember は指定インデックスのメンバーを更新してファイルに保存する
+func (s *Store) UpdateMember(index int, member raw.Member) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if index < 0 || index >= len(s.raws.Members) {
+		return fmt.Errorf("メンバーインデックスが範囲外: %d", index)
+	}
+	s.raws.Members[index] = member
+	return s.save()
+}
+
+// AddMember は新しいメンバーを追加してファイルに保存する
+func (s *Store) AddMember(member raw.Member) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.raws.Members = append(s.raws.Members, member)
+	return s.save()
+}
+
+// DeleteMember は指定インデックスのメンバーを削除してファイルに保存する
+func (s *Store) DeleteMember(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if index < 0 || index >= len(s.raws.Members) {
+		return fmt.Errorf("メンバーインデックスが範囲外: %d", index)
+	}
+	s.raws.Members = append(s.raws.Members[:index], s.raws.Members[index+1:]...)
 	return s.save()
 }

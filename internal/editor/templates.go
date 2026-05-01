@@ -6,6 +6,7 @@ var templateText = `
   <a class="navbar-brand py-0" href="/" style="font-size:14px;">Ruins Editor</a>
   <ul class="navbar-nav flex-row gap-2">
     <li class="nav-item"><a class="nav-link py-0" href="/">Items</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/members">Members</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/cutter">Cutter</a></li>
   </ul>
 </nav>
@@ -158,6 +159,224 @@ var templateText = `
 {{end}}
 {{end}}
 
+{{define "members"}}
+<!DOCTYPE html>
+<html lang="ja" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruins Editor - Members</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    .sidebar { width: 280px; min-width: 280px; overflow-y: auto; }
+    .member-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .member-entry:hover { background: rgba(255,255,255,0.05); }
+    .member-entry.active { background: rgba(13,110,253,0.25); border-left: 3px solid #0d6efd; }
+    .main-content { flex: 1; overflow-y: auto; padding: 24px; }
+    .content-area { height: calc(100vh - 40px); }
+  </style>
+</head>
+<body style="overflow:hidden;">
+  {{template "header" .}}
+  <div class="d-flex content-area">
+    <div class="sidebar border-end p-0 d-flex flex-column">
+      <div class="p-2 border-bottom">
+        <form hx-post="/members/new" hx-target="#member-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+          <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規メンバー">
+          <button type="submit" class="btn btn-primary btn-sm">追加</button>
+        </form>
+      </div>
+      <div id="member-count" class="p-1 border-bottom text-secondary" style="font-size:12px;">
+        {{len .Items}} members
+      </div>
+      <div id="member-list" style="overflow-y:auto;flex:1;">
+        {{range .Items}}
+        {{template "member-entry" .}}
+        {{end}}
+      </div>
+    </div>
+    <div class="main-content" id="member-edit-panel">
+      {{if .Edit}}
+      {{template "member-edit" .Edit}}
+      {{else}}
+      <div class="text-secondary mt-5 text-center">メンバーを選択してください</div>
+      {{end}}
+    </div>
+  </div>
+</body>
+</html>
+{{end}}
+
+{{define "member-entry"}}
+<div class="member-entry{{if .Active}} active{{end}}" id="mentry-{{.Index}}"
+     hx-get="/members/{{.Index}}/edit" hx-target="#member-edit-panel" hx-swap="innerHTML"
+     onclick="document.querySelectorAll('.member-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+  <span style="{{spriteStyle .Member.SpriteSheetName .Member.SpriteKey 1}}" class="flex-shrink-0"></span>
+  <span class="text-truncate flex-grow-1">{{.Member.Name}}</span>
+  <span class="flex-shrink-0">
+    {{- if derefBool .Member.Player}}<span class="badge text-bg-primary">PC</span>{{end -}}
+    {{- if .Member.IsBoss}}<span class="badge text-bg-danger">Boss</span>{{end -}}
+    {{- if eq .Member.FactionType "FactionAlly"}}<span class="badge text-bg-success">味方</span>{{end -}}
+    {{- if eq .Member.FactionType "FactionEnemy"}}<span class="badge text-bg-warning">敵</span>{{end -}}
+    {{- if eq .Member.FactionType "FactionNeutral"}}<span class="badge text-bg-secondary">中立</span>{{end -}}
+  </span>
+</div>
+{{end}}
+
+{{define "member-list-oob"}}
+<div id="member-list" hx-swap-oob="innerHTML:#member-list">
+{{range .Items}}
+{{template "member-entry" .}}
+{{end}}
+</div>
+{{end}}
+
+{{define "member-count-oob"}}
+<div id="member-count" hx-swap-oob="innerHTML:#member-count">
+  {{len .Items}} members
+</div>
+{{end}}
+
+{{define "member-edit"}}
+{{template "sprite-picker-js"}}
+<form hx-post="/members/{{.Index}}" hx-target="#member-edit-panel" hx-swap="innerHTML">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <span id="sprite-preview" style="{{spriteStyle .Member.SpriteSheetName .Member.SpriteKey 2}}"></span>
+    <h5 class="mb-0 me-auto">{{.Member.Name}}</h5>
+    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/members/{{.Index}}" hx-target="#member-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <label class="form-label">名前</label>
+      <input type="text" class="form-control" name="name" value="{{.Member.Name}}" required>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">スプライトシート</label>
+      <select class="form-select" name="sprite_sheet_name"
+              onchange="document.getElementById('sprite-key-grid').innerHTML='';document.getElementById('sprite-key-grid').removeAttribute('data-sheet');document.getElementById('sprite-key-input').value='';document.getElementById('sprite-key-display').value='';">
+        <option value="">-- 選択 --</option>
+        {{range .SheetNames}}
+        <option value="{{.}}" {{selected $.Member.SpriteSheetName .}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+    <div class="col-md-3 position-relative">
+      <label class="form-label">スプライトキー</label>
+      <input type="hidden" name="sprite_key" id="sprite-key-input" value="{{.Member.SpriteKey}}">
+      <input type="text" class="form-control" id="sprite-key-display" value="{{.Member.SpriteKey}}" readonly onclick="openSpritePicker()" style="cursor:pointer;" placeholder="クリックで選択">
+      <div id="sprite-picker-panel" class="d-none position-absolute bg-body border rounded shadow p-2 mt-1" style="z-index:1050;width:400px;right:0;">
+        <input type="text" class="form-control form-control-sm mb-2" id="sprite-search" placeholder="検索..." oninput="filterSprites(this.value)">
+        <div id="sprite-key-grid" class="d-flex flex-wrap gap-1" style="max-height:200px;overflow-y:auto;"></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">AnimKeys</label>
+      <input type="text" class="form-control" name="anim_keys" value="{{range $i, $k := .Member.AnimKeys}}{{if $i}}, {{end}}{{$k}}{{end}}" placeholder="key1, key2">
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <label class="form-label">所属</label>
+      <select class="form-select" name="faction_type">
+        <option value="" {{if eq .Member.FactionType ""}}selected{{end}}>-- なし --</option>
+        <option value="FactionAlly" {{if eq .Member.FactionType "FactionAlly"}}selected{{end}}>味方</option>
+        <option value="FactionEnemy" {{if eq .Member.FactionType "FactionEnemy"}}selected{{end}}>敵</option>
+        <option value="FactionNeutral" {{if eq .Member.FactionType "FactionNeutral"}}selected{{end}}>中立</option>
+      </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end gap-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="player" id="player-{{.Index}}" {{if derefBool .Member.Player}}checked{{end}}>
+        <label class="form-check-label" for="player-{{.Index}}">プレイヤー</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="is_boss" id="boss-{{.Index}}" {{if .Member.IsBoss}}checked{{end}}>
+        <label class="form-check-label" for="boss-{{.Index}}">ボス</label>
+      </div>
+    </div>
+  </div>
+
+  <h6 class="mt-4 mb-2">能力値</h6>
+  <div class="row g-3 mb-3">
+    <div class="col-md-2">
+      <label class="form-label">体力</label>
+      <input type="number" class="form-control" name="vitality" value="{{.Member.Abilities.Vitality}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">筋力</label>
+      <input type="number" class="form-control" name="strength" value="{{.Member.Abilities.Strength}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">感覚</label>
+      <input type="number" class="form-control" name="sensation" value="{{.Member.Abilities.Sensation}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">器用</label>
+      <input type="number" class="form-control" name="dexterity" value="{{.Member.Abilities.Dexterity}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">敏捷</label>
+      <input type="number" class="form-control" name="agility" value="{{.Member.Abilities.Agility}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">防御</label>
+      <input type="number" class="form-control" name="defense" value="{{.Member.Abilities.Defense}}">
+    </div>
+  </div>
+
+  <h6 class="mt-4 mb-2">
+    <input class="form-check-input me-1" type="checkbox" name="has_light" id="light-{{.Index}}" {{if isNotNil .Member.LightSource}}checked{{end}}
+           onchange="document.getElementById('light-fields-{{.Index}}').classList.toggle('d-none', !this.checked)">
+    <label class="form-check-label" for="light-{{.Index}}">光源</label>
+  </h6>
+  <div id="light-fields-{{.Index}}" class="row g-3 mb-3 {{if not (isNotNil .Member.LightSource)}}d-none{{end}}">
+    <div class="col-md-2">
+      <label class="form-label">範囲</label>
+      <input type="number" class="form-control" name="light_radius" value="{{if isNotNil .Member.LightSource}}{{.Member.LightSource.Radius}}{{else}}4{{end}}">
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="light_enabled" id="light-en-{{.Index}}" {{if isNotNil .Member.LightSource}}{{if .Member.LightSource.Enabled}}checked{{end}}{{end}}>
+        <label class="form-check-label" for="light-en-{{.Index}}">有効</label>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">R</label>
+      <input type="number" class="form-control" name="light_r" min="0" max="255" value="{{if isNotNil .Member.LightSource}}{{.Member.LightSource.Color.R}}{{else}}255{{end}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">G</label>
+      <input type="number" class="form-control" name="light_g" min="0" max="255" value="{{if isNotNil .Member.LightSource}}{{.Member.LightSource.Color.G}}{{else}}255{{end}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">B</label>
+      <input type="number" class="form-control" name="light_b" min="0" max="255" value="{{if isNotNil .Member.LightSource}}{{.Member.LightSource.Color.B}}{{else}}220{{end}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">A</label>
+      <input type="number" class="form-control" name="light_a" min="0" max="255" value="{{if isNotNil .Member.LightSource}}{{.Member.LightSource.Color.A}}{{else}}255{{end}}">
+    </div>
+  </div>
+
+  <h6 class="mt-4 mb-2">
+    <input class="form-check-input me-1" type="checkbox" name="has_dialog" id="dialog-{{.Index}}" {{if isNotNil .Member.Dialog}}checked{{end}}
+           onchange="document.getElementById('dialog-fields-{{.Index}}').classList.toggle('d-none', !this.checked)">
+    <label class="form-check-label" for="dialog-{{.Index}}">会話</label>
+  </h6>
+  <div id="dialog-fields-{{.Index}}" class="row g-3 mb-3 {{if not (isNotNil .Member.Dialog)}}d-none{{end}}">
+    <div class="col-md-6">
+      <label class="form-label">メッセージキー</label>
+      <input type="text" class="form-control" name="dialog_message_key" value="{{if isNotNil .Member.Dialog}}{{.Member.Dialog.MessageKey}}{{end}}">
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-success mt-3">保存</button>
+</form>
+{{end}}
+
 {{define "cutter"}}
 <!DOCTYPE html>
 <html lang="ja" data-bs-theme="dark">
@@ -266,11 +485,7 @@ var templateText = `
 </html>
 {{end}}
 
-{{define "item-edit"}}
-{{$m := melee .Item}}
-{{$f := fire .Item}}
-{{$c := consumable .Item}}
-{{$w := wearable .Item}}
+{{define "sprite-picker-js"}}
 <script>
 function pickSprite(el) {
   document.querySelectorAll('.sprite-option').forEach(function(e) { e.classList.remove('border-primary', 'bg-primary', 'bg-opacity-25'); });
@@ -322,6 +537,14 @@ document.addEventListener('click', function(e) {
   }
 });
 </script>
+{{end}}
+
+{{define "item-edit"}}
+{{$m := melee .Item}}
+{{$f := fire .Item}}
+{{$c := consumable .Item}}
+{{$w := wearable .Item}}
+{{template "sprite-picker-js"}}
 
 <form hx-post="/items/{{.Index}}" hx-target="#edit-panel" hx-swap="innerHTML">
   <div class="d-flex align-items-center gap-3 mb-3">
