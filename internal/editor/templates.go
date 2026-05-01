@@ -10,80 +10,75 @@ var templateText = `
   <title>Ruins Editor</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+  <style>
+    .sidebar { width: 280px; min-width: 280px; height: 100vh; overflow-y: auto; }
+    .item-entry { cursor: pointer; padding: 4px 8px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+    .item-entry:hover { background: rgba(255,255,255,0.05); }
+    .item-entry.active { background: rgba(13,110,253,0.25); border-left: 3px solid #0d6efd; }
+    .main-content { flex: 1; height: 100vh; overflow-y: auto; padding: 24px; }
+  </style>
 </head>
-<body class="p-4">
-  <nav class="mb-3">
-    <a href="/" class="btn btn-outline-light btn-sm me-2">Items</a>
-    <a href="/cutter" class="btn btn-outline-light btn-sm">Sprite Cutter</a>
-  </nav>
-  <h1 class="mb-3">Ruins Editor - Items</h1>
-  <p class="text-secondary">{{len .Items}} items</p>
-
-  <form class="row g-2 align-items-end mb-4" hx-post="/items/new" hx-target="body" hx-swap="innerHTML">
-    <div class="col-auto">
-      <label class="form-label">名前</label>
-      <input type="text" class="form-control" name="name" required placeholder="新しいアイテム名">
+<body class="d-flex" style="overflow:hidden;">
+  <div class="sidebar border-end p-0 d-flex flex-column">
+    <div class="p-2 border-bottom">
+      <nav class="mb-2">
+        <a href="/" class="btn btn-outline-light btn-sm me-1">Items</a>
+        <a href="/cutter" class="btn btn-outline-light btn-sm">Cutter</a>
+      </nav>
+      <form hx-post="/items/new" hx-target="#edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規アイテム">
+        <button type="submit" class="btn btn-primary btn-sm">追加</button>
+      </form>
     </div>
-    <div class="col-auto">
-      <label class="form-label">説明</label>
-      <input type="text" class="form-control" name="description" placeholder="説明">
+    <div id="item-count" class="p-1 border-bottom text-secondary" style="font-size:12px;">
+      {{len .Items}} items
     </div>
-    <div class="col-auto">
-      <button type="submit" class="btn btn-primary">追加</button>
-    </div>
-  </form>
-
-  <script>
-  function closeCurrentEdit() {
-    var editingTr = document.querySelector('tr:has(form)');
-    if (editingTr) {
-      var idx = editingTr.id.replace('item-', '');
-      htmx.ajax('GET', '/items/' + idx, {target: editingTr, swap: 'outerHTML'});
-    }
-  }
-  </script>
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>名前</th>
-        <th>説明</th>
-        <th>種別</th>
-        <th>価値</th>
-        <th>重量</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="item-list">
+    <div id="item-list" style="overflow-y:auto;flex:1;">
       {{range .Items}}
-      {{template "item-row" .}}
+      {{template "item-entry" .}}
       {{end}}
-    </tbody>
-  </table>
+    </div>
+  </div>
+  <div class="main-content" id="edit-panel">
+    {{if .Edit}}
+    {{template "item-edit" .Edit}}
+    {{else}}
+    <div class="text-secondary mt-5 text-center">アイテムを選択してください</div>
+    {{end}}
+  </div>
 </body>
 </html>
 {{end}}
 
-{{define "item-row"}}
-<tr id="item-{{.Index}}" style="cursor:pointer;" hx-get="/items/{{.Index}}/edit" hx-target="#item-{{.Index}}" hx-swap="outerHTML" onclick="closeCurrentEdit()">
-  <td>{{.Index}}</td>
-  <td><span style="{{spriteStyle .Item.SpriteSheetName .Item.SpriteKey 1}}" class="me-1 align-middle"></span>{{.Item.Name}}</td>
-  <td class="text-truncate" style="max-width:300px;">{{.Item.Description}}</td>
-  <td>
-    {{if isNotNil .Item.Weapon}}<span class="badge text-bg-primary">武器</span>{{end}}
-    {{if isNotNil .Item.Wearable}}<span class="badge text-bg-info">防具</span>{{end}}
-    {{if isNotNil .Item.Consumable}}<span class="badge text-bg-success">消費</span>{{end}}
-    {{if isNotNil .Item.Ammo}}<span class="badge text-bg-warning">弾薬</span>{{end}}
-    {{if isNotNil .Item.Book}}<span class="badge text-bg-secondary">本</span>{{end}}
-    {{if isNotNil .Item.Melee}}<span class="badge text-bg-danger">近接</span>{{end}}
-    {{if isNotNil .Item.Fire}}<span class="badge text-bg-danger">射撃</span>{{end}}
-  </td>
-  <td>{{.Item.Value}}</td>
-  <td>{{if isNotNil .Item.Weight}}{{derefFloat .Item.Weight}}{{end}}</td>
-  <td>
-    <button class="btn btn-outline-danger btn-sm" hx-delete="/items/{{.Index}}" hx-target="#item-{{.Index}}" hx-swap="outerHTML" hx-confirm="削除しますか?" onclick="event.stopPropagation();">削除</button>
-  </td>
-</tr>
+{{define "item-entry"}}
+<div class="item-entry{{if .Active}} active{{end}}" id="entry-{{.Index}}"
+     hx-get="/items/{{.Index}}/edit" hx-target="#edit-panel" hx-swap="innerHTML"
+     onclick="document.querySelectorAll('.item-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+  <span style="{{spriteStyle .Item.SpriteSheetName .Item.SpriteKey 1}}" class="flex-shrink-0"></span>
+  <span class="text-truncate flex-grow-1">{{.Item.Name}}</span>
+  <span class="flex-shrink-0">
+    {{- if isNotNil .Item.Melee}}<span class="badge text-bg-danger">近</span>{{end -}}
+    {{- if isNotNil .Item.Fire}}<span class="badge text-bg-danger">射</span>{{end -}}
+    {{- if isNotNil .Item.Wearable}}<span class="badge text-bg-info">防</span>{{end -}}
+    {{- if isNotNil .Item.Consumable}}<span class="badge text-bg-success">消</span>{{end -}}
+    {{- if isNotNil .Item.Ammo}}<span class="badge text-bg-warning">弾</span>{{end -}}
+    {{- if isNotNil .Item.Book}}<span class="badge text-bg-secondary">本</span>{{end -}}
+  </span>
+</div>
+{{end}}
+
+{{define "item-list-oob"}}
+<div id="item-list" hx-swap-oob="innerHTML:#item-list">
+{{range .Items}}
+{{template "item-entry" .}}
+{{end}}
+</div>
+{{end}}
+
+{{define "item-count-oob"}}
+<div id="item-count" hx-swap-oob="innerHTML:#item-count">
+  {{len .Items}} items
+</div>
 {{end}}
 
 {{define "select-target-group"}}
@@ -267,288 +262,281 @@ var templateText = `
 {{$f := fire .Item}}
 {{$c := consumable .Item}}
 {{$w := wearable .Item}}
-<tr id="item-{{.Index}}">
-  <td colspan="7">
-    <form hx-post="/items/{{.Index}}" hx-target="#item-{{.Index}}" hx-swap="outerHTML">
-      <script>
-      function pickSprite(el) {
-        document.querySelectorAll('.sprite-option').forEach(function(e) { e.classList.remove('border-primary', 'bg-primary', 'bg-opacity-25'); });
-        el.classList.add('border-primary', 'bg-primary', 'bg-opacity-25');
-        var key = el.getAttribute('data-key');
-        document.getElementById('sprite-key-input').value = key;
-        document.getElementById('sprite-key-display').value = key;
-        var preview = document.getElementById('sprite-preview');
-        if (preview) { preview.style.cssText = el.querySelector('span').style.cssText; }
-        document.getElementById('sprite-picker-panel').classList.add('d-none');
-      }
-      function openSpritePicker() {
-        var sheet = document.querySelector('[name="sprite_sheet_name"]').value;
-        if (!sheet) return;
-        var panel = document.getElementById('sprite-picker-panel');
-        var grid = document.getElementById('sprite-key-grid');
-        if (grid.children.length === 0 || grid.getAttribute('data-sheet') !== sheet) {
-          grid.setAttribute('data-sheet', sheet);
-          htmx.ajax('GET', '/sprites/' + sheet + '/keys', {target:'#sprite-key-grid', swap:'innerHTML'}).then(function() {
-            highlightCurrent();
-          });
-        }
-        panel.classList.remove('d-none');
-        var search = document.getElementById('sprite-search');
-        search.value = '';
-        search.focus();
-        filterSprites('');
-      }
-      function highlightCurrent() {
-        var current = document.getElementById('sprite-key-input').value;
-        if (!current) return;
-        document.querySelectorAll('.sprite-option').forEach(function(el) {
-          if (el.getAttribute('data-key') === current) {
-            el.classList.add('border-primary', 'bg-primary', 'bg-opacity-25');
-          }
-        });
-      }
-      function filterSprites(query) {
-        var q = query.toLowerCase();
-        document.querySelectorAll('.sprite-option').forEach(function(el) {
-          var key = el.getAttribute('data-key').toLowerCase();
-          el.style.display = key.indexOf(q) !== -1 ? '' : 'none';
-        });
-      }
-      document.addEventListener('click', function(e) {
-        var panel = document.getElementById('sprite-picker-panel');
-        if (panel && !panel.contains(e.target) && e.target.id !== 'sprite-key-display') {
-          panel.classList.add('d-none');
-        }
-      });
-      </script>
+<script>
+function pickSprite(el) {
+  document.querySelectorAll('.sprite-option').forEach(function(e) { e.classList.remove('border-primary', 'bg-primary', 'bg-opacity-25'); });
+  el.classList.add('border-primary', 'bg-primary', 'bg-opacity-25');
+  var key = el.getAttribute('data-key');
+  document.getElementById('sprite-key-input').value = key;
+  document.getElementById('sprite-key-display').value = key;
+  var preview = document.getElementById('sprite-preview');
+  if (preview) { preview.style.cssText = el.querySelector('span').style.cssText; }
+  document.getElementById('sprite-picker-panel').classList.add('d-none');
+}
+function openSpritePicker() {
+  var sheet = document.querySelector('[name="sprite_sheet_name"]').value;
+  if (!sheet) return;
+  var panel = document.getElementById('sprite-picker-panel');
+  var grid = document.getElementById('sprite-key-grid');
+  if (grid.children.length === 0 || grid.getAttribute('data-sheet') !== sheet) {
+    grid.setAttribute('data-sheet', sheet);
+    htmx.ajax('GET', '/sprites/' + sheet + '/keys', {target:'#sprite-key-grid', swap:'innerHTML'}).then(function() {
+      highlightCurrent();
+    });
+  }
+  panel.classList.remove('d-none');
+  var search = document.getElementById('sprite-search');
+  search.value = '';
+  search.focus();
+  filterSprites('');
+}
+function highlightCurrent() {
+  var current = document.getElementById('sprite-key-input').value;
+  if (!current) return;
+  document.querySelectorAll('.sprite-option').forEach(function(el) {
+    if (el.getAttribute('data-key') === current) {
+      el.classList.add('border-primary', 'bg-primary', 'bg-opacity-25');
+    }
+  });
+}
+function filterSprites(query) {
+  var q = query.toLowerCase();
+  document.querySelectorAll('.sprite-option').forEach(function(el) {
+    var key = el.getAttribute('data-key').toLowerCase();
+    el.style.display = key.indexOf(q) !== -1 ? '' : 'none';
+  });
+}
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('sprite-picker-panel');
+  if (panel && !panel.contains(e.target) && e.target.id !== 'sprite-key-display') {
+    panel.classList.add('d-none');
+  }
+});
+</script>
 
-      <div class="d-flex align-items-center gap-3 mb-3">
-        <span id="sprite-preview" style="{{spriteStyle .Item.SpriteSheetName .Item.SpriteKey 2}}"></span>
-        <h5 class="mb-0 me-auto">{{.Item.Name}} を編集</h5>
-        <button type="button" class="btn btn-outline-secondary btn-sm" hx-get="/items/{{.Index}}" hx-target="#item-{{.Index}}" hx-swap="outerHTML">閉じる</button>
+<form hx-post="/items/{{.Index}}" hx-target="#edit-panel" hx-swap="innerHTML">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <span id="sprite-preview" style="{{spriteStyle .Item.SpriteSheetName .Item.SpriteKey 2}}"></span>
+    <h5 class="mb-0 me-auto">{{.Item.Name}}</h5>
+    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/items/{{.Index}}" hx-target="#edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <label class="form-label">名前</label>
+      <input type="text" class="form-control" name="name" value="{{.Item.Name}}" required>
+    </div>
+    <div class="col-md-5">
+      <label class="form-label">説明</label>
+      <input type="text" class="form-control" name="description" value="{{.Item.Description}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">SpriteSheet</label>
+      <select class="form-select" name="sprite_sheet_name"
+              onchange="document.getElementById('sprite-key-grid').innerHTML='';document.getElementById('sprite-key-grid').removeAttribute('data-sheet');document.getElementById('sprite-key-input').value='';document.getElementById('sprite-key-display').value='';">
+        <option value="">-- 選択 --</option>
+        {{range .SheetNames}}
+        <option value="{{.}}" {{selected $.Item.SpriteSheetName .}}>{{.}}</option>
+        {{end}}
+      </select>
+    </div>
+    <div class="col-md-2 position-relative">
+      <label class="form-label">SpriteKey</label>
+      <input type="hidden" name="sprite_key" id="sprite-key-input" value="{{.Item.SpriteKey}}">
+      <input type="text" class="form-control" id="sprite-key-display" value="{{.Item.SpriteKey}}" readonly onclick="openSpritePicker()" style="cursor:pointer;" placeholder="クリックで選択">
+      <div id="sprite-picker-panel" class="d-none position-absolute bg-body border rounded shadow p-2 mt-1" style="z-index:1050;width:400px;right:0;">
+        <input type="text" class="form-control form-control-sm mb-2" id="sprite-search" placeholder="検索..." oninput="filterSprites(this.value)">
+        <div id="sprite-key-grid" class="d-flex flex-wrap gap-1" style="max-height:200px;overflow-y:auto;"></div>
       </div>
+    </div>
+  </div>
 
-      <div class="row g-3 mb-3">
+  <div class="row g-3 mb-3">
+    <div class="col-md-2">
+      <label class="form-label">価値</label>
+      <input type="number" class="form-control" name="value" value="{{.Item.Value}}" required>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">重量</label>
+      <input type="number" class="form-control" name="weight" step="0.01" value="{{if isNotNil .Item.Weight}}{{derefFloat .Item.Weight}}{{end}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">攻撃力</label>
+      <input type="number" class="form-control" name="inflicts_damage" value="{{if isNotNil .Item.InflictsDamage}}{{derefInt .Item.InflictsDamage}}{{end}}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">栄養</label>
+      <input type="number" class="form-control" name="provides_nutrition" value="{{if isNotNil .Item.ProvidesNutrition}}{{derefInt .Item.ProvidesNutrition}}{{end}}">
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" name="stackable" id="stackable-{{.Index}}" {{if derefBool .Item.Stackable}}checked{{end}}>
+        <label class="form-check-label" for="stackable-{{.Index}}">スタック可能</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" name="has_consumable" id="cons-{{.Index}}" {{if isNotNil .Item.Consumable}}checked{{end}}>
+        <label class="form-check-label" for="cons-{{.Index}}">消費アイテム</label>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">使用場面</label>
+          {{template "select-usable-scene" (selectData "consumable_usable_scene" $c.UsableScene)}}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">対象グループ</label>
+          {{template "select-target-group" (selectData "consumable_target_group" $c.TargetGroup)}}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">対象数</label>
+          {{template "select-target-num" (selectData "consumable_target_num" $c.TargetNum)}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" name="has_melee" id="melee-{{.Index}}" {{if isNotNil .Item.Melee}}checked{{end}}>
+        <label class="form-check-label" for="melee-{{.Index}}">近接攻撃</label>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-2">
+        <div class="col-md-2">
+          <label class="form-label">命中</label>
+          <input type="number" class="form-control" name="melee_accuracy" value="{{$m.Accuracy}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">ダメージ</label>
+          <input type="number" class="form-control" name="melee_damage" value="{{$m.Damage}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">回数</label>
+          <input type="number" class="form-control" name="melee_attack_count" value="{{$m.AttackCount}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">コスト</label>
+          <input type="number" class="form-control" name="melee_cost" value="{{$m.Cost}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">属性</label>
+          {{template "select-element" (selectData "melee_element" $m.Element)}}
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">種別</label>
+          {{template "select-attack-category" (selectData "melee_attack_category" $m.AttackCategory)}}
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-2">
+          <label class="form-label">対象グループ</label>
+          {{template "select-target-group" (selectData "melee_target_group" $m.TargetGroup)}}
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">対象数</label>
+          {{template "select-target-num" (selectData "melee_target_num" $m.TargetNum)}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" name="has_fire" id="fire-{{.Index}}" {{if isNotNil .Item.Fire}}checked{{end}}>
+        <label class="form-check-label" for="fire-{{.Index}}">射撃</label>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 mb-2">
+        <div class="col-md-2">
+          <label class="form-label">命中</label>
+          <input type="number" class="form-control" name="fire_accuracy" value="{{$f.Accuracy}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">ダメージ</label>
+          <input type="number" class="form-control" name="fire_damage" value="{{$f.Damage}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">回数</label>
+          <input type="number" class="form-control" name="fire_attack_count" value="{{$f.AttackCount}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">コスト</label>
+          <input type="number" class="form-control" name="fire_cost" value="{{$f.Cost}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">属性</label>
+          {{template "select-element" (selectData "fire_element" $f.Element)}}
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">種別</label>
+          {{template "select-attack-category" (selectData "fire_attack_category" $f.AttackCategory)}}
+        </div>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-2">
+          <label class="form-label">弾倉</label>
+          <input type="number" class="form-control" name="fire_magazine_size" value="{{$f.MagazineSize}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">装填工数</label>
+          <input type="number" class="form-control" name="fire_reload_effort" value="{{$f.ReloadEffort}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">弾薬タグ</label>
+          <input type="text" class="form-control" name="fire_ammo_tag" value="{{$f.AmmoTag}}">
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">対象グループ</label>
+          {{template "select-target-group" (selectData "fire_target_group" $f.TargetGroup)}}
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">対象数</label>
+          {{template "select-target-num" (selectData "fire_target_num" $f.TargetNum)}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-header">
+      <div class="form-check">
+        <input type="checkbox" class="form-check-input" name="has_wearable" id="wear-{{.Index}}" {{if isNotNil .Item.Wearable}}checked{{end}}>
+        <label class="form-check-label" for="wear-{{.Index}}">防具</label>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="row g-3">
         <div class="col-md-3">
-          <label class="form-label">名前</label>
-          <input type="text" class="form-control" name="name" value="{{.Item.Name}}" required>
+          <label class="form-label">防御力</label>
+          <input type="number" class="form-control" name="wearable_defense" value="{{$w.Defense}}">
         </div>
-        <div class="col-md-5">
-          <label class="form-label">説明</label>
-          <input type="text" class="form-control" name="description" value="{{.Item.Description}}">
+        <div class="col-md-3">
+          <label class="form-label">装備種別</label>
+          {{template "select-equipment-category" (selectData "wearable_equipment_category" $w.EquipmentCategory)}}
         </div>
-        <div class="col-md-2">
-          <label class="form-label">SpriteSheet</label>
-          <select class="form-select" name="sprite_sheet_name"
-                  onchange="document.getElementById('sprite-key-grid').innerHTML='';document.getElementById('sprite-key-grid').removeAttribute('data-sheet');document.getElementById('sprite-key-input').value='';document.getElementById('sprite-key-display').value='';">
-            <option value="">-- 選択 --</option>
-            {{range .SheetNames}}
-            <option value="{{.}}" {{selected $.Item.SpriteSheetName .}}>{{.}}</option>
-            {{end}}
-          </select>
+        <div class="col-md-3">
+          <label class="form-label">耐寒</label>
+          <input type="number" class="form-control" name="wearable_insulation_cold" value="{{$w.InsulationCold}}">
         </div>
-        <div class="col-md-2 position-relative">
-          <label class="form-label">SpriteKey</label>
-          <input type="hidden" name="sprite_key" id="sprite-key-input" value="{{.Item.SpriteKey}}">
-          <input type="text" class="form-control" id="sprite-key-display" value="{{.Item.SpriteKey}}" readonly onclick="openSpritePicker()" style="cursor:pointer;" placeholder="クリックで選択">
-          <div id="sprite-picker-panel" class="d-none position-absolute bg-body border rounded shadow p-2 mt-1" style="z-index:1050;width:400px;right:0;">
-            <input type="text" class="form-control form-control-sm mb-2" id="sprite-search" placeholder="検索..." oninput="filterSprites(this.value)">
-            <div id="sprite-key-grid" class="d-flex flex-wrap gap-1" style="max-height:200px;overflow-y:auto;"></div>
-          </div>
+        <div class="col-md-3">
+          <label class="form-label">耐暑</label>
+          <input type="number" class="form-control" name="wearable_insulation_heat" value="{{$w.InsulationHeat}}">
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-md-2">
-          <label class="form-label">価値</label>
-          <input type="number" class="form-control" name="value" value="{{.Item.Value}}" required>
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">重量</label>
-          <input type="number" class="form-control" name="weight" step="0.01" value="{{if isNotNil .Item.Weight}}{{derefFloat .Item.Weight}}{{end}}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">攻撃力</label>
-          <input type="number" class="form-control" name="inflicts_damage" value="{{if isNotNil .Item.InflictsDamage}}{{derefInt .Item.InflictsDamage}}{{end}}">
-        </div>
-        <div class="col-md-2">
-          <label class="form-label">栄養</label>
-          <input type="number" class="form-control" name="provides_nutrition" value="{{if isNotNil .Item.ProvidesNutrition}}{{derefInt .Item.ProvidesNutrition}}{{end}}">
-        </div>
-        <div class="col-md-2 d-flex align-items-end">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" name="stackable" id="stackable-{{.Index}}" {{if derefBool .Item.Stackable}}checked{{end}}>
-            <label class="form-check-label" for="stackable-{{.Index}}">スタック可能</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" name="has_consumable" id="cons-{{.Index}}" {{if isNotNil .Item.Consumable}}checked{{end}}>
-            <label class="form-check-label" for="cons-{{.Index}}">消費アイテム</label>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-4">
-              <label class="form-label">使用場面</label>
-              {{template "select-usable-scene" (selectData "consumable_usable_scene" $c.UsableScene)}}
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">対象グループ</label>
-              {{template "select-target-group" (selectData "consumable_target_group" $c.TargetGroup)}}
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">対象数</label>
-              {{template "select-target-num" (selectData "consumable_target_num" $c.TargetNum)}}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" name="has_melee" id="melee-{{.Index}}" {{if isNotNil .Item.Melee}}checked{{end}}>
-            <label class="form-check-label" for="melee-{{.Index}}">近接攻撃</label>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row g-3 mb-2">
-            <div class="col-md-2">
-              <label class="form-label">命中</label>
-              <input type="number" class="form-control" name="melee_accuracy" value="{{$m.Accuracy}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">ダメージ</label>
-              <input type="number" class="form-control" name="melee_damage" value="{{$m.Damage}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">回数</label>
-              <input type="number" class="form-control" name="melee_attack_count" value="{{$m.AttackCount}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">コスト</label>
-              <input type="number" class="form-control" name="melee_cost" value="{{$m.Cost}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">属性</label>
-              {{template "select-element" (selectData "melee_element" $m.Element)}}
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">種別</label>
-              {{template "select-attack-category" (selectData "melee_attack_category" $m.AttackCategory)}}
-            </div>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-2">
-              <label class="form-label">対象グループ</label>
-              {{template "select-target-group" (selectData "melee_target_group" $m.TargetGroup)}}
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">対象数</label>
-              {{template "select-target-num" (selectData "melee_target_num" $m.TargetNum)}}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" name="has_fire" id="fire-{{.Index}}" {{if isNotNil .Item.Fire}}checked{{end}}>
-            <label class="form-check-label" for="fire-{{.Index}}">射撃</label>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row g-3 mb-2">
-            <div class="col-md-2">
-              <label class="form-label">命中</label>
-              <input type="number" class="form-control" name="fire_accuracy" value="{{$f.Accuracy}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">ダメージ</label>
-              <input type="number" class="form-control" name="fire_damage" value="{{$f.Damage}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">回数</label>
-              <input type="number" class="form-control" name="fire_attack_count" value="{{$f.AttackCount}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">コスト</label>
-              <input type="number" class="form-control" name="fire_cost" value="{{$f.Cost}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">属性</label>
-              {{template "select-element" (selectData "fire_element" $f.Element)}}
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">種別</label>
-              {{template "select-attack-category" (selectData "fire_attack_category" $f.AttackCategory)}}
-            </div>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-2">
-              <label class="form-label">弾倉</label>
-              <input type="number" class="form-control" name="fire_magazine_size" value="{{$f.MagazineSize}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">装填工数</label>
-              <input type="number" class="form-control" name="fire_reload_effort" value="{{$f.ReloadEffort}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">弾薬タグ</label>
-              <input type="text" class="form-control" name="fire_ammo_tag" value="{{$f.AmmoTag}}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">対象グループ</label>
-              {{template "select-target-group" (selectData "fire_target_group" $f.TargetGroup)}}
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">対象数</label>
-              {{template "select-target-num" (selectData "fire_target_num" $f.TargetNum)}}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-header">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" name="has_wearable" id="wear-{{.Index}}" {{if isNotNil .Item.Wearable}}checked{{end}}>
-            <label class="form-check-label" for="wear-{{.Index}}">防具</label>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-3">
-              <label class="form-label">防御力</label>
-              <input type="number" class="form-control" name="wearable_defense" value="{{$w.Defense}}">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">装備種別</label>
-              {{template "select-equipment-category" (selectData "wearable_equipment_category" $w.EquipmentCategory)}}
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">耐寒</label>
-              <input type="number" class="form-control" name="wearable_insulation_cold" value="{{$w.InsulationCold}}">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">耐暑</label>
-              <input type="number" class="form-control" name="wearable_insulation_heat" value="{{$w.InsulationHeat}}">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">保存</button>
-        <button type="button" class="btn btn-secondary" hx-get="/items/{{.Index}}" hx-target="#item-{{.Index}}" hx-swap="outerHTML">キャンセル</button>
-      </div>
-    </form>
-  </td>
-</tr>
+  <button type="submit" class="btn btn-primary">保存</button>
+</form>
 {{end}}
 `

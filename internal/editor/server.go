@@ -44,8 +44,9 @@ type Server struct {
 
 // indexItem はテンプレートに渡すアイテム行データ
 type indexItem struct {
-	Index int
-	Item  raw.Item
+	Index  int
+	Item   raw.Item
+	Active bool
 }
 
 // editData はアイテム編集テンプレートに渡すデータ
@@ -53,6 +54,12 @@ type editData struct {
 	Index      int
 	Item       raw.Item
 	SheetNames []string
+}
+
+// indexData はindexテンプレートに渡すデータ
+type indexData struct {
+	Items []indexItem
+	Edit  *editData
 }
 
 // spriteGridData はスプライトグリッドテンプレートに渡すデータ
@@ -291,16 +298,61 @@ func (s *Server) handleSpritePNG(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleIndex(w http.ResponseWriter, _ *http.Request) {
+	s.renderIndex(w, -1)
+}
+
+func (s *Server) renderIndex(w http.ResponseWriter, activeIndex int) {
 	items := s.store.Items()
 	rows := make([]indexItem, len(items))
 	for i, item := range items {
-		rows[i] = indexItem{Index: i, Item: item}
+		rows[i] = indexItem{Index: i, Item: item, Active: i == activeIndex}
 	}
-	data := struct {
-		Items []indexItem
-	}{Items: rows}
+	data := indexData{Items: rows}
+	if activeIndex >= 0 && activeIndex < len(items) {
+		data.Edit = &editData{
+			Index:      activeIndex,
+			Item:       items[activeIndex],
+			SheetNames: s.sheetNames(),
+		}
+	}
 	if err := s.templates.ExecuteTemplate(w, "index", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// renderPartial はedit-panel向けに編集フォームを返し、OOBでサイドバーリストも更新する。
+// サイドバーのスクロール位置はinnerHTMLの更新では維持される
+func (s *Server) renderPartial(w http.ResponseWriter, activeIndex int) {
+	items := s.store.Items()
+	rows := make([]indexItem, len(items))
+	for i, item := range items {
+		rows[i] = indexItem{Index: i, Item: item, Active: i == activeIndex}
+	}
+	data := indexData{Items: rows}
+
+	// edit-panelの中身を返す
+	if activeIndex >= 0 && activeIndex < len(items) {
+		ed := editData{
+			Index:      activeIndex,
+			Item:       items[activeIndex],
+			SheetNames: s.sheetNames(),
+		}
+		if err := s.templates.ExecuteTemplate(w, "item-edit", ed); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	} else {
+		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">アイテムを選択してください</div>`); err != nil {
+			log.Printf("レスポンス書き込みに失敗: %v", err)
+		}
+	}
+
+	// OOBでサイドバーリストを更新する
+	if err := s.templates.ExecuteTemplate(w, "item-list-oob", data); err != nil {
+		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
+	}
+	if err := s.templates.ExecuteTemplate(w, "item-count-oob", data); err != nil {
+		log.Printf("アイテム数OOBレンダリングに失敗: %v", err)
 	}
 }
 
@@ -315,7 +367,7 @@ func (s *Server) handleItemRow(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	if err := s.templates.ExecuteTemplate(w, "item-row", indexItem{Index: index, Item: item}); err != nil {
+	if err := s.templates.ExecuteTemplate(w, "item-entry", indexItem{Index: index, Item: item}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -359,6 +411,16 @@ func (s *Server) handleSpriteKeys(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// findItemIndex は名前からアイテムのインデックスを返す。見つからなければ-1を返す
+func (s *Server) findItemIndex(name string) int {
+	for i, item := range s.store.Items() {
+		if item.Name == name {
+			return i
+		}
+	}
+	return -1
+}
+
 // sheetNames は読み込み済みスプライトシート名の一覧をソート済みで返す
 func (s *Server) sheetNames() []string {
 	names := make([]string, 0, len(s.sprites))
@@ -393,10 +455,9 @@ func (s *Server) handleItemUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ソートによりインデックスが変わるため全ページ再描画する
-	w.Header().Set("HX-Retarget", "body")
-	w.Header().Set("HX-Reswap", "innerHTML")
-	s.handleIndex(w, r)
+	// ソートによりインデックスが変わるため、更新後の名前でインデックスを探す
+	newIndex := s.findItemIndex(item.Name)
+	s.renderPartial(w, newIndex)
 }
 
 func (s *Server) handleItemCreate(w http.ResponseWriter, r *http.Request) {
@@ -419,8 +480,8 @@ func (s *Server) handleItemCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ページ全体を再描画
-	s.handleIndex(w, r)
+	newIndex := s.findItemIndex(name)
+	s.renderPartial(w, newIndex)
 }
 
 func (s *Server) handleItemDelete(w http.ResponseWriter, r *http.Request) {
@@ -433,7 +494,7 @@ func (s *Server) handleItemDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	s.renderPartial(w, -1)
 }
 
 func (s *Server) handleCutter(w http.ResponseWriter, _ *http.Request) {
