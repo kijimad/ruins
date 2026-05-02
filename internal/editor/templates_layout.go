@@ -1,0 +1,147 @@
+package editor
+
+var templateTextLayout = `
+{{define "layouts"}}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruins Editor - Layouts</title>
+  {{template "common-head"}}{{template "sidebar-style"}}
+  <style>
+    .map-textarea {
+      font-family: monospace;
+      font-size: 14px;
+      line-height: 1.2;
+      tab-size: 1;
+      white-space: pre;
+      overflow: auto;
+      resize: both;
+    }
+    .preview-grid {
+      display: inline-grid;
+      gap: 0;
+      image-rendering: pixelated;
+    }
+    .preview-cell {
+      width: 32px;
+      height: 32px;
+      position: relative;
+      background: #111;
+    }
+    .preview-cell .sprite-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 32px;
+      height: 32px;
+      image-rendering: pixelated;
+    }
+    .preview-cell-char {
+      color: #666;
+      font-size: 10px;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+    }
+  </style>
+</head>
+<body style="overflow:hidden;">
+  {{template "header" .}}
+  <div class="d-flex content-area">
+    <div class="sidebar border-end p-0 d-flex flex-column">
+      <div id="layout-count" class="p-1 border-bottom text-secondary" style="font-size:12px;">{{len .Items}} chunks</div>
+      <div id="layout-list" style="overflow-y:auto;flex:1;">
+        {{range .Items}}{{template "layout-entry" .}}{{end}}
+      </div>
+    </div>
+    <div class="main-content" id="layout-edit-panel">
+      {{if .Edit}}{{template "layout-edit" .Edit}}{{else}}<div class="text-secondary mt-5 text-center">チャンクを選択してください</div>{{end}}
+    </div>
+  </div>
+</body>
+</html>
+{{end}}
+
+{{define "layout-entry"}}
+<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/layouts/{{.FileKey}}/{{.ChunkName}}/edit" hx-target="#layout-edit-panel" hx-swap="innerHTML"
+     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+  <span class="badge text-bg-info" style="font-size:10px;">{{.DirName}}</span>
+  <span class="text-truncate flex-grow-1">{{.ChunkName}}</span>
+</div>
+{{end}}
+
+{{define "layout-list-oob"}}
+<div id="layout-list" hx-swap-oob="innerHTML:#layout-list">{{range .Items}}{{template "layout-entry" .}}{{end}}</div>
+{{end}}
+
+{{define "layout-count-oob"}}
+<div id="layout-count" hx-swap-oob="innerHTML:#layout-count">{{len .Items}} chunks</div>
+{{end}}
+
+{{define "layout-edit"}}
+<div class="d-flex align-items-center gap-3 mb-3">
+  <h5 class="mb-0 me-auto">{{.ChunkName}}</h5>
+  <span class="text-secondary" style="font-size:12px;">{{.DirName}}/{{.FileName}}</span>
+</div>
+
+<div class="mb-2">
+  <span class="badge text-bg-secondary">パレット: {{range .Chunk.Palettes}}{{.}} {{end}}</span>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <h6>マップ編集</h6>
+    <form hx-post="/layouts/{{.FileKey}}/{{.ChunkName}}" hx-target="#layout-edit-panel" hx-swap="innerHTML">
+      <textarea name="map_content" class="form-control map-textarea mb-2" rows="25">{{.Chunk.Map}}</textarea>
+      <button type="submit" class="btn btn-success btn-sm">保存</button>
+      <button type="button" class="btn btn-outline-primary btn-sm mt-1"
+              hx-post="/layouts/{{.FileKey}}/{{.ChunkName}}/preview"
+              hx-target="#preview-container" hx-swap="innerHTML">プレビュー更新</button>
+    </form>
+    {{if .CheatSheet}}
+    <details class="mt-3" open>
+      <summary class="fw-bold" style="font-size:13px;cursor:pointer;">文字チートシート</summary>
+      <table class="table table-sm table-bordered mt-1" style="font-size:12px;">
+        <thead><tr><th style="width:32px;"></th><th>文字</th><th>種別</th><th>名前</th></tr></thead>
+        <tbody>
+          {{range .CheatSheet}}<tr>
+            <td style="padding:0;"><div style="width:32px;height:32px;position:relative;background:#111;image-rendering:pixelated;">{{if .Style}}<div style="width:32px;height:32px;{{.Style}}"></div>{{end}}</div></td>
+            <td><code>{{.Char}}</code></td>
+            <td>{{.Category}}</td>
+            <td>{{.Name}}</td>
+          </tr>{{end}}
+        </tbody>
+      </table>
+    </details>
+    {{end}}
+  </div>
+  <div class="col-md-6">
+    <h6>プレビュー</h6>
+    <div id="preview-container" style="overflow:auto;max-height:calc(100vh - 200px);"
+         hx-get="/layouts/{{.FileKey}}/{{.ChunkName}}/preview"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+      <div class="text-secondary">読み込み中...</div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{define "layout-preview"}}
+<div class="preview-grid" style="grid-template-columns:repeat({{.Cols}}, 32px);">
+  {{range .Cells -}}
+  <div class="preview-cell" title="{{.Char}}{{if .Terrain}} → {{.Terrain}}{{end}}{{if .Prop}} [prop: {{.Prop}}]{{end}}{{if .NPC}} [npc: {{.NPC}}]{{end}}">
+    {{- if .Sprites -}}
+      {{- range .Sprites}}<div class="sprite-layer" style="{{.Style}}"></div>{{end -}}
+    {{- else -}}
+      <div class="preview-cell-char">{{.Char}}</div>
+    {{- end -}}
+  </div>
+  {{- end}}
+</div>
+{{end}}
+`

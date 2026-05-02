@@ -31,10 +31,12 @@ type spriteFrame struct {
 
 // Server はエディタのHTTPサーバー
 type Server struct {
-	store     *Store
-	templates *template.Template
-	assetsFS  fs.FS
-	outputDir string
+	store        *Store
+	paletteStore *PaletteStore
+	layoutStore  *LayoutStore
+	templates    *template.Template
+	assetsFS     fs.FS
+	outputDir    string
 	// sheetName → spriteKey → frame
 	sprites map[string]map[string]spriteFrame
 	// sheetName → PNG相対パス
@@ -213,7 +215,11 @@ func NewServer(store *Store, opts ...ServerOption) *Server {
 		}
 		f, ok := frames[spriteKey]
 		if !ok {
-			return ""
+			// オートタイルの場合、ベースキーに_0を付加して探す
+			f, ok = frames[spriteKey+"_0"]
+			if !ok {
+				return ""
+			}
 		}
 		size, ok := s.sheetSizes[sheetName]
 		if !ok {
@@ -225,7 +231,11 @@ func NewServer(store *Store, opts ...ServerOption) *Server {
 		))
 	}
 	s.templates = template.Must(
-		template.Must(template.New("").Funcs(funcMap).Parse(templateText)).Parse(templateTextExtra),
+		template.Must(
+			template.Must(
+				template.Must(template.New("").Funcs(funcMap).Parse(templateText)).Parse(templateTextExtra),
+			).Parse(templateTextPalette),
+		).Parse(templateTextLayout),
 	)
 	return s
 }
@@ -244,6 +254,20 @@ func WithAssetsFS(fsys fs.FS) ServerOption {
 func WithOutputDir(dir string) ServerOption {
 	return func(s *Server) {
 		s.outputDir = dir
+	}
+}
+
+// WithPaletteStore はパレットストアを設定する
+func WithPaletteStore(ps *PaletteStore) ServerOption {
+	return func(s *Server) {
+		s.paletteStore = ps
+	}
+}
+
+// WithLayoutStore はレイアウトストアを設定する
+func WithLayoutStore(ls *LayoutStore) ServerOption {
+	return func(s *Server) {
+		s.layoutStore = ls
 	}
 }
 
@@ -376,6 +400,22 @@ func (s *Server) ListenAndServe(addr string) error {
 	mux.HandleFunc("POST /cutter/upload", s.handleCutterUpload)
 	mux.HandleFunc("GET /cutter/preview", s.handleCutterPreview)
 	mux.HandleFunc("POST /cutter/save", s.handleCutterSave)
+
+	if s.paletteStore != nil {
+		mux.HandleFunc("GET /palettes", s.handlePalettes)
+		mux.HandleFunc("GET /palettes/{id}/edit", s.handlePaletteEdit)
+		mux.HandleFunc("POST /palettes/{id}", s.handlePaletteUpdate)
+		mux.HandleFunc("POST /palettes/new", s.handlePaletteCreate)
+		mux.HandleFunc("DELETE /palettes/{id}", s.handlePaletteDelete)
+	}
+
+	if s.layoutStore != nil {
+		mux.HandleFunc("GET /layouts", s.handleLayouts)
+		mux.HandleFunc("GET /layouts/{dir}/{file}/{chunk}/edit", s.handleLayoutEdit)
+		mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}", s.handleLayoutUpdate)
+		mux.HandleFunc("GET /layouts/{dir}/{file}/{chunk}/preview", s.handleLayoutPreview)
+		mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}/preview", s.handleLayoutPreview)
+	}
 
 	if s.assetsFS != nil {
 		mux.HandleFunc("GET /sprites/{name}", s.handleSpritePNG)

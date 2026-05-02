@@ -38,6 +38,8 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
     <li class="nav-item"><a class="nav-link py-0" href="/professions">Professions</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/sprite-sheets">Sheets</a></li>
     <li class="nav-item"><a class="nav-link py-0" href="/cutter">Cutter</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/palettes">Palettes</a></li>
+    <li class="nav-item"><a class="nav-link py-0" href="/layouts">Layouts</a></li>
   </ul>
 </nav>
 {{end}}

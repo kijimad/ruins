@@ -51,8 +51,8 @@ type ChunkPlacement struct {
 // SpawnPoint はスポーン地点の配置情報
 // TOMLから読み込んだ後、mapplannerで使用される
 type SpawnPoint struct {
-	X int `toml:"x"` // X座標
-	Y int `toml:"y"` // Y座標
+	X int `toml:"x" json:"x"` // X座標
+	Y int `toml:"y" json:"y"` // Y座標
 }
 
 // ChunkTemplateFile はTOMLファイルのルート構造
@@ -231,6 +231,16 @@ func (l *TemplateLoader) GetChunks(chunkName string) ([]*ChunkTemplate, error) {
 		return nil, fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
 	}
 	return chunks, nil
+}
+
+// RegisterChunk はチャンクテンプレートをキャッシュに登録する
+func (l *TemplateLoader) RegisterChunk(t *ChunkTemplate) {
+	l.chunkCache[t.Name] = append(l.chunkCache[t.Name], t)
+}
+
+// RegisterPalette はパレットをキャッシュに登録する
+func (l *TemplateLoader) RegisterPalette(p *Palette) {
+	l.paletteCache[p.ID] = p
 }
 
 // RegisterAllChunks は指定されたディレクトリ配下のすべての.tomlファイルをチャンクとして登録する
