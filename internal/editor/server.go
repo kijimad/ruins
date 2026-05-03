@@ -1976,7 +1976,7 @@ func parsePropForm(r *http.Request, p raw.PropRaw) raw.PropRaw {
 		cg, _ := strconv.Atoi(r.FormValue("light_g"))
 		cb, _ := strconv.Atoi(r.FormValue("light_b"))
 		ca, _ := strconv.Atoi(r.FormValue("light_a"))
-		p.LightSource.Color = color.RGBA{R: uint8(cr), G: uint8(cg), B: uint8(cb), A: uint8(ca)}
+		p.LightSource.Color = color.RGBA{R: clampUint8(cr), G: clampUint8(cg), B: clampUint8(cb), A: clampUint8(ca)}
 	} else {
 		p.LightSource = nil
 	}
@@ -2404,7 +2404,7 @@ func parseMemberForm(r *http.Request, m raw.Member) raw.Member {
 		cg, _ := strconv.Atoi(r.FormValue("light_g"))
 		cb, _ := strconv.Atoi(r.FormValue("light_b"))
 		ca, _ := strconv.Atoi(r.FormValue("light_a"))
-		m.LightSource.Color = color.RGBA{R: uint8(cr), G: uint8(cg), B: uint8(cb), A: uint8(ca)}
+		m.LightSource.Color = color.RGBA{R: clampUint8(cr), G: clampUint8(cg), B: clampUint8(cb), A: clampUint8(ca)}
 	} else {
 		m.LightSource = nil
 	}
@@ -2505,7 +2505,7 @@ func (s *Server) handleCutterSave(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			filename := name + "_.png"
+			filename := filepath.Base(name) + "_.png"
 			path := filepath.Join(s.outputDir, filename)
 			if err := savePNG(path, cell); err != nil {
 				http.Error(w, fmt.Sprintf("%s の保存に失敗: %v", name, err), http.StatusInternalServerError)
@@ -2560,6 +2560,17 @@ func isTransparent(img *image.RGBA) bool {
 		}
 	}
 	return true
+}
+
+// clampUint8 はintを0-255の範囲にクランプしてuint8に変換する
+func clampUint8(v int) uint8 {
+	if v < 0 {
+		return 0
+	}
+	if v > 255 {
+		return 255
+	}
+	return uint8(v)
 }
 
 func savePNG(path string, img image.Image) error {

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -83,8 +84,20 @@ func (ps *PaletteStore) Get(id string) (*maptemplate.Palette, error) {
 	return ps.loadFile(id)
 }
 
+// safePath はIDからパストラバーサルを防いだファイルパスを返す
+func (ps *PaletteStore) safePath(id string) (string, error) {
+	safe := filepath.Base(id)
+	if safe != id || safe == "." || safe == ".." || strings.ContainsAny(safe, `/\`) {
+		return "", fmt.Errorf("不正なパレットIDです: %q", id)
+	}
+	return filepath.Join(ps.dir, safe+".toml"), nil
+}
+
 func (ps *PaletteStore) loadFile(id string) (*maptemplate.Palette, error) {
-	path := filepath.Join(ps.dir, id+".toml")
+	path, err := ps.safePath(id)
+	if err != nil {
+		return nil, err
+	}
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("パレットファイルが見つかりません: %w", err)
@@ -100,13 +113,16 @@ func (ps *PaletteStore) Save(p *maptemplate.Palette) error {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 
+	path, err := ps.safePath(p.ID)
+	if err != nil {
+		return err
+	}
+
 	file := maptemplate.PaletteFile{Palette: *p}
 	data, err := toml.Marshal(file)
 	if err != nil {
 		return fmt.Errorf("パレットTOMLマーシャルエラー: %w", err)
 	}
-
-	path := filepath.Join(ps.dir, p.ID+".toml")
 	if err := os.WriteFile(path, data, 0o644); err != nil {
 		return fmt.Errorf("パレットファイル書き込みエラー: %w", err)
 	}
@@ -119,7 +135,10 @@ func (ps *PaletteStore) Delete(id string) error {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 
-	path := filepath.Join(ps.dir, id+".toml")
+	path, err := ps.safePath(id)
+	if err != nil {
+		return err
+	}
 	if err := os.Remove(path); err != nil {
 		return fmt.Errorf("パレットファイル削除エラー: %w", err)
 	}
