@@ -132,14 +132,42 @@ func (s *Store) save() (retErr error) {
 	return nil
 }
 
-// SpriteSheets はスプライトシート一覧を返す
-func (s *Store) SpriteSheets() []raw.SpriteSheet {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return s.raws.SpriteSheets
+// getAt はスライスから指定インデックスの要素を取得する
+func getAt[T any](slice []T, index int, label string) (T, error) {
+	if index < 0 || index >= len(slice) {
+		var zero T
+		return zero, fmt.Errorf("%sインデックスが範囲外: %d", label, index)
+	}
+	return slice[index], nil
 }
 
-// Items はアイテム一覧を返す
+// updateAt はスライスの指定インデックスを更新して保存する
+func updateAt[T any](s *Store, slice *[]T, index int, v T, label string) error {
+	if index < 0 || index >= len(*slice) {
+		return fmt.Errorf("%sインデックスが範囲外: %d", label, index)
+	}
+	(*slice)[index] = v
+	return s.save()
+}
+
+// addTo はスライスに要素を追加して保存する
+func addTo[T any](s *Store, slice *[]T, v T) error {
+	*slice = append(*slice, v)
+	return s.save()
+}
+
+// deleteAt はスライスから指定インデックスの要素を削除して保存する
+func deleteAt[T any](s *Store, slice *[]T, index int, label string) error {
+	if index < 0 || index >= len(*slice) {
+		return fmt.Errorf("%sインデックスが範囲外: %d", label, index)
+	}
+	*slice = append((*slice)[:index], (*slice)[index+1:]...)
+	return s.save()
+}
+
+// ================== アイテム ==================
+
+// Items はすべてのアイテムを返す
 func (s *Store) Items() []raw.Item {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -150,43 +178,33 @@ func (s *Store) Items() []raw.Item {
 func (s *Store) Item(index int) (raw.Item, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.Items) {
-		return raw.Item{}, fmt.Errorf("アイテムインデックスが範囲外: %d", index)
-	}
-	return s.raws.Items[index], nil
+	return getAt(s.raws.Items, index, "アイテム")
 }
 
-// UpdateItem は指定インデックスのアイテムを更新してファイルに保存する
+// UpdateItem は指定インデックスのアイテムを更新する
 func (s *Store) UpdateItem(index int, item raw.Item) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Items) {
-		return fmt.Errorf("アイテムインデックスが範囲外: %d", index)
-	}
-	s.raws.Items[index] = item
-	return s.save()
+	return updateAt(s, &s.raws.Items, index, item, "アイテム")
 }
 
-// AddItem は新しいアイテムを追加してファイルに保存する
+// AddItem は新しいアイテムを追加する
 func (s *Store) AddItem(item raw.Item) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.Items = append(s.raws.Items, item)
-	return s.save()
+	return addTo(s, &s.raws.Items, item)
 }
 
-// DeleteItem は指定インデックスのアイテムを削除してファイルに保存する
+// DeleteItem は指定インデックスのアイテムを削除する
 func (s *Store) DeleteItem(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Items) {
-		return fmt.Errorf("アイテムインデックスが範囲外: %d", index)
-	}
-	s.raws.Items = append(s.raws.Items[:index], s.raws.Items[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.Items, index, "アイテム")
 }
 
-// Members はメンバー一覧を返す
+// ================== メンバー ==================
+
+// Members はすべてのメンバーを返す
 func (s *Store) Members() []raw.Member {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -197,43 +215,33 @@ func (s *Store) Members() []raw.Member {
 func (s *Store) Member(index int) (raw.Member, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.Members) {
-		return raw.Member{}, fmt.Errorf("メンバーインデックスが範囲外: %d", index)
-	}
-	return s.raws.Members[index], nil
+	return getAt(s.raws.Members, index, "メンバー")
 }
 
-// UpdateMember は指定インデックスのメンバーを更新してファイルに保存する
+// UpdateMember は指定インデックスのメンバーを更新する
 func (s *Store) UpdateMember(index int, member raw.Member) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Members) {
-		return fmt.Errorf("メンバーインデックスが範囲外: %d", index)
-	}
-	s.raws.Members[index] = member
-	return s.save()
+	return updateAt(s, &s.raws.Members, index, member, "メンバー")
 }
 
-// AddMember は新しいメンバーを追加してファイルに保存する
+// AddMember は新しいメンバーを追加する
 func (s *Store) AddMember(member raw.Member) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.Members = append(s.raws.Members, member)
-	return s.save()
+	return addTo(s, &s.raws.Members, member)
 }
 
-// DeleteMember は指定インデックスのメンバーを削除してファイルに保存する
+// DeleteMember は指定インデックスのメンバーを削除する
 func (s *Store) DeleteMember(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Members) {
-		return fmt.Errorf("メンバーインデックスが範囲外: %d", index)
-	}
-	s.raws.Members = append(s.raws.Members[:index], s.raws.Members[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.Members, index, "メンバー")
 }
 
-// Recipes はレシピ一覧を返す
+// ================== レシピ ==================
+
+// Recipes はすべてのレシピを返す
 func (s *Store) Recipes() []raw.Recipe {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -244,43 +252,33 @@ func (s *Store) Recipes() []raw.Recipe {
 func (s *Store) Recipe(index int) (raw.Recipe, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.Recipes) {
-		return raw.Recipe{}, fmt.Errorf("レシピインデックスが範囲外: %d", index)
-	}
-	return s.raws.Recipes[index], nil
+	return getAt(s.raws.Recipes, index, "レシピ")
 }
 
-// UpdateRecipe は指定インデックスのレシピを更新してファイルに保存する
+// UpdateRecipe は指定インデックスのレシピを更新する
 func (s *Store) UpdateRecipe(index int, recipe raw.Recipe) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Recipes) {
-		return fmt.Errorf("レシピインデックスが範囲外: %d", index)
-	}
-	s.raws.Recipes[index] = recipe
-	return s.save()
+	return updateAt(s, &s.raws.Recipes, index, recipe, "レシピ")
 }
 
-// AddRecipe は新しいレシピを追加してファイルに保存する
+// AddRecipe は新しいレシピを追加する
 func (s *Store) AddRecipe(recipe raw.Recipe) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.Recipes = append(s.raws.Recipes, recipe)
-	return s.save()
+	return addTo(s, &s.raws.Recipes, recipe)
 }
 
-// DeleteRecipe は指定インデックスのレシピを削除してファイルに保存する
+// DeleteRecipe は指定インデックスのレシピを削除する
 func (s *Store) DeleteRecipe(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Recipes) {
-		return fmt.Errorf("レシピインデックスが範囲外: %d", index)
-	}
-	s.raws.Recipes = append(s.raws.Recipes[:index], s.raws.Recipes[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.Recipes, index, "レシピ")
 }
 
-// CommandTables はコマンドテーブル一覧を返す
+// ================== コマンドテーブル ==================
+
+// CommandTables はすべてのコマンドテーブルを返す
 func (s *Store) CommandTables() []raw.CommandTable {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -291,43 +289,33 @@ func (s *Store) CommandTables() []raw.CommandTable {
 func (s *Store) CommandTable(index int) (raw.CommandTable, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.CommandTables) {
-		return raw.CommandTable{}, fmt.Errorf("コマンドテーブルインデックスが範囲外: %d", index)
-	}
-	return s.raws.CommandTables[index], nil
+	return getAt(s.raws.CommandTables, index, "コマンドテーブル")
 }
 
-// UpdateCommandTable は指定インデックスのコマンドテーブルを更新してファイルに保存する
+// UpdateCommandTable は指定インデックスのコマンドテーブルを更新する
 func (s *Store) UpdateCommandTable(index int, ct raw.CommandTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.CommandTables) {
-		return fmt.Errorf("コマンドテーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.CommandTables[index] = ct
-	return s.save()
+	return updateAt(s, &s.raws.CommandTables, index, ct, "コマンドテーブル")
 }
 
-// AddCommandTable は新しいコマンドテーブルを追加してファイルに保存する
+// AddCommandTable は新しいコマンドテーブルを追加する
 func (s *Store) AddCommandTable(ct raw.CommandTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.CommandTables = append(s.raws.CommandTables, ct)
-	return s.save()
+	return addTo(s, &s.raws.CommandTables, ct)
 }
 
-// DeleteCommandTable は指定インデックスのコマンドテーブルを削除してファイルに保存する
+// DeleteCommandTable は指定インデックスのコマンドテーブルを削除する
 func (s *Store) DeleteCommandTable(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.CommandTables) {
-		return fmt.Errorf("コマンドテーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.CommandTables = append(s.raws.CommandTables[:index], s.raws.CommandTables[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.CommandTables, index, "コマンドテーブル")
 }
 
-// DropTables はドロップテーブル一覧を返す
+// ================== ドロップテーブル ==================
+
+// DropTables はすべてのドロップテーブルを返す
 func (s *Store) DropTables() []raw.DropTable {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -338,43 +326,33 @@ func (s *Store) DropTables() []raw.DropTable {
 func (s *Store) DropTable(index int) (raw.DropTable, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.DropTables) {
-		return raw.DropTable{}, fmt.Errorf("ドロップテーブルインデックスが範囲外: %d", index)
-	}
-	return s.raws.DropTables[index], nil
+	return getAt(s.raws.DropTables, index, "ドロップテーブル")
 }
 
-// UpdateDropTable は指定インデックスのドロップテーブルを更新してファイルに保存する
+// UpdateDropTable は指定インデックスのドロップテーブルを更新する
 func (s *Store) UpdateDropTable(index int, dt raw.DropTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.DropTables) {
-		return fmt.Errorf("ドロップテーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.DropTables[index] = dt
-	return s.save()
+	return updateAt(s, &s.raws.DropTables, index, dt, "ドロップテーブル")
 }
 
-// AddDropTable は新しいドロップテーブルを追加してファイルに保存する
+// AddDropTable は新しいドロップテーブルを追加する
 func (s *Store) AddDropTable(dt raw.DropTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.DropTables = append(s.raws.DropTables, dt)
-	return s.save()
+	return addTo(s, &s.raws.DropTables, dt)
 }
 
-// DeleteDropTable は指定インデックスのドロップテーブルを削除してファイルに保存する
+// DeleteDropTable は指定インデックスのドロップテーブルを削除する
 func (s *Store) DeleteDropTable(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.DropTables) {
-		return fmt.Errorf("ドロップテーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.DropTables = append(s.raws.DropTables[:index], s.raws.DropTables[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.DropTables, index, "ドロップテーブル")
 }
 
-// ItemTables はアイテムテーブル一覧を返す
+// ================== アイテムテーブル ==================
+
+// ItemTables はすべてのアイテムテーブルを返す
 func (s *Store) ItemTables() []raw.ItemTable {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -385,43 +363,33 @@ func (s *Store) ItemTables() []raw.ItemTable {
 func (s *Store) ItemTable(index int) (raw.ItemTable, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.ItemTables) {
-		return raw.ItemTable{}, fmt.Errorf("アイテムテーブルインデックスが範囲外: %d", index)
-	}
-	return s.raws.ItemTables[index], nil
+	return getAt(s.raws.ItemTables, index, "アイテムテーブル")
 }
 
-// UpdateItemTable は指定インデックスのアイテムテーブルを更新してファイルに保存する
+// UpdateItemTable は指定インデックスのアイテムテーブルを更新する
 func (s *Store) UpdateItemTable(index int, it raw.ItemTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.ItemTables) {
-		return fmt.Errorf("アイテムテーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.ItemTables[index] = it
-	return s.save()
+	return updateAt(s, &s.raws.ItemTables, index, it, "アイテムテーブル")
 }
 
-// AddItemTable は新しいアイテムテーブルを追加してファイルに保存する
+// AddItemTable は新しいアイテムテーブルを追加する
 func (s *Store) AddItemTable(it raw.ItemTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.ItemTables = append(s.raws.ItemTables, it)
-	return s.save()
+	return addTo(s, &s.raws.ItemTables, it)
 }
 
-// DeleteItemTable は指定インデックスのアイテムテーブルを削除してファイルに保存する
+// DeleteItemTable は指定インデックスのアイテムテーブルを削除する
 func (s *Store) DeleteItemTable(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.ItemTables) {
-		return fmt.Errorf("アイテムテーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.ItemTables = append(s.raws.ItemTables[:index], s.raws.ItemTables[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.ItemTables, index, "アイテムテーブル")
 }
 
-// EnemyTables は敵テーブル一覧を返す
+// ================== 敵テーブル ==================
+
+// EnemyTables はすべての敵テーブルを返す
 func (s *Store) EnemyTables() []raw.EnemyTable {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -432,43 +400,33 @@ func (s *Store) EnemyTables() []raw.EnemyTable {
 func (s *Store) EnemyTable(index int) (raw.EnemyTable, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.EnemyTables) {
-		return raw.EnemyTable{}, fmt.Errorf("敵テーブルインデックスが範囲外: %d", index)
-	}
-	return s.raws.EnemyTables[index], nil
+	return getAt(s.raws.EnemyTables, index, "敵テーブル")
 }
 
-// UpdateEnemyTable は指定インデックスの敵テーブルを更新してファイルに保存する
+// UpdateEnemyTable は指定インデックスの敵テーブルを更新する
 func (s *Store) UpdateEnemyTable(index int, et raw.EnemyTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.EnemyTables) {
-		return fmt.Errorf("敵テーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.EnemyTables[index] = et
-	return s.save()
+	return updateAt(s, &s.raws.EnemyTables, index, et, "敵テーブル")
 }
 
-// AddEnemyTable は新しい敵テーブルを追加してファイルに保存する
+// AddEnemyTable は新しい敵テーブルを追加する
 func (s *Store) AddEnemyTable(et raw.EnemyTable) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.EnemyTables = append(s.raws.EnemyTables, et)
-	return s.save()
+	return addTo(s, &s.raws.EnemyTables, et)
 }
 
-// DeleteEnemyTable は指定インデックスの敵テーブルを削除してファイルに保存する
+// DeleteEnemyTable は指定インデックスの敵テーブルを削除する
 func (s *Store) DeleteEnemyTable(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.EnemyTables) {
-		return fmt.Errorf("敵テーブルインデックスが範囲外: %d", index)
-	}
-	s.raws.EnemyTables = append(s.raws.EnemyTables[:index], s.raws.EnemyTables[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.EnemyTables, index, "敵テーブル")
 }
 
-// Tiles はタイル一覧を返す
+// ================== タイル ==================
+
+// Tiles はすべてのタイルを返す
 func (s *Store) Tiles() []raw.TileRaw {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -479,43 +437,33 @@ func (s *Store) Tiles() []raw.TileRaw {
 func (s *Store) Tile(index int) (raw.TileRaw, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.Tiles) {
-		return raw.TileRaw{}, fmt.Errorf("タイルインデックスが範囲外: %d", index)
-	}
-	return s.raws.Tiles[index], nil
+	return getAt(s.raws.Tiles, index, "タイル")
 }
 
-// UpdateTile は指定インデックスのタイルを更新してファイルに保存する
+// UpdateTile は指定インデックスのタイルを更新する
 func (s *Store) UpdateTile(index int, tile raw.TileRaw) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Tiles) {
-		return fmt.Errorf("タイルインデックスが範囲外: %d", index)
-	}
-	s.raws.Tiles[index] = tile
-	return s.save()
+	return updateAt(s, &s.raws.Tiles, index, tile, "タイル")
 }
 
-// AddTile は新しいタイルを追加してファイルに保存する
+// AddTile は新しいタイルを追加する
 func (s *Store) AddTile(tile raw.TileRaw) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.Tiles = append(s.raws.Tiles, tile)
-	return s.save()
+	return addTo(s, &s.raws.Tiles, tile)
 }
 
-// DeleteTile は指定インデックスのタイルを削除してファイルに保存する
+// DeleteTile は指定インデックスのタイルを削除する
 func (s *Store) DeleteTile(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Tiles) {
-		return fmt.Errorf("タイルインデックスが範囲外: %d", index)
-	}
-	s.raws.Tiles = append(s.raws.Tiles[:index], s.raws.Tiles[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.Tiles, index, "タイル")
 }
 
-// Props は置物一覧を返す
+// ================== 置物 ==================
+
+// Props はすべての置物を返す
 func (s *Store) Props() []raw.PropRaw {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -526,43 +474,33 @@ func (s *Store) Props() []raw.PropRaw {
 func (s *Store) Prop(index int) (raw.PropRaw, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.Props) {
-		return raw.PropRaw{}, fmt.Errorf("置物インデックスが範囲外: %d", index)
-	}
-	return s.raws.Props[index], nil
+	return getAt(s.raws.Props, index, "置物")
 }
 
-// UpdateProp は指定インデックスの置物を更新してファイルに保存する
+// UpdateProp は指定インデックスの置物を更新する
 func (s *Store) UpdateProp(index int, prop raw.PropRaw) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Props) {
-		return fmt.Errorf("置物インデックスが範囲外: %d", index)
-	}
-	s.raws.Props[index] = prop
-	return s.save()
+	return updateAt(s, &s.raws.Props, index, prop, "置物")
 }
 
-// AddProp は新しい置物を追加してファイルに保存する
+// AddProp は新しい置物を追加する
 func (s *Store) AddProp(prop raw.PropRaw) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.Props = append(s.raws.Props, prop)
-	return s.save()
+	return addTo(s, &s.raws.Props, prop)
 }
 
-// DeleteProp は指定インデックスの置物を削除してファイルに保存する
+// DeleteProp は指定インデックスの置物を削除する
 func (s *Store) DeleteProp(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Props) {
-		return fmt.Errorf("置物インデックスが範囲外: %d", index)
-	}
-	s.raws.Props = append(s.raws.Props[:index], s.raws.Props[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.Props, index, "置物")
 }
 
-// Professions は職業一覧を返す
+// ================== 職業 ==================
+
+// Professions はすべての職業を返す
 func (s *Store) Professions() []raw.Profession {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -573,78 +511,63 @@ func (s *Store) Professions() []raw.Profession {
 func (s *Store) Profession(index int) (raw.Profession, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.Professions) {
-		return raw.Profession{}, fmt.Errorf("職業インデックスが範囲外: %d", index)
-	}
-	return s.raws.Professions[index], nil
+	return getAt(s.raws.Professions, index, "職業")
 }
 
-// UpdateProfession は指定インデックスの職業を更新してファイルに保存する
+// UpdateProfession は指定インデックスの職業を更新する
 func (s *Store) UpdateProfession(index int, prof raw.Profession) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Professions) {
-		return fmt.Errorf("職業インデックスが範囲外: %d", index)
-	}
-	s.raws.Professions[index] = prof
-	return s.save()
+	return updateAt(s, &s.raws.Professions, index, prof, "職業")
 }
 
-// AddProfession は新しい職業を追加してファイルに保存する
+// AddProfession は新しい職業を追加する
 func (s *Store) AddProfession(prof raw.Profession) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.Professions = append(s.raws.Professions, prof)
-	return s.save()
+	return addTo(s, &s.raws.Professions, prof)
 }
 
-// DeleteProfession は指定インデックスの職業を削除してファイルに保存する
+// DeleteProfession は指定インデックスの職業を削除する
 func (s *Store) DeleteProfession(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.Professions) {
-		return fmt.Errorf("職業インデックスが範囲外: %d", index)
-	}
-	s.raws.Professions = append(s.raws.Professions[:index], s.raws.Professions[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.Professions, index, "職業")
 }
 
-// UpdateSpriteSheet は指定インデックスのスプライトシートを更新してファイルに保存する
-func (s *Store) UpdateSpriteSheet(index int, ss raw.SpriteSheet) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.SpriteSheets) {
-		return fmt.Errorf("スプライトシートインデックスが範囲外: %d", index)
-	}
-	s.raws.SpriteSheets[index] = ss
-	return s.save()
+// ================== スプライトシート ==================
+
+// SpriteSheets はすべてのスプライトシートを返す
+func (s *Store) SpriteSheets() []raw.SpriteSheet {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.SpriteSheets
 }
 
 // SpriteSheetByIndex は指定インデックスのスプライトシートを返す
 func (s *Store) SpriteSheetByIndex(index int) (raw.SpriteSheet, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	if index < 0 || index >= len(s.raws.SpriteSheets) {
-		return raw.SpriteSheet{}, fmt.Errorf("スプライトシートインデックスが範囲外: %d", index)
-	}
-	return s.raws.SpriteSheets[index], nil
+	return getAt(s.raws.SpriteSheets, index, "スプライトシート")
 }
 
-// AddSpriteSheet は新しいスプライトシートを追加してファイルに保存する
+// UpdateSpriteSheet は指定インデックスのスプライトシートを更新する
+func (s *Store) UpdateSpriteSheet(index int, ss raw.SpriteSheet) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.SpriteSheets, index, ss, "スプライトシート")
+}
+
+// AddSpriteSheet は新しいスプライトシートを追加する
 func (s *Store) AddSpriteSheet(ss raw.SpriteSheet) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	s.raws.SpriteSheets = append(s.raws.SpriteSheets, ss)
-	return s.save()
+	return addTo(s, &s.raws.SpriteSheets, ss)
 }
 
-// DeleteSpriteSheet は指定インデックスのスプライトシートを削除してファイルに保存する
+// DeleteSpriteSheet は指定インデックスのスプライトシートを削除する
 func (s *Store) DeleteSpriteSheet(index int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if index < 0 || index >= len(s.raws.SpriteSheets) {
-		return fmt.Errorf("スプライトシートインデックスが範囲外: %d", index)
-	}
-	s.raws.SpriteSheets = append(s.raws.SpriteSheets[:index], s.raws.SpriteSheets[index+1:]...)
-	return s.save()
+	return deleteAt(s, &s.raws.SpriteSheets, index, "スプライトシート")
 }

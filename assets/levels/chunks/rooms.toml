@@ -35,7 +35,7 @@
     W = 0
 
 [[chunk]]
-  map          = ".....\n.D.C.\n.....\n.....\n"
+  map          = ".....\n.DC..\n.DC..\n.....\n"
   name         = '5x4_office'
   palettes     = ['standard']
   placements   = []

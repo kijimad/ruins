@@ -342,3 +342,35 @@ func TestHandlePaletteDelete(t *testing.T) {
 	_, err := srv.paletteStore.Get("pal1")
 	assert.Error(t, err)
 }
+
+func TestPaletteStoreSafePath(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	ps, err := NewPaletteStore(dir)
+	require.NoError(t, err)
+
+	tests := []struct {
+		name    string
+		id      string
+		wantErr bool
+	}{
+		{"normal", "pal1", false},
+		{"path traversal", "../etc/passwd", true},
+		{"dot", ".", true},
+		{"double dot", "..", true},
+		{"slash in name", "foo/bar", true},
+		{"backslash in name", "foo\\bar", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := ps.safePath(tt.id)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
