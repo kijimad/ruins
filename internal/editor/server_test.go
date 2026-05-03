@@ -210,6 +210,21 @@ func TestParseItemForm_Stackable(t *testing.T) {
 	assert.True(t, *item.Stackable)
 }
 
+func TestHandleDashboard(t *testing.T) {
+	t.Parallel()
+	srv := newTestServer(t, []raw.Item{})
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	srv.handleDashboard(w, r)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+	body := w.Body.String()
+	assert.Contains(t, body, "Items")
+	assert.Contains(t, body, "Palettes")
+	assert.Contains(t, body, "Layouts")
+}
+
 func TestHandleIndex(t *testing.T) {
 	t.Parallel()
 	srv := newTestServer(t, []raw.Item{
@@ -218,7 +233,7 @@ func TestHandleIndex(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r := httptest.NewRequest(http.MethodGet, "/items", nil)
 	srv.handleIndex(w, r)
 
 	assert.Equal(t, http.StatusOK, w.Code)

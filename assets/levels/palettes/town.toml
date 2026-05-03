@@ -7,18 +7,14 @@
   # 地形の定義
   [palette.terrain]
     "." = "dirt"  # 土
-    "$" = "dirt"  # 商人の下は土
-    "1" = "dirt"  # 老兵の下は土
-    "2" = "dirt"  # 怪しい科学者の下は土
-    "G" = "dirt"  # ダンジョンゲートの下は土
     "r" = "floor" # 道路
 
   # NPCの定義
   [palette.npcs]
-    "$" = "商人"
-    "1" = "老兵"
-    "2" = "怪しい科学者"
+    "$" = {id = "商人", tile = "dirt"}
+    "1" = {id = "老兵", tile = "dirt"}
+    "2" = {id = "怪しい科学者", tile = "dirt"}
 
   # Propsの定義
   [palette.props]
-    "G" = "dungeon_gate" # ダンジョン選択ゲート
+    "G" = {id = "dungeon_gate", tile = "dirt"} # ダンジョン選択ゲート

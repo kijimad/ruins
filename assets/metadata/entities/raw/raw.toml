@@ -1429,24 +1429,6 @@
   Weight          = 0.02
 
 [[Recipes]]
-  Name = "木刀"
-
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "木の棒"
-
-[[Recipes]]
-  Name = "鉄のナイフ"
-
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "鉄"
-
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "木の棒"
-
-[[Recipes]]
   Name = "レイガン"
 
   [[Recipes.Inputs]]
@@ -1458,7 +1440,7 @@
     Name   = "フェライトコア"
 
 [[Recipes]]
-  Name = "電撃グレネード"
+  Name = "作業用ヘルメット"
 
   [[Recipes.Inputs]]
     Amount = 3
@@ -1469,34 +1451,6 @@
 
   [[Recipes.Inputs]]
     Amount = 3
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "西洋鎧"
-
-  [[Recipes.Inputs]]
-    Amount = 4
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "作業用ヘルメット"
-
-  [[Recipes.Inputs]]
-    Amount = 3
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "革のブーツ"
-
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "機械の指輪"
-
-  [[Recipes.Inputs]]
-    Amount = 1
     Name   = "鉄"
 
 [[Recipes]]
@@ -1511,11 +1465,54 @@
     Name   = "黄ハーブ"
 
 [[Recipes]]
+  Name = "木刀"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "木の棒"
+
+[[Recipes]]
+  Name = "機械の指輪"
+
+  [[Recipes.Inputs]]
+    Amount = 1
+    Name   = "鉄"
+
+[[Recipes]]
   Name = "毒消し"
 
   [[Recipes.Inputs]]
     Amount = 1
     Name   = "緑ハーブ"
+
+[[Recipes]]
+  Name = "煙幕弾"
+
+  [[Recipes.Inputs]]
+    Amount = 1
+    Name   = "鉄"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "灰"
+
+[[Recipes]]
+  Name = "西洋鎧"
+
+  [[Recipes.Inputs]]
+    Amount = 4
+    Name   = "鉄"
+
+[[Recipes]]
+  Name = "鉄のナイフ"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "鉄"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "木の棒"
 
 [[Recipes]]
   Name = "閃光弾"
@@ -1529,24 +1526,29 @@
     Name   = "水晶の粉"
 
 [[Recipes]]
-  Name = "煙幕弾"
+  Name = "電撃グレネード"
 
   [[Recipes.Inputs]]
-    Amount = 1
+    Amount = 3
     Name   = "鉄"
+
+[[Recipes]]
+  Name = "革のブーツ"
 
   [[Recipes.Inputs]]
     Amount = 2
-    Name   = "灰"
+    Name   = "鉄"
 
 [[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  FactionType     = ""
-  IsBoss          = false
-  Name            = "Ash"
-  Player          = true
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["player_0", "player_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "Ash"
+  Player           = true
+  SpriteKey        = "player_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 5
     Defense   = 0
@@ -1583,6 +1585,7 @@
 [[Members]]
   AnimKeys         = ["slime_0", "slime_1"]
   CommandTableName = "凍晶化した猟師"
+  DropTableName    = ""
   FactionType      = ""
   IsBoss           = true
   Name             = "凍晶化した猟師"
@@ -1597,12 +1600,14 @@
     Vitality  = 40
 
 [[Members]]
-  AnimKeys        = ["merchant_0", "merchant_1"]
-  FactionType     = "FactionNeutral"
-  IsBoss          = false
-  Name            = "商人"
-  SpriteKey       = "merchant_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["merchant_0", "merchant_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = "FactionNeutral"
+  IsBoss           = false
+  Name             = "商人"
+  SpriteKey        = "merchant_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 8
     Defense   = 5
@@ -1622,12 +1627,14 @@
     MessageKey = "merchant_greeting"
 
 [[Members]]
-  AnimKeys        = ["doctor_0", "doctor_1"]
-  FactionType     = "FactionNeutral"
-  IsBoss          = false
-  Name            = "怪しい科学者"
-  SpriteKey       = "doctor_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["doctor_0", "doctor_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = "FactionNeutral"
+  IsBoss           = false
+  Name             = "怪しい科学者"
+  SpriteKey        = "doctor_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 7
     Defense   = 5
@@ -1688,12 +1695,14 @@
     Vitality  = 12
 
 [[Members]]
-  AnimKeys        = ["old_soldier_0", "old_soldier_1"]
-  FactionType     = "FactionNeutral"
-  IsBoss          = false
-  Name            = "老兵"
-  SpriteKey       = "old_soldier_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["old_soldier_0", "old_soldier_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = "FactionNeutral"
+  IsBoss           = false
+  Name             = "老兵"
+  SpriteKey        = "old_soldier_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 10
     Defense   = 10
@@ -1730,14 +1739,14 @@
       R = 255
 
 [[CommandTables]]
-  Name = "軽戦車"
+  Name = "スライム"
 
   [[CommandTables.entries]]
     Weapon = "体当たり"
     Weight = 1.0
 
 [[CommandTables]]
-  Name = "スライム"
+  Name = "凍晶化した猟師"
 
   [[CommandTables.entries]]
     Weapon = "体当たり"
@@ -1758,26 +1767,11 @@
     Weight = 1.0
 
 [[CommandTables]]
-  Name = "凍晶化した猟師"
+  Name = "軽戦車"
 
   [[CommandTables.entries]]
     Weapon = "体当たり"
     Weight = 1.0
-
-[[DropTables]]
-  Name = "軽戦車"
-
-  [[DropTables.entries]]
-    Material = "鉄"
-    Weight   = 0.4
-
-  [[DropTables.entries]]
-    Material = "鉄くず"
-    Weight   = 0.4
-
-  [[DropTables.entries]]
-    Material = "フェライトコア"
-    Weight   = 0.2
 
 [[DropTables]]
   Name = "スライム"
@@ -1807,6 +1801,198 @@
   [[DropTables.entries]]
     Material = "鉄くず"
     Weight   = 1.0
+
+[[DropTables]]
+  Name = "軽戦車"
+
+  [[DropTables.entries]]
+    Material = "鉄"
+    Weight   = 0.4
+
+  [[DropTables.entries]]
+    Material = "鉄くず"
+    Weight   = 0.4
+
+  [[DropTables.entries]]
+    Material = "フェライトコア"
+    Weight   = 0.2
+
+[[ItemTables]]
+  Name = "廃墟"
+
+  [[ItemTables.entries]]
+    ItemName = "回復薬"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "銀の欠片"
+    MaxDepth = 20
+    MinDepth = 3
+    Weight   = 0.8
+
+  [[ItemTables.entries]]
+    ItemName = "古い歯車"
+    MaxDepth = 25
+    MinDepth = 5
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "水晶の粉"
+    MaxDepth = 30
+    MinDepth = 8
+    Weight   = 0.6
+
+  [[ItemTables.entries]]
+    ItemName = "手榴弾"
+    MaxDepth = 35
+    MinDepth = 10
+    Weight   = 0.5
+
+  [[ItemTables.entries]]
+    ItemName = "閃光弾"
+    MaxDepth = 30
+    MinDepth = 15
+    Weight   = 0.4
+
+  [[ItemTables.entries]]
+    ItemName = "ビスケット"
+    MaxDepth = 20
+    MinDepth = 1
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "乾肉"
+    MaxDepth = 25
+    MinDepth = 5
+    Weight   = 0.5
+
+  [[ItemTables.entries]]
+    ItemName = "パン"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 0.4
+
+[[ItemTables]]
+  Name = "森"
+
+  [[ItemTables.entries]]
+    ItemName = "回復薬"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "緑ハーブ"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 1.2
+
+  [[ItemTables.entries]]
+    ItemName = "黄ハーブ"
+    MaxDepth = 20
+    MinDepth = 5
+    Weight   = 0.8
+
+  [[ItemTables.entries]]
+    ItemName = "木の棒"
+    MaxDepth = 7
+    MinDepth = 1
+    Weight   = 0.9
+
+  [[ItemTables.entries]]
+    ItemName = "毒消し"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "煙幕弾"
+    MaxDepth = 18
+    MinDepth = 8
+    Weight   = 0.5
+
+  [[ItemTables.entries]]
+    ItemName = "パン"
+    MaxDepth = 18
+    MinDepth = 1
+    Weight   = 0.9
+
+  [[ItemTables.entries]]
+    ItemName = "コーラ"
+    MaxDepth = 12
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "チーズ"
+    MaxDepth = 15
+    MinDepth = 3
+    Weight   = 0.6
+
+  [[ItemTables.entries]]
+    ItemName = "ビスケット"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.7
+
+[[ItemTables]]
+  Name = "洞窟"
+
+  [[ItemTables.entries]]
+    ItemName = "回復薬"
+    MaxDepth = 20
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "毒消し"
+    MaxDepth = 8
+    MinDepth = 1
+    Weight   = 0.8
+
+  [[ItemTables.entries]]
+    ItemName = "雷光石"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.1
+
+  [[ItemTables.entries]]
+    ItemName = "黒曜石"
+    MaxDepth = 25
+    MinDepth = 3
+    Weight   = 0.6
+
+  [[ItemTables.entries]]
+    ItemName = "鉄くず"
+    MaxDepth = 12
+    MinDepth = 1
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "雷光石"
+    MaxDepth = 30
+    MinDepth = 10
+    Weight   = 0.4
+
+  [[ItemTables.entries]]
+    ItemName = "コーラ"
+    MaxDepth = 12
+    MinDepth = 1
+    Weight   = 0.9
+
+  [[ItemTables.entries]]
+    ItemName = "乾肉"
+    MaxDepth = 20
+    MinDepth = 3
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "ビスケット"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 0.6
 
 [[ItemTables]]
   Name = "通常"
@@ -1877,182 +2063,74 @@
     MinDepth = 1
     Weight   = 0.6
 
-[[ItemTables]]
-  Name = "洞窟"
-
-  [[ItemTables.entries]]
-    ItemName = "回復薬"
-    MaxDepth = 20
-    MinDepth = 1
-    Weight   = 1.0
-
-  [[ItemTables.entries]]
-    ItemName = "毒消し"
-    MaxDepth = 8
-    MinDepth = 1
-    Weight   = 0.8
-
-  [[ItemTables.entries]]
-    ItemName = "雷光石"
-    MaxDepth = 10
-    MinDepth = 1
-    Weight   = 0.1
-
-  [[ItemTables.entries]]
-    ItemName = "黒曜石"
-    MaxDepth = 25
-    MinDepth = 3
-    Weight   = 0.6
-
-  [[ItemTables.entries]]
-    ItemName = "鉄くず"
-    MaxDepth = 12
-    MinDepth = 1
-    Weight   = 0.7
-
-  [[ItemTables.entries]]
-    ItemName = "雷光石"
-    MaxDepth = 30
-    MinDepth = 10
-    Weight   = 0.4
-
-  [[ItemTables.entries]]
-    ItemName = "コーラ"
-    MaxDepth = 12
-    MinDepth = 1
-    Weight   = 0.9
-
-  [[ItemTables.entries]]
-    ItemName = "乾肉"
-    MaxDepth = 20
-    MinDepth = 3
-    Weight   = 0.7
-
-  [[ItemTables.entries]]
-    ItemName = "ビスケット"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 0.6
-
-[[ItemTables]]
-  Name = "森"
-
-  [[ItemTables.entries]]
-    ItemName = "回復薬"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 1.0
-
-  [[ItemTables.entries]]
-    ItemName = "緑ハーブ"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 1.2
-
-  [[ItemTables.entries]]
-    ItemName = "黄ハーブ"
-    MaxDepth = 20
-    MinDepth = 5
-    Weight   = 0.8
-
-  [[ItemTables.entries]]
-    ItemName = "木の棒"
-    MaxDepth = 7
-    MinDepth = 1
-    Weight   = 0.9
-
-  [[ItemTables.entries]]
-    ItemName = "毒消し"
-    MaxDepth = 10
-    MinDepth = 1
-    Weight   = 0.7
-
-  [[ItemTables.entries]]
-    ItemName = "煙幕弾"
-    MaxDepth = 18
-    MinDepth = 8
-    Weight   = 0.5
-
-  [[ItemTables.entries]]
-    ItemName = "パン"
-    MaxDepth = 18
-    MinDepth = 1
-    Weight   = 0.9
-
-  [[ItemTables.entries]]
-    ItemName = "コーラ"
-    MaxDepth = 12
-    MinDepth = 1
-    Weight   = 1.0
-
-  [[ItemTables.entries]]
-    ItemName = "チーズ"
-    MaxDepth = 15
-    MinDepth = 3
-    Weight   = 0.6
-
-  [[ItemTables.entries]]
-    ItemName = "ビスケット"
-    MaxDepth = 10
-    MinDepth = 1
-    Weight   = 0.7
-
-[[ItemTables]]
+[[EnemyTables]]
   Name = "廃墟"
 
-  [[ItemTables.entries]]
-    ItemName = "回復薬"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 1.0
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 10
+    MinDepth  = 1
+    Weight    = 0.9
 
-  [[ItemTables.entries]]
-    ItemName = "銀の欠片"
-    MaxDepth = 20
-    MinDepth = 3
-    Weight   = 0.8
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 20
+    MinDepth  = 1
+    Weight    = 0.8
 
-  [[ItemTables.entries]]
-    ItemName = "古い歯車"
-    MaxDepth = 25
-    MinDepth = 5
-    Weight   = 0.7
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 30
+    MinDepth  = 1
+    Weight    = 1.0
 
-  [[ItemTables.entries]]
-    ItemName = "水晶の粉"
-    MaxDepth = 30
-    MinDepth = 8
-    Weight   = 0.6
+  [[EnemyTables.entries]]
+    EnemyName = "灰の偶像"
+    MaxDepth  = 35
+    MinDepth  = 15
+    Weight    = 0.7
 
-  [[ItemTables.entries]]
-    ItemName = "手榴弾"
-    MaxDepth = 35
-    MinDepth = 10
-    Weight   = 0.5
+[[EnemyTables]]
+  Name = "森"
 
-  [[ItemTables.entries]]
-    ItemName = "閃光弾"
-    MaxDepth = 30
-    MinDepth = 15
-    Weight   = 0.4
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 12
+    MinDepth  = 1
+    Weight    = 1.2
 
-  [[ItemTables.entries]]
-    ItemName = "ビスケット"
-    MaxDepth = 20
-    MinDepth = 1
-    Weight   = 0.7
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 15
+    MinDepth  = 1
+    Weight    = 1.0
 
-  [[ItemTables.entries]]
-    ItemName = "乾肉"
-    MaxDepth = 25
-    MinDepth = 5
-    Weight   = 0.5
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 20
+    MinDepth  = 1
+    Weight    = 0.5
 
-  [[ItemTables.entries]]
-    ItemName = "パン"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 0.4
+[[EnemyTables]]
+  Name = "洞窟"
+
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 8
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 15
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 25
+    MinDepth  = 1
+    Weight    = 0.6
 
 [[EnemyTables]]
   Name = "通常"
@@ -2081,74 +2159,9 @@
     MinDepth  = 20
     Weight    = 0.5
 
-[[EnemyTables]]
-  Name = "洞窟"
-
-  [[EnemyTables.entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 8
-    MinDepth  = 1
-    Weight    = 1.0
-
-  [[EnemyTables.entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 15
-    MinDepth  = 1
-    Weight    = 1.0
-
-  [[EnemyTables.entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 25
-    MinDepth  = 1
-    Weight    = 0.6
-
-[[EnemyTables]]
-  Name = "森"
-
-  [[EnemyTables.entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 12
-    MinDepth  = 1
-    Weight    = 1.2
-
-  [[EnemyTables.entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 15
-    MinDepth  = 1
-    Weight    = 1.0
-
-  [[EnemyTables.entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 20
-    MinDepth  = 1
-    Weight    = 0.5
-
-[[EnemyTables]]
-  Name = "廃墟"
-
-  [[EnemyTables.entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 10
-    MinDepth  = 1
-    Weight    = 0.9
-
-  [[EnemyTables.entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 20
-    MinDepth  = 1
-    Weight    = 0.8
-
-  [[EnemyTables.entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 30
-    MinDepth  = 1
-    Weight    = 1.0
-
-  [[EnemyTables.entries]]
-    EnemyName = "灰の偶像"
-    MaxDepth  = 35
-    MinDepth  = 15
-    Weight    = 0.7
+[[SpriteSheets]]
+  Name = "bg"
+  Path = "file/textures/dist/bg.json"
 
 [[SpriteSheets]]
   Name = "field"
@@ -2157,64 +2170,6 @@
 [[SpriteSheets]]
   Name = "tile"
   Path = "file/textures/dist/tiles.json"
-
-[[SpriteSheets]]
-  Name = "bg"
-  Path = "file/textures/dist/bg.json"
-
-[[Tiles]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "床"
-  Foliage     = 0
-  Name        = "floor"
-  Shelter     = 0
-  Water       = 0
-  [Tiles.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "floor"
-    SpriteSheetName = "tile"
-    [Tiles.SpriteRender.Options]
-      CompositeMode  = 0
-      DisableMipmaps = false
-      Filter         = 0
-      [Tiles.SpriteRender.Options.GeoM]
-      [Tiles.SpriteRender.Options.ColorScale]
-      [Tiles.SpriteRender.Options.ColorM]
-      [Tiles.SpriteRender.Options.Blend]
-        BlendFactorDestinationAlpha = 0
-        BlendFactorDestinationRGB   = 0
-        BlendFactorSourceAlpha      = 0
-        BlendFactorSourceRGB        = 0
-        BlendOperationAlpha         = 0
-        BlendOperationRGB           = 0
-
-[[Tiles]]
-  BlockPass   = true
-  BlockView   = true
-  Description = "壁"
-  Foliage     = 0
-  Name        = "wall"
-  Shelter     = 0
-  Water       = 0
-  [Tiles.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "wall"
-    SpriteSheetName = "tile"
-    [Tiles.SpriteRender.Options]
-      CompositeMode  = 0
-      DisableMipmaps = false
-      Filter         = 0
-      [Tiles.SpriteRender.Options.GeoM]
-      [Tiles.SpriteRender.Options.ColorScale]
-      [Tiles.SpriteRender.Options.ColorM]
-      [Tiles.SpriteRender.Options.Blend]
-        BlendFactorDestinationAlpha = 0
-        BlendFactorDestinationRGB   = 0
-        BlendFactorSourceAlpha      = 0
-        BlendFactorSourceRGB        = 0
-        BlendOperationAlpha         = 0
-        BlendOperationRGB           = 0
 
 [[Tiles]]
   BlockPass   = false
@@ -2271,6 +2226,33 @@
         BlendOperationRGB           = 0
 
 [[Tiles]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "床"
+  Foliage     = 0
+  Name        = "floor"
+  Shelter     = 0
+  Water       = 0
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "floor"
+    SpriteSheetName = "tile"
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Tiles]]
   BlockPass   = true
   BlockView   = false
   Description = "暗闇"
@@ -2297,62 +2279,41 @@
         BlendOperationAlpha         = 0
         BlendOperationRGB           = 0
 
-[[Props]]
-  BlockPass   = true
-  BlockView   = false
-  Description = "頑丈な木製のテーブル"
-  Name        = "table"
-  [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "prop_table"
-    SpriteSheetName = "field"
-    [Props.SpriteRender.Options]
-      CompositeMode  = 0
-      DisableMipmaps = false
-      Filter         = 0
-      [Props.SpriteRender.Options.GeoM]
-      [Props.SpriteRender.Options.ColorScale]
-      [Props.SpriteRender.Options.ColorM]
-      [Props.SpriteRender.Options.Blend]
-        BlendFactorDestinationAlpha = 0
-        BlendFactorDestinationRGB   = 0
-        BlendFactorSourceAlpha      = 0
-        BlendFactorSourceRGB        = 0
-        BlendOperationAlpha         = 0
-        BlendOperationRGB           = 0
-
-[[Props]]
-  BlockPass   = true
-  BlockView   = false
-  Description = "座り心地の良い椅子"
-  Name        = "chair"
-  [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "prop_chair"
-    SpriteSheetName = "field"
-    [Props.SpriteRender.Options]
-      CompositeMode  = 0
-      DisableMipmaps = false
-      Filter         = 0
-      [Props.SpriteRender.Options.GeoM]
-      [Props.SpriteRender.Options.ColorScale]
-      [Props.SpriteRender.Options.ColorM]
-      [Props.SpriteRender.Options.Blend]
-        BlendFactorDestinationAlpha = 0
-        BlendFactorDestinationRGB   = 0
-        BlendFactorSourceAlpha      = 0
-        BlendFactorSourceRGB        = 0
-        BlendOperationAlpha         = 0
-        BlendOperationRGB           = 0
-
-[[Props]]
+[[Tiles]]
   BlockPass   = true
   BlockView   = true
-  Description = "たくさんの本が並んだ本棚"
-  Name        = "bookshelf"
-  [Props.SpriteRender]
+  Description = "壁"
+  Foliage     = 0
+  Name        = "wall"
+  Shelter     = 0
+  Water       = 0
+  [Tiles.SpriteRender]
     Depth           = 2
-    SpriteKey       = "wooden_bookshelf"
+    SpriteKey       = "wall"
+    SpriteSheetName = "tile"
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "デザイナーズ本棚"
+  Name        = "artistic_shelf"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "artistic_shelf"
     SpriteSheetName = "field"
     [Props.SpriteRender.Options]
       CompositeMode  = 0
@@ -2394,13 +2355,13 @@
         BlendOperationRGB           = 0
 
 [[Props]]
-  BlockPass   = true
+  BlockPass   = false
   BlockView   = false
-  Description = "頑丈そうな木箱"
-  Name        = "crate"
+  Description = "バスタブ"
+  Name        = "bathtub"
   [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "wooden_crate"
+    Depth           = 0
+    SpriteKey       = "bathtub"
     SpriteSheetName = "field"
     [Props.SpriteRender.Options]
       CompositeMode  = 0
@@ -2442,13 +2403,45 @@
         BlendOperationRGB           = 0
 
 [[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "ベッドランプ"
+  Name        = "bed_lamp"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "bed_lamp"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+  [Props.LightSource]
+    Enabled = false
+    Radius  = 4
+    [Props.LightSource.Color]
+      A = 255
+      B = 220
+      G = 255
+      R = 255
+
+[[Props]]
   BlockPass   = true
   BlockView   = false
-  Description = "書類や文具が置かれた机"
-  Name        = "desk"
+  Description = "ベンチ"
+  Name        = "bench"
   [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "prop_table"
+    Depth           = 0
+    SpriteKey       = "ベンチ"
     SpriteSheetName = "field"
     [Props.SpriteRender.Options]
       CompositeMode  = 0
@@ -2517,12 +2510,12 @@
 
 [[Props]]
   BlockPass   = true
-  BlockView   = false
-  Description = "床置きランタン。広い範囲を明るく照らす"
-  Name        = "lantern"
+  BlockView   = true
+  Description = "たくさんの本が並んだ本棚"
+  Name        = "bookshelf"
   [Props.SpriteRender]
     Depth           = 2
-    SpriteKey       = "prop_lantern"
+    SpriteKey       = "wooden_bookshelf"
     SpriteSheetName = "field"
     [Props.SpriteRender.Options]
       CompositeMode  = 0
@@ -2538,14 +2531,78 @@
         BlendFactorSourceRGB        = 0
         BlendOperationAlpha         = 0
         BlendOperationRGB           = 0
-  [Props.LightSource]
-    Enabled = true
-    Radius  = 4
-    [Props.LightSource.Color]
-      A = 255
-      B = 150
-      G = 200
-      R = 255
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "座り心地の良い椅子"
+  Name        = "chair"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "chair"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "頑丈そうな木箱"
+  Name        = "crate"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "wooden_crate"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "書類や文具が置かれた机"
+  Name        = "desk"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "wood_desk"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = true
@@ -2573,13 +2630,13 @@
   [Props.Door]
 
 [[Props]]
-  BlockPass   = true
+  BlockPass   = false
   BlockView   = false
-  Description = "石の柱"
-  Name        = "stone_pillar"
+  Description = "プレイヤーが踏むと扉をロックするトリガー"
+  Name        = "door_lock_trigger"
   [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "stone_pillar"
+    Depth           = 0
+    SpriteKey       = "door_lock_trigger"
     SpriteSheetName = "field"
     [Props.SpriteRender.Options]
       CompositeMode  = 0
@@ -2595,12 +2652,13 @@
         BlendFactorSourceRGB        = 0
         BlendOperationAlpha         = 0
         BlendOperationRGB           = 0
+  [Props.DoorLockTrigger]
 
 [[Props]]
   BlockPass   = false
   BlockView   = false
-  Description = "次の階層へと続くポータル"
-  Name        = "warp_next"
+  Description = "ダンジョンへの門"
+  Name        = "dungeon_gate"
   [Props.SpriteRender]
     AnimKeys = [
       "warp_next_0",
@@ -2642,10 +2700,114 @@
     Radius  = 2
     [Props.LightSource.Color]
       A = 200
-      B = 255
+      B = 150
+      G = 100
+      R = 255
+  [Props.DungeonGateTrigger]
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "床置きランタン。広い範囲を明るく照らす"
+  Name        = "lantern"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "prop_lantern"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+  [Props.LightSource]
+    Enabled = true
+    Radius  = 4
+    [Props.LightSource.Color]
+      A = 255
+      B = 150
       G = 200
-      R = 100
-  [Props.WarpNextTrigger]
+      R = 255
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "革張りのソファ"
+  Name        = "sofa"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "sofa"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "石の柱"
+  Name        = "stone_pillar"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "stone_pillar"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "頑丈な木製のテーブル"
+  Name        = "table"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "ダイニングテーブル"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = false
@@ -2701,8 +2863,8 @@
 [[Props]]
   BlockPass   = false
   BlockView   = false
-  Description = "ダンジョンへの門"
-  Name        = "dungeon_gate"
+  Description = "次の階層へと続くポータル"
+  Name        = "warp_next"
   [Props.SpriteRender]
     AnimKeys = [
       "warp_next_0",
@@ -2744,35 +2906,10 @@
     Radius  = 2
     [Props.LightSource.Color]
       A = 200
-      B = 150
-      G = 100
-      R = 255
-  [Props.DungeonGateTrigger]
-
-[[Props]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "プレイヤーが踏むと扉をロックするトリガー"
-  Name        = "door_lock_trigger"
-  [Props.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "door_lock_trigger"
-    SpriteSheetName = "field"
-    [Props.SpriteRender.Options]
-      CompositeMode  = 0
-      DisableMipmaps = false
-      Filter         = 0
-      [Props.SpriteRender.Options.GeoM]
-      [Props.SpriteRender.Options.ColorScale]
-      [Props.SpriteRender.Options.ColorM]
-      [Props.SpriteRender.Options.Blend]
-        BlendFactorDestinationAlpha = 0
-        BlendFactorDestinationRGB   = 0
-        BlendFactorSourceAlpha      = 0
-        BlendFactorSourceRGB        = 0
-        BlendOperationAlpha         = 0
-        BlendOperationRGB           = 0
-  [Props.DoorLockTrigger]
+      B = 255
+      G = 200
+      R = 100
+  [Props.WarpNextTrigger]
 
 [[Professions]]
   Description = "逃げてきた一般人"
@@ -2812,178 +2949,6 @@
 
   [[Professions.Equips]]
     Name = "布の手袋"
-    Slot = "HANDS"
-
-  [[Professions.Equips]]
-    Name = "布のズボン"
-    Slot = "LEGS"
-
-  [[Professions.Equips]]
-    Name = "布の靴"
-    Slot = "FEET"
-
-[[Professions]]
-  Description = "訓練を積んだ兵隊"
-  ID          = "soldier"
-  Name        = "軍人"
-  [Professions.Abilities]
-    Agility   = 4
-    Defense   = 7
-    Dexterity = 4
-    Sensation = 3
-    Strength  = 8
-    Vitality  = 6
-
-  [[Professions.Skills]]
-    ID    = "sword"
-    Value = 3
-
-  [[Professions.Skills]]
-    ID    = "heavy_armor"
-    Value = 2
-
-  [[Professions.Items]]
-    Count = 1
-    Name  = "回復薬"
-
-  [[Professions.Equips]]
-    Name = "木刀"
-    Slot = "WEAPON1"
-
-  [[Professions.Equips]]
-    Name = "作業用ヘルメット"
-    Slot = "HEAD"
-
-  [[Professions.Equips]]
-    Name = "鉄の胸当て"
-    Slot = "TORSO"
-
-  [[Professions.Equips]]
-    Name = "布の腕巻き"
-    Slot = "ARMS"
-
-  [[Professions.Equips]]
-    Name = "革の手袋"
-    Slot = "HANDS"
-
-  [[Professions.Equips]]
-    Name = "布のズボン"
-    Slot = "LEGS"
-
-  [[Professions.Equips]]
-    Name = "革のブーツ"
-    Slot = "FEET"
-
-[[Professions]]
-  Description = "射撃の達人"
-  ID          = "sniper"
-  Name        = "狙撃手"
-  [Professions.Abilities]
-    Agility   = 6
-    Defense   = 4
-    Dexterity = 5
-    Sensation = 8
-    Strength  = 3
-    Vitality  = 4
-
-  [[Professions.Skills]]
-    ID    = "handgun"
-    Value = 3
-
-  [[Professions.Skills]]
-    ID    = "rifle"
-    Value = 2
-
-  [[Professions.Items]]
-    Count = 1
-    Name  = "パン"
-
-  [[Professions.Items]]
-    Count = 1
-    Name  = "回復薬"
-
-  [[Professions.Items]]
-    Count = 30
-    Name  = "9mm FMJ"
-
-  [[Professions.Equips]]
-    Name = "ハンドガン"
-    Slot = "WEAPON1"
-
-  [[Professions.Equips]]
-    Name = "影の頭巾"
-    Slot = "HEAD"
-
-  [[Professions.Equips]]
-    Name = "布のシャツ"
-    Slot = "TORSO"
-
-  [[Professions.Equips]]
-    Name = "布の腕巻き"
-    Slot = "ARMS"
-
-  [[Professions.Equips]]
-    Name = "布の手袋"
-    Slot = "HANDS"
-
-  [[Professions.Equips]]
-    Name = "布のズボン"
-    Slot = "LEGS"
-
-  [[Professions.Equips]]
-    Name = "布の靴"
-    Slot = "FEET"
-
-[[Professions]]
-  Description = "技術者"
-  ID          = "mechanic"
-  Name        = "整備士"
-  [Professions.Abilities]
-    Agility   = 4
-    Defense   = 5
-    Dexterity = 8
-    Sensation = 4
-    Strength  = 4
-    Vitality  = 5
-
-  [[Professions.Skills]]
-    ID    = "crafting"
-    Value = 3
-
-  [[Professions.Skills]]
-    ID    = "smithing"
-    Value = 2
-
-  [[Professions.Skills]]
-    ID    = "exploration"
-    Value = 1
-
-  [[Professions.Items]]
-    Count = 5
-    Name  = "鉄"
-
-  [[Professions.Items]]
-    Count = 2
-    Name  = "フェライトコア"
-
-  [[Professions.Equips]]
-    Name = "鉄のナイフ"
-    Slot = "WEAPON1"
-
-  [[Professions.Equips]]
-    Name = "作業用ヘルメット"
-    Slot = "HEAD"
-
-  [[Professions.Equips]]
-    Name = "布のシャツ"
-    Slot = "TORSO"
-
-  [[Professions.Equips]]
-    Name = "布の腕巻き"
-    Slot = "ARMS"
-
-  [[Professions.Equips]]
-    Name = "革の手袋"
     Slot = "HANDS"
 
   [[Professions.Equips]]
@@ -3063,6 +3028,66 @@
     Slot = "FEET"
 
 [[Professions]]
+  Description = "技術者"
+  ID          = "mechanic"
+  Name        = "整備士"
+  [Professions.Abilities]
+    Agility   = 4
+    Defense   = 5
+    Dexterity = 8
+    Sensation = 4
+    Strength  = 4
+    Vitality  = 5
+
+  [[Professions.Skills]]
+    ID    = "crafting"
+    Value = 3
+
+  [[Professions.Skills]]
+    ID    = "smithing"
+    Value = 2
+
+  [[Professions.Skills]]
+    ID    = "exploration"
+    Value = 1
+
+  [[Professions.Items]]
+    Count = 5
+    Name  = "鉄"
+
+  [[Professions.Items]]
+    Count = 2
+    Name  = "フェライトコア"
+
+  [[Professions.Equips]]
+    Name = "鉄のナイフ"
+    Slot = "WEAPON1"
+
+  [[Professions.Equips]]
+    Name = "作業用ヘルメット"
+    Slot = "HEAD"
+
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+
+  [[Professions.Equips]]
+    Name = "革の手袋"
+    Slot = "HANDS"
+
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"
+
+[[Professions]]
   Description = "医療知識を持つ"
   ID          = "medic"
   Name        = "衛生兵"
@@ -3128,4 +3153,116 @@
 
   [[Professions.Equips]]
     Name = "布の靴"
+    Slot = "FEET"
+
+[[Professions]]
+  Description = "射撃の達人"
+  ID          = "sniper"
+  Name        = "狙撃手"
+  [Professions.Abilities]
+    Agility   = 6
+    Defense   = 4
+    Dexterity = 5
+    Sensation = 8
+    Strength  = 3
+    Vitality  = 4
+
+  [[Professions.Skills]]
+    ID    = "handgun"
+    Value = 3
+
+  [[Professions.Skills]]
+    ID    = "rifle"
+    Value = 2
+
+  [[Professions.Items]]
+    Count = 1
+    Name  = "パン"
+
+  [[Professions.Items]]
+    Count = 1
+    Name  = "回復薬"
+
+  [[Professions.Items]]
+    Count = 30
+    Name  = "9mm FMJ"
+
+  [[Professions.Equips]]
+    Name = "ハンドガン"
+    Slot = "WEAPON1"
+
+  [[Professions.Equips]]
+    Name = "影の頭巾"
+    Slot = "HEAD"
+
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+
+  [[Professions.Equips]]
+    Name = "布の手袋"
+    Slot = "HANDS"
+
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"
+
+[[Professions]]
+  Description = "訓練を積んだ兵隊"
+  ID          = "soldier"
+  Name        = "軍人"
+  [Professions.Abilities]
+    Agility   = 4
+    Defense   = 7
+    Dexterity = 4
+    Sensation = 3
+    Strength  = 8
+    Vitality  = 6
+
+  [[Professions.Skills]]
+    ID    = "sword"
+    Value = 3
+
+  [[Professions.Skills]]
+    ID    = "heavy_armor"
+    Value = 2
+
+  [[Professions.Items]]
+    Count = 1
+    Name  = "回復薬"
+
+  [[Professions.Equips]]
+    Name = "木刀"
+    Slot = "WEAPON1"
+
+  [[Professions.Equips]]
+    Name = "作業用ヘルメット"
+    Slot = "HEAD"
+
+  [[Professions.Equips]]
+    Name = "鉄の胸当て"
+    Slot = "TORSO"
+
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+
+  [[Professions.Equips]]
+    Name = "革の手袋"
+    Slot = "HANDS"
+
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+
+  [[Professions.Equips]]
+    Name = "革のブーツ"
     Slot = "FEET"

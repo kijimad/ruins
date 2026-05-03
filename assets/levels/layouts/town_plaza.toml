@@ -1,35 +1,14 @@
-# 広場チャンク
-# 中央に焚き火、周囲にランタンを配置
-
 [[chunk]]
-  name     = "50x20_town_plaza"
-  palettes = ["standard", "town"]
-  weight   = 1
+  map        = "##..........rrr........rrr........rrr...........##\n#rrr........rrr........rrr........rrr.........rrr#\n#rrr........rrr........rrr........rrr.........rrr#\n#rrL........rrr........rrr........rrr.........Lrr#\n#...........rrr........rrr........rrr............#\n#..$........rrrrr.....rrrrr.....rrrrr............#\n#..........rrrrrrr...rrrrrrr...rrrrrrr...........#\n#.........rrrrrrrrr.rrrrrrrrr.rrrrrrrrr..........#\n#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#\n#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#\n#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#\n#.........rrrrrrrrrrrrrrrrrrrrrrrrrrrrr..........#\n#..........rrrrrrr.............rrrrrrr...........#\n#...1.......rrrrr...............rrrrr............#\n#...........rrr...2..............rrr.............#\n#..##.......rrr......I.....I.....rrr.............#\n#rrL........rrr...................rrr.........Lrr#\n#rrr........rrr......I.rrr.I......rrr.........rrr#\n#rrr........rrr........rGr........rrr.........rrr#\n##..........rrr......I.rrr.I......rrr...........##\n"
+  name       = '50x20_town_plaza'
+  palettes   = ['standard', 'town']
+  placements = []
+  weight     = 1
 
-  map = """
-##..........rrr........rrr........rrr...........##
-#rrr........rrr........rrr........rrr.........rrr#
-#rrr........rrr........rrr........rrr.........rrr#
-#rrL........rrr........rrr........rrr.........Lrr#
-#...........rrr........rrr........rrr............#
-#..$........rrrrr.....rrrrr.....rrrrr............#
-#..........rrrrrrr...rrrrrrr...rrrrrrr...........#
-#.........rrrrrrrrr.rrrrrrrrr.rrrrrrrrr..........#
-#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
-#rrrrrrrrrrFrrrrrrrrrrrrFrrrrrrrrrrrrFrrrrrrrrrrr#
-#rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
-#.........rrrrrrrrr.rrrrrrrrr.rrrrrrrrr..........#
-#..........rrrrrrr...rrrrrrr...rrrrrrr...........#
-#...1.......rrrrr.....rrrrr.....rrrrr............#
-#...........rrr...2....rrr.......rrr.............#
-#..##.......rrr........rrr.......rrr.............#
-#rrL........rrr........rrr........rrr.........Lrr#
-#rrr........rrr........rrr........rrr.........rrr#
-#rrr........rrr........rGr........rrr.........rrr#
-##..........rrr........rrr........rrr...........##
-"""
+  [chunk.Size]
+    H = 0
+    W = 0
 
-  # プレイヤーの開始位置（広場の中央）
   [[chunk.spawn_points]]
     x = 24
     y = 10
