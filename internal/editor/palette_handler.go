@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -23,6 +24,7 @@ type palettesData struct {
 type charMapping struct {
 	Char  string
 	Value string
+	Tile  string
 }
 
 type paletteEditData struct {
@@ -96,8 +98,8 @@ func (s *Server) buildPaletteEditData(p maptemplate.Palette) *paletteEditData {
 	return &paletteEditData{
 		Palette:        p,
 		TerrainEntries: sortedMappings(p.Terrain),
-		PropEntries:    sortedMappings(p.Props),
-		NPCEntries:     sortedMappings(p.NPCs),
+		PropEntries:    sortedEntryMappings(p.Props),
+		NPCEntries:     sortedEntryMappings(p.NPCs),
 		TileNames:      tileNames,
 		PropNames:      propNames,
 		NPCNames:       npcNames,
@@ -146,8 +148,8 @@ func (s *Server) handlePaletteCreate(w http.ResponseWriter, r *http.Request) {
 		ID:          id,
 		Description: id,
 		Terrain:     map[string]string{},
-		Props:       map[string]string{},
-		NPCs:        map[string]string{},
+		Props:       map[string]maptemplate.PaletteEntry{},
+		NPCs:        map[string]maptemplate.PaletteEntry{},
 	}
 	if err := s.paletteStore.Save(&p); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -200,8 +202,8 @@ func (s *Server) renderPalettePartial(w http.ResponseWriter, activeID string) {
 	}
 }
 
-// parsePaletteForm はフォームデータからPaletteを構築する
-// terrain_char_0, terrain_value_0, ... の形式で送信される
+// parsePaletteForm はフォームデータからPaletteを構築する。
+// 同名の配列フィールド（terrain_char[], terrain_value[] など）で送信される
 func parsePaletteForm(r *http.Request, id string) maptemplate.Palette {
 	desc := strings.TrimSpace(r.FormValue("description"))
 	if desc == "" {
@@ -209,41 +211,21 @@ func parsePaletteForm(r *http.Request, id string) maptemplate.Palette {
 	}
 
 	terrain := make(map[string]string)
-	props := make(map[string]string)
-	npcs := make(map[string]string)
-
-	for i := 0; ; i++ {
-		char := strings.TrimSpace(r.FormValue(fmt.Sprintf("terrain_char_%d", i)))
-		value := strings.TrimSpace(r.FormValue(fmt.Sprintf("terrain_value_%d", i)))
-		if char == "" && value == "" {
-			break
+	tChars := r.Form["terrain_char[]"]
+	tValues := r.Form["terrain_value[]"]
+	for i := range tChars {
+		char := strings.TrimSpace(tChars[i])
+		value := ""
+		if i < len(tValues) {
+			value = strings.TrimSpace(tValues[i])
 		}
 		if char != "" && value != "" {
 			terrain[char] = value
 		}
 	}
 
-	for i := 0; ; i++ {
-		char := strings.TrimSpace(r.FormValue(fmt.Sprintf("prop_char_%d", i)))
-		value := strings.TrimSpace(r.FormValue(fmt.Sprintf("prop_value_%d", i)))
-		if char == "" && value == "" {
-			break
-		}
-		if char != "" && value != "" {
-			props[char] = value
-		}
-	}
-
-	for i := 0; ; i++ {
-		char := strings.TrimSpace(r.FormValue(fmt.Sprintf("npc_char_%d", i)))
-		value := strings.TrimSpace(r.FormValue(fmt.Sprintf("npc_value_%d", i)))
-		if char == "" && value == "" {
-			break
-		}
-		if char != "" && value != "" {
-			npcs[char] = value
-		}
-	}
+	props := parseEntryFields(r.Form, "prop")
+	npcs := parseEntryFields(r.Form, "npc")
 
 	return maptemplate.Palette{
 		ID:          id,
@@ -252,4 +234,27 @@ func parsePaletteForm(r *http.Request, id string) maptemplate.Palette {
 		Props:       props,
 		NPCs:        npcs,
 	}
+}
+
+// parseEntryFields はフォームの配列フィールドからPaletteEntryマップを構築する
+func parseEntryFields(form url.Values, prefix string) map[string]maptemplate.PaletteEntry {
+	chars := form[prefix+"_char[]"]
+	values := form[prefix+"_value[]"]
+	tiles := form[prefix+"_tile[]"]
+	result := make(map[string]maptemplate.PaletteEntry)
+	for i := range chars {
+		char := strings.TrimSpace(chars[i])
+		value := ""
+		if i < len(values) {
+			value = strings.TrimSpace(values[i])
+		}
+		tile := ""
+		if i < len(tiles) {
+			tile = strings.TrimSpace(tiles[i])
+		}
+		if char != "" && value != "" {
+			result[char] = maptemplate.PaletteEntry{ID: value, Tile: tile}
+		}
+	}
+	return result
 }

@@ -29,7 +29,7 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 			"#": "wall",
 			".": "floor",
 		},
-		Props: map[string]string{},
+		Props: map[string]maptemplate.PaletteEntry{},
 	}
 
 	planner := NewTemplatePlanner(template, palette)
@@ -99,12 +99,10 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 		Terrain: map[string]string{
 			"#": "wall",
 			".": "floor",
-			"T": "floor",
-			"M": "floor",
 		},
-		Props: map[string]string{
-			"T": "table",
-			"M": "machine",
+		Props: map[string]maptemplate.PaletteEntry{
+			"T": {ID: "table", Tile: "floor"},
+			"M": {ID: "machine", Tile: "floor"},
 		},
 	}
 
@@ -174,7 +172,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 			"#": "wall",
 			".": "floor",
 		},
-		Props: map[string]string{},
+		Props: map[string]maptemplate.PaletteEntry{},
 	}
 
 	t.Run("PlannerChainが正常に作成される", func(t *testing.T) {
@@ -224,7 +222,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 				"#": "wall",
 				// "X"の定義がない
 			},
-			Props: map[string]string{},
+			Props: map[string]maptemplate.PaletteEntry{},
 		}
 
 		chain, err := NewTemplatePlannerChain(invalidTemplate, invalidPalette, 12345)

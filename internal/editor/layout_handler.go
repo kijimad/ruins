@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -284,6 +285,7 @@ func (s *Server) buildSpriteStyleMaps() spriteStyleMaps {
 func (s *Server) buildCheatSheet(merged *maptemplate.Palette) []cheatSheetEntry {
 	sm := s.buildSpriteStyleMaps()
 	entries := make([]cheatSheetEntry, 0, len(merged.Terrain)+len(merged.Props)+len(merged.NPCs))
+
 	for _, cm := range sortedMappings(merged.Terrain) {
 		entries = append(entries, cheatSheetEntry{
 			Char:     cm.Char,
@@ -292,7 +294,7 @@ func (s *Server) buildCheatSheet(merged *maptemplate.Palette) []cheatSheetEntry 
 			Style:    template.CSS(sm.tile[cm.Value]),
 		})
 	}
-	for _, cm := range sortedMappings(merged.Props) {
+	for _, cm := range sortedEntryMappings(merged.Props) {
 		entries = append(entries, cheatSheetEntry{
 			Char:     cm.Char,
 			Category: "置物",
@@ -300,7 +302,7 @@ func (s *Server) buildCheatSheet(merged *maptemplate.Palette) []cheatSheetEntry 
 			Style:    template.CSS(sm.prop[cm.Value]),
 		})
 	}
-	for _, cm := range sortedMappings(merged.NPCs) {
+	for _, cm := range sortedEntryMappings(merged.NPCs) {
 		entries = append(entries, cheatSheetEntry{
 			Char:     cm.Char,
 			Category: "NPC",
@@ -308,6 +310,18 @@ func (s *Server) buildCheatSheet(merged *maptemplate.Palette) []cheatSheetEntry 
 			Style:    template.CSS(sm.npc[cm.Value]),
 		})
 	}
+	return entries
+}
+
+// sortedEntryMappings はPaletteEntryマップをソート済みcharMappingに変換する
+func sortedEntryMappings(m map[string]maptemplate.PaletteEntry) []charMapping {
+	entries := make([]charMapping, 0, len(m))
+	for k, v := range m {
+		entries = append(entries, charMapping{Char: k, Value: v.ID, Tile: v.Tile})
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Char < entries[j].Char
+	})
 	return entries
 }
 
@@ -327,21 +341,21 @@ func (s *Server) buildPreviewData(expandedMap string, merged *maptemplate.Palett
 		for _, ch := range line {
 			charStr := string(ch)
 			cell := previewCell{Char: charStr}
-			if terrain, ok := merged.Terrain[charStr]; ok {
+			if terrain, ok := merged.GetTerrain(charStr); ok {
 				cell.Terrain = terrain
 				if style, found := sm.tile[terrain]; found {
 					cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
 				}
 			}
-			if prop, ok := merged.Props[charStr]; ok {
-				cell.Prop = prop
-				if style, found := sm.prop[prop]; found {
+			if propName, ok := merged.GetProp(charStr); ok {
+				cell.Prop = propName
+				if style, found := sm.prop[propName]; found {
 					cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
 				}
 			}
-			if npc, ok := merged.NPCs[charStr]; ok {
-				cell.NPC = npc
-				if style, found := sm.npc[npc]; found {
+			if npcName, ok := merged.GetNPC(charStr); ok {
+				cell.NPC = npcName
+				if style, found := sm.npc[npcName]; found {
 					cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
 				}
 			}

@@ -32,9 +32,9 @@ description = "テスト用パレット"
 "#" = "wall"
 "." = "floor"
 [palette.props]
-"+" = "door"
+"+" = { id = "door", tile = "floor" }
 [palette.npcs]
-"M" = "boss"
+"M" = { id = "boss", tile = "floor" }
 `
 	require.NoError(t, os.WriteFile(filepath.Join(paletteDir, "test_pal.toml"), []byte(paletteTOML), 0o644))
 
@@ -212,8 +212,8 @@ func TestBuildPreviewData(t *testing.T) {
 	palette := &maptemplate.Palette{
 		ID:      "test",
 		Terrain: map[string]string{"#": "wall", ".": "floor"},
-		Props:   map[string]string{"+": "door"},
-		NPCs:    map[string]string{"M": "boss"},
+		Props:   map[string]maptemplate.PaletteEntry{"+": {ID: "door", Tile: "floor"}},
+		NPCs:    map[string]maptemplate.PaletteEntry{"M": {ID: "boss", Tile: "floor"}},
 	}
 
 	data := server.buildPreviewData("##\n.M", palette)
@@ -232,6 +232,7 @@ func TestBuildPreviewData(t *testing.T) {
 	assert.Equal(t, "floor", data.Cells[2].Terrain)
 
 	assert.Equal(t, "M", data.Cells[3].Char)
+	assert.Equal(t, "floor", data.Cells[3].Terrain)
 	assert.Equal(t, "boss", data.Cells[3].NPC)
-	assert.Equal(t, 1, len(data.Cells[3].Sprites))
+	assert.Equal(t, 2, len(data.Cells[3].Sprites))
 }

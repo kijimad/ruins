@@ -733,7 +733,6 @@ function addEtEntry() {
 <div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/professions/{{.Index}}/edit" hx-target="#prof-edit-panel" hx-swap="innerHTML"
      onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
   <span class="text-truncate flex-grow-1">{{.Profession.Name}}</span>
-  <span class="badge text-bg-secondary" style="font-size:10px;">{{.Profession.ID}}</span>
 </div>
 {{end}}
 
@@ -781,7 +780,6 @@ function addProfEquip() {
 <form hx-post="/professions/{{.Index}}" hx-target="#prof-edit-panel" hx-swap="innerHTML">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Profession.Name}}</h5>
-    <span class="badge text-bg-secondary">{{.Profession.ID}}</span>
     <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/professions/{{.Index}}" hx-target="#prof-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
   </div>
   <div class="row g-3 mb-3">

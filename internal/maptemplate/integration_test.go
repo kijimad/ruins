@@ -24,8 +24,8 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Equal(t, "floor", palette.Terrain["."])
 
 		// Propsの確認
-		assert.Equal(t, "table", palette.Props["T"])
-		assert.Equal(t, "chair", palette.Props["C"])
+		assert.Equal(t, "table", palette.Props["T"].ID)
+		assert.Equal(t, "chair", palette.Props["C"].ID)
 	})
 
 	t.Run("小部屋テンプレートを読み込める", func(t *testing.T) {
@@ -125,9 +125,9 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Contains(t, plaza.Palettes, "standard")
 		assert.Contains(t, plaza.Palettes, "town")
 
-		// マップに焚き火とランタンが含まれているか確認
-		assert.Contains(t, plaza.Map, "F") // 焚き火
+		// マップにランタンとゲートが含まれているか確認
 		assert.Contains(t, plaza.Map, "L") // ランタン
+		assert.Contains(t, plaza.Map, "G") // ダンジョン選択ゲート
 
 		// マップサイズが正しいか確認
 		lines := splitMapLines(plaza.Map)

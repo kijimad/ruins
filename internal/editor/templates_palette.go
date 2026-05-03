@@ -51,35 +51,28 @@ var templateTextPalette = `
 
 {{define "palette-edit"}}
 <script>
-var terrainIdx = {{len .TerrainEntries}};
-var propIdx = {{len .PropEntries}};
-var npcIdx = {{len .NPCEntries}};
-
 function addTerrainEntry() {
   var c = document.getElementById('terrain-entries');
   var div = document.createElement('div');
   div.className = 'row g-2 mb-2 mapping-row';
-  div.innerHTML = '<div class="col-2"><input type="text" class="form-control form-control-sm font-monospace text-center" name="terrain_char_'+terrainIdx+'" maxlength="1" placeholder="文字"></div><div class="col-8"><select class="form-select form-select-sm" name="terrain_value_'+terrainIdx+'"><option value="">-- 選択 --</option>'+document.getElementById('tile-options-tpl').innerHTML+'</select></div><div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.mapping-row\').remove()">×</button></div>';
+  div.innerHTML = '<div class="col-2"><input type="text" class="form-control form-control-sm font-monospace text-center" name="terrain_char[]" maxlength="1" placeholder="文字"></div><div class="col-8"><select class="form-select form-select-sm" name="terrain_value[]"><option value="">-- 選択 --</option>'+document.getElementById('tile-options-tpl').innerHTML+'</select></div><div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.mapping-row\').remove()">×</button></div>';
   c.appendChild(div);
-  terrainIdx++;
 }
 
 function addPropEntry() {
   var c = document.getElementById('prop-entries');
   var div = document.createElement('div');
   div.className = 'row g-2 mb-2 mapping-row';
-  div.innerHTML = '<div class="col-2"><input type="text" class="form-control form-control-sm font-monospace text-center" name="prop_char_'+propIdx+'" maxlength="1" placeholder="文字"></div><div class="col-8"><select class="form-select form-select-sm" name="prop_value_'+propIdx+'"><option value="">-- 選択 --</option>'+document.getElementById('prop-options-tpl').innerHTML+'</select></div><div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.mapping-row\').remove()">×</button></div>';
+  div.innerHTML = '<div class="col-2"><input type="text" class="form-control form-control-sm font-monospace text-center" name="prop_char[]" maxlength="1" placeholder="文字"></div><div class="col-4"><select class="form-select form-select-sm" name="prop_value[]"><option value="">-- Prop --</option>'+document.getElementById('prop-options-tpl').innerHTML+'</select></div><div class="col-4"><select class="form-select form-select-sm" name="prop_tile[]"><option value="">-- タイル --</option>'+document.getElementById('tile-options-tpl').innerHTML+'</select></div><div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.mapping-row\').remove()">×</button></div>';
   c.appendChild(div);
-  propIdx++;
 }
 
 function addNPCEntry() {
   var c = document.getElementById('npc-entries');
   var div = document.createElement('div');
   div.className = 'row g-2 mb-2 mapping-row';
-  div.innerHTML = '<div class="col-2"><input type="text" class="form-control form-control-sm font-monospace text-center" name="npc_char_'+npcIdx+'" maxlength="1" placeholder="文字"></div><div class="col-8"><select class="form-select form-select-sm" name="npc_value_'+npcIdx+'"><option value="">-- 選択 --</option>'+document.getElementById('npc-options-tpl').innerHTML+'</select></div><div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.mapping-row\').remove()">×</button></div>';
+  div.innerHTML = '<div class="col-2"><input type="text" class="form-control form-control-sm font-monospace text-center" name="npc_char[]" maxlength="1" placeholder="文字"></div><div class="col-4"><select class="form-select form-select-sm" name="npc_value[]"><option value="">-- NPC --</option>'+document.getElementById('npc-options-tpl').innerHTML+'</select></div><div class="col-4"><select class="form-select form-select-sm" name="npc_tile[]"><option value="">-- タイル --</option>'+document.getElementById('tile-options-tpl').innerHTML+'</select></div><div class="col-2"><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest(\'.mapping-row\').remove()">×</button></div>';
   c.appendChild(div);
-  npcIdx++;
 }
 </script>
 
@@ -102,13 +95,13 @@ function addNPCEntry() {
   <!-- 地形マッピング -->
   <h6 class="mb-2">地形 (文字 → タイル)</h6>
   <div id="terrain-entries">
-    {{range $i, $e := .TerrainEntries}}
+    {{range $e := .TerrainEntries}}
     <div class="row g-2 mb-2 mapping-row">
       <div class="col-2">
-        <input type="text" class="form-control form-control-sm font-monospace text-center" name="terrain_char_{{$i}}" value="{{$e.Char}}" maxlength="1">
+        <input type="text" class="form-control form-control-sm font-monospace text-center" name="terrain_char[]" value="{{$e.Char}}" maxlength="1">
       </div>
       <div class="col-8">
-        <select class="form-select form-select-sm" name="terrain_value_{{$i}}">
+        <select class="form-select form-select-sm" name="terrain_value[]">
           <option value="">-- 選択 --</option>
           {{range $.TileNames}}<option value="{{.}}" {{if eq . $e.Value}}selected{{end}}>{{.}}</option>{{end}}
         </select>
@@ -122,17 +115,23 @@ function addNPCEntry() {
   <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addTerrainEntry()">+ 地形を追加</button>
 
   <!-- Propマッピング -->
-  <h6 class="mb-2">Props (文字 → Prop)</h6>
+  <h6 class="mb-2">Props (文字 → Prop / タイル)</h6>
   <div id="prop-entries">
-    {{range $i, $e := .PropEntries}}
+    {{range $e := .PropEntries}}
     <div class="row g-2 mb-2 mapping-row">
       <div class="col-2">
-        <input type="text" class="form-control form-control-sm font-monospace text-center" name="prop_char_{{$i}}" value="{{$e.Char}}" maxlength="1">
+        <input type="text" class="form-control form-control-sm font-monospace text-center" name="prop_char[]" value="{{$e.Char}}" maxlength="1">
       </div>
-      <div class="col-8">
-        <select class="form-select form-select-sm" name="prop_value_{{$i}}">
-          <option value="">-- 選択 --</option>
+      <div class="col-4">
+        <select class="form-select form-select-sm" name="prop_value[]">
+          <option value="">-- Prop --</option>
           {{range $.PropNames}}<option value="{{.}}" {{if eq . $e.Value}}selected{{end}}>{{.}}</option>{{end}}
+        </select>
+      </div>
+      <div class="col-4">
+        <select class="form-select form-select-sm" name="prop_tile[]">
+          <option value="">-- タイル --</option>
+          {{range $.TileNames}}<option value="{{.}}" {{if eq . $e.Tile}}selected{{end}}>{{.}}</option>{{end}}
         </select>
       </div>
       <div class="col-2">
@@ -144,17 +143,23 @@ function addNPCEntry() {
   <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="addPropEntry()">+ Propを追加</button>
 
   <!-- NPCマッピング -->
-  <h6 class="mb-2">NPCs (文字 → NPC)</h6>
+  <h6 class="mb-2">NPCs (文字 → NPC / タイル)</h6>
   <div id="npc-entries">
-    {{range $i, $e := .NPCEntries}}
+    {{range $e := .NPCEntries}}
     <div class="row g-2 mb-2 mapping-row">
       <div class="col-2">
-        <input type="text" class="form-control form-control-sm font-monospace text-center" name="npc_char_{{$i}}" value="{{$e.Char}}" maxlength="1">
+        <input type="text" class="form-control form-control-sm font-monospace text-center" name="npc_char[]" value="{{$e.Char}}" maxlength="1">
       </div>
-      <div class="col-8">
-        <select class="form-select form-select-sm" name="npc_value_{{$i}}">
-          <option value="">-- 選択 --</option>
+      <div class="col-4">
+        <select class="form-select form-select-sm" name="npc_value[]">
+          <option value="">-- NPC --</option>
           {{range $.NPCNames}}<option value="{{.}}" {{if eq . $e.Value}}selected{{end}}>{{.}}</option>{{end}}
+        </select>
+      </div>
+      <div class="col-4">
+        <select class="form-select form-select-sm" name="npc_tile[]">
+          <option value="">-- タイル --</option>
+          {{range $.TileNames}}<option value="{{.}}" {{if eq . $e.Tile}}selected{{end}}>{{.}}</option>{{end}}
         </select>
       </div>
       <div class="col-2">

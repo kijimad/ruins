@@ -329,7 +329,8 @@ func (s *Server) loadSpriteSheets() {
 // ListenAndServe はHTTPサーバーを起動する
 func (s *Server) ListenAndServe(addr string) error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /", s.handleIndex)
+	mux.HandleFunc("GET /{$}", s.handleDashboard)
+	mux.HandleFunc("GET /items", s.handleIndex)
 	mux.HandleFunc("GET /items/{index}/edit", s.handleItemEdit)
 	mux.HandleFunc("GET /items/{index}", s.handleItemRow)
 	mux.HandleFunc("POST /items/{index}", s.handleItemUpdate)
@@ -442,6 +443,12 @@ func (s *Server) handleSpritePNG(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	if _, err := w.Write(bs); err != nil {
 		log.Printf("スプライトPNG書き込み失敗: %v", err)
+	}
+}
+
+func (s *Server) handleDashboard(w http.ResponseWriter, _ *http.Request) {
+	if err := s.templates.ExecuteTemplate(w, "dashboard", nil); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 

@@ -25,23 +25,60 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
 {{define "header"}}
 <nav class="navbar navbar-dark bg-dark border-bottom px-3" style="height:40px;min-height:40px;" data-bs-theme="dark">
   <a class="navbar-brand py-0" href="/" style="font-size:14px;">Ruins Editor</a>
-  <ul class="navbar-nav flex-row gap-2">
-    <li class="nav-item"><a class="nav-link py-0" href="/">Items</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/members">Members</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/recipes">Recipes</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/command-tables">CmdTbl</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/drop-tables">DropTbl</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/item-tables">ItemTbl</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/enemy-tables">EnemyTbl</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/tiles">Tiles</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/props">Props</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/professions">Professions</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/sprite-sheets">Sheets</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/cutter">Cutter</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/palettes">Palettes</a></li>
-    <li class="nav-item"><a class="nav-link py-0" href="/layouts">Layouts</a></li>
-  </ul>
 </nav>
+{{end}}
+
+{{define "dashboard"}}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ruins Editor</title>
+  {{template "common-head"}}
+  <style>
+    .dash-card { text-decoration:none; color:inherit; }
+    .dash-card:hover .card { border-color:#0d6efd; box-shadow:0 0 0 1px #0d6efd; }
+    .dash-card .card { transition: border-color 0.15s, box-shadow 0.15s; }
+  </style>
+</head>
+<body>
+  {{template "header" .}}
+  <div class="container py-4" style="max-width:900px;">
+    <h4 class="mb-4">Ruins Editor</h4>
+
+    <h6 class="text-secondary mb-2">エンティティ</h6>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3"><a class="dash-card" href="/items"><div class="card"><div class="card-body py-2 px-3"><strong>Items</strong><div class="text-muted" style="font-size:12px;">アイテム定義</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/members"><div class="card"><div class="card-body py-2 px-3"><strong>Members</strong><div class="text-muted" style="font-size:12px;">メンバー定義</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/tiles"><div class="card"><div class="card-body py-2 px-3"><strong>Tiles</strong><div class="text-muted" style="font-size:12px;">タイル定義</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/props"><div class="card"><div class="card-body py-2 px-3"><strong>Props</strong><div class="text-muted" style="font-size:12px;">配置物定義</div></div></div></a></div>
+    </div>
+
+    <h6 class="text-secondary mb-2">テーブル</h6>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3"><a class="dash-card" href="/recipes"><div class="card"><div class="card-body py-2 px-3"><strong>Recipes</strong><div class="text-muted" style="font-size:12px;">レシピ</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/command-tables"><div class="card"><div class="card-body py-2 px-3"><strong>CmdTbl</strong><div class="text-muted" style="font-size:12px;">コマンドテーブル</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/drop-tables"><div class="card"><div class="card-body py-2 px-3"><strong>DropTbl</strong><div class="text-muted" style="font-size:12px;">ドロップテーブル</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/item-tables"><div class="card"><div class="card-body py-2 px-3"><strong>ItemTbl</strong><div class="text-muted" style="font-size:12px;">アイテムテーブル</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/enemy-tables"><div class="card"><div class="card-body py-2 px-3"><strong>EnemyTbl</strong><div class="text-muted" style="font-size:12px;">敵テーブル</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/professions"><div class="card"><div class="card-body py-2 px-3"><strong>Professions</strong><div class="text-muted" style="font-size:12px;">職業定義</div></div></div></a></div>
+    </div>
+
+    <h6 class="text-secondary mb-2">マップ</h6>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3"><a class="dash-card" href="/palettes"><div class="card"><div class="card-body py-2 px-3"><strong>Palettes</strong><div class="text-muted" style="font-size:12px;">パレット定義</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/layouts"><div class="card"><div class="card-body py-2 px-3"><strong>Layouts</strong><div class="text-muted" style="font-size:12px;">レイアウト編集</div></div></div></a></div>
+    </div>
+
+    <h6 class="text-secondary mb-2">スプライト</h6>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3"><a class="dash-card" href="/sprite-sheets"><div class="card"><div class="card-body py-2 px-3"><strong>Sheets</strong><div class="text-muted" style="font-size:12px;">スプライトシート</div></div></div></a></div>
+      <div class="col-md-3"><a class="dash-card" href="/cutter"><div class="card"><div class="card-body py-2 px-3"><strong>Cutter</strong><div class="text-muted" style="font-size:12px;">スプライト切り出し</div></div></div></a></div>
+    </div>
+  </div>
+</body>
+</html>
 {{end}}
 
 {{define "index"}}
@@ -50,7 +87,7 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Ruins Editor</title>
+  <title>Ruins Editor - Items</title>
   {{template "common-head"}}
   <style>
     .sidebar { width: 280px; min-width: 280px; overflow-y: auto; }

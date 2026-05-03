@@ -19,12 +19,12 @@ func TestProfessions(t *testing.T) {
 
 	assert.Equal(t, 6, len(professions), "職業は6種類")
 
-	expectedIDs := []string{"evacuee", "soldier", "sniper", "mechanic", "hunter", "medic"}
+	expectedIDs := []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier"}
 	for i, expectedID := range expectedIDs {
 		assert.Equal(t, expectedID, professions[i].ID, "職業ID[%d]", i)
 	}
 
-	expectedNames := []string{"避難民", "軍人", "狙撃手", "整備士", "猟師", "衛生兵"}
+	expectedNames := []string{"避難民", "猟師", "整備士", "衛生兵", "狙撃手", "軍人"}
 	for i, expectedName := range expectedNames {
 		assert.Equal(t, expectedName, professions[i].Name, "職業名[%d]", i)
 	}
@@ -120,11 +120,11 @@ func TestCharacterJobState_FetchProps(t *testing.T) {
 
 	assert.Equal(t, 6, len(props.Items), "職業は6つ")
 	assert.Equal(t, "避難民", props.Items[0].Profession.Name)
-	assert.Equal(t, "軍人", props.Items[1].Profession.Name)
-	assert.Equal(t, "狙撃手", props.Items[2].Profession.Name)
-	assert.Equal(t, "整備士", props.Items[3].Profession.Name)
-	assert.Equal(t, "猟師", props.Items[4].Profession.Name)
-	assert.Equal(t, "衛生兵", props.Items[5].Profession.Name)
+	assert.Equal(t, "猟師", props.Items[1].Profession.Name)
+	assert.Equal(t, "整備士", props.Items[2].Profession.Name)
+	assert.Equal(t, "衛生兵", props.Items[3].Profession.Name)
+	assert.Equal(t, "狙撃手", props.Items[4].Profession.Name)
+	assert.Equal(t, "軍人", props.Items[5].Profession.Name)
 }
 
 func TestCharacterJobState_Navigation(t *testing.T) {
