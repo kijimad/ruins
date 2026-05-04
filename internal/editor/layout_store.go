@@ -13,14 +13,23 @@ import (
 
 const tomlExt = ".toml"
 
-// LayoutStore はレイアウト・チャンクファイルの管理を担当する
-// assets.FSを経由せず直接ファイルシステムからTOMLを読み書きする
+// LayoutStore はレイアウト・チャンクファイルの管理を担当する。
+// 起動時に全ファイルをメモリに読み込み、変更時にメモリとファイルの両方を更新する
 type LayoutStore struct {
-	mu   sync.RWMutex
-	dirs []string // レイアウト/チャンク/施設ディレクトリのパス群
+	mu      sync.RWMutex
+	dirs    []string          // レイアウト/チャンク/施設ディレクトリのパス群
+	entries []LayoutFileEntry // メモリに保持するチャンクデータ
+	paths   map[string]string // "dir/file.toml" → 絶対パスの逆引き
 }
 
-// NewLayoutStore はLayoutStoreを生成する
+// LayoutFileEntry はファイル内のチャンク情報
+type LayoutFileEntry struct {
+	Dir      string
+	FileName string
+	Chunks   []maptemplate.ChunkTemplate
+}
+
+// NewLayoutStore はLayoutStoreを生成する。全ファイルをメモリに読み込む
 func NewLayoutStore(dirs []string) (*LayoutStore, error) {
 	for _, dir := range dirs {
 		info, err := os.Stat(dir)
@@ -31,41 +40,40 @@ func NewLayoutStore(dirs []string) (*LayoutStore, error) {
 			return nil, fmt.Errorf("ディレクトリではありません: %s", dir)
 		}
 	}
-	return &LayoutStore{dirs: dirs}, nil
+	ls := &LayoutStore{
+		dirs:  dirs,
+		paths: make(map[string]string),
+	}
+	if err := ls.loadAll(); err != nil {
+		return nil, err
+	}
+	return ls, nil
 }
 
-// LayoutFileEntry はファイル内のチャンク情報
-type LayoutFileEntry struct {
-	Dir      string
-	FileName string
-	Chunks   []maptemplate.ChunkTemplate
-}
-
-// List はすべてのチャンクテンプレートをファイル単位で返す
-func (ls *LayoutStore) List() ([]LayoutFileEntry, error) {
-	ls.mu.RLock()
-	defer ls.mu.RUnlock()
-
+// loadAll は全ディレクトリからファイルを読み込んでメモリに保持する
+func (ls *LayoutStore) loadAll() error {
 	var entries []LayoutFileEntry
 	for _, dir := range ls.dirs {
 		dirEntries, err := os.ReadDir(dir)
 		if err != nil {
 			continue
 		}
+		dirBase := filepath.Base(dir)
 		for _, entry := range dirEntries {
 			if entry.IsDir() || filepath.Ext(entry.Name()) != tomlExt {
 				continue
 			}
 			path := filepath.Join(dir, entry.Name())
-			chunks, err := ls.loadFile(path)
+			chunks, err := loadChunkFile(path)
 			if err != nil {
 				continue
 			}
 			entries = append(entries, LayoutFileEntry{
-				Dir:      filepath.Base(dir),
+				Dir:      dirBase,
 				FileName: entry.Name(),
 				Chunks:   chunks,
 			})
+			ls.paths[dirBase+"/"+entry.Name()] = path
 		}
 	}
 
@@ -76,7 +84,16 @@ func (ls *LayoutStore) List() ([]LayoutFileEntry, error) {
 		return entries[i].FileName < entries[j].FileName
 	})
 
-	return entries, nil
+	ls.entries = entries
+	return nil
+}
+
+// List はすべてのチャンクテンプレートをファイル単位で返す
+func (ls *LayoutStore) List() ([]LayoutFileEntry, error) {
+	ls.mu.RLock()
+	defer ls.mu.RUnlock()
+
+	return ls.entries, nil
 }
 
 // GetChunk はディレクトリ名+ファイル名+チャンク名で特定のチャンクを取得する
@@ -84,22 +101,22 @@ func (ls *LayoutStore) GetChunk(dirName, fileName, chunkName string) (*maptempla
 	ls.mu.RLock()
 	defer ls.mu.RUnlock()
 
-	path, err := ls.resolvePath(dirName, fileName)
-	if err != nil {
-		return nil, err
-	}
+	return ls.findChunk(dirName, fileName, chunkName)
+}
 
-	chunks, err := ls.loadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
-	for i := range chunks {
-		if chunks[i].Name == chunkName {
-			return &chunks[i], nil
+// findChunk はロックなしでメモリからチャンクを検索する
+func (ls *LayoutStore) findChunk(dirName, fileName, chunkName string) (*maptemplate.ChunkTemplate, error) {
+	for i := range ls.entries {
+		if ls.entries[i].Dir == dirName && ls.entries[i].FileName == fileName {
+			for j := range ls.entries[i].Chunks {
+				if ls.entries[i].Chunks[j].Name == chunkName {
+					return &ls.entries[i].Chunks[j], nil
+				}
+			}
+			return nil, fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
 		}
 	}
-	return nil, fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
+	return nil, fmt.Errorf("ファイルが見つかりません: %s/%s", dirName, fileName)
 }
 
 // SaveChunk はチャンクのmap内容を更新して保存する。
@@ -108,43 +125,45 @@ func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string
 	ls.mu.Lock()
 	defer ls.mu.Unlock()
 
-	path, err := ls.resolvePath(dirName, fileName)
+	// メモリ上のチャンクを検索する
+	chunk, err := ls.findChunk(dirName, fileName, chunkName)
 	if err != nil {
 		return err
 	}
 
-	chunks, err := ls.loadFile(path)
-	if err != nil {
-		return err
-	}
-
-	found := false
-	for i := range chunks {
-		if chunks[i].Name == chunkName {
-			if validate != nil {
-				if err := validate(&chunks[i]); err != nil {
-					return err
-				}
-			}
-			chunks[i].Map = mapContent
-			found = true
-			break
+	if validate != nil {
+		if err := validate(chunk); err != nil {
+			return err
 		}
 	}
-	if !found {
-		return fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
-	}
+	chunk.Map = mapContent
 
-	file := maptemplate.ChunkTemplateFile{Chunks: chunks}
-	data, err := maptemplate.MarshalChunkTemplateFile(file)
-	if err != nil {
-		return fmt.Errorf("TOMLマーシャルエラー: %w", err)
-	}
-
-	return os.WriteFile(path, data, 0o644)
+	// ファイルに書き出す
+	return ls.saveFile(dirName, fileName)
 }
 
-// BuildTemplateLoader はファイルシステムからTemplateLoaderを構築する
+// saveFile はメモリ上のエントリをファイルに書き出す
+func (ls *LayoutStore) saveFile(dirName, fileName string) error {
+	key := dirName + "/" + fileName
+	path, ok := ls.paths[key]
+	if !ok {
+		return fmt.Errorf("ファイルパスが見つかりません: %s", key)
+	}
+
+	for i := range ls.entries {
+		if ls.entries[i].Dir == dirName && ls.entries[i].FileName == fileName {
+			file := maptemplate.ChunkTemplateFile{Chunks: ls.entries[i].Chunks}
+			data, err := maptemplate.MarshalChunkTemplateFile(file)
+			if err != nil {
+				return fmt.Errorf("TOMLマーシャルエラー: %w", err)
+			}
+			return os.WriteFile(path, data, 0o644)
+		}
+	}
+	return fmt.Errorf("エントリが見つかりません: %s", key)
+}
+
+// BuildTemplateLoader はメモリ上のチャンクデータからTemplateLoaderを構築する。
 // プレビュー生成に使う
 func (ls *LayoutStore) BuildTemplateLoader(paletteDir string) (*maptemplate.TemplateLoader, error) {
 	ls.mu.RLock()
@@ -152,29 +171,10 @@ func (ls *LayoutStore) BuildTemplateLoader(paletteDir string) (*maptemplate.Temp
 
 	loader := maptemplate.NewTemplateLoader()
 
-	// チャンクを登録する
-	for _, dir := range ls.dirs {
-		dirEntries, err := os.ReadDir(dir)
-		if err != nil {
-			continue
-		}
-		for _, entry := range dirEntries {
-			if entry.IsDir() || filepath.Ext(entry.Name()) != tomlExt {
-				continue
-			}
-			path := filepath.Join(dir, entry.Name())
-			f, err := os.Open(path)
-			if err != nil {
-				continue
-			}
-			chunks, err := loader.Load(f)
-			_ = f.Close()
-			if err != nil {
-				continue
-			}
-			for i := range chunks {
-				loader.RegisterChunk(&chunks[i])
-			}
+	// メモリ上のチャンクを登録する
+	for i := range ls.entries {
+		for j := range ls.entries[i].Chunks {
+			loader.RegisterChunk(&ls.entries[i].Chunks[j])
 		}
 	}
 
@@ -204,7 +204,8 @@ func (ls *LayoutStore) BuildTemplateLoader(paletteDir string) (*maptemplate.Temp
 	return loader, nil
 }
 
-func (ls *LayoutStore) loadFile(path string) ([]maptemplate.ChunkTemplate, error) {
+// loadChunkFile はファイルからチャンクテンプレートを読み込む
+func loadChunkFile(path string) ([]maptemplate.ChunkTemplate, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("ファイル読み込みエラー: %w", err)
@@ -213,18 +214,6 @@ func (ls *LayoutStore) loadFile(path string) ([]maptemplate.ChunkTemplate, error
 
 	loader := maptemplate.NewTemplateLoader()
 	return loader.Load(f)
-}
-
-func (ls *LayoutStore) resolvePath(dirName, fileName string) (string, error) {
-	for _, dir := range ls.dirs {
-		if filepath.Base(dir) == dirName {
-			path := filepath.Join(dir, fileName)
-			if _, err := os.Stat(path); err == nil {
-				return path, nil
-			}
-		}
-	}
-	return "", fmt.Errorf("ファイルが見つかりません: %s/%s", dirName, fileName)
 }
 
 // FileKey はファイル特定用のキー文字列を生成する
