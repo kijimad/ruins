@@ -252,12 +252,21 @@ func (s *Server) handleCutterSave(w http.ResponseWriter, r *http.Request) {
 			}
 
 			safeName := filepath.Base(name)
-			if safeName == "." || safeName == ".." || strings.ContainsAny(safeName, `/\`) {
+			if safeName != name || safeName == "." || safeName == ".." || strings.ContainsAny(safeName, `/\`) {
 				http.Error(w, fmt.Sprintf("不正なスプライト名です: %q", name), http.StatusBadRequest)
 				return
 			}
+			absDir, err := filepath.Abs(s.outputDir)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("出力ディレクトリ解決エラー: %v", err), http.StatusInternalServerError)
+				return
+			}
 			filename := safeName + "_.png"
-			path := filepath.Join(s.outputDir, filename)
+			path := filepath.Join(absDir, filename)
+			if !strings.HasPrefix(path, absDir+string(filepath.Separator)) {
+				http.Error(w, fmt.Sprintf("不正なスプライト名です: %q", name), http.StatusBadRequest)
+				return
+			}
 			if err := savePNG(path, cell); err != nil {
 				http.Error(w, fmt.Sprintf("%s の保存に失敗: %v", name, err), http.StatusInternalServerError)
 				return

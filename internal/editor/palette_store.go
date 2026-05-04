@@ -105,7 +105,15 @@ func (ps *PaletteStore) safePath(id string) (string, error) {
 	if safe != id || safe == "." || safe == ".." || strings.ContainsAny(safe, `/\`) {
 		return "", fmt.Errorf("不正なパレットIDです: %q", id)
 	}
-	return filepath.Join(ps.dir, safe+".toml"), nil
+	absDir, err := filepath.Abs(ps.dir)
+	if err != nil {
+		return "", err
+	}
+	joined := filepath.Join(absDir, safe+".toml")
+	if !strings.HasPrefix(joined, absDir+string(filepath.Separator)) {
+		return "", fmt.Errorf("不正なパレットIDです: %q", id)
+	}
+	return joined, nil
 }
 
 // Save はパレットをメモリとファイルの両方に保存する

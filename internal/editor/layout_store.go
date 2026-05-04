@@ -56,7 +56,7 @@ func (ls *LayoutStore) loadAll() error {
 	for _, dir := range ls.dirs {
 		dirEntries, err := os.ReadDir(dir)
 		if err != nil {
-			continue
+			return fmt.Errorf("ディレクトリ読み込みエラー: %s: %w", dir, err)
 		}
 		dirBase := filepath.Base(dir)
 		for _, entry := range dirEntries {
