@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -27,8 +26,7 @@ func setupTestStore(t *testing.T, items []raw.Item) *Store {
 	f, err := os.Create(path)
 	require.NoError(t, err)
 
-	encoder := toml.NewEncoder(f)
-	require.NoError(t, encoder.Encode(raws))
+	require.NoError(t, raw.EncodeRaws(f, raws))
 	require.NoError(t, f.Close())
 
 	store, err := NewStore(path)

@@ -30,6 +30,11 @@ type PaletteFile struct {
 	Palette Palette `toml:"palette"`
 }
 
+// MarshalPaletteFile はPaletteFileをTOMLバイト列にエンコードする
+func MarshalPaletteFile(file PaletteFile) ([]byte, error) {
+	return toml.Marshal(file)
+}
+
 // PaletteLoader はパレット定義の読み込みを担当する
 type PaletteLoader struct{}
 

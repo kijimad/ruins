@@ -2,6 +2,7 @@ package raw
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
@@ -310,29 +311,45 @@ func LoadFromFile(path string) (Master, error) {
 	return rw, nil
 }
 
+// EncodeRaws はRaws構造体をTOML形式でio.Writerに書き出す
+func EncodeRaws(w io.Writer, raws Raws) error {
+	return toml.NewEncoder(w).Encode(raws)
+}
+
+// DecodeRaws はTOML文字列をRaws構造体にデコードする。
+// 未知のキーが含まれる場合はエラーを返す
+func DecodeRaws(content string) (Raws, error) {
+	var raws Raws
+	metaData, err := toml.Decode(content, &raws)
+	if err != nil {
+		return Raws{}, fmt.Errorf("TOML decode error: %w", err)
+	}
+	if undecoded := metaData.Undecoded(); len(undecoded) > 0 {
+		return Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+	}
+	return raws, nil
+}
+
 // Load は文字列からローデータを読み込む
 func Load(entityMetadataContent string) (Master, error) {
-	rw := Master{}
-	rw.ItemIndex = map[string]int{}
-	rw.RecipeIndex = map[string]int{}
-	rw.MemberIndex = map[string]int{}
-	rw.CommandTableIndex = map[string]int{}
-	rw.DropTableIndex = map[string]int{}
-	rw.ItemTableIndex = map[string]int{}
-	rw.EnemyTableIndex = map[string]int{}
-	rw.SpriteSheetIndex = map[string]int{}
-	rw.TileIndex = map[string]int{}
-	rw.PropIndex = map[string]int{}
-	rw.ProfessionIndex = map[string]int{}
-
-	metaData, err := toml.Decode(entityMetadataContent, &rw.Raws)
+	raws, err := DecodeRaws(entityMetadataContent)
 	if err != nil {
-		return Master{}, fmt.Errorf("TOML decode error: %w", err)
+		return Master{}, err
 	}
-	// 未知のキーがあった場合はエラーにする
-	undecoded := metaData.Undecoded()
-	if len(undecoded) > 0 {
-		return Master{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+
+	rw := Master{
+		Raws:              raws,
+		ItemIndex:         map[string]int{},
+		RecipeIndex:       map[string]int{},
+		MemberIndex:       map[string]int{},
+		CommandTableIndex: map[string]int{},
+		DropTableIndex:    map[string]int{},
+		ItemTableIndex:    map[string]int{},
+		EnemyTableIndex:   map[string]int{},
+		SpriteSheetIndex:  map[string]int{},
+		TileIndex:         map[string]int{},
+		PropIndex:         map[string]int{},
+		ProfessionIndex:   map[string]int{},
 	}
 
 	for i, item := range rw.Raws.Items {

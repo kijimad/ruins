@@ -84,10 +84,10 @@ Name = "boss"
 SpriteSheetName = "sheet1"
 SpriteKey = "boss"
 [Members.Abilities]
-Str = 10
-Vit = 10
-Dex = 10
-Int = 10
+Strength = 10
+Vitality = 10
+Dexterity = 10
+Sensation = 10
 `
 	rawPath := filepath.Join(tmpDir, "raw.toml")
 	require.NoError(t, os.WriteFile(rawPath, []byte(rawTOML), 0o644))
@@ -203,6 +203,75 @@ func TestHandleLayoutEdit(t *testing.T) {
 	assert.Contains(t, body, "door")
 	assert.Contains(t, body, "boss")
 	assert.Contains(t, body, "/sprites/sheet1")
+}
+
+func TestHandleLayoutUpdate_UndefinedChar(t *testing.T) {
+	t.Parallel()
+	server := setupLayoutTest(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("PUT /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
+
+	// パレットに定義されていない文字 "X" を含むマップを送信する
+	form := strings.NewReader("map_content=" + url.QueryEscape("###\n#X#\n###"))
+	req := httptest.NewRequest("PUT", "/layouts/layouts/test/3x3_test", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	assert.Contains(t, w.Body.String(), "X")
+	assert.Contains(t, w.Body.String(), "パレットに未定義の文字があります")
+}
+
+func TestHandleLayoutUpdate_ValidChars(t *testing.T) {
+	t.Parallel()
+	server := setupLayoutTest(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("PUT /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
+
+	// パレットに定義されている文字のみのマップを送信する
+	form := strings.NewReader("map_content=" + url.QueryEscape("###\n#.#\n###"))
+	req := httptest.NewRequest("PUT", "/layouts/layouts/test/3x3_test", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+}
+
+func TestValidateMapContent(t *testing.T) {
+	t.Parallel()
+
+	palette := &maptemplate.Palette{
+		Terrain: map[string]string{"#": "wall", ".": "floor"},
+		Props:   map[string]maptemplate.PaletteEntry{"+": {ID: "door", Tile: "floor"}},
+		NPCs:    map[string]maptemplate.PaletteEntry{"M": {ID: "boss", Tile: "floor"}},
+	}
+
+	t.Run("定義済み文字のみならエラーなし", func(t *testing.T) {
+		t.Parallel()
+		assert.NoError(t, validateMapContent("###\n#.#\n#+M", palette))
+	})
+
+	t.Run("未定義文字があればエラー", func(t *testing.T) {
+		t.Parallel()
+		err := validateMapContent("###\n#X#\n#Z#", palette)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "X")
+		assert.Contains(t, err.Error(), "Z")
+	})
+
+	t.Run("空白と改行は無視する", func(t *testing.T) {
+		t.Parallel()
+		assert.NoError(t, validateMapContent("# #\n. .\n", palette))
+	})
+
+	t.Run("空文字列はエラーなし", func(t *testing.T) {
+		t.Parallel()
+		assert.NoError(t, validateMapContent("", palette))
+	})
 }
 
 func TestBuildPreviewData(t *testing.T) {

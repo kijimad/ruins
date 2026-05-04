@@ -169,11 +169,47 @@ func (s *Server) handleLayoutUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	mapContent := r.FormValue("map_content")
 
+	// パレットに定義されていない文字がないか検証する
+	chunk, err := s.layoutStore.GetChunk(dirName, fileName, chunkName)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	if merged := s.mergePalettes(chunk.Palettes); merged != nil {
+		if err := validateMapContent(mapContent, merged); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
 	if err := s.layoutStore.SaveChunk(dirName, fileName, chunkName, mapContent); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	s.renderLayoutPartial(w, dirName, fileName, chunkName)
+}
+
+// validateMapContent はマップ内の全文字がパレットに定義されているか検証する
+func validateMapContent(mapContent string, palette *maptemplate.Palette) error {
+	undefined := make(map[rune]bool)
+	for _, ch := range mapContent {
+		if ch == '\n' || ch == '\r' || ch == ' ' {
+			continue
+		}
+		if _, ok := palette.GetTerrain(string(ch)); !ok {
+			undefined[ch] = true
+		}
+	}
+	if len(undefined) == 0 {
+		return nil
+	}
+
+	chars := make([]string, 0, len(undefined))
+	for ch := range undefined {
+		chars = append(chars, fmt.Sprintf("%c", ch))
+	}
+	sort.Strings(chars)
+	return fmt.Errorf("パレットに未定義の文字があります: %s", strings.Join(chars, ", "))
 }
 
 func (s *Server) renderLayoutPartial(w http.ResponseWriter, activeDirName, activeFileName, activeChunkName string) {

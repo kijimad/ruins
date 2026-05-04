@@ -211,10 +211,10 @@ Name = "boss"
 SpriteSheetName = "sheet1"
 SpriteKey = "boss"
 [Members.Abilities]
-Str = 10
-Vit = 10
-Dex = 10
-Int = 10
+Strength = 10
+Vitality = 10
+Dexterity = 10
+Sensation = 10
 `
 	rawPath := filepath.Join(tmpDir, "raw.toml")
 	require.NoError(t, os.WriteFile(rawPath, []byte(rawTOML), 0o644))

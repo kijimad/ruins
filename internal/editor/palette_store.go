@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/pelletier/go-toml/v2"
 )
 
 // PaletteStore はパレットファイルのディレクトリを管理する
@@ -119,7 +118,7 @@ func (ps *PaletteStore) Save(p *maptemplate.Palette) error {
 	}
 
 	file := maptemplate.PaletteFile{Palette: *p}
-	data, err := toml.Marshal(file)
+	data, err := maptemplate.MarshalPaletteFile(file)
 	if err != nil {
 		return fmt.Errorf("パレットTOMLマーシャルエラー: %w", err)
 	}

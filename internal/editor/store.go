@@ -6,7 +6,6 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -31,8 +30,8 @@ func (s *Store) load() error {
 	if err != nil {
 		return fmt.Errorf("raw.tomlの読み込みに失敗: %w", err)
 	}
-	var raws raw.Raws
-	if _, err := toml.Decode(string(bs), &raws); err != nil {
+	raws, err := raw.DecodeRaws(string(bs))
+	if err != nil {
 		return fmt.Errorf("raw.tomlのパースに失敗: %w", err)
 	}
 	s.raws = raws
@@ -125,8 +124,7 @@ func (s *Store) save() (retErr error) {
 		}
 	}()
 
-	encoder := toml.NewEncoder(f)
-	if err := encoder.Encode(s.raws); err != nil {
+	if err := raw.EncodeRaws(f, s.raws); err != nil {
 		return fmt.Errorf("raw.tomlのエンコードに失敗: %w", err)
 	}
 	return nil

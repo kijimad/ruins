@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/pelletier/go-toml/v2"
 )
 
 const tomlExt = ".toml"
@@ -131,7 +130,7 @@ func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string
 	}
 
 	file := maptemplate.ChunkTemplateFile{Chunks: chunks}
-	data, err := toml.Marshal(file)
+	data, err := maptemplate.MarshalChunkTemplateFile(file)
 	if err != nil {
 		return fmt.Errorf("TOMLマーシャルエラー: %w", err)
 	}
@@ -200,17 +199,14 @@ func (ls *LayoutStore) BuildTemplateLoader(paletteDir string) (*maptemplate.Temp
 }
 
 func (ls *LayoutStore) loadFile(path string) ([]maptemplate.ChunkTemplate, error) {
-	data, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("ファイル読み込みエラー: %w", err)
 	}
+	defer func() { _ = f.Close() }()
 
-	var file maptemplate.ChunkTemplateFile
-	if err := toml.Unmarshal(data, &file); err != nil {
-		return nil, fmt.Errorf("TOMLパースエラー: %w", err)
-	}
-
-	return file.Chunks, nil
+	loader := maptemplate.NewTemplateLoader()
+	return loader.Load(f)
 }
 
 func (ls *LayoutStore) resolvePath(dirName, fileName string) (string, error) {
