@@ -56,7 +56,7 @@ func TestLayoutStoreSaveChunk(t *testing.T) {
 	require.NoError(t, err)
 
 	newMap := "...\n...\n..."
-	err = store.SaveChunk("layouts", "test.toml", "3x3_test", newMap)
+	err = store.SaveChunk("layouts", "test.toml", "3x3_test", newMap, nil)
 	require.NoError(t, err)
 
 	// 保存した内容を読み戻して検証する

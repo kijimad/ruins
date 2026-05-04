@@ -102,8 +102,9 @@ func (ls *LayoutStore) GetChunk(dirName, fileName, chunkName string) (*maptempla
 	return nil, fmt.Errorf("チャンク '%s' が見つかりません", chunkName)
 }
 
-// SaveChunk はチャンクのmap内容を更新して保存する
-func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string) error {
+// SaveChunk はチャンクのmap内容を更新して保存する。
+// validateがnilでなければ、保存前にチャンクを検証する
+func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string, validate func(*maptemplate.ChunkTemplate) error) error {
 	ls.mu.Lock()
 	defer ls.mu.Unlock()
 
@@ -120,6 +121,11 @@ func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string
 	found := false
 	for i := range chunks {
 		if chunks[i].Name == chunkName {
+			if validate != nil {
+				if err := validate(&chunks[i]); err != nil {
+					return err
+				}
+			}
 			chunks[i].Map = mapContent
 			found = true
 			break

@@ -169,21 +169,17 @@ func (s *Server) handleLayoutUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 	mapContent := r.FormValue("map_content")
 
-	// パレットに定義されていない文字がないか検証する
-	chunk, err := s.layoutStore.GetChunk(dirName, fileName, chunkName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	if merged := s.mergePalettes(chunk.Palettes); merged != nil {
-		if err := validateMapContent(mapContent, merged); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+	// パレットに定義されていない文字がないか検証してから保存する
+	validate := func(chunk *maptemplate.ChunkTemplate) error {
+		merged := s.mergePalettes(chunk.Palettes)
+		if merged == nil {
+			return nil
 		}
+		return validateMapContent(mapContent, merged)
 	}
 
-	if err := s.layoutStore.SaveChunk(dirName, fileName, chunkName, mapContent); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := s.layoutStore.SaveChunk(dirName, fileName, chunkName, mapContent, validate); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	s.renderLayoutPartial(w, dirName, fileName, chunkName)
