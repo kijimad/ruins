@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -1343,7 +1343,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1421,7 +1421,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
         }</span>
 
@@ -1489,9 +1489,9 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov8" title="1">worldhelper.AppendNameWithColor(l, target, targetName, world)</span>
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
-                        if !hit </span><span class="cov8" title="1">{
+                        if !hit </span><span class="cov0" title="0">{
                                 l.Append(" を攻撃したが外れた。")
-                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
+                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov8" title="1">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
                         }</span> else<span class="cov8" title="1"> {
                                 l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
