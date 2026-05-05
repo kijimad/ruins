@@ -252,12 +252,12 @@ func TestValidateMapContent(t *testing.T) {
 
 	t.Run("定義済み文字のみならエラーなし", func(t *testing.T) {
 		t.Parallel()
-		assert.NoError(t, validateMapContent("###\n#.#\n#+M", palette))
+		assert.NoError(t, validateMapContent("###\n#.#\n#+M", palette, nil))
 	})
 
 	t.Run("未定義文字があればエラー", func(t *testing.T) {
 		t.Parallel()
-		err := validateMapContent("###\n#X#\n#Z#", palette)
+		err := validateMapContent("###\n#X#\n#Z#", palette, nil)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "X")
 		assert.Contains(t, err.Error(), "Z")
@@ -265,12 +265,159 @@ func TestValidateMapContent(t *testing.T) {
 
 	t.Run("空白と改行は無視する", func(t *testing.T) {
 		t.Parallel()
-		assert.NoError(t, validateMapContent("# #\n. .\n", palette))
+		assert.NoError(t, validateMapContent("# #\n. .\n", palette, nil))
 	})
 
 	t.Run("空文字列はエラーなし", func(t *testing.T) {
 		t.Parallel()
-		assert.NoError(t, validateMapContent("", palette))
+		assert.NoError(t, validateMapContent("", palette, nil))
+	})
+
+	t.Run("placementsのプレースホルダ文字はスキップする", func(t *testing.T) {
+		t.Parallel()
+		placements := []maptemplate.ChunkPlacement{
+			{Chunks: []string{"5x5_room"}, ID: "A"},
+			{Chunks: []string{"4x4_room"}, ID: "B"},
+		}
+		// @とA,Bはプレースホルダなのでエラーにならない
+		assert.NoError(t, validateMapContent("#@@@@\n#@@@A\n#@@@B", palette, placements))
+	})
+
+	t.Run("placementsがあっても未定義文字はエラー", func(t *testing.T) {
+		t.Parallel()
+		placements := []maptemplate.ChunkPlacement{
+			{Chunks: []string{"5x5_room"}, ID: "A"},
+		}
+		err := validateMapContent("#X@A", palette, placements)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "X")
+		// @とAはエラーに含まれない
+		assert.NotContains(t, err.Error(), "@")
+		assert.NotContains(t, err.Error(), "A")
+	})
+}
+
+func TestHandleLayoutPreview_WithPlacements(t *testing.T) {
+	t.Parallel()
+
+	// テスト用ディレクトリを作成する
+	tmpDir := t.TempDir()
+	layoutDir := filepath.Join(tmpDir, "layouts")
+	chunkDir := filepath.Join(tmpDir, "chunks")
+	paletteDir := filepath.Join(tmpDir, "palettes")
+	require.NoError(t, os.MkdirAll(layoutDir, 0o755))
+	require.NoError(t, os.MkdirAll(chunkDir, 0o755))
+	require.NoError(t, os.MkdirAll(paletteDir, 0o755))
+
+	paletteTOML := `[palette]
+id = "test_pal"
+description = "テスト用パレット"
+[palette.terrain]
+"#" = "wall"
+"." = "floor"
+`
+	require.NoError(t, os.WriteFile(filepath.Join(paletteDir, "test_pal.toml"), []byte(paletteTOML), 0o644))
+
+	// 子チャンク: 2x2の部屋
+	childTOML := `[[chunk]]
+name = "2x2_room"
+palettes = ["test_pal"]
+weight = 100
+map = """
+..
+..
+"""
+`
+	require.NoError(t, os.WriteFile(filepath.Join(chunkDir, "room.toml"), []byte(childTOML), 0o644))
+
+	// 親レイアウト: 4x4のマップにplacementsで子チャンクを埋め込む
+	parentTOML := `[[chunk]]
+name = "4x4_parent"
+palettes = ["test_pal"]
+weight = 100
+map = """
+####
+#@@#
+#@A#
+####
+"""
+
+[[chunk.placements]]
+chunks = ["2x2_room"]
+id = "A"
+`
+	require.NoError(t, os.WriteFile(filepath.Join(layoutDir, "parent.toml"), []byte(parentTOML), 0o644))
+
+	rawTOML := `[[Tiles]]
+Name = "wall"
+Description = "壁"
+BlockPass = true
+BlockView = true
+[Tiles.SpriteRender]
+SpriteSheetName = "sheet1"
+SpriteKey = "wall"
+
+[[Tiles]]
+Name = "floor"
+Description = "床"
+BlockPass = false
+BlockView = false
+[Tiles.SpriteRender]
+SpriteSheetName = "sheet1"
+SpriteKey = "floor"
+`
+	rawPath := filepath.Join(tmpDir, "raw.toml")
+	require.NoError(t, os.WriteFile(rawPath, []byte(rawTOML), 0o644))
+
+	store, err := NewStore(rawPath)
+	require.NoError(t, err)
+	paletteStore, err := NewPaletteStore(paletteDir)
+	require.NoError(t, err)
+	layoutStore, err := NewLayoutStore([]string{layoutDir, chunkDir})
+	require.NoError(t, err)
+
+	server := NewServer(store,
+		WithPaletteStore(paletteStore),
+		WithLayoutStore(layoutStore),
+	)
+	server.sprites["sheet1"] = map[string]spriteFrame{
+		"wall":  {X: 0, Y: 0, W: 32, H: 32},
+		"floor": {X: 32, Y: 0, W: 32, H: 32},
+	}
+	server.sheetSizes["sheet1"] = asepriteSize{W: 256, H: 256}
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /layouts/{dir}/{file}/{chunk}/preview", server.handleLayoutPreview)
+	mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}/preview", server.handleLayoutPreview)
+
+	t.Run("GETでplacementsが展開される", func(t *testing.T) {
+		t.Parallel()
+		req := httptest.NewRequest("GET", "/layouts/layouts/parent/4x4_parent/preview", nil)
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		body := w.Body.String()
+		// 4列のグリッドになっている
+		assert.Contains(t, body, "grid-template-columns:repeat(4, 32px)")
+		// 展開後は@が残っていない（floorに置換されている）
+		assert.Contains(t, body, "floor")
+	})
+
+	t.Run("POSTでもplacementsが展開される", func(t *testing.T) {
+		t.Parallel()
+		// 同じマップをPOSTで送る
+		mapContent := "####\n#@@#\n#@A#\n####"
+		form := strings.NewReader("map_content=" + url.QueryEscape(mapContent))
+		req := httptest.NewRequest("POST", "/layouts/layouts/parent/4x4_parent/preview", form)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		body := w.Body.String()
+		assert.Contains(t, body, "grid-template-columns:repeat(4, 32px)")
+		assert.Contains(t, body, "floor")
 	})
 }
 

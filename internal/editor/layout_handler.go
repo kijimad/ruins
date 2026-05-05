@@ -175,7 +175,7 @@ func (s *Server) handleLayoutUpdate(w http.ResponseWriter, r *http.Request) {
 		if merged == nil {
 			return nil
 		}
-		return validateMapContent(mapContent, merged)
+		return validateMapContent(mapContent, merged, chunk.Placements)
 	}
 
 	if err := s.layoutStore.SaveChunk(dirName, fileName, chunkName, mapContent, validate); err != nil {
@@ -185,11 +185,26 @@ func (s *Server) handleLayoutUpdate(w http.ResponseWriter, r *http.Request) {
 	s.renderLayoutPartial(w, dirName, fileName, chunkName)
 }
 
-// validateMapContent はマップ内の全文字がパレットに定義されているか検証する
-func validateMapContent(mapContent string, palette *maptemplate.Palette) error {
+// validateMapContent はマップ内の全文字がパレットに定義されているか検証する。
+// placementsがある場合、プレースホルダ文字(@)と配置IDはスキップする
+func validateMapContent(mapContent string, palette *maptemplate.Palette, placements []maptemplate.ChunkPlacement) error {
+	// プレースホルダとして許可する文字を収集する
+	skip := make(map[rune]bool)
+	if len(placements) > 0 {
+		skip['@'] = true
+		for _, p := range placements {
+			if len(p.ID) == 1 {
+				skip[rune(p.ID[0])] = true
+			}
+		}
+	}
+
 	undefined := make(map[rune]bool)
 	for _, ch := range mapContent {
 		if ch == '\n' || ch == '\r' || ch == ' ' {
+			continue
+		}
+		if skip[ch] {
 			continue
 		}
 		if _, ok := palette.GetTerrain(string(ch)); !ok {
@@ -261,13 +276,19 @@ func (s *Server) handleLayoutPreview(w http.ResponseWriter, r *http.Request) {
 		if content := r.FormValue("map_content"); content != "" {
 			expandedMap = content
 		}
-	} else if len(chunk.Placements) > 0 {
+	}
+
+	// placementsがある場合はチャンクを展開する
+	if len(chunk.Placements) > 0 {
 		loader, loaderErr := s.layoutStore.BuildTemplateLoader(s.paletteStore.Dir())
 		if loaderErr != nil {
 			http.Error(w, "テンプレートローダー構築エラー: "+loaderErr.Error(), http.StatusInternalServerError)
 			return
 		}
-		expandedMap, err = chunk.ExpandWithPlacements(loader, 0)
+		// 一時的にチャンクのMapを差し替えて展開する
+		tempChunk := *chunk
+		tempChunk.Map = expandedMap
+		expandedMap, err = tempChunk.ExpandWithPlacements(loader, 0)
 		if err != nil {
 			http.Error(w, "チャンク展開エラー: "+err.Error(), http.StatusInternalServerError)
 			return
