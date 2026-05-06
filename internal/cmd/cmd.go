@@ -29,6 +29,7 @@ func NewMainApp() *cli.Command {
 			CmdScreenshot,
 			CmdGenerateItemDoc,
 			CmdGenerateEnemyDoc,
+			CmdEditor,
 		},
 	}
 

@@ -8,17 +8,18 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// TemplatePlanner はテンプレートベースのマップ生成プランナー
+// TemplatePlanner はテンプレートベースのマップ生成プランナー。
+// 解決済みセル配列を使って地形・Props・NPCを配置する
 type TemplatePlanner struct {
-	Template *maptemplate.ChunkTemplate
-	Palette  *maptemplate.Palette
+	Template    *maptemplate.ChunkTemplate
+	ResolvedMap [][]maptemplate.MapCell
 }
 
 // NewTemplatePlanner はTemplatePlannerを生成する
-func NewTemplatePlanner(template *maptemplate.ChunkTemplate, palette *maptemplate.Palette) *TemplatePlanner {
+func NewTemplatePlanner(template *maptemplate.ChunkTemplate, resolvedMap [][]maptemplate.MapCell) *TemplatePlanner {
 	return &TemplatePlanner{
-		Template: template,
-		Palette:  palette,
+		Template:    template,
+		ResolvedMap: resolvedMap,
 	}
 }
 
@@ -34,19 +35,14 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 	totalTiles := width * height
 	metaPlan.Tiles = make([]raw.TileRaw, totalTiles)
 
-	// テンプレートマップを走査して地形を配置
-	lines := p.Template.GetMapLines()
-	for y, line := range lines {
-		for x, char := range line {
+	// セル配列を走査して地形を配置する
+	for y, row := range p.ResolvedMap {
+		for x, cell := range row {
 			idx := y*width + x
-			charStr := string(char)
-
-			// パレットから地形を取得
-			terrainName, ok := p.Palette.GetTerrain(charStr)
-			if !ok {
-				return fmt.Errorf("パレットに文字 '%s' の地形定義がありません (位置: %d, %d)", charStr, x, y)
+			if cell.Terrain == "" {
+				return fmt.Errorf("セルの地形が未定義です (位置: %d, %d)", x, y)
 			}
-			tile := metaPlan.GetTile(terrainName)
+			tile := metaPlan.GetTile(cell.Terrain)
 			metaPlan.Tiles[idx] = tile
 		}
 	}
@@ -56,16 +52,11 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 
 // PlanMeta はテンプレートからメタ情報を配置する
 func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
-	lines := p.Template.GetMapLines()
-
-	// テンプレートマップを走査して配置する
-	for y, line := range lines {
-		for x, char := range line {
-			charStr := string(char)
-
-			if propName, ok := p.Palette.GetProp(charStr); ok {
-				// ポータルは専用フィールドに追加する
-				switch propName {
+	// セル配列を走査してProps・NPCを配置する
+	for y, row := range p.ResolvedMap {
+		for x, cell := range row {
+			if cell.Prop != "" {
+				switch cell.Prop {
 				case "warp_next":
 					metaPlan.NextPortals = append(metaPlan.NextPortals, consts.Coord[int]{X: x, Y: y})
 				case "warp_escape":
@@ -73,15 +64,15 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 				default:
 					metaPlan.Props = append(metaPlan.Props, PropsSpec{
 						Coord: consts.Coord[int]{X: x, Y: y},
-						Name:  propName,
+						Name:  cell.Prop,
 					})
 				}
 			}
 
-			if npcName, ok := p.Palette.GetNPC(charStr); ok {
+			if cell.NPC != "" {
 				metaPlan.NPCs = append(metaPlan.NPCs, NPCSpec{
 					Coord: consts.Coord[int]{X: x, Y: y},
-					Name:  npcName,
+					Name:  cell.NPC,
 				})
 			}
 		}
@@ -94,12 +85,12 @@ func (p *TemplatePlanner) PlanMeta(metaPlan *MetaPlan) error {
 }
 
 // NewTemplatePlannerChain はテンプレートベースのPlannerChainを作成する
-func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, palette *maptemplate.Palette, seed uint64) (*PlannerChain, error) {
+func NewTemplatePlannerChain(template *maptemplate.ChunkTemplate, resolvedMap [][]maptemplate.MapCell, seed uint64) (*PlannerChain, error) {
 	width := consts.Tile(template.Size.W)
 	height := consts.Tile(template.Size.H)
 
 	chain := NewPlannerChain(width, height, seed)
-	planner := NewTemplatePlanner(template, palette)
+	planner := NewTemplatePlanner(template, resolvedMap)
 	chain.StartWith(planner)
 	chain.With(planner) // PlanMeta用
 	chain.With(EnvironmentPlanner{})

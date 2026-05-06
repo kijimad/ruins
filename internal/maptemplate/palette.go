@@ -9,19 +9,30 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// PaletteEntry はパレットのProp/NPCマッピングの1エントリ
+type PaletteEntry struct {
+	ID   string `toml:"id"`
+	Tile string `toml:"tile,omitempty"`
+}
+
 // Palette はマップ生成用のパレット定義
 // 地形とPropsとNPCの文字マッピングを提供する
 type Palette struct {
-	ID          string            `toml:"id"`
-	Description string            `toml:"description"`
-	Terrain     map[string]string `toml:"terrain"` // {文字: 地形名}
-	Props       map[string]string `toml:"props"`   // {文字: Prop名}
-	NPCs        map[string]string `toml:"npcs"`    // {文字: NPC種別}
+	ID          string                  `toml:"id"`
+	Description string                  `toml:"description"`
+	Terrain     map[string]string       `toml:"terrain,omitempty"` // {文字: 地形名}
+	Props       map[string]PaletteEntry `toml:"props,omitempty"`   // {文字: Prop定義}
+	NPCs        map[string]PaletteEntry `toml:"npcs,omitempty"`    // {文字: NPC定義}
 }
 
 // PaletteFile はTOMLファイルのルート構造
 type PaletteFile struct {
 	Palette Palette `toml:"palette"`
+}
+
+// MarshalPaletteFile はPaletteFileをTOMLバイト列にエンコードする
+func MarshalPaletteFile(file PaletteFile) ([]byte, error) {
+	return toml.Marshal(file)
 }
 
 // PaletteLoader はパレット定義の読み込みを担当する
@@ -72,22 +83,44 @@ func (l *PaletteLoader) validate(p *Palette) error {
 		return fmt.Errorf("地形、Props、またはNPCsの定義が必要です")
 	}
 
-	// 文字の重複チェック
 	for char := range p.Terrain {
 		if utf8.RuneCountInString(char) != 1 {
 			return fmt.Errorf("地形のキーは1文字である必要があります: %q", char)
 		}
 	}
 
-	for char := range p.Props {
+	for char, entry := range p.Props {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("Propsのキーは1文字である必要があります: %q", char)
+			return fmt.Errorf("propsのキーは1文字である必要があります: %q", char)
+		}
+		if entry.Tile == "" {
+			return fmt.Errorf("propsのtileは必須です: %q", char)
 		}
 	}
 
-	for char := range p.NPCs {
+	for char, entry := range p.NPCs {
 		if utf8.RuneCountInString(char) != 1 {
-			return fmt.Errorf("NPCsのキーは1文字である必要があります: %q", char)
+			return fmt.Errorf("npcsのキーは1文字である必要があります: %q", char)
+		}
+		if entry.Tile == "" {
+			return fmt.Errorf("npcsのtileは必須です: %q", char)
+		}
+	}
+
+	// 文字の重複チェック
+	used := make(map[string]string)
+	for char := range p.Terrain {
+		used[char] = "地形"
+	}
+	for char := range p.Props {
+		if category, ok := used[char]; ok {
+			return fmt.Errorf("文字 %q が%sとpropsで重複しています", char, category)
+		}
+		used[char] = "props"
+	}
+	for char := range p.NPCs {
+		if category, ok := used[char]; ok {
+			return fmt.Errorf("文字 %q が%sとnpcsで重複しています", char, category)
 		}
 	}
 
@@ -101,8 +134,8 @@ func MergePalettes(palettes ...*Palette) *Palette {
 		ID:          "merged",
 		Description: "マージされたパレット",
 		Terrain:     make(map[string]string),
-		Props:       make(map[string]string),
-		NPCs:        make(map[string]string),
+		Props:       make(map[string]PaletteEntry),
+		NPCs:        make(map[string]PaletteEntry),
 	}
 
 	for _, p := range palettes {
@@ -120,20 +153,35 @@ func MergePalettes(palettes ...*Palette) *Palette {
 	return merged
 }
 
-// GetTerrain は文字から地形名を取得する
+// GetTerrain は文字から地形名を取得する。
+// Terrain定義を優先し、なければProps/NPCsのTileフィールドを参照する
 func (p *Palette) GetTerrain(char string) (string, bool) {
-	terrain, ok := p.Terrain[char]
-	return terrain, ok
+	if terrain, ok := p.Terrain[char]; ok {
+		return terrain, true
+	}
+	if entry, ok := p.Props[char]; ok && entry.Tile != "" {
+		return entry.Tile, true
+	}
+	if entry, ok := p.NPCs[char]; ok && entry.Tile != "" {
+		return entry.Tile, true
+	}
+	return "", false
 }
 
 // GetProp は文字からProp名を取得する
 func (p *Palette) GetProp(char string) (string, bool) {
-	prop, ok := p.Props[char]
-	return prop, ok
+	entry, ok := p.Props[char]
+	if !ok {
+		return "", false
+	}
+	return entry.ID, true
 }
 
 // GetNPC は文字からNPC種別を取得する
 func (p *Palette) GetNPC(char string) (string, bool) {
-	npc, ok := p.NPCs[char]
-	return npc, ok
+	entry, ok := p.NPCs[char]
+	if !ok {
+		return "", false
+	}
+	return entry.ID, true
 }

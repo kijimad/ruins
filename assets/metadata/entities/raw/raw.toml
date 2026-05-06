@@ -1,254 +1,11 @@
-# item ================
-
 [[Items]]
-  Description     = "体力を半分程度回復する"
-  Name            = "回復薬"
-  SpriteKey       = "healing_potion"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 100
-  Weight          = 0.1
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-  [Items.ProvidesHealing]
-    Ratio     = 0.5
-    ValueType = "PERCENTAGE"
-
-[[Items]]
-  Description     = "毒や状態異常を治す薬草の煎じ薬"
-  Name            = "毒消し"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 80
-  Weight          = 0.08
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-[[Items]]
-  Description     = "爆発と破片で被害を与える手投げ弾"
-  InflictsDamage  = 20
-  Name            = "手榴弾"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 150
-  Weight          = 0.4
-
-  [Items.Consumable]
-    TargetGroup = "ENEMY"
-    TargetNum   = "ALL"
-    UsableScene = "BATTLE"
-
-[[Items]]
-  Description     = "強烈な光と音でショック状態にする手投げ弾"
-  Name            = "閃光弾"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 180
-  Weight          = 0.3
-
-  [Items.Consumable]
-    TargetGroup = "ENEMY"
-    TargetNum   = "ALL"
-    UsableScene = "BATTLE"
-
-[[Items]]
-  Description     = "視界を遮る煙を発生させる手投げ弾"
-  Name            = "煙幕弾"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 200
-  Weight          = 0.35
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "ALL"
-    UsableScene = "BATTLE"
-
-    # 売却用アイテム ================
-
-[[Items]]
-  Description     = "赤く光る鉱物。高価な装飾用に加工される"
-  Name            = "ルビー原石"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 500
-  Weight          = 0.05
-
-[[Items]]
-  Description     = "夜空から落ちた神秘的な鉱石"
-  Name            = "星の欠片"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 2000
-  Weight          = 0.02
-
-[[Items]]
-  Description     = "失われた文明の通貨"
-  Name            = "古代金貨"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 1500
-  Weight          = 0.01
-
-[[Items]]
-  Description     = "特に美しい輝きをもつ宝石。高額で取引される"
-  Name            = "血染めのルビー"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 3000
-  Weight          = 0.03
-
-[[Items]]
-  Description     = "深海から取れる漆黒の真珠。極めて稀少"
-  Name            = "黒真珠"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 3500
-  Weight          = 0.02
-
-[[Items]]
-  Description     = "純白に輝く美しい羽根"
-  Name            = "天使の羽根"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 3200
-  Weight          = 0.005
-
-[[Items]]
-  Description     = "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
-  Name            = "古代の壺"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 1800
-  Weight          = 2.5
-
-  # foods ================
-
-[[Items]]
-  Description       = "焼きたてのパン。空腹を満たす"
-  Name              = "パン"
-  ProvidesNutrition = 100
-  SpriteKey         = "food_item"
-  SpriteSheetName   = "field"
-  Stackable         = true
-  Value             = 30
-  Weight            = 0.3
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-[[Items]]
-  Description       = "保存用の肉。栄養価が高い"
-  Name              = "乾肉"
-  ProvidesNutrition = 150
-  SpriteKey         = "food_item"
-  SpriteSheetName   = "field"
-  Stackable         = true
-  Value             = 50
-  Weight            = 0.2
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-[[Items]]
-  Description       = "炭酸飲料。爽快感がある"
-  Name              = "コーラ"
-  ProvidesNutrition = 80
-  SpriteKey         = "bottled_cola"
-  SpriteSheetName   = "field"
-  Stackable         = true
-  Value             = 25
-  Weight            = 0.35
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-[[Items]]
-  Description       = "熟成したチーズ。栄養満点"
-  Name              = "チーズ"
-  ProvidesNutrition = 120
-  SpriteKey         = "food_item"
-  SpriteSheetName   = "field"
-  Stackable         = true
-  Value             = 40
-  Weight            = 0.25
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-[[Items]]
-  Description       = "固いビスケット。保存食として優秀"
-  Name              = "ビスケット"
-  ProvidesNutrition = 90
-  SpriteKey         = "biscuit"
-  SpriteSheetName   = "field"
-  Stackable         = true
-  Value             = 25
-  Weight            = 0.2
-
-  [Items.Consumable]
-    TargetGroup = "ALLY"
-    TargetNum   = "SINGLE"
-    UsableScene = "ANY"
-
-    # weapon ================
-
-[[Items]]
-  Description     = "素手による打撃"
-  Name            = "素手"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 0
-  Weight          = 0
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 100
-    AttackCategory = "FIST"
-    AttackCount    = 1
-    Cost           = 1
-    Damage         = 3
-    Element        = "NONE"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
-  Description     = "勢いをつけて体を接触させてダメージを与える"
+  Description     = "勢いをつけて体を衝突させてダメージを与える"
   Name            = "体当たり"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
   Value           = 50
-  Weight          = 0
-
+  Weight          = 0.0
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 100
     AttackCategory = "FIST"
@@ -266,15 +23,49 @@
   SpriteSheetName = "field"
   Value           = 80
   Weight          = 2.0
-
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 100
     AttackCategory = "SWORD"
     AttackCount    = 1
     Cost           = 2
     Damage         = 8
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+[[Items]]
+  Description     = "氷の結晶で作られた槍"
+  Name            = "氷の槍"
+  SpriteKey       = "クリスタルメイス"
+  SpriteSheetName = "field"
+  Value           = 250
+  Weight          = 1.8
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 80
+    AttackCategory = "SPEAR"
+    AttackCount    = 2
+    Cost           = 4
+    Damage         = 15
+    Element        = "CHILL"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+[[Items]]
+  Description     = "素手による打撃"
+  Name            = "素手"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 0
+  Weight          = 0.0
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 100
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 3
     Element        = "NONE"
     TargetGroup    = "ENEMY"
     TargetNum      = "SINGLE"
@@ -286,9 +77,7 @@
   SpriteSheetName = "field"
   Value           = 90
   Weight          = 1.0
-
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 100
     AttackCategory = "SWORD"
@@ -300,180 +89,13 @@
     TargetNum      = "SINGLE"
 
 [[Items]]
-  Description     = "樹脂素材を多用した自動拳銃"
-  Name            = "ハンドガン"
-  SpriteKey       = "handgun"
-  SpriteSheetName = "field"
-  Value           = 150
-  Weight          = 2.0
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 90
-    AttackCategory = "FIST"
-    AttackCount    = 1
-    Cost           = 1
-    Damage         = 4
-    Element        = "NONE"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-  [Items.Fire]
-    Accuracy       = 95
-    AmmoTag        = "9mm"
-    AttackCategory = "HANDGUN"
-    AttackCount    = 1
-    Cost           = 2
-    Damage         = 14
-    Element        = "NONE"
-    MagazineSize   = 6
-    ReloadEffort   = 20
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
-  Description     = "光線を発射する拳銃"
-  Name            = "レイガン"
-  SpriteKey       = "laser_gun"
-  SpriteSheetName = "field"
-  Value           = 280
-  Weight          = 2.0
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 90
-    AttackCategory = "FIST"
-    AttackCount    = 1
-    Cost           = 1
-    Damage         = 4
-    Element        = "NONE"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-  [Items.Fire]
-    Accuracy       = 90
-    AmmoTag        = "energy_cell"
-    AttackCategory = "HANDGUN"
-    AttackCount    = 1
-    Cost           = 2
-    Damage         = 20
-    Element        = "PHOTON"
-    MagazineSize   = 6
-    ReloadEffort   = 20
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
-  Description     = "放電物質を投射する擲弾銃"
-  Name            = "電撃グレネード"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 350
-  Weight          = 10.0
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 85
-    AttackCategory = "FIST"
-    AttackCount    = 1
-    Cost           = 2
-    Damage         = 6
-    Element        = "NONE"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-  [Items.Fire]
-    Accuracy       = 80
-    AmmoTag        = "rifle"
-    AttackCategory = "RIFLE"
-    AttackCount    = 1
-    Cost           = 3
-    Damage         = 26
-    Element        = "THUNDER"
-    MagazineSize   = 10
-    ReloadEffort   = 30
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
-  Description     = "極低温物質を投射する擲弾銃"
-  Name            = "冷凍グレネード"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 340
-  Weight          = 10.0
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 85
-    AttackCategory = "FIST"
-    AttackCount    = 1
-    Cost           = 2
-    Damage         = 6
-    Element        = "NONE"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-  [Items.Fire]
-    Accuracy       = 80
-    AmmoTag        = "rifle"
-    AttackCategory = "RIFLE"
-    AttackCount    = 1
-    Cost           = 3
-    Damage         = 25
-    Element        = "CHILL"
-    MagazineSize   = 10
-    ReloadEffort   = 30
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
-  Description     = "成形炸薬弾を投射する対戦車ロケット弾発射機"
-  Name            = "M72 LAW"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 480
-  Weight          = 20.0
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 80
-    AttackCategory = "FIST"
-    AttackCount    = 1
-    Cost           = 3
-    Damage         = 8
-    Element        = "NONE"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-  [Items.Fire]
-    Accuracy       = 85
-    AmmoTag        = "shell"
-    AttackCategory = "CANON"
-    AttackCount    = 1
-    Cost           = 14
-    Damage         = 34
-    Element        = "NONE"
-    MagazineSize   = 1
-    ReloadEffort   = 40
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
   Description     = "取り回しがよい車両用の大砲"
   Name            = "50ミリ砲"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
   Value           = 480
   Weight          = 120.0
-
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 75
     AttackCategory = "FIST"
@@ -483,7 +105,6 @@
     Element        = "NONE"
     TargetGroup    = "ENEMY"
     TargetNum      = "SINGLE"
-
   [Items.Fire]
     Accuracy       = 90
     AmmoTag        = "shell"
@@ -504,9 +125,7 @@
   SpriteSheetName = "field"
   Value           = 420
   Weight          = 140.0
-
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 75
     AttackCategory = "FIST"
@@ -516,7 +135,6 @@
     Element        = "NONE"
     TargetGroup    = "ENEMY"
     TargetNum      = "SINGLE"
-
   [Items.Fire]
     Accuracy       = 90
     AmmoTag        = "shell"
@@ -531,15 +149,133 @@
     TargetNum      = "SINGLE"
 
 [[Items]]
+  Description     = "成形炸薬弾を投射する対戦車ロケット弾発射機"
+  Name            = "M72 LAW"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 480
+  Weight          = 20.0
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 80
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 3
+    Damage         = 8
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+  [Items.Fire]
+    Accuracy       = 85
+    AmmoTag        = "shell"
+    AttackCategory = "CANON"
+    AttackCount    = 1
+    Cost           = 14
+    Damage         = 34
+    Element        = "NONE"
+    MagazineSize   = 1
+    ReloadEffort   = 40
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+[[Items]]
+  Description     = "樹脂素材を多用した自動拳銃"
+  Name            = "ハンドガン"
+  SpriteKey       = "handgun"
+  SpriteSheetName = "field"
+  Value           = 150
+  Weight          = 2.0
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 90
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 4
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+  [Items.Fire]
+    Accuracy       = 95
+    AmmoTag        = "9mm"
+    AttackCategory = "HANDGUN"
+    AttackCount    = 1
+    Cost           = 2
+    Damage         = 14
+    Element        = "NONE"
+    MagazineSize   = 6
+    ReloadEffort   = 20
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+[[Items]]
+  Description     = "光線を発射する拳銃"
+  Name            = "レイガン"
+  SpriteKey       = "laser_gun"
+  SpriteSheetName = "field"
+  Value           = 280
+  Weight          = 2.0
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 90
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 1
+    Damage         = 4
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+  [Items.Fire]
+    Accuracy       = 90
+    AmmoTag        = "energy_cell"
+    AttackCategory = "HANDGUN"
+    AttackCount    = 1
+    Cost           = 2
+    Damage         = 20
+    Element        = "PHOTON"
+    MagazineSize   = 6
+    ReloadEffort   = 20
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+[[Items]]
+  Description     = "極低温物質を投射する擲弾銃"
+  Name            = "冷凍グレネード"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 340
+  Weight          = 10.0
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 85
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 2
+    Damage         = 6
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+  [Items.Fire]
+    Accuracy       = 80
+    AmmoTag        = "rifle"
+    AttackCategory = "RIFLE"
+    AttackCount    = 1
+    Cost           = 3
+    Damage         = 25
+    Element        = "CHILL"
+    MagazineSize   = 10
+    ReloadEffort   = 30
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+
+[[Items]]
   Description     = "濃度の高い強酸性の液体"
   Name            = "溶解液"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
   Value           = 150
   Weight          = 1.0
-
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 85
     AttackCategory = "FIST"
@@ -549,7 +285,6 @@
     Element        = "NONE"
     TargetGroup    = "ENEMY"
     TargetNum      = "SINGLE"
-
   [Items.Fire]
     Accuracy       = 80
     AmmoTag        = "shell"
@@ -564,35 +299,13 @@
     TargetNum      = "SINGLE"
 
 [[Items]]
-  Description     = "氷の結晶で作られた槍"
-  Name            = "氷の槍"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 250
-  Weight          = 1.8
-
-  [Items.Weapon]
-
-  [Items.Melee]
-    Accuracy       = 80
-    AttackCategory = "SPEAR"
-    AttackCount    = 2
-    Cost           = 4
-    Damage         = 15
-    Element        = "CHILL"
-    TargetGroup    = "ENEMY"
-    TargetNum      = "SINGLE"
-
-[[Items]]
   Description     = "高速に射出する砲"
   Name            = "連射砲"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
   Value           = 380
   Weight          = 4.0
-
   [Items.Weapon]
-
   [Items.Melee]
     Accuracy       = 85
     AttackCategory = "FIST"
@@ -602,7 +315,6 @@
     Element        = "NONE"
     TargetGroup    = "ENEMY"
     TargetNum      = "SINGLE"
-
   [Items.Fire]
     Accuracy       = 75
     AmmoTag        = "shell"
@@ -616,93 +328,35 @@
     TargetGroup    = "ENEMY"
     TargetNum      = "SINGLE"
 
-    # wearable ================
-
 [[Items]]
-  Description     = "ありふれた布の帽子"
-  Name            = "布の帽子"
+  Description     = "放電物質を投射する擲弾銃"
+  Name            = "電撃グレネード"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
-  Value           = 10
-  Weight          = 0.1
-
-  [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "HEAD"
-    InsulationCold    = 2
-    InsulationHeat    = 2
-
-[[Items]]
-  Description     = "普段着のシャツ。防御力は期待できない"
-  Name            = "布のシャツ"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 15
-  Weight          = 0.3
-
-  [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "TORSO"
-    InsulationCold    = 2
-    InsulationHeat    = 2
-
-[[Items]]
-  Description     = "薄い布地の袖カバー"
-  Name            = "布の腕巻き"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 8
-  Weight          = 0.1
-
-  [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "ARMS"
-    InsulationCold    = 1
-    InsulationHeat    = 1
-
-[[Items]]
-  Description     = "薄手の布手袋"
-  Name            = "布の手袋"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 8
-  Weight          = 0.1
-
-  [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "HANDS"
-    InsulationCold    = 1
-    InsulationHeat    = 1
-
-[[Items]]
-  Description     = "ごく普通のズボン"
-  Name            = "布のズボン"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 12
-  Weight          = 0.2
-
-  [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "LEGS"
-    InsulationCold    = 2
-    InsulationHeat    = 2
-
-[[Items]]
-  Description     = "底の薄い布靴"
-  Name            = "布の靴"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 10
-  Weight          = 0.2
-
-  [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "FEET"
-    InsulationCold    = 1
-    InsulationHeat    = 1
-
-    # 戦闘用装備 ================
+  Value           = 350
+  Weight          = 10.0
+  [Items.Weapon]
+  [Items.Melee]
+    Accuracy       = 85
+    AttackCategory = "FIST"
+    AttackCount    = 1
+    Cost           = 2
+    Damage         = 6
+    Element        = "NONE"
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
+  [Items.Fire]
+    Accuracy       = 80
+    AmmoTag        = "rifle"
+    AttackCategory = "RIFLE"
+    AttackCount    = 1
+    Cost           = 3
+    Damage         = 26
+    Element        = "THUNDER"
+    MagazineSize   = 10
+    ReloadEffort   = 30
+    TargetGroup    = "ENEMY"
+    TargetNum      = "SINGLE"
 
 [[Items]]
   Description     = "衝撃吸収性に優れた産業用の帽子"
@@ -711,89 +365,17 @@
   SpriteSheetName = "field"
   Value           = 150
   Weight          = 1.5
-
   [Items.Wearable]
     Defense           = 4
     EquipmentCategory = "HEAD"
     InsulationCold    = 3
     InsulationHeat    = 0
-
   [Items.EquipBonus]
-    Agility  = -2
-    Vitality = 4
-
-[[Items]]
-  Description     = "伝統的な意匠が施されたずっしりと重い鎧"
-  Name            = "西洋鎧"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 400
-  Weight          = 15.0
-
-  [Items.Wearable]
-    Defense           = 8
-    EquipmentCategory = "TORSO"
-    InsulationCold    = 8
-    InsulationHeat    = -4
-
-  [Items.EquipBonus]
-    Agility = -4
-
-[[Items]]
-  Description     = "よくなめされた革で成形された長靴"
-  Name            = "革のブーツ"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 120
-  Weight          = 1.0
-
-  [Items.Wearable]
-    Defense           = 3
-    EquipmentCategory = "FEET"
-    InsulationCold    = 5
-    InsulationHeat    = 2
-
-  [Items.EquipBonus]
-    Agility = -2
-
-[[Items]]
-  Description     = "指輪型の小さな機械"
-  Name            = "機械の指輪"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 250
-  Weight          = 0.05
-
-  [Items.Wearable]
-    Defense           = 1
-    EquipmentCategory = "JEWELRY"
-    InsulationCold    = 0
-    InsulationHeat    = 0
-
-  [Items.EquipBonus]
-    Agility   = 1
-    Dexterity = 1
-    Sensation = 1
-    Strength  = 1
-    Vitality  = 1
-
-[[Items]]
-  Description     = "獣狩りの伝統的な帽子"
-  Name            = "狩人の帽子"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 180
-  Weight          = 0.3
-
-  [Items.Wearable]
-    Defense           = 3
-    EquipmentCategory = "HEAD"
-    InsulationCold    = 4
-    InsulationHeat    = 2
-
-  [Items.EquipBonus]
-    Agility   = 1
-    Sensation = 3
+    Agility   = -2
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 4
 
 [[Items]]
   Description     = "錆びついた騎士の兜"
@@ -802,107 +384,17 @@
   SpriteSheetName = "field"
   Value           = 300
   Weight          = 3.0
-
   [Items.Wearable]
     Defense           = 6
     EquipmentCategory = "HEAD"
     InsulationCold    = 5
     InsulationHeat    = -3
-
   [Items.EquipBonus]
-    Agility  = -3
-    Vitality = 2
-
-[[Items]]
-  Description     = "聖なる力を宿す冠"
-  Name            = "聖職者の冠"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 350
-  Weight          = 0.5
-
-  [Items.Wearable]
-    Defense           = 2
-    EquipmentCategory = "HEAD"
-    InsulationCold    = 2
-    InsulationHeat    = 2
-
-  [Items.EquipBonus]
-    Sensation = 5
-    Vitality  = 1
-
-[[Items]]
-  Description     = "暗殺者が愛用する頭巾"
-  Name            = "影の頭巾"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 280
-  Weight          = 0.2
-
-  [Items.Wearable]
-    Defense           = 1
-    EquipmentCategory = "HEAD"
-    InsulationCold    = 3
-    InsulationHeat    = 3
-
-  [Items.EquipBonus]
-    Agility   = 4
-    Dexterity = 2
-
-[[Items]]
-  Description     = "簡素な鉄製の胸当て"
-  Name            = "鉄の胸当て"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 220
-  Weight          = 5.0
-
-  [Items.Wearable]
-    Defense           = 5
-    EquipmentCategory = "TORSO"
-    InsulationCold    = 4
-    InsulationHeat    = -2
-
-  [Items.EquipBonus]
-    Agility  = -1
-    Vitality = 2
-
-[[Items]]
-  Description     = "獣の血で染まった外套"
-  Name            = "狩人の外套"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 260
-  Weight          = 2.0
-
-  [Items.Wearable]
-    Defense           = 4
-    EquipmentCategory = "TORSO"
-    InsulationCold    = 6
-    InsulationHeat    = 2
-
-  [Items.EquipBonus]
-    Agility   = 2
-    Sensation = 1
-
-[[Items]]
-  Description     = "聖なる力で祝福された鎧"
-  Name            = "聖騎士の鎧"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 800
-  Weight          = 20.0
-
-  [Items.Wearable]
-    Defense           = 12
-    EquipmentCategory = "TORSO"
-    InsulationCold    = 10
-    InsulationHeat    = -6
-
-  [Items.EquipBonus]
-    Agility  = -5
-    Strength = 2
-    Vitality = 6
+    Agility   = -3
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 2
 
 [[Items]]
   Description     = "古代の魔術師が着ていた法衣"
@@ -911,16 +403,95 @@
   SpriteSheetName = "field"
   Value           = 380
   Weight          = 1.5
-
   [Items.Wearable]
     Defense           = 3
     EquipmentCategory = "TORSO"
     InsulationCold    = 5
     InsulationHeat    = 3
-
   [Items.EquipBonus]
+    Agility   = 0
     Dexterity = 2
     Sensation = 4
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "普段着のシャツ。防御力は期待できない"
+  Name            = "布のシャツ"
+  SpriteKey       = "ウェイターの服"
+  SpriteSheetName = "field"
+  Value           = 15
+  Weight          = 0.3
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "TORSO"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+
+[[Items]]
+  Description     = "ごく普通のズボン"
+  Name            = "布のズボン"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 12
+  Weight          = 0.2
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "LEGS"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+
+[[Items]]
+  Description     = "ありふれた布の帽子"
+  Name            = "布の帽子"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 10
+  Weight          = 0.1
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "HEAD"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+
+[[Items]]
+  Description     = "薄手の布手袋"
+  Name            = "布の手袋"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 8
+  Weight          = 0.1
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 1
+    InsulationHeat    = 1
+
+[[Items]]
+  Description     = "薄い布地の袖カバー"
+  Name            = "布の腕巻き"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 8
+  Weight          = 0.1
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "ARMS"
+    InsulationCold    = 1
+    InsulationHeat    = 1
+
+[[Items]]
+  Description     = "底の薄い布靴"
+  Name            = "布の靴"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 10
+  Weight          = 0.2
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "FEET"
+    InsulationCold    = 1
+    InsulationHeat    = 1
 
 [[Items]]
   Description     = "闇に溶け込む特殊な外套"
@@ -929,88 +500,36 @@
   SpriteSheetName = "field"
   Value           = 450
   Weight          = 1.0
-
   [Items.Wearable]
     Defense           = 2
     EquipmentCategory = "TORSO"
     InsulationCold    = 4
     InsulationHeat    = 4
-
   [Items.EquipBonus]
     Agility   = 6
+    Dexterity = 0
     Sensation = 2
+    Strength  = 0
+    Vitality  = 0
 
 [[Items]]
-  Description     = "頑丈な鉄製の脛当て"
-  Name            = "鉄の脛当て"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 160
-  Weight          = 2.5
-
-  [Items.Wearable]
-    Defense           = 4
-    EquipmentCategory = "LEGS"
-    InsulationCold    = 3
-    InsulationHeat    = -2
-
-  [Items.EquipBonus]
-    Agility  = -2
-    Vitality = 1
-
-[[Items]]
-  Description     = "動きやすさを重視した脚絆"
-  Name            = "狩人の脚絆"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 180
-  Weight          = 0.8
-
-  [Items.Wearable]
-    Defense           = 2
-    EquipmentCategory = "LEGS"
-    InsulationCold    = 4
-    InsulationHeat    = 2
-
-  [Items.EquipBonus]
-    Agility   = 3
-    Dexterity = 1
-
-[[Items]]
-  Description     = "重装騎士の脚部防具"
-  Name            = "騎士の脚鎧"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 350
-  Weight          = 8.0
-
-  [Items.Wearable]
-    Defense           = 7
-    EquipmentCategory = "LEGS"
-    InsulationCold    = 6
-    InsulationHeat    = -4
-
-  [Items.EquipBonus]
-    Agility  = -4
-    Vitality = 3
-
-[[Items]]
-  Description     = "血赤石で作られた指輪"
-  Name            = "血の指輪"
+  Description     = "暗殺者が愛用する頭巾"
+  Name            = "影の頭巾"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
   Value           = 280
-  Weight          = 0.02
-
+  Weight          = 0.2
   [Items.Wearable]
-    Defense           = 0
-    EquipmentCategory = "JEWELRY"
-    InsulationCold    = 0
-    InsulationHeat    = 0
-
+    Defense           = 1
+    EquipmentCategory = "HEAD"
+    InsulationCold    = 3
+    InsulationHeat    = 3
   [Items.EquipBonus]
-    Strength = 3
-    Vitality = 2
+    Agility   = 4
+    Dexterity = 2
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
 
 [[Items]]
   Description     = "隕石の金属で作られた指輪"
@@ -1019,110 +538,169 @@
   SpriteSheetName = "field"
   Value           = 380
   Weight          = 0.02
-
   [Items.Wearable]
     Defense           = 1
     EquipmentCategory = "JEWELRY"
     InsulationCold    = 0
     InsulationHeat    = 0
-
   [Items.EquipBonus]
-    Agility  = 1
-    Strength = 2
-    Vitality = 2
-
-    # 腕装備 ================
+    Agility   = 1
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 2
+    Vitality  = 2
 
 [[Items]]
-  Description     = "革製の腕当て。動きやすさを重視した設計"
-  Name            = "革の腕当て"
-  SpriteKey       = "field_item"
+  Description     = "指輪型の小さな機械"
+  Name            = "機械の指輪"
+  SpriteKey       = "power_ring"
   SpriteSheetName = "field"
-  Value           = 100
-  Weight          = 0.5
-
+  Value           = 250
+  Weight          = 0.05
   [Items.Wearable]
-    Defense           = 2
-    EquipmentCategory = "ARMS"
-    InsulationCold    = 3
-    InsulationHeat    = 2
-
+    Defense           = 1
+    EquipmentCategory = "JEWELRY"
+    InsulationCold    = 0
+    InsulationHeat    = 0
   [Items.EquipBonus]
-    Agility = 1
+    Agility   = 1
+    Dexterity = 1
+    Sensation = 1
+    Strength  = 1
+    Vitality  = 1
 
 [[Items]]
-  Description     = "鉄製の腕甲。重いが防御力が高い"
-  Name            = "鉄の腕甲"
+  Description     = "獣の血で染まった外套"
+  Name            = "狩人の外套"
+  SpriteKey       = "狩人の服"
+  SpriteSheetName = "field"
+  Value           = 260
+  Weight          = 2.0
+  [Items.Wearable]
+    Defense           = 4
+    EquipmentCategory = "TORSO"
+    InsulationCold    = 6
+    InsulationHeat    = 2
+  [Items.EquipBonus]
+    Agility   = 2
+    Dexterity = 0
+    Sensation = 1
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "獣狩りの伝統的な帽子"
+  Name            = "狩人の帽子"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
   Value           = 180
-  Weight          = 2.0
-
-  [Items.Wearable]
-    Defense           = 4
-    EquipmentCategory = "ARMS"
-    InsulationCold    = 4
-    InsulationHeat    = -2
-
-  [Items.EquipBonus]
-    Agility  = -1
-    Vitality = 1
-
-    # 手装備 ================
-
-[[Items]]
-  Description     = "革製の手袋。作業にも戦闘にも使える"
-  Name            = "革の手袋"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 80
-  Weight          = 0.2
-
-  [Items.Wearable]
-    Defense           = 1
-    EquipmentCategory = "HANDS"
-    InsulationCold    = 4
-    InsulationHeat    = 2
-
-  [Items.EquipBonus]
-    Dexterity = 1
-
-[[Items]]
-  Description     = "厚手の防寒手袋。保温性に優れる"
-  Name            = "防寒手袋"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 120
   Weight          = 0.3
-
-  [Items.Wearable]
-    Defense           = 1
-    EquipmentCategory = "HANDS"
-    InsulationCold    = 8
-    InsulationHeat    = -2
-
-  [Items.EquipBonus]
-    Dexterity = -1
-
-[[Items]]
-  Description     = "金属製の篭手。指先の自由度は低いが堅牢"
-  Name            = "鉄の篭手"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Value           = 200
-  Weight          = 1.5
-
   [Items.Wearable]
     Defense           = 3
-    EquipmentCategory = "HANDS"
-    InsulationCold    = 5
-    InsulationHeat    = -2
-
+    EquipmentCategory = "HEAD"
+    InsulationCold    = 4
+    InsulationHeat    = 2
   [Items.EquipBonus]
-    Dexterity = -2
-    Strength  = 1
+    Agility   = 1
+    Dexterity = 0
+    Sensation = 3
+    Strength  = 0
+    Vitality  = 0
 
-    # 足装備（追加） ================
+[[Items]]
+  Description     = "動きやすさを重視した脚絆"
+  Name            = "狩人の脚絆"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 180
+  Weight          = 0.8
+  [Items.Wearable]
+    Defense           = 2
+    EquipmentCategory = "LEGS"
+    InsulationCold    = 4
+    InsulationHeat    = 2
+  [Items.EquipBonus]
+    Agility   = 3
+    Dexterity = 1
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "聖なる力を宿す冠"
+  Name            = "聖職者の冠"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 350
+  Weight          = 0.5
+  [Items.Wearable]
+    Defense           = 2
+    EquipmentCategory = "HEAD"
+    InsulationCold    = 2
+    InsulationHeat    = 2
+  [Items.EquipBonus]
+    Agility   = 0
+    Dexterity = 0
+    Sensation = 5
+    Strength  = 0
+    Vitality  = 1
+
+[[Items]]
+  Description     = "聖なる力で祝福された鎧"
+  Name            = "聖騎士の鎧"
+  SpriteKey       = "armor_item"
+  SpriteSheetName = "field"
+  Value           = 800
+  Weight          = 20.0
+  [Items.Wearable]
+    Defense           = 12
+    EquipmentCategory = "TORSO"
+    InsulationCold    = 10
+    InsulationHeat    = -6
+  [Items.EquipBonus]
+    Agility   = -5
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 2
+    Vitality  = 6
+
+[[Items]]
+  Description     = "血赤石で作られた指輪"
+  Name            = "血の指輪"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 280
+  Weight          = 0.02
+  [Items.Wearable]
+    Defense           = 0
+    EquipmentCategory = "JEWELRY"
+    InsulationCold    = 0
+    InsulationHeat    = 0
+  [Items.EquipBonus]
+    Agility   = 0
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 3
+    Vitality  = 2
+
+[[Items]]
+  Description     = "伝統的な意匠が施されたずっしりと重い鎧"
+  Name            = "西洋鎧"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 400
+  Weight          = 15.0
+  [Items.Wearable]
+    Defense           = 8
+    EquipmentCategory = "TORSO"
+    InsulationCold    = 8
+    InsulationHeat    = -4
+  [Items.EquipBonus]
+    Agility   = -4
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
 
 [[Items]]
   Description     = "鉄で補強された重厚なブーツ"
@@ -1131,15 +709,93 @@
   SpriteSheetName = "field"
   Value           = 180
   Weight          = 2.5
-
   [Items.Wearable]
     Defense           = 4
     EquipmentCategory = "FEET"
     InsulationCold    = 4
     InsulationHeat    = -2
-
   [Items.EquipBonus]
-    Agility = -2
+    Agility   = -2
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "金属製の篭手。指先の自由度は低いが堅牢"
+  Name            = "鉄の篭手"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 200
+  Weight          = 1.5
+  [Items.Wearable]
+    Defense           = 3
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 5
+    InsulationHeat    = -2
+  [Items.EquipBonus]
+    Agility   = 0
+    Dexterity = -2
+    Sensation = 0
+    Strength  = 1
+    Vitality  = 0
+
+[[Items]]
+  Description     = "簡素な鉄製の胸当て"
+  Name            = "鉄の胸当て"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 220
+  Weight          = 5.0
+  [Items.Wearable]
+    Defense           = 5
+    EquipmentCategory = "TORSO"
+    InsulationCold    = 4
+    InsulationHeat    = -2
+  [Items.EquipBonus]
+    Agility   = -1
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 2
+
+[[Items]]
+  Description     = "頑丈な鉄製の脛当て"
+  Name            = "鉄の脛当て"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 160
+  Weight          = 2.5
+  [Items.Wearable]
+    Defense           = 4
+    EquipmentCategory = "LEGS"
+    InsulationCold    = 3
+    InsulationHeat    = -2
+  [Items.EquipBonus]
+    Agility   = -2
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 1
+
+[[Items]]
+  Description     = "鉄製の腕甲。重いが防御力が高い"
+  Name            = "鉄の腕甲"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 180
+  Weight          = 2.0
+  [Items.Wearable]
+    Defense           = 4
+    EquipmentCategory = "ARMS"
+    InsulationCold    = 4
+    InsulationHeat    = -2
+  [Items.EquipBonus]
+    Agility   = -1
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 1
 
 [[Items]]
   Description     = "裏地に毛皮を使用した防寒ブーツ"
@@ -1148,43 +804,266 @@
   SpriteSheetName = "field"
   Value           = 160
   Weight          = 1.2
-
   [Items.Wearable]
     Defense           = 2
     EquipmentCategory = "FEET"
     InsulationCold    = 10
     InsulationHeat    = -4
-
   [Items.EquipBonus]
-    Agility = -1
-
-    # ammo ================
-
-[[Items]]
-  Description     = "標準的な9mm口径の弾薬"
-  Name            = "9mm FMJ"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 5
-  Weight          = 0.01
-
-  [Items.Ammo]
-    AmmoTag = "9mm"
+    Agility   = -1
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
 
 [[Items]]
-  Description     = "軟質弾頭で生体に高い殺傷力を発揮する9mm弾"
-  Name            = "9mm HP"
+  Description     = "厚手の防寒手袋。保温性に優れる"
+  Name            = "防寒手袋"
   SpriteKey       = "field_item"
   SpriteSheetName = "field"
-  Stackable       = true
-  Value           = 8
-  Weight          = 0.01
+  Value           = 120
+  Weight          = 0.3
+  [Items.Wearable]
+    Defense           = 1
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 8
+    InsulationHeat    = -2
+  [Items.EquipBonus]
+    Agility   = 0
+    Dexterity = -1
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
 
-  [Items.Ammo]
-    AccuracyBonus = -5
-    AmmoTag       = "9mm"
-    DamageBonus   = 3
+[[Items]]
+  Description     = "よくなめされた革で成形された長靴"
+  Name            = "革のブーツ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 120
+  Weight          = 1.0
+  [Items.Wearable]
+    Defense           = 3
+    EquipmentCategory = "FEET"
+    InsulationCold    = 5
+    InsulationHeat    = 2
+  [Items.EquipBonus]
+    Agility   = -2
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "革製の手袋。作業にも戦闘にも使える"
+  Name            = "革の手袋"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 80
+  Weight          = 0.2
+  [Items.Wearable]
+    Defense           = 1
+    EquipmentCategory = "HANDS"
+    InsulationCold    = 4
+    InsulationHeat    = 2
+  [Items.EquipBonus]
+    Agility   = 0
+    Dexterity = 1
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "革製の腕当て。動きやすさを重視した設計"
+  Name            = "革の腕当て"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Value           = 100
+  Weight          = 0.5
+  [Items.Wearable]
+    Defense           = 2
+    EquipmentCategory = "ARMS"
+    InsulationCold    = 3
+    InsulationHeat    = 2
+  [Items.EquipBonus]
+    Agility   = 1
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 0
+
+[[Items]]
+  Description     = "重装騎士の脚部防具"
+  Name            = "騎士の脚鎧"
+  SpriteKey       = "armor_legs"
+  SpriteSheetName = "field"
+  Value           = 350
+  Weight          = 8.0
+  [Items.Wearable]
+    Defense           = 7
+    EquipmentCategory = "LEGS"
+    InsulationCold    = 6
+    InsulationHeat    = -4
+  [Items.EquipBonus]
+    Agility   = -4
+    Dexterity = 0
+    Sensation = 0
+    Strength  = 0
+    Vitality  = 3
+
+[[Items]]
+  Description       = "炭酸飲料。爽快感がある"
+  Name              = "コーラ"
+  ProvidesNutrition = 80
+  SpriteKey         = "bottled_cola"
+  SpriteSheetName   = "field"
+  Stackable         = true
+  Value             = 25
+  Weight            = 0.35
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description       = "熟成したチーズ。栄養満点"
+  Name              = "チーズ"
+  ProvidesNutrition = 120
+  SpriteKey         = "food_item"
+  SpriteSheetName   = "field"
+  Stackable         = true
+  Value             = 40
+  Weight            = 0.25
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description       = "焼きたてのパン。空腹を満たす"
+  Name              = "パン"
+  ProvidesNutrition = 100
+  SpriteKey         = "food_item"
+  SpriteSheetName   = "field"
+  Stackable         = true
+  Value             = 30
+  Weight            = 0.3
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description       = "固いビスケット。保存食として優秀"
+  Name              = "ビスケット"
+  ProvidesNutrition = 90
+  SpriteKey         = "biscuit"
+  SpriteSheetName   = "field"
+  Stackable         = true
+  Value             = 25
+  Weight            = 0.2
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description       = "薄く伸ばされた生地に具材を乗せて焼いた食べ物"
+  Name              = "ピザ"
+  ProvidesNutrition = 20
+  SpriteKey         = "pizza"
+  SpriteSheetName   = "field"
+  Stackable         = true
+  Value             = 4
+  Weight            = 1.0
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description       = "保存用の肉。栄養価が高い"
+  Name              = "乾肉"
+  ProvidesNutrition = 150
+  SpriteKey         = "food_item"
+  SpriteSheetName   = "field"
+  Stackable         = true
+  Value             = 50
+  Weight            = 0.2
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description     = "体力を半分程度回復する"
+  Name            = "回復薬"
+  SpriteKey       = "healing_potion"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 100
+  Weight          = 0.1
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+  [Items.ProvidesHealing]
+    Amount    = 0
+    Ratio     = 0.5
+    ValueType = "PERCENTAGE"
+
+[[Items]]
+  Description     = "爆発と破片で被害を与える手投げ弾"
+  InflictsDamage  = 20
+  Name            = "手榴弾"
+  SpriteKey       = "grenade"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 150
+  Weight          = 0.4
+  [Items.Consumable]
+    TargetGroup = "ENEMY"
+    TargetNum   = "ALL"
+    UsableScene = "BATTLE"
+
+[[Items]]
+  Description     = "毒や状態異常を治す薬草"
+  Name            = "毒消し"
+  SpriteKey       = "green_herb"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 80
+  Weight          = 0.08
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "SINGLE"
+    UsableScene = "ANY"
+
+[[Items]]
+  Description     = "視界を遮る煙を発生させる手投げ弾"
+  Name            = "煙幕弾"
+  SpriteKey       = "type4_grenade"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 200
+  Weight          = 0.35
+  [Items.Consumable]
+    TargetGroup = "ALLY"
+    TargetNum   = "ALL"
+    UsableScene = "BATTLE"
+
+[[Items]]
+  Description     = "強烈な光と音でショック状態にする手投げ弾"
+  Name            = "閃光弾"
+  SpriteKey       = "flash_grenade"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 180
+  Weight          = 0.3
+  [Items.Consumable]
+    TargetGroup = "ENEMY"
+    TargetNum   = "ALL"
+    UsableScene = "BATTLE"
 
 [[Items]]
   Description     = "硬質弾芯で装甲を貫通する9mm弾"
@@ -1194,11 +1073,36 @@
   Stackable       = true
   Value           = 10
   Weight          = 0.01
-
   [Items.Ammo]
     AccuracyBonus = 5
     AmmoTag       = "9mm"
     DamageBonus   = -2
+
+[[Items]]
+  Description     = "標準的な9mm口径の弾薬"
+  Name            = "9mm FMJ"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 5
+  Weight          = 0.01
+  [Items.Ammo]
+    AccuracyBonus = 0
+    AmmoTag       = "9mm"
+    DamageBonus   = 0
+
+[[Items]]
+  Description     = "軟質弾頭で生体に高い殺傷力を発揮する9mm弾"
+  Name            = "9mm HP"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 8
+  Weight          = 0.01
+  [Items.Ammo]
+    AccuracyBonus = -5
+    AmmoTag       = "9mm"
+    DamageBonus   = 3
 
 [[Items]]
   Description     = "小型のエネルギー電池"
@@ -1208,9 +1112,10 @@
   Stackable       = true
   Value           = 10
   Weight          = 0.02
-
   [Items.Ammo]
-    AmmoTag = "energy_cell"
+    AccuracyBonus = 0
+    AmmoTag       = "energy_cell"
+    DamageBonus   = 0
 
 [[Items]]
   Description     = "汎用ライフル弾"
@@ -1220,9 +1125,10 @@
   Stackable       = true
   Value           = 8
   Weight          = 0.02
-
   [Items.Ammo]
-    AmmoTag = "rifle"
+    AccuracyBonus = 0
+    AmmoTag       = "rifle"
+    DamageBonus   = 0
 
 [[Items]]
   Description     = "大口径の砲弾"
@@ -1232,184 +1138,18 @@
   Stackable       = true
   Value           = 20
   Weight          = 0.5
-
   [Items.Ammo]
-    AmmoTag = "shell"
-
-    # material ================
-
-[[Items]]
-  Description     = "鉄を多く含む金属の塊"
-  Name            = "鉄くず"
-  SpriteKey       = "scrap_metal"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 1.0
-
-[[Items]]
-  Description     = "よい香りに鎮静・興奮などの作用がある植物"
-  Name            = "緑ハーブ"
-  SpriteKey       = "green_herb"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.05
-
-[[Items]]
-  Description     = "体力を増強させる作用がある植物"
-  Name            = "黄ハーブ"
-  SpriteKey       = "heal_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.05
-
-[[Items]]
-  Description     = "滑らかな表面を持ち、軽くて持ちやすい棒"
-  Name            = "木の棒"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.3
-
-[[Items]]
-  Description     = "フェライト製の磁性体"
-  Name            = "フェライトコア"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.5
-
-[[Items]]
-  Description     = "加工しやすく産業の中核をなす金属"
-  Name            = "鉄"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 2.0
-
-[[Items]]
-  Description     = "淡く光る銀色の金属片。不浄なものを退ける力があるとされる"
-  Name            = "銀の欠片"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.2
-
-[[Items]]
-  Description     = "錆びついた真鍮の歯車。精巧な工芸技術で作られている"
-  Name            = "古い歯車"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.3
-
-[[Items]]
-  Description     = "透明な結晶を砕いた粉末。微かに光を放っている"
-  Name            = "水晶の粉"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.1
-
-[[Items]]
-  Description     = "漆黒に輝く火山ガラス。鋭い刃を作るのに適している"
-  Name            = "黒曜石"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.5
-
-[[Items]]
-  Description     = "深紅に染まった鉱石。触れると温かい"
-  Name            = "血赤石"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.8
-
-[[Items]]
-  Description     = "長い年月を経た動物の骨。異様に硬く軽い"
-  Name            = "古代の骨"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.2
-
-[[Items]]
-  Description     = "隕石から取れる特殊な金属。普通の鉄より遥かに硬い"
-  Name            = "星鉄"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 1.5
-
-[[Items]]
-  Description     = "霧が結晶化したような不思議な物質。触れると冷たい"
-  Name            = "霧の結晶"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.3
-
-[[Items]]
-  Description     = "太古の樹液が化石化した宝石。中に小さな虫が閉じ込められている"
-  Name            = "琥珀"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.1
-
-[[Items]]
-  Description     = "雷に打たれて生まれた石。微かに電気を帯びている"
-  Name            = "雷光石"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.6
-
-[[Items]]
-  Description     = "何かが燃え尽きた後の灰"
-  Name            = "灰"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.05
-
-[[Items]]
-  Description     = "獣から剥いだ毛皮。丈夫で防水性に優れる"
-  Name            = "獣の毛皮"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 1.0
-
-[[Items]]
-  Description     = "美しい紫色の水晶"
-  Name            = "紫水晶"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 0.4
-
-[[Items]]
-  Description     = "古い鎖の一部。何かを繋ぎ止めていた痕跡がある"
-  Name            = "錆びた鎖"
-  SpriteKey       = "field_item"
-  SpriteSheetName = "field"
-  Stackable       = true
-  Weight          = 1.2
-
-  ###################
-  # book            #
-  ###################
+    AccuracyBonus = 0
+    AmmoTag       = "shell"
+    DamageBonus   = 0
 
 [[Items]]
   Description     = "自動火器の運用について詳しく解説した雑誌。読みやすい"
   Name            = "マシンガンマガジン vol.43"
-  SpriteKey       = "field_item"
+  SpriteKey       = "old_book"
   SpriteSheetName = "field"
   Value           = 50
   Weight          = 0.3
-
   [Items.Book]
     TotalEffort = 200
     [Items.Book.Skill]
@@ -1420,11 +1160,10 @@
 [[Items]]
   Description     = "軍が発行した射撃技術の教本。体系的で内容が濃い"
   Name            = "陸軍射撃マニュアル"
-  SpriteKey       = "field_item"
+  SpriteKey       = "old_book"
   SpriteSheetName = "field"
   Value           = 200
   Weight          = 0.8
-
   [Items.Book]
     TotalEffort = 400
     [Items.Book.Skill]
@@ -1435,11 +1174,10 @@
 [[Items]]
   Description     = "極限環境での生存術を記した書籍"
   Name            = "高みのサバイバルライフ"
-  SpriteKey       = "field_item"
+  SpriteKey       = "old_book"
   SpriteSheetName = "field"
   Value           = 150
   Weight          = 0.5
-
   [Items.Book]
     TotalEffort = 300
     [Items.Book.Skill]
@@ -1447,29 +1185,248 @@
       RequiredLevel = 0
       TargetSkill   = "cold_resist"
 
-      ###################
-      # recipe          #
-      ###################
+[[Items]]
+  Description     = "フェライト製の磁性体"
+  Name            = "フェライトコア"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 100
+  Weight          = 0.5
 
-      # 武器のレシピ ================
+[[Items]]
+  Description     = "赤く光る鉱物。高価な装飾用に加工される"
+  Name            = "ルビー原石"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 500
+  Weight          = 0.05
 
-[[Recipes]]
-  Name = "木刀"
+[[Items]]
+  Description     = "錆びついた真鍮の歯車。精巧な工芸技術で作られている"
+  Name            = "古い歯車"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 30
+  Weight          = 0.3
 
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "木の棒"
+[[Items]]
+  Description     = "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
+  Name            = "古代の壺"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 1800
+  Weight          = 2.5
 
-[[Recipes]]
-  Name = "鉄のナイフ"
+[[Items]]
+  Description     = "長い年月を経た動物の骨。異様に硬く軽い"
+  Name            = "古代の骨"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 4
+  Weight          = 0.2
 
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "鉄"
+[[Items]]
+  Description     = "失われた文明の通貨"
+  Name            = "古代金貨"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 1500
+  Weight          = 0.01
 
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "木の棒"
+[[Items]]
+  Description     = "純白に輝く美しい羽根"
+  Name            = "天使の羽根"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 3200
+  Weight          = 0.005
+
+[[Items]]
+  Description     = "夜空から落ちた神秘的な鉱石"
+  Name            = "星の欠片"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 2000
+  Weight          = 0.02
+
+[[Items]]
+  Description     = "隕石から取れる特殊な金属。普通の鉄より遥かに硬い"
+  Name            = "星鉄"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 400
+  Weight          = 1.5
+
+[[Items]]
+  Description     = "滑らかな表面を持ち、軽くて持ちやすい棒"
+  Name            = "木の棒"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 200
+  Weight          = 0.3
+
+[[Items]]
+  Description     = "透明な結晶を砕いた粉末。微かに光を放っている"
+  Name            = "水晶の粉"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 6
+  Weight          = 0.1
+
+[[Items]]
+  Description     = "何かが燃え尽きた後の灰"
+  Name            = "灰"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 1
+  Weight          = 0.05
+
+[[Items]]
+  Description     = "獣から剥いだ毛皮。丈夫で防水性に優れる"
+  Name            = "獣の毛皮"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 1.0
+
+[[Items]]
+  Description     = "太古の樹液が化石化した宝石。中に小さな虫が閉じ込められている"
+  Name            = "琥珀"
+  SpriteKey       = "ammonite_fossil"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.1
+
+[[Items]]
+  Description     = "美しい紫色の水晶"
+  Name            = "紫水晶"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.4
+
+[[Items]]
+  Description     = "よい香りに鎮静・興奮などの作用がある植物"
+  Name            = "緑ハーブ"
+  SpriteKey       = "green_herb"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.05
+
+[[Items]]
+  Description     = "特に美しい輝きをもつ宝石。高額で取引される"
+  Name            = "血染めのルビー"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 3000
+  Weight          = 0.03
+
+[[Items]]
+  Description     = "深紅に染まった鉱石。触れると温かい"
+  Name            = "血赤石"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.8
+
+[[Items]]
+  Description     = "加工しやすく産業の中核をなす金属"
+  Name            = "鉄"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 2.0
+
+[[Items]]
+  Description     = "鉄を多く含む金属の塊"
+  Name            = "鉄くず"
+  SpriteKey       = "scrap_metal"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 1.0
+
+[[Items]]
+  Description     = "淡く光る銀色の金属片。不浄なものを退ける力があるとされる"
+  Name            = "銀の欠片"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.2
+
+[[Items]]
+  Description     = "古い鎖の一部。何かを繋ぎ止めていた痕跡がある"
+  Name            = "錆びた鎖"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 1.2
+
+[[Items]]
+  Description     = "雷に打たれて生まれた石。微かに電気を帯びている"
+  Name            = "雷光石"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.6
+
+[[Items]]
+  Description     = "霧が結晶化したような不思議な物質。触れると冷たい"
+  Name            = "霧の結晶"
+  SpriteKey       = "soul_stone"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.3
+
+[[Items]]
+  Description     = "体力を増強させる作用がある植物"
+  Name            = "黄ハーブ"
+  SpriteKey       = "heal_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.05
+
+[[Items]]
+  Description     = "漆黒に輝く火山ガラス。鋭い刃を作るのに適している"
+  Name            = "黒曜石"
+  SpriteKey       = "obsidian"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 0
+  Weight          = 0.5
+
+[[Items]]
+  Description     = "深海から取れる漆黒の真珠。極めて稀少"
+  Name            = "黒真珠"
+  SpriteKey       = "field_item"
+  SpriteSheetName = "field"
+  Stackable       = true
+  Value           = 3500
+  Weight          = 0.02
 
 [[Recipes]]
   Name = "レイガン"
@@ -1483,7 +1440,7 @@
     Name   = "フェライトコア"
 
 [[Recipes]]
-  Name = "電撃グレネード"
+  Name = "作業用ヘルメット"
 
   [[Recipes.Inputs]]
     Amount = 3
@@ -1495,38 +1452,6 @@
   [[Recipes.Inputs]]
     Amount = 3
     Name   = "鉄"
-
-    # 防具のレシピ ================
-
-[[Recipes]]
-  Name = "西洋鎧"
-
-  [[Recipes.Inputs]]
-    Amount = 4
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "作業用ヘルメット"
-
-  [[Recipes.Inputs]]
-    Amount = 3
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "革のブーツ"
-
-  [[Recipes.Inputs]]
-    Amount = 2
-    Name   = "鉄"
-
-[[Recipes]]
-  Name = "機械の指輪"
-
-  [[Recipes.Inputs]]
-    Amount = 1
-    Name   = "鉄"
-
-    # 道具のレシピ ================
 
 [[Recipes]]
   Name = "回復薬"
@@ -1540,11 +1465,54 @@
     Name   = "黄ハーブ"
 
 [[Recipes]]
+  Name = "木刀"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "木の棒"
+
+[[Recipes]]
+  Name = "機械の指輪"
+
+  [[Recipes.Inputs]]
+    Amount = 1
+    Name   = "鉄"
+
+[[Recipes]]
   Name = "毒消し"
 
   [[Recipes.Inputs]]
     Amount = 1
     Name   = "緑ハーブ"
+
+[[Recipes]]
+  Name = "煙幕弾"
+
+  [[Recipes.Inputs]]
+    Amount = 1
+    Name   = "鉄"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "灰"
+
+[[Recipes]]
+  Name = "西洋鎧"
+
+  [[Recipes.Inputs]]
+    Amount = 4
+    Name   = "鉄"
+
+[[Recipes]]
+  Name = "鉄のナイフ"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "鉄"
+
+  [[Recipes.Inputs]]
+    Amount = 2
+    Name   = "木の棒"
 
 [[Recipes]]
   Name = "閃光弾"
@@ -1558,25 +1526,29 @@
     Name   = "水晶の粉"
 
 [[Recipes]]
-  Name = "煙幕弾"
+  Name = "電撃グレネード"
 
   [[Recipes.Inputs]]
-    Amount = 1
+    Amount = 3
     Name   = "鉄"
+
+[[Recipes]]
+  Name = "革のブーツ"
 
   [[Recipes.Inputs]]
     Amount = 2
-    Name   = "灰"
-
-    # member ================
+    Name   = "鉄"
 
 [[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "Ash"
-  Player          = true
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
+  AnimKeys         = ["player_0", "player_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "Ash"
+  Player           = true
+  SpriteKey        = "player_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 5
     Defense   = 0
@@ -1584,11 +1556,9 @@
     Sensation = 5
     Strength  = 50
     Vitality  = 50
-
   [Members.LightSource]
     Enabled = true
     Radius  = 4
-
     [Members.LightSource.Color]
       A = 255
       B = 220
@@ -1596,245 +1566,102 @@
       R = 255
 
 [[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "コルデリア"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 7
-    Defense   = 0
-    Dexterity = 7
-    Sensation = 8
-    Strength  = 40
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "バルサザール"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
-    Defense   = 0
-    Dexterity = 5
-    Sensation = 5
-    Strength  = 5
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "ハンス"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
-    Defense   = 0
-    Dexterity = 5
-    Sensation = 5
-    Strength  = 5
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "カイン"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
-    Defense   = 0
-    Dexterity = 5
-    Sensation = 5
-    Strength  = 5
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "メイ"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
-    Defense   = 0
-    Dexterity = 5
-    Sensation = 5
-    Strength  = 5
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "アーサス"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 6
-    Defense   = 0
-    Dexterity = 9
-    Sensation = 8
-    Strength  = 4
-    Vitality  = 6
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "エヴァンジェリン"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
+  AnimKeys         = ["slime_0", "slime_1"]
+  CommandTableName = "スライム"
+  DropTableName    = "スライム"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "スライム"
+  SpriteKey        = "slime_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 4
-    Defense   = 0
-    Dexterity = 5
-    Sensation = 9
-    Strength  = 3
-    Vitality  = 7
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "サイラス"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 9
-    Defense   = 0
-    Dexterity = 6
-    Sensation = 7
-    Strength  = 6
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "ベアトリス"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
-    Defense   = 0
-    Dexterity = 8
-    Sensation = 6
-    Strength  = 7
-    Vitality  = 4
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "ガーディアン"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 3
-    Defense   = 0
+    Defense   = 2
     Dexterity = 3
-    Sensation = 4
-    Strength  = 8
-    Vitality  = 8
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "セラフィナ"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 7
-    Defense   = 0
-    Dexterity = 7
-    Sensation = 8
+    Sensation = 3
     Strength  = 4
     Vitality  = 5
 
 [[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "モルガン"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
+  AnimKeys         = ["slime_0", "slime_1"]
+  CommandTableName = "凍晶化した猟師"
+  DropTableName    = ""
+  FactionType      = ""
+  IsBoss           = true
+  Name             = "凍晶化した猟師"
+  SpriteKey        = "crystal_zombie"
+  SpriteSheetName  = "field"
   [Members.Abilities]
-    Agility   = 4
-    Defense   = 0
-    Dexterity = 5
+    Agility   = 12
+    Defense   = 15
+    Dexterity = 10
     Sensation = 8
-    Strength  = 7
-    Vitality  = 6
+    Strength  = 18
+    Vitality  = 40
 
 [[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "メリディア"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
+  AnimKeys         = ["merchant_0", "merchant_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = "FactionNeutral"
+  IsBoss           = false
+  Name             = "商人"
+  SpriteKey        = "merchant_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 8
-    Defense   = 0
-    Dexterity = 6
-    Sensation = 9
-    Strength  = 4
-    Vitality  = 5
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "カスパー"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
-    Defense   = 0
-    Dexterity = 5
-    Sensation = 6
-    Strength  = 6
-    Vitality  = 7
-
-[[Members]]
-  AnimKeys        = ["player_0", "player_1"]
-  Name            = "レティシア"
-  SpriteKey       = "player_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 7
-    Defense   = 0
-    Dexterity = 8
-    Sensation = 9
-    Strength  = 5
-    Vitality  = 4
-
-[[Members]]
-  AnimKeys        = ["light_tank_0", "light_tank_1"]
-  Name            = "軽戦車"
-  SpriteKey       = "light_tank_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 5
     Defense   = 5
-    Dexterity = 5
-    Sensation = 5
-    Strength  = 8
-    Vitality  = 12
-
+    Dexterity = 10
+    Sensation = 10
+    Strength  = 5
+    Vitality  = 10
   [Members.LightSource]
     Enabled = true
-    Radius  = 4
-
+    Radius  = 3
     [Members.LightSource.Color]
       A = 255
       B = 50
-      G = 255
+      G = 100
       R = 255
+  [Members.Dialog]
+    MessageKey = "merchant_greeting"
 
 [[Members]]
-  AnimKeys        = ["red_ball_0", "red_ball_1"]
-  Name            = "火の玉"
-  SpriteKey       = "red_ball_0"
-  SpriteSheetName = "field"
+  AnimKeys         = ["doctor_0", "doctor_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = "FactionNeutral"
+  IsBoss           = false
+  Name             = "怪しい科学者"
+  SpriteKey        = "doctor_0"
+  SpriteSheetName  = "field"
+  [Members.Abilities]
+    Agility   = 7
+    Defense   = 5
+    Dexterity = 10
+    Sensation = 15
+    Strength  = 5
+    Vitality  = 10
+  [Members.LightSource]
+    Enabled = true
+    Radius  = 3
+    [Members.LightSource.Color]
+      A = 255
+      B = 50
+      G = 100
+      R = 255
+  [Members.Dialog]
+    MessageKey = "doctor_greeting"
 
+[[Members]]
+  AnimKeys         = ["red_ball_0", "red_ball_1"]
+  CommandTableName = "火の玉"
+  DropTableName    = "火の玉"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "火の玉"
+  SpriteKey        = "red_ball_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 6
     Defense   = 4
@@ -1842,11 +1669,9 @@
     Sensation = 4
     Strength  = 8
     Vitality  = 7
-
   [Members.LightSource]
     Enabled = true
     Radius  = 6
-
     [Members.LightSource.Color]
       A = 255
       B = 50
@@ -1854,9 +1679,13 @@
       R = 255
 
 [[Members]]
-  Name            = "灰の偶像"
-  SpriteKey       = "red_ball"
-  SpriteSheetName = "field"
+  CommandTableName = "灰の偶像"
+  DropTableName    = "灰の偶像"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "灰の偶像"
+  SpriteKey        = "magic_ring"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 3
     Defense   = 40
@@ -1866,49 +1695,14 @@
     Vitality  = 12
 
 [[Members]]
-  AnimKeys        = ["slime_0", "slime_1"]
-  Name            = "スライム"
-  SpriteKey       = "slime_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 4
-    Defense   = 2
-    Dexterity = 3
-    Sensation = 3
-    Strength  = 4
-    Vitality  = 5
-
-    # Boss ================
-
-[[Members]]
-  # TODO: スプライトを用意する
-  AnimKeys        = ["slime_0", "slime_1"]
-  IsBoss          = true
-  Name            = "凍晶化した猟師"
-  SpriteKey       = "slime_0"
-  SpriteSheetName = "field"
-
-  [Members.Abilities]
-    Agility   = 12
-    Defense   = 15
-    Dexterity = 10
-    Sensation = 8
-    Strength  = 18
-    Vitality  = 40
-
-    # NPC ================
-
-[[Members]]
-  AnimKeys        = ["old_soldier_0", "old_soldier_1"]
-  FactionType     = "FactionNeutral"
-  Name            = "老兵"
-  SpriteKey       = "old_soldier_0"
-  SpriteSheetName = "field"
-
-  [Members.Dialog]
-    MessageKey = "old_soldier_greeting"
-
+  AnimKeys         = ["old_soldier_0", "old_soldier_1"]
+  CommandTableName = ""
+  DropTableName    = ""
+  FactionType      = "FactionNeutral"
+  IsBoss           = false
+  Name             = "老兵"
+  SpriteKey        = "old_soldier_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
     Agility   = 10
     Defense   = 10
@@ -1916,488 +1710,759 @@
     Sensation = 10
     Strength  = 10
     Vitality  = 10
+  [Members.Dialog]
+    MessageKey = "old_soldier_greeting"
 
 [[Members]]
-  AnimKeys        = ["merchant_0", "merchant_1"]
-  FactionType     = "FactionNeutral"
-  Name            = "商人"
-  SpriteKey       = "merchant_0"
-  SpriteSheetName = "field"
-
-  [Members.Dialog]
-    MessageKey = "merchant_greeting"
-
+  AnimKeys         = ["light_tank_0", "light_tank_1"]
+  CommandTableName = "軽戦車"
+  DropTableName    = "軽戦車"
+  FactionType      = ""
+  IsBoss           = false
+  Name             = "軽戦車"
+  SpriteKey        = "light_tank_0"
+  SpriteSheetName  = "field"
   [Members.Abilities]
-    Agility   = 8
+    Agility   = 5
     Defense   = 5
-    Dexterity = 10
-    Sensation = 10
-    Strength  = 5
-    Vitality  = 10
-
+    Dexterity = 5
+    Sensation = 5
+    Strength  = 8
+    Vitality  = 12
   [Members.LightSource]
     Enabled = true
-    Radius  = 3
-
+    Radius  = 4
     [Members.LightSource.Color]
       A = 255
       B = 50
-      G = 100
+      G = 255
       R = 255
-
-[[Members]]
-  AnimKeys        = ["doctor_0", "doctor_1"]
-  FactionType     = "FactionNeutral"
-  Name            = "怪しい科学者"
-  SpriteKey       = "doctor_0"
-  SpriteSheetName = "field"
-
-  [Members.Dialog]
-    MessageKey = "doctor_greeting"
-
-  [Members.Abilities]
-    Agility   = 7
-    Defense   = 5
-    Dexterity = 10
-    Sensation = 15
-    Strength  = 5
-    Vitality  = 10
-
-  [Members.LightSource]
-    Enabled = true
-    Radius  = 3
-
-    [Members.LightSource.Color]
-      A = 255
-      B = 50
-      G = 100
-      R = 255
-
-      # command table ================
-
-[[CommandTables]]
-  Name = "軽戦車"
-  [[CommandTables.Entries]]
-    Weapon = "体当たり"
-    Weight = 1.0
 
 [[CommandTables]]
   Name = "スライム"
-  [[CommandTables.Entries]]
-    Weapon = "体当たり"
-    Weight = 1.0
 
-[[CommandTables]]
-  Name = "火の玉"
-  [[CommandTables.Entries]]
-    Weapon = "体当たり"
-    Weight = 1.0
-
-[[CommandTables]]
-  Name = "灰の偶像"
-  [[CommandTables.Entries]]
+  [[CommandTables.entries]]
     Weapon = "体当たり"
     Weight = 1.0
 
 [[CommandTables]]
   Name = "凍晶化した猟師"
-  [[CommandTables.Entries]]
+
+  [[CommandTables.entries]]
     Weapon = "体当たり"
     Weight = 1.0
 
-    # drop table ================
+[[CommandTables]]
+  Name = "火の玉"
 
-[[DropTables]]
+  [[CommandTables.entries]]
+    Weapon = "体当たり"
+    Weight = 1.0
+
+[[CommandTables]]
+  Name = "灰の偶像"
+
+  [[CommandTables.entries]]
+    Weapon = "体当たり"
+    Weight = 1.0
+
+[[CommandTables]]
   Name = "軽戦車"
-  [[DropTables.Entries]]
-    Material = "鉄"
-    Weight   = 0.4
-  [[DropTables.Entries]]
-    Material = "鉄くず"
-    Weight   = 0.4
-  [[DropTables.Entries]]
-    Material = "フェライトコア"
-    Weight   = 0.2
+
+  [[CommandTables.entries]]
+    Weapon = "体当たり"
+    Weight = 1.0
 
 [[DropTables]]
   Name = "スライム"
-  [[DropTables.Entries]]
+
+  [[DropTables.entries]]
     Material = ""
     Weight   = 0.8
-  [[DropTables.Entries]]
+
+  [[DropTables.entries]]
     Material = "鉄くず"
     Weight   = 0.2
 
 [[DropTables]]
   Name = "火の玉"
-  [[DropTables.Entries]]
+
+  [[DropTables.entries]]
     Material = ""
     Weight   = 0.5
-  [[DropTables.Entries]]
+
+  [[DropTables.entries]]
     Material = "鉄くず"
     Weight   = 0.5
 
 [[DropTables]]
   Name = "灰の偶像"
-  [[DropTables.Entries]]
+
+  [[DropTables.entries]]
     Material = "鉄くず"
     Weight   = 1.0
 
-    # item table ================
+[[DropTables]]
+  Name = "軽戦車"
 
-[[ItemTables]]
-  Name = "通常"
-  [[ItemTables.Entries]]
-    ItemName = "回復薬"
-    MaxDepth = 20
-    MinDepth = 1
-    Weight   = 1.0
-  [[ItemTables.Entries]]
-    ItemName = "手榴弾"
-    MaxDepth = 40
-    MinDepth = 10
-    Weight   = 0.5
-  [[ItemTables.Entries]]
-    ItemName = "閃光弾"
-    MaxDepth = 35
-    MinDepth = 15
+  [[DropTables.entries]]
+    Material = "鉄"
     Weight   = 0.4
-  [[ItemTables.Entries]]
-    ItemName = "煙幕弾"
-    MaxDepth = 35
-    MinDepth = 15
+
+  [[DropTables.entries]]
+    Material = "鉄くず"
     Weight   = 0.4
-  [[ItemTables.Entries]]
-    ItemName = "毒消し"
-    MaxDepth = 10
-    MinDepth = 1
+
+  [[DropTables.entries]]
+    Material = "フェライトコア"
     Weight   = 0.2
-  [[ItemTables.Entries]]
-    ItemName = "黒曜石"
-    MaxDepth = 20
-    MinDepth = 5
-    Weight   = 0.3
-  [[ItemTables.Entries]]
-    ItemName = "パン"
-    MaxDepth = 20
-    MinDepth = 1
-    Weight   = 0.8
-  [[ItemTables.Entries]]
-    ItemName = "乾肉"
-    MaxDepth = 30
-    MinDepth = 5
-    Weight   = 0.6
-  [[ItemTables.Entries]]
-    ItemName = "コーラ"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 0.7
-  [[ItemTables.Entries]]
-    ItemName = "チーズ"
-    MaxDepth = 25
-    MinDepth = 3
-    Weight   = 0.5
-  [[ItemTables.Entries]]
-    ItemName = "ビスケット"
-    MaxDepth = 18
-    MinDepth = 1
-    Weight   = 0.6
-
-[[ItemTables]]
-  Name = "洞窟"
-  [[ItemTables.Entries]]
-    ItemName = "回復薬"
-    MaxDepth = 20
-    MinDepth = 1
-    Weight   = 1.0
-  [[ItemTables.Entries]]
-    ItemName = "毒消し"
-    MaxDepth = 8
-    MinDepth = 1
-    Weight   = 0.8
-  [[ItemTables.Entries]]
-    ItemName = "雷光石"
-    MaxDepth = 10
-    MinDepth = 1
-    Weight   = 0.1
-  [[ItemTables.Entries]]
-    ItemName = "黒曜石"
-    MaxDepth = 25
-    MinDepth = 3
-    Weight   = 0.6
-  [[ItemTables.Entries]]
-    ItemName = "鉄くず"
-    MaxDepth = 12
-    MinDepth = 1
-    Weight   = 0.7
-  [[ItemTables.Entries]]
-    ItemName = "雷光石"
-    MaxDepth = 30
-    MinDepth = 10
-    Weight   = 0.4
-  [[ItemTables.Entries]]
-    ItemName = "コーラ"
-    MaxDepth = 12
-    MinDepth = 1
-    Weight   = 0.9
-  [[ItemTables.Entries]]
-    ItemName = "乾肉"
-    MaxDepth = 20
-    MinDepth = 3
-    Weight   = 0.7
-  [[ItemTables.Entries]]
-    ItemName = "ビスケット"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 0.6
-
-[[ItemTables]]
-  Name = "森"
-  [[ItemTables.Entries]]
-    ItemName = "回復薬"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 1.0
-  [[ItemTables.Entries]]
-    ItemName = "緑ハーブ"
-    MaxDepth = 15
-    MinDepth = 1
-    Weight   = 1.2
-  [[ItemTables.Entries]]
-    ItemName = "黄ハーブ"
-    MaxDepth = 20
-    MinDepth = 5
-    Weight   = 0.8
-  [[ItemTables.Entries]]
-    ItemName = "木の棒"
-    MaxDepth = 7
-    MinDepth = 1
-    Weight   = 0.9
-  [[ItemTables.Entries]]
-    ItemName = "毒消し"
-    MaxDepth = 10
-    MinDepth = 1
-    Weight   = 0.7
-  [[ItemTables.Entries]]
-    ItemName = "煙幕弾"
-    MaxDepth = 18
-    MinDepth = 8
-    Weight   = 0.5
-  [[ItemTables.Entries]]
-    ItemName = "パン"
-    MaxDepth = 18
-    MinDepth = 1
-    Weight   = 0.9
-  [[ItemTables.Entries]]
-    ItemName = "コーラ"
-    MaxDepth = 12
-    MinDepth = 1
-    Weight   = 1.0
-  [[ItemTables.Entries]]
-    ItemName = "チーズ"
-    MaxDepth = 15
-    MinDepth = 3
-    Weight   = 0.6
-  [[ItemTables.Entries]]
-    ItemName = "ビスケット"
-    MaxDepth = 10
-    MinDepth = 1
-    Weight   = 0.7
 
 [[ItemTables]]
   Name = "廃墟"
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "回復薬"
     MaxDepth = 15
     MinDepth = 1
     Weight   = 1.0
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "銀の欠片"
     MaxDepth = 20
     MinDepth = 3
     Weight   = 0.8
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "古い歯車"
     MaxDepth = 25
     MinDepth = 5
     Weight   = 0.7
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "水晶の粉"
     MaxDepth = 30
     MinDepth = 8
     Weight   = 0.6
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "手榴弾"
     MaxDepth = 35
     MinDepth = 10
     Weight   = 0.5
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "閃光弾"
     MaxDepth = 30
     MinDepth = 15
     Weight   = 0.4
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "ビスケット"
     MaxDepth = 20
     MinDepth = 1
     Weight   = 0.7
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "乾肉"
     MaxDepth = 25
     MinDepth = 5
     Weight   = 0.5
-  [[ItemTables.Entries]]
+
+  [[ItemTables.entries]]
     ItemName = "パン"
     MaxDepth = 15
     MinDepth = 1
     Weight   = 0.4
 
-    # tile ================
+[[ItemTables]]
+  Name = "森"
 
-[[Tiles]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "床"
-  Name        = "floor"
+  [[ItemTables.entries]]
+    ItemName = "回復薬"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 1.0
 
-  [Tiles.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "floor"
-    SpriteSheetName = "tile"
+  [[ItemTables.entries]]
+    ItemName = "緑ハーブ"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 1.2
 
-[[Tiles]]
-  BlockPass   = true
-  BlockView   = true
-  Description = "壁"
-  Name        = "wall"
+  [[ItemTables.entries]]
+    ItemName = "黄ハーブ"
+    MaxDepth = 20
+    MinDepth = 5
+    Weight   = 0.8
 
-  [Tiles.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "wall"
-    SpriteSheetName = "tile"
+  [[ItemTables.entries]]
+    ItemName = "木の棒"
+    MaxDepth = 7
+    MinDepth = 1
+    Weight   = 0.9
+
+  [[ItemTables.entries]]
+    ItemName = "毒消し"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "煙幕弾"
+    MaxDepth = 18
+    MinDepth = 8
+    Weight   = 0.5
+
+  [[ItemTables.entries]]
+    ItemName = "パン"
+    MaxDepth = 18
+    MinDepth = 1
+    Weight   = 0.9
+
+  [[ItemTables.entries]]
+    ItemName = "コーラ"
+    MaxDepth = 12
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "チーズ"
+    MaxDepth = 15
+    MinDepth = 3
+    Weight   = 0.6
+
+  [[ItemTables.entries]]
+    ItemName = "ビスケット"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.7
+
+[[ItemTables]]
+  Name = "洞窟"
+
+  [[ItemTables.entries]]
+    ItemName = "回復薬"
+    MaxDepth = 20
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "毒消し"
+    MaxDepth = 8
+    MinDepth = 1
+    Weight   = 0.8
+
+  [[ItemTables.entries]]
+    ItemName = "雷光石"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.1
+
+  [[ItemTables.entries]]
+    ItemName = "黒曜石"
+    MaxDepth = 25
+    MinDepth = 3
+    Weight   = 0.6
+
+  [[ItemTables.entries]]
+    ItemName = "鉄くず"
+    MaxDepth = 12
+    MinDepth = 1
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "雷光石"
+    MaxDepth = 30
+    MinDepth = 10
+    Weight   = 0.4
+
+  [[ItemTables.entries]]
+    ItemName = "コーラ"
+    MaxDepth = 12
+    MinDepth = 1
+    Weight   = 0.9
+
+  [[ItemTables.entries]]
+    ItemName = "乾肉"
+    MaxDepth = 20
+    MinDepth = 3
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "ビスケット"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 0.6
+
+[[ItemTables]]
+  Name = "通常"
+
+  [[ItemTables.entries]]
+    ItemName = "回復薬"
+    MaxDepth = 20
+    MinDepth = 1
+    Weight   = 1.0
+
+  [[ItemTables.entries]]
+    ItemName = "手榴弾"
+    MaxDepth = 40
+    MinDepth = 10
+    Weight   = 0.5
+
+  [[ItemTables.entries]]
+    ItemName = "閃光弾"
+    MaxDepth = 35
+    MinDepth = 15
+    Weight   = 0.4
+
+  [[ItemTables.entries]]
+    ItemName = "煙幕弾"
+    MaxDepth = 35
+    MinDepth = 15
+    Weight   = 0.4
+
+  [[ItemTables.entries]]
+    ItemName = "毒消し"
+    MaxDepth = 10
+    MinDepth = 1
+    Weight   = 0.2
+
+  [[ItemTables.entries]]
+    ItemName = "黒曜石"
+    MaxDepth = 20
+    MinDepth = 5
+    Weight   = 0.3
+
+  [[ItemTables.entries]]
+    ItemName = "パン"
+    MaxDepth = 20
+    MinDepth = 1
+    Weight   = 0.8
+
+  [[ItemTables.entries]]
+    ItemName = "乾肉"
+    MaxDepth = 30
+    MinDepth = 5
+    Weight   = 0.6
+
+  [[ItemTables.entries]]
+    ItemName = "コーラ"
+    MaxDepth = 15
+    MinDepth = 1
+    Weight   = 0.7
+
+  [[ItemTables.entries]]
+    ItemName = "チーズ"
+    MaxDepth = 25
+    MinDepth = 3
+    Weight   = 0.5
+
+  [[ItemTables.entries]]
+    ItemName = "ビスケット"
+    MaxDepth = 18
+    MinDepth = 1
+    Weight   = 0.6
+
+[[EnemyTables]]
+  Name = "廃墟"
+
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 10
+    MinDepth  = 1
+    Weight    = 0.9
+
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 20
+    MinDepth  = 1
+    Weight    = 0.8
+
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 30
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "灰の偶像"
+    MaxDepth  = 35
+    MinDepth  = 15
+    Weight    = 0.7
+
+[[EnemyTables]]
+  Name = "森"
+
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 12
+    MinDepth  = 1
+    Weight    = 1.2
+
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 15
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 20
+    MinDepth  = 1
+    Weight    = 0.5
+
+[[EnemyTables]]
+  Name = "洞窟"
+
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 8
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 15
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 25
+    MinDepth  = 1
+    Weight    = 0.6
+
+[[EnemyTables]]
+  Name = "通常"
+
+  [[EnemyTables.entries]]
+    EnemyName = "スライム"
+    MaxDepth  = 10
+    MinDepth  = 1
+    Weight    = 1.2
+
+  [[EnemyTables.entries]]
+    EnemyName = "火の玉"
+    MaxDepth  = 20
+    MinDepth  = 1
+    Weight    = 1.0
+
+  [[EnemyTables.entries]]
+    EnemyName = "軽戦車"
+    MaxDepth  = 50
+    MinDepth  = 1
+    Weight    = 0.8
+
+  [[EnemyTables.entries]]
+    EnemyName = "灰の偶像"
+    MaxDepth  = 50
+    MinDepth  = 20
+    Weight    = 0.5
+
+[[SpriteSheets]]
+  Name = "bg"
+  Path = "file/textures/dist/bg.json"
+
+[[SpriteSheets]]
+  Name = "field"
+  Path = "file/textures/dist/single.json"
+
+[[SpriteSheets]]
+  Name = "tile"
+  Path = "file/textures/dist/tiles.json"
 
 [[Tiles]]
   BlockPass   = false
   BlockView   = false
   Description = "土"
+  Foliage     = 0
   Name        = "dirt"
-
+  Shelter     = 0
+  Water       = 0
   [Tiles.SpriteRender]
     Depth           = 0
     SpriteKey       = "dirt"
     SpriteSheetName = "tile"
-
-    # ダンジョン壁タイル ================
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Tiles]]
   BlockPass   = true
   BlockView   = true
   Description = "ダンジョン壁"
+  Foliage     = 0
   Name        = "dwall"
-
+  Shelter     = 0
+  Water       = 0
   [Tiles.SpriteRender]
     Depth           = 2
     SpriteKey       = "dwall"
     SpriteSheetName = "tile"
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
-    # 暗闇タイル ================
+[[Tiles]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "床"
+  Foliage     = 0
+  Name        = "floor"
+  Shelter     = 0
+  Water       = 0
+  [Tiles.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "floor"
+    SpriteSheetName = "tile"
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Tiles]]
   BlockPass   = true
   BlockView   = false
   Description = "暗闇"
+  Foliage     = 0
   Name        = "void"
-
+  Shelter     = 0
+  Water       = 0
   [Tiles.SpriteRender]
     Depth           = 0
     SpriteKey       = "void"
     SpriteSheetName = "tile"
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
-    # Props ================
-
-[[Props]]
-  BlockPass   = true
-  BlockView   = false
-  Description = "頑丈な木製のテーブル"
-  Name        = "table"
-
-  [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "prop_table"
-    SpriteSheetName = "field"
-
-[[Props]]
-  BlockPass   = true
-  BlockView   = false
-  Description = "座り心地の良い椅子"
-  Name        = "chair"
-
-  [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "prop_chair"
-    SpriteSheetName = "field"
-
-[[Props]]
+[[Tiles]]
   BlockPass   = true
   BlockView   = true
-  Description = "たくさんの本が並んだ本棚"
-  Name        = "bookshelf"
-
-  [Props.SpriteRender]
+  Description = "壁"
+  Foliage     = 0
+  Name        = "wall"
+  Shelter     = 0
+  Water       = 0
+  [Tiles.SpriteRender]
     Depth           = 2
-    SpriteKey       = "wooden_bookshelf"
+    SpriteKey       = "wall"
+    SpriteSheetName = "tile"
+    [Tiles.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Tiles.SpriteRender.Options.GeoM]
+      [Tiles.SpriteRender.Options.ColorScale]
+      [Tiles.SpriteRender.Options.ColorM]
+      [Tiles.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "デザイナーズ本棚"
+  Name        = "artistic_shelf"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "artistic_shelf"
     SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = true
   BlockView   = false
   Description = "何か入っているかもしれない樽"
   Name        = "barrel"
-
   [Props.SpriteRender]
     Depth           = 2
     SpriteKey       = "prop_barrel"
     SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
-  BlockPass   = true
+  BlockPass   = false
   BlockView   = false
-  Description = "頑丈そうな木箱"
-  Name        = "crate"
-
+  Description = "バスタブ"
+  Name        = "bathtub"
   [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "wooden_crate"
+    Depth           = 0
+    SpriteKey       = "bathtub"
     SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = true
   BlockView   = false
   Description = "簡素だが清潔な寝台"
   Name        = "bed"
-
   [Props.SpriteRender]
     Depth           = 2
     SpriteKey       = "bed"
     SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "ベッドランプ"
+  Name        = "bed_lamp"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "bed_lamp"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+  [Props.LightSource]
+    Enabled = false
+    Radius  = 4
+    [Props.LightSource.Color]
+      A = 255
+      B = 220
+      G = 255
+      R = 255
 
 [[Props]]
   BlockPass   = true
   BlockView   = false
-  Description = "書類や文具が置かれた机"
-  Name        = "desk"
-
+  Description = "ベンチ"
+  Name        = "bench"
   [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "prop_table"
+    Depth           = 0
+    SpriteKey       = "ベンチ"
     SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = true
   BlockView   = false
   Description = "焚き火"
   Name        = "bonfire"
-
   [Props.SpriteRender]
     AnimKeys = [
       "bonfire_0",
@@ -2420,11 +2485,23 @@
     Depth = 1
     SpriteKey = "bonfire_0"
     SpriteSheetName = "field"
-
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
   [Props.LightSource]
     Enabled = true
     Radius  = 3
-
     [Props.LightSource.Color]
       A = 200
       B = 40
@@ -2433,55 +2510,155 @@
 
 [[Props]]
   BlockPass   = true
-  BlockView   = false
-  Description = "床置きランタン。広い範囲を明るく照らす"
-  Name        = "lantern"
-
+  BlockView   = true
+  Description = "たくさんの本が並んだ本棚"
+  Name        = "bookshelf"
   [Props.SpriteRender]
     Depth           = 2
-    SpriteKey       = "prop_lantern"
+    SpriteKey       = "wooden_bookshelf"
     SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
-  [Props.LightSource]
-    Enabled = true
-    Radius  = 4
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "座り心地の良い椅子"
+  Name        = "chair"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "chair"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
-    [Props.LightSource.Color]
-      A = 255
-      B = 150
-      G = 200
-      R = 255
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "頑丈そうな木箱"
+  Name        = "crate"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "wooden_crate"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "書類や文具が置かれた机"
+  Name        = "desk"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "wood_desk"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = true
   BlockView   = false
   Description = "ドア"
   Name        = "door"
-
   [Props.SpriteRender]
     Depth           = 1
     SpriteKey       = "door_horizontal_closed"
     SpriteSheetName = "field"
-
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
   [Props.Door]
-
-[[Props]]
-  BlockPass   = true
-  BlockView   = false
-  Description = "石の柱"
-  Name        = "stone_pillar"
-
-  [Props.SpriteRender]
-    Depth           = 2
-    SpriteKey       = "stone_pillar"
-    SpriteSheetName = "field"
 
 [[Props]]
   BlockPass   = false
   BlockView   = false
-  Description = "次の階層へと続くポータル"
-  Name        = "warp_next"
+  Description = "プレイヤーが踏むと扉をロックするトリガー"
+  Name        = "door_lock_trigger"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "door_lock_trigger"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+  [Props.DoorLockTrigger]
 
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "ダンジョンへの門"
+  Name        = "dungeon_gate"
   [Props.SpriteRender]
     AnimKeys = [
       "warp_next_0",
@@ -2504,25 +2681,139 @@
     Depth = 1
     SpriteKey = "warp_next_0"
     SpriteSheetName = "field"
-
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
   [Props.LightSource]
     Enabled = true
     Radius  = 2
-
     [Props.LightSource.Color]
       A = 200
-      B = 255
-      G = 200
-      R = 100
+      B = 150
+      G = 100
+      R = 255
+  [Props.DungeonGateTrigger]
 
-  [Props.WarpNextTrigger]
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "床置きランタン。広い範囲を明るく照らす"
+  Name        = "lantern"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "prop_lantern"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+  [Props.LightSource]
+    Enabled = true
+    Radius  = 4
+    [Props.LightSource.Color]
+      A = 255
+      B = 150
+      G = 200
+      R = 255
+
+[[Props]]
+  BlockPass   = false
+  BlockView   = false
+  Description = "革張りのソファ"
+  Name        = "sofa"
+  [Props.SpriteRender]
+    Depth           = 0
+    SpriteKey       = "sofa"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "石の柱"
+  Name        = "stone_pillar"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "stone_pillar"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
+
+[[Props]]
+  BlockPass   = true
+  BlockView   = false
+  Description = "頑丈な木製のテーブル"
+  Name        = "table"
+  [Props.SpriteRender]
+    Depth           = 2
+    SpriteKey       = "ダイニングテーブル"
+    SpriteSheetName = "field"
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
 
 [[Props]]
   BlockPass   = false
   BlockView   = false
   Description = "街へと繋がる帰還ポータル"
   Name        = "warp_escape"
-
   [Props.SpriteRender]
     AnimKeys = [
       "warp_escape_0",
@@ -2545,26 +2836,35 @@
     Depth = 1
     SpriteKey = "warp_escape_0"
     SpriteSheetName = "field"
-
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
   [Props.LightSource]
     Enabled = true
     Radius  = 2
-
     [Props.LightSource.Color]
       A = 200
       B = 100
       G = 255
       R = 200
-
   [Props.WarpEscapeTrigger]
 
 [[Props]]
   BlockPass   = false
   BlockView   = false
-  Description = "ダンジョンへの門"
-  Name        = "dungeon_gate"
-
-  # TODO: スプライトを設定する
+  Description = "次の階層へと続くポータル"
+  Name        = "warp_next"
   [Props.SpriteRender]
     AnimKeys = [
       "warp_next_0",
@@ -2587,131 +2887,29 @@
     Depth = 1
     SpriteKey = "warp_next_0"
     SpriteSheetName = "field"
-
+    [Props.SpriteRender.Options]
+      CompositeMode  = 0
+      DisableMipmaps = false
+      Filter         = 0
+      [Props.SpriteRender.Options.GeoM]
+      [Props.SpriteRender.Options.ColorScale]
+      [Props.SpriteRender.Options.ColorM]
+      [Props.SpriteRender.Options.Blend]
+        BlendFactorDestinationAlpha = 0
+        BlendFactorDestinationRGB   = 0
+        BlendFactorSourceAlpha      = 0
+        BlendFactorSourceRGB        = 0
+        BlendOperationAlpha         = 0
+        BlendOperationRGB           = 0
   [Props.LightSource]
     Enabled = true
     Radius  = 2
-
     [Props.LightSource.Color]
       A = 200
-      B = 150
-      G = 100
-      R = 255
-
-  [Props.DungeonGateTrigger]
-
-[[Props]]
-  BlockPass   = false
-  BlockView   = false
-  Description = "プレイヤーが踏むと扉をロックするトリガー"
-  Name        = "door_lock_trigger"
-
-  [Props.SpriteRender]
-    Depth           = 0
-    SpriteKey       = "door_lock_trigger"
-    SpriteSheetName = "field"
-
-  [Props.DoorLockTrigger]
-
-    # enemy tables ================
-
-[[EnemyTables]]
-  Name = "通常"
-  [[EnemyTables.Entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 10
-    MinDepth  = 1
-    Weight    = 1.2
-  [[EnemyTables.Entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 20
-    MinDepth  = 1
-    Weight    = 1.0
-  [[EnemyTables.Entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 50
-    MinDepth  = 1
-    Weight    = 0.8
-  [[EnemyTables.Entries]]
-    EnemyName = "灰の偶像"
-    MaxDepth  = 50
-    MinDepth  = 20
-    Weight    = 0.5
-
-[[EnemyTables]]
-  Name = "洞窟"
-  [[EnemyTables.Entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 8
-    MinDepth  = 1
-    Weight    = 1.0
-  [[EnemyTables.Entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 15
-    MinDepth  = 1
-    Weight    = 1.0
-  [[EnemyTables.Entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 25
-    MinDepth  = 1
-    Weight    = 0.6
-
-[[EnemyTables]]
-  Name = "森"
-  [[EnemyTables.Entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 12
-    MinDepth  = 1
-    Weight    = 1.2
-  [[EnemyTables.Entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 15
-    MinDepth  = 1
-    Weight    = 1.0
-  [[EnemyTables.Entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 20
-    MinDepth  = 1
-    Weight    = 0.5
-
-[[EnemyTables]]
-  Name = "廃墟"
-  [[EnemyTables.Entries]]
-    EnemyName = "スライム"
-    MaxDepth  = 10
-    MinDepth  = 1
-    Weight    = 0.9
-  [[EnemyTables.Entries]]
-    EnemyName = "火の玉"
-    MaxDepth  = 20
-    MinDepth  = 1
-    Weight    = 0.8
-  [[EnemyTables.Entries]]
-    EnemyName = "軽戦車"
-    MaxDepth  = 30
-    MinDepth  = 1
-    Weight    = 1.0
-  [[EnemyTables.Entries]]
-    EnemyName = "灰の偶像"
-    MaxDepth  = 35
-    MinDepth  = 15
-    Weight    = 0.7
-
-    # sprite sheets ================
-
-[[SpriteSheets]]
-  Name = "field"
-  Path = "file/textures/dist/single.json"
-
-[[SpriteSheets]]
-  Name = "tile"
-  Path = "file/textures/dist/tiles.json"
-
-[[SpriteSheets]]
-  Name = "bg"
-  Path = "file/textures/dist/bg.json"
-
-  # profession ================
+      B = 255
+      G = 200
+      R = 100
+  [Props.WarpNextTrigger]
 
 [[Professions]]
   Description = "逃げてきた一般人"
@@ -2724,168 +2922,39 @@
     Sensation = 5
     Strength  = 5
     Vitality  = 5
+
   [[Professions.Items]]
     Count = 3
     Name  = "パン"
+
   [[Professions.Items]]
     Count = 2
     Name  = "ビスケット"
+
   [[Professions.Items]]
     Count = 1
     Name  = "回復薬"
+
   [[Professions.Equips]]
     Name = "布の帽子"
     Slot = "HEAD"
+
   [[Professions.Equips]]
     Name = "布のシャツ"
     Slot = "TORSO"
+
   [[Professions.Equips]]
     Name = "布の腕巻き"
     Slot = "ARMS"
+
   [[Professions.Equips]]
     Name = "布の手袋"
     Slot = "HANDS"
-  [[Professions.Equips]]
-    Name = "布のズボン"
-    Slot = "LEGS"
-  [[Professions.Equips]]
-    Name = "布の靴"
-    Slot = "FEET"
 
-[[Professions]]
-  Description = "訓練を積んだ兵隊"
-  ID          = "soldier"
-  Name        = "軍人"
-  [Professions.Abilities]
-    Agility   = 4
-    Defense   = 7
-    Dexterity = 4
-    Sensation = 3
-    Strength  = 8
-    Vitality  = 6
-  [[Professions.Skills]]
-    ID    = "sword"
-    Value = 3
-  [[Professions.Skills]]
-    ID    = "heavy_armor"
-    Value = 2
-  [[Professions.Items]]
-    Count = 1
-    Name  = "回復薬"
-  [[Professions.Equips]]
-    Name = "木刀"
-    Slot = "WEAPON1"
-  [[Professions.Equips]]
-    Name = "作業用ヘルメット"
-    Slot = "HEAD"
-  [[Professions.Equips]]
-    Name = "鉄の胸当て"
-    Slot = "TORSO"
-  [[Professions.Equips]]
-    Name = "布の腕巻き"
-    Slot = "ARMS"
-  [[Professions.Equips]]
-    Name = "革の手袋"
-    Slot = "HANDS"
   [[Professions.Equips]]
     Name = "布のズボン"
     Slot = "LEGS"
-  [[Professions.Equips]]
-    Name = "革のブーツ"
-    Slot = "FEET"
 
-[[Professions]]
-  Description = "射撃の達人"
-  ID          = "sniper"
-  Name        = "狙撃手"
-  [Professions.Abilities]
-    Agility   = 6
-    Defense   = 4
-    Dexterity = 5
-    Sensation = 8
-    Strength  = 3
-    Vitality  = 4
-  [[Professions.Skills]]
-    ID    = "handgun"
-    Value = 3
-  [[Professions.Skills]]
-    ID    = "rifle"
-    Value = 2
-  [[Professions.Items]]
-    Count = 1
-    Name  = "パン"
-  [[Professions.Items]]
-    Count = 1
-    Name  = "回復薬"
-  [[Professions.Items]]
-    Count = 30
-    Name  = "9mm FMJ"
-  [[Professions.Equips]]
-    Name = "ハンドガン"
-    Slot = "WEAPON1"
-  [[Professions.Equips]]
-    Name = "影の頭巾"
-    Slot = "HEAD"
-  [[Professions.Equips]]
-    Name = "布のシャツ"
-    Slot = "TORSO"
-  [[Professions.Equips]]
-    Name = "布の腕巻き"
-    Slot = "ARMS"
-  [[Professions.Equips]]
-    Name = "布の手袋"
-    Slot = "HANDS"
-  [[Professions.Equips]]
-    Name = "布のズボン"
-    Slot = "LEGS"
-  [[Professions.Equips]]
-    Name = "布の靴"
-    Slot = "FEET"
-
-[[Professions]]
-  Description = "技術者"
-  ID          = "mechanic"
-  Name        = "整備士"
-  [Professions.Abilities]
-    Agility   = 4
-    Defense   = 5
-    Dexterity = 8
-    Sensation = 4
-    Strength  = 4
-    Vitality  = 5
-  [[Professions.Skills]]
-    ID    = "crafting"
-    Value = 3
-  [[Professions.Skills]]
-    ID    = "smithing"
-    Value = 2
-  [[Professions.Skills]]
-    ID    = "exploration"
-    Value = 1
-  [[Professions.Items]]
-    Count = 5
-    Name  = "鉄"
-  [[Professions.Items]]
-    Count = 2
-    Name  = "フェライトコア"
-  [[Professions.Equips]]
-    Name = "鉄のナイフ"
-    Slot = "WEAPON1"
-  [[Professions.Equips]]
-    Name = "作業用ヘルメット"
-    Slot = "HEAD"
-  [[Professions.Equips]]
-    Name = "布のシャツ"
-    Slot = "TORSO"
-  [[Professions.Equips]]
-    Name = "布の腕巻き"
-    Slot = "ARMS"
-  [[Professions.Equips]]
-    Name = "革の手袋"
-    Slot = "HANDS"
-  [[Professions.Equips]]
-    Name = "布のズボン"
-    Slot = "LEGS"
   [[Professions.Equips]]
     Name = "布の靴"
     Slot = "FEET"
@@ -2901,47 +2970,121 @@
     Sensation = 6
     Strength  = 4
     Vitality  = 5
+
   [[Professions.Skills]]
     ID    = "handgun"
     Value = 2
+
   [[Professions.Skills]]
     ID    = "exploration"
     Value = 2
+
   [[Professions.Skills]]
     ID    = "stealth"
     Value = 1
+
   [[Professions.Skills]]
     ID    = "cold_resist"
     Value = 1
+
   [[Professions.Items]]
     Count = 2
     Name  = "乾肉"
+
   [[Professions.Items]]
     Count = 2
     Name  = "緑ハーブ"
+
   [[Professions.Items]]
     Count = 30
     Name  = "9mm FMJ"
+
   [[Professions.Equips]]
     Name = "ハンドガン"
     Slot = "WEAPON1"
+
   [[Professions.Equips]]
     Name = "狩人の帽子"
     Slot = "HEAD"
+
   [[Professions.Equips]]
     Name = "狩人の外套"
     Slot = "TORSO"
+
   [[Professions.Equips]]
     Name = "布の腕巻き"
     Slot = "ARMS"
+
   [[Professions.Equips]]
     Name = "布の手袋"
     Slot = "HANDS"
+
   [[Professions.Equips]]
     Name = "布のズボン"
     Slot = "LEGS"
+
   [[Professions.Equips]]
     Name = "革のブーツ"
+    Slot = "FEET"
+
+[[Professions]]
+  Description = "技術者"
+  ID          = "mechanic"
+  Name        = "整備士"
+  [Professions.Abilities]
+    Agility   = 4
+    Defense   = 5
+    Dexterity = 8
+    Sensation = 4
+    Strength  = 4
+    Vitality  = 5
+
+  [[Professions.Skills]]
+    ID    = "crafting"
+    Value = 3
+
+  [[Professions.Skills]]
+    ID    = "smithing"
+    Value = 2
+
+  [[Professions.Skills]]
+    ID    = "exploration"
+    Value = 1
+
+  [[Professions.Items]]
+    Count = 5
+    Name  = "鉄"
+
+  [[Professions.Items]]
+    Count = 2
+    Name  = "フェライトコア"
+
+  [[Professions.Equips]]
+    Name = "鉄のナイフ"
+    Slot = "WEAPON1"
+
+  [[Professions.Equips]]
+    Name = "作業用ヘルメット"
+    Slot = "HEAD"
+
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+
+  [[Professions.Equips]]
+    Name = "革の手袋"
+    Slot = "HANDS"
+
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+
+  [[Professions.Equips]]
+    Name = "布の靴"
     Slot = "FEET"
 
 [[Professions]]
@@ -2955,45 +3098,171 @@
     Sensation = 5
     Strength  = 3
     Vitality  = 8
+
   [[Professions.Skills]]
     ID    = "healing"
     Value = 3
+
   [[Professions.Skills]]
     ID    = "smithing"
     Value = 2
+
   [[Professions.Skills]]
     ID    = "hunger_resist"
     Value = 1
+
   [[Professions.Items]]
     Count = 3
     Name  = "回復薬"
+
   [[Professions.Items]]
     Count = 1
     Name  = "毒消し"
+
   [[Professions.Items]]
     Count = 3
     Name  = "緑ハーブ"
+
   [[Professions.Items]]
     Count = 2
     Name  = "黄ハーブ"
+
   [[Professions.Items]]
     Count = 2
     Name  = "パン"
+
   [[Professions.Equips]]
     Name = "布の帽子"
     Slot = "HEAD"
+
   [[Professions.Equips]]
     Name = "布のシャツ"
     Slot = "TORSO"
+
   [[Professions.Equips]]
     Name = "布の腕巻き"
     Slot = "ARMS"
+
   [[Professions.Equips]]
     Name = "布の手袋"
     Slot = "HANDS"
+
   [[Professions.Equips]]
     Name = "布のズボン"
     Slot = "LEGS"
+
   [[Professions.Equips]]
     Name = "布の靴"
+    Slot = "FEET"
+
+[[Professions]]
+  Description = "射撃の達人"
+  ID          = "sniper"
+  Name        = "狙撃手"
+  [Professions.Abilities]
+    Agility   = 6
+    Defense   = 4
+    Dexterity = 5
+    Sensation = 8
+    Strength  = 3
+    Vitality  = 4
+
+  [[Professions.Skills]]
+    ID    = "handgun"
+    Value = 3
+
+  [[Professions.Skills]]
+    ID    = "rifle"
+    Value = 2
+
+  [[Professions.Items]]
+    Count = 1
+    Name  = "パン"
+
+  [[Professions.Items]]
+    Count = 1
+    Name  = "回復薬"
+
+  [[Professions.Items]]
+    Count = 30
+    Name  = "9mm FMJ"
+
+  [[Professions.Equips]]
+    Name = "ハンドガン"
+    Slot = "WEAPON1"
+
+  [[Professions.Equips]]
+    Name = "影の頭巾"
+    Slot = "HEAD"
+
+  [[Professions.Equips]]
+    Name = "布のシャツ"
+    Slot = "TORSO"
+
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+
+  [[Professions.Equips]]
+    Name = "布の手袋"
+    Slot = "HANDS"
+
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+
+  [[Professions.Equips]]
+    Name = "布の靴"
+    Slot = "FEET"
+
+[[Professions]]
+  Description = "訓練を積んだ兵隊"
+  ID          = "soldier"
+  Name        = "軍人"
+  [Professions.Abilities]
+    Agility   = 4
+    Defense   = 7
+    Dexterity = 4
+    Sensation = 3
+    Strength  = 8
+    Vitality  = 6
+
+  [[Professions.Skills]]
+    ID    = "sword"
+    Value = 3
+
+  [[Professions.Skills]]
+    ID    = "heavy_armor"
+    Value = 2
+
+  [[Professions.Items]]
+    Count = 1
+    Name  = "回復薬"
+
+  [[Professions.Equips]]
+    Name = "木刀"
+    Slot = "WEAPON1"
+
+  [[Professions.Equips]]
+    Name = "作業用ヘルメット"
+    Slot = "HEAD"
+
+  [[Professions.Equips]]
+    Name = "鉄の胸当て"
+    Slot = "TORSO"
+
+  [[Professions.Equips]]
+    Name = "布の腕巻き"
+    Slot = "ARMS"
+
+  [[Professions.Equips]]
+    Name = "革の手袋"
+    Slot = "HANDS"
+
+  [[Professions.Equips]]
+    Name = "布のズボン"
+    Slot = "LEGS"
+
+  [[Professions.Equips]]
+    Name = "革のブーツ"
     Slot = "FEET"

@@ -5,6 +5,16 @@ run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
 	go run . play
 
+.PHONY: editor
+editor: ## ゲームデータエディタを起動する(コード変更で自動再起動)
+	@fuser -k 8080/tcp 2>/dev/null || true; \
+	while true; do \
+		go run . editor & PID=$$!; \
+		inotifywait -r -e close_write,moved_to --include '\.go$$' internal/editor/ ; \
+		kill $$PID 2>/dev/null; wait $$PID 2>/dev/null; \
+		fuser -k 8080/tcp 2>/dev/null || true; \
+	done
+
 .PHONY: test
 test: ## テストを実行する
 	RUINS_LOG_LEVEL=ignore \

@@ -33,7 +33,8 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// 4. テンプレートからマップを生成
-		chain, err := mapplanner.NewTemplatePlannerChain(template, palette, 12345)
+		resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+		chain, err := mapplanner.NewTemplatePlannerChain(template, resolvedMap, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = world.Resources.RawMaster
 

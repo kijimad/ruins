@@ -60,14 +60,14 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 		return nil, fmt.Errorf("未知のテンプレートタイプ: %d", templateType)
 	}
 
-	// テンプレート名を指定して展開済みテンプレートとパレットを取得
-	template, palette, err := templateLoader.LoadTemplateByName(templateName, seed)
+	// テンプレート名を指定して展開済みテンプレートとセル配列を取得
+	template, _, resolvedMap, err := templateLoader.LoadTemplateByName(templateName, seed)
 	if err != nil {
 		return nil, fmt.Errorf("テンプレート読み込みエラー: %w", err)
 	}
 
 	// テンプレートプランナーチェーンを作成
-	chain, err := NewTemplatePlannerChain(template, palette, seed)
+	chain, err := NewTemplatePlannerChain(template, resolvedMap, seed)
 	if err != nil {
 		return nil, err
 	}

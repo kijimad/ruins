@@ -2,6 +2,7 @@ package raw
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
@@ -47,7 +48,7 @@ type Item struct {
 	SpriteSheetName   string
 	SpriteKey         string
 	AnimKeys          []string
-	Value             *int
+	Value             int
 	Weight            *float64 // 重量(kg)
 	InflictsDamage    *int
 	ProvidesNutrition *int  // 空腹度回復量
@@ -239,16 +240,18 @@ type RecipeInput struct {
 
 // Member はメンバーの情報
 type Member struct {
-	Name            string
-	Player          *bool
-	IsBoss          bool
-	Abilities       Abilities
-	SpriteSheetName string
-	SpriteKey       string
-	AnimKeys        []string
-	LightSource     *gc.LightSource
-	FactionType     string
-	Dialog          *DialogRaw
+	Name             string
+	Player           *bool
+	IsBoss           bool
+	Abilities        Abilities
+	SpriteSheetName  string
+	SpriteKey        string
+	AnimKeys         []string
+	LightSource      *gc.LightSource
+	FactionType      string
+	Dialog           *DialogRaw
+	CommandTableName string // 使用するコマンドテーブル名。空なら紐づけなし
+	DropTableName    string // 使用するドロップテーブル名。空なら紐づけなし
 }
 
 // DialogRaw は会話データのローデータ
@@ -308,29 +311,45 @@ func LoadFromFile(path string) (Master, error) {
 	return rw, nil
 }
 
+// EncodeRaws はRaws構造体をTOML形式でio.Writerに書き出す
+func EncodeRaws(w io.Writer, raws Raws) error {
+	return toml.NewEncoder(w).Encode(raws)
+}
+
+// DecodeRaws はTOML文字列をRaws構造体にデコードする。
+// 未知のキーが含まれる場合はエラーを返す
+func DecodeRaws(content string) (Raws, error) {
+	var raws Raws
+	metaData, err := toml.Decode(content, &raws)
+	if err != nil {
+		return Raws{}, fmt.Errorf("TOML decode error: %w", err)
+	}
+	if undecoded := metaData.Undecoded(); len(undecoded) > 0 {
+		return Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+	}
+	return raws, nil
+}
+
 // Load は文字列からローデータを読み込む
 func Load(entityMetadataContent string) (Master, error) {
-	rw := Master{}
-	rw.ItemIndex = map[string]int{}
-	rw.RecipeIndex = map[string]int{}
-	rw.MemberIndex = map[string]int{}
-	rw.CommandTableIndex = map[string]int{}
-	rw.DropTableIndex = map[string]int{}
-	rw.ItemTableIndex = map[string]int{}
-	rw.EnemyTableIndex = map[string]int{}
-	rw.SpriteSheetIndex = map[string]int{}
-	rw.TileIndex = map[string]int{}
-	rw.PropIndex = map[string]int{}
-	rw.ProfessionIndex = map[string]int{}
-
-	metaData, err := toml.Decode(entityMetadataContent, &rw.Raws)
+	raws, err := DecodeRaws(entityMetadataContent)
 	if err != nil {
-		return Master{}, fmt.Errorf("TOML decode error: %w", err)
+		return Master{}, err
 	}
-	// 未知のキーがあった場合はエラーにする
-	undecoded := metaData.Undecoded()
-	if len(undecoded) > 0 {
-		return Master{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+
+	rw := Master{
+		Raws:              raws,
+		ItemIndex:         map[string]int{},
+		RecipeIndex:       map[string]int{},
+		MemberIndex:       map[string]int{},
+		CommandTableIndex: map[string]int{},
+		DropTableIndex:    map[string]int{},
+		ItemTableIndex:    map[string]int{},
+		EnemyTableIndex:   map[string]int{},
+		SpriteSheetIndex:  map[string]int{},
+		TileIndex:         map[string]int{},
+		PropIndex:         map[string]int{},
+		ProfessionIndex:   map[string]int{},
 	}
 
 	for i, item := range rw.Raws.Items {
@@ -487,9 +506,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	if item.Value != nil {
-		entitySpec.Value = &gc.Value{Value: *item.Value}
-	}
+	entitySpec.Value = &gc.Value{Value: item.Value}
 
 	if item.Weight != nil {
 		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
@@ -662,16 +679,20 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		entitySpec.Player = &gc.Player{}
 	}
 
-	commandTableIdx, ok := rw.CommandTableIndex[name]
-	if ok && commandTableIdx < len(rw.Raws.CommandTables) {
-		commandTable := rw.Raws.CommandTables[commandTableIdx]
-		entitySpec.CommandTable = &gc.CommandTable{Name: commandTable.Name}
+	if member.CommandTableName != "" {
+		commandTableIdx, ok := rw.CommandTableIndex[member.CommandTableName]
+		if ok && commandTableIdx < len(rw.Raws.CommandTables) {
+			commandTable := rw.Raws.CommandTables[commandTableIdx]
+			entitySpec.CommandTable = &gc.CommandTable{Name: commandTable.Name}
+		}
 	}
 
-	dropTableIdx, ok := rw.DropTableIndex[name]
-	if ok && dropTableIdx < len(rw.Raws.DropTables) {
-		dropTable := rw.Raws.DropTables[dropTableIdx]
-		entitySpec.DropTable = &gc.DropTable{Name: dropTable.Name}
+	if member.DropTableName != "" {
+		dropTableIdx, ok := rw.DropTableIndex[member.DropTableName]
+		if ok && dropTableIdx < len(rw.Raws.DropTables) {
+			dropTable := rw.Raws.DropTables[dropTableIdx]
+			entitySpec.DropTable = &gc.DropTable{Name: dropTable.Name}
+		}
 	}
 
 	if member.LightSource != nil {

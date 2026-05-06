@@ -274,11 +274,7 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 		return 0
 	}
 	itemDef := rawMaster.Raws.Items[itemIdx]
-	if itemDef.Value == nil {
-		return 0
-	}
-
-	baseValue := *itemDef.Value
+	baseValue := itemDef.Value
 	if isBuy {
 		return worldhelper.CalculateBuyPrice(baseValue)
 	}

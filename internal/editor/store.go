@@ -1,0 +1,529 @@
+package editor
+
+import (
+	"fmt"
+	"os"
+	"sort"
+	"sync"
+
+	"github.com/kijimaD/ruins/internal/raw"
+)
+
+// Store はraw.tomlの読み書きを管理する
+type Store struct {
+	mu   sync.RWMutex
+	path string
+	raws raw.Raws
+}
+
+// NewStore は指定パスのraw.tomlを読み込んでStoreを作成する
+func NewStore(path string) (*Store, error) {
+	s := &Store{path: path}
+	if err := s.load(); err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+func (s *Store) load() error {
+	bs, err := os.ReadFile(s.path)
+	if err != nil {
+		return fmt.Errorf("raw.tomlの読み込みに失敗: %w", err)
+	}
+	raws, err := raw.DecodeRaws(string(bs))
+	if err != nil {
+		return fmt.Errorf("raw.tomlのパースに失敗: %w", err)
+	}
+	s.raws = raws
+	s.sortAll()
+	return nil
+}
+
+// sortItems はアイテムを種別の組み合わせ順、同種別内では名前順にソートする
+func sortItems(items []raw.Item) {
+	sort.SliceStable(items, func(i, j int) bool {
+		ki, kj := itemSortKey(items[i]), itemSortKey(items[j])
+		if ki != kj {
+			return ki < kj
+		}
+		return items[i].Name < items[j].Name
+	})
+}
+
+// itemSortKey はアイテムの種別フラグの組み合わせからソートキーを生成する。
+// 同じ種別の組み合わせを持つアイテムが隣接して並ぶ
+func itemSortKey(item raw.Item) string {
+	var key []byte
+	flags := []struct {
+		present bool
+		code    byte
+	}{
+		{item.Weapon != nil, 'A'},
+		{item.Melee != nil, 'B'},
+		{item.Fire != nil, 'C'},
+		{item.Wearable != nil, 'D'},
+		{item.Consumable != nil, 'E'},
+		{item.Ammo != nil, 'F'},
+		{item.Book != nil, 'G'},
+	}
+	for _, f := range flags {
+		if f.present {
+			key = append(key, f.code)
+		}
+	}
+	if len(key) == 0 {
+		key = append(key, 'Z')
+	}
+	return string(key)
+}
+
+// sortMembers はメンバーを名前順にソートする
+func sortMembers(members []raw.Member) {
+	sort.SliceStable(members, func(i, j int) bool {
+		return members[i].Name < members[j].Name
+	})
+}
+
+// sortRecipes はレシピを名前順にソートする
+func sortRecipes(recipes []raw.Recipe) {
+	sort.SliceStable(recipes, func(i, j int) bool {
+		return recipes[i].Name < recipes[j].Name
+	})
+}
+
+func (s *Store) sortAll() {
+	sortItems(s.raws.Items)
+	sortMembers(s.raws.Members)
+	sortRecipes(s.raws.Recipes)
+	sortByName(s.raws.CommandTables, func(i int) string { return s.raws.CommandTables[i].Name })
+	sortByName(s.raws.DropTables, func(i int) string { return s.raws.DropTables[i].Name })
+	sortByName(s.raws.ItemTables, func(i int) string { return s.raws.ItemTables[i].Name })
+	sortByName(s.raws.EnemyTables, func(i int) string { return s.raws.EnemyTables[i].Name })
+	sortByName(s.raws.SpriteSheets, func(i int) string { return s.raws.SpriteSheets[i].Name })
+	sortByName(s.raws.Tiles, func(i int) string { return s.raws.Tiles[i].Name })
+	sortByName(s.raws.Props, func(i int) string { return s.raws.Props[i].Name })
+	sortByName(s.raws.Professions, func(i int) string { return s.raws.Professions[i].ID })
+}
+
+// sortByName は任意のスライスを名前関数で取得した値でソートする
+func sortByName[T any](slice []T, name func(int) string) {
+	sort.SliceStable(slice, func(i, j int) bool {
+		return name(i) < name(j)
+	})
+}
+
+func (s *Store) save() (retErr error) {
+	s.sortAll()
+	f, err := os.Create(s.path)
+	if err != nil {
+		return fmt.Errorf("raw.tomlの書き込みに失敗: %w", err)
+	}
+	defer func() {
+		if cerr := f.Close(); cerr != nil && retErr == nil {
+			retErr = fmt.Errorf("raw.tomlのクローズに失敗: %w", cerr)
+		}
+	}()
+
+	if err := raw.EncodeRaws(f, s.raws); err != nil {
+		return fmt.Errorf("raw.tomlのエンコードに失敗: %w", err)
+	}
+	return nil
+}
+
+// getAt はスライスから指定インデックスの要素を取得する
+func getAt[T any](slice []T, index int, label string) (T, error) {
+	if index < 0 || index >= len(slice) {
+		var zero T
+		return zero, fmt.Errorf("%sインデックスが範囲外: %d", label, index)
+	}
+	return slice[index], nil
+}
+
+// updateAt はスライスの指定インデックスを更新して保存する
+func updateAt[T any](s *Store, slice *[]T, index int, v T, label string) error {
+	if index < 0 || index >= len(*slice) {
+		return fmt.Errorf("%sインデックスが範囲外: %d", label, index)
+	}
+	(*slice)[index] = v
+	return s.save()
+}
+
+// addTo はスライスに要素を追加して保存する
+func addTo[T any](s *Store, slice *[]T, v T) error {
+	*slice = append(*slice, v)
+	return s.save()
+}
+
+// deleteAt はスライスから指定インデックスの要素を削除して保存する
+func deleteAt[T any](s *Store, slice *[]T, index int, label string) error {
+	if index < 0 || index >= len(*slice) {
+		return fmt.Errorf("%sインデックスが範囲外: %d", label, index)
+	}
+	*slice = append((*slice)[:index], (*slice)[index+1:]...)
+	return s.save()
+}
+
+// ================== アイテム ==================
+
+// Items はすべてのアイテムを返す
+func (s *Store) Items() []raw.Item {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Items
+}
+
+// Item は指定インデックスのアイテムを返す
+func (s *Store) Item(index int) (raw.Item, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return getAt(s.raws.Items, index, "アイテム")
+}
+
+// UpdateItem は指定インデックスのアイテムを更新する
+func (s *Store) UpdateItem(index int, item raw.Item) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.Items, index, item, "アイテム")
+}
+
+// AddItem は新しいアイテムを追加する
+func (s *Store) AddItem(item raw.Item) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.Items, item)
+}
+
+// DeleteItem は指定インデックスのアイテムを削除する
+func (s *Store) DeleteItem(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.Items, index, "アイテム")
+}
+
+// ================== メンバー ==================
+
+// Members はすべてのメンバーを返す
+func (s *Store) Members() []raw.Member {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Members
+}
+
+// Member は指定インデックスのメンバーを返す
+func (s *Store) Member(index int) (raw.Member, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return getAt(s.raws.Members, index, "メンバー")
+}
+
+// UpdateMember は指定インデックスのメンバーを更新する
+func (s *Store) UpdateMember(index int, member raw.Member) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.Members, index, member, "メンバー")
+}
+
+// AddMember は新しいメンバーを追加する
+func (s *Store) AddMember(member raw.Member) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.Members, member)
+}
+
+// DeleteMember は指定インデックスのメンバーを削除する
+func (s *Store) DeleteMember(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.Members, index, "メンバー")
+}
+
+// ================== レシピ ==================
+
+// Recipes はすべてのレシピを返す
+func (s *Store) Recipes() []raw.Recipe {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Recipes
+}
+
+// Recipe は指定インデックスのレシピを返す
+func (s *Store) Recipe(index int) (raw.Recipe, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return getAt(s.raws.Recipes, index, "レシピ")
+}
+
+// UpdateRecipe は指定インデックスのレシピを更新する
+func (s *Store) UpdateRecipe(index int, recipe raw.Recipe) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.Recipes, index, recipe, "レシピ")
+}
+
+// AddRecipe は新しいレシピを追加する
+func (s *Store) AddRecipe(recipe raw.Recipe) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.Recipes, recipe)
+}
+
+// DeleteRecipe は指定インデックスのレシピを削除する
+func (s *Store) DeleteRecipe(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.Recipes, index, "レシピ")
+}
+
+// ================== コマンドテーブル ==================
+
+// CommandTables はすべてのコマンドテーブルを返す
+func (s *Store) CommandTables() []raw.CommandTable {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.CommandTables
+}
+
+// UpdateCommandTable は指定インデックスのコマンドテーブルを更新する
+func (s *Store) UpdateCommandTable(index int, ct raw.CommandTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.CommandTables, index, ct, "コマンドテーブル")
+}
+
+// AddCommandTable は新しいコマンドテーブルを追加する
+func (s *Store) AddCommandTable(ct raw.CommandTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.CommandTables, ct)
+}
+
+// DeleteCommandTable は指定インデックスのコマンドテーブルを削除する
+func (s *Store) DeleteCommandTable(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.CommandTables, index, "コマンドテーブル")
+}
+
+// ================== ドロップテーブル ==================
+
+// DropTables はすべてのドロップテーブルを返す
+func (s *Store) DropTables() []raw.DropTable {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.DropTables
+}
+
+// UpdateDropTable は指定インデックスのドロップテーブルを更新する
+func (s *Store) UpdateDropTable(index int, dt raw.DropTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.DropTables, index, dt, "ドロップテーブル")
+}
+
+// AddDropTable は新しいドロップテーブルを追加する
+func (s *Store) AddDropTable(dt raw.DropTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.DropTables, dt)
+}
+
+// DeleteDropTable は指定インデックスのドロップテーブルを削除する
+func (s *Store) DeleteDropTable(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.DropTables, index, "ドロップテーブル")
+}
+
+// ================== アイテムテーブル ==================
+
+// ItemTables はすべてのアイテムテーブルを返す
+func (s *Store) ItemTables() []raw.ItemTable {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.ItemTables
+}
+
+// UpdateItemTable は指定インデックスのアイテムテーブルを更新する
+func (s *Store) UpdateItemTable(index int, it raw.ItemTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.ItemTables, index, it, "アイテムテーブル")
+}
+
+// AddItemTable は新しいアイテムテーブルを追加する
+func (s *Store) AddItemTable(it raw.ItemTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.ItemTables, it)
+}
+
+// DeleteItemTable は指定インデックスのアイテムテーブルを削除する
+func (s *Store) DeleteItemTable(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.ItemTables, index, "アイテムテーブル")
+}
+
+// ================== 敵テーブル ==================
+
+// EnemyTables はすべての敵テーブルを返す
+func (s *Store) EnemyTables() []raw.EnemyTable {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.EnemyTables
+}
+
+// UpdateEnemyTable は指定インデックスの敵テーブルを更新する
+func (s *Store) UpdateEnemyTable(index int, et raw.EnemyTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.EnemyTables, index, et, "敵テーブル")
+}
+
+// AddEnemyTable は新しい敵テーブルを追加する
+func (s *Store) AddEnemyTable(et raw.EnemyTable) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.EnemyTables, et)
+}
+
+// DeleteEnemyTable は指定インデックスの敵テーブルを削除する
+func (s *Store) DeleteEnemyTable(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.EnemyTables, index, "敵テーブル")
+}
+
+// ================== タイル ==================
+
+// Tiles はすべてのタイルを返す
+func (s *Store) Tiles() []raw.TileRaw {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Tiles
+}
+
+// Tile は指定インデックスのタイルを返す
+func (s *Store) Tile(index int) (raw.TileRaw, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return getAt(s.raws.Tiles, index, "タイル")
+}
+
+// UpdateTile は指定インデックスのタイルを更新する
+func (s *Store) UpdateTile(index int, tile raw.TileRaw) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.Tiles, index, tile, "タイル")
+}
+
+// AddTile は新しいタイルを追加する
+func (s *Store) AddTile(tile raw.TileRaw) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.Tiles, tile)
+}
+
+// DeleteTile は指定インデックスのタイルを削除する
+func (s *Store) DeleteTile(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.Tiles, index, "タイル")
+}
+
+// ================== 置物 ==================
+
+// Props はすべての置物を返す
+func (s *Store) Props() []raw.PropRaw {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Props
+}
+
+// Prop は指定インデックスの置物を返す
+func (s *Store) Prop(index int) (raw.PropRaw, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return getAt(s.raws.Props, index, "置物")
+}
+
+// UpdateProp は指定インデックスの置物を更新する
+func (s *Store) UpdateProp(index int, prop raw.PropRaw) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.Props, index, prop, "置物")
+}
+
+// AddProp は新しい置物を追加する
+func (s *Store) AddProp(prop raw.PropRaw) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.Props, prop)
+}
+
+// DeleteProp は指定インデックスの置物を削除する
+func (s *Store) DeleteProp(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.Props, index, "置物")
+}
+
+// ================== 職業 ==================
+
+// Professions はすべての職業を返す
+func (s *Store) Professions() []raw.Profession {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.Professions
+}
+
+// UpdateProfession は指定インデックスの職業を更新する
+func (s *Store) UpdateProfession(index int, prof raw.Profession) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.Professions, index, prof, "職業")
+}
+
+// AddProfession は新しい職業を追加する
+func (s *Store) AddProfession(prof raw.Profession) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.Professions, prof)
+}
+
+// DeleteProfession は指定インデックスの職業を削除する
+func (s *Store) DeleteProfession(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.Professions, index, "職業")
+}
+
+// ================== スプライトシート ==================
+
+// SpriteSheets はすべてのスプライトシートを返す
+func (s *Store) SpriteSheets() []raw.SpriteSheet {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	return s.raws.SpriteSheets
+}
+
+// UpdateSpriteSheet は指定インデックスのスプライトシートを更新する
+func (s *Store) UpdateSpriteSheet(index int, ss raw.SpriteSheet) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return updateAt(s, &s.raws.SpriteSheets, index, ss, "スプライトシート")
+}
+
+// AddSpriteSheet は新しいスプライトシートを追加する
+func (s *Store) AddSpriteSheet(ss raw.SpriteSheet) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return addTo(s, &s.raws.SpriteSheets, ss)
+}
+
+// DeleteSpriteSheet は指定インデックスのスプライトシートを削除する
+func (s *Store) DeleteSpriteSheet(index int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return deleteAt(s, &s.raws.SpriteSheets, index, "スプライトシート")
+}
