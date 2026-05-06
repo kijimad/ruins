@@ -4,7 +4,7 @@ weight = 100
 palettes = ['standard']
 map = """
 ...
-.B.
+.e.
 ...
 """
 placements = []

@@ -446,7 +446,7 @@ SpriteKey = "floor"
 	})
 }
 
-func TestBuildPreviewData(t *testing.T) {
+func TestBuildPreviewDataFromCells(t *testing.T) {
 	t.Parallel()
 	server := setupLayoutTest(t)
 
@@ -457,22 +457,20 @@ func TestBuildPreviewData(t *testing.T) {
 		NPCs:    map[string]maptemplate.PaletteEntry{"M": {ID: "boss", Tile: "floor"}},
 	}
 
-	data := server.buildPreviewData("##\n.M", palette)
+	cells := maptemplate.ResolveMapCells("##\n.M", palette)
+	data := server.buildPreviewDataFromCells(cells)
 
 	assert.Equal(t, 2, data.Cols)
 	assert.Equal(t, 4, len(data.Cells))
 
 	// 1行目: # #
-	assert.Equal(t, "#", data.Cells[0].Char)
 	assert.Equal(t, "wall", data.Cells[0].Terrain)
 	assert.Equal(t, 1, len(data.Cells[0].Sprites))
 	assert.Contains(t, data.Cells[0].Sprites[0].Style, "/sprites/sheet1")
 
 	// 2行目: . M
-	assert.Equal(t, ".", data.Cells[2].Char)
 	assert.Equal(t, "floor", data.Cells[2].Terrain)
 
-	assert.Equal(t, "M", data.Cells[3].Char)
 	assert.Equal(t, "floor", data.Cells[3].Terrain)
 	assert.Equal(t, "boss", data.Cells[3].NPC)
 	assert.Equal(t, 2, len(data.Cells[3].Sprites))

@@ -32,6 +32,6 @@
 //	loader.RegisterAllChunks([]string{"levels/chunks", "levels/facilities"})
 //	loader.RegisterAllPalettes([]string{"levels/palettes"})
 //
-//	// テンプレート名で展開済みチャンクとパレットを取得
-//	chunk, palette, err := loader.LoadTemplateByName("office_building", 12345)
+//	// テンプレート名で展開済みチャンクとパレットとセル配列を取得
+//	chunk, palette, resolvedMap, err := loader.LoadTemplateByName("office_building", 12345)
 package maptemplate

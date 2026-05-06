@@ -11,7 +11,6 @@ import (
 func TestTemplatePlanner_PlanInitial(t *testing.T) {
 	t.Parallel()
 
-	// テスト用のテンプレート
 	template := &maptemplate.ChunkTemplate{
 		Name:     "test",
 		Weight:   100,
@@ -22,7 +21,6 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 #####`,
 	}
 
-	// テスト用のパレット
 	palette := &maptemplate.Palette{
 		ID: "standard",
 		Terrain: map[string]string{
@@ -32,11 +30,12 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 		Props: map[string]maptemplate.PaletteEntry{},
 	}
 
-	planner := NewTemplatePlanner(template, palette)
+	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+	planner := NewTemplatePlanner(template, resolvedMap)
 
 	t.Run("マップサイズが正しく設定される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewTemplatePlannerChain(template, palette, 12345)
+		chain, err := NewTemplatePlannerChain(template, resolvedMap, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
@@ -47,7 +46,7 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 
 	t.Run("タイル配列が正しく初期化される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewTemplatePlannerChain(template, palette, 12345)
+		chain, err := NewTemplatePlannerChain(template, resolvedMap, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		require.NoError(t, err)
 
@@ -60,7 +59,7 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 
 	t.Run("地形が正しく配置される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewTemplatePlannerChain(template, palette, 12345)
+		chain, err := NewTemplatePlannerChain(template, resolvedMap, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		require.NoError(t, err)
 
@@ -82,7 +81,6 @@ func TestTemplatePlanner_PlanInitial(t *testing.T) {
 func TestTemplatePlanner_PlanMeta(t *testing.T) {
 	t.Parallel()
 
-	// テスト用のテンプレート
 	template := &maptemplate.ChunkTemplate{
 		Name:     "test",
 		Weight:   100,
@@ -93,7 +91,6 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 #####`,
 	}
 
-	// テスト用のパレット
 	palette := &maptemplate.Palette{
 		ID: "standard",
 		Terrain: map[string]string{
@@ -106,11 +103,12 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 		},
 	}
 
-	planner := NewTemplatePlanner(template, palette)
+	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+	planner := NewTemplatePlanner(template, resolvedMap)
 
 	t.Run("Propsが正しく配置予定リストに追加される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewTemplatePlannerChain(template, palette, 12345)
+		chain, err := NewTemplatePlannerChain(template, resolvedMap, 12345)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		require.NoError(t, err)
 
@@ -143,7 +141,6 @@ func TestTemplatePlanner_PlanMeta(t *testing.T) {
 		}
 		assert.True(t, foundMachine, "machine should be placed at (3, 1)")
 	})
-
 }
 
 func TestNewTemplatePlannerChain(t *testing.T) {
@@ -175,9 +172,11 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		Props: map[string]maptemplate.PaletteEntry{},
 	}
 
+	resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
+
 	t.Run("PlannerChainが正常に作成される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewTemplatePlannerChain(template, palette, 99999)
+		chain, err := NewTemplatePlannerChain(template, resolvedMap, 99999)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		require.NoError(t, err)
 		assert.NotNil(t, chain)
@@ -186,7 +185,7 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 
 	t.Run("Planを実行してマップが生成される", func(t *testing.T) {
 		t.Parallel()
-		chain, err := NewTemplatePlannerChain(template, palette, 99999)
+		chain, err := NewTemplatePlannerChain(template, resolvedMap, 99999)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		require.NoError(t, err)
 
@@ -204,35 +203,28 @@ func TestNewTemplatePlannerChain(t *testing.T) {
 		assert.True(t, metaPlan.Tiles[0].BlockPass)
 	})
 
-	t.Run("パレットに定義がない文字はエラー", func(t *testing.T) {
+	t.Run("セルの地形が未定義の場合はエラー", func(t *testing.T) {
 		t.Parallel()
-		invalidTemplate := &maptemplate.ChunkTemplate{
-			Name:     "test",
-			Weight:   100,
-			Size:     maptemplate.Size{W: 3, H: 3},
-			Palettes: []string{"standard"},
-			Map: `###
-#X#
-###`,
+		emptyMap := [][]maptemplate.MapCell{
+			{{Terrain: "wall"}, {Terrain: "wall"}, {Terrain: "wall"}},
+			{{Terrain: "wall"}, {Terrain: ""}, {Terrain: "wall"}},
+			{{Terrain: "wall"}, {Terrain: "wall"}, {Terrain: "wall"}},
+		}
+		emptyTemplate := &maptemplate.ChunkTemplate{
+			Name:   "test",
+			Weight: 100,
+			Size:   maptemplate.Size{W: 3, H: 3},
+			Map:    "###\n#.#\n###",
 		}
 
-		invalidPalette := &maptemplate.Palette{
-			ID: "standard",
-			Terrain: map[string]string{
-				"#": "wall",
-				// "X"の定義がない
-			},
-			Props: map[string]maptemplate.PaletteEntry{},
-		}
-
-		chain, err := NewTemplatePlannerChain(invalidTemplate, invalidPalette, 12345)
+		chain, err := NewTemplatePlannerChain(emptyTemplate, emptyMap, 12345)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 
-		planner := NewTemplatePlanner(invalidTemplate, invalidPalette)
+		planner := NewTemplatePlanner(emptyTemplate, emptyMap)
 		err = planner.PlanInitial(&chain.PlanData)
 
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "パレットに文字 'X' の地形定義がありません")
+		assert.Contains(t, err.Error(), "セルの地形が未定義です")
 	})
 }

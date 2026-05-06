@@ -89,21 +89,24 @@ func (s *Server) buildLayoutEditData(dirName, fileName, chunkName, fileKey strin
 	if merged != nil {
 		ed.CheatSheet = s.buildCheatSheet(merged)
 		// プレビューデータを構築する
-		expandedMap := chunk.Map
+		var cells [][]maptemplate.MapCell
 		if len(chunk.Placements) > 0 && s.layoutStore != nil && s.paletteStore != nil {
 			loader, err := s.layoutStore.BuildTemplateLoader(s.paletteStore.Dir())
 			if err != nil {
 				log.Printf("テンプレートローダー構築エラー: %v", err)
 			} else {
-				expanded, err := chunk.ExpandWithPlacements(loader, 0)
+				resolved, err := chunk.ExpandWithPlacements(loader, 0)
 				if err != nil {
 					log.Printf("チャンク展開エラー (%s): %v", chunk.Name, err)
 				} else {
-					expandedMap = expanded
+					cells = resolved
 				}
 			}
 		}
-		preview := s.buildPreviewData(expandedMap, merged)
+		if cells == nil {
+			cells = maptemplate.ResolveMapCells(chunk.Map, merged)
+		}
+		preview := s.buildPreviewDataFromCells(cells)
 		ed.Preview = &preview
 	}
 	return ed
@@ -353,36 +356,39 @@ func (s *Server) handleLayoutPreview(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// POSTの場合はフォームの内容を使う
-	expandedMap := chunk.Map
+	mapStr := chunk.Map
 	if r.Method == http.MethodPost {
 		if parseErr := r.ParseForm(); parseErr != nil {
 			http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
 			return
 		}
 		if content := r.FormValue("map_content"); content != "" {
-			expandedMap = content
+			mapStr = content
 		}
 	}
 
+	merged := s.mergePalettes(chunk.Palettes)
+
 	// placementsがある場合はチャンクを展開する
+	var cells [][]maptemplate.MapCell
 	if len(chunk.Placements) > 0 {
 		loader, loaderErr := s.layoutStore.BuildTemplateLoader(s.paletteStore.Dir())
 		if loaderErr != nil {
 			http.Error(w, "テンプレートローダー構築エラー: "+loaderErr.Error(), http.StatusInternalServerError)
 			return
 		}
-		// 一時的にチャンクのMapを差し替えて展開する
 		tempChunk := *chunk
-		tempChunk.Map = expandedMap
-		expandedMap, err = tempChunk.ExpandWithPlacements(loader, 0)
+		tempChunk.Map = mapStr
+		cells, err = tempChunk.ExpandWithPlacements(loader, 0)
 		if err != nil {
 			http.Error(w, "チャンク展開エラー: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+	} else {
+		cells = maptemplate.ResolveMapCells(mapStr, merged)
 	}
 
-	merged := s.mergePalettes(chunk.Palettes)
-	data := s.buildPreviewData(expandedMap, merged)
+	data := s.buildPreviewDataFromCells(cells)
 	if err := s.templates.ExecuteTemplate(w, "layout-preview", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -464,37 +470,34 @@ func sortedEntryMappings(m map[string]maptemplate.PaletteEntry) []charMapping {
 	return entries
 }
 
-// buildPreviewData は展開済みマップとマージ済みパレットからプレビューデータを構築する
-func (s *Server) buildPreviewData(expandedMap string, merged *maptemplate.Palette) previewData {
+// buildPreviewDataFromCells は解決済みセル配列からプレビューデータを構築する
+func (s *Server) buildPreviewDataFromCells(mapCells [][]maptemplate.MapCell) previewData {
 	sm := s.buildSpriteStyleMaps()
 
-	lines := strings.Split(strings.TrimSpace(expandedMap), "\n")
 	cols := 0
-	for _, line := range lines {
-		if len([]rune(line)) > cols {
-			cols = len([]rune(line))
+	for _, row := range mapCells {
+		if len(row) > cols {
+			cols = len(row)
 		}
 	}
 	var cells []previewCell
-	for _, line := range lines {
-		for _, ch := range line {
-			charStr := string(ch)
-			cell := previewCell{Char: charStr}
-			if terrain, ok := merged.GetTerrain(charStr); ok {
-				cell.Terrain = terrain
-				if style, found := sm.tile[terrain]; found {
+	for _, row := range mapCells {
+		for _, mc := range row {
+			cell := previewCell{
+				Terrain: mc.Terrain,
+				Prop:    mc.Prop,
+				NPC:     mc.NPC,
+			}
+			if style, found := sm.tile[mc.Terrain]; found {
+				cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
+			}
+			if mc.Prop != "" {
+				if style, found := sm.prop[mc.Prop]; found {
 					cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
 				}
 			}
-			if propName, ok := merged.GetProp(charStr); ok {
-				cell.Prop = propName
-				if style, found := sm.prop[propName]; found {
-					cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
-				}
-			}
-			if npcName, ok := merged.GetNPC(charStr); ok {
-				cell.NPC = npcName
-				if style, found := sm.npc[npcName]; found {
+			if mc.NPC != "" {
+				if style, found := sm.npc[mc.NPC]; found {
 					cell.Sprites = append(cell.Sprites, previewSprite{Style: template.CSS(style)})
 				}
 			}

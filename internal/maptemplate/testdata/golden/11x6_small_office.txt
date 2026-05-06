@@ -1,6 +1,6 @@
-.....#.....
-.....#.XX..
-.CTC.#.XX..
-.....#.....
-.....#+####
-...........
+floor floor floor floor floor wall floor floor floor floor floor
+floor floor floor floor floor wall floor floor:crate floor:crate floor floor
+floor floor:chair floor:table floor:chair floor wall floor floor:crate floor:crate floor floor
+floor floor floor floor floor wall floor floor floor floor floor
+floor floor floor floor floor wall floor:door wall wall wall wall
+floor floor floor floor floor floor floor floor floor floor floor

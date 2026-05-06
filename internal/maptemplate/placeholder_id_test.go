@@ -120,6 +120,57 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 	}
 }
 
+func TestFindAllPlaceholderRegionsByID(t *testing.T) {
+	t.Parallel()
+
+	t.Run("同じIDが複数箇所にある場合、全て検出する", func(t *testing.T) {
+		t.Parallel()
+
+		mapStr := `@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@@.....@@@@@
+@@@@A.....@@@@A`
+
+		template := &ChunkTemplate{Map: mapStr}
+		lines := template.GetMapLines()
+		regions, err := findAllPlaceholderRegionsByID(lines, "A")
+		require.NoError(t, err)
+		require.Len(t, regions, 2)
+
+		// 1つ目の領域 (左側)
+		require.Equal(t, 0, regions[0].x)
+		require.Equal(t, 0, regions[0].y)
+		require.Equal(t, 5, regions[0].width)
+		require.Equal(t, 5, regions[0].height)
+
+		// 2つ目の領域 (右側)
+		require.Equal(t, 10, regions[1].x)
+		require.Equal(t, 0, regions[1].y)
+		require.Equal(t, 5, regions[1].width)
+		require.Equal(t, 5, regions[1].height)
+	})
+
+	t.Run("IDが1箇所だけの場合、1つの領域を返す", func(t *testing.T) {
+		t.Parallel()
+
+		mapStr := `.........
+.@@@A....
+.@@@@....
+.........`
+
+		template := &ChunkTemplate{Map: mapStr}
+		lines := template.GetMapLines()
+		regions, err := findAllPlaceholderRegionsByID(lines, "A")
+		require.NoError(t, err)
+		require.Len(t, regions, 1)
+		require.Equal(t, 1, regions[0].x)
+		require.Equal(t, 1, regions[0].y)
+		require.Equal(t, 4, regions[0].width)
+		require.Equal(t, 2, regions[0].height)
+	})
+}
+
 func TestValidatePlaceholders_WithID(t *testing.T) {
 	t.Parallel()
 
@@ -266,5 +317,5 @@ func TestExpandWithPlacements_WithID(t *testing.T) {
 .DEF...
 .......`
 
-	require.Equal(t, expected, expanded)
+	require.Equal(t, expected, cellsToString(expanded))
 }

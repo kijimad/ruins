@@ -1,59 +1,63 @@
 [palette]
-  description = '標準的な建物パレット'
-  id          = 'standard'
+id = 'standard'
+description = '標準的な建物パレット'
 
-  [palette.terrain]
-    '.' = 'floor'
-    '#' = 'wall'
-    -   = 'void'
-    '~' = 'dirt'
+[palette.terrain]
+'#' = 'wall'
+- = 'void'
+'.' = 'floor'
+'~' = 'dirt'
 
-  [palette.props]
-    [palette.props.'+']
-      id   = 'door'
-      tile = 'floor'
+[palette.props]
+[palette.props.'+']
+id = 'door'
+tile = 'floor'
 
-    [palette.props.'>']
-      id   = 'warp_next'
-      tile = 'floor'
+[palette.props.'>']
+id = 'warp_next'
+tile = 'floor'
 
-    [palette.props.B]
-      id   = 'bonfire'
-      tile = 'floor'
+[palette.props.B]
+id = 'bonfire'
+tile = 'floor'
 
-    [palette.props.C]
-      id   = 'chair'
-      tile = 'floor'
+[palette.props.C]
+id = 'chair'
+tile = 'floor'
 
-    [palette.props.D]
-      id   = 'desk'
-      tile = 'floor'
+[palette.props.D]
+id = 'desk'
+tile = 'floor'
 
-    [palette.props.F]
-      id   = 'bonfire'
-      tile = 'floor'
+[palette.props.F]
+id = 'bonfire'
+tile = 'floor'
 
-    [palette.props.I]
-      id   = 'stone_pillar'
-      tile = 'floor'
+[palette.props.I]
+id = 'stone_pillar'
+tile = 'floor'
 
-    [palette.props.L]
-      id   = 'lantern'
-      tile = 'floor'
+[palette.props.L]
+id = 'lantern'
+tile = 'floor'
 
-    [palette.props.T]
-      id   = 'table'
-      tile = 'floor'
+[palette.props.T]
+id = 'table'
+tile = 'floor'
 
-    [palette.props.X]
-      id   = 'crate'
-      tile = 'floor'
+[palette.props.X]
+id = 'crate'
+tile = 'floor'
 
-    [palette.props.b]
-      id   = 'bench'
-      tile = 'floor'
+[palette.props.b]
+id = 'bench'
+tile = 'floor'
 
-  [palette.npcs]
-    [palette.npcs.s]
-      id   = '灰の偶像'
-      tile = 'floor'
+[palette.props.e]
+id = 'bed'
+tile = 'floor'
+
+[palette.npcs]
+[palette.npcs.s]
+id = '灰の偶像'
+tile = 'floor'

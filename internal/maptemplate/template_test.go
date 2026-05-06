@@ -552,6 +552,25 @@ map = """
 	})
 }
 
+// cellsToString はセル配列をコンパクトな文字列に変換する。
+// パレットなしのテストで、1文字Terrain名を文字列化する
+func cellsToString(cells [][]MapCell) string {
+	var sb strings.Builder
+	for y, row := range cells {
+		if y > 0 {
+			sb.WriteByte('\n')
+		}
+		for _, cell := range row {
+			if len(cell.Terrain) == 1 {
+				sb.WriteString(cell.Terrain)
+			} else {
+				sb.WriteByte('?')
+			}
+		}
+	}
+	return sb.String()
+}
+
 func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 	t.Parallel()
 
@@ -568,7 +587,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		loader := NewTemplateLoader()
 		result, err := template.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
-		assert.Equal(t, template.Map, result)
+		assert.Equal(t, strings.TrimSpace(template.Map), cellsToString(result))
 	})
 
 	t.Run("単一チャンクを展開できる", func(t *testing.T) {
@@ -609,7 +628,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 #.T.#
 #...#
 #####`
-		assert.Equal(t, expected, result)
+		assert.Equal(t, expected, cellsToString(result))
 	})
 
 	t.Run("複数チャンクを展開できる", func(t *testing.T) {
@@ -662,7 +681,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 #.T.#.#.X.
 #...#.#...
 #####.####`
-		assert.Equal(t, expected, result)
+		assert.Equal(t, expected, cellsToString(result))
 	})
 
 	t.Run("チャンクサイズが不一致の場合はエラー", func(t *testing.T) {
@@ -781,30 +800,17 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 		result2, err := template.ExpandWithPlacements(loader, 12345)
 		require.NoError(t, err)
 
-		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")
+		assert.Equal(t, cellsToString(result1), cellsToString(result2), "同じシードで同じ結果が得られるべき")
 
 		// 異なるシードで実行すると異なる可能性がある（確率的）
 		result3, err := template.ExpandWithPlacements(loader, 99999)
 		require.NoError(t, err)
 
-		// いずれかのチャンクが選択されていることを確認
+		// いずれかのチャンクが選択されていることを確認（中央セルで判定）
+		centerTerrain := result3[2][2].Terrain
 		assert.True(t,
-			result3 == `#####
-#...#
-#.1.#
-#...#
-#####` ||
-				result3 == `#####
-#...#
-#.2.#
-#...#
-#####` ||
-				result3 == `#####
-#...#
-#.3.#
-#...#
-#####`,
-			"いずれかのチャンクが選択されているべき")
+			centerTerrain == "1" || centerTerrain == "2" || centerTerrain == "3",
+			"いずれかのチャンクが選択されているべき: got %s", centerTerrain)
 	})
 }
 
@@ -845,40 +851,135 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		// すべてのチャンクを登録
 		err := loader.RegisterAllChunks([]string{
 			"levels/chunks",
 			"levels/facilities",
 		})
 		require.NoError(t, err)
 
-		// すべてのパレットを登録
 		err = loader.RegisterAllPalettes([]string{
 			"levels/palettes",
 		})
 		require.NoError(t, err)
 
-		// 15x10_office_buildingを読み込み
-		template, palette, err := loader.LoadTemplateByName("15x10_office_building", 12345)
+		template, palette, resolvedMap, err := loader.LoadTemplateByName("15x10_office_building", 12345)
 		require.NoError(t, err)
 		require.NotNil(t, template)
 		require.NotNil(t, palette)
+		require.NotNil(t, resolvedMap)
 
-		// 展開されたマップにはチャンク文字（A, B, C, D）が含まれないはず
-		// ただし、bedroomチャンクの"B"や、他のチャンクに含まれる大文字は残る可能性がある
-		// ここでは展開が実行されたことを確認するため、マップが変更されたことをチェック
-		assert.NotContains(t, template.Map, "AAAAA", "officeチャンクが展開されているべき")
+		// セル配列のサイズが正しいことを確認
+		assert.Len(t, resolvedMap, template.Size.H)
+		if len(resolvedMap) > 0 {
+			assert.Len(t, resolvedMap[0], template.Size.W)
+		}
 
 		// パレットがマージされていることを確認
 		_, ok := palette.GetTerrain(".")
 		assert.True(t, ok, "標準パレットの地形が含まれているべき")
 	})
 
+	t.Run("子チャンクが独立にパレット解決される", func(t *testing.T) {
+		t.Parallel()
+		loader := NewTemplateLoader()
+
+		// 子チャンク: '.' を floor, '#' を wall として定義
+		childPalette := &Palette{
+			ID:      "child_palette",
+			Terrain: map[string]string{".": "floor", "#": "wall"},
+		}
+		loader.RegisterPalette(childPalette)
+
+		childChunk := &ChunkTemplate{
+			Name:     "3x3_child",
+			Weight:   100,
+			Size:     Size{W: 3, H: 3},
+			Map:      "###\n#.#\n###\n",
+			Palettes: []string{"child_palette"},
+		}
+		loader.RegisterChunk(childChunk)
+
+		// 親チャンク: 'r' を floor として定義（子の '.' と同じ地形に異なる文字）
+		parentPalette := &Palette{
+			ID:      "parent_palette",
+			Terrain: map[string]string{"r": "floor", "#": "wall"},
+		}
+		loader.RegisterPalette(parentPalette)
+
+		parentChunk := &ChunkTemplate{
+			Name:     "6x3_parent",
+			Weight:   100,
+			Size:     Size{W: 6, H: 3},
+			Map:      "###@@@\n###@@@\n###@@A\n",
+			Palettes: []string{"parent_palette"},
+			Placements: []ChunkPlacement{
+				{ID: "A", Chunks: []string{"3x3_child"}},
+			},
+		}
+		loader.RegisterChunk(parentChunk)
+
+		_, _, resolvedMap, err := loader.LoadTemplateByName("6x3_parent", 12345)
+		require.NoError(t, err)
+
+		// 子の '.' は子のパレットで "floor" に解決される
+		// リマップ不要 — 各チャンクが独立にパレット解決する
+		assert.Equal(t, "floor", resolvedMap[1][4].Terrain, "子の '.' は floor に解決されるべき")
+		assert.Equal(t, "wall", resolvedMap[0][0].Terrain, "親の '#' は wall に解決されるべき")
+	})
+
+	t.Run("親と子で同じパレットなら同じ地形名になる", func(t *testing.T) {
+		t.Parallel()
+		loader := NewTemplateLoader()
+
+		childPalette := &Palette{
+			ID:      "child_pal",
+			Terrain: map[string]string{".": "floor", "#": "wall"},
+		}
+		loader.RegisterPalette(childPalette)
+
+		childChunk := &ChunkTemplate{
+			Name:     "2x2_child",
+			Weight:   100,
+			Size:     Size{W: 2, H: 2},
+			Map:      ".#\n#.\n",
+			Palettes: []string{"child_pal"},
+		}
+		loader.RegisterChunk(childChunk)
+
+		parentPalette := &Palette{
+			ID:      "parent_pal",
+			Terrain: map[string]string{".": "floor", "#": "wall"},
+		}
+		loader.RegisterPalette(parentPalette)
+
+		parentChunk := &ChunkTemplate{
+			Name:     "4x2_parent",
+			Weight:   100,
+			Size:     Size{W: 4, H: 2},
+			Map:      "##@@\n##@A\n",
+			Palettes: []string{"parent_pal"},
+			Placements: []ChunkPlacement{
+				{ID: "A", Chunks: []string{"2x2_child"}},
+			},
+		}
+		loader.RegisterChunk(parentChunk)
+
+		_, _, resolvedMap, err := loader.LoadTemplateByName("4x2_parent", 0)
+		require.NoError(t, err)
+
+		// 子のセルは floor/wall に解決される
+		assert.Equal(t, "wall", resolvedMap[0][0].Terrain)
+		assert.Equal(t, "floor", resolvedMap[0][2].Terrain) // 子の '.'
+		assert.Equal(t, "wall", resolvedMap[0][3].Terrain)  // 子の '#'
+		assert.Equal(t, "wall", resolvedMap[1][2].Terrain)  // 子の '#'
+		assert.Equal(t, "floor", resolvedMap[1][3].Terrain) // 子の '.'
+	})
+
 	t.Run("存在しないテンプレート名はエラー", func(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		_, _, err := loader.LoadTemplateByName("nonexistent", 0)
+		_, _, _, err := loader.LoadTemplateByName("nonexistent", 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "見つかりません")
 	})
@@ -897,10 +998,10 @@ func TestTemplateLoader_LoadTemplateByName(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		template, palette, err := loader.LoadTemplateByName("10x10_small_room", 0)
+		template, palette, resolvedMap, err := loader.LoadTemplateByName("10x10_small_room", 0)
 		require.NoError(t, err)
 		require.NotNil(t, template)
-		// 10x10_small_roomはパレット指定がないのでnilの可能性がある
+		require.NotNil(t, resolvedMap)
 
 		assert.Equal(t, "10x10_small_room", template.Name)
 

@@ -68,12 +68,11 @@ function addNPCEntry() {
 <template id="prop-options-tpl">{{range .PropNames}}<option value="{{.}}">{{.}}</option>{{end}}</template>
 <template id="npc-options-tpl">{{range .NPCNames}}<option value="{{.}}">{{.}}</option>{{end}}</template>
 
+<form id="delete-form" method="POST" action="/palettes/{{.Palette.ID}}/delete"></form>
 <form method="POST" action="/palettes/{{.Palette.ID}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Palette.ID}}</h5>
-    <form method="POST" action="/palettes/{{.Palette.ID}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
-      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
-    </form>
+    <button type="button" class="btn btn-outline-danger btn-sm" onclick="if(confirm('削除しますか?')){document.getElementById('delete-form').submit()}">削除</button>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-6">

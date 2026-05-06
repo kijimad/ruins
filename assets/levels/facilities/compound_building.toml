@@ -33,12 +33,12 @@ map = """
 @@@@@.....@@@@@
 @@@@@.....@@@@@
 @@@@@.....@@@@@
-@@@@A.....@@@@B
+@@@@A.....@@@@A
 ######...######
 @@@@@#...#.....
 @@@@@+...+.@@@.
 @@@@@#...#.@@@.
-@@@@C#...#.@@D.
+@@@@B#...#.@@C.
 """
 spawn_points = []
 
@@ -51,13 +51,9 @@ chunks = ['5x5_meeting_room']
 id = 'A'
 
 [[chunk.placements]]
-chunks = ['5x5_meeting_room']
+chunks = ['5x4_office']
 id = 'B'
 
 [[chunk.placements]]
-chunks = ['5x4_office']
-id = 'C'
-
-[[chunk.placements]]
 chunks = ['3x3_bedroom']
-id = 'D'
+id = 'C'
