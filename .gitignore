@@ -6,3 +6,4 @@ cpu.pprof
 ruins
 bin/
 wasm/game.wasm
+editor-ui/dist

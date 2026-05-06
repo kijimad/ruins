@@ -19,18 +19,134 @@ model Error {
   message: string;
 }
 
+// ================== 共通enum ==================
+
+/** ターゲット数 */
+enum TargetNum {
+  SINGLE,
+  ALL,
+}
+
+/** ターゲットグループ */
+enum TargetGroup {
+  ENEMY,
+  ALLY,
+  WEAPON,
+  NONE,
+}
+
+/** 使用可能シーン */
+enum UsableScene {
+  BATTLE,
+  FIELD,
+  ANY,
+}
+
+/** 攻撃属性 */
+enum Element {
+  NONE,
+  FIRE,
+  THUNDER,
+  CHILL,
+  PHOTON,
+}
+
+/** 攻撃種別 */
+enum AttackCategory {
+  FIST,
+  SWORD,
+  SPEAR,
+  HANDGUN,
+  RIFLE,
+  CANON,
+  BOW,
+}
+
+/** 装備部位 */
+enum EquipmentCategory {
+  HEAD,
+  TORSO,
+  ARMS,
+  HANDS,
+  LEGS,
+  FEET,
+  JEWELRY,
+}
+
+/** 装備スロット。防具部位 + 武器スロット */
+enum EquipSlot {
+  HEAD,
+  TORSO,
+  ARMS,
+  HANDS,
+  LEGS,
+  FEET,
+  WEAPON1,
+  WEAPON2,
+  WEAPON3,
+  WEAPON4,
+  WEAPON5,
+}
+
+/** 弾薬タグ */
+enum AmmoTag {
+  `9mm`: "9mm",
+  rifle,
+  shell,
+  energy_cell,
+}
+
+/** 派閥タイプ */
+enum FactionMemberType {
+  FactionNeutral,
+}
+
+/** スプライト描画深度 */
+enum SpriteDepth {
+  Floor: 0,
+  Rug: 1,
+  Taller: 2,
+  Player: 3,
+}
+
+/** 遮蔽タイプ */
+enum ShelterType {
+  None: 0,
+  Partial: 5,
+  Full: 10,
+}
+
+/** 水タイプ */
+enum WaterType {
+  None: 0,
+  Nearby: -5,
+  Submerged: -10,
+}
+
+/** 植生タイプ */
+enum FoliageType {
+  None: 0,
+  Grass: -1,
+  Forest: -3,
+}
+
 // ================== アイテム ==================
 
 /** 消費可能アイテムの設定 */
 model Consumable {
-  usableScene: string;
-  targetGroup: string;
-  targetNum: string;
+  usableScene: UsableScene;
+  targetGroup: TargetGroup;
+  targetNum: TargetNum;
+}
+
+/** 回復量の計算方式 */
+enum HealingValueType {
+  PERCENTAGE,
 }
 
 /** 回復効果 */
 model ProvidesHealing {
-  valueType: string;
+  valueType: HealingValueType;
   amount: int32;
   ratio: float64;
 }
@@ -38,7 +154,7 @@ model ProvidesHealing {
 /** 装備可能設定 */
 model Wearable {
   defense: int32;
-  equipmentCategory: string;
+  equipmentCategory: EquipmentCategory;
   insulationCold: int32;
   insulationHeat: int32;
 }
@@ -57,7 +173,7 @@ model Weapon {}
 
 /** 弾薬設定 */
 model Ammo {
-  ammoTag: string;
+  ammoTag: AmmoTag;
   damageBonus: int32;
   accuracyBonus: int32;
 }
@@ -67,11 +183,11 @@ model Melee {
   accuracy: int32;
   damage: int32;
   attackCount: int32;
-  element: string;
-  attackCategory: string;
+  element: Element;
+  attackCategory: AttackCategory;
   cost: int32;
-  targetGroup: string;
-  targetNum: string;
+  targetGroup: TargetGroup;
+  targetNum: TargetNum;
 }
 
 /** 遠距離攻撃設定 */
@@ -79,14 +195,14 @@ model Fire {
   accuracy: int32;
   damage: int32;
   attackCount: int32;
-  element: string;
-  attackCategory: string;
+  element: Element;
+  attackCategory: AttackCategory;
   cost: int32;
-  targetGroup: string;
-  targetNum: string;
+  targetGroup: TargetGroup;
+  targetNum: TargetNum;
   magazineSize: int32;
   reloadEffort: int32;
-  ammoTag: string;
+  ammoTag: AmmoTag;
 }
 
 /** スキル本設定 */
@@ -173,7 +289,7 @@ model Member {
   spriteKey: string;
   animKeys: string[];
   lightSource?: LightSource;
-  factionType: string;
+  factionType?: FactionMemberType;
   dialog?: Dialog;
   commandTableName: string;
   dropTableName: string;
@@ -289,7 +405,7 @@ model EnemyTableList {
 model SpriteRender {
   spriteSheetName: string;
   spriteKey: string;
-  depth: int32;
+  depth: SpriteDepth;
 }
 
 /** タイル */
@@ -299,9 +415,9 @@ model Tile {
   blockPass: boolean;
   blockView: boolean;
   spriteRender: SpriteRender;
-  shelter: int32;
-  water: int32;
-  foliage: int32;
+  shelter: ShelterType;
+  water: WaterType;
+  foliage: FoliageType;
 }
 
 /** タイル一覧 */
@@ -366,7 +482,7 @@ model ProfessionItem {
 /** 職業初期装備 */
 model ProfessionEquip {
   name: string;
-  slot: string;
+  slot: EquipSlot;
 }
 
 /** 職業 */

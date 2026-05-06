@@ -74,10 +74,10 @@ export interface Abilities {
 export interface Ammo {
     /**
      * 
-     * @type {string}
+     * @type {AmmoTag}
      * @memberof Ammo
      */
-    'ammoTag': string;
+    'ammoTag': AmmoTag;
     /**
      * 
      * @type {number}
@@ -91,6 +91,43 @@ export interface Ammo {
      */
     'accuracyBonus': number;
 }
+
+
+/**
+ * 弾薬タグ
+ * @export
+ * @enum {string}
+ */
+
+export const AmmoTag = {
+    _9mm: '9mm',
+    Rifle: 'rifle',
+    Shell: 'shell',
+    EnergyCell: 'energy_cell'
+} as const;
+
+export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
+
+
+/**
+ * 攻撃種別
+ * @export
+ * @enum {string}
+ */
+
+export const AttackCategory = {
+    Fist: 'FIST',
+    Sword: 'SWORD',
+    Spear: 'SPEAR',
+    Handgun: 'HANDGUN',
+    Rifle: 'RIFLE',
+    Canon: 'CANON',
+    Bow: 'BOW'
+} as const;
+
+export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
+
+
 /**
  * 本の設定
  * @export
@@ -175,23 +212,25 @@ export interface CommandTableList {
 export interface Consumable {
     /**
      * 
-     * @type {string}
+     * @type {UsableScene}
      * @memberof Consumable
      */
-    'usableScene': string;
+    'usableScene': UsableScene;
     /**
      * 
-     * @type {string}
+     * @type {TargetGroup}
      * @memberof Consumable
      */
-    'targetGroup': string;
+    'targetGroup': TargetGroup;
     /**
      * 
-     * @type {string}
+     * @type {TargetNum}
      * @memberof Consumable
      */
-    'targetNum': string;
+    'targetNum': TargetNum;
 }
+
+
 /**
  * 会話データ
  * @export
@@ -262,6 +301,23 @@ export interface DropTableList {
      */
     'totalCount': number;
 }
+/**
+ * 攻撃属性
+ * @export
+ * @enum {string}
+ */
+
+export const Element = {
+    None: 'NONE',
+    Fire: 'FIRE',
+    Thunder: 'THUNDER',
+    Chill: 'CHILL',
+    Photon: 'PHOTON'
+} as const;
+
+export type Element = typeof Element[keyof typeof Element];
+
+
 /**
  * 敵テーブル
  * @export
@@ -369,6 +425,61 @@ export interface EquipBonus {
     'agility': number;
 }
 /**
+ * 装備スロット。防具部位 + 武器スロット
+ * @export
+ * @enum {string}
+ */
+
+export const EquipSlot = {
+    Head: 'HEAD',
+    Torso: 'TORSO',
+    Arms: 'ARMS',
+    Hands: 'HANDS',
+    Legs: 'LEGS',
+    Feet: 'FEET',
+    Weapon1: 'WEAPON1',
+    Weapon2: 'WEAPON2',
+    Weapon3: 'WEAPON3',
+    Weapon4: 'WEAPON4',
+    Weapon5: 'WEAPON5'
+} as const;
+
+export type EquipSlot = typeof EquipSlot[keyof typeof EquipSlot];
+
+
+/**
+ * 装備部位
+ * @export
+ * @enum {string}
+ */
+
+export const EquipmentCategory = {
+    Head: 'HEAD',
+    Torso: 'TORSO',
+    Arms: 'ARMS',
+    Hands: 'HANDS',
+    Legs: 'LEGS',
+    Feet: 'FEET',
+    Jewelry: 'JEWELRY'
+} as const;
+
+export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentCategory];
+
+
+/**
+ * 派閥タイプ
+ * @export
+ * @enum {string}
+ */
+
+export const FactionMemberType = {
+    FactionNeutral: 'FactionNeutral'
+} as const;
+
+export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMemberType];
+
+
+/**
  * 遠距離攻撃設定
  * @export
  * @interface Fire
@@ -394,16 +505,16 @@ export interface Fire {
     'attackCount': number;
     /**
      * 
-     * @type {string}
+     * @type {Element}
      * @memberof Fire
      */
-    'element': string;
+    'element': Element;
     /**
      * 
-     * @type {string}
+     * @type {AttackCategory}
      * @memberof Fire
      */
-    'attackCategory': string;
+    'attackCategory': AttackCategory;
     /**
      * 
      * @type {number}
@@ -412,16 +523,16 @@ export interface Fire {
     'cost': number;
     /**
      * 
-     * @type {string}
+     * @type {TargetGroup}
      * @memberof Fire
      */
-    'targetGroup': string;
+    'targetGroup': TargetGroup;
     /**
      * 
-     * @type {string}
+     * @type {TargetNum}
      * @memberof Fire
      */
-    'targetNum': string;
+    'targetNum': TargetNum;
     /**
      * 
      * @type {number}
@@ -436,11 +547,41 @@ export interface Fire {
     'reloadEffort': number;
     /**
      * 
-     * @type {string}
+     * @type {AmmoTag}
      * @memberof Fire
      */
-    'ammoTag': string;
+    'ammoTag': AmmoTag;
 }
+
+
+/**
+ * 植生タイプ
+ * @export
+ * @enum {number}
+ */
+
+export const FoliageType = {
+    NUMBER_0: 0,
+    NUMBER_MINUS_1: -1,
+    NUMBER_MINUS_3: -3
+} as const;
+
+export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
+
+
+/**
+ * 回復量の計算方式
+ * @export
+ * @enum {string}
+ */
+
+export const HealingValueType = {
+    Percentage: 'PERCENTAGE'
+} as const;
+
+export type HealingValueType = typeof HealingValueType[keyof typeof HealingValueType];
+
+
 /**
  * アイテム
  * @export
@@ -701,16 +842,16 @@ export interface Melee {
     'attackCount': number;
     /**
      * 
-     * @type {string}
+     * @type {Element}
      * @memberof Melee
      */
-    'element': string;
+    'element': Element;
     /**
      * 
-     * @type {string}
+     * @type {AttackCategory}
      * @memberof Melee
      */
-    'attackCategory': string;
+    'attackCategory': AttackCategory;
     /**
      * 
      * @type {number}
@@ -719,17 +860,19 @@ export interface Melee {
     'cost': number;
     /**
      * 
-     * @type {string}
+     * @type {TargetGroup}
      * @memberof Melee
      */
-    'targetGroup': string;
+    'targetGroup': TargetGroup;
     /**
      * 
-     * @type {string}
+     * @type {TargetNum}
      * @memberof Melee
      */
-    'targetNum': string;
+    'targetNum': TargetNum;
 }
+
+
 /**
  * メンバー
  * @export
@@ -786,10 +929,10 @@ export interface Member {
     'lightSource'?: LightSource;
     /**
      * 
-     * @type {string}
+     * @type {FactionMemberType}
      * @memberof Member
      */
-    'factionType': string;
+    'factionType'?: FactionMemberType;
     /**
      * 
      * @type {Dialog}
@@ -809,6 +952,8 @@ export interface Member {
      */
     'dropTableName': string;
 }
+
+
 /**
  * メンバー一覧レスポンス
  * @export
@@ -979,11 +1124,13 @@ export interface ProfessionEquip {
     'name': string;
     /**
      * 
-     * @type {string}
+     * @type {EquipSlot}
      * @memberof ProfessionEquip
      */
-    'slot': string;
+    'slot': EquipSlot;
 }
+
+
 /**
  * 職業初期所持アイテム
  * @export
@@ -1147,10 +1294,10 @@ export interface PropList {
 export interface ProvidesHealing {
     /**
      * 
-     * @type {string}
+     * @type {HealingValueType}
      * @memberof ProvidesHealing
      */
-    'valueType': string;
+    'valueType': HealingValueType;
     /**
      * 
      * @type {number}
@@ -1164,6 +1311,8 @@ export interface ProvidesHealing {
      */
     'ratio': number;
 }
+
+
 /**
  * RGBA色
  * @export
@@ -1253,6 +1402,21 @@ export interface RecipeList {
     'totalCount': number;
 }
 /**
+ * 遮蔽タイプ
+ * @export
+ * @enum {number}
+ */
+
+export const ShelterType = {
+    NUMBER_0: 0,
+    NUMBER_5: 5,
+    NUMBER_10: 10
+} as const;
+
+export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
+
+
+/**
  * スキル本設定
  * @export
  * @interface SkillBook
@@ -1278,6 +1442,22 @@ export interface SkillBook {
     'maxLevel': number;
 }
 /**
+ * スプライト描画深度
+ * @export
+ * @enum {number}
+ */
+
+export const SpriteDepth = {
+    NUMBER_0: 0,
+    NUMBER_1: 1,
+    NUMBER_2: 2,
+    NUMBER_3: 3
+} as const;
+
+export type SpriteDepth = typeof SpriteDepth[keyof typeof SpriteDepth];
+
+
+/**
  * スプライトレンダー設定
  * @export
  * @interface SpriteRender
@@ -1295,7 +1475,15 @@ export interface SpriteRender {
      * @memberof SpriteRender
      */
     'spriteKey': string;
+    /**
+     * 
+     * @type {SpriteDepth}
+     * @memberof SpriteRender
+     */
+    'depth': SpriteDepth;
 }
+
+
 /**
  * スプライトシート
  * @export
@@ -1335,6 +1523,36 @@ export interface SpriteSheetList {
     'totalCount': number;
 }
 /**
+ * ターゲットグループ
+ * @export
+ * @enum {string}
+ */
+
+export const TargetGroup = {
+    Enemy: 'ENEMY',
+    Ally: 'ALLY',
+    Weapon: 'WEAPON',
+    None: 'NONE'
+} as const;
+
+export type TargetGroup = typeof TargetGroup[keyof typeof TargetGroup];
+
+
+/**
+ * ターゲット数
+ * @export
+ * @enum {string}
+ */
+
+export const TargetNum = {
+    Single: 'SINGLE',
+    All: 'ALL'
+} as const;
+
+export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
+
+
+/**
  * タイル
  * @export
  * @interface Tile
@@ -1372,23 +1590,25 @@ export interface Tile {
     'spriteRender': SpriteRender;
     /**
      * 
-     * @type {number}
+     * @type {ShelterType}
      * @memberof Tile
      */
-    'shelter': number;
+    'shelter': ShelterType;
     /**
      * 
-     * @type {number}
+     * @type {WaterType}
      * @memberof Tile
      */
-    'water': number;
+    'water': WaterType;
     /**
      * 
-     * @type {number}
+     * @type {FoliageType}
      * @memberof Tile
      */
-    'foliage': number;
+    'foliage': FoliageType;
 }
+
+
 /**
  * タイル一覧
  * @export
@@ -1409,6 +1629,36 @@ export interface TileList {
     'totalCount': number;
 }
 /**
+ * 使用可能シーン
+ * @export
+ * @enum {string}
+ */
+
+export const UsableScene = {
+    Battle: 'BATTLE',
+    Field: 'FIELD',
+    Any: 'ANY'
+} as const;
+
+export type UsableScene = typeof UsableScene[keyof typeof UsableScene];
+
+
+/**
+ * 水タイプ
+ * @export
+ * @enum {number}
+ */
+
+export const WaterType = {
+    NUMBER_0: 0,
+    NUMBER_MINUS_5: -5,
+    NUMBER_MINUS_10: -10
+} as const;
+
+export type WaterType = typeof WaterType[keyof typeof WaterType];
+
+
+/**
  * 装備可能設定
  * @export
  * @interface Wearable
@@ -1422,10 +1672,10 @@ export interface Wearable {
     'defense': number;
     /**
      * 
-     * @type {string}
+     * @type {EquipmentCategory}
      * @memberof Wearable
      */
-    'equipmentCategory': string;
+    'equipmentCategory': EquipmentCategory;
     /**
      * 
      * @type {number}
@@ -1439,6 +1689,8 @@ export interface Wearable {
      */
     'insulationHeat': number;
 }
+
+
 
 /**
  * DefaultApi - axios parameter creator

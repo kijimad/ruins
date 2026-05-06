@@ -286,8 +286,8 @@ func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int,
 	if len(prof.Equips) > 0 {
 		container.AddChild(styled.NewDescriptionText("装備", res))
 		for _, equip := range prof.Equips {
-			slotLabel := equip.Slot
-			if slot, ok := gc.ParseEquipmentSlot(equip.Slot); ok {
+			slotLabel := string(equip.Slot)
+			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
 				slotLabel = slot.String()
 			}
 			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s: %s", slotLabel, equip.Name), res))

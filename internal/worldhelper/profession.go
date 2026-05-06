@@ -49,7 +49,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 		if err != nil {
 			return fmt.Errorf("職業の初期装備生成に失敗: %s: %w", equip.Name, err)
 		}
-		slot, ok := gc.ParseEquipmentSlot(equip.Slot)
+		slot, ok := gc.ParseEquipmentSlot(string(equip.Slot))
 		if !ok {
 			return fmt.Errorf("不正な装備スロット名: %s (アイテム: %s)", equip.Slot, equip.Name)
 		}

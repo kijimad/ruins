@@ -134,7 +134,7 @@ func toGCSpriteRender(s oapi.SpriteRender) gc.SpriteRender {
 	return gc.SpriteRender{
 		SpriteSheetName: s.SpriteSheetName,
 		SpriteKey:       s.SpriteKey,
-		Depth:           gc.DepthNum(s.Depth),
+		Depth:           gc.DepthNum(int(s.Depth)),
 	}
 }
 
@@ -156,25 +156,25 @@ func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
 }
 
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
-func parseTargetType(targetGroup, targetNum string) (gc.TargetType, error) {
+func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) (gc.TargetType, error) {
 	if targetGroup == "" {
 		return gc.TargetType{}, nil
 	}
-	if err := gc.TargetGroupType(targetGroup).Valid(); err != nil {
+	if err := gc.TargetGroupType(string(targetGroup)).Valid(); err != nil {
 		return gc.TargetType{}, fmt.Errorf("invalid attack target group: %w", err)
 	}
-	if err := gc.TargetNumType(targetNum).Valid(); err != nil {
+	if err := gc.TargetNumType(string(targetNum)).Valid(); err != nil {
 		return gc.TargetType{}, fmt.Errorf("invalid attack target num: %w", err)
 	}
 	return gc.TargetType{
-		TargetGroup: gc.TargetGroupType(targetGroup),
-		TargetNum:   gc.TargetNumType(targetNum),
+		TargetGroup: gc.TargetGroupType(string(targetGroup)),
+		TargetNum:   gc.TargetNumType(string(targetNum)),
 	}, nil
 }
 
 // parseAttackType はAttackCategory文字列をパース・検証する
-func parseAttackType(category string) (gc.AttackType, error) {
-	attackType, err := gc.ParseAttackType(category)
+func parseAttackType(category oapi.AttackCategory) (gc.AttackType, error) {
+	attackType, err := gc.ParseAttackType(string(category))
 	if err != nil {
 		return gc.AttackType{}, err
 	}
@@ -186,7 +186,7 @@ func parseAttackType(category string) (gc.AttackType, error) {
 
 // parseMelee はoapi.Meleeからgc.Meleeを生成する
 func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
-	if err := gc.ElementType(m.Element).Valid(); err != nil {
+	if err := gc.ElementType(string(m.Element)).Valid(); err != nil {
 		return nil, err
 	}
 	attackType, err := parseAttackType(m.AttackCategory)
@@ -201,7 +201,7 @@ func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
 		Accuracy:       int(m.Accuracy),
 		Damage:         int(m.Damage),
 		AttackCount:    int(m.AttackCount),
-		Element:        gc.ElementType(m.Element),
+		Element:        gc.ElementType(string(m.Element)),
 		AttackCategory: attackType,
 		Cost:           int(m.Cost),
 		TargetType:     targetType,
@@ -210,7 +210,7 @@ func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
 
 // parseFire はoapi.Fireからgc.Fireを生成する
 func parseFire(f *oapi.Fire) (*gc.Fire, error) {
-	if err := gc.ElementType(f.Element).Valid(); err != nil {
+	if err := gc.ElementType(string(f.Element)).Valid(); err != nil {
 		return nil, err
 	}
 	attackType, err := parseAttackType(f.AttackCategory)
@@ -225,14 +225,14 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		Accuracy:       int(f.Accuracy),
 		Damage:         int(f.Damage),
 		AttackCount:    int(f.AttackCount),
-		Element:        gc.ElementType(f.Element),
+		Element:        gc.ElementType(string(f.Element)),
 		AttackCategory: attackType,
 		Cost:           int(f.Cost),
 		TargetType:     targetType,
 		Magazine:       int(f.MagazineSize),
 		MagazineSize:   int(f.MagazineSize),
 		ReloadEffort:   int(f.ReloadEffort),
-		AmmoTag:        f.AmmoTag,
+		AmmoTag:        string(f.AmmoTag),
 	}, nil
 }
 
@@ -345,7 +345,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 
 	if item.Ammo != nil {
 		entitySpec.Ammo = &gc.Ammo{
-			AmmoTag:       item.Ammo.AmmoTag,
+			AmmoTag:       string(item.Ammo.AmmoTag),
 			DamageBonus:   int(item.Ammo.DamageBonus),
 			AccuracyBonus: int(item.Ammo.AccuracyBonus),
 		}
@@ -546,8 +546,8 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.LightSource = toGCLightSource(member.LightSource)
 
 	// 派閥タイプの処理
-	if member.FactionType != "" {
-		switch member.FactionType {
+	if member.FactionType != nil && string(*member.FactionType) != "" {
+		switch string(*member.FactionType) {
 		case gc.FactionAlly.String():
 			entitySpec.FactionType = &gc.FactionAlly
 		case gc.FactionEnemy.String():
@@ -555,7 +555,7 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		case gc.FactionNeutral.String():
 			entitySpec.FactionType = &gc.FactionNeutral
 		default:
-			return gc.EntitySpec{}, fmt.Errorf("無効な派閥タイプ '%s' が指定されています: %s", member.FactionType, name)
+			return gc.EntitySpec{}, fmt.Errorf("無効な派閥タイプ '%s' が指定されています: %s", *member.FactionType, name)
 		}
 	}
 

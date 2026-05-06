@@ -2,6 +2,7 @@ package mapplanner
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // EnvironmentPlanner は環境情報を計算するプランナー
@@ -15,16 +16,16 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	// 各タイルの環境情報を設定する
 	for i := range mp.Tiles {
 		if outdoor[i] {
-			mp.Tiles[i].Shelter = int32(gc.ShelterNone)
+			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterNone)
 		} else {
-			mp.Tiles[i].Shelter = int32(gc.ShelterFull)
+			mp.Tiles[i].Shelter = oapi.ShelterType(gc.ShelterFull)
 		}
 
 		// Water: 隣接する水タイルから計算
-		mp.Tiles[i].Water = int32(p.calcWater(mp, i))
+		mp.Tiles[i].Water = oapi.WaterType(p.calcWater(mp, i))
 
 		// Foliage: タイル名から計算
-		mp.Tiles[i].Foliage = int32(p.calcFoliage(mp, i))
+		mp.Tiles[i].Foliage = oapi.FoliageType(p.calcFoliage(mp, i))
 	}
 
 	return nil

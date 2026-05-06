@@ -1913,7 +1913,7 @@ weight = 0.2
 name = "火の玉"
 
 [[dropTables.entries]]
-material = ""
+material = "灰"
 weight = 0.5
 
 [[dropTables.entries]]

@@ -3,6 +3,63 @@ import path from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 import * as TOML from "smol-toml";
 
+// Aseprite JSON のフレーム定義
+interface AsepriteFrame {
+  filename: string;
+  frame: { x: number; y: number; w: number; h: number };
+}
+
+interface AsepriteJson {
+  frames: AsepriteFrame[];
+  meta: { image: string; size: { w: number; h: number } };
+}
+
+// スプライトキー情報（APIレスポンス用）
+interface SpriteInfo {
+  key: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+interface SpriteSheetInfo {
+  name: string;
+  image: string;
+  sheetWidth: number;
+  sheetHeight: number;
+  sprites: SpriteInfo[];
+}
+
+// スプライトシートの名前→Aseprite JSONパスの対応をraw.tomlから取得し、
+// スプライトキー一覧を返す
+class SpriteCache {
+  private cache = new Map<string, SpriteSheetInfo>();
+  constructor(private assetsDir: string) {}
+
+  get(sheetName: string, sheetPath: string): SpriteSheetInfo | undefined {
+    if (this.cache.has(sheetName)) return this.cache.get(sheetName);
+    const jsonPath = path.join(this.assetsDir, sheetPath);
+    if (!fs.existsSync(jsonPath)) return undefined;
+    const data: AsepriteJson = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+    const info: SpriteSheetInfo = {
+      name: sheetName,
+      image: `/sprites/${data.meta.image}`,
+      sheetWidth: data.meta.size.w,
+      sheetHeight: data.meta.size.h,
+      sprites: data.frames.map((f) => ({
+        key: f.filename.replace(/_$/, ""),
+        x: f.frame.x,
+        y: f.frame.y,
+        w: f.frame.w,
+        h: f.frame.h,
+      })),
+    };
+    this.cache.set(sheetName, info);
+    return info;
+  }
+}
+
 // raw.toml のルート構造。キーは camelCase
 interface Raws {
   items?: unknown[];
@@ -101,7 +158,6 @@ class RawStore {
   }
 
   private save(): void {
-    sortAll(this.raws);
     const content = TOML.stringify(this.raws as unknown as Record<string, unknown>);
     fs.writeFileSync(this.filePath, content, "utf-8");
   }
@@ -221,17 +277,37 @@ function readBody(req: { on: (event: string, cb: (chunk: Buffer) => void) => voi
 interface ApiPluginOptions {
   rawTomlPath: string;
   palettesDir: string;
+  assetsDir: string;
 }
 
 export function editorApiPlugin(options: ApiPluginOptions): Plugin {
   const rawTomlPath = path.resolve(options.rawTomlPath);
   const palettesDir = path.resolve(options.palettesDir);
+  const assetsDir = path.resolve(options.assetsDir);
+  const spritesDir = path.join(assetsDir, "file/textures/dist");
 
   return {
     name: "editor-api",
     configureServer(server: ViteDevServer) {
       const rawStore = new RawStore(rawTomlPath);
       const paletteStore = new PaletteStore(palettesDir);
+      const spriteCache = new SpriteCache(assetsDir);
+
+      // スプライトシート画像の静的配信
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? "";
+        if (!url.startsWith("/sprites/")) return next();
+        const fileName = path.basename(url.slice("/sprites/".length));
+        const filePath = path.join(spritesDir, fileName);
+        if (!fs.existsSync(filePath)) {
+          res.statusCode = 404;
+          res.end("Not found");
+          return;
+        }
+        res.setHeader("Content-Type", "image/png");
+        res.setHeader("Cache-Control", "public, max-age=3600");
+        fs.createReadStream(filePath).pipe(res);
+      });
 
       server.middlewares.use(async (req, res, next) => {
         const url = req.url ?? "";
@@ -243,6 +319,27 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
         res.setHeader("Content-Type", "application/json");
 
         try {
+          // スプライトキー一覧 API
+          const spriteMatch = apiPath.match(/^sprites\/([a-zA-Z0-9_-]+)$/);
+          if (spriteMatch && method === "GET") {
+            const sheetName = spriteMatch[1]!;
+            const sheets = rawStore.getSlice("spriteSheets") as { name: string; path: string }[];
+            const sheet = sheets.find((s) => s.name === sheetName);
+            if (!sheet) {
+              res.statusCode = 404;
+              res.end(JSON.stringify({ message: `Sprite sheet not found: ${sheetName}` }));
+              return;
+            }
+            const info = spriteCache.get(sheetName, sheet.path);
+            if (!info) {
+              res.statusCode = 404;
+              res.end(JSON.stringify({ message: `Sprite JSON not found: ${sheet.path}` }));
+              return;
+            }
+            res.end(JSON.stringify(info));
+            return;
+          }
+
           // パレット API
           if (apiPath.startsWith("palettes")) {
             await handlePalettes(

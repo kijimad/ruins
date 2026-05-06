@@ -82,7 +82,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 		member := rawMaster.Raws.Members[memberIdx]
 
-		if member.FactionType == gc.FactionNeutral.String() {
+		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutral.String() {
 			// 中立NPCの場合
 			_, err := worldhelper.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
 			if err != nil {
