@@ -6,24 +6,18 @@ run: ## 実行する。スクショのキーを指定している
 	go run . play
 
 .PHONY: editor
-editor: ## ゲームデータエディタを起動する(コード変更で自動再起動)
-	@fuser -k 8080/tcp 2>/dev/null || true; \
-	while true; do \
-		go run . editor & PID=$$!; \
-		inotifywait -r -e close_write,moved_to --include '\.go$$' internal/editor/ ; \
-		kill $$PID 2>/dev/null; wait $$PID 2>/dev/null; \
-		fuser -k 8080/tcp 2>/dev/null || true; \
-	done
+editor: ## ゲームデータエディタを起動する
+	npm run --prefix editor-ui dev
 
 .PHONY: test
 test: ## テストを実行する
 	RUINS_LOG_LEVEL=ignore \
-	go test -v -cover -shuffle=on ./...
+	go test -v -cover -shuffle=on $$(go list ./... | grep -v /editor-ui/)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
-	go test -coverprofile=cover.out ./...
+	go test -coverprofile=cover.out $$(go list ./... | grep -v /editor-ui/)
 	go tool cover -func=cover.out
 
 .PHONY: build
@@ -43,7 +37,7 @@ fmt: ## フォーマットする
 lint: ## Linterを実行する
 	@go build -o /dev/null . # buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@golangci-lint run -v ./...
-	@if deadcode -test ./... 2>&1 | grep -q "unreachable func"; then \
+	@if deadcode -test $$(go list ./... | grep -v /editor-ui/) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
 

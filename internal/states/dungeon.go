@@ -18,7 +18,7 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -533,10 +533,10 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 }
 
 // filterItemEntries はアイテムテーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
-func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.SpawnEntry {
+func filterItemEntries(entries []oapi.ItemTableEntry, depth int) []mapplanner.SpawnEntry {
 	result := make([]mapplanner.SpawnEntry, 0, len(entries))
 	for _, entry := range entries {
-		if depth < entry.MinDepth || depth > entry.MaxDepth {
+		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
 		result = append(result, mapplanner.SpawnEntry{
@@ -601,10 +601,10 @@ func handleShiftDiagonalInput(keyboardInput input.KeyboardInput) (inputmapper.Ac
 }
 
 // filterEnemyEntries は敵テーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
-func filterEnemyEntries(entries []raw.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {
+func filterEnemyEntries(entries []oapi.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {
 	result := make([]mapplanner.SpawnEntry, 0, len(entries))
 	for _, entry := range entries {
-		if depth < entry.MinDepth || depth > entry.MaxDepth {
+		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
 		result = append(result, mapplanner.SpawnEntry{

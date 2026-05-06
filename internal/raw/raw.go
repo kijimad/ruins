@@ -2,12 +2,14 @@ package raw
 
 import (
 	"fmt"
-	"io"
+	"image/color"
+	"math/rand/v2"
 
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // Master はローデータを管理し、効率的な検索のためのインデックスを提供する
@@ -28,274 +30,17 @@ type Master struct {
 
 // Raws は全てのローデータを格納する構造体
 type Raws struct {
-	Items         []Item
-	Recipes       []Recipe
-	Members       []Member
-	CommandTables []CommandTable
-	DropTables    []DropTable
-	ItemTables    []ItemTable
-	EnemyTables   []EnemyTable
-	SpriteSheets  []SpriteSheet
-	Tiles         []TileRaw
-	Props         []PropRaw
-	Professions   []Profession
-}
-
-// Item はアイテムのローデータ
-type Item struct {
-	Name              string
-	Description       string
-	SpriteSheetName   string
-	SpriteKey         string
-	AnimKeys          []string
-	Value             int
-	Weight            *float64 // 重量(kg)
-	InflictsDamage    *int
-	ProvidesNutrition *int  // 空腹度回復量
-	Stackable         *bool // スタック可能かどうか
-	Consumable        *Consumable
-	ProvidesHealing   *ProvidesHealing
-	Wearable          *Wearable
-	EquipBonus        *EquipBonus
-	Weapon            *Weapon
-	Ammo              *Ammo
-	Melee             *MeleeRaw
-	Fire              *FireRaw
-	Book              *BookRaw
-}
-
-// BookRaw は本のローデータ
-type BookRaw struct {
-	TotalEffort int
-	Skill       *SkillBookRaw
-}
-
-// SkillBookRaw はスキル本のローデータ
-type SkillBookRaw struct {
-	TargetSkill   string
-	RequiredLevel int
-	MaxLevel      int
-}
-
-// ProvidesHealing は回復効果を提供する構造体
-type ProvidesHealing struct {
-	ValueType ValueType
-	Amount    int
-	Ratio     float64
-}
-
-// Consumable は消費可能なアイテムの設定
-type Consumable struct {
-	UsableScene string
-	TargetGroup string
-	TargetNum   string
-}
-
-// Weapon は武器マーカー
-type Weapon struct{}
-
-// Ammo は弾薬アイテムの設定
-type Ammo struct {
-	AmmoTag       string // 口径タグ
-	DamageBonus   int    // ダメージ修正値
-	AccuracyBonus int    // 命中率修正値
-}
-
-// MeleeRaw は近接攻撃の設定
-type MeleeRaw struct {
-	Accuracy       int    // 命中率
-	Damage         int    // 攻撃力
-	AttackCount    int    // 攻撃回数
-	Element        string // 攻撃属性
-	AttackCategory string // 攻撃種別
-	Cost           int    // 行動コスト
-	TargetGroup    string // 対象グループ
-	TargetNum      string // 対象数
-}
-
-// FireRaw は遠距離攻撃の設定
-type FireRaw struct {
-	Accuracy       int    // 命中率
-	Damage         int    // 攻撃力
-	AttackCount    int    // 攻撃回数
-	Element        string // 攻撃属性
-	AttackCategory string // 攻撃種別
-	Cost           int    // 行動コスト
-	TargetGroup    string // 対象グループ
-	TargetNum      string // 対象数
-	MagazineSize   int    // 最大装弾数
-	ReloadEffort   int    // リロード完了に必要な総工数
-	AmmoTag        string // 使用する弾薬アイテムのタグ
-}
-
-// parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
-func parseTargetType(targetGroup, targetNum string) (gc.TargetType, error) {
-	if targetGroup == "" {
-		return gc.TargetType{}, nil
-	}
-	if err := gc.TargetGroupType(targetGroup).Valid(); err != nil {
-		return gc.TargetType{}, fmt.Errorf("invalid attack target group: %w", err)
-	}
-	if err := gc.TargetNumType(targetNum).Valid(); err != nil {
-		return gc.TargetType{}, fmt.Errorf("invalid attack target num: %w", err)
-	}
-	return gc.TargetType{
-		TargetGroup: gc.TargetGroupType(targetGroup),
-		TargetNum:   gc.TargetNumType(targetNum),
-	}, nil
-}
-
-// parseAttackType はAttackCategory文字列をパース・検証する
-func parseAttackType(category string) (gc.AttackType, error) {
-	attackType, err := gc.ParseAttackType(category)
-	if err != nil {
-		return gc.AttackType{}, err
-	}
-	if err := attackType.Valid(); err != nil {
-		return gc.AttackType{}, err
-	}
-	return attackType, nil
-}
-
-// parseMeleeRaw はMeleeRawからgc.Meleeを生成する
-func parseMeleeRaw(raw *MeleeRaw) (*gc.Melee, error) {
-	if err := gc.ElementType(raw.Element).Valid(); err != nil {
-		return nil, err
-	}
-	attackType, err := parseAttackType(raw.AttackCategory)
-	if err != nil {
-		return nil, err
-	}
-	targetType, err := parseTargetType(raw.TargetGroup, raw.TargetNum)
-	if err != nil {
-		return nil, err
-	}
-	return &gc.Melee{
-		Accuracy:       raw.Accuracy,
-		Damage:         raw.Damage,
-		AttackCount:    raw.AttackCount,
-		Element:        gc.ElementType(raw.Element),
-		AttackCategory: attackType,
-		Cost:           raw.Cost,
-		TargetType:     targetType,
-	}, nil
-}
-
-// parseFireRaw はFireRawからgc.Fireを生成する
-func parseFireRaw(raw *FireRaw) (*gc.Fire, error) {
-	if err := gc.ElementType(raw.Element).Valid(); err != nil {
-		return nil, err
-	}
-	attackType, err := parseAttackType(raw.AttackCategory)
-	if err != nil {
-		return nil, err
-	}
-	targetType, err := parseTargetType(raw.TargetGroup, raw.TargetNum)
-	if err != nil {
-		return nil, err
-	}
-	return &gc.Fire{
-		Accuracy:       raw.Accuracy,
-		Damage:         raw.Damage,
-		AttackCount:    raw.AttackCount,
-		Element:        gc.ElementType(raw.Element),
-		AttackCategory: attackType,
-		Cost:           raw.Cost,
-		TargetType:     targetType,
-		Magazine:       raw.MagazineSize,
-		MagazineSize:   raw.MagazineSize,
-		ReloadEffort:   raw.ReloadEffort,
-		AmmoTag:        raw.AmmoTag,
-	}, nil
-}
-
-// Wearable は装備可能アイテムの設定
-type Wearable struct {
-	Defense           int
-	EquipmentCategory string
-	InsulationCold    int // 耐寒。快適温度の下限を下げる
-	InsulationHeat    int // 耐暑。快適温度の上限を上げる
-}
-
-// EquipBonus は装備ボーナスの設定
-type EquipBonus struct {
-	Vitality  int
-	Strength  int
-	Sensation int
-	Dexterity int
-	Agility   int
-}
-
-// Recipe はレシピの情報
-type Recipe struct {
-	Name   string
-	Inputs []RecipeInput
-}
-
-// RecipeInput は合成の元になる素材
-type RecipeInput struct {
-	Name   string
-	Amount int
-}
-
-// Member はメンバーの情報
-type Member struct {
-	Name             string
-	Player           *bool
-	IsBoss           bool
-	Abilities        Abilities
-	SpriteSheetName  string
-	SpriteKey        string
-	AnimKeys         []string
-	LightSource      *gc.LightSource
-	FactionType      string
-	Dialog           *DialogRaw
-	CommandTableName string // 使用するコマンドテーブル名。空なら紐づけなし
-	DropTableName    string // 使用するドロップテーブル名。空なら紐づけなし
-}
-
-// DialogRaw は会話データのローデータ
-type DialogRaw struct {
-	MessageKey string // メッセージキー
-}
-
-// Abilities はキャラクターの能力値
-type Abilities struct {
-	Vitality  int
-	Strength  int
-	Sensation int
-	Dexterity int
-	Agility   int
-	Defense   int
-}
-
-// Profession は職業の定義
-type Profession struct {
-	ID          string
-	Name        string
-	Description string
-	Abilities   Abilities
-	Skills      []ProfessionSkill
-	Items       []ProfessionItem
-	Equips      []ProfessionEquip
-}
-
-// ProfessionSkill は職業のスキル初期値
-type ProfessionSkill struct {
-	ID    string
-	Value int
-}
-
-// ProfessionItem は職業の初期所持アイテム。バックパックに入る
-type ProfessionItem struct {
-	Name  string
-	Count int
-}
-
-// ProfessionEquip は職業の初期装備。指定スロットに装備される
-type ProfessionEquip struct {
-	Name string // アイテム名
-	Slot string // 装備スロット名
+	Items         []oapi.Item
+	Recipes       []oapi.Recipe
+	Members       []oapi.Member
+	CommandTables []oapi.CommandTable
+	DropTables    []oapi.DropTable
+	ItemTables    []oapi.ItemTable
+	EnemyTables   []oapi.EnemyTable
+	SpriteSheets  []oapi.SpriteSheet
+	Tiles         []oapi.Tile
+	Props         []oapi.Prop
+	Professions   []oapi.Profession
 }
 
 // LoadFromFile はファイルからローデータを読み込む
@@ -309,11 +54,6 @@ func LoadFromFile(path string) (Master, error) {
 		return Master{}, err
 	}
 	return rw, nil
-}
-
-// EncodeRaws はRaws構造体をTOML形式でio.Writerに書き出す
-func EncodeRaws(w io.Writer, raws Raws) error {
-	return toml.NewEncoder(w).Encode(raws)
 }
 
 // DecodeRaws はTOML文字列をRaws構造体にデコードする。
@@ -383,10 +123,154 @@ func Load(entityMetadataContent string) (Master, error) {
 		rw.PropIndex[prop.Name] = i
 	}
 	for i, prof := range rw.Raws.Professions {
-		rw.ProfessionIndex[prof.ID] = i
+		rw.ProfessionIndex[prof.Id] = i
 	}
 
 	return rw, nil
+}
+
+// toGCSpriteRender はoapi.SpriteRenderからgc.SpriteRenderに変換する
+func toGCSpriteRender(s oapi.SpriteRender) gc.SpriteRender {
+	return gc.SpriteRender{
+		SpriteSheetName: s.SpriteSheetName,
+		SpriteKey:       s.SpriteKey,
+		Depth:           gc.DepthNum(s.Depth),
+	}
+}
+
+// toGCLightSource はoapi.LightSourceからgc.LightSourceに変換する
+func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
+	if ls == nil {
+		return nil
+	}
+	return &gc.LightSource{
+		Radius:  consts.Tile(ls.Radius),
+		Enabled: ls.Enabled,
+		Color: color.RGBA{
+			R: ls.Color.R,
+			G: ls.Color.G,
+			B: ls.Color.B,
+			A: ls.Color.A,
+		},
+	}
+}
+
+// parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
+func parseTargetType(targetGroup, targetNum string) (gc.TargetType, error) {
+	if targetGroup == "" {
+		return gc.TargetType{}, nil
+	}
+	if err := gc.TargetGroupType(targetGroup).Valid(); err != nil {
+		return gc.TargetType{}, fmt.Errorf("invalid attack target group: %w", err)
+	}
+	if err := gc.TargetNumType(targetNum).Valid(); err != nil {
+		return gc.TargetType{}, fmt.Errorf("invalid attack target num: %w", err)
+	}
+	return gc.TargetType{
+		TargetGroup: gc.TargetGroupType(targetGroup),
+		TargetNum:   gc.TargetNumType(targetNum),
+	}, nil
+}
+
+// parseAttackType はAttackCategory文字列をパース・検証する
+func parseAttackType(category string) (gc.AttackType, error) {
+	attackType, err := gc.ParseAttackType(category)
+	if err != nil {
+		return gc.AttackType{}, err
+	}
+	if err := attackType.Valid(); err != nil {
+		return gc.AttackType{}, err
+	}
+	return attackType, nil
+}
+
+// parseMelee はoapi.Meleeからgc.Meleeを生成する
+func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
+	if err := gc.ElementType(m.Element).Valid(); err != nil {
+		return nil, err
+	}
+	attackType, err := parseAttackType(m.AttackCategory)
+	if err != nil {
+		return nil, err
+	}
+	targetType, err := parseTargetType(m.TargetGroup, m.TargetNum)
+	if err != nil {
+		return nil, err
+	}
+	return &gc.Melee{
+		Accuracy:       int(m.Accuracy),
+		Damage:         int(m.Damage),
+		AttackCount:    int(m.AttackCount),
+		Element:        gc.ElementType(m.Element),
+		AttackCategory: attackType,
+		Cost:           int(m.Cost),
+		TargetType:     targetType,
+	}, nil
+}
+
+// parseFire はoapi.Fireからgc.Fireを生成する
+func parseFire(f *oapi.Fire) (*gc.Fire, error) {
+	if err := gc.ElementType(f.Element).Valid(); err != nil {
+		return nil, err
+	}
+	attackType, err := parseAttackType(f.AttackCategory)
+	if err != nil {
+		return nil, err
+	}
+	targetType, err := parseTargetType(f.TargetGroup, f.TargetNum)
+	if err != nil {
+		return nil, err
+	}
+	return &gc.Fire{
+		Accuracy:       int(f.Accuracy),
+		Damage:         int(f.Damage),
+		AttackCount:    int(f.AttackCount),
+		Element:        gc.ElementType(f.Element),
+		AttackCategory: attackType,
+		Cost:           int(f.Cost),
+		TargetType:     targetType,
+		Magazine:       int(f.MagazineSize),
+		MagazineSize:   int(f.MagazineSize),
+		ReloadEffort:   int(f.ReloadEffort),
+		AmmoTag:        f.AmmoTag,
+	}, nil
+}
+
+// newProvidesHealingFromAPI はoapi.ProvidesHealingからProvidesHealingコンポーネントを生成する
+func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) (*gc.ProvidesHealing, error) {
+	vt := ValueType(h.ValueType)
+	if err := vt.Valid(); err != nil {
+		return nil, fmt.Errorf("%s: %w", "invalid value type", err)
+	}
+	switch vt {
+	case PercentageType:
+		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}, nil
+	case NumeralType:
+		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}, nil
+	default:
+		return nil, fmt.Errorf("不明なValueType: %v", vt)
+	}
+}
+
+// newBookFromAPI はoapi.Bookからgc.Bookを生成する
+func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
+	if b.Skill == nil {
+		return nil, fmt.Errorf("BookにSkillの指定が必要です")
+	}
+
+	skillID := gc.SkillID(b.Skill.TargetSkill)
+	if !gc.HasSkillName(skillID) {
+		return nil, fmt.Errorf("未定義のスキルID: %q", b.Skill.TargetSkill)
+	}
+
+	return &gc.Book{
+		Effort: gc.Pool{Max: int(b.TotalEffort)},
+		Skill: &gc.SkillBookEffect{
+			TargetSkill:   skillID,
+			MaxLevel:      int(b.Skill.MaxLevel),
+			RequiredLevel: int(b.Skill.RequiredLevel),
+		},
+	}, nil
 }
 
 // NewItemSpec は指定された名前のアイテムのEntitySpecを生成する
@@ -444,17 +328,17 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	if item.ProvidesHealing != nil {
-		healing, err := newProvidesHealingFromRaw(item.ProvidesHealing)
+		healing, err := newProvidesHealingFromAPI(item.ProvidesHealing)
 		if err != nil {
 			return gc.EntitySpec{}, err
 		}
 		entitySpec.ProvidesHealing = healing
 	}
 	if item.ProvidesNutrition != nil {
-		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: *item.ProvidesNutrition}
+		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: int(*item.ProvidesNutrition)}
 	}
 	if item.InflictsDamage != nil {
-		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: *item.InflictsDamage}
+		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: int(*item.InflictsDamage)}
 	}
 
 	applyWeaponSpec(item, &entitySpec)
@@ -462,20 +346,20 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	if item.Ammo != nil {
 		entitySpec.Ammo = &gc.Ammo{
 			AmmoTag:       item.Ammo.AmmoTag,
-			DamageBonus:   item.Ammo.DamageBonus,
-			AccuracyBonus: item.Ammo.AccuracyBonus,
+			DamageBonus:   int(item.Ammo.DamageBonus),
+			AccuracyBonus: int(item.Ammo.AccuracyBonus),
 		}
 	}
 
 	if item.Melee != nil {
-		melee, err := parseMeleeRaw(item.Melee)
+		melee, err := parseMelee(item.Melee)
 		if err != nil {
 			return gc.EntitySpec{}, err
 		}
 		entitySpec.Melee = melee
 	}
 	if item.Fire != nil {
-		fire, err := parseFireRaw(item.Fire)
+		fire, err := parseFire(item.Fire)
 		if err != nil {
 			return gc.EntitySpec{}, err
 		}
@@ -485,11 +369,11 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	var bonus gc.EquipBonus
 	if item.EquipBonus != nil {
 		bonus = gc.EquipBonus{
-			Vitality:  item.EquipBonus.Vitality,
-			Strength:  item.EquipBonus.Strength,
-			Sensation: item.EquipBonus.Sensation,
-			Dexterity: item.EquipBonus.Dexterity,
-			Agility:   item.EquipBonus.Agility,
+			Vitality:  int(item.EquipBonus.Vitality),
+			Strength:  int(item.EquipBonus.Strength),
+			Sensation: int(item.EquipBonus.Sensation),
+			Dexterity: int(item.EquipBonus.Dexterity),
+			Agility:   int(item.EquipBonus.Agility),
 		}
 	}
 
@@ -498,15 +382,15 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 			return gc.EntitySpec{}, err
 		}
 		entitySpec.Wearable = &gc.Wearable{
-			Defense:           item.Wearable.Defense,
+			Defense:           int(item.Wearable.Defense),
 			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
 			EquipBonus:        bonus,
-			InsulationCold:    item.Wearable.InsulationCold,
-			InsulationHeat:    item.Wearable.InsulationHeat,
+			InsulationCold:    int(item.Wearable.InsulationCold),
+			InsulationHeat:    int(item.Wearable.InsulationHeat),
 		}
 	}
 
-	entitySpec.Value = &gc.Value{Value: item.Value}
+	entitySpec.Value = &gc.Value{Value: int(item.Value)}
 
 	if item.Weight != nil {
 		entitySpec.Weight = &gc.Weight{Kg: *item.Weight}
@@ -518,7 +402,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Book != nil {
-		book, err := newBookFromRaw(item.Book)
+		book, err := newBookFromAPI(item.Book)
 		if err != nil {
 			return gc.EntitySpec{}, err
 		}
@@ -532,46 +416,10 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 }
 
 // applyWeaponSpec はItemのWeaponマーカーをEntitySpecに適用する
-func applyWeaponSpec(item Item, spec *gc.EntitySpec) {
+func applyWeaponSpec(item oapi.Item, spec *gc.EntitySpec) {
 	if item.Weapon != nil {
 		spec.Weapon = &gc.Weapon{}
 	}
-}
-
-// newProvidesHealingFromRaw はProvidesHealingRawからProvidesHealingコンポーネントを生成する
-func newProvidesHealingFromRaw(raw *ProvidesHealing) (*gc.ProvidesHealing, error) {
-	if err := raw.ValueType.Valid(); err != nil {
-		return nil, fmt.Errorf("%s: %w", "invalid value type", err)
-	}
-	switch raw.ValueType {
-	case PercentageType:
-		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: raw.Ratio}}, nil
-	case NumeralType:
-		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: raw.Amount}}, nil
-	default:
-		return nil, fmt.Errorf("不明なValueType: %v", raw.ValueType)
-	}
-}
-
-// newBookFromRaw はBookRawからBookコンポーネントを生成する
-func newBookFromRaw(raw *BookRaw) (*gc.Book, error) {
-	if raw.Skill == nil {
-		return nil, fmt.Errorf("BookにSkillの指定が必要です")
-	}
-
-	skillID := gc.SkillID(raw.Skill.TargetSkill)
-	if !gc.HasSkillName(skillID) {
-		return nil, fmt.Errorf("未定義のスキルID: %q", raw.Skill.TargetSkill)
-	}
-
-	return &gc.Book{
-		Effort: gc.Pool{Max: raw.TotalEffort},
-		Skill: &gc.SkillBookEffect{
-			TargetSkill:   skillID,
-			MaxLevel:      raw.Skill.MaxLevel,
-			RequiredLevel: raw.Skill.RequiredLevel,
-		},
-	}, nil
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
@@ -588,7 +436,7 @@ func (rw *Master) NewRecipeSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.Name = &gc.Name{Name: recipe.Name}
 	entitySpec.Recipe = &gc.Recipe{}
 	for _, input := range recipe.Inputs {
-		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{Name: input.Name, Amount: input.Amount})
+		entitySpec.Recipe.Inputs = append(entitySpec.Recipe.Inputs, gc.RecipeInput{Name: input.Name, Amount: int(input.Amount)})
 	}
 
 	// 説明文や分類のため、マッチしたitemの定義から持ってくる
@@ -667,12 +515,12 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		Depth:           gc.DepthNumPlayer,
 	}
 	entitySpec.Abilities = &gc.Abilities{
-		Vitality:  gc.Ability{Base: member.Abilities.Vitality},
-		Strength:  gc.Ability{Base: member.Abilities.Strength},
-		Sensation: gc.Ability{Base: member.Abilities.Sensation},
-		Dexterity: gc.Ability{Base: member.Abilities.Dexterity},
-		Agility:   gc.Ability{Base: member.Abilities.Agility},
-		Defense:   gc.Ability{Base: member.Abilities.Defense},
+		Vitality:  gc.Ability{Base: int(member.Abilities.Vitality)},
+		Strength:  gc.Ability{Base: int(member.Abilities.Strength)},
+		Sensation: gc.Ability{Base: int(member.Abilities.Sensation)},
+		Dexterity: gc.Ability{Base: int(member.Abilities.Dexterity)},
+		Agility:   gc.Ability{Base: int(member.Abilities.Agility)},
+		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
 	}
 	entitySpec.Pools = &gc.Pools{}
 	if member.Player != nil && *member.Player {
@@ -695,9 +543,7 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	if member.LightSource != nil {
-		entitySpec.LightSource = member.LightSource
-	}
+	entitySpec.LightSource = toGCLightSource(member.LightSource)
 
 	// 派閥タイプの処理
 	if member.FactionType != "" {
@@ -747,117 +593,63 @@ func (rw *Master) NewEnemySpec(name string) (gc.EntitySpec, error) {
 }
 
 // GetCommandTable は指定された名前のコマンドテーブルを取得する
-func (rw *Master) GetCommandTable(name string) (CommandTable, error) {
+func (rw *Master) GetCommandTable(name string) (oapi.CommandTable, error) {
 	ctIdx, ok := rw.CommandTableIndex[name]
 	if !ok {
-		return CommandTable{}, fmt.Errorf("キーが存在しない: %s", name)
+		return oapi.CommandTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	if ctIdx >= len(rw.Raws.CommandTables) {
-		return CommandTable{}, fmt.Errorf("コマンドテーブルインデックスが範囲外: %d (長さ: %d)", ctIdx, len(rw.Raws.CommandTables))
+		return oapi.CommandTable{}, fmt.Errorf("コマンドテーブルインデックスが範囲外: %d (長さ: %d)", ctIdx, len(rw.Raws.CommandTables))
 	}
-	commandTable := rw.Raws.CommandTables[ctIdx]
-
-	return commandTable, nil
+	return rw.Raws.CommandTables[ctIdx], nil
 }
 
 // GetDropTable は指定された名前のドロップテーブルを取得する
-func (rw *Master) GetDropTable(name string) (DropTable, error) {
+func (rw *Master) GetDropTable(name string) (oapi.DropTable, error) {
 	dtIdx, ok := rw.DropTableIndex[name]
 	if !ok {
-		return DropTable{}, fmt.Errorf("キーが存在しない: %s", name)
+		return oapi.DropTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	if dtIdx >= len(rw.Raws.DropTables) {
-		return DropTable{}, fmt.Errorf("ドロップテーブルインデックスが範囲外: %d (長さ: %d)", dtIdx, len(rw.Raws.DropTables))
+		return oapi.DropTable{}, fmt.Errorf("ドロップテーブルインデックスが範囲外: %d (長さ: %d)", dtIdx, len(rw.Raws.DropTables))
 	}
-	dropTable := rw.Raws.DropTables[dtIdx]
-
-	return dropTable, nil
+	return rw.Raws.DropTables[dtIdx], nil
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
-func (rw *Master) GetItemTable(name string) (ItemTable, error) {
+func (rw *Master) GetItemTable(name string) (oapi.ItemTable, error) {
 	itIdx, ok := rw.ItemTableIndex[name]
 	if !ok {
-		return ItemTable{}, fmt.Errorf("キーが存在しない: %s", name)
+		return oapi.ItemTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	if itIdx >= len(rw.Raws.ItemTables) {
-		return ItemTable{}, fmt.Errorf("アイテムテーブルインデックスが範囲外: %d (長さ: %d)", itIdx, len(rw.Raws.ItemTables))
+		return oapi.ItemTable{}, fmt.Errorf("アイテムテーブルインデックスが範囲外: %d (長さ: %d)", itIdx, len(rw.Raws.ItemTables))
 	}
-	itemTable := rw.Raws.ItemTables[itIdx]
-
-	return itemTable, nil
+	return rw.Raws.ItemTables[itIdx], nil
 }
 
 // GetEnemyTable は指定された名前の敵テーブルを取得する
-func (rw *Master) GetEnemyTable(name string) (EnemyTable, error) {
+func (rw *Master) GetEnemyTable(name string) (oapi.EnemyTable, error) {
 	etIdx, ok := rw.EnemyTableIndex[name]
 	if !ok {
-		return EnemyTable{}, fmt.Errorf("キーが存在しない: %s", name)
+		return oapi.EnemyTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
 	if etIdx >= len(rw.Raws.EnemyTables) {
-		return EnemyTable{}, fmt.Errorf("敵テーブルインデックスが範囲外: %d (長さ: %d)", etIdx, len(rw.Raws.EnemyTables))
+		return oapi.EnemyTable{}, fmt.Errorf("敵テーブルインデックスが範囲外: %d (長さ: %d)", etIdx, len(rw.Raws.EnemyTables))
 	}
-	enemyTable := rw.Raws.EnemyTables[etIdx]
-
-	return enemyTable, nil
+	return rw.Raws.EnemyTables[etIdx], nil
 }
-
-// TileRaw はタイルのローデータ定義
-type TileRaw struct {
-	Name         string
-	Description  string
-	BlockPass    bool // 通行を遮断するか
-	SpriteRender gc.SpriteRender
-	BlockView    bool // 視界を遮断するか
-
-	// 環境情報（EnvironmentPlanner で計算）
-	Shelter gc.ShelterType
-	Water   gc.WaterType
-	Foliage gc.FoliageType
-}
-
-// PropRaw は置物のローデータ定義
-type PropRaw struct {
-	Name               string
-	Description        string
-	SpriteRender       gc.SpriteRender
-	AnimKeys           []string
-	BlockPass          bool
-	BlockView          bool
-	LightSource        *gc.LightSource
-	Door               *DoorRaw
-	DoorLockTrigger    *DoorLockTriggerRaw    // 扉ロックトリガー
-	WarpNextTrigger    *WarpNextTriggerRaw    // 次階層ワープのトリガー
-	WarpEscapeTrigger  *WarpEscapeTriggerRaw  // 脱出ワープのトリガー
-	DungeonGateTrigger *DungeonGateTriggerRaw // ダンジョン選択ゲートのトリガー
-}
-
-// DoorRaw は扉のローデータ
-type DoorRaw struct{}
-
-// DoorLockTriggerRaw は扉ロックトリガーのローデータ
-type DoorLockTriggerRaw struct{}
-
-// WarpNextTriggerRaw は次階層ワープトリガーのローデータ
-type WarpNextTriggerRaw struct{}
-
-// WarpEscapeTriggerRaw は脱出ワープトリガーのローデータ
-type WarpEscapeTriggerRaw struct{}
-
-// DungeonGateTriggerRaw はダンジョン選択ゲートトリガーのローデータ
-type DungeonGateTriggerRaw struct{}
 
 // GetTile は指定された名前のタイルを取得する
 // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する
-func (rw *Master) GetTile(name string) (TileRaw, error) {
+func (rw *Master) GetTile(name string) (oapi.Tile, error) {
 	tileIdx, ok := rw.TileIndex[name]
 	if !ok {
-		return TileRaw{}, NewKeyNotFoundError(name, "TileIndex")
+		return oapi.Tile{}, NewKeyNotFoundError(name, "TileIndex")
 	}
 	if tileIdx >= len(rw.Raws.Tiles) {
-		return TileRaw{}, fmt.Errorf("タイルインデックスが範囲外: %d (長さ: %d)", tileIdx, len(rw.Raws.Tiles))
+		return oapi.Tile{}, fmt.Errorf("タイルインデックスが範囲外: %d (長さ: %d)", tileIdx, len(rw.Raws.Tiles))
 	}
-
 	return rw.Raws.Tiles[tileIdx], nil
 }
 
@@ -875,7 +667,7 @@ func (rw *Master) NewTileSpec(name string, x, y consts.Tile, autoTileIndex *int)
 	entitySpec.GridElement = &gc.GridElement{X: x, Y: y}
 
 	// SpriteRenderを設定
-	sprite := tileRaw.SpriteRender
+	sprite := toGCSpriteRender(tileRaw.SpriteRender)
 	// オートタイルインデックスが指定されている場合はspriteKeyを動的に生成
 	if autoTileIndex != nil {
 		sprite.SpriteKey = fmt.Sprintf("%s_%d", tileRaw.SpriteRender.SpriteKey, *autoTileIndex)
@@ -899,15 +691,14 @@ func (rw *Master) NewTileSpec(name string, x, y consts.Tile, autoTileIndex *int)
 }
 
 // GetProp は指定された名前の置物の設定を取得する
-func (rw *Master) GetProp(name string) (PropRaw, error) {
+func (rw *Master) GetProp(name string) (oapi.Prop, error) {
 	propIdx, ok := rw.PropIndex[name]
 	if !ok {
-		return PropRaw{}, NewKeyNotFoundError(name, "PropIndex")
+		return oapi.Prop{}, NewKeyNotFoundError(name, "PropIndex")
 	}
 	if propIdx >= len(rw.Raws.Props) {
-		return PropRaw{}, fmt.Errorf("置物インデックスが範囲外: %d (長さ: %d)", propIdx, len(rw.Raws.Props))
+		return oapi.Prop{}, fmt.Errorf("置物インデックスが範囲外: %d (長さ: %d)", propIdx, len(rw.Raws.Props))
 	}
-
 	return rw.Raws.Props[propIdx], nil
 }
 
@@ -924,7 +715,7 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.Description = &gc.Description{Description: propRaw.Description}
 
 	// SpriteRenderの設定（AnimKeysを含む）
-	spriteRender := propRaw.SpriteRender
+	spriteRender := toGCSpriteRender(propRaw.SpriteRender)
 	if len(propRaw.AnimKeys) > 0 {
 		spriteRender.AnimKeys = propRaw.AnimKeys
 	}
@@ -937,9 +728,7 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 		entitySpec.BlockView = &gc.BlockView{}
 	}
 
-	if propRaw.LightSource != nil {
-		entitySpec.LightSource = propRaw.LightSource
-	}
+	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 
 	if propRaw.Door != nil {
 		// Door componentを追加（向きは初期値、spawn時に設定される）
@@ -981,13 +770,69 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 }
 
 // GetProfession は指定されたIDの職業データを返す
-func (rw *Master) GetProfession(id string) (Profession, error) {
+func (rw *Master) GetProfession(id string) (oapi.Profession, error) {
 	idx, ok := rw.ProfessionIndex[id]
 	if !ok {
-		return Profession{}, NewKeyNotFoundError(id, "ProfessionIndex")
+		return oapi.Profession{}, NewKeyNotFoundError(id, "ProfessionIndex")
 	}
 	if idx >= len(rw.Raws.Professions) {
-		return Profession{}, fmt.Errorf("職業インデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.Professions))
+		return oapi.Profession{}, fmt.Errorf("職業インデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.Professions))
 	}
 	return rw.Raws.Professions[idx], nil
+}
+
+// SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
+func SelectCommandByWeight(ct oapi.CommandTable, rng *rand.Rand) (string, error) {
+	return SelectByWeightFunc(
+		ct.Entries,
+		func(e oapi.CommandTableEntry) float64 { return e.Weight },
+		func(e oapi.CommandTableEntry) string { return e.Weapon },
+		rng,
+	)
+}
+
+// SelectDropByWeight はドロップテーブルから重み付きランダム選択する
+func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
+	return SelectByWeightFunc(
+		dt.Entries,
+		func(e oapi.DropTableEntry) float64 { return e.Weight },
+		func(e oapi.DropTableEntry) string { return e.Material },
+		rng,
+	)
+}
+
+// SelectItemByWeight はアイテムテーブルから深度を考慮して重み付きランダム選択する
+func SelectItemByWeight(it oapi.ItemTable, rng *rand.Rand, depth int) (string, error) {
+	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
+	for _, entry := range it.Entries {
+		if depth < int(entry.MinDepth) || depth > int(entry.MaxDepth) {
+			continue
+		}
+		filtered = append(filtered, entry)
+	}
+
+	return SelectByWeightFunc(
+		filtered,
+		func(e oapi.ItemTableEntry) float64 { return e.Weight },
+		func(e oapi.ItemTableEntry) string { return e.ItemName },
+		rng,
+	)
+}
+
+// SelectEnemyByWeight は敵テーブルから深度を考慮して重み付きランダム選択する
+func SelectEnemyByWeight(et oapi.EnemyTable, rng *rand.Rand, depth int) (string, error) {
+	filtered := make([]oapi.EnemyTableEntry, 0, len(et.Entries))
+	for _, entry := range et.Entries {
+		if depth < int(entry.MinDepth) || depth > int(entry.MaxDepth) {
+			continue
+		}
+		filtered = append(filtered, entry)
+	}
+
+	return SelectByWeightFunc(
+		filtered,
+		func(e oapi.EnemyTableEntry) float64 { return e.Weight },
+		func(e oapi.EnemyTableEntry) string { return e.EnemyName },
+		rng,
+	)
 }

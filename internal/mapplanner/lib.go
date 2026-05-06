@@ -10,6 +10,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -35,7 +36,7 @@ type MetaPlan struct {
 	RNG *rand.Rand
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
 	// 通行可能かを判定するための情報を保持している必要がある
-	Tiles []raw.TileRaw
+	Tiles []oapi.Tile
 	// NextPortals は次の階へ進むポータルリスト
 	NextPortals []consts.Coord[int]
 	// EscapePortals は脱出用ポータルリスト
@@ -108,7 +109,7 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 }
 
 // UpTile は上にあるタイルを調べる
-func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
+func (bm MetaPlan) UpTile(idx resources.TileIdx) oapi.Tile {
 	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
 		// 境界外（マップ外＝暗闇）として扱う
@@ -119,7 +120,7 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) raw.TileRaw {
 }
 
 // DownTile は下にあるタイルを調べる
-func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
+func (bm MetaPlan) DownTile(idx resources.TileIdx) oapi.Tile {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
 		// 境界外（マップ外＝暗闇）として扱う
@@ -130,7 +131,7 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) raw.TileRaw {
 }
 
 // LeftTile は左にあるタイルを調べる
-func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
+func (bm MetaPlan) LeftTile(idx resources.TileIdx) oapi.Tile {
 	x, y := bm.Level.XYTileCoord(idx)
 	// 左端の場合は境界外（マップ外＝暗闇）
 	if x == 0 {
@@ -149,7 +150,7 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) raw.TileRaw {
 }
 
 // RightTile は右にあるタイルを調べる
-func (bm MetaPlan) RightTile(idx resources.TileIdx) raw.TileRaw {
+func (bm MetaPlan) RightTile(idx resources.TileIdx) oapi.Tile {
 	x, y := bm.Level.XYTileCoord(idx)
 	// 右端の場合は境界外（マップ外＝暗闇）
 	if int(x) == int(bm.Level.TileWidth)-1 {
@@ -258,7 +259,7 @@ func (bm MetaPlan) checkCornerWalls(upFloor, downFloor, leftFloor, rightFloor bo
 
 // isFloorOrWarp は移動可能タイルかを判定する（壁オートタイル用）
 // BlockPassがtrueのタイルは床として扱わない
-func (bm MetaPlan) isFloorOrWarp(tile raw.TileRaw) bool {
+func (bm MetaPlan) isFloorOrWarp(tile oapi.Tile) bool {
 	return !tile.BlockPass
 }
 
@@ -273,7 +274,7 @@ type PlannerChain struct {
 // シードが0の場合はランダムなシードを生成する
 func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *PlannerChain {
 	tileCount := int(width) * int(height)
-	tiles := make([]raw.TileRaw, tileCount)
+	tiles := make([]oapi.Tile, tileCount)
 
 	// シードが0の場合はランダムなシードを生成
 	if seed == 0 {
@@ -503,7 +504,7 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 
 // GetTile はタイルを生成する
 // TODO: エラーを潰しているだけなので直す
-func (bm *MetaPlan) GetTile(name string) raw.TileRaw {
+func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 	if bm.RawMaster == nil {
 		panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")
 	}

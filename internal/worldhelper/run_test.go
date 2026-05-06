@@ -88,7 +88,7 @@ func TestExecuteEndRunNoItems(t *testing.T) {
 	player, err := SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 	prof := world.Resources.RawMaster.Raws.Professions[0]
-	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.ID})
+	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.Id})
 
 	result, err := PreviewEndRun(world, player)
 	require.NoError(t, err)

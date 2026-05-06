@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -24,9 +25,9 @@ Description = "半分程度回復する"
 
 	expect := Master{
 		Raws: Raws{
-			Items: []Item{
-				Item{Name: "リペア", Description: "半分程度回復する"},
-				Item{Name: "回復薬", Description: "半分程度回復する"},
+			Items: []oapi.Item{
+				{Name: "リペア", Description: "半分程度回復する"},
+				{Name: "回復薬", Description: "半分程度回復する"},
 			},
 		},
 		ItemIndex: map[string]int{

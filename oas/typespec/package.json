@@ -1,0 +1,17 @@
+{
+  "name": "ruins-editor-api-spec",
+  "version": "1.0.0",
+  "description": "Ruins Editor API TypeSpec definitions",
+  "type": "module",
+  "scripts": {
+    "compile": "tsp compile . --config tspconfig.yml",
+    "watch": "tsp compile . --watch --config tspconfig.yml",
+    "format": "tsp format **/*.tsp"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "^0.62.0",
+    "@typespec/http": "^0.62.0",
+    "@typespec/openapi3": "^0.62.0",
+    "@typespec/rest": "^0.62.0"
+  }
+}

@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
@@ -59,7 +60,7 @@ func runGenerateEnemyDoc(_ context.Context, _ *cli.Command) error {
 	return nil
 }
 
-func generateEnemyTableDoc(file *os.File, table raw.EnemyTable) error {
+func generateEnemyTableDoc(file *os.File, table oapi.EnemyTable) error {
 	if _, err := fmt.Fprintf(file, "## %s\n\n", table.Name); err != nil {
 		return fmt.Errorf("error writing table name: %w", err)
 	}
@@ -133,11 +134,11 @@ func generateEnemyTableDoc(file *os.File, table raw.EnemyTable) error {
 	return nil
 }
 
-func calculateEnemyProbabilities(table raw.EnemyTable, depth int) map[string]float64 {
+func calculateEnemyProbabilities(table oapi.EnemyTable, depth int) map[string]float64 {
 	// 深度範囲内のエントリをフィルタリング
-	validEntries := make([]raw.EnemyTableEntry, 0, len(table.Entries))
+	validEntries := make([]oapi.EnemyTableEntry, 0, len(table.Entries))
 	for _, entry := range table.Entries {
-		if depth < entry.MinDepth || depth > entry.MaxDepth {
+		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
 		validEntries = append(validEntries, entry)

@@ -4,15 +4,16 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/stretchr/testify/require"
 )
 
 func TestSelectByWeight(t *testing.T) {
 	t.Parallel()
-	ct := raw.CommandTable{
+	ct := oapi.CommandTable{
 		Name: "TEST",
-		Entries: []raw.CommandTableEntry{
+		Entries: []oapi.CommandTableEntry{
 			{
 				Weapon: "A",
 				Weight: 0.5,
@@ -29,6 +30,6 @@ func TestSelectByWeight(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	_, err := ct.SelectByWeight(rng)
+	_, err := raw.SelectCommandByWeight(ct, rng)
 	require.NoError(t, err)
 }

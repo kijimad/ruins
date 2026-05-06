@@ -1,0 +1,2075 @@
+openapi: 3.0.0
+info:
+  title: Ruins Editor API
+  version: 0.0.0
+tags: []
+paths:
+  /api/v1/command-tables:
+    get:
+      operationId: CommandTables_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandTableList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: CommandTables_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandTable'
+  /api/v1/command-tables/{index}:
+    put:
+      operationId: CommandTables_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandTable'
+    delete:
+      operationId: CommandTables_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/drop-tables:
+    get:
+      operationId: DropTables_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DropTableList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: DropTables_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DropTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DropTable'
+  /api/v1/drop-tables/{index}:
+    put:
+      operationId: DropTables_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DropTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DropTable'
+    delete:
+      operationId: DropTables_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/enemy-tables:
+    get:
+      operationId: EnemyTables_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnemyTableList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: EnemyTables_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnemyTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnemyTable'
+  /api/v1/enemy-tables/{index}:
+    put:
+      operationId: EnemyTables_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnemyTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnemyTable'
+    delete:
+      operationId: EnemyTables_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/item-tables:
+    get:
+      operationId: ItemTables_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemTableList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: ItemTables_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemTable'
+  /api/v1/item-tables/{index}:
+    put:
+      operationId: ItemTables_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemTable'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemTable'
+    delete:
+      operationId: ItemTables_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/items:
+    get:
+      operationId: Items_list
+      description: アイテム一覧取得
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Items_create
+      description: アイテム作成
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+  /api/v1/items/{index}:
+    get:
+      operationId: Items_get
+      description: アイテム詳細取得
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Items_update
+      description: アイテム更新
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+    delete:
+      operationId: Items_delete
+      description: アイテム削除
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/members:
+    get:
+      operationId: Members_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Members_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Member'
+  /api/v1/members/{index}:
+    get:
+      operationId: Members_get
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Members_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Member'
+    delete:
+      operationId: Members_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/palettes:
+    get:
+      operationId: Palettes_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaletteList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Palettes_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Palette'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Palette'
+  /api/v1/palettes/{id}:
+    get:
+      operationId: Palettes_get
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Palette'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Palettes_update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Palette'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Palette'
+    delete:
+      operationId: Palettes_delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/professions:
+    get:
+      operationId: Professions_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfessionList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Professions_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profession'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profession'
+  /api/v1/professions/{index}:
+    put:
+      operationId: Professions_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profession'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profession'
+    delete:
+      operationId: Professions_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/props:
+    get:
+      operationId: Props_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Props_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prop'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prop'
+  /api/v1/props/{index}:
+    get:
+      operationId: Props_get
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prop'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Props_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prop'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prop'
+    delete:
+      operationId: Props_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/recipes:
+    get:
+      operationId: Recipes_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Recipes_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+  /api/v1/recipes/{index}:
+    get:
+      operationId: Recipes_get
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Recipes_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Recipe'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Recipe'
+    delete:
+      operationId: Recipes_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/sprite-sheets:
+    get:
+      operationId: SpriteSheets_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpriteSheetList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: SpriteSheets_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpriteSheet'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpriteSheet'
+  /api/v1/sprite-sheets/{index}:
+    put:
+      operationId: SpriteSheets_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpriteSheet'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpriteSheet'
+    delete:
+      operationId: SpriteSheets_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/tiles:
+    get:
+      operationId: Tiles_list
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TileList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      operationId: Tiles_create
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tile'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tile'
+  /api/v1/tiles/{index}:
+    get:
+      operationId: Tiles_get
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tile'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      operationId: Tiles_update
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tile'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tile'
+    delete:
+      operationId: Tiles_delete
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Abilities:
+      type: object
+      required:
+        - vitality
+        - strength
+        - sensation
+        - dexterity
+        - agility
+        - defense
+      properties:
+        vitality:
+          type: integer
+          format: int32
+        strength:
+          type: integer
+          format: int32
+        sensation:
+          type: integer
+          format: int32
+        dexterity:
+          type: integer
+          format: int32
+        agility:
+          type: integer
+          format: int32
+        defense:
+          type: integer
+          format: int32
+      description: 能力値
+    Ammo:
+      type: object
+      required:
+        - ammoTag
+        - damageBonus
+        - accuracyBonus
+      properties:
+        ammoTag:
+          type: string
+        damageBonus:
+          type: integer
+          format: int32
+        accuracyBonus:
+          type: integer
+          format: int32
+      description: 弾薬設定
+    Book:
+      type: object
+      required:
+        - totalEffort
+      properties:
+        totalEffort:
+          type: integer
+          format: int32
+        skill:
+          $ref: '#/components/schemas/SkillBook'
+      description: 本の設定
+    CommandTable:
+      type: object
+      required:
+        - name
+        - entries
+      properties:
+        name:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandTableEntry'
+      description: コマンドテーブル
+    CommandTableEntry:
+      type: object
+      required:
+        - weapon
+        - weight
+      properties:
+        weapon:
+          type: string
+        weight:
+          type: number
+          format: double
+      description: コマンドテーブルエントリ
+    CommandTableList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandTable'
+        totalCount:
+          type: integer
+          format: int32
+      description: コマンドテーブル一覧
+    Consumable:
+      type: object
+      required:
+        - usableScene
+        - targetGroup
+        - targetNum
+      properties:
+        usableScene:
+          type: string
+        targetGroup:
+          type: string
+        targetNum:
+          type: string
+      description: 消費可能アイテムの設定
+    Dialog:
+      type: object
+      required:
+        - messageKey
+      properties:
+        messageKey:
+          type: string
+      description: 会話データ
+    DoorLockTriggerRaw:
+      type: object
+      description: 扉ロックトリガー
+    DoorRaw:
+      type: object
+      description: 扉ローデータ
+    DropTable:
+      type: object
+      required:
+        - name
+        - entries
+      properties:
+        name:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/DropTableEntry'
+      description: ドロップテーブル
+    DropTableEntry:
+      type: object
+      required:
+        - material
+        - weight
+      properties:
+        material:
+          type: string
+        weight:
+          type: number
+          format: double
+      description: ドロップテーブルエントリ
+    DropTableList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DropTable'
+        totalCount:
+          type: integer
+          format: int32
+      description: ドロップテーブル一覧
+    DungeonGateTriggerRaw:
+      type: object
+      description: ダンジョン選択ゲートトリガー
+    EnemyTable:
+      type: object
+      required:
+        - name
+        - entries
+      properties:
+        name:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnemyTableEntry'
+      description: 敵テーブル
+    EnemyTableEntry:
+      type: object
+      required:
+        - enemyName
+        - weight
+        - minDepth
+        - maxDepth
+      properties:
+        enemyName:
+          type: string
+        weight:
+          type: number
+          format: double
+        minDepth:
+          type: integer
+          format: int32
+        maxDepth:
+          type: integer
+          format: int32
+      description: 敵テーブルエントリ
+    EnemyTableList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnemyTable'
+        totalCount:
+          type: integer
+          format: int32
+      description: 敵テーブル一覧
+    EquipBonus:
+      type: object
+      required:
+        - vitality
+        - strength
+        - sensation
+        - dexterity
+        - agility
+      properties:
+        vitality:
+          type: integer
+          format: int32
+        strength:
+          type: integer
+          format: int32
+        sensation:
+          type: integer
+          format: int32
+        dexterity:
+          type: integer
+          format: int32
+        agility:
+          type: integer
+          format: int32
+      description: 装備ボーナス
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+      description: エラーレスポンス
+    Fire:
+      type: object
+      required:
+        - accuracy
+        - damage
+        - attackCount
+        - element
+        - attackCategory
+        - cost
+        - targetGroup
+        - targetNum
+        - magazineSize
+        - reloadEffort
+        - ammoTag
+      properties:
+        accuracy:
+          type: integer
+          format: int32
+        damage:
+          type: integer
+          format: int32
+        attackCount:
+          type: integer
+          format: int32
+        element:
+          type: string
+        attackCategory:
+          type: string
+        cost:
+          type: integer
+          format: int32
+        targetGroup:
+          type: string
+        targetNum:
+          type: string
+        magazineSize:
+          type: integer
+          format: int32
+        reloadEffort:
+          type: integer
+          format: int32
+        ammoTag:
+          type: string
+      description: 遠距離攻撃設定
+    Item:
+      type: object
+      required:
+        - name
+        - description
+        - spriteSheetName
+        - spriteKey
+        - animKeys
+        - value
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        spriteSheetName:
+          type: string
+        spriteKey:
+          type: string
+        animKeys:
+          type: array
+          items:
+            type: string
+        value:
+          type: integer
+          format: int32
+        weight:
+          type: number
+          format: double
+        inflictsDamage:
+          type: integer
+          format: int32
+        providesNutrition:
+          type: integer
+          format: int32
+        stackable:
+          type: boolean
+        consumable:
+          $ref: '#/components/schemas/Consumable'
+        providesHealing:
+          $ref: '#/components/schemas/ProvidesHealing'
+        wearable:
+          $ref: '#/components/schemas/Wearable'
+        equipBonus:
+          $ref: '#/components/schemas/EquipBonus'
+        weapon:
+          $ref: '#/components/schemas/Weapon'
+        ammo:
+          $ref: '#/components/schemas/Ammo'
+        melee:
+          $ref: '#/components/schemas/Melee'
+        fire:
+          $ref: '#/components/schemas/Fire'
+        book:
+          $ref: '#/components/schemas/Book'
+      description: アイテム
+    ItemList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        totalCount:
+          type: integer
+          format: int32
+      description: アイテム一覧レスポンス
+    ItemTable:
+      type: object
+      required:
+        - name
+        - entries
+      properties:
+        name:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemTableEntry'
+      description: アイテムテーブル
+    ItemTableEntry:
+      type: object
+      required:
+        - itemName
+        - weight
+        - minDepth
+        - maxDepth
+      properties:
+        itemName:
+          type: string
+        weight:
+          type: number
+          format: double
+        minDepth:
+          type: integer
+          format: int32
+        maxDepth:
+          type: integer
+          format: int32
+      description: アイテムテーブルエントリ
+    ItemTableList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemTable'
+        totalCount:
+          type: integer
+          format: int32
+      description: アイテムテーブル一覧
+    LightSource:
+      type: object
+      required:
+        - radius
+        - color
+        - enabled
+      properties:
+        radius:
+          type: integer
+          format: int32
+        color:
+          $ref: '#/components/schemas/RGBAColor'
+        enabled:
+          type: boolean
+      description: 光源設定
+    Melee:
+      type: object
+      required:
+        - accuracy
+        - damage
+        - attackCount
+        - element
+        - attackCategory
+        - cost
+        - targetGroup
+        - targetNum
+      properties:
+        accuracy:
+          type: integer
+          format: int32
+        damage:
+          type: integer
+          format: int32
+        attackCount:
+          type: integer
+          format: int32
+        element:
+          type: string
+        attackCategory:
+          type: string
+        cost:
+          type: integer
+          format: int32
+        targetGroup:
+          type: string
+        targetNum:
+          type: string
+      description: 近接攻撃設定
+    Member:
+      type: object
+      required:
+        - name
+        - isBoss
+        - abilities
+        - spriteSheetName
+        - spriteKey
+        - animKeys
+        - factionType
+        - commandTableName
+        - dropTableName
+      properties:
+        name:
+          type: string
+        player:
+          type: boolean
+        isBoss:
+          type: boolean
+        abilities:
+          $ref: '#/components/schemas/Abilities'
+        spriteSheetName:
+          type: string
+        spriteKey:
+          type: string
+        animKeys:
+          type: array
+          items:
+            type: string
+        lightSource:
+          $ref: '#/components/schemas/LightSource'
+        factionType:
+          type: string
+        dialog:
+          $ref: '#/components/schemas/Dialog'
+        commandTableName:
+          type: string
+        dropTableName:
+          type: string
+      description: メンバー
+    MemberList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+        totalCount:
+          type: integer
+          format: int32
+      description: メンバー一覧レスポンス
+    Palette:
+      type: object
+      required:
+        - id
+        - description
+        - terrain
+        - props
+        - npcs
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        terrain:
+          type: object
+          additionalProperties:
+            type: string
+        props:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PaletteEntry'
+        npcs:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PaletteEntry'
+      description: パレット
+    PaletteEntry:
+      type: object
+      required:
+        - id
+        - tile
+      properties:
+        id:
+          type: string
+        tile:
+          type: string
+      description: パレットエントリ
+    PaletteList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Palette'
+        totalCount:
+          type: integer
+          format: int32
+      description: パレット一覧
+    Profession:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - abilities
+        - skills
+        - items
+        - equips
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        abilities:
+          $ref: '#/components/schemas/Abilities'
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionSkill'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionItem'
+        equips:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProfessionEquip'
+      description: 職業
+    ProfessionEquip:
+      type: object
+      required:
+        - name
+        - slot
+      properties:
+        name:
+          type: string
+        slot:
+          type: string
+      description: 職業初期装備
+    ProfessionItem:
+      type: object
+      required:
+        - name
+        - count
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+          format: int32
+      description: 職業初期所持アイテム
+    ProfessionList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profession'
+        totalCount:
+          type: integer
+          format: int32
+      description: 職業一覧
+    ProfessionSkill:
+      type: object
+      required:
+        - id
+        - value
+      properties:
+        id:
+          type: string
+        value:
+          type: integer
+          format: int32
+      description: 職業スキル初期値
+    Prop:
+      type: object
+      required:
+        - name
+        - description
+        - spriteRender
+        - animKeys
+        - blockPass
+        - blockView
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        spriteRender:
+          $ref: '#/components/schemas/SpriteRender'
+        animKeys:
+          type: array
+          items:
+            type: string
+        blockPass:
+          type: boolean
+        blockView:
+          type: boolean
+        lightSource:
+          $ref: '#/components/schemas/LightSource'
+        door:
+          $ref: '#/components/schemas/DoorRaw'
+        doorLockTrigger:
+          $ref: '#/components/schemas/DoorLockTriggerRaw'
+        warpNextTrigger:
+          $ref: '#/components/schemas/WarpNextTriggerRaw'
+        warpEscapeTrigger:
+          $ref: '#/components/schemas/WarpEscapeTriggerRaw'
+        dungeonGateTrigger:
+          $ref: '#/components/schemas/DungeonGateTriggerRaw'
+      description: 置物
+    PropList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prop'
+        totalCount:
+          type: integer
+          format: int32
+      description: 置物一覧
+    ProvidesHealing:
+      type: object
+      required:
+        - valueType
+        - amount
+        - ratio
+      properties:
+        valueType:
+          type: string
+        amount:
+          type: integer
+          format: int32
+        ratio:
+          type: number
+          format: double
+      description: 回復効果
+    RGBAColor:
+      type: object
+      required:
+        - r
+        - g
+        - b
+        - a
+      properties:
+        r:
+          type: integer
+          format: uint8
+        g:
+          type: integer
+          format: uint8
+        b:
+          type: integer
+          format: uint8
+        a:
+          type: integer
+          format: uint8
+      description: RGBA色
+    Recipe:
+      type: object
+      required:
+        - name
+        - inputs
+      properties:
+        name:
+          type: string
+        inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecipeInput'
+      description: レシピ
+    RecipeInput:
+      type: object
+      required:
+        - name
+        - amount
+      properties:
+        name:
+          type: string
+        amount:
+          type: integer
+          format: int32
+      description: レシピ素材
+    RecipeList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipe'
+        totalCount:
+          type: integer
+          format: int32
+      description: レシピ一覧レスポンス
+    SkillBook:
+      type: object
+      required:
+        - targetSkill
+        - requiredLevel
+        - maxLevel
+      properties:
+        targetSkill:
+          type: string
+        requiredLevel:
+          type: integer
+          format: int32
+        maxLevel:
+          type: integer
+          format: int32
+      description: スキル本設定
+    SpriteRender:
+      type: object
+      required:
+        - spriteSheetName
+        - spriteKey
+        - depth
+      properties:
+        spriteSheetName:
+          type: string
+        spriteKey:
+          type: string
+        depth:
+          type: integer
+          format: int32
+      description: スプライトレンダー設定
+    SpriteSheet:
+      type: object
+      required:
+        - name
+        - path
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+      description: スプライトシート
+    SpriteSheetList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpriteSheet'
+        totalCount:
+          type: integer
+          format: int32
+      description: スプライトシート一覧
+    Tile:
+      type: object
+      required:
+        - name
+        - description
+        - blockPass
+        - blockView
+        - spriteRender
+        - shelter
+        - water
+        - foliage
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        blockPass:
+          type: boolean
+        blockView:
+          type: boolean
+        spriteRender:
+          $ref: '#/components/schemas/SpriteRender'
+        shelter:
+          type: integer
+          format: int32
+        water:
+          type: integer
+          format: int32
+        foliage:
+          type: integer
+          format: int32
+      description: タイル
+    TileList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tile'
+        totalCount:
+          type: integer
+          format: int32
+      description: タイル一覧
+    WarpEscapeTriggerRaw:
+      type: object
+      description: 脱出ワープトリガー
+    WarpNextTriggerRaw:
+      type: object
+      description: 次階層ワープトリガー
+    Weapon:
+      type: object
+      description: 武器マーカー
+    Wearable:
+      type: object
+      required:
+        - defense
+        - equipmentCategory
+        - insulationCold
+        - insulationHeat
+      properties:
+        defense:
+          type: integer
+          format: int32
+        equipmentCategory:
+          type: string
+        insulationCold:
+          type: integer
+          format: int32
+        insulationHeat:
+          type: integer
+          format: int32
+      description: 装備可能設定
+servers:
+  - url: http://localhost:8080
+    description: Development server
+    variables: {}

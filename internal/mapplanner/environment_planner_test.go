@@ -5,7 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,16 +25,16 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		// W W W W W
 		mp := &MetaPlan{
 			Level: newTestLevel(5, 5),
-			Tiles: make([]raw.TileRaw, 25),
+			Tiles: make([]oapi.Tile, 25),
 		}
 
 		// 壁で囲む
 		for i := 0; i < 25; i++ {
 			x, y := i%5, i/5
 			if x == 0 || x == 4 || y == 0 || y == 4 {
-				mp.Tiles[i] = raw.TileRaw{Name: "wall", BlockPass: true}
+				mp.Tiles[i] = oapi.Tile{Name: "wall", BlockPass: true}
 			} else {
-				mp.Tiles[i] = raw.TileRaw{Name: "floor", BlockPass: false}
+				mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 			}
 		}
 
@@ -44,11 +44,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 中央の床タイルは屋内
 		centerIdx := 2*5 + 2 // (2, 2)
-		assert.Equal(t, gc.ShelterFull, mp.Tiles[centerIdx].Shelter, "中央は屋内であるべき")
+		assert.Equal(t, int32(gc.ShelterFull), mp.Tiles[centerIdx].Shelter, "中央は屋内であるべき")
 
 		// 壁タイルは屋内（壁は通過できないので屋外判定されない）
 		wallIdx := 0 // (0, 0)
-		assert.Equal(t, gc.ShelterFull, mp.Tiles[wallIdx].Shelter, "壁は屋内扱い")
+		assert.Equal(t, int32(gc.ShelterFull), mp.Tiles[wallIdx].Shelter, "壁は屋内扱い")
 	})
 
 	t.Run("マップ端から到達可能な領域は屋外になる", func(t *testing.T) {
@@ -57,11 +57,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		// 5x5 の全て床のマップ
 		mp := &MetaPlan{
 			Level: newTestLevel(5, 5),
-			Tiles: make([]raw.TileRaw, 25),
+			Tiles: make([]oapi.Tile, 25),
 		}
 
 		for i := 0; i < 25; i++ {
-			mp.Tiles[i] = raw.TileRaw{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 
 		planner := EnvironmentPlanner{}
@@ -70,7 +70,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 全てのタイルが屋外
 		for i := 0; i < 25; i++ {
-			assert.Equal(t, gc.ShelterNone, mp.Tiles[i].Shelter, "全て屋外であるべき")
+			assert.Equal(t, int32(gc.ShelterNone), mp.Tiles[i].Shelter, "全て屋外であるべき")
 		}
 	})
 
@@ -85,11 +85,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		// . . . . . . .
 		mp := &MetaPlan{
 			Level: newTestLevel(7, 5),
-			Tiles: make([]raw.TileRaw, 35),
+			Tiles: make([]oapi.Tile, 35),
 		}
 
 		for i := 0; i < 35; i++ {
-			mp.Tiles[i] = raw.TileRaw{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 
 		// 壁を配置
@@ -99,7 +99,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 			3*7 + 1, 3*7 + 2, 3*7 + 3, 3*7 + 4, // 下の壁
 		}
 		for _, idx := range wallPositions {
-			mp.Tiles[idx] = raw.TileRaw{Name: "wall", BlockPass: true}
+			mp.Tiles[idx] = oapi.Tile{Name: "wall", BlockPass: true}
 		}
 
 		planner := EnvironmentPlanner{}
@@ -108,11 +108,11 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 
 		// 囲まれた内部は屋内
 		insideIdx := 2*7 + 2 // (2, 2)
-		assert.Equal(t, gc.ShelterFull, mp.Tiles[insideIdx].Shelter, "囲まれた内部は屋内")
+		assert.Equal(t, int32(gc.ShelterFull), mp.Tiles[insideIdx].Shelter, "囲まれた内部は屋内")
 
 		// 外部は屋外
 		outsideIdx := 0 // (0, 0)
-		assert.Equal(t, gc.ShelterNone, mp.Tiles[outsideIdx].Shelter, "外部は屋外")
+		assert.Equal(t, int32(gc.ShelterNone), mp.Tiles[outsideIdx].Shelter, "外部は屋外")
 	})
 }
 
@@ -124,12 +124,12 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 
 		mp := &MetaPlan{
 			Level: newTestLevel(3, 3),
-			Tiles: make([]raw.TileRaw, 9),
+			Tiles: make([]oapi.Tile, 9),
 		}
 		for i := 0; i < 9; i++ {
-			mp.Tiles[i] = raw.TileRaw{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = raw.TileRaw{Name: "water", BlockPass: false}
+		mp.Tiles[4] = oapi.Tile{Name: "water", BlockPass: false}
 
 		planner := EnvironmentPlanner{}
 		result := planner.calcWater(mp, 4)
@@ -142,12 +142,12 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 
 		mp := &MetaPlan{
 			Level: newTestLevel(3, 3),
-			Tiles: make([]raw.TileRaw, 9),
+			Tiles: make([]oapi.Tile, 9),
 		}
 		for i := 0; i < 9; i++ {
-			mp.Tiles[i] = raw.TileRaw{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
-		mp.Tiles[4] = raw.TileRaw{Name: "water", BlockPass: false}
+		mp.Tiles[4] = oapi.Tile{Name: "water", BlockPass: false}
 
 		planner := EnvironmentPlanner{}
 
@@ -163,10 +163,10 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 
 		mp := &MetaPlan{
 			Level: newTestLevel(3, 3),
-			Tiles: make([]raw.TileRaw, 9),
+			Tiles: make([]oapi.Tile, 9),
 		}
 		for i := 0; i < 9; i++ {
-			mp.Tiles[i] = raw.TileRaw{Name: "floor", BlockPass: false}
+			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 
 		planner := EnvironmentPlanner{}
@@ -197,7 +197,7 @@ func TestEnvironmentPlanner_calcFoliage(t *testing.T) {
 
 			mp := &MetaPlan{
 				Level: newTestLevel(1, 1),
-				Tiles: []raw.TileRaw{{Name: tt.tileName}},
+				Tiles: []oapi.Tile{{Name: tt.tileName}},
 			}
 
 			planner := EnvironmentPlanner{}

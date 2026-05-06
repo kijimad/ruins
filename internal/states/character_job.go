@@ -13,7 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -128,7 +128,7 @@ type jobMenuProps struct {
 
 // jobMenuItem は職業メニューの項目
 type jobMenuItem struct {
-	Profession raw.Profession
+	Profession oapi.Profession
 }
 
 func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
@@ -306,8 +306,8 @@ func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int,
 	if len(prof.Skills) > 0 {
 		container.AddChild(styled.NewDescriptionText("スキル", res))
 		for _, skill := range prof.Skills {
-			skillID := gc.SkillID(skill.ID)
-			name := skill.ID
+			skillID := gc.SkillID(skill.Id)
+			name := skill.Id
 			if gc.HasSkillName(skillID) {
 				name = gc.SkillName(skillID)
 			}

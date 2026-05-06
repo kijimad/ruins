@@ -132,11 +132,6 @@ type ChunkTemplateFile struct {
 	Chunks []ChunkTemplate `toml:"chunk"`
 }
 
-// MarshalChunkTemplateFile はChunkTemplateFileをTOMLバイト列にエンコードする
-func MarshalChunkTemplateFile(file ChunkTemplateFile) ([]byte, error) {
-	return toml.Marshal(file)
-}
-
 // TemplateLoader はテンプレート定義の読み込みを担当する
 // TODO: Loaderが保持するのはおかしい気もする。Resourcesなどに保存することを検討する。が、依存が大きくなるのも微妙である。TemplatePlanner以外じゃ使わないしな...
 type TemplateLoader struct {

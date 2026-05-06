@@ -5,7 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 // TemplatePlanner はテンプレートベースのマップ生成プランナー。
@@ -33,7 +33,7 @@ func (p *TemplatePlanner) PlanInitial(metaPlan *MetaPlan) error {
 
 	// タイル配列を初期化
 	totalTiles := width * height
-	metaPlan.Tiles = make([]raw.TileRaw, totalTiles)
+	metaPlan.Tiles = make([]oapi.Tile, totalTiles)
 
 	// セル配列を走査して地形を配置する
 	for y, row := range p.ResolvedMap {

@@ -3,7 +3,7 @@ package mapplanner
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 )
 
@@ -44,7 +44,7 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 
 	// セルラーオートマトンを指定回数実行
 	for iter := 0; iter < iterations; iter++ {
-		newTiles := make([]raw.TileRaw, len(planData.Tiles))
+		newTiles := make([]oapi.Tile, len(planData.Tiles))
 
 		for x := 0; x < width; x++ {
 			for y := 0; y < height; y++ {
@@ -201,7 +201,7 @@ func (c CavePathWidener) PlanMeta(planData *MetaPlan) error {
 	height := int(planData.Level.TileHeight)
 
 	// 床タイルの周囲1マスを床にして通路を広げる
-	newTiles := make([]raw.TileRaw, len(planData.Tiles))
+	newTiles := make([]oapi.Tile, len(planData.Tiles))
 	copy(newTiles, planData.Tiles)
 
 	for x := 1; x < width-1; x++ {

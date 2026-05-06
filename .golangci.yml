@@ -22,6 +22,10 @@ linters:
     # 現状と乖離が大きいので追加しない
     # - testpackage  # テストファイルの命名規約（テスト品質向上）
 
+  exclusions:
+    paths:
+      - editor-ui/node_modules # npmパッケージ内のGoファイルを除外する
+
   settings:
     exhaustive:
       check:

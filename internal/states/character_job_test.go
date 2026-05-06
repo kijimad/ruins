@@ -21,7 +21,7 @@ func TestProfessions(t *testing.T) {
 
 	expectedIDs := []string{"evacuee", "hunter", "mechanic", "medic", "sniper", "soldier"}
 	for i, expectedID := range expectedIDs {
-		assert.Equal(t, expectedID, professions[i].ID, "職業ID[%d]", i)
+		assert.Equal(t, expectedID, professions[i].Id, "職業ID[%d]", i)
 	}
 
 	expectedNames := []string{"避難民", "猟師", "整備士", "衛生兵", "狙撃手", "軍人"}
@@ -53,7 +53,7 @@ func TestProfessionItems(t *testing.T) {
 			t.Parallel()
 			var found bool
 			for _, p := range professions {
-				if p.ID == tt.professionID {
+				if p.Id == tt.professionID {
 					assert.Equal(t, tt.itemCount, len(p.Items), "初期アイテム数")
 					found = true
 					break
@@ -87,7 +87,7 @@ func TestProfessionEquips(t *testing.T) {
 			t.Parallel()
 			var found bool
 			for _, p := range professions {
-				if p.ID == tt.professionID {
+				if p.Id == tt.professionID {
 					assert.Equal(t, tt.equipCount, len(p.Equips), "初期装備数")
 					found = true
 					break

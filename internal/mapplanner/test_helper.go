@@ -1,11 +1,14 @@
 package mapplanner
 
-import "github.com/kijimaD/ruins/internal/raw"
+import (
+	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
+)
 
 // CreateTestRawMaster はテスト用の raw.Master インスタンスを作成する
 func CreateTestRawMaster() *raw.Master {
 	// テスト用の基本的なタイルデータを定義
-	testTiles := []raw.TileRaw{
+	testTiles := []oapi.Tile{
 		{Name: "wall", BlockPass: true},
 		{Name: "floor", BlockPass: false},
 		{Name: "dirt", BlockPass: false},
@@ -17,17 +20,17 @@ func CreateTestRawMaster() *raw.Master {
 	}
 
 	// テスト用のアイテムテーブルを定義
-	testItemTables := []raw.ItemTable{
+	testItemTables := []oapi.ItemTable{
 		{
 			Name: "通常",
-			Entries: []raw.ItemTableEntry{
+			Entries: []oapi.ItemTableEntry{
 				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 				{ItemName: "手榴弾", Weight: 0.5, MinDepth: 8, MaxDepth: 40},
 			},
 		},
 		{
 			Name: "洞窟",
-			Entries: []raw.ItemTableEntry{
+			Entries: []oapi.ItemTableEntry{
 				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 				{ItemName: "毒消し", Weight: 0.8, MinDepth: 1, MaxDepth: 8},
 				{ItemName: "黒曜石", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
@@ -35,14 +38,14 @@ func CreateTestRawMaster() *raw.Master {
 		},
 		{
 			Name: "森",
-			Entries: []raw.ItemTableEntry{
+			Entries: []oapi.ItemTableEntry{
 				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 				{ItemName: "緑ハーブ", Weight: 1.2, MinDepth: 1, MaxDepth: 15},
 			},
 		},
 		{
 			Name: "廃墟",
-			Entries: []raw.ItemTableEntry{
+			Entries: []oapi.ItemTableEntry{
 				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 				{ItemName: "銀の欠片", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
 			},
@@ -50,10 +53,10 @@ func CreateTestRawMaster() *raw.Master {
 	}
 
 	// テスト用の敵テーブルを定義
-	testEnemyTables := []raw.EnemyTable{
+	testEnemyTables := []oapi.EnemyTable{
 		{
 			Name: "通常",
-			Entries: []raw.EnemyTableEntry{
+			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 10},
 				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 				{EnemyName: "軽戦車", Weight: 0.8, MinDepth: 10, MaxDepth: 50},
@@ -61,7 +64,7 @@ func CreateTestRawMaster() *raw.Master {
 		},
 		{
 			Name: "洞窟",
-			Entries: []raw.EnemyTableEntry{
+			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 1.0, MinDepth: 1, MaxDepth: 8},
 				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 				{EnemyName: "軽戦車", Weight: 0.6, MinDepth: 8, MaxDepth: 25},
@@ -69,7 +72,7 @@ func CreateTestRawMaster() *raw.Master {
 		},
 		{
 			Name: "森",
-			Entries: []raw.EnemyTableEntry{
+			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 1.2, MinDepth: 1, MaxDepth: 12},
 				{EnemyName: "火の玉", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 				{EnemyName: "軽戦車", Weight: 0.5, MinDepth: 10, MaxDepth: 20},
@@ -77,7 +80,7 @@ func CreateTestRawMaster() *raw.Master {
 		},
 		{
 			Name: "廃墟",
-			Entries: []raw.EnemyTableEntry{
+			Entries: []oapi.EnemyTableEntry{
 				{EnemyName: "スライム", Weight: 0.9, MinDepth: 1, MaxDepth: 10},
 				{EnemyName: "火の玉", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
 				{EnemyName: "軽戦車", Weight: 1.0, MinDepth: 5, MaxDepth: 30},

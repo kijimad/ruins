@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 )
@@ -23,7 +24,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 			TileWidth:  width,
 			TileHeight: height,
 		},
-		Tiles:     make([]raw.TileRaw, int(width)*int(height)),
+		Tiles:     make([]oapi.Tile, int(width)*int(height)),
 		RawMaster: createTestRawMaster(t),
 	}
 
@@ -139,7 +140,7 @@ func TestIsValidIndex(t *testing.T) {
 
 	// 3x3のテストマップ
 	metaPlan := &MetaPlan{
-		Tiles: make([]raw.TileRaw, 9), // 3x3 = 9タイル
+		Tiles: make([]oapi.Tile, 9), // 3x3 = 9タイル
 	}
 
 	testCases := []struct {

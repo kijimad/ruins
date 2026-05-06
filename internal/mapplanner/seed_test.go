@@ -8,7 +8,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 )
 
 func TestSeedReproducibility(t *testing.T) {
@@ -23,7 +23,7 @@ func TestSeedReproducibility(t *testing.T) {
 	chain1.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain1.Plan()
 	require.NoError(t, err)
-	tiles1 := make([]raw.TileRaw, len(chain1.PlanData.Tiles))
+	tiles1 := make([]oapi.Tile, len(chain1.PlanData.Tiles))
 	copy(tiles1, chain1.PlanData.Tiles)
 	rooms1 := make([]gc.Rect, len(chain1.PlanData.Rooms))
 	copy(rooms1, chain1.PlanData.Rooms)
@@ -34,7 +34,7 @@ func TestSeedReproducibility(t *testing.T) {
 	chain2.PlanData.RawMaster = CreateTestRawMaster()
 	err = chain2.Plan()
 	require.NoError(t, err)
-	tiles2 := make([]raw.TileRaw, len(chain2.PlanData.Tiles))
+	tiles2 := make([]oapi.Tile, len(chain2.PlanData.Tiles))
 	copy(tiles2, chain2.PlanData.Tiles)
 	rooms2 := make([]gc.Rect, len(chain2.PlanData.Rooms))
 	copy(rooms2, chain2.PlanData.Rooms)

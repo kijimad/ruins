@@ -1,0 +1,6 @@
+package: oapi
+generate:
+  embedded-spec: true
+output: ./internal/oapi/spec.gen.go
+output-options:
+  skip-prune: true

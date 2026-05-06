@@ -45,7 +45,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	itemDef := rawMaster.Raws.Items[itemIdx]
 
 	baseValue := itemDef.Value
-	price := CalculateBuyPrice(baseValue)
+	price := CalculateBuyPrice(int(baseValue))
 
 	// 交渉スキルによる買値倍率を適用する
 	if playerEntity.HasComponent(world.Components.CharModifiers) {

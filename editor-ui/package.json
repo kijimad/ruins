@@ -1,0 +1,46 @@
+{
+  "name": "ruins-editor-ui",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build",
+    "dev": "vite",
+    "fmt": "npx prettier . --write",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint .",
+    "check": "npm run test && npm run build && npm run lint"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.20.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@tanstack/react-query": "^5.90.10",
+    "axios": "^1.10.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.2",
+    "smol-toml": "^1.6.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@tsconfig/strictest": "^2.0.8",
+    "@tsconfig/vite-react": "^7.0.2",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.1",
+    "eslint": "^9.28.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.2.0",
+    "happy-dom": "^20.0.10",
+    "prettier": "^3.5.3",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.33.1",
+    "vite": "^6.3.5",
+    "vitest": "^4.0.9"
+  }
+}

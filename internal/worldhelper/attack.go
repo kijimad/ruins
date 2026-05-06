@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -26,7 +27,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 	}
 
 	// 重み付きランダムで武器名を選択
-	weaponName, err := commandTable.SelectByWeight(world.Config.RNG)
+	weaponName, err := raw.SelectCommandByWeight(commandTable, world.Config.RNG)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to select weapon: %w", err)
 	}

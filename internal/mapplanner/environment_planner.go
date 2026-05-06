@@ -15,16 +15,16 @@ func (p EnvironmentPlanner) PlanMeta(mp *MetaPlan) error {
 	// 各タイルの環境情報を設定する
 	for i := range mp.Tiles {
 		if outdoor[i] {
-			mp.Tiles[i].Shelter = gc.ShelterNone
+			mp.Tiles[i].Shelter = int32(gc.ShelterNone)
 		} else {
-			mp.Tiles[i].Shelter = gc.ShelterFull
+			mp.Tiles[i].Shelter = int32(gc.ShelterFull)
 		}
 
 		// Water: 隣接する水タイルから計算
-		mp.Tiles[i].Water = p.calcWater(mp, i)
+		mp.Tiles[i].Water = int32(p.calcWater(mp, i))
 
 		// Foliage: タイル名から計算
-		mp.Tiles[i].Foliage = p.calcFoliage(mp, i)
+		mp.Tiles[i].Foliage = int32(p.calcFoliage(mp, i))
 	}
 
 	return nil

@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
@@ -59,7 +60,7 @@ func runGenerateItemDoc(_ context.Context, _ *cli.Command) error {
 	return nil
 }
 
-func generateTableDoc(file *os.File, table raw.ItemTable) error {
+func generateTableDoc(file *os.File, table oapi.ItemTable) error {
 	if _, err := fmt.Fprintf(file, "## %s\n\n", table.Name); err != nil {
 		return fmt.Errorf("error writing table name: %w", err)
 	}
@@ -133,11 +134,11 @@ func generateTableDoc(file *os.File, table raw.ItemTable) error {
 	return nil
 }
 
-func calculateProbabilities(table raw.ItemTable, depth int) map[string]float64 {
+func calculateProbabilities(table oapi.ItemTable, depth int) map[string]float64 {
 	// 深度範囲内のエントリをフィルタリング
-	validEntries := make([]raw.ItemTableEntry, 0, len(table.Entries))
+	validEntries := make([]oapi.ItemTableEntry, 0, len(table.Entries))
 	for _, entry := range table.Entries {
-		if depth < entry.MinDepth || depth > entry.MaxDepth {
+		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
 		validEntries = append(validEntries, entry)

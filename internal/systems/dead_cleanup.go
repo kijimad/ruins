@@ -5,6 +5,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/logger"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -63,7 +64,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 
 		// アイテム選択
-		materialName, err := dropTable.SelectByWeight(world.Config.RNG)
+		materialName, err := raw.SelectDropByWeight(dropTable, world.Config.RNG)
 		if err != nil {
 			return err
 		}

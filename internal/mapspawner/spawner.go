@@ -66,9 +66,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		// TileRaw の環境情報を TileTemperature に設定する
 		if tileTemp, ok := world.Components.TileTemperature.Get(tileEntity).(*gc.TileTemperature); ok && tileTemp != nil {
-			tileTemp.Shelter = tile.Shelter
-			tileTemp.Water = tile.Water
-			tileTemp.Foliage = tile.Foliage
+			tileTemp.Shelter = gc.ShelterType(tile.Shelter)
+			tileTemp.Water = gc.WaterType(tile.Water)
+			tileTemp.Foliage = gc.FoliageType(tile.Foliage)
 		}
 	}
 
