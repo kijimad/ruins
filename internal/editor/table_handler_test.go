@@ -34,7 +34,7 @@ func TestHandleCommandTableCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleCommandTableCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	tables := srv.store.CommandTables()
 	require.Len(t, tables, 1)
 	assert.Equal(t, "新コマンド", tables[0].Name)
@@ -47,11 +47,11 @@ func TestHandleCommandTableDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddCommandTable(raw.CommandTable{Name: "残る"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/command-tables/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/command-tables/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleCommandTableDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	tables := srv.store.CommandTables()
 	require.Len(t, tables, 1)
 	assert.Equal(t, "残る", tables[0].Name)
@@ -79,7 +79,7 @@ func TestHandleDropTableCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleDropTableCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	tables := srv.store.DropTables()
 	require.Len(t, tables, 1)
 	assert.Equal(t, "新ドロップ", tables[0].Name)
@@ -92,11 +92,11 @@ func TestHandleDropTableDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddDropTable(raw.DropTable{Name: "残る"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/drop-tables/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/drop-tables/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleDropTableDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	tables := srv.store.DropTables()
 	require.Len(t, tables, 1)
 	assert.Equal(t, "残る", tables[0].Name)
@@ -124,7 +124,7 @@ func TestHandleItemTableCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleItemTableCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	tables := srv.store.ItemTables()
 	require.Len(t, tables, 1)
 	assert.Equal(t, "新アイテムテーブル", tables[0].Name)
@@ -152,7 +152,7 @@ func TestHandleEnemyTableCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleEnemyTableCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	tables := srv.store.EnemyTables()
 	require.Len(t, tables, 1)
 	assert.Equal(t, "新エネミーテーブル", tables[0].Name)

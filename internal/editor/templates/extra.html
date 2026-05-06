@@ -22,7 +22,7 @@
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/command-tables/new" hx-target="#ct-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/command-tables/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規コマンドテーブル">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -42,19 +42,10 @@
 {{end}}
 
 {{define "ct-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/command-tables/{{.Index}}/edit" hx-target="#ct-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/command-tables?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Table.Name}}</span>
   <span class="badge text-bg-secondary">{{len .Table.Entries}}</span>
-</div>
-{{end}}
-
-{{define "ct-list-oob"}}
-<div id="ct-list" hx-swap-oob="innerHTML:#ct-list">{{range .Items}}{{template "ct-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "ct-count-oob"}}
-<div id="ct-count" hx-swap-oob="innerHTML:#ct-count">{{len .Items}} tables</div>
+</a>
 {{end}}
 
 {{define "command-table-edit"}}
@@ -71,10 +62,12 @@ function addCtEntry() {
 }
 </script>
 <template id="ct-options-tpl">{{range .ItemOptions}}<option value="{{.Name}}">{{.Label}}</option>{{end}}</template>
-<form hx-post="/command-tables/{{.Index}}" hx-target="#ct-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/command-tables/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Table.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/command-tables/{{.Index}}" hx-target="#ct-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/command-tables/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-4">
@@ -119,7 +112,7 @@ function addCtEntry() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/drop-tables/new" hx-target="#dt-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/drop-tables/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規ドロップテーブル">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -139,19 +132,10 @@ function addCtEntry() {
 {{end}}
 
 {{define "dt-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/drop-tables/{{.Index}}/edit" hx-target="#dt-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/drop-tables?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Table.Name}}</span>
   <span class="badge text-bg-secondary">{{len .Table.Entries}}</span>
-</div>
-{{end}}
-
-{{define "dt-list-oob"}}
-<div id="dt-list" hx-swap-oob="innerHTML:#dt-list">{{range .Items}}{{template "dt-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "dt-count-oob"}}
-<div id="dt-count" hx-swap-oob="innerHTML:#dt-count">{{len .Items}} tables</div>
+</a>
 {{end}}
 
 {{define "drop-table-edit"}}
@@ -168,10 +152,12 @@ function addDtEntry() {
 }
 </script>
 <template id="dt-options-tpl">{{range .ItemOptions}}<option value="{{.Name}}">{{.Label}}</option>{{end}}</template>
-<form hx-post="/drop-tables/{{.Index}}" hx-target="#dt-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/drop-tables/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Table.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/drop-tables/{{.Index}}" hx-target="#dt-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/drop-tables/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-4">
@@ -216,7 +202,7 @@ function addDtEntry() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/item-tables/new" hx-target="#it-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/item-tables/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規アイテムテーブル">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -236,19 +222,10 @@ function addDtEntry() {
 {{end}}
 
 {{define "it-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/item-tables/{{.Index}}/edit" hx-target="#it-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/item-tables?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Table.Name}}</span>
   <span class="badge text-bg-secondary">{{len .Table.Entries}}</span>
-</div>
-{{end}}
-
-{{define "it-list-oob"}}
-<div id="it-list" hx-swap-oob="innerHTML:#it-list">{{range .Items}}{{template "it-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "it-count-oob"}}
-<div id="it-count" hx-swap-oob="innerHTML:#it-count">{{len .Items}} tables</div>
+</a>
 {{end}}
 
 {{define "item-table-edit"}}
@@ -265,10 +242,12 @@ function addItEntry() {
 }
 </script>
 <template id="it-options-tpl">{{range .ItemOptions}}<option value="{{.Name}}">{{.Label}}</option>{{end}}</template>
-<form hx-post="/item-tables/{{.Index}}" hx-target="#it-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/item-tables/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Table.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/item-tables/{{.Index}}" hx-target="#it-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/item-tables/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-4">
@@ -314,7 +293,7 @@ function addItEntry() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/enemy-tables/new" hx-target="#et-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/enemy-tables/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規敵テーブル">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -334,19 +313,10 @@ function addItEntry() {
 {{end}}
 
 {{define "et-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/enemy-tables/{{.Index}}/edit" hx-target="#et-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/enemy-tables?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Table.Name}}</span>
   <span class="badge text-bg-secondary">{{len .Table.Entries}}</span>
-</div>
-{{end}}
-
-{{define "et-list-oob"}}
-<div id="et-list" hx-swap-oob="innerHTML:#et-list">{{range .Items}}{{template "et-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "et-count-oob"}}
-<div id="et-count" hx-swap-oob="innerHTML:#et-count">{{len .Items}} tables</div>
+</a>
 {{end}}
 
 {{define "enemy-table-edit"}}
@@ -363,10 +333,12 @@ function addEtEntry() {
 }
 </script>
 <template id="et-options-tpl">{{range .MemberNames}}<option value="{{.}}">{{.}}</option>{{end}}</template>
-<form hx-post="/enemy-tables/{{.Index}}" hx-target="#et-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/enemy-tables/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Table.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/enemy-tables/{{.Index}}" hx-target="#et-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/enemy-tables/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-4">
@@ -412,7 +384,7 @@ function addEtEntry() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/tiles/new" hx-target="#tile-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/tiles/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規タイル">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -432,32 +404,25 @@ function addEtEntry() {
 {{end}}
 
 {{define "tile-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/tiles/{{.Index}}/edit" hx-target="#tile-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/tiles?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span style="{{spriteStyle .Tile.SpriteRender.SpriteSheetName .Tile.SpriteRender.SpriteKey 1}}" class="flex-shrink-0"></span>
   <span class="text-truncate flex-grow-1">{{.Tile.Name}}</span>
   <span class="flex-shrink-0">
     {{- if .Tile.BlockPass}}<span class="badge text-bg-danger">壁</span>{{end -}}
     {{- if .Tile.BlockView}}<span class="badge text-bg-warning">遮</span>{{end -}}
   </span>
-</div>
-{{end}}
-
-{{define "tile-list-oob"}}
-<div id="tile-list" hx-swap-oob="innerHTML:#tile-list">{{range .Items}}{{template "tile-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "tile-count-oob"}}
-<div id="tile-count" hx-swap-oob="innerHTML:#tile-count">{{len .Items}} tiles</div>
+</a>
 {{end}}
 
 {{define "tile-edit"}}
 {{template "sprite-picker-js"}}
-<form hx-post="/tiles/{{.Index}}" hx-target="#tile-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/tiles/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <span id="sprite-preview" style="{{spriteStyle .Tile.SpriteRender.SpriteSheetName .Tile.SpriteRender.SpriteKey 2}}"></span>
     <h5 class="mb-0 me-auto">{{.Tile.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/tiles/{{.Index}}" hx-target="#tile-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/tiles/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-3">
@@ -541,7 +506,7 @@ function addEtEntry() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/props/new" hx-target="#prop-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/props/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規置物">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -561,8 +526,7 @@ function addEtEntry() {
 {{end}}
 
 {{define "prop-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/props/{{.Index}}/edit" hx-target="#prop-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/props?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span style="{{spriteStyle .Prop.SpriteRender.SpriteSheetName .Prop.SpriteRender.SpriteKey 1}}" class="flex-shrink-0"></span>
   <span class="text-truncate flex-grow-1">{{.Prop.Name}}</span>
   <span class="flex-shrink-0">
@@ -572,24 +536,18 @@ function addEtEntry() {
     {{- if isNotNil .Prop.DungeonGateTrigger}}<span class="badge text-bg-primary">門</span>{{end -}}
     {{- if isNotNil .Prop.LightSource}}<span class="badge text-bg-warning">光</span>{{end -}}
   </span>
-</div>
-{{end}}
-
-{{define "prop-list-oob"}}
-<div id="prop-list" hx-swap-oob="innerHTML:#prop-list">{{range .Items}}{{template "prop-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "prop-count-oob"}}
-<div id="prop-count" hx-swap-oob="innerHTML:#prop-count">{{len .Items}} props</div>
+</a>
 {{end}}
 
 {{define "prop-edit"}}
 {{template "sprite-picker-js"}}
-<form hx-post="/props/{{.Index}}" hx-target="#prop-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/props/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <span id="sprite-preview" style="{{spriteStyle .Prop.SpriteRender.SpriteSheetName .Prop.SpriteRender.SpriteKey 2}}"></span>
     <h5 class="mb-0 me-auto">{{.Prop.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/props/{{.Index}}" hx-target="#prop-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/props/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-3">
@@ -707,7 +665,7 @@ function addEtEntry() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/professions/new" hx-target="#prof-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/professions/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="id" required placeholder="新規職業ID">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -727,18 +685,9 @@ function addEtEntry() {
 {{end}}
 
 {{define "prof-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/professions/{{.Index}}/edit" hx-target="#prof-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/professions?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Profession.Name}}</span>
-</div>
-{{end}}
-
-{{define "prof-list-oob"}}
-<div id="prof-list" hx-swap-oob="innerHTML:#prof-list">{{range .Items}}{{template "prof-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "prof-count-oob"}}
-<div id="prof-count" hx-swap-oob="innerHTML:#prof-count">{{len .Items}} professions</div>
+</a>
 {{end}}
 
 {{define "profession-edit"}}
@@ -774,10 +723,12 @@ function addProfEquip() {
 }
 </script>
 <template id="prof-item-options-tpl">{{range .ItemOptions}}<option value="{{.Name}}">{{.Label}}</option>{{end}}</template>
-<form hx-post="/professions/{{.Index}}" hx-target="#prof-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/professions/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Profession.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/professions/{{.Index}}" hx-target="#prof-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/professions/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-2">
@@ -877,7 +828,7 @@ function addProfEquip() {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/sprite-sheets/new" hx-target="#ss-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/sprite-sheets/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規スプライトシート">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -897,25 +848,18 @@ function addProfEquip() {
 {{end}}
 
 {{define "ss-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/sprite-sheets/{{.Index}}/edit" hx-target="#ss-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/sprite-sheets?selected={{.Index}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Sheet.Name}}</span>
-</div>
-{{end}}
-
-{{define "ss-list-oob"}}
-<div id="ss-list" hx-swap-oob="innerHTML:#ss-list">{{range .Items}}{{template "ss-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "ss-count-oob"}}
-<div id="ss-count" hx-swap-oob="innerHTML:#ss-count">{{len .Items}} sheets</div>
+</a>
 {{end}}
 
 {{define "sprite-sheet-edit"}}
-<form hx-post="/sprite-sheets/{{.Index}}" hx-target="#ss-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/sprite-sheets/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Sheet.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/sprite-sheets/{{.Index}}" hx-target="#ss-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/sprite-sheets/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-4">

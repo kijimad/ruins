@@ -35,7 +35,7 @@ func TestHandleTileCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleTileCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	tiles := srv.store.Tiles()
 	require.Len(t, tiles, 1)
@@ -48,10 +48,10 @@ func TestHandleTileDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddTile(raw.TileRaw{Name: "テスト"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/tiles/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/tiles/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleTileDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	assert.Empty(t, srv.store.Tiles())
 }

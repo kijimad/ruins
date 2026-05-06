@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/kijimaD/ruins/internal/maptemplate"
@@ -22,18 +23,22 @@ type layoutItem struct {
 
 // layoutsData はレイアウト一覧テンプレートに渡すデータ
 type layoutsData struct {
-	Items []layoutItem
-	Edit  *layoutEditData
+	Items    []layoutItem
+	Edit     *layoutEditData
+	DirNames []string
 }
 
 // layoutEditData はチャンク編集テンプレートに渡すデータ
 type layoutEditData struct {
-	DirName    string
-	FileName   string
-	ChunkName  string
-	FileKey    string
-	Chunk      maptemplate.ChunkTemplate
-	CheatSheet []cheatSheetEntry
+	DirName           string
+	FileName          string
+	ChunkName         string
+	FileKey           string
+	Chunk             maptemplate.ChunkTemplate
+	CheatSheet        []cheatSheetEntry
+	AvailablePalettes []string
+	AvailableChunks   []string
+	Preview           *previewData
 }
 
 // cheatSheetEntry はチートシートの1行分のデータ
@@ -73,9 +78,33 @@ func (s *Server) buildLayoutEditData(dirName, fileName, chunkName, fileKey strin
 		FileKey:   fileKey,
 		Chunk:     *chunk,
 	}
+	if s.paletteStore != nil {
+		palettes, _ := s.paletteStore.List()
+		for _, p := range palettes {
+			ed.AvailablePalettes = append(ed.AvailablePalettes, p.ID)
+		}
+	}
+	ed.AvailableChunks = s.layoutStore.ChunkNames()
 	merged := s.mergePalettes(chunk.Palettes)
 	if merged != nil {
 		ed.CheatSheet = s.buildCheatSheet(merged)
+		// プレビューデータを構築する
+		expandedMap := chunk.Map
+		if len(chunk.Placements) > 0 && s.layoutStore != nil && s.paletteStore != nil {
+			loader, err := s.layoutStore.BuildTemplateLoader(s.paletteStore.Dir())
+			if err != nil {
+				log.Printf("テンプレートローダー構築エラー: %v", err)
+			} else {
+				expanded, err := chunk.ExpandWithPlacements(loader, 0)
+				if err != nil {
+					log.Printf("チャンク展開エラー (%s): %v", chunk.Name, err)
+				} else {
+					expandedMap = expanded
+				}
+			}
+		}
+		preview := s.buildPreviewData(expandedMap, merged)
+		ed.Preview = &preview
 	}
 	return ed
 }
@@ -109,7 +138,7 @@ func (s *Server) renderLayouts(w http.ResponseWriter, activeDirName, activeFileN
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	data := layoutsData{Items: items}
+	data := layoutsData{Items: items, DirNames: s.layoutStore.DirNames()}
 	if activeChunkName != "" {
 		chunk, err := s.layoutStore.GetChunk(activeDirName, activeFileName, activeChunkName)
 		if err == nil {
@@ -142,20 +171,71 @@ func (s *Server) buildLayoutItems(activeDirName, activeFileName, activeChunkName
 	return items, nil
 }
 
+func (s *Server) handleLayoutCreate(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
+		return
+	}
+
+	dirName := strings.TrimSpace(r.FormValue("dir"))
+	fileName := strings.TrimSpace(r.FormValue("file"))
+	chunkName := strings.TrimSpace(r.FormValue("name"))
+
+	if dirName == "" || fileName == "" || chunkName == "" {
+		http.Error(w, "ディレクトリ、ファイル名、チャンク名は必須です", http.StatusBadRequest)
+		return
+	}
+
+	if !strings.HasSuffix(fileName, ".toml") {
+		fileName += ".toml"
+	}
+
+	// チャンク名からサイズをパースして初期マップを生成する
+	chunk := maptemplate.ChunkTemplate{
+		Name:   chunkName,
+		Weight: 100,
+	}
+	parts := strings.SplitN(chunkName, "_", 2)
+	if len(parts) < 2 {
+		http.Error(w, "チャンク名は 'WxH_名前' 形式で指定してください", http.StatusBadRequest)
+		return
+	}
+	dims := strings.Split(parts[0], "x")
+	if len(dims) != 2 {
+		http.Error(w, "チャンク名は 'WxH_名前' 形式で指定してください", http.StatusBadRequest)
+		return
+	}
+	width, wErr := strconv.Atoi(dims[0])
+	height, hErr := strconv.Atoi(dims[1])
+	if wErr != nil || hErr != nil || width <= 0 || height <= 0 {
+		http.Error(w, "幅と高さは正の整数で指定してください", http.StatusBadRequest)
+		return
+	}
+
+	// 指定サイズの '.' で埋めたマップを生成する
+	row := strings.Repeat(".", width)
+	rows := make([]string, height)
+	for i := range rows {
+		rows[i] = row
+	}
+	chunk.Map = strings.Join(rows, "\n") + "\n"
+	chunk.Size = maptemplate.Size{W: width, H: height}
+
+	if err := s.layoutStore.AddChunk(dirName, fileName, chunk); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	redirectURL := fmt.Sprintf("/layouts/%s/%s/%s/edit",
+		dirName, strings.TrimSuffix(fileName, ".toml"), chunkName)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
 func (s *Server) handleLayoutEdit(w http.ResponseWriter, r *http.Request) {
 	dirName := r.PathValue("dir")
 	fileName := r.PathValue("file") + ".toml"
 	chunkName := r.PathValue("chunk")
-
-	chunk, err := s.layoutStore.GetChunk(dirName, fileName, chunkName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := s.buildLayoutEditData(dirName, fileName, chunkName, FileKey(dirName, fileName), chunk)
-	if err := s.templates.ExecuteTemplate(w, "layout-edit", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	s.renderLayouts(w, dirName, fileName, chunkName)
 }
 
 func (s *Server) handleLayoutUpdate(w http.ResponseWriter, r *http.Request) {
@@ -167,22 +247,58 @@ func (s *Server) handleLayoutUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "フォームのパースに失敗", http.StatusBadRequest)
 		return
 	}
-	mapContent := r.FormValue("map_content")
+	mapContent := strings.ReplaceAll(r.FormValue("map_content"), "\r\n", "\n")
+	palettes := r.Form["palettes"]
+	placements := parsePlacements(r)
 
 	// パレットに定義されていない文字がないか検証してから保存する
 	validate := func(chunk *maptemplate.ChunkTemplate) error {
+		// パレットを更新してからバリデーションする
+		if palettes != nil {
+			chunk.Palettes = palettes
+		}
 		merged := s.mergePalettes(chunk.Palettes)
 		if merged == nil {
 			return nil
 		}
-		return validateMapContent(mapContent, merged, chunk.Placements)
+		return validateMapContent(mapContent, merged, placements)
 	}
 
-	if err := s.layoutStore.SaveChunk(dirName, fileName, chunkName, mapContent, validate); err != nil {
+	update := SaveChunkUpdate{
+		MapContent: mapContent,
+		Palettes:   palettes,
+		Placements: placements,
+	}
+	if err := s.layoutStore.SaveChunk(dirName, fileName, chunkName, update, validate); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	s.renderLayoutPartial(w, dirName, fileName, chunkName)
+
+	// 保存後は編集ページにリダイレクトする
+	redirectURL := fmt.Sprintf("/layouts/%s/%s/%s/edit",
+		dirName, strings.TrimSuffix(fileName, ".toml"), chunkName)
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
+}
+
+// parsePlacements はフォームからplacements情報をパースする。
+// placement_id_0, placement_chunks_0[] の形式で送信される
+func parsePlacements(r *http.Request) []maptemplate.ChunkPlacement {
+	var placements []maptemplate.ChunkPlacement
+	for i := 0; ; i++ {
+		id := strings.TrimSpace(r.FormValue(fmt.Sprintf("placement_id_%d", i)))
+		if id == "" {
+			break
+		}
+		chunks := r.Form[fmt.Sprintf("placement_chunks_%d[]", i)]
+		if len(chunks) == 0 {
+			continue
+		}
+		placements = append(placements, maptemplate.ChunkPlacement{
+			ID:     id,
+			Chunks: chunks,
+		})
+	}
+	return placements
 }
 
 // validateMapContent はマップ内の全文字がパレットに定義されているか検証する。
@@ -221,36 +337,6 @@ func validateMapContent(mapContent string, palette *maptemplate.Palette, placeme
 	}
 	sort.Strings(chars)
 	return fmt.Errorf("パレットに未定義の文字があります: %s", strings.Join(chars, ", "))
-}
-
-func (s *Server) renderLayoutPartial(w http.ResponseWriter, activeDirName, activeFileName, activeChunkName string) {
-	items, err := s.buildLayoutItems(activeDirName, activeFileName, activeChunkName)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	data := layoutsData{Items: items}
-
-	if activeChunkName != "" {
-		chunk, err := s.layoutStore.GetChunk(activeDirName, activeFileName, activeChunkName)
-		if err == nil {
-			ed := s.buildLayoutEditData(activeDirName, activeFileName, activeChunkName, FileKey(activeDirName, activeFileName), chunk)
-			if err := s.templates.ExecuteTemplate(w, "layout-edit", ed); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-		}
-	} else {
-		if _, err := w.Write([]byte(`<div class="text-secondary mt-5 text-center">チャンクを選択してください</div>`)); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-	if err := s.templates.ExecuteTemplate(w, "layout-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "layout-count-oob", data); err != nil {
-		log.Printf("件数OOBレンダリングに失敗: %v", err)
-	}
 }
 
 // handleLayoutPreview はチャンクの展開済みマップをパレットで解決し、スプライトグリッドHTMLを返す。

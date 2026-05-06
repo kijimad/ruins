@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,8 +29,14 @@ type indexData struct {
 	Edit  *editData
 }
 
-func (s *Server) handleIndex(w http.ResponseWriter, _ *http.Request) {
-	s.renderIndex(w, -1)
+func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
+	selected := -1
+	if v := r.URL.Query().Get("selected"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			selected = n
+		}
+	}
+	s.renderIndex(w, selected)
 }
 
 func (s *Server) renderIndex(w http.ResponseWriter, activeIndex int) {
@@ -49,79 +54,6 @@ func (s *Server) renderIndex(w http.ResponseWriter, activeIndex int) {
 		}
 	}
 	if err := s.templates.ExecuteTemplate(w, "index", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// renderPartial はedit-panel向けに編集フォームを返し、OOBでサイドバーリストも更新する。
-// サイドバーのスクロール位置はinnerHTMLの更新では維持される
-func (s *Server) renderPartial(w http.ResponseWriter, activeIndex int) {
-	items := s.store.Items()
-	rows := make([]indexItem, len(items))
-	for i, item := range items {
-		rows[i] = indexItem{Index: i, Item: item, Active: i == activeIndex}
-	}
-	data := indexData{Items: rows}
-
-	// edit-panelの中身を返す
-	if activeIndex >= 0 && activeIndex < len(items) {
-		ed := editData{
-			Index:      activeIndex,
-			Item:       items[activeIndex],
-			SheetNames: s.sheetNames(),
-		}
-		if err := s.templates.ExecuteTemplate(w, "item-edit", ed); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">アイテムを選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-
-	// OOBでサイドバーリストを更新する
-	if err := s.templates.ExecuteTemplate(w, "item-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "item-count-oob", data); err != nil {
-		log.Printf("アイテム数OOBレンダリングに失敗: %v", err)
-	}
-}
-
-func (s *Server) handleItemRow(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	item, err := s.store.Item(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	if err := s.templates.ExecuteTemplate(w, "item-entry", indexItem{Index: index, Item: item}); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func (s *Server) handleItemEdit(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	item, err := s.store.Item(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := editData{
-		Index:      index,
-		Item:       item,
-		SheetNames: s.sheetNames(),
-	}
-	if err := s.templates.ExecuteTemplate(w, "item-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -162,7 +94,7 @@ func (s *Server) handleItemUpdate(w http.ResponseWriter, r *http.Request) {
 
 	// ソートによりインデックスが変わるため、更新後の名前でインデックスを探す
 	newIndex := s.findItemIndex(item.Name)
-	s.renderPartial(w, newIndex)
+	http.Redirect(w, r, fmt.Sprintf("/items?selected=%d", newIndex), http.StatusSeeOther)
 }
 
 func (s *Server) handleItemCreate(w http.ResponseWriter, r *http.Request) {
@@ -186,7 +118,7 @@ func (s *Server) handleItemCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newIndex := s.findItemIndex(name)
-	s.renderPartial(w, newIndex)
+	http.Redirect(w, r, fmt.Sprintf("/items?selected=%d", newIndex), http.StatusSeeOther)
 }
 
 func (s *Server) handleItemDelete(w http.ResponseWriter, r *http.Request) {
@@ -199,7 +131,7 @@ func (s *Server) handleItemDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPartial(w, -1)
+	http.Redirect(w, r, "/items", http.StatusSeeOther)
 }
 
 // itemSelectOption はセレクトボックス用のアイテム選択肢

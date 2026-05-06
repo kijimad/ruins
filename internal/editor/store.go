@@ -283,13 +283,6 @@ func (s *Store) CommandTables() []raw.CommandTable {
 	return s.raws.CommandTables
 }
 
-// CommandTable は指定インデックスのコマンドテーブルを返す
-func (s *Store) CommandTable(index int) (raw.CommandTable, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return getAt(s.raws.CommandTables, index, "コマンドテーブル")
-}
-
 // UpdateCommandTable は指定インデックスのコマンドテーブルを更新する
 func (s *Store) UpdateCommandTable(index int, ct raw.CommandTable) error {
 	s.mu.Lock()
@@ -318,13 +311,6 @@ func (s *Store) DropTables() []raw.DropTable {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.raws.DropTables
-}
-
-// DropTable は指定インデックスのドロップテーブルを返す
-func (s *Store) DropTable(index int) (raw.DropTable, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return getAt(s.raws.DropTables, index, "ドロップテーブル")
 }
 
 // UpdateDropTable は指定インデックスのドロップテーブルを更新する
@@ -357,13 +343,6 @@ func (s *Store) ItemTables() []raw.ItemTable {
 	return s.raws.ItemTables
 }
 
-// ItemTable は指定インデックスのアイテムテーブルを返す
-func (s *Store) ItemTable(index int) (raw.ItemTable, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return getAt(s.raws.ItemTables, index, "アイテムテーブル")
-}
-
 // UpdateItemTable は指定インデックスのアイテムテーブルを更新する
 func (s *Store) UpdateItemTable(index int, it raw.ItemTable) error {
 	s.mu.Lock()
@@ -392,13 +371,6 @@ func (s *Store) EnemyTables() []raw.EnemyTable {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.raws.EnemyTables
-}
-
-// EnemyTable は指定インデックスの敵テーブルを返す
-func (s *Store) EnemyTable(index int) (raw.EnemyTable, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return getAt(s.raws.EnemyTables, index, "敵テーブル")
 }
 
 // UpdateEnemyTable は指定インデックスの敵テーブルを更新する
@@ -505,13 +477,6 @@ func (s *Store) Professions() []raw.Profession {
 	return s.raws.Professions
 }
 
-// Profession は指定インデックスの職業を返す
-func (s *Store) Profession(index int) (raw.Profession, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return getAt(s.raws.Professions, index, "職業")
-}
-
 // UpdateProfession は指定インデックスの職業を更新する
 func (s *Store) UpdateProfession(index int, prof raw.Profession) error {
 	s.mu.Lock()
@@ -540,13 +505,6 @@ func (s *Store) SpriteSheets() []raw.SpriteSheet {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.raws.SpriteSheets
-}
-
-// SpriteSheetByIndex は指定インデックスのスプライトシートを返す
-func (s *Store) SpriteSheetByIndex(index int) (raw.SpriteSheet, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return getAt(s.raws.SpriteSheets, index, "スプライトシート")
 }
 
 // UpdateSpriteSheet は指定インデックスのスプライトシートを更新する

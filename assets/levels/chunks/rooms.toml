@@ -1,47 +1,67 @@
 [[chunk]]
-  map          = "...\n.B.\n...\n"
-  name         = '3x3_bedroom'
-  palettes     = ['standard']
-  placements   = []
-  spawn_points = []
-  weight       = 100
+name = '3x3_bedroom'
+weight = 100
+palettes = ['standard']
+map = """
+...
+.B.
+...
+"""
+placements = []
+spawn_points = []
 
-  [chunk.Size]
-    H = 0
-    W = 0
-
-[[chunk]]
-  map          = ".....\n.....\n.CTC.\n.....\n.....\n"
-  name         = '5x5_meeting_room'
-  palettes     = ['standard']
-  placements   = []
-  spawn_points = []
-  weight       = 100
-
-  [chunk.Size]
-    H = 0
-    W = 0
+[chunk.Size]
+W = 3
+H = 3
 
 [[chunk]]
-  map          = "....\n.XX.\n.XX.\n....\n"
-  name         = '4x4_storage'
-  palettes     = ['standard']
-  placements   = []
-  spawn_points = []
-  weight       = 100
+name = '5x5_meeting_room'
+weight = 100
+palettes = ['standard']
+map = """
+.....
+.....
+.CTC.
+.....
+.....
+"""
+placements = []
+spawn_points = []
 
-  [chunk.Size]
-    H = 0
-    W = 0
+[chunk.Size]
+W = 5
+H = 5
 
 [[chunk]]
-  map          = ".....\n.DC..\n.DC..\n.....\n"
-  name         = '5x4_office'
-  palettes     = ['standard']
-  placements   = []
-  spawn_points = []
-  weight       = 100
+name = '4x4_storage'
+weight = 100
+palettes = ['standard']
+map = """
+....
+.XX.
+.XX.
+....
+"""
+placements = []
+spawn_points = []
 
-  [chunk.Size]
-    H = 0
-    W = 0
+[chunk.Size]
+W = 4
+H = 4
+
+[[chunk]]
+name = '5x4_office'
+weight = 100
+palettes = ['standard']
+map = """
+.....
+.DC..
+.DC..
+.....
+"""
+placements = []
+spawn_points = []
+
+[chunk.Size]
+W = 5
+H = 4

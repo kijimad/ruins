@@ -11,7 +11,7 @@
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/palettes/new" hx-target="#pal-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/palettes/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="id" required placeholder="新規パレットID">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -31,19 +31,10 @@
 {{end}}
 
 {{define "pal-entry"}}
-<div class="sidebar-entry{{if .Active}} active{{end}}" hx-get="/palettes/{{.Palette.ID}}/edit" hx-target="#pal-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.sidebar-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/palettes?selected={{.Palette.ID}}" class="sidebar-entry{{if .Active}} active{{end}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Palette.ID}}</span>
   <span class="badge text-bg-secondary">{{len .Palette.Terrain}}/{{len .Palette.Props}}/{{len .Palette.NPCs}}</span>
-</div>
-{{end}}
-
-{{define "pal-list-oob"}}
-<div id="pal-list" hx-swap-oob="innerHTML:#pal-list">{{range .Items}}{{template "pal-entry" .}}{{end}}</div>
-{{end}}
-
-{{define "pal-count-oob"}}
-<div id="pal-count" hx-swap-oob="innerHTML:#pal-count">{{len .Items}} palettes</div>
+</a>
 {{end}}
 
 {{define "palette-edit"}}
@@ -77,10 +68,12 @@ function addNPCEntry() {
 <template id="prop-options-tpl">{{range .PropNames}}<option value="{{.}}">{{.}}</option>{{end}}</template>
 <template id="npc-options-tpl">{{range .NPCNames}}<option value="{{.}}">{{.}}</option>{{end}}</template>
 
-<form hx-post="/palettes/{{.Palette.ID}}" hx-target="#pal-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/palettes/{{.Palette.ID}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Palette.ID}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/palettes/{{.Palette.ID}}" hx-target="#pal-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/palettes/{{.Palette.ID}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
   <div class="row g-3 mb-3">
     <div class="col-md-6">

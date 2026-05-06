@@ -69,20 +69,6 @@ func TestHandleMembers(t *testing.T) {
 	assert.Contains(t, body, "仲間")
 }
 
-func TestHandleMemberEdit(t *testing.T) {
-	t.Parallel()
-	srv := newTestServer(t, []raw.Item{})
-	require.NoError(t, srv.store.AddMember(raw.Member{Name: "テスト"}))
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/members/0/edit", nil)
-	r.SetPathValue("index", "0")
-	srv.handleMemberEdit(w, r)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "テスト")
-}
-
 func TestHandleMemberUpdate(t *testing.T) {
 	t.Parallel()
 	srv := newTestServer(t, []raw.Item{})
@@ -95,7 +81,7 @@ func TestHandleMemberUpdate(t *testing.T) {
 	r.SetPathValue("index", "0")
 	srv.handleMemberUpdate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	// Storeにも反映されていることを確認する
 	member, err := srv.store.Member(0)
@@ -113,7 +99,7 @@ func TestHandleMemberCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleMemberCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	members := srv.store.Members()
 	require.Len(t, members, 1)
@@ -141,11 +127,11 @@ func TestHandleMemberDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddMember(raw.Member{Name: "仲間"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/members/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/members/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleMemberDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	members := srv.store.Members()
 	require.Len(t, members, 1)

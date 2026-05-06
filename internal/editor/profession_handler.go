@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -27,8 +26,14 @@ type professionsData struct {
 	Edit  *professionEditData
 }
 
-func (s *Server) handleProfessions(w http.ResponseWriter, _ *http.Request) {
-	s.renderProfessions(w, -1)
+func (s *Server) handleProfessions(w http.ResponseWriter, r *http.Request) {
+	selected := -1
+	if v := r.URL.Query().Get("selected"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			selected = n
+		}
+	}
+	s.renderProfessions(w, selected)
 }
 
 func (s *Server) renderProfessions(w http.ResponseWriter, activeIndex int) {
@@ -42,49 +47,6 @@ func (s *Server) renderProfessions(w http.ResponseWriter, activeIndex int) {
 		data.Edit = &professionEditData{Index: activeIndex, Profession: profs[activeIndex], ItemOptions: s.itemOptions()}
 	}
 	if err := s.templates.ExecuteTemplate(w, "professions", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func (s *Server) renderProfessionPartial(w http.ResponseWriter, activeIndex int) {
-	profs := s.store.Professions()
-	rows := make([]professionItem, len(profs))
-	for i, p := range profs {
-		rows[i] = professionItem{Index: i, Profession: p, Active: i == activeIndex}
-	}
-	data := professionsData{Items: rows}
-	if activeIndex >= 0 && activeIndex < len(profs) {
-		ed := professionEditData{Index: activeIndex, Profession: profs[activeIndex], ItemOptions: s.itemOptions()}
-		if err := s.templates.ExecuteTemplate(w, "profession-edit", ed); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">職業を選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-	if err := s.templates.ExecuteTemplate(w, "prof-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "prof-count-oob", data); err != nil {
-		log.Printf("件数OOBレンダリングに失敗: %v", err)
-	}
-}
-
-func (s *Server) handleProfessionEdit(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	prof, err := s.store.Profession(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := professionEditData{Index: index, Profession: prof, ItemOptions: s.itemOptions()}
-	if err := s.templates.ExecuteTemplate(w, "profession-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -113,7 +75,7 @@ func (s *Server) handleProfessionUpdate(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderProfessionPartial(w, s.findProfessionIndex(prof.ID))
+	http.Redirect(w, r, fmt.Sprintf("/professions?selected=%d", s.findProfessionIndex(prof.ID)), http.StatusSeeOther)
 }
 
 func (s *Server) handleProfessionCreate(w http.ResponseWriter, r *http.Request) {
@@ -131,7 +93,7 @@ func (s *Server) handleProfessionCreate(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderProfessionPartial(w, s.findProfessionIndex(id))
+	http.Redirect(w, r, fmt.Sprintf("/professions?selected=%d", s.findProfessionIndex(id)), http.StatusSeeOther)
 }
 
 func (s *Server) handleProfessionDelete(w http.ResponseWriter, r *http.Request) {
@@ -144,7 +106,7 @@ func (s *Server) handleProfessionDelete(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderProfessionPartial(w, -1)
+	http.Redirect(w, r, "/professions", http.StatusSeeOther)
 }
 
 func parseProfessionForm(r *http.Request) raw.Profession {

@@ -35,7 +35,7 @@ func TestHandlePropCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handlePropCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	props := srv.store.Props()
 	require.Len(t, props, 1)
@@ -48,10 +48,10 @@ func TestHandlePropDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddProp(raw.PropRaw{Name: "テスト"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/props/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/props/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handlePropDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	assert.Empty(t, srv.store.Props())
 }

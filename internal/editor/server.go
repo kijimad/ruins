@@ -115,6 +115,14 @@ func NewServer(store *Store, opts ...ServerOption) *Server {
 			return raw.Wearable{}
 		},
 	}
+	funcMap["contains"] = func(slice []string, item string) bool {
+		for _, s := range slice {
+			if s == item {
+				return true
+			}
+		}
+		return false
+	}
 	funcMap["mul"] = func(a, b int) int { return a * b }
 	funcMap["printf"] = fmt.Sprintf
 	funcMap["selectData"] = func(name, value string) map[string]string {
@@ -245,71 +253,59 @@ func (s *Server) ListenAndServe(addr string) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", s.handleDashboard)
 	mux.HandleFunc("GET /items", s.handleIndex)
-	mux.HandleFunc("GET /items/{index}/edit", s.handleItemEdit)
-	mux.HandleFunc("GET /items/{index}", s.handleItemRow)
 	mux.HandleFunc("POST /items/{index}", s.handleItemUpdate)
 	mux.HandleFunc("POST /items/new", s.handleItemCreate)
-	mux.HandleFunc("DELETE /items/{index}", s.handleItemDelete)
+	mux.HandleFunc("POST /items/{index}/delete", s.handleItemDelete)
 
 	mux.HandleFunc("GET /members", s.handleMembers)
-	mux.HandleFunc("GET /members/{index}/edit", s.handleMemberEdit)
 	mux.HandleFunc("POST /members/{index}", s.handleMemberUpdate)
 	mux.HandleFunc("POST /members/new", s.handleMemberCreate)
-	mux.HandleFunc("DELETE /members/{index}", s.handleMemberDelete)
+	mux.HandleFunc("POST /members/{index}/delete", s.handleMemberDelete)
 
 	mux.HandleFunc("GET /recipes", s.handleRecipes)
-	mux.HandleFunc("GET /recipes/{index}/edit", s.handleRecipeEdit)
 	mux.HandleFunc("POST /recipes/{index}", s.handleRecipeUpdate)
 	mux.HandleFunc("POST /recipes/new", s.handleRecipeCreate)
-	mux.HandleFunc("DELETE /recipes/{index}", s.handleRecipeDelete)
+	mux.HandleFunc("POST /recipes/{index}/delete", s.handleRecipeDelete)
 
 	mux.HandleFunc("GET /command-tables", s.handleCommandTables)
-	mux.HandleFunc("GET /command-tables/{index}/edit", s.handleCommandTableEdit)
 	mux.HandleFunc("POST /command-tables/{index}", s.handleCommandTableUpdate)
 	mux.HandleFunc("POST /command-tables/new", s.handleCommandTableCreate)
-	mux.HandleFunc("DELETE /command-tables/{index}", s.handleCommandTableDelete)
+	mux.HandleFunc("POST /command-tables/{index}/delete", s.handleCommandTableDelete)
 
 	mux.HandleFunc("GET /drop-tables", s.handleDropTables)
-	mux.HandleFunc("GET /drop-tables/{index}/edit", s.handleDropTableEdit)
 	mux.HandleFunc("POST /drop-tables/{index}", s.handleDropTableUpdate)
 	mux.HandleFunc("POST /drop-tables/new", s.handleDropTableCreate)
-	mux.HandleFunc("DELETE /drop-tables/{index}", s.handleDropTableDelete)
+	mux.HandleFunc("POST /drop-tables/{index}/delete", s.handleDropTableDelete)
 
 	mux.HandleFunc("GET /item-tables", s.handleItemTables)
-	mux.HandleFunc("GET /item-tables/{index}/edit", s.handleItemTableEdit)
 	mux.HandleFunc("POST /item-tables/{index}", s.handleItemTableUpdate)
 	mux.HandleFunc("POST /item-tables/new", s.handleItemTableCreate)
-	mux.HandleFunc("DELETE /item-tables/{index}", s.handleItemTableDelete)
+	mux.HandleFunc("POST /item-tables/{index}/delete", s.handleItemTableDelete)
 
 	mux.HandleFunc("GET /enemy-tables", s.handleEnemyTables)
-	mux.HandleFunc("GET /enemy-tables/{index}/edit", s.handleEnemyTableEdit)
 	mux.HandleFunc("POST /enemy-tables/{index}", s.handleEnemyTableUpdate)
 	mux.HandleFunc("POST /enemy-tables/new", s.handleEnemyTableCreate)
-	mux.HandleFunc("DELETE /enemy-tables/{index}", s.handleEnemyTableDelete)
+	mux.HandleFunc("POST /enemy-tables/{index}/delete", s.handleEnemyTableDelete)
 
 	mux.HandleFunc("GET /tiles", s.handleTiles)
-	mux.HandleFunc("GET /tiles/{index}/edit", s.handleTileEdit)
 	mux.HandleFunc("POST /tiles/{index}", s.handleTileUpdate)
 	mux.HandleFunc("POST /tiles/new", s.handleTileCreate)
-	mux.HandleFunc("DELETE /tiles/{index}", s.handleTileDelete)
+	mux.HandleFunc("POST /tiles/{index}/delete", s.handleTileDelete)
 
 	mux.HandleFunc("GET /props", s.handleProps)
-	mux.HandleFunc("GET /props/{index}/edit", s.handlePropEdit)
 	mux.HandleFunc("POST /props/{index}", s.handlePropUpdate)
 	mux.HandleFunc("POST /props/new", s.handlePropCreate)
-	mux.HandleFunc("DELETE /props/{index}", s.handlePropDelete)
+	mux.HandleFunc("POST /props/{index}/delete", s.handlePropDelete)
 
 	mux.HandleFunc("GET /professions", s.handleProfessions)
-	mux.HandleFunc("GET /professions/{index}/edit", s.handleProfessionEdit)
 	mux.HandleFunc("POST /professions/{index}", s.handleProfessionUpdate)
 	mux.HandleFunc("POST /professions/new", s.handleProfessionCreate)
-	mux.HandleFunc("DELETE /professions/{index}", s.handleProfessionDelete)
+	mux.HandleFunc("POST /professions/{index}/delete", s.handleProfessionDelete)
 
 	mux.HandleFunc("GET /sprite-sheets", s.handleSpriteSheets)
-	mux.HandleFunc("GET /sprite-sheets/{index}/edit", s.handleSpriteSheetEdit)
 	mux.HandleFunc("POST /sprite-sheets/{index}", s.handleSpriteSheetUpdate)
 	mux.HandleFunc("POST /sprite-sheets/new", s.handleSpriteSheetCreate)
-	mux.HandleFunc("DELETE /sprite-sheets/{index}", s.handleSpriteSheetDelete)
+	mux.HandleFunc("POST /sprite-sheets/{index}/delete", s.handleSpriteSheetDelete)
 
 	mux.HandleFunc("GET /cutter", s.handleCutter)
 	mux.HandleFunc("POST /cutter/upload", s.handleCutterUpload)
@@ -318,14 +314,14 @@ func (s *Server) ListenAndServe(addr string) error {
 
 	if s.paletteStore != nil {
 		mux.HandleFunc("GET /palettes", s.handlePalettes)
-		mux.HandleFunc("GET /palettes/{id}/edit", s.handlePaletteEdit)
 		mux.HandleFunc("POST /palettes/{id}", s.handlePaletteUpdate)
 		mux.HandleFunc("POST /palettes/new", s.handlePaletteCreate)
-		mux.HandleFunc("DELETE /palettes/{id}", s.handlePaletteDelete)
+		mux.HandleFunc("POST /palettes/{id}/delete", s.handlePaletteDelete)
 	}
 
 	if s.layoutStore != nil {
 		mux.HandleFunc("GET /layouts", s.handleLayouts)
+		mux.HandleFunc("POST /layouts/new", s.handleLayoutCreate)
 		mux.HandleFunc("GET /layouts/{dir}/{file}/{chunk}/edit", s.handleLayoutEdit)
 		mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}", s.handleLayoutUpdate)
 		mux.HandleFunc("GET /layouts/{dir}/{file}/{chunk}/preview", s.handleLayoutPreview)

@@ -1,7 +1,7 @@
 {{define "common-head"}}
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
 {{end}}
 
@@ -13,9 +13,6 @@ function initTomSelect(root) {
   });
 }
 initTomSelect();
-document.body.addEventListener('htmx:afterSettle', function(e) {
-  initTomSelect(e.detail.target);
-});
 </script>
 {{end}}
 
@@ -100,7 +97,7 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/items/new" hx-target="#edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/items/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規アイテム">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -128,9 +125,7 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
 {{end}}
 
 {{define "item-entry"}}
-<div class="item-entry{{if .Active}} active{{end}}" id="entry-{{.Index}}"
-     hx-get="/items/{{.Index}}/edit" hx-target="#edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.item-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/items?selected={{.Index}}" class="item-entry{{if .Active}} active{{end}}" id="entry-{{.Index}}" style="text-decoration:none;color:inherit;">
   <span style="{{spriteStyle .Item.SpriteSheetName .Item.SpriteKey 1}}" class="flex-shrink-0"></span>
   <span class="text-truncate flex-grow-1">{{.Item.Name}}</span>
   <span class="flex-shrink-0">
@@ -141,22 +136,9 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
     {{- if isNotNil .Item.Ammo}}<span class="badge text-bg-warning">弾</span>{{end -}}
     {{- if isNotNil .Item.Book}}<span class="badge text-bg-secondary">本</span>{{end -}}
   </span>
-</div>
+</a>
 {{end}}
 
-{{define "item-list-oob"}}
-<div id="item-list" hx-swap-oob="innerHTML:#item-list">
-{{range .Items}}
-{{template "item-entry" .}}
-{{end}}
-</div>
-{{end}}
-
-{{define "item-count-oob"}}
-<div id="item-count" hx-swap-oob="innerHTML:#item-count">
-  {{len .Items}} items
-</div>
-{{end}}
 
 {{define "select-target-group"}}
 <select class="form-select" name="{{.Name}}">
@@ -247,7 +229,7 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/members/new" hx-target="#member-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/members/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規メンバー">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -275,9 +257,7 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
 {{end}}
 
 {{define "member-entry"}}
-<div class="member-entry{{if .Active}} active{{end}}" id="mentry-{{.Index}}"
-     hx-get="/members/{{.Index}}/edit" hx-target="#member-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.member-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/members?selected={{.Index}}" class="member-entry{{if .Active}} active{{end}}" id="mentry-{{.Index}}" style="text-decoration:none;color:inherit;">
   <span style="{{spriteStyle .Member.SpriteSheetName .Member.SpriteKey 1}}" class="flex-shrink-0"></span>
   <span class="text-truncate flex-grow-1">{{.Member.Name}}</span>
   <span class="flex-shrink-0">
@@ -287,30 +267,19 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
     {{- if eq .Member.FactionType "FactionEnemy"}}<span class="badge text-bg-warning">敵</span>{{end -}}
     {{- if eq .Member.FactionType "FactionNeutral"}}<span class="badge text-bg-secondary">中立</span>{{end -}}
   </span>
-</div>
+</a>
 {{end}}
 
-{{define "member-list-oob"}}
-<div id="member-list" hx-swap-oob="innerHTML:#member-list">
-{{range .Items}}
-{{template "member-entry" .}}
-{{end}}
-</div>
-{{end}}
-
-{{define "member-count-oob"}}
-<div id="member-count" hx-swap-oob="innerHTML:#member-count">
-  {{len .Items}} members
-</div>
-{{end}}
 
 {{define "member-edit"}}
 {{template "sprite-picker-js"}}
-<form hx-post="/members/{{.Index}}" hx-target="#member-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/members/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <span id="sprite-preview" style="{{spriteStyle .Member.SpriteSheetName .Member.SpriteKey 2}}"></span>
     <h5 class="mb-0 me-auto">{{.Member.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/members/{{.Index}}" hx-target="#member-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/members/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
 
   <div class="row g-3 mb-3">
@@ -481,7 +450,7 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
   <div class="d-flex content-area">
     <div class="sidebar border-end p-0 d-flex flex-column">
       <div class="p-2 border-bottom">
-        <form hx-post="/recipes/new" hx-target="#recipe-edit-panel" hx-swap="innerHTML" class="d-flex gap-1">
+        <form method="POST" action="/recipes/new" class="d-flex gap-1">
           <input type="text" class="form-control form-control-sm" name="name" required placeholder="新規レシピ">
           <button type="submit" class="btn btn-primary btn-sm">追加</button>
         </form>
@@ -509,27 +478,12 @@ document.body.addEventListener('htmx:afterSettle', function(e) {
 {{end}}
 
 {{define "recipe-entry"}}
-<div class="recipe-entry{{if .Active}} active{{end}}" id="rentry-{{.Index}}"
-     hx-get="/recipes/{{.Index}}/edit" hx-target="#recipe-edit-panel" hx-swap="innerHTML"
-     onclick="document.querySelectorAll('.recipe-entry').forEach(e=>e.classList.remove('active'));this.classList.add('active');">
+<a href="/recipes?selected={{.Index}}" class="recipe-entry{{if .Active}} active{{end}}" id="rentry-{{.Index}}" style="text-decoration:none;color:inherit;">
   <span class="text-truncate flex-grow-1">{{.Recipe.Name}}</span>
   <span class="badge text-bg-secondary">{{len .Recipe.Inputs}}素材</span>
-</div>
+</a>
 {{end}}
 
-{{define "recipe-list-oob"}}
-<div id="recipe-list" hx-swap-oob="innerHTML:#recipe-list">
-{{range .Items}}
-{{template "recipe-entry" .}}
-{{end}}
-</div>
-{{end}}
-
-{{define "recipe-count-oob"}}
-<div id="recipe-count" hx-swap-oob="innerHTML:#recipe-count">
-  {{len .Items}} recipes
-</div>
-{{end}}
 
 {{define "recipe-edit"}}
 <script>
@@ -551,10 +505,12 @@ function addRecipeInput() {
   {{range .ItemOptions}}<option value="{{.Name}}">{{.Label}}</option>{{end}}
 </template>
 
-<form hx-post="/recipes/{{.Index}}" hx-target="#recipe-edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/recipes/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <h5 class="mb-0 me-auto">{{.Recipe.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/recipes/{{.Index}}" hx-target="#recipe-edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/recipes/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
 
   <div class="row g-3 mb-3">
@@ -650,7 +606,7 @@ function addRecipeInput() {
   <h1 class="mb-3">Sprite Cutter</h1>
   <p class="text-secondary">256x256のスプライトシートPNGをアップロードし、32x32の個別スプライトに切り出して名前をつけて保存します。</p>
 
-  <form hx-post="/cutter/upload" hx-target="body" hx-swap="innerHTML" hx-encoding="multipart/form-data" class="mb-4">
+  <form method="POST" action="/cutter/upload" enctype="multipart/form-data" class="mb-4">
     <div class="row g-2 align-items-end">
       <div class="col-auto">
         <label class="form-label">スプライトシートPNG</label>
@@ -664,7 +620,7 @@ function addRecipeInput() {
 
   {{if .Uploaded}}
   <div id="save-result"></div>
-  <form hx-post="/cutter/save" hx-target="#save-result" hx-swap="innerHTML" class="mb-4">
+  <form method="POST" action="/cutter/save" class="mb-4">
     <div class="d-flex align-items-center gap-3 mb-3">
       <h5 class="mb-0">{{.Cols}}x{{.Rows}} = {{len .Cells}} セル ({{.CellSize}}x{{.CellSize}}px)</h5>
       <button type="submit" class="btn btn-success">選択したスプライトを保存</button>
@@ -724,7 +680,8 @@ function openSpritePicker() {
   var grid = document.getElementById('sprite-key-grid');
   if (grid.children.length === 0 || grid.getAttribute('data-sheet') !== sheet) {
     grid.setAttribute('data-sheet', sheet);
-    htmx.ajax('GET', '/sprites/' + sheet + '/keys', {target:'#sprite-key-grid', swap:'innerHTML'}).then(function() {
+    fetch('/sprites/' + sheet + '/keys').then(function(r) { return r.text(); }).then(function(html) {
+      grid.innerHTML = html;
       highlightCurrent();
     });
   }
@@ -766,11 +723,13 @@ document.addEventListener('click', function(e) {
 {{$w := wearable .Item}}
 {{template "sprite-picker-js"}}
 
-<form hx-post="/items/{{.Index}}" hx-target="#edit-panel" hx-swap="innerHTML">
+<form method="POST" action="/items/{{.Index}}">
   <div class="d-flex align-items-center gap-3 mb-3">
     <span id="sprite-preview" style="{{spriteStyle .Item.SpriteSheetName .Item.SpriteKey 2}}"></span>
     <h5 class="mb-0 me-auto">{{.Item.Name}}</h5>
-    <button class="btn btn-outline-danger btn-sm" type="button" hx-delete="/items/{{.Index}}" hx-target="#edit-panel" hx-swap="innerHTML" hx-confirm="削除しますか?">削除</button>
+    <form method="POST" action="/items/{{.Index}}/delete" style="display:inline;" onsubmit="return confirm('削除しますか?')">
+      <button class="btn btn-outline-danger btn-sm" type="submit">削除</button>
+    </form>
   </div>
 
   <div class="row g-3 mb-3">

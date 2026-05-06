@@ -32,8 +32,14 @@ type spriteSheetsData struct {
 	Edit  *spriteSheetEditData
 }
 
-func (s *Server) handleSpriteSheets(w http.ResponseWriter, _ *http.Request) {
-	s.renderSpriteSheets(w, -1)
+func (s *Server) handleSpriteSheets(w http.ResponseWriter, r *http.Request) {
+	selected := -1
+	if v := r.URL.Query().Get("selected"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			selected = n
+		}
+	}
+	s.renderSpriteSheets(w, selected)
 }
 
 func (s *Server) renderSpriteSheets(w http.ResponseWriter, activeIndex int) {
@@ -47,49 +53,6 @@ func (s *Server) renderSpriteSheets(w http.ResponseWriter, activeIndex int) {
 		data.Edit = &spriteSheetEditData{Index: activeIndex, Sheet: sheets[activeIndex]}
 	}
 	if err := s.templates.ExecuteTemplate(w, "sprite-sheets", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func (s *Server) renderSpriteSheetPartial(w http.ResponseWriter, activeIndex int) {
-	sheets := s.store.SpriteSheets()
-	rows := make([]spriteSheetItem, len(sheets))
-	for i, sh := range sheets {
-		rows[i] = spriteSheetItem{Index: i, Sheet: sh, Active: i == activeIndex}
-	}
-	data := spriteSheetsData{Items: rows}
-	if activeIndex >= 0 && activeIndex < len(sheets) {
-		ed := spriteSheetEditData{Index: activeIndex, Sheet: sheets[activeIndex]}
-		if err := s.templates.ExecuteTemplate(w, "sprite-sheet-edit", ed); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">スプライトシートを選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-	if err := s.templates.ExecuteTemplate(w, "ss-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "ss-count-oob", data); err != nil {
-		log.Printf("件数OOBレンダリングに失敗: %v", err)
-	}
-}
-
-func (s *Server) handleSpriteSheetEdit(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	ss, err := s.store.SpriteSheetByIndex(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := spriteSheetEditData{Index: index, Sheet: ss}
-	if err := s.templates.ExecuteTemplate(w, "sprite-sheet-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -118,7 +81,7 @@ func (s *Server) handleSpriteSheetUpdate(w http.ResponseWriter, r *http.Request)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderSpriteSheetPartial(w, s.findSpriteSheetIndex(ss.Name))
+	http.Redirect(w, r, fmt.Sprintf("/sprite-sheets?selected=%d", s.findSpriteSheetIndex(ss.Name)), http.StatusSeeOther)
 }
 
 func (s *Server) handleSpriteSheetCreate(w http.ResponseWriter, r *http.Request) {
@@ -136,7 +99,7 @@ func (s *Server) handleSpriteSheetCreate(w http.ResponseWriter, r *http.Request)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderSpriteSheetPartial(w, s.findSpriteSheetIndex(name))
+	http.Redirect(w, r, fmt.Sprintf("/sprite-sheets?selected=%d", s.findSpriteSheetIndex(name)), http.StatusSeeOther)
 }
 
 func (s *Server) handleSpriteSheetDelete(w http.ResponseWriter, r *http.Request) {
@@ -149,7 +112,7 @@ func (s *Server) handleSpriteSheetDelete(w http.ResponseWriter, r *http.Request)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderSpriteSheetPartial(w, -1)
+	http.Redirect(w, r, "/sprite-sheets", http.StatusSeeOther)
 }
 
 // cutterCell はスプライトカッターの1セル分のデータ
@@ -198,8 +161,7 @@ func (s *Server) handleCutterUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	s.uploadedSheet = img
 
-	w.Header().Set("HX-Redirect", "/cutter")
-	w.WriteHeader(http.StatusOK)
+	http.Redirect(w, r, "/cutter", http.StatusSeeOther)
 }
 
 // handleCutterPreview はアップロード済み画像をPNGで返す
@@ -233,7 +195,6 @@ func (s *Server) handleCutterSave(w http.ResponseWriter, r *http.Request) {
 	cellSize := 32
 	cols := bounds.Dx() / cellSize
 	rows := bounds.Dy() / cellSize
-	saved := 0
 
 	for row := range rows {
 		for col := range cols {
@@ -271,14 +232,10 @@ func (s *Server) handleCutterSave(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, fmt.Sprintf("%s の保存に失敗: %v", name, err), http.StatusInternalServerError)
 				return
 			}
-			saved++
 		}
 	}
 
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	if _, err := fmt.Fprintf(w, `<div class="alert alert-success">%d 個のスプライトを保存しました</div>`, saved); err != nil {
-		log.Printf("レスポンス書き込みに失敗: %v", err)
-	}
+	http.Redirect(w, r, "/cutter", http.StatusSeeOther)
 }
 
 func (s *Server) buildCutterData() cutterData {

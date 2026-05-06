@@ -119,9 +119,31 @@ func (ls *LayoutStore) findChunk(dirName, fileName, chunkName string) (*maptempl
 	return nil, fmt.Errorf("ファイルが見つかりません: %s/%s", dirName, fileName)
 }
 
-// SaveChunk はチャンクのmap内容を更新して保存する。
+// ChunkNames は全チャンク名をソート済みで返す
+func (ls *LayoutStore) ChunkNames() []string {
+	ls.mu.RLock()
+	defer ls.mu.RUnlock()
+
+	var names []string
+	for _, e := range ls.entries {
+		for _, c := range e.Chunks {
+			names = append(names, c.Name)
+		}
+	}
+	sort.Strings(names)
+	return names
+}
+
+// SaveChunkUpdate はチャンクの内容を更新して保存する
+type SaveChunkUpdate struct {
+	MapContent string
+	Palettes   []string
+	Placements []maptemplate.ChunkPlacement
+}
+
+// SaveChunk はチャンクの内容を更新して保存する。
 // validateがnilでなければ、保存前にチャンクを検証する
-func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string, validate func(*maptemplate.ChunkTemplate) error) error {
+func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName string, update SaveChunkUpdate, validate func(*maptemplate.ChunkTemplate) error) error {
 	ls.mu.Lock()
 	defer ls.mu.Unlock()
 
@@ -136,7 +158,11 @@ func (ls *LayoutStore) SaveChunk(dirName, fileName, chunkName, mapContent string
 			return err
 		}
 	}
-	chunk.Map = mapContent
+	chunk.Map = update.MapContent
+	if update.Palettes != nil {
+		chunk.Palettes = update.Palettes
+	}
+	chunk.Placements = update.Placements
 
 	// ファイルに書き出す
 	return ls.saveFile(dirName, fileName)
@@ -161,6 +187,66 @@ func (ls *LayoutStore) saveFile(dirName, fileName string) error {
 		}
 	}
 	return fmt.Errorf("エントリが見つかりません: %s", key)
+}
+
+// DirNames は管理対象のディレクトリ名一覧をソート済みで返す
+func (ls *LayoutStore) DirNames() []string {
+	ls.mu.RLock()
+	defer ls.mu.RUnlock()
+
+	names := make([]string, len(ls.dirs))
+	for i, d := range ls.dirs {
+		names[i] = filepath.Base(d)
+	}
+	sort.Strings(names)
+	return names
+}
+
+// AddChunk は新しいチャンクをファイルに追加する。
+// ファイルが存在しない場合は新規作成する
+func (ls *LayoutStore) AddChunk(dirName, fileName string, chunk maptemplate.ChunkTemplate) error {
+	ls.mu.Lock()
+	defer ls.mu.Unlock()
+
+	// ディレクトリの実パスを探す
+	var dirPath string
+	for _, d := range ls.dirs {
+		if filepath.Base(d) == dirName {
+			dirPath = d
+			break
+		}
+	}
+	if dirPath == "" {
+		return fmt.Errorf("ディレクトリが見つかりません: %s", dirName)
+	}
+
+	key := dirName + "/" + fileName
+
+	// 既存エントリを探す
+	for i := range ls.entries {
+		if ls.entries[i].Dir == dirName && ls.entries[i].FileName == fileName {
+			ls.entries[i].Chunks = append(ls.entries[i].Chunks, chunk)
+			return ls.saveFile(dirName, fileName)
+		}
+	}
+
+	// 新規ファイルを作成する
+	absPath := filepath.Join(dirPath, fileName)
+	ls.paths[key] = absPath
+	ls.entries = append(ls.entries, LayoutFileEntry{
+		Dir:      dirName,
+		FileName: fileName,
+		Chunks:   []maptemplate.ChunkTemplate{chunk},
+	})
+
+	sort.Slice(ls.entries, func(i, j int) bool {
+		if ls.entries[i].Dir != ls.entries[j].Dir {
+			return ls.entries[i].Dir < ls.entries[j].Dir
+		}
+		return ls.entries[i].FileName < ls.entries[j].FileName
+	})
+
+	return ls.saveFile(dirName, fileName)
 }
 
 // BuildTemplateLoader はメモリ上のチャンクデータからTemplateLoaderを構築する。

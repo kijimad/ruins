@@ -35,7 +35,7 @@ func TestHandleProfessionCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleProfessionCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	profs := srv.store.Professions()
 	require.Len(t, profs, 1)
@@ -49,10 +49,10 @@ func TestHandleProfessionDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddProfession(raw.Profession{ID: "test", Name: "テスト"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/professions/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/professions/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleProfessionDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	assert.Empty(t, srv.store.Professions())
 }

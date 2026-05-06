@@ -194,50 +194,6 @@ func TestHandleIndex(t *testing.T) {
 	assert.Contains(t, body, "2 items")
 }
 
-func TestHandleItemRow(t *testing.T) {
-	t.Parallel()
-	srv := newTestServer(t, []raw.Item{
-		{Name: "剣", Description: "鋭い剣"},
-	})
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/items/0", nil)
-	r.SetPathValue("index", "0")
-	srv.handleItemRow(w, r)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "剣")
-}
-
-func TestHandleItemRow_NotFound(t *testing.T) {
-	t.Parallel()
-	srv := newTestServer(t, []raw.Item{})
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/items/99", nil)
-	r.SetPathValue("index", "99")
-	srv.handleItemRow(w, r)
-
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
-
-func TestHandleItemEdit(t *testing.T) {
-	t.Parallel()
-	srv := newTestServer(t, []raw.Item{
-		{Name: "剣", Melee: &raw.MeleeRaw{Accuracy: 80, Damage: 10}},
-	})
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/items/0/edit", nil)
-	r.SetPathValue("index", "0")
-	srv.handleItemEdit(w, r)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	body := w.Body.String()
-	assert.Contains(t, body, "剣")
-	assert.Contains(t, body, "80")
-}
-
 func TestHandleItemUpdate(t *testing.T) {
 	t.Parallel()
 	srv := newTestServer(t, []raw.Item{
@@ -251,8 +207,7 @@ func TestHandleItemUpdate(t *testing.T) {
 	r.SetPathValue("index", "0")
 	srv.handleItemUpdate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "改良剣")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	// Storeにも反映されていることを確認する
 	item, err := srv.store.Item(0)
@@ -270,7 +225,7 @@ func TestHandleItemCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleItemCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	items := srv.store.Items()
 	require.Len(t, items, 1)
@@ -299,11 +254,11 @@ func TestHandleItemDelete(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/items/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/items/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleItemDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	items := srv.store.Items()
 	require.Len(t, items, 1)

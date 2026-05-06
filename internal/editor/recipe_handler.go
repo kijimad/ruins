@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,8 +29,14 @@ type recipesData struct {
 	Edit  *recipeEditData
 }
 
-func (s *Server) handleRecipes(w http.ResponseWriter, _ *http.Request) {
-	s.renderRecipes(w, -1)
+func (s *Server) handleRecipes(w http.ResponseWriter, r *http.Request) {
+	selected := -1
+	if v := r.URL.Query().Get("selected"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			selected = n
+		}
+	}
+	s.renderRecipes(w, selected)
 }
 
 func (s *Server) renderRecipes(w http.ResponseWriter, activeIndex int) {
@@ -49,59 +54,6 @@ func (s *Server) renderRecipes(w http.ResponseWriter, activeIndex int) {
 		}
 	}
 	if err := s.templates.ExecuteTemplate(w, "recipes", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func (s *Server) renderRecipePartial(w http.ResponseWriter, activeIndex int) {
-	recipes := s.store.Recipes()
-	rows := make([]recipeItem, len(recipes))
-	for i, r := range recipes {
-		rows[i] = recipeItem{Index: i, Recipe: r, Active: i == activeIndex}
-	}
-	data := recipesData{Items: rows}
-
-	if activeIndex >= 0 && activeIndex < len(recipes) {
-		ed := recipeEditData{
-			Index:       activeIndex,
-			Recipe:      recipes[activeIndex],
-			ItemOptions: s.itemOptions(),
-		}
-		if err := s.templates.ExecuteTemplate(w, "recipe-edit", ed); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">レシピを選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-
-	if err := s.templates.ExecuteTemplate(w, "recipe-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "recipe-count-oob", data); err != nil {
-		log.Printf("レシピ数OOBレンダリングに失敗: %v", err)
-	}
-}
-
-func (s *Server) handleRecipeEdit(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	recipe, err := s.store.Recipe(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := recipeEditData{
-		Index:       index,
-		Recipe:      recipe,
-		ItemOptions: s.itemOptions(),
-	}
-	if err := s.templates.ExecuteTemplate(w, "recipe-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -130,7 +82,7 @@ func (s *Server) handleRecipeUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderRecipePartial(w, s.findRecipeIndex(recipe.Name))
+	http.Redirect(w, r, fmt.Sprintf("/recipes?selected=%d", s.findRecipeIndex(recipe.Name)), http.StatusSeeOther)
 }
 
 func (s *Server) handleRecipeCreate(w http.ResponseWriter, r *http.Request) {
@@ -148,7 +100,7 @@ func (s *Server) handleRecipeCreate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderRecipePartial(w, s.findRecipeIndex(name))
+	http.Redirect(w, r, fmt.Sprintf("/recipes?selected=%d", s.findRecipeIndex(name)), http.StatusSeeOther)
 }
 
 func (s *Server) handleRecipeDelete(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +113,7 @@ func (s *Server) handleRecipeDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderRecipePartial(w, -1)
+	http.Redirect(w, r, "/recipes", http.StatusSeeOther)
 }
 
 // parseRecipeForm はHTTPフォームからRecipe構造体を構築する

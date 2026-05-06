@@ -3,7 +3,6 @@ package editor
 import (
 	"fmt"
 	"image/color"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -30,8 +29,14 @@ type propsData struct {
 	Edit  *propEditData
 }
 
-func (s *Server) handleProps(w http.ResponseWriter, _ *http.Request) {
-	s.renderProps(w, -1)
+func (s *Server) handleProps(w http.ResponseWriter, r *http.Request) {
+	selected := -1
+	if v := r.URL.Query().Get("selected"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			selected = n
+		}
+	}
+	s.renderProps(w, selected)
 }
 
 func (s *Server) renderProps(w http.ResponseWriter, activeIndex int) {
@@ -45,49 +50,6 @@ func (s *Server) renderProps(w http.ResponseWriter, activeIndex int) {
 		data.Edit = &propEditData{Index: activeIndex, Prop: props[activeIndex], SheetNames: s.sheetNames()}
 	}
 	if err := s.templates.ExecuteTemplate(w, "props", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-func (s *Server) renderPropPartial(w http.ResponseWriter, activeIndex int) {
-	props := s.store.Props()
-	rows := make([]propItem, len(props))
-	for i, p := range props {
-		rows[i] = propItem{Index: i, Prop: p, Active: i == activeIndex}
-	}
-	data := propsData{Items: rows}
-	if activeIndex >= 0 && activeIndex < len(props) {
-		ed := propEditData{Index: activeIndex, Prop: props[activeIndex], SheetNames: s.sheetNames()}
-		if err := s.templates.ExecuteTemplate(w, "prop-edit", ed); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">置物を選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-	if err := s.templates.ExecuteTemplate(w, "prop-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "prop-count-oob", data); err != nil {
-		log.Printf("件数OOBレンダリングに失敗: %v", err)
-	}
-}
-
-func (s *Server) handlePropEdit(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	prop, err := s.store.Prop(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := propEditData{Index: index, Prop: prop, SheetNames: s.sheetNames()}
-	if err := s.templates.ExecuteTemplate(w, "prop-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -121,7 +83,7 @@ func (s *Server) handlePropUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPropPartial(w, s.findPropIndex(prop.Name))
+	http.Redirect(w, r, fmt.Sprintf("/props?selected=%d", s.findPropIndex(prop.Name)), http.StatusSeeOther)
 }
 
 func (s *Server) handlePropCreate(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +101,7 @@ func (s *Server) handlePropCreate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPropPartial(w, s.findPropIndex(name))
+	http.Redirect(w, r, fmt.Sprintf("/props?selected=%d", s.findPropIndex(name)), http.StatusSeeOther)
 }
 
 func (s *Server) handlePropDelete(w http.ResponseWriter, r *http.Request) {
@@ -152,7 +114,7 @@ func (s *Server) handlePropDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPropPartial(w, -1)
+	http.Redirect(w, r, "/props", http.StatusSeeOther)
 }
 
 func parsePropForm(r *http.Request, p raw.PropRaw) raw.PropRaw {

@@ -19,10 +19,10 @@ type ChunkTemplate struct {
 	Name        string           `toml:"name"`   // キー
 	Weight      int              `toml:"weight"` // 出現確率の重み
 	Size        Size             // マップサイズ（名前から自動パース）
-	Palettes    []string         `toml:"palettes"`     // 使用するパレットID
-	Map         string           `toml:"map"`          // ASCIIマップ
-	Placements  []ChunkPlacement `toml:"placements"`   // ネストされたチャンクの配置
-	SpawnPoints []SpawnPoint     `toml:"spawn_points"` // スポーン地点の配置
+	Palettes    []string         `toml:"palettes"`      // 使用するパレットID
+	Map         string           `toml:"map,multiline"` // ASCIIマップ
+	Placements  []ChunkPlacement `toml:"placements"`    // ネストされたチャンクの配置
+	SpawnPoints []SpawnPoint     `toml:"spawn_points"`  // スポーン地点の配置
 }
 
 // Size はマップのサイズ（幅×高さ）を表す

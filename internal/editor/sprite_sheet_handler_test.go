@@ -41,7 +41,7 @@ func TestHandleSpriteSheetCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleSpriteSheetCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	sheets := srv.store.SpriteSheets()
 	require.Len(t, sheets, 1)
 	assert.Equal(t, "新スプライト", sheets[0].Name)
@@ -77,9 +77,9 @@ func TestHandleCutterUpload(t *testing.T) {
 	r.Header.Set("Content-Type", writer.FormDataContentType())
 	srv.handleCutterUpload(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	assert.NotNil(t, srv.uploadedSheet)
-	assert.Equal(t, "/cutter", w.Header().Get("HX-Redirect"))
+	assert.Equal(t, "/cutter", w.Header().Get("Location"))
 }
 
 func TestHandleCutterSave(t *testing.T) {
@@ -106,8 +106,8 @@ func TestHandleCutterSave(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleCutterSave(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "1 個のスプライトを保存しました")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "/cutter", w.Header().Get("Location"))
 
 	// ファイルが作成されたか確認する
 	_, err := os.Stat(filepath.Join(outDir, "test_sprite_.png"))
@@ -142,8 +142,8 @@ func TestHandleCutterSave_SkipsTransparent(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleCutterSave(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "0 個のスプライトを保存しました")
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Equal(t, "/cutter", w.Header().Get("Location"))
 
 	// ファイルが作成されていないことを確認する
 	_, err := os.Stat(filepath.Join(outDir, "transparent_.png"))

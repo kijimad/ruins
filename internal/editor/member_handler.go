@@ -3,7 +3,6 @@ package editor
 import (
 	"fmt"
 	"image/color"
-	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -36,8 +35,14 @@ type membersData struct {
 	Edit  *memberEditData
 }
 
-func (s *Server) handleMembers(w http.ResponseWriter, _ *http.Request) {
-	s.renderMembers(w, -1)
+func (s *Server) handleMembers(w http.ResponseWriter, r *http.Request) {
+	selected := -1
+	if v := r.URL.Query().Get("selected"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil {
+			selected = n
+		}
+	}
+	s.renderMembers(w, selected)
 }
 
 func (s *Server) renderMembers(w http.ResponseWriter, activeIndex int) {
@@ -57,64 +62,6 @@ func (s *Server) renderMembers(w http.ResponseWriter, activeIndex int) {
 		}
 	}
 	if err := s.templates.ExecuteTemplate(w, "members", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
-// renderMemberPartial はedit-panel向けに編集フォームを返し、OOBでサイドバーリストも更新する
-func (s *Server) renderMemberPartial(w http.ResponseWriter, activeIndex int) {
-	members := s.store.Members()
-	rows := make([]memberItem, len(members))
-	for i, m := range members {
-		rows[i] = memberItem{Index: i, Member: m, Active: i == activeIndex}
-	}
-	data := membersData{Items: rows}
-
-	if activeIndex >= 0 && activeIndex < len(members) {
-		ed := memberEditData{
-			Index:             activeIndex,
-			Member:            members[activeIndex],
-			SheetNames:        s.sheetNames(),
-			CommandTableNames: s.commandTableNames(),
-			DropTableNames:    s.dropTableNames(),
-		}
-		if err := s.templates.ExecuteTemplate(w, "member-edit", ed); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">メンバーを選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-
-	if err := s.templates.ExecuteTemplate(w, "member-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "member-count-oob", data); err != nil {
-		log.Printf("メンバー数OOBレンダリングに失敗: %v", err)
-	}
-}
-
-func (s *Server) handleMemberEdit(w http.ResponseWriter, r *http.Request) {
-	index, err := strconv.Atoi(r.PathValue("index"))
-	if err != nil {
-		http.Error(w, "無効なインデックス", http.StatusBadRequest)
-		return
-	}
-	member, err := s.store.Member(index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := memberEditData{
-		Index:             index,
-		Member:            member,
-		SheetNames:        s.sheetNames(),
-		CommandTableNames: s.commandTableNames(),
-		DropTableNames:    s.dropTableNames(),
-	}
-	if err := s.templates.ExecuteTemplate(w, "member-edit", data); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
@@ -153,7 +100,7 @@ func (s *Server) handleMemberUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newIndex := s.findMemberIndex(member.Name)
-	s.renderMemberPartial(w, newIndex)
+	http.Redirect(w, r, fmt.Sprintf("/members?selected=%d", newIndex), http.StatusSeeOther)
 }
 
 func (s *Server) handleMemberCreate(w http.ResponseWriter, r *http.Request) {
@@ -174,7 +121,7 @@ func (s *Server) handleMemberCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newIndex := s.findMemberIndex(name)
-	s.renderMemberPartial(w, newIndex)
+	http.Redirect(w, r, fmt.Sprintf("/members?selected=%d", newIndex), http.StatusSeeOther)
 }
 
 func (s *Server) handleMemberDelete(w http.ResponseWriter, r *http.Request) {
@@ -187,7 +134,7 @@ func (s *Server) handleMemberDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderMemberPartial(w, -1)
+	http.Redirect(w, r, "/members", http.StatusSeeOther)
 }
 
 // commandTableNames はコマンドテーブル名の一覧をソート済みで返す

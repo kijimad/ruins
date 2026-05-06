@@ -242,35 +242,6 @@ func TestHandlePalettes(t *testing.T) {
 	assert.Contains(t, body, "1 palettes")
 }
 
-func TestHandlePaletteEdit(t *testing.T) {
-	t.Parallel()
-	srv := setupPaletteTest(t)
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/palettes/pal1/edit", nil)
-	r.SetPathValue("id", "pal1")
-	srv.handlePaletteEdit(w, r)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	body := w.Body.String()
-	assert.Contains(t, body, "pal1")
-	assert.Contains(t, body, "wall")
-	assert.Contains(t, body, "door")
-	assert.Contains(t, body, "boss")
-}
-
-func TestHandlePaletteEdit_NotFound(t *testing.T) {
-	t.Parallel()
-	srv := setupPaletteTest(t)
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/palettes/nonexistent/edit", nil)
-	r.SetPathValue("id", "nonexistent")
-	srv.handlePaletteEdit(w, r)
-
-	assert.Equal(t, http.StatusNotFound, w.Code)
-}
-
 func TestHandlePaletteCreate(t *testing.T) {
 	t.Parallel()
 	srv := setupPaletteTest(t)
@@ -282,7 +253,7 @@ func TestHandlePaletteCreate(t *testing.T) {
 	srv.handlePaletteCreate(w, r)
 
 	// 空パレットでも保存自体は成功する
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 }
 
 func TestHandlePaletteCreate_EmptyID(t *testing.T) {
@@ -316,7 +287,7 @@ func TestHandlePaletteUpdate(t *testing.T) {
 	r.SetPathValue("id", "pal1")
 	srv.handlePaletteUpdate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	// 更新されたパレットを確認する
 	p, err := srv.paletteStore.Get("pal1")
@@ -332,11 +303,11 @@ func TestHandlePaletteDelete(t *testing.T) {
 	srv := setupPaletteTest(t)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/palettes/pal1", nil)
+	r := httptest.NewRequest(http.MethodPost, "/palettes/pal1/delete", nil)
 	r.SetPathValue("id", "pal1")
 	srv.handlePaletteDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	// 削除されたことを確認する
 	_, err := srv.paletteStore.Get("pal1")

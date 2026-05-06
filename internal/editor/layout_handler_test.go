@@ -188,9 +188,8 @@ func TestHandleLayoutEdit(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 	body := w.Body.String()
 
-	// 編集フォームにhx-trigger="load"付きプレビューコンテナがある
-	assert.Contains(t, body, `hx-trigger="load"`)
-	assert.Contains(t, body, "/layouts/layouts/test/3x3_test/preview")
+	// インラインプレビューが含まれている
+	assert.Contains(t, body, "preview-grid")
 	// テキストエリアにマップが含まれている
 	assert.Contains(t, body, "###")
 	assert.Contains(t, body, "#.#")
@@ -210,11 +209,11 @@ func TestHandleLayoutUpdate_UndefinedChar(t *testing.T) {
 	server := setupLayoutTest(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("PUT /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
+	mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
 
 	// パレットに定義されていない文字 "X" を含むマップを送信する
 	form := strings.NewReader("map_content=" + url.QueryEscape("###\n#X#\n###"))
-	req := httptest.NewRequest("PUT", "/layouts/layouts/test/3x3_test", form)
+	req := httptest.NewRequest("POST", "/layouts/layouts/test/3x3_test", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, req)
@@ -229,16 +228,42 @@ func TestHandleLayoutUpdate_ValidChars(t *testing.T) {
 	server := setupLayoutTest(t)
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("PUT /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
+	mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
 
 	// パレットに定義されている文字のみのマップを送信する
 	form := strings.NewReader("map_content=" + url.QueryEscape("###\n#.#\n###"))
-	req := httptest.NewRequest("PUT", "/layouts/layouts/test/3x3_test", form)
+	req := httptest.NewRequest("POST", "/layouts/layouts/test/3x3_test", form)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, req)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+	assert.Contains(t, w.Header().Get("Location"), "/layouts/layouts/test/3x3_test/edit")
+}
+
+func TestHandleLayoutUpdate_PaletteChange(t *testing.T) {
+	t.Parallel()
+	server := setupLayoutTest(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /layouts/{dir}/{file}/{chunk}", server.handleLayoutUpdate)
+
+	// パレットを変更して保存する
+	formData := url.Values{}
+	formData.Set("map_content", "###\n#.#\n###")
+	formData.Add("palettes", "test_pal")
+	form := strings.NewReader(formData.Encode())
+	req := httptest.NewRequest("POST", "/layouts/layouts/test/3x3_test", form)
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusSeeOther, w.Code)
+
+	// パレットが保存されたことを確認する
+	chunk, err := server.layoutStore.GetChunk("layouts", "test.toml", "3x3_test")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"test_pal"}, chunk.Palettes)
 }
 
 func TestValidateMapContent(t *testing.T) {
@@ -451,4 +476,63 @@ func TestBuildPreviewData(t *testing.T) {
 	assert.Equal(t, "floor", data.Cells[3].Terrain)
 	assert.Equal(t, "boss", data.Cells[3].NPC)
 	assert.Equal(t, 2, len(data.Cells[3].Sprites))
+}
+
+func TestHandleLayoutCreate(t *testing.T) {
+	t.Parallel()
+	server := setupLayoutTest(t)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /layouts/new", server.handleLayoutCreate)
+
+	t.Run("新規チャンクを作成できる", func(t *testing.T) {
+		t.Parallel()
+		formData := url.Values{}
+		formData.Set("dir", "layouts")
+		formData.Set("file", "new_file")
+		formData.Set("name", "5x3_test_room")
+		req := httptest.NewRequest("POST", "/layouts/new", strings.NewReader(formData.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusSeeOther, w.Code)
+		assert.Contains(t, w.Header().Get("Location"), "/layouts/layouts/new_file/5x3_test_room/edit")
+
+		// 作成されたチャンクを確認する
+		chunk, err := server.layoutStore.GetChunk("layouts", "new_file.toml", "5x3_test_room")
+		require.NoError(t, err)
+		assert.Equal(t, 100, chunk.Weight)
+		lines := strings.Split(strings.TrimSpace(chunk.Map), "\n")
+		assert.Equal(t, 3, len(lines))
+		assert.Equal(t, 5, len(lines[0]))
+	})
+
+	t.Run("不正なチャンク名はエラー", func(t *testing.T) {
+		t.Parallel()
+		formData := url.Values{}
+		formData.Set("dir", "layouts")
+		formData.Set("file", "bad")
+		formData.Set("name", "invalid_name")
+		req := httptest.NewRequest("POST", "/layouts/new", strings.NewReader(formData.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("必須フィールドが空の場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		formData := url.Values{}
+		formData.Set("dir", "")
+		formData.Set("file", "")
+		formData.Set("name", "")
+		req := httptest.NewRequest("POST", "/layouts/new", strings.NewReader(formData.Encode()))
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
 }

@@ -1,8 +1,6 @@
 package editor
 
 import (
-	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"sort"
@@ -48,8 +46,9 @@ func sortedMappings(m map[string]string) []charMapping {
 	return entries
 }
 
-func (s *Server) handlePalettes(w http.ResponseWriter, _ *http.Request) {
-	s.renderPalettes(w, "")
+func (s *Server) handlePalettes(w http.ResponseWriter, r *http.Request) {
+	selected := r.URL.Query().Get("selected")
+	s.renderPalettes(w, selected)
 }
 
 func (s *Server) renderPalettes(w http.ResponseWriter, activeID string) {
@@ -106,19 +105,6 @@ func (s *Server) buildPaletteEditData(p maptemplate.Palette) *paletteEditData {
 	}
 }
 
-func (s *Server) handlePaletteEdit(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-	p, err := s.paletteStore.Get(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	data := s.buildPaletteEditData(*p)
-	if err := s.templates.ExecuteTemplate(w, "palette-edit", data); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
-
 func (s *Server) handlePaletteUpdate(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if err := r.ParseForm(); err != nil {
@@ -131,7 +117,7 @@ func (s *Server) handlePaletteUpdate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPalettePartial(w, id)
+	http.Redirect(w, r, "/palettes?selected="+url.QueryEscape(id), http.StatusSeeOther)
 }
 
 func (s *Server) handlePaletteCreate(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +141,7 @@ func (s *Server) handlePaletteCreate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPalettePartial(w, id)
+	http.Redirect(w, r, "/palettes?selected="+url.QueryEscape(id), http.StatusSeeOther)
 }
 
 func (s *Server) handlePaletteDelete(w http.ResponseWriter, r *http.Request) {
@@ -164,42 +150,7 @@ func (s *Server) handlePaletteDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	s.renderPalettePartial(w, "")
-}
-
-func (s *Server) renderPalettePartial(w http.ResponseWriter, activeID string) {
-	palettes, err := s.paletteStore.List()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	rows := make([]paletteItem, len(palettes))
-	for i, p := range palettes {
-		rows[i] = paletteItem{Palette: p, Active: p.ID == activeID}
-	}
-	data := palettesData{Items: rows}
-	if activeID != "" {
-		for _, p := range palettes {
-			if p.ID == activeID {
-				ed := s.buildPaletteEditData(p)
-				if err := s.templates.ExecuteTemplate(w, "palette-edit", ed); err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
-				break
-			}
-		}
-	} else {
-		if _, err := fmt.Fprint(w, `<div class="text-secondary mt-5 text-center">パレットを選択してください</div>`); err != nil {
-			log.Printf("レスポンス書き込みに失敗: %v", err)
-		}
-	}
-	if err := s.templates.ExecuteTemplate(w, "pal-list-oob", data); err != nil {
-		log.Printf("サイドバーOOBレンダリングに失敗: %v", err)
-	}
-	if err := s.templates.ExecuteTemplate(w, "pal-count-oob", data); err != nil {
-		log.Printf("件数OOBレンダリングに失敗: %v", err)
-	}
+	http.Redirect(w, r, "/palettes", http.StatusSeeOther)
 }
 
 // parsePaletteForm はフォームデータからPaletteを構築する。

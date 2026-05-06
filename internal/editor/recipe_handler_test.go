@@ -46,20 +46,6 @@ func TestHandleRecipes(t *testing.T) {
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
-func TestHandleRecipeEdit(t *testing.T) {
-	t.Parallel()
-	srv := newTestServer(t, []raw.Item{})
-	require.NoError(t, srv.store.AddRecipe(raw.Recipe{Name: "テスト"}))
-
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/recipes/0/edit", nil)
-	r.SetPathValue("index", "0")
-	srv.handleRecipeEdit(w, r)
-
-	assert.Equal(t, http.StatusOK, w.Code)
-	assert.Contains(t, w.Body.String(), "テスト")
-}
-
 func TestHandleRecipeCreate(t *testing.T) {
 	t.Parallel()
 	srv := newTestServer(t, []raw.Item{})
@@ -70,7 +56,7 @@ func TestHandleRecipeCreate(t *testing.T) {
 	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	srv.handleRecipeCreate(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 
 	recipes := srv.store.Recipes()
 	require.Len(t, recipes, 1)
@@ -83,10 +69,10 @@ func TestHandleRecipeDelete(t *testing.T) {
 	require.NoError(t, srv.store.AddRecipe(raw.Recipe{Name: "テスト"}))
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/recipes/0", nil)
+	r := httptest.NewRequest(http.MethodPost, "/recipes/0/delete", nil)
 	r.SetPathValue("index", "0")
 	srv.handleRecipeDelete(w, r)
 
-	assert.Equal(t, http.StatusOK, w.Code)
+	assert.Equal(t, http.StatusSeeOther, w.Code)
 	assert.Empty(t, srv.store.Recipes())
 }
