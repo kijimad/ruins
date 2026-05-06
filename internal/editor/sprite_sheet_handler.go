@@ -33,12 +33,7 @@ type spriteSheetsData struct {
 }
 
 func (s *Server) handleSpriteSheets(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderSpriteSheets(w, selected)
 }
 

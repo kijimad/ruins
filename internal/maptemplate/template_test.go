@@ -715,7 +715,7 @@ func TestChunkTemplate_ExpandWithPlacements(t *testing.T) {
 
 		_, err := template.ExpandWithPlacements(loader, 0)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "サイズが不一致")
+		assert.Contains(t, err.Error(), "が不一致")
 	})
 
 	t.Run("未登録のチャンクはエラー", func(t *testing.T) {

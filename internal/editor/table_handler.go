@@ -29,12 +29,7 @@ type commandTablesData struct {
 }
 
 func (s *Server) handleCommandTables(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderCommandTables(w, selected)
 }
 
@@ -144,12 +139,7 @@ type dropTablesData struct {
 }
 
 func (s *Server) handleDropTables(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderDropTables(w, selected)
 }
 
@@ -259,12 +249,7 @@ type itemTablesData struct {
 }
 
 func (s *Server) handleItemTables(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderItemTables(w, selected)
 }
 
@@ -376,12 +361,7 @@ type enemyTablesData struct {
 }
 
 func (s *Server) handleEnemyTables(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderEnemyTables(w, selected)
 }
 

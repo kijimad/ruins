@@ -13,6 +13,12 @@ import (
 	"github.com/pelletier/go-toml/v2"
 )
 
+// placeholderChar はプレースホルダ領域を示す文字
+const placeholderChar = '@'
+
+// placeholderStr はプレースホルダの文字列表現
+const placeholderStr = "@"
+
 // MapCell はマップの1セルを表す解決済みオブジェクト。
 // 各チャンクがパレットを独立に解決した結果を保持する
 type MapCell struct {
@@ -471,13 +477,6 @@ func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate
 // ExpandWithPlacements はplacements方式でチャンクを展開し、解決済みセル配列を返す。
 // 各子チャンクは自身のパレットで独立に解決してからオーバーレイする（CDDA方式）
 func (t *ChunkTemplate) ExpandWithPlacements(loader *TemplateLoader, seed uint64) ([][]MapCell, error) {
-	// プレースホルダ検証を実行
-	if len(t.Placements) > 0 {
-		if err := t.validatePlaceholders(loader); err != nil {
-			return nil, fmt.Errorf("プレースホルダ検証エラー: %w", err)
-		}
-	}
-
 	visiting := make(map[string]bool)
 	return t.expandWithPlacementsRecursive(loader, seed, 0, visiting)
 }
@@ -582,25 +581,12 @@ func (t *ChunkTemplate) expandWithPlacementsRecursive(loader *TemplateLoader, se
 func validateNoPlaceholdersRemaining(cells [][]MapCell) error {
 	for y, row := range cells {
 		for x, cell := range row {
-			if cell.Terrain == "@" {
+			if cell.Terrain == placeholderStr {
 				return fmt.Errorf("展開後のマップに未展開のプレースホルダ '@' が残っています (位置: x=%d, y=%d)", x, y)
 			}
 		}
 	}
 	return nil
-}
-
-// findPlaceholderRegionByID は識別子からプレースホルダ領域(矩形)を検出する。
-// 識別子はプレースホルダ領域の右下に配置されている。
-// 同じIDが複数ある場合は最初の1つだけを返す
-// 戻り値: (左上X, 左上Y, 幅, 高さ, エラー)
-func findPlaceholderRegionByID(lines []string, id string) (int, int, int, int, error) {
-	regions, err := findAllPlaceholderRegionsByID(lines, id)
-	if err != nil {
-		return 0, 0, 0, 0, err
-	}
-	r := regions[0]
-	return r.x, r.y, r.width, r.height, nil
 }
 
 // placeholderRegion はプレースホルダ領域の位置とサイズ
@@ -616,7 +602,6 @@ func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegi
 	}
 
 	idChar := rune(id[0])
-	const placeholder = '@'
 
 	positions := findAllIdentifierPositions(lines, idChar)
 	if len(positions) == 0 {
@@ -627,13 +612,13 @@ func findAllPlaceholderRegionsByID(lines []string, id string) ([]placeholderRegi
 	for _, pos := range positions {
 		idX, idY := pos[0], pos[1]
 
-		startX := findLeftEdge(lines, idY, idX, placeholder, idChar)
-		tempWidth := calculateRowWidth(lines[idY], startX, placeholder, idChar)
-		startY := findTopEdge(lines, idY, startX, tempWidth, placeholder, idChar)
-		width := calculateRowWidth(lines[startY], startX, placeholder, idChar)
-		height := calculateHeight(lines, startY, startX, placeholder, idChar)
+		startX := findLeftEdge(lines, idY, idX, placeholderChar, idChar)
+		tempWidth := calculateRowWidth(lines[idY], startX, placeholderChar, idChar)
+		startY := findTopEdge(lines, idY, startX, tempWidth, placeholderChar, idChar)
+		width := calculateRowWidth(lines[startY], startX, placeholderChar, idChar)
+		height := calculateHeight(lines, startY, startX, placeholderChar, idChar)
 
-		if err := validateRectangle(lines, id, startX, startY, width, height, placeholder, idChar); err != nil {
+		if err := validateRectangle(lines, id, startX, startY, width, height, placeholderChar, idChar); err != nil {
 			return nil, err
 		}
 

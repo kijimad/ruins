@@ -2,14 +2,11 @@ package editor
 
 import (
 	"fmt"
-	"image/color"
 	"net/http"
 	"sort"
 	"strconv"
 	"strings"
 
-	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -36,12 +33,7 @@ type membersData struct {
 }
 
 func (s *Server) handleMembers(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderMembers(w, selected)
 }
 
@@ -194,37 +186,8 @@ func parseMemberForm(r *http.Request, m raw.Member) raw.Member {
 	m.Abilities.Agility, _ = strconv.Atoi(r.FormValue("agility"))
 	m.Abilities.Defense, _ = strconv.Atoi(r.FormValue("defense"))
 
-	// AnimKeys
-	animKeysStr := strings.TrimSpace(r.FormValue("anim_keys"))
-	if animKeysStr != "" {
-		keys := strings.Split(animKeysStr, ",")
-		m.AnimKeys = make([]string, 0, len(keys))
-		for _, k := range keys {
-			k = strings.TrimSpace(k)
-			if k != "" {
-				m.AnimKeys = append(m.AnimKeys, k)
-			}
-		}
-	} else {
-		m.AnimKeys = nil
-	}
-
-	// LightSource
-	if r.FormValue("has_light") == "on" {
-		if m.LightSource == nil {
-			m.LightSource = &gc.LightSource{}
-		}
-		radius, _ := strconv.Atoi(r.FormValue("light_radius"))
-		m.LightSource.Radius = consts.Tile(radius)
-		m.LightSource.Enabled = r.FormValue("light_enabled") == "on"
-		cr, _ := strconv.Atoi(r.FormValue("light_r"))
-		cg, _ := strconv.Atoi(r.FormValue("light_g"))
-		cb, _ := strconv.Atoi(r.FormValue("light_b"))
-		ca, _ := strconv.Atoi(r.FormValue("light_a"))
-		m.LightSource.Color = color.RGBA{R: clampUint8(cr), G: clampUint8(cg), B: clampUint8(cb), A: clampUint8(ca)}
-	} else {
-		m.LightSource = nil
-	}
+	m.AnimKeys = parseAnimKeys(r)
+	m.LightSource = parseLightSource(r, m.LightSource)
 
 	// Dialog
 	if r.FormValue("has_dialog") == "on" {

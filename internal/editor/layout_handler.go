@@ -87,7 +87,8 @@ func (s *Server) buildLayoutEditData(dirName, fileName, chunkName, fileKey strin
 	ed.AvailableChunks = s.layoutStore.ChunkNames()
 	merged := s.mergePalettes(chunk.Palettes)
 	if merged != nil {
-		ed.CheatSheet = s.buildCheatSheet(merged)
+		sm := s.buildSpriteStyleMaps()
+		ed.CheatSheet = s.buildCheatSheetWith(merged, sm)
 		// プレビューデータを構築する
 		var cells [][]maptemplate.MapCell
 		if len(chunk.Placements) > 0 && s.layoutStore != nil && s.paletteStore != nil {
@@ -106,7 +107,7 @@ func (s *Server) buildLayoutEditData(dirName, fileName, chunkName, fileKey strin
 		if cells == nil {
 			cells = maptemplate.ResolveMapCells(chunk.Map, merged)
 		}
-		preview := s.buildPreviewDataFromCells(cells)
+		preview := s.buildPreviewDataFromCellsWith(cells, sm)
 		ed.Preview = &preview
 	}
 	return ed
@@ -426,9 +427,8 @@ func (s *Server) buildSpriteStyleMaps() spriteStyleMaps {
 	return m
 }
 
-// buildCheatSheet はマージ済みパレットからチートシートデータを構築する
-func (s *Server) buildCheatSheet(merged *maptemplate.Palette) []cheatSheetEntry {
-	sm := s.buildSpriteStyleMaps()
+// buildCheatSheetWith はマージ済みパレットとスプライトマップからチートシートデータを構築する
+func (s *Server) buildCheatSheetWith(merged *maptemplate.Palette, sm spriteStyleMaps) []cheatSheetEntry {
 	entries := make([]cheatSheetEntry, 0, len(merged.Terrain)+len(merged.Props)+len(merged.NPCs))
 
 	for _, cm := range sortedMappings(merged.Terrain) {
@@ -472,8 +472,11 @@ func sortedEntryMappings(m map[string]maptemplate.PaletteEntry) []charMapping {
 
 // buildPreviewDataFromCells は解決済みセル配列からプレビューデータを構築する
 func (s *Server) buildPreviewDataFromCells(mapCells [][]maptemplate.MapCell) previewData {
-	sm := s.buildSpriteStyleMaps()
+	return s.buildPreviewDataFromCellsWith(mapCells, s.buildSpriteStyleMaps())
+}
 
+// buildPreviewDataFromCellsWith はスプライトマップを受け取ってプレビューデータを構築する
+func (s *Server) buildPreviewDataFromCellsWith(mapCells [][]maptemplate.MapCell, sm spriteStyleMaps) previewData {
 	cols := 0
 	for _, row := range mapCells {
 		if len(row) > cols {

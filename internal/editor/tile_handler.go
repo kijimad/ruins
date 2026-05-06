@@ -28,12 +28,7 @@ type tilesData struct {
 }
 
 func (s *Server) handleTiles(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderTiles(w, selected)
 }
 

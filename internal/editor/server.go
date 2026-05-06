@@ -6,14 +6,18 @@ import (
 	"fmt"
 	"html/template"
 	"image"
+	"image/color"
 	"io/fs"
 	"log"
 	"net/http"
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -388,4 +392,56 @@ func (s *Server) sheetNames() []string {
 	}
 	sort.Strings(names)
 	return names
+}
+
+// parseSelectedIndex はクエリパラメータ "selected" を整数インデックスとしてパースする。
+// 値が無い場合や不正な場合は -1 を返す
+func parseSelectedIndex(r *http.Request) int {
+	v := r.URL.Query().Get("selected")
+	if v == "" {
+		return -1
+	}
+	n, err := strconv.Atoi(v)
+	if err != nil {
+		return -1
+	}
+	return n
+}
+
+// parseAnimKeys はフォームの "anim_keys" フィールドからカンマ区切りのキーリストをパースする
+func parseAnimKeys(r *http.Request) []string {
+	s := strings.TrimSpace(r.FormValue("anim_keys"))
+	if s == "" {
+		return nil
+	}
+	keys := strings.Split(s, ",")
+	result := make([]string, 0, len(keys))
+	for _, k := range keys {
+		k = strings.TrimSpace(k)
+		if k != "" {
+			result = append(result, k)
+		}
+	}
+	return result
+}
+
+// parseLightSource はフォームからLightSourceをパースする。
+// has_light チェックボックスがオフの場合は nil を返す
+func parseLightSource(r *http.Request, current *gc.LightSource) *gc.LightSource {
+	if r.FormValue("has_light") != "on" {
+		return nil
+	}
+	ls := current
+	if ls == nil {
+		ls = &gc.LightSource{}
+	}
+	radius, _ := strconv.Atoi(r.FormValue("light_radius"))
+	ls.Radius = consts.Tile(radius)
+	ls.Enabled = r.FormValue("light_enabled") == "on"
+	cr, _ := strconv.Atoi(r.FormValue("light_r"))
+	cg, _ := strconv.Atoi(r.FormValue("light_g"))
+	cb, _ := strconv.Atoi(r.FormValue("light_b"))
+	ca, _ := strconv.Atoi(r.FormValue("light_a"))
+	ls.Color = color.RGBA{R: clampUint8(cr), G: clampUint8(cg), B: clampUint8(cb), A: clampUint8(ca)}
+	return ls
 }

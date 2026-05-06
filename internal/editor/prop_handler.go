@@ -2,13 +2,10 @@ package editor
 
 import (
 	"fmt"
-	"image/color"
 	"net/http"
 	"strconv"
 	"strings"
 
-	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -30,12 +27,7 @@ type propsData struct {
 }
 
 func (s *Server) handleProps(w http.ResponseWriter, r *http.Request) {
-	selected := -1
-	if v := r.URL.Query().Get("selected"); v != "" {
-		if n, err := strconv.Atoi(v); err == nil {
-			selected = n
-		}
-	}
+	selected := parseSelectedIndex(r)
 	s.renderProps(w, selected)
 }
 
@@ -125,35 +117,8 @@ func parsePropForm(r *http.Request, p raw.PropRaw) raw.PropRaw {
 	p.SpriteRender.SpriteSheetName = r.FormValue("sprite_sheet_name")
 	p.SpriteRender.SpriteKey = r.FormValue("sprite_key")
 
-	animKeysStr := strings.TrimSpace(r.FormValue("anim_keys"))
-	if animKeysStr != "" {
-		keys := strings.Split(animKeysStr, ",")
-		p.AnimKeys = make([]string, 0, len(keys))
-		for _, k := range keys {
-			k = strings.TrimSpace(k)
-			if k != "" {
-				p.AnimKeys = append(p.AnimKeys, k)
-			}
-		}
-	} else {
-		p.AnimKeys = nil
-	}
-
-	if r.FormValue("has_light") == "on" {
-		if p.LightSource == nil {
-			p.LightSource = &gc.LightSource{}
-		}
-		radius, _ := strconv.Atoi(r.FormValue("light_radius"))
-		p.LightSource.Radius = consts.Tile(radius)
-		p.LightSource.Enabled = r.FormValue("light_enabled") == "on"
-		cr, _ := strconv.Atoi(r.FormValue("light_r"))
-		cg, _ := strconv.Atoi(r.FormValue("light_g"))
-		cb, _ := strconv.Atoi(r.FormValue("light_b"))
-		ca, _ := strconv.Atoi(r.FormValue("light_a"))
-		p.LightSource.Color = color.RGBA{R: clampUint8(cr), G: clampUint8(cg), B: clampUint8(cb), A: clampUint8(ca)}
-	} else {
-		p.LightSource = nil
-	}
+	p.AnimKeys = parseAnimKeys(r)
+	p.LightSource = parseLightSource(r, p.LightSource)
 
 	if r.FormValue("has_door") == "on" {
 		p.Door = &raw.DoorRaw{}

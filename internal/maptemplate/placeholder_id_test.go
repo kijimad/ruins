@@ -102,7 +102,7 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 
 			template := &ChunkTemplate{Map: tt.mapStr}
 			lines := template.GetMapLines()
-			x, y, width, height, err := findPlaceholderRegionByID(lines, tt.id)
+			regions, err := findAllPlaceholderRegionsByID(lines, tt.id)
 
 			if tt.shouldError {
 				require.Error(t, err)
@@ -111,10 +111,12 @@ func TestFindPlaceholderRegionByID(t *testing.T) {
 				}
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, tt.expectedX, x, "X座標が不一致")
-				require.Equal(t, tt.expectedY, y, "Y座標が不一致")
-				require.Equal(t, tt.expectedWidth, width, "幅が不一致")
-				require.Equal(t, tt.expectedHeight, height, "高さが不一致")
+				require.NotEmpty(t, regions)
+				r := regions[0]
+				require.Equal(t, tt.expectedX, r.x, "X座標が不一致")
+				require.Equal(t, tt.expectedY, r.y, "Y座標が不一致")
+				require.Equal(t, tt.expectedWidth, r.width, "幅が不一致")
+				require.Equal(t, tt.expectedHeight, r.height, "高さが不一致")
 			}
 		})
 	}
