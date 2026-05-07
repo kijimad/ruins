@@ -227,7 +227,39 @@ const searchableTopLevelFields: Record<string, Record<string, string>> = {
     commandTableName: "command-tables",
     dropTableName: "drop-tables",
   },
+  recipes: {
+    name: "items",
+  },
 };
+
+// パスに基づいて参照先リソースを判定する
+// パレットの terrain/props/npcs 内の値フィールドなど、固定キー名では判定できないものに使う
+type PathSearchableDef = {
+  // pathの先頭部分がこのパターンに一致するか
+  pathPrefix: string[];
+  // 一致した場合の参照先リソース
+  optionsSource: string;
+};
+
+const pathSearchableFields: Record<string, PathSearchableDef[]> = {
+  palettes: [
+    // terrain の各値はタイル名
+    { pathPrefix: ["terrain"], optionsSource: "tiles" },
+    // props の各エントリの id はprop名、tile はタイル名
+    { pathPrefix: ["props", "*", "id"], optionsSource: "props" },
+    { pathPrefix: ["props", "*", "tile"], optionsSource: "tiles" },
+    // npcs の各エントリの id はメンバー名、tile はタイル名
+    { pathPrefix: ["npcs", "*", "id"], optionsSource: "members" },
+    { pathPrefix: ["npcs", "*", "tile"], optionsSource: "tiles" },
+  ],
+};
+
+// パスがパターンに一致するか判定する。"*" は任意の1セグメントにマッチする
+function matchPathPattern(path: string[], key: string, pattern: string[]): boolean {
+  const full = [...path, key];
+  if (full.length !== pattern.length) return false;
+  return pattern.every((p, i) => p === "*" || p === full[i]);
+}
 
 // スキルID一覧（Go側のAllSkillIDsと同期）
 const allSkillIDs = [
@@ -268,6 +300,7 @@ export function ResourcePage({
     searchableFields[resource]?.forEach((f) => sources.add(f.optionsSource));
     const topLevel = searchableTopLevelFields[resource];
     if (topLevel) Object.values(topLevel).forEach((s) => sources.add(s));
+    pathSearchableFields[resource]?.forEach((f) => sources.add(f.optionsSource));
     return sources;
   }, [resource]);
 
@@ -275,6 +308,8 @@ export function ResourcePage({
   const membersQuery = useResourceList<Record<string, JsonValue>>(neededSources.has("members") ? "members" : "");
   const commandTablesQuery = useResourceList<Record<string, JsonValue>>(neededSources.has("command-tables") ? "command-tables" : "");
   const dropTablesQuery = useResourceList<Record<string, JsonValue>>(neededSources.has("drop-tables") ? "drop-tables" : "");
+  const tilesQuery = useResourceList<Record<string, JsonValue>>(neededSources.has("tiles") ? "tiles" : "");
+  const propsQuery = useResourceList<Record<string, JsonValue>>(neededSources.has("props") ? "props" : "");
 
   // 参照先の名前リストを構築
   const referenceOptions = useMemo(() => {
@@ -291,9 +326,15 @@ export function ResourcePage({
     if (dropTablesQuery.data?.data) {
       opts["drop-tables"] = dropTablesQuery.data.data.map((t) => String(t["name"] ?? ""));
     }
+    if (tilesQuery.data?.data) {
+      opts["tiles"] = tilesQuery.data.data.map((t) => String(t["name"] ?? ""));
+    }
+    if (propsQuery.data?.data) {
+      opts["props"] = propsQuery.data.data.map((p) => String(p["name"] ?? ""));
+    }
     opts["skills"] = allSkillIDs;
     return opts;
-  }, [itemsQuery.data, membersQuery.data, commandTablesQuery.data, dropTablesQuery.data]);
+  }, [itemsQuery.data, membersQuery.data, commandTablesQuery.data, dropTablesQuery.data, tilesQuery.data, propsQuery.data]);
 
   const items = data?.data ?? [];
 
@@ -546,6 +587,7 @@ function FieldGroup({
         // SearchableSelectを使うか判定する
         // 1. トップレベルフィールド: searchableTopLevelFields で定義されたもの
         // 2. 配列要素内フィールド: path例 ["items", "0"] → parentField="items"
+        // 3. パスベース: pathSearchableFields で定義されたもの
         const topLevelSource = path.length === 0
           ? searchableTopLevelFields[resource]?.[key]
           : undefined;
@@ -555,9 +597,14 @@ function FieldGroup({
         const searchableDef = parentField
           ? searchableFields[resource]?.find((f) => f.parentField === parentField && f.field === key)
           : undefined;
+        const pathDef = !topLevelSource && !searchableDef
+          ? pathSearchableFields[resource]?.find((f) => matchPathPattern(path, key, f.pathPrefix))
+          : undefined;
         const searchableOpts = topLevelSource
           ? referenceOptions[topLevelSource]
-          : searchableDef ? referenceOptions[searchableDef.optionsSource] : undefined;
+          : searchableDef ? referenceOptions[searchableDef.optionsSource]
+          : pathDef ? referenceOptions[pathDef.optionsSource]
+          : undefined;
 
         return (
           <FieldRow

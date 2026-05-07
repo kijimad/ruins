@@ -86,6 +86,21 @@ interface PaletteFile {
   };
 }
 
+// レイアウト TOML 構造
+interface LayoutChunk {
+  name: string;
+  weight: number;
+  palettes: string[];
+  map: string;
+  Size: { W: number; H: number };
+  spawn_points: { x: number; y: number }[];
+  placements: { id: string; chunks: string[] }[];
+}
+
+interface LayoutFile {
+  chunk: LayoutChunk[];
+}
+
 // ソートキー生成（Go の itemSortKey と同じロジック）
 function itemSortKey(item: Record<string, unknown>): string {
   const flags: [boolean, string][] = [
@@ -246,6 +261,80 @@ class PaletteStore {
   }
 }
 
+// レイアウト TOML の読み書き
+class LayoutStore {
+  constructor(private dir: string) {}
+
+  // ファイル名（拡張子なし）を返す
+  private fileNames(): string[] {
+    return fs.readdirSync(this.dir)
+      .filter((f) => f.endsWith(".toml"))
+      .map((f) => f.replace(/\.toml$/, ""))
+      .sort();
+  }
+
+  private readFile(fileName: string): LayoutChunk | undefined {
+    const filePath = path.join(this.dir, `${fileName}.toml`);
+    if (!fs.existsSync(filePath)) return undefined;
+    const content = fs.readFileSync(filePath, "utf-8");
+    const parsed = TOML.parse(content) as unknown as LayoutFile;
+    if (!parsed.chunk || parsed.chunk.length === 0) return undefined;
+    return parsed.chunk[0];
+  }
+
+  getAll(): LayoutChunk[] {
+    return this.fileNames()
+      .map((f) => this.readFile(f))
+      .filter((c): c is LayoutChunk => c !== undefined);
+  }
+
+  getAt(index: number): LayoutChunk | undefined {
+    const names = this.fileNames();
+    if (index < 0 || index >= names.length) return undefined;
+    return this.readFile(names[index]!);
+  }
+
+  save(chunk: LayoutChunk): void {
+    // ファイル名はチャンク名から生成する
+    const fileName = chunk.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const filePath = path.join(this.dir, `${fileName}.toml`);
+    const file: LayoutFile = { chunk: [chunk] };
+    const content = TOML.stringify(file as unknown as Record<string, unknown>);
+    fs.writeFileSync(filePath, content, "utf-8");
+  }
+
+  updateAt(index: number, chunk: LayoutChunk): boolean {
+    const names = this.fileNames();
+    if (index < 0 || index >= names.length) return false;
+    const oldName = names[index]!;
+    const newFileName = chunk.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    // ファイル名が変わった場合は旧ファイルを削除する
+    if (newFileName !== oldName) {
+      const oldPath = path.join(this.dir, `${oldName}.toml`);
+      if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+    }
+    this.save(chunk);
+    return true;
+  }
+
+  add(chunk: LayoutChunk): number {
+    this.save(chunk);
+    // ソート後のインデックスを返す
+    const names = this.fileNames();
+    const fileName = chunk.name.replace(/[^a-zA-Z0-9_-]/g, "_");
+    return names.indexOf(fileName);
+  }
+
+  deleteAt(index: number): boolean {
+    const names = this.fileNames();
+    if (index < 0 || index >= names.length) return false;
+    const filePath = path.join(this.dir, `${names[index]!}.toml`);
+    if (!fs.existsSync(filePath)) return false;
+    fs.unlinkSync(filePath);
+    return true;
+  }
+}
+
 // リソース種別 → Raws のキーと識別フィールドのマッピング
 const RESOURCE_MAP: Record<
   string,
@@ -277,12 +366,16 @@ function readBody(req: { on: (event: string, cb: (chunk: Buffer) => void) => voi
 interface ApiPluginOptions {
   rawTomlPath: string;
   palettesDir: string;
+  layoutsDir: string;
+  chunkDirs: string[];
   assetsDir: string;
 }
 
 export function editorApiPlugin(options: ApiPluginOptions): Plugin {
   const rawTomlPath = path.resolve(options.rawTomlPath);
   const palettesDir = path.resolve(options.palettesDir);
+  const layoutsDir = path.resolve(options.layoutsDir);
+  const chunkDirs = options.chunkDirs.map((d) => path.resolve(d));
   const assetsDir = path.resolve(options.assetsDir);
   const spritesDir = path.join(assetsDir, "file/textures/dist");
 
@@ -291,6 +384,7 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
     configureServer(server: ViteDevServer) {
       const rawStore = new RawStore(rawTomlPath);
       const paletteStore = new PaletteStore(palettesDir);
+      const layoutStore = new LayoutStore(layoutsDir);
       const spriteCache = new SpriteCache(assetsDir);
 
       // スプライトシート画像の静的配信
@@ -344,6 +438,20 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
           if (apiPath.startsWith("palettes")) {
             await handlePalettes(
               paletteStore,
+              apiPath,
+              method,
+              req as Parameters<typeof readBody>[0],
+              res,
+            );
+            return;
+          }
+
+          // レイアウト API
+          if (apiPath.startsWith("layouts")) {
+            await handleLayouts(
+              layoutStore,
+              paletteStore,
+              chunkDirs,
               apiPath,
               method,
               req as Parameters<typeof readBody>[0],
@@ -516,6 +624,277 @@ async function handlePalettes(
     if (!store.delete(id)) {
       res.statusCode = 400;
       res.end(JSON.stringify({ message: `Failed to delete: ${id}` }));
+      return;
+    }
+    res.statusCode = 204;
+    res.end("");
+    return;
+  }
+
+  res.statusCode = 405;
+  res.end(JSON.stringify({ message: "Method not allowed" }));
+}
+
+// マップの1セルを表す解決済みオブジェクト（Go側の MapCell と同じ構造）
+interface MapCell {
+  terrain: string;
+  prop: string;
+  npc: string;
+}
+
+// パレットを使ってマップ文字列をセル配列に解決する（Go側の ResolveMapCells と同じロジック）
+function resolveMapCells(
+  mapStr: string,
+  palette: PaletteFile["palette"] | null,
+): MapCell[][] {
+  const lines = mapStr.trim().split("\n");
+  return lines.map((line) =>
+    [...line].map((ch) => {
+      const cell: MapCell = { terrain: "", prop: "", npc: "" };
+      if (palette) {
+        if (palette.terrain[ch]) cell.terrain = palette.terrain[ch];
+        if (palette.props?.[ch]) {
+          cell.prop = palette.props[ch].id;
+          if (!cell.terrain) cell.terrain = palette.props[ch].tile;
+        }
+        if (palette.npcs?.[ch]) {
+          cell.npc = palette.npcs[ch].id;
+          if (!cell.terrain) cell.terrain = palette.npcs[ch].tile;
+        }
+      }
+      if (!cell.terrain && !cell.prop && !cell.npc) cell.terrain = ch;
+      return cell;
+    }),
+  );
+}
+
+// パレットをマージする。後のパレットが優先
+function mergePalettes(
+  palettes: PaletteFile["palette"][],
+): PaletteFile["palette"] {
+  const merged: PaletteFile["palette"] = {
+    id: "merged",
+    description: "",
+    terrain: {},
+    props: {},
+    npcs: {},
+  };
+  for (const pal of palettes) {
+    Object.assign(merged.terrain, pal.terrain);
+    if (pal.props) Object.assign(merged.props!, pal.props);
+    if (pal.npcs) Object.assign(merged.npcs!, pal.npcs);
+  }
+  return merged;
+}
+
+// プレースホルダ領域の位置とサイズ
+interface PlaceholderRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// 識別子(ID)に対応するプレースホルダ領域を全て検出する
+function findPlaceholderRegionsByID(
+  lines: string[],
+  id: string,
+): PlaceholderRegion[] {
+  const idChar = id;
+  const placeholder = "@";
+
+  // IDの全出現位置を見つける
+  const positions: [number, number][] = [];
+  for (let y = 0; y < lines.length; y++) {
+    for (let x = 0; x < lines[y]!.length; x++) {
+      if (lines[y]![x] === idChar) positions.push([x, y]);
+    }
+  }
+  if (positions.length === 0) return [];
+
+  const isPlaceholder = (ch: string) => ch === placeholder || ch === idChar;
+
+  const regions: PlaceholderRegion[] = [];
+  for (const [idX, idY] of positions) {
+    // 左端を探す
+    let startX = idX;
+    while (startX > 0 && isPlaceholder(lines[idY]![startX - 1]!)) startX--;
+
+    // 幅を計算
+    let width = 0;
+    for (let x = startX; x < lines[idY]!.length && isPlaceholder(lines[idY]![x]!); x++) width++;
+
+    // 上端を探す
+    let startY = idY;
+    while (startY > 0) {
+      let allMatch = true;
+      for (let x = startX; x < startX + width; x++) {
+        if (x >= lines[startY - 1]!.length || !isPlaceholder(lines[startY - 1]![x]!)) {
+          allMatch = false;
+          break;
+        }
+      }
+      if (allMatch) startY--;
+      else break;
+    }
+
+    // 高さを計算
+    let height = 0;
+    for (let y = startY; y < lines.length && startX < lines[y]!.length && isPlaceholder(lines[y]![startX]!); y++) height++;
+
+    regions.push({ x: startX, y: startY, width, height });
+  }
+
+  return regions;
+}
+
+// 複数ディレクトリからすべてのチャンクを読み込む
+function loadAllChunks(dirs: string[]): LayoutChunk[] {
+  const chunks: LayoutChunk[] = [];
+  for (const dir of dirs) {
+    const resolved = path.resolve(dir);
+    if (!fs.existsSync(resolved)) continue;
+    for (const entry of fs.readdirSync(resolved)) {
+      if (!entry.endsWith(".toml")) continue;
+      const content = fs.readFileSync(path.join(resolved, entry), "utf-8");
+      const parsed = TOML.parse(content) as unknown as LayoutFile;
+      if (parsed.chunk) {
+        for (const c of parsed.chunk) chunks.push(c);
+      }
+    }
+  }
+  return chunks;
+}
+
+// レイアウトのplacementsを再帰的に展開し、解決済みセル配列を返す
+function resolveLayoutCells(
+  chunk: LayoutChunk,
+  allChunks: LayoutChunk[],
+  paletteStore: PaletteStore,
+  depth: number = 0,
+): MapCell[][] {
+  if (depth > 10) throw new Error(`チャンク展開の深度が制限を超えました`);
+
+  // このチャンクのパレットをマージして解決する
+  const palettes = chunk.palettes
+    .map((id) => paletteStore.get(id))
+    .filter((p): p is PaletteFile["palette"] => p !== undefined);
+  const merged = palettes.length > 0 ? mergePalettes(palettes) : null;
+  const cells = resolveMapCells(chunk.map, merged);
+
+  if (!chunk.placements || chunk.placements.length === 0) return cells;
+
+  const lines = chunk.map.trim().split("\n");
+
+  for (const placement of chunk.placements) {
+    if (!placement.id) continue;
+
+    const regions = findPlaceholderRegionsByID(lines, placement.id);
+    for (const region of regions) {
+      // チャンク候補から最初のものを選択する（プレビューなのでランダムは不要）
+      const childName = placement.chunks[0];
+      if (!childName) continue;
+      const childChunk = allChunks.find((c) => c.name === childName);
+      if (!childChunk) continue;
+
+      // サイズチェック
+      if (region.width !== childChunk.Size.W || region.height !== childChunk.Size.H) continue;
+
+      // 子チャンクを再帰的に展開する
+      const childCells = resolveLayoutCells(childChunk, allChunks, paletteStore, depth + 1);
+
+      // 子のセルを親のセルにオーバーレイする
+      for (let cy = 0; cy < childChunk.Size.H; cy++) {
+        for (let cx = 0; cx < childChunk.Size.W; cx++) {
+          const ty = region.y + cy;
+          const tx = region.x + cx;
+          if (ty < cells.length && tx < (cells[ty]?.length ?? 0)) {
+            cells[ty]![tx] = childCells[cy]![cx]!;
+          }
+        }
+      }
+    }
+  }
+
+  return cells;
+}
+
+async function handleLayouts(
+  store: LayoutStore,
+  paletteStore: PaletteStore,
+  chunkDirs: string[],
+  apiPath: string,
+  method: string,
+  req: Parameters<typeof readBody>[0],
+  res: Res,
+): Promise<void> {
+  // resolved エンドポイント
+  const resolvedMatch = apiPath.match(/^layouts\/(\d+)\/resolved$/);
+  if (resolvedMatch && method === "GET") {
+    const index = parseInt(resolvedMatch[1]!, 10);
+    const chunk = store.getAt(index);
+    if (!chunk) {
+      res.statusCode = 404;
+      res.end(JSON.stringify({ message: `Index out of range: ${index}` }));
+      return;
+    }
+    const allChunks = loadAllChunks(chunkDirs);
+    const cells = resolveLayoutCells(chunk, allChunks, paletteStore);
+    res.end(JSON.stringify({ cells }));
+    return;
+  }
+
+  const match = apiPath.match(/^layouts(?:\/(\d+))?$/);
+  if (!match) {
+    res.statusCode = 404;
+    res.end(JSON.stringify({ message: "Not found" }));
+    return;
+  }
+  const indexStr = match[1];
+
+  if (method === "GET" && indexStr === undefined) {
+    const data = store.getAll();
+    res.end(JSON.stringify({ data, totalCount: data.length }));
+    return;
+  }
+
+  if (method === "GET" && indexStr !== undefined) {
+    const index = parseInt(indexStr, 10);
+    const chunk = store.getAt(index);
+    if (!chunk) {
+      res.statusCode = 404;
+      res.end(JSON.stringify({ message: `Index out of range: ${index}` }));
+      return;
+    }
+    res.end(JSON.stringify(chunk));
+    return;
+  }
+
+  if (method === "POST") {
+    const body = JSON.parse(await readBody(req));
+    const newIndex = store.add(body);
+    res.statusCode = 201;
+    res.end(JSON.stringify({ index: newIndex, data: body }));
+    return;
+  }
+
+  if (method === "PUT" && indexStr !== undefined) {
+    const index = parseInt(indexStr, 10);
+    const body = JSON.parse(await readBody(req));
+    if (!store.updateAt(index, body)) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: `Index out of range: ${index}` }));
+      return;
+    }
+    res.end(JSON.stringify(body));
+    return;
+  }
+
+  if (method === "DELETE" && indexStr !== undefined) {
+    const index = parseInt(indexStr, 10);
+    if (!store.deleteAt(index)) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: `Index out of range: ${index}` }));
       return;
     }
     res.statusCode = 204;

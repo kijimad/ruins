@@ -8,6 +8,12 @@ export default defineConfig(() => ({
     editorApiPlugin({
       rawTomlPath: "../assets/metadata/entities/raw/raw.toml",
       palettesDir: "../assets/levels/palettes",
+      layoutsDir: "../assets/levels/layouts",
+      chunkDirs: [
+        "../assets/levels/layouts",
+        "../assets/levels/facilities",
+        "../assets/levels/chunks",
+      ],
       assetsDir: "../assets",
     }),
   ],

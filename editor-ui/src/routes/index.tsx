@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Layout, WelcomePage } from "../Layout";
 import { ResourcePage } from "../pages/ResourcePage";
+import { LayoutPage } from "../pages/LayoutPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
       { path: "professions", element: <ResourcePage resource="professions" label="職業" nameField="id" /> },
       { path: "sprite-sheets", element: <ResourcePage resource="sprite-sheets" label="スプライトシート" /> },
       { path: "palettes", element: <ResourcePage resource="palettes" label="パレット" nameField="id" /> },
+      { path: "layouts", element: <LayoutPage /> },
     ],
   },
 ]);

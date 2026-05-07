@@ -14,6 +14,7 @@ const resources = [
   { path: "/professions", label: "職業" },
   { path: "/sprite-sheets", label: "スプライトシート" },
   { path: "/palettes", label: "パレット" },
+  { path: "/layouts", label: "レイアウト" },
 ];
 
 export function Layout() {
