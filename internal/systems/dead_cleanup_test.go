@@ -182,20 +182,15 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 	assert.Equal(t, itemCountBefore+1, itemCountAfter, "シード2ではドロップするはず")
 }
 
-func TestDeadCleanupSystem_WithDropTableNoDrops(t *testing.T) {
+func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
 
-	// シード1でドロップしないケース
-	world.Config.Seed = 1
-	world.Config.RNG = rand.New(rand.NewPCG(world.Config.Seed, 0))
-
-	// 敵エンティティを作成
+	// ドロップテーブルを持たない敵はアイテムをドロップしない
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "火の玉"})
 	enemy.AddComponent(world.Components.Dead, &gc.Dead{})
-	enemy.AddComponent(world.Components.DropTable, &gc.DropTable{Name: "火の玉"})
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
 
 	// 実行前のアイテム数
@@ -214,8 +209,7 @@ func TestDeadCleanupSystem_WithDropTableNoDrops(t *testing.T) {
 		itemCountAfter++
 	}))
 
-	// シード1ではドロップしない
-	assert.Equal(t, itemCountBefore, itemCountAfter, "シード1ではドロップしないはず")
+	assert.Equal(t, itemCountBefore, itemCountAfter, "ドロップテーブルなしではドロップしない")
 }
 
 func TestDeadCleanupSystem_CancelsActivity(t *testing.T) {
