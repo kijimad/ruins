@@ -741,7 +741,7 @@ vitality = 2
 [[items]]
 description = "伝統的な意匠が施されたずっしりと重い鎧"
 name = "西洋鎧"
-spriteKey = "field_item"
+spriteKey = "鉄の鎧"
 spriteSheetName = "field"
 value = 400
 weight = 15
@@ -762,7 +762,7 @@ vitality = 0
 [[items]]
 description = "鉄で補強された重厚なブーツ"
 name = "鉄のブーツ"
-spriteKey = "field_item"
+spriteKey = "armor_legs"
 spriteSheetName = "field"
 value = 180
 weight = 2.5

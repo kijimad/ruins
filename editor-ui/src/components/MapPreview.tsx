@@ -108,36 +108,48 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
     return m;
   }, [sheet0.data, sheet1.data, sheet2.data, sheet3.data, sheet4.data]);
 
+  // スプライトキー→SpriteInfo の高速検索マップを構築する
+  const spriteKeyMap = useMemo(() => {
+    const m = new Map<string, { sheet: SpriteSheetInfo; sprite: SpriteInfo }>();
+    for (const [, sheet] of sheetDataMap) {
+      for (const sprite of sheet.sprites) {
+        m.set(`${sheet.name}:${sprite.key}`, { sheet, sprite });
+      }
+    }
+    return m;
+  }, [sheetDataMap]);
+
   // 各シートの画像をロードする
   const loadedImages = useRef(new Map<string, HTMLImageElement>());
 
   useEffect(() => {
-    const toLoad: string[] = [];
+    let cancelled = false;
+    const newImages: HTMLImageElement[] = [];
     for (const [name, info] of sheetDataMap) {
       if (!loadedImages.current.has(name)) {
-        toLoad.push(info.image);
         const img = new Image();
         img.src = info.image;
         img.onload = () => {
+          if (cancelled) return;
           loadedImages.current.set(name, img);
           drawCanvas();
         };
+        newImages.push(img);
       }
     }
-    if (toLoad.length === 0) drawCanvas();
+    if (newImages.length === 0) drawCanvas();
+    return () => { cancelled = true; };
   }, [sheetDataMap, resolvedCells, spawnPoints]);
 
   function findSprite(sheetName: string, spriteKey: string): { sheet: SpriteSheetInfo; sprite: SpriteInfo; img: HTMLImageElement } | undefined {
-    const sheet = sheetDataMap.get(sheetName);
-    if (!sheet) return undefined;
     // 完全一致を試し、なければ _0 サフィックス付きにフォールバックする
     // Go側では autoTileIndex で spriteKey に _N を付加するため
-    const sprite = sheet.sprites.find((s) => s.key === spriteKey)
-      ?? sheet.sprites.find((s) => s.key === `${spriteKey}_0`);
-    if (!sprite) return undefined;
+    const entry = spriteKeyMap.get(`${sheetName}:${spriteKey}`)
+      ?? spriteKeyMap.get(`${sheetName}:${spriteKey}_0`);
+    if (!entry) return undefined;
     const img = loadedImages.current.get(sheetName);
     if (!img) return undefined;
-    return { sheet, sprite, img };
+    return { sheet: entry.sheet, sprite: entry.sprite, img };
   }
 
   function drawCanvas() {

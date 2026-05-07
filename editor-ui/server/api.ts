@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
-import * as TOML from "smol-toml";
+import { parse as tomlParse, stringify as tomlStringify } from "smol-toml";
 
 // Aseprite JSON のフレーム定義
 interface AsepriteFrame {
@@ -167,13 +167,13 @@ class RawStore {
 
   private load(): Raws {
     const content = fs.readFileSync(this.filePath, "utf-8");
-    const raws = TOML.parse(content) as Raws;
+    const raws = tomlParse(content) as Raws;
     sortAll(raws);
     return raws;
   }
 
   private save(): void {
-    const content = TOML.stringify(this.raws as unknown as Record<string, unknown>);
+    const content = tomlStringify(this.raws as unknown as Record<string, unknown>);
     fs.writeFileSync(this.filePath, content, "utf-8");
   }
 
@@ -225,7 +225,7 @@ class PaletteStore {
     for (const entry of entries) {
       if (!entry.endsWith(".toml")) continue;
       const content = fs.readFileSync(path.join(this.dir, entry), "utf-8");
-      const parsed = TOML.parse(content) as unknown as PaletteFile;
+      const parsed = tomlParse(content) as unknown as PaletteFile;
       if (parsed.palette) palettes.push(parsed.palette);
     }
     palettes.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
@@ -237,7 +237,13 @@ class PaletteStore {
   }
 
   get(id: string): PaletteFile["palette"] | undefined {
-    return this.list().find((p) => p.id === id);
+    const safe = path.basename(id);
+    if (safe !== id || safe === "." || safe === "..") return undefined;
+    const filePath = path.join(this.dir, `${safe}.toml`);
+    if (!fs.existsSync(filePath)) return undefined;
+    const content = fs.readFileSync(filePath, "utf-8");
+    const parsed = tomlParse(content) as unknown as PaletteFile;
+    return parsed.palette;
   }
 
   save(palette: PaletteFile["palette"]): void {
@@ -247,7 +253,7 @@ class PaletteStore {
     }
     const filePath = path.join(this.dir, `${safe}.toml`);
     const file: PaletteFile = { palette };
-    const content = TOML.stringify(file as unknown as Record<string, unknown>);
+    const content = tomlStringify(file as unknown as Record<string, unknown>);
     fs.writeFileSync(filePath, content, "utf-8");
   }
 
@@ -277,7 +283,7 @@ class LayoutStore {
     const filePath = path.join(this.dir, `${fileName}.toml`);
     if (!fs.existsSync(filePath)) return undefined;
     const content = fs.readFileSync(filePath, "utf-8");
-    const parsed = TOML.parse(content) as unknown as LayoutFile;
+    const parsed = tomlParse(content) as unknown as LayoutFile;
     if (!parsed.chunk || parsed.chunk.length === 0) return undefined;
     return parsed.chunk[0];
   }
@@ -299,7 +305,7 @@ class LayoutStore {
     const fileName = chunk.name.replace(/[^a-zA-Z0-9_-]/g, "_");
     const filePath = path.join(this.dir, `${fileName}.toml`);
     const file: LayoutFile = { chunk: [chunk] };
-    const content = TOML.stringify(file as unknown as Record<string, unknown>);
+    const content = tomlStringify(file as unknown as Record<string, unknown>);
     fs.writeFileSync(filePath, content, "utf-8");
   }
 
@@ -742,7 +748,10 @@ function findPlaceholderRegionsByID(
     let height = 0;
     for (let y = startY; y < lines.length && startX < lines[y]!.length && isPlaceholder(lines[y]![startX]!); y++) height++;
 
-    regions.push({ x: startX, y: startY, width, height });
+    // 重複チェック
+    if (!regions.some((r) => r.x === startX && r.y === startY && r.width === width && r.height === height)) {
+      regions.push({ x: startX, y: startY, width, height });
+    }
   }
 
   return regions;
@@ -757,7 +766,7 @@ function loadAllChunks(dirs: string[]): LayoutChunk[] {
     for (const entry of fs.readdirSync(resolved)) {
       if (!entry.endsWith(".toml")) continue;
       const content = fs.readFileSync(path.join(resolved, entry), "utf-8");
-      const parsed = TOML.parse(content) as unknown as LayoutFile;
+      const parsed = tomlParse(content) as unknown as LayoutFile;
       if (parsed.chunk) {
         for (const c of parsed.chunk) chunks.push(c);
       }
