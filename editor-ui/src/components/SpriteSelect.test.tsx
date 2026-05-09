@@ -49,7 +49,14 @@ describe("SpriteSelect", () => {
   test("シートデータ未取得時はテキストinputにフォールバックする", () => {
     setupSheet(undefined);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="wooden_sword" onChange={onChange} />, { wrapper });
+    render(
+      <SpriteSelect
+        sheetName="field"
+        value="wooden_sword"
+        onChange={onChange}
+      />,
+      { wrapper },
+    );
 
     const input = screen.getByPlaceholderText("spriteKey");
     expect(input).toBeInTheDocument();
@@ -59,7 +66,14 @@ describe("SpriteSelect", () => {
   test("シートデータ取得後は現在の値がテキスト表示される", () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="wooden_sword" onChange={onChange} />, { wrapper });
+    render(
+      <SpriteSelect
+        sheetName="field"
+        value="wooden_sword"
+        onChange={onChange}
+      />,
+      { wrapper },
+    );
 
     expect(screen.getByText("wooden_sword")).toBeInTheDocument();
   });
@@ -67,7 +81,14 @@ describe("SpriteSelect", () => {
   test("クリックでドロップダウンが開き全候補が表示される", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="wooden_sword" onChange={onChange} />, { wrapper });
+    render(
+      <SpriteSelect
+        sheetName="field"
+        value="wooden_sword"
+        onChange={onChange}
+      />,
+      { wrapper },
+    );
 
     await userEvent.click(screen.getByText("wooden_sword"));
 
@@ -81,7 +102,9 @@ describe("SpriteSelect", () => {
   test("検索テキストで候補がフィルタリングされる", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     await userEvent.click(screen.getByText("(未選択)"));
     const searchInput = screen.getByPlaceholderText("検索...");
@@ -95,7 +118,9 @@ describe("SpriteSelect", () => {
   test("検索で該当なしのとき「該当なし」が表示される", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     await userEvent.click(screen.getByText("(未選択)"));
     await userEvent.type(screen.getByPlaceholderText("検索..."), "zzzzz");
@@ -106,7 +131,9 @@ describe("SpriteSelect", () => {
   test("候補クリックでonChangeが呼ばれドロップダウンが閉じる", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     await userEvent.click(screen.getByText("(未選択)"));
     await userEvent.click(screen.getByText("alarm_clock"));
@@ -120,7 +147,9 @@ describe("SpriteSelect", () => {
   test("Enterキーで先頭候補が選択される", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     await userEvent.click(screen.getByText("(未選択)"));
     const searchInput = screen.getByPlaceholderText("検索...");
@@ -133,7 +162,9 @@ describe("SpriteSelect", () => {
   test("Escapeキーでドロップダウンが閉じる", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     await userEvent.click(screen.getByText("(未選択)"));
     expect(screen.getByPlaceholderText("検索...")).toBeInTheDocument();
@@ -167,7 +198,9 @@ describe("SpriteSelect", () => {
   test("検索は大文字小文字を無視する", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     await userEvent.click(screen.getByText("(未選択)"));
     await userEvent.type(screen.getByPlaceholderText("検索..."), "SWORD");
@@ -178,7 +211,9 @@ describe("SpriteSelect", () => {
   test("値が空のとき「(未選択)」が表示される", () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, { wrapper });
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     expect(screen.getByText("(未選択)")).toBeInTheDocument();
   });

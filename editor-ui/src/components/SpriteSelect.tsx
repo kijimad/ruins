@@ -41,7 +41,11 @@ function SpritePreview({
   );
 }
 
-export function SpriteSelect({ sheetName, value, onChange }: SpriteSelectProps) {
+export function SpriteSelect({
+  sheetName,
+  value,
+  onChange,
+}: SpriteSelectProps) {
   const { data: sheet } = useSpriteSheet(sheetName);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -52,7 +56,10 @@ export function SpriteSelect({ sheetName, value, onChange }: SpriteSelectProps) 
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
@@ -103,7 +110,13 @@ export function SpriteSelect({ sheetName, value, onChange }: SpriteSelectProps) 
         _hover={{ borderColor: "border.emphasized" }}
       >
         {currentSprite && sheet && (
-          <SpritePreview image={sheet.image} sprite={currentSprite} sheetWidth={sheet.sheetWidth} sheetHeight={sheet.sheetHeight} size={24} />
+          <SpritePreview
+            image={sheet.image}
+            sprite={currentSprite}
+            sheetWidth={sheet.sheetWidth}
+            sheetHeight={sheet.sheetHeight}
+            size={24}
+          />
         )}
         <Text fontSize="sm" flex="1" truncate>
           {value || "(未選択)"}
@@ -162,7 +175,13 @@ export function SpriteSelect({ sheetName, value, onChange }: SpriteSelectProps) 
                     setOpen(false);
                   }}
                 >
-                  <SpritePreview image={sheet.image} sprite={sprite} sheetWidth={sheet.sheetWidth} sheetHeight={sheet.sheetHeight} size={24} />
+                  <SpritePreview
+                    image={sheet.image}
+                    sprite={sprite}
+                    sheetWidth={sheet.sheetWidth}
+                    sheetHeight={sheet.sheetHeight}
+                    size={24}
+                  />
                   <Text fontSize="sm" truncate>
                     {sprite.key}
                   </Text>

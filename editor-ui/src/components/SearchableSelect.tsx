@@ -8,7 +8,12 @@ interface SearchableSelectProps {
   placeholder?: string;
 }
 
-export function SearchableSelect({ options, value, onChange, placeholder = "選択..." }: SearchableSelectProps) {
+export function SearchableSelect({
+  options,
+  value,
+  onChange,
+  placeholder = "選択...",
+}: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -18,7 +23,10 @@ export function SearchableSelect({ options, value, onChange, placeholder = "選�
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }

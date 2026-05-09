@@ -41,7 +41,10 @@ export function useResourceCreate<T>(resource: string) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (data: T) => {
-      const res = await axios.post<CreateResponse<T>>(`/api/v1/${resource}`, data);
+      const res = await axios.post<CreateResponse<T>>(
+        `/api/v1/${resource}`,
+        data,
+      );
       return res.data;
     },
     onSuccess: async () => {

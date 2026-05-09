@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Flex,
@@ -51,10 +51,12 @@ export function LayoutPage() {
   const [editData, setEditData] = useState<LayoutChunk | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(null);
+  const [confirmDeleteIndex, setConfirmDeleteIndex] = useState<number | null>(
+    null,
+  );
   const listRef = useRef<HTMLDivElement>(null);
 
-  const items = data?.data ?? [];
+  const items = useMemo(() => data?.data ?? [], [data]);
   const paletteNames = palettesQuery.data?.data?.map((p) => p.id) ?? [];
   // レイアウト名一覧（placements の chunks 参照用）
   const layoutNames = items.map((item) => item.name);
@@ -63,7 +65,7 @@ export function LayoutPage() {
     if (selectedIndex !== null && items[selectedIndex]) {
       setEditData(structuredClone(items[selectedIndex]) as LayoutChunk);
     }
-  }, [data, selectedIndex]);
+  }, [items, selectedIndex]);
 
   if (isLoading) return <Text>読み込み中...</Text>;
   if (error) return <Text color="red.500">エラー: {String(error)}</Text>;
@@ -122,7 +124,10 @@ export function LayoutPage() {
       });
     } else {
       setConfirmDeleteIndex(index);
-      setTimeout(() => setConfirmDeleteIndex((prev) => prev === index ? null : prev), 3000);
+      setTimeout(
+        () => setConfirmDeleteIndex((prev) => (prev === index ? null : prev)),
+        3000,
+      );
     }
   }
 
@@ -148,7 +153,9 @@ export function LayoutPage() {
         <Flex justify="space-between" align="center" mb="3">
           <Heading size="md">
             レイアウト
-            <Badge ml="2" colorPalette="gray">{items.length}</Badge>
+            <Badge ml="2" colorPalette="gray">
+              {items.length}
+            </Badge>
           </Heading>
           <Button
             size="xs"
@@ -196,11 +203,22 @@ export function LayoutPage() {
       <Box flex="1" overflowY="auto">
         {editData ? (
           <>
-            <Flex justify="space-between" align="center" mb="4" position="sticky" top="0" bg="bg" zIndex="1" py="2">
+            <Flex
+              justify="space-between"
+              align="center"
+              mb="4"
+              position="sticky"
+              top="0"
+              bg="bg"
+              zIndex="1"
+              py="2"
+            >
               <Heading size="md">{editData.name}</Heading>
               <Flex align="center" gap="2">
                 {saveSuccess && (
-                  <Text fontSize="sm" color="green.500" fontWeight="bold">保存しました</Text>
+                  <Text fontSize="sm" color="green.500" fontWeight="bold">
+                    保存しました
+                  </Text>
                 )}
                 <Button
                   size="sm"
@@ -213,44 +231,70 @@ export function LayoutPage() {
               </Flex>
             </Flex>
             {saveError && (
-              <Text color="red.500" fontSize="sm" mb="2">{saveError}</Text>
+              <Text color="red.500" fontSize="sm" mb="2">
+                {saveError}
+              </Text>
             )}
 
             <Stack gap="3">
               {/* 基本情報 */}
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">name</Text>
+                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                  name
+                </Text>
                 <Input
                   size="sm"
                   value={editData.name}
-                  onChange={(e) => update((d) => { d.name = e.target.value; })}
+                  onChange={(e) =>
+                    update((d) => {
+                      d.name = e.target.value;
+                    })
+                  }
                 />
               </Flex>
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">weight</Text>
+                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                  weight
+                </Text>
                 <Input
                   size="sm"
                   type="number"
                   value={editData.weight}
-                  onChange={(e) => update((d) => { d.weight = parseInt(e.target.value, 10) || 0; })}
+                  onChange={(e) =>
+                    update((d) => {
+                      d.weight = parseInt(e.target.value, 10) || 0;
+                    })
+                  }
                 />
               </Flex>
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">Size W</Text>
+                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                  Size W
+                </Text>
                 <Input
                   size="sm"
                   type="number"
                   value={editData.Size.W}
-                  onChange={(e) => update((d) => { d.Size.W = parseInt(e.target.value, 10) || 0; })}
+                  onChange={(e) =>
+                    update((d) => {
+                      d.Size.W = parseInt(e.target.value, 10) || 0;
+                    })
+                  }
                 />
               </Flex>
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">Size H</Text>
+                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                  Size H
+                </Text>
                 <Input
                   size="sm"
                   type="number"
                   value={editData.Size.H}
-                  onChange={(e) => update((d) => { d.Size.H = parseInt(e.target.value, 10) || 0; })}
+                  onChange={(e) =>
+                    update((d) => {
+                      d.Size.H = parseInt(e.target.value, 10) || 0;
+                    })
+                  }
                 />
               </Flex>
 
@@ -265,13 +309,21 @@ export function LayoutPage() {
                       <SearchableSelect
                         options={paletteNames}
                         value={pal}
-                        onChange={(v) => update((d) => { d.palettes[i] = v; })}
+                        onChange={(v) =>
+                          update((d) => {
+                            d.palettes[i] = v;
+                          })
+                        }
                       />
                       <Button
                         size="xs"
                         variant="ghost"
                         colorPalette="red"
-                        onClick={() => update((d) => { d.palettes.splice(i, 1); })}
+                        onClick={() =>
+                          update((d) => {
+                            d.palettes.splice(i, 1);
+                          })
+                        }
                       >
                         ×
                       </Button>
@@ -280,7 +332,191 @@ export function LayoutPage() {
                   <Button
                     size="xs"
                     variant="outline"
-                    onClick={() => update((d) => { d.palettes.push(""); })}
+                    onClick={() =>
+                      update((d) => {
+                        d.palettes.push("");
+                      })
+                    }
+                  >
+                    ＋ 追加
+                  </Button>
+                </Stack>
+              </Fieldset.Root>
+
+              {/* スポーン地点 */}
+              <Fieldset.Root borderWidth="1px" borderRadius="md" p="3">
+                <Fieldset.Legend fontSize="sm" fontWeight="bold" px="1">
+                  spawn_points ({editData.spawn_points.length})
+                </Fieldset.Legend>
+                <Stack gap="2">
+                  {editData.spawn_points.map((sp, i) => (
+                    <Flex key={i} gap="2" align="center">
+                      <Text fontSize="xs" color="fg.subtle" w="24px">
+                        #{i}
+                      </Text>
+                      <Text fontSize="sm" color="fg.muted" flexShrink={0}>
+                        x
+                      </Text>
+                      <Input
+                        size="sm"
+                        type="number"
+                        w="80px"
+                        value={sp.x}
+                        onChange={(e) =>
+                          update((d) => {
+                            d.spawn_points[i]!.x =
+                              parseInt(e.target.value, 10) || 0;
+                          })
+                        }
+                      />
+                      <Text fontSize="sm" color="fg.muted" flexShrink={0}>
+                        y
+                      </Text>
+                      <Input
+                        size="sm"
+                        type="number"
+                        w="80px"
+                        value={sp.y}
+                        onChange={(e) =>
+                          update((d) => {
+                            d.spawn_points[i]!.y =
+                              parseInt(e.target.value, 10) || 0;
+                          })
+                        }
+                      />
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        colorPalette="red"
+                        onClick={() =>
+                          update((d) => {
+                            d.spawn_points.splice(i, 1);
+                          })
+                        }
+                      >
+                        ×
+                      </Button>
+                    </Flex>
+                  ))}
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    onClick={() =>
+                      update((d) => {
+                        d.spawn_points.push({ x: 0, y: 0 });
+                      })
+                    }
+                  >
+                    ＋ 追加
+                  </Button>
+                </Stack>
+              </Fieldset.Root>
+
+              {/* プレースメント */}
+              <Fieldset.Root borderWidth="1px" borderRadius="md" p="3">
+                <Fieldset.Legend fontSize="sm" fontWeight="bold" px="1">
+                  placements ({editData.placements.length})
+                </Fieldset.Legend>
+                <Stack gap="3">
+                  {editData.placements.map((pl, i) => (
+                    <Box key={i} borderWidth="1px" borderRadius="md" p="2">
+                      <Flex justify="space-between" align="center" mb="1">
+                        <Text fontSize="xs" color="fg.subtle">
+                          #{i}
+                        </Text>
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          colorPalette="red"
+                          onClick={() =>
+                            update((d) => {
+                              d.placements.splice(i, 1);
+                            })
+                          }
+                        >
+                          ×
+                        </Button>
+                      </Flex>
+                      <Stack gap="1">
+                        <Flex align="center" gap="3">
+                          <Text
+                            fontSize="sm"
+                            w="80px"
+                            flexShrink={0}
+                            color="fg.muted"
+                          >
+                            id
+                          </Text>
+                          <Input
+                            size="sm"
+                            value={pl.id}
+                            onChange={(e) =>
+                              update((d) => {
+                                d.placements[i]!.id = e.target.value;
+                              })
+                            }
+                          />
+                        </Flex>
+                        <Flex align="start" gap="3">
+                          <Text
+                            fontSize="sm"
+                            w="80px"
+                            flexShrink={0}
+                            color="fg.muted"
+                            pt="1"
+                          >
+                            chunks
+                          </Text>
+                          <Stack gap="1" flex="1">
+                            {pl.chunks.map((ch, j) => (
+                              <Flex key={j} gap="1">
+                                <SearchableSelect
+                                  options={layoutNames}
+                                  value={ch}
+                                  onChange={(v) =>
+                                    update((d) => {
+                                      d.placements[i]!.chunks[j] = v;
+                                    })
+                                  }
+                                />
+                                <Button
+                                  size="xs"
+                                  variant="ghost"
+                                  colorPalette="red"
+                                  onClick={() =>
+                                    update((d) => {
+                                      d.placements[i]!.chunks.splice(j, 1);
+                                    })
+                                  }
+                                >
+                                  ×
+                                </Button>
+                              </Flex>
+                            ))}
+                            <Button
+                              size="xs"
+                              variant="outline"
+                              onClick={() =>
+                                update((d) => {
+                                  d.placements[i]!.chunks.push("");
+                                })
+                              }
+                            >
+                              ＋ 追加
+                            </Button>
+                          </Stack>
+                        </Flex>
+                      </Stack>
+                    </Box>
+                  ))}
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    onClick={() =>
+                      update((d) => {
+                        d.placements.push({ id: "", chunks: [] });
+                      })
+                    }
                   >
                     ＋ 追加
                   </Button>
@@ -298,140 +534,29 @@ export function LayoutPage() {
                   lineHeight="1.2"
                   rows={Math.min(editData.Size.H + 2, 60)}
                   value={editData.map.replace(/^\n/, "").replace(/\n$/, "")}
-                  onChange={(e) => update((d) => { d.map = e.target.value + "\n"; })}
+                  onChange={(e) =>
+                    update((d) => {
+                      d.map = e.target.value + "\n";
+                    })
+                  }
                   spellCheck={false}
                   resize="vertical"
                 />
               </Fieldset.Root>
 
-              {/* スポーン地点 */}
-              <Fieldset.Root borderWidth="1px" borderRadius="md" p="3">
-                <Fieldset.Legend fontSize="sm" fontWeight="bold" px="1">
-                  spawn_points ({editData.spawn_points.length})
-                </Fieldset.Legend>
-                <Stack gap="2">
-                  {editData.spawn_points.map((sp, i) => (
-                    <Flex key={i} gap="2" align="center">
-                      <Text fontSize="xs" color="fg.subtle" w="24px">#{i}</Text>
-                      <Text fontSize="sm" color="fg.muted" flexShrink={0}>x</Text>
-                      <Input
-                        size="sm"
-                        type="number"
-                        w="80px"
-                        value={sp.x}
-                        onChange={(e) => update((d) => { d.spawn_points[i]!.x = parseInt(e.target.value, 10) || 0; })}
-                      />
-                      <Text fontSize="sm" color="fg.muted" flexShrink={0}>y</Text>
-                      <Input
-                        size="sm"
-                        type="number"
-                        w="80px"
-                        value={sp.y}
-                        onChange={(e) => update((d) => { d.spawn_points[i]!.y = parseInt(e.target.value, 10) || 0; })}
-                      />
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        colorPalette="red"
-                        onClick={() => update((d) => { d.spawn_points.splice(i, 1); })}
-                      >
-                        ×
-                      </Button>
-                    </Flex>
-                  ))}
-                  <Button
-                    size="xs"
-                    variant="outline"
-                    onClick={() => update((d) => { d.spawn_points.push({ x: 0, y: 0 }); })}
-                  >
-                    ＋ 追加
-                  </Button>
-                </Stack>
-              </Fieldset.Root>
-
-              {/* プレースメント */}
-              <Fieldset.Root borderWidth="1px" borderRadius="md" p="3">
-                <Fieldset.Legend fontSize="sm" fontWeight="bold" px="1">
-                  placements ({editData.placements.length})
-                </Fieldset.Legend>
-                <Stack gap="3">
-                  {editData.placements.map((pl, i) => (
-                    <Box key={i} borderWidth="1px" borderRadius="md" p="2">
-                      <Flex justify="space-between" align="center" mb="1">
-                        <Text fontSize="xs" color="fg.subtle">#{i}</Text>
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          colorPalette="red"
-                          onClick={() => update((d) => { d.placements.splice(i, 1); })}
-                        >
-                          ×
-                        </Button>
-                      </Flex>
-                      <Stack gap="1">
-                        <Flex align="center" gap="3">
-                          <Text fontSize="sm" w="80px" flexShrink={0} color="fg.muted">id</Text>
-                          <Input
-                            size="sm"
-                            value={pl.id}
-                            onChange={(e) => update((d) => { d.placements[i]!.id = e.target.value; })}
-                          />
-                        </Flex>
-                        <Flex align="start" gap="3">
-                          <Text fontSize="sm" w="80px" flexShrink={0} color="fg.muted" pt="1">chunks</Text>
-                          <Stack gap="1" flex="1">
-                            {pl.chunks.map((ch, j) => (
-                              <Flex key={j} gap="1">
-                                <SearchableSelect
-                                  options={layoutNames}
-                                  value={ch}
-                                  onChange={(v) => update((d) => { d.placements[i]!.chunks[j] = v; })}
-                                />
-                                <Button
-                                  size="xs"
-                                  variant="ghost"
-                                  colorPalette="red"
-                                  onClick={() => update((d) => { d.placements[i]!.chunks.splice(j, 1); })}
-                                >
-                                  ×
-                                </Button>
-                              </Flex>
-                            ))}
-                            <Button
-                              size="xs"
-                              variant="outline"
-                              onClick={() => update((d) => { d.placements[i]!.chunks.push(""); })}
-                            >
-                              ＋ 追加
-                            </Button>
-                          </Stack>
-                        </Flex>
-                      </Stack>
-                    </Box>
-                  ))}
-                  <Button
-                    size="xs"
-                    variant="outline"
-                    onClick={() => update((d) => { d.placements.push({ id: "", chunks: [] }); })}
-                  >
-                    ＋ 追加
-                  </Button>
-                </Stack>
-              </Fieldset.Root>
-
               {/* マッププレビュー */}
               {selectedIndex !== null && (
-              <Fieldset.Root borderWidth="1px" borderRadius="md" p="3">
-                <Fieldset.Legend fontSize="sm" fontWeight="bold" px="1">
-                  preview
-                </Fieldset.Legend>
-                <MapPreview
-                  layoutIndex={selectedIndex}
-                  width={editData.Size.W}
-                  height={editData.Size.H}
-                  spawnPoints={editData.spawn_points}
-                />
-              </Fieldset.Root>
+                <Fieldset.Root borderWidth="1px" borderRadius="md" p="3">
+                  <Fieldset.Legend fontSize="sm" fontWeight="bold" px="1">
+                    preview
+                  </Fieldset.Legend>
+                  <MapPreview
+                    layoutIndex={selectedIndex}
+                    width={editData.Size.W}
+                    height={editData.Size.H}
+                    spawnPoints={editData.spawn_points}
+                  />
+                </Fieldset.Root>
               )}
             </Stack>
           </>

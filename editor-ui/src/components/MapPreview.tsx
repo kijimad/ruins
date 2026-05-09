@@ -1,9 +1,13 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Box } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useResourceList } from "../hooks/useResource";
-import { useSpriteSheet, type SpriteInfo, type SpriteSheetInfo } from "../hooks/useSprites";
+import {
+  useSpriteSheet,
+  type SpriteInfo,
+  type SpriteSheetInfo,
+} from "../hooks/useSprites";
 
 // サーバー側で解決済みのセル
 interface ResolvedCell {
@@ -32,29 +36,52 @@ function useResolvedCells(layoutIndex: number) {
   return useQuery<ResolvedCell[][]>({
     queryKey: ["layouts", layoutIndex, "resolved"],
     queryFn: async () => {
-      const res = await axios.get<{ cells: ResolvedCell[][] }>(`/api/v1/layouts/${layoutIndex}/resolved`);
+      const res = await axios.get<{ cells: ResolvedCell[][] }>(
+        `/api/v1/layouts/${layoutIndex}/resolved`,
+      );
       return res.data.cells;
     },
   });
 }
 
-export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPreviewProps) {
+export function MapPreview({
+  layoutIndex,
+  width,
+  height,
+  spawnPoints,
+}: MapPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // サーバー側で解決済みのセル配列を取得する
   const resolvedQuery = useResolvedCells(layoutIndex);
-  const resolvedCells = resolvedQuery.data ?? [];
+  const resolvedCells = useMemo(
+    () => resolvedQuery.data ?? [],
+    [resolvedQuery.data],
+  );
 
   // タイル・置物・メンバーのデータを取得する（spriteKey/spriteSheetName の解決に使う）
-  const tilesQuery = useResourceList<{ name: string; spriteRender: { spriteKey: string; spriteSheetName: string } }>("tiles");
-  const propsQuery = useResourceList<{ name: string; spriteRender: { spriteKey: string; spriteSheetName: string } }>("props");
-  const membersQuery = useResourceList<{ name: string; spriteKey: string; spriteSheetName: string }>("members");
+  const tilesQuery = useResourceList<{
+    name: string;
+    spriteRender: { spriteKey: string; spriteSheetName: string };
+  }>("tiles");
+  const propsQuery = useResourceList<{
+    name: string;
+    spriteRender: { spriteKey: string; spriteSheetName: string };
+  }>("props");
+  const membersQuery = useResourceList<{
+    name: string;
+    spriteKey: string;
+    spriteSheetName: string;
+  }>("members");
 
   // タイル名→スプライト参照のマップを構築する
   const tileSpriteMap = useMemo(() => {
     const m = new Map<string, SpriteRef>();
     for (const tile of tilesQuery.data?.data ?? []) {
-      m.set(tile.name, { sheetName: tile.spriteRender.spriteSheetName, spriteKey: tile.spriteRender.spriteKey });
+      m.set(tile.name, {
+        sheetName: tile.spriteRender.spriteSheetName,
+        spriteKey: tile.spriteRender.spriteKey,
+      });
     }
     return m;
   }, [tilesQuery.data]);
@@ -63,7 +90,10 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
   const propSpriteMap = useMemo(() => {
     const m = new Map<string, SpriteRef>();
     for (const prop of propsQuery.data?.data ?? []) {
-      m.set(prop.name, { sheetName: prop.spriteRender.spriteSheetName, spriteKey: prop.spriteRender.spriteKey });
+      m.set(prop.name, {
+        sheetName: prop.spriteRender.spriteSheetName,
+        spriteKey: prop.spriteRender.spriteKey,
+      });
     }
     return m;
   }, [propsQuery.data]);
@@ -72,7 +102,10 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
   const memberSpriteMap = useMemo(() => {
     const m = new Map<string, SpriteRef>();
     for (const member of membersQuery.data?.data ?? []) {
-      m.set(member.name, { sheetName: member.spriteSheetName, spriteKey: member.spriteKey });
+      m.set(member.name, {
+        sheetName: member.spriteSheetName,
+        spriteKey: member.spriteKey,
+      });
     }
     return m;
   }, [membersQuery.data]);
@@ -94,19 +127,25 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
   }, [resolvedCells, tileSpriteMap, propSpriteMap, memberSpriteMap]);
 
   // スプライトシートをフェッチする（最大5シート）
-  const sheet0 = useSpriteSheet(neededSheets[0]);
-  const sheet1 = useSpriteSheet(neededSheets[1]);
-  const sheet2 = useSpriteSheet(neededSheets[2]);
-  const sheet3 = useSpriteSheet(neededSheets[3]);
-  const sheet4 = useSpriteSheet(neededSheets[4]);
+  const sheet0Data = useSpriteSheet(neededSheets[0]).data;
+  const sheet1Data = useSpriteSheet(neededSheets[1]).data;
+  const sheet2Data = useSpriteSheet(neededSheets[2]).data;
+  const sheet3Data = useSpriteSheet(neededSheets[3]).data;
+  const sheet4Data = useSpriteSheet(neededSheets[4]).data;
 
   const sheetDataMap = useMemo(() => {
     const m = new Map<string, SpriteSheetInfo>();
-    for (const q of [sheet0, sheet1, sheet2, sheet3, sheet4]) {
-      if (q.data) m.set(q.data.name, q.data);
+    for (const data of [
+      sheet0Data,
+      sheet1Data,
+      sheet2Data,
+      sheet3Data,
+      sheet4Data,
+    ]) {
+      if (data) m.set(data.name, data);
     }
     return m;
-  }, [sheet0.data, sheet1.data, sheet2.data, sheet3.data, sheet4.data]);
+  }, [sheet0Data, sheet1Data, sheet2Data, sheet3Data, sheet4Data]);
 
   // スプライトキー→SpriteInfo の高速検索マップを構築する
   const spriteKeyMap = useMemo(() => {
@@ -122,37 +161,27 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
   // 各シートの画像をロードする
   const loadedImages = useRef(new Map<string, HTMLImageElement>());
 
-  useEffect(() => {
-    let cancelled = false;
-    const newImages: HTMLImageElement[] = [];
-    for (const [name, info] of sheetDataMap) {
-      if (!loadedImages.current.has(name)) {
-        const img = new Image();
-        img.src = info.image;
-        img.onload = () => {
-          if (cancelled) return;
-          loadedImages.current.set(name, img);
-          drawCanvas();
-        };
-        newImages.push(img);
-      }
-    }
-    if (newImages.length === 0) drawCanvas();
-    return () => { cancelled = true; };
-  }, [sheetDataMap, resolvedCells, spawnPoints]);
+  const findSprite = useCallback(
+    (
+      sheetName: string,
+      spriteKey: string,
+    ):
+      | { sheet: SpriteSheetInfo; sprite: SpriteInfo; img: HTMLImageElement }
+      | undefined => {
+      // 完全一致を試し、なければ _0 サフィックス付きにフォールバックする
+      // Go側では autoTileIndex で spriteKey に _N を付加するため
+      const entry =
+        spriteKeyMap.get(`${sheetName}:${spriteKey}`) ??
+        spriteKeyMap.get(`${sheetName}:${spriteKey}_0`);
+      if (!entry) return undefined;
+      const img = loadedImages.current.get(sheetName);
+      if (!img) return undefined;
+      return { sheet: entry.sheet, sprite: entry.sprite, img };
+    },
+    [spriteKeyMap],
+  );
 
-  function findSprite(sheetName: string, spriteKey: string): { sheet: SpriteSheetInfo; sprite: SpriteInfo; img: HTMLImageElement } | undefined {
-    // 完全一致を試し、なければ _0 サフィックス付きにフォールバックする
-    // Go側では autoTileIndex で spriteKey に _N を付加するため
-    const entry = spriteKeyMap.get(`${sheetName}:${spriteKey}`)
-      ?? spriteKeyMap.get(`${sheetName}:${spriteKey}_0`);
-    if (!entry) return undefined;
-    const img = loadedImages.current.get(sheetName);
-    if (!img) return undefined;
-    return { sheet: entry.sheet, sprite: entry.sprite, img };
-  }
-
-  function drawCanvas() {
+  const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -178,7 +207,17 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
           if (tileRef) {
             const found = findSprite(tileRef.sheetName, tileRef.spriteKey);
             if (found) {
-              ctx.drawImage(found.img, found.sprite.x, found.sprite.y, found.sprite.w, found.sprite.h, dx, dy, TILE_SIZE, TILE_SIZE);
+              ctx.drawImage(
+                found.img,
+                found.sprite.x,
+                found.sprite.y,
+                found.sprite.w,
+                found.sprite.h,
+                dx,
+                dy,
+                TILE_SIZE,
+                TILE_SIZE,
+              );
             }
           }
         }
@@ -189,7 +228,17 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
           if (propRef) {
             const found = findSprite(propRef.sheetName, propRef.spriteKey);
             if (found) {
-              ctx.drawImage(found.img, found.sprite.x, found.sprite.y, found.sprite.w, found.sprite.h, dx, dy, TILE_SIZE, TILE_SIZE);
+              ctx.drawImage(
+                found.img,
+                found.sprite.x,
+                found.sprite.y,
+                found.sprite.w,
+                found.sprite.h,
+                dx,
+                dy,
+                TILE_SIZE,
+                TILE_SIZE,
+              );
             }
           }
         }
@@ -200,7 +249,17 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
           if (memberRef) {
             const found = findSprite(memberRef.sheetName, memberRef.spriteKey);
             if (found) {
-              ctx.drawImage(found.img, found.sprite.x, found.sprite.y, found.sprite.w, found.sprite.h, dx, dy, TILE_SIZE, TILE_SIZE);
+              ctx.drawImage(
+                found.img,
+                found.sprite.x,
+                found.sprite.y,
+                found.sprite.w,
+                found.sprite.h,
+                dx,
+                dy,
+                TILE_SIZE,
+                TILE_SIZE,
+              );
             }
           }
         }
@@ -212,10 +271,43 @@ export function MapPreview({ layoutIndex, width, height, spawnPoints }: MapPrevi
       ctx.strokeStyle = "#0f0";
       ctx.lineWidth = 2;
       for (const sp of spawnPoints) {
-        ctx.strokeRect(sp.x * TILE_SIZE + 1, sp.y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        ctx.strokeRect(
+          sp.x * TILE_SIZE + 1,
+          sp.y * TILE_SIZE + 1,
+          TILE_SIZE - 2,
+          TILE_SIZE - 2,
+        );
       }
     }
-  }
+  }, [
+    resolvedCells,
+    tileSpriteMap,
+    propSpriteMap,
+    memberSpriteMap,
+    findSprite,
+    spawnPoints,
+  ]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const newImages: HTMLImageElement[] = [];
+    for (const [name, info] of sheetDataMap) {
+      if (!loadedImages.current.has(name)) {
+        const img = new Image();
+        img.src = info.image;
+        img.onload = () => {
+          if (cancelled) return;
+          loadedImages.current.set(name, img);
+          drawCanvas();
+        };
+        newImages.push(img);
+      }
+    }
+    if (newImages.length === 0) drawCanvas();
+    return () => {
+      cancelled = true;
+    };
+  }, [sheetDataMap, drawCanvas]);
 
   // 解決済みセルからサイズを決定する（placementsで子チャンクが展開された場合、元のwidthより大きくなりうる）
   const actualW = resolvedCells[0]?.length ?? width;

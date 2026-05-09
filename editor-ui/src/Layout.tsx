@@ -43,7 +43,11 @@ export function Layout() {
               py="1"
               borderRadius="md"
               fontSize="sm"
-              bg={location.pathname.startsWith(r.path) ? "bg.emphasized" : undefined}
+              bg={
+                location.pathname.startsWith(r.path)
+                  ? "bg.emphasized"
+                  : undefined
+              }
               _hover={{ bg: "bg.muted" }}
             >
               <NavLink to={r.path}>{r.label}</NavLink>
@@ -59,5 +63,7 @@ export function Layout() {
 }
 
 export function WelcomePage() {
-  return <Text color="fg.muted">左のメニューからリソースを選択してください</Text>;
+  return (
+    <Text color="fg.muted">左のメニューからリソースを選択してください</Text>
+  );
 }

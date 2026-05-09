@@ -21,7 +21,9 @@ export function useSpriteSheet(sheetName: string | undefined) {
   return useQuery<SpriteSheetInfo>({
     queryKey: ["sprites", sheetName],
     queryFn: async () => {
-      const res = await axios.get<SpriteSheetInfo>(`/api/v1/sprites/${sheetName}`);
+      const res = await axios.get<SpriteSheetInfo>(
+        `/api/v1/sprites/${sheetName}`,
+      );
       return res.data;
     },
     enabled: !!sheetName,

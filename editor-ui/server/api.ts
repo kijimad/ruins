@@ -2,6 +2,19 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
 import { parse as tomlParse, stringify as tomlStringify } from "smol-toml";
+import type {
+  CommandTable,
+  DropTable,
+  EnemyTable,
+  Item,
+  ItemTable,
+  Member,
+  Profession,
+  Prop,
+  Recipe,
+  SpriteSheet,
+  Tile,
+} from "../src/oapi/api";
 
 // Aseprite JSON のフレーム定義
 interface AsepriteFrame {
@@ -62,17 +75,17 @@ class SpriteCache {
 
 // raw.toml のルート構造。キーは camelCase
 interface Raws {
-  items?: unknown[];
-  recipes?: unknown[];
-  members?: unknown[];
-  commandTables?: unknown[];
-  dropTables?: unknown[];
-  itemTables?: unknown[];
-  enemyTables?: unknown[];
-  spriteSheets?: unknown[];
-  tiles?: unknown[];
-  props?: unknown[];
-  professions?: unknown[];
+  items?: Item[];
+  recipes?: Recipe[];
+  members?: Member[];
+  commandTables?: CommandTable[];
+  dropTables?: DropTable[];
+  itemTables?: ItemTable[];
+  enemyTables?: EnemyTable[];
+  spriteSheets?: SpriteSheet[];
+  tiles?: Tile[];
+  props?: Prop[];
+  professions?: Profession[];
 }
 
 // パレット TOML 構造
@@ -102,15 +115,15 @@ interface LayoutFile {
 }
 
 // ソートキー生成（Go の itemSortKey と同じロジック）
-function itemSortKey(item: Record<string, unknown>): string {
+function itemSortKey(item: Item): string {
   const flags: [boolean, string][] = [
-    [item["weapon"] != null, "A"],
-    [item["melee"] != null, "B"],
-    [item["fire"] != null, "C"],
-    [item["wearable"] != null, "D"],
-    [item["consumable"] != null, "E"],
-    [item["ammo"] != null, "F"],
-    [item["book"] != null, "G"],
+    [item.weapon != null, "A"],
+    [item.melee != null, "B"],
+    [item.fire != null, "C"],
+    [item.wearable != null, "D"],
+    [item.consumable != null, "E"],
+    [item.ammo != null, "F"],
+    [item.book != null, "G"],
   ];
   const key = flags
     .filter(([present]) => present)
@@ -119,16 +132,16 @@ function itemSortKey(item: Record<string, unknown>): string {
   return key || "Z";
 }
 
-function sortItems(items: Record<string, unknown>[]): void {
+function sortItems(items: Item[]): void {
   items.sort((a, b) => {
     const ka = itemSortKey(a);
     const kb = itemSortKey(b);
     if (ka !== kb) return ka < kb ? -1 : 1;
-    return String(a["name"] ?? "") < String(b["name"] ?? "") ? -1 : 1;
+    return (a.name ?? "") < (b.name ?? "") ? -1 : 1;
   });
 }
 
-function sortByName(arr: Record<string, unknown>[], key: string): void {
+function sortByName<T>(arr: T[], key: keyof T): void {
   arr.sort((a, b) => {
     const va = String(a[key] ?? "");
     const vb = String(b[key] ?? "");
@@ -137,25 +150,17 @@ function sortByName(arr: Record<string, unknown>[], key: string): void {
 }
 
 function sortAll(raws: Raws): void {
-  if (raws.items) sortItems(raws.items as Record<string, unknown>[]);
-  if (raws.members)
-    sortByName(raws.members as Record<string, unknown>[], "name");
-  if (raws.recipes)
-    sortByName(raws.recipes as Record<string, unknown>[], "name");
-  if (raws.commandTables)
-    sortByName(raws.commandTables as Record<string, unknown>[], "name");
-  if (raws.dropTables)
-    sortByName(raws.dropTables as Record<string, unknown>[], "name");
-  if (raws.itemTables)
-    sortByName(raws.itemTables as Record<string, unknown>[], "name");
-  if (raws.enemyTables)
-    sortByName(raws.enemyTables as Record<string, unknown>[], "name");
-  if (raws.spriteSheets)
-    sortByName(raws.spriteSheets as Record<string, unknown>[], "name");
-  if (raws.tiles) sortByName(raws.tiles as Record<string, unknown>[], "name");
-  if (raws.props) sortByName(raws.props as Record<string, unknown>[], "name");
-  if (raws.professions)
-    sortByName(raws.professions as Record<string, unknown>[], "id");
+  if (raws.items) sortItems(raws.items);
+  if (raws.members) sortByName(raws.members, "name");
+  if (raws.recipes) sortByName(raws.recipes, "name");
+  if (raws.commandTables) sortByName(raws.commandTables, "name");
+  if (raws.dropTables) sortByName(raws.dropTables, "name");
+  if (raws.itemTables) sortByName(raws.itemTables, "name");
+  if (raws.enemyTables) sortByName(raws.enemyTables, "name");
+  if (raws.spriteSheets) sortByName(raws.spriteSheets, "name");
+  if (raws.tiles) sortByName(raws.tiles, "name");
+  if (raws.props) sortByName(raws.props, "name");
+  if (raws.professions) sortByName(raws.professions, "id");
 }
 
 // raw.toml の読み書き
@@ -173,7 +178,9 @@ class RawStore {
   }
 
   private save(): void {
-    const content = tomlStringify(this.raws as unknown as Record<string, unknown>);
+    const content = tomlStringify(
+      this.raws as unknown as Record<string, unknown>,
+    );
     fs.writeFileSync(this.filePath, content, "utf-8");
   }
 
@@ -273,7 +280,8 @@ class LayoutStore {
 
   // ファイル名（拡張子なし）を返す
   private fileNames(): string[] {
-    return fs.readdirSync(this.dir)
+    return fs
+      .readdirSync(this.dir)
       .filter((f) => f.endsWith(".toml"))
       .map((f) => f.replace(/\.toml$/, ""))
       .sort();
@@ -360,7 +368,9 @@ const RESOURCE_MAP: Record<
 };
 
 // リクエストボディを読み取る
-function readBody(req: { on: (event: string, cb: (chunk: Buffer) => void) => void }): Promise<string> {
+function readBody(req: {
+  on: (event: string, cb: (chunk: Buffer) => void) => void;
+}): Promise<string> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     req.on("data", (chunk: Buffer) => chunks.push(chunk));
@@ -423,17 +433,28 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
           const spriteMatch = apiPath.match(/^sprites\/([a-zA-Z0-9_-]+)$/);
           if (spriteMatch && method === "GET") {
             const sheetName = spriteMatch[1]!;
-            const sheets = rawStore.getSlice("spriteSheets") as { name: string; path: string }[];
+            const sheets = rawStore.getSlice("spriteSheets") as {
+              name: string;
+              path: string;
+            }[];
             const sheet = sheets.find((s) => s.name === sheetName);
             if (!sheet) {
               res.statusCode = 404;
-              res.end(JSON.stringify({ message: `Sprite sheet not found: ${sheetName}` }));
+              res.end(
+                JSON.stringify({
+                  message: `Sprite sheet not found: ${sheetName}`,
+                }),
+              );
               return;
             }
             const info = spriteCache.get(sheetName, sheet.path);
             if (!info) {
               res.statusCode = 404;
-              res.end(JSON.stringify({ message: `Sprite JSON not found: ${sheet.path}` }));
+              res.end(
+                JSON.stringify({
+                  message: `Sprite JSON not found: ${sheet.path}`,
+                }),
+              );
               return;
             }
             res.end(JSON.stringify(info));
@@ -477,7 +498,9 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
         } catch (e) {
           res.statusCode = 500;
           res.end(
-            JSON.stringify({ message: e instanceof Error ? e.message : String(e) }),
+            JSON.stringify({
+              message: e instanceof Error ? e.message : String(e),
+            }),
           );
         }
       });
@@ -728,14 +751,22 @@ function findPlaceholderRegionsByID(
 
     // 幅を計算
     let width = 0;
-    for (let x = startX; x < lines[idY]!.length && isPlaceholder(lines[idY]![x]!); x++) width++;
+    for (
+      let x = startX;
+      x < lines[idY]!.length && isPlaceholder(lines[idY]![x]!);
+      x++
+    )
+      width++;
 
     // 上端を探す
     let startY = idY;
     while (startY > 0) {
       let allMatch = true;
       for (let x = startX; x < startX + width; x++) {
-        if (x >= lines[startY - 1]!.length || !isPlaceholder(lines[startY - 1]![x]!)) {
+        if (
+          x >= lines[startY - 1]!.length ||
+          !isPlaceholder(lines[startY - 1]![x]!)
+        ) {
           allMatch = false;
           break;
         }
@@ -746,10 +777,25 @@ function findPlaceholderRegionsByID(
 
     // 高さを計算
     let height = 0;
-    for (let y = startY; y < lines.length && startX < lines[y]!.length && isPlaceholder(lines[y]![startX]!); y++) height++;
+    for (
+      let y = startY;
+      y < lines.length &&
+      startX < lines[y]!.length &&
+      isPlaceholder(lines[y]![startX]!);
+      y++
+    )
+      height++;
 
     // 重複チェック
-    if (!regions.some((r) => r.x === startX && r.y === startY && r.width === width && r.height === height)) {
+    if (
+      !regions.some(
+        (r) =>
+          r.x === startX &&
+          r.y === startY &&
+          r.width === width &&
+          r.height === height,
+      )
+    ) {
       regions.push({ x: startX, y: startY, width, height });
     }
   }
@@ -807,10 +853,19 @@ function resolveLayoutCells(
       if (!childChunk) continue;
 
       // サイズチェック
-      if (region.width !== childChunk.Size.W || region.height !== childChunk.Size.H) continue;
+      if (
+        region.width !== childChunk.Size.W ||
+        region.height !== childChunk.Size.H
+      )
+        continue;
 
       // 子チャンクを再帰的に展開する
-      const childCells = resolveLayoutCells(childChunk, allChunks, paletteStore, depth + 1);
+      const childCells = resolveLayoutCells(
+        childChunk,
+        allChunks,
+        paletteStore,
+        depth + 1,
+      );
 
       // 子のセルを親のセルにオーバーレイする
       for (let cy = 0; cy < childChunk.Size.H; cy++) {

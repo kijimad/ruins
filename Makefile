@@ -63,6 +63,10 @@ toolsinstall: ## 開発ツールをインストールする
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする
 
+.PHONY: check-ui
+check-ui: ## editor-ui の型チェック・テスト・lintを実行する
+	npm run --prefix editor-ui check
+
 # ================
 
 .PHONY: memp

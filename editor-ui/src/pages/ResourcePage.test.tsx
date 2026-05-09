@@ -13,8 +13,14 @@ const mockDeleteMutate = vi.fn();
 vi.mock("../hooks/useResource", () => ({
   useResourceList: vi.fn(),
   useResourceUpdate: vi.fn(() => ({ mutate: mockMutate, isPending: false })),
-  useResourceCreate: vi.fn(() => ({ mutate: mockCreateMutate, isPending: false })),
-  useResourceDelete: vi.fn(() => ({ mutate: mockDeleteMutate, isPending: false })),
+  useResourceCreate: vi.fn(() => ({
+    mutate: mockCreateMutate,
+    isPending: false,
+  })),
+  useResourceDelete: vi.fn(() => ({
+    mutate: mockDeleteMutate,
+    isPending: false,
+  })),
 }));
 
 import { useResourceList } from "../hooks/useResource";
@@ -59,7 +65,10 @@ describe("ResourcePage", () => {
 
   test("新規追加でソート後のインデックスの項目が選択される", async () => {
     // ソート順: 剣, 新規, 盾 → 新規はindex=1
-    setupList([{ name: "剣", value: 100 }, { name: "盾", value: 200 }]);
+    setupList([
+      { name: "剣", value: 100 },
+      { name: "盾", value: 200 },
+    ]);
 
     mockCreateMutate.mockImplementation(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -95,25 +104,28 @@ describe("ResourcePage", () => {
       { id: "mage", label: "魔術師" },
     ]);
 
-    render(<ResourcePage resource="professions" label="職業" nameField="id" />, { wrapper });
+    render(
+      <ResourcePage resource="professions" label="職業" nameField="id" />,
+      { wrapper },
+    );
 
     expect(screen.getByText("warrior")).toBeInTheDocument();
     expect(screen.getByText("mage")).toBeInTheDocument();
   });
 
   test("セクション追加ボタンが未追加セクションのみ表示される", async () => {
-    setupList([
-      { name: "剣", weapon: {}, melee: { accuracy: 100 } },
-    ]);
+    setupList([{ name: "剣", weapon: {}, melee: { accuracy: 100 } }]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
     await userEvent.click(screen.getByText("剣"));
 
     // weapon と melee は既にあるので追加ボタンに含まれない
-    const addButtons = screen.getAllByRole("button").filter(
-      (btn) => btn.textContent?.startsWith("+ "),
+    const addButtons = screen
+      .getAllByRole("button")
+      .filter((btn) => btn.textContent?.startsWith("+ "));
+    const addLabels = addButtons.map((btn) =>
+      btn.textContent?.replace("+ ", ""),
     );
-    const addLabels = addButtons.map((btn) => btn.textContent?.replace("+ ", ""));
     expect(addLabels).not.toContain("weapon");
     expect(addLabels).not.toContain("melee");
     expect(addLabels).toContain("fire");
@@ -127,9 +139,9 @@ describe("ResourcePage", () => {
     await userEvent.click(screen.getByText("帽子"));
 
     // wearable セクション追加
-    const addWearable = screen.getAllByRole("button").find(
-      (btn) => btn.textContent === "+ wearable",
-    );
+    const addWearable = screen
+      .getAllByRole("button")
+      .find((btn) => btn.textContent === "+ wearable");
     expect(addWearable).toBeDefined();
     await userEvent.click(addWearable!);
 
@@ -148,9 +160,9 @@ describe("ResourcePage", () => {
     render(<ResourcePage resource="recipes" label="レシピ" />, { wrapper });
     await userEvent.click(screen.getByText("レシピA"));
 
-    const addButtons = screen.queryAllByRole("button").filter(
-      (btn) => btn.textContent?.startsWith("+ "),
-    );
+    const addButtons = screen
+      .queryAllByRole("button")
+      .filter((btn) => btn.textContent?.startsWith("+ "));
     expect(addButtons).toHaveLength(0);
   });
 
@@ -203,7 +215,9 @@ describe("ResourcePage", () => {
     setupList([{ name: "剣" }]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
-    expect(screen.getByText("左の一覧から項目を選択してください")).toBeInTheDocument();
+    expect(
+      screen.getByText("左の一覧から項目を選択してください"),
+    ).toBeInTheDocument();
   });
 
   test("一覧にアイテム件数バッジが表示される", () => {
@@ -263,7 +277,9 @@ describe("ResourcePage", () => {
   });
 
   test("セクション削除ボタンでセクションが消える", async () => {
-    setupList([{ name: "剣", weapon: {}, melee: { accuracy: 100, damage: 5 } }]);
+    setupList([
+      { name: "剣", weapon: {}, melee: { accuracy: 100, damage: 5 } },
+    ]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
     await userEvent.click(screen.getByText("剣"));
@@ -281,9 +297,9 @@ describe("ResourcePage", () => {
 
     // melee が消えてセクション追加ボタンに表示される
     await waitFor(() => {
-      const addButtons = screen.getAllByRole("button").filter(
-        (btn) => btn.textContent === "+ melee",
-      );
+      const addButtons = screen
+        .getAllByRole("button")
+        .filter((btn) => btn.textContent === "+ melee");
       expect(addButtons.length).toBeGreaterThan(0);
     });
   });
@@ -299,10 +315,12 @@ describe("ResourcePage", () => {
   });
 
   test("ネストしたオブジェクトフィールドが表示される", async () => {
-    setupList([{
-      name: "回復薬",
-      consumable: { targetGroup: "ALLY", targetNum: "SINGLE" },
-    }]);
+    setupList([
+      {
+        name: "回復薬",
+        consumable: { targetGroup: "ALLY", targetNum: "SINGLE" },
+      },
+    ]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
     await userEvent.click(screen.getByText("回復薬"));
@@ -315,7 +333,6 @@ describe("ResourcePage", () => {
   test("削除成功後に選択状態がリセットされる", async () => {
     setupList([{ name: "剣" }, { name: "盾" }]);
     mockDeleteMutate.mockImplementation(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (_index: number, opts?: { onSuccess?: () => void }) => {
         opts?.onSuccess?.();
       },
@@ -334,7 +351,9 @@ describe("ResourcePage", () => {
 
     // 選択がリセットされ、案内メッセージが表示される
     await waitFor(() => {
-      expect(screen.getByText("左の一覧から項目を選択してください")).toBeInTheDocument();
+      expect(
+        screen.getByText("左の一覧から項目を選択してください"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -367,16 +386,19 @@ describe("ResourcePage", () => {
     expect(screen.getByDisplayValue("slime_1")).toBeInTheDocument();
 
     // 追加ボタンをクリック
-    const addButton = screen.getAllByRole("button").find(
-      (btn) => btn.textContent === "＋ 追加",
-    );
+    const addButton = screen
+      .getAllByRole("button")
+      .find((btn) => btn.textContent === "＋ 追加");
     expect(addButton).toBeDefined();
     await userEvent.click(addButton!);
 
     // 保存して新しい要素が含まれることを確認
     await userEvent.click(screen.getByText("保存"));
     expect(mockMutate).toHaveBeenCalledWith(
-      { index: 0, data: expect.objectContaining({ animKeys: ["slime_0", "slime_1", ""] }) },
+      {
+        index: 0,
+        data: expect.objectContaining({ animKeys: ["slime_0", "slime_1", ""] }),
+      },
       expect.any(Object),
     );
   });
@@ -410,9 +432,9 @@ describe("ResourcePage", () => {
     expect(screen.getByText("鉄")).toBeInTheDocument();
     expect(screen.getByDisplayValue("4")).toBeInTheDocument();
 
-    const addButton = screen.getAllByRole("button").find(
-      (btn) => btn.textContent === "＋ 追加",
-    );
+    const addButton = screen
+      .getAllByRole("button")
+      .find((btn) => btn.textContent === "＋ 追加");
     await userEvent.click(addButton!);
 
     await userEvent.click(screen.getByText("保存"));
@@ -420,7 +442,10 @@ describe("ResourcePage", () => {
       {
         index: 0,
         data: expect.objectContaining({
-          inputs: [{ name: "鉄", amount: 4 }, { name: "", amount: 1 }],
+          inputs: [
+            { name: "鉄", amount: 4 },
+            { name: "", amount: 1 },
+          ],
         }),
       },
       expect.any(Object),
@@ -428,17 +453,23 @@ describe("ResourcePage", () => {
   });
 
   test("オブジェクト配列から要素を削除できる", async () => {
-    setupList([{
-      name: "鉄の剣レシピ",
-      inputs: [{ name: "鉄", amount: 4 }, { name: "木材", amount: 2 }],
-    }]);
+    setupList([
+      {
+        name: "鉄の剣レシピ",
+        inputs: [
+          { name: "鉄", amount: 4 },
+          { name: "木材", amount: 2 },
+        ],
+      },
+    ]);
 
     render(<ResourcePage resource="recipes" label="レシピ" />, { wrapper });
     await userEvent.click(screen.getByText("鉄の剣レシピ"));
 
     // #0 の×ボタンをクリック
     const itemHeaders = screen.getAllByText(/^#\d+$/);
-    const firstItemRemove = itemHeaders[0]!.parentElement?.querySelector("button");
+    const firstItemRemove =
+      itemHeaders[0]!.parentElement?.querySelector("button");
     expect(firstItemRemove).toBeDefined();
     await userEvent.click(firstItemRemove!);
 
@@ -460,17 +491,24 @@ describe("ResourcePage", () => {
     render(<ResourcePage resource="recipes" label="レシピ" />, { wrapper });
     await userEvent.click(screen.getByText("空レシピ"));
 
-    const addButton = screen.getAllByRole("button").find(
-      (btn) => btn.textContent === "＋ 追加",
-    );
+    const addButton = screen
+      .getAllByRole("button")
+      .find((btn) => btn.textContent === "＋ 追加");
     expect(addButton).toBeDefined();
   });
 
   test("選択式フィールドがセレクトボックスで表示される", async () => {
-    setupList([{
-      name: "剣",
-      melee: { attackCategory: "SWORD", element: "NONE", targetGroup: "ENEMY", targetNum: "SINGLE" },
-    }]);
+    setupList([
+      {
+        name: "剣",
+        melee: {
+          attackCategory: "SWORD",
+          element: "NONE",
+          targetGroup: "ENEMY",
+          targetNum: "SINGLE",
+        },
+      },
+    ]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
     await userEvent.click(screen.getByText("剣"));
@@ -485,17 +523,26 @@ describe("ResourcePage", () => {
   });
 
   test("選択式フィールドの値を変更して保存できる", async () => {
-    setupList([{
-      name: "剣",
-      melee: { attackCategory: "SWORD", element: "NONE", targetGroup: "ENEMY", targetNum: "SINGLE" },
-    }]);
+    setupList([
+      {
+        name: "剣",
+        melee: {
+          attackCategory: "SWORD",
+          element: "NONE",
+          targetGroup: "ENEMY",
+          targetNum: "SINGLE",
+        },
+      },
+    ]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
     await userEvent.click(screen.getByText("剣"));
 
     // element を CHILL に変更
     const selects = screen.getAllByRole("combobox");
-    const elementSelect = selects.find((s) => (s as HTMLSelectElement).value === "NONE");
+    const elementSelect = selects.find(
+      (s) => (s as HTMLSelectElement).value === "NONE",
+    );
     expect(elementSelect).toBeDefined();
     await userEvent.selectOptions(elementSelect!, "CHILL");
 
@@ -512,54 +559,74 @@ describe("ResourcePage", () => {
   });
 
   test("spriteSheetName がセレクトボックスで表示される", async () => {
-    setupList([{ name: "剣", spriteSheetName: "field", spriteKey: "wooden_sword" }]);
+    setupList([
+      { name: "剣", spriteSheetName: "field", spriteKey: "wooden_sword" },
+    ]);
 
     render(<ResourcePage resource="items" label="アイテム" />, { wrapper });
     await userEvent.click(screen.getByText("剣"));
 
     const selects = screen.getAllByRole("combobox");
-    const sheetSelect = selects.find((s) => (s as HTMLSelectElement).value === "field");
+    const sheetSelect = selects.find(
+      (s) => (s as HTMLSelectElement).value === "field",
+    );
     expect(sheetSelect).toBeDefined();
     // field, tile, bg の選択肢がある
-    const options = Array.from((sheetSelect as HTMLSelectElement).options).map((o) => o.value);
+    const options = Array.from((sheetSelect as HTMLSelectElement).options).map(
+      (o) => o.value,
+    );
     expect(options).toContain("field");
     expect(options).toContain("tile");
     expect(options).toContain("bg");
   });
 
   test("数値enumフィールドがラベル付きセレクトボックスで表示される", async () => {
-    setupList([{
-      name: "草原タイル",
-      foliage: -1, shelter: 0, water: 0,
-      spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
-    }]);
+    setupList([
+      {
+        name: "草原タイル",
+        foliage: -1,
+        shelter: 0,
+        water: 0,
+        spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
+      },
+    ]);
 
     render(<ResourcePage resource="tiles" label="タイル" />, { wrapper });
     await userEvent.click(screen.getByText("草原タイル"));
 
     const selects = screen.getAllByRole("combobox");
     // foliage=-1 のセレクトを探す
-    const foliageSelect = selects.find((s) => (s as HTMLSelectElement).value === "-1");
+    const foliageSelect = selects.find(
+      (s) => (s as HTMLSelectElement).value === "-1",
+    );
     expect(foliageSelect).toBeDefined();
-    const foliageOptions = Array.from((foliageSelect as HTMLSelectElement).options).map((o) => o.text);
+    const foliageOptions = Array.from(
+      (foliageSelect as HTMLSelectElement).options,
+    ).map((o) => o.text);
     expect(foliageOptions).toContain("なし (0)");
     expect(foliageOptions).toContain("草原 (-1)");
     expect(foliageOptions).toContain("森 (-3)");
 
     // depth のセレクトも存在する
     const depthSelect = selects.find((s) => {
-      const opts = Array.from((s as HTMLSelectElement).options).map((o) => o.text);
+      const opts = Array.from((s as HTMLSelectElement).options).map(
+        (o) => o.text,
+      );
       return opts.some((t) => t.includes("Floor"));
     });
     expect(depthSelect).toBeDefined();
   });
 
   test("数値enumフィールドの値を変更して保存できる", async () => {
-    setupList([{
-      name: "草原タイル",
-      foliage: 0, shelter: 0, water: 0,
-      spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
-    }]);
+    setupList([
+      {
+        name: "草原タイル",
+        foliage: 0,
+        shelter: 0,
+        water: 0,
+        spriteRender: { depth: 0, spriteKey: "dirt", spriteSheetName: "tile" },
+      },
+    ]);
 
     render(<ResourcePage resource="tiles" label="タイル" />, { wrapper });
     await userEvent.click(screen.getByText("草原タイル"));
@@ -567,7 +634,9 @@ describe("ResourcePage", () => {
     // foliage を森(-3)に変更
     const selects = screen.getAllByRole("combobox");
     const foliageSelect = selects.find((s) => {
-      const opts = Array.from((s as HTMLSelectElement).options).map((o) => o.text);
+      const opts = Array.from((s as HTMLSelectElement).options).map(
+        (o) => o.text,
+      );
       return opts.some((t) => t.includes("草原"));
     });
     expect(foliageSelect).toBeDefined();
@@ -590,9 +659,13 @@ describe("ResourcePage", () => {
     await userEvent.click(screen.getByText("スライム"));
 
     const selects = screen.getAllByRole("combobox");
-    const factionSelect = selects.find((s) => (s as HTMLSelectElement).value === "");
+    const factionSelect = selects.find(
+      (s) => (s as HTMLSelectElement).value === "",
+    );
     expect(factionSelect).toBeDefined();
-    const options = Array.from((factionSelect as HTMLSelectElement).options).map((o) => o.value);
+    const options = Array.from(
+      (factionSelect as HTMLSelectElement).options,
+    ).map((o) => o.value);
     expect(options).toContain("");
     expect(options).toContain("FactionNeutral");
   });
