@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -12,9 +13,9 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 	t.Parallel()
 
 	// 空文字列エントリを含むドロップテーブル
-	dropTable := DropTable{
+	dropTable := oapi.DropTable{
 		Name: "テスト敵",
-		Entries: []DropTableEntry{
+		Entries: []oapi.DropTableEntry{
 			{Material: "", Weight: 0.5},     // 50%でドロップなし
 			{Material: "アイテム", Weight: 0.5}, // 50%でアイテムドロップ
 		},
@@ -27,7 +28,7 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result, err := dropTable.SelectByWeight(rng)
+		result, err := SelectDropByWeight(dropTable, rng)
 		require.NoError(t, err)
 		switch result {
 		case "":
@@ -51,16 +52,16 @@ func TestDropTable_SelectByWeight_AllEmptyWeight(t *testing.T) {
 	t.Parallel()
 
 	// 重みが全て0のドロップテーブル
-	dropTable := DropTable{
+	dropTable := oapi.DropTable{
 		Name: "テスト敵",
-		Entries: []DropTableEntry{
+		Entries: []oapi.DropTableEntry{
 			{Material: "アイテム1", Weight: 0},
 			{Material: "アイテム2", Weight: 0},
 		},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := dropTable.SelectByWeight(rng)
+	result, err := SelectDropByWeight(dropTable, rng)
 	require.NoError(t, err)
 
 	// 重みが全て0の場合は空文字列を返すべき
@@ -71,15 +72,15 @@ func TestDropTable_SelectByWeight_SingleEntry(t *testing.T) {
 	t.Parallel()
 
 	// エントリが1つだけのドロップテーブル
-	dropTable := DropTable{
+	dropTable := oapi.DropTable{
 		Name: "テスト敵",
-		Entries: []DropTableEntry{
+		Entries: []oapi.DropTableEntry{
 			{Material: "確定アイテム", Weight: 1.0},
 		},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := dropTable.SelectByWeight(rng)
+	result, err := SelectDropByWeight(dropTable, rng)
 	require.NoError(t, err)
 
 	assert.Equal(t, "確定アイテム", result, "エントリが1つの場合はそれが選択されるべき")
@@ -89,15 +90,15 @@ func TestDropTable_SelectByWeight_OnlyEmpty(t *testing.T) {
 	t.Parallel()
 
 	// 空文字列エントリのみのドロップテーブル
-	dropTable := DropTable{
+	dropTable := oapi.DropTable{
 		Name: "テスト敵",
-		Entries: []DropTableEntry{
+		Entries: []oapi.DropTableEntry{
 			{Material: "", Weight: 1.0},
 		},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := dropTable.SelectByWeight(rng)
+	result, err := SelectDropByWeight(dropTable, rng)
 	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "空文字列エントリのみの場合は空文字列を返すべき")
@@ -107,9 +108,9 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	t.Parallel()
 
 	// 複数エントリのドロップテーブル
-	dropTable := DropTable{
+	dropTable := oapi.DropTable{
 		Name: "テスト敵",
-		Entries: []DropTableEntry{
+		Entries: []oapi.DropTableEntry{
 			{Material: "レアアイテム", Weight: 0.1},  // 10%
 			{Material: "コモンアイテム", Weight: 0.4}, // 40%
 			{Material: "", Weight: 0.5},        // 50%でドロップなし
@@ -122,7 +123,7 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result, err := dropTable.SelectByWeight(rng)
+		result, err := SelectDropByWeight(dropTable, rng)
 		require.NoError(t, err)
 		results[result]++
 	}

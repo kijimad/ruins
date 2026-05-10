@@ -1,24 +1,25 @@
-# 街用パレット
-
 [palette]
-  description = "街用の地形パレット"
-  id          = "town"
+id = 'town'
+description = '街用の地形パレット'
 
-  # 地形の定義
-  [palette.terrain]
-    "." = "dirt"  # 土
-    "$" = "dirt"  # 商人の下は土
-    "1" = "dirt"  # 老兵の下は土
-    "2" = "dirt"  # 怪しい科学者の下は土
-    "G" = "dirt"  # ダンジョンゲートの下は土
-    "r" = "floor" # 道路
+[palette.terrain]
+'.' = 'dirt'
+r = 'floor'
 
-  # NPCの定義
-  [palette.npcs]
-    "$" = "商人"
-    "1" = "老兵"
-    "2" = "怪しい科学者"
+[palette.props]
+[palette.props.G]
+id = 'dungeon_gate'
+tile = 'dirt'
 
-  # Propsの定義
-  [palette.props]
-    "G" = "dungeon_gate" # ダンジョン選択ゲート
+[palette.npcs]
+[palette.npcs.'$']
+id = '商人'
+tile = 'dirt'
+
+[palette.npcs.1]
+id = '老兵'
+tile = 'dirt'
+
+[palette.npcs.2]
+id = '怪しい科学者'
+tile = 'dirt'

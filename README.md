@@ -4,6 +4,7 @@
 
 - [play](https://kijimad.github.io/ruins/)
 - [report](https://kijimad.github.io/ruins/cov/)
+- [raw spec](https://kijimad.github.io/ruins/raw-spec/)
 - [godoc](https://pkg.go.dev/github.com/kijimaD/ruins)
 
 ## Play Images

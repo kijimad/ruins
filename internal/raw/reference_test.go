@@ -176,7 +176,7 @@ func TestRawReferenceIntegrity(t *testing.T) {
 			for _, item := range prof.Items {
 				_, ok := master.ItemIndex[item.Name]
 				assert.True(t, ok, "職業 '%s' が参照するアイテム '%s' が存在しません",
-					prof.ID, item.Name)
+					prof.Id, item.Name)
 			}
 		}
 	})

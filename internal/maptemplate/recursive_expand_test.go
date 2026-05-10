@@ -1,7 +1,6 @@
 package maptemplate
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -63,8 +62,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		expected := `###.###
 #.#.#.#
 ###.###`
-
-		assert.Equal(t, expected, expanded)
+		assert.Equal(t, expected, cellsToString(expanded))
 	})
 
 	t.Run("深度制限でエラー", func(t *testing.T) {
@@ -167,7 +165,6 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		expanded, err := template.ExpandWithPlacements(loader, 0)
 		require.NoError(t, err)
 
-		expected := strings.TrimSpace(template.Map)
-		assert.Equal(t, expected, expanded)
+		assert.Equal(t, "###\n#.#\n###", cellsToString(expanded))
 	})
 }

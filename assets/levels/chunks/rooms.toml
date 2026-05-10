@@ -1,54 +1,67 @@
-# 再利用可能な小部屋チャンク定義
-# 他のチャンク内に配置できる小さな部屋のパーツ
-
-# 寝室 3x3
 [[chunk]]
-  name     = "3x3_bedroom"
-  palettes = ["standard"]
-  weight   = 100
-
-  map = """
+name = '3x3_bedroom'
+weight = 100
+palettes = ['standard']
+map = """
 ...
-.B.
+.e.
 ...
 """
+placements = []
+spawn_points = []
 
-# 会議室 5x5
+[chunk.Size]
+W = 3
+H = 3
+
 [[chunk]]
-  name     = "5x5_meeting_room"
-  palettes = ["standard"]
-  weight   = 100
-
-  map = """
+name = '5x5_meeting_room'
+weight = 100
+palettes = ['standard']
+map = """
 .....
 .....
-.TCT.
+.CTC.
 .....
 .....
 """
+placements = []
+spawn_points = []
 
-# 倉庫 4x4
+[chunk.Size]
+W = 5
+H = 5
+
 [[chunk]]
-  name     = "4x4_storage"
-  palettes = ["standard"]
-  weight   = 100
-
-  map = """
+name = '4x4_storage'
+weight = 100
+palettes = ['standard']
+map = """
 ....
 .XX.
 .XX.
 ....
 """
+placements = []
+spawn_points = []
 
-# 事務室 5x4
+[chunk.Size]
+W = 4
+H = 4
+
 [[chunk]]
-  name     = "5x4_office"
-  palettes = ["standard"]
-  weight   = 100
-
-  map = """
+name = '5x4_office'
+weight = 100
+palettes = ['standard']
+map = """
 .....
-.D.C.
-.....
+.DC..
+.DC..
 .....
 """
+placements = []
+spawn_points = []
+
+[chunk.Size]
+W = 5
+H = 4

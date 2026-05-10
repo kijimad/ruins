@@ -36,8 +36,11 @@ func TestChunkExpansionGolden(t *testing.T) {
 			t.Parallel()
 
 			// テンプレートを取得して展開
-			template, _, err := loader.LoadTemplateByName(name, 12345)
+			_, _, resolvedMap, err := loader.LoadTemplateByName(name, 12345)
 			require.NoError(t, err)
+
+			// セル配列を可読文字列に変換
+			actual := strings.TrimSpace(FormatResolvedMap(resolvedMap))
 
 			// ゴールデンファイルのパス
 			goldenPath := filepath.Join("testdata", "golden", name+".txt")
@@ -47,7 +50,7 @@ func TestChunkExpansionGolden(t *testing.T) {
 				err := os.MkdirAll(filepath.Dir(goldenPath), 0755)
 				require.NoError(t, err)
 
-				err = os.WriteFile(goldenPath, []byte(template.Map), 0644)
+				err = os.WriteFile(goldenPath, []byte(actual), 0644)
 				require.NoError(t, err)
 				t.Logf("Updated golden file: %s", goldenPath)
 				return
@@ -58,7 +61,6 @@ func TestChunkExpansionGolden(t *testing.T) {
 			require.NoError(t, err, "ゴールデンファイルが見つかりません。UPDATE_GOLDEN=1 で生成してください")
 
 			expected := strings.TrimSpace(string(golden))
-			actual := strings.TrimSpace(template.Map)
 
 			if expected != actual {
 				t.Errorf("展開結果がゴールデンファイルと一致しません\n--- Expected ---\n%s\n--- Actual ---\n%s\n", expected, actual)

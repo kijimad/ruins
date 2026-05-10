@@ -1,12 +1,8 @@
-# 小さな町のフロアレイアウト
-# 複数の建物と道路、空き地で構成される50x50のマップ
-
 [[chunk]]
-  name     = "50x50_small_town"
-  palettes = ["town", "standard"]
-  weight   = 100
-
-  map = """
+name = '50x50_small_town'
+weight = 100
+palettes = ['standard', 'town']
+map = """
 ..................................................
 ..................................................
 ..................................................
@@ -59,22 +55,22 @@
 ..................................................
 """
 
-  # 11x6_small_office を左上に配置（外壁は親が担当）
-  [[chunk.placements]]
-    chunks = ["11x6_small_office"]
-    id     = "A"
+[chunk.Size]
+W = 50
+H = 50
 
-  # 15x10_office_building を中央に配置（外壁は親が担当）
-  [[chunk.placements]]
-    chunks = ["15x10_office_building"]
-    id     = "B"
+[[chunk.placements]]
+chunks = ['11x6_small_office']
+id = 'A'
 
-  # 11x6_small_office を左下に配置（外壁は親が担当）
-  [[chunk.placements]]
-    chunks = ["11x6_small_office"]
-    id     = "C"
+[[chunk.placements]]
+chunks = ['15x10_office_building']
+id = 'B'
 
-  # プレイヤーの開始位置（道路の中央付近）
-  [[chunk.spawn_points]]
-    x = 20
-    y = 28
+[[chunk.placements]]
+chunks = ['11x6_small_office']
+id = 'C'
+
+[[chunk.spawn_points]]
+x = 20
+y = 28

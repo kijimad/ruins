@@ -3,6 +3,9 @@
 
 # 全てのTOMLファイルを対象にする
 include=["*.toml", "**/*.toml"]
+# 埋め込みアセットのTOMLはフォーマットしない。taplo がmap文字列を
+# 複数行に変換すると \r が混入して壊れるため
+exclude=["assets/**/*.toml"]
 
 # フォーマットオプション
 [formatting]

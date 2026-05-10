@@ -6,15 +6,13 @@
 
   # 地形の定義
   [palette.terrain]
-    "!" = "floor" # ドアロックトリガーの下は床
-    "<" = "floor" # 帰還ポータルの下は床
-    "M" = "floor" # ボスNPCの下は床
-
-  # NPCの定義
-  [palette.npcs]
-    "M" = "凍晶化した猟師"
+    "." = "floor" # 床
 
   # Propsの定義
   [palette.props]
-    "!" = "door_lock_trigger" # ドアロックトリガー
-    "<" = "warp_escape"       # 帰還ポータル
+    "!" = {id = "door_lock_trigger", tile = "floor"} # ドアロックトリガー
+    "<" = {id = "warp_escape", tile = "floor"}       # 帰還ポータル
+
+  # NPCの定義
+  [palette.npcs]
+    "M" = {id = "凍晶化した猟師", tile = "floor"}

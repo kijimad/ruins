@@ -1,12 +1,8 @@
-# 小部屋テンプレート
-# テスト用のシンプルなチャンク
-
 [[chunk]]
-  name     = "10x10_small_room"
-  palettes = ["standard"]
-  weight   = 100
-
-  map = """
+name = '10x10_small_room'
+weight = 100
+palettes = ['standard']
+map = """
 ..........
 ..........
 ..........
@@ -15,6 +11,12 @@
 ..........
 ..........
 ..........
-.X..B.....
+.X..e.....
 ..........
 """
+placements = []
+spawn_points = []
+
+[chunk.Size]
+W = 10
+H = 10

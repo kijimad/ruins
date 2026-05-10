@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,7 +15,7 @@ func createTestPlanData(_, _ int) *MetaPlan {
 	width := 5  // 固定値を使用
 	height := 5 // 固定値を使用
 	tileCount := width * height
-	tiles := make([]raw.TileRaw, tileCount)
+	tiles := make([]oapi.Tile, tileCount)
 
 	// 一時的なMetaPlanインスタンスを作成
 	tempPlan := &MetaPlan{
@@ -185,7 +185,7 @@ func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
 	// 十分な広さのマップを作成
 	width, height := 15, 15
 	tileCount := width * height
-	tiles := make([]raw.TileRaw, tileCount)
+	tiles := make([]oapi.Tile, tileCount)
 	planData := &MetaPlan{
 		Level: resources.Level{
 			TileWidth:  consts.Tile(width),

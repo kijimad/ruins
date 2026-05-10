@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -11,15 +12,15 @@ import (
 func TestItemTable_SelectByWeight_SingleEntry(t *testing.T) {
 	t.Parallel()
 
-	itemTable := ItemTable{
+	itemTable := oapi.ItemTable{
 		Name: "テスト",
-		Entries: []ItemTableEntry{
+		Entries: []oapi.ItemTableEntry{
 			{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 		},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := itemTable.SelectByWeight(rng, 5)
+	result, err := SelectItemByWeight(itemTable, rng, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, "回復薬", result, "エントリが1つの場合はそれが選択されるべき")
@@ -28,9 +29,9 @@ func TestItemTable_SelectByWeight_SingleEntry(t *testing.T) {
 func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	t.Parallel()
 
-	itemTable := ItemTable{
+	itemTable := oapi.ItemTable{
 		Name: "通常",
-		Entries: []ItemTableEntry{
+		Entries: []oapi.ItemTableEntry{
 			{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 			{ItemName: "毒消し", Weight: 0.8, MinDepth: 1, MaxDepth: 20},
 			{ItemName: "手榴弾", Weight: 0.5, MinDepth: 1, MaxDepth: 20},
@@ -43,7 +44,7 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result, err := itemTable.SelectByWeight(rng, 5)
+		result, err := SelectItemByWeight(itemTable, rng, 5)
 		require.NoError(t, err)
 		results[result]++
 	}
@@ -71,16 +72,16 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 	t.Parallel()
 
-	itemTable := ItemTable{
+	itemTable := oapi.ItemTable{
 		Name: "テスト",
-		Entries: []ItemTableEntry{
+		Entries: []oapi.ItemTableEntry{
 			{ItemName: "アイテム1", Weight: 0, MinDepth: 1, MaxDepth: 10},
 			{ItemName: "アイテム2", Weight: 0, MinDepth: 1, MaxDepth: 10},
 		},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := itemTable.SelectByWeight(rng, 5)
+	result, err := SelectItemByWeight(itemTable, rng, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "重みが全て0の場合は空文字列を返すべき")
@@ -89,13 +90,13 @@ func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
 	t.Parallel()
 
-	itemTable := ItemTable{
+	itemTable := oapi.ItemTable{
 		Name:    "空",
-		Entries: []ItemTableEntry{},
+		Entries: []oapi.ItemTableEntry{},
 	}
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := itemTable.SelectByWeight(rng, 1)
+	result, err := SelectItemByWeight(itemTable, rng, 1)
 	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "エントリが空の場合は空文字列を返すべき")
@@ -104,9 +105,9 @@ func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
 func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
 	t.Parallel()
 
-	itemTable := ItemTable{
+	itemTable := oapi.ItemTable{
 		Name: "通常",
-		Entries: []ItemTableEntry{
+		Entries: []oapi.ItemTableEntry{
 			{ItemName: "アイテムA", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 			{ItemName: "アイテムB", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 			{ItemName: "アイテムC", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
@@ -119,8 +120,8 @@ func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
 	rng2 := rand.New(rand.NewPCG(seed, seed+1))
 
 	for i := 0; i < 100; i++ {
-		result1, err1 := itemTable.SelectByWeight(rng1, 5)
-		result2, err2 := itemTable.SelectByWeight(rng2, 5)
+		result1, err1 := SelectItemByWeight(itemTable, rng1, 5)
+		result2, err2 := SelectItemByWeight(itemTable, rng2, 5)
 		require.NoError(t, err1)
 		require.NoError(t, err2)
 		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")

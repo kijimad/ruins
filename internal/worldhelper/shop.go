@@ -44,12 +44,8 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	}
 	itemDef := rawMaster.Raws.Items[itemIdx]
 
-	if itemDef.Value == nil {
-		return fmt.Errorf("アイテムに価値が設定されていません: %s", itemName)
-	}
-
-	baseValue := *itemDef.Value
-	price := CalculateBuyPrice(baseValue)
+	baseValue := itemDef.Value
+	price := CalculateBuyPrice(int(baseValue))
 
 	// 交渉スキルによる買値倍率を適用する
 	if playerEntity.HasComponent(world.Components.CharModifiers) {

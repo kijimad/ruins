@@ -66,9 +66,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		// TileRaw の環境情報を TileTemperature に設定する
 		if tileTemp, ok := world.Components.TileTemperature.Get(tileEntity).(*gc.TileTemperature); ok && tileTemp != nil {
-			tileTemp.Shelter = tile.Shelter
-			tileTemp.Water = tile.Water
-			tileTemp.Foliage = tile.Foliage
+			tileTemp.Shelter = gc.ShelterType(tile.Shelter)
+			tileTemp.Water = gc.WaterType(tile.Water)
+			tileTemp.Foliage = gc.FoliageType(tile.Foliage)
 		}
 	}
 
@@ -82,7 +82,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		}
 		member := rawMaster.Raws.Members[memberIdx]
 
-		if member.FactionType == gc.FactionNeutral.String() {
+		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutral.String() {
 			// 中立NPCの場合
 			_, err := worldhelper.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
 			if err != nil {

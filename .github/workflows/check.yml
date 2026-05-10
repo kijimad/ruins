@@ -95,6 +95,22 @@ jobs:
             git push
           fi
 
+  check-ui:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: editor-ui/package-lock.json
+      - name: install
+        run: npm ci --prefix editor-ui
+      - name: check-ui
+        run: make check-ui
+
   lint:
     runs-on: ubuntu-latest
     permissions:

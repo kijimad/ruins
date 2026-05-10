@@ -24,8 +24,8 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Equal(t, "floor", palette.Terrain["."])
 
 		// Propsの確認
-		assert.Equal(t, "table", palette.Props["T"])
-		assert.Equal(t, "chair", palette.Props["C"])
+		assert.Equal(t, "table", palette.Props["T"].ID)
+		assert.Equal(t, "chair", palette.Props["C"].ID)
 	})
 
 	t.Run("小部屋テンプレートを読み込める", func(t *testing.T) {
@@ -51,7 +51,6 @@ func TestLoadRealFiles(t *testing.T) {
 
 		require.NoError(t, err)
 
-		// 各チャンクが読み込まれているか確認
 		bedroomChunks, err := loader.GetChunks("3x3_bedroom")
 		require.NoError(t, err)
 		require.NotEmpty(t, bedroomChunks)
@@ -81,34 +80,24 @@ func TestLoadRealFiles(t *testing.T) {
 		t.Parallel()
 		loader := NewTemplateLoader()
 
-		// チャンクを読み込む
 		err := loader.LoadChunk("levels/chunks/rooms.toml")
 		require.NoError(t, err)
 
-		// 複合施設テンプレートを読み込む
 		templates, err := loader.LoadFile("levels/facilities/compound_building.toml")
 		require.NoError(t, err)
 		require.NotEmpty(t, templates)
 
-		// 小規模オフィスをチャンク展開
 		smallOffice := templates[0]
 		assert.Equal(t, "11x6_small_office", smallOffice.Name)
 		assert.Len(t, smallOffice.Placements, 2)
 
-		expandedMap, err := smallOffice.ExpandWithPlacements(loader, 12345)
+		cells, err := smallOffice.ExpandWithPlacements(loader, 12345)
 		require.NoError(t, err)
-		assert.NotEmpty(t, expandedMap)
 
-		// 展開後のマップにチャンクが配置されていることを確認
-		// placements方式では元のマップには特殊な文字は使われていない
-		assert.Contains(t, expandedMap, "T") // meeting_roomのテーブル
-		assert.Contains(t, expandedMap, "X") // storageのX
-
-		// 展開後のマップサイズが維持されていることを確認
-		lines := splitMapLines(expandedMap)
-		assert.Len(t, lines, smallOffice.Size.H)
-		for _, line := range lines {
-			assert.Len(t, line, smallOffice.Size.W)
+		// 展開後のセル配列のサイズが維持されていることを確認
+		assert.Len(t, cells, smallOffice.Size.H)
+		for _, row := range cells {
+			assert.Len(t, row, smallOffice.Size.W)
 		}
 	})
 
@@ -125,9 +114,9 @@ func TestLoadRealFiles(t *testing.T) {
 		assert.Contains(t, plaza.Palettes, "standard")
 		assert.Contains(t, plaza.Palettes, "town")
 
-		// マップに焚き火とランタンが含まれているか確認
-		assert.Contains(t, plaza.Map, "F") // 焚き火
+		// マップにランタンとゲートが含まれているか確認
 		assert.Contains(t, plaza.Map, "L") // ランタン
+		assert.Contains(t, plaza.Map, "G") // ダンジョン選択ゲート
 
 		// マップサイズが正しいか確認
 		lines := splitMapLines(plaza.Map)

@@ -5,15 +5,20 @@ run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
 	go run . play
 
+.PHONY: editor
+editor: ## ゲームデータエディタを起動する
+	npm run --prefix editor-ui dev
+
 .PHONY: test
 test: ## テストを実行する
+	# editor-ui/node_modules 内にGoパッケージが含まれるため除外する必要がある
 	RUINS_LOG_LEVEL=ignore \
-	go test -v -cover -shuffle=on ./...
+	go test -v -cover -shuffle=on $$(go list ./... | grep -v /editor-ui/)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
-	go test -coverprofile=cover.out ./...
+	go test -coverprofile=cover.out $$(go list ./... | grep -v /editor-ui/)
 	go tool cover -func=cover.out
 
 .PHONY: build
@@ -33,7 +38,7 @@ fmt: ## フォーマットする
 lint: ## Linterを実行する
 	@go build -o /dev/null . # buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@golangci-lint run -v ./...
-	@if deadcode -test ./... 2>&1 | grep -q "unreachable func"; then \
+	@if deadcode -test $$(go list ./... | grep -v /editor-ui/) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
 
@@ -58,6 +63,10 @@ toolsinstall: ## 開発ツールをインストールする
 
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする
+
+.PHONY: check-ui
+check-ui: ## editor-ui の型チェック・テスト・lintを実行する
+	npm run --prefix editor-ui check
 
 # ================
 
