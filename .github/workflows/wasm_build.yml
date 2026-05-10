@@ -40,10 +40,14 @@ jobs:
             curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-red"
           fi
 
+      - name: Setup API docs
+        run: ./oas/scripts/generate-docs.sh wasm/raw-spec/index.html
+
       - name: Check
         run: |
           ls -al ./wasm
           ls -al ./wasm/cov
+          ls -al ./wasm/raw-spec
 
       - name: Publish generated content to GitHub Pages
         if: github.ref == 'refs/heads/main'
