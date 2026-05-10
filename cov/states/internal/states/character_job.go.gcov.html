@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-05 13:17:25</td>
+            <td class="headerValue">2026-05-10 08:56:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,7 +75,7 @@
 <span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
 <span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
 <span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
@@ -190,7 +190,7 @@
 <span id="L128"><span class="lineNum">     128</span>              : </span>
 <span id="L129"><span class="lineNum">     129</span>              : // jobMenuItem は職業メニューの項目</span>
 <span id="L130"><span class="lineNum">     130</span>              : type jobMenuItem struct {</span>
-<span id="L131"><span class="lineNum">     131</span>              :         Profession raw.Profession</span>
+<span id="L131"><span class="lineNum">     131</span>              :         Profession oapi.Profession</span>
 <span id="L132"><span class="lineNum">     132</span>              : }</span>
 <span id="L133"><span class="lineNum">     133</span>              : </span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 : func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {</span></span>
@@ -348,8 +348,8 @@
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         if len(prof.Equips) &gt; 0 {</span></span>
 <span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewDescriptionText(&quot;装備&quot;, res))</span></span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :                 for _, equip := range prof.Equips {</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                         slotLabel := equip.Slot</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                         if slot, ok := gc.ParseEquipmentSlot(equip.Slot); ok {</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaUNC">           0 :                         slotLabel := string(equip.Slot)</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaUNC">           0 :                         if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {</span></span>
 <span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC">           0 :                                 slotLabel = slot.String()</span></span>
 <span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC">           0 :                         container.AddChild(styled.NewMenuText(fmt.Sprintf(&quot; %s: %s&quot;, slotLabel, equip.Name), res))</span></span>
@@ -368,8 +368,8 @@
 <span id="L306"><span class="lineNum">     306</span> <span class="tlaUNC">           0 :         if len(prof.Skills) &gt; 0 {</span></span>
 <span id="L307"><span class="lineNum">     307</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewDescriptionText(&quot;スキル&quot;, res))</span></span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaUNC">           0 :                 for _, skill := range prof.Skills {</span></span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                         skillID := gc.SkillID(skill.ID)</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         name := skill.ID</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaUNC">           0 :                         skillID := gc.SkillID(skill.Id)</span></span>
+<span id="L310"><span class="lineNum">     310</span> <span class="tlaUNC">           0 :                         name := skill.Id</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC">           0 :                         if gc.HasSkillName(skillID) {</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                                 name = gc.SkillName(skillID)</span></span>
 <span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                         }</span></span>

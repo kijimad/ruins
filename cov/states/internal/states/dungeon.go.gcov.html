@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-05 13:17:25</td>
+            <td class="headerValue">2026-05-10 08:56:27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,7 +80,7 @@
 <span id="L18"><span class="lineNum">      18</span>              :         mapplanner &quot;github.com/kijimaD/ruins/internal/mapplanner&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/mapspawner&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/messagedata&quot;</span>
-<span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/oapi&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L23"><span class="lineNum">      23</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
 <span id="L24"><span class="lineNum">      24</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
@@ -595,10 +595,10 @@
 <span id="L533"><span class="lineNum">     533</span>              : }</span>
 <span id="L534"><span class="lineNum">     534</span>              : </span>
 <span id="L535"><span class="lineNum">     535</span>              : // filterItemEntries はアイテムテーブルエントリを階層でフィルタリングしてSpawnEntryに変換する</span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : func filterItemEntries(entries []raw.ItemTableEntry, depth int) []mapplanner.SpawnEntry {</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : func filterItemEntries(entries []oapi.ItemTableEntry, depth int) []mapplanner.SpawnEntry {</span></span>
 <span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         result := make([]mapplanner.SpawnEntry, 0, len(entries))</span></span>
 <span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         for _, entry := range entries {</span></span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                 if depth &lt; entry.MinDepth || depth &gt; entry.MaxDepth {</span></span>
+<span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                 if int32(depth) &lt; entry.MinDepth || int32(depth) &gt; entry.MaxDepth {</span></span>
 <span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L541"><span class="lineNum">     541</span>              :                 }</span>
 <span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :                 result = append(result, mapplanner.SpawnEntry{</span></span>
@@ -663,10 +663,10 @@
 <span id="L601"><span class="lineNum">     601</span>              : }</span>
 <span id="L602"><span class="lineNum">     602</span>              : </span>
 <span id="L603"><span class="lineNum">     603</span>              : // filterEnemyEntries は敵テーブルエントリを階層でフィルタリングしてSpawnEntryに変換する</span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC tlaBgUNC">           0 : func filterEnemyEntries(entries []raw.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC tlaBgUNC">           0 : func filterEnemyEntries(entries []oapi.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {</span></span>
 <span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :         result := make([]mapplanner.SpawnEntry, 0, len(entries))</span></span>
 <span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :         for _, entry := range entries {</span></span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                 if depth &lt; entry.MinDepth || depth &gt; entry.MaxDepth {</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                 if int32(depth) &lt; entry.MinDepth || int32(depth) &gt; entry.MaxDepth {</span></span>
 <span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L609"><span class="lineNum">     609</span>              :                 }</span>
 <span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                 result = append(result, mapplanner.SpawnEntry{</span></span>
