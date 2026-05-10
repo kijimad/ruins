@@ -935,6 +935,10 @@ function FieldRow({
           value={value}
           onChange={(e) => {
             const v = e.target.value;
+            if (v === "" || v === "-") {
+              onChange(0);
+              return;
+            }
             onChange(v.includes(".") ? parseFloat(v) : parseInt(v, 10));
           }}
         />
@@ -1118,10 +1122,12 @@ function ArrayField({
                 value={String(item)}
                 onChange={(e) => {
                   const next = [...items];
-                  next[i] =
-                    typeof item === "number"
-                      ? parseFloat(e.target.value)
-                      : e.target.value;
+                  if (typeof item === "number") {
+                    const v = e.target.value;
+                    next[i] = v === "" || v === "-" ? 0 : parseFloat(v);
+                  } else {
+                    next[i] = e.target.value;
+                  }
                   onChange(path, next);
                 }}
               />

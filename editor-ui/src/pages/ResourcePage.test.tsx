@@ -23,6 +23,10 @@ vi.mock("../hooks/useResource", () => ({
   })),
 }));
 
+vi.mock("../hooks/useSprites", () => ({
+  useSpriteSheet: vi.fn(() => ({ data: undefined })),
+}));
+
 import { useResourceList } from "../hooks/useResource";
 const mockedUseResourceList = vi.mocked(useResourceList);
 
