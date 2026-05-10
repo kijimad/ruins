@@ -23,7 +23,7 @@ export function Layout() {
   return (
     <Flex h="100vh">
       <Box
-        w="200px"
+        w="52"
         bg="bg.subtle"
         borderRight="1px solid"
         borderColor="border"

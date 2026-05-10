@@ -143,7 +143,7 @@ export function LayoutPage() {
       {/* 一覧 */}
       <Box
         ref={listRef}
-        w="280px"
+        w="72"
         flexShrink={0}
         overflowY="auto"
         borderRight="1px solid"
@@ -239,7 +239,7 @@ export function LayoutPage() {
             <Stack gap="3">
               {/* 基本情報 */}
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                <Text fontSize="sm" w="32" flexShrink={0} color="fg.muted">
                   name
                 </Text>
                 <Input
@@ -253,7 +253,7 @@ export function LayoutPage() {
                 />
               </Flex>
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                <Text fontSize="sm" w="32" flexShrink={0} color="fg.muted">
                   weight
                 </Text>
                 <Input
@@ -268,7 +268,7 @@ export function LayoutPage() {
                 />
               </Flex>
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                <Text fontSize="sm" w="32" flexShrink={0} color="fg.muted">
                   Size W
                 </Text>
                 <Input
@@ -286,7 +286,7 @@ export function LayoutPage() {
                 />
               </Flex>
               <Flex align="center" gap="3">
-                <Text fontSize="sm" w="120px" flexShrink={0} color="fg.muted">
+                <Text fontSize="sm" w="32" flexShrink={0} color="fg.muted">
                   Size H
                 </Text>
                 <Input
@@ -357,7 +357,7 @@ export function LayoutPage() {
                 <Stack gap="2">
                   {editData.spawn_points.map((sp, i) => (
                     <Flex key={i} gap="2" align="center">
-                      <Text fontSize="xs" color="fg.subtle" w="24px">
+                      <Text fontSize="xs" color="fg.subtle" w="6">
                         #{i}
                       </Text>
                       <Text fontSize="sm" color="fg.muted" flexShrink={0}>
@@ -366,7 +366,7 @@ export function LayoutPage() {
                       <Input
                         size="sm"
                         type="number"
-                        w="80px"
+                        w="20"
                         value={sp.x}
                         onChange={(e) =>
                           update((d) => {
@@ -383,7 +383,7 @@ export function LayoutPage() {
                       <Input
                         size="sm"
                         type="number"
-                        w="80px"
+                        w="20"
                         value={sp.y}
                         onChange={(e) =>
                           update((d) => {
@@ -451,7 +451,7 @@ export function LayoutPage() {
                         <Flex align="center" gap="3">
                           <Text
                             fontSize="sm"
-                            w="80px"
+                            w="20"
                             flexShrink={0}
                             color="fg.muted"
                           >
@@ -470,7 +470,7 @@ export function LayoutPage() {
                         <Flex align="start" gap="3">
                           <Text
                             fontSize="sm"
-                            w="80px"
+                            w="20"
                             flexShrink={0}
                             color="fg.muted"
                             pt="1"

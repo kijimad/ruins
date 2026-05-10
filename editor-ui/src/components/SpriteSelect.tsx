@@ -130,7 +130,7 @@ export function SpriteSelect({
           borderRadius="md"
           boxShadow="lg"
           mt="1"
-          maxH="320px"
+          maxH="80"
           overflow="hidden"
         >
           <Box p="1" borderBottom="1px solid" borderColor="border">
@@ -149,7 +149,7 @@ export function SpriteSelect({
               }}
             />
           </Box>
-          <Box overflowY="auto" maxH="272px">
+          <Box overflowY="auto" maxH="68">
             {filtered.length === 0 ? (
               <Text fontSize="sm" color="fg.muted" p="2">
                 該当なし

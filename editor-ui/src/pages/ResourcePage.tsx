@@ -611,7 +611,7 @@ export function ResourcePage({
       {/* 一覧 */}
       <Box
         ref={listRef}
-        w="280px"
+        w="72"
         flexShrink={0}
         overflowY="auto"
         borderRight="1px solid"
@@ -886,7 +886,7 @@ function FieldRow({
   if (typeof value === "boolean") {
     return (
       <Flex align="center" gap="3">
-        <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+        <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
           {label}
         </Text>
         <Switch
@@ -904,7 +904,7 @@ function FieldRow({
     if (numericOpts) {
       return (
         <Flex align="center" gap="3">
-          <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+          <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
             {label}
           </Text>
           <NativeSelectRoot size="sm" flex="1">
@@ -925,7 +925,7 @@ function FieldRow({
 
     return (
       <Flex align="center" gap="3">
-        <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+        <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
           {label}
         </Text>
         <Input
@@ -950,7 +950,7 @@ function FieldRow({
   if (label === "spriteKey" && spriteSheetName) {
     return (
       <Flex align="center" gap="3">
-        <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+        <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
           {label}
         </Text>
         <SpriteSelect
@@ -966,7 +966,7 @@ function FieldRow({
   if (searchableOptions) {
     return (
       <Flex align="center" gap="3">
-        <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+        <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
           {label}
         </Text>
         <SearchableSelect
@@ -983,7 +983,7 @@ function FieldRow({
   if (selectDef) {
     return (
       <Flex align="center" gap="3">
-        <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+        <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
           {label}
         </Text>
         <NativeSelectRoot size="sm" flex="1">
@@ -1006,7 +1006,7 @@ function FieldRow({
   // string or null
   return (
     <Flex align="center" gap="3">
-      <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted">
+      <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted">
         {label}
       </Text>
       <Input
@@ -1111,7 +1111,7 @@ function ArrayField({
   if (isPrimitive) {
     return (
       <Flex align="start" gap="3">
-        <Text fontSize="sm" w="180px" flexShrink={0} color="fg.muted" pt="1">
+        <Text fontSize="sm" w="44" flexShrink={0} color="fg.muted" pt="1">
           {label}
         </Text>
         <Stack gap="1" flex="1">
