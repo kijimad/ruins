@@ -470,7 +470,7 @@ func (l *TemplateLoader) selectChunkByWeightFromList(candidates []*ChunkTemplate
 }
 
 // ExpandWithPlacements はplacements方式でチャンクを展開し、解決済みセル配列を返す。
-// 各子チャンクは自身のパレットで独立に解決してからオーバーレイする（CDDA方式）
+// 各子チャンクは自身のパレットで独立に解決してからオーバーレイする。
 func (t *ChunkTemplate) ExpandWithPlacements(loader *TemplateLoader, seed uint64) ([][]MapCell, error) {
 	visiting := make(map[string]bool)
 	return t.expandWithPlacementsRecursive(loader, seed, 0, visiting)

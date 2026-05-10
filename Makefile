@@ -11,6 +11,7 @@ editor: ## ゲームデータエディタを起動する
 
 .PHONY: test
 test: ## テストを実行する
+	# editor-ui/node_modules 内にGoパッケージが含まれるため除外する必要がある
 	RUINS_LOG_LEVEL=ignore \
 	go test -v -cover -shuffle=on $$(go list ./... | grep -v /editor-ui/)
 

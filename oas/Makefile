@@ -16,8 +16,12 @@ genapi: ## OpenAPIスキーマからバックエンドコードを生成する
 genfront: ## OpenAPIスキーマからフロントエンドコードを生成する
 	./scripts/generate-frontend.sh
 
+.PHONY: gendoc
+gendoc: ## OpenAPIスキーマからRedocドキュメントを生成する
+	./scripts/generate-docs.sh
+
 .PHONY: genall
-genall: compile genapi genfront ## すべて生成する
+genall: compile genapi genfront gendoc ## すべて生成する
 
 .PHONY: help
 help: ## ヘルプを表示する
