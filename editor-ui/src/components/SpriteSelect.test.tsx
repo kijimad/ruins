@@ -45,7 +45,7 @@ beforeEach(() => {
 });
 
 describe("SpriteSelect", () => {
-  test("シートデータ未取得時はテキストinputにフォールバックする", () => {
+  test("シートデータ未取得時はinputが無効化される", () => {
     setupSheet(undefined);
     const onChange = vi.fn();
     render(
@@ -57,9 +57,8 @@ describe("SpriteSelect", () => {
       { wrapper },
     );
 
-    const input = screen.getByPlaceholderText("spriteKey");
-    expect(input).toBeInTheDocument();
-    expect(input).toHaveValue("wooden_sword");
+    const input = screen.getByPlaceholderText("読み込み中...");
+    expect(input).toBeDisabled();
   });
 
   test("シートデータ取得後は現在の値がテキスト表示される", () => {

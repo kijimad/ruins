@@ -83,12 +83,7 @@ export function SpriteSelect({
 
   if (!sheet) {
     return (
-      <Input
-        size="sm"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="spriteKey"
-      />
+      <Input size="sm" value={value} disabled placeholder="読み込み中..." />
     );
   }
 
