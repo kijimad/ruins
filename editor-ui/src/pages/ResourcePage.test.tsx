@@ -27,7 +27,9 @@ import { useResourceList } from "../hooks/useResource";
 const mockedUseResourceList = vi.mocked(useResourceList);
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return (
     <ChakraProvider value={defaultSystem}>
       <QueryClientProvider client={qc}>{children}</QueryClientProvider>
@@ -35,14 +37,16 @@ function wrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function setupList(items: Record<string, unknown>[], returnValue?: any) {
+function setupList(
+  items: Record<string, unknown>[],
+  returnValue?: Record<string, unknown>,
+) {
   const val = returnValue ?? {
     data: { data: items, totalCount: items.length },
     isLoading: false,
     error: null,
   };
-  mockedUseResourceList.mockReturnValue(val);
+  mockedUseResourceList.mockReturnValue(val as any);
 }
 
 beforeEach(() => {
@@ -71,8 +75,10 @@ describe("ResourcePage", () => {
     ]);
 
     mockCreateMutate.mockImplementation(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (_data: unknown, opts?: { onSuccess?: (result: any) => void }) => {
+      (
+        _data: unknown,
+        opts?: { onSuccess?: (result: Record<string, unknown>) => void },
+      ) => {
         // サーバーが返すソート後のリストとインデックス
         setupList([
           { name: "剣", value: 100 },
@@ -360,8 +366,7 @@ describe("ResourcePage", () => {
   test("保存エラー時にエラーメッセージが表示される", async () => {
     setupList([{ name: "剣" }]);
     mockMutate.mockImplementation(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (_data: unknown, opts?: { onError?: (err: any) => void }) => {
+      (_data: unknown, opts?: { onError?: (err: Error) => void }) => {
         opts?.onError?.(new Error("保存に失敗しました"));
       },
     );

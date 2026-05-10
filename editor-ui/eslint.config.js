@@ -32,4 +32,11 @@ export default tseslint.config(
       "@typescript-eslint/no-dynamic-delete": "off",
     },
   },
+  {
+    // テストファイルではモック戻り値に any キャストが必要なため許可する
+    files: ["**/*.test.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
 );

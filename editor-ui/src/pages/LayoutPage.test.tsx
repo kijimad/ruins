@@ -32,7 +32,9 @@ import { useResourceList } from "../hooks/useResource";
 const mockedUseResourceList = vi.mocked(useResourceList);
 
 function wrapper({ children }: { children: React.ReactNode }) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return (
     <ChakraProvider value={defaultSystem}>
       <QueryClientProvider client={qc}>{children}</QueryClientProvider>
@@ -69,16 +71,17 @@ const palettesData = {
   totalCount: 3,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const layoutsResult: any = { data: layoutsData, isLoading: false, error: null };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const palettesResult: any = {
+const layoutsResult = {
+  data: layoutsData,
+  isLoading: false,
+  error: null,
+} as any;
+const palettesResult = {
   data: palettesData,
   isLoading: false,
   error: null,
-};
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const emptyResult: any = { data: null, isLoading: false, error: null };
+} as any;
+const emptyResult = { data: undefined, isLoading: false, error: null } as any;
 
 function setupLists() {
   mockedUseResourceList.mockImplementation((resource: string) => {
@@ -102,9 +105,8 @@ describe("LayoutPage", () => {
   });
 
   test("ローディング中は読み込み中テキストが表示される", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockedUseResourceList.mockReturnValue({
-      data: null,
+      data: undefined,
       isLoading: true,
       error: null,
     } as any);
@@ -113,9 +115,8 @@ describe("LayoutPage", () => {
   });
 
   test("エラー時はエラーメッセージが表示される", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockedUseResourceList.mockReturnValue({
-      data: null,
+      data: undefined,
       isLoading: false,
       error: new Error("fail"),
     } as any);

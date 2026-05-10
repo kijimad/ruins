@@ -138,7 +138,7 @@ func calculateEnemyProbabilities(table oapi.EnemyTable, depth int) map[string]fl
 	// 深度範囲内のエントリをフィルタリング
 	validEntries := make([]oapi.EnemyTableEntry, 0, len(table.Entries))
 	for _, entry := range table.Entries {
-		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
+		if depth < int(entry.MinDepth) || depth > int(entry.MaxDepth) {
 			continue
 		}
 		validEntries = append(validEntries, entry)

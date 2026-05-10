@@ -126,7 +126,8 @@ export function MapPreview({
     return [...sheets];
   }, [resolvedCells, tileSpriteMap, propSpriteMap, memberSpriteMap]);
 
-  // スプライトシートをフェッチする（最大5シート）
+  // Reactのフック呼び出し数は固定である必要があるため、最大5シートに制限している。
+  // 6枚以上のシートを使うレイアウトでは一部のスプライトが表示されない
   const sheet0Data = useSpriteSheet(neededSheets[0]).data;
   const sheet1Data = useSpriteSheet(neededSheets[1]).data;
   const sheet2Data = useSpriteSheet(neededSheets[2]).data;

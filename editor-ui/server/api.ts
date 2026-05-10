@@ -379,6 +379,17 @@ function readBody(req: {
   });
 }
 
+// リクエストボディをJSONとしてパースする。不正なJSONの場合はundefinedを返す
+async function readJson<T = unknown>(
+  req: Parameters<typeof readBody>[0],
+): Promise<T | undefined> {
+  try {
+    return JSON.parse(await readBody(req)) as T;
+  } catch {
+    return undefined;
+  }
+}
+
 interface ApiPluginOptions {
   rawTomlPath: string;
   palettesDir: string;
@@ -563,7 +574,12 @@ async function handleResource(
 
   if (method === "POST") {
     // Create
-    const body = JSON.parse(await readBody(req));
+    const body = await readJson(req);
+    if (body === undefined) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      return;
+    }
     const newIndex = store.addTo(key, body);
     res.statusCode = 201;
     res.end(JSON.stringify({ index: newIndex, data: body }));
@@ -573,7 +589,12 @@ async function handleResource(
   if (method === "PUT" && indexStr !== undefined) {
     // Update
     const index = parseInt(indexStr, 10);
-    const body = JSON.parse(await readBody(req));
+    const body = await readJson(req);
+    if (body === undefined) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      return;
+    }
     if (!store.updateAt(key, index, body)) {
       res.statusCode = 400;
       res.end(JSON.stringify({ message: `Index out of range: ${index}` }));
@@ -634,7 +655,12 @@ async function handlePalettes(
   }
 
   if (method === "POST") {
-    const body = JSON.parse(await readBody(req));
+    const body = await readJson<PaletteFile["palette"]>(req);
+    if (body === undefined) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      return;
+    }
     store.save(body);
     res.statusCode = 201;
     res.end(JSON.stringify(body));
@@ -642,7 +668,12 @@ async function handlePalettes(
   }
 
   if (method === "PUT" && id !== undefined) {
-    const body = JSON.parse(await readBody(req));
+    const body = await readJson<PaletteFile["palette"]>(req);
+    if (body === undefined) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      return;
+    }
     body.id = id;
     store.save(body);
     res.end(JSON.stringify(body));
@@ -935,7 +966,12 @@ async function handleLayouts(
   }
 
   if (method === "POST") {
-    const body = JSON.parse(await readBody(req));
+    const body = await readJson<LayoutChunk>(req);
+    if (body === undefined) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      return;
+    }
     const newIndex = store.add(body);
     res.statusCode = 201;
     res.end(JSON.stringify({ index: newIndex, data: body }));
@@ -944,7 +980,12 @@ async function handleLayouts(
 
   if (method === "PUT" && indexStr !== undefined) {
     const index = parseInt(indexStr, 10);
-    const body = JSON.parse(await readBody(req));
+    const body = await readJson<LayoutChunk>(req);
+    if (body === undefined) {
+      res.statusCode = 400;
+      res.end(JSON.stringify({ message: "Invalid JSON" }));
+      return;
+    }
     if (!store.updateAt(index, body)) {
       res.statusCode = 400;
       res.end(JSON.stringify({ message: `Index out of range: ${index}` }));

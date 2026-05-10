@@ -37,7 +37,6 @@ function wrapper({ children }: { children: React.ReactNode }) {
 }
 
 function setupSheet(sheet: SpriteSheetInfo | undefined) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockedUseSpriteSheet.mockReturnValue({ data: sheet } as any);
 }
 

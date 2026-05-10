@@ -262,7 +262,7 @@ export function LayoutPage() {
                   value={editData.weight}
                   onChange={(e) =>
                     update((d) => {
-                      d.weight = parseInt(e.target.value, 10) || 0;
+                      d.weight = Math.max(0, parseInt(e.target.value, 10) || 0);
                     })
                   }
                 />
@@ -277,7 +277,10 @@ export function LayoutPage() {
                   value={editData.Size.W}
                   onChange={(e) =>
                     update((d) => {
-                      d.Size.W = parseInt(e.target.value, 10) || 0;
+                      d.Size.W = Math.min(
+                        9999,
+                        Math.max(1, parseInt(e.target.value, 10) || 1),
+                      );
                     })
                   }
                 />
@@ -292,7 +295,10 @@ export function LayoutPage() {
                   value={editData.Size.H}
                   onChange={(e) =>
                     update((d) => {
-                      d.Size.H = parseInt(e.target.value, 10) || 0;
+                      d.Size.H = Math.min(
+                        9999,
+                        Math.max(1, parseInt(e.target.value, 10) || 1),
+                      );
                     })
                   }
                 />
@@ -364,8 +370,10 @@ export function LayoutPage() {
                         value={sp.x}
                         onChange={(e) =>
                           update((d) => {
-                            d.spawn_points[i]!.x =
-                              parseInt(e.target.value, 10) || 0;
+                            d.spawn_points[i]!.x = Math.max(
+                              0,
+                              parseInt(e.target.value, 10) || 0,
+                            );
                           })
                         }
                       />
@@ -379,8 +387,10 @@ export function LayoutPage() {
                         value={sp.y}
                         onChange={(e) =>
                           update((d) => {
-                            d.spawn_points[i]!.y =
-                              parseInt(e.target.value, 10) || 0;
+                            d.spawn_points[i]!.y = Math.max(
+                              0,
+                              parseInt(e.target.value, 10) || 0,
+                            );
                           })
                         }
                       />
