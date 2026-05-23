@@ -71,7 +71,7 @@ func TestTileDarknessLevelOrdering(t *testing.T) {
 	t.Parallel()
 
 	// 暗さの段階が明るい順に並んでいることを保証する
-	assert.Less(t, TileDarknessLit.DarknessValue(), TileDarknessVisible.DarknessValue())
+	assert.LessOrEqual(t, TileDarknessLit.DarknessValue(), TileDarknessVisible.DarknessValue())
 	assert.Less(t, TileDarknessVisible.DarknessValue(), TileDarknessExplored.DarknessValue())
 	assert.Less(t, TileDarknessExplored.DarknessValue(), TileDarknessFull.DarknessValue())
 }

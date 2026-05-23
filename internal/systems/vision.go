@@ -348,16 +348,6 @@ type LightInfo struct {
 }
 
 // calculateLightSourceDarkness は光源からの距離に応じた暗闇レベルと色を計算する
-// getCachedLightInfo はキャッシュから光源情報を取得する
-func getCachedLightInfo(world w.World, tileX, tileY int) LightInfo {
-	gridElement := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	if info, exists := lightSourceCache[gridElement]; exists {
-		return info
-	}
-	// キャッシュになければ計算
-	return calculateLightSourceDarkness(world, tileX, tileY)
-}
-
 func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 	minDarkness := 1.0 // 完全に暗い状態からスタート
 
@@ -534,7 +524,7 @@ const (
 // DarknessLevels=4のときceil量子化されるため、完全な黒にしたくない段階は0.75以下にする
 var tileDarknessValues = map[TileDarknessLevel]float64{
 	TileDarknessLit:      0.15,
-	TileDarknessVisible:  0.3,
+	TileDarknessVisible:  0.15,
 	TileDarknessExplored: 0.75,
 	TileDarknessFull:     1.0,
 }

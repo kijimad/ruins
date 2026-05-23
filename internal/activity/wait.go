@@ -77,12 +77,11 @@ func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish は待機完了時の処理を実行する
-func (wa *WaitActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error {
+func (wa *WaitActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	log.Debug("待機完了", "actor", actor)
 
-	// TODO: 1ターン待機の場合も出るのは微妙な感じがする
-	// プレイヤーの場合のみ待機完了メッセージを表示
-	if actor.HasComponent(world.Components.Player) {
+	// 複数ターン待機の場合のみログを表示する
+	if comp.TurnsTotal > 1 && actor.HasComponent(world.Components.Player) {
 		gamelog.New(gamelog.FieldLog).
 			Append("待機を終了した").
 			Log()

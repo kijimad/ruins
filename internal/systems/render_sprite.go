@@ -205,12 +205,6 @@ func (sys *RenderSpriteSystem) renderSprites(world w.World, screen *ebiten.Image
 			}
 		}
 
-		// 光源チェック - 光がある場所のみ描画（完全に暗い場所は描画しない）
-		lightInfo := getCachedLightInfo(world, int(gridElement.X), int(gridElement.Y))
-		if lightInfo.Darkness >= 1.0 {
-			continue // 完全に暗い場所は描画しない
-		}
-
 		spriteRender := world.Components.SpriteRender.Get(entity).(*gc.SpriteRender)
 		pos := &gc.Position{
 			X: consts.Pixel(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2),
@@ -250,12 +244,6 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			if tileData, exists := visibilityData[tileKey]; !exists || !tileData.Visible {
 				return
 			}
-		}
-
-		// 光源範囲外では影を描画しない
-		lightInfo := getCachedLightInfo(world, int(gridElement.X), int(gridElement.Y))
-		if lightInfo.Darkness >= 1.0 {
-			return
 		}
 
 		// グリッド座標をピクセル座標に変換
@@ -321,65 +309,13 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 			return
 		}
 
-		// 影が落ちる位置（下のタイル）の光源情報を取得
-		belowX := int(belowPos.X)
-		belowY := int(belowPos.Y)
-		lightInfo := getCachedLightInfo(world, belowX, belowY)
-
-		// 光源範囲外では影を描画しない
-		if lightInfo.Darkness >= 1.0 {
-			return
-		}
-
-		// 光源の明るさに応じて影の透明度を調整
-		// Darkness: 0.0(明るい) → 影薄い、1.0(暗い) → 影濃い
-		baseShadowAlpha := 80.0
-		shadowAlpha := uint8(baseShadowAlpha * lightInfo.Darkness)
-
-		// 影の透明度が非常に小さい場合は描画しない（最適化）
-		if shadowAlpha < 5 {
-			return
-		}
-
-		// 影画像を生成（キャッシュあり）
-		wallShadow := sys.getWallShadowImage(shadowAlpha)
-		if wallShadow == nil {
-			return
-		}
-
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(int(grid.X)*int(consts.TileSize)), float64(int(grid.Y)*int(consts.TileSize)+int(consts.TileSize)))
 		SetTranslate(world, op)
-		screen.DrawImage(wallShadow, op)
+		if wallShadowImage != nil {
+			screen.DrawImage(wallShadowImage, op)
+		}
 	}))
-}
-
-// getWallShadowImage は指定した透明度の壁の影画像を取得する
-func (sys *RenderSpriteSystem) getWallShadowImage(alpha uint8) *ebiten.Image {
-	// キャッシュキーを生成
-	cacheKey := spriteImageCacheKey{
-		SpriteSheetName: "wall_shadow",
-		SpriteKey:       fmt.Sprintf("alpha_%d", alpha),
-	}
-
-	// キャッシュから取得
-	if img, exists := sys.spriteImageCache[cacheKey]; exists {
-		return img
-	}
-
-	// 新規作成
-	wallWidth := int(consts.TileSize)
-	wallHeight := int(consts.TileSize / 2)
-	if wallWidth <= 0 || wallHeight <= 0 {
-		return nil
-	}
-
-	img := ebiten.NewImage(wallWidth, wallHeight)
-	img.Fill(color.RGBA{0, 0, 0, alpha})
-
-	sys.spriteImageCache[cacheKey] = img
-
-	return img
 }
 
 func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRender) (*ebiten.Image, error) {
