@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -87,7 +87,7 @@
 				
 				<option value="file15">github.com/kijimaD/ruins/internal/activity/use_item.go (53.4%)</option>
 				
-				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (88.5%)</option>
+				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
 				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (1.5%)</option>
 				
@@ -1417,7 +1417,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
         }</span>
 
@@ -1487,7 +1487,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
                         if !hit </span><span class="cov0" title="0">{
                                 l.Append(" を攻撃したが外れた。")
-                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov8" title="1">{
+                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
                         }</span> else<span class="cov8" title="1"> {
                                 l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
@@ -3944,7 +3944,7 @@ func (wa *WaitActivity) Validate(comp *gc.Activity, _ ecs.Entity, _ w.World) err
         // ただし、最低限のチェックは行う
 
         // 待機時間が妥当かチェック
-        if comp.TurnsTotal &lt;= 0 </span><span class="cov0" title="0">{
+        if comp.TurnsTotal &lt;= 0 </span><span class="cov8" title="1">{
                 return fmt.Errorf("待機時間が無効です")
         }</span>
 
@@ -3964,7 +3964,7 @@ func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
         wa.observeEnvironment(comp, actor, world)
 
         // 基本のターン処理
-        if comp.TurnsLeft &lt;= 0 </span><span class="cov0" title="0">{
+        if comp.TurnsLeft &lt;= 0 </span><span class="cov8" title="1">{
                 Complete(comp)
                 return nil
         }</span>
@@ -3985,12 +3985,11 @@ func (wa *WaitActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 }
 
 // Finish は待機完了時の処理を実行する
-func (wa *WaitActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
+func (wa *WaitActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
         log.Debug("待機完了", "actor", actor)
 
-        // TODO: 1ターン待機の場合も出るのは微妙な感じがする
-        // プレイヤーの場合のみ待機完了メッセージを表示
-        if actor.HasComponent(world.Components.Player) </span><span class="cov8" title="1">{
+        // 複数ターン待機の場合のみログを表示する
+        if comp.TurnsTotal &gt; 1 &amp;&amp; actor.HasComponent(world.Components.Player) </span><span class="cov8" title="1">{
                 gamelog.New(gamelog.FieldLog).
                         Append("待機を終了した").
                         Log()
