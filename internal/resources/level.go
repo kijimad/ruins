@@ -32,6 +32,8 @@ type Dungeon struct {
 	SelectedWeaponSlot int
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される
 	VisibleTiles map[gc.GridElement]bool
+	// Dark は光源がないと見えない暗闇フロアかどうか
+	Dark bool
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

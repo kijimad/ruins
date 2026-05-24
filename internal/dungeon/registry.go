@@ -11,6 +11,7 @@ var (
 		EnemyTableName:  "",
 		ItemTableName:   "",
 		BaseTemperature: 0, // デバッグ用
+		Dark:            false,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeTown, Weight: 1},
 		},
@@ -23,6 +24,7 @@ var (
 		EnemyTableName:  "森",
 		ItemTableName:   "森",
 		BaseTemperature: 10,
+		Dark:            false,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 1},
 		},
@@ -37,6 +39,7 @@ var (
 		EnemyTableName:  "森",
 		ItemTableName:   "森",
 		BaseTemperature: 0, // 寒い
+		Dark:            false,
 		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeForest, Weight: 5},
@@ -54,6 +57,7 @@ var (
 		EnemyTableName:  "洞窟",
 		ItemTableName:   "洞窟",
 		BaseTemperature: 5, // 寒い
+		Dark:            true,
 		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeCave, Weight: 6},
@@ -71,6 +75,7 @@ var (
 		EnemyTableName:  "廃墟",
 		ItemTableName:   "廃墟",
 		BaseTemperature: 15, // やや快適
+		Dark:            false,
 		BossPlannerType: &mapplanner.PlannerTypeBossFloor,
 		PlannerPool: []PlannerWeight{
 			{PlannerType: mapplanner.PlannerTypeSmallRoom, Weight: 4},
