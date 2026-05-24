@@ -134,8 +134,8 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 		entity := entities[i]
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		info, exists := tileRenderMap[*gridElement]
-		if !exists || !info.DrawFloor {
+		_, exists := tileRenderMap[*gridElement]
+		if !exists {
 			continue
 		}
 
@@ -198,8 +198,7 @@ func (sys *RenderSpriteSystem) renderSprites(world w.World, screen *ebiten.Image
 	for _, entity := range entities {
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		info, exists := tileRenderMap[*gridElement]
-		if !exists || !info.DrawObjects {
+		if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {
 			continue
 		}
 
@@ -236,8 +235,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		info, exists := tileRenderMap[*gridElement]
-		if !exists || !info.DrawObjects {
+		if _, ok := tileRenderMap[*gridElement].(TileRenderVisible); !ok {
 			return
 		}
 
@@ -271,8 +269,7 @@ func (sys *RenderSpriteSystem) renderShadows(world w.World, screen *ebiten.Image
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		info, exists := tileRenderMap[*grid]
-		if !exists || !info.DrawObjects {
+		if _, ok := tileRenderMap[*grid].(TileRenderVisible); !ok {
 			return
 		}
 

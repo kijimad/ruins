@@ -171,14 +171,41 @@ type TileVisibility struct {
 	Visible bool
 }
 
-// TileRenderInfo はタイルごとの描画情報を保持する。
-// VisionSystemの計算結果を集約し、各描画関数が個別に判断する必要をなくす
-type TileRenderInfo struct {
-	DrawFloor   bool       // 床タイルを描画するか
-	DrawObjects bool       // オブジェクト（アイテム・Props・Movers・影）を描画するか
-	Darkness    float64    // 暗さオーバーレイの値（0.0=明るい, 1.0=真っ暗）
-	LightColor  color.RGBA // 光源の色
+type (
+	// VisibleDarkness は視界内タイルの暗闇の強さを表す
+	VisibleDarkness float64
+	// DarkDarkness は暗闇フロアで光源外タイルの暗闇の強さを表す
+	DarkDarkness float64
+	// RememberedDarkness は記憶済みタイルの暗闇の強さを表す
+	RememberedDarkness float64
+)
+
+// TileRenderInfo はタイルごとの描画情報を表す
+type TileRenderInfo interface {
+	tileRenderInfo()
 }
+
+// TileRenderVisible は視界内の状態
+type TileRenderVisible struct {
+	Darkness   VisibleDarkness // 暗闇の強さ。0.0で完全に明るく、1.0で完全に暗い
+	LightColor color.RGBA      // 光源がある場合の色
+}
+
+func (TileRenderVisible) tileRenderInfo() {}
+
+// TileRenderDark は視界内だが暗くて見えない状態。暗闇フロアで光源外のタイル
+type TileRenderDark struct {
+	Darkness DarkDarkness
+}
+
+func (TileRenderDark) tileRenderInfo() {}
+
+// TileRenderRemembered は視界外だが記憶済みの状態。床のみうっすら描画する
+type TileRenderRemembered struct {
+	Darkness RememberedDarkness
+}
+
+func (TileRenderRemembered) tileRenderInfo() {}
 
 // computeTileRenderMap はタイルごとの描画情報を一括計算する。
 // VisibleTiles・ExploredTiles・lightSourceCacheを統合して、
@@ -188,27 +215,26 @@ func computeTileRenderMap(world w.World) map[gc.GridElement]TileRenderInfo {
 
 	// 現在見えているタイルを設定する
 	for grid := range world.Resources.Dungeon.VisibleTiles {
-		info := TileRenderInfo{
-			DrawFloor:   true,
-			DrawObjects: true,
-			Darkness:    TileDarknessVisible.DarknessValue(),
-			LightColor:  color.RGBA{0, 0, 0, 255},
-		}
+		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lightSourceCache[grid]; ok && li.Darkness < 1.0 {
-			info.Darkness = TileDarknessLit.DarknessValue()
-			info.LightColor = li.Color
+			visible.LightColor = li.Color
 		}
-		result[grid] = info
+		result[grid] = visible
 	}
 
-	// 探索済みだが現在見えていないタイルを設定する
-	for grid := range world.Resources.Dungeon.ExploredTiles {
-		if _, visible := result[grid]; !visible {
-			result[grid] = TileRenderInfo{
-				DrawFloor:  true,
-				Darkness:   TileDarknessExplored.DarknessValue(),
-				LightColor: color.RGBA{0, 0, 0, 255},
+	// 暗闇フロアで視界内だが光源外のタイルを設定する
+	if world.Resources.Dungeon.Dark {
+		for grid, li := range lightSourceCache {
+			if _, exists := result[grid]; !exists && li.Darkness >= 1.0 {
+				result[grid] = TileRenderDark{Darkness: DarknessDark}
 			}
+		}
+	}
+
+	// 視界外だが記憶済みのタイルを設定する
+	for grid := range world.Resources.Dungeon.ExploredTiles {
+		if _, exists := result[grid]; !exists {
+			result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
 		}
 	}
 
@@ -468,50 +494,41 @@ func renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.Gr
 		for tileY := startTileY; tileY <= endTileY; tileY++ {
 			grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 			info, exists := tileRenderMap[grid]
-			if !exists || info.Darkness <= 0.0 {
+			if !exists {
 				continue
+			}
+
+			var darkness float64
+			var lightColor color.RGBA
+			switch v := info.(type) {
+			case TileRenderVisible:
+				darkness = float64(v.Darkness)
+				lightColor = v.LightColor
+			case TileRenderDark:
+				darkness = float64(v.Darkness)
+			case TileRenderRemembered:
+				darkness = float64(v.Darkness)
 			}
 
 			worldX := float64(tileX * int(consts.TileSize))
 			worldY := float64(tileY * int(consts.TileSize))
 			screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
 			screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
-			drawDarknessAtLevelWithColor(screen, screenX, screenY, info.Darkness, info.LightColor, cameraScale, int(consts.TileSize))
+			drawDarknessAtLevelWithColor(screen, screenX, screenY, darkness, lightColor, cameraScale, int(consts.TileSize))
 		}
 	}
 }
 
+// 各タイル状態の暗闇の強さ
+const (
+	DarknessVisible    VisibleDarkness    = 0.15
+	DarknessDark       DarkDarkness       = 0.9
+	DarknessRemembered RememberedDarkness = 0.75
+)
+
 // DarknessLevels は暗闇の段階数を定義する
 // 少ない段階数のほうが見た目が自然になる
 const DarknessLevels = 4
-
-// TileDarknessLevel はタイルの暗さの段階を表す
-type TileDarknessLevel int
-
-const (
-	// TileDarknessLit は光源範囲内で最も明るい状態
-	TileDarknessLit TileDarknessLevel = iota
-	// TileDarknessVisible は視界内だが光源範囲外
-	TileDarknessVisible
-	// TileDarknessExplored は探索済みだが現在見えていない状態
-	TileDarknessExplored
-	// TileDarknessFull は完全に黒い状態
-	TileDarknessFull
-)
-
-// tileDarknessValues は各段階に対応する暗さの値。
-// DarknessLevels=4のときceil量子化されるため、完全な黒にしたくない段階は0.75以下にする
-var tileDarknessValues = map[TileDarknessLevel]float64{
-	TileDarknessLit:      0.15,
-	TileDarknessVisible:  0.15,
-	TileDarknessExplored: 0.75,
-	TileDarknessFull:     1.0,
-}
-
-// DarknessValue は暗さの段階から描画用の具体値を返す
-func (d TileDarknessLevel) DarknessValue() float64 {
-	return tileDarknessValues[d]
-}
 
 // initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
 func initializeDarknessCache(tileSize int) {
