@@ -1,69 +1,120 @@
 package systems
 
 import (
+	"image/color"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDetermineTileDarkness(t *testing.T) {
+func TestComputeTileRenderMap(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name           string
-		inVisionRange  bool
-		visible        bool
-		explored       bool
-		hasLightSource bool
-		expected       TileDarknessLevel
-	}{
-		{
-			name:           "視界内+可視+光源あり → 光源で照らされた明るさ",
-			inVisionRange:  true,
-			visible:        true,
-			explored:       true,
-			hasLightSource: true,
-			expected:       TileDarknessLit,
-		},
-		{
-			name:           "視界内+可視+光源なし → 視界内の暗さ",
-			inVisionRange:  true,
-			visible:        true,
-			explored:       true,
-			hasLightSource: false,
-			expected:       TileDarknessVisible,
-		},
-		{
-			name:          "視界内+遮蔽+探索済み → 探索済みの暗さ",
-			inVisionRange: true,
-			visible:       false,
-			explored:      true,
-			expected:      TileDarknessExplored,
-		},
-		{
-			name:          "視界内+遮蔽+未探索 → 完全に黒",
-			inVisionRange: true,
-			visible:       false,
-			explored:      false,
-			expected:      TileDarknessFull,
-		},
-		{
-			name:     "視界外+探索済み → 探索済みの暗さ",
-			explored: true,
-			expected: TileDarknessExplored,
-		},
-		{
-			name:     "視界外+未探索 → スキップ",
-			expected: TileDarknessSkip,
-		},
+	t.Run("可視タイルはDrawFloorとDrawObjectsが両方true", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		grid := gc.GridElement{X: 5, Y: 5}
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
+		world.Resources.Dungeon.ExploredTiles[grid] = true
+
+		result := computeTileRenderMap(world)
+
+		assert.Contains(t, result, grid)
+		assert.True(t, result[grid].DrawFloor)
+		assert.True(t, result[grid].DrawObjects)
+		assert.Equal(t, TileDarknessVisible.DarknessValue(), result[grid].Darkness)
+	})
+
+	t.Run("探索済みだが見えないタイルはDrawFloorのみtrue", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		grid := gc.GridElement{X: 3, Y: 3}
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
+		world.Resources.Dungeon.ExploredTiles[grid] = true
+
+		result := computeTileRenderMap(world)
+
+		assert.Contains(t, result, grid)
+		assert.True(t, result[grid].DrawFloor)
+		assert.False(t, result[grid].DrawObjects)
+		assert.Equal(t, TileDarknessExplored.DarknessValue(), result[grid].Darkness)
+	})
+
+	t.Run("未探索かつ不可視のタイルはマップに含まれない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		grid := gc.GridElement{X: 10, Y: 10}
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
+
+		result := computeTileRenderMap(world)
+
+		assert.NotContains(t, result, grid)
+	})
+
+	t.Run("光源があるタイルはLit暗さと光源色が設定される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		grid := gc.GridElement{X: 5, Y: 5}
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
+
+		// 光源キャッシュを設定する
+		lightSourceCache[grid] = LightInfo{
+			Darkness: 0.5,
+			Color:    color.RGBA{R: 255, G: 200, B: 100, A: 255},
+		}
+		t.Cleanup(func() { delete(lightSourceCache, grid) })
+
+		result := computeTileRenderMap(world)
+
+		assert.Equal(t, TileDarknessLit.DarknessValue(), result[grid].Darkness)
+		assert.Equal(t, color.RGBA{R: 255, G: 200, B: 100, A: 255}, result[grid].LightColor)
+	})
+
+	t.Run("暗闇フロアで光源外のタイルはVisibleTilesに含まれない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// 暗闇フロアの設定。VisionSystemがVisibleTilesを制御するため、
+		// 光源外のタイルはVisibleTilesに入らない
+		world.Resources.Dungeon.Dark = true
+		litGrid := gc.GridElement{X: 5, Y: 5}
+		darkGrid := gc.GridElement{X: 15, Y: 15}
+		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{litGrid: true}
+		world.Resources.Dungeon.ExploredTiles[litGrid] = true
+		world.Resources.Dungeon.ExploredTiles[darkGrid] = true
+
+		result := computeTileRenderMap(world)
+
+		assert.True(t, result[litGrid].DrawObjects, "光源内タイルはオブジェクトを描画する")
+		assert.False(t, result[darkGrid].DrawObjects, "光源外の探索済みタイルはオブジェクトを描画しない")
+		assert.True(t, result[darkGrid].DrawFloor, "光源外の探索済みタイルは床のみ描画する")
+	})
+}
+
+func TestComputeTileRenderMap_PositionIndependence(t *testing.T) {
+	t.Parallel()
+
+	// タイル座標の位置に関わらず、同じ条件なら同じ結果を返すことを保証する
+	world := testutil.InitTestWorld(t)
+	positions := []gc.GridElement{
+		{X: 0, Y: 0},
+		{X: consts.Tile(49), Y: consts.Tile(49)},
+		{X: 25, Y: 25},
+	}
+	world.Resources.Dungeon.VisibleTiles = make(map[gc.GridElement]bool)
+	for _, pos := range positions {
+		world.Resources.Dungeon.VisibleTiles[pos] = true
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			result := determineTileDarkness(tt.inVisionRange, tt.visible, tt.explored, tt.hasLightSource)
-			assert.Equal(t, tt.expected, result)
-		})
+	result := computeTileRenderMap(world)
+
+	for i := 1; i < len(positions); i++ {
+		assert.Equal(t, result[positions[0]].DrawFloor, result[positions[i]].DrawFloor)
+		assert.Equal(t, result[positions[0]].DrawObjects, result[positions[i]].DrawObjects)
+		assert.Equal(t, result[positions[0]].Darkness, result[positions[i]].Darkness)
 	}
 }
 
