@@ -15,6 +15,7 @@ const resources = [
   { path: "/sprite-sheets", label: "スプライトシート" },
   { path: "/palettes", label: "パレット" },
   { path: "/layouts", label: "レイアウト" },
+  { path: "/balance", label: "バランス" },
 ];
 
 export function Layout() {

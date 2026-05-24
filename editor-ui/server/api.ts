@@ -472,6 +472,28 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
             return;
           }
 
+          // バランスシミュレーション結果 API
+          if (apiPath === "balance" && method === "GET") {
+            const balancePath = path.resolve(__dirname, "../../docs/gen/balance.json");
+            try {
+              const data = fs.readFileSync(balancePath, "utf-8");
+              res.end(data);
+            } catch (e: unknown) {
+              if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ENOENT") {
+                res.statusCode = 404;
+                res.end(
+                  JSON.stringify({
+                    message:
+                      "balance.json not found. Run: go run . simulate-balance",
+                  }),
+                );
+              } else {
+                throw e;
+              }
+            }
+            return;
+          }
+
           // パレット API
           if (apiPath.startsWith("palettes")) {
             await handlePalettes(

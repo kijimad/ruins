@@ -12,7 +12,7 @@ accuracy = 100
 attackCategory = "FIST"
 attackCount = 1
 cost = 0
-damage = 4
+damage = 2
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
@@ -1655,11 +1655,11 @@ spriteSheetName = "field"
 
 [members.abilities]
 agility = 5
-defense = 0
-dexterity = 6
+defense = 3
+dexterity = 5
 sensation = 5
-strength = 50
-vitality = 50
+strength = 5
+vitality = 5
 
 [members.lightSource]
 enabled = true
@@ -1682,12 +1682,12 @@ spriteKey = "slime_0"
 spriteSheetName = "field"
 
 [members.abilities]
-agility = 4
-defense = 2
-dexterity = 3
-sensation = 3
-strength = 4
-vitality = 5
+agility = 2
+defense = 0
+dexterity = 2
+sensation = 2
+strength = 2
+vitality = 1
 
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
@@ -1780,12 +1780,12 @@ spriteKey = "red_ball_0"
 spriteSheetName = "field"
 
 [members.abilities]
-agility = 6
-defense = 4
-dexterity = 5
-sensation = 4
-strength = 8
-vitality = 7
+agility = 4
+defense = 2
+dexterity = 3
+sensation = 3
+strength = 4
+vitality = 3
 
 [members.lightSource]
 enabled = true
@@ -1846,12 +1846,12 @@ spriteKey = "light_tank_0"
 spriteSheetName = "field"
 
 [members.abilities]
-agility = 5
+agility = 4
 defense = 5
-dexterity = 5
-sensation = 5
-strength = 8
-vitality = 12
+dexterity = 4
+sensation = 4
+strength = 7
+vitality = 8
 
 [members.lightSource]
 enabled = true
@@ -1999,6 +1999,18 @@ maxDepth = 15
 minDepth = 1
 weight = 0.4
 
+[[itemTables.entries]]
+itemName = "木刀"
+maxDepth = 8
+minDepth = 2
+weight = 0.3
+
+[[itemTables.entries]]
+itemName = "鉄のナイフ"
+maxDepth = 15
+minDepth = 4
+weight = 0.2
+
 [[itemTables]]
 name = "森"
 
@@ -2062,6 +2074,18 @@ maxDepth = 10
 minDepth = 1
 weight = 0.7
 
+[[itemTables.entries]]
+itemName = "木刀"
+maxDepth = 8
+minDepth = 2
+weight = 0.3
+
+[[itemTables.entries]]
+itemName = "鉄のナイフ"
+maxDepth = 15
+minDepth = 4
+weight = 0.2
+
 [[itemTables]]
 name = "洞窟"
 
@@ -2118,6 +2142,18 @@ itemName = "ビスケット"
 maxDepth = 15
 minDepth = 1
 weight = 0.6
+
+[[itemTables.entries]]
+itemName = "木刀"
+maxDepth = 8
+minDepth = 2
+weight = 0.3
+
+[[itemTables.entries]]
+itemName = "鉄のナイフ"
+maxDepth = 15
+minDepth = 4
+weight = 0.2
 
 [[itemTables]]
 name = "通常"
@@ -2188,6 +2224,18 @@ maxDepth = 18
 minDepth = 1
 weight = 0.6
 
+[[itemTables.entries]]
+itemName = "木刀"
+maxDepth = 8
+minDepth = 2
+weight = 0.3
+
+[[itemTables.entries]]
+itemName = "鉄のナイフ"
+maxDepth = 15
+minDepth = 4
+weight = 0.2
+
 [[enemyTables]]
 name = "廃墟"
 
@@ -2195,25 +2243,25 @@ name = "廃墟"
 enemyName = "スライム"
 maxDepth = 10
 minDepth = 1
-weight = 0.9
+weight = 1.2
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 20
-minDepth = 1
+minDepth = 4
 weight = 0.8
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 30
-minDepth = 1
-weight = 1
+minDepth = 7
+weight = 0.6
 
 [[enemyTables.entries]]
 enemyName = "灰の偶像"
 maxDepth = 35
 minDepth = 15
-weight = 0.7
+weight = 0.5
 
 [[enemyTables]]
 name = "森"
@@ -2222,18 +2270,18 @@ name = "森"
 enemyName = "スライム"
 maxDepth = 12
 minDepth = 1
-weight = 1.2
+weight = 1.5
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 15
-minDepth = 1
-weight = 1
+minDepth = 4
+weight = 0.8
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 20
-minDepth = 1
+minDepth = 7
 weight = 0.5
 
 [[enemyTables]]
@@ -2243,18 +2291,18 @@ name = "洞窟"
 enemyName = "スライム"
 maxDepth = 8
 minDepth = 1
-weight = 1
+weight = 1.2
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 15
-minDepth = 1
-weight = 1
+minDepth = 3
+weight = 0.8
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 25
-minDepth = 1
+minDepth = 6
 weight = 0.6
 
 [[enemyTables]]
@@ -2264,19 +2312,19 @@ name = "通常"
 enemyName = "スライム"
 maxDepth = 10
 minDepth = 1
-weight = 1.2
+weight = 1.5
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 20
-minDepth = 1
-weight = 1
+minDepth = 4
+weight = 0.8
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 50
-minDepth = 1
-weight = 0.8
+minDepth = 7
+weight = 0.6
 
 [[enemyTables.entries]]
 enemyName = "灰の偶像"
