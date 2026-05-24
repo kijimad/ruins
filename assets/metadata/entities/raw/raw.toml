@@ -993,7 +993,7 @@ vitality = 3
 [[items]]
 description = "炭酸飲料。爽快感がある"
 name = "コーラ"
-providesNutrition = 80
+providesNutrition = 25
 spriteKey = "bottled_cola"
 spriteSheetName = "field"
 stackable = true
@@ -1008,7 +1008,7 @@ usableScene = "ANY"
 [[items]]
 description = "熟成したチーズ。栄養満点"
 name = "チーズ"
-providesNutrition = 120
+providesNutrition = 40
 spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true
@@ -1023,7 +1023,7 @@ usableScene = "ANY"
 [[items]]
 description = "焼きたてのパン。空腹を満たす"
 name = "パン"
-providesNutrition = 100
+providesNutrition = 30
 spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true
@@ -1038,7 +1038,7 @@ usableScene = "ANY"
 [[items]]
 description = "固いビスケット。保存食として優秀"
 name = "ビスケット"
-providesNutrition = 90
+providesNutrition = 30
 spriteKey = "biscuit"
 spriteSheetName = "field"
 stackable = true
@@ -1053,7 +1053,7 @@ usableScene = "ANY"
 [[items]]
 description = "薄く伸ばされた生地に具材を乗せて焼いた食べ物"
 name = "ピザ"
-providesNutrition = 20
+providesNutrition = 10
 spriteKey = "pizza"
 spriteSheetName = "field"
 stackable = true
@@ -1068,7 +1068,7 @@ usableScene = "ANY"
 [[items]]
 description = "保存用の肉。栄養価が高い"
 name = "乾肉"
-providesNutrition = 150
+providesNutrition = 50
 spriteKey = "food_item"
 spriteSheetName = "field"
 stackable = true
@@ -1985,19 +1985,19 @@ weight = 0.4
 itemName = "ビスケット"
 maxDepth = 20
 minDepth = 1
-weight = 0.7
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "乾肉"
 maxDepth = 25
 minDepth = 5
-weight = 0.5
+weight = 0.1
 
 [[itemTables.entries]]
 itemName = "パン"
 maxDepth = 15
 minDepth = 1
-weight = 0.4
+weight = 0.1
 
 [[itemTables.entries]]
 itemName = "木刀"
@@ -2054,25 +2054,25 @@ weight = 0.5
 itemName = "パン"
 maxDepth = 18
 minDepth = 1
-weight = 0.9
+weight = 0.2
 
 [[itemTables.entries]]
 itemName = "コーラ"
 maxDepth = 12
 minDepth = 1
-weight = 1
+weight = 0.2
 
 [[itemTables.entries]]
 itemName = "チーズ"
 maxDepth = 15
 minDepth = 3
-weight = 0.6
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "ビスケット"
 maxDepth = 10
 minDepth = 1
-weight = 0.7
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "木刀"
@@ -2129,19 +2129,19 @@ weight = 0.4
 itemName = "コーラ"
 maxDepth = 12
 minDepth = 1
-weight = 0.9
+weight = 0.2
 
 [[itemTables.entries]]
 itemName = "乾肉"
 maxDepth = 20
 minDepth = 3
-weight = 0.7
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "ビスケット"
 maxDepth = 15
 minDepth = 1
-weight = 0.6
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "木刀"
@@ -2198,31 +2198,31 @@ weight = 0.3
 itemName = "パン"
 maxDepth = 20
 minDepth = 1
-weight = 0.8
+weight = 0.2
 
 [[itemTables.entries]]
 itemName = "乾肉"
 maxDepth = 30
 minDepth = 5
-weight = 0.6
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "コーラ"
 maxDepth = 15
 minDepth = 1
-weight = 0.7
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "チーズ"
 maxDepth = 25
 minDepth = 3
-weight = 0.5
+weight = 0.1
 
 [[itemTables.entries]]
 itemName = "ビスケット"
 maxDepth = 18
 minDepth = 1
-weight = 0.6
+weight = 0.15
 
 [[itemTables.entries]]
 itemName = "木刀"

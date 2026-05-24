@@ -75,6 +75,7 @@ func (s RunStats) hpPercentile(depth int, selector func(RunResult) map[int]int, 
 
 func postHealHP(r RunResult) map[int]int { return r.HPByDepth }
 func preHealHP(r RunResult) map[int]int  { return r.HPBeforeHealByDepth }
+func hungerMap(r RunResult) map[int]int  { return r.HungerByDepth }
 
 // HPAtDepth は指定深度での残HPスライスを返す
 func (s RunStats) HPAtDepth(depth int) []int {
@@ -148,6 +149,21 @@ func (s RunStats) WeaponDistribution(depth int) map[string]int {
 		}
 	}
 	return dist
+}
+
+// MedianHunger は指定深度での空腹度の中央値を返す
+func (s RunStats) MedianHunger(depth int) int {
+	return s.hpPercentile(depth, hungerMap, 0.5)
+}
+
+// P5Hunger は指定深度での空腹度の下位5%を返す
+func (s RunStats) P5Hunger(depth int) int {
+	return s.hpPercentile(depth, hungerMap, 0.05)
+}
+
+// P95Hunger は指定深度での空腹度の上位95%を返す
+func (s RunStats) P95Hunger(depth int) int {
+	return s.hpPercentile(depth, hungerMap, 0.95)
 }
 
 // DeathRate は全体の死亡率を返す

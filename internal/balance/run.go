@@ -13,6 +13,12 @@ const (
 	randomEnemyCount = 3
 )
 
+// フロアあたりの移動歩数。50x50マップでの入口→出口＋探索を推定した値
+const (
+	baseStepsPerFloor   = 60
+	randomStepsPerFloor = 40 // 平均80歩（60+rand(40)）
+)
+
 // RunResult は1ランの結果
 type RunResult struct {
 	ReachedDepth        int
@@ -20,6 +26,7 @@ type RunResult struct {
 	HPByDepth           map[int]int    // 回復後のHP
 	HPBeforeHealByDepth map[int]int    // 回復前のHP（戦闘ダメージの実態を反映する）
 	WeaponByDepth       map[int]string // 各深度で使用した武器名
+	HungerByDepth       map[int]int    // 各深度終了時の空腹度
 }
 
 // SimulateRun はラン全体を模擬する。
@@ -30,10 +37,13 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 		HPByDepth:           make(map[int]int),
 		HPBeforeHealByDepth: make(map[int]int),
 		WeaponByDepth:       make(map[int]string),
+		HungerByDepth:       make(map[int]int),
 	}
 	currentHP := player.HP
 	currentWeapon := playerWeapon
 	currentWeaponName := "素手"
+	hunger := gc.NewHunger()
+	foodStock := 0 // 未消費の食料ストック（栄養値の合計）
 
 	enemyTable, err := master.GetEnemyTable(enemyTableName)
 	if err != nil {
@@ -94,7 +104,11 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 		// 回復前のHPを記録する
 		result.HPBeforeHealByDepth[depth] = currentHP
 
-		// フロアのアイテムドロップから回復と武器を取得する
+		// フロアの移動による空腹度減少
+		steps := baseStepsPerFloor + rng.IntN(randomStepsPerFloor)
+		hunger.Decrease(steps)
+
+		// フロアのアイテムドロップから回復・武器・食料を取得する
 		loot := rollFloorLoot(master, enemyTableName, depth, player.HP, rng)
 		currentHP += loot.healing
 		if currentHP > player.HP {
@@ -104,9 +118,17 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 			currentWeapon = *loot.weapon
 			currentWeaponName = loot.weaponName
 		}
+		foodStock += loot.nutrition
+
+		// 空腹（33%未満）になったら食料ストックを消費する
+		if hunger.GetLevel() >= gc.HungerHungry && foodStock > 0 {
+			hunger.Increase(foodStock)
+			foodStock = 0
+		}
 
 		result.HPByDepth[depth] = currentHP
 		result.WeaponByDepth[depth] = currentWeaponName
+		result.HungerByDepth[depth] = hunger.Current
 	}
 
 	result.ReachedDepth = maxDepth
@@ -116,6 +138,7 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 // floorLoot はフロアで拾えたアイテムの結果
 type floorLoot struct {
 	healing    int
+	nutrition  int
 	weapon     *WeaponStats
 	weaponName string
 }
@@ -146,6 +169,9 @@ func rollFloorLoot(master *raw.Master, tableName string, depth int, playerMaxHP 
 
 		if spec.ProvidesHealing != nil {
 			result.healing += calcHealing(spec.ProvidesHealing, playerMaxHP)
+		}
+		if spec.ProvidesNutrition != nil {
+			result.nutrition += spec.ProvidesNutrition.Amount
 		}
 
 		w, err := LoadWeaponFromItem(master, itemName)

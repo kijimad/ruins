@@ -1,6 +1,16 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Box, Heading, Text, Stack, Flex, Badge, Table } from "@chakra-ui/react";
+import {
+  Box,
+  Heading,
+  Text,
+  Stack,
+  Flex,
+  Badge,
+  Table,
+  NativeSelect,
+} from "@chakra-ui/react";
 import {
   LineChart,
   Line,
@@ -14,6 +24,7 @@ import {
   Area,
   BarChart,
   Bar,
+  ReferenceLine,
 } from "recharts";
 
 interface DepthStat {
@@ -26,6 +37,24 @@ interface DepthStat {
   p95HPBeforeHeal: number;
   suddenDeathRate: number;
   weaponDistribution?: Record<string, number>;
+  medianHunger: number;
+  p5Hunger: number;
+  p95Hunger: number;
+}
+
+interface TrialDepthStat {
+  depth: number;
+  hp: number;
+  hpBeforeHeal: number;
+  weapon: string;
+  hunger: number;
+}
+
+interface TrialResult {
+  index: number;
+  reachedDepth: number;
+  died: boolean;
+  depths: TrialDepthStat[];
 }
 
 interface EnemyTableRun {
@@ -35,6 +64,7 @@ interface EnemyTableRun {
   medianDepth: number;
   deathRate: number;
   depths: DepthStat[];
+  trialData?: TrialResult[];
 }
 
 interface PlayerInfo {
@@ -206,6 +236,185 @@ function WeaponChart({ run }: { run: EnemyTableRun }) {
   );
 }
 
+function HungerChart({ run }: { run: EnemyTableRun }) {
+  const data = run.depths.map((d) => ({
+    depth: d.depth,
+    "空腹度 P95": d.p95Hunger,
+    "空腹度中央値": d.medianHunger,
+    "空腹度 P5": d.p5Hunger,
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <AreaChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="depth" label={{ value: "深度", position: "bottom" }} />
+        <YAxis
+          label={{ value: "空腹度", angle: -90, position: "insideLeft" }}
+          domain={[0, 500]}
+        />
+        <Tooltip />
+        <Legend />
+        <ReferenceLine
+          y={500 * 0.33}
+          stroke="#ff7300"
+          strokeDasharray="3 3"
+          label="飢餓"
+        />
+        <ReferenceLine
+          y={500 * 0.66}
+          stroke="#ffc658"
+          strokeDasharray="3 3"
+          label="空腹"
+        />
+        <Area
+          type="monotone"
+          dataKey="空腹度 P95"
+          stroke="#82ca9d"
+          fill="#82ca9d"
+          fillOpacity={0.2}
+        />
+        <Area
+          type="monotone"
+          dataKey="空腹度中央値"
+          stroke="#8884d8"
+          fill="#8884d8"
+          fillOpacity={0.3}
+        />
+        <Area
+          type="monotone"
+          dataKey="空腹度 P5"
+          stroke="#ff7300"
+          fill="#ff7300"
+          fillOpacity={0.2}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+function TrialDetail({
+  run,
+  playerHP,
+}: {
+  run: EnemyTableRun;
+  playerHP?: number;
+}) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const trials = run.trialData;
+  if (!trials || trials.length === 0) return null;
+
+  const trial = trials[selectedIndex];
+  if (!trial) return null;
+
+  const chartData = trial.depths.map((d) => ({
+    depth: d.depth,
+    "戦闘後HP": d.hpBeforeHeal,
+    "回復後HP": d.hp,
+    "空腹度": d.hunger,
+  }));
+
+  return (
+    <Box>
+      <Flex align="center" gap="3" mb="3">
+        <Heading size="sm">試行詳細</Heading>
+        <NativeSelect.Root size="sm" width="320px">
+          <NativeSelect.Field
+            value={selectedIndex}
+            onChange={(e) => setSelectedIndex(Number(e.target.value))}
+          >
+            {trials.map((t) => (
+              <option key={t.index} value={t.index}>
+                #{t.index} - 深度{t.reachedDepth}
+                {t.died ? " (死亡)" : " (生存)"}
+              </option>
+            ))}
+          </NativeSelect.Field>
+        </NativeSelect.Root>
+        <Badge colorPalette={trial.died ? "red" : "green"}>
+          {trial.died ? "死亡" : "生存"} - 深度{trial.reachedDepth}
+        </Badge>
+      </Flex>
+
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="depth"
+            label={{ value: "深度", position: "bottom" }}
+          />
+          <YAxis
+            yAxisId="hp"
+            label={{ value: "HP", angle: -90, position: "insideLeft" }}
+          />
+          <YAxis
+            yAxisId="hunger"
+            orientation="right"
+            domain={[0, 500]}
+            label={{ value: "空腹度", angle: 90, position: "insideRight" }}
+          />
+          <Tooltip />
+          <Legend />
+          {playerHP && (
+            <ReferenceLine
+              yAxisId="hp"
+              y={playerHP}
+              stroke="#ccc"
+              strokeDasharray="3 3"
+              label="最大HP"
+            />
+          )}
+          <Line
+            yAxisId="hp"
+            type="monotone"
+            dataKey="戦闘後HP"
+            stroke="#ff7300"
+            strokeWidth={2}
+          />
+          <Line
+            yAxisId="hp"
+            type="monotone"
+            dataKey="回復後HP"
+            stroke="#82ca9d"
+            strokeWidth={2}
+          />
+          <Line
+            yAxisId="hunger"
+            type="monotone"
+            dataKey="空腹度"
+            stroke="#8884d8"
+            strokeWidth={2}
+            strokeDasharray="5 5"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+
+      <Table.Root size="sm" mt="2">
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader>深度</Table.ColumnHeader>
+            <Table.ColumnHeader>戦闘後HP</Table.ColumnHeader>
+            <Table.ColumnHeader>回復後HP</Table.ColumnHeader>
+            <Table.ColumnHeader>武器</Table.ColumnHeader>
+            <Table.ColumnHeader>空腹度</Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {trial.depths.map((d) => (
+            <Table.Row key={d.depth}>
+              <Table.Cell>{d.depth}</Table.Cell>
+              <Table.Cell>{d.hpBeforeHeal}</Table.Cell>
+              <Table.Cell>{d.hp}</Table.Cell>
+              <Table.Cell>{d.weapon}</Table.Cell>
+              <Table.Cell>{d.hunger}</Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+    </Box>
+  );
+}
+
 function ComparisonChart({ tables }: { tables: EnemyTableRun[] }) {
   const maxDepth = Math.max(...tables.map((t) => t.depths.length));
   const data = Array.from({ length: maxDepth }, (_, i) => {
@@ -239,7 +448,13 @@ function ComparisonChart({ tables }: { tables: EnemyTableRun[] }) {
   );
 }
 
-function EnemyTableSection({ tables }: { tables: EnemyTableRun[] }) {
+function EnemyTableSection({
+  tables,
+  playerHP,
+}: {
+  tables: EnemyTableRun[];
+  playerHP?: number;
+}) {
   return (
     <>
       {tables.length > 1 && (
@@ -284,6 +499,13 @@ function EnemyTableSection({ tables }: { tables: EnemyTableRun[] }) {
               <WeaponChart run={run} />
             </Box>
 
+            <Box>
+              <Heading size="sm" mb="2">
+                空腹度推移 (P5 / 中央値 / P95)
+              </Heading>
+              <HungerChart run={run} />
+            </Box>
+
             <Table.Root size="sm">
               <Table.Header>
                 <Table.Row>
@@ -293,6 +515,7 @@ function EnemyTableSection({ tables }: { tables: EnemyTableRun[] }) {
                   <Table.ColumnHeader>戦闘後HP P95</Table.ColumnHeader>
                   <Table.ColumnHeader>回復後HP中央値</Table.ColumnHeader>
                   <Table.ColumnHeader>突然死率</Table.ColumnHeader>
+                  <Table.ColumnHeader>空腹度</Table.ColumnHeader>
                   <Table.ColumnHeader>主要武器</Table.ColumnHeader>
                 </Table.Row>
               </Table.Header>
@@ -313,6 +536,7 @@ function EnemyTableSection({ tables }: { tables: EnemyTableRun[] }) {
                       <Table.Cell>
                         {(d.suddenDeathRate * 100).toFixed(1)}%
                       </Table.Cell>
+                      <Table.Cell>{d.medianHunger}</Table.Cell>
                       <Table.Cell>
                         {topWeapon ? topWeapon[0] : "-"}
                       </Table.Cell>
@@ -321,6 +545,8 @@ function EnemyTableSection({ tables }: { tables: EnemyTableRun[] }) {
                 })}
               </Table.Body>
             </Table.Root>
+
+            <TrialDetail run={run} playerHP={playerHP} />
           </Stack>
         </Box>
       ))}
@@ -400,7 +626,12 @@ export function BalancePage() {
           {data.weapon && <WeaponInfoCard weapon={data.weapon} />}
         </Flex>
 
-        {data.enemyTables && <EnemyTableSection tables={data.enemyTables} />}
+        {data.enemyTables && (
+          <EnemyTableSection
+            tables={data.enemyTables}
+            playerHP={data.player?.hp}
+          />
+        )}
       </Stack>
     </Stack>
   );

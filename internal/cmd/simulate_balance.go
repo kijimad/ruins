@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/kijimaD/ruins/internal/balance"
@@ -41,11 +40,10 @@ func runSimulateBalance(_ context.Context, _ *cli.Command) error {
 		return fmt.Errorf("JSONのシリアライズに失敗: %w", err)
 	}
 
-	outputPath := "docs/gen/balance.json"
+	outputPath := "balance.json"
 	if err := os.WriteFile(outputPath, data, 0644); err != nil {
 		return fmt.Errorf("ファイルの書き込みに失敗: %w", err)
 	}
 
-	log.Printf("バランスシミュレーション結果を %s に出力しました\n", outputPath)
 	return nil
 }

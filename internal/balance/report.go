@@ -35,12 +35,30 @@ type WeaponInfo struct {
 
 // EnemyTableRun は1つの敵テーブルに対するシミュレーション結果
 type EnemyTableRun struct {
-	Name        string      `json:"name"`
-	MaxDepth    int         `json:"maxDepth"`
-	Trials      int         `json:"trials"`
-	MedianDepth int         `json:"medianDepth"`
-	DeathRate   float64     `json:"deathRate"`
-	Depths      []DepthStat `json:"depths"`
+	Name        string        `json:"name"`
+	MaxDepth    int           `json:"maxDepth"`
+	Trials      int           `json:"trials"`
+	MedianDepth int           `json:"medianDepth"`
+	DeathRate   float64       `json:"deathRate"`
+	Depths      []DepthStat   `json:"depths"`
+	TrialData   []TrialResult `json:"trialData,omitempty"`
+}
+
+// TrialResult は1試行の結果
+type TrialResult struct {
+	Index        int              `json:"index"`
+	ReachedDepth int              `json:"reachedDepth"`
+	Died         bool             `json:"died"`
+	Depths       []TrialDepthStat `json:"depths"`
+}
+
+// TrialDepthStat は1試行の1深度の情報
+type TrialDepthStat struct {
+	Depth        int    `json:"depth"`
+	HP           int    `json:"hp"`
+	HPBeforeHeal int    `json:"hpBeforeHeal"`
+	Weapon       string `json:"weapon"`
+	Hunger       int    `json:"hunger"`
 }
 
 // DepthStat は1深度の統計情報
@@ -54,6 +72,9 @@ type DepthStat struct {
 	P95HPBeforeHeal    int            `json:"p95HPBeforeHeal"`
 	SuddenDeathRate    float64        `json:"suddenDeathRate"`
 	WeaponDistribution map[string]int `json:"weaponDistribution,omitempty"`
+	MedianHunger       int            `json:"medianHunger"`
+	P5Hunger           int            `json:"p5Hunger"`
+	P95Hunger          int            `json:"p95Hunger"`
 }
 
 // GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する
@@ -112,7 +133,35 @@ func GenerateReport(master *raw.Master, playerName string, weaponName string, ma
 				P95HPBeforeHeal:    stats.P95HPBeforeHeal(depth),
 				SuddenDeathRate:    stats.SuddenDeathRate(depth),
 				WeaponDistribution: stats.WeaponDistribution(depth),
+				MedianHunger:       stats.MedianHunger(depth),
+				P5Hunger:           stats.P5Hunger(depth),
+				P95Hunger:          stats.P95Hunger(depth),
 			})
+		}
+
+		for i, r := range stats.Results {
+			trial := TrialResult{
+				Index:        i,
+				ReachedDepth: r.ReachedDepth,
+				Died:         r.Died,
+			}
+			for depth := 1; depth <= r.ReachedDepth; depth++ {
+				td := TrialDepthStat{Depth: depth}
+				if hp, ok := r.HPByDepth[depth]; ok {
+					td.HP = hp
+				}
+				if hp, ok := r.HPBeforeHealByDepth[depth]; ok {
+					td.HPBeforeHeal = hp
+				}
+				if w, ok := r.WeaponByDepth[depth]; ok {
+					td.Weapon = w
+				}
+				if h, ok := r.HungerByDepth[depth]; ok {
+					td.Hunger = h
+				}
+				trial.Depths = append(trial.Depths, td)
+			}
+			run.TrialData = append(run.TrialData, trial)
 		}
 
 		report.EnemyTables = append(report.EnemyTables, run)
