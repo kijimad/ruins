@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -100,7 +101,7 @@ func TestApplyElementResist_MinimumDamage(t *testing.T) {
 
 	// 耐火Lv40: 耐性 = 100 + 40*(-3) = -20
 	// ダメージ = 5 * -20 / 100 = -1 → 最低保証1
-	assert.Equal(t, MinDamage, applyElementResist(5, target, gc.ElementTypeFire, world))
+	assert.Equal(t, formula.MinDamage, applyElementResist(5, target, gc.ElementTypeFire, world))
 }
 
 func TestGrowWeaponSkill_NoSkillsComponent(t *testing.T) {

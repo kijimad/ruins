@@ -5,27 +5,8 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
-)
-
-// 戦闘計算の定数。activity/attack.go と同じ値を使う
-const (
-	baseHitRate          = 80
-	hitRatePerStatPoint  = 2
-	maxHitRate           = 95
-	minHitRate           = 5
-	damageRandomRange    = 6
-	minDamage            = 1
-	criticalHitThreshold = 5
-	criticalDamageMul    = 3
-	criticalDamageBase   = 2
-	diceMax              = 100
-)
-
-// HP計算の定数。worldhelper/spawn.go と同じ値を使う
-const (
-	hpBaseValue        = 30
-	hpVitalityMultiply = 8
 )
 
 // CombatantStats は戦闘シミュレーション用のステータス
@@ -52,45 +33,29 @@ type BattleResult struct {
 	DamageTaken int
 }
 
-// CalcHitRate は命中率を算出する。activity.calculateHitRate と同じ計算式
-func CalcHitRate(attacker, target CombatantStats, weapon WeaponStats) int {
-	hitRate := baseHitRate + (attacker.Dexterity-target.Agility)*hitRatePerStatPoint
-	hitRate += weapon.Accuracy - baseHitRate
-	if hitRate > maxHitRate {
-		hitRate = maxHitRate
+// rollAttack は1回の攻撃をロールし、与えたダメージを返す。
+// 本体（activity/attack.go）と同じ計算順序: 基本ダメージ → クリティカル → 防御減算 → クランプ
+func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand.Rand) int {
+	hitRate := formula.CalcHitRate(attacker.Dexterity, defender.Agility, weapon.Accuracy)
+	roll := rng.IntN(formula.DiceMax) + 1
+	if roll > hitRate {
+		return 0
 	}
-	if hitRate < minHitRate {
-		hitRate = minHitRate
-	}
-	return hitRate
-}
 
-// CalcDamage はダメージを算出する。activity.calculateDamage と同じ計算式
-func CalcDamage(attacker, target CombatantStats, weapon WeaponStats, rng *rand.Rand) int {
 	baseAbil := attacker.Strength
 	if weapon.IsRanged {
 		baseAbil = attacker.Sensation
 	}
-	baseDamage := baseAbil + rng.IntN(damageRandomRange) + 1 + weapon.Damage
-	finalDamage := baseDamage - target.Defense
-	if finalDamage < minDamage {
-		finalDamage = minDamage
+	baseDamage := baseAbil + rng.IntN(formula.DamageRandomRange) + 1 + weapon.Damage
+	if roll <= formula.CriticalHitThreshold {
+		baseDamage = formula.ApplyCritical(baseDamage)
+	}
+
+	finalDamage := baseDamage - defender.Defense
+	if finalDamage < formula.MinDamage {
+		finalDamage = formula.MinDamage
 	}
 	return finalDamage
-}
-
-// rollAttack は1回の攻撃をロールし、与えたダメージを返す
-func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand.Rand) int {
-	hitRate := CalcHitRate(attacker, defender, weapon)
-	roll := rng.IntN(diceMax) + 1
-	if roll > hitRate {
-		return 0
-	}
-	dmg := CalcDamage(attacker, defender, weapon, rng)
-	if roll <= criticalHitThreshold {
-		dmg = dmg * criticalDamageMul / criticalDamageBase
-	}
-	return dmg
 }
 
 // SimulateBattle は1戦闘を模擬する
@@ -138,8 +103,7 @@ func LoadCombatantFromMember(master *raw.Master, name string) (CombatantStats, e
 		Agility:   abils.Agility.Base,
 		Defense:   abils.Defense.Base,
 	}
-	// HP計算はworldhelper/spawn.goの式を再現
-	stats.HP = hpBaseValue + abils.Vitality.Base*hpVitalityMultiply + abils.Strength.Base + abils.Sensation.Base
+	stats.HP = formula.CalcHP(abils.Vitality.Base, abils.Strength.Base, abils.Sensation.Base)
 
 	return stats, nil
 }

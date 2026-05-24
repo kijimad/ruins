@@ -16,68 +16,6 @@ func loadTestMaster(t *testing.T) *raw.Master {
 	return &master
 }
 
-func TestCalcHitRate(t *testing.T) {
-	t.Parallel()
-
-	t.Run("同じステータスでは基本命中率になる", func(t *testing.T) {
-		t.Parallel()
-		attacker := CombatantStats{Dexterity: 10}
-		target := CombatantStats{Agility: 10}
-		weapon := WeaponStats{Accuracy: baseHitRate}
-		assert.Equal(t, baseHitRate, CalcHitRate(attacker, target, weapon))
-	})
-
-	t.Run("器用度が高いと命中率が上がる", func(t *testing.T) {
-		t.Parallel()
-		attacker := CombatantStats{Dexterity: 15}
-		target := CombatantStats{Agility: 10}
-		weapon := WeaponStats{Accuracy: baseHitRate}
-		hitRate := CalcHitRate(attacker, target, weapon)
-		assert.Equal(t, baseHitRate+5*hitRatePerStatPoint, hitRate)
-	})
-
-	t.Run("最大命中率を超えない", func(t *testing.T) {
-		t.Parallel()
-		attacker := CombatantStats{Dexterity: 100}
-		target := CombatantStats{Agility: 1}
-		weapon := WeaponStats{Accuracy: baseHitRate}
-		assert.Equal(t, maxHitRate, CalcHitRate(attacker, target, weapon))
-	})
-
-	t.Run("最小命中率を下回らない", func(t *testing.T) {
-		t.Parallel()
-		attacker := CombatantStats{Dexterity: 1}
-		target := CombatantStats{Agility: 100}
-		weapon := WeaponStats{Accuracy: baseHitRate}
-		assert.Equal(t, minHitRate, CalcHitRate(attacker, target, weapon))
-	})
-}
-
-func TestCalcDamage(t *testing.T) {
-	t.Parallel()
-
-	t.Run("最低保証ダメージが1", func(t *testing.T) {
-		t.Parallel()
-		attacker := CombatantStats{Strength: 1}
-		target := CombatantStats{Defense: 100}
-		weapon := WeaponStats{Damage: 0}
-		rng := rand.New(rand.NewPCG(0, 0))
-		dmg := CalcDamage(attacker, target, weapon, rng)
-		assert.Equal(t, minDamage, dmg)
-	})
-
-	t.Run("遠距離武器では感覚を参照する", func(t *testing.T) {
-		t.Parallel()
-		attacker := CombatantStats{Strength: 1, Sensation: 20}
-		target := CombatantStats{Defense: 0}
-		weapon := WeaponStats{Damage: 0, IsRanged: true}
-		rng := rand.New(rand.NewPCG(0, 0))
-		dmg := CalcDamage(attacker, target, weapon, rng)
-		// 感覚20 + rand(1..6) + 0 - 0 >= 21
-		assert.GreaterOrEqual(t, dmg, 21)
-	})
-}
-
 func TestSimulateBattle(t *testing.T) {
 	t.Parallel()
 
