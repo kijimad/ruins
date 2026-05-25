@@ -27,8 +27,6 @@ func NewMainApp() *cli.Command {
 		Commands: []*cli.Command{
 			CmdPlay,
 			CmdScreenshot,
-			CmdGenerateItemDoc,
-			CmdGenerateEnemyDoc,
 			CmdSimulateBalance,
 		},
 	}

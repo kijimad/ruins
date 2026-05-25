@@ -28,7 +28,7 @@ func TestGetAttackFromCommandTable(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "体当たり", weaponName)
 	assert.NotNil(t, attack)
-	assert.Equal(t, 2, attack.GetDamage()) // 体当たりのダメージ値
+	assert.Equal(t, 1, attack.GetDamage()) // 体当たりのダメージ値
 }
 
 func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
@@ -63,7 +63,7 @@ func TestAttackUnification(t *testing.T) {
 	playerWeapon := world.Manager.NewEntity()
 	playerWeapon.AddComponent(world.Components.Name, &gc.Name{Name: "体当たり"})
 	playerWeapon.AddComponent(world.Components.Melee, &gc.Melee{
-		Damage:         2,
+		Damage:         1,
 		Accuracy:       100,
 		AttackCount:    1,
 		Element:        gc.ElementTypeNone,

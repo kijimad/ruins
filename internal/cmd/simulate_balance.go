@@ -19,7 +19,7 @@ var CmdSimulateBalance = &cli.Command{
 }
 
 const (
-	simMaxDepth = 10
+	simMaxDepth = 20
 	simTrials   = 1000
 	simSeed     = 42
 )

@@ -17,6 +17,7 @@ const resources = [
   { path: "/layouts", label: "レイアウト" },
   { path: "/balance", label: "バランス" },
   { path: "/dps", label: "DPS" },
+  { path: "/table-viewer", label: "スポーンテーブル" },
 ];
 
 export function Layout() {
