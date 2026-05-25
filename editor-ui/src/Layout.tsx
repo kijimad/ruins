@@ -16,6 +16,7 @@ const resources = [
   { path: "/palettes", label: "パレット" },
   { path: "/layouts", label: "レイアウト" },
   { path: "/balance", label: "バランス" },
+  { path: "/dps", label: "DPS" },
 ];
 
 export function Layout() {

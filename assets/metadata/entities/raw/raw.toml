@@ -2155,87 +2155,6 @@ maxDepth = 15
 minDepth = 4
 weight = 0.2
 
-[[itemTables]]
-name = "通常"
-
-[[itemTables.entries]]
-itemName = "回復薬"
-maxDepth = 20
-minDepth = 1
-weight = 1
-
-[[itemTables.entries]]
-itemName = "手榴弾"
-maxDepth = 40
-minDepth = 10
-weight = 0.5
-
-[[itemTables.entries]]
-itemName = "閃光弾"
-maxDepth = 35
-minDepth = 15
-weight = 0.4
-
-[[itemTables.entries]]
-itemName = "煙幕弾"
-maxDepth = 35
-minDepth = 15
-weight = 0.4
-
-[[itemTables.entries]]
-itemName = "毒消し"
-maxDepth = 10
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "黒曜石"
-maxDepth = 20
-minDepth = 5
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "パン"
-maxDepth = 20
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "乾肉"
-maxDepth = 30
-minDepth = 5
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "コーラ"
-maxDepth = 15
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "チーズ"
-maxDepth = 25
-minDepth = 3
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "ビスケット"
-maxDepth = 18
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "木刀"
-maxDepth = 8
-minDepth = 2
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "鉄のナイフ"
-maxDepth = 15
-minDepth = 4
-weight = 0.2
-
 [[enemyTables]]
 name = "廃墟"
 
@@ -2304,33 +2223,6 @@ enemyName = "軽戦車"
 maxDepth = 25
 minDepth = 6
 weight = 0.6
-
-[[enemyTables]]
-name = "通常"
-
-[[enemyTables.entries]]
-enemyName = "スライム"
-maxDepth = 10
-minDepth = 1
-weight = 1.5
-
-[[enemyTables.entries]]
-enemyName = "火の玉"
-maxDepth = 20
-minDepth = 4
-weight = 0.8
-
-[[enemyTables.entries]]
-enemyName = "軽戦車"
-maxDepth = 50
-minDepth = 7
-weight = 0.6
-
-[[enemyTables.entries]]
-enemyName = "灰の偶像"
-maxDepth = 50
-minDepth = 20
-weight = 0.5
 
 [[spriteSheets]]
 name = "bg"

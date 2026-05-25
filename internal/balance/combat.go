@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/rand/v2"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/raw"
 )
@@ -30,6 +29,7 @@ type WeaponStats struct {
 type BattleResult struct {
 	Turns       int
 	PlayerWon   bool
+	DamageDealt int
 	DamageTaken int
 }
 
@@ -63,12 +63,15 @@ func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon Weap
 	playerHP := player.HP
 	enemyHP := enemy.HP
 	turns := 0
+	damageDealt := 0
 	damageTaken := 0
 
 	for playerHP > 0 && enemyHP > 0 {
 		turns++
 
-		enemyHP -= rollAttack(player, enemy, playerWeapon, rng)
+		dmgToEnemy := rollAttack(player, enemy, playerWeapon, rng)
+		enemyHP -= dmgToEnemy
+		damageDealt += dmgToEnemy
 		if enemyHP <= 0 {
 			break
 		}
@@ -81,6 +84,7 @@ func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon Weap
 	return BattleResult{
 		Turns:       turns,
 		PlayerWon:   playerHP > 0,
+		DamageDealt: damageDealt,
 		DamageTaken: damageTaken,
 	}
 }
@@ -115,18 +119,19 @@ func LoadWeaponFromItem(master *raw.Master, name string) (WeaponStats, error) {
 		return WeaponStats{}, fmt.Errorf("武器 %q のロードに失敗: %w", name, err)
 	}
 
-	if spec.Melee != nil {
-		return WeaponStats{
-			Damage:   spec.Melee.Damage,
-			Accuracy: spec.Melee.Accuracy,
-			IsRanged: spec.Melee.AttackCategory.Range == gc.AttackRangeRanged,
-		}, nil
-	}
+	// Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う
 	if spec.Fire != nil {
 		return WeaponStats{
 			Damage:   spec.Fire.Damage,
 			Accuracy: spec.Fire.Accuracy,
 			IsRanged: true,
+		}, nil
+	}
+	if spec.Melee != nil {
+		return WeaponStats{
+			Damage:   spec.Melee.Damage,
+			Accuracy: spec.Melee.Accuracy,
+			IsRanged: false,
 		}, nil
 	}
 

@@ -36,10 +36,17 @@ interface DepthStat {
   p5HPBeforeHeal: number;
   p95HPBeforeHeal: number;
   suddenDeathRate: number;
-  weaponDistribution?: Record<string, number>;
+  medianWeaponDamage: number;
+  p5WeaponDamage: number;
+  p95WeaponDamage: number;
+  medianKillTurns: number;
+  p5KillTurns: number;
+  p95KillTurns: number;
   medianHunger: number;
   p5Hunger: number;
   p95Hunger: number;
+  medianDamage: number;
+  medianHealing: number;
 }
 
 interface TrialDepthStat {
@@ -99,6 +106,39 @@ const COLORS = [
   "#a4de6c",
 ];
 
+function ChartDescription({
+  model,
+  criteria,
+}: {
+  model: string;
+  criteria: string;
+}) {
+  return (
+    <Box
+      bg="bg.muted"
+      borderRadius="md"
+      px="3"
+      py="2"
+      mb="2"
+      fontSize="xs"
+      color="fg.muted"
+    >
+      <Text>
+        <Text as="span" fontWeight="bold">
+          モデル:
+        </Text>{" "}
+        {model}
+      </Text>
+      <Text>
+        <Text as="span" fontWeight="bold">
+          判断:
+        </Text>{" "}
+        {criteria}
+      </Text>
+    </Box>
+  );
+}
+
 function useBalance() {
   return useQuery<BalanceData>({
     queryKey: ["balance"],
@@ -107,6 +147,81 @@ function useBalance() {
       return res.data;
     },
   });
+}
+
+function ResourceFlowChart({ run }: { run: EnemyTableRun }) {
+  const data = run.depths.map((d) => ({
+    depth: d.depth,
+    "被ダメージ": d.medianDamage,
+    "回復量": d.medianHealing,
+    "純消耗": d.medianDamage - d.medianHealing,
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="depth" label={{ value: "深度", position: "bottom" }} />
+        <YAxis label={{ value: "HP", angle: -90, position: "insideLeft" }} />
+        <Tooltip />
+        <Legend />
+        <ReferenceLine y={0} stroke="#666" />
+        <Bar dataKey="被ダメージ" fill="#ff7300" />
+        <Bar dataKey="回復量" fill="#82ca9d" />
+        <Bar dataKey="純消耗" fill="#8884d8" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function KillTurnsChart({ run }: { run: EnemyTableRun }) {
+  const data = run.depths.map((d) => ({
+    depth: d.depth,
+    "キルターン P95": d.p95KillTurns,
+    "キルターン中央値": d.medianKillTurns,
+    "キルターン P5": d.p5KillTurns,
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <AreaChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="depth" label={{ value: "深度", position: "bottom" }} />
+        <YAxis
+          label={{ value: "ターン", angle: -90, position: "insideLeft" }}
+        />
+        <Tooltip />
+        <Legend />
+        <ReferenceLine
+          y={5}
+          stroke="#ffc658"
+          strokeDasharray="3 3"
+          label="目安上限"
+        />
+        <Area
+          type="monotone"
+          dataKey="キルターン P95"
+          stroke="#82ca9d"
+          fill="#82ca9d"
+          fillOpacity={0.2}
+        />
+        <Area
+          type="monotone"
+          dataKey="キルターン中央値"
+          stroke="#8884d8"
+          fill="#8884d8"
+          fillOpacity={0.3}
+        />
+        <Area
+          type="monotone"
+          dataKey="キルターン P5"
+          stroke="#ff7300"
+          fill="#ff7300"
+          fillOpacity={0.2}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
 }
 
 function HPChart({ run }: { run: EnemyTableRun }) {
@@ -180,58 +295,46 @@ function DeathRateChart({ run }: { run: EnemyTableRun }) {
   );
 }
 
-const WEAPON_COLORS: Record<string, string> = {
-  素手: "#999999",
-  木刀: "#d4a574",
-  鉄のナイフ: "#7799cc",
-  氷の槍: "#66ccee",
-};
-
-function WeaponChart({ run }: { run: EnemyTableRun }) {
-  const weaponNames = new Set<string>();
-  for (const d of run.depths) {
-    if (d.weaponDistribution) {
-      for (const name of Object.keys(d.weaponDistribution)) {
-        weaponNames.add(name);
-      }
-    }
-  }
-  if (weaponNames.size === 0) return null;
-
-  const data = run.depths.map((d) => {
-    const total = d.weaponDistribution
-      ? Object.values(d.weaponDistribution).reduce((a, b) => a + b, 0)
-      : 0;
-    const row: Record<string, number> = { depth: d.depth };
-    for (const name of weaponNames) {
-      const count = d.weaponDistribution?.[name] ?? 0;
-      row[name] = total > 0 ? Math.round((count / total) * 100) : 0;
-    }
-    return row;
-  });
-
-  const names = [...weaponNames];
+function WeaponDamageChart({ run }: { run: EnemyTableRun }) {
+  const data = run.depths.map((d) => ({
+    depth: d.depth,
+    "武器ダメージ P95": d.p95WeaponDamage,
+    "武器ダメージ中央値": d.medianWeaponDamage,
+    "武器ダメージ P5": d.p5WeaponDamage,
+  }));
 
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={data}>
+      <AreaChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="depth" label={{ value: "深度", position: "bottom" }} />
         <YAxis
-          label={{ value: "%", angle: -90, position: "insideLeft" }}
-          domain={[0, 100]}
+          label={{ value: "ダメージ", angle: -90, position: "insideLeft" }}
         />
         <Tooltip />
         <Legend />
-        {names.map((name) => (
-          <Bar
-            key={name}
-            dataKey={name}
-            stackId="weapon"
-            fill={WEAPON_COLORS[name] ?? COLORS[names.indexOf(name) % COLORS.length]}
-          />
-        ))}
-      </BarChart>
+        <Area
+          type="monotone"
+          dataKey="武器ダメージ P95"
+          stroke="#82ca9d"
+          fill="#82ca9d"
+          fillOpacity={0.2}
+        />
+        <Area
+          type="monotone"
+          dataKey="武器ダメージ中央値"
+          stroke="#8884d8"
+          fill="#8884d8"
+          fillOpacity={0.3}
+        />
+        <Area
+          type="monotone"
+          dataKey="武器ダメージ P5"
+          stroke="#ff7300"
+          fill="#ff7300"
+          fillOpacity={0.2}
+        />
+      </AreaChart>
     </ResponsiveContainer>
   );
 }
@@ -431,7 +534,9 @@ function ComparisonChart({ tables }: { tables: EnemyTableRun[] }) {
       <LineChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="depth" label={{ value: "深度", position: "bottom" }} />
-        <YAxis label={{ value: "戦闘後HP中央値", angle: -90, position: "insideLeft" }} />
+        <YAxis
+          label={{ value: "戦闘後HP中央値", angle: -90, position: "insideLeft" }}
+        />
         <Tooltip />
         <Legend />
         {tables.map((t, i) => (
@@ -448,6 +553,58 @@ function ComparisonChart({ tables }: { tables: EnemyTableRun[] }) {
   );
 }
 
+interface ChartSection {
+  title: string;
+  model: string;
+  criteria: string;
+  render: (run: EnemyTableRun) => React.ReactNode;
+}
+
+const chartSections: ChartSection[] = [
+  {
+    title: "HP経済: フロアあたり消耗/回復バランス",
+    model: "HP収支 = 回復量中央値 - 被ダメージ中央値",
+    criteria:
+      "純消耗が正の深度がゲームの壁。持続的に正なら回復ドロップを増やすか敵を弱くする",
+    render: (run) => <ResourceFlowChart run={run} />,
+  },
+  {
+    title: "戦闘力: 期待キルターン (P5 / 中央値 / P95)",
+    model: "キルターン = 1戦闘あたりの平均ターン数",
+    criteria:
+      "3-5ターンが快適な目安。長すぎると被ダメが増大し、短すぎると緊張感がない",
+    render: (run) => <KillTurnsChart run={run} />,
+  },
+  {
+    title: "耐久: HP推移 (P5 / 中央値 / P95)",
+    model: "各深度終了時の残HP分布。回復前と回復後の差がアイテムの効果量",
+    criteria:
+      "P5が0に近づく深度で突然死リスクが高まる。回復後HPが右肩下がりなら経済破綻",
+    render: (run) => <HPChart run={run} />,
+  },
+  {
+    title: "突然死率",
+    model: "その深度に到達したランのうち、その深度で死亡した割合",
+    criteria:
+      "5%超は危険信号。特定深度に集中していたら、その深度の敵テーブルを確認する",
+    render: (run) => <DeathRateChart run={run} />,
+  },
+  {
+    title: "武器入手: 武器ダメージ推移 (P5 / 中央値 / P95)",
+    model: "深度ごとの装備武器ダメージ値。ドロップで強い武器を拾うと上昇する",
+    criteria:
+      "武器成長が鈍化する区間で敵が強くなると壁になる。キルターンと合わせて確認する",
+    render: (run) => <WeaponDamageChart run={run} />,
+  },
+  {
+    title: "空腹経済: 空腹度推移 (P5 / 中央値 / P95)",
+    model: "空腹度 = 歩行で減少、食料ドロップで回復。飢餓ラインを下回るとペナルティ",
+    criteria:
+      "P5が飢餓ラインを頻繁に下回るなら食料ドロップを増やすか栄養値を上げる",
+    render: (run) => <HungerChart run={run} />,
+  },
+];
+
 function EnemyTableSection({
   tables,
   playerHP,
@@ -455,102 +612,93 @@ function EnemyTableSection({
   tables: EnemyTableRun[];
   playerHP?: number;
 }) {
+  const [selectedTable, setSelectedTable] = useState(0);
+  const run = tables[selectedTable];
+  if (!run) return null;
+
   return (
-    <>
+    <Stack gap="4">
       {tables.length > 1 && (
-        <Box>
-          <Heading size="md" mb="3">
+        <Box borderWidth="1px" borderRadius="md" p="4">
+          <Heading size="sm" mb="1">
             テーブル間HP比較
           </Heading>
           <ComparisonChart tables={tables} />
         </Box>
       )}
 
-      {tables.map((run) => (
-        <Box key={run.name} borderWidth="1px" borderRadius="md" p="4">
-          <Flex align="center" gap="3" mb="3">
-            <Heading size="md">{run.name}</Heading>
-            <Badge colorPalette={run.deathRate > 0.5 ? "red" : "green"}>
-              死亡率 {(run.deathRate * 100).toFixed(1)}%
-            </Badge>
-            <Badge>到達深度中央値 {run.medianDepth}</Badge>
-            <Badge>{run.trials}回試行</Badge>
-          </Flex>
+      <Box borderWidth="1px" borderRadius="md" p="4">
+        <Flex align="center" gap="3" mb="3" wrap="wrap">
+          <NativeSelect.Root size="sm" width="auto">
+            <NativeSelect.Field
+              value={selectedTable}
+              onChange={(e) => setSelectedTable(Number(e.target.value))}
+            >
+              {tables.map((t, i) => (
+                <option key={t.name} value={i}>
+                  {t.name}
+                </option>
+              ))}
+            </NativeSelect.Field>
+          </NativeSelect.Root>
+          <Badge colorPalette={run.deathRate > 0.5 ? "red" : "green"}>
+            死亡率 {(run.deathRate * 100).toFixed(1)}%
+          </Badge>
+          <Badge>到達深度中央値 {run.medianDepth}</Badge>
+          <Badge>{run.trials}回試行</Badge>
+        </Flex>
 
-          <Stack gap="4">
-            <Box>
-              <Heading size="sm" mb="2">
-                HP推移 (P5 / 中央値 / P95)
+        <Stack gap="4">
+          {chartSections.map((section) => (
+            <Box key={section.title}>
+              <Heading size="sm" mb="1">
+                {section.title}
               </Heading>
-              <HPChart run={run} />
+              <ChartDescription
+                model={section.model}
+                criteria={section.criteria}
+              />
+              {section.render(run)}
             </Box>
+          ))}
 
-            <Box>
-              <Heading size="sm" mb="2">
-                深度別突然死率
-              </Heading>
-              <DeathRateChart run={run} />
-            </Box>
-
-            <Box>
-              <Heading size="sm" mb="2">
-                武器分布
-              </Heading>
-              <WeaponChart run={run} />
-            </Box>
-
-            <Box>
-              <Heading size="sm" mb="2">
-                空腹度推移 (P5 / 中央値 / P95)
-              </Heading>
-              <HungerChart run={run} />
-            </Box>
-
-            <Table.Root size="sm">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>深度</Table.ColumnHeader>
-                  <Table.ColumnHeader>戦闘後HP中央値</Table.ColumnHeader>
-                  <Table.ColumnHeader>戦闘後HP P5</Table.ColumnHeader>
-                  <Table.ColumnHeader>戦闘後HP P95</Table.ColumnHeader>
-                  <Table.ColumnHeader>回復後HP中央値</Table.ColumnHeader>
-                  <Table.ColumnHeader>突然死率</Table.ColumnHeader>
-                  <Table.ColumnHeader>空腹度</Table.ColumnHeader>
-                  <Table.ColumnHeader>主要武器</Table.ColumnHeader>
+          <Table.Root size="sm">
+            <Table.Header>
+              <Table.Row>
+                <Table.ColumnHeader>深度</Table.ColumnHeader>
+                <Table.ColumnHeader>戦闘後HP</Table.ColumnHeader>
+                <Table.ColumnHeader>回復後HP</Table.ColumnHeader>
+                <Table.ColumnHeader>突然死率</Table.ColumnHeader>
+                <Table.ColumnHeader>被ダメ</Table.ColumnHeader>
+                <Table.ColumnHeader>回復量</Table.ColumnHeader>
+                <Table.ColumnHeader>キルT</Table.ColumnHeader>
+                <Table.ColumnHeader>武器Dmg</Table.ColumnHeader>
+                <Table.ColumnHeader>空腹度</Table.ColumnHeader>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {run.depths.map((d) => (
+                <Table.Row key={d.depth}>
+                  <Table.Cell>{d.depth}</Table.Cell>
+                  <Table.Cell>{d.medianHPBeforeHeal}</Table.Cell>
+                  <Table.Cell>{d.medianHP}</Table.Cell>
+                  <Table.Cell>
+                    {(d.suddenDeathRate * 100).toFixed(1)}%
+                  </Table.Cell>
+                  <Table.Cell>{d.medianDamage}</Table.Cell>
+                  <Table.Cell>{d.medianHealing}</Table.Cell>
+                  <Table.Cell>{d.medianKillTurns}</Table.Cell>
+                  <Table.Cell>{d.medianWeaponDamage}</Table.Cell>
+                  <Table.Cell>{d.medianHunger}</Table.Cell>
                 </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {run.depths.map((d) => {
-                  const topWeapon = d.weaponDistribution
-                    ? Object.entries(d.weaponDistribution).sort(
-                        ([, a], [, b]) => b - a,
-                      )[0]
-                    : null;
-                  return (
-                    <Table.Row key={d.depth}>
-                      <Table.Cell>{d.depth}</Table.Cell>
-                      <Table.Cell>{d.medianHPBeforeHeal}</Table.Cell>
-                      <Table.Cell>{d.p5HPBeforeHeal}</Table.Cell>
-                      <Table.Cell>{d.p95HPBeforeHeal}</Table.Cell>
-                      <Table.Cell>{d.medianHP}</Table.Cell>
-                      <Table.Cell>
-                        {(d.suddenDeathRate * 100).toFixed(1)}%
-                      </Table.Cell>
-                      <Table.Cell>{d.medianHunger}</Table.Cell>
-                      <Table.Cell>
-                        {topWeapon ? topWeapon[0] : "-"}
-                      </Table.Cell>
-                    </Table.Row>
-                  );
-                })}
-              </Table.Body>
-            </Table.Root>
+              ))}
+            </Table.Body>
+          </Table.Root>
 
-            <TrialDetail run={run} playerHP={playerHP} />
-          </Stack>
-        </Box>
-      ))}
-    </>
+          <TrialDetail run={run} playerHP={playerHP} />
+        </Stack>
+      </Box>
+    </Stack>
   );
 }
 

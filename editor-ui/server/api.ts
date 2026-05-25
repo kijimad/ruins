@@ -474,7 +474,7 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
 
           // バランスシミュレーション結果 API
           if (apiPath === "balance" && method === "GET") {
-            const balancePath = path.resolve(__dirname, "../../docs/gen/balance.json");
+            const balancePath = path.resolve(__dirname, "../../balance.json");
             try {
               const data = fs.readFileSync(balancePath, "utf-8");
               res.end(data);

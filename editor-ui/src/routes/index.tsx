@@ -3,6 +3,7 @@ import { Layout, WelcomePage } from "../Layout";
 import { ResourcePage } from "../pages/ResourcePage";
 import { LayoutPage } from "../pages/LayoutPage";
 import { BalancePage } from "../pages/BalancePage";
+import { DPSPage } from "../pages/DPSPage";
 
 export const router = createBrowserRouter([
   {
@@ -71,6 +72,7 @@ export const router = createBrowserRouter([
       },
       { path: "layouts", element: <LayoutPage /> },
       { path: "balance", element: <BalancePage /> },
+      { path: "dps", element: <DPSPage /> },
     ],
   },
 ]);

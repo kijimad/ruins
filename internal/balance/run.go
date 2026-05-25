@@ -26,6 +26,8 @@ type RunResult struct {
 	HPByDepth           map[int]int    // 回復後のHP
 	HPBeforeHealByDepth map[int]int    // 回復前のHP（戦闘ダメージの実態を反映する）
 	WeaponByDepth       map[int]string // 各深度で使用した武器名
+	WeaponDamageByDepth map[int]int    // 各深度での武器ダメージ値
+	AvgKillTurnsByDepth map[int]int    // 各深度での1戦あたり平均キルターン
 	HungerByDepth       map[int]int    // 各深度終了時の空腹度
 }
 
@@ -37,6 +39,8 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 		HPByDepth:           make(map[int]int),
 		HPBeforeHealByDepth: make(map[int]int),
 		WeaponByDepth:       make(map[int]string),
+		WeaponDamageByDepth: make(map[int]int),
+		AvgKillTurnsByDepth: make(map[int]int),
 		HungerByDepth:       make(map[int]int),
 	}
 	currentHP := player.HP
@@ -58,6 +62,8 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 	for depth := 1; depth <= maxDepth; depth++ {
 		// フロアの敵数を決定
 		enemyCount := baseEnemyCount + rng.IntN(randomEnemyCount)
+		floorTotalTurns := 0
+		floorBattleCount := 0
 
 		for i := 0; i < enemyCount; i++ {
 			// 敵テーブルから敵を選択
@@ -91,6 +97,8 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 
 			br := SimulateBattle(combatPlayer, enemyStats, currentWeapon, enemyWeapon, rng)
 			currentHP -= br.DamageTaken
+			floorTotalTurns += br.Turns
+			floorBattleCount++
 
 			if currentHP <= 0 {
 				result.ReachedDepth = depth
@@ -128,6 +136,10 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 
 		result.HPByDepth[depth] = currentHP
 		result.WeaponByDepth[depth] = currentWeaponName
+		result.WeaponDamageByDepth[depth] = currentWeapon.Damage
+		if floorBattleCount > 0 {
+			result.AvgKillTurnsByDepth[depth] = floorTotalTurns / floorBattleCount
+		}
 		result.HungerByDepth[depth] = hunger.Current
 	}
 
@@ -210,38 +222,20 @@ type BattleStats struct {
 	Results []BattleResult
 }
 
-// WinRate は勝率を返す
-func (bs BattleStats) WinRate() float64 {
+// DPS は1ターンあたりのプレイヤーの平均与ダメージを返す
+func (bs BattleStats) DPS() float64 {
 	if len(bs.Results) == 0 {
 		return 0
 	}
-	wins := 0
+	var totalDamage, totalTurns int
 	for _, r := range bs.Results {
-		if r.PlayerWon {
-			wins++
-		}
+		totalDamage += r.DamageDealt
+		totalTurns += r.Turns
 	}
-	return float64(wins) / float64(len(bs.Results))
-}
-
-// AvgTTK は平均撃破ターン数を返す（勝った戦闘のみ）
-func (bs BattleStats) AvgTTK() float64 {
-	var turns []int
-	for _, r := range bs.Results {
-		if r.PlayerWon {
-			turns = append(turns, r.Turns)
-		}
+	if totalTurns == 0 {
+		return 0
 	}
-	return Mean(turns)
-}
-
-// AvgDamageTaken は1戦闘の平均被ダメージを返す
-func (bs BattleStats) AvgDamageTaken() float64 {
-	damages := make([]int, len(bs.Results))
-	for i, r := range bs.Results {
-		damages[i] = r.DamageTaken
-	}
-	return Mean(damages)
+	return float64(totalDamage) / float64(totalTurns)
 }
 
 // RunSimulations はN回のランシミュレーションを実行する

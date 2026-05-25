@@ -73,9 +73,11 @@ func (s RunStats) hpPercentile(depth int, selector func(RunResult) map[int]int, 
 	return Percentile(hps, p)
 }
 
-func postHealHP(r RunResult) map[int]int { return r.HPByDepth }
-func preHealHP(r RunResult) map[int]int  { return r.HPBeforeHealByDepth }
-func hungerMap(r RunResult) map[int]int  { return r.HungerByDepth }
+func postHealHP(r RunResult) map[int]int      { return r.HPByDepth }
+func preHealHP(r RunResult) map[int]int       { return r.HPBeforeHealByDepth }
+func hungerMap(r RunResult) map[int]int       { return r.HungerByDepth }
+func weaponDamageMap(r RunResult) map[int]int { return r.WeaponDamageByDepth }
+func killTurnsMap(r RunResult) map[int]int    { return r.AvgKillTurnsByDepth }
 
 // HPAtDepth は指定深度での残HPスライスを返す
 func (s RunStats) HPAtDepth(depth int) []int {
@@ -140,15 +142,34 @@ func (s RunStats) SuddenDeathRate(depth int) float64 {
 	return float64(diedHere) / float64(survived)
 }
 
-// WeaponDistribution は指定深度での武器使用分布を返す
-func (s RunStats) WeaponDistribution(depth int) map[string]int {
-	dist := make(map[string]int)
-	for _, r := range s.Results {
-		if name, ok := r.WeaponByDepth[depth]; ok {
-			dist[name]++
-		}
-	}
-	return dist
+// MedianWeaponDamage は指定深度での武器ダメージの中央値を返す
+func (s RunStats) MedianWeaponDamage(depth int) int {
+	return s.hpPercentile(depth, weaponDamageMap, 0.5)
+}
+
+// P5WeaponDamage は指定深度での武器ダメージの下位5%を返す
+func (s RunStats) P5WeaponDamage(depth int) int {
+	return s.hpPercentile(depth, weaponDamageMap, 0.05)
+}
+
+// P95WeaponDamage は指定深度での武器ダメージの上位95%を返す
+func (s RunStats) P95WeaponDamage(depth int) int {
+	return s.hpPercentile(depth, weaponDamageMap, 0.95)
+}
+
+// MedianKillTurns は指定深度での1戦あたり平均キルターンの中央値を返す
+func (s RunStats) MedianKillTurns(depth int) int {
+	return s.hpPercentile(depth, killTurnsMap, 0.5)
+}
+
+// P5KillTurns は指定深度でのキルターンの下位5%を返す
+func (s RunStats) P5KillTurns(depth int) int {
+	return s.hpPercentile(depth, killTurnsMap, 0.05)
+}
+
+// P95KillTurns は指定深度でのキルターンの上位95%を返す
+func (s RunStats) P95KillTurns(depth int) int {
+	return s.hpPercentile(depth, killTurnsMap, 0.95)
 }
 
 // MedianHunger は指定深度での空腹度の中央値を返す
@@ -164,6 +185,68 @@ func (s RunStats) P5Hunger(depth int) int {
 // P95Hunger は指定深度での空腹度の上位95%を返す
 func (s RunStats) P95Hunger(depth int) int {
 	return s.hpPercentile(depth, hungerMap, 0.95)
+}
+
+// MedianDamagePerFloor は指定深度でのフロアあたり被ダメージの中央値を返す。
+// playerMaxHP は深度1の開始HPとして使う
+func (s RunStats) MedianDamagePerFloor(depth, playerMaxHP int) int {
+	return s.floorDamagePercentile(depth, playerMaxHP, 0.5)
+}
+
+// MedianHealingPerFloor は指定深度でのフロアあたり回復量の中央値を返す
+func (s RunStats) MedianHealingPerFloor(depth int) int {
+	return s.floorHealingPercentile(depth, 0.5)
+}
+
+// floorDamagePercentile は指定深度でのフロアあたり被ダメージのパーセンタイルを返す
+func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int {
+	var damages []int
+	for _, r := range s.Results {
+		hpBefore, ok := r.HPBeforeHealByDepth[depth]
+		if !ok {
+			continue
+		}
+		entering := playerMaxHP
+		if depth > 1 {
+			if hp, ok := r.HPByDepth[depth-1]; ok {
+				entering = hp
+			} else {
+				continue
+			}
+		}
+		dmg := entering - hpBefore
+		if dmg < 0 {
+			dmg = 0
+		}
+		damages = append(damages, dmg)
+	}
+	if len(damages) == 0 {
+		return 0
+	}
+	sort.Ints(damages)
+	return Percentile(damages, p)
+}
+
+// floorHealingPercentile は指定深度でのフロアあたり回復量のパーセンタイルを返す
+func (s RunStats) floorHealingPercentile(depth int, p float64) int {
+	var heals []int
+	for _, r := range s.Results {
+		hpBefore, ok1 := r.HPBeforeHealByDepth[depth]
+		hpAfter, ok2 := r.HPByDepth[depth]
+		if !ok1 || !ok2 {
+			continue
+		}
+		heal := hpAfter - hpBefore
+		if heal < 0 {
+			heal = 0
+		}
+		heals = append(heals, heal)
+	}
+	if len(heals) == 0 {
+		return 0
+	}
+	sort.Ints(heals)
+	return Percentile(heals, p)
 }
 
 // DeathRate は全体の死亡率を返す
