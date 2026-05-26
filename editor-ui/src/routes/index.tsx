@@ -5,6 +5,7 @@ import { LayoutPage } from "../pages/LayoutPage";
 import { BalancePage } from "../pages/BalancePage";
 import { DPSPage } from "../pages/DPSPage";
 import { TableViewerPage } from "../pages/TableViewerPage";
+import { CutterPage } from "../pages/CutterPage";
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,7 @@ export const router = createBrowserRouter([
       { path: "balance", element: <BalancePage /> },
       { path: "dps", element: <DPSPage /> },
       { path: "table-viewer", element: <TableViewerPage /> },
+      { path: "cutter", element: <CutterPage /> },
     ],
   },
 ]);
