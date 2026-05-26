@@ -18,6 +18,234 @@ targetGroup = "ENEMY"
 targetNum = "SINGLE"
 
 [[items]]
+description = "鋭い牙や爪で噛みつく"
+name = "噛みつき"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 5
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "毒を帯びた牙や棘で攻撃する"
+name = "毒牙"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 4
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "炎を纏った攻撃"
+name = "火炎攻撃"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 8
+element = "FIRE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "冷気を帯びた攻撃"
+name = "冷気攻撃"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 8
+element = "CHILL"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "電撃を放つ"
+name = "電撃"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 80
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 7
+element = "THUNDER"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "鋭利な爪で引き裂く"
+name = "引き裂き"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 2
+cost = 2
+damage = 6
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "巨体で押し潰す強力な一撃"
+name = "叩き潰し"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 75
+attackCategory = "FIST"
+attackCount = 1
+cost = 3
+damage = 18
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "強力な咆哮で全体を攻撃する"
+name = "咆哮"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 80
+attackCategory = "FIST"
+attackCount = 1
+cost = 3
+damage = 12
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "ALL"
+
+[[items]]
+description = "強烈な炎のブレスを吐く"
+name = "火炎ブレス"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 80
+attackCategory = "FIST"
+attackCount = 1
+cost = 4
+damage = 22
+element = "FIRE"
+targetGroup = "ENEMY"
+targetNum = "ALL"
+
+[[items]]
+description = "車載砲で攻撃する"
+name = "砲撃"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 85
+attackCategory = "FIST"
+attackCount = 1
+cost = 3
+damage = 16
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "高速連射で弾幕を張る"
+name = "機銃掃射"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 75
+attackCategory = "FIST"
+attackCount = 3
+cost = 3
+damage = 8
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "光の力で攻撃する"
+name = "光弾"
+spriteKey = "field_item"
+spriteSheetName = "field"
+value = 0
+weight = 0
+
+[items.weapon]
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 2
+damage = 10
+element = "PHOTON"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
 description = "旅行の土産でおなじみの、木でできた刃のない刀"
 name = "木刀"
 spriteKey = "wooden_sword"
@@ -39,7 +267,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "氷の結晶で作られた槍"
 name = "氷の槍"
-spriteKey = "クリスタルメイス"
+spriteKey = "crystal_mace"
 spriteSheetName = "field"
 value = 250
 weight = 1.8
@@ -115,7 +343,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "廃墟で見つかる錆びた釘を打ち込んだバット。荒々しいが有効"
 name = "釘バット"
-spriteKey = "釘バット"
+spriteKey = "nail_bat"
 spriteSheetName = "field"
 value = 40
 weight = 1.5
@@ -172,7 +400,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "長柄の斧槍。リーチと威力を兼ね備える"
 name = "ハルバード"
-spriteKey = "ハルバード"
+spriteKey = "halberd"
 spriteSheetName = "field"
 value = 400
 weight = 4.5
@@ -191,7 +419,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "狩人が愛用する弓。静かに遠距離から狙える"
 name = "狩人の弓"
-spriteKey = "狩人の弓"
+spriteKey = "hunter_bow"
 spriteSheetName = "field"
 value = 180
 weight = 1.5
@@ -211,7 +439,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "鉄製の弩弓。弓より威力が高いが装填に時間がかかる"
 name = "鉄のクロスボウ"
-spriteKey = "鉄のクロスボウ"
+spriteKey = "iron_crossbow"
 spriteSheetName = "field"
 value = 280
 weight = 3
@@ -252,7 +480,7 @@ accuracy = 90
 ammoTag = "shell"
 attackCategory = "CANON"
 attackCount = 1
-cost = 14
+cost = 6
 damage = 34
 element = "NONE"
 magazineSize = 1
@@ -284,7 +512,7 @@ accuracy = 90
 ammoTag = "shell"
 attackCategory = "CANON"
 attackCount = 4
-cost = 10
+cost = 5
 damage = 8
 element = "NONE"
 magazineSize = 1
@@ -316,7 +544,7 @@ accuracy = 85
 ammoTag = "shell"
 attackCategory = "CANON"
 attackCount = 1
-cost = 14
+cost = 6
 damage = 34
 element = "NONE"
 magazineSize = 1
@@ -380,7 +608,7 @@ accuracy = 90
 ammoTag = "energy_cell"
 attackCategory = "HANDGUN"
 attackCount = 1
-cost = 2
+cost = 3
 damage = 20
 element = "PHOTON"
 magazineSize = 6
@@ -391,7 +619,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "極低温物質を投射する擲弾銃"
 name = "冷凍グレネード"
-spriteKey = "field_item"
+spriteKey = "blue_flask"
 spriteSheetName = "field"
 value = 340
 weight = 10
@@ -423,7 +651,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "濃度の高い強酸性の液体"
 name = "溶解液"
-spriteKey = "field_item"
+spriteKey = "bottle_formalin"
 spriteSheetName = "field"
 value = 150
 weight = 1
@@ -444,7 +672,7 @@ accuracy = 80
 ammoTag = "shell"
 attackCategory = "CANON"
 attackCount = 1
-cost = 8
+cost = 4
 damage = 14
 element = "NONE"
 magazineSize = 1
@@ -476,7 +704,7 @@ accuracy = 75
 ammoTag = "shell"
 attackCategory = "CANON"
 attackCount = 3
-cost = 9
+cost = 5
 damage = 12
 element = "NONE"
 magazineSize = 1
@@ -582,7 +810,7 @@ vitality = 0
 [[items]]
 description = "普段着のシャツ。防御力は期待できない"
 name = "布のシャツ"
-spriteKey = "ウェイターの服"
+spriteKey = "waiter_outfit"
 spriteSheetName = "field"
 value = 15
 weight = 0.3
@@ -750,7 +978,7 @@ vitality = 1
 [[items]]
 description = "獣の血で染まった外套"
 name = "狩人の外套"
-spriteKey = "狩人の服"
+spriteKey = "hunter_outfit"
 spriteSheetName = "field"
 value = 260
 weight = 2
@@ -876,7 +1104,7 @@ vitality = 2
 [[items]]
 description = "伝統的な意匠が施されたずっしりと重い鎧"
 name = "西洋鎧"
-spriteKey = "鉄の鎧"
+spriteKey = "iron_armor"
 spriteSheetName = "field"
 value = 400
 weight = 15
@@ -891,8 +1119,8 @@ insulationHeat = -4
 agility = -4
 dexterity = 0
 sensation = 0
-strength = 0
-vitality = 0
+strength = 1
+vitality = 2
 
 [[items]]
 description = "鉄で補強された重厚なブーツ"
@@ -1222,7 +1450,7 @@ providesNutrition = 20
 spriteKey = "banana"
 spriteSheetName = "field"
 stackable = true
-value = 10
+value = 16
 weight = 0.15
 
 [items.consumable]
@@ -1237,7 +1465,7 @@ providesNutrition = 15
 spriteKey = "cookie"
 spriteSheetName = "field"
 stackable = true
-value = 8
+value = 12
 weight = 0.1
 
 [items.consumable]
@@ -1252,7 +1480,7 @@ providesNutrition = 25
 spriteKey = "donut"
 spriteSheetName = "field"
 stackable = true
-value = 15
+value = 20
 weight = 0.2
 
 [items.consumable]
@@ -1279,7 +1507,7 @@ usableScene = "ANY"
 description = "肉とパンの組み合わせ。食べごたえ満点"
 name = "ハンバーガー"
 providesNutrition = 45
-spriteKey = "ハンバーガー"
+spriteKey = "hamburger"
 spriteSheetName = "field"
 stackable = true
 value = 40
@@ -1411,7 +1639,7 @@ damageBonus = 3
 [[items]]
 description = "小型のエネルギー電池"
 name = "エネルギーセル"
-spriteKey = "field_item"
+spriteKey = "blue_cube"
 spriteSheetName = "field"
 stackable = true
 value = 10
@@ -1501,7 +1729,7 @@ targetSkill = "cold_resist"
 [[items]]
 description = "フェライト製の磁性体"
 name = "フェライトコア"
-spriteKey = "field_item"
+spriteKey = "magnelight"
 spriteSheetName = "field"
 stackable = true
 value = 100
@@ -1510,7 +1738,7 @@ weight = 0.5
 [[items]]
 description = "赤く光る鉱物。高価な装飾用に加工される"
 name = "ルビー原石"
-spriteKey = "field_item"
+spriteKey = "red_gem"
 spriteSheetName = "field"
 stackable = true
 value = 500
@@ -1519,7 +1747,7 @@ weight = 0.05
 [[items]]
 description = "錆びついた真鍮の歯車。精巧な工芸技術で作られている"
 name = "古い歯車"
-spriteKey = "field_item"
+spriteKey = "gear_iron"
 spriteSheetName = "field"
 stackable = true
 value = 30
@@ -1528,7 +1756,7 @@ weight = 0.3
 [[items]]
 description = "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
 name = "古代の壺"
-spriteKey = "field_item"
+spriteKey = "vase"
 spriteSheetName = "field"
 stackable = true
 value = 1800
@@ -1537,7 +1765,7 @@ weight = 2.5
 [[items]]
 description = "長い年月を経た動物の骨。異様に硬く軽い"
 name = "古代の骨"
-spriteKey = "field_item"
+spriteKey = "fossil_chunk"
 spriteSheetName = "field"
 stackable = true
 value = 4
@@ -1546,7 +1774,7 @@ weight = 0.2
 [[items]]
 description = "失われた文明の通貨"
 name = "古代金貨"
-spriteKey = "field_item"
+spriteKey = "gold_ore"
 spriteSheetName = "field"
 stackable = true
 value = 1500
@@ -1564,7 +1792,7 @@ weight = 0.005
 [[items]]
 description = "夜空から落ちた神秘的な鉱石"
 name = "星の欠片"
-spriteKey = "field_item"
+spriteKey = "rainbow_chunk"
 spriteSheetName = "field"
 stackable = true
 value = 2000
@@ -1573,7 +1801,7 @@ weight = 0.02
 [[items]]
 description = "隕石から取れる特殊な金属。普通の鉄より遥かに硬い"
 name = "星鉄"
-spriteKey = "field_item"
+spriteKey = "cosmic_stone"
 spriteSheetName = "field"
 stackable = true
 value = 400
@@ -1591,7 +1819,7 @@ weight = 0.3
 [[items]]
 description = "透明な結晶を砕いた粉末。微かに光を放っている"
 name = "水晶の粉"
-spriteKey = "field_item"
+spriteKey = "purple_powder"
 spriteSheetName = "field"
 stackable = true
 value = 6
@@ -1600,7 +1828,7 @@ weight = 0.1
 [[items]]
 description = "何かが燃え尽きた後の灰"
 name = "灰"
-spriteKey = "field_item"
+spriteKey = "yellow_powder"
 spriteSheetName = "field"
 stackable = true
 value = 1
@@ -1627,7 +1855,7 @@ weight = 0.1
 [[items]]
 description = "美しい紫色の水晶"
 name = "紫水晶"
-spriteKey = "field_item"
+spriteKey = "amethyst_stone"
 spriteSheetName = "field"
 stackable = true
 value = 0
@@ -1655,7 +1883,7 @@ valueType = "NUMERAL"
 [[items]]
 description = "特に美しい輝きをもつ宝石。高額で取引される"
 name = "血染めのルビー"
-spriteKey = "field_item"
+spriteKey = "red_crystal_stone"
 spriteSheetName = "field"
 stackable = true
 value = 3000
@@ -1664,7 +1892,7 @@ weight = 0.03
 [[items]]
 description = "深紅に染まった鉱石。触れると温かい"
 name = "血赤石"
-spriteKey = "field_item"
+spriteKey = "crimson_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 0
@@ -1673,7 +1901,7 @@ weight = 0.8
 [[items]]
 description = "加工しやすく産業の中核をなす金属"
 name = "鉄"
-spriteKey = "field_item"
+spriteKey = "iron_content"
 spriteSheetName = "field"
 stackable = true
 value = 0
@@ -1691,7 +1919,7 @@ weight = 1
 [[items]]
 description = "淡く光る銀色の金属片。不浄なものを退ける力があるとされる"
 name = "銀の欠片"
-spriteKey = "field_item"
+spriteKey = "round_pebble"
 spriteSheetName = "field"
 stackable = true
 value = 0
@@ -1709,7 +1937,7 @@ weight = 1.2
 [[items]]
 description = "雷に打たれて生まれた石。微かに電気を帯びている"
 name = "雷光石"
-spriteKey = "field_item"
+spriteKey = "yellow_crystal_stone"
 spriteSheetName = "field"
 stackable = true
 value = 0
@@ -1755,7 +1983,7 @@ weight = 0.5
 [[items]]
 description = "深海から取れる漆黒の真珠。極めて稀少"
 name = "黒真珠"
-spriteKey = "field_item"
+spriteKey = "black_crystal"
 spriteSheetName = "field"
 stackable = true
 value = 3500
@@ -1802,7 +2030,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "二本の棒を鎖で繋いだ武器。素早い連打が得意"
 name = "ヌンチャク"
-spriteKey = "ヌンチャク"
+spriteKey = "nunchaku"
 spriteSheetName = "field"
 value = 100
 weight = 0.8
@@ -1821,7 +2049,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "投擲用の小型刃物。命中精度が高く複数枚を連続で投げられる"
 name = "手裏剣"
-spriteKey = "手裏剣"
+spriteKey = "shuriken"
 spriteSheetName = "field"
 value = 60
 weight = 0.1
@@ -1841,7 +2069,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "名匠が鍛えた紫色に輝く刀。鋭い斬撃を繰り出せる"
 name = "紫の刀"
-spriteKey = "紫の刀"
+spriteKey = "purple_katana"
 spriteSheetName = "field"
 value = 320
 weight = 1.8
@@ -1860,7 +2088,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "細身で軽い突剣。素早い突きを得意とする"
 name = "細いレイピア"
-spriteKey = "細いレイピア"
+spriteKey = "thin_rapier"
 spriteSheetName = "field"
 value = 180
 weight = 1
@@ -1870,7 +2098,7 @@ weight = 1
 accuracy = 95
 attackCategory = "SWORD"
 attackCount = 1
-cost = 1
+cost = 2
 damage = 11
 element = "NONE"
 targetGroup = "ENEMY"
@@ -1879,7 +2107,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "巨大な戦斧。凄まじい破壊力を誇るが扱いが難しい"
 name = "バトルアックス"
-spriteKey = "バトルアックス"
+spriteKey = "battle_axe"
 spriteSheetName = "field"
 value = 450
 weight = 6
@@ -1918,7 +2146,7 @@ targetNum = "SINGLE"
 description = "具材をパンで挟んだ手軽な食事。栄養バランスがよい"
 name = "サンドイッチ"
 providesNutrition = 35
-spriteKey = "食パン"
+spriteKey = "bread"
 spriteSheetName = "field"
 stackable = true
 value = 30
@@ -1951,7 +2179,7 @@ providesNutrition = 10
 spriteKey = "cherry"
 spriteSheetName = "field"
 stackable = true
-value = 5
+value = 8
 weight = 0.05
 
 [items.consumable]
@@ -2008,10 +2236,10 @@ usableScene = "ANY"
 description = "赤く熟れた野菜。生でもそのまま食べられる"
 name = "トマト"
 providesNutrition = 15
-spriteKey = "トマト"
+spriteKey = "tomato"
 spriteSheetName = "field"
 stackable = true
-value = 8
+value = 12
 weight = 0.2
 
 [items.consumable]
@@ -2022,7 +2250,7 @@ usableScene = "ANY"
 [[items]]
 description = "鎖を編み込んだ鎧。動きやすさと防御を両立する"
 name = "鎖帷子"
-spriteKey = "鎖帷子"
+spriteKey = "chainmail"
 spriteSheetName = "field"
 value = 300
 weight = 8
@@ -2043,7 +2271,7 @@ vitality = 2
 [[items]]
 description = "修行者が着る衣服。身軽さを重視した作り"
 name = "道着"
-spriteKey = "道着"
+spriteKey = "gi"
 spriteSheetName = "field"
 value = 120
 weight = 0.8
@@ -2064,7 +2292,7 @@ vitality = 0
 [[items]]
 description = "鮮やかな赤い外套。纏うと力が湧いてくる"
 name = "赤いマント"
-spriteKey = "赤いマント"
+spriteKey = "red_cloak"
 spriteSheetName = "field"
 value = 250
 weight = 1.2
@@ -2085,7 +2313,7 @@ vitality = 1
 [[items]]
 description = "鉄を鍛えた直剣。バランスがよく扱いやすい"
 name = "鉄の直剣"
-spriteKey = "鉄の直剣"
+spriteKey = "iron_straight_sword"
 spriteSheetName = "field"
 value = 180
 weight = 2.5
@@ -2104,7 +2332,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "刃が弧を描く片手剣。斬りつけに適している"
 name = "鉄の曲刀"
-spriteKey = "鉄の曲刀"
+spriteKey = "iron_scimitar"
 spriteSheetName = "field"
 value = 200
 weight = 2
@@ -2123,7 +2351,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "回転させて投げつける円環型の武器"
 name = "鉄のチャクラム"
-spriteKey = "鉄のチャクラム"
+spriteKey = "iron_chakram"
 spriteSheetName = "field"
 value = 140
 weight = 0.5
@@ -2143,7 +2371,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "緑色に輝く魔法の剣。軽くて振りやすい"
 name = "緑剣"
-spriteKey = "緑剣"
+spriteKey = "green_sword"
 spriteSheetName = "field"
 value = 280
 weight = 1.5
@@ -2162,7 +2390,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "重心が先端にある片刃の曲刀。振り下ろしの破壊力が凄まじい"
 name = "重い曲刀"
-spriteKey = "重い曲刀"
+spriteKey = "heavy_scimitar"
 spriteSheetName = "field"
 value = 380
 weight = 5
@@ -2181,7 +2409,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "波打つ刃を持つ異国の剣。独特な軌道で防御を掻い潜る"
 name = "歪曲刀"
-spriteKey = "歪曲刀"
+spriteKey = "curved_blade"
 spriteSheetName = "field"
 value = 260
 weight = 1.8
@@ -2200,7 +2428,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "漆黒に染まった刀。不気味な気配を纏う"
 name = "黒い刀"
-spriteKey = "黒い刀"
+spriteKey = "black_katana"
 spriteSheetName = "field"
 value = 350
 weight = 1.5
@@ -2219,7 +2447,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "天界の金属で鍛えられた聖なる剣"
 name = "天使の剣"
-spriteKey = "天使の剣"
+spriteKey = "angel_sword"
 spriteSheetName = "field"
 value = 500
 weight = 2
@@ -2238,7 +2466,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "三又に分かれた槍。突きと薙ぎの両方に使える"
 name = "三叉槍"
-spriteKey = "三叉"
+spriteKey = "trident"
 spriteSheetName = "field"
 value = 300
 weight = 3
@@ -2257,7 +2485,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "氷の魔力を宿す鈍器。打撃と同時に冷気が走る"
 name = "アイスメイス"
-spriteKey = "アイスメイス"
+spriteKey = "ice_mace"
 spriteSheetName = "field"
 value = 320
 weight = 3.5
@@ -2276,7 +2504,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "紫色に発光する魔法の鈍器。魔力を纏った打撃を繰り出す"
 name = "紫メイス"
-spriteKey = "紫メイス"
+spriteKey = "purple_mace"
 spriteSheetName = "field"
 value = 280
 weight = 3
@@ -2295,7 +2523,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "巨大なハンマー。建築用だが武器としても強力"
 name = "ブロックハンマー"
-spriteKey = "ブロックハンマー"
+spriteKey = "block_hammer"
 spriteSheetName = "field"
 value = 220
 weight = 5
@@ -2314,7 +2542,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "黒い金属で作られた戦斧。禍々しいオーラを放つ"
 name = "黒いバトルアックス"
-spriteKey = "黒いバトルアックス"
+spriteKey = "black_battle_axe"
 spriteSheetName = "field"
 value = 480
 weight = 6
@@ -2409,7 +2637,7 @@ spriteKey = "almonds"
 spriteSheetName = "field"
 stackable = true
 providesNutrition = 25
-value = 15
+value = 20
 weight = 0.1
 
 [items.consumable]
@@ -2420,7 +2648,7 @@ usableScene = "ANY"
 [[items]]
 description = "茹でた緑の野菜。栄養価が非常に高い"
 name = "ブロッコリー"
-spriteKey = "ブロッコリー"
+spriteKey = "broccoli"
 spriteSheetName = "field"
 stackable = true
 providesNutrition = 20
@@ -2435,7 +2663,7 @@ usableScene = "ANY"
 [[items]]
 description = "濃厚なスープに麺が入った温かい食事。体の芯から温まる"
 name = "ラーメン"
-spriteKey = "ラーメン"
+spriteKey = "ramen"
 spriteSheetName = "field"
 stackable = true
 providesNutrition = 50
@@ -2454,7 +2682,7 @@ spriteKey = "pumpkin"
 spriteSheetName = "field"
 stackable = true
 providesNutrition = 35
-value = 20
+value = 28
 weight = 1
 
 [items.consumable]
@@ -2465,7 +2693,7 @@ usableScene = "ANY"
 [[items]]
 description = "良質な牛肉。焼けば最高のご馳走になる"
 name = "牛肉"
-spriteKey = "牛肉"
+spriteKey = "beef"
 spriteSheetName = "field"
 stackable = true
 providesNutrition = 55
@@ -2480,7 +2708,7 @@ usableScene = "ANY"
 [[items]]
 description = "新鮮な海老。高タンパクで美味"
 name = "海老"
-spriteKey = "海老"
+spriteKey = "shrimp"
 spriteSheetName = "field"
 stackable = true
 providesNutrition = 40
@@ -2495,7 +2723,7 @@ usableScene = "ANY"
 [[items]]
 description = "船長が着用する立派なコート。威厳があり丈夫"
 name = "キャプテンのコート"
-spriteKey = "キャプテンのコート"
+spriteKey = "captain_coat"
 spriteSheetName = "field"
 value = 350
 weight = 2
@@ -2516,7 +2744,7 @@ vitality = 2
 [[items]]
 description = "清潔感のあるセーラー服。動きやすさを確保している"
 name = "セーラー服"
-spriteKey = "セーラー服"
+spriteKey = "sailor_outfit"
 spriteSheetName = "field"
 value = 80
 weight = 0.5
@@ -2537,7 +2765,7 @@ vitality = 0
 [[items]]
 description = "丈夫なデニム生地で作られた服。日常使いに最適"
 name = "デニム素材の服"
-spriteKey = "デニム素材の服"
+spriteKey = "denim_outfit"
 spriteSheetName = "field"
 value = 60
 weight = 0.8
@@ -2558,7 +2786,7 @@ vitality = 1
 [[items]]
 description = "十字軍の兵士が着用した歴史ある鎧。重いが頑強"
 name = "十字軍の服"
-spriteKey = "十字軍の服"
+spriteKey = "crusader_outfit"
 spriteSheetName = "field"
 value = 500
 weight = 12
@@ -2579,7 +2807,7 @@ vitality = 4
 [[items]]
 description = "毛皮の裏地がついた暖かいコート。極寒地向け"
 name = "毛皮付きコート"
-spriteKey = "毛皮付きコート"
+spriteKey = "fur_coat"
 spriteSheetName = "field"
 value = 280
 weight = 3
@@ -2600,7 +2828,7 @@ vitality = 2
 [[items]]
 description = "世紀末を生き抜いた戦士の服。傷だらけだが機能的"
 name = "世紀末の服"
-spriteKey = "世紀末の服"
+spriteKey = "apocalypse_outfit"
 spriteSheetName = "field"
 value = 200
 weight = 1.5
@@ -2621,7 +2849,7 @@ vitality = 0
 [[items]]
 description = "黒い武道着。格闘家が愛用する機能的な衣服"
 name = "黒い道着"
-spriteKey = "黒い道着"
+spriteKey = "black_gi"
 spriteSheetName = "field"
 value = 160
 weight = 0.8
@@ -2642,7 +2870,7 @@ vitality = 0
 [[items]]
 description = "黄金に輝く重厚な鎧。最高クラスの防御力を誇る"
 name = "黄鎧"
-spriteKey = "黄鎧"
+spriteKey = "gold_armor"
 spriteSheetName = "field"
 value = 900
 weight = 18
@@ -2663,7 +2891,7 @@ vitality = 8
 [[items]]
 description = "冒険者向けの緑色の服。耐久性と動きやすさを両立"
 name = "緑冒険者の服"
-spriteKey = "緑冒険者の服"
+spriteKey = "green_adventurer_outfit"
 spriteSheetName = "field"
 value = 180
 weight = 1
@@ -2684,7 +2912,7 @@ vitality = 0
 [[items]]
 description = "旅行者向けの多機能な服。ポケットが多く収納に優れる"
 name = "旅行者の服"
-spriteKey = "旅行者の服"
+spriteKey = "traveler_outfit"
 spriteSheetName = "field"
 value = 150
 weight = 1
@@ -2827,7 +3055,7 @@ weight = 1
 [[items]]
 description = "回転させて投げる弧を描く武器。戻ってくる性質がある"
 name = "ブーメラン"
-spriteKey = "ブーメラン"
+spriteKey = "boomerang"
 spriteSheetName = "field"
 value = 90
 weight = 0.5
@@ -2847,7 +3075,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "青く輝く金属で作られた戦斧。冷気を帯びている"
 name = "青いバトルアックス"
-spriteKey = "青いバトルアックス"
+spriteKey = "blue_battle_axe"
 spriteSheetName = "field"
 value = 420
 weight = 5.5
@@ -2866,7 +3094,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "明るく輝く鈍器。光の力で敵を打ち砕く"
 name = "明メイス"
-spriteKey = "明メイス"
+spriteKey = "light_mace"
 spriteSheetName = "field"
 value = 300
 weight = 3
@@ -2885,7 +3113,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "水晶で作られた杖。魔力を増幅して放出する"
 name = "水晶杖"
-spriteKey = "水晶杖"
+spriteKey = "crystal_staff"
 spriteSheetName = "field"
 value = 360
 weight = 1.5
@@ -2905,7 +3133,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "火をつけた松明。照明にも武器にもなる"
 name = "たいまつ"
-spriteKey = "たいまつ"
+spriteKey = "torch"
 spriteSheetName = "field"
 value = 15
 weight = 0.5
@@ -2962,7 +3190,7 @@ targetNum = "SINGLE"
 [[items]]
 description = "縫製に使う鋭い道具。武器としては頼りないが序盤の選択肢"
 name = "針工具"
-spriteKey = "針工具"
+spriteKey = "needle_tool"
 spriteSheetName = "field"
 value = 20
 weight = 0.05
@@ -3126,7 +3354,7 @@ vitality = 0
 [[items]]
 description = "夜会服の上着。社交界で使われる上質な衣服"
 name = "紳士の服"
-spriteKey = "紳士の服"
+spriteKey = "gentleman_outfit"
 spriteSheetName = "field"
 value = 200
 weight = 1
@@ -3147,7 +3375,7 @@ vitality = 0
 [[items]]
 description = "高級ホテルの支配人が着用する格式高い衣服"
 name = "支配人の服"
-spriteKey = "支配人の服"
+spriteKey = "manager_outfit"
 spriteSheetName = "field"
 value = 250
 weight = 1
@@ -3168,7 +3396,7 @@ vitality = 0
 [[items]]
 description = "ホストクラブで使われる派手な衣装"
 name = "ホストの服"
-spriteKey = "ホストの服"
+spriteKey = "host_outfit"
 spriteSheetName = "field"
 value = 180
 weight = 0.8
@@ -3189,7 +3417,7 @@ vitality = 0
 [[items]]
 description = "質素だが丈夫な緑色の衣服"
 name = "緑の服"
-spriteKey = "緑の服"
+spriteKey = "green_outfit"
 spriteSheetName = "field"
 value = 60
 weight = 0.6
@@ -3258,7 +3486,7 @@ value = 350
 weight = 0.3
 
 [items.wearable]
-defense = 0
+defense = 1
 equipmentCategory = "JEWELRY"
 insulationCold = 0
 insulationHeat = 0
@@ -3267,8 +3495,8 @@ insulationHeat = 0
 agility = 0
 dexterity = 0
 sensation = 0
-strength = 3
-vitality = 2
+strength = 2
+vitality = 3
 
 [[items]]
 description = "金色に輝く小さな鈴。魔除けの効果がある"
@@ -3386,7 +3614,7 @@ weight = 0.2
 [[items]]
 description = "日除けに使う携帯用の傘"
 name = "パラソル"
-spriteKey = "パラソル"
+spriteKey = "parasol"
 spriteSheetName = "field"
 value = 40
 weight = 0.8
@@ -3838,6 +4066,539 @@ spriteSheetName = "field"
 value = 15
 weight = 0.1
 
+[[items]]
+description = "廃墟でよく見つかる。交易に使える"
+name = "トイレットペーパー"
+spriteKey = "toilet_paper"
+spriteSheetName = "field"
+stackable = true
+value = 5
+weight = 0.1
+
+[[items]]
+description = "歯ブラシと歯磨き粉のセット。使うと少し元気が出る"
+name = "歯磨きセット"
+spriteKey = "toothwash_set"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = 0.2
+
+[items.consumable]
+targetGroup = "ALLY"
+targetNum = "SINGLE"
+usableScene = "ANY"
+
+[items.providesHealing]
+amount = 15
+ratio = 0
+valueType = "ABSOLUTE"
+
+[[items]]
+description = "清潔なタオル。素材として使える"
+name = "タオル"
+spriteKey = "towel_hunger"
+spriteSheetName = "field"
+stackable = true
+value = 8
+weight = 0.15
+
+[[items]]
+description = "精密なはかり。錬金術の素材計量に必要"
+name = "はかり"
+spriteKey = "weight_measure"
+spriteSheetName = "field"
+value = 50
+weight = 1.0
+
+[[items]]
+description = "針と糸がセットになった裁縫道具。突き刺す武器として使える"
+name = "裁縫セット"
+spriteKey = "hand_sew"
+spriteSheetName = "field"
+value = 15
+weight = 0.1
+
+[items.weapon]
+[items.melee]
+accuracy = 95
+attackCategory = "FIST"
+attackCount = 2
+cost = 1
+damage = 2
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "先端が尖った緑色のドライバー。刺突武器にもなる"
+name = "緑のドライバー"
+spriteKey = "driver_green"
+spriteSheetName = "field"
+value = 25
+weight = 0.3
+
+[items.weapon]
+[items.melee]
+accuracy = 90
+attackCategory = "FIST"
+attackCount = 1
+cost = 1
+damage = 5
+element = "NONE"
+targetGroup = "ENEMY"
+targetNum = "SINGLE"
+
+[[items]]
+description = "軽量で加工しやすい金属素材"
+name = "アルミニウム"
+spriteKey = "aluminum"
+spriteSheetName = "field"
+stackable = true
+value = 80
+weight = 0.3
+
+[[items]]
+description = "深い緑色に輝く希少な宝石"
+name = "エメラルド"
+spriteKey = "emerald"
+spriteSheetName = "field"
+stackable = true
+value = 2000
+weight = 0.03
+
+[[items]]
+description = "透明感のある黄金色の宝石"
+name = "トパーズ"
+spriteKey = "topaz"
+spriteSheetName = "field"
+stackable = true
+value = 1500
+weight = 0.03
+
+[[items]]
+description = "透明度が高く美しい琥珀。装飾品に適している"
+name = "良質な琥珀"
+spriteKey = "fine_amber"
+spriteSheetName = "field"
+stackable = true
+value = 800
+weight = 0.05
+
+[[items]]
+description = "橙色に光る珍しい鉱石"
+name = "橙鉱石"
+spriteKey = "orange_ore"
+spriteSheetName = "field"
+stackable = true
+value = 150
+weight = 0.5
+
+[[items]]
+description = "火山岩に含まれる鉱物。暗い緑色をしている"
+name = "輝石"
+spriteKey = "pyroxene"
+spriteSheetName = "field"
+stackable = true
+value = 200
+weight = 0.3
+
+[[items]]
+description = "苔に覆われた古い石。魔力を帯びている"
+name = "苔石"
+spriteKey = "moss_stone"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = 0.4
+
+[[items]]
+description = "蛇のような模様がある石。解毒作用があると信じられている"
+name = "蛇紋石"
+spriteKey = "snake_stone"
+spriteSheetName = "field"
+stackable = true
+value = 120
+weight = 0.3
+
+[[items]]
+description = "虚無のエネルギーを宿す漆黒の石"
+name = "虚空石"
+spriteKey = "void_stone"
+spriteSheetName = "field"
+stackable = true
+value = 500
+weight = 0.2
+
+[[items]]
+description = "澄んだ青色の水晶。冷気を感じる"
+name = "青水晶"
+spriteKey = "blue_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 300
+weight = 0.2
+
+[[items]]
+description = "青い水晶が埋まった原石"
+name = "青水晶石"
+spriteKey = "blue_crystal_stone"
+spriteSheetName = "field"
+stackable = true
+value = 200
+weight = 0.4
+
+[[items]]
+description = "深い藍色をした不思議な石"
+name = "蒼石"
+spriteKey = "blue_stone"
+spriteSheetName = "field"
+stackable = true
+value = 150
+weight = 0.3
+
+[[items]]
+description = "鮮やかな緑色に光る石"
+name = "明緑石"
+spriteKey = "bright_green_stone"
+spriteSheetName = "field"
+stackable = true
+value = 180
+weight = 0.3
+
+[[items]]
+description = "煙のような茶色い水晶。スモーキークォーツとも呼ばれる"
+name = "茶水晶"
+spriteKey = "brown_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 250
+weight = 0.2
+
+[[items]]
+description = "斜めに結晶化した珍しい水晶"
+name = "斜水晶"
+spriteKey = "diagonal_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 350
+weight = 0.2
+
+[[items]]
+description = "森のような緑色の水晶"
+name = "緑水晶"
+spriteKey = "green_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 300
+weight = 0.2
+
+[[items]]
+description = "緑の水晶が含まれた原石"
+name = "緑水晶石"
+spriteKey = "green_crystal_stone"
+spriteSheetName = "field"
+stackable = true
+value = 200
+weight = 0.4
+
+[[items]]
+description = "淡い緑色をした小さな石"
+name = "緑の石"
+spriteKey = "green_stone"
+spriteSheetName = "field"
+stackable = true
+value = 80
+weight = 0.3
+
+[[items]]
+description = "深い紫色の鉱石。魔力の源とされる"
+name = "紫石"
+spriteKey = "purple"
+spriteSheetName = "field"
+stackable = true
+value = 200
+weight = 0.3
+
+[[items]]
+description = "高貴な紫色に輝く宝石"
+name = "紫の宝石"
+spriteKey = "purple_gem"
+spriteSheetName = "field"
+stackable = true
+value = 1200
+weight = 0.03
+
+[[items]]
+description = "七色に光る美しい水晶"
+name = "虹水晶"
+spriteKey = "rainbow_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 800
+weight = 0.2
+
+[[items]]
+description = "大きな虹色の水晶。強い魔力を感じる"
+name = "大虹水晶"
+spriteKey = "rainbow_large_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 2500
+weight = 0.5
+
+[[items]]
+description = "光の角度で虹色に変わる不思議な石"
+name = "虹石"
+spriteKey = "rainbow_stone"
+spriteSheetName = "field"
+stackable = true
+value = 400
+weight = 0.3
+
+[[items]]
+description = "血のような赤色をした石。温かみがある"
+name = "赤い石"
+spriteKey = "red_stone"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = 0.3
+
+[[items]]
+description = "研磨されていない茶色い水晶の原石"
+name = "粗い茶水晶"
+spriteKey = "rough_brown_crystal"
+spriteSheetName = "field"
+stackable = true
+value = 120
+weight = 0.5
+
+[[items]]
+description = "海底から引き上げられた立方体の結晶"
+name = "海のキューブ"
+spriteKey = "marine_cube"
+spriteSheetName = "field"
+stackable = true
+value = 600
+weight = 0.3
+
+[[items]]
+description = "固まった樹脂。琥珀に近い質感がある"
+name = "樹脂石"
+spriteKey = "resin_stone"
+spriteSheetName = "field"
+stackable = true
+value = 60
+weight = 0.2
+
+[[items]]
+description = "樹脂で作られた精巧な工芸品"
+name = "樹脂細工"
+spriteKey = "resin_craft"
+spriteSheetName = "field"
+stackable = true
+value = 180
+weight = 0.1
+
+[[items]]
+description = "爆発物の原料になる危険な粉末"
+name = "黒色火薬"
+spriteKey = "black_powder"
+spriteSheetName = "field"
+stackable = true
+value = 200
+weight = 0.2
+
+[[items]]
+description = "布や革を染めるための色素。さまざまな色がある"
+name = "染料"
+spriteKey = "dye"
+spriteSheetName = "field"
+stackable = true
+value = 50
+weight = 0.1
+
+[[items]]
+description = "香ばしい匂いのコーヒー豆。焙煎すると飲み物になる"
+name = "コーヒー豆"
+spriteKey = "coffee_bean"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = 0.1
+
+[[items]]
+description = "甘い蜂蜜。傷口に塗ると治癒を促進する"
+name = "はちみつ"
+spriteKey = "honey"
+spriteSheetName = "field"
+stackable = true
+value = 60
+weight = 0.2
+
+[[items]]
+description = "まだ拍動している不思議な心臓"
+name = "心臓"
+spriteKey = "heart"
+spriteSheetName = "field"
+stackable = true
+value = 500
+weight = 0.3
+
+[[items]]
+description = "巨大な竜の頭骨。装飾品として非常に価値がある"
+name = "竜の頭骨"
+spriteKey = "dragon_head"
+spriteSheetName = "field"
+stackable = true
+value = 5000
+weight = 2.0
+
+[[items]]
+description = "錆びた茶色の歯車。まだ使えそうだ"
+name = "茶色い歯車"
+spriteKey = "gear_brown"
+spriteSheetName = "field"
+stackable = true
+value = 40
+weight = 0.3
+
+[[items]]
+description = "純金で作られた精密な歯車。非常に高価"
+name = "金の歯車"
+spriteKey = "gear_gold"
+spriteSheetName = "field"
+stackable = true
+value = 1000
+weight = 0.2
+
+[[items]]
+description = "赤い石が組み込まれた歯車。魔力で動く"
+name = "赤石の歯車"
+spriteKey = "gear_redstone"
+spriteSheetName = "field"
+stackable = true
+value = 300
+weight = 0.3
+
+[[items]]
+description = "骨で作られた不気味な歯車"
+name = "骸骨の歯車"
+spriteKey = "gear_skull"
+spriteSheetName = "field"
+stackable = true
+value = 150
+weight = 0.3
+
+[[items]]
+description = "豆から抽出したエキスが入った小瓶"
+name = "豆のエキス"
+spriteKey = "bottle_bean"
+spriteSheetName = "field"
+stackable = true
+value = 40
+weight = 0.2
+
+[[items]]
+description = "何者かの血が封じられた小瓶。禍々しい"
+name = "血の小瓶"
+spriteKey = "bottle_blood"
+spriteSheetName = "field"
+stackable = true
+value = 200
+weight = 0.2
+
+[[items]]
+description = "茶色い液体が入った薬瓶"
+name = "茶色い薬瓶"
+spriteKey = "bottle_brown"
+spriteSheetName = "field"
+stackable = true
+value = 30
+weight = 0.2
+
+[[items]]
+description = "キノコから抽出した液体が入った瓶"
+name = "キノコのエキス"
+spriteKey = "bottle_mushroom"
+spriteSheetName = "field"
+stackable = true
+value = 50
+weight = 0.2
+
+[[items]]
+description = "細かい砂が詰められた瓶。時計の素材になる"
+name = "砂の瓶"
+spriteKey = "bottle_sand"
+spriteSheetName = "field"
+stackable = true
+value = 20
+weight = 0.3
+
+[[items]]
+description = "蛇の毒液が入った危険な瓶。武器に塗ることができる"
+name = "蛇毒の瓶"
+spriteKey = "bottle_snake"
+spriteSheetName = "field"
+stackable = true
+value = 300
+weight = 0.2
+
+[[items]]
+description = "キノコの胞子が入った密封瓶"
+name = "胞子の瓶"
+spriteKey = "bottle_spore"
+spriteSheetName = "field"
+stackable = true
+value = 80
+weight = 0.2
+
+[[items]]
+description = "実験用の耐熱ガラス容器。化学反応に使う"
+name = "化学容器"
+spriteKey = "chemical_vessel"
+spriteSheetName = "field"
+stackable = true
+value = 100
+weight = 0.3
+
+[[items]]
+description = "精製された純粋な水が入った瓶"
+name = "蒸留水"
+spriteKey = "faucet_bottle"
+spriteSheetName = "field"
+stackable = true
+value = 15
+weight = 0.3
+
+[[items]]
+description = "実験用のガラス管。少量の液体を扱うのに便利"
+name = "試験管"
+spriteKey = "test_tube"
+spriteSheetName = "field"
+stackable = true
+value = 20
+weight = 0.05
+
+[[items]]
+description = "各種実験に使う丈夫なガラス容器"
+name = "実験容器"
+spriteKey = "test_vessel"
+spriteSheetName = "field"
+stackable = true
+value = 60
+weight = 0.3
+
+[[items]]
+description = "三色に輝く不思議な杖。複数の属性を操る"
+name = "三色の杖"
+spriteKey = "tri_color_rod"
+spriteSheetName = "field"
+stackable = true
+value = 800
+weight = 0.8
+
 [[recipes]]
 name = "レイガン"
 
@@ -3976,6 +4737,34 @@ radius = 4
 a = 255
 b = 220
 g = 255
+r = 255
+
+[[members]]
+animKeys = [ "cherokee" ]
+commandTableName = "ジープ"
+dropTableName = "ジープ"
+factionType = ""
+isBoss = false
+name = "ジープ"
+spriteKey = "cherokee"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 4
+dexterity = 3
+sensation = 3
+strength = 5
+vitality = 5
+
+[members.lightSource]
+enabled = true
+radius = 4
+
+[members.lightSource.color]
+a = 255
+b = 50
+g = 200
 r = 255
 
 [[members]]
@@ -4912,13 +5701,25 @@ name = "スライム"
 
 [[commandTables.entries]]
 weapon = "体当たり"
+weight = 3
+
+[[commandTables.entries]]
+weapon = "噛みつき"
 weight = 1
 
 [[commandTables]]
 name = "凍晶化した猟師"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "冷気攻撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "叩き潰し"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "咆哮"
 weight = 1
 
 [[commandTables]]
@@ -4928,15 +5729,27 @@ name = "火の玉"
 weapon = "体当たり"
 weight = 1
 
+[[commandTables.entries]]
+weapon = "火炎攻撃"
+weight = 2
+
 [[commandTables]]
 name = "灰の偶像"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "叩き潰し"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "咆哮"
 weight = 1
 
 [[commandTables]]
 name = "軽戦車"
+
+[[commandTables.entries]]
+weapon = "砲撃"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -4946,11 +5759,19 @@ weight = 1
 name = "野犬"
 
 [[commandTables.entries]]
+weapon = "噛みつき"
+weight = 3
+
+[[commandTables.entries]]
 weapon = "体当たり"
 weight = 1
 
 [[commandTables]]
 name = "鉄の番兵"
+
+[[commandTables.entries]]
+weapon = "引き裂き"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -4960,6 +5781,10 @@ weight = 1
 name = "毒蜘蛛"
 
 [[commandTables.entries]]
+weapon = "毒牙"
+weight = 3
+
+[[commandTables.entries]]
 weapon = "体当たり"
 weight = 1
 
@@ -4967,18 +5792,30 @@ weight = 1
 name = "火猫"
 
 [[commandTables.entries]]
-weapon = "体当たり"
-weight = 1
+weapon = "火炎攻撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
 
 [[commandTables]]
 name = "氷犬"
 
 [[commandTables.entries]]
-weapon = "体当たり"
-weight = 1
+weapon = "冷気攻撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
 
 [[commandTables]]
 name = "骸骨兵"
+
+[[commandTables.entries]]
+weapon = "引き裂き"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -4988,43 +5825,71 @@ weight = 1
 name = "夢蛾"
 
 [[commandTables.entries]]
+weapon = "毒牙"
+weight = 2
+
+[[commandTables.entries]]
 weapon = "体当たり"
-weight = 1
+weight = 2
 
 [[commandTables]]
 name = "闇蟹"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "引き裂き"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
 weight = 1
 
 [[commandTables]]
 name = "水晶の亡霊"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "光弾"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "冷気攻撃"
 weight = 1
 
 [[commandTables]]
 name = "緑竜"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "火炎ブレス"
+weight = 1
+
+[[commandTables.entries]]
+weapon = "引き裂き"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
 weight = 1
 
 [[commandTables]]
 name = "青獣"
 
 [[commandTables.entries]]
-weapon = "体当たり"
-weight = 1
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "引き裂き"
+weight = 2
 
 [[commandTables]]
 name = "夢鯨"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "叩き潰し"
 weight = 1
+
+[[commandTables.entries]]
+weapon = "咆哮"
+weight = 2
 
 [[commandTables]]
 name = "金スライム"
@@ -5037,53 +5902,101 @@ weight = 1
 name = "樹霊"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "引き裂き"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "毒牙"
 weight = 1
 
 [[commandTables]]
 name = "三頭竜"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "火炎ブレス"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "叩き潰し"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
 weight = 1
 
 [[commandTables]]
 name = "虹竜"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "火炎ブレス"
+weight = 1
+
+[[commandTables.entries]]
+weapon = "光弾"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "引き裂き"
 weight = 1
 
 [[commandTables]]
 name = "暗黒医師"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "光弾"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "毒牙"
+weight = 1
+
+[[commandTables.entries]]
+weapon = "電撃"
 weight = 1
 
 [[commandTables]]
 name = "黒屍"
 
 [[commandTables.entries]]
-weapon = "体当たり"
-weight = 1
+weapon = "引き裂き"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
 
 [[commandTables]]
 name = "緑喰い"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "毒牙"
 weight = 1
 
 [[commandTables]]
 name = "赤線の男"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "引き裂き"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "電撃"
 weight = 1
 
 [[commandTables]]
 name = "重砲戦車"
+
+[[commandTables.entries]]
+weapon = "砲撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "機銃掃射"
+weight = 1
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -5093,25 +6006,41 @@ weight = 1
 name = "砂漠戦車"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "砲撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "機銃掃射"
 weight = 1
 
 [[commandTables]]
 name = "赤戦車"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "砲撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "火炎攻撃"
 weight = 1
 
 [[commandTables]]
 name = "灰色戦車"
 
 [[commandTables.entries]]
-weapon = "体当たり"
-weight = 1
+weapon = "砲撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "機銃掃射"
+weight = 2
 
 [[commandTables]]
 name = "青い人影"
+
+[[commandTables.entries]]
+weapon = "冷気攻撃"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -5121,11 +6050,19 @@ weight = 1
 name = "氷結戦車"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "砲撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "冷気攻撃"
 weight = 1
 
 [[commandTables]]
 name = "旧式戦車"
+
+[[commandTables.entries]]
+weapon = "砲撃"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -5135,18 +6072,30 @@ weight = 1
 name = "化学戦車"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "砲撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "毒牙"
 weight = 1
 
 [[commandTables]]
 name = "ネズミ"
 
 [[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables.entries]]
 weapon = "体当たり"
-weight = 1
+weight = 2
 
 [[commandTables]]
 name = "コウモリ"
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -5156,46 +6105,85 @@ weight = 1
 name = "毒キノコ"
 
 [[commandTables.entries]]
+weapon = "毒牙"
+weight = 2
+
+[[commandTables.entries]]
 weapon = "体当たり"
-weight = 1
+weight = 2
 
 [[commandTables]]
 name = "朽ちた兵士"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "引き裂き"
 weight = 1
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 2
 
 [[commandTables]]
 name = "浮遊眼"
 
 [[commandTables.entries]]
-weapon = "体当たり"
+weapon = "光弾"
 weight = 1
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 2
 
 [[commandTables]]
 name = "錆びた人形"
 
 [[commandTables.entries]]
 weapon = "体当たり"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "引き裂き"
 weight = 1
 
 [[commandTables]]
 name = "大蜂"
 
 [[commandTables.entries]]
+weapon = "毒牙"
+weight = 2
+
+[[commandTables.entries]]
 weapon = "体当たり"
-weight = 1
+weight = 2
 
 [[commandTables]]
 name = "苔亀"
 
 [[commandTables.entries]]
 weapon = "体当たり"
+weight = 3
+
+[[commandTables.entries]]
+weapon = "噛みつき"
 weight = 1
 
 [[commandTables]]
 name = "光虫"
+
+[[commandTables.entries]]
+weapon = "電撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 2
+
+[[commandTables]]
+name = "ジープ"
+
+[[commandTables.entries]]
+weapon = "砲撃"
+weight = 2
 
 [[commandTables.entries]]
 weapon = "体当たり"
@@ -5739,6 +6727,21 @@ weight = 0.9
 [[dropTables.entries]]
 material = "灰"
 weight = 0.1
+
+[[dropTables]]
+name = "ジープ"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.5
+
+[[dropTables.entries]]
+material = "鉄くず"
+weight = 0.3
+
+[[dropTables.entries]]
+material = "鉄"
+weight = 0.2
 
 [[itemTables]]
 name = "廃墟"
@@ -7239,7 +8242,7 @@ name = "bench"
 
 [props.spriteRender]
 depth = 0
-spriteKey = "ベンチ"
+spriteKey = "bench"
 spriteSheetName = "field"
 
 [[props]]
@@ -7406,7 +8409,7 @@ name = "table"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "ダイニングテーブル"
+spriteKey = "dining_table"
 spriteSheetName = "field"
 
 [[props]]
@@ -7835,7 +8838,7 @@ name = "シンク"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "シンク"
+spriteKey = "kitchen_sink"
 spriteSheetName = "field"
 
 [[props]]
@@ -7846,7 +8849,7 @@ name = "ドレッサー"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "ドレッサー"
+spriteKey = "dresser"
 spriteSheetName = "field"
 
 [[props]]
@@ -7857,7 +8860,7 @@ name = "ベッドサイド"
 
 [props.spriteRender]
 depth = 0
-spriteKey = "ベッドサイド"
+spriteKey = "bedside"
 spriteSheetName = "field"
 
 [[props]]
@@ -7868,7 +8871,7 @@ name = "二人がけのソファ"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "二人がけのソファ"
+spriteKey = "two_seat_sofa"
 spriteSheetName = "field"
 
 [[props]]
@@ -7879,7 +8882,7 @@ name = "仕事机"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "仕事机"
+spriteKey = "work_desk"
 spriteSheetName = "field"
 
 [[props]]
@@ -7890,7 +8893,7 @@ name = "暖炉"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "暖炉"
+spriteKey = "fireplace"
 spriteSheetName = "field"
 
 [[props]]
@@ -7901,7 +8904,7 @@ name = "毛皮張りの椅子"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "毛皮張りの椅子"
+spriteKey = "fur_chair"
 spriteSheetName = "field"
 
 [[props]]
@@ -7912,7 +8915,7 @@ name = "黒いチェア"
 
 [props.spriteRender]
 depth = 2
-spriteKey = "黒いチェア"
+spriteKey = "black_chair"
 spriteSheetName = "field"
 
 [[props]]
@@ -7983,6 +8986,95 @@ g = 200
 r = 100
 
 [props.warpNextTrigger]
+
+[[props]]
+blockPass = true
+blockView = false
+description = "廃墟に残された洗濯機。もう動かない"
+name = "洗濯機"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "wash_machine_empty"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "水が入ったままの洗濯機。重くて動かせない"
+name = "洗濯機(満杯)"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "washing_machine_fill"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "茶色の木製の樽。中に物資が入っていることがある"
+name = "茶色い樽"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "barrel_brown"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "毒々しい色の液体が入った危険な樽"
+name = "毒樽"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "barrel_poison"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "白く塗られた清潔な樽"
+name = "白い樽"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "barrel_white"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "深緑色に塗装されたドラム缶。軍用物資が入っている"
+name = "緑のドラム缶"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "drum_green"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "赤く塗装されたドラム缶。可燃物の警告マークがある"
+name = "赤いドラム缶"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "drum_red"
+spriteSheetName = "field"
+
+[[props]]
+blockPass = true
+blockView = false
+description = "艶のある黒い花瓶。高級感がある"
+name = "黒い花瓶"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "vase_black"
+spriteSheetName = "field"
+
 [[professions]]
 description = "逃げてきた一般人"
 id = "evacuee"
