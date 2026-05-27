@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">49.4&nbsp;%</td>
-            <td class="headerCovTableEntry">154</td>
-            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryLo">54.8&nbsp;%</td>
+            <td class="headerCovTableEntry">157</td>
+            <td class="headerCovTableEntry">86</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-27 15:47:50</td>
+            <td class="headerValue">2026-05-27 23:26:42</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -145,9 +145,9 @@
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         states := sm.createStatesFromFunc()</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :         switch sm.lastTransition.Type {</span></span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC tlaBgUNC">           0 :         case TransNone:</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         case TransNone:</span></span>
 <span id="L87"><span class="lineNum">      87</span>              :                 // 何もしない</span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC tlaBgGNC">           1 :         case TransPop:</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :         case TransPop:</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaGNC">           1 :                 if err := sm.pop(world); err != nil {</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -183,17 +183,17 @@
 <span id="L121"><span class="lineNum">     121</span>              : }</span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // Draw は画面を描画する</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC tlaBgUNC">           0 : func (sm *StateMachine[T]) Draw(world T, screen *ebiten.Image) error {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         for _, state := range sm.states {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 if err := state.Draw(world, screen); err != nil {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func (sm *StateMachine[T]) Draw(world T, screen *ebiten.Image) error {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           2 :         for _, state := range sm.states {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 if err := state.Draw(world, screen); err != nil {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L129"><span class="lineNum">     129</span>              :         }</span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L131"><span class="lineNum">     131</span>              : }</span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // createStatesFromFunc はファクトリー関数からステートを作成する</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC tlaBgGNC">           1 : func (sm *StateMachine[T]) createStatesFromFunc() []State[T] {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 : func (sm *StateMachine[T]) createStatesFromFunc() []State[T] {</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           2 :         if len(sm.lastTransition.NewStateFuncs) == 0 {</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                 return []State[T]{}</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         }</span></span>
@@ -228,11 +228,11 @@
 <span id="L166"><span class="lineNum">     166</span>              : </span>
 <span id="L167"><span class="lineNum">     167</span>              : // push はアクティブなステートを一時停止して新しいステートをスタックに追加する</span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 : func (sm *StateMachine[T]) push(world T, newStates []State[T]) error {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         if len(newStates) == 0 {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :         if len(newStates) == 0 {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 return nil</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L172"><span class="lineNum">     172</span>              : </span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC tlaBgGNC">           2 :         if len(sm.states) &gt; 0 {</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           2 :         if len(sm.states) &gt; 0 {</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 currentState := sm.states[len(sm.states)-1]</span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 if err := currentState.OnPause(world); err != nil {</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC tlaBgUNC">           0 :                         return err</span></span>
@@ -337,6 +337,11 @@
 <span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 : func (sm *StateMachine[T]) GetStateCount() int {</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         return len(sm.states)</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L278"><span class="lineNum">     278</span>              : </span>
+<span id="L279"><span class="lineNum">     279</span>              : // PushState は外部から新しいステートをスタックにpushする</span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 : func (sm *StateMachine[T]) PushState(world T, states ...State[T]) error {</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :         return sm.push(world, states)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>
