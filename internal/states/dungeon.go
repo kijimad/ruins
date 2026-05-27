@@ -138,7 +138,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
 
 	// 新しい階のために視界キャッシュをクリアする
-	if vs, ok := world.Renderers[(&gs.VisionSystem{}).String()]; ok {
+	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
 		vs.(*gs.VisionSystem).ClearCaches()
 	}
 
@@ -189,7 +189,7 @@ func (st *DungeonState) OnStop(world w.World) error {
 	}
 
 	// 視界キャッシュをクリア
-	if vs, ok := world.Renderers[(&gs.VisionSystem{}).String()]; ok {
+	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
 		vs.(*gs.VisionSystem).ClearCaches()
 	}
 	return nil
@@ -218,6 +218,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.AnimationSystem{},
 		&gs.DeadCleanupSystem{},
 		&gs.TurnSystem{},
+		&gs.VisionSystem{},
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
 		&gs.StatsChangedSystem{},
@@ -255,7 +256,6 @@ func (st *DungeonState) Draw(world w.World, screen *ebiten.Image) error {
 
 	for _, renderer := range []w.Renderer{
 		&gs.RenderSpriteSystem{},
-		&gs.VisionSystem{},
 		&gs.HUDRenderingSystem{},
 		&gs.VisualEffectSystem{},
 	} {

@@ -43,15 +43,13 @@ type RenderSpriteSystem struct {
 	spriteImageCache     map[spriteImageCacheKey]*ebiten.Image
 	darknessCacheImages  []*ebiten.Image
 	coloredDarknessCache map[coloredDarknessCacheKey]*ebiten.Image
-	vision               *VisionSystem
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
-func NewRenderSpriteSystem(vision *VisionSystem) *RenderSpriteSystem {
+func NewRenderSpriteSystem() *RenderSpriteSystem {
 	return &RenderSpriteSystem{
 		spriteImageCache:     make(map[spriteImageCacheKey]*ebiten.Image),
 		coloredDarknessCache: make(map[coloredDarknessCacheKey]*ebiten.Image),
-		vision:               vision,
 	}
 }
 
@@ -86,8 +84,14 @@ func (sys RenderSpriteSystem) String() string {
 // Draw は (下) タイル -> 暗闇 -> 影 -> スプライト (上) の順に表示する
 // w.Renderer interfaceを実装
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
+	// VisionSystemが計算した光源情報を取得する
+	var lights map[gc.GridElement]LightInfo
+	if vs, ok := world.Updaters[(&VisionSystem{}).String()]; ok {
+		lights = vs.(*VisionSystem).lightSourceCache
+	}
+
 	// タイルごとの描画情報を一括計算する
-	tileRenderMap := computeTileRenderMap(world, sys.vision.lightSourceCache)
+	tileRenderMap := computeTileRenderMap(world, lights)
 
 	initializeShadowImages()
 

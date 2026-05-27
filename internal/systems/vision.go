@@ -5,7 +5,6 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
@@ -21,7 +20,7 @@ type raycastCacheKey struct {
 	TargetY int
 }
 
-// VisionSystem はタイルごとの視界を管理する（暗闘描画はRenderSpriteSystemで行う）
+// VisionSystem はタイルごとの視界を管理するUpdaterシステム
 type VisionSystem struct {
 	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
 	lastPlayerX    consts.Pixel
@@ -32,7 +31,7 @@ type VisionSystem struct {
 	// レイキャスト結果のキャッシュ
 	raycastCache map[raycastCacheKey]bool
 
-	// 光源情報キャッシュ（タイル座標 -> 光源情報）。RenderSpriteSystemからも参照される
+	// 光源情報キャッシュ（タイル座標 -> 光源情報）
 	lightSourceCache map[gc.GridElement]LightInfo
 }
 
@@ -53,14 +52,14 @@ func (sys *VisionSystem) ClearCaches() {
 }
 
 // String はシステム名を返す
-// w.Renderer interfaceを実装
+// w.Updater interfaceを実装
 func (sys VisionSystem) String() string {
 	return "VisionSystem"
 }
 
-// Draw は視界計算を行う
-// w.Renderer interfaceを実装
-func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
+// Update は視界計算を行う
+// w.Updater interfaceを実装
+func (sys *VisionSystem) Update(world w.World) error {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
 	world.Manager.Join(
@@ -142,7 +141,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 		sys.visibilityData = visibilityData
 		sys.isInitialized = true
 	}
-	// 距離に応じた段階的暗闇の描画はRenderSpriteSystemで行う
+
 	return nil
 }
 
@@ -169,7 +168,7 @@ type TileRenderInfo interface {
 
 // TileRenderVisible は視界内の状態
 type TileRenderVisible struct {
-	Darkness   VisibleDarkness // 暗闇の強さ。0.0で完全に明るく、1.0で完全に暗い
+	Darkness   VisibleDarkness // 暗闘の強さ。0.0で完全に明るく、1.0で完全に暗い
 	LightColor color.RGBA      // 光源がある場合の色
 }
 

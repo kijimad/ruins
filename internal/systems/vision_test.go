@@ -245,17 +245,17 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 func TestClearCaches(t *testing.T) {
 	t.Parallel()
 
-	sys := NewVisionSystem()
-	sys.isInitialized = true
-	sys.visibilityData = map[string]TileVisibility{
+	vs := NewVisionSystem()
+	vs.isInitialized = true
+	vs.visibilityData = map[string]TileVisibility{
 		"0,0": {Row: 0, Col: 0, Visible: true},
 	}
 	grid := gc.GridElement{X: 99, Y: 99}
-	sys.lightSourceCache[grid] = LightInfo{Darkness: 0.5}
+	vs.lightSourceCache[grid] = LightInfo{Darkness: 0.5}
 
-	sys.ClearCaches()
+	vs.ClearCaches()
 
-	assert.False(t, sys.isInitialized)
-	assert.Nil(t, sys.visibilityData)
-	assert.Empty(t, sys.lightSourceCache)
+	assert.False(t, vs.isInitialized)
+	assert.Nil(t, vs.visibilityData)
+	assert.Empty(t, vs.lightSourceCache)
 }
