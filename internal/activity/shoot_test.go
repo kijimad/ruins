@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/testutil"
 	iw "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -522,8 +523,8 @@ func TestCalculateShootHitRate(t *testing.T) {
 		world, player, enemy, _ := setupShootingWorld(t)
 
 		hitRate := CalculateShootHitRate(player, enemy, world)
-		assert.GreaterOrEqual(t, hitRate, MinHitRate)
-		assert.LessOrEqual(t, hitRate, MaxHitRate)
+		assert.GreaterOrEqual(t, hitRate, formula.MinHitRate)
+		assert.LessOrEqual(t, hitRate, formula.MaxHitRate)
 	})
 
 	t.Run("遠距離ほど命中率が下がる", func(t *testing.T) {

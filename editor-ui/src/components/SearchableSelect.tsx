@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Flex, Input, Text } from "@chakra-ui/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Box, Flex, Input, Portal, Text } from "@chakra-ui/react";
 
 interface SearchableSelectProps {
   options: string[];
@@ -18,14 +18,37 @@ export function SearchableSelect({
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+
+  const updatePosition = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    setDropdownStyle({
+      position: "fixed",
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width,
+      zIndex: 1400,
+    });
+  }, []);
+
+  // ドロップダウンを開いたときに位置を計算する
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+  }, [open, updatePosition]);
 
   // 外部クリックで閉じる
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
+      const target = e.target as Node;
       if (
         containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
+        !containerRef.current.contains(target) &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(target)
       ) {
         setOpen(false);
       }
@@ -63,64 +86,62 @@ export function SearchableSelect({
       </Flex>
 
       {open && (
-        <Box
-          position="absolute"
-          top="100%"
-          left="0"
-          right="0"
-          zIndex="10"
-          bg="bg"
-          borderWidth="1px"
-          borderRadius="md"
-          boxShadow="lg"
-          mt="1"
-          maxH="80"
-          overflow="hidden"
-        >
-          <Box p="1" borderBottom="1px solid" borderColor="border">
-            <Input
-              ref={inputRef}
-              size="sm"
-              placeholder="検索..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") setOpen(false);
-                if (e.key === "Enter" && filtered.length > 0) {
-                  onChange(filtered[0]!);
-                  setOpen(false);
-                }
-              }}
-            />
-          </Box>
-          <Box overflowY="auto" maxH="68">
-            {filtered.length === 0 ? (
-              <Text fontSize="sm" color="fg.muted" p="2">
-                該当なし
-              </Text>
-            ) : (
-              filtered.map((option) => (
-                <Flex
-                  key={option}
-                  align="center"
-                  px="2"
-                  py="1"
-                  cursor="pointer"
-                  bg={option === value ? "bg.emphasized" : undefined}
-                  _hover={{ bg: "bg.muted" }}
-                  onClick={() => {
-                    onChange(option);
+        <Portal>
+          <Box
+            ref={dropdownRef}
+            style={dropdownStyle}
+            bg="bg"
+            borderWidth="1px"
+            borderRadius="md"
+            boxShadow="lg"
+            maxH="80"
+            overflow="hidden"
+          >
+            <Box p="1" borderBottom="1px solid" borderColor="border">
+              <Input
+                ref={inputRef}
+                size="sm"
+                placeholder="検索..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setOpen(false);
+                  if (e.key === "Enter" && filtered.length > 0) {
+                    onChange(filtered[0]!);
                     setOpen(false);
-                  }}
-                >
-                  <Text fontSize="sm" truncate>
-                    {option}
-                  </Text>
-                </Flex>
-              ))
-            )}
+                  }
+                }}
+              />
+            </Box>
+            <Box overflowY="auto" maxH="68">
+              {filtered.length === 0 ? (
+                <Text fontSize="sm" color="fg.muted" p="2">
+                  該当なし
+                </Text>
+              ) : (
+                filtered.map((option) => (
+                  <Flex
+                    key={option}
+                    align="center"
+                    px="2"
+                    py="1"
+                    cursor="pointer"
+                    bg={option === value ? "bg.emphasized" : undefined}
+                    _hover={{ bg: "bg.muted" }}
+                    onClick={() => {
+                      onChange(option);
+                      setOpen(false);
+                    }}
+                  >
+                    <Text fontSize="sm" truncate>
+                      {option}
+                    </Text>
+                  </Flex>
+                ))
+              )}
+            </Box>
           </Box>
-        </Box>
+        </Portal>
       )}
     </Box>
   );

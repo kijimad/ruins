@@ -214,15 +214,13 @@ func TestGetVisibleItems(t *testing.T) {
 func TestIsInVision(t *testing.T) {
 	t.Parallel()
 
-	t.Run("VisibleTilesがnilならpanicする", func(t *testing.T) {
+	t.Run("VisibleTilesがnilならfalseを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		world.Resources.Dungeon.VisibleTiles = nil
 
-		assert.Panics(t, func() {
-			IsInVision(world, 0, 0, 5, 5)
-		})
+		assert.False(t, IsInVision(world, 0, 0, 5, 5))
 	})
 
 	t.Run("視界半径外は視界外と判定される", func(t *testing.T) {

@@ -405,6 +405,7 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
   const chunkDirs = options.chunkDirs.map((d) => path.resolve(d));
   const assetsDir = path.resolve(options.assetsDir);
   const spritesDir = path.join(assetsDir, "file/textures/dist");
+  const singleDir = path.join(assetsDir, "file/textures/single");
 
   return {
     name: "editor-api",
@@ -469,6 +470,70 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
               return;
             }
             res.end(JSON.stringify(info));
+            return;
+          }
+
+          // スプライト切り抜き保存 API
+          if (apiPath === "cutter/save" && method === "POST") {
+            const body = await readJson<{
+              sprites: { name: string; data: string }[];
+            }>(req as Parameters<typeof readBody>[0]);
+            if (!body?.sprites?.length) {
+              res.statusCode = 400;
+              res.end(
+                JSON.stringify({ message: "保存するスプライトがありません" }),
+              );
+              return;
+            }
+            if (!fs.existsSync(singleDir)) {
+              fs.mkdirSync(singleDir, { recursive: true });
+            }
+            let saved = 0;
+            for (const sprite of body.sprites) {
+              const name = sprite.name.trim();
+              if (!name) continue;
+              // data:image/png;base64,... からBase64部分を取り出す
+              const base64 = sprite.data.replace(
+                /^data:image\/png;base64,/,
+                "",
+              );
+              const buffer = Buffer.from(base64, "base64");
+              const filePath = path.join(singleDir, `${name}_.png`);
+              fs.writeFileSync(filePath, buffer);
+              saved++;
+            }
+            res.end(
+              JSON.stringify({
+                message: `${saved} 個のスプライトを保存しました`,
+                saved,
+              }),
+            );
+            return;
+          }
+
+          // バランスシミュレーション結果 API
+          if (apiPath === "balance" && method === "GET") {
+            const balancePath = path.resolve(__dirname, "../../balance.json");
+            try {
+              const data = fs.readFileSync(balancePath, "utf-8");
+              res.end(data);
+            } catch (e: unknown) {
+              if (
+                e instanceof Error &&
+                "code" in e &&
+                (e as NodeJS.ErrnoException).code === "ENOENT"
+              ) {
+                res.statusCode = 404;
+                res.end(
+                  JSON.stringify({
+                    message:
+                      "balance.json not found. Run: go run . simulate-balance",
+                  }),
+                );
+              } else {
+                throw e;
+              }
+            }
             return;
           }
 

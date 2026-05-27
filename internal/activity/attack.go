@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/skill"
@@ -15,24 +16,7 @@ import (
 
 // 攻撃システムの定数
 const (
-	// 射程・距離関連
 	MeleeAttackRange = 1.5 // 近接攻撃の最大射程（斜めも考慮）
-
-	// 命中率関連
-	BaseHitRate          = 80 // 基本命中率（%）
-	HitRatePerStatPoint  = 2  // 器用度と敏捷度の差1点あたりの命中率変化（%）
-	MaxHitRate           = 95 // 最大命中率（%）
-	MinHitRate           = 5  // 最小命中率（%）
-	CriticalHitThreshold = 5  // クリティカルヒット判定しきい値（%以下）
-
-	// ダメージ関連
-	DamageRandomRange        = 6 // ダメージのランダム要素（1-6）
-	CriticalDamageMultiplier = 3 // クリティカルダメージ倍率の分子
-	CriticalDamageBase       = 2 // クリティカルダメージ倍率の分母（3/2 = 1.5倍）
-	MinDamage                = 1 // 最低保証ダメージ
-
-	// 確率計算関連
-	DiceMax = 100 // ダイス最大値（1-100）
 )
 
 // AttackActivity はBehaviorの実装
@@ -268,8 +252,8 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 		return damage
 	}
 	reduced := damage * mult / 100
-	if reduced < MinDamage {
-		reduced = MinDamage
+	if reduced < formula.MinDamage {
+		reduced = formula.MinDamage
 	}
 	return reduced
 }
@@ -311,16 +295,16 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
 	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
 
-	hitRate := BaseHitRate + (attackerAbils.Dexterity.Total-targetAbils.Agility.Total)*HitRatePerStatPoint
+	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAbils.Agility.Total)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
 	hitRate = hitRate * getSkillMult(attacker, attack, world, false) / 100
 	hitRate += modifier
 
-	if hitRate > MaxHitRate {
-		hitRate = MaxHitRate
+	if hitRate > formula.MaxHitRate {
+		hitRate = formula.MaxHitRate
 	}
-	if hitRate < MinHitRate {
-		hitRate = MinHitRate
+	if hitRate < formula.MinHitRate {
+		hitRate = formula.MinHitRate
 	}
 
 	return hitRate
@@ -330,16 +314,16 @@ func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Atta
 func rollHitCheckWithModifier(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) (hit bool, critical bool) {
 	hitRate := calculateHitRate(attacker, target, world, attack, modifier)
 
-	roll := world.Config.RNG.IntN(DiceMax) + 1
+	roll := world.Config.RNG.IntN(formula.DiceMax) + 1
 	hit = roll <= hitRate
-	critical = roll <= CriticalHitThreshold
+	critical = roll <= formula.CriticalHitThreshold
 
 	return hit, critical
 }
 
 // getWeaponAccuracyFromAttack はAttackerから命中率補正を取得する
 func getWeaponAccuracyFromAttack(attack gc.Attacker) int {
-	return attack.GetAccuracy() - BaseHitRate
+	return attack.GetAccuracy() - formula.BaseHitRate
 }
 
 // calculateDamage はダメージ計算を行う
@@ -354,14 +338,14 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
 	targetDefense := targetAbils.Defense.Total
 
-	baseDamage := baseAbil + world.Config.RNG.IntN(DamageRandomRange) + 1
+	baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
 	baseDamage += attack.GetDamage()
 	baseDamage += damageModifier
 
 	baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
 	if critical {
-		baseDamage = baseDamage * CriticalDamageMultiplier / CriticalDamageBase
+		baseDamage = formula.ApplyCritical(baseDamage)
 	}
 
 	if attack.GetElement() != gc.ElementTypeNone {
@@ -369,8 +353,8 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 	}
 
 	finalDamage := baseDamage - targetDefense
-	if finalDamage < MinDamage {
-		finalDamage = MinDamage
+	if finalDamage < formula.MinDamage {
+		finalDamage = formula.MinDamage
 	}
 
 	return finalDamage

@@ -5,34 +5,11 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
-)
-
-var (
-	// 段階的な暗闇用の画像キャッシュ（透明度レベルを増加）
-	darknessCacheImages []*ebiten.Image
-
-	// プレイヤー位置キャッシュ（4px移動ごとに更新）
-	playerPositionCache struct {
-		lastPlayerX    consts.Pixel
-		lastPlayerY    consts.Pixel
-		visibilityData map[string]TileVisibility
-		isInitialized  bool
-	}
-
-	// レイキャスト結果のキャッシュ
-	raycastCache = make(map[raycastCacheKey]bool)
-
-	// 光源色ごとの暗闇画像キャッシュ
-	coloredDarknessCache = make(map[coloredDarknessCacheKey]*ebiten.Image)
-
-	// 光源情報キャッシュ（タイル座標 -> 光源情報）
-	lightSourceCache = make(map[gc.GridElement]LightInfo)
 )
 
 // raycastCacheKey はレイキャスト結果のキャッシュキー
@@ -43,42 +20,46 @@ type raycastCacheKey struct {
 	TargetY int
 }
 
-// coloredDarknessCacheKey は光源色ごとの暗闇画像のキャッシュキー
-type coloredDarknessCacheKey struct {
-	R             uint8
-	G             uint8
-	B             uint8
-	DarknessLevel int
+// VisionSystem はタイルごとの視界を管理するUpdaterシステム
+type VisionSystem struct {
+	// プレイヤー位置キャッシュ（タイル移動ごとに更新）
+	lastPlayerX    consts.Pixel
+	lastPlayerY    consts.Pixel
+	visibilityData map[string]TileVisibility
+	isInitialized  bool
+
+	// レイキャスト結果のキャッシュ
+	raycastCache map[raycastCacheKey]bool
+
+	// 光源情報キャッシュ（タイル座標 -> 光源情報）
+	lightSourceCache map[gc.GridElement]LightInfo
 }
 
-// ClearVisionCaches は全ての視界関連キャッシュをクリアする（階移動時などに使用）
-func ClearVisionCaches() {
-	// プレイヤー位置キャッシュをクリア
-	playerPositionCache.isInitialized = false
-	playerPositionCache.visibilityData = nil
-
-	// レイキャストキャッシュをクリア
-	raycastCache = make(map[raycastCacheKey]bool)
-
-	// 光源色キャッシュをクリア
-	coloredDarknessCache = make(map[coloredDarknessCacheKey]*ebiten.Image)
-
-	// 光源情報キャッシュをクリア
-	lightSourceCache = make(map[gc.GridElement]LightInfo)
+// NewVisionSystem はVisionSystemを初期化する
+func NewVisionSystem() *VisionSystem {
+	return &VisionSystem{
+		raycastCache:     make(map[raycastCacheKey]bool),
+		lightSourceCache: make(map[gc.GridElement]LightInfo),
+	}
 }
 
-// VisionSystem はタイルごとの視界を管理する（暗闇描画はRenderSpriteSystemで行う）
-type VisionSystem struct{}
+// ClearCaches は全ての視界関連キャッシュをクリアする（階移動時などに使用）
+func (sys *VisionSystem) ClearCaches() {
+	sys.isInitialized = false
+	sys.visibilityData = nil
+	sys.raycastCache = make(map[raycastCacheKey]bool)
+	sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
+}
 
 // String はシステム名を返す
-// w.Renderer interfaceを実装
+// w.Updater interfaceを実装
 func (sys VisionSystem) String() string {
 	return "VisionSystem"
 }
 
-// Draw は視界計算を行う
-// w.Renderer interfaceを実装
-func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
+// Update は視界計算を行う
+// w.Updater interfaceを実装
+func (sys *VisionSystem) Update(world w.World) error {
 	// プレイヤー位置を取得
 	var playerGridElement *gc.GridElement
 	world.Manager.Join(
@@ -100,9 +81,9 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 
 	// 移動ごとの視界更新判定（移動ごとに更新）
 	const updateThreshold = int(consts.TileSize)
-	needsUpdate := !playerPositionCache.isInitialized ||
-		geometry.Abs(int(playerPos.X-playerPositionCache.lastPlayerX)) >= updateThreshold ||
-		geometry.Abs(int(playerPos.Y-playerPositionCache.lastPlayerY)) >= updateThreshold
+	needsUpdate := !sys.isInitialized ||
+		geometry.Abs(int(playerPos.X-sys.lastPlayerX)) >= updateThreshold ||
+		geometry.Abs(int(playerPos.Y-sys.lastPlayerY)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
 	if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
@@ -113,10 +94,10 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 	if needsUpdate {
 		// タイルの可視性マップを更新
 		visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
-		visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius)
+		visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius, sys.raycastCache)
 
 		// 光源情報キャッシュをクリア（更新前）
-		lightSourceCache = make(map[gc.GridElement]LightInfo)
+		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
 
 		isDark := world.Resources.Dungeon.Dark
 
@@ -127,7 +108,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
 
 				// 光源情報をキャッシュに保存
-				lightSourceCache[gridElement] = lightInfo
+				sys.lightSourceCache[gridElement] = lightInfo
 
 				// 暗闇フロアでは光源範囲内のみ探索済み、明るいフロアでは視界内すべて探索済み
 				if !isDark || lightInfo.Darkness < 1.0 {
@@ -143,7 +124,7 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
 				if isDark {
 					// 暗闇フロアでは光源範囲内のみ可視
-					if li, ok := lightSourceCache[gridElement]; ok && li.Darkness < 1.0 {
+					if li, ok := sys.lightSourceCache[gridElement]; ok && li.Darkness < 1.0 {
 						visibleTiles[gridElement] = true
 					}
 				} else {
@@ -155,12 +136,12 @@ func (sys *VisionSystem) Draw(world w.World, _ *ebiten.Image) error {
 		world.Resources.Dungeon.VisibleTiles = visibleTiles
 
 		// キャッシュ更新
-		playerPositionCache.lastPlayerX = playerPos.X
-		playerPositionCache.lastPlayerY = playerPos.Y
-		playerPositionCache.visibilityData = visibilityData
-		playerPositionCache.isInitialized = true
+		sys.lastPlayerX = playerPos.X
+		sys.lastPlayerY = playerPos.Y
+		sys.visibilityData = visibilityData
+		sys.isInitialized = true
 	}
-	// 距離に応じた段階的暗闇の描画はRenderSpriteSystemで行う
+
 	return nil
 }
 
@@ -187,7 +168,7 @@ type TileRenderInfo interface {
 
 // TileRenderVisible は視界内の状態
 type TileRenderVisible struct {
-	Darkness   VisibleDarkness // 暗闇の強さ。0.0で完全に明るく、1.0で完全に暗い
+	Darkness   VisibleDarkness // 暗闘の強さ。0.0で完全に明るく、1.0で完全に暗い
 	LightColor color.RGBA      // 光源がある場合の色
 }
 
@@ -208,15 +189,15 @@ type TileRenderRemembered struct {
 func (TileRenderRemembered) tileRenderInfo() {}
 
 // computeTileRenderMap はタイルごとの描画情報を一括計算する。
-// VisibleTiles・ExploredTiles・lightSourceCacheを統合して、
+// VisibleTiles・ExploredTiles・光源情報を統合して、
 // 各描画関数が参照するだけで済む描画情報マップを返す
-func computeTileRenderMap(world w.World) map[gc.GridElement]TileRenderInfo {
+func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
 
 	// 現在見えているタイルを設定する
 	for grid := range world.Resources.Dungeon.VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
-		if li, ok := lightSourceCache[grid]; ok && li.Darkness < 1.0 {
+		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
 			visible.LightColor = li.Color
 		}
 		result[grid] = visible
@@ -224,7 +205,7 @@ func computeTileRenderMap(world w.World) map[gc.GridElement]TileRenderInfo {
 
 	// 暗闇フロアで視界内だが光源外のタイルを設定する
 	if world.Resources.Dungeon.Dark {
-		for grid, li := range lightSourceCache {
+		for grid, li := range lights {
 			if _, exists := result[grid]; !exists && li.Darkness >= 1.0 {
 				result[grid] = TileRenderDark{Darkness: DarknessDark}
 			}
@@ -242,7 +223,7 @@ func computeTileRenderMap(world w.World) map[gc.GridElement]TileRenderInfo {
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius consts.Pixel) map[string]TileVisibility {
+func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool) map[string]TileVisibility {
 	visibilityMap := make(map[string]TileVisibility)
 
 	// プレイヤーの位置からタイル座標を計算
@@ -278,7 +259,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 
 			// 視界範囲内のタイルのみ処理
 			if distanceSquared <= radiusSquared {
-				visible := isTileVisibleByRaycast(world, float64(playerX), float64(playerY), tileCenterX, tileCenterY)
+				visible := isTileVisibleByRaycast(world, float64(playerX), float64(playerY), tileCenterX, tileCenterY, rcCache)
 
 				visibilityMap[tileKey] = TileVisibility{
 					Row:     tileY,
@@ -294,7 +275,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY float64) bool {
+func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY float64, rcCache map[raycastCacheKey]bool) bool {
 	// キャッシュキーを生成
 	px := int(playerX/4) * 4
 	py := int(playerY/4) * 4
@@ -308,7 +289,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 	}
 
 	// キャッシュから結果をチェック
-	if result, exists := raycastCache[cacheKey]; exists {
+	if result, exists := rcCache[cacheKey]; exists {
 		return result
 	}
 
@@ -320,7 +301,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 
 	// 同じタイルまたは隣接タイルは常に見える
 	if geometry.Abs(targetTileX-playerTileX) <= 1 && geometry.Abs(targetTileY-playerTileY) <= 1 {
-		raycastCache[cacheKey] = true
+		rcCache[cacheKey] = true
 		return true
 	}
 
@@ -328,8 +309,8 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 	result := bresenhamLineOfSight(world, playerTileX, playerTileY, targetTileX, targetTileY)
 
 	// 結果をキャッシュ
-	if len(raycastCache) < 15000 {
-		raycastCache[cacheKey] = result
+	if len(rcCache) < 15000 {
+		rcCache[cacheKey] = result
 	}
 
 	return result
@@ -457,100 +438,12 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 	}
 }
 
-// renderDarkness はTileRenderInfoに基づいて暗闇オーバーレイを描画する
-func renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
-	// カメラ位置とスケールを取得
-	var cameraX, cameraY float64
-	cameraScale := 1.0
-
-	world.Manager.Join(
-		world.Components.Camera,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		camera := world.Components.Camera.Get(entity).(*gc.Camera)
-		cameraX = camera.X
-		cameraY = camera.Y
-		cameraScale = camera.Scale
-	}))
-
-	if len(darknessCacheImages) == 0 {
-		initializeDarknessCache(int(consts.TileSize))
-	}
-
-	// 画面上に表示されるタイル範囲を計算
-	screenWidth := world.Resources.ScreenDimensions.Width
-	screenHeight := world.Resources.ScreenDimensions.Height
-	actualScreenWidth := int(float64(screenWidth) / cameraScale)
-	actualScreenHeight := int(float64(screenHeight) / cameraScale)
-	leftEdge := int(cameraX) - actualScreenWidth/2
-	rightEdge := int(cameraX) + actualScreenWidth/2
-	topEdge := int(cameraY) - actualScreenHeight/2
-	bottomEdge := int(cameraY) + actualScreenHeight/2
-	startTileX := leftEdge/int(consts.TileSize) - 1
-	endTileX := rightEdge/int(consts.TileSize) + 1
-	startTileY := topEdge/int(consts.TileSize) - 1
-	endTileY := bottomEdge/int(consts.TileSize) + 1
-
-	for tileX := startTileX; tileX <= endTileX; tileX++ {
-		for tileY := startTileY; tileY <= endTileY; tileY++ {
-			grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-			info, exists := tileRenderMap[grid]
-			if !exists {
-				continue
-			}
-
-			var darkness float64
-			var lightColor color.RGBA
-			switch v := info.(type) {
-			case TileRenderVisible:
-				darkness = float64(v.Darkness)
-				lightColor = v.LightColor
-			case TileRenderDark:
-				darkness = float64(v.Darkness)
-			case TileRenderRemembered:
-				darkness = float64(v.Darkness)
-			}
-
-			worldX := float64(tileX * int(consts.TileSize))
-			worldY := float64(tileY * int(consts.TileSize))
-			screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
-			screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
-			drawDarknessAtLevelWithColor(screen, screenX, screenY, darkness, lightColor, cameraScale, int(consts.TileSize))
-		}
-	}
-}
-
 // 各タイル状態の暗闇の強さ
 const (
 	DarknessVisible    VisibleDarkness    = 0.15
 	DarknessDark       DarkDarkness       = 0.9
 	DarknessRemembered RememberedDarkness = 0.75
 )
-
-// DarknessLevels は暗闇の段階数を定義する
-// 少ない段階数のほうが見た目が自然になる
-const DarknessLevels = 4
-
-// initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
-func initializeDarknessCache(tileSize int) {
-	// tileSizeが0以下の場合は初期化しない
-	if tileSize <= 0 {
-		return
-	}
-
-	// 暗闇レベルの画像を作成する。4段階: 0%, 33%, 66%, 100%
-	darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
-
-	// 各暗闇レベルの画像を作成
-	darknessCacheImages[0] = nil // 0: 暗闇なし
-
-	for i := 1; i <= DarknessLevels; i++ {
-		darkness := float64(i) / float64(DarknessLevels)
-		alpha := uint8(darkness * 255) // 透明度を0-255に変換
-
-		darknessCacheImages[i] = ebiten.NewImage(tileSize, tileSize)
-		darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
-	}
-}
 
 // isBlockedByWall は直接的な壁チェック
 func isBlockedByWall(world w.World, x, y consts.Pixel) bool {
@@ -573,62 +466,4 @@ func isBlockedByWall(world w.World, x, y consts.Pixel) bool {
 	}))
 
 	return blocked
-}
-
-// drawDarknessAtLevelWithColor は光源の色を考慮した暗闇を描画する
-func drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, lightColor color.RGBA, scale float64, tileSize int) {
-	if darkness <= 0.0 {
-		return // 暗闇なし
-	}
-
-	// 暗闇レベルを離散化
-	// 連続値を離散化することでグラデーションの段階を減らす
-	darknessLevel := int(math.Ceil(darkness * float64(DarknessLevels)))
-	if darknessLevel > DarknessLevels {
-		darknessLevel = DarknessLevels
-	}
-	if darknessLevel < 1 {
-		darknessLevel = 1
-	}
-
-	// 離散化した暗闇値を計算
-	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
-
-	// キャッシュキーを生成
-	cacheKey := coloredDarknessCacheKey{
-		R:             lightColor.R,
-		G:             lightColor.G,
-		B:             lightColor.B,
-		DarknessLevel: darknessLevel,
-	}
-
-	// キャッシュから画像を取得、なければ生成
-	darknessImg, exists := coloredDarknessCache[cacheKey]
-	if !exists {
-		// 離散化した暗闇の強さに応じた透明度
-		alpha := uint8(quantizedDarkness * 255)
-
-		// 光源の色味を控えめに反映した暗闇オーバーレイ
-		colorStrength := 0.1
-		darknessColor := color.RGBA{
-			R: uint8(float64(lightColor.R) * colorStrength),
-			G: uint8(float64(lightColor.G) * colorStrength),
-			B: uint8(float64(lightColor.B) * colorStrength),
-			A: alpha,
-		}
-
-		// 暗闇画像を生成してキャッシュ
-		darknessImg = ebiten.NewImage(tileSize, tileSize)
-		darknessImg.Fill(darknessColor)
-
-		// キャッシュサイズ制限（メモリ節約）
-		if len(coloredDarknessCache) < 1000 {
-			coloredDarknessCache[cacheKey] = darknessImg
-		}
-	}
-
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(scale, scale)
-	op.GeoM.Translate(x, y)
-	screen.DrawImage(darknessImg, op)
 }

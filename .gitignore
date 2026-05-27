@@ -8,3 +8,4 @@ bin/
 wasm/game.wasm
 editor-ui/dist
 oas/redoc
+balance.json

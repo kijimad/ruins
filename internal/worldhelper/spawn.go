@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
-	ecs "github.com/x-hgg-x/goecs/v2"
-
-	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/formula"
 	w "github.com/kijimaD/ruins/internal/world"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 定数定義
@@ -22,8 +22,6 @@ const (
 	aiVisionDistance = 160.0 // AIの視界距離（ピクセル）
 
 	// ステータス計算係数
-	hpBaseValue         = 30   // HP計算の基本値
-	hpVitalityMultiply  = 8    // HP計算の体力係数
 	spVitalityMultiply  = 2    // SP計算の体力係数
 	epBaseValue         = 50   // EP計算の基本値
 	epSensationMultiply = 3    // EP計算の感覚係数
@@ -486,8 +484,7 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 		abils.Defense.Total = abils.Defense.Base
 	}
 
-	// 最大HP計算: base+(体力*multiplyV+力+感覚)
-	pools.HP.Max = int(hpBaseValue) + abils.Vitality.Total*hpVitalityMultiply + abils.Strength.Total + abils.Sensation.Total
+	pools.HP.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
 	pools.HP.Current = pools.HP.Max
 
 	// 最大SP計算: (体力*multiplyV+器用さ+素早さ)

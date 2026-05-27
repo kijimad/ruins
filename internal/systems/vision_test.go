@@ -19,7 +19,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
 		world.Resources.Dungeon.ExploredTiles[grid] = true
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, nil)
 
 		assert.Contains(t, result, grid)
 		assert.IsType(t, TileRenderVisible{}, result[grid])
@@ -32,7 +32,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 		world.Resources.Dungeon.ExploredTiles[grid] = true
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, nil)
 
 		assert.Contains(t, result, grid)
 		assert.IsType(t, TileRenderRemembered{}, result[grid])
@@ -44,7 +44,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		grid := gc.GridElement{X: 10, Y: 10}
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, nil)
 
 		assert.NotContains(t, result, grid)
 	})
@@ -55,13 +55,14 @@ func TestComputeTileRenderMap(t *testing.T) {
 		grid := gc.GridElement{X: 5, Y: 5}
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		lightSourceCache[grid] = LightInfo{
-			Darkness: 0.5,
-			Color:    color.RGBA{R: 255, G: 200, B: 100, A: 255},
+		lights := map[gc.GridElement]LightInfo{
+			grid: {
+				Darkness: 0.5,
+				Color:    color.RGBA{R: 255, G: 200, B: 100, A: 255},
+			},
 		}
-		t.Cleanup(func() { delete(lightSourceCache, grid) })
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, lights)
 
 		v, ok := result[grid].(TileRenderVisible)
 		assert.True(t, ok)
@@ -78,10 +79,11 @@ func TestComputeTileRenderMap(t *testing.T) {
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{litGrid: true}
 		world.Resources.Dungeon.ExploredTiles[litGrid] = true
 
-		lightSourceCache[darkGrid] = LightInfo{Darkness: 1.0}
-		t.Cleanup(func() { delete(lightSourceCache, darkGrid) })
+		lights := map[gc.GridElement]LightInfo{
+			darkGrid: {Darkness: 1.0},
+		}
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, lights)
 
 		assert.IsType(t, TileRenderVisible{}, result[litGrid])
 		assert.IsType(t, TileRenderDark{}, result[darkGrid])
@@ -93,10 +95,11 @@ func TestComputeTileRenderMap(t *testing.T) {
 		world.Resources.Dungeon.Dark = false
 
 		grid := gc.GridElement{X: 10, Y: 10}
-		lightSourceCache[grid] = LightInfo{Darkness: 1.0}
-		t.Cleanup(func() { delete(lightSourceCache, grid) })
+		lights := map[gc.GridElement]LightInfo{
+			grid: {Darkness: 1.0},
+		}
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, lights)
 
 		assert.NotContains(t, result, grid)
 	})
@@ -111,7 +114,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		grid := gc.GridElement{X: 5, Y: 5}
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, nil)
 
 		v := result[grid].(TileRenderVisible)
 		assert.Equal(t, DarknessVisible, v.Darkness)
@@ -124,10 +127,11 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		grid := gc.GridElement{X: 10, Y: 10}
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 
-		lightSourceCache[grid] = LightInfo{Darkness: 1.0}
-		t.Cleanup(func() { delete(lightSourceCache, grid) })
+		lights := map[gc.GridElement]LightInfo{
+			grid: {Darkness: 1.0},
+		}
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, lights)
 
 		v := result[grid].(TileRenderDark)
 		assert.Equal(t, DarknessDark, v.Darkness)
@@ -140,7 +144,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 		world.Resources.Dungeon.ExploredTiles[grid] = true
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, nil)
 
 		v := result[grid].(TileRenderRemembered)
 		assert.Equal(t, DarknessRemembered, v.Darkness)
@@ -156,7 +160,7 @@ func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
 	world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
 	world.Resources.Dungeon.ExploredTiles[grid] = true
 
-	result := computeTileRenderMap(world)
+	result := computeTileRenderMap(world, nil)
 
 	assert.IsType(t, TileRenderVisible{}, result[grid],
 		"可視+記憶済みのタイルはTileRenderVisibleになる")
@@ -171,13 +175,14 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		grid := gc.GridElement{X: 5, Y: 5}
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		lightSourceCache[grid] = LightInfo{
-			Darkness: 1.0,
-			Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
+		lights := map[gc.GridElement]LightInfo{
+			grid: {
+				Darkness: 1.0,
+				Color:    color.RGBA{R: 255, G: 255, B: 255, A: 255},
+			},
 		}
-		t.Cleanup(func() { delete(lightSourceCache, grid) })
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, lights)
 
 		v, ok := result[grid].(TileRenderVisible)
 		assert.True(t, ok)
@@ -191,13 +196,14 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		grid := gc.GridElement{X: 7, Y: 7}
 		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
 
-		lightSourceCache[grid] = LightInfo{
-			Darkness: 0.99,
-			Color:    color.RGBA{R: 200, G: 150, B: 100, A: 255},
+		lights := map[gc.GridElement]LightInfo{
+			grid: {
+				Darkness: 0.99,
+				Color:    color.RGBA{R: 200, G: 150, B: 100, A: 255},
+			},
 		}
-		t.Cleanup(func() { delete(lightSourceCache, grid) })
 
-		result := computeTileRenderMap(world)
+		result := computeTileRenderMap(world, lights)
 
 		v, ok := result[grid].(TileRenderVisible)
 		assert.True(t, ok)
@@ -211,7 +217,7 @@ func TestComputeTileRenderMap_EmptyState(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
 
-	result := computeTileRenderMap(world)
+	result := computeTileRenderMap(world, nil)
 
 	assert.Empty(t, result)
 }
@@ -228,7 +234,7 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	world.Resources.Dungeon.ExploredTiles[visible] = true
 	world.Resources.Dungeon.ExploredTiles[remembered] = true
 
-	result := computeTileRenderMap(world)
+	result := computeTileRenderMap(world, nil)
 
 	assert.Len(t, result, 2, "可視1+記憶済み1=2タイルがマップに含まれる")
 	assert.IsType(t, TileRenderVisible{}, result[visible])
@@ -236,19 +242,20 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	assert.NotContains(t, result, unknown)
 }
 
-func TestClearVisionCaches(t *testing.T) {
+func TestClearCaches(t *testing.T) {
 	t.Parallel()
 
-	playerPositionCache.isInitialized = true
-	playerPositionCache.visibilityData = map[string]TileVisibility{
+	vs := NewVisionSystem()
+	vs.isInitialized = true
+	vs.visibilityData = map[string]TileVisibility{
 		"0,0": {Row: 0, Col: 0, Visible: true},
 	}
 	grid := gc.GridElement{X: 99, Y: 99}
-	lightSourceCache[grid] = LightInfo{Darkness: 0.5}
+	vs.lightSourceCache[grid] = LightInfo{Darkness: 0.5}
 
-	ClearVisionCaches()
+	vs.ClearCaches()
 
-	assert.False(t, playerPositionCache.isInitialized)
-	assert.Nil(t, playerPositionCache.visibilityData)
-	assert.Empty(t, lightSourceCache)
+	assert.False(t, vs.isInitialized)
+	assert.Nil(t, vs.visibilityData)
+	assert.Empty(t, vs.lightSourceCache)
 }
