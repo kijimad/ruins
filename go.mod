@@ -8,7 +8,7 @@ require (
 	github.com/ebitenui/ebitenui v0.7.3
 	github.com/getkin/kin-openapi v0.139.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
-	github.com/oapi-codegen/runtime v1.4.0
+	github.com/oapi-codegen/runtime v1.4.1
 	github.com/pelletier/go-toml/v2 v2.3.1
 	github.com/pkg/profile v1.7.0
 	github.com/stretchr/testify v1.11.1
