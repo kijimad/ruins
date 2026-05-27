@@ -507,6 +507,42 @@ export function ResourcePage({
 
   const items = useMemo(() => data?.data ?? [], [data]);
 
+  // アイテムリソース用のカテゴリフィルタ
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const itemCategoryFilters: { value: string; label: string; key: string }[] =
+    useMemo(
+      () => [
+        { value: "", label: "すべて", key: "" },
+        { value: "melee", label: "近接武器", key: "melee" },
+        { value: "fire", label: "射撃武器", key: "fire" },
+        { value: "wearable", label: "防具", key: "wearable" },
+        { value: "consumable", label: "消耗品", key: "consumable" },
+        { value: "ammo", label: "弾薬", key: "ammo" },
+        { value: "book", label: "本", key: "book" },
+        { value: "other", label: "その他", key: "" },
+      ],
+      [],
+    );
+  const categoryKeys = useMemo(
+    () => itemCategoryFilters.filter((f) => f.key).map((f) => f.key),
+    [itemCategoryFilters],
+  );
+
+  // フィルタ適用後のアイテム一覧。元のインデックスを保持する
+  const filteredItems = useMemo(() => {
+    if (resource !== "items" || !categoryFilter) {
+      return items.map((item, index) => ({ item, index }));
+    }
+    return items
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => {
+        if (categoryFilter === "other") {
+          return !categoryKeys.some((k) => item[k] != null);
+        }
+        return item[categoryFilter] != null;
+      });
+  }, [items, resource, categoryFilter, categoryKeys]);
+
   // 選択中のアイテムが更新されたら editData を同期する
   useEffect(() => {
     if (selectedIndex !== null && items[selectedIndex]) {
@@ -622,7 +658,9 @@ export function ResourcePage({
           <Heading size="md">
             {label}
             <Badge ml="2" colorPalette="gray">
-              {items.length}
+              {resource === "items" && categoryFilter
+                ? `${filteredItems.length}/${items.length}`
+                : items.length}
             </Badge>
           </Heading>
           <Button
@@ -634,8 +672,24 @@ export function ResourcePage({
             ＋
           </Button>
         </Flex>
+        {resource === "items" && (
+          <Box mb="2">
+            <NativeSelectRoot size="xs">
+              <NativeSelectField
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+              >
+                {itemCategoryFilters.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </NativeSelectField>
+            </NativeSelectRoot>
+          </Box>
+        )}
         <Stack gap="1">
-          {items.map((item, index) => (
+          {filteredItems.map(({ item, index }) => (
             <Flex
               key={index}
               px="2"

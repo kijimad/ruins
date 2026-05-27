@@ -12,6 +12,7 @@ const sections: NavSection[] = [
     items: [
       { path: "/items", label: "アイテム" },
       { path: "/members", label: "メンバー" },
+      { path: "/props", label: "置物" },
       { path: "/recipes", label: "レシピ" },
       { path: "/professions", label: "職業" },
     ],
@@ -29,7 +30,6 @@ const sections: NavSection[] = [
     label: "マップ",
     items: [
       { path: "/tiles", label: "タイル" },
-      { path: "/props", label: "置物" },
       { path: "/palettes", label: "パレット" },
       { path: "/layouts", label: "レイアウト" },
     ],
