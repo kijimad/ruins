@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-24 03:05:33</td>
+            <td class="headerValue">2026-05-27 15:47:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -96,12 +96,12 @@
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         temperatureSystem := &amp;TemperatureSystem{}</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         updaters[temperatureSystem.String()] = temperatureSystem</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         // Renderers（描画システム） ================</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         renderSpriteSystem := NewRenderSpriteSystem()</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         renderers[renderSpriteSystem.String()] = renderSpriteSystem</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         visionSystem := &amp;VisionSystem{}</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         renderers[visionSystem.String()] = visionSystem</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         visionSystem := NewVisionSystem()</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         updaters[visionSystem.String()] = visionSystem</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         // Renderers（描画システム） ================</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         renderSpriteSystem := NewRenderSpriteSystem()</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         renderers[renderSpriteSystem.String()] = renderSpriteSystem</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :         // HUDRenderingSystem は Updater と Renderer の両方を実装</span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         hudRenderingSystem := NewHUDRenderingSystem(world)</span></span>
