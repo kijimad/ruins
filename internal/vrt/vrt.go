@@ -124,19 +124,22 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 		}
 	}
 
-	// 複数のstateがある場合はラッパーstateを使用
-	var state es.State[w.World]
-	if len(states) > 1 {
-		state = &dummyState{
-			states: states,
-		}
-	} else {
-		state = states[0]
-	}
-
-	stateMachine, err := es.Init(state, world)
+	// 最初のstateでStateMachineを初期化する
+	stateMachine, err := es.Init(states[0], world)
 	if err != nil {
 		return fmt.Errorf("StateMachine Init failed: %w", err)
+	}
+
+	// ベースstateのUpdateを1回実行して、描画に必要なシステムを初期化する
+	if err := stateMachine.Update(world); err != nil {
+		return fmt.Errorf("StateMachine initial Update failed: %w", err)
+	}
+
+	// 残りのstateをpushする
+	if len(states) > 1 {
+		if err := stateMachine.PushState(world, states[1:]...); err != nil {
+			return fmt.Errorf("StateMachine PushState failed: %w", err)
+		}
 	}
 
 	mainGame, err := maingame.NewMainGame(world, stateMachine)

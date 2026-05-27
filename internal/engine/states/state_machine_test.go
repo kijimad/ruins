@@ -126,6 +126,116 @@ func TestGetStatesMethods(t *testing.T) {
 	})
 }
 
+// TestPushState はPushStateメソッドのテスト
+func TestPushState(t *testing.T) {
+	t.Parallel()
+
+	t.Run("1つのstateをpushする", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		base := &TestState{name: "Base"}
+		sm, err := Init(base, world)
+		assert.NoError(t, err)
+
+		pushed := &TestState{name: "Pushed"}
+		err = sm.PushState(world, pushed)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 2, sm.GetStateCount())
+		assert.Equal(t, "Pushed", sm.GetCurrentState().(*TestState).name)
+		assert.True(t, base.onPauseCalled)
+		assert.True(t, pushed.onStartCalled)
+	})
+
+	t.Run("複数のstateを一度にpushする", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		base := &TestState{name: "Base"}
+		sm, err := Init(base, world)
+		assert.NoError(t, err)
+
+		middle := &TestState{name: "Middle"}
+		top := &TestState{name: "Top"}
+		err = sm.PushState(world, middle, top)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 3, sm.GetStateCount())
+		assert.Equal(t, "Top", sm.GetCurrentState().(*TestState).name)
+
+		// 中間stateはStart後にPauseされる
+		assert.True(t, middle.onStartCalled)
+		assert.True(t, middle.onPauseCalled)
+		// 最上位stateはStartのみ
+		assert.True(t, top.onStartCalled)
+		assert.False(t, top.onPauseCalled)
+	})
+
+	t.Run("空のstateリストでpushしてもエラーにならない", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		base := &TestState{name: "Base"}
+		sm, err := Init(base, world)
+		assert.NoError(t, err)
+
+		err = sm.PushState(world)
+		assert.NoError(t, err)
+		assert.Equal(t, 1, sm.GetStateCount())
+	})
+}
+
+// TestPushStateAndDraw はPushState後にDrawが全stateで呼ばれることを検証する
+func TestPushStateAndDraw(t *testing.T) {
+	t.Parallel()
+
+	t.Run("PushState後にDrawが全stateで呼ばれる", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		base := &TestState{name: "Base"}
+		sm, err := Init(base, world)
+		assert.NoError(t, err)
+
+		// ベースstateのUpdateを実行してシステムを初期化する
+		err = sm.Update(world)
+		assert.NoError(t, err)
+		assert.True(t, base.updateCalled)
+
+		// メニューstateをpushする
+		menu := &TestState{name: "Menu"}
+		err = sm.PushState(world, menu)
+		assert.NoError(t, err)
+
+		// drawCalledをリセットして検証する
+		base.drawCalled = false
+		menu.drawCalled = false
+
+		err = sm.Draw(world, nil)
+		assert.NoError(t, err)
+
+		assert.True(t, base.drawCalled, "ベースstateのDrawが呼ばれていない")
+		assert.True(t, menu.drawCalled, "メニューstateのDrawが呼ばれていない")
+	})
+
+	t.Run("PushState後のstateスタック順序が正しい", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		base := &TestState{name: "Base"}
+		sm, err := Init(base, world)
+		assert.NoError(t, err)
+
+		err = sm.Update(world)
+		assert.NoError(t, err)
+
+		menu := &TestState{name: "Menu"}
+		err = sm.PushState(world, menu)
+		assert.NoError(t, err)
+
+		states := sm.GetStates()
+		assert.Len(t, states, 2)
+		assert.Equal(t, "Base", states[0].(*TestState).name, "スタックの底がベースstateであること")
+		assert.Equal(t, "Menu", states[1].(*TestState).name, "スタックの上がメニューstateであること")
+	})
+}
+
 // TestStateMachineTransitions は状態遷移のテスト
 func TestStateMachineTransitions(t *testing.T) {
 	t.Parallel()

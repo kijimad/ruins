@@ -275,3 +275,8 @@ func (sm *StateMachine[T]) GetCurrentState() State[T] {
 func (sm *StateMachine[T]) GetStateCount() int {
 	return len(sm.states)
 }
+
+// PushState は外部から新しいステートをスタックにpushする
+func (sm *StateMachine[T]) PushState(world T, states ...State[T]) error {
+	return sm.push(world, states)
+}
