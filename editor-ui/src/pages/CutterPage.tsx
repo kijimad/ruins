@@ -1,11 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import {
-  Box,
-  Flex,
-  Heading,
-  Input,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Flex, Heading, Input, Text } from "@chakra-ui/react";
 
 const CELL_SIZE = 32;
 const DISPLAY_SCALE = 2;
@@ -25,54 +19,51 @@ export function CutterPage() {
   const [message, setMessage] = useState("");
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
 
-  const handleUpload = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          setImage(img);
-          const c = Math.floor(img.width / CELL_SIZE);
-          const r = Math.floor(img.height / CELL_SIZE);
+  const handleUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        setImage(img);
+        const c = Math.floor(img.width / CELL_SIZE);
+        const r = Math.floor(img.height / CELL_SIZE);
 
-          // 各セルが透明かどうか判定する
-          const tempCanvas = document.createElement("canvas");
-          tempCanvas.width = img.width;
-          tempCanvas.height = img.height;
-          const ctx = tempCanvas.getContext("2d")!;
-          ctx.drawImage(img, 0, 0);
+        // 各セルが透明かどうか判定する
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = img.width;
+        tempCanvas.height = img.height;
+        const ctx = tempCanvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0);
 
-          const newCells: CellData[] = [];
-          for (let row = 0; row < r; row++) {
-            for (let col = 0; col < c; col++) {
-              const idx = row * c + col;
-              const imageData = ctx.getImageData(
-                col * CELL_SIZE,
-                row * CELL_SIZE,
-                CELL_SIZE,
-                CELL_SIZE,
-              );
-              const transparent = isTransparent(imageData);
-              newCells.push({
-                index: idx,
-                row,
-                col,
-                name: "",
-                transparent,
-              });
-            }
+        const newCells: CellData[] = [];
+        for (let row = 0; row < r; row++) {
+          for (let col = 0; col < c; col++) {
+            const idx = row * c + col;
+            const imageData = ctx.getImageData(
+              col * CELL_SIZE,
+              row * CELL_SIZE,
+              CELL_SIZE,
+              CELL_SIZE,
+            );
+            const transparent = isTransparent(imageData);
+            newCells.push({
+              index: idx,
+              row,
+              col,
+              name: "",
+              transparent,
+            });
           }
-          setCells(newCells);
-          setMessage("");
-        };
-        img.src = reader.result as string;
+        }
+        setCells(newCells);
+        setMessage("");
       };
-      reader.readAsDataURL(file);
-    },
-    [],
-  );
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   // セルのcanvasにスプライトを描画する
   const drawCell = useCallback(
@@ -137,7 +128,10 @@ export function CutterPage() {
         CELL_SIZE,
         CELL_SIZE,
       );
-      sprites.push({ name: cell.name.trim(), data: canvas.toDataURL("image/png") });
+      sprites.push({
+        name: cell.name.trim(),
+        data: canvas.toDataURL("image/png"),
+      });
     }
 
     try {
@@ -179,8 +173,8 @@ export function CutterPage() {
           <Flex gap="3" mb="4" align="center">
             <Text fontSize="sm" color="fg.muted">
               {Math.floor(image.width / CELL_SIZE)}x
-              {Math.floor(image.height / CELL_SIZE)} セル
-              ({cells.filter((c) => !c.transparent).length} 個が非透明)
+              {Math.floor(image.height / CELL_SIZE)} セル (
+              {cells.filter((c) => !c.transparent).length} 個が非透明)
             </Text>
             <Box
               as="button"
@@ -203,10 +197,7 @@ export function CutterPage() {
             )}
           </Flex>
 
-          <Box
-            overflowY="auto"
-            maxH="calc(100vh - 250px)"
-          >
+          <Box overflowY="auto" maxH="calc(100vh - 250px)">
             <Flex flexWrap="wrap" gap="2">
               {cells
                 .filter((c) => !c.transparent)

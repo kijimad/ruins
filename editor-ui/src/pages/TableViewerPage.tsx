@@ -48,7 +48,9 @@ interface TableData {
   [key: string]: unknown;
 }
 
-function getEntryName(entry: EnemyTableEntry | ItemTableEntry | DropTableEntry): string {
+function getEntryName(
+  entry: EnemyTableEntry | ItemTableEntry | DropTableEntry,
+): string {
   if ("enemyName" in entry) return entry.enemyName;
   if ("itemName" in entry) return entry.itemName;
   if ("material" in entry) return entry.material;
@@ -81,7 +83,7 @@ export function TableViewerPage() {
   const [selectedTable, setSelectedTable] = useState<string>("");
   const activeTableName = selectedTable || tableNames[0] || "";
   const activeTable = tables.find((t) => t.name === activeTableName);
-  const entries = activeTable?.entries ?? [];
+  const entries = useMemo(() => activeTable?.entries ?? [], [activeTable]);
 
   // 階層ごとのエントリを構築する
   const { depthMap, maxDepth } = useMemo(() => {
@@ -118,7 +120,8 @@ export function TableViewerPage() {
     return { depthMap: map, maxDepth: max };
   }, [entries, tableType]);
 
-  const isLoading = enemyQuery.isLoading || itemQuery.isLoading || dropQuery.isLoading;
+  const isLoading =
+    enemyQuery.isLoading || itemQuery.isLoading || dropQuery.isLoading;
   const error = enemyQuery.error || itemQuery.error || dropQuery.error;
 
   if (error) return <Text color="red.500">エラー: {String(error)}</Text>;
@@ -132,7 +135,9 @@ export function TableViewerPage() {
 
       <Flex gap="4" mb="4" align="center">
         <Flex align="center" gap="2">
-          <Text fontSize="sm" whiteSpace="nowrap">種別:</Text>
+          <Text fontSize="sm" whiteSpace="nowrap">
+            種別:
+          </Text>
           <NativeSelect.Root size="sm" width="auto">
             <NativeSelect.Field
               value={tableType}
@@ -152,7 +157,9 @@ export function TableViewerPage() {
 
         {tableNames.length > 0 && (
           <Flex align="center" gap="2">
-            <Text fontSize="sm" whiteSpace="nowrap">テーブル:</Text>
+            <Text fontSize="sm" whiteSpace="nowrap">
+              テーブル:
+            </Text>
             <NativeSelect.Root size="sm" width="auto">
               <NativeSelect.Field
                 value={activeTableName}

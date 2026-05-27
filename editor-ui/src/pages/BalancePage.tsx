@@ -152,9 +152,9 @@ function useBalance() {
 function ResourceFlowChart({ run }: { run: EnemyTableRun }) {
   const data = run.depths.map((d) => ({
     depth: d.depth,
-    "被ダメージ": d.medianDamage,
-    "回復量": d.medianHealing,
-    "純消耗": d.medianDamage - d.medianHealing,
+    被ダメージ: d.medianDamage,
+    回復量: d.medianHealing,
+    純消耗: d.medianDamage - d.medianHealing,
   }));
 
   return (
@@ -178,7 +178,7 @@ function KillTurnsChart({ run }: { run: EnemyTableRun }) {
   const data = run.depths.map((d) => ({
     depth: d.depth,
     "キルターン P95": d.p95KillTurns,
-    "キルターン中央値": d.medianKillTurns,
+    キルターン中央値: d.medianKillTurns,
     "キルターン P5": d.p5KillTurns,
   }));
 
@@ -228,9 +228,9 @@ function HPChart({ run }: { run: EnemyTableRun }) {
   const data = run.depths.map((d) => ({
     depth: d.depth,
     "戦闘後HP P95": d.p95HPBeforeHeal,
-    "戦闘後HP中央値": d.medianHPBeforeHeal,
+    戦闘後HP中央値: d.medianHPBeforeHeal,
     "戦闘後HP P5": d.p5HPBeforeHeal,
-    "回復後HP中央値": d.medianHP,
+    回復後HP中央値: d.medianHP,
   }));
 
   return (
@@ -299,7 +299,7 @@ function WeaponDamageChart({ run }: { run: EnemyTableRun }) {
   const data = run.depths.map((d) => ({
     depth: d.depth,
     "武器ダメージ P95": d.p95WeaponDamage,
-    "武器ダメージ中央値": d.medianWeaponDamage,
+    武器ダメージ中央値: d.medianWeaponDamage,
     "武器ダメージ P5": d.p5WeaponDamage,
   }));
 
@@ -343,7 +343,7 @@ function HungerChart({ run }: { run: EnemyTableRun }) {
   const data = run.depths.map((d) => ({
     depth: d.depth,
     "空腹度 P95": d.p95Hunger,
-    "空腹度中央値": d.medianHunger,
+    空腹度中央値: d.medianHunger,
     "空腹度 P5": d.p5Hunger,
   }));
 
@@ -412,9 +412,9 @@ function TrialDetail({
 
   const chartData = trial.depths.map((d) => ({
     depth: d.depth,
-    "戦闘後HP": d.hpBeforeHeal,
-    "回復後HP": d.hp,
-    "空腹度": d.hunger,
+    戦闘後HP: d.hpBeforeHeal,
+    回復後HP: d.hp,
+    空腹度: d.hunger,
   }));
 
   return (
@@ -535,7 +535,11 @@ function ComparisonChart({ tables }: { tables: EnemyTableRun[] }) {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="depth" label={{ value: "深度", position: "bottom" }} />
         <YAxis
-          label={{ value: "戦闘後HP中央値", angle: -90, position: "insideLeft" }}
+          label={{
+            value: "戦闘後HP中央値",
+            angle: -90,
+            position: "insideLeft",
+          }}
         />
         <Tooltip />
         <Legend />
@@ -598,7 +602,8 @@ const chartSections: ChartSection[] = [
   },
   {
     title: "空腹経済: 空腹度推移 (P5 / 中央値 / P95)",
-    model: "空腹度 = 歩行で減少、食料ドロップで回復。飢餓ラインを下回るとペナルティ",
+    model:
+      "空腹度 = 歩行で減少、食料ドロップで回復。飢餓ラインを下回るとペナルティ",
     criteria:
       "P5が飢餓ラインを頻繁に下回るなら食料ドロップを増やすか栄養値を上げる",
     render: (run) => <HungerChart run={run} />,

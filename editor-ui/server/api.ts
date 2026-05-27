@@ -475,12 +475,14 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
 
           // スプライト切り抜き保存 API
           if (apiPath === "cutter/save" && method === "POST") {
-            const body = await readJson<{ sprites: { name: string; data: string }[] }>(
-              req as Parameters<typeof readBody>[0],
-            );
+            const body = await readJson<{
+              sprites: { name: string; data: string }[];
+            }>(req as Parameters<typeof readBody>[0]);
             if (!body?.sprites?.length) {
               res.statusCode = 400;
-              res.end(JSON.stringify({ message: "保存するスプライトがありません" }));
+              res.end(
+                JSON.stringify({ message: "保存するスプライトがありません" }),
+              );
               return;
             }
             if (!fs.existsSync(singleDir)) {
@@ -491,13 +493,21 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
               const name = sprite.name.trim();
               if (!name) continue;
               // data:image/png;base64,... からBase64部分を取り出す
-              const base64 = sprite.data.replace(/^data:image\/png;base64,/, "");
+              const base64 = sprite.data.replace(
+                /^data:image\/png;base64,/,
+                "",
+              );
               const buffer = Buffer.from(base64, "base64");
               const filePath = path.join(singleDir, `${name}_.png`);
               fs.writeFileSync(filePath, buffer);
               saved++;
             }
-            res.end(JSON.stringify({ message: `${saved} 個のスプライトを保存しました`, saved }));
+            res.end(
+              JSON.stringify({
+                message: `${saved} 個のスプライトを保存しました`,
+                saved,
+              }),
+            );
             return;
           }
 
@@ -508,7 +518,11 @@ export function editorApiPlugin(options: ApiPluginOptions): Plugin {
               const data = fs.readFileSync(balancePath, "utf-8");
               res.end(data);
             } catch (e: unknown) {
-              if (e instanceof Error && "code" in e && (e as NodeJS.ErrnoException).code === "ENOENT") {
+              if (
+                e instanceof Error &&
+                "code" in e &&
+                (e as NodeJS.ErrnoException).code === "ENOENT"
+              ) {
                 res.statusCode = 404;
                 res.end(
                   JSON.stringify({

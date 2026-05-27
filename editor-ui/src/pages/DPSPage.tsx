@@ -51,7 +51,11 @@ export function DPSPage() {
 
   const metrics = data.battleMetrics ?? [];
   if (metrics.length === 0) {
-    return <Text>戦闘メトリクスがありません。balance.json を再生成してください。</Text>;
+    return (
+      <Text>
+        戦闘メトリクスがありません。balance.json を再生成してください。
+      </Text>
+    );
   }
 
   // 射程フィルタを適用する
@@ -90,7 +94,9 @@ export function DPSPage() {
 
       <Flex gap="4" mb="4" align="center">
         <Flex align="center" gap="2">
-          <Text fontSize="sm" whiteSpace="nowrap">射程:</Text>
+          <Text fontSize="sm" whiteSpace="nowrap">
+            射程:
+          </Text>
           <NativeSelect.Root size="sm" width="auto">
             <NativeSelect.Field
               value={weaponRange}
@@ -110,7 +116,13 @@ export function DPSPage() {
             <BarChart data={chartData} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
-              <YAxis dataKey="name" type="category" width={150} fontSize={12} interval={0} />
+              <YAxis
+                dataKey="name"
+                type="category"
+                width={150}
+                fontSize={12}
+                interval={0}
+              />
               <Tooltip />
               <Bar dataKey="DPS" fill="#4299e1" />
             </BarChart>
