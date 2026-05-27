@@ -60,7 +60,7 @@ func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	}
 
 	if world.Resources.Dungeon.VisibleTiles == nil {
-		panic("VisibleTilesが初期化されていません。visionシステムが先に実行される必要があります")
+		return false
 	}
 
 	gridElement := gc.GridElement{X: consts.Tile(targetX), Y: consts.Tile(targetY)}
