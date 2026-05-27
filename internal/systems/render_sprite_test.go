@@ -11,7 +11,7 @@ func TestSpriteImageCache(t *testing.T) {
 	t.Parallel()
 	t.Run("sprite image cache initialization", func(t *testing.T) {
 		t.Parallel()
-		sys := NewRenderSpriteSystem()
+		sys := NewRenderSpriteSystem(NewVisionSystem())
 		assert.NotNil(t, sys.spriteImageCache, "spriteImageCacheがnilになっている")
 		assert.Empty(t, sys.spriteImageCache, "新規作成時はキャッシュが空のはず")
 	})
@@ -19,7 +19,7 @@ func TestSpriteImageCache(t *testing.T) {
 	t.Run("sprite image cache is map", func(t *testing.T) {
 		t.Parallel()
 		// キャッシュがmap型であることを確認
-		sys := NewRenderSpriteSystem()
+		sys := NewRenderSpriteSystem(NewVisionSystem())
 		cache := sys.spriteImageCache
 		expectedType := make(map[spriteImageCacheKey]*ebiten.Image)
 		assert.IsType(t, expectedType, cache, "spriteImageCacheの型が正しくない")
@@ -32,7 +32,7 @@ func TestSpriteImageCacheOperations(t *testing.T) {
 	t.Run("cache operations", func(t *testing.T) {
 		t.Parallel()
 		// 各テストで独立したシステムインスタンスを作成
-		sys := NewRenderSpriteSystem()
+		sys := NewRenderSpriteSystem(NewVisionSystem())
 
 		// 初期状態の確認
 		initialLen := len(sys.spriteImageCache)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"math"
 	"sort"
 	"strings"
 
@@ -28,16 +29,29 @@ type spriteImageCacheKey struct {
 	SpriteKey       string
 }
 
+// coloredDarknessCacheKey は光源色ごとの暗闇画像のキャッシュキー
+type coloredDarknessCacheKey struct {
+	R             uint8
+	G             uint8
+	B             uint8
+	DarknessLevel int
+}
+
 // RenderSpriteSystem はスプライト描画システム
 // キャッシュを保持し、描画処理を行う
 type RenderSpriteSystem struct {
-	spriteImageCache map[spriteImageCacheKey]*ebiten.Image
+	spriteImageCache     map[spriteImageCacheKey]*ebiten.Image
+	darknessCacheImages  []*ebiten.Image
+	coloredDarknessCache map[coloredDarknessCacheKey]*ebiten.Image
+	vision               *VisionSystem
 }
 
 // NewRenderSpriteSystem はRenderSpriteSystemを初期化する
-func NewRenderSpriteSystem() *RenderSpriteSystem {
+func NewRenderSpriteSystem(vision *VisionSystem) *RenderSpriteSystem {
 	return &RenderSpriteSystem{
-		spriteImageCache: make(map[spriteImageCacheKey]*ebiten.Image),
+		spriteImageCache:     make(map[spriteImageCacheKey]*ebiten.Image),
+		coloredDarknessCache: make(map[coloredDarknessCacheKey]*ebiten.Image),
+		vision:               vision,
 	}
 }
 
@@ -73,14 +87,14 @@ func (sys RenderSpriteSystem) String() string {
 // w.Renderer interfaceを実装
 func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	// タイルごとの描画情報を一括計算する
-	tileRenderMap := computeTileRenderMap(world)
+	tileRenderMap := computeTileRenderMap(world, sys.vision.lightSourceCache)
 
 	initializeShadowImages()
 
 	if err := sys.renderFloorLayer(world, screen, tileRenderMap); err != nil {
 		return err
 	}
-	renderDarkness(world, screen, tileRenderMap)
+	sys.renderDarkness(world, screen, tileRenderMap)
 	sys.renderShadows(world, screen, tileRenderMap)
 	if err := sys.renderSprites(world, screen, tileRenderMap); err != nil {
 		return err
@@ -402,4 +416,134 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	}
 
 	return nil
+}
+
+// DarknessLevels は暗闇の段階数を定義する。少ない段階数のほうが見た目が自然になる
+const DarknessLevels = 4
+
+// renderDarkness はタイルごとの暗闇オーバーレイを描画する
+func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) {
+	var cameraX, cameraY float64
+	cameraScale := 1.0
+
+	world.Manager.Join(
+		world.Components.Camera,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		camera := world.Components.Camera.Get(entity).(*gc.Camera)
+		cameraX = camera.X
+		cameraY = camera.Y
+		cameraScale = camera.Scale
+	}))
+
+	if len(sys.darknessCacheImages) == 0 {
+		sys.initializeDarknessCache(int(consts.TileSize))
+	}
+
+	screenWidth := world.Resources.ScreenDimensions.Width
+	screenHeight := world.Resources.ScreenDimensions.Height
+	actualScreenWidth := int(float64(screenWidth) / cameraScale)
+	actualScreenHeight := int(float64(screenHeight) / cameraScale)
+	leftEdge := int(cameraX) - actualScreenWidth/2
+	rightEdge := int(cameraX) + actualScreenWidth/2
+	topEdge := int(cameraY) - actualScreenHeight/2
+	bottomEdge := int(cameraY) + actualScreenHeight/2
+	startTileX := leftEdge/int(consts.TileSize) - 1
+	endTileX := rightEdge/int(consts.TileSize) + 1
+	startTileY := topEdge/int(consts.TileSize) - 1
+	endTileY := bottomEdge/int(consts.TileSize) + 1
+
+	for tileX := startTileX; tileX <= endTileX; tileX++ {
+		for tileY := startTileY; tileY <= endTileY; tileY++ {
+			grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+			info, exists := tileRenderMap[grid]
+			if !exists {
+				continue
+			}
+
+			var darkness float64
+			var lightColor color.RGBA
+			switch v := info.(type) {
+			case TileRenderVisible:
+				darkness = float64(v.Darkness)
+				lightColor = v.LightColor
+			case TileRenderDark:
+				darkness = float64(v.Darkness)
+			case TileRenderRemembered:
+				darkness = float64(v.Darkness)
+			}
+
+			worldX := float64(tileX * int(consts.TileSize))
+			worldY := float64(tileY * int(consts.TileSize))
+			screenX := (worldX-cameraX)*cameraScale + float64(screenWidth)/2
+			screenY := (worldY-cameraY)*cameraScale + float64(screenHeight)/2
+			sys.drawDarknessAtLevelWithColor(screen, screenX, screenY, darkness, lightColor, cameraScale, int(consts.TileSize))
+		}
+	}
+}
+
+// initializeDarknessCache は段階的暗闇用の画像キャッシュを初期化する
+func (sys *RenderSpriteSystem) initializeDarknessCache(tileSize int) {
+	if tileSize <= 0 {
+		return
+	}
+
+	sys.darknessCacheImages = make([]*ebiten.Image, DarknessLevels+1)
+	sys.darknessCacheImages[0] = nil // 0: 暗闇なし
+
+	for i := 1; i <= DarknessLevels; i++ {
+		darkness := float64(i) / float64(DarknessLevels)
+		alpha := uint8(darkness * 255)
+
+		sys.darknessCacheImages[i] = ebiten.NewImage(tileSize, tileSize)
+		sys.darknessCacheImages[i].Fill(color.RGBA{0, 0, 0, alpha})
+	}
+}
+
+// drawDarknessAtLevelWithColor は光源の色を考慮した暗闇を描画する
+func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image, x, y, darkness float64, lightColor color.RGBA, scale float64, tileSize int) {
+	if darkness <= 0.0 {
+		return
+	}
+
+	darknessLevel := int(math.Ceil(darkness * float64(DarknessLevels)))
+	if darknessLevel > DarknessLevels {
+		darknessLevel = DarknessLevels
+	}
+	if darknessLevel < 1 {
+		darknessLevel = 1
+	}
+
+	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
+
+	cacheKey := coloredDarknessCacheKey{
+		R:             lightColor.R,
+		G:             lightColor.G,
+		B:             lightColor.B,
+		DarknessLevel: darknessLevel,
+	}
+
+	darknessImg, exists := sys.coloredDarknessCache[cacheKey]
+	if !exists {
+		alpha := uint8(quantizedDarkness * 255)
+
+		colorStrength := 0.1
+		darknessColor := color.RGBA{
+			R: uint8(float64(lightColor.R) * colorStrength),
+			G: uint8(float64(lightColor.G) * colorStrength),
+			B: uint8(float64(lightColor.B) * colorStrength),
+			A: alpha,
+		}
+
+		darknessImg = ebiten.NewImage(tileSize, tileSize)
+		darknessImg.Fill(darknessColor)
+
+		if len(sys.coloredDarknessCache) < 1000 {
+			sys.coloredDarknessCache[cacheKey] = darknessImg
+		}
+	}
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(scale, scale)
+	op.GeoM.Translate(x, y)
+	screen.DrawImage(darknessImg, op)
 }

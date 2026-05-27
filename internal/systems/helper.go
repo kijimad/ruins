@@ -35,11 +35,11 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	updaters[temperatureSystem.String()] = temperatureSystem
 
 	// Renderers（描画システム） ================
-	renderSpriteSystem := NewRenderSpriteSystem()
-	renderers[renderSpriteSystem.String()] = renderSpriteSystem
-
-	visionSystem := &VisionSystem{}
+	visionSystem := NewVisionSystem()
 	renderers[visionSystem.String()] = visionSystem
+
+	renderSpriteSystem := NewRenderSpriteSystem(visionSystem)
+	renderers[renderSpriteSystem.String()] = renderSpriteSystem
 
 	// HUDRenderingSystem は Updater と Renderer の両方を実装
 	hudRenderingSystem := NewHUDRenderingSystem(world)
