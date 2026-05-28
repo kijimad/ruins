@@ -11,6 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/maingame"
+	"github.com/kijimaD/ruins/internal/steam"
 	"github.com/pkg/profile"
 	"github.com/urfave/cli/v3"
 
@@ -32,6 +33,11 @@ var CmdPlay = &cli.Command{
 }
 
 func runPlay(_ context.Context, _ *cli.Command) error {
+	// Steam APIの初期化。steamタグなしではno-op
+	if err := steam.Init(); err != nil {
+		return fmt.Errorf("Steam初期化に失敗: %w", err)
+	}
+
 	// 設定を読み込み
 	cfg, err := config.Load()
 	if err != nil {

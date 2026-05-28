@@ -25,6 +25,10 @@ report: ## AIが読みやすい形でカバレッジレポートを表示する
 build: ## ビルドする
 	./scripts/build.sh
 
+.PHONY: build-steam
+build-steam: ## Steam向けビルドする
+	./scripts/build_steam.sh
+
 .PHONY: vrt
 vrt: ## 各ステートでスクショを取得する
 	./scripts/vrt.sh
