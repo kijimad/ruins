@@ -5,7 +5,9 @@ cpu.pprof
 
 ruins
 bin/
+.cache/
+editor-ui/dist/
+oas/redoc/
+
 wasm/game.wasm
-editor-ui/dist
-oas/redoc
 balance.json
