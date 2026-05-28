@@ -1729,7 +1729,7 @@ targetSkill = "cold_resist"
 [[items]]
 description = "フェライト製の磁性体"
 name = "フェライトコア"
-spriteKey = "magnelight"
+spriteKey = "ferrite_core"
 spriteSheetName = "field"
 stackable = true
 value = 100
@@ -6051,6 +6051,1982 @@ stackable = true
 value = 450
 weight = 0.2
 
+[[items]]
+description = "磁力で淡く光る石。照明や動力源に使われる"
+name = "マグネライト"
+spriteKey = "magnelight"
+spriteSheetName = "field"
+stackable = true
+value = 120
+weight = 0.15
+
+[[items]]
+description = "小さな赤い心臓の形をしたお守り"
+name = "ハートのお守り"
+spriteKey = "heart"
+spriteSheetName = "field"
+stackable = true
+value = 50
+weight = 0.05
+
+[[items]]
+description = "黄色い弾力のある球体。何に使えるか不明"
+name = "黄色い球"
+spriteKey = "yellow_ball"
+spriteSheetName = "field"
+stackable = true
+value = 20
+weight = 0.1
+
+[[items]]
+description = "小型の戦車の模型。精巧に作られている"
+name = "戦車の模型"
+spriteKey = "light_tank"
+spriteSheetName = "field"
+value = 200
+weight = 1.0
+
+[[items]]
+description = "黄金で装飾された豪華な兜"
+name = "金の兜"
+spriteKey = "gold_helm"
+spriteSheetName = "field"
+value = 600
+weight = 3.0
+
+[items.wearable]
+defense = 6
+equipmentCategory = "HEAD"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -3
+vitality = 2
+
+[[items]]
+description = "竜を模した禍々しい兜"
+name = "龍の兜"
+spriteKey = "dragon_helm"
+spriteSheetName = "field"
+value = 800
+weight = 4.0
+
+[items.wearable]
+defense = 8
+equipmentCategory = "HEAD"
+insulationCold = 4
+insulationHeat = -2
+
+[items.equipBonus]
+agility = -4
+strength = 3
+
+[[items]]
+description = "未知の金属で作られた冠"
+name = "宇宙冠"
+spriteKey = "crown"
+spriteSheetName = "field"
+value = 500
+weight = 0.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "HEAD"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+dexterity = 1
+sensation = 3
+
+[[items]]
+description = "鉄製の無骨な王冠"
+name = "鉄の王冠"
+spriteKey = "crown_iron"
+spriteSheetName = "field"
+value = 350
+weight = 2.0
+
+[items.wearable]
+defense = 5
+equipmentCategory = "HEAD"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -2
+vitality = 2
+
+[[items]]
+description = "青い宝石が輝く王冠"
+name = "青の王冠"
+spriteKey = "crown_blue"
+spriteSheetName = "field"
+value = 550
+weight = 1.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "HEAD"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+dexterity = 2
+sensation = 2
+
+[[items]]
+description = "闇を纏った王冠"
+name = "黒の王冠"
+spriteKey = "crown_black"
+spriteSheetName = "field"
+value = 700
+weight = 1.5
+
+[items.wearable]
+defense = 5
+equipmentCategory = "HEAD"
+insulationCold = 1
+insulationHeat = -1
+
+[items.equipBonus]
+agility = 1
+strength = 2
+
+[[items]]
+description = "垂れ幕が付いた防砂帽子"
+name = "幕付き帽子"
+spriteKey = "curtain_hat"
+spriteSheetName = "field"
+value = 120
+weight = 0.5
+
+[items.wearable]
+defense = 2
+equipmentCategory = "HEAD"
+insulationCold = 3
+insulationHeat = 5
+
+[items.equipBonus]
+sensation = 1
+
+[[items]]
+description = "毛皮で裏打ちされた温かい帽子"
+name = "ファー帽子"
+spriteKey = "fur_hat"
+spriteSheetName = "field"
+value = 150
+weight = 0.8
+
+[items.wearable]
+defense = 2
+equipmentCategory = "HEAD"
+insulationCold = 6
+insulationHeat = -1
+
+[[items]]
+description = "歴戦の将軍が被った兜"
+name = "将軍の兜"
+spriteKey = "general"
+spriteSheetName = "field"
+value = 900
+weight = 3.5
+
+[items.wearable]
+defense = 7
+equipmentCategory = "HEAD"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -3
+strength = 2
+vitality = 3
+
+[[items]]
+description = "旅に適した丈夫な服"
+name = "冒険者の服"
+spriteKey = "adventurer_outfit"
+spriteSheetName = "field"
+value = 120
+weight = 1.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 3
+
+[items.equipBonus]
+agility = 1
+
+[[items]]
+description = "丈夫な格子柄のシャツ"
+name = "チェックシャツ"
+spriteKey = "check_shirt"
+spriteSheetName = "field"
+value = 60
+weight = 0.5
+
+[items.wearable]
+defense = 1
+equipmentCategory = "TORSO"
+insulationCold = 2
+insulationHeat = 2
+
+[[items]]
+description = "黒い布製のジャケット"
+name = "黒ジャケット"
+spriteKey = "cloth_jacket_black"
+spriteSheetName = "field"
+value = 90
+weight = 0.8
+
+[items.wearable]
+defense = 2
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 2
+
+[items.equipBonus]
+agility = 1
+
+[[items]]
+description = "茶色の毛皮ジャケット。極めて暖かい"
+name = "ファージャケット"
+spriteKey = "fur_jacket_brown"
+spriteSheetName = "field"
+value = 200
+weight = 2.0
+
+[items.wearable]
+defense = 3
+equipmentCategory = "TORSO"
+insulationCold = 8
+insulationHeat = -2
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "革製の長いコート"
+name = "レザーコート"
+spriteKey = "leather_coat"
+spriteSheetName = "field"
+value = 180
+weight = 2.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "TORSO"
+insulationCold = 4
+insulationHeat = 1
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "動きやすい革のチョッキ"
+name = "レザーチョッキ"
+spriteKey = "leather_vest"
+spriteSheetName = "field"
+value = 130
+weight = 1.0
+
+[items.wearable]
+defense = 3
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 1
+
+[items.equipBonus]
+agility = 1
+
+[[items]]
+description = "革で仕立てた服"
+name = "レザー服"
+spriteKey = "leather_outfit"
+spriteSheetName = "field"
+value = 150
+weight = 1.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 2
+
+[[items]]
+description = "商人が好む実用的な服装"
+name = "商人の服"
+spriteKey = "merchant_outfit"
+spriteSheetName = "field"
+value = 140
+weight = 1.0
+
+[items.wearable]
+defense = 2
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 3
+
+[items.equipBonus]
+dexterity = 2
+
+[[items]]
+description = "聖職者が纏う法衣"
+name = "聖職者の法衣"
+spriteKey = "priest_outfit"
+spriteSheetName = "field"
+value = 200
+weight = 1.0
+
+[items.wearable]
+defense = 2
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 3
+
+[items.equipBonus]
+sensation = 3
+vitality = 1
+
+[[items]]
+description = "丁寧に縫い合わせた手製のシャツ"
+name = "縫いシャツ"
+spriteKey = "sewn_shirt"
+spriteSheetName = "field"
+value = 50
+weight = 0.4
+
+[items.wearable]
+defense = 1
+equipmentCategory = "TORSO"
+insulationCold = 2
+insulationHeat = 2
+
+[[items]]
+description = "鉄の鎖を細かく編み込んだ上等な鎧"
+name = "上等鎖帷子"
+spriteKey = "chainmail_armor"
+spriteSheetName = "field"
+value = 300
+weight = 6.0
+
+[items.wearable]
+defense = 8
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = -2
+
+[items.equipBonus]
+agility = -3
+vitality = 2
+
+[[items]]
+description = "銀製の美しい鎧"
+name = "銀鎧"
+spriteKey = "silver_armor"
+spriteSheetName = "field"
+value = 500
+weight = 8.0
+
+[items.wearable]
+defense = 10
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -4
+vitality = 3
+
+[[items]]
+description = "月光を放つ神秘的な鎧"
+name = "月の鎧"
+spriteKey = "moon_armor"
+spriteSheetName = "field"
+value = 700
+weight = 6.0
+
+[items.wearable]
+defense = 9
+equipmentCategory = "TORSO"
+insulationCold = 4
+insulationHeat = 2
+
+[items.equipBonus]
+agility = -2
+sensation = 3
+
+[[items]]
+description = "太陽の紋章が刻まれた鎧"
+name = "太陽鎧"
+spriteKey = "sun_armor"
+spriteSheetName = "field"
+value = 750
+weight = 7.0
+
+[items.wearable]
+defense = 11
+equipmentCategory = "TORSO"
+insulationCold = 2
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -3
+strength = 2
+
+[[items]]
+description = "闇の力を秘めた漆黒の鎧"
+name = "闇鎧"
+spriteKey = "dark_armor"
+spriteSheetName = "field"
+value = 800
+weight = 9.0
+
+[items.wearable]
+defense = 12
+equipmentCategory = "TORSO"
+insulationCold = 2
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -4
+strength = 3
+
+[[items]]
+description = "純金で鋳造された豪華な鎧"
+name = "黄金鎧"
+spriteKey = "golden_armor"
+spriteSheetName = "field"
+value = 1000
+weight = 10.0
+
+[items.wearable]
+defense = 13
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -5
+vitality = 4
+
+[[items]]
+description = "宝石が散りばめられた最高級の黄金鎧"
+name = "宝石黄金鎧"
+spriteKey = "golden_armor_jewel"
+spriteSheetName = "field"
+value = 1500
+weight = 12.0
+
+[items.wearable]
+defense = 14
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -6
+strength = 2
+vitality = 5
+
+[[items]]
+description = "精鋭騎士が纏う一級品の鎧"
+name = "上級騎士の鎧"
+spriteKey = "senior_knight_armor"
+spriteSheetName = "field"
+value = 600
+weight = 8.0
+
+[items.wearable]
+defense = 11
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -4
+vitality = 3
+
+[[items]]
+description = "騎士団の標準装備の鎧"
+name = "騎士の鎧"
+spriteKey = "knight_armor"
+spriteSheetName = "field"
+value = 400
+weight = 7.0
+
+[items.wearable]
+defense = 9
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -3
+vitality = 2
+
+[[items]]
+description = "宇宙空間での活動用に設計された鎧"
+name = "宇宙鎧"
+spriteKey = "space_armor"
+spriteSheetName = "field"
+value = 550
+weight = 5.0
+
+[items.wearable]
+defense = 8
+equipmentCategory = "TORSO"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -2
+
+[[items]]
+description = "黒く塗装された特殊な宇宙鎧"
+name = "黒の宇宙鎧"
+spriteKey = "space_armor_black"
+spriteSheetName = "field"
+value = 650
+weight = 5.5
+
+[items.wearable]
+defense = 9
+equipmentCategory = "TORSO"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -2
+strength = 1
+
+[[items]]
+description = "翼を持つ馬の紋章が刻まれた鎧"
+name = "翼馬鎧"
+spriteKey = "winged_horse_armor"
+spriteSheetName = "field"
+value = 700
+weight = 8.0
+
+[items.wearable]
+defense = 10
+equipmentCategory = "TORSO"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -3
+strength = 2
+vitality = 2
+
+[[items]]
+description = "工具用ポケットが多数付いたチョッキ"
+name = "ツールチョッキ"
+spriteKey = "tool_vest"
+spriteSheetName = "field"
+value = 100
+weight = 1.2
+
+[items.wearable]
+defense = 2
+equipmentCategory = "TORSO"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+dexterity = 2
+
+[[items]]
+description = "長い革のダスターコート"
+name = "革のダスターコート"
+spriteKey = "leather_duster"
+spriteSheetName = "field"
+value = 200
+weight = 2.5
+
+[items.wearable]
+defense = 4
+equipmentCategory = "TORSO"
+insulationCold = 5
+insulationHeat = 1
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "全身を覆う革のツナギ"
+name = "革のツナギ"
+spriteKey = "leather_coverall"
+spriteSheetName = "field"
+value = 160
+weight = 2.0
+
+[items.wearable]
+defense = 3
+equipmentCategory = "TORSO"
+insulationCold = 4
+insulationHeat = 1
+
+[[items]]
+description = "革紐を巻いた簡素な胸当て"
+name = "革のバンデージ"
+spriteKey = "leather_bandage"
+spriteSheetName = "field"
+value = 80
+weight = 0.5
+
+[items.wearable]
+defense = 2
+equipmentCategory = "TORSO"
+insulationCold = 2
+insulationHeat = 1
+
+[[items]]
+description = "背中を覆う大きな革のマント"
+name = "革のマント"
+spriteKey = "leather_cloak"
+spriteSheetName = "field"
+value = 170
+weight = 1.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "TORSO"
+insulationCold = 5
+insulationHeat = 2
+
+[items.equipBonus]
+agility = 1
+
+[[items]]
+description = "茶色い革のガントレット"
+name = "ガントレット(茶)"
+spriteKey = "gauntlet_brown"
+spriteSheetName = "field"
+value = 120
+weight = 1.0
+
+[items.wearable]
+defense = 3
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[[items]]
+description = "黄金のガントレット"
+name = "ガントレット(金)"
+spriteKey = "gauntlet_gold"
+spriteSheetName = "field"
+value = 400
+weight = 2.0
+
+[items.wearable]
+defense = 5
+equipmentCategory = "ARMS"
+insulationCold = 2
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -2
+strength = 2
+
+[[items]]
+description = "鉄製の重厚なガントレット"
+name = "ガントレット(鉄)"
+spriteKey = "gauntlet_iron"
+spriteSheetName = "field"
+value = 200
+weight = 1.8
+
+[items.wearable]
+defense = 4
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "青い金属製のガントレット"
+name = "ガントレット(青)"
+spriteKey = "gauntlet_blue"
+spriteSheetName = "field"
+value = 250
+weight = 1.5
+
+[items.wearable]
+defense = 4
+equipmentCategory = "ARMS"
+insulationCold = 4
+insulationHeat = 1
+
+[items.equipBonus]
+dexterity = 1
+
+[[items]]
+description = "魔力を帯びたガントレット"
+name = "ガントレット(魔)"
+spriteKey = "gauntlet_magic"
+spriteSheetName = "field"
+value = 350
+weight = 1.2
+
+[items.wearable]
+defense = 3
+equipmentCategory = "ARMS"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+dexterity = 1
+sensation = 2
+
+[[items]]
+description = "腕に巻く革のバンダナ"
+name = "レザーバンダナ"
+spriteKey = "leather_bandana"
+spriteSheetName = "field"
+value = 60
+weight = 0.3
+
+[items.wearable]
+defense = 1
+equipmentCategory = "ARMS"
+insulationCold = 2
+insulationHeat = 1
+
+[[items]]
+description = "革製の腕当て"
+name = "レザーハンド"
+spriteKey = "leather_hand"
+spriteSheetName = "field"
+value = 80
+weight = 0.5
+
+[items.wearable]
+defense = 2
+equipmentCategory = "ARMS"
+insulationCold = 2
+insulationHeat = 1
+
+[[items]]
+description = "革で作った手袋"
+name = "レザー手袋"
+spriteKey = "leather_gloves"
+spriteSheetName = "field"
+value = 90
+weight = 0.4
+
+[items.wearable]
+defense = 2
+equipmentCategory = "HANDS"
+insulationCold = 3
+insulationHeat = 1
+
+[items.equipBonus]
+dexterity = 1
+
+[[items]]
+description = "鉄板を縫い込んだ手袋"
+name = "鉄手袋"
+spriteKey = "iron_gloves"
+spriteSheetName = "field"
+value = 180
+weight = 1.5
+
+[items.wearable]
+defense = 4
+equipmentCategory = "HANDS"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "棘が付いた鉄拳"
+name = "鉄の棘拳"
+spriteKey = "iron_spike_fist"
+spriteSheetName = "field"
+value = 250
+weight = 2.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "HANDS"
+insulationCold = 2
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -2
+strength = 2
+
+[[items]]
+description = "鉄製の鋭い爪が付いた手甲"
+name = "鉄の爪"
+spriteKey = "iron_claw"
+spriteSheetName = "field"
+value = 220
+weight = 1.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "HANDS"
+insulationCold = 2
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -1
+dexterity = 1
+strength = 2
+
+[[items]]
+description = "黒い革製のブーツ"
+name = "黒ブーツ"
+spriteKey = "black_boots"
+spriteSheetName = "field"
+value = 100
+weight = 1.0
+
+[items.wearable]
+defense = 2
+equipmentCategory = "FEET"
+insulationCold = 3
+insulationHeat = 1
+
+[[items]]
+description = "山岳踏破用の頑丈な靴"
+name = "登山靴"
+spriteKey = "climbing_boots"
+spriteSheetName = "field"
+value = 140
+weight = 1.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "FEET"
+insulationCold = 4
+insulationHeat = 1
+
+[items.equipBonus]
+agility = 1
+
+[[items]]
+description = "軍用の頑丈なブーツ"
+name = "軍靴"
+spriteKey = "military_boots"
+spriteSheetName = "field"
+value = 200
+weight = 2.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "FEET"
+insulationCold = 4
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "騎士が履く鉄底の靴"
+name = "騎士の靴"
+spriteKey = "knight_boots"
+spriteSheetName = "field"
+value = 250
+weight = 2.5
+
+[items.wearable]
+defense = 5
+equipmentCategory = "FEET"
+insulationCold = 3
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -2
+vitality = 1
+
+[[items]]
+description = "黄金で装飾された靴"
+name = "黄金靴"
+spriteKey = "golden_boots"
+spriteSheetName = "field"
+value = 500
+weight = 3.0
+
+[items.wearable]
+defense = 5
+equipmentCategory = "FEET"
+insulationCold = 2
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -2
+vitality = 2
+
+[[items]]
+description = "履き慣れた革靴"
+name = "革靴"
+spriteKey = "leather_shoes"
+spriteSheetName = "field"
+value = 80
+weight = 0.8
+
+[items.wearable]
+defense = 2
+equipmentCategory = "FEET"
+insulationCold = 3
+insulationHeat = 1
+
+[[items]]
+description = "シンプルな革のブーツ"
+name = "革ブーツ"
+spriteKey = "leather_boots"
+spriteSheetName = "field"
+value = 100
+weight = 1.0
+
+[items.wearable]
+defense = 2
+equipmentCategory = "FEET"
+insulationCold = 4
+insulationHeat = 1
+
+[[items]]
+description = "厚底の丈夫な革ブーツ"
+name = "厚底革ブーツ"
+spriteKey = "leather_boots_2"
+spriteSheetName = "field"
+value = 120
+weight = 1.2
+
+[items.wearable]
+defense = 3
+equipmentCategory = "FEET"
+insulationCold = 4
+insulationHeat = 1
+
+[[items]]
+description = "膝まで覆うロングブーツ"
+name = "レザーロングブーツ"
+spriteKey = "leather_long_boots"
+spriteSheetName = "field"
+value = 150
+weight = 1.5
+
+[items.wearable]
+defense = 3
+equipmentCategory = "FEET"
+insulationCold = 5
+insulationHeat = 1
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "先が尖った不思議な靴"
+name = "とんがり靴"
+spriteKey = "pointed_shoes"
+spriteSheetName = "field"
+value = 90
+weight = 0.6
+
+[items.wearable]
+defense = 1
+equipmentCategory = "FEET"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+agility = 1
+dexterity = 1
+
+[[items]]
+description = "水玉模様の長靴。水場で役立つ"
+name = "水玉長靴"
+spriteKey = "rain_boots_polka"
+spriteSheetName = "field"
+value = 70
+weight = 1.0
+
+[items.wearable]
+defense = 1
+equipmentCategory = "FEET"
+insulationCold = 3
+insulationHeat = 1
+
+[[items]]
+description = "緑色の頑丈な長靴"
+name = "緑長靴"
+spriteKey = "rain_boots_green"
+spriteSheetName = "field"
+value = 70
+weight = 1.0
+
+[items.wearable]
+defense = 1
+equipmentCategory = "FEET"
+insulationCold = 3
+insulationHeat = 1
+
+[[items]]
+description = "青い防水の長靴"
+name = "青長靴"
+spriteKey = "rain_boots_blue"
+spriteSheetName = "field"
+value = 70
+weight = 1.0
+
+[items.wearable]
+defense = 1
+equipmentCategory = "FEET"
+insulationCold = 3
+insulationHeat = 1
+
+[[items]]
+description = "緑色の宇宙活動用ブーツ"
+name = "宇宙靴(緑)"
+spriteKey = "space_boots_green"
+spriteSheetName = "field"
+value = 350
+weight = 2.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "FEET"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "赤色の宇宙活動用ブーツ"
+name = "宇宙靴(赤)"
+spriteKey = "space_boots_red"
+spriteSheetName = "field"
+value = 350
+weight = 2.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "FEET"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "青色の宇宙活動用ブーツ"
+name = "宇宙靴(青)"
+spriteKey = "space_boots_blue"
+spriteSheetName = "field"
+value = 350
+weight = 2.0
+
+[items.wearable]
+defense = 4
+equipmentCategory = "FEET"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "革製の丈夫なベルト"
+name = "レザーベルト"
+spriteKey = "leather_belt"
+spriteSheetName = "field"
+value = 60
+weight = 0.3
+
+[items.wearable]
+defense = 1
+equipmentCategory = "LEGS"
+insulationCold = 1
+insulationHeat = 1
+
+[[items]]
+description = "幅広の頑丈なベルト"
+name = "太ベルト"
+spriteKey = "thick_belt"
+spriteSheetName = "field"
+value = 80
+weight = 0.5
+
+[items.wearable]
+defense = 2
+equipmentCategory = "LEGS"
+insulationCold = 1
+insulationHeat = 1
+
+[[items]]
+description = "宝石が装飾されたベルト"
+name = "宝石ベルト"
+spriteKey = "jewel_belt"
+spriteSheetName = "field"
+value = 300
+weight = 0.5
+
+[items.wearable]
+defense = 2
+equipmentCategory = "LEGS"
+insulationCold = 1
+insulationHeat = 1
+
+[items.equipBonus]
+sensation = 2
+
+[[items]]
+description = "ダイヤモンドが輝く指輪"
+name = "ダイヤの指輪"
+spriteKey = "ring_diamond"
+spriteSheetName = "field"
+value = 500
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 2
+vitality = 2
+
+[[items]]
+description = "ハート型の指輪"
+name = "ハートの指輪"
+spriteKey = "ring_heart"
+spriteSheetName = "field"
+value = 200
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+vitality = 3
+
+[[items]]
+description = "太い金の指輪"
+name = "太金の指輪"
+spriteKey = "ring_thick_gold"
+spriteSheetName = "field"
+value = 350
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 2
+vitality = 1
+
+[[items]]
+description = "太い銀の指輪"
+name = "太銀の指輪"
+spriteKey = "ring_thick_silver"
+spriteSheetName = "field"
+value = 250
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 1
+dexterity = 2
+
+[[items]]
+description = "太い銅の指輪"
+name = "太銅の指輪"
+spriteKey = "ring_thick_copper"
+spriteSheetName = "field"
+value = 150
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+vitality = 2
+
+[[items]]
+description = "木の紐で作った素朴な指輪"
+name = "木紐の指輪"
+spriteKey = "ring_wood_cord"
+spriteSheetName = "field"
+value = 30
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+dexterity = 1
+
+[[items]]
+description = "梟を模した指輪"
+name = "梟の指輪"
+spriteKey = "ring_owl"
+spriteSheetName = "field"
+value = 300
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+sensation = 3
+
+[[items]]
+description = "植物を模した指輪"
+name = "植物の指輪"
+spriteKey = "ring_plant"
+spriteSheetName = "field"
+value = 180
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+sensation = 1
+vitality = 2
+
+[[items]]
+description = "炎を宿した指輪"
+name = "炎の指輪"
+spriteKey = "ring_fire"
+spriteSheetName = "field"
+value = 350
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 3
+
+[[items]]
+description = "鋭い爪が付いた指輪"
+name = "爪の指輪"
+spriteKey = "ring_claw"
+spriteSheetName = "field"
+value = 280
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+dexterity = 1
+strength = 2
+
+[[items]]
+description = "小さな粒が連なる指輪"
+name = "粒の指輪"
+spriteKey = "ring_grain"
+spriteSheetName = "field"
+value = 100
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+dexterity = 1
+
+[[items]]
+description = "紫の石が嵌った指輪"
+name = "紫石の指輪"
+spriteKey = "ring_purple_stone"
+spriteSheetName = "field"
+value = 280
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+dexterity = 1
+sensation = 2
+
+[[items]]
+description = "淡い緑色の指輪"
+name = "緑の指輪"
+spriteKey = "ring_green"
+spriteSheetName = "field"
+value = 200
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 2
+vitality = 1
+
+[[items]]
+description = "緑の石が嵌った指輪"
+name = "緑石の指輪"
+spriteKey = "ring_green_stone"
+spriteSheetName = "field"
+value = 250
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 1
+vitality = 2
+
+[[items]]
+description = "七色に輝く指輪"
+name = "虹の指輪"
+spriteKey = "ring_rainbow"
+spriteSheetName = "field"
+value = 600
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 1
+dexterity = 1
+sensation = 1
+strength = 1
+vitality = 1
+
+[[items]]
+description = "蛇を模した指輪"
+name = "蛇の指輪"
+spriteKey = "ring_snake"
+spriteSheetName = "field"
+value = 220
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 2
+dexterity = 1
+
+[[items]]
+description = "蛸を模した奇妙な指輪"
+name = "蛸の指輪"
+spriteKey = "ring_octopus"
+spriteSheetName = "field"
+value = 200
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+dexterity = 3
+
+[[items]]
+description = "赤い石が嵌った指輪"
+name = "赤石の指輪"
+spriteKey = "ring_red_stone"
+spriteSheetName = "field"
+value = 280
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 2
+vitality = 1
+
+[[items]]
+description = "金で作られた指輪"
+name = "金の指輪"
+spriteKey = "ring_gold"
+spriteSheetName = "field"
+value = 300
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 1
+vitality = 1
+
+[[items]]
+description = "金の紐で編んだ指輪"
+name = "金紐の指輪"
+spriteKey = "ring_gold_cord"
+spriteSheetName = "field"
+value = 250
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+dexterity = 1
+vitality = 1
+
+[[items]]
+description = "銀で作られた指輪"
+name = "銀の指輪"
+spriteKey = "ring_silver"
+spriteSheetName = "field"
+value = 200
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 1
+dexterity = 1
+
+[[items]]
+description = "銀の紐で編んだ指輪"
+name = "銀紐の指輪"
+spriteKey = "ring_silver_cord"
+spriteSheetName = "field"
+value = 180
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 1
+sensation = 1
+
+[[items]]
+description = "銅で作られた素朴な指輪"
+name = "銅の指輪"
+spriteKey = "ring_copper"
+spriteSheetName = "field"
+value = 80
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+vitality = 1
+
+[[items]]
+description = "青い石が嵌った指輪"
+name = "青石の指輪"
+spriteKey = "ring_blue_stone"
+spriteSheetName = "field"
+value = 280
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 1
+sensation = 2
+
+[[items]]
+description = "青い線が走る指輪"
+name = "青線の指輪"
+spriteKey = "ring_blue_line"
+spriteSheetName = "field"
+value = 220
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 2
+
+[[items]]
+description = "骨で作られた指輪"
+name = "骨の指輪"
+spriteKey = "ring_bone"
+spriteSheetName = "field"
+value = 120
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 2
+
+[[items]]
+description = "骸骨を模した不気味な指輪"
+name = "骸骨の指輪"
+spriteKey = "ring_skeleton"
+spriteSheetName = "field"
+value = 250
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+sensation = 1
+strength = 2
+
+[[items]]
+description = "龍を模した指輪"
+name = "龍の指輪"
+spriteKey = "ring_dragon"
+spriteSheetName = "field"
+value = 500
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 3
+vitality = 1
+
+[[items]]
+description = "宝石が嵌った上品な指輪"
+name = "宝石の指輪"
+spriteKey = "jeweled_ring"
+spriteSheetName = "field"
+value = 400
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+sensation = 2
+vitality = 1
+
+[[items]]
+description = "錨を模したペンダント"
+name = "錨のペンダント"
+spriteKey = "pendant_anchor"
+spriteSheetName = "field"
+value = 150
+weight = 0.05
+
+[items.wearable]
+defense = 0
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+strength = 1
+vitality = 2
+
+[[items]]
+description = "大きなメッセンジャーバッグ"
+name = "メッセンジャーバッグ(大)"
+spriteKey = "messenger_bag_large"
+spriteSheetName = "field"
+value = 120
+weight = 1.0
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+dexterity = 1
+
+[[items]]
+description = "腰に下げるメッセンジャーバッグ"
+name = "メッセンジャーバッグ(腰)"
+spriteKey = "messenger_bag_waist"
+spriteSheetName = "field"
+value = 100
+weight = 0.8
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 1
+insulationHeat = 1
+
+[items.equipBonus]
+agility = 1
+
+[[items]]
+description = "旅人が使う革のカバン"
+name = "旅行カバン"
+spriteKey = "travel_bag_leather"
+spriteSheetName = "field"
+value = 130
+weight = 1.5
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 2
+insulationHeat = 2
+
+[[items]]
+description = "矢を収める革の矢筒"
+name = "革の矢筒"
+spriteKey = "leather_quiver"
+spriteSheetName = "field"
+value = 100
+weight = 0.5
+
+[items.wearable]
+defense = 0
+equipmentCategory = "JEWELRY"
+insulationCold = 1
+insulationHeat = 1
+
+[items.equipBonus]
+dexterity = 2
+
+[[items]]
+description = "城の紋章が刻まれた盾"
+name = "城紋の盾"
+spriteKey = "castle_crest_shield"
+spriteSheetName = "field"
+value = 350
+weight = 4.0
+
+[items.wearable]
+defense = 7
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -2
+vitality = 1
+
+[[items]]
+description = "木で作った軽い盾"
+name = "木の盾"
+spriteKey = "wooden_shield"
+spriteSheetName = "field"
+value = 60
+weight = 2.0
+
+[items.wearable]
+defense = 3
+equipmentCategory = "ARMS"
+insulationCold = 2
+insulationHeat = 1
+
+[[items]]
+description = "狼の頭が彫られた盾"
+name = "狼頭の盾"
+spriteKey = "wolf_head_shield"
+spriteSheetName = "field"
+value = 300
+weight = 3.5
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -1
+strength = 1
+
+[[items]]
+description = "獅子の紋章が入った盾"
+name = "獅子の盾"
+spriteKey = "lion_shield"
+spriteSheetName = "field"
+value = 350
+weight = 4.0
+
+[items.wearable]
+defense = 7
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -2
+strength = 2
+
+[[items]]
+description = "緑の宝石が嵌った盾"
+name = "緑宝石の盾"
+spriteKey = "green_jewel_shield"
+spriteSheetName = "field"
+value = 400
+weight = 3.5
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 1
+
+[items.equipBonus]
+agility = -1
+vitality = 2
+
+[[items]]
+description = "赤い宝石が嵌った盾"
+name = "赤宝石の盾"
+spriteKey = "red_jewel_shield"
+spriteSheetName = "field"
+value = 400
+weight = 3.5
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 1
+
+[items.equipBonus]
+agility = -1
+strength = 2
+
+[[items]]
+description = "鉄製の堅固な盾"
+name = "鉄の盾"
+spriteKey = "iron_shield"
+spriteSheetName = "field"
+value = 200
+weight = 4.5
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 4
+insulationHeat = -1
+
+[items.equipBonus]
+agility = -2
+
+[[items]]
+description = "騎士団の紋章が入った盾"
+name = "騎士の盾"
+spriteKey = "knight_shield"
+spriteSheetName = "field"
+value = 300
+weight = 4.0
+
+[items.wearable]
+defense = 7
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -2
+vitality = 1
+
+[[items]]
+description = "魔力を帯びた盾"
+name = "魔の盾"
+spriteKey = "magic_shield"
+spriteSheetName = "field"
+value = 500
+weight = 3.0
+
+[items.wearable]
+defense = 5
+equipmentCategory = "ARMS"
+insulationCold = 2
+insulationHeat = 2
+
+[items.equipBonus]
+sensation = 2
+
+[[items]]
+description = "黄金で作られた豪華な盾"
+name = "黄金の盾"
+spriteKey = "golden_shield"
+spriteSheetName = "field"
+value = 600
+weight = 5.0
+
+[items.wearable]
+defense = 8
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -3
+vitality = 2
+
+[[items]]
+description = "電流が走る盾"
+name = "電盾"
+spriteKey = "electric_shield"
+spriteSheetName = "field"
+value = 450
+weight = 3.5
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 1
+
+[items.equipBonus]
+dexterity = 1
+sensation = 1
+
+[[items]]
+description = "王家の紋章が入った盾"
+name = "王紋の盾"
+spriteKey = "royal_crest_shield"
+spriteSheetName = "field"
+value = 500
+weight = 4.0
+
+[items.wearable]
+defense = 7
+equipmentCategory = "ARMS"
+insulationCold = 3
+insulationHeat = 0
+
+[items.equipBonus]
+agility = -2
+strength = 1
+vitality = 2
+
+[[items]]
+description = "赤い宇宙合金の盾"
+name = "宇宙盾(赤)"
+spriteKey = "space_shield_red"
+spriteSheetName = "field"
+value = 400
+weight = 3.0
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -1
+
+[[items]]
+description = "青い宇宙合金の盾"
+name = "宇宙盾(青)"
+spriteKey = "space_shield_blue"
+spriteSheetName = "field"
+value = 400
+weight = 3.0
+
+[items.wearable]
+defense = 6
+equipmentCategory = "ARMS"
+insulationCold = 5
+insulationHeat = 5
+
+[items.equipBonus]
+agility = -1
+
 [[recipes]]
 name = "レイガン"
 
@@ -7202,6 +9178,186 @@ sensation = 2
 strength = 1
 vitality = 1
 
+[[members]]
+animKeys = [ "butterfly" ]
+commandTableName = "蝶"
+dropTableName = "蝶"
+factionType = ""
+isBoss = false
+name = "蝶"
+spriteKey = "butterfly"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 5
+defense = 0
+dexterity = 2
+sensation = 3
+strength = 1
+vitality = 1
+
+[[members]]
+animKeys = [ "penguin" ]
+commandTableName = "ペンギン"
+dropTableName = "ペンギン"
+factionType = ""
+isBoss = false
+name = "ペンギン"
+spriteKey = "penguin"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 2
+defense = 0
+dexterity = 2
+sensation = 1
+strength = 2
+vitality = 2
+
+[[members]]
+animKeys = [ "pink_ball" ]
+commandTableName = "ピンクスライム"
+dropTableName = "ピンクスライム"
+factionType = ""
+isBoss = false
+name = "ピンクスライム"
+spriteKey = "pink_ball"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 0
+dexterity = 2
+sensation = 1
+strength = 1
+vitality = 1
+
+[[members]]
+animKeys = [ "violet_ball" ]
+commandTableName = "紫の浮遊体"
+dropTableName = "紫の浮遊体"
+factionType = ""
+isBoss = false
+name = "紫の浮遊体"
+spriteKey = "violet_ball"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 4
+defense = 1
+dexterity = 3
+sensation = 3
+strength = 3
+vitality = 3
+
+[[members]]
+animKeys = [ "tesla_coil_ball" ]
+commandTableName = "電撃球"
+dropTableName = "電撃球"
+factionType = ""
+isBoss = false
+name = "電撃球"
+spriteKey = "tesla_coil_ball"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 2
+dexterity = 3
+sensation = 4
+strength = 4
+vitality = 3
+
+[[members]]
+animKeys = [ "dragon_head" ]
+commandTableName = "竜頭"
+dropTableName = "竜頭"
+factionType = ""
+isBoss = false
+name = "竜頭"
+spriteKey = "dragon_head"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 3
+dexterity = 3
+sensation = 3
+strength = 6
+vitality = 5
+
+[[members]]
+animKeys = [ "gorilla" ]
+commandTableName = "ゴリラ"
+dropTableName = "ゴリラ"
+factionType = ""
+isBoss = false
+name = "ゴリラ"
+spriteKey = "gorilla"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 2
+defense = 2
+dexterity = 2
+sensation = 2
+strength = 5
+vitality = 4
+
+[[members]]
+animKeys = [ "armor_ghost" ]
+commandTableName = "鎧ゴースト"
+dropTableName = "鎧ゴースト"
+factionType = ""
+isBoss = false
+name = "鎧ゴースト"
+spriteKey = "armor_ghost"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 3
+dexterity = 3
+sensation = 3
+strength = 4
+vitality = 4
+
+[[members]]
+animKeys = [ "shadow_priest" ]
+commandTableName = "影司祭"
+dropTableName = "影司祭"
+factionType = ""
+isBoss = false
+name = "影司祭"
+spriteKey = "shadow_priest"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 4
+defense = 1
+dexterity = 3
+sensation = 4
+strength = 3
+vitality = 3
+
+[[members]]
+animKeys = [ "guard_soldier" ]
+commandTableName = "防衛兵"
+dropTableName = "防衛兵"
+factionType = ""
+isBoss = false
+name = "防衛兵"
+spriteKey = "guard_soldier"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 3
+defense = 3
+dexterity = 3
+sensation = 2
+strength = 4
+vitality = 4
+
 [[commandTables]]
 name = "スライム"
 
@@ -7707,6 +9863,124 @@ name = "影鼠"
 
 [[commandTables.entries]]
 weapon = "噛みつき"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 2
+
+[[commandTables]]
+name = "蝶"
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 3
+
+[[commandTables]]
+name = "ペンギン"
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 2
+
+[[commandTables]]
+name = "ピンクスライム"
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables]]
+name = "紫の浮遊体"
+
+[[commandTables.entries]]
+weapon = "光弾"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "電撃"
+weight = 2
+
+[[commandTables]]
+name = "電撃球"
+
+[[commandTables.entries]]
+weapon = "電撃"
+weight = 3
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 1
+
+[[commandTables]]
+name = "竜頭"
+
+[[commandTables.entries]]
+weapon = "火炎ブレス"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "引き裂き"
+weight = 1
+
+[[commandTables]]
+name = "ゴリラ"
+
+[[commandTables.entries]]
+weapon = "叩き潰し"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "噛みつき"
+weight = 2
+
+[[commandTables]]
+name = "鎧ゴースト"
+
+[[commandTables.entries]]
+weapon = "引き裂き"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "光弾"
+weight = 1
+
+[[commandTables.entries]]
+weapon = "体当たり"
+weight = 1
+
+[[commandTables]]
+name = "影司祭"
+
+[[commandTables.entries]]
+weapon = "光弾"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "電撃"
+weight = 2
+
+[[commandTables.entries]]
+weapon = "毒牙"
+weight = 1
+
+[[commandTables]]
+name = "防衛兵"
+
+[[commandTables.entries]]
+weapon = "引き裂き"
 weight = 2
 
 [[commandTables.entries]]
@@ -8297,6 +10571,136 @@ material = "鉄くず"
 weight = 0.1
 
 [[dropTables]]
+name = "蝶"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.9
+
+[[dropTables.entries]]
+material = "灰"
+weight = 0.1
+
+[[dropTables]]
+name = "ペンギン"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.7
+
+[[dropTables.entries]]
+material = "鉄くず"
+weight = 0.3
+
+[[dropTables]]
+name = "ピンクスライム"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.8
+
+[[dropTables.entries]]
+material = "灰"
+weight = 0.2
+
+[[dropTables]]
+name = "紫の浮遊体"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.6
+
+[[dropTables.entries]]
+material = "水晶の粉"
+weight = 0.4
+
+[[dropTables]]
+name = "電撃球"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.5
+
+[[dropTables.entries]]
+material = "フェライトコア"
+weight = 0.3
+
+[[dropTables.entries]]
+material = "鉄くず"
+weight = 0.2
+
+[[dropTables]]
+name = "竜頭"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.3
+
+[[dropTables.entries]]
+material = "星鉄"
+weight = 0.4
+
+[[dropTables.entries]]
+material = "古代金貨"
+weight = 0.3
+
+[[dropTables]]
+name = "ゴリラ"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.5
+
+[[dropTables.entries]]
+material = "獣の毛皮"
+weight = 0.5
+
+[[dropTables]]
+name = "鎧ゴースト"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.5
+
+[[dropTables.entries]]
+material = "鉄くず"
+weight = 0.3
+
+[[dropTables.entries]]
+material = "霧の結晶"
+weight = 0.2
+
+[[dropTables]]
+name = "影司祭"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.4
+
+[[dropTables.entries]]
+material = "水晶の粉"
+weight = 0.4
+
+[[dropTables.entries]]
+material = "星の欠片"
+weight = 0.2
+
+[[dropTables]]
+name = "防衛兵"
+
+[[dropTables.entries]]
+material = ""
+weight = 0.5
+
+[[dropTables.entries]]
+material = "鉄"
+weight = 0.3
+
+[[dropTables.entries]]
+material = "鉄くず"
+weight = 0.2
+
+[[dropTables]]
 name = "ジープ"
 
 [[dropTables.entries]]
@@ -8318,7 +10722,7 @@ name = "廃墟"
 itemName = "回復薬"
 maxDepth = 30
 minDepth = 1
-weight = 3.0
+weight = 6.0
 
 [[itemTables.entries]]
 itemName = "銀の欠片"
@@ -8701,7 +11105,7 @@ name = "森"
 itemName = "回復薬"
 maxDepth = 30
 minDepth = 1
-weight = 3.0
+weight = 8.0
 
 [[itemTables.entries]]
 itemName = "緑ハーブ"
@@ -9028,7 +11432,7 @@ name = "洞窟"
 itemName = "回復薬"
 maxDepth = 30
 minDepth = 1
-weight = 3.0
+weight = 8.0
 
 [[itemTables.entries]]
 itemName = "毒消し"
@@ -9483,6 +11887,48 @@ maxDepth = 30
 minDepth = 14
 weight = 0.2
 
+[[enemyTables.entries]]
+enemyName = "ピンクスライム"
+maxDepth = 10
+minDepth = 2
+weight = 0.8
+
+[[enemyTables.entries]]
+enemyName = "紫の浮遊体"
+maxDepth = 20
+minDepth = 10
+weight = 0.2
+
+[[enemyTables.entries]]
+enemyName = "電撃球"
+maxDepth = 22
+minDepth = 12
+weight = 0.15
+
+[[enemyTables.entries]]
+enemyName = "竜頭"
+maxDepth = 30
+minDepth = 18
+weight = 0.1
+
+[[enemyTables.entries]]
+enemyName = "鎧ゴースト"
+maxDepth = 25
+minDepth = 14
+weight = 0.1
+
+[[enemyTables.entries]]
+enemyName = "影司祭"
+maxDepth = 25
+minDepth = 16
+weight = 0.1
+
+[[enemyTables.entries]]
+enemyName = "防衛兵"
+maxDepth = 22
+minDepth = 12
+weight = 0.1
+
 [[enemyTables]]
 name = "森"
 
@@ -9629,6 +12075,24 @@ enemyName = "化学戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.25
+
+[[enemyTables.entries]]
+enemyName = "蝶"
+maxDepth = 15
+minDepth = 1
+weight = 3.0
+
+[[enemyTables.entries]]
+enemyName = "ピンクスライム"
+maxDepth = 12
+minDepth = 1
+weight = 1.5
+
+[[enemyTables.entries]]
+enemyName = "ゴリラ"
+maxDepth = 22
+minDepth = 12
+weight = 0.1
 
 [[enemyTables]]
 name = "洞窟"
@@ -9794,6 +12258,42 @@ enemyName = "旧式戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+
+[[enemyTables.entries]]
+enemyName = "ペンギン"
+maxDepth = 10
+minDepth = 1
+weight = 1.0
+
+[[enemyTables.entries]]
+enemyName = "紫の浮遊体"
+maxDepth = 20
+minDepth = 10
+weight = 0.2
+
+[[enemyTables.entries]]
+enemyName = "電撃球"
+maxDepth = 22
+minDepth = 12
+weight = 0.15
+
+[[enemyTables.entries]]
+enemyName = "竜頭"
+maxDepth = 30
+minDepth = 18
+weight = 0.1
+
+[[enemyTables.entries]]
+enemyName = "鎧ゴースト"
+maxDepth = 25
+minDepth = 14
+weight = 0.1
+
+[[enemyTables.entries]]
+enemyName = "影司祭"
+maxDepth = 25
+minDepth = 16
+weight = 0.1
 
 [[spriteSheets]]
 name = "bg"
