@@ -2,7 +2,7 @@
 
 package steam
 
-// steamタグがないときは何もしない
+// Init はsteamタグがないときは何もしない
 func Init() error {
 	return nil
 }

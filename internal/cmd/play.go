@@ -35,7 +35,7 @@ var CmdPlay = &cli.Command{
 func runPlay(_ context.Context, _ *cli.Command) error {
 	// Steam APIの初期化。steamタグなしではno-op
 	if err := steam.Init(); err != nil {
-		return fmt.Errorf("Steam初期化に失敗: %w", err)
+		return fmt.Errorf("steam初期化に失敗: %w", err)
 	}
 
 	// 設定を読み込み
