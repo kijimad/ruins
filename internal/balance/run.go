@@ -9,8 +9,8 @@ import (
 
 // フロアあたりの敵数定数。mapplanner/hostile_npc_planner.go と同じ値を使う
 const (
-	baseEnemyCount   = 3
-	randomEnemyCount = 3
+	baseEnemyCount   = 1
+	randomEnemyCount = 2
 )
 
 // フロアあたりの移動歩数。50x50マップでの入口→出口＋探索を推定した値
