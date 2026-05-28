@@ -7682,6 +7682,24 @@ strength = 3
 vitality = 1
 
 [[items]]
+description = "漆黒の指輪。闇の力が宿っている"
+name = "黒の指輪"
+spriteKey = "black_ring"
+spriteSheetName = "field"
+value = 350
+weight = 0.02
+
+[items.wearable]
+defense = 1
+equipmentCategory = "JEWELRY"
+insulationCold = 0
+insulationHeat = 0
+
+[items.equipBonus]
+agility = 2
+strength = 1
+
+[[items]]
 description = "宝石が嵌った上品な指輪"
 name = "宝石の指輪"
 spriteKey = "jeweled_ring"
