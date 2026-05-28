@@ -37,6 +37,17 @@ jobs:
       - name: build
         run: make build
 
+  build-steam:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # タグ情報を取得するために全履歴を取得
+      - name: build-steam
+        run: make build-steam
+
   test:
     runs-on: ubuntu-latest
     permissions:
