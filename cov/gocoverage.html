@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.7%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -221,7 +221,7 @@
 				
 				<option value="file82">github.com/kijimaD/ruins/internal/mapplanner/forest_planner.go (98.0%)</option>
 				
-				<option value="file83">github.com/kijimaD/ruins/internal/mapplanner/hostile_npc_planner.go (82.1%)</option>
+				<option value="file83">github.com/kijimaD/ruins/internal/mapplanner/hostile_npc_planner.go (75.0%)</option>
 				
 				<option value="file84">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (85.7%)</option>
 				
@@ -1407,7 +1407,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -5043,8 +5043,8 @@ import (
 
 // フロアあたりの敵数定数。mapplanner/hostile_npc_planner.go と同じ値を使う
 const (
-        baseEnemyCount   = 3
-        randomEnemyCount = 3
+        baseEnemyCount   = 1
+        randomEnemyCount = 2
 )
 
 // フロアあたりの移動歩数。50x50マップでの入口→出口＋探索を推定した値
@@ -12795,8 +12795,8 @@ import (
 // 敵NPC配置用の定数
 const (
         // 敵NPC生成関連
-        baseHostileNPCCount    = 3   // 敵NPC生成の基本数
-        randomHostileNPCCount  = 3   // 敵NPC生成のランダム追加数（0-2の範囲）
+        baseHostileNPCCount    = 1   // 敵NPC生成の基本数
+        randomHostileNPCCount  = 2   // 敵NPC生成のランダム追加数（0-1の範囲）
         maxHostileNPCFailCount = 200 // 敵NPC生成の最大失敗回数
 )
 
@@ -12840,7 +12840,7 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error <span class="cov8
                 tx := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
                 ty := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 
-                if !planData.IsSpawnableTile(n.world, tx, ty) </span><span class="cov8" title="1">{
+                if !planData.IsSpawnableTile(n.world, tx, ty) </span><span class="cov0" title="0">{
                         failCount++
                         continue</span>
                 }

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.9&nbsp;%</td>
+            <td class="headerCovTableEntryMed">76.6&nbsp;%</td>
             <td class="headerCovTableEntry">47</td>
-            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">36</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-27 23:26:42</td>
+            <td class="headerValue">2026-05-28 13:53:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -74,8 +74,8 @@
 <span id="L12"><span class="lineNum">      12</span>              : // 敵NPC配置用の定数</span>
 <span id="L13"><span class="lineNum">      13</span>              : const (</span>
 <span id="L14"><span class="lineNum">      14</span>              :         // 敵NPC生成関連</span>
-<span id="L15"><span class="lineNum">      15</span>              :         baseHostileNPCCount    = 3   // 敵NPC生成の基本数</span>
-<span id="L16"><span class="lineNum">      16</span>              :         randomHostileNPCCount  = 3   // 敵NPC生成のランダム追加数（0-2の範囲）</span>
+<span id="L15"><span class="lineNum">      15</span>              :         baseHostileNPCCount    = 1   // 敵NPC生成の基本数</span>
+<span id="L16"><span class="lineNum">      16</span>              :         randomHostileNPCCount  = 2   // 敵NPC生成のランダム追加数（0-1の範囲）</span>
 <span id="L17"><span class="lineNum">      17</span>              :         maxHostileNPCFailCount = 200 // 敵NPC生成の最大失敗回数</span>
 <span id="L18"><span class="lineNum">      18</span>              : )</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
@@ -119,13 +119,13 @@
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :                 if !planData.IsSpawnableTile(n.world, tx, ty) {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                         failCount++</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 if !planData.IsSpawnableTile(n.world, tx, ty) {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                         failCount++</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                         continue</span></span>
 <span id="L63"><span class="lineNum">      63</span>              :                 }</span>
 <span id="L64"><span class="lineNum">      64</span>              : </span>
 <span id="L65"><span class="lineNum">      65</span>              :                 // エントリから重み付き抽選で敵を選択</span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 enemyName, err := raw.SelectByWeightFunc(</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC tlaBgGNC">           1 :                 enemyName, err := raw.SelectByWeightFunc(</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                         n.plannerType.EnemyEntries,</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :                         func(e SpawnEntry) float64 { return e.Weight },</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                         func(e SpawnEntry) string { return e.Name },</span></span>
