@@ -164,11 +164,9 @@ function sortAll(raws: Raws): void {
 }
 
 // raw.toml の読み書き
+// 毎回ファイルから読み込むことで、外部編集との競合を防ぐ
 class RawStore {
-  private raws: Raws;
-  constructor(private filePath: string) {
-    this.raws = this.load();
-  }
+  constructor(private filePath: string) {}
 
   private load(): Raws {
     const content = fs.readFileSync(this.filePath, "utf-8");
@@ -177,15 +175,17 @@ class RawStore {
     return raws;
   }
 
-  private save(): void {
+  private save(raws: Raws): void {
+    sortAll(raws);
     const content = tomlStringify(
-      this.raws as unknown as Record<string, unknown>,
+      raws as unknown as Record<string, unknown>,
     );
     fs.writeFileSync(this.filePath, content, "utf-8");
   }
 
   getSlice(key: keyof Raws): unknown[] {
-    return (this.raws[key] as unknown[]) ?? [];
+    const raws = this.load();
+    return (raws[key] as unknown[]) ?? [];
   }
 
   getAt(key: keyof Raws, index: number): unknown {
@@ -195,29 +195,32 @@ class RawStore {
   }
 
   addTo(key: keyof Raws, item: unknown): number {
-    if (!this.raws[key]) {
+    const raws = this.load();
+    if (!raws[key]) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.raws as any)[key] = [];
+      (raws as any)[key] = [];
     }
-    (this.raws[key] as unknown[]).push(item);
-    this.save();
+    (raws[key] as unknown[]).push(item);
+    this.save(raws);
     // ソート後のインデックスを返す
-    return (this.raws[key] as unknown[]).indexOf(item);
+    return (raws[key] as unknown[]).indexOf(item);
   }
 
   updateAt(key: keyof Raws, index: number, item: unknown): boolean {
-    const slice = this.raws[key] as unknown[] | undefined;
+    const raws = this.load();
+    const slice = raws[key] as unknown[] | undefined;
     if (!slice || index < 0 || index >= slice.length) return false;
     slice[index] = item;
-    this.save();
+    this.save(raws);
     return true;
   }
 
   deleteAt(key: keyof Raws, index: number): boolean {
-    const slice = this.raws[key] as unknown[] | undefined;
+    const raws = this.load();
+    const slice = raws[key] as unknown[] | undefined;
     if (!slice || index < 0 || index >= slice.length) return false;
     slice.splice(index, 1);
-    this.save();
+    this.save(raws);
     return true;
   }
 }
