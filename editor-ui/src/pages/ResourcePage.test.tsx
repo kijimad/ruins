@@ -437,8 +437,8 @@ describe("ResourcePage", () => {
     render(<ResourcePage resource="recipes" label="レシピ" />, { wrapper });
     await userEvent.click(screen.getByText("鉄の剣レシピ"));
 
-    // name はSearchableSelectで表示されるのでテキストとして確認する
-    expect(screen.getByText("鉄")).toBeInTheDocument();
+    // name はComboboxのinputに表示される
+    expect(screen.getByDisplayValue("鉄")).toBeInTheDocument();
     expect(screen.getByDisplayValue("4")).toBeInTheDocument();
 
     const addButton = screen

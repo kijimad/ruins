@@ -1,11 +1,29 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Box, Flex, Input, Portal, Text } from "@chakra-ui/react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
+import {
+  ComboboxContent,
+  ComboboxControl,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxItemText,
+  ComboboxList,
+  ComboboxPositioner,
+  ComboboxRoot,
+  ComboboxTrigger,
+  Flex,
+  createListCollection,
+} from "@chakra-ui/react";
 
 interface SearchableSelectProps {
   options: string[];
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
+  // 選択中の値の横に表示するカスタム要素
+  renderSelected?: (item: string) => ReactNode;
+  // ドロップダウン内の各アイテムをカスタム描画する
+  renderItem?: (item: string) => ReactNode;
 }
 
 export function SearchableSelect({
@@ -13,136 +31,83 @@ export function SearchableSelect({
   value,
   onChange,
   placeholder = "選択...",
+  disabled,
+  renderSelected,
+  renderItem,
 }: SearchableSelectProps) {
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const containerRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+  const collection = useMemo(
+    () =>
+      createListCollection({
+        items: options,
+        itemToString: (item) => item,
+        itemToValue: (item) => item,
+      }),
+    [options],
+  );
 
-  const updatePosition = useCallback(() => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    setDropdownStyle({
-      position: "fixed",
-      top: rect.bottom + 4,
-      left: rect.left,
-      width: rect.width,
-      zIndex: 1400,
-    });
-  }, []);
+  const [inputValue, setInputValue] = useState(value);
 
-  // ドロップダウンを開いたときに位置を計算する
+  // 外部からvalue propが変わったときにinputValueを同期する
   useEffect(() => {
-    if (!open) return;
-    updatePosition();
-  }, [open, updatePosition]);
+    setInputValue(value);
+  }, [value]);
 
-  // 外部クリックで閉じる
-  useEffect(() => {
-    if (!open) return;
-    function handleClick(e: MouseEvent) {
-      const target = e.target as Node;
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(target) &&
-        dropdownRef.current &&
-        !dropdownRef.current.contains(target)
-      ) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, [open]);
-
-  const filtered = useMemo(() => {
-    if (!search) return options;
-    const lower = search.toLowerCase();
-    return options.filter((s) => s.toLowerCase().includes(lower));
-  }, [options, search]);
+  // 入力値が選択値と同じ場合はフィルタリングしない（全件表示）
+  const filterText = inputValue !== value ? inputValue.toLowerCase() : "";
 
   return (
-    <Box ref={containerRef} position="relative" flex="1">
-      <Flex
-        align="center"
-        gap="2"
-        borderWidth="1px"
-        borderRadius="md"
-        px="2"
-        py="1"
-        cursor="pointer"
-        onClick={() => {
-          setOpen(!open);
-          setSearch("");
-          setTimeout(() => inputRef.current?.focus(), 0);
-        }}
-        _hover={{ borderColor: "border.emphasized" }}
-      >
-        <Text fontSize="sm" flex="1" truncate>
-          {value || placeholder}
-        </Text>
-      </Flex>
-
-      {open && (
-        <Portal>
-          <Box
-            ref={dropdownRef}
-            style={dropdownStyle}
-            bg="bg"
-            borderWidth="1px"
-            borderRadius="md"
-            boxShadow="lg"
-            maxH="80"
-            overflow="hidden"
-          >
-            <Box p="1" borderBottom="1px solid" borderColor="border">
-              <Input
-                ref={inputRef}
-                size="sm"
-                placeholder="検索..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") setOpen(false);
-                  if (e.key === "Enter" && filtered.length > 0) {
-                    onChange(filtered[0]!);
-                    setOpen(false);
-                  }
-                }}
-              />
-            </Box>
-            <Box overflowY="auto" maxH="68">
-              {filtered.length === 0 ? (
-                <Text fontSize="sm" color="fg.muted" p="2">
-                  該当なし
-                </Text>
-              ) : (
-                filtered.map((option) => (
-                  <Flex
-                    key={option}
-                    align="center"
-                    px="2"
-                    py="1"
-                    cursor="pointer"
-                    bg={option === value ? "bg.emphasized" : undefined}
-                    _hover={{ bg: "bg.muted" }}
-                    onClick={() => {
-                      onChange(option);
-                      setOpen(false);
-                    }}
-                  >
-                    <Text fontSize="sm" truncate>
-                      {option}
-                    </Text>
-                  </Flex>
-                ))
-              )}
-            </Box>
-          </Box>
-        </Portal>
-      )}
-    </Box>
+    <ComboboxRoot
+      collection={collection}
+      value={value ? [value] : []}
+      inputValue={inputValue}
+      onInputValueChange={(details) => setInputValue(details.inputValue)}
+      onValueChange={(details) => {
+        const selected = details.value[0];
+        if (selected !== undefined) {
+          onChange(selected);
+          setInputValue(selected);
+        }
+      }}
+      disabled={disabled}
+      allowCustomValue
+      openOnClick
+      size="sm"
+      flex="1"
+    >
+      <ComboboxControl>
+        <Flex align="center" flex="1">
+          {renderSelected && value && renderSelected(value)}
+          <ComboboxInput
+            placeholder={placeholder}
+            onBlur={() => {
+              // 自由入力値もonChangeに反映する
+              if (inputValue !== value) onChange(inputValue);
+            }}
+          />
+        </Flex>
+        <ComboboxTrigger />
+      </ComboboxControl>
+      <ComboboxPositioner>
+        <ComboboxContent>
+          <ComboboxEmpty>該当なし</ComboboxEmpty>
+          <ComboboxList>
+            {options.map((item) => {
+              const matches =
+                !filterText || item.toLowerCase().includes(filterText);
+              return (
+                <ComboboxItem
+                  key={item}
+                  item={item}
+                  hidden={!matches}
+                >
+                  {renderItem ? renderItem(item) : null}
+                  <ComboboxItemText>{item}</ComboboxItemText>
+                </ComboboxItem>
+              );
+            })}
+          </ComboboxList>
+        </ComboboxContent>
+      </ComboboxPositioner>
+    </ComboboxRoot>
   );
 }
