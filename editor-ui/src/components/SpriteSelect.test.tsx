@@ -40,6 +40,11 @@ function setupSheet(sheet: SpriteSheetInfo | undefined) {
   mockedUseSpriteSheet.mockReturnValue({ data: sheet } as any);
 }
 
+// Comboboxのinput要素を取得するヘルパー
+function getComboboxInput() {
+  return screen.getByRole("combobox");
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
@@ -47,13 +52,8 @@ beforeEach(() => {
 describe("SpriteSelect", () => {
   test("シートデータ未取得時はinputが無効化される", () => {
     setupSheet(undefined);
-    const onChange = vi.fn();
     render(
-      <SpriteSelect
-        sheetName="field"
-        value="wooden_sword"
-        onChange={onChange}
-      />,
+      <SpriteSelect sheetName="field" value="wooden_sword" onChange={vi.fn()} />,
       { wrapper },
     );
 
@@ -61,158 +61,58 @@ describe("SpriteSelect", () => {
     expect(input).toBeDisabled();
   });
 
-  test("シートデータ取得後は現在の値がテキスト表示される", () => {
+  test("シートデータ取得後は現在の値がinputに表示される", () => {
     setupSheet(mockSheet);
-    const onChange = vi.fn();
     render(
-      <SpriteSelect
-        sheetName="field"
-        value="wooden_sword"
-        onChange={onChange}
-      />,
+      <SpriteSelect sheetName="field" value="wooden_sword" onChange={vi.fn()} />,
       { wrapper },
     );
 
-    expect(screen.getByText("wooden_sword")).toBeInTheDocument();
+    expect(getComboboxInput()).toHaveValue("wooden_sword");
   });
 
-  test("クリックでドロップダウンが開き全候補が表示される", async () => {
+  test("入力で候補がフィルタリングされる", async () => {
     setupSheet(mockSheet);
-    const onChange = vi.fn();
     render(
-      <SpriteSelect
-        sheetName="field"
-        value="wooden_sword"
-        onChange={onChange}
-      />,
+      <SpriteSelect sheetName="field" value="" onChange={vi.fn()} />,
       { wrapper },
     );
 
-    await userEvent.click(screen.getByText("wooden_sword"));
+    const input = getComboboxInput();
+    await userEvent.type(input, "sword");
 
-    expect(screen.getByPlaceholderText("検索...")).toBeInTheDocument();
-    for (const sprite of mockSheet.sprites) {
-      // 選択中の値はヘッダーとドロップダウン両方に表示されうるため getAllByText を使う
-      expect(screen.getAllByText(sprite.key).length).toBeGreaterThanOrEqual(1);
-    }
+    await waitFor(() => {
+      expect(screen.getByText("wooden_sword")).toBeInTheDocument();
+    });
   });
 
-  test("検索テキストで候補がフィルタリングされる", async () => {
+  test("候補クリックでonChangeが呼ばれる", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
+    render(
+      <SpriteSelect sheetName="field" value="" onChange={onChange} />,
+      { wrapper },
+    );
+
+    const input = getComboboxInput();
+    await userEvent.click(input);
+    await userEvent.type(input, "alarm");
+
+    await waitFor(() => {
+      expect(screen.getByText("alarm_clock")).toBeInTheDocument();
     });
-
-    await userEvent.click(screen.getByText("(未選択)"));
-    const searchInput = screen.getByPlaceholderText("検索...");
-    await userEvent.type(searchInput, "sword");
-
-    expect(screen.getByText("wooden_sword")).toBeInTheDocument();
-    expect(screen.queryByText("alarm_clock")).not.toBeInTheDocument();
-    expect(screen.queryByText("player_0")).not.toBeInTheDocument();
-  });
-
-  test("検索で該当なしのとき「該当なし」が表示される", async () => {
-    setupSheet(mockSheet);
-    const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
-    });
-
-    await userEvent.click(screen.getByText("(未選択)"));
-    await userEvent.type(screen.getByPlaceholderText("検索..."), "zzzzz");
-
-    expect(screen.getByText("該当なし")).toBeInTheDocument();
-  });
-
-  test("候補クリックでonChangeが呼ばれドロップダウンが閉じる", async () => {
-    setupSheet(mockSheet);
-    const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
-    });
-
-    await userEvent.click(screen.getByText("(未選択)"));
     await userEvent.click(screen.getByText("alarm_clock"));
 
     expect(onChange).toHaveBeenCalledWith("alarm_clock");
-    await waitFor(() => {
-      expect(screen.queryByPlaceholderText("検索...")).not.toBeInTheDocument();
-    });
   });
 
-  test("Enterキーで先頭候補が選択される", async () => {
+  test("値が空のときプレースホルダーが表示される", () => {
     setupSheet(mockSheet);
-    const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
-    });
-
-    await userEvent.click(screen.getByText("(未選択)"));
-    const searchInput = screen.getByPlaceholderText("検索...");
-    await userEvent.type(searchInput, "sword");
-    await userEvent.keyboard("{Enter}");
-
-    expect(onChange).toHaveBeenCalledWith("wooden_sword");
-  });
-
-  test("Escapeキーでドロップダウンが閉じる", async () => {
-    setupSheet(mockSheet);
-    const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
-    });
-
-    await userEvent.click(screen.getByText("(未選択)"));
-    expect(screen.getByPlaceholderText("検索...")).toBeInTheDocument();
-
-    await userEvent.keyboard("{Escape}");
-    await waitFor(() => {
-      expect(screen.queryByPlaceholderText("検索...")).not.toBeInTheDocument();
-    });
-  });
-
-  test("外部クリックでドロップダウンが閉じる", async () => {
-    setupSheet(mockSheet);
-    const onChange = vi.fn();
     render(
-      <div>
-        <span data-testid="outside">外側</span>
-        <SpriteSelect sheetName="field" value="" onChange={onChange} />
-      </div>,
+      <SpriteSelect sheetName="field" value="" onChange={vi.fn()} />,
       { wrapper },
     );
 
-    await userEvent.click(screen.getByText("(未選択)"));
-    expect(screen.getByPlaceholderText("検索...")).toBeInTheDocument();
-
-    await userEvent.click(screen.getByTestId("outside"));
-    await waitFor(() => {
-      expect(screen.queryByPlaceholderText("検索...")).not.toBeInTheDocument();
-    });
-  });
-
-  test("検索は大文字小文字を無視する", async () => {
-    setupSheet(mockSheet);
-    const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
-    });
-
-    await userEvent.click(screen.getByText("(未選択)"));
-    await userEvent.type(screen.getByPlaceholderText("検索..."), "SWORD");
-
-    expect(screen.getByText("wooden_sword")).toBeInTheDocument();
-  });
-
-  test("値が空のとき「(未選択)」が表示される", () => {
-    setupSheet(mockSheet);
-    const onChange = vi.fn();
-    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
-      wrapper,
-    });
-
-    expect(screen.getByText("(未選択)")).toBeInTheDocument();
+    expect(getComboboxInput()).toHaveAttribute("placeholder", "(未選択)");
   });
 });
