@@ -172,9 +172,9 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	name.Name = st.playerName
 
 	// 操作ガイドを表示する
-	gamelog.New(gamelog.FieldLog).System("WASD: 移動する。").Log()
-	gamelog.New(gamelog.FieldLog).System("Mキー: 拠点メニューを開く。").Log()
-	gamelog.New(gamelog.FieldLog).System("Spaceキー: アクションメニューを開く。").Log()
+	gamelog.New(worldhelper.GetGameLog(world)).System("WASD: 移動する。").Log()
+	gamelog.New(worldhelper.GetGameLog(world)).System("Mキー: 拠点メニューを開く。").Log()
+	gamelog.New(worldhelper.GetGameLog(world)).System("Spaceキー: アクションメニューを開く。").Log()
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,

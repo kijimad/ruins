@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // MessageAreaConfig はメッセージエリアの設定
@@ -52,7 +53,7 @@ func NewMessageArea(world w.World) *MessageArea {
 	}
 
 	widget := messagelog.NewWidget(widgetConfig, world)
-	widget.SetStore(gamelog.FieldLog)
+	widget.SetStore(worldhelper.GetGameLog(world))
 
 	return &MessageArea{
 		widget:  widget,

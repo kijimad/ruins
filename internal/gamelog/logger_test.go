@@ -8,7 +8,7 @@ import (
 
 // NewLoggerWithTestStore はテスト用ストアを使用するLoggerを作成
 func NewLoggerWithTestStore() (*Logger, *SafeSlice) {
-	store := NewSafeSlice(FieldLogMaxSize)
+	store := NewSafeSlice(GameLogMaxSize)
 	logger := New(store)
 	return logger, store
 }

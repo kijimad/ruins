@@ -9,8 +9,8 @@ import (
 const (
 	// DefaultMaxLogSize はデフォルトの最大ログサイズ
 	DefaultMaxLogSize = 1000
-	// FieldLogMaxSize はフィールドログの最大サイズ
-	FieldLogMaxSize = 100
+	// GameLogMaxSize はフィールドログの最大サイズ
+	GameLogMaxSize = 100
 )
 
 // SafeSlice はスレッドセーフなログストレージ

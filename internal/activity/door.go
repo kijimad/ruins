@@ -64,7 +64,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	}
 
 	if doorComp.Locked {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("扉はロックされている。").
 			Log()
 		Cancel(comp, "扉はロックされている")
@@ -94,7 +94,7 @@ func (oda *OpenDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 
 	// プレイヤーの場合のみメッセージを表示
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("扉を開いた。").
 			Log()
 	}
@@ -188,7 +188,7 @@ func (cda *CloseDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 
 	// プレイヤーの場合のみメッセージを表示
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("扉を閉じた。").
 			Log()
 	}

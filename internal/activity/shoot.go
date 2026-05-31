@@ -240,7 +240,7 @@ func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) erro
 	}
 	_, err := Execute(&ShootActivity{}, params, world)
 	if err != nil {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(err.Error()).
 			Log()
 		return nil

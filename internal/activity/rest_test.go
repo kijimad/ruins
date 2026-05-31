@@ -320,3 +320,60 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, 0, comp.TurnsLeft)
 	})
 }
+
+func TestRestActivity_Canceled(t *testing.T) {
+	t.Parallel()
+
+	t.Run("キャンセル時にログが出力される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorRest,
+			State:        gc.ActivityStateCanceled,
+			CancelReason: "敵の接近",
+		}
+
+		ra := &RestActivity{}
+		err = ra.Canceled(comp, player, world)
+		require.NoError(t, err)
+
+		store := worldhelper.GetGameLog(world)
+		recent := store.GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "休息が中断された")
+		assert.Contains(t, recent[0], "敵の接近")
+	})
+}
+
+func TestRestActivity_Finish(t *testing.T) {
+	t.Parallel()
+
+	t.Run("完了時にログが出力される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		// HPを減らす
+		pools := world.Components.Pools.Get(player).(*gc.Pools)
+		pools.HP.Current = pools.HP.Max / 2
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorRest,
+		}
+
+		ra := &RestActivity{}
+		err = ra.Finish(comp, player, world)
+		require.NoError(t, err)
+
+		store := worldhelper.GetGameLog(world)
+		recent := store.GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "休息")
+	})
+}

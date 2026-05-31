@@ -76,6 +76,9 @@ type EntitySpec struct {
 	// battle ================
 	CommandTable *CommandTable
 	DropTable    *DropTable
+
+	// singleton ================
+	GameLog *GameLog
 }
 
 // Components はECSコンポーネントストレージ
@@ -155,6 +158,9 @@ type Components struct {
 	// activity ================
 	Activity     *ecs.SliceComponent // 実行中のアクティビティ
 	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
+
+	// singleton ================
+	GameLog *ecs.SliceComponent // フィールドログストレージ
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

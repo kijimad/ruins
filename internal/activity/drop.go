@@ -106,7 +106,7 @@ func (da *DropActivity) performDropActivity(comp *gc.Activity, actor ecs.Entity,
 		Y: playerGrid.Y,
 	})
 
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(worldhelper.GetGameLog(world)).
 		ItemName(formattedName).
 		Append(" を捨てた。").
 		Log()

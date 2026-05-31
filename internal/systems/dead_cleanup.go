@@ -87,7 +87,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		if entity.HasComponent(world.Components.Boss) {
 			// 全扉をアンロックして開く
 			if worldhelper.UnlockAllDoors(world) > 0 {
-				gamelog.New(gamelog.FieldLog).
+				gamelog.New(worldhelper.GetGameLog(world)).
 					Append("どこかで扉が開いたようだ。").
 					Log()
 			}

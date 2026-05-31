@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/raw"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // Resources は具体的なリソース実装。ゲーム固有のリソース管理を担当する
@@ -11,12 +12,14 @@ import (
 // データのみを保存し、ロジックはもたない
 type Resources struct {
 	// 静的
+	// TODO: UPDATEがないならポインタを外してよさそう
 	ScreenDimensions *ScreenDimensions
 	SpriteSheets     *map[string]components.SpriteSheet
 	Fonts            *map[string]Font
 	Faces            *map[string]text.Face
 	UIResources      *UIResources
 	RawMaster        *raw.Master
+	Singleton        ecs.Entity // シングルトンエンティティIDキャッシュ
 
 	// 動的
 	Dungeon      *Dungeon

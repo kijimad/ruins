@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -95,7 +96,7 @@ func (sys *TemperatureSystem) Update(world w.World) error {
 		}
 
 		// 各部位の健康状態を更新
-		hasChange := updateTemperatureConditions(hs, envTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
+		hasChange := updateTemperatureConditions(world, hs, envTemp, insulation, isPlayer, coldProgressPct, heatProgressPct)
 
 		// プレイヤーで状態変化があれば属性を再計算
 		if isPlayer && hasChange {
@@ -149,7 +150,7 @@ func getTileTemperatureAt(world w.World, x, y consts.Tile) int {
 // - isPlayerがtrueの場合、状態変化時にログを出力する。
 // - coldProgressPct/heatProgressPctは体温進行倍率%。100が基準で、低いほど進行が遅くなる。
 // - 戻り値: 状態のSeverityが変化した場合trueを返す
-func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct int) bool {
+func updateTemperatureConditions(world w.World, hs *gc.HealthStatus, envTemp int, insulation Insulation, isPlayer bool, coldProgressPct, heatProgressPct int) bool {
 	hasChange := false
 	partHealth := &hs.Parts[gc.BodyPartWholeBody]
 
@@ -181,7 +182,7 @@ func updateTemperatureConditions(hs *gc.HealthStatus, envTemp int, insulation In
 		if change.Prev != change.Current {
 			hasChange = true
 			if isPlayer {
-				logTemperatureChange(change.CondType, change.Current, change.Prev)
+				logTemperatureChange(world, change.CondType, change.Current, change.Prev)
 			}
 		}
 	}
@@ -224,7 +225,7 @@ func updateConditionEffects(partHealth *gc.BodyPartHealth) {
 }
 
 // logTemperatureChange は状態変化をログ出力する
-func logTemperatureChange(condType gc.ConditionType, current, prev gc.Severity) {
+func logTemperatureChange(world w.World, condType gc.ConditionType, current, prev gc.Severity) {
 	var msg string
 	if current > prev {
 		msg = getWorseningMessage(condType, current)
@@ -233,7 +234,7 @@ func logTemperatureChange(condType gc.ConditionType, current, prev gc.Severity) 
 	}
 
 	if msg != "" {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Warning(msg).
 			Log()
 	}

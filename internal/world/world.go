@@ -5,8 +5,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
-
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -54,6 +54,14 @@ func InitWorld(c *gc.Components) (World, error) {
 		Updaters:   make(map[string]Updater),
 		Renderers:  make(map[string]Renderer),
 	}
+
+	// シングルトンエンティティを生成してキャッシュする
+	// シングルトン用コンポーネントをすべてこのエンティティに付与する
+	singleton := manager.NewEntity()
+	singleton.AddComponent(c.GameLog, &gc.GameLog{
+		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
+	})
+	world.Resources.Singleton = singleton
 
 	return world, nil
 }

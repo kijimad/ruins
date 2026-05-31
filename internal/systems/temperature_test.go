@@ -79,13 +79,14 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 
 	t.Run("快適な温度では状態が回復する", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:  gc.ConditionHypothermia,
 			Timer: 50,
 		})
 
-		updateTemperatureConditions(hs, 20, Insulation{}, false, 100, 100)
+		updateTemperatureConditions(world, hs, 20, Insulation{}, false, 100, 100)
 
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		if cond != nil {
@@ -95,9 +96,10 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 
 	t.Run("寒い環境で低体温タイマーが増加", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{}
 
-		updateTemperatureConditions(hs, 0, Insulation{}, false, 100, 100)
+		updateTemperatureConditions(world, hs, 0, Insulation{}, false, 100, 100)
 
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		require.NotNil(t, cond)
@@ -106,9 +108,10 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 
 	t.Run("暑い環境で高体温タイマーが増加", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{}
 
-		updateTemperatureConditions(hs, 40, Insulation{}, false, 100, 100)
+		updateTemperatureConditions(world, hs, 40, Insulation{}, false, 100, 100)
 
 		cond := hs.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHyperthermia)
 		require.NotNil(t, cond)
@@ -117,12 +120,13 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 
 	t.Run("耐寒装備で低体温を軽減", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		hs1 := &gc.HealthStatus{}
 		hs2 := &gc.HealthStatus{}
 
 		// 同じ寒い環境(0度)で比較
-		updateTemperatureConditions(hs1, 0, Insulation{}, false, 100, 100)
-		updateTemperatureConditions(hs2, 0, Insulation{Cold: 20}, false, 100, 100)
+		updateTemperatureConditions(world, hs1, 0, Insulation{}, false, 100, 100)
+		updateTemperatureConditions(world, hs2, 0, Insulation{Cold: 20}, false, 100, 100)
 
 		cond1 := hs1.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
 		cond2 := hs2.Parts[gc.BodyPartWholeBody].GetCondition(gc.ConditionHypothermia)
@@ -138,6 +142,7 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 
 	t.Run("Severity変化時にtrueを返す", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{}
 		hs.Parts[gc.BodyPartWholeBody].SetCondition(gc.HealthCondition{
 			Type:     gc.ConditionHypothermia,
@@ -145,15 +150,16 @@ func TestUpdateTemperatureConditions(t *testing.T) {
 			Timer:    24.5,
 		})
 
-		hasChange := updateTemperatureConditions(hs, 0, Insulation{}, false, 100, 100)
+		hasChange := updateTemperatureConditions(world, hs, 0, Insulation{}, false, 100, 100)
 		assert.True(t, hasChange)
 	})
 
 	t.Run("Severity変化がない場合はfalseを返す", func(t *testing.T) {
 		t.Parallel()
+		world := testutil.InitTestWorld(t)
 		hs := &gc.HealthStatus{}
 
-		hasChange := updateTemperatureConditions(hs, 20, Insulation{}, false, 100, 100)
+		hasChange := updateTemperatureConditions(world, hs, 20, Insulation{}, false, 100, 100)
 		assert.False(t, hasChange)
 	})
 }

@@ -185,7 +185,7 @@ func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	itemName := u.getItemName(item, world)
 	actorName := worldhelper.GetEntityName(actor, world)
 
-	logger := gamelog.New(gamelog.FieldLog)
+	logger := gamelog.New(worldhelper.GetGameLog(world))
 	logger.Build(func(l *gamelog.Logger) {
 		worldhelper.AppendNameWithColor(l, actor, actorName, world)
 	}).Append(" は ").ItemName(itemName).Append(" を使った。")
@@ -209,7 +209,7 @@ func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item 
 	itemName := u.getItemName(item, world)
 	actorName := worldhelper.GetEntityName(actor, world)
 
-	logger := gamelog.New(gamelog.FieldLog)
+	logger := gamelog.New(worldhelper.GetGameLog(world))
 	logger.Build(func(l *gamelog.Logger) {
 		worldhelper.AppendNameWithColor(l, actor, actorName, world)
 	}).Append(" は ").ItemName(itemName).Append(" を食べた。")

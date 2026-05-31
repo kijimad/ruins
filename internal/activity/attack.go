@@ -385,7 +385,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		actorName := worldhelper.GetEntityName(actor, world)
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("%s のスキルが上がった！（%s Lv%d）", actorName, string(skillID), s.Value)).
 			Log()
 	}
@@ -400,7 +400,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 	attackerName := worldhelper.GetEntityName(attacker, world)
 	targetName := worldhelper.GetEntityName(target, world)
 
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(worldhelper.GetGameLog(world)).
 		Build(func(l *gamelog.Logger) {
 			worldhelper.AppendNameWithColor(l, attacker, attackerName, world)
 		}).

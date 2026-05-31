@@ -89,7 +89,7 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 
 func executeDoorLock(world w.World) (*ActionResult, error) {
 	if worldhelper.LockAllDoors(world) > 0 {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("どこかで扉が閉じたようだ。").
 			Log()
 	}

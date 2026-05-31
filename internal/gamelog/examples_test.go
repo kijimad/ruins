@@ -9,7 +9,7 @@ import (
 // この例は、Loggerのメソッドチェーンの使い方を示しています
 func ExampleLogger_methodChaining() {
 	// ローカルログストアを作成
-	testLog := NewSafeSlice(FieldLogMaxSize)
+	testLog := NewSafeSlice(GameLogMaxSize)
 
 	// メソッドチェーンでのログ作成
 	New(testLog).
@@ -44,10 +44,10 @@ func ExampleLogger_methodChaining() {
 // カスタム色の例
 func ExampleLogger_customColors() {
 	// ローカルフィールドログストアを作成
-	testFieldLog := NewSafeSlice(FieldLogMaxSize)
-	testFieldLog.Clear()
+	testGameLog := NewSafeSlice(GameLogMaxSize)
+	testGameLog.Clear()
 
-	New(testFieldLog).
+	New(testGameLog).
 		ColorRGBA(consts.ColorPurple).
 		Append("Magic spell ").
 		ColorRGBA(consts.ColorOrange).
@@ -59,7 +59,7 @@ func ExampleLogger_customColors() {
 		Log()
 
 	// 色付きエントリの取得
-	entries := testFieldLog.GetRecentEntries(1)
+	entries := testGameLog.GetRecentEntries(1)
 	fmt.Printf("Entry has %d colored fragments\n", len(entries[0].Fragments))
 	// Output: Entry has 5 colored fragments
 }
@@ -67,9 +67,9 @@ func ExampleLogger_customColors() {
 // 連続攻撃のログ例
 func ExampleLogger_chainedAttack() {
 	// ローカルフィールドログストアを作成
-	testFieldLog := NewSafeSlice(FieldLogMaxSize)
+	testGameLog := NewSafeSlice(GameLogMaxSize)
 
-	New(testFieldLog).
+	New(testGameLog).
 		NPCName("Orc").
 		Append(" attacks ").
 		Append("->").

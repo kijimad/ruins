@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -100,7 +101,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		}
 		nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
 
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(nameComp.Name + "と話した。").
 			Log()
 

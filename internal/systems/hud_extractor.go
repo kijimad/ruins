@@ -18,7 +18,7 @@ func ExtractHUDData(world w.World) hud.Data {
 		GameInfo:         extractGameInfo(world),
 		MinimapData:      extractMinimapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
-		MessageData:      extractMessageData(world, gamelog.FieldLog),
+		MessageData:      extractMessageData(world, worldhelper.GetGameLog(world)),
 		CurrencyData:     extractCurrencyData(world),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world),
