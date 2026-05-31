@@ -9,13 +9,13 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetTurnState はワールドからターン状態を取得する
+// GetTurnState はシングルトンエンティティからターン状態を取得する
 func GetTurnState(world w.World) (*gc.TurnState, error) {
-	d := GetDungeon(world)
-	if d == nil {
-		return nil, fmt.Errorf("Dungeonが初期化されていません")
+	data := world.Components.TurnState.Get(world.Resources.SingletonEntity)
+	if data == nil {
+		return nil, fmt.Errorf("TurnStateが初期化されていません")
 	}
-	return &d.TurnState, nil
+	return data.(*gc.TurnState), nil
 }
 
 // GetTurnNumber はターン番号を取得する

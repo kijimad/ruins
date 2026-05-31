@@ -22,8 +22,6 @@ type Dungeon struct {
 	NeedsForceUpdate bool
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
-	// TurnState はターンの状態を保持する
-	TurnState TurnState
 	// GameTime はゲーム内時間を保持する
 	GameTime GameTime
 	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
@@ -44,10 +42,6 @@ func NewDungeon() *Dungeon {
 			OffsetX: 10,
 			OffsetY: 10,
 			Scale:   3,
-		},
-		TurnState: TurnState{
-			Phase:      TurnPhasePlayer,
-			TurnNumber: 1,
 		},
 		SelectedWeaponSlot: 1,
 	}

@@ -164,6 +164,7 @@ type Components struct {
 	GameLog      *ecs.SliceComponent // フィールドログストレージ
 	DungeonState *ecs.SliceComponent // ダンジョン状態
 	GameProgress *ecs.SliceComponent // ゲーム進行データ
+	TurnState    *ecs.SliceComponent // ターン状態
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する
