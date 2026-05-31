@@ -4,11 +4,9 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // MessageAreaConfig はメッセージエリアの設定
@@ -53,21 +51,12 @@ func NewMessageArea(world w.World) *MessageArea {
 	}
 
 	widget := messagelog.NewWidget(widgetConfig, world)
-	widget.SetStore(worldhelper.GetGameLog(world))
 
 	return &MessageArea{
 		widget:  widget,
 		config:  config,
 		enabled: true,
 	}
-}
-
-// SetStore はログストアを設定する
-func (area *MessageArea) SetStore(store *gamelog.SafeSlice) {
-	if area.widget == nil {
-		return
-	}
-	area.widget.SetStore(store)
 }
 
 // SetConfig は設定を変更する
@@ -84,7 +73,7 @@ func (area *MessageArea) GetConfig() MessageAreaConfig {
 }
 
 // Update はメッセージエリアを更新する
-func (area *MessageArea) Update(_ w.World) {
+func (area *MessageArea) Update() {
 	if !area.enabled || area.widget == nil {
 		return
 	}

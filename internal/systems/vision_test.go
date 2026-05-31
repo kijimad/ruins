@@ -243,6 +243,79 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	assert.NotContains(t, result, unknown)
 }
 
+func TestBuildBlockViewIndex(t *testing.T) {
+	t.Parallel()
+
+	t.Run("BlockViewを持つエンティティがインデックスに含まれる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		// BlockView付きの壁タイルを生成する
+		wallGrid := gc.GridElement{X: 3, Y: 4}
+		world.Manager.NewEntity().
+			AddComponent(world.Components.GridElement, &wallGrid).
+			AddComponent(world.Components.BlockView, &gc.BlockView{})
+
+		// BlockViewなしの床タイルを生成する
+		floorGrid := gc.GridElement{X: 5, Y: 6}
+		world.Manager.NewEntity().
+			AddComponent(world.Components.GridElement, &floorGrid)
+
+		index := buildBlockViewIndex(world)
+
+		assert.True(t, index[wallGrid], "壁タイルがインデックスに含まれる")
+		assert.False(t, index[floorGrid], "床タイルはインデックスに含まれない")
+	})
+
+	t.Run("BlockViewエンティティがない場合は空マップを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		index := buildBlockViewIndex(world)
+
+		assert.Empty(t, index)
+	})
+}
+
+func TestBresenhamLineOfSight(t *testing.T) {
+	t.Parallel()
+
+	t.Run("遮蔽物がなければ見える", func(t *testing.T) {
+		t.Parallel()
+		blockIndex := map[gc.GridElement]bool{}
+
+		assert.True(t, bresenhamLineOfSight(0, 0, 5, 5, blockIndex))
+	})
+
+	t.Run("途中に壁があれば見えない", func(t *testing.T) {
+		t.Parallel()
+		blockIndex := map[gc.GridElement]bool{
+			{X: 2, Y: 2}: true,
+		}
+
+		assert.False(t, bresenhamLineOfSight(0, 0, 5, 5, blockIndex))
+	})
+
+	t.Run("ターゲット位置の壁は遮蔽しない", func(t *testing.T) {
+		t.Parallel()
+		// ターゲット自体が壁でも到達判定が先なので見える
+		blockIndex := map[gc.GridElement]bool{
+			{X: 3, Y: 3}: true,
+		}
+
+		assert.True(t, bresenhamLineOfSight(0, 0, 3, 3, blockIndex))
+	})
+
+	t.Run("隣接タイルは常に見える", func(t *testing.T) {
+		t.Parallel()
+		// 隣接はbresenhamの最初のステップでターゲット到達する
+		blockIndex := map[gc.GridElement]bool{}
+
+		assert.True(t, bresenhamLineOfSight(5, 5, 6, 5, blockIndex))
+		assert.True(t, bresenhamLineOfSight(5, 5, 5, 6, blockIndex))
+	})
+}
+
 func TestClearCaches(t *testing.T) {
 	t.Parallel()
 

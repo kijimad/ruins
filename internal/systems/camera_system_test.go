@@ -1,7 +1,6 @@
 package systems
 
 import (
-	"math"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -12,115 +11,31 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCameraSystem_DisableAnimation(t *testing.T) {
+func TestCameraSystem_SnapsToPlayerPosition(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Config.DisableAnimation = true
 
-	// プレイヤーエンティティを作成
 	_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 	require.NoError(t, err)
 
-	// カメラエンティティを作成（初期位置は原点）
+	// カメラの初期位置は原点
 	cameraEntity := world.Manager.NewEntity()
 	camera := &gc.Camera{
 		Scale:   1.0,
 		ScaleTo: 1.0,
-		X:       0,
-		Y:       0,
-		TargetX: 0,
-		TargetY: 0,
 	}
 	cameraEntity.AddComponent(world.Components.Camera, camera)
 
-	// CameraSystemを実行
 	sys := &CameraSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// アニメーション無効時は即座にスナップ
 	tileSize := float64(consts.TileSize)
-	expectedTargetX := float64(10)*tileSize + tileSize/2
-	expectedTargetY := float64(10)*tileSize + tileSize/2
+	expectedX := float64(10)*tileSize + tileSize/2
+	expectedY := float64(10)*tileSize + tileSize/2
 
-	assert.Equal(t, expectedTargetX, camera.X, "アニメーション無効時は即座にスナップするべき")
-	assert.Equal(t, expectedTargetY, camera.Y, "アニメーション無効時は即座にスナップするべき")
-}
-
-func TestCameraSystem_SmoothFollow(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// プレイヤーエンティティを作成
-	_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
-	require.NoError(t, err)
-
-	// カメラエンティティを作成（初期位置は原点）
-	cameraEntity := world.Manager.NewEntity()
-	camera := &gc.Camera{
-		Scale:   1.0,
-		ScaleTo: 1.0,
-		X:       0,
-		Y:       0,
-		TargetX: 0,
-		TargetY: 0,
-	}
-	cameraEntity.AddComponent(world.Components.Camera, camera)
-
-	// CameraSystemを実行
-	sys := &CameraSystem{}
-	require.NoError(t, sys.Update(world))
-
-	// カメラの目標位置がプレイヤー位置に設定されていることを確認
-	tileSize := float64(consts.TileSize)
-	expectedTargetX := float64(10)*tileSize + tileSize/2
-	expectedTargetY := float64(10)*tileSize + tileSize/2
-
-	assert.Equal(t, expectedTargetX, camera.TargetX, "TargetXがプレイヤー位置に設定されるべき")
-	assert.Equal(t, expectedTargetY, camera.TargetY, "TargetYがプレイヤー位置に設定されるべき")
-
-	// カメラ位置が目標に向かって移動していることを確認（補間）
-	assert.Greater(t, camera.X, 0.0, "カメラX位置が目標に向かって移動するべき")
-	assert.Greater(t, camera.Y, 0.0, "カメラY位置が目標に向かって移動するべき")
-	assert.Less(t, camera.X, expectedTargetX, "1回のUpdateではカメラは目標に到達しないべき")
-	assert.Less(t, camera.Y, expectedTargetY, "1回のUpdateではカメラは目標に到達しないべき")
-}
-
-func TestCameraSystem_ConvergesToTarget(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	// プレイヤーエンティティを作成
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
-	require.NoError(t, err)
-
-	// カメラエンティティを作成
-	cameraEntity := world.Manager.NewEntity()
-	tileSize := float64(consts.TileSize)
-	targetX := float64(5)*tileSize + tileSize/2
-	targetY := float64(5)*tileSize + tileSize/2
-	camera := &gc.Camera{
-		Scale:   1.0,
-		ScaleTo: 1.0,
-		X:       0,
-		Y:       0,
-		TargetX: 0,
-		TargetY: 0,
-	}
-	cameraEntity.AddComponent(world.Components.Camera, camera)
-
-	// CameraSystemを複数回実行して収束を確認
-	sys := &CameraSystem{}
-	for i := 0; i < 100; i++ {
-		require.NoError(t, sys.Update(world))
-	}
-
-	// 更新後、カメラが目標位置に十分近づいていることを確認
-	tolerance := 0.1
-	assert.InDelta(t, targetX, camera.X, tolerance, "カメラX位置が目標に収束するべき")
-	assert.InDelta(t, targetY, camera.Y, tolerance, "カメラY位置が目標に収束するべき")
+	assert.Equal(t, expectedX, camera.X, "1回のUpdateでカメラがプレイヤー位置にスナップする")
+	assert.Equal(t, expectedY, camera.Y, "1回のUpdateでカメラがプレイヤー位置にスナップする")
 }
 
 func TestCameraSystem_NoPlayer(t *testing.T) {
@@ -128,10 +43,9 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	// プレイヤーなしでカメラのみ
-	cameraEntity := world.Manager.NewEntity()
 	initialX := 100.0
 	initialY := 200.0
+	cameraEntity := world.Manager.NewEntity()
 	camera := &gc.Camera{
 		Scale:   1.0,
 		ScaleTo: 1.0,
@@ -142,45 +56,39 @@ func TestCameraSystem_NoPlayer(t *testing.T) {
 	}
 	cameraEntity.AddComponent(world.Components.Camera, camera)
 
-	// CameraSystemを実行
 	sys := &CameraSystem{}
 	require.NoError(t, sys.Update(world))
 
-	// プレイヤーがいない場合、カメラ位置は変わらないべき
-	assert.Equal(t, initialX, camera.X, "プレイヤーがいない場合、カメラX位置は変わらないべき")
-	assert.Equal(t, initialY, camera.Y, "プレイヤーがいない場合、カメラY位置は変わらないべき")
+	assert.Equal(t, initialX, camera.X, "プレイヤーがいない場合、カメラ位置は変わらない")
+	assert.Equal(t, initialY, camera.Y, "プレイヤーがいない場合、カメラ位置は変わらない")
 }
 
-func TestCameraSystem_LerpCalculation(t *testing.T) {
+func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 	t.Parallel()
 
-	// 線形補間の計算が正しいことを確認
-	startX := 0.0
-	targetX := 100.0
+	world := testutil.InitTestWorld(t)
 
-	// 1回の補間
-	newX := startX + (targetX-startX)*CameraFollowSpeed
-	expectedX := targetX * CameraFollowSpeed
+	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
 
-	assert.InDelta(t, expectedX, newX, 0.001, "線形補間の計算が正しいべき")
+	cameraEntity := world.Manager.NewEntity()
+	camera := &gc.Camera{Scale: 1.0, ScaleTo: 1.0}
+	cameraEntity.AddComponent(world.Components.Camera, camera)
 
-	// 補間速度が0〜1の範囲内であることを確認
-	assert.GreaterOrEqual(t, CameraFollowSpeed, 0.0, "CameraFollowSpeedは0以上であるべき")
-	assert.LessOrEqual(t, CameraFollowSpeed, 1.0, "CameraFollowSpeedは1以下であるべき")
-}
+	sys := &CameraSystem{}
+	require.NoError(t, sys.Update(world))
 
-func TestCameraSystem_LerpRate(t *testing.T) {
-	t.Parallel()
+	tileSize := float64(consts.TileSize)
 
-	// 補間速度による収束の検証
-	// n回の補間後の残り距離は (1 - speed)^n * initialDistance
+	// プレイヤーを移動させる
+	grid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	grid.X = 8
+	grid.Y = 3
 
-	initialDistance := 100.0
-	speed := CameraFollowSpeed
+	require.NoError(t, sys.Update(world))
 
-	// 10回の補間後の距離
-	remaining := initialDistance * math.Pow(1-speed, 10)
-
-	// 10回で90%以上近づいているべき
-	assert.Less(t, remaining, initialDistance*0.3, "10回の補間で70%以上近づくべき")
+	expectedX := float64(8)*tileSize + tileSize/2
+	expectedY := float64(3)*tileSize + tileSize/2
+	assert.Equal(t, expectedX, camera.X, "移動後にカメラが即座に追従する")
+	assert.Equal(t, expectedY, camera.Y, "移動後にカメラが即座に追従する")
 }

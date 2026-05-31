@@ -16,7 +16,7 @@ import (
 // 定数定義
 const (
 	// カメラスケール
-	cameraNormalScale = 1.0 // カメラの通常スケール
+	cameraNormalScale = 0.6 // カメラの通常スケール
 
 	// AI設定
 	aiVisionDistance = 160.0 // AIの視界距離（ピクセル）

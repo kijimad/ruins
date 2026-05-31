@@ -34,6 +34,10 @@ type VisionSystem struct {
 
 	// 光源情報キャッシュ（タイル座標 -> 光源情報）
 	lightSourceCache map[gc.GridElement]LightInfo
+
+	// 視界遮断エンティティの座標インデックス。BlockView を持つ全エンティティを含む。視界更新時に1回構築して使う
+	// レイキャストで大量に参照するのでキャッシュする
+	blockViewIndex map[gc.GridElement]bool
 }
 
 // NewVisionSystem はVisionSystemを初期化する
@@ -93,9 +97,12 @@ func (sys *VisionSystem) Update(world w.World) error {
 	}
 
 	if needsUpdate {
+		// 視界遮断タイルのインデックスを構築する
+		sys.blockViewIndex = buildBlockViewIndex(world)
+
 		// タイルの可視性マップを更新
 		visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
-		visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius, sys.raycastCache)
+		visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, sys.blockViewIndex)
 
 		// 光源情報キャッシュをクリア（更新前）
 		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
@@ -224,7 +231,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool) map[string]TileVisibility {
+func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility {
 	visibilityMap := make(map[string]TileVisibility)
 
 	// プレイヤーの位置からタイル座標を計算
@@ -260,7 +267,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 
 			// 視界範囲内のタイルのみ処理
 			if distanceSquared <= radiusSquared {
-				visible := isTileVisibleByRaycast(world, float64(playerX), float64(playerY), tileCenterX, tileCenterY, rcCache)
+				visible := isTileVisibleByRaycast(float64(playerX), float64(playerY), tileCenterX, tileCenterY, rcCache, blockIndex)
 
 				visibilityMap[tileKey] = TileVisibility{
 					Row:     tileY,
@@ -276,7 +283,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY float64, rcCache map[raycastCacheKey]bool) bool {
+func isTileVisibleByRaycast(playerX, playerY, targetX, targetY float64, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool {
 	// キャッシュキーを生成
 	px := int(playerX/4) * 4
 	py := int(playerY/4) * 4
@@ -307,7 +314,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 	}
 
 	// ブレゼンハムのライン描画アルゴリズムでタイルベースの視線判定
-	result := bresenhamLineOfSight(world, playerTileX, playerTileY, targetTileX, targetTileY)
+	result := bresenhamLineOfSight(playerTileX, playerTileY, targetTileX, targetTileY, blockIndex)
 
 	// 結果をキャッシュ
 	if len(rcCache) < 15000 {
@@ -318,7 +325,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 }
 
 // bresenhamLineOfSight はブレゼンハムアルゴリズムを使用したタイルベース視線判定
-func bresenhamLineOfSight(world w.World, x0, y0, x1, y1 int) bool {
+func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool) bool {
 	dx := geometry.Abs(x1 - x0)
 	dy := geometry.Abs(y1 - y0)
 
@@ -343,13 +350,9 @@ func bresenhamLineOfSight(world w.World, x0, y0, x1, y1 int) bool {
 			return true
 		}
 
-		// 現在のタイルが壁かチェック（ターゲット以外）
-		if x != x1 || y != y1 {
-			tileCenterX := float64(x*int(consts.TileSize) + int(consts.TileSize)/2)
-			tileCenterY := float64(y*int(consts.TileSize) + int(consts.TileSize)/2)
-			if isBlockedByWall(world, consts.Pixel(tileCenterX), consts.Pixel(tileCenterY)) {
-				return false // 壁に遮られている
-			}
+		// 現在のタイルが視界を遮るかチェック
+		if blockIndex[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] {
+			return false
 		}
 
 		e2 := 2 * err
@@ -446,25 +449,15 @@ const (
 	DarknessRemembered RememberedDarkness = 0.75
 )
 
-// isBlockedByWall は直接的な壁チェック
-func isBlockedByWall(world w.World, x, y consts.Pixel) bool {
-	fx, fy := float64(x), float64(y)
-
-	// GridElement + BlockView のチェック（32x32タイル）
-	tileX := int(fx / float64(consts.TileSize))
-	tileY := int(fy / float64(consts.TileSize))
-
-	// タイル座標でのチェック（1回のスキャンで済ませる）
-	blocked := false
+// buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
+func buildBlockViewIndex(world w.World) map[gc.GridElement]bool {
+	index := make(map[gc.GridElement]bool)
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.BlockView,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		if int(grid.X) == tileX && int(grid.Y) == tileY {
-			blocked = true
-		}
+		index[*grid] = true
 	}))
-
-	return blocked
+	return index
 }

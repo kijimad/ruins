@@ -13,7 +13,7 @@ const (
 	KeyRepeatInitialDelay = 500 * time.Millisecond
 
 	// KeyRepeatInterval はキーリピートの間隔（ミリ秒）
-	KeyRepeatInterval = 100 * time.Millisecond
+	KeyRepeatInterval = 50 * time.Millisecond
 )
 
 // GlobalKeyState はグローバルなキー状態を管理する

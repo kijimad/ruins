@@ -66,7 +66,7 @@ func (sys *HUDRenderingSystem) Update(world w.World) error {
 		sys.debugOverlay.Update(world)
 	}
 	if sys.messageArea != nil {
-		sys.messageArea.Update(world)
+		sys.messageArea.Update()
 	}
 	if sys.currencyDisplay != nil {
 		sys.currencyDisplay.Update(world)
