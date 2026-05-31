@@ -160,7 +160,9 @@ type Components struct {
 	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
 
 	// singleton ================
-	GameLog *ecs.SliceComponent // フィールドログストレージ
+	GameLog      *ecs.SliceComponent // フィールドログストレージ
+	DungeonState *ecs.SliceComponent // ダンジョン状態
+	GameProgress *ecs.SliceComponent // ゲーム進行データ
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

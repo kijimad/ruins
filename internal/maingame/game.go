@@ -21,6 +21,7 @@ import (
 	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -209,26 +210,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.UIResources = uir
 
-	gameResource := &gr.Dungeon{
-		ExploredTiles:  make(map[gc.GridElement]bool),
-		DefinitionName: dungeon.DungeonDebug.Name,
-		MinimapSettings: gr.MinimapSettings{
-			Width:   150,
-			Height:  150,
-			OffsetX: 10,
-			OffsetY: 10,
-			Scale:   3,
-		},
-		TurnState: gc.TurnState{
-			Phase:      gc.TurnPhasePlayer,
-			TurnNumber: 1,
-		},
-		SelectedWeaponSlot: 1,
-	}
-	if err := gameResource.RequestStateChange(gr.NoneEvent{}); err != nil {
-		return w.World{}, fmt.Errorf("初期化時の状態変更要求エラー: %w", err)
-	}
-	world.Resources.Dungeon = gameResource
+	worldhelper.GetDungeon(world).DefinitionName = dungeon.DungeonDebug.Name
 
 	// initialize systems
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)

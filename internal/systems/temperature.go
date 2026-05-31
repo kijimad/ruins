@@ -43,7 +43,7 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 // CalculateEnvTemperature は指定位置の環境気温を計算する
 // 基本気温 + タイル修正 + 時間帯修正
 func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
-	dungeonRes := world.Resources.Dungeon
+	dungeonRes := worldhelper.GetDungeon(world)
 	if dungeonRes == nil {
 		return 0, errors.New("ダンジョンリソースが設定されていない")
 	}
@@ -55,7 +55,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 	baseTemp := def.BaseTemperature
 
-	timeModifier := world.Resources.Dungeon.GameTime.GetTemperatureModifier()
+	timeModifier := worldhelper.GetDungeon(world).GameTime.GetTemperatureModifier()
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 
@@ -64,7 +64,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 // Update は健康状態のタイマーを更新する
 func (sys *TemperatureSystem) Update(world w.World) error {
-	if world.Resources.Dungeon == nil {
+	if worldhelper.GetDungeon(world) == nil {
 		return errors.New("ダンジョンリソースが設定されていない")
 	}
 

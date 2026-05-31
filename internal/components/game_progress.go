@@ -1,4 +1,4 @@
-package resources
+package components
 
 // イベントID定数
 const (

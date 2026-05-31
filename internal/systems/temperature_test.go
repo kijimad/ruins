@@ -191,7 +191,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("ダンジョンが設定されていない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = nil
+		worldhelper.SetDungeon(world, nil)
 
 		sys := &TemperatureSystem{}
 		err := sys.Update(world)
@@ -202,7 +202,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("HealthStatusを持つエンティティの状態が更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon.DefinitionName = "亡者の森" // 基本気温0度
+		worldhelper.GetDungeon(world).DefinitionName = "亡者の森" // 基本気温0度
 
 		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
@@ -221,7 +221,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon.DefinitionName = "存在しないダンジョン"
+		worldhelper.GetDungeon(world).DefinitionName = "存在しないダンジョン"
 
 		sys := &TemperatureSystem{}
 		err := sys.Update(world)

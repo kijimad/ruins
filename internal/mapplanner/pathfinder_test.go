@@ -3,9 +3,9 @@ package mapplanner
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,7 +19,7 @@ func createTestPlanData(_, _ int) *MetaPlan {
 
 	// 一時的なMetaPlanインスタンスを作成
 	tempPlan := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  consts.Tile(width),
 			TileHeight: consts.Tile(height),
 		},
@@ -187,7 +187,7 @@ func TestFindPlayerStartPosition_AvoidsNPCs(t *testing.T) {
 	tileCount := width * height
 	tiles := make([]oapi.Tile, tileCount)
 	planData := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  consts.Tile(width),
 			TileHeight: consts.Tile(height),
 		},

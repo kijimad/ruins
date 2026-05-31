@@ -27,7 +27,7 @@ func (tp TurnPhase) String() string {
 }
 
 // TurnState はターン状態を保持する
-// resources.Dungeon に格納して使用する
+// Dungeon に格納して使用する
 type TurnState struct {
 	Phase      TurnPhase // 現在のターンフェーズ
 	TurnNumber int       // ターン番号（1から開始）

@@ -3,9 +3,10 @@ package mapplanner
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/maptemplate"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -26,7 +27,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Run("UseFixedPortalPosがtrueの場合はポータルを配置しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		// UseFixedPortalPos が true のプランナータイプ
 		plannerType := PlannerType{
@@ -52,7 +53,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Run("プロシージャルマップではNextPortalsが配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -88,7 +89,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 			t.Run(tc.description, func(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
-				world.Resources.Dungeon = &resources.Dungeon{Depth: tc.depth}
+				worldhelper.SetDungeon(world, &gc.Dungeon{Depth: tc.depth})
 				world.Resources.RawMaster = *CreateTestRawMaster()
 
 				chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -113,7 +114,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Run("歩行可能タイルが孤立している場合はErrConnectivityを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
 		// 全面壁のマップに1マスだけ床を置く（孤立した歩行可能タイル）
@@ -138,7 +139,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Run("GetPlayerStartPositionが失敗した場合はErrConnectivityを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		// 全面壁のマップ（歩行可能タイルなし）
 		chain := NewPlannerChain(5, 5, 12345)
@@ -156,7 +157,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Run("Dungeonがnilの場合エラーを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = nil
+		worldhelper.SetDungeon(world, nil)
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
 		require.NoError(t, err)
@@ -173,7 +174,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 	t.Run("配置されたポータルはプレイヤーから到達可能", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 5}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 5})
 		world.Resources.RawMaster = *CreateTestRawMaster()
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)

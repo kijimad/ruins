@@ -6,6 +6,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // アイテム配置用の定数
@@ -50,7 +51,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = []ItemSpec{}
 	}
 
-	depth := i.world.Resources.Dungeon.Depth
+	depth := worldhelper.GetDungeon(i.world).Depth
 
 	// アイテムの配置数（階層の深度に応じて調整）
 	itemCount := baseItemCount + planData.RNG.IntN(randomItemCount)

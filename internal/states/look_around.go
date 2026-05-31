@@ -125,7 +125,7 @@ func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
 	newX := int(st.cursor.X) + dx
 	newY := int(st.cursor.Y) + dy
 
-	level := world.Resources.Dungeon.Level
+	level := worldhelper.GetDungeon(world).Level
 	if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
 		st.cursor.X = consts.Tile(newX)
 		st.cursor.Y = consts.Tile(newY)

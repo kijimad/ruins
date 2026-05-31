@@ -1,8 +1,8 @@
 package mapplanner
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/resources"
 )
 
 // ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー
@@ -23,13 +23,13 @@ func (c ConvertIsolatedWalls) PlanMeta(planData *MetaPlan) error {
 		tile := planData.Tiles[i]
 
 		// マップの端にあるタイルは変換対象外（境界として残す）
-		x, y := planData.Level.XYTileCoord(resources.TileIdx(i))
+		x, y := planData.Level.XYTileCoord(gc.TileIdx(i))
 		if int(x) == 0 || int(x) == width-1 || int(y) == 0 || int(y) == height-1 {
 			continue
 		}
 
 		// wallタイルで床に隣接していない場合、変換対象とする
-		if tile.Name == consts.TileNameWall && !planData.AdjacentAnyFloor(resources.TileIdx(i)) {
+		if tile.Name == consts.TileNameWall && !planData.AdjacentAnyFloor(gc.TileIdx(i)) {
 			tilesToConvert = append(tilesToConvert, i)
 		}
 	}

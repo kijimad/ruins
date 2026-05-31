@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -48,7 +48,7 @@ func TestBuildTileColors(t *testing.T) {
 				entity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
 				entity.AddComponent(world.Components.BlockView, &gc.BlockView{})
 				// 探索済みタイルに追加
-				world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 5, Y: 3}] = true
+				worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 5, Y: 3}] = true
 			},
 			gridElement:   gc.GridElement{X: 5, Y: 3},
 			expectedColor: color.RGBA{100, 100, 100, 255},
@@ -61,7 +61,7 @@ func TestBuildTileColors(t *testing.T) {
 				entity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
 				// BlockViewコンポーネントなし = 床
 				// 探索済みタイルに追加
-				world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true
+				worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true
 			},
 			gridElement:   gc.GridElement{X: 10, Y: 15},
 			expectedColor: color.RGBA{200, 200, 200, 128},
@@ -70,7 +70,7 @@ func TestBuildTileColors(t *testing.T) {
 			name: "エンティティなしの場合は透明",
 			setupEntities: func(world w.World) {
 				// 探索済みタイルに追加してるが、エンティティはない
-				world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 999, Y: 999}] = true
+				worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 999, Y: 999}] = true
 			},
 			gridElement:   gc.GridElement{X: 999, Y: 999},
 			expectedColor: color.RGBA{0, 0, 0, 0},
@@ -89,7 +89,7 @@ func TestBuildTileColors(t *testing.T) {
 				wallEntity.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{})
 				wallEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
 				// 探索済みタイルに追加
-				world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 20, Y: 20}] = true
+				worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 20, Y: 20}] = true
 			},
 			gridElement:   gc.GridElement{X: 20, Y: 20},
 			expectedColor: color.RGBA{100, 100, 100, 255}, // 壁が優先される
@@ -123,8 +123,8 @@ func TestExtractMinimapData(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// ゲームリソースを設定
-	world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
-	world.Resources.Dungeon.MinimapSettings = resources.MinimapSettings{
+	worldhelper.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
+	worldhelper.GetDungeon(world).MinimapSettings = gc.MinimapSettings{
 		Width:  200,
 		Height: 200,
 		Scale:  2,
@@ -136,9 +136,9 @@ func TestExtractMinimapData(t *testing.T) {
 	playerEntity.AddComponent(world.Components.Player, &gc.Player{})
 
 	// 探索済みタイルを設定
-	world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true // プレイヤー位置
-	world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 9, Y: 15}] = true  // 左のタイル
-	world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 11, Y: 15}] = true // 右のタイル
+	worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 10, Y: 15}] = true // プレイヤー位置
+	worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 9, Y: 15}] = true  // 左のタイル
+	worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 11, Y: 15}] = true // 右のタイル
 
 	// 画面リソースを設定
 	world.Resources.SetScreenDimensions(800, 600)

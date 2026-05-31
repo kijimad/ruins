@@ -155,8 +155,8 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
-			world.Resources.Dungeon.Level.TileWidth = consts.Tile(tt.mapWidth)
-			world.Resources.Dungeon.Level.TileHeight = consts.Tile(tt.mapHeight)
+			worldhelper.GetDungeon(world).Level.TileWidth = consts.Tile(tt.mapWidth)
+			worldhelper.GetDungeon(world).Level.TileHeight = consts.Tile(tt.mapHeight)
 
 			state := &LookAroundState{
 				cursor: consts.Coord[consts.Tile]{X: consts.Tile(tt.startX), Y: consts.Tile(tt.startY)},

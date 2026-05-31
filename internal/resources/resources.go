@@ -7,9 +7,9 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// Resources は具体的なリソース実装。ゲーム固有のリソース管理を担当する
+// Resources はゲーム固有のリソース管理を担当する
 // engine/resources.ResourceProviderインターフェースを実装する
-// データのみを保存し、ロジックはもたない
+// 初期化時のみセットされ、あとから変更はされない
 type Resources struct {
 	// 静的
 	ScreenDimensions ScreenDimensions
@@ -19,10 +19,6 @@ type Resources struct {
 	UIResources      UIResources
 	RawMaster        raw.Master
 	SingletonEntity  ecs.Entity // シングルトンエンティティIDキャッシュ
-
-	// 動的
-	Dungeon      *Dungeon
-	GameProgress *GameProgress
 }
 
 // ScreenDimensions contains current screen dimensions
@@ -55,6 +51,5 @@ func InitGameResources() *Resources {
 		Fonts:        map[string]Font{},
 		Faces:        map[string]text.Face{},
 		UIResources:  UIResources{},
-		GameProgress: NewGameProgress(),
 	}
 }

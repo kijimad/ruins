@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -266,7 +267,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	})
 
 	// 武器スロット1を選択
-	world.Resources.Dungeon.SelectedWeaponSlot = 1
+	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 	// ExecuteInteractionを実行（素手で攻撃）
 	result, err := ExecuteInteraction(player, enemyEntity, world)

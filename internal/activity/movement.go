@@ -3,6 +3,7 @@ package activity
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -40,8 +41,8 @@ import (
 // fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する
 func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {
 	// 基本的な境界チェック（実際のマップサイズを使用）
-	mapWidth := int(world.Resources.Dungeon.Level.TileWidth)
-	mapHeight := int(world.Resources.Dungeon.Level.TileHeight)
+	mapWidth := int(worldhelper.GetDungeon(world).Level.TileWidth)
+	mapHeight := int(worldhelper.GetDungeon(world).Level.TileHeight)
 	if tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight {
 		return false
 	}

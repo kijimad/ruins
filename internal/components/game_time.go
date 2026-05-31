@@ -1,4 +1,4 @@
-package resources
+package components
 
 // TimeOfDay は時間帯を表す
 type TimeOfDay int

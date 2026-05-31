@@ -42,6 +42,8 @@ func (st *MainMenuState) OnResume(_ w.World) error { return nil }
 func (st *MainMenuState) OnStart(world w.World) error {
 	// ワールドをクリアする。前のゲーム状態を削除する
 	world.Manager.DeleteAllEntities()
+	// シングルトンエンティティを再構築する
+	world.InitSingleton()
 
 	st.menuMount = hooks.NewMount[mainMenuProps]()
 	return nil

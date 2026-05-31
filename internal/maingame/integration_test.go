@@ -10,6 +10,7 @@ import (
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/testutil"
 	ew "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -164,7 +165,7 @@ func TestResourceIntegration(t *testing.T) {
 		assert.NotNil(t, world.Resources.RawMaster, "Rawマスターが読み込まれていない")
 
 		// ゲームリソースの確認
-		assert.NotNil(t, world.Resources.Dungeon, "ゲームリソースが初期化されていない")
+		assert.NotNil(t, worldhelper.GetDungeon(world), "ゲームリソースが初期化されていない")
 	})
 
 	t.Run("リソースの整合性確認", func(t *testing.T) {
@@ -217,7 +218,7 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 		{"DefaultFaces", world.Resources.Faces},
 		{"UIResources", world.Resources.UIResources},
 		{"RawMaster", world.Resources.RawMaster},
-		{"Game", world.Resources.Dungeon},
+		{"Game", worldhelper.GetDungeon(world)},
 	}
 
 	for _, res := range resources {

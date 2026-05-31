@@ -1,4 +1,4 @@
-package resources
+package components
 
 import (
 	ecs "github.com/x-hgg-x/goecs/v2"

@@ -28,7 +28,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
 	require.NoError(t, err)
 	worldhelper.MoveToEquip(world, we, p, gc.SlotWeapon1)
-	world.Resources.Dungeon.SelectedWeaponSlot = 1
+	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 	// 弾薬を持たせる
 	_, err = worldhelper.SpawnItem(world, "9mm FMJ", 30, gc.ItemLocationInPlayerBackpack)
@@ -39,7 +39,7 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// 敵の位置を探索済みにする
-	world.Resources.Dungeon.ExploredTiles[gc.GridElement{X: 13, Y: 10}] = true
+	worldhelper.GetDungeon(world).ExploredTiles[gc.GridElement{X: 13, Y: 10}] = true
 
 	return world, p, e, we
 }
@@ -110,7 +110,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		world.Resources.Dungeon.SelectedWeaponSlot = 1
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// ハンドガンの最大射程(8)より遠くに配置
 		enemy, err := worldhelper.SpawnEnemy(world, 20, 10, "火の玉")
@@ -136,7 +136,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		we, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		world.Resources.Dungeon.SelectedWeaponSlot = 1
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 		enemy, err := worldhelper.SpawnEnemy(world, 12, 10, "火の玉")
 		require.NoError(t, err)
@@ -262,7 +262,7 @@ func TestExecuteShootAction(t *testing.T) {
 		we, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		world.Resources.Dungeon.SelectedWeaponSlot = 1
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 		enemy, err := worldhelper.SpawnEnemy(world, 12, 10, "火の玉")
 		require.NoError(t, err)
@@ -296,7 +296,7 @@ func TestCanShootTarget(t *testing.T) {
 		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		world.Resources.Dungeon.SelectedWeaponSlot = 1
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// ハンドガン最大射程(8)より遠く
 		enemy, err := worldhelper.SpawnEnemy(world, 20, 10, "火の玉")
@@ -506,7 +506,7 @@ func TestGetEquippedFire(t *testing.T) {
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
-		world.Resources.Dungeon.SelectedWeaponSlot = 1
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 		_, _, err = getEquippedFire(player, world)
 		assert.ErrorIs(t, err, ErrShootNoFireWeapon)

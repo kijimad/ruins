@@ -163,10 +163,13 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 	err = manager.LoadWorld(newWorld, "empty_slot")
 	require.NoError(t, err)
 
-	// エンティティが存在しないことを確認
+	// シングルトン以外のエンティティが存在しないことを確認
 	entityCount := 0
-	newWorld.Manager.Join().Visit(ecs.Visit(func(_ ecs.Entity) {
-		entityCount++
+	singleton := newWorld.Resources.SingletonEntity
+	newWorld.Manager.Join().Visit(ecs.Visit(func(entity ecs.Entity) {
+		if entity != singleton {
+			entityCount++
+		}
 	}))
 
 	assert.Equal(t, 0, entityCount)

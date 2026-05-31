@@ -19,7 +19,6 @@ import (
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/resources"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -64,18 +63,18 @@ func (st *DungeonState) OnStart(world w.World) error {
 		baseImage.Fill(color.Black)
 	}
 
-	world.Resources.Dungeon.Depth = st.Depth
+	worldhelper.GetDungeon(world).Depth = st.Depth
 
 	// 設定されていればリソースに反映する
 	if st.DefinitionName != "" {
-		world.Resources.Dungeon.DefinitionName = st.DefinitionName
+		worldhelper.GetDungeon(world).DefinitionName = st.DefinitionName
 	}
 	// ダンジョン定義を取得する
-	def, found := dungeon.GetDungeon(world.Resources.Dungeon.DefinitionName)
+	def, found := dungeon.GetDungeon(worldhelper.GetDungeon(world).DefinitionName)
 	if !found {
-		return fmt.Errorf("ダンジョン定義が見つかりません: %s", world.Resources.Dungeon.DefinitionName)
+		return fmt.Errorf("ダンジョン定義が見つかりません: %s", worldhelper.GetDungeon(world).DefinitionName)
 	}
-	world.Resources.Dungeon.Dark = def.Dark
+	worldhelper.GetDungeon(world).Dark = def.Dark
 
 	// ステージ用シードを生成する
 	stageSeed := world.Config.RNG.Uint64()
@@ -123,7 +122,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	world.Resources.Dungeon.Level = level
+	worldhelper.GetDungeon(world).Level = level
 
 	// プレイヤーを配置する
 	playerPos, err := plan.GetPlayerStartPosition()
@@ -135,7 +134,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 
 	// フロア移動時に探索済みマップをリセット
-	world.Resources.Dungeon.ExploredTiles = make(map[gc.GridElement]bool)
+	worldhelper.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
 
 	// 新しい階のために視界キャッシュをクリアする
 	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
@@ -152,10 +151,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// 街に帰還した際の全クリア判定
 	if def.Name == dungeon.DungeonTown.Name {
-		gp := world.Resources.GameProgress
+		gp := worldhelper.GetGameProgress(world)
 		dungeonNames := dungeon.GetAllDungeonNames()
 		if gp.IsAllCleared(dungeonNames) {
-			gp.SetEventActive(resources.EventAllCleared)
+			gp.SetEventActive(gc.EventAllCleared)
 		}
 	}
 
@@ -184,8 +183,10 @@ func (st *DungeonState) OnStop(world w.World) error {
 	}))
 
 	// reset
-	if err := world.Resources.Dungeon.RequestStateChange(resources.NoneEvent{}); err != nil {
-		return fmt.Errorf("状態変更のリセットエラー: %w", err)
+	if d := worldhelper.GetDungeon(world); d != nil {
+		if err := d.RequestStateChange(gc.NoneEvent{}); err != nil {
+			return fmt.Errorf("状態変更のリセットエラー: %w", err)
+		}
 	}
 
 	// 視界キャッシュをクリア
@@ -198,8 +199,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// 全クリアイベントの表示
-	if world.Resources.GameProgress.IsEventUnseen(resources.EventAllCleared) {
-		world.Resources.GameProgress.MarkEventSeen(resources.EventAllCleared)
+	if worldhelper.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
+		worldhelper.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return NewAllClearEventState() },
 		}}, nil
@@ -466,10 +467,10 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 
 // handleStateEvent は状態変更イベントを処理し、対応する遷移を返す
 func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World], error) {
-	event := world.Resources.Dungeon.ConsumeStateChange()
+	event := worldhelper.GetDungeon(world).ConsumeStateChange()
 
 	switch e := event.(type) {
-	case resources.ShowDialogEvent:
+	case gc.ShowDialogEvent:
 		// SpeakerEntityからNameを取得
 		if !e.SpeakerEntity.HasComponent(world.Components.Name) {
 			return es.Transition[w.World]{}, fmt.Errorf("speaker entity does not have Name component")
@@ -494,18 +495,18 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 				func() es.State[w.World] { return NewMessageState(dialogMessage) },
 			}}, nil
 		}
-	case resources.WarpNextEvent:
+	case gc.WarpNextEvent:
 		// 次のフロアへ遷移する
-		nextDepth := world.Resources.Dungeon.Depth + 1
+		nextDepth := worldhelper.GetDungeon(world).Depth + 1
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
-	case resources.WarpEscapeEvent:
+	case gc.WarpEscapeEvent:
 		// 精算画面を経由して街へ帰還する
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewAutoSellState()),
 		}}, nil
-	case resources.OpenDungeonSelectEvent:
+	case gc.OpenDungeonSelectEvent:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
 	}
@@ -516,7 +517,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
 func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
-	world.Resources.Dungeon.SelectedWeaponSlot = slotNumber
+	worldhelper.GetDungeon(world).SelectedWeaponSlot = slotNumber
 
 	// プレイヤーの武器スロット情報を取得してログメッセージを出力
 	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {

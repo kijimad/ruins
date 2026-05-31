@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/resources"
 )
 
 func TestPlanData_GetWallType(t *testing.T) {
@@ -14,13 +13,13 @@ func TestPlanData_GetWallType(t *testing.T) {
 	// テスト用のマップを作成（7x7）
 	width, height := consts.Tile(7), consts.Tile(7)
 	planData := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  width,
 			TileHeight: height,
 		},
 		Tiles:     make([]oapi.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
-		Corridors: [][]resources.TileIdx{},
+		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
 	}
 
@@ -96,13 +95,13 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 	// テスト用のマップを作成
 	width, height := consts.Tile(5), consts.Tile(5)
 	planData := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  width,
 			TileHeight: height,
 		},
 		Tiles:     make([]oapi.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
-		Corridors: [][]resources.TileIdx{},
+		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
 	}
 

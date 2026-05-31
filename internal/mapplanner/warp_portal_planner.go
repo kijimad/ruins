@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // ポータル配置用の定数
@@ -57,11 +58,11 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 	}
 
-	if p.world.Resources.Dungeon == nil {
+	if worldhelper.GetDungeon(p.world) == nil {
 		return fmt.Errorf("Dungeonが初期化されていません")
 	}
 	// 間隔ごとに帰還ポータルを配置する
-	if p.world.Resources.Dungeon.Depth%escapePortalInterval == 0 {
+	if worldhelper.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
 		placed = false
 		for attempt := 0; attempt < maxPortalPlacementAttempts; attempt++ {
 			x := planData.RNG.IntN(int(planData.Level.TileWidth))

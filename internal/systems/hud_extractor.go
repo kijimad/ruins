@@ -27,7 +27,7 @@ func ExtractHUDData(world w.World) hud.Data {
 
 // extractGameInfo はゲーム基本情報を抽出する
 func extractGameInfo(world w.World) hud.GameInfoData {
-	floorNumber := world.Resources.Dungeon.Depth
+	floorNumber := worldhelper.GetDungeon(world).Depth
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP, playerSP, playerMaxSP, playerEP, playerMaxEP int
@@ -104,12 +104,12 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	return hud.MinimapData{
 		PlayerTileX:   playerTileX,
 		PlayerTileY:   playerTileY,
-		ExploredTiles: world.Resources.Dungeon.ExploredTiles,
+		ExploredTiles: worldhelper.GetDungeon(world).ExploredTiles,
 		TileColors:    tileColors,
 		MinimapConfig: hud.MinimapConfig{
-			Width:  world.Resources.Dungeon.MinimapSettings.Width,
-			Height: world.Resources.Dungeon.MinimapSettings.Height,
-			Scale:  world.Resources.Dungeon.MinimapSettings.Scale,
+			Width:  worldhelper.GetDungeon(world).MinimapSettings.Width,
+			Height: worldhelper.GetDungeon(world).MinimapSettings.Height,
+			Scale:  worldhelper.GetDungeon(world).MinimapSettings.Scale,
 		},
 		ScreenDimensions: screenDimensions,
 	}
@@ -316,7 +316,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 
 	// 探索済みタイルの色情報を一括生成
 	tileColors := make(map[gc.GridElement]TileColorInfo)
-	for gridElement := range world.Resources.Dungeon.ExploredTiles {
+	for gridElement := range worldhelper.GetDungeon(world).ExploredTiles {
 		var tileColor color.RGBA
 		if isWall, exists := tileTypeMap[gridElement]; exists {
 			if isWall {
@@ -386,7 +386,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 
 		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
-		selectedSlot = world.Resources.Dungeon.SelectedWeaponSlot - 1
+		selectedSlot = worldhelper.GetDungeon(world).SelectedWeaponSlot - 1
 	})
 
 	return hud.WeaponSlotsData{

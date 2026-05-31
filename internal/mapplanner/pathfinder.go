@@ -3,8 +3,8 @@ package mapplanner
 import (
 	"fmt"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/resources"
 )
 
 // PathFinder はパスファインディング機能を提供する
@@ -197,7 +197,7 @@ func (pf *PathFinder) FindPlayerStartPosition() (consts.Coord[int], error) {
 	// 見つからない場合は全体をスキャン
 	for _i, tile := range planData.Tiles {
 		if !tile.BlockPass {
-			i := resources.TileIdx(_i)
+			i := gc.TileIdx(_i)
 			x, y := planData.Level.XYTileCoord(i)
 			if pf.isValidSpawnPosition(int(x), int(y)) {
 				return consts.Coord[int]{X: int(x), Y: int(y)}, nil

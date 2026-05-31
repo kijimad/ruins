@@ -11,10 +11,11 @@ import (
 
 // GetTurnState はワールドからターン状態を取得する
 func GetTurnState(world w.World) (*gc.TurnState, error) {
-	if world.Resources.Dungeon == nil {
+	d := GetDungeon(world)
+	if d == nil {
 		return nil, fmt.Errorf("Dungeonが初期化されていません")
 	}
-	return &world.Resources.Dungeon.TurnState, nil
+	return &d.TurnState, nil
 }
 
 // GetTurnNumber はターン番号を取得する

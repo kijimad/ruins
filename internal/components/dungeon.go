@@ -1,23 +1,26 @@
-package resources
+package components
 
 import (
 	"fmt"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 )
+
+// TileIdx はタイル番号
+type TileIdx int
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
 type Dungeon struct {
 	// ステート遷移発生イベント。各stateで処理する
+	// TODO: System等に移動させられないか?
 	stateEvent StateEvent
 	// 現在階のフィールド情報
 	Level Level
 	// 階層数
 	Depth int
 	// 探索済みタイルのマップ。座標をキーとして使用
-	ExploredTiles map[gc.GridElement]bool
+	ExploredTiles map[GridElement]bool
 	// ミニマップの設定
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
@@ -25,15 +28,35 @@ type Dungeon struct {
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
 	// TurnState はターンの状態を保持する
-	TurnState gc.TurnState
+	TurnState TurnState
 	// GameTime はゲーム内時間を保持する
 	GameTime GameTime
 	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
 	SelectedWeaponSlot int
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される
-	VisibleTiles map[gc.GridElement]bool
+	VisibleTiles map[GridElement]bool
 	// Dark は光源がないと見えない暗闇フロアかどうか
 	Dark bool
+}
+
+// NewDungeon は初期化されたDungeonを返す
+func NewDungeon() *Dungeon {
+	return &Dungeon{
+		stateEvent:    NoneEvent{},
+		ExploredTiles: make(map[GridElement]bool),
+		MinimapSettings: MinimapSettings{
+			Width:   150,
+			Height:  150,
+			OffsetX: 10,
+			OffsetY: 10,
+			Scale:   3,
+		},
+		TurnState: TurnState{
+			Phase:      TurnPhasePlayer,
+			TurnNumber: 1,
+		},
+		SelectedWeaponSlot: 1,
+	}
 }
 
 // RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す

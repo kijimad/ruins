@@ -55,23 +55,28 @@ func InitWorld(c *gc.Components) (World, error) {
 		Renderers:  make(map[string]Renderer),
 	}
 
-	// シングルトンエンティティを生成してキャッシュする
-	// シングルトン用コンポーネントをすべてこのエンティティに付与する
-	singleton := manager.NewEntity()
-	singleton.AddComponent(c.GameLog, &gc.GameLog{
-		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
-	})
-	world.Resources.SingletonEntity = singleton
+	world.InitSingleton()
 
 	return world, nil
 }
 
+// InitSingleton はシングルトンエンティティを新規作成してIDを保存する
+func (world World) InitSingleton() {
+	singleton := world.Manager.NewEntity()
+	singleton.AddComponent(world.Components.GameLog, &gc.GameLog{
+		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
+	})
+	singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())
+	singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())
+	world.Resources.SingletonEntity = singleton
+}
+
 // GetManager は World interfaceを満たすためのメソッド
-func (w World) GetManager() *ecs.Manager {
-	return w.Manager
+func (world World) GetManager() *ecs.Manager {
+	return world.Manager
 }
 
 // GetComponents は World interfaceを満たすためのメソッド
-func (w World) GetComponents() interface{} {
-	return w.Components
+func (world World) GetComponents() interface{} {
+	return world.Components
 }

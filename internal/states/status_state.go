@@ -222,7 +222,7 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 
 	items = append(items,
 		statusItemData{Label: "環境気温", Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: "現在地の気温"},
-		statusItemData{Label: "時間帯", Value: world.Resources.Dungeon.GameTime.GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
+		statusItemData{Label: "時間帯", Value: worldhelper.GetDungeon(world).GameTime.GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
 	)
 
 	return items

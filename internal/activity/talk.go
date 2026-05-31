@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -108,7 +107,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		// 会話ダイアログを表示
 		if targetEntity.HasComponent(world.Components.Dialog) {
 			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			if err := world.Resources.Dungeon.RequestStateChange(resources.ShowDialogEvent{
+			if err := worldhelper.GetDungeon(world).RequestStateChange(gc.ShowDialogEvent{
 				MessageKey:    dialog.MessageKey,
 				SpeakerEntity: targetEntity,
 			}); err != nil {

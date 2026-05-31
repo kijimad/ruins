@@ -3,9 +3,10 @@ package mapplanner
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -32,7 +33,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 	t.Run("ItemEntriesが空の場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name:        "test_empty",
@@ -55,7 +56,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 	t.Run("ItemEntriesがある場合はアイテムが配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_with_items",
@@ -80,7 +81,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 	t.Run("配置されたアイテムは歩行可能なタイルにある", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_valid_position",
@@ -118,7 +119,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		// 浅い階層
 		worldShallow := testutil.InitTestWorld(t)
-		worldShallow.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(worldShallow, &gc.Dungeon{Depth: 1})
 
 		chainShallow, err := NewSmallRoomPlanner(30, 30, 12345)
 		require.NoError(t, err)
@@ -132,7 +133,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		// 深い階層
 		worldDeep := testutil.InitTestWorld(t)
-		worldDeep.Resources.Dungeon = &resources.Dungeon{Depth: 10}
+		worldhelper.SetDungeon(worldDeep, &gc.Dungeon{Depth: 10})
 
 		chainDeep, err := NewSmallRoomPlanner(30, 30, 12345)
 		require.NoError(t, err)
@@ -152,7 +153,7 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 	t.Run("複数のアイテムタイプが重みに応じて選択される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_multiple_items",

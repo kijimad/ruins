@@ -1,6 +1,6 @@
 {
-  "checksum": "44b4859bd19d52ce533ad21a0ab933e0507e2be8b7a1f6aa7955012768f6440b",
-  "timestamp": "2026-04-29T10:37:50.198817341+09:00",
+  "checksum": "f5c8ea74c0f06ff70c6c9d2a8cb99c1f1d1a8277bd528ddb1c41ba3600bfa1ee",
+  "timestamp": "2026-05-31T16:59:14.293515825+09:00",
   "version": "1.0.0",
   "world": {
     "entities": [
@@ -42,14 +42,14 @@
             "Scale": 1,
             "ScaleTo": 1,
             "TargetX": 784,
-            "TargetY": 336,
+            "TargetY": 528,
             "X": 784,
-            "Y": 336
+            "Y": 528.1083371834284
           },
           "FactionAllyData": {},
           "GridElement": {
             "X": 24,
-            "Y": 10
+            "Y": 16
           },
           "LightSource": {
             "Color": {
@@ -105,15 +105,15 @@
               "Filter": 0,
               "GeoM": {}
             },
-            "SpriteKey": "player_0",
+            "SpriteKey": "player_1",
             "SpriteSheetName": "field"
           },
           "TurnBased": {
             "AP": {
-              "Current": 120,
+              "Current": 46,
               "Max": 120
             },
-            "Speed": 0
+            "Speed": 121
           },
           "Wallet": {
             "Currency": 1000
@@ -144,7 +144,7 @@
             "Name": "パン"
           },
           "ProvidesNutrition": {
-            "Amount": 100
+            "Amount": 30
           },
           "SpriteRender": {
             "AnimKeys": null,
@@ -198,7 +198,7 @@
             "Name": "ビスケット"
           },
           "ProvidesNutrition": {
-            "Amount": 90
+            "Amount": 30
           },
           "SpriteRender": {
             "AnimKeys": null,
@@ -388,7 +388,7 @@
               "Filter": 0,
               "GeoM": {}
             },
-            "SpriteKey": "field_item",
+            "SpriteKey": "waiter_outfit",
             "SpriteSheetName": "field"
           },
           "Value": {
@@ -663,7 +663,11 @@
       }
     ],
     "game_progress": {
-      "cleared_dungeons": {},
+      "cleared_dungeons": {
+        "亡者の森": true,
+        "忘却の廃都": true,
+        "灰の洞窟": true
+      },
       "events": {}
     }
   }
