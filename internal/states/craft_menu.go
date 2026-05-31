@@ -462,7 +462,7 @@ func (st *CraftMenuState) buildUI(world w.World) *ebitenui.UI {
 	return eui
 }
 
-func (st *CraftMenuState) buildCategoryContainer(tabs []craftTabData, tabIndex int, res *resources.UIResources) *widget.Container {
+func (st *CraftMenuState) buildCategoryContainer(tabs []craftTabData, tabIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
@@ -475,7 +475,7 @@ func (st *CraftMenuState) buildCategoryContainer(tabs []craftTabData, tabIndex i
 	return container
 }
 
-func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
 		return container
@@ -507,7 +507,7 @@ func (st *CraftMenuState) buildItemContainer(tabs []craftTabData, tabIndex, item
 	return container
 }
 
-func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	specContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -537,7 +537,7 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 	return styled.NewVSplitContainer(specContainer, recipeContainer)
 }
 
-func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res *resources.UIResources) {
+func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) {
 	for _, input := range recipe.Inputs {
 		var currentAmount int
 		if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found {
@@ -556,7 +556,7 @@ func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Conta
 	}
 }
 
-func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	desc := " "
 

@@ -117,18 +117,14 @@ func drawSlotNumber(screen *ebiten.Image, face text.Face, x, y, _ int, number in
 }
 
 // drawWeaponSprite は武器スプライトを中央に描画
-func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotInfo, spriteSheets *map[string]gc.SpriteSheet) {
+func drawWeaponSprite(screen *ebiten.Image, x, y, slotSize int, slot WeaponSlotInfo, spriteSheets map[string]gc.SpriteSheet) {
 	// 武器が装備されていない場合は何も描画しない
 	if slot.WeaponName == "" {
 		return
 	}
 
-	if spriteSheets == nil {
-		return
-	}
-
 	// スプライトシートを取得
-	sheet, ok := (*spriteSheets)[slot.SpriteSheet]
+	sheet, ok := spriteSheets[slot.SpriteSheet]
 	if !ok {
 		return
 	}

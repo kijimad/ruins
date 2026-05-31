@@ -53,7 +53,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
-		world.Resources.RawMaster = CreateTestRawMaster()
+		world.Resources.RawMaster = *CreateTestRawMaster()
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
 		require.NoError(t, err)
@@ -89,7 +89,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 				t.Parallel()
 				world := testutil.InitTestWorld(t)
 				world.Resources.Dungeon = &resources.Dungeon{Depth: tc.depth}
-				world.Resources.RawMaster = CreateTestRawMaster()
+				world.Resources.RawMaster = *CreateTestRawMaster()
 
 				chain, err := NewSmallRoomPlanner(30, 30, 12345)
 				require.NoError(t, err)
@@ -114,7 +114,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
-		world.Resources.RawMaster = CreateTestRawMaster()
+		world.Resources.RawMaster = *CreateTestRawMaster()
 
 		// 全面壁のマップに1マスだけ床を置く（孤立した歩行可能タイル）
 		chain := NewPlannerChain(10, 10, 99999)
@@ -174,7 +174,7 @@ func TestPortalPlanner_PlanMeta(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		world.Resources.Dungeon = &resources.Dungeon{Depth: 5}
-		world.Resources.RawMaster = CreateTestRawMaster()
+		world.Resources.RawMaster = *CreateTestRawMaster()
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
 		require.NoError(t, err)

@@ -144,17 +144,17 @@ func TestResourceIntegration(t *testing.T) {
 
 		// スプライトシートの確認
 		assert.NotNil(t, world.Resources.SpriteSheets, "スプライトシートが読み込まれていない")
-		spriteSheets := *world.Resources.SpriteSheets
+		spriteSheets := world.Resources.SpriteSheets
 		assert.NotEmpty(t, spriteSheets, "スプライトシートが空")
 
 		// フォントの確認
 		assert.NotNil(t, world.Resources.Fonts, "フォントが読み込まれていない")
-		fonts := *world.Resources.Fonts
+		fonts := world.Resources.Fonts
 		assert.NotEmpty(t, fonts, "フォントが空")
 
 		// デフォルトフォントの確認
 		assert.NotNil(t, world.Resources.Faces, "デフォルトフェイスが設定されていない")
-		defaultFaces := *world.Resources.Faces
+		defaultFaces := world.Resources.Faces
 		assert.Contains(t, defaultFaces, "dougenzaka", "dougenzakaフォントが設定されていない")
 
 		// UIリソースの確認
@@ -174,8 +174,8 @@ func TestResourceIntegration(t *testing.T) {
 		require.NoError(t, err)
 
 		// フォントとフェイスの整合性
-		fonts := *world.Resources.Fonts
-		defaultFaces := *world.Resources.Faces
+		fonts := world.Resources.Fonts
+		defaultFaces := world.Resources.Faces
 
 		if dougenzakaFont, exists := fonts["dougenzaka"]; exists {
 			assert.NotNil(t, dougenzakaFont.Font, "dougenzakaフォントのFontフィールドがnil")
@@ -185,7 +185,7 @@ func TestResourceIntegration(t *testing.T) {
 		}
 
 		// スプライトシートの基本チェック
-		spriteSheets := *world.Resources.SpriteSheets
+		spriteSheets := world.Resources.SpriteSheets
 		for name, sheet := range spriteSheets {
 			// Textureは値型なので、Imageフィールドを直接チェック
 			assert.NotNil(t, sheet.Texture.Image, "スプライトシート '%s' の画像がnil", name)

@@ -37,7 +37,7 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 				t.Run(fmt.Sprintf("seed=%d", seed), func(t *testing.T) {
 					t.Parallel()
 					world := testutil.InitTestWorld(t)
-					world.Resources.RawMaster = CreateTestRawMaster()
+					world.Resources.RawMaster = *CreateTestRawMaster()
 					world.Resources.Dungeon = &resources.Dungeon{Depth: 5} // EscapePortalも生成される階層
 
 					plan, err := Plan(world, 50, 50, seed, tc.plannerType)
@@ -67,7 +67,7 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
-			world.Resources.RawMaster = CreateTestRawMaster()
+			world.Resources.RawMaster = *CreateTestRawMaster()
 			world.Resources.Dungeon = &resources.Dungeon{Depth: 5}
 
 			plan, err := Plan(world, 50, 50, 12345, tc.plannerType)

@@ -226,7 +226,7 @@ func addBookInfo(targetContainer *widget.Container, book *gc.Book, world w.World
 }
 
 // addEquipBonusToTable は装備ボーナスをテーブルに追加する
-func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonus gc.EquipBonus, res *resources.UIResources) {
+func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonus gc.EquipBonus, res resources.UIResources) {
 	if equipBonus.Vitality != 0 {
 		styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%+d", equipBonus.Vitality)}, specTableAligns, nil, res)
 	}

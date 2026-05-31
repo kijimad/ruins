@@ -18,7 +18,7 @@ import (
 // 共有リソースをキャッシュ（一度だけ読み込む）
 var (
 	rawMasterOnce sync.Once
-	rawMaster     *raw.Master
+	rawMaster     raw.Master
 )
 
 // InitTestWorld は軽量なテスト用Worldを初期化する
@@ -47,13 +47,10 @@ func InitTestWorld(t *testing.T) w.World {
 
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）
 	rawMasterOnce.Do(func() {
-		resourceLoader := loader.NewResourceLoader()
-		rw, err := resourceLoader.LoadRaws()
+		rw, err := loader.LoadRaws()
 		require.NoError(t, err, "RawMasterの読み込みに失敗しました")
 		rawMaster = rw
 	})
-
-	require.NotNil(t, rawMaster, "RawMasterが初期化されていません")
 	world.Resources.RawMaster = rawMaster
 
 	// テスト用スプライトシートを初期化
@@ -72,7 +69,7 @@ func InitTestWorld(t *testing.T) w.World {
 			},
 		},
 	}
-	world.Resources.SpriteSheets = &spriteSheets
+	world.Resources.SpriteSheets = spriteSheets
 
 	// 最低限のゲームリソースを初期化
 	gameResource := &gr.Dungeon{

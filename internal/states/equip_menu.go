@@ -593,7 +593,7 @@ func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
 }
 
 // buildSlotContainer はスロット選択画面のアイテム一覧を構築する
-func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
 		return container
@@ -625,7 +625,7 @@ func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, item
 }
 
 // buildEquipSelectContainer は装備選択画面のアイテム一覧を構築する
-func (st *EquipMenuState) buildEquipSelectContainer(props equipScreenProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *EquipMenuState) buildEquipSelectContainer(props equipScreenProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	pg := pagination.New(itemIndex, len(props.Items), equipItemsPerPage)
 
@@ -652,7 +652,7 @@ func (st *EquipMenuState) buildEquipSelectContainer(props equipScreenProps, item
 }
 
 // buildSlotDetailContainer はスロット選択画面の詳細表示を構築する
-func (st *EquipMenuState) buildSlotDetailContainer(world w.World, props slotScreenProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *EquipMenuState) buildSlotDetailContainer(world w.World, props slotScreenProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	specContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -675,7 +675,7 @@ func (st *EquipMenuState) buildSlotDetailContainer(world w.World, props slotScre
 }
 
 // buildEquipDetailContainer は装備選択画面の詳細表示を構築する
-func (st *EquipMenuState) buildEquipDetailContainer(world w.World, props equipScreenProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *EquipMenuState) buildEquipDetailContainer(world w.World, props equipScreenProps, itemIndex int, res resources.UIResources) *widget.Container {
 	specContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -696,7 +696,7 @@ func (st *EquipMenuState) buildEquipDetailContainer(world w.World, props equipSc
 	return styled.NewWSplitContainer(specContainer, abilityContainer)
 }
 
-func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.Container, player ecs.Entity, res *resources.UIResources) {
+func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.Container, player ecs.Entity, res resources.UIResources) {
 	if !player.HasComponent(world.Components.Player) {
 		return
 	}
@@ -721,7 +721,7 @@ func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.C
 }
 
 // buildSlotDescContainer はスロット選択画面の説明文を構築する
-func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	desc := " "
 
@@ -741,7 +741,7 @@ func (st *EquipMenuState) buildSlotDescContainer(world w.World, tabs []equipTabD
 }
 
 // buildEquipDescContainer は装備選択画面の説明文を構築する
-func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipItemData, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *EquipMenuState) buildEquipDescContainer(world w.World, items []equipItemData, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	desc := " "
 

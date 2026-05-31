@@ -86,7 +86,7 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 		if item.ImageKey == "" {
 			return fmt.Errorf("ダンジョンのImageKeyが未設定です: %s", item.Name)
 		}
-		bgSheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+		bgSheet, sheetOK := world.Resources.SpriteSheets["bg"]
 		if !sheetOK {
 			return fmt.Errorf("bgスプライトシートが存在しない")
 		}
@@ -222,7 +222,7 @@ func (st *DungeonSelectState) buildUI(world w.World) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
-func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
@@ -250,7 +250,7 @@ func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex
 	return container
 }
 
-func (st *DungeonSelectState) buildDetailPanel(props dungeonSelectProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *DungeonSelectState) buildDetailPanel(props dungeonSelectProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),

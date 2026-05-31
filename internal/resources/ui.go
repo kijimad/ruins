@@ -176,42 +176,42 @@ type ToolTipResources struct {
 }
 
 // NewUIResources は新しいUIリソースを作成する
-func NewUIResources(sources []*text.GoTextFaceSource) (*UIResources, error) {
+func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 	background := image.NewNineSliceColor(hexToColor(backgroundColor))
 
 	fonts, err := loadFonts(sources)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	button, err := newButtonResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	checkbox, err := newCheckboxResources()
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	comboButton, err := newComboButtonResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	list, err := newListResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	slider, err := newSliderResources()
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	progressBar, err := newProgressBarResources()
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	panel := newPanelResources()
@@ -220,23 +220,23 @@ func NewUIResources(sources []*text.GoTextFaceSource) (*UIResources, error) {
 
 	header, err := newHeaderResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
 	textInput, err := newTextInputResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 	textArea, err := newTextAreaResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 	toolTip, err := newToolTipResources(fonts)
 	if err != nil {
-		return nil, err
+		return UIResources{}, err
 	}
 
-	return &UIResources{
+	return UIResources{
 		Fonts: fonts,
 
 		Background: background,

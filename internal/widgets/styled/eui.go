@@ -109,7 +109,7 @@ func NewWSplitContainer(right *widget.Container, left *widget.Container, opts ..
 }
 
 // NewWindowContainer はウィンドウの本体を作成する
-func NewWindowContainer(res *resources.UIResources) *widget.Container {
+func NewWindowContainer(res resources.UIResources) *widget.Container {
 	return widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
@@ -131,7 +131,7 @@ func NewWindowContainer(res *resources.UIResources) *widget.Container {
 }
 
 // NewWindowHeaderContainer はウィンドウのヘッダーを作成する
-func NewWindowHeaderContainer(title string, res *resources.UIResources) *widget.Container {
+func NewWindowHeaderContainer(title string, res resources.UIResources) *widget.Container {
 	container := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.TitleBar),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
@@ -156,7 +156,7 @@ func NewWindowHeaderContainer(title string, res *resources.UIResources) *widget.
 // text ================
 
 // NewMenuText は汎用メニューテキストを作成する
-func NewMenuText(title string, res *resources.UIResources) *widget.Text {
+func NewMenuText(title string, res resources.UIResources) *widget.Text {
 	text := widget.NewText(
 		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
@@ -168,7 +168,7 @@ func NewMenuText(title string, res *resources.UIResources) *widget.Text {
 }
 
 // NewTitleText はタイトル用テキストを作成する（大きめ、目立つ）
-func NewTitleText(text string, res *resources.UIResources) *widget.Text {
+func NewTitleText(text string, res resources.UIResources) *widget.Text {
 	return widget.NewText(
 		widget.TextOpts.Text(text, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
@@ -178,7 +178,7 @@ func NewTitleText(text string, res *resources.UIResources) *widget.Text {
 }
 
 // NewDescriptionText は説明文用テキストを作成する（小さめ、補助的）
-func NewDescriptionText(text string, res *resources.UIResources) *widget.Text {
+func NewDescriptionText(text string, res resources.UIResources) *widget.Text {
 	return widget.NewText(
 		widget.TextOpts.Text(text, &res.Text.SmallFace, consts.ForegroundColor),
 		widget.TextOpts.WidgetOpts(
@@ -188,7 +188,7 @@ func NewDescriptionText(text string, res *resources.UIResources) *widget.Text {
 }
 
 // NewPageIndicator は右寄せのページインジケーターを作成する
-func NewPageIndicator(text string, res *resources.UIResources) *widget.Container {
+func NewPageIndicator(text string, res resources.UIResources) *widget.Container {
 	container := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{})),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
@@ -221,7 +221,7 @@ func NewPageIndicator(text string, res *resources.UIResources) *widget.Container
 }
 
 // NewBodyText は本文用テキストを作成する
-func NewBodyText(title string, _ color.RGBA, res *resources.UIResources) *widget.Text {
+func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.Text {
 	text := widget.NewText(
 		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
@@ -234,7 +234,7 @@ func NewBodyText(title string, _ color.RGBA, res *resources.UIResources) *widget
 
 // NewListItemText はリスト項目用テキストを作成する（カーソルで選択状態を表現）
 // additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示
-func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *resources.UIResources, additionalLabels ...string) *widget.Container {
+func NewListItemText(text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
 	// カーソルの色: 選択時は表示、非選択時は透明
 	cursorColor := color.RGBA{}
 	if isSelected {
@@ -304,7 +304,7 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *re
 }
 
 // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）
-func NewFragmentText(text string, textColor color.RGBA, res *resources.UIResources) *widget.Text {
+func NewFragmentText(text string, textColor color.RGBA, res resources.UIResources) *widget.Text {
 	return widget.NewText(
 		widget.TextOpts.Text(text, &res.Text.BodyFace, textColor),
 		widget.TextOpts.WidgetOpts(

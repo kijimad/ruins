@@ -1,28 +1,16 @@
-// Package loader はゲームエンジンのリソース読み込み機能を提供する。
-//
-// このパッケージは純粋なリソース読み込み処理に特化しており、
-// ゲーム固有のロジックを含まない汎用的な設計となっている。
+// Package loader はゲームリソースの読み込み機能を提供する。
 //
 // 主な責務:
 //   - TOMLファイルからのメタデータ読み込み
-//   - フォント、スプライトシート、Rawデータの管理
-//   - リソースキャッシュ機能
-//   - 設定可能なファイルパス管理
+//   - フォント、スプライトシート、Rawデータの読み込み
 //
 // 使い分け:
-//   - loader: 純粋なリソース読み込み処理（汎用的、再利用可能）
-//   - resources: ゲーム固有のリソース管理（Dungeon、StateEventなど）
-//
-// 設計思想:
-//   - 他のプロジェクトでも再利用できる汎用性
-//   - 依存関係を最小限に抑えた設計
-//   - インターフェースベースの拡張可能な設計
+//   - loader: 純粋なリソース読み込み処理
+//   - resources: ゲーム固有のリソース管理
 //
 // 使用例:
 //
-//	loader := loader.NewResourceLoader()
+//	rw, err := loader.LoadRaws()
+//	sprites, err := loader.LoadSpriteSheets(rw)
 //	fonts, err := loader.LoadFonts()
-//	if err != nil {
-//	    return err
-//	}
 package loader

@@ -271,7 +271,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 }
 
 // buildDetailPanel は選択中の職業の詳細パネルを構築する
-func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)

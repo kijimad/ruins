@@ -456,7 +456,7 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
-func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int, res *resources.UIResources) *widget.Container {
+func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
@@ -469,7 +469,7 @@ func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int
 	return container
 }
 
-func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
 		return container
@@ -506,7 +506,7 @@ func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIn
 	return container
 }
 
-func (st *StatusState) buildDetailContainer(world w.World, props statusProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *StatusState) buildDetailContainer(world w.World, props statusProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -533,14 +533,14 @@ func (st *StatusState) buildDetailContainer(world w.World, props statusProps, ta
 	return container
 }
 
-func (st *StatusState) buildSkillDetail(container *widget.Container, item statusItemData, res *resources.UIResources) {
+func (st *StatusState) buildSkillDetail(container *widget.Container, item statusItemData, res resources.UIResources) {
 	for _, d := range item.Details {
 		container.AddChild(styled.NewDescriptionText(d.Label, res))
 		container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s", d.Value), res))
 	}
 }
 
-func (st *StatusState) buildEffectDetail(container *widget.Container, item statusItemData, res *resources.UIResources) {
+func (st *StatusState) buildEffectDetail(container *widget.Container, item statusItemData, res resources.UIResources) {
 	if len(item.Details) == 0 {
 		return
 	}
@@ -556,7 +556,7 @@ func (st *StatusState) buildEffectDetail(container *widget.Container, item statu
 	container.AddChild(table)
 }
 
-func (st *StatusState) buildHealthDetail(container *widget.Container, world w.World, res *resources.UIResources) {
+func (st *StatusState) buildHealthDetail(container *widget.Container, world w.World, res resources.UIResources) {
 	var playerEntity ecs.Entity
 	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
 		playerEntity = entity
@@ -593,7 +593,7 @@ func sourceToDetails(sources map[gc.ModifierKey][]gc.ModifierSource, key gc.Modi
 	return rows
 }
 
-func (st *StatusState) buildDescContainer(tabs []statusTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *StatusState) buildDescContainer(tabs []statusTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	desc := " "
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {

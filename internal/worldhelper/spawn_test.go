@@ -189,7 +189,7 @@ func TestSpawnNPCHasAIMoveFSM(t *testing.T) {
 			"red_ball":     {Width: 32, Height: 32}, // 敵のスプライト
 		},
 	}
-	world.Resources.SpriteSheets = &spriteSheets
+	world.Resources.SpriteSheets = spriteSheets
 
 	// NPCを生成（タイル座標で指定）
 	_, err := SpawnEnemy(world, 5, 5, "火の玉")
@@ -217,7 +217,7 @@ func TestSpawnEnemy_WithBoss(t *testing.T) {
 				"red_ball": {Width: 32, Height: 32},
 			},
 		}
-		world.Resources.SpriteSheets = &spriteSheets
+		world.Resources.SpriteSheets = spriteSheets
 	}
 
 	t.Run("WithBossオプションでBossコンポーネントが付与される", func(t *testing.T) {
@@ -251,7 +251,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 			"red_ball": {Width: 32, Height: 32},
 		},
 	}
-	world.Resources.SpriteSheets = &spriteSheets
+	world.Resources.SpriteSheets = spriteSheets
 
 	// 「火の玉」を生成（DropTableが定義されている敵）
 	enemy, err := SpawnEnemy(world, 10, 10, "火の玉")

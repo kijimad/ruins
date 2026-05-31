@@ -37,9 +37,9 @@ func TestSaveLoadSpriteRender(t *testing.T) {
 	}
 	if w.Resources.SpriteSheets == nil {
 		sheets := make(map[string]gc.SpriteSheet)
-		w.Resources.SpriteSheets = &sheets
+		w.Resources.SpriteSheets = sheets
 	}
-	(*w.Resources.SpriteSheets)["test_sprite"] = testSpriteSheet
+	w.Resources.SpriteSheets["test_sprite"] = testSpriteSheet
 
 	// SpriteRenderコンポーネントを持つエンティティを作成
 	entity := w.Manager.NewEntity()
@@ -77,9 +77,9 @@ func TestSaveLoadSpriteRender(t *testing.T) {
 	// リソースに同じスプライトシートを追加（通常はリソースは別途ロードされる）
 	if newWorld.Resources.SpriteSheets == nil {
 		sheets := make(map[string]gc.SpriteSheet)
-		newWorld.Resources.SpriteSheets = &sheets
+		newWorld.Resources.SpriteSheets = sheets
 	}
-	(*newWorld.Resources.SpriteSheets)["test_sprite"] = testSpriteSheet
+	newWorld.Resources.SpriteSheets["test_sprite"] = testSpriteSheet
 
 	err = sm.LoadWorld(newWorld, "test_sprite")
 	require.NoError(t, err)

@@ -24,7 +24,7 @@ func TestGetVisibleEnemies(t *testing.T) {
 				"red_ball": {Width: 32, Height: 32},
 			},
 		}
-		world.Resources.SpriteSheets = &spriteSheets
+		world.Resources.SpriteSheets = spriteSheets
 
 		// プレイヤーを配置
 		playerEntity := world.Manager.NewEntity()

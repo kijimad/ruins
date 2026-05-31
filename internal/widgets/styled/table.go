@@ -19,7 +19,7 @@ const (
 
 // NewTableContainer はテーブルのコンテナを作成する
 // columnWidths で各列の幅を指定する
-func NewTableContainer(columnWidths []int, _ *resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {
+func NewTableContainer(columnWidths []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {
 	columns := len(columnWidths)
 	if columns == 0 {
 		columns = 1
@@ -48,7 +48,7 @@ func NewTableContainer(columnWidths []int, _ *resources.UIResources, opts ...wid
 }
 
 // NewTableHeaderRow はヘッダー行のセル群を作成してコンテナに追加する
-func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res *resources.UIResources) {
+func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res resources.UIResources) {
 	for i, header := range headers {
 		width := 80
 		if i < len(columnWidths) {
@@ -70,7 +70,7 @@ func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers 
 // NewTableRow はテーブル行を作成する
 // isSelectedがnilの場合は通常行、非nilの場合は最初の列にカーソルを表示する選択可能行になる
 // alignsがnilの場合は全て左揃えになる
-func NewTableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected *bool, res *resources.UIResources) {
+func NewTableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected *bool, res resources.UIResources) {
 	if isSelected != nil {
 		addSelectableRow(container, columnWidths, values, aligns, *isSelected, res)
 		return
@@ -82,7 +82,7 @@ func NewTableRow(container *widget.Container, columnWidths []int, values []strin
 // 内部関数
 // ================
 
-func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res *resources.UIResources) {
+func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
 	cursorColor := color.RGBA{}
 	if isSelected {
 		cursorColor = consts.PrimaryColor
@@ -121,7 +121,7 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 	}
 }
 
-func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res *resources.UIResources) {
+func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {
 	for i, value := range values {
 		width := 80
 		if i < len(columnWidths) {
