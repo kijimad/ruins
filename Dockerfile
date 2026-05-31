@@ -41,7 +41,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     GO111MODULE=on \
     go build -o ./bin/ruins .
-RUN upx --best --ultra-brute ./bin/ruins
+RUN upx --best --best ./bin/ruins
 
 ###########
 # release #
