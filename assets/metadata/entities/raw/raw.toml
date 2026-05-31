@@ -8176,7 +8176,7 @@ strength = 5
 vitality = 5
 
 [members.lightSource]
-enabled = true
+enabled = false
 radius = 4
 
 [members.lightSource.color]

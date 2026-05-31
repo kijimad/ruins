@@ -8,10 +8,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// CameraFollowSpeed はカメラ追従の速度を制御する
-// 値が大きいほど追従が速くなる。0.0〜1.0の範囲で、1.0なら即座に追従する
-const CameraFollowSpeed = 0.15
-
 // CameraSystem はカメラの追従とズーム処理を行う
 type CameraSystem struct{}
 
@@ -47,16 +43,9 @@ func (sys *CameraSystem) Update(world w.World) error {
 			camera.TargetY = float64(playerGridElement.Y)*tileSize + tileSize/2
 		}
 
-		// カメラ位置を目標位置に向けて補間
-		if world.Config.DisableAnimation {
-			// アニメーション無効時は即座にスナップ
-			camera.X = camera.TargetX
-			camera.Y = camera.TargetY
-		} else {
-			// 滑らかに補間
-			camera.X += (camera.TargetX - camera.X) * CameraFollowSpeed
-			camera.Y += (camera.TargetY - camera.Y) * CameraFollowSpeed
-		}
+		// カメラ位置を目標位置に即座にスナップする
+		camera.X = camera.TargetX
+		camera.Y = camera.TargetY
 
 		// ズーム率変更
 		// 参考: https://ebitengine.org/ja/examples/isometric.html
