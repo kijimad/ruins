@@ -8273,14 +8273,14 @@ strength = 2
 vitality = 1
 
 [[members]]
-animKeys = [ "slime_0", "slime_1" ]
+animKeys = [ "penguin" ]
 commandTableName = "ネズミ"
 dropTableName = "ネズミ"
 factionType = ""
-disposition = "hostile"
+disposition = "cowardly"
 isBoss = false
 name = "ネズミ"
-spriteKey = "slime_0"
+spriteKey = "penguin"
 spriteSheetName = "field"
 
 [members.abilities]
@@ -9050,7 +9050,7 @@ animKeys = [ "dark_clab" ]
 commandTableName = "苔亀"
 dropTableName = "苔亀"
 factionType = ""
-disposition = "hostile"
+disposition = "neutral"
 isBoss = false
 name = "苔亀"
 spriteKey = "dark_clab"

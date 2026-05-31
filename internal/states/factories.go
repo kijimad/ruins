@@ -365,6 +365,15 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("敵スポーン:火の玉(hostile)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "火の玉")
+		}).
+		WithChoice("敵スポーン:苔亀(neutral)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "苔亀")
+		}).
+		WithChoice("敵スポーン:ネズミ(cowardly)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "ネズミ")
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -373,6 +382,17 @@ func NewDebugMenuState() es.State[w.World] {
 		})
 
 	return messageState
+}
+
+// spawnEnemyNearPlayer はプレイヤーの右隣に指定した敵をスポーンする
+func spawnEnemyNearPlayer(world w.World, name string) error {
+	player, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	_, err = worldhelper.SpawnEnemy(world, int(playerGrid.X)+2, int(playerGrid.Y), name)
+	return err
 }
 
 // DungeonStateOption はDungeonStateのオプション設定関数

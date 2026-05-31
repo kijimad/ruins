@@ -25,10 +25,32 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 		logDamageDealt(world, source, target, damage)
 	}
 
+	// 被ダメージによる態度変化
+	reactToHostileAction(world, target)
+
 	// 死亡チェック
 	if pools.HP.Current <= 0 && beforeHP > 0 {
 		target.AddComponent(world.Components.Dead, &gc.Dead{})
 		logDeath(world, target, source)
+	}
+}
+
+// reactToHostileAction は被ダメージ時にDispositionを変化させる。
+// Neutral は反撃のため Hostile に、Cowardly は逃亡のため Fleeing に遷移する
+func reactToHostileAction(world w.World, target ecs.Entity) {
+	d := world.Components.Disposition.Get(target)
+	if d == nil {
+		return
+	}
+	disposition := d.(*gc.Disposition)
+
+	switch disposition.Default {
+	case gc.DispositionNeutral:
+		disposition.Current = gc.DispositionHostile
+	case gc.DispositionCowardly:
+		disposition.Current = gc.DispositionFleeing
+	case gc.DispositionHostile, gc.DispositionFleeing:
+		// 変化なし
 	}
 }
 
