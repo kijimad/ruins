@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -208,8 +207,8 @@ func TestEnvironmentPlanner_calcFoliage(t *testing.T) {
 	}
 }
 
-func newTestLevel(width, height int) resources.Level {
-	return resources.Level{
+func newTestLevel(width, height int) gc.Level {
+	return gc.Level{
 		TileWidth:  consts.Tile(width),
 		TileHeight: consts.Tile(height),
 	}

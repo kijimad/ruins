@@ -5,7 +5,6 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -50,11 +49,11 @@ func ExecuteInteraction(actor ecs.Entity, interactable ecs.Entity, world w.World
 func executePortal(world w.World, portal gc.PortalInteraction) (*ActionResult, error) {
 	switch portal.PortalType {
 	case gc.PortalTypeNext:
-		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpNextEvent{}); err != nil {
+		if err := worldhelper.RequestStateChange(world, gc.WarpNextEvent{}); err != nil {
 			return nil, fmt.Errorf("次フロアワープ状態変更要求エラー: %w", err)
 		}
 	case gc.PortalTypeTown:
-		if err := world.Resources.Dungeon.RequestStateChange(resources.WarpEscapeEvent{}); err != nil {
+		if err := worldhelper.RequestStateChange(world, gc.WarpEscapeEvent{}); err != nil {
 			return nil, fmt.Errorf("街帰還状態変更要求エラー: %w", err)
 		}
 	default:
@@ -64,7 +63,7 @@ func executePortal(world w.World, portal gc.PortalInteraction) (*ActionResult, e
 }
 
 func executeDungeonGate(world w.World) (*ActionResult, error) {
-	if err := world.Resources.Dungeon.RequestStateChange(resources.OpenDungeonSelectEvent{}); err != nil {
+	if err := worldhelper.RequestStateChange(world, gc.OpenDungeonSelectEvent{}); err != nil {
 		return nil, fmt.Errorf("ダンジョン選択状態変更要求エラー: %w", err)
 	}
 	return &ActionResult{Success: true, ActivityName: gc.BehaviorDungeonGate, Message: "ダンジョンゲート発動"}, nil
@@ -89,7 +88,7 @@ func executeDoor(actor ecs.Entity, doorEntity ecs.Entity, world w.World) (*Actio
 
 func executeDoorLock(world w.World) (*ActionResult, error) {
 	if worldhelper.LockAllDoors(world) > 0 {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("どこかで扉が閉じたようだ。").
 			Log()
 	}

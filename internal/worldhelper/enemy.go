@@ -59,12 +59,12 @@ func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 		return false
 	}
 
-	if world.Resources.Dungeon.VisibleTiles == nil {
+	if GetDungeon(world).VisibleTiles == nil {
 		return false
 	}
 
 	gridElement := gc.GridElement{X: consts.Tile(targetX), Y: consts.Tile(targetY)}
-	return world.Resources.Dungeon.VisibleTiles[gridElement]
+	return GetDungeon(world).VisibleTiles[gridElement]
 }
 
 // GetVisibleItems は視界内のアイテムエンティティをすべて取得して返す

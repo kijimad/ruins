@@ -177,7 +177,7 @@ func (st *AutoSellState) buildUI(world w.World) *ebitenui.UI {
 	return &ebitenui.UI{Container: root}
 }
 
-func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
 	if len(props.Items) == 0 {
@@ -212,7 +212,7 @@ func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, 
 	return container
 }
 
-func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -229,7 +229,7 @@ func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, 
 	return container
 }
 
-func (st *AutoSellState) buildFooterContainer(props autoSellProps, res *resources.UIResources) *widget.Container {
+func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
 	totalText := fmt.Sprintf("合計  %s", worldhelper.FormatCurrency(props.Total))

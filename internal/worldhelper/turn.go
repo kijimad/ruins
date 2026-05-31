@@ -1,37 +1,18 @@
 package worldhelper
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// GetTurnState はワールドからターン状態を取得する
-func GetTurnState(world w.World) (*gc.TurnState, error) {
-	if world.Resources.Dungeon == nil {
-		return nil, fmt.Errorf("Dungeonが初期化されていません")
-	}
-	return &world.Resources.Dungeon.TurnState, nil
-}
-
-// GetTurnNumber はターン番号を取得する
-func GetTurnNumber(world w.World) (int, error) {
-	state, err := GetTurnState(world)
-	if err != nil {
-		return 0, err
-	}
-	return state.TurnNumber, nil
-}
-
 // CanPlayerAct はプレイヤーが行動可能かを判定する
 // プレイヤーターンかつAP >= 0 の場合にtrueを返す
 func CanPlayerAct(world w.World) bool {
 	// プレイヤーターンでなければ行動不可
-	turnState, err := GetTurnState(world)
-	if err != nil || turnState.Phase != gc.TurnPhasePlayer {
+	turnState := GetTurnState(world)
+	if turnState == nil || turnState.Phase != gc.TurnPhasePlayer {
 		return false
 	}
 

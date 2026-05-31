@@ -144,7 +144,7 @@ func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity
 
 	// プレイヤーの場合のみ複数アイテム収集時の総括メッセージを表示
 	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("%d個のアイテムを入手した", collectedCount)).
 			Log()
 	}
@@ -179,7 +179,7 @@ func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, item
 		return fmt.Errorf("インベントリ統合エラー: %w", err)
 	}
 
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(worldhelper.GetGameLog(world)).
 		ItemName(formattedName).
 		Append(" を入手した。").
 		Log()

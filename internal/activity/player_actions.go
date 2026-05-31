@@ -42,7 +42,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				if !door.IsOpen {
 					// ロックされた扉は開けない
 					if door.Locked {
-						gamelog.New(gamelog.FieldLog).Append("扉はロックされている。").Log()
+						gamelog.New(worldhelper.GetGameLog(world)).Append("扉はロックされている。").Log()
 						return nil
 					}
 					// 閉じている扉は開く相互作用を実行
@@ -231,23 +231,23 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 	switch data := interactable.Data.(type) {
 	case gc.ItemInteraction:
 		formattedName := worldhelper.FormatItemName(world, interactableEntity)
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			ItemName(formattedName).
 			Append(" がある。").
 			Log()
 	case gc.PortalInteraction:
 		switch data.PortalType {
 		case gc.PortalTypeNext:
-			gamelog.New(gamelog.FieldLog).
+			gamelog.New(worldhelper.GetGameLog(world)).
 				Append("転移ゲートがある。Enterキーで移動。").
 				Log()
 		case gc.PortalTypeTown:
-			gamelog.New(gamelog.FieldLog).
+			gamelog.New(worldhelper.GetGameLog(world)).
 				Append("帰還ゲートがある。Enterキーで脱出。").
 				Log()
 		}
 	case gc.DungeonGateInteraction:
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("ダンジョンへの門がある。Enterキーで選択。").
 			Log()
 	}

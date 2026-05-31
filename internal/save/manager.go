@@ -11,8 +11,8 @@ import (
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -31,8 +31,8 @@ type Data struct {
 
 // WorldSaveData はワールド全体のセーブデータ
 type WorldSaveData struct {
-	Entities     []EntitySaveData        `json:"entities"`
-	GameProgress *resources.GameProgress `json:"game_progress,omitempty"`
+	Entities     []EntitySaveData `json:"entities"`
+	GameProgress *gc.GameProgress `json:"game_progress,omitempty"`
 }
 
 // EntitySaveData は単一エンティティのセーブデータ
@@ -147,8 +147,8 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 		return fmt.Errorf("unsupported save data version: %s", saveData.Version)
 	}
 
-	// ワールドをクリア
-	sm.clearWorld(world)
+	world.Manager.DeleteAllEntities()
+	world.InitSingleton()
 	sm.stableIDManager.Clear()
 
 	// ワールドデータを復元
@@ -204,7 +204,7 @@ func (sm *SerializationManager) extractWorldData(world w.World) WorldSaveData {
 	}
 
 	// GameProgressを保存
-	worldData.GameProgress = world.Resources.GameProgress
+	worldData.GameProgress = worldhelper.GetGameProgress(world)
 
 	return worldData
 }
@@ -326,7 +326,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData WorldS
 
 	// GameProgressを復元
 	if worldData.GameProgress != nil {
-		*world.Resources.GameProgress = *worldData.GameProgress
+		*worldhelper.GetGameProgress(world) = *worldData.GameProgress
 	}
 
 	return nil
@@ -420,20 +420,6 @@ func (sm *SerializationManager) resolveEntityReferences(world w.World, entity ec
 	}
 
 	return nil
-}
-
-// clearWorld はワールドの全エンティティをクリア
-func (sm *SerializationManager) clearWorld(world w.World) {
-	// 全エンティティを削除
-	entitiesToDelete := make([]ecs.Entity, 0)
-
-	world.Manager.Join().Visit(ecs.Visit(func(entity ecs.Entity) {
-		entitiesToDelete = append(entitiesToDelete, entity)
-	}))
-
-	for _, entity := range entitiesToDelete {
-		world.Manager.DeleteEntity(entity)
-	}
 }
 
 // SaveFileExists はセーブファイルが存在するかチェックする

@@ -180,7 +180,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.Player) {
 		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
-		selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
+		selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
 		weaponIndex := selectedSlot - 1 // 1-based to 0-based
 		if weaponIndex < 0 || weaponIndex >= 5 {
 			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
@@ -385,7 +385,7 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		actorName := worldhelper.GetEntityName(actor, world)
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("%s のスキルが上がった！（%s Lv%d）", actorName, string(skillID), s.Value)).
 			Log()
 	}
@@ -400,7 +400,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 	attackerName := worldhelper.GetEntityName(attacker, world)
 	targetName := worldhelper.GetEntityName(target, world)
 
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(worldhelper.GetGameLog(world)).
 		Build(func(l *gamelog.Logger) {
 			worldhelper.AppendNameWithColor(l, attacker, attackerName, world)
 		}).

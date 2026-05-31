@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -57,7 +58,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		overweightLimit := pools.Weight.Max * 1.5
 		if pools.Weight.Current > overweightLimit {
 			if actor.HasComponent(world.Components.Player) {
-				gamelog.New(gamelog.FieldLog).
+				gamelog.New(worldhelper.GetGameLog(world)).
 					Warning("重すぎて動けない").
 					Log()
 			}

@@ -3,7 +3,7 @@ package mapplanner
 import (
 	"fmt"
 
-	"github.com/kijimaD/ruins/internal/resources"
+	gc "github.com/kijimaD/ruins/internal/components"
 )
 
 // AutoTileIndex は16タイルオートタイルのインデックス（0-15）
@@ -74,7 +74,7 @@ func (ati AutoTileIndex) String() string {
 
 // CalculateAutoTileIndex は4方向の隣接情報からオートタイルインデックスを計算
 // 同じタイル名のタイルとのみ接続する
-func (mp *MetaPlan) CalculateAutoTileIndex(idx resources.TileIdx, tileType string) AutoTileIndex {
+func (mp *MetaPlan) CalculateAutoTileIndex(idx gc.TileIdx, tileType string) AutoTileIndex {
 	// 4方向の隣接チェック - 同じタイル名の場合のみ接続
 	upTile := mp.UpTile(idx)
 	downTile := mp.DownTile(idx)
@@ -105,6 +105,6 @@ func (mp *MetaPlan) CalculateAutoTileIndex(idx resources.TileIdx, tileType strin
 }
 
 // IsValidIndex はインデックスが有効範囲内かチェック
-func (mp *MetaPlan) IsValidIndex(idx resources.TileIdx) bool {
+func (mp *MetaPlan) IsValidIndex(idx gc.TileIdx) bool {
 	return idx >= 0 && int(idx) < len(mp.Tiles)
 }

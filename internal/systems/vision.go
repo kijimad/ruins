@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -86,9 +87,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.Y-sys.lastPlayerY)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
-	if world.Resources.Dungeon != nil && world.Resources.Dungeon.NeedsForceUpdate {
+	if worldhelper.GetDungeon(world) != nil && worldhelper.GetDungeon(world).NeedsForceUpdate {
 		needsUpdate = true
-		world.Resources.Dungeon.NeedsForceUpdate = false
+		worldhelper.GetDungeon(world).NeedsForceUpdate = false
 	}
 
 	if needsUpdate {
@@ -99,7 +100,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		// 光源情報キャッシュをクリア（更新前）
 		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
 
-		isDark := world.Resources.Dungeon.Dark
+		isDark := worldhelper.GetDungeon(world).Dark
 
 		// 視界内タイルの光源情報を計算し、探索済みマークを行う
 		for _, tileData := range visibilityData {
@@ -112,7 +113,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 				// 暗闇フロアでは光源範囲内のみ探索済み、明るいフロアでは視界内すべて探索済み
 				if !isDark || lightInfo.Darkness < 1.0 {
-					world.Resources.Dungeon.ExploredTiles[gridElement] = true
+					worldhelper.GetDungeon(world).ExploredTiles[gridElement] = true
 				}
 			}
 		}
@@ -133,7 +134,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 				}
 			}
 		}
-		world.Resources.Dungeon.VisibleTiles = visibleTiles
+		worldhelper.GetDungeon(world).VisibleTiles = visibleTiles
 
 		// キャッシュ更新
 		sys.lastPlayerX = playerPos.X
@@ -195,7 +196,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 	result := make(map[gc.GridElement]TileRenderInfo)
 
 	// 現在見えているタイルを設定する
-	for grid := range world.Resources.Dungeon.VisibleTiles {
+	for grid := range worldhelper.GetDungeon(world).VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
 			visible.LightColor = li.Color
@@ -204,7 +205,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 	}
 
 	// 暗闇フロアで視界内だが光源外のタイルを設定する
-	if world.Resources.Dungeon.Dark {
+	if worldhelper.GetDungeon(world).Dark {
 		for grid, li := range lights {
 			if _, exists := result[grid]; !exists && li.Darkness >= 1.0 {
 				result[grid] = TileRenderDark{Darkness: DarknessDark}
@@ -213,7 +214,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 	}
 
 	// 視界外だが記憶済みのタイルを設定する
-	for grid := range world.Resources.Dungeon.ExploredTiles {
+	for grid := range worldhelper.GetDungeon(world).ExploredTiles {
 		if _, exists := result[grid]; !exists {
 			result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
 		}

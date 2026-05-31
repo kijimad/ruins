@@ -344,7 +344,7 @@ func (st *InventoryMenuState) buildUI(world w.World) *ebitenui.UI {
 	return result
 }
 
-func (st *InventoryMenuState) buildCategoryContainer(tabs []inventoryTabData, tabIndex int, res *resources.UIResources) *widget.Container {
+func (st *InventoryMenuState) buildCategoryContainer(tabs []inventoryTabData, tabIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
@@ -357,7 +357,7 @@ func (st *InventoryMenuState) buildCategoryContainer(tabs []inventoryTabData, ta
 	return container
 }
 
-func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
 		return container
@@ -391,7 +391,7 @@ func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabInd
 	return container
 }
 
-func (st *InventoryMenuState) buildSpecContainer(world w.World, props inventoryProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *InventoryMenuState) buildSpecContainer(world w.World, props inventoryProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -409,7 +409,7 @@ func (st *InventoryMenuState) buildSpecContainer(world w.World, props inventoryP
 	return container
 }
 
-func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	desc := " "
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
@@ -502,7 +502,7 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 	return actions
 }
 
-func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UIResources) *widget.Window {
+func (st *InventoryMenuState) buildActionWindow(world w.World, res resources.UIResources) *widget.Window {
 	windowContainer := styled.NewWindowContainer(res)
 	titleContainer := styled.NewWindowHeaderContainer("アクション選択", res)
 	actionWindow := styled.NewSmallWindow(titleContainer, windowContainer)

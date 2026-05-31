@@ -36,7 +36,7 @@ func TestTemplateToMapIntegration(t *testing.T) {
 		resolvedMap := maptemplate.ResolveMapCells(template.Map, palette)
 		chain, err := mapplanner.NewTemplatePlannerChain(template, resolvedMap, 12345)
 		require.NoError(t, err)
-		chain.PlanData.RawMaster = world.Resources.RawMaster
+		chain.PlanData.RawMaster = &world.Resources.RawMaster
 
 		err = chain.Plan()
 		require.NoError(t, err)

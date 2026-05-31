@@ -53,7 +53,7 @@ func (st *MessageState) OnStop(_ w.World) error { return nil }
 // loadBackgroundImage はスプライトシートから背景画像を読み込んで返す。
 // 無効なspriteKeyが指定された場合はエラーを返す。
 func loadBackgroundImage(world w.World, spriteKey string) (*ebiten.Image, error) {
-	sheet, sheetOK := (*world.Resources.SpriteSheets)["bg"]
+	sheet, sheetOK := world.Resources.SpriteSheets["bg"]
 	if !sheetOK {
 		return nil, fmt.Errorf("bgスプライトシートが存在しない")
 	}

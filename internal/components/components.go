@@ -76,6 +76,9 @@ type EntitySpec struct {
 	// battle ================
 	CommandTable *CommandTable
 	DropTable    *DropTable
+
+	// singleton ================
+	GameLog *GameLog
 }
 
 // Components はECSコンポーネントストレージ
@@ -139,11 +142,12 @@ type Components struct {
 	CharModifiers  *ecs.SliceComponent `save:"true"`
 
 	// event ================
-	StatsChanged      *ecs.NullComponent
-	InventoryChanged  *ecs.NullComponent
-	ProvidesHealing   *ecs.SliceComponent `save:"true"`
-	ProvidesNutrition *ecs.SliceComponent `save:"true"`
-	InflictsDamage    *ecs.SliceComponent `save:"true"`
+	StateChangeRequest *ecs.SliceComponent // ステート遷移リクエスト
+	StatsChanged       *ecs.NullComponent
+	InventoryChanged   *ecs.NullComponent
+	ProvidesHealing    *ecs.SliceComponent `save:"true"`
+	ProvidesNutrition  *ecs.SliceComponent `save:"true"`
+	InflictsDamage     *ecs.SliceComponent `save:"true"`
 
 	// book ================
 	Book *ecs.SliceComponent `save:"true"`
@@ -155,6 +159,12 @@ type Components struct {
 	// activity ================
 	Activity     *ecs.SliceComponent // 実行中のアクティビティ
 	LastActivity *ecs.SliceComponent // 直近のアクティビティ実行結果
+
+	// singleton ================
+	GameLog      *ecs.SliceComponent // フィールドログストレージ
+	DungeonState *ecs.SliceComponent // ダンジョン状態
+	GameProgress *ecs.SliceComponent // ゲーム進行データ
+	TurnState    *ecs.SliceComponent // ターン状態
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

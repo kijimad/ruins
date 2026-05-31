@@ -12,7 +12,6 @@ import (
 	"github.com/kijimaD/ruins/internal/maptemplate"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -25,13 +24,13 @@ type PropsSpec struct {
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
 	// 階層情報
-	Level resources.Level
+	Level gc.Level
 	// 部屋群。部屋は長方形の移動可能な空間のことをいう。
 	// 部屋はタイルの集合体である
 	Rooms []gc.Rect
 	// 廊下群。廊下は部屋と部屋をつなぐ移動可能な空間のことをいう。
 	// 廊下はタイルの集合体である
-	Corridors [][]resources.TileIdx
+	Corridors [][]gc.TileIdx
 	// 乱数生成器
 	RNG *rand.Rand
 	// 階層を構成するタイル群。長さはステージの大きさで決まる
@@ -109,8 +108,8 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 }
 
 // UpTile は上にあるタイルを調べる
-func (bm MetaPlan) UpTile(idx resources.TileIdx) oapi.Tile {
-	targetIdx := resources.TileIdx(int(idx) - int(bm.Level.TileWidth))
+func (bm MetaPlan) UpTile(idx gc.TileIdx) oapi.Tile {
+	targetIdx := gc.TileIdx(int(idx) - int(bm.Level.TileWidth))
 	if targetIdx < 0 {
 		// 境界外（マップ外＝暗闇）として扱う
 		return bm.GetTile(consts.TileNameVoid)
@@ -120,7 +119,7 @@ func (bm MetaPlan) UpTile(idx resources.TileIdx) oapi.Tile {
 }
 
 // DownTile は下にあるタイルを調べる
-func (bm MetaPlan) DownTile(idx resources.TileIdx) oapi.Tile {
+func (bm MetaPlan) DownTile(idx gc.TileIdx) oapi.Tile {
 	targetIdx := int(idx) + int(bm.Level.TileWidth)
 	if targetIdx > len(bm.Tiles)-1 {
 		// 境界外（マップ外＝暗闇）として扱う
@@ -131,7 +130,7 @@ func (bm MetaPlan) DownTile(idx resources.TileIdx) oapi.Tile {
 }
 
 // LeftTile は左にあるタイルを調べる
-func (bm MetaPlan) LeftTile(idx resources.TileIdx) oapi.Tile {
+func (bm MetaPlan) LeftTile(idx gc.TileIdx) oapi.Tile {
 	x, y := bm.Level.XYTileCoord(idx)
 	// 左端の場合は境界外（マップ外＝暗闇）
 	if x == 0 {
@@ -150,7 +149,7 @@ func (bm MetaPlan) LeftTile(idx resources.TileIdx) oapi.Tile {
 }
 
 // RightTile は右にあるタイルを調べる
-func (bm MetaPlan) RightTile(idx resources.TileIdx) oapi.Tile {
+func (bm MetaPlan) RightTile(idx gc.TileIdx) oapi.Tile {
 	x, y := bm.Level.XYTileCoord(idx)
 	// 右端の場合は境界外（マップ外＝暗闇）
 	if int(x) == int(bm.Level.TileWidth)-1 {
@@ -169,7 +168,7 @@ func (bm MetaPlan) RightTile(idx resources.TileIdx) oapi.Tile {
 }
 
 // AdjacentAnyFloor は直交・斜めを含む近傍8タイルに床があるか判定する
-func (bm MetaPlan) AdjacentAnyFloor(idx resources.TileIdx) bool {
+func (bm MetaPlan) AdjacentAnyFloor(idx gc.TileIdx) bool {
 	x, y := bm.Level.XYTileCoord(idx)
 	width := int(bm.Level.TileWidth)
 	height := int(bm.Level.TileHeight)
@@ -202,7 +201,7 @@ func (bm MetaPlan) AdjacentAnyFloor(idx resources.TileIdx) bool {
 }
 
 // GetWallType は近傍パターンから適切な壁タイプを判定する
-func (bm MetaPlan) GetWallType(idx resources.TileIdx) WallType {
+func (bm MetaPlan) GetWallType(idx gc.TileIdx) WallType {
 	// 4方向の隣接タイルの床状況をチェック
 	upFloor := bm.isFloorOrWarp(bm.UpTile(idx))
 	downFloor := bm.isFloorOrWarp(bm.DownTile(idx))
@@ -285,13 +284,13 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 		Starter:  nil,
 		Planners: []MetaMapPlanner{},
 		PlanData: MetaPlan{
-			Level: resources.Level{
+			Level: gc.Level{
 				TileWidth:  width,
 				TileHeight: height,
 			},
 			Tiles:         tiles,
 			Rooms:         []gc.Rect{},
-			Corridors:     [][]resources.TileIdx{},
+			Corridors:     [][]gc.TileIdx{},
 			RNG:           rand.New(rand.NewPCG(seed, seed+1)),
 			NextPortals:   []consts.Coord[int]{},
 			EscapePortals: []consts.Coord[int]{},

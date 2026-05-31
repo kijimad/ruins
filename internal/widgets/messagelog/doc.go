@@ -35,7 +35,7 @@
 //	widget := messagelog.NewWidget(config, world)
 //
 //	// ログストア設定
-//	widget.SetStore(gamelog.FieldLog)
+//	widget.SetStore(worldhelper.GetGameLog(world))
 //
 //	// ゲームループ内で更新・描画
 //	func Update() {

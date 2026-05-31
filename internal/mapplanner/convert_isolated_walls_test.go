@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,13 +23,13 @@ func TestConvertIsolatedWalls_ToFloor(t *testing.T) {
 	// W W W W W W W
 	width, height := consts.Tile(7), consts.Tile(7)
 	planData := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  width,
 			TileHeight: height,
 		},
 		Tiles:     make([]oapi.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
-		Corridors: [][]resources.TileIdx{},
+		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
 	}
 
@@ -93,13 +92,13 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 	// 全て壁のマップ（床が無い）
 	width, height := consts.Tile(5), consts.Tile(5)
 	planData := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  width,
 			TileHeight: height,
 		},
 		Tiles:     make([]oapi.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
-		Corridors: [][]resources.TileIdx{},
+		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
 	}
 
@@ -115,7 +114,7 @@ func TestConvertIsolatedWalls_AllWalls_ToVoid(t *testing.T) {
 
 	// 検証: 端の壁はwallのまま、内側の壁はvoidに変換される
 	for i, tile := range planData.Tiles {
-		x, y := planData.Level.XYTileCoord(resources.TileIdx(i))
+		x, y := planData.Level.XYTileCoord(gc.TileIdx(i))
 		isEdge := int(x) == 0 || int(x) == int(width)-1 || int(y) == 0 || int(y) == int(height)-1
 
 		if isEdge {
@@ -132,13 +131,13 @@ func TestConvertIsolatedWalls_NoWalls(t *testing.T) {
 	// 壁が無いマップ（全て床）
 	width, height := consts.Tile(3), consts.Tile(3)
 	planData := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  width,
 			TileHeight: height,
 		},
 		Tiles:     make([]oapi.Tile, int(width)*int(height)),
 		Rooms:     []gc.Rect{},
-		Corridors: [][]resources.TileIdx{},
+		Corridors: [][]gc.TileIdx{},
 		RawMaster: CreateTestRawMaster(),
 	}
 

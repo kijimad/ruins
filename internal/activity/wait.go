@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -82,7 +83,7 @@ func (wa *WaitActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// 複数ターン待機の場合のみログを表示する
 	if comp.TurnsTotal > 1 && actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("待機を終了した").
 			Log()
 	}

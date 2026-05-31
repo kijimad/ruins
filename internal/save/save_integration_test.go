@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -112,6 +113,44 @@ func TestSaveSlotInfo(t *testing.T) {
 	t.Logf("All save files created successfully")
 }
 
+// TestSaveLoadInPlace は同一ワールドに対してsave→loadするケースを検証する。
+// ゲーム内ではロード時に既存のworldをclearWorldしてから復元するため、
+// シングルトンコンポーネントが正しく保持されることを確認する
+func TestSaveLoadInPlace(t *testing.T) {
+	t.Parallel()
+
+	tempDir, err := os.MkdirTemp("", "save_inplace_")
+	require.NoError(t, err)
+	defer func() { _ = os.RemoveAll(tempDir) }()
+
+	world := testutil.InitTestWorld(t)
+
+	// プレイヤーを作成
+	player := world.Manager.NewEntity()
+	player.AddComponent(world.Components.Player, &gc.Player{})
+	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
+
+	// GameProgressにデータを設定
+	worldhelper.GetGameProgress(world).MarkDungeonCleared("遺跡")
+
+	sm := NewSerializationManager(tempDir)
+	err = sm.SaveWorld(world, "inplace")
+	require.NoError(t, err)
+
+	// 同一ワールドにロードする（ゲーム内と同じフロー）
+	err = sm.LoadWorld(world, "inplace")
+	require.NoError(t, err)
+
+	// シングルトンのGameProgressがパニックせずアクセスできることを確認
+	gp := worldhelper.GetGameProgress(world)
+	require.NotNil(t, gp, "GameProgressがnilであってはならない")
+	assert.True(t, gp.IsDungeonCleared("遺跡"))
+
+	// DungeonはInitSingletonで再作成されるのでnilにならない
+	d := worldhelper.GetDungeon(world)
+	assert.NotNil(t, d, "Dungeonが存在する")
+}
+
 // TestSaveLoadGameProgress はGameProgressのセーブ・ロードを検証する
 func TestSaveLoadGameProgress(t *testing.T) {
 	t.Parallel()
@@ -126,8 +165,8 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
 
 		// ダンジョンクリアフラグを設定
-		world.Resources.GameProgress.MarkDungeonCleared("遺跡")
-		world.Resources.GameProgress.MarkDungeonCleared("洞窟")
+		worldhelper.GetGameProgress(world).MarkDungeonCleared("遺跡")
+		worldhelper.GetGameProgress(world).MarkDungeonCleared("洞窟")
 
 		// JSON生成→復元のラウンドトリップ
 		sm := createTestSerializationManager(t)
@@ -139,9 +178,9 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		require.NoError(t, err)
 
 		// 復元後のGameProgressを検証
-		assert.True(t, newWorld.Resources.GameProgress.IsDungeonCleared("遺跡"))
-		assert.True(t, newWorld.Resources.GameProgress.IsDungeonCleared("洞窟"))
-		assert.False(t, newWorld.Resources.GameProgress.IsDungeonCleared("森林"))
+		assert.True(t, worldhelper.GetGameProgress(newWorld).IsDungeonCleared("遺跡"))
+		assert.True(t, worldhelper.GetGameProgress(newWorld).IsDungeonCleared("洞窟"))
+		assert.False(t, worldhelper.GetGameProgress(newWorld).IsDungeonCleared("森林"))
 	})
 
 	t.Run("イベント状態の保存と復元", func(t *testing.T) {
@@ -153,8 +192,8 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
 
 		// イベント状態を設定
-		world.Resources.GameProgress.SetEventActive("all_cleared")
-		world.Resources.GameProgress.MarkEventSeen("all_cleared")
+		worldhelper.GetGameProgress(world).SetEventActive("all_cleared")
+		worldhelper.GetGameProgress(world).MarkEventSeen("all_cleared")
 
 		sm := createTestSerializationManager(t)
 		jsonStr, err := sm.GenerateWorldJSON(world)
@@ -165,8 +204,8 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		require.NoError(t, err)
 
 		// 視聴済みイベントはIsEventUnseenがfalseになる
-		assert.False(t, newWorld.Resources.GameProgress.IsEventUnseen("all_cleared"))
-		ev := newWorld.Resources.GameProgress.Events["all_cleared"]
+		assert.False(t, worldhelper.GetGameProgress(newWorld).IsEventUnseen("all_cleared"))
+		ev := worldhelper.GetGameProgress(newWorld).Events["all_cleared"]
 		assert.True(t, ev.Active)
 		assert.True(t, ev.Seen)
 	})
@@ -187,7 +226,7 @@ func TestSaveLoadGameProgress(t *testing.T) {
 		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
 		require.NoError(t, err)
 
-		assert.Empty(t, newWorld.Resources.GameProgress.ClearedDungeons)
-		assert.Empty(t, newWorld.Resources.GameProgress.Events)
+		assert.Empty(t, worldhelper.GetGameProgress(newWorld).ClearedDungeons)
+		assert.Empty(t, worldhelper.GetGameProgress(newWorld).Events)
 	})
 }

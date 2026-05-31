@@ -144,6 +144,12 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 
 		// バックパックから削除されていることを確認
 		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+
+		// ドロップログが出力されていることを確認する
+		store := worldhelper.GetGameLog(world)
+		recent := store.GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "を捨てた")
 	})
 
 	t.Run("位置情報がない場合はエラー", func(t *testing.T) {

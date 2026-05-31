@@ -6,6 +6,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,8 +17,8 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 5, Y: 5}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
-		world.Resources.Dungeon.ExploredTiles[grid] = true
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+		worldhelper.GetDungeon(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -29,8 +30,8 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 3, Y: 3}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
-		world.Resources.Dungeon.ExploredTiles[grid] = true
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		worldhelper.GetDungeon(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -42,7 +43,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 10, Y: 10}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		result := computeTileRenderMap(world, nil)
 
@@ -53,7 +54,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 5, Y: 5}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]LightInfo{
 			grid: {
@@ -72,12 +73,12 @@ func TestComputeTileRenderMap(t *testing.T) {
 	t.Run("暗闇フロアで光源外のタイルはTileRenderDarkになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon.Dark = true
+		worldhelper.GetDungeon(world).Dark = true
 
 		litGrid := gc.GridElement{X: 5, Y: 5}
 		darkGrid := gc.GridElement{X: 15, Y: 15}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{litGrid: true}
-		world.Resources.Dungeon.ExploredTiles[litGrid] = true
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{litGrid: true}
+		worldhelper.GetDungeon(world).ExploredTiles[litGrid] = true
 
 		lights := map[gc.GridElement]LightInfo{
 			darkGrid: {Darkness: 1.0},
@@ -92,7 +93,7 @@ func TestComputeTileRenderMap(t *testing.T) {
 	t.Run("明るいフロアではTileRenderDarkが生成されない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon.Dark = false
+		worldhelper.GetDungeon(world).Dark = false
 
 		grid := gc.GridElement{X: 10, Y: 10}
 		lights := map[gc.GridElement]LightInfo{
@@ -112,7 +113,7 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 5, Y: 5}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		result := computeTileRenderMap(world, nil)
 
@@ -123,9 +124,9 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 	t.Run("暗闇タイルにはDarknessDarkが設定される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon.Dark = true
+		worldhelper.GetDungeon(world).Dark = true
 		grid := gc.GridElement{X: 10, Y: 10}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 
 		lights := map[gc.GridElement]LightInfo{
 			grid: {Darkness: 1.0},
@@ -141,8 +142,8 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 3, Y: 3}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
-		world.Resources.Dungeon.ExploredTiles[grid] = true
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
+		worldhelper.GetDungeon(world).ExploredTiles[grid] = true
 
 		result := computeTileRenderMap(world, nil)
 
@@ -157,8 +158,8 @@ func TestComputeTileRenderMap_VisibleOverridesRemembered(t *testing.T) {
 	// 可視タイルが記憶済みタイルより優先されることを保証する
 	world := testutil.InitTestWorld(t)
 	grid := gc.GridElement{X: 5, Y: 5}
-	world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
-	world.Resources.Dungeon.ExploredTiles[grid] = true
+	worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
+	worldhelper.GetDungeon(world).ExploredTiles[grid] = true
 
 	result := computeTileRenderMap(world, nil)
 
@@ -173,7 +174,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 5, Y: 5}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]LightInfo{
 			grid: {
@@ -194,7 +195,7 @@ func TestComputeTileRenderMap_LightSourceBoundary(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		grid := gc.GridElement{X: 7, Y: 7}
-		world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{grid: true}
+		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{grid: true}
 
 		lights := map[gc.GridElement]LightInfo{
 			grid: {
@@ -215,7 +216,7 @@ func TestComputeTileRenderMap_EmptyState(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{}
+	worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
 
 	result := computeTileRenderMap(world, nil)
 
@@ -230,9 +231,9 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	remembered := gc.GridElement{X: 2, Y: 2}
 	unknown := gc.GridElement{X: 3, Y: 3}
 
-	world.Resources.Dungeon.VisibleTiles = map[gc.GridElement]bool{visible: true}
-	world.Resources.Dungeon.ExploredTiles[visible] = true
-	world.Resources.Dungeon.ExploredTiles[remembered] = true
+	worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{visible: true}
+	worldhelper.GetDungeon(world).ExploredTiles[visible] = true
+	worldhelper.GetDungeon(world).ExploredTiles[remembered] = true
 
 	result := computeTileRenderMap(world, nil)
 

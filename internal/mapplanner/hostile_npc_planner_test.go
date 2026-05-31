@@ -3,9 +3,10 @@ package mapplanner
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -32,7 +33,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("EnemyEntriesが空の場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name:         "test_empty",
@@ -55,7 +56,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("EnemyEntriesがある場合はNPCが配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_with_enemies",
@@ -80,7 +81,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("配置されたNPCは歩行可能なタイルにある", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_valid_position",
@@ -109,7 +110,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("複数の敵タイプが重みに応じて選択される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		world.Resources.Dungeon = &resources.Dungeon{Depth: 1}
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_multiple_enemies",

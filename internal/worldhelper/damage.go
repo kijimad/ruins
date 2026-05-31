@@ -37,7 +37,7 @@ func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage 
 	sourceName := GetEntityName(source, world)
 	targetName := GetEntityName(target, world)
 
-	logger := gamelog.New(gamelog.FieldLog)
+	logger := gamelog.New(GetGameLog(world))
 	logger.Build(func(l *gamelog.Logger) {
 		AppendNameWithColor(l, source, sourceName, world)
 	}).Append(" は ").Build(func(l *gamelog.Logger) {
@@ -54,7 +54,7 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 
 	targetName := GetEntityName(target, world)
 
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(GetGameLog(world)).
 		Build(func(l *gamelog.Logger) {
 			AppendNameWithColor(l, target, targetName, world)
 		}).

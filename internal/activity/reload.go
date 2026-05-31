@@ -74,7 +74,7 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 	ra.effortAccum = 0
 
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(worldhelper.GetGameLog(world)).
 		Append("装填を開始した").
 		Log()
 
@@ -124,7 +124,7 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 			return fmt.Errorf("弾薬の消費に失敗: %w", err)
 		}
 
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("装填完了（%d/%d）", fire.Magazine, fire.MagazineSize)).
 			Log()
 
@@ -146,8 +146,8 @@ func (ra *ReloadActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) er
 }
 
 // Canceled はリロードキャンセル時の処理
-func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {
-	gamelog.New(gamelog.FieldLog).
+func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	gamelog.New(worldhelper.GetGameLog(world)).
 		Append("装填を中断した").
 		Log()
 	log.Debug("リロードキャンセル", "actor", actor, "reason", comp.CancelReason)
@@ -187,7 +187,7 @@ func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
 	}
 
 	if err := behavior.Validate(activity, actor, world); err != nil {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(err.Error()).
 			Log()
 		return nil

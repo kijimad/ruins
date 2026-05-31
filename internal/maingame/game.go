@@ -21,6 +21,7 @@ import (
 	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -165,37 +166,40 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	world.Config = cfg
 	world.Resources.SetScreenDimensions(cfg.WindowWidth, cfg.WindowHeight)
 
-	// ResourceLoaderを使用してリソースを読み込む
-	resourceLoader := loader.NewResourceLoader()
-
-	// Load sprite sheets
-	spriteSheets, err := resourceLoader.LoadSpriteSheets()
+	// Rawデータを読み込む
+	rw, err := loader.LoadRaws()
 	if err != nil {
 		return w.World{}, err
 	}
-	world.Resources.SpriteSheets = &spriteSheets
+	world.Resources.RawMaster = rw
 
-	// load fonts
-	fonts, err := resourceLoader.LoadFonts()
+	// スプライトシートを読み込む
+	spriteSheets, err := loader.LoadSpriteSheets(rw)
 	if err != nil {
 		return w.World{}, err
 	}
-	world.Resources.Fonts = &fonts
+	world.Resources.SpriteSheets = spriteSheets
 
-	dougenzakaFont := (*world.Resources.Fonts)["dougenzaka"]
-	nerdFont := (*world.Resources.Fonts)["nerd"]
+	// フォントを読み込む
+	fonts, err := loader.LoadFonts()
+	if err != nil {
+		return w.World{}, err
+	}
+	world.Resources.Fonts = fonts
 
-	// サイズ調整
+	dougenzakaFont := world.Resources.Fonts["dougenzaka"]
+	nerdFont := world.Resources.Fonts["nerd"]
+
 	dougenzaka := &text.GoTextFace{
 		Source: dougenzakaFont.FaceSource,
 		Size:   16,
 	}
 
-	world.Resources.Faces = &map[string]text.Face{
+	world.Resources.Faces = map[string]text.Face{
 		"dougenzaka": dougenzaka,
 	}
 
-	// load UI resources
+	// UIリソースを読み込む
 	fontSources := []*text.GoTextFaceSource{
 		dougenzakaFont.FaceSource,
 		nerdFont.FaceSource,
@@ -206,33 +210,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.UIResources = uir
 
-	// load raws
-	rw, err := resourceLoader.LoadRaws()
-	if err != nil {
-		return w.World{}, err
-	}
-	world.Resources.RawMaster = rw
-
-	gameResource := &gr.Dungeon{
-		ExploredTiles:  make(map[gc.GridElement]bool),
-		DefinitionName: dungeon.DungeonDebug.Name,
-		MinimapSettings: gr.MinimapSettings{
-			Width:   150,
-			Height:  150,
-			OffsetX: 10,
-			OffsetY: 10,
-			Scale:   3,
-		},
-		TurnState: gc.TurnState{
-			Phase:      gc.TurnPhasePlayer,
-			TurnNumber: 1,
-		},
-		SelectedWeaponSlot: 1,
-	}
-	if err := gameResource.RequestStateChange(gr.NoneEvent{}); err != nil {
-		return w.World{}, fmt.Errorf("初期化時の状態変更要求エラー: %w", err)
-	}
-	world.Resources.Dungeon = gameResource
+	worldhelper.GetDungeon(world).DefinitionName = dungeon.DungeonDebug.Name
 
 	// initialize systems
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)

@@ -8,61 +8,26 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewDefaultResourceLoader(t *testing.T) {
-	t.Parallel()
-	rl := NewResourceLoader()
-	assert.NotNil(t, rl)
-
-	// デフォルトローダーの型確認
-	drl, ok := rl.(*DefaultResourceLoader)
-	require.True(t, ok)
-
-	// デフォルトパスの確認
-	assert.Equal(t, "metadata/fonts/fonts.toml", drl.config.FontsPath)
-	assert.Equal(t, "metadata/spritesheets/spritesheets.toml", drl.config.SpriteSheetsPath)
-	assert.Equal(t, "metadata/entities/raw/raw.toml", drl.config.RawsPath)
-}
-
 func TestLoadFonts(t *testing.T) {
 	t.Parallel()
 	t.Run("正常にフォントを読み込める", func(t *testing.T) {
 		t.Parallel()
-		rl := NewResourceLoader()
-		fonts, err := rl.LoadFonts()
+		fonts, err := LoadFonts()
 
 		assert.NoError(t, err)
 		assert.NotNil(t, fonts)
 		assert.Greater(t, len(fonts), 0)
-
-		// キャッシュされていることの確認
-		drl := rl.(*DefaultResourceLoader)
-		assert.Equal(t, fonts, drl.cache.Fonts)
 	})
-
-	t.Run("キャッシュから読み込む", func(t *testing.T) {
-		t.Parallel()
-		rl := NewResourceLoader()
-
-		// 1回目の読み込み
-		fonts1, err1 := rl.LoadFonts()
-		require.NoError(t, err1)
-
-		// 2回目の読み込み（キャッシュから）
-		fonts2, err2 := rl.LoadFonts()
-		require.NoError(t, err2)
-
-		// 同じオブジェクトを参照していることを確認
-		assert.Equal(t, fonts1, fonts2)
-	})
-
 }
 
 func TestLoadSpriteSheets(t *testing.T) {
 	t.Parallel()
 	t.Run("正常にスプライトシートを読み込める", func(t *testing.T) {
 		t.Parallel()
-		rl := NewResourceLoader()
-		sprites, err := rl.LoadSpriteSheets()
+		rw, err := LoadRaws()
+		require.NoError(t, err)
+
+		sprites, err := LoadSpriteSheets(rw)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, sprites)
@@ -72,16 +37,14 @@ func TestLoadSpriteSheets(t *testing.T) {
 		for name, sprite := range sprites {
 			assert.Equal(t, name, sprite.Name)
 		}
-
-		// キャッシュされていることの確認
-		drl := rl.(*DefaultResourceLoader)
-		assert.Equal(t, sprites, drl.cache.SpriteSheets)
 	})
 
 	t.Run("tileスプライトシートに全てのタイルが含まれる", func(t *testing.T) {
 		t.Parallel()
-		rl := NewResourceLoader()
-		sprites, err := rl.LoadSpriteSheets()
+		rw, err := LoadRaws()
+		require.NoError(t, err)
+
+		sprites, err := LoadSpriteSheets(rw)
 		require.NoError(t, err)
 
 		tileSheet, ok := sprites["tile"]
@@ -121,15 +84,10 @@ func TestLoadRaws(t *testing.T) {
 	t.Parallel()
 	t.Run("正常にRawデータを読み込める", func(t *testing.T) {
 		t.Parallel()
-		rl := NewResourceLoader()
-		rawMaster, err := rl.LoadRaws()
+		rawMaster, err := LoadRaws()
 
 		assert.NoError(t, err)
-		assert.NotNil(t, rawMaster)
-
-		// キャッシュされていることの確認
-		drl := rl.(*DefaultResourceLoader)
-		assert.Equal(t, rawMaster, drl.cache.RawMaster)
+		assert.NotEmpty(t, rawMaster.Raws.Items)
 	})
 }
 
@@ -189,7 +147,6 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 
 	t.Run("全てのスプライトファイル名が'_'で終わっていることを確認", func(t *testing.T) {
 		t.Parallel()
-		// 既存のファイルは全て'_'で終わっているはず
 		testFiles := []string{
 			"file/textures/dist/bg.json",
 			"file/textures/dist/tiles.json",
@@ -200,8 +157,6 @@ func TestLoadSpriteSheetFromAseprite(t *testing.T) {
 			sheet, err := LoadSpriteSheetFromAseprite(file)
 			require.NoError(t, err, "ファイル %s の読み込みに失敗", file)
 
-			// 全てのスプライトが正常に読み込まれていることを確認
-			// （'_'で終わっていないファイル名があればエラーになるはず）
 			assert.Greater(t, len(sheet.Sprites), 0, "ファイル %s にスプライトが存在すること", file)
 		}
 	})

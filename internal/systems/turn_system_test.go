@@ -29,8 +29,8 @@ func TestTurnSystem_Update(t *testing.T) {
 		require.NoError(t, err)
 
 		// ターン状態を設定
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
+
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// APをマイナスに設定
@@ -52,8 +52,8 @@ func TestTurnSystem_Update(t *testing.T) {
 		require.NoError(t, err)
 
 		// ターン状態を設定
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
+
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// APを正の値に設定
@@ -72,12 +72,12 @@ func TestTurnSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// ターン状態を設定
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
+
 		turnState.Phase = gc.TurnPhaseAI
 
 		sys := &TurnSystem{}
-		err = sys.Update(world)
+		err := sys.Update(world)
 		require.NoError(t, err)
 
 		assert.Equal(t, gc.TurnPhaseEnd, turnState.Phase, "AITurnからTurnEndへ遷移するべき")
@@ -89,13 +89,13 @@ func TestTurnSystem_Update(t *testing.T) {
 		world.Updaters = make(map[string]w.Updater)
 
 		// ターン状態を設定
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
+
 		turnState.Phase = gc.TurnPhaseEnd
 		initialTurnNumber := turnState.TurnNumber
 
 		sys := &TurnSystem{}
-		err = sys.Update(world)
+		err := sys.Update(world)
 		require.NoError(t, err)
 
 		assert.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "TurnEndからPlayerTurnへ遷移するべき")
@@ -128,8 +128,8 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		turnBased.AP.Current = 200
 
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
+
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 敵を作成してDeadコンポーネントを付与（射撃で倒された状態を模擬）
@@ -156,8 +156,8 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		turnBased.AP.Current = 300
 
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
+
 		turnState.Phase = gc.TurnPhasePlayer
 
 		// 1回目の行動: 敵1を倒す
@@ -306,8 +306,8 @@ func TestColdPlayerCanAct(t *testing.T) {
 
 	// canEntityAct はエンティティが行動可能かを判定するヘルパー関数
 	canEntityAct := func(world w.World, entity ecs.Entity, _ int) bool {
-		turnState, err := worldhelper.GetTurnState(world)
-		if err != nil || turnState.Phase != gc.TurnPhasePlayer {
+		turnState := worldhelper.GetTurnState(world)
+		if turnState == nil || turnState.Phase != gc.TurnPhasePlayer {
 			return false
 		}
 		tbComp := world.Components.TurnBased.Get(entity)
@@ -334,8 +334,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		t.Logf("TurnBased AP: Current=%d, Max=%d", tb.AP.Current, tb.AP.Max)
 
 		// 行動可能かを確認
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
 		canAct := canEntityAct(world, playerEntity, 100)
 		t.Logf("canEntityAct result: %v (TurnPhase=%v)", canAct, turnState.Phase)
 
@@ -478,8 +477,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		})
 
 		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
 
 		// 1. プレイヤーターンで行動可能
 		t.Logf("初期状態: TurnPhase=%v, AP=%d", turnState.Phase, turnBased.AP.Current)
@@ -569,8 +567,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 
 		// APを確認
 		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
-		turnState, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		turnState := worldhelper.GetTurnState(world)
 		t.Logf("冷えた状態のAP: Current=%d, Max=%d", turnBased.AP.Current, turnBased.AP.Max)
 
 		// 行動可能であることを確認

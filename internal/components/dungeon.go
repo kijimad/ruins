@@ -1,61 +1,54 @@
-package resources
+package components
 
 import (
-	"fmt"
-
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 )
+
+// TileIdx はタイル番号
+type TileIdx int
 
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
 type Dungeon struct {
-	// ステート遷移発生イベント。各stateで処理する
-	stateEvent StateEvent
 	// 現在階のフィールド情報
 	Level Level
 	// 階層数
 	Depth int
 	// 探索済みタイルのマップ。座標をキーとして使用
-	ExploredTiles map[gc.GridElement]bool
+	ExploredTiles map[GridElement]bool
 	// ミニマップの設定
 	MinimapSettings MinimapSettings
 	// 視界を更新するか外部から設定するフラグ
 	NeedsForceUpdate bool
 	// DefinitionName はダンジョン定義名
 	DefinitionName string
-	// TurnState はターンの状態を保持する
-	TurnState gc.TurnState
 	// GameTime はゲーム内時間を保持する
 	GameTime GameTime
 	// SelectedWeaponSlot は選択中の武器スロット番号（1-5）
 	SelectedWeaponSlot int
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される
-	VisibleTiles map[gc.GridElement]bool
+	VisibleTiles map[GridElement]bool
 	// Dark は光源がないと見えない暗闇フロアかどうか
 	Dark bool
 }
 
-// RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す
-func (d *Dungeon) RequestStateChange(event StateEvent) error {
-	if d.stateEvent != nil && d.stateEvent.Type() != StateEventTypeNone {
-		return fmt.Errorf("イベントがすでに設定されています: %s → %s を設定しようとしました",
-			d.stateEvent.Type(), event.Type())
+// NewDungeon は初期化されたDungeonを返す
+func NewDungeon() *Dungeon {
+	return &Dungeon{
+		ExploredTiles: make(map[GridElement]bool),
+		MinimapSettings: MinimapSettings{
+			Width:   150,
+			Height:  150,
+			OffsetX: 10,
+			OffsetY: 10,
+			Scale:   3,
+		},
+		SelectedWeaponSlot: 1,
 	}
-	d.stateEvent = event
-	return nil
-}
-
-// ConsumeStateChange は状態変更イベントを読み取り、読み取り後にNoneEventでクリアする
-func (d *Dungeon) ConsumeStateChange() StateEvent {
-	event := d.stateEvent
-	d.stateEvent = NoneEvent{}
-	return event
 }
 
 // Level は現在の階層
 // タイル計算メソッドを提供する
-// TODO: 状態として持たないほうがいいかも
 type Level struct {
 	// 横のタイル数
 	TileWidth consts.Tile

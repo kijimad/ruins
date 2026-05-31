@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
-	"github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -14,15 +13,15 @@ import (
 
 // Spawn はMetaPlanからレベルを生成する
 // タイル、NPC、Props、ワープポータル情報から効率的にエンティティを生成する
-func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error) {
-	level := resources.Level{
+func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
+	level := gc.Level{
 		TileWidth:  metaPlan.Level.TileWidth,
 		TileHeight: metaPlan.Level.TileHeight,
 	}
 
 	// タイルからエンティティを直接生成
 	for _i, tile := range metaPlan.Tiles {
-		i := resources.TileIdx(_i)
+		i := gc.TileIdx(_i)
 		x, y := metaPlan.Level.XYTileCoord(i)
 		tileX, tileY := consts.Tile(x), consts.Tile(y)
 
@@ -45,7 +44,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 				tileEntity, err = worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
 			default:
 				// 未知のタイル名はエラーとして処理
-				return resources.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
+				return gc.Level{}, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}
 		} else {
 			// 通行不可タイルを生成
@@ -56,12 +55,12 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			case "void":
 				tileEntity, err = worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
 			default:
-				return resources.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
+				return gc.Level{}, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(x), int(y))
 			}
 		}
 
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
+			return gc.Level{}, fmt.Errorf("タイルエンティティ生成エラー (%d, %d): %w", int(x), int(y), err)
 		}
 
 		// TileRaw の環境情報を TileTemperature に設定する
@@ -78,7 +77,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		// NPCが中立かどうかを判断
 		memberIdx, ok := rawMaster.MemberIndex[npc.Name]
 		if !ok {
-			return resources.Level{}, fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
+			return gc.Level{}, fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
 		member := rawMaster.Raws.Members[memberIdx]
 
@@ -86,7 +85,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			// 中立NPCの場合
 			_, err := worldhelper.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
 			if err != nil {
-				return resources.Level{}, fmt.Errorf("中立NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
+				return gc.Level{}, fmt.Errorf("中立NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
 		} else {
 			// 敵NPCの場合
@@ -96,7 +95,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			}
 			_, err := worldhelper.SpawnEnemy(world, npc.X, npc.Y, npc.Name, opts...)
 			if err != nil {
-				return resources.Level{}, fmt.Errorf("敵NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
+				return gc.Level{}, fmt.Errorf("敵NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
 		}
 	}
@@ -106,7 +105,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		tileX, tileY := consts.Tile(item.X), consts.Tile(item.Y)
 		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
+			return gc.Level{}, fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
 		}
 	}
 
@@ -116,12 +115,12 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 
 		propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
+			return gc.Level{}, fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
 		}
 
 		propEntity, err := worldhelper.SpawnProp(world, prop.Name, tileX, tileY)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("props生成エラー (%d, %d): %w", prop.X, prop.Y, err)
+			return gc.Level{}, fmt.Errorf("props生成エラー (%d, %d): %w", prop.X, prop.Y, err)
 		}
 
 		// Door componentがあれば向きを設定して閉じた状態で初期化
@@ -130,7 +129,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
 			doorComp.Orientation = orientation
 			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
-				return resources.Level{}, fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
+				return gc.Level{}, fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}
 	}
@@ -140,7 +139,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
 		_, err := worldhelper.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
+			return gc.Level{}, fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
 	}
 
@@ -149,7 +148,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (resources.Level, error
 		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
 		_, err := worldhelper.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
-			return resources.Level{}, fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
+			return gc.Level{}, fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
 	}
 

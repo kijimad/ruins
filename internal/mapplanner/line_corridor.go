@@ -3,9 +3,9 @@ package mapplanner
 import (
 	"math"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
-	"github.com/kijimaD/ruins/internal/resources"
 )
 
 // LineCorridorPlanner は直線廊下を生成するビルダー
@@ -56,7 +56,7 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 					points = append(points, corridorPoints...)
 				}
 			}
-			corridor := make([]resources.TileIdx, 0, len(points))
+			corridor := make([]gc.TileIdx, 0, len(points))
 			for _, p := range points {
 				idx := planData.Level.XYTileIndex(p.x, p.y)
 				if 0 < int(idx) && int(idx) < int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 && planData.Tiles[idx].Name == "wall" {

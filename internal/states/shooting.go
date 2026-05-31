@@ -150,7 +150,7 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 	if err != nil {
 		return ""
 	}
-	selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
+	selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
 	weapons := worldhelper.GetWeapons(world, playerEntity)
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
@@ -333,7 +333,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
 // drawWeaponInfo は武器情報を描画する
 func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, drawText func(string)) {
-	selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
+	selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
 	weapons := worldhelper.GetWeapons(world, playerEntity)
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= len(weapons) {

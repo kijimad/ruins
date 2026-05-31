@@ -338,7 +338,7 @@ func (sys *RenderSpriteSystem) getImage(world w.World, spriteRender *gc.SpriteRe
 		if world.Resources.SpriteSheets == nil {
 			return nil, fmt.Errorf("SpriteSheets が nil です")
 		}
-		spriteSheet, exists := (*world.Resources.SpriteSheets)[spriteRender.SpriteSheetName]
+		spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]
 		if !exists {
 			return nil, fmt.Errorf("スプライトシート '%s' が見つかりません", spriteRender.SpriteSheetName)
 		}
@@ -370,7 +370,7 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 	if world.Resources.SpriteSheets == nil {
 		return fmt.Errorf("SpriteSheets が nil です")
 	}
-	spriteSheet, exists := (*world.Resources.SpriteSheets)[spriteRender.SpriteSheetName]
+	spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]
 	if !exists {
 		return fmt.Errorf("スプライトシート '%s' が見つかりません", spriteRender.SpriteSheetName)
 	}

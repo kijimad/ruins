@@ -4,7 +4,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/resources"
 )
 
 // CavePlanner は洞窟風レイアウトを生成するビルダー
@@ -123,7 +122,7 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 					minY, maxY := y, y
 
 					for _, tilePos := range floorTiles {
-						tileX, tileY := planData.Level.XYTileCoord(resources.TileIdx(tilePos))
+						tileX, tileY := planData.Level.XYTileCoord(gc.TileIdx(tilePos))
 						if int(tileX) < minX {
 							minX = int(tileX)
 						}

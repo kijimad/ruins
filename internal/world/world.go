@@ -5,8 +5,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
+	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/resources"
-
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -55,15 +55,29 @@ func InitWorld(c *gc.Components) (World, error) {
 		Renderers:  make(map[string]Renderer),
 	}
 
+	world.InitSingleton()
+
 	return world, nil
 }
 
+// InitSingleton はシングルトンエンティティを新規作成してIDを保存する
+func (world World) InitSingleton() {
+	singleton := world.Manager.NewEntity()
+	singleton.AddComponent(world.Components.GameLog, &gc.GameLog{
+		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
+	})
+	singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())
+	singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())
+	singleton.AddComponent(world.Components.TurnState, gc.NewTurnState())
+	world.Resources.SingletonEntity = singleton
+}
+
 // GetManager は World interfaceを満たすためのメソッド
-func (w World) GetManager() *ecs.Manager {
-	return w.Manager
+func (world World) GetManager() *ecs.Manager {
+	return world.Manager
 }
 
 // GetComponents は World interfaceを満たすためのメソッド
-func (w World) GetComponents() interface{} {
-	return w.Components
+func (world World) GetComponents() interface{} {
+	return world.Components
 }

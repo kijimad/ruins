@@ -15,7 +15,7 @@ type Logger struct {
 }
 
 // New は指定されたストアでLoggerを作成
-// 本番: New(FieldLog) など、グローバルストアを渡す
+// 本番: New(GameLog) など、グローバルストアを渡す
 // テスト: New(testStore) など、ローカルストアを渡す
 func New(store *SafeSlice) *Logger {
 	return &Logger{

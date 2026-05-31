@@ -172,9 +172,9 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	name.Name = st.playerName
 
 	// 操作ガイドを表示する
-	gamelog.New(gamelog.FieldLog).System("WASD: 移動する。").Log()
-	gamelog.New(gamelog.FieldLog).System("Mキー: 拠点メニューを開く。").Log()
-	gamelog.New(gamelog.FieldLog).System("Spaceキー: アクションメニューを開く。").Log()
+	gamelog.New(worldhelper.GetGameLog(world)).System("WASD: 移動する。").Log()
+	gamelog.New(worldhelper.GetGameLog(world)).System("Mキー: 拠点メニューを開く。").Log()
+	gamelog.New(worldhelper.GetGameLog(world)).System("Spaceキー: アクションメニューを開く。").Log()
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
@@ -271,7 +271,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 }
 
 // buildDetailPanel は選択中の職業の詳細パネルを構築する
-func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)

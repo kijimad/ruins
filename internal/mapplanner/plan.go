@@ -64,8 +64,8 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
 	}
 
 	// RawMasterを設定
-	if world.Resources != nil && world.Resources.RawMaster != nil {
-		chain.PlanData.RawMaster = world.Resources.RawMaster
+	if world.Resources != nil {
+		chain.PlanData.RawMaster = &world.Resources.RawMaster
 	}
 
 	// 敵NPCプランナーを追加

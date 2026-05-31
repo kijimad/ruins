@@ -136,7 +136,7 @@ func (sa *ShootActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 
 // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
 func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) {
-	selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot
+	selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= 5 {
 		return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
@@ -240,7 +240,7 @@ func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) erro
 	}
 	_, err := Execute(&ShootActivity{}, params, world)
 	if err != nil {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(err.Error()).
 			Log()
 		return nil

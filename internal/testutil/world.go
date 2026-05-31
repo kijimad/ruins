@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/loader"
 	"github.com/kijimaD/ruins/internal/raw"
-	gr "github.com/kijimaD/ruins/internal/resources"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +17,7 @@ import (
 // 共有リソースをキャッシュ（一度だけ読み込む）
 var (
 	rawMasterOnce sync.Once
-	rawMaster     *raw.Master
+	rawMaster     raw.Master
 )
 
 // InitTestWorld は軽量なテスト用Worldを初期化する
@@ -47,13 +46,10 @@ func InitTestWorld(t *testing.T) w.World {
 
 	// RawMasterのみを共有リソースから取得（一度だけ読み込む）
 	rawMasterOnce.Do(func() {
-		resourceLoader := loader.NewResourceLoader()
-		rw, err := resourceLoader.LoadRaws()
+		rw, err := loader.LoadRaws()
 		require.NoError(t, err, "RawMasterの読み込みに失敗しました")
 		rawMaster = rw
 	})
-
-	require.NotNil(t, rawMaster, "RawMasterが初期化されていません")
 	world.Resources.RawMaster = rawMaster
 
 	// テスト用スプライトシートを初期化
@@ -72,31 +68,14 @@ func InitTestWorld(t *testing.T) w.World {
 			},
 		},
 	}
-	world.Resources.SpriteSheets = &spriteSheets
+	world.Resources.SpriteSheets = spriteSheets
 
-	// 最低限のゲームリソースを初期化
-	gameResource := &gr.Dungeon{
-		ExploredTiles: make(map[gc.GridElement]bool),
-		MinimapSettings: gr.MinimapSettings{
-			Width:   150,
-			Height:  150,
-			OffsetX: 10,
-			OffsetY: 10,
-			Scale:   3,
-		},
-		Level: gr.Level{
-			TileWidth:  50,
-			TileHeight: 50,
-		},
-		TurnState: gc.TurnState{
-			Phase:      gc.TurnPhasePlayer,
-			TurnNumber: 1,
-		},
-		SelectedWeaponSlot: 1,
+	// テスト用のLevel設定
+	d := world.Components.DungeonState.Get(world.Resources.SingletonEntity).(*gc.Dungeon)
+	d.Level = gc.Level{
+		TileWidth:  50,
+		TileHeight: 50,
 	}
-	err = gameResource.RequestStateChange(gr.NoneEvent{})
-	require.NoError(t, err, "テスト初期化時の状態変更要求に失敗しました")
-	world.Resources.Dungeon = gameResource
 
 	return world
 }

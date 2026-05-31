@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -91,7 +92,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 
 	// プレイヤーの場合のみ完了メッセージを表示
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("十分な休息を取って体力を回復した").
 			Log()
 	}
@@ -107,7 +108,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 				pools.HP.Current = pools.HP.Max
 			}
 
-			gamelog.New(gamelog.FieldLog).
+			gamelog.New(worldhelper.GetGameLog(world)).
 				Append("完全な休息により追加で ").
 				Append(fmt.Sprintf("%d", bonusHealing)).
 				Append(" HP回復した").
@@ -133,7 +134,7 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// プレイヤーの場合のみ中断時のメッセージを表示
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append("休息が中断された: ").
 			Append(comp.CancelReason).
 			Log()
@@ -173,7 +174,7 @@ func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 
 	// 5ターン毎にゲームログ出力（プレイヤーの場合のみ）
 	if actor.HasComponent(world.Components.Player) && comp.TurnsTotal-comp.TurnsLeft > 0 && (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("HPが %d 回復した。", actualHealing)).
 			Log()
 	}

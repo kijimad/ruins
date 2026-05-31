@@ -77,7 +77,7 @@ func (sys *VisualEffectSystem) Update(world w.World) error {
 
 // Draw はエフェクトを描画する
 func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
-	if world.Resources.UIResources == nil || world.Resources.UIResources.Text == nil {
+	if world.Resources.UIResources.Text == nil {
 		return nil
 	}
 	face := world.Resources.UIResources.Text.TitleFontFace
@@ -194,7 +194,7 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	}
 
 	// スプライトシートを取得
-	spriteSheet, exists := (*world.Resources.SpriteSheets)[effect.SpriteSheetName]
+	spriteSheet, exists := world.Resources.SpriteSheets[effect.SpriteSheetName]
 	if !exists {
 		return nil
 	}

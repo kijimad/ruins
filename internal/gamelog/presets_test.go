@@ -10,22 +10,22 @@ func TestPresetFunctions(t *testing.T) {
 	t.Parallel()
 
 	// ローカルテストストアを作成
-	testFieldLog := NewSafeSlice(FieldLogMaxSize)
+	testGameLog := NewSafeSlice(GameLogMaxSize)
 
 	// プリセット関数のテスト
-	New(testFieldLog).
+	New(testGameLog).
 		Success("勝利しました！").
 		Log()
 
-	New(testFieldLog).
+	New(testGameLog).
 		Warning("注意が必要です").
 		Log()
 
-	New(testFieldLog).
+	New(testGameLog).
 		Error("エラーが発生しました").
 		Log()
 
-	New(testFieldLog).
+	New(testGameLog).
 		PlayerName("Hero").
 		Append("が").
 		Location("洞窟").
@@ -34,7 +34,7 @@ func TestPresetFunctions(t *testing.T) {
 		Append("を発見した。").
 		Log()
 
-	New(testFieldLog).
+	New(testGameLog).
 		Action("攻撃").
 		Append("で").
 		NPCName("ゴブリン").
@@ -43,18 +43,18 @@ func TestPresetFunctions(t *testing.T) {
 		Append("ダメージ！").
 		Log()
 
-	New(testFieldLog).
+	New(testGameLog).
 		Money("500").
 		Append("G獲得した。").
 		Log()
 
 	// ログ数の確認
-	if testFieldLog.Count() != 6 {
-		t.Errorf("Expected 6 log entries, got %d", testFieldLog.Count())
+	if testGameLog.Count() != 6 {
+		t.Errorf("Expected 6 log entries, got %d", testGameLog.Count())
 	}
 
 	// 色付きエントリの確認
-	entries := testFieldLog.GetRecentEntries(6)
+	entries := testGameLog.GetRecentEntries(6)
 	if len(entries) != 6 {
 		t.Errorf("Expected 6 colored entries, got %d", len(entries))
 	}
@@ -127,14 +127,14 @@ func TestSystemPresets(t *testing.T) {
 	t.Parallel()
 
 	// ローカルテストストアを作成
-	testFieldLog := NewSafeSlice(FieldLogMaxSize)
+	testGameLog := NewSafeSlice(GameLogMaxSize)
 
 	// システム関連のプリセット
-	New(testFieldLog).
+	New(testGameLog).
 		System("システムが初期化されました").
 		Log()
 
-	entries := testFieldLog.GetRecentEntries(1)
+	entries := testGameLog.GetRecentEntries(1)
 	if len(entries) != 1 {
 		t.Errorf("Expected 1 entry, got %d", len(entries))
 	}

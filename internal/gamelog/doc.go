@@ -13,13 +13,16 @@
 //
 // # 基本的な使い方
 //
+//	// ログストアを取得する（ECSシングルトンから）
+//	store := worldhelper.GetGameLog(world)
+//
 //	// シンプルなログ
-//	gamelog.New(gamelog.FieldLog).
+//	gamelog.New(store).
 //	    Append("プレイヤーがアイテムを入手した").
 //	    Log()
 //
 //	// 色付きログ
-//	gamelog.New(gamelog.FieldLog).
+//	gamelog.New(store).
 //	    PlayerName("Hero").
 //	    Append("が").
 //	    ItemName("Iron Sword").
@@ -48,13 +51,13 @@
 //
 // # ログストレージ
 //
-// パッケージはグローバルログストレージを提供します：
-//
-//   - FieldLog: フィールド探索ログ用
+// ログストアはECSシングルトンエンティティとして保持されます。
+// worldhelper.GetGameLog(world) で取得します。
 //
 // 色付きエントリの取得例：
 //
-//	entries := gamelog.FieldLog.GetRecentEntries(5)
+//	store := worldhelper.GetGameLog(world)
+//	entries := store.GetRecentEntries(5)
 //	for _, entry := range entries {
 //	    for _, fragment := range entry.Fragments {
 //	        // fragment.Text と fragment.Color を使用
@@ -66,20 +69,20 @@
 //	import "github.com/kijimaD/ruins/internal/consts"
 //
 //	// 定義済み色を使用
-//	gamelog.New(gamelog.FieldLog).
+//	gamelog.New(store).
 //	    ColorRGBA(consts.ColorBlue).
 //	    Append("青色のテキスト").
 //	    Log()
 //
 //	// カスタム色を作成
-//	gamelog.New(gamelog.FieldLog).
+//	gamelog.New(store).
 //	    ColorRGBA(consts.NamedColor(255, 0, 0)). // 赤色
 //	    Append("カスタム色のテキスト").
 //	    Log()
 //
 // # 使い分け
 //
-//   - FieldLog: フィールドでの探索、アイテム入手、フロア移動などの継続的に表示されるログ
+//   - GameLog: フィールドでの探索、アイテム入手、フロア移動などの継続的に表示されるログ
 //
 // # 責務
 //

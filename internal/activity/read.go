@@ -65,7 +65,7 @@ func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 	}
 
 	name := worldhelper.GetEntityName(*comp.Target, world)
-	gamelog.New(gamelog.FieldLog).
+	gamelog.New(worldhelper.GetGameLog(world)).
 		Append(fmt.Sprintf("「%s」を読み始めた", name)).
 		Log()
 
@@ -121,7 +121,7 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 	name := worldhelper.GetEntityName(*comp.Target, world)
 
 	if book != nil && book.IsCompleted() {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("「%s」を読了した", name)).
 			Log()
 
@@ -140,7 +140,7 @@ func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	name := worldhelper.GetEntityName(*comp.Target, world)
 
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("「%s」の読書を中断した", name)).
 			Log()
 	}
@@ -178,7 +178,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		name := gc.SkillName(effect.TargetSkill)
-		gamelog.New(gamelog.FieldLog).
+		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("%sスキルが %d に上がった", name, s.Value)).
 			Log()
 	}

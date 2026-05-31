@@ -5,10 +5,10 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
-	"github.com/kijimaD/ruins/internal/resources"
 )
 
 func TestCalculateAutoTileIndex(t *testing.T) {
@@ -20,7 +20,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	// テスト用の5x5マップを作成
 	width, height := consts.Tile(5), consts.Tile(5)
 	metaPlan := &MetaPlan{
-		Level: resources.Level{
+		Level: gc.Level{
 			TileWidth:  width,
 			TileHeight: height,
 		},
@@ -144,15 +144,15 @@ func TestIsValidIndex(t *testing.T) {
 	}
 
 	testCases := []struct {
-		idx      resources.TileIdx
+		idx      gc.TileIdx
 		expected bool
 	}{
-		{resources.TileIdx(0), true},    // 有効な最小インデックス
-		{resources.TileIdx(8), true},    // 有効な最大インデックス
-		{resources.TileIdx(4), true},    // 有効な中央インデックス
-		{resources.TileIdx(-1), false},  // 無効な負のインデックス
-		{resources.TileIdx(9), false},   // 無効な範囲外インデックス
-		{resources.TileIdx(100), false}, // 無効な大きすぎるインデックス
+		{gc.TileIdx(0), true},    // 有効な最小インデックス
+		{gc.TileIdx(8), true},    // 有効な最大インデックス
+		{gc.TileIdx(4), true},    // 有効な中央インデックス
+		{gc.TileIdx(-1), false},  // 無効な負のインデックス
+		{gc.TileIdx(9), false},   // 無効な範囲外インデックス
+		{gc.TileIdx(100), false}, // 無効な大きすぎるインデックス
 	}
 
 	for _, tc := range testCases {

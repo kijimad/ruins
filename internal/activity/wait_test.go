@@ -135,6 +135,9 @@ func TestWaitActivity_Finish(t *testing.T) {
 		wa := &WaitActivity{}
 		err = wa.Finish(comp, player, world)
 		assert.NoError(t, err)
+
+		store := worldhelper.GetGameLog(world)
+		assert.Equal(t, 0, store.Count())
 	})
 
 	t.Run("複数ターン待機ではログを出す", func(t *testing.T) {
@@ -152,5 +155,10 @@ func TestWaitActivity_Finish(t *testing.T) {
 		wa := &WaitActivity{}
 		err = wa.Finish(comp, player, world)
 		assert.NoError(t, err)
+
+		store := worldhelper.GetGameLog(world)
+		recent := store.GetRecent(1)
+		require.Len(t, recent, 1)
+		assert.Contains(t, recent[0], "待機を終了した")
 	})
 }

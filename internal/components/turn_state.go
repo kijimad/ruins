@@ -26,9 +26,16 @@ func (tp TurnPhase) String() string {
 	}
 }
 
-// TurnState はターン状態を保持する
-// resources.Dungeon に格納して使用する
+// TurnState はターン状態を保持する。singleton componentとして管理される
 type TurnState struct {
 	Phase      TurnPhase // 現在のターンフェーズ
 	TurnNumber int       // ターン番号（1から開始）
+}
+
+// NewTurnState は初期化されたTurnStateを返す
+func NewTurnState() *TurnState {
+	return &TurnState{
+		Phase:      TurnPhasePlayer,
+		TurnNumber: 1,
+	}
 }

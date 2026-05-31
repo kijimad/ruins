@@ -436,7 +436,7 @@ func (st *ShopMenuState) buildUI(world w.World) *ebitenui.UI {
 	return eui
 }
 
-func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res *resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
@@ -449,13 +449,13 @@ func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int
 	return container
 }
 
-func (st *ShopMenuState) buildCurrencyContainer(currency int, res *resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildCurrencyContainer(currency int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	container.AddChild(styled.NewMenuText(worldhelper.FormatCurrency(currency), res))
 	return container
 }
 
-func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 	if tabIndex >= len(tabs) {
 		return container
@@ -512,7 +512,7 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 	return container
 }
 
-func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
@@ -537,7 +537,7 @@ func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabI
 	return container
 }
 
-func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {
+func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
 	desc := " "
 

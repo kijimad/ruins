@@ -118,7 +118,7 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("全ダンジョン踏破", func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
-				world.Resources.GameProgress.MarkDungeonCleared(name)
+				worldhelper.GetGameProgress(world).MarkDungeonCleared(name)
 			}
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
@@ -333,7 +333,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("次の階層に進む", func(world w.World) error {
-			currentDepth := world.Resources.Dungeon.Depth
+			currentDepth := worldhelper.GetDungeon(world).Depth
 
 			// 次の階層に遷移
 			messageState.SetTransition(es.Transition[w.World]{
