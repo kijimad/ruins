@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -239,7 +239,7 @@
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         return &amp;ebitenui.UI{Container: root}</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         if len(props.Items) == 0 {</span></span>
@@ -274,7 +274,7 @@
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L213"><span class="lineNum">     213</span>              : }</span>
 <span id="L214"><span class="lineNum">     214</span>              : </span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 : func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 : func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer(</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :         )</span></span>
@@ -291,7 +291,7 @@
 <span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L230"><span class="lineNum">     230</span>              : }</span>
 <span id="L231"><span class="lineNum">     231</span>              : </span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : func (st *AutoSellState) buildFooterContainer(props autoSellProps, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources.UIResources) *widget.Container {</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :         totalText := fmt.Sprintf(&quot;合計  %s&quot;, worldhelper.FormatCurrency(props.Total))</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">28.6&nbsp;%</td>
-            <td class="headerCovTableEntry">147</td>
-            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntryLo">29.1&nbsp;%</td>
+            <td class="headerCovTableEntry">148</td>
+            <td class="headerCovTableEntry">43</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,40 +72,40 @@
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/config&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              : )</span>
-<span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span>              : // MainMenuState はメインメニューのゲームステート</span>
-<span id="L21"><span class="lineNum">      21</span>              : type MainMenuState struct {</span>
-<span id="L22"><span class="lineNum">      22</span>              :         es.BaseState[w.World]</span>
-<span id="L23"><span class="lineNum">      23</span>              :         menuMount *hooks.Mount[mainMenuProps]</span>
-<span id="L24"><span class="lineNum">      24</span>              :         widget    *ebitenui.UI</span>
-<span id="L25"><span class="lineNum">      25</span>              : }</span>
-<span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC tlaBgGNC">           1 : func (st MainMenuState) String() string {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return &quot;MainMenu&quot;</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L30"><span class="lineNum">      30</span>              : </span>
-<span id="L31"><span class="lineNum">      31</span>              : // State interface ================</span>
-<span id="L32"><span class="lineNum">      32</span>              : </span>
-<span id="L33"><span class="lineNum">      33</span>              : var _ es.State[w.World] = &amp;MainMenuState{}</span>
-<span id="L34"><span class="lineNum">      34</span>              : var _ es.ActionHandler[w.World] = &amp;MainMenuState{}</span>
-<span id="L35"><span class="lineNum">      35</span>              : </span>
-<span id="L36"><span class="lineNum">      36</span>              : // OnPause はステートが一時停止される際に呼ばれる</span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *MainMenuState) OnPause(_ w.World) error { return nil }</span></span>
-<span id="L38"><span class="lineNum">      38</span>              : </span>
-<span id="L39"><span class="lineNum">      39</span>              : // OnResume はステートが再開される際に呼ばれる</span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 : func (st *MainMenuState) OnResume(_ w.World) error { return nil }</span></span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span>              : // OnStart はステート開始時の処理を行う</span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *MainMenuState) OnStart(world w.World) error {</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         // ワールドをクリアする。前のゲーム状態を削除する</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         world.Manager.DeleteAllEntities()</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         gamelog.FieldLog.Clear()</span></span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              : )</span>
+<span id="L18"><span class="lineNum">      18</span>              : </span>
+<span id="L19"><span class="lineNum">      19</span>              : // MainMenuState はメインメニューのゲームステート</span>
+<span id="L20"><span class="lineNum">      20</span>              : type MainMenuState struct {</span>
+<span id="L21"><span class="lineNum">      21</span>              :         es.BaseState[w.World]</span>
+<span id="L22"><span class="lineNum">      22</span>              :         menuMount *hooks.Mount[mainMenuProps]</span>
+<span id="L23"><span class="lineNum">      23</span>              :         widget    *ebitenui.UI</span>
+<span id="L24"><span class="lineNum">      24</span>              : }</span>
+<span id="L25"><span class="lineNum">      25</span>              : </span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 : func (st MainMenuState) String() string {</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return &quot;MainMenu&quot;</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // State interface ================</span>
+<span id="L31"><span class="lineNum">      31</span>              : </span>
+<span id="L32"><span class="lineNum">      32</span>              : var _ es.State[w.World] = &amp;MainMenuState{}</span>
+<span id="L33"><span class="lineNum">      33</span>              : var _ es.ActionHandler[w.World] = &amp;MainMenuState{}</span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // OnPause はステートが一時停止される際に呼ばれる</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *MainMenuState) OnPause(_ w.World) error { return nil }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : </span>
+<span id="L38"><span class="lineNum">      38</span>              : // OnResume はステートが再開される際に呼ばれる</span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 : func (st *MainMenuState) OnResume(_ w.World) error { return nil }</span></span>
+<span id="L40"><span class="lineNum">      40</span>              : </span>
+<span id="L41"><span class="lineNum">      41</span>              : // OnStart はステート開始時の処理を行う</span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *MainMenuState) OnStart(world w.World) error {</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         // ワールドをクリアする。前のゲーム状態を削除する</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         world.Manager.DeleteAllEntities()</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         // シングルトンエンティティを再構築する</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         world.InitSingleton()</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         st.menuMount = hooks.NewMount[mainMenuProps]()</span></span>
 <span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return nil</span></span>

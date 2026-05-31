@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -206,7 +206,7 @@
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         // プレイヤーの場合のみ複数アイテム収集時の総括メッセージを表示</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         if collectedCount &gt; 1 &amp;&amp; actor.HasComponent(world.Components.Player) {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                         Append(fmt.Sprintf(&quot;%d個のアイテムを入手した&quot;, collectedCount)).</span></span>
 <span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -241,7 +241,7 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;インベントリ統合エラー: %w&quot;, err)</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 Append(&quot; を入手した。&quot;).</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 Log()</span></span>

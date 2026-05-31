@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span>              : </span>
 <span id="L20"><span class="lineNum">      20</span>              : // NewTableContainer はテーブルのコンテナを作成する</span>
 <span id="L21"><span class="lineNum">      21</span>              : // columnWidths で各列の幅を指定する</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 : func NewTableContainer(columnWidths []int, _ *resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC tlaBgUNC">           0 : func NewTableContainer(columnWidths []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :         columns := len(columnWidths)</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         if columns == 0 {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 columns = 1</span></span>
@@ -110,7 +110,7 @@
 <span id="L48"><span class="lineNum">      48</span>              : }</span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              : // NewTableHeaderRow はヘッダー行のセル群を作成してコンテナに追加する</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res *resources.UIResources) {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res resources.UIResources) {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         for i, header := range headers {</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 width := 80</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 if i &lt; len(columnWidths) {</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span>              : // NewTableRow はテーブル行を作成する</span>
 <span id="L71"><span class="lineNum">      71</span>              : // isSelectedがnilの場合は通常行、非nilの場合は最初の列にカーソルを表示する選択可能行になる</span>
 <span id="L72"><span class="lineNum">      72</span>              : // alignsがnilの場合は全て左揃えになる</span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : func NewTableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected *bool, res *resources.UIResources) {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 : func NewTableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected *bool, res resources.UIResources) {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :         if isSelected != nil {</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                 addSelectableRow(container, columnWidths, values, aligns, *isSelected, res)</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 return</span></span>
@@ -144,7 +144,7 @@
 <span id="L82"><span class="lineNum">      82</span>              : // 内部関数</span>
 <span id="L83"><span class="lineNum">      83</span>              : // ================</span>
 <span id="L84"><span class="lineNum">      84</span>              : </span>
-<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 : func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res *resources.UIResources) {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 : func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         cursorColor := color.RGBA{}</span></span>
 <span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         if isSelected {</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                 cursorColor = consts.PrimaryColor</span></span>
@@ -183,7 +183,7 @@
 <span id="L121"><span class="lineNum">     121</span>              :         }</span>
 <span id="L122"><span class="lineNum">     122</span>              : }</span>
 <span id="L123"><span class="lineNum">     123</span>              : </span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 : func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res *resources.UIResources) {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 : func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :         for i, value := range values {</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 width := 80</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                 if i &lt; len(columnWidths) {</span></span>

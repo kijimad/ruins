@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -198,7 +198,7 @@
 <span id="L136"><span class="lineNum">     136</span>              : </span>
 <span id="L137"><span class="lineNum">     137</span>              : // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する</span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 : func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot</span></span>
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         weaponIndex := selectedSlot - 1</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         if weaponIndex &lt; 0 || weaponIndex &gt;= 5 {</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, &quot;&quot;, fmt.Errorf(&quot;無効な武器スロット番号: %d&quot;, selectedSlot)</span></span>
@@ -302,7 +302,7 @@
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :         _, err := Execute(&amp;ShootActivity{}, params, world)</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                         Append(err.Error()).</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                         Log()</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return nil</span></span>

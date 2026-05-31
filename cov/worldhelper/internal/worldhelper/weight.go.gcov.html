@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">94.1&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">51</td>
-            <td class="headerCovTableEntry">48</td>
+            <td class="headerCovTableEntry">51</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,12 +92,12 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         maxWeight := calculateMaxCarryingWeight(abilities)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         // 倍率を適用する</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if entity.HasComponent(world.Components.CharModifiers) {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 maxWeight = maxWeight * float64(mods.MaxWeight) / 100</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         if entity.HasComponent(world.Components.CharModifiers) {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 maxWeight = maxWeight * float64(mods.MaxWeight) / 100</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC tlaBgGNC">           1 :         pools.Weight.Max = maxWeight</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         pools.Weight.Max = maxWeight</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         // 現在の所持重量を計算</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         currentWeight := calculateCurrentCarryingWeight(world, entity)</span></span>

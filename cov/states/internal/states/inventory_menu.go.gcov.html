@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -406,7 +406,7 @@
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :         return result</span></span>
 <span id="L345"><span class="lineNum">     345</span>              : }</span>
 <span id="L346"><span class="lineNum">     346</span>              : </span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildCategoryContainer(tabs []inventoryTabData, tabIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildCategoryContainer(tabs []inventoryTabData, tabIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
 <span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
@@ -419,7 +419,7 @@
 <span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L358"><span class="lineNum">     358</span>              : }</span>
 <span id="L359"><span class="lineNum">     359</span>              : </span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildItemContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
 <span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(tabs) {</span></span>
 <span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 return container</span></span>
@@ -453,7 +453,7 @@
 <span id="L391"><span class="lineNum">     391</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L392"><span class="lineNum">     392</span>              : }</span>
 <span id="L393"><span class="lineNum">     393</span>              : </span>
-<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildSpecContainer(world w.World, props inventoryProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L394"><span class="lineNum">     394</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildSpecContainer(world w.World, props inventoryProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer(</span></span>
 <span id="L396"><span class="lineNum">     396</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
 <span id="L397"><span class="lineNum">     397</span> <span class="tlaUNC">           0 :         )</span></span>
@@ -471,7 +471,7 @@
 <span id="L409"><span class="lineNum">     409</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L410"><span class="lineNum">     410</span>              : }</span>
 <span id="L411"><span class="lineNum">     411</span>              : </span>
-<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L412"><span class="lineNum">     412</span> <span class="tlaUNC">           0 : func (st *InventoryMenuState) buildDescContainer(tabs []inventoryTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L413"><span class="lineNum">     413</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L414"><span class="lineNum">     414</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
 <span id="L415"><span class="lineNum">     415</span> <span class="tlaUNC">           0 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>
@@ -564,7 +564,7 @@
 <span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :         return actions</span></span>
 <span id="L503"><span class="lineNum">     503</span>              : }</span>
 <span id="L504"><span class="lineNum">     504</span>              : </span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *InventoryMenuState) buildActionWindow(world w.World, res *resources.UIResources) *widget.Window {</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *InventoryMenuState) buildActionWindow(world w.World, res resources.UIResources) *widget.Window {</span></span>
 <span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         windowContainer := styled.NewWindowContainer(res)</span></span>
 <span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :         titleContainer := styled.NewWindowHeaderContainer(&quot;アクション選択&quot;, res)</span></span>
 <span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         actionWindow := styled.NewSmallWindow(titleContainer, windowContainer)</span></span>

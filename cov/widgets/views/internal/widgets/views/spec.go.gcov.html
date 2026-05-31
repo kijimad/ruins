@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -288,7 +288,7 @@
 <span id="L226"><span class="lineNum">     226</span>              : }</span>
 <span id="L227"><span class="lineNum">     227</span>              : </span>
 <span id="L228"><span class="lineNum">     228</span>              : // addEquipBonusToTable は装備ボーナスをテーブルに追加する</span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 : func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonus gc.EquipBonus, res *resources.UIResources) {</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 : func addEquipBonusToTable(table *widget.Container, columnWidths []int, equipBonus gc.EquipBonus, res resources.UIResources) {</span></span>
 <span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         if equipBonus.Vitality != 0 {</span></span>
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :                 styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf(&quot;%+d&quot;, equipBonus.Vitality)}, specTableAligns, nil, res)</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         }</span></span>

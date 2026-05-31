@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -136,7 +136,7 @@
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         ra.effortAccum = 0</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :                 Append(&quot;装填を開始した&quot;).</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 Log()</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : </span></span>
@@ -186,7 +186,7 @@
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;弾薬の消費に失敗: %w&quot;, err)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L126"><span class="lineNum">     126</span>              : </span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;装填完了（%d/%d）&quot;, fire.Magazine, fire.MagazineSize)).</span></span>
 <span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                         Log()</span></span>
 <span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 : </span></span>
@@ -208,8 +208,8 @@
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L147"><span class="lineNum">     147</span>              : </span>
 <span id="L148"><span class="lineNum">     148</span>              : // Canceled はリロードキャンセル時の処理</span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 : func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World) error {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 : func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 Append(&quot;装填を中断した&quot;).</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 Log()</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         log.Debug(&quot;リロードキャンセル&quot;, &quot;actor&quot;, actor, &quot;reason&quot;, comp.CancelReason)</span></span>
@@ -249,7 +249,7 @@
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L188"><span class="lineNum">     188</span>              : </span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC tlaBgGNC">           2 :         if err := behavior.Validate(activity, actor, world); err != nil {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                         Append(err.Error()).</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         Log()</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 return nil</span></span>

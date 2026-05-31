@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">61.9&nbsp;%</td>
-            <td class="headerCovTableEntry">21</td>
-            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryMed">75.8&nbsp;%</td>
+            <td class="headerCovTableEntry">33</td>
+            <td class="headerCovTableEntry">25</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -67,8 +67,8 @@
 <span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/config&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              : )</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
@@ -117,18 +117,32 @@
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 Renderers:  make(map[string]Renderer),</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
-<span id="L59"><span class="lineNum">      59</span>              : }</span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : // GetManager は World interfaceを満たすためのメソッド</span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC tlaBgUNC">           0 : func (w World) GetManager() *ecs.Manager {</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         return w.Manager</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L65"><span class="lineNum">      65</span>              : </span>
-<span id="L66"><span class="lineNum">      66</span>              : // GetComponents は World interfaceを満たすためのメソッド</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 : func (w World) GetComponents() interface{} {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         return w.Components</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :         world.InitSingleton()</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :         return world, nil</span></span>
+<span id="L61"><span class="lineNum">      61</span>              : }</span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              : // InitSingleton はシングルトンエンティティを新規作成してIDを保存する</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 : func (world World) InitSingleton() {</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         singleton := world.Manager.NewEntity()</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         singleton.AddComponent(world.Components.GameLog, &amp;gc.GameLog{</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         singleton.AddComponent(world.Components.TurnState, gc.NewTurnState())</span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :         world.Resources.SingletonEntity = singleton</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : // GetManager は World interfaceを満たすためのメソッド</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC tlaBgUNC">           0 : func (world World) GetManager() *ecs.Manager {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         return world.Manager</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L79"><span class="lineNum">      79</span>              : </span>
+<span id="L80"><span class="lineNum">      80</span>              : // GetComponents は World interfaceを満たすためのメソッド</span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 : func (world World) GetComponents() interface{} {</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         return world.Components</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

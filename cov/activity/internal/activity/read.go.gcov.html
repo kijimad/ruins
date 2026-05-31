@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         name := worldhelper.GetEntityName(*comp.Target, world)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                 Append(fmt.Sprintf(&quot;「%s」を読み始めた&quot;, name)).</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 Log()</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
@@ -183,7 +183,7 @@
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         name := worldhelper.GetEntityName(*comp.Target, world)</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         if book != nil &amp;&amp; book.IsCompleted() {</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                         Append(fmt.Sprintf(&quot;「%s」を読了した&quot;, name)).</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 : </span></span>
@@ -202,7 +202,7 @@
 <span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         name := worldhelper.GetEntityName(*comp.Target, world)</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         if actor.HasComponent(world.Components.Player) {</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                         Append(fmt.Sprintf(&quot;「%s」の読書を中断した&quot;, name)).</span></span>
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -240,7 +240,7 @@
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 actor.AddComponent(world.Components.StatsChanged, &amp;gc.StatsChanged{})</span></span>
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 name := gc.SkillName(effect.TargetSkill)</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                         Append(fmt.Sprintf(&quot;%sスキルが %d に上がった&quot;, name, s.Value)).</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                         Log()</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         }</span></span>

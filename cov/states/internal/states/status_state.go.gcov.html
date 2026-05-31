@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -284,7 +284,7 @@
 <span id="L222"><span class="lineNum">     222</span>              : </span>
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         items = append(items,</span></span>
 <span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                 statusItemData{Label: &quot;環境気温&quot;, Value: fmt.Sprintf(&quot;%d%s&quot;, envTemp, consts.IconDegree), Description: &quot;現在地の気温&quot;},</span></span>
-<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 statusItemData{Label: &quot;時間帯&quot;, Value: world.Resources.Dungeon.GameTime.GetTimeOfDay().String(), Description: &quot;現在の時間帯。屋外では気温に影響する&quot;},</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                 statusItemData{Label: &quot;時間帯&quot;, Value: worldhelper.GetDungeon(world).GameTime.GetTimeOfDay().String(), Description: &quot;現在の時間帯。屋外では気温に影響する&quot;},</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         )</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         return items</span></span>
@@ -518,7 +518,7 @@
 <span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :         return &amp;ebitenui.UI{Container: root}</span></span>
 <span id="L457"><span class="lineNum">     457</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L458"><span class="lineNum">     458</span>              : </span>
-<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 : func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 : func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
 <span id="L462"><span class="lineNum">     462</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
@@ -531,7 +531,7 @@
 <span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L470"><span class="lineNum">     470</span>              : }</span>
 <span id="L471"><span class="lineNum">     471</span>              : </span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 : func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 : func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
 <span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(tabs) {</span></span>
 <span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :                 return container</span></span>
@@ -568,7 +568,7 @@
 <span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L507"><span class="lineNum">     507</span>              : }</span>
 <span id="L508"><span class="lineNum">     508</span>              : </span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 : func (st *StatusState) buildDetailContainer(world w.World, props statusProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 : func (st *StatusState) buildDetailContainer(world w.World, props statusProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer(</span></span>
 <span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
 <span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :         )</span></span>
@@ -595,14 +595,14 @@
 <span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L534"><span class="lineNum">     534</span>              : }</span>
 <span id="L535"><span class="lineNum">     535</span>              : </span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : func (st *StatusState) buildSkillDetail(container *widget.Container, item statusItemData, res *resources.UIResources) {</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 : func (st *StatusState) buildSkillDetail(container *widget.Container, item statusItemData, res resources.UIResources) {</span></span>
 <span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         for _, d := range item.Details {</span></span>
 <span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewDescriptionText(d.Label, res))</span></span>
 <span id="L539"><span class="lineNum">     539</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewMenuText(fmt.Sprintf(&quot; %s&quot;, d.Value), res))</span></span>
 <span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L541"><span class="lineNum">     541</span>              : }</span>
 <span id="L542"><span class="lineNum">     542</span>              : </span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 : func (st *StatusState) buildEffectDetail(container *widget.Container, item statusItemData, res *resources.UIResources) {</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 : func (st *StatusState) buildEffectDetail(container *widget.Container, item statusItemData, res resources.UIResources) {</span></span>
 <span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :         if len(item.Details) == 0 {</span></span>
 <span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 return</span></span>
 <span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -618,7 +618,7 @@
 <span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :         container.AddChild(table)</span></span>
 <span id="L557"><span class="lineNum">     557</span>              : }</span>
 <span id="L558"><span class="lineNum">     558</span>              : </span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 : func (st *StatusState) buildHealthDetail(container *widget.Container, world w.World, res *resources.UIResources) {</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 : func (st *StatusState) buildHealthDetail(container *widget.Container, world w.World, res resources.UIResources) {</span></span>
 <span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :         var playerEntity ecs.Entity</span></span>
 <span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :         worldhelper.QueryPlayer(world, func(entity ecs.Entity) {</span></span>
 <span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :                 playerEntity = entity</span></span>
@@ -655,7 +655,7 @@
 <span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC tlaBgGNC">           1 :         return rows</span></span>
 <span id="L594"><span class="lineNum">     594</span>              : }</span>
 <span id="L595"><span class="lineNum">     595</span>              : </span>
-<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StatusState) buildDescContainer(tabs []statusTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *StatusState) buildDescContainer(tabs []statusTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L597"><span class="lineNum">     597</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L598"><span class="lineNum">     598</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
 <span id="L599"><span class="lineNum">     599</span> <span class="tlaUNC">           0 :         if tabIndex &lt; len(tabs) &amp;&amp; itemIndex &lt; len(tabs[tabIndex].Items) {</span></span>

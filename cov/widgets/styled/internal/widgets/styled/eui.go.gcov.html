@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -171,7 +171,7 @@
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L110"><span class="lineNum">     110</span>              : </span>
 <span id="L111"><span class="lineNum">     111</span>              : // NewWindowContainer はウィンドウの本体を作成する</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 : func NewWindowContainer(res *resources.UIResources) *widget.Container {</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 : func NewWindowContainer(res resources.UIResources) *widget.Container {</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :         return widget.NewContainer(</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewRowLayout(</span></span>
@@ -193,7 +193,7 @@
 <span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L132"><span class="lineNum">     132</span>              : </span>
 <span id="L133"><span class="lineNum">     133</span>              : // NewWindowHeaderContainer はウィンドウのヘッダーを作成する</span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 : func NewWindowHeaderContainer(title string, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 : func NewWindowHeaderContainer(title string, res resources.UIResources) *widget.Container {</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         container := widget.NewContainer(</span></span>
 <span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.TitleBar),</span></span>
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),</span></span>
@@ -218,7 +218,7 @@
 <span id="L156"><span class="lineNum">     156</span>              : // text ================</span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
 <span id="L158"><span class="lineNum">     158</span>              : // NewMenuText は汎用メニューテキストを作成する</span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 : func NewMenuText(title string, res *resources.UIResources) *widget.Text {</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 : func NewMenuText(title string, res resources.UIResources) *widget.Text {</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         text := widget.NewText(</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(title, &amp;res.Text.BodyFace, consts.TextColor),</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
@@ -230,7 +230,7 @@
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              : </span>
 <span id="L170"><span class="lineNum">     170</span>              : // NewTitleText はタイトル用テキストを作成する（大きめ、目立つ）</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : func NewTitleText(text string, res *resources.UIResources) *widget.Text {</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : func NewTitleText(text string, res resources.UIResources) *widget.Text {</span></span>
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         return widget.NewText(</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(text, &amp;res.Text.BodyFace, consts.TextColor),</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
@@ -240,7 +240,7 @@
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : </span>
 <span id="L180"><span class="lineNum">     180</span>              : // NewDescriptionText は説明文用テキストを作成する（小さめ、補助的）</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 : func NewDescriptionText(text string, res *resources.UIResources) *widget.Text {</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 : func NewDescriptionText(text string, res resources.UIResources) *widget.Text {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         return widget.NewText(</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(text, &amp;res.Text.SmallFace, consts.ForegroundColor),</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
@@ -250,7 +250,7 @@
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L189"><span class="lineNum">     189</span>              : </span>
 <span id="L190"><span class="lineNum">     190</span>              : // NewPageIndicator は右寄せのページインジケーターを作成する</span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 : func NewPageIndicator(text string, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 : func NewPageIndicator(text string, res resources.UIResources) *widget.Container {</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         container := widget.NewContainer(</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{})),</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.Layout(widget.NewAnchorLayout()),</span></span>
@@ -283,7 +283,7 @@
 <span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L222"><span class="lineNum">     222</span>              : </span>
 <span id="L223"><span class="lineNum">     223</span>              : // NewBodyText は本文用テキストを作成する</span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 : func NewBodyText(title string, _ color.RGBA, res *resources.UIResources) *widget.Text {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 : func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.Text {</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         text := widget.NewText(</span></span>
 <span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :                 widget.TextOpts.Text(title, &amp;res.Text.BodyFace, consts.TextColor),</span></span>
 <span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :                 widget.TextOpts.WidgetOpts(</span></span>
@@ -296,7 +296,7 @@
 <span id="L234"><span class="lineNum">     234</span>              : </span>
 <span id="L235"><span class="lineNum">     235</span>              : // NewListItemText はリスト項目用テキストを作成する（カーソルで選択状態を表現）</span>
 <span id="L236"><span class="lineNum">     236</span>              : // additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示</span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 : func NewListItemText(text string, textColor color.RGBA, isSelected bool, res *resources.UIResources, additionalLabels ...string) *widget.Container {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 : func NewListItemText(text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         // カーソルの色: 選択時は表示、非選択時は透明</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         cursorColor := color.RGBA{}</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :         if isSelected {</span></span>
@@ -366,7 +366,7 @@
 <span id="L304"><span class="lineNum">     304</span>              : }</span>
 <span id="L305"><span class="lineNum">     305</span>              : </span>
 <span id="L306"><span class="lineNum">     306</span>              : // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）</span>
-<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC tlaBgGNC">           1 : func NewFragmentText(text string, textColor color.RGBA, res *resources.UIResources) *widget.Text {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC tlaBgGNC">           1 : func NewFragmentText(text string, textColor color.RGBA, res resources.UIResources) *widget.Text {</span></span>
 <span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         return widget.NewText(</span></span>
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(text, &amp;res.Text.BodyFace, textColor),</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>

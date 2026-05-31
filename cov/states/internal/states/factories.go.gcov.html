@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -180,7 +180,7 @@
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                 }).</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;全ダンジョン踏破&quot;, func(world w.World) error {</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                         for _, name := range dungeon.GetAllDungeonNames() {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                                 world.Resources.GameProgress.MarkDungeonCleared(name)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                                 worldhelper.GetGameProgress(world).MarkDungeonCleared(name)</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                         return nil</span></span>
@@ -395,7 +395,7 @@
 <span id="L333"><span class="lineNum">     333</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L334"><span class="lineNum">     334</span>              :                 }).</span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :                 WithChoice(&quot;次の階層に進む&quot;, func(world w.World) error {</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                         currentDepth := world.Resources.Dungeon.Depth</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :                         currentDepth := worldhelper.GetDungeon(world).Depth</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                         // 次の階層に遷移</span></span>
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         messageState.SetTransition(es.Transition[w.World]{</span></span>

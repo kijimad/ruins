@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -139,7 +139,7 @@
 <span id="L77"><span class="lineNum">      77</span>              : </span>
 <span id="L78"><span class="lineNum">      78</span>              : // Draw はエフェクトを描画する</span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         if world.Resources.UIResources == nil || world.Resources.UIResources.Text == nil {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :         if world.Resources.UIResources.Text == nil {</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         face := world.Resources.UIResources.Text.TitleFontFace</span></span>
@@ -256,7 +256,7 @@
 <span id="L194"><span class="lineNum">     194</span>              :         }</span>
 <span id="L195"><span class="lineNum">     195</span>              : </span>
 <span id="L196"><span class="lineNum">     196</span>              :         // スプライトシートを取得</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         spriteSheet, exists := (*world.Resources.SpriteSheets)[effect.SpriteSheetName]</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         spriteSheet, exists := world.Resources.SpriteSheets[effect.SpriteSheetName]</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                 return nil</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         }</span></span>

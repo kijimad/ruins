@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,7 +65,7 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
 <span id="L9"><span class="lineNum">       9</span>              : // AutoTileIndex は16タイルオートタイルのインデックス（0-15）</span>
@@ -136,7 +136,7 @@
 <span id="L74"><span class="lineNum">      74</span>              : </span>
 <span id="L75"><span class="lineNum">      75</span>              : // CalculateAutoTileIndex は4方向の隣接情報からオートタイルインデックスを計算</span>
 <span id="L76"><span class="lineNum">      76</span>              : // 同じタイル名のタイルとのみ接続する</span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 : func (mp *MetaPlan) CalculateAutoTileIndex(idx resources.TileIdx, tileType string) AutoTileIndex {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 : func (mp *MetaPlan) CalculateAutoTileIndex(idx gc.TileIdx, tileType string) AutoTileIndex {</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         // 4方向の隣接チェック - 同じタイル名の場合のみ接続</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         upTile := mp.UpTile(idx)</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         downTile := mp.DownTile(idx)</span></span>
@@ -167,7 +167,7 @@
 <span id="L105"><span class="lineNum">     105</span>              : }</span>
 <span id="L106"><span class="lineNum">     106</span>              : </span>
 <span id="L107"><span class="lineNum">     107</span>              : // IsValidIndex はインデックスが有効範囲内かチェック</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 : func (mp *MetaPlan) IsValidIndex(idx resources.TileIdx) bool {</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 : func (mp *MetaPlan) IsValidIndex(idx gc.TileIdx) bool {</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :         return idx &gt;= 0 &amp;&amp; int(idx) &lt; len(mp.Tiles)</span></span>
 <span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>

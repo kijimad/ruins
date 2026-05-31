@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -104,7 +104,7 @@
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                                 if !door.IsOpen {</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                                         // ロックされた扉は開けない</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                                         if door.Locked {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                                                 gamelog.New(gamelog.FieldLog).Append(&quot;扉はロックされている。&quot;).Log()</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                                                 gamelog.New(worldhelper.GetGameLog(world)).Append(&quot;扉はロックされている。&quot;).Log()</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                                                 return nil</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                                         }</span></span>
 <span id="L48"><span class="lineNum">      48</span>              :                                         // 閉じている扉は開く相互作用を実行</span>
@@ -293,23 +293,23 @@
 <span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         switch data := interactable.Data.(type) {</span></span>
 <span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         case gc.ItemInteraction:</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 formattedName := worldhelper.FormatItemName(world, interactableEntity)</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                         ItemName(formattedName).</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                         Append(&quot; がある。&quot;).</span></span>
 <span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :         case gc.PortalInteraction:</span></span>
 <span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 switch data.PortalType {</span></span>
 <span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 case gc.PortalTypeNext:</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                                 Append(&quot;転移ゲートがある。Enterキーで移動。&quot;).</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                                 Log()</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 case gc.PortalTypeTown:</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                         gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                                 Append(&quot;帰還ゲートがある。Enterキーで脱出。&quot;).</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                                 Log()</span></span>
 <span id="L248"><span class="lineNum">     248</span>              :                 }</span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         case gc.DungeonGateInteraction:</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                 gamelog.New(gamelog.FieldLog).</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                 gamelog.New(worldhelper.GetGameLog(world)).</span></span>
 <span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                         Append(&quot;ダンジョンへの門がある。Enterキーで選択。&quot;).</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                         Log()</span></span>
 <span id="L253"><span class="lineNum">     253</span>              :         }</span>

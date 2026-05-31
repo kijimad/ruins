@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -126,8 +126,8 @@
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L65"><span class="lineNum">      65</span>              : </span>
 <span id="L66"><span class="lineNum">      66</span>              :         // RawMasterを設定</span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           2 :         if world.Resources != nil &amp;&amp; world.Resources.RawMaster != nil {</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 chain.PlanData.RawMaster = world.Resources.RawMaster</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC tlaBgGNC">           2 :         if world.Resources != nil {</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 chain.PlanData.RawMaster = &amp;world.Resources.RawMaster</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : </span>
 <span id="L71"><span class="lineNum">      71</span>              :         // 敵NPCプランナーを追加</span>

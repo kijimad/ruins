@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -212,7 +212,7 @@
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return &quot;&quot;</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         weapons := worldhelper.GetWeapons(world, playerEntity)</span></span>
 <span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :         weaponIndex := selectedSlot - 1</span></span>
 <span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         if weaponIndex &lt; 0 || weaponIndex &gt;= len(weapons) || weapons[weaponIndex] == nil {</span></span>
@@ -395,7 +395,7 @@
 <span id="L333"><span class="lineNum">     333</span>              : </span>
 <span id="L334"><span class="lineNum">     334</span>              : // drawWeaponInfo は武器情報を描画する</span>
 <span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 : func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, drawText func(string)) {</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         selectedSlot := world.Resources.Dungeon.SelectedWeaponSlot</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot</span></span>
 <span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :         weapons := worldhelper.GetWeapons(world, playerEntity)</span></span>
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         weaponIndex := selectedSlot - 1</span></span>
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :         if weaponIndex &lt; 0 || weaponIndex &gt;= len(weapons) {</span></span>

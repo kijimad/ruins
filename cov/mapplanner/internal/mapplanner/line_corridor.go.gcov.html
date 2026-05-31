@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -65,9 +65,9 @@
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;math&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              : </span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              : )</span>
 <span id="L10"><span class="lineNum">      10</span>              : </span>
 <span id="L11"><span class="lineNum">      11</span>              : // LineCorridorPlanner は直線廊下を生成するビルダー</span>
@@ -118,7 +118,7 @@
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                                         points = append(points, corridorPoints...)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L58"><span class="lineNum">      58</span>              :                         }</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         corridor := make([]resources.TileIdx, 0, len(points))</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         corridor := make([]gc.TileIdx, 0, len(points))</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :                         for _, p := range points {</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                                 idx := planData.Level.XYTileIndex(p.x, p.y)</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                                 if 0 &lt; int(idx) &amp;&amp; int(idx) &lt; int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 &amp;&amp; planData.Tiles[idx].Name == &quot;wall&quot; {</span></span>

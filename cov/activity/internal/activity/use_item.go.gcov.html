@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -247,7 +247,7 @@
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         itemName := u.getItemName(item, world)</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         actorName := worldhelper.GetEntityName(actor, world)</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         logger := gamelog.New(gamelog.FieldLog)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         logger := gamelog.New(worldhelper.GetGameLog(world))</span></span>
 <span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         logger.Build(func(l *gamelog.Logger) {</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 worldhelper.AppendNameWithColor(l, actor, actorName, world)</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         }).Append(&quot; は &quot;).ItemName(itemName).Append(&quot; を使った。&quot;)</span></span>
@@ -271,7 +271,7 @@
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         itemName := u.getItemName(item, world)</span></span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         actorName := worldhelper.GetEntityName(actor, world)</span></span>
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         logger := gamelog.New(gamelog.FieldLog)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         logger := gamelog.New(worldhelper.GetGameLog(world))</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           2 :         logger.Build(func(l *gamelog.Logger) {</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 worldhelper.AppendNameWithColor(l, actor, actorName, world)</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         }).Append(&quot; は &quot;).ItemName(itemName).Append(&quot; を食べた。&quot;)</span></span>

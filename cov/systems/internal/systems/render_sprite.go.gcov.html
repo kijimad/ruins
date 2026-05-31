@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -400,7 +400,7 @@
 <span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :                 if world.Resources.SpriteSheets == nil {</span></span>
 <span id="L339"><span class="lineNum">     339</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;SpriteSheets が nil です&quot;)</span></span>
 <span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 spriteSheet, exists := (*world.Resources.SpriteSheets)[spriteRender.SpriteSheetName]</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]</span></span>
 <span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 if !exists {</span></span>
 <span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                         return nil, fmt.Errorf(&quot;スプライトシート '%s' が見つかりません&quot;, spriteRender.SpriteSheetName)</span></span>
 <span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                 }</span></span>
@@ -432,7 +432,7 @@
 <span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 :         if world.Resources.SpriteSheets == nil {</span></span>
 <span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;SpriteSheets が nil です&quot;)</span></span>
 <span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         spriteSheet, exists := (*world.Resources.SpriteSheets)[spriteRender.SpriteSheetName]</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         spriteSheet, exists := world.Resources.SpriteSheets[spriteRender.SpriteSheetName]</span></span>
 <span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
 <span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;スプライトシート '%s' が見つかりません&quot;, spriteRender.SpriteSheetName)</span></span>
 <span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         }</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">82.4&nbsp;%</td>
-            <td class="headerCovTableEntry">443</td>
-            <td class="headerCovTableEntry">365</td>
+            <td class="headerCovTableEntryMed">82.9&nbsp;%</td>
+            <td class="headerCovTableEntry">434</td>
+            <td class="headerCovTableEntry">360</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -73,8 +73,8 @@
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;time&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
 <span id="L13"><span class="lineNum">      13</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              : )</span>
 <span id="L18"><span class="lineNum">      18</span>              : </span>
@@ -93,8 +93,8 @@
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // WorldSaveData はワールド全体のセーブデータ</span>
 <span id="L33"><span class="lineNum">      33</span>              : type WorldSaveData struct {</span>
-<span id="L34"><span class="lineNum">      34</span>              :         Entities     []EntitySaveData        `json:&quot;entities&quot;`</span>
-<span id="L35"><span class="lineNum">      35</span>              :         GameProgress *resources.GameProgress `json:&quot;game_progress,omitempty&quot;`</span>
+<span id="L34"><span class="lineNum">      34</span>              :         Entities     []EntitySaveData `json:&quot;entities&quot;`</span>
+<span id="L35"><span class="lineNum">      35</span>              :         GameProgress *gc.GameProgress `json:&quot;game_progress,omitempty&quot;`</span>
 <span id="L36"><span class="lineNum">      36</span>              : }</span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
 <span id="L38"><span class="lineNum">      38</span>              : // EntitySaveData は単一エンティティのセーブデータ</span>
@@ -209,8 +209,8 @@
 <span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;unsupported save data version: %s&quot;, saveData.Version)</span></span>
 <span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L149"><span class="lineNum">     149</span>              : </span>
-<span id="L150"><span class="lineNum">     150</span>              :         // ワールドをクリア</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC tlaBgGNC">           1 :         sm.clearWorld(world)</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">           1 :         world.Manager.DeleteAllEntities()</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         world.InitSingleton()</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         sm.stableIDManager.Clear()</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :         // ワールドデータを復元</span></span>
@@ -266,7 +266,7 @@
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         // GameProgressを保存</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         worldData.GameProgress = world.Resources.GameProgress</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         worldData.GameProgress = worldhelper.GetGameProgress(world)</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         return worldData</span></span>
 <span id="L210"><span class="lineNum">     210</span>              : }</span>
@@ -388,7 +388,7 @@
 <span id="L326"><span class="lineNum">     326</span>              : </span>
 <span id="L327"><span class="lineNum">     327</span>              :         // GameProgressを復元</span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC tlaBgGNC">           2 :         if worldData.GameProgress != nil {</span></span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 *world.Resources.GameProgress = *worldData.GameProgress</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 :                 *worldhelper.GetGameProgress(world) = *worldData.GameProgress</span></span>
 <span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L331"><span class="lineNum">     331</span>              : </span>
 <span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :         return nil</span></span>
@@ -484,250 +484,236 @@
 <span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
 <span id="L423"><span class="lineNum">     423</span>              : }</span>
 <span id="L424"><span class="lineNum">     424</span>              : </span>
-<span id="L425"><span class="lineNum">     425</span>              : // clearWorld はワールドの全エンティティをクリア</span>
-<span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) clearWorld(world w.World) {</span></span>
-<span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :         // 全エンティティを削除</span></span>
-<span id="L428"><span class="lineNum">     428</span> <span class="tlaGNC">           1 :         entitiesToDelete := make([]ecs.Entity, 0)</span></span>
-<span id="L429"><span class="lineNum">     429</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L430"><span class="lineNum">     430</span> <span class="tlaGNC">           1 :         world.Manager.Join().Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L431"><span class="lineNum">     431</span> <span class="tlaUNC tlaBgUNC">           0 :                 entitiesToDelete = append(entitiesToDelete, entity)</span></span>
-<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 :         }))</span></span>
-<span id="L433"><span class="lineNum">     433</span>              : </span>
-<span id="L434"><span class="lineNum">     434</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, entity := range entitiesToDelete {</span></span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC tlaBgUNC">           0 :                 world.Manager.DeleteEntity(entity)</span></span>
+<span id="L425"><span class="lineNum">     425</span>              : // SaveFileExists はセーブファイルが存在するかチェックする</span>
+<span id="L426"><span class="lineNum">     426</span> <span class="tlaUNC tlaBgUNC">           0 : func (sm *SerializationManager) SaveFileExists(slotName string) bool {</span></span>
+<span id="L427"><span class="lineNum">     427</span> <span class="tlaUNC">           0 :         return sm.saveFileExistsImpl(slotName)</span></span>
+<span id="L428"><span class="lineNum">     428</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L429"><span class="lineNum">     429</span>              : </span>
+<span id="L430"><span class="lineNum">     430</span>              : // GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する</span>
+<span id="L431"><span class="lineNum">     431</span>              : // JSONファイルの中身のtimestampフィールドを読み取る</span>
+<span id="L432"><span class="lineNum">     432</span> <span class="tlaUNC">           0 : func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) {</span></span>
+<span id="L433"><span class="lineNum">     433</span> <span class="tlaUNC">           0 :         data, err := sm.loadDataImpl(slotName)</span></span>
+<span id="L434"><span class="lineNum">     434</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L435"><span class="lineNum">     435</span> <span class="tlaUNC">           0 :                 return time.Time{}, err</span></span>
 <span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L437"><span class="lineNum">     437</span>              : }</span>
-<span id="L438"><span class="lineNum">     438</span>              : </span>
-<span id="L439"><span class="lineNum">     439</span>              : // SaveFileExists はセーブファイルが存在するかチェックする</span>
-<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 : func (sm *SerializationManager) SaveFileExists(slotName string) bool {</span></span>
-<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         return sm.saveFileExistsImpl(slotName)</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L437"><span class="lineNum">     437</span>              : </span>
+<span id="L438"><span class="lineNum">     438</span> <span class="tlaUNC">           0 :         var saveData Data</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :         err = json.Unmarshal(data, &amp;saveData)</span></span>
+<span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 return time.Time{}, fmt.Errorf(&quot;failed to parse save data: %w&quot;, err)</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L443"><span class="lineNum">     443</span>              : </span>
-<span id="L444"><span class="lineNum">     444</span>              : // GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する</span>
-<span id="L445"><span class="lineNum">     445</span>              : // JSONファイルの中身のtimestampフィールドを読み取る</span>
-<span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 : func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) {</span></span>
-<span id="L447"><span class="lineNum">     447</span> <span class="tlaUNC">           0 :         data, err := sm.loadDataImpl(slotName)</span></span>
-<span id="L448"><span class="lineNum">     448</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :                 return time.Time{}, err</span></span>
-<span id="L450"><span class="lineNum">     450</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L451"><span class="lineNum">     451</span>              : </span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :         var saveData Data</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :         err = json.Unmarshal(data, &amp;saveData)</span></span>
-<span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :                 return time.Time{}, fmt.Errorf(&quot;failed to parse save data: %w&quot;, err)</span></span>
-<span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L457"><span class="lineNum">     457</span>              : </span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 :         return saveData.Timestamp, nil</span></span>
-<span id="L459"><span class="lineNum">     459</span>              : }</span>
-<span id="L460"><span class="lineNum">     460</span>              : </span>
-<span id="L461"><span class="lineNum">     461</span>              : // calculateChecksum はセーブデータのチェックサムを計算する</span>
-<span id="L462"><span class="lineNum">     462</span>              : // 決定的な順序でハッシュ計算を行うため、エンティティとコンポーネントをソートする</span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC tlaBgGNC">           1 : func (sm *SerializationManager) calculateChecksum(data *Data) string {</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :         return sm.calculateDeterministicHash(data)</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L466"><span class="lineNum">     466</span>              : </span>
-<span id="L467"><span class="lineNum">     467</span>              : // calculateDeterministicHash は決定的な順序でハッシュを計算する</span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateDeterministicHash(data *Data) string {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :         hashParts := make([]string, 0, len(data.World.Entities)+1)</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :         // バージョン情報</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         hashParts = append(hashParts, fmt.Sprintf(&quot;version:%s&quot;, data.Version))</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :         // エンティティを StableID の Index でソート</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :         entities := make([]EntitySaveData, len(data.World.Entities))</span></span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :         copy(entities, data.World.Entities)</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           2 :         sort.Slice(entities, func(i, j int) bool {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :                 return entities[i].StableID.Index &lt; entities[j].StableID.Index</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         })</span></span>
-<span id="L481"><span class="lineNum">     481</span>              : </span>
-<span id="L482"><span class="lineNum">     482</span>              :         // 各エンティティのハッシュを計算</span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC">           2 :         for _, entity := range entities {</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 :                 entityHash := sm.calculateEntityHash(entity)</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :                 hashParts = append(hashParts, fmt.Sprintf(&quot;entity:%s&quot;, entityHash))</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L487"><span class="lineNum">     487</span>              : </span>
-<span id="L488"><span class="lineNum">     488</span>              :         // GameProgressのハッシュを追加</span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           2 :         if data.World.GameProgress != nil {</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :                 gpBytes, err := json.Marshal(data.World.GameProgress)</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC tlaBgUNC">           0 :                         panic(fmt.Sprintf(&quot;failed to marshal GameProgress for checksum: %v&quot;, err))</span></span>
-<span id="L493"><span class="lineNum">     493</span>              :                 }</span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC tlaBgGNC">           1 :                 gpHash := sha256.Sum256(gpBytes)</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :                 hashParts = append(hashParts, fmt.Sprintf(&quot;game_progress:%s&quot;, hex.EncodeToString(gpHash[:])))</span></span>
-<span id="L496"><span class="lineNum">     496</span>              :         }</span>
-<span id="L497"><span class="lineNum">     497</span>              : </span>
-<span id="L498"><span class="lineNum">     498</span>              :         // 全体のハッシュを計算</span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         finalData := fmt.Sprintf(&quot;checksum_data:%s&quot;, fmt.Sprintf(&quot;%v&quot;, hashParts))</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256([]byte(finalData))</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
-<span id="L502"><span class="lineNum">     502</span>              : }</span>
-<span id="L503"><span class="lineNum">     503</span>              : </span>
-<span id="L504"><span class="lineNum">     504</span>              : // calculateEntityHash は単一エンティティの決定的ハッシュを計算する</span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateEntityHash(entity EntitySaveData) string {</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(entity.Components)+1)</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :         // StableID</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         parts = append(parts, fmt.Sprintf(&quot;stable_id:%d:%d&quot;, entity.StableID.Index, entity.StableID.Generation))</span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :         // コンポーネント名をソート</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :         componentNames := make([]string, 0, len(entity.Components))</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           2 :         for name := range entity.Components {</span></span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :                 componentNames = append(componentNames, name)</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :         sort.Strings(componentNames)</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :         // 各コンポーネントのハッシュを計算</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           2 :         for _, name := range componentNames {</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :                 component := entity.Components[name]</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :                 componentHash := sm.calculateComponentHash(name, component)</span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :                 parts = append(parts, fmt.Sprintf(&quot;component:%s:%s&quot;, name, componentHash))</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L524"><span class="lineNum">     524</span>              : </span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         entityData := fmt.Sprintf(&quot;entity_data:%s&quot;, fmt.Sprintf(&quot;%v&quot;, parts))</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256([]byte(entityData))</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
-<span id="L528"><span class="lineNum">     528</span>              : }</span>
-<span id="L529"><span class="lineNum">     529</span>              : </span>
-<span id="L530"><span class="lineNum">     530</span>              : // calculateComponentHash はコンポーネントの決定的ハッシュを計算する</span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateComponentHash(name string, component interface{}) string {</span></span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           1 :         // シンプルな実装: コンポーネント名とデータサイズでハッシュ計算</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :         // より厳密には、データの内容を決定的にシリアライズする必要がある</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :         var dataSize int</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           2 :         if component != nil {</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                 // JSON marshal でサイズを概算</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           2 :                 if jsonBytes, err := json.Marshal(component); err == nil {</span></span>
-<span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           1 :                         dataSize = len(jsonBytes)</span></span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L541"><span class="lineNum">     541</span>              :         }</span>
-<span id="L542"><span class="lineNum">     542</span>              : </span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :         hashData := fmt.Sprintf(&quot;component:%s:size:%d&quot;, name, dataSize)</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256([]byte(hashData))</span></span>
-<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
-<span id="L546"><span class="lineNum">     546</span>              : }</span>
-<span id="L547"><span class="lineNum">     547</span>              : </span>
-<span id="L548"><span class="lineNum">     548</span>              : // validateChecksum はセーブデータのチェックサムを検証する</span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) validateChecksum(data *Data) error {</span></span>
-<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           2 :         if data.Checksum == &quot;&quot; {</span></span>
-<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです&quot;)</span></span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L553"><span class="lineNum">     553</span>              : </span>
-<span id="L554"><span class="lineNum">     554</span>              :         // 現在のデータからチェックサムを計算</span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :         expectedChecksum := sm.calculateChecksum(data)</span></span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :         // チェックサムを比較</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           2 :         if data.Checksum != expectedChecksum {</span></span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)&quot;,</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :                         expectedChecksum, data.Checksum)</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L562"><span class="lineNum">     562</span>              : </span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L564"><span class="lineNum">     564</span>              : }</span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :         return saveData.Timestamp, nil</span></span>
+<span id="L445"><span class="lineNum">     445</span>              : }</span>
+<span id="L446"><span class="lineNum">     446</span>              : </span>
+<span id="L447"><span class="lineNum">     447</span>              : // calculateChecksum はセーブデータのチェックサムを計算する</span>
+<span id="L448"><span class="lineNum">     448</span>              : // 決定的な順序でハッシュ計算を行うため、エンティティとコンポーネントをソートする</span>
+<span id="L449"><span class="lineNum">     449</span> <span class="tlaGNC tlaBgGNC">           1 : func (sm *SerializationManager) calculateChecksum(data *Data) string {</span></span>
+<span id="L450"><span class="lineNum">     450</span> <span class="tlaGNC">           1 :         return sm.calculateDeterministicHash(data)</span></span>
+<span id="L451"><span class="lineNum">     451</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L452"><span class="lineNum">     452</span>              : </span>
+<span id="L453"><span class="lineNum">     453</span>              : // calculateDeterministicHash は決定的な順序でハッシュを計算する</span>
+<span id="L454"><span class="lineNum">     454</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateDeterministicHash(data *Data) string {</span></span>
+<span id="L455"><span class="lineNum">     455</span> <span class="tlaGNC">           1 :         hashParts := make([]string, 0, len(data.World.Entities)+1)</span></span>
+<span id="L456"><span class="lineNum">     456</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L457"><span class="lineNum">     457</span> <span class="tlaGNC">           1 :         // バージョン情報</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaGNC">           1 :         hashParts = append(hashParts, fmt.Sprintf(&quot;version:%s&quot;, data.Version))</span></span>
+<span id="L459"><span class="lineNum">     459</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC">           1 :         // エンティティを StableID の Index でソート</span></span>
+<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :         entities := make([]EntitySaveData, len(data.World.Entities))</span></span>
+<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :         copy(entities, data.World.Entities)</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           2 :         sort.Slice(entities, func(i, j int) bool {</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :                 return entities[i].StableID.Index &lt; entities[j].StableID.Index</span></span>
+<span id="L466"><span class="lineNum">     466</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span>              :         // 各エンティティのハッシュを計算</span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           2 :         for _, entity := range entities {</span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                 entityHash := sm.calculateEntityHash(entity)</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 hashParts = append(hashParts, fmt.Sprintf(&quot;entity:%s&quot;, entityHash))</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L473"><span class="lineNum">     473</span>              : </span>
+<span id="L474"><span class="lineNum">     474</span>              :         // GameProgressのハッシュを追加</span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           2 :         if data.World.GameProgress != nil {</span></span>
+<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 :                 gpBytes, err := json.Marshal(data.World.GameProgress)</span></span>
+<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC tlaBgUNC">           0 :                         panic(fmt.Sprintf(&quot;failed to marshal GameProgress for checksum: %v&quot;, err))</span></span>
+<span id="L479"><span class="lineNum">     479</span>              :                 }</span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC tlaBgGNC">           1 :                 gpHash := sha256.Sum256(gpBytes)</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaGNC">           1 :                 hashParts = append(hashParts, fmt.Sprintf(&quot;game_progress:%s&quot;, hex.EncodeToString(gpHash[:])))</span></span>
+<span id="L482"><span class="lineNum">     482</span>              :         }</span>
+<span id="L483"><span class="lineNum">     483</span>              : </span>
+<span id="L484"><span class="lineNum">     484</span>              :         // 全体のハッシュを計算</span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :         finalData := fmt.Sprintf(&quot;checksum_data:%s&quot;, fmt.Sprintf(&quot;%v&quot;, hashParts))</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256([]byte(finalData))</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
+<span id="L488"><span class="lineNum">     488</span>              : }</span>
+<span id="L489"><span class="lineNum">     489</span>              : </span>
+<span id="L490"><span class="lineNum">     490</span>              : // calculateEntityHash は単一エンティティの決定的ハッシュを計算する</span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateEntityHash(entity EntitySaveData) string {</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         parts := make([]string, 0, len(entity.Components)+1)</span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         // StableID</span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         parts = append(parts, fmt.Sprintf(&quot;stable_id:%d:%d&quot;, entity.StableID.Index, entity.StableID.Generation))</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         // コンポーネント名をソート</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         componentNames := make([]string, 0, len(entity.Components))</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           2 :         for name := range entity.Components {</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                 componentNames = append(componentNames, name)</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaGNC">           1 :         sort.Strings(componentNames)</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :         // 各コンポーネントのハッシュを計算</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           2 :         for _, name := range componentNames {</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :                 component := entity.Components[name]</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :                 componentHash := sm.calculateComponentHash(name, component)</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC">           1 :                 parts = append(parts, fmt.Sprintf(&quot;component:%s:%s&quot;, name, componentHash))</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L510"><span class="lineNum">     510</span>              : </span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :         entityData := fmt.Sprintf(&quot;entity_data:%s&quot;, fmt.Sprintf(&quot;%v&quot;, parts))</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256([]byte(entityData))</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
+<span id="L514"><span class="lineNum">     514</span>              : }</span>
+<span id="L515"><span class="lineNum">     515</span>              : </span>
+<span id="L516"><span class="lineNum">     516</span>              : // calculateComponentHash はコンポーネントの決定的ハッシュを計算する</span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) calculateComponentHash(name string, component interface{}) string {</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :         // シンプルな実装: コンポーネント名とデータサイズでハッシュ計算</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :         // より厳密には、データの内容を決定的にシリアライズする必要がある</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 :         var dataSize int</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           2 :         if component != nil {</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :                 // JSON marshal でサイズを概算</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           2 :                 if jsonBytes, err := json.Marshal(component); err == nil {</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :                         dataSize = len(jsonBytes)</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L527"><span class="lineNum">     527</span>              :         }</span>
+<span id="L528"><span class="lineNum">     528</span>              : </span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :         hashData := fmt.Sprintf(&quot;component:%s:size:%d&quot;, name, dataSize)</span></span>
+<span id="L530"><span class="lineNum">     530</span> <span class="tlaGNC">           1 :         hash := sha256.Sum256([]byte(hashData))</span></span>
+<span id="L531"><span class="lineNum">     531</span> <span class="tlaGNC">           1 :         return hex.EncodeToString(hash[:])</span></span>
+<span id="L532"><span class="lineNum">     532</span>              : }</span>
+<span id="L533"><span class="lineNum">     533</span>              : </span>
+<span id="L534"><span class="lineNum">     534</span>              : // validateChecksum はセーブデータのチェックサムを検証する</span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) validateChecksum(data *Data) error {</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           2 :         if data.Checksum == &quot;&quot; {</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです&quot;)</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L539"><span class="lineNum">     539</span>              : </span>
+<span id="L540"><span class="lineNum">     540</span>              :         // 現在のデータからチェックサムを計算</span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :         expectedChecksum := sm.calculateChecksum(data)</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :         // チェックサムを比較</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           2 :         if data.Checksum != expectedChecksum {</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                 return fmt.Errorf(&quot;checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)&quot;,</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :                         expectedChecksum, data.Checksum)</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L548"><span class="lineNum">     548</span>              : </span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L550"><span class="lineNum">     550</span>              : }</span>
+<span id="L551"><span class="lineNum">     551</span>              : </span>
+<span id="L552"><span class="lineNum">     552</span>              : // marshalSortedJSON はキーをソートしてJSONマーシャリングを行う</span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedJSON(data interface{}) ([]byte, error) {</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :         // 最初に標準のMarshalでJSONに変換</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(data)</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L559"><span class="lineNum">     559</span>              : </span>
+<span id="L560"><span class="lineNum">     560</span>              :         // JSONを一度map[string]interface{}に変換</span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC tlaBgGNC">           1 :         var jsonObj interface{}</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(jsonBytes, &amp;jsonObj); err != nil {</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L565"><span class="lineNum">     565</span>              : </span>
-<span id="L566"><span class="lineNum">     566</span>              : // marshalSortedJSON はキーをソートしてJSONマーシャリングを行う</span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedJSON(data interface{}) ([]byte, error) {</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :         // 最初に標準のMarshalでJSONに変換</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :         jsonBytes, err := json.Marshal(data)</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L573"><span class="lineNum">     573</span>              : </span>
-<span id="L574"><span class="lineNum">     574</span>              :         // JSONを一度map[string]interface{}に変換</span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC tlaBgGNC">           1 :         var jsonObj interface{}</span></span>
-<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 :         if err := json.Unmarshal(jsonBytes, &amp;jsonObj); err != nil {</span></span>
-<span id="L577"><span class="lineNum">     577</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L579"><span class="lineNum">     579</span>              : </span>
-<span id="L580"><span class="lineNum">     580</span>              :         // ソート済みJSONを生成</span>
-<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC tlaBgGNC">           1 :         return sm.marshalSortedIndent(jsonObj, &quot;&quot;, &quot;  &quot;)</span></span>
-<span id="L582"><span class="lineNum">     582</span>              : }</span>
-<span id="L583"><span class="lineNum">     583</span>              : </span>
-<span id="L584"><span class="lineNum">     584</span>              : // marshalSortedIndent は再帰的にキーをソートしてインデント付きJSONを生成</span>
-<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedIndent(v interface{}, prefix, indent string) ([]byte, error) {</span></span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :         switch value := v.(type) {</span></span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         case map[string]interface{}:</span></span>
-<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :                 return sm.marshalSortedObject(value, prefix, indent)</span></span>
-<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :         case []interface{}:</span></span>
-<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :                 return sm.marshalSortedArray(value, prefix, indent)</span></span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           1 :         default:</span></span>
-<span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           1 :                 // プリミティブ値の場合は標準のMarshalを使用</span></span>
-<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 :                 return json.Marshal(value)</span></span>
-<span id="L594"><span class="lineNum">     594</span>              :         }</span>
-<span id="L595"><span class="lineNum">     595</span>              : }</span>
-<span id="L596"><span class="lineNum">     596</span>              : </span>
-<span id="L597"><span class="lineNum">     597</span>              : // marshalSortedObject はオブジェクトのキーをソートしてマーシャリング</span>
-<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedObject(obj map[string]interface{}, prefix, indent string) ([]byte, error) {</span></span>
-<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           2 :         if len(obj) == 0 {</span></span>
-<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 :                 return []byte(&quot;{}&quot;), nil</span></span>
-<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L602"><span class="lineNum">     602</span>              : </span>
-<span id="L603"><span class="lineNum">     603</span>              :         // キーを取得してソート</span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">           1 :         keys := make([]string, 0, len(obj))</span></span>
-<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           2 :         for k := range obj {</span></span>
-<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           1 :                 keys = append(keys, k)</span></span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 :         sort.Strings(keys)</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L610"><span class="lineNum">     610</span> <span class="tlaGNC">           1 :         var buf strings.Builder</span></span>
-<span id="L611"><span class="lineNum">     611</span> <span class="tlaGNC">           1 :         buf.WriteString(&quot;{\n&quot;)</span></span>
-<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 :         newPrefix := prefix + indent</span></span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           2 :         for i, key := range keys {</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :                 // キーを書き込み</span></span>
-<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :                 buf.WriteString(newPrefix)</span></span>
-<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :                 keyBytes, _ := json.Marshal(key)</span></span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :                 buf.Write(keyBytes)</span></span>
-<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :                 buf.WriteString(&quot;: &quot;)</span></span>
-<span id="L620"><span class="lineNum">     620</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :                 // 値を再帰的に処理</span></span>
-<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           1 :                 valueBytes, err := sm.marshalSortedIndent(obj[key], newPrefix, indent)</span></span>
-<span id="L623"><span class="lineNum">     623</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L624"><span class="lineNum">     624</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, err</span></span>
-<span id="L625"><span class="lineNum">     625</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC tlaBgGNC">           1 :                 buf.Write(valueBytes)</span></span>
-<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :                 // 最後の要素以外はカンマを追加</span></span>
-<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           2 :                 if i &lt; len(keys)-1 {</span></span>
-<span id="L630"><span class="lineNum">     630</span> <span class="tlaGNC">           1 :                         buf.WriteString(&quot;,&quot;)</span></span>
-<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           1 :                 buf.WriteString(&quot;\n&quot;)</span></span>
-<span id="L633"><span class="lineNum">     633</span>              :         }</span>
-<span id="L634"><span class="lineNum">     634</span>              : </span>
-<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           1 :         buf.WriteString(prefix + &quot;}&quot;)</span></span>
-<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :         return []byte(buf.String()), nil</span></span>
-<span id="L637"><span class="lineNum">     637</span>              : }</span>
-<span id="L638"><span class="lineNum">     638</span>              : </span>
-<span id="L639"><span class="lineNum">     639</span>              : // marshalSortedArray は配列をマーシャリング</span>
-<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedArray(arr []interface{}, prefix, indent string) ([]byte, error) {</span></span>
-<span id="L641"><span class="lineNum">     641</span> <span class="tlaGNC">           2 :         if len(arr) == 0 {</span></span>
-<span id="L642"><span class="lineNum">     642</span> <span class="tlaGNC">           1 :                 return []byte(&quot;[]&quot;), nil</span></span>
-<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L644"><span class="lineNum">     644</span>              : </span>
-<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           1 :         var buf strings.Builder</span></span>
-<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           1 :         buf.WriteString(&quot;[\n&quot;)</span></span>
-<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :         newPrefix := prefix + indent</span></span>
-<span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           2 :         for i, item := range arr {</span></span>
-<span id="L650"><span class="lineNum">     650</span> <span class="tlaGNC">           1 :                 buf.WriteString(newPrefix)</span></span>
-<span id="L651"><span class="lineNum">     651</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 :                 // 要素を再帰的に処理</span></span>
-<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :                 itemBytes, err := sm.marshalSortedIndent(item, newPrefix, indent)</span></span>
-<span id="L654"><span class="lineNum">     654</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L655"><span class="lineNum">     655</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, err</span></span>
-<span id="L656"><span class="lineNum">     656</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L657"><span class="lineNum">     657</span> <span class="tlaGNC tlaBgGNC">           1 :                 buf.Write(itemBytes)</span></span>
-<span id="L658"><span class="lineNum">     658</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L659"><span class="lineNum">     659</span> <span class="tlaGNC">           1 :                 // 最後の要素以外はカンマを追加</span></span>
-<span id="L660"><span class="lineNum">     660</span> <span class="tlaGNC">           2 :                 if i &lt; len(arr)-1 {</span></span>
-<span id="L661"><span class="lineNum">     661</span> <span class="tlaGNC">           1 :                         buf.WriteString(&quot;,&quot;)</span></span>
-<span id="L662"><span class="lineNum">     662</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L663"><span class="lineNum">     663</span> <span class="tlaGNC">           1 :                 buf.WriteString(&quot;\n&quot;)</span></span>
-<span id="L664"><span class="lineNum">     664</span>              :         }</span>
-<span id="L665"><span class="lineNum">     665</span>              : </span>
-<span id="L666"><span class="lineNum">     666</span> <span class="tlaGNC">           1 :         buf.WriteString(prefix + &quot;]&quot;)</span></span>
-<span id="L667"><span class="lineNum">     667</span> <span class="tlaGNC">           1 :         return []byte(buf.String()), nil</span></span>
-<span id="L668"><span class="lineNum">     668</span>              : }</span>
+<span id="L566"><span class="lineNum">     566</span>              :         // ソート済みJSONを生成</span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC tlaBgGNC">           1 :         return sm.marshalSortedIndent(jsonObj, &quot;&quot;, &quot;  &quot;)</span></span>
+<span id="L568"><span class="lineNum">     568</span>              : }</span>
+<span id="L569"><span class="lineNum">     569</span>              : </span>
+<span id="L570"><span class="lineNum">     570</span>              : // marshalSortedIndent は再帰的にキーをソートしてインデント付きJSONを生成</span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedIndent(v interface{}, prefix, indent string) ([]byte, error) {</span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :         switch value := v.(type) {</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">           1 :         case map[string]interface{}:</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">           1 :                 return sm.marshalSortedObject(value, prefix, indent)</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">           1 :         case []interface{}:</span></span>
+<span id="L576"><span class="lineNum">     576</span> <span class="tlaGNC">           1 :                 return sm.marshalSortedArray(value, prefix, indent)</span></span>
+<span id="L577"><span class="lineNum">     577</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           1 :                 // プリミティブ値の場合は標準のMarshalを使用</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :                 return json.Marshal(value)</span></span>
+<span id="L580"><span class="lineNum">     580</span>              :         }</span>
+<span id="L581"><span class="lineNum">     581</span>              : }</span>
+<span id="L582"><span class="lineNum">     582</span>              : </span>
+<span id="L583"><span class="lineNum">     583</span>              : // marshalSortedObject はオブジェクトのキーをソートしてマーシャリング</span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedObject(obj map[string]interface{}, prefix, indent string) ([]byte, error) {</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           2 :         if len(obj) == 0 {</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :                 return []byte(&quot;{}&quot;), nil</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L588"><span class="lineNum">     588</span>              : </span>
+<span id="L589"><span class="lineNum">     589</span>              :         // キーを取得してソート</span>
+<span id="L590"><span class="lineNum">     590</span> <span class="tlaGNC">           1 :         keys := make([]string, 0, len(obj))</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           2 :         for k := range obj {</span></span>
+<span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           1 :                 keys = append(keys, k)</span></span>
+<span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L594"><span class="lineNum">     594</span> <span class="tlaGNC">           1 :         sort.Strings(keys)</span></span>
+<span id="L595"><span class="lineNum">     595</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC">           1 :         var buf strings.Builder</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           1 :         buf.WriteString(&quot;{\n&quot;)</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :         newPrefix := prefix + indent</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           2 :         for i, key := range keys {</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :                 // キーを書き込み</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           1 :                 buf.WriteString(newPrefix)</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           1 :                 keyBytes, _ := json.Marshal(key)</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaGNC">           1 :                 buf.Write(keyBytes)</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           1 :                 buf.WriteString(&quot;: &quot;)</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :                 // 値を再帰的に処理</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaGNC">           1 :                 valueBytes, err := sm.marshalSortedIndent(obj[key], newPrefix, indent)</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, err</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaGNC tlaBgGNC">           1 :                 buf.Write(valueBytes)</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 :                 // 最後の要素以外はカンマを追加</span></span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           2 :                 if i &lt; len(keys)-1 {</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaGNC">           1 :                         buf.WriteString(&quot;,&quot;)</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC">           1 :                 buf.WriteString(&quot;\n&quot;)</span></span>
+<span id="L619"><span class="lineNum">     619</span>              :         }</span>
+<span id="L620"><span class="lineNum">     620</span>              : </span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaGNC">           1 :         buf.WriteString(prefix + &quot;}&quot;)</span></span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC">           1 :         return []byte(buf.String()), nil</span></span>
+<span id="L623"><span class="lineNum">     623</span>              : }</span>
+<span id="L624"><span class="lineNum">     624</span>              : </span>
+<span id="L625"><span class="lineNum">     625</span>              : // marshalSortedArray は配列をマーシャリング</span>
+<span id="L626"><span class="lineNum">     626</span> <span class="tlaGNC">           1 : func (sm *SerializationManager) marshalSortedArray(arr []interface{}, prefix, indent string) ([]byte, error) {</span></span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           2 :         if len(arr) == 0 {</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :                 return []byte(&quot;[]&quot;), nil</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L630"><span class="lineNum">     630</span>              : </span>
+<span id="L631"><span class="lineNum">     631</span> <span class="tlaGNC">           1 :         var buf strings.Builder</span></span>
+<span id="L632"><span class="lineNum">     632</span> <span class="tlaGNC">           1 :         buf.WriteString(&quot;[\n&quot;)</span></span>
+<span id="L633"><span class="lineNum">     633</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L634"><span class="lineNum">     634</span> <span class="tlaGNC">           1 :         newPrefix := prefix + indent</span></span>
+<span id="L635"><span class="lineNum">     635</span> <span class="tlaGNC">           2 :         for i, item := range arr {</span></span>
+<span id="L636"><span class="lineNum">     636</span> <span class="tlaGNC">           1 :                 buf.WriteString(newPrefix)</span></span>
+<span id="L637"><span class="lineNum">     637</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L638"><span class="lineNum">     638</span> <span class="tlaGNC">           1 :                 // 要素を再帰的に処理</span></span>
+<span id="L639"><span class="lineNum">     639</span> <span class="tlaGNC">           1 :                 itemBytes, err := sm.marshalSortedIndent(item, newPrefix, indent)</span></span>
+<span id="L640"><span class="lineNum">     640</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L641"><span class="lineNum">     641</span> <span class="tlaUNC tlaBgUNC">           0 :                         return nil, err</span></span>
+<span id="L642"><span class="lineNum">     642</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L643"><span class="lineNum">     643</span> <span class="tlaGNC tlaBgGNC">           1 :                 buf.Write(itemBytes)</span></span>
+<span id="L644"><span class="lineNum">     644</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L645"><span class="lineNum">     645</span> <span class="tlaGNC">           1 :                 // 最後の要素以外はカンマを追加</span></span>
+<span id="L646"><span class="lineNum">     646</span> <span class="tlaGNC">           2 :                 if i &lt; len(arr)-1 {</span></span>
+<span id="L647"><span class="lineNum">     647</span> <span class="tlaGNC">           1 :                         buf.WriteString(&quot;,&quot;)</span></span>
+<span id="L648"><span class="lineNum">     648</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L649"><span class="lineNum">     649</span> <span class="tlaGNC">           1 :                 buf.WriteString(&quot;\n&quot;)</span></span>
+<span id="L650"><span class="lineNum">     650</span>              :         }</span>
+<span id="L651"><span class="lineNum">     651</span>              : </span>
+<span id="L652"><span class="lineNum">     652</span> <span class="tlaGNC">           1 :         buf.WriteString(prefix + &quot;]&quot;)</span></span>
+<span id="L653"><span class="lineNum">     653</span> <span class="tlaGNC">           1 :         return []byte(buf.String()), nil</span></span>
+<span id="L654"><span class="lineNum">     654</span>              : }</span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -498,7 +498,7 @@
 <span id="L436"><span class="lineNum">     436</span> <span class="tlaUNC">           0 :         return eui</span></span>
 <span id="L437"><span class="lineNum">     437</span>              : }</span>
 <span id="L438"><span class="lineNum">     438</span>              : </span>
-<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
 <span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
@@ -511,13 +511,13 @@
 <span id="L449"><span class="lineNum">     449</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L450"><span class="lineNum">     450</span>              : }</span>
 <span id="L451"><span class="lineNum">     451</span>              : </span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCurrencyContainer(currency int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildCurrencyContainer(currency int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L454"><span class="lineNum">     454</span> <span class="tlaUNC">           0 :         container.AddChild(styled.NewMenuText(worldhelper.FormatCurrency(currency), res))</span></span>
 <span id="L455"><span class="lineNum">     455</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L456"><span class="lineNum">     456</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L457"><span class="lineNum">     457</span>              : </span>
-<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L458"><span class="lineNum">     458</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L459"><span class="lineNum">     459</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer()</span></span>
 <span id="L460"><span class="lineNum">     460</span> <span class="tlaUNC">           0 :         if tabIndex &gt;= len(tabs) {</span></span>
 <span id="L461"><span class="lineNum">     461</span> <span class="tlaUNC">           0 :                 return container</span></span>
@@ -574,7 +574,7 @@
 <span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L513"><span class="lineNum">     513</span>              : }</span>
 <span id="L514"><span class="lineNum">     514</span>              : </span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :         container := styled.NewVerticalContainer(</span></span>
 <span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),</span></span>
 <span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :         )</span></span>
@@ -599,7 +599,7 @@
 <span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         return container</span></span>
 <span id="L538"><span class="lineNum">     538</span>              : }</span>
 <span id="L539"><span class="lineNum">     539</span>              : </span>
-<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res *resources.UIResources) *widget.Container {</span></span>
+<span id="L540"><span class="lineNum">     540</span> <span class="tlaUNC">           0 : func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {</span></span>
 <span id="L541"><span class="lineNum">     541</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 :         desc := &quot; &quot;</span></span>
 <span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 : </span></span>

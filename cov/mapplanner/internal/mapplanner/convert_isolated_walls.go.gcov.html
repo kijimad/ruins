@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-30 12:34:18</td>
+            <td class="headerValue">2026-05-31 10:04:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,8 +63,8 @@
 <span id="L1"><span class="lineNum">       1</span>              : package mapplanner</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // ConvertIsolatedWalls は床に隣接しない壁を指定したタイルに変換するプランナー</span>
@@ -85,13 +85,13 @@
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 tile := planData.Tiles[i]</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 // マップの端にあるタイルは変換対象外（境界として残す）</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 x, y := planData.Level.XYTileCoord(resources.TileIdx(i))</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :                 x, y := planData.Level.XYTileCoord(gc.TileIdx(i))</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :                 if int(x) == 0 || int(x) == width-1 || int(y) == 0 || int(y) == height-1 {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                         continue</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :                 }</span>
 <span id="L30"><span class="lineNum">      30</span>              : </span>
 <span id="L31"><span class="lineNum">      31</span>              :                 // wallタイルで床に隣接していない場合、変換対象とする</span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :                 if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(resources.TileIdx(i)) {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           2 :                 if tile.Name == consts.TileNameWall &amp;&amp; !planData.AdjacentAnyFloor(gc.TileIdx(i)) {</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                         tilesToConvert = append(tilesToConvert, i)</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L35"><span class="lineNum">      35</span>              :         }</span>
