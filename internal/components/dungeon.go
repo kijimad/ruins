@@ -49,7 +49,6 @@ func NewDungeon() *Dungeon {
 
 // Level は現在の階層
 // タイル計算メソッドを提供する
-// TODO: 状態として持たないほうがいいかも
 type Level struct {
 	// 横のタイル数
 	TileWidth consts.Tile

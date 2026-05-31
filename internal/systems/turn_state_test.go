@@ -17,8 +17,8 @@ func TestGetTurnState(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err, "TurnStateが存在する")
+		state := worldhelper.GetTurnState(world)
+		require.NotNil(t, state, "TurnStateが存在する")
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase, "初期フェーズはPlayerTurn")
 		assert.Equal(t, 1, state.TurnNumber, "初期ターン番号は1")
 	})
@@ -31,8 +31,8 @@ func TestTurnStateDirectManipulation(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		state := worldhelper.GetTurnState(world)
+		require.NotNil(t, state)
 
 		// PlayerTurn -> AITurn
 		state.Phase = gc.TurnPhaseAI
@@ -51,8 +51,8 @@ func TestTurnStateDirectManipulation(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		state := worldhelper.GetTurnState(world)
+		require.NotNil(t, state)
 
 		assert.Equal(t, 1, state.TurnNumber)
 
@@ -71,8 +71,8 @@ func TestTurnCycle(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state, err := worldhelper.GetTurnState(world)
-		require.NoError(t, err)
+		state := worldhelper.GetTurnState(world)
+		require.NotNil(t, state)
 
 		// 初期状態
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase)

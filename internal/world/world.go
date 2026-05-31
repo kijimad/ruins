@@ -68,10 +68,7 @@ func (world World) InitSingleton() {
 	})
 	singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())
 	singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())
-	singleton.AddComponent(world.Components.TurnState, &gc.TurnState{
-		Phase:      gc.TurnPhasePlayer,
-		TurnNumber: 1,
-	})
+	singleton.AddComponent(world.Components.TurnState, gc.NewTurnState())
 	world.Resources.SingletonEntity = singleton
 }
 

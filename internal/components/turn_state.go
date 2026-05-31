@@ -31,3 +31,11 @@ type TurnState struct {
 	Phase      TurnPhase // 現在のターンフェーズ
 	TurnNumber int       // ターン番号（1から開始）
 }
+
+// NewTurnState は初期化されたTurnStateを返す
+func NewTurnState() *TurnState {
+	return &TurnState{
+		Phase:      TurnPhasePlayer,
+		TurnNumber: 1,
+	}
+}

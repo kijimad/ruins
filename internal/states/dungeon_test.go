@@ -199,8 +199,7 @@ func TestDoActionTurnManagement(t *testing.T) {
 			}
 
 			// ターン状態を設定
-			turnState, err := worldhelper.GetTurnState(world)
-			require.NoError(t, err)
+			turnState := worldhelper.GetTurnState(world)
 			turnState.Phase = tt.turnPhase
 
 			state := &DungeonState{}
@@ -377,8 +376,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 
 			// ターン状態を設定
-			turnState, err := worldhelper.GetTurnState(world)
-			require.NoError(t, err)
+			turnState := worldhelper.GetTurnState(world)
 			turnState.Phase = phase
 
 			state := &DungeonState{}

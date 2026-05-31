@@ -22,10 +22,7 @@ func (sys TurnSystem) String() string {
 // Update はターン管理を行う
 // w.Updater interfaceを実装
 func (sys *TurnSystem) Update(world w.World) error {
-	turnState, err := worldhelper.GetTurnState(world)
-	if err != nil {
-		return err
-	}
+	turnState := worldhelper.GetTurnState(world)
 
 	switch turnState.Phase {
 	case gc.TurnPhasePlayer:
@@ -93,10 +90,7 @@ func processAITurn(world w.World) error {
 // processTurnEnd はターン終了処理を行う
 func processTurnEnd(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
-	turnState, err := worldhelper.GetTurnState(world)
-	if err != nil {
-		return err
-	}
+	turnState := worldhelper.GetTurnState(world)
 
 	log.Debug("ターン終了処理", "turn", turnState.TurnNumber)
 
