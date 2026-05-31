@@ -31,11 +31,8 @@
 //		},
 //	}
 //
-//	// ウィジェット作成
+//	// ウィジェット作成。worldからログストアを自動取得する
 //	widget := messagelog.NewWidget(config, world)
-//
-//	// ログストア設定
-//	widget.SetStore(worldhelper.GetGameLog(world))
 //
 //	// ゲームループ内で更新・描画
 //	func Update() {
@@ -48,7 +45,7 @@
 //
 // # Design Principles
 //
-//   - Dependency Injection: ログストアを注入可能で、テスト時にモック使用
+//   - Dependency Injection: worldを注入して、ログストアを自動取得する
 //   - Stateful Widget: 前回状態と比較して効率的な更新
 //   - Configuration-Driven: 設定により外観をカスタマイズ可能
 //   - EbitenUI Integration: ebitenUIの機能をフル活用

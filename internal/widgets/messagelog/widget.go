@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // Insets はパディング設定を表す
@@ -29,7 +30,6 @@ type WidgetConfig struct {
 // Widget はメッセージログ表示ウィジェット
 type Widget struct {
 	ui        *ebitenui.UI
-	store     *gamelog.SafeSlice
 	lastCount int
 	config    WidgetConfig
 	world     w.World
@@ -43,15 +43,10 @@ func NewWidget(config WidgetConfig, world w.World) *Widget {
 	}
 }
 
-// SetStore はログストアを設定する
-func (widget *Widget) SetStore(store *gamelog.SafeSlice) {
-	widget.store = store
-	widget.initUI()
-}
-
 // Update はウィジェットを更新する
 func (widget *Widget) Update() {
 	if widget.ui == nil {
+		widget.initUI()
 		return
 	}
 
@@ -82,12 +77,13 @@ func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) {
 
 // initUI は初期UIを作成する
 func (widget *Widget) initUI() {
-	if widget.store == nil {
+	store := worldhelper.GetGameLog(widget.world)
+	if store == nil {
 		return
 	}
 
 	// 色付きログエントリを取得
-	entries := widget.store.GetRecentEntries(widget.config.MaxLines)
+	entries := store.GetRecentEntries(widget.config.MaxLines)
 
 	// 色付きログエントリ用のコンテナを作成
 	logContainer := widget.createColoredLogContainer(entries)
@@ -96,16 +92,17 @@ func (widget *Widget) initUI() {
 	widget.ui = &ebitenui.UI{Container: logContainer}
 
 	// 初期メッセージ数を設定
-	widget.lastCount = widget.store.Count()
+	widget.lastCount = store.Count()
 }
 
 // updateUI はログメッセージが更新された場合にUIを再構築する
 func (widget *Widget) updateUI() {
-	if widget.store == nil {
+	store := worldhelper.GetGameLog(widget.world)
+	if store == nil {
 		return
 	}
 
-	currentMessageCount := widget.store.Count()
+	currentMessageCount := store.Count()
 
 	// メッセージ数が変わっていない場合は更新不要
 	if currentMessageCount == widget.lastCount {
@@ -113,7 +110,7 @@ func (widget *Widget) updateUI() {
 	}
 
 	// 色付きログエントリを取得
-	entries := widget.store.GetRecentEntries(widget.config.MaxLines)
+	entries := store.GetRecentEntries(widget.config.MaxLines)
 
 	// 色付きログエントリ用のコンテナを作成
 	logContainer := widget.createColoredLogContainer(entries)
