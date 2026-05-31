@@ -19,7 +19,7 @@ type Resources struct {
 	Faces            *map[string]text.Face
 	UIResources      *UIResources
 	RawMaster        *raw.Master
-	Singleton        ecs.Entity // シングルトンエンティティIDキャッシュ
+	SingletonEntity  ecs.Entity // シングルトンエンティティIDキャッシュ
 
 	// 動的
 	Dungeon      *Dungeon

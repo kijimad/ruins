@@ -61,7 +61,7 @@ func InitWorld(c *gc.Components) (World, error) {
 	singleton.AddComponent(c.GameLog, &gc.GameLog{
 		Store: gamelog.NewSafeSlice(gamelog.GameLogMaxSize),
 	})
-	world.Resources.Singleton = singleton
+	world.Resources.SingletonEntity = singleton
 
 	return world, nil
 }

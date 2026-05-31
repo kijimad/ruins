@@ -8,5 +8,5 @@ import (
 
 // GetGameLog はシングルトンエンティティからGameLogストアを取得する
 func GetGameLog(world w.World) *gamelog.SafeSlice {
-	return world.Components.GameLog.Get(world.Resources.Singleton).(*gc.GameLog).Store
+	return world.Components.GameLog.Get(world.Resources.SingletonEntity).(*gc.GameLog).Store
 }
