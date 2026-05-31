@@ -4,60 +4,26 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// StateEventType はイベントの種類を表す
-type StateEventType string
-
-const (
-	// StateEventTypeNone はイベントなしを表す
-	StateEventTypeNone = StateEventType("NONE")
-	// StateEventTypeWarpNext は次の階層への移動を表す
-	StateEventTypeWarpNext = StateEventType("WARP_NEXT")
-	// StateEventTypeWarpEscape は脱出ポータルによる帰還を表す
-	StateEventTypeWarpEscape = StateEventType("WARP_ESCAPE")
-	// StateEventTypeGameClear はゲームクリアを表す
-	StateEventTypeGameClear = StateEventType("GAME_CLEAR")
-	// StateEventTypeShowDialog は会話メッセージの表示を表す
-	StateEventTypeShowDialog = StateEventType("SHOW_DIALOG")
-	// StateEventTypeOpenDungeonSelect はダンジョン選択メニューを開くことを表す
-	StateEventTypeOpenDungeonSelect = StateEventType("OPEN_DUNGEON_SELECT")
-)
-
-// StateEvent はフィールド上でのイベント。ステート遷移が発生する
-type StateEvent interface {
-	Type() StateEventType
-}
-
-// NoneEvent はイベントなしを表す
-type NoneEvent struct{}
-
-// Type はイベントタイプを返す
-func (e NoneEvent) Type() StateEventType {
-	return StateEventTypeNone
+// StateChangeRequest はステート遷移リクエストを表すマーカーインターフェース。
+// 各構造体が実装し、DungeonStateで型スイッチにより処理される
+type StateChangeRequest interface {
+	stateChangeRequest()
 }
 
 // WarpNextEvent は次の階層への移動を表す
 type WarpNextEvent struct{}
 
-// Type はイベントタイプを返す
-func (e WarpNextEvent) Type() StateEventType {
-	return StateEventTypeWarpNext
-}
+func (WarpNextEvent) stateChangeRequest() {}
 
 // WarpEscapeEvent は脱出ポータルによる帰還を表す
 type WarpEscapeEvent struct{}
 
-// Type はイベントタイプを返す
-func (e WarpEscapeEvent) Type() StateEventType {
-	return StateEventTypeWarpEscape
-}
+func (WarpEscapeEvent) stateChangeRequest() {}
 
 // GameClearEvent はゲームクリアを表す
 type GameClearEvent struct{}
 
-// Type はイベントタイプを返す
-func (e GameClearEvent) Type() StateEventType {
-	return StateEventTypeGameClear
-}
+func (GameClearEvent) stateChangeRequest() {}
 
 // ShowDialogEvent は会話メッセージの表示を表す
 type ShowDialogEvent struct {
@@ -65,15 +31,9 @@ type ShowDialogEvent struct {
 	SpeakerEntity ecs.Entity
 }
 
-// Type はイベントタイプを返す
-func (e ShowDialogEvent) Type() StateEventType {
-	return StateEventTypeShowDialog
-}
+func (ShowDialogEvent) stateChangeRequest() {}
 
 // OpenDungeonSelectEvent はダンジョン選択メニューを開くことを表す
 type OpenDungeonSelectEvent struct{}
 
-// Type はイベントタイプを返す
-func (e OpenDungeonSelectEvent) Type() StateEventType {
-	return StateEventTypeOpenDungeonSelect
-}
+func (OpenDungeonSelectEvent) stateChangeRequest() {}

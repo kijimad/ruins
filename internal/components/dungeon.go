@@ -1,8 +1,6 @@
 package components
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
@@ -12,9 +10,6 @@ type TileIdx int
 // Dungeon は冒険出発から帰還までを1セットとした情報を保持する。
 // 冒険出発から帰還までは複数階層が存在し、複数階層を通しての情報を保持する必要がある。
 type Dungeon struct {
-	// ステート遷移発生イベント。各stateで処理する
-	// TODO: System等に移動させられないか?
-	stateEvent StateEvent
 	// 現在階のフィールド情報
 	Level Level
 	// 階層数
@@ -42,7 +37,6 @@ type Dungeon struct {
 // NewDungeon は初期化されたDungeonを返す
 func NewDungeon() *Dungeon {
 	return &Dungeon{
-		stateEvent:    NoneEvent{},
 		ExploredTiles: make(map[GridElement]bool),
 		MinimapSettings: MinimapSettings{
 			Width:   150,
@@ -57,23 +51,6 @@ func NewDungeon() *Dungeon {
 		},
 		SelectedWeaponSlot: 1,
 	}
-}
-
-// RequestStateChange は状態変更を要求する。既にイベントが設定されている場合はエラーを返す
-func (d *Dungeon) RequestStateChange(event StateEvent) error {
-	if d.stateEvent != nil && d.stateEvent.Type() != StateEventTypeNone {
-		return fmt.Errorf("イベントがすでに設定されています: %s → %s を設定しようとしました",
-			d.stateEvent.Type(), event.Type())
-	}
-	d.stateEvent = event
-	return nil
-}
-
-// ConsumeStateChange は状態変更イベントを読み取り、読み取り後にNoneEventでクリアする
-func (d *Dungeon) ConsumeStateChange() StateEvent {
-	event := d.stateEvent
-	d.stateEvent = NoneEvent{}
-	return event
 }
 
 // Level は現在の階層

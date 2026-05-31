@@ -107,7 +107,7 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		// 会話ダイアログを表示
 		if targetEntity.HasComponent(world.Components.Dialog) {
 			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			if err := worldhelper.GetDungeon(world).RequestStateChange(gc.ShowDialogEvent{
+			if err := worldhelper.RequestStateChange(world, gc.ShowDialogEvent{
 				MessageKey:    dialog.MessageKey,
 				SpeakerEntity: targetEntity,
 			}); err != nil {

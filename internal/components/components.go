@@ -142,11 +142,12 @@ type Components struct {
 	CharModifiers  *ecs.SliceComponent `save:"true"`
 
 	// event ================
-	StatsChanged      *ecs.NullComponent
-	InventoryChanged  *ecs.NullComponent
-	ProvidesHealing   *ecs.SliceComponent `save:"true"`
-	ProvidesNutrition *ecs.SliceComponent `save:"true"`
-	InflictsDamage    *ecs.SliceComponent `save:"true"`
+	StateChangeRequest *ecs.SliceComponent // ステート遷移リクエスト
+	StatsChanged       *ecs.NullComponent
+	InventoryChanged   *ecs.NullComponent
+	ProvidesHealing    *ecs.SliceComponent `save:"true"`
+	ProvidesNutrition  *ecs.SliceComponent `save:"true"`
+	InflictsDamage     *ecs.SliceComponent `save:"true"`
 
 	// book ================
 	Book *ecs.SliceComponent `save:"true"`

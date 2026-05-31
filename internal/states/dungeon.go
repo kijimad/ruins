@@ -182,12 +182,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 		}
 	}))
 
-	// reset
-	if d := worldhelper.GetDungeon(world); d != nil {
-		if err := d.RequestStateChange(gc.NoneEvent{}); err != nil {
-			return fmt.Errorf("状態変更のリセットエラー: %w", err)
-		}
-	}
+	// 未消費のステート遷移リクエストを破棄
+	worldhelper.ConsumeStateChange(world)
 
 	// 視界キャッシュをクリア
 	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
@@ -238,8 +234,8 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewGameOverMessageState}}, nil
 	}
 
-	// StateEvent処理をチェック
-	transition, err := st.handleStateEvent(world)
+	// ステート遷移リクエストを処理
+	transition, err := st.handleStateChangeRequest(world)
 	if err != nil {
 		return es.Transition[w.World]{}, err
 	}
@@ -465,11 +461,14 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 	return playerDead
 }
 
-// handleStateEvent は状態変更イベントを処理し、対応する遷移を返す
-func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World], error) {
-	event := worldhelper.GetDungeon(world).ConsumeStateChange()
+// handleStateChangeRequest はステート遷移リクエストを消費し、対応する遷移を返す
+func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w.World], error) {
+	req := worldhelper.ConsumeStateChange(world)
+	if req == nil {
+		return es.Transition[w.World]{Type: es.TransNone}, nil
+	}
 
-	switch e := event.(type) {
+	switch e := req.(type) {
 	case gc.ShowDialogEvent:
 		// SpeakerEntityからNameを取得
 		if !e.SpeakerEntity.HasComponent(world.Components.Name) {
@@ -511,8 +510,7 @@ func (st *DungeonState) handleStateEvent(world w.World) (es.Transition[w.World],
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
 	}
 
-	// NoneEventまたは未知のイベントの場合は何もしない
-	return es.Transition[w.World]{Type: es.TransNone}, nil
+	return es.Transition[w.World]{}, fmt.Errorf("未知のStateChangeRequest: %T", req)
 }
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
