@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (78.5%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.2%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.3%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -349,7 +349,7 @@
 				
 				<option value="file146">github.com/kijimaD/ruins/internal/systems/auto_interaction_system.go (80.0%)</option>
 				
-				<option value="file147">github.com/kijimaD/ruins/internal/systems/camera_system.go (78.1%)</option>
+				<option value="file147">github.com/kijimaD/ruins/internal/systems/camera_system.go (79.3%)</option>
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/systems/dead_cleanup.go (75.5%)</option>
 				
@@ -369,7 +369,7 @@
 				
 				<option value="file156">github.com/kijimaD/ruins/internal/systems/turn_system.go (87.0%)</option>
 				
-				<option value="file157">github.com/kijimaD/ruins/internal/systems/vision.go (12.0%)</option>
+				<option value="file157">github.com/kijimaD/ruins/internal/systems/vision.go (30.9%)</option>
 				
 				<option value="file158">github.com/kijimaD/ruins/internal/systems/visual_effect.go (19.6%)</option>
 				
@@ -1413,7 +1413,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1483,7 +1483,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
                         if !hit </span><span class="cov0" title="0">{
                                 l.Append(" を攻撃したが外れた。")
-                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
+                        }</span> else<span class="cov8" title="1"> if critical </span><span class="cov8" title="1">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
                         }</span> else<span class="cov8" title="1"> {
                                 l.Append(fmt.Sprintf(" を攻撃し、%d のダメージを与えた。", damage))
@@ -10820,7 +10820,7 @@ const (
         KeyRepeatInitialDelay = 500 * time.Millisecond
 
         // KeyRepeatInterval はキーリピートの間隔（ミリ秒）
-        KeyRepeatInterval = 100 * time.Millisecond
+        KeyRepeatInterval = 50 * time.Millisecond
 )
 
 // GlobalKeyState はグローバルなキー状態を管理する
@@ -32057,10 +32057,6 @@ import (
         ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// CameraFollowSpeed はカメラ追従の速度を制御する
-// 値が大きいほど追従が速くなる。0.0〜1.0の範囲で、1.0なら即座に追従する
-const CameraFollowSpeed = 0.15
-
 // CameraSystem はカメラの追従とズーム処理を行う
 type CameraSystem struct{}
 
@@ -32096,20 +32092,13 @@ func (sys *CameraSystem) Update(world w.World) error <span class="cov8" title="1
                         camera.TargetY = float64(playerGridElement.Y)*tileSize + tileSize/2
                 }</span>
 
-                // カメラ位置を目標位置に向けて補間
-                <span class="cov8" title="1">if world.Config.DisableAnimation </span><span class="cov8" title="1">{
-                        // アニメーション無効時は即座にスナップ
-                        camera.X = camera.TargetX
-                        camera.Y = camera.TargetY
-                }</span> else<span class="cov8" title="1"> {
-                        // 滑らかに補間
-                        camera.X += (camera.TargetX - camera.X) * CameraFollowSpeed
-                        camera.Y += (camera.TargetY - camera.Y) * CameraFollowSpeed
-                }</span>
+                // カメラ位置を目標位置に即座にスナップする
+                <span class="cov8" title="1">camera.X = camera.TargetX
+                camera.Y = camera.TargetY
 
                 // ズーム率変更
                 // 参考: https://ebitengine.org/ja/examples/isometric.html
-                <span class="cov8" title="1">var scrollY float64
+                var scrollY float64
                 if ebiten.IsKeyPressed(ebiten.KeyC) || ebiten.IsKeyPressed(ebiten.KeyPageDown) </span><span class="cov0" title="0">{
                         scrollY = -0.25
                 }</span> else<span class="cov8" title="1"> if ebiten.IsKeyPressed(ebiten.KeyE) || ebiten.IsKeyPressed(ebiten.KeyPageUp) </span><span class="cov0" title="0">{
@@ -32125,7 +32114,7 @@ func (sys *CameraSystem) Update(world w.World) error <span class="cov8" title="1
                 <span class="cov8" title="1">camera.ScaleTo += scrollY * (camera.ScaleTo / 7)
 
                 // ズーム率の範囲制限
-                if camera.ScaleTo &lt; 0.8 </span><span class="cov0" title="0">{
+                if camera.ScaleTo &lt; 0.8 </span><span class="cov8" title="1">{
                         camera.ScaleTo = 0.8
                 }</span> else<span class="cov8" title="1"> if camera.ScaleTo &gt; 10 </span><span class="cov0" title="0">{
                         camera.ScaleTo = 10
@@ -32848,7 +32837,7 @@ func (sys *HUDRenderingSystem) Update(world w.World) error <span class="cov0" ti
                 sys.debugOverlay.Update(world)
         }</span>
         <span class="cov0" title="0">if sys.messageArea != nil </span><span class="cov0" title="0">{
-                sys.messageArea.Update(world)
+                sys.messageArea.Update()
         }</span>
         <span class="cov0" title="0">if sys.currencyDisplay != nil </span><span class="cov0" title="0">{
                 sys.currencyDisplay.Update(world)
@@ -34167,6 +34156,10 @@ type VisionSystem struct {
 
         // 光源情報キャッシュ（タイル座標 -&gt; 光源情報）
         lightSourceCache map[gc.GridElement]LightInfo
+
+        // 視界遮断エンティティの座標インデックス。BlockView を持つ全エンティティを含む。視界更新時に1回構築して使う
+        // レイキャストで大量に参照するのでキャッシュする
+        blockViewIndex map[gc.GridElement]bool
 }
 
 // NewVisionSystem はVisionSystemを初期化する
@@ -34226,9 +34219,12 @@ func (sys *VisionSystem) Update(world w.World) error <span class="cov0" title="0
         }</span>
 
         <span class="cov0" title="0">if needsUpdate </span><span class="cov0" title="0">{
+                // 視界遮断タイルのインデックスを構築する
+                sys.blockViewIndex = buildBlockViewIndex(world)
+
                 // タイルの可視性マップを更新
                 visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
-                visibilityData := calculateTileVisibilityWithDistance(world, playerPos.X, playerPos.Y, visionRadius, sys.raycastCache)
+                visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, sys.blockViewIndex)
 
                 // 光源情報キャッシュをクリア（更新前）
                 sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
@@ -34357,7 +34353,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
-func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool) map[string]TileVisibility <span class="cov0" title="0">{
+func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility <span class="cov0" title="0">{
         visibilityMap := make(map[string]TileVisibility)
 
         // プレイヤーの位置からタイル座標を計算
@@ -34393,7 +34389,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 
                         // 視界範囲内のタイルのみ処理
                         if distanceSquared &lt;= radiusSquared </span><span class="cov0" title="0">{
-                                visible := isTileVisibleByRaycast(world, float64(playerX), float64(playerY), tileCenterX, tileCenterY, rcCache)
+                                visible := isTileVisibleByRaycast(float64(playerX), float64(playerY), tileCenterX, tileCenterY, rcCache, blockIndex)
 
                                 visibilityMap[tileKey] = TileVisibility{
                                         Row:     tileY,
@@ -34409,7 +34405,7 @@ func calculateTileVisibilityWithDistance(world w.World, playerX, playerY, radius
 }
 
 // isTileVisibleByRaycast はタイルベース視界判定
-func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY float64, rcCache map[raycastCacheKey]bool) bool <span class="cov0" title="0">{
+func isTileVisibleByRaycast(playerX, playerY, targetX, targetY float64, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) bool <span class="cov0" title="0">{
         // キャッシュキーを生成
         px := int(playerX/4) * 4
         py := int(playerY/4) * 4
@@ -34440,7 +34436,7 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
         }</span>
 
         // ブレゼンハムのライン描画アルゴリズムでタイルベースの視線判定
-        <span class="cov0" title="0">result := bresenhamLineOfSight(world, playerTileX, playerTileY, targetTileX, targetTileY)
+        <span class="cov0" title="0">result := bresenhamLineOfSight(playerTileX, playerTileY, targetTileX, targetTileY, blockIndex)
 
         // 結果をキャッシュ
         if len(rcCache) &lt; 15000 </span><span class="cov0" title="0">{
@@ -34451,46 +34447,42 @@ func isTileVisibleByRaycast(world w.World, playerX, playerY, targetX, targetY fl
 }
 
 // bresenhamLineOfSight はブレゼンハムアルゴリズムを使用したタイルベース視線判定
-func bresenhamLineOfSight(world w.World, x0, y0, x1, y1 int) bool <span class="cov0" title="0">{
+func bresenhamLineOfSight(x0, y0, x1, y1 int, blockIndex map[gc.GridElement]bool) bool <span class="cov8" title="1">{
         dx := geometry.Abs(x1 - x0)
         dy := geometry.Abs(y1 - y0)
 
         var sx, sy int
-        if x0 &lt; x1 </span><span class="cov0" title="0">{
+        if x0 &lt; x1 </span><span class="cov8" title="1">{
                 sx = 1
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 sx = -1
         }</span>
-        <span class="cov0" title="0">if y0 &lt; y1 </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if y0 &lt; y1 </span><span class="cov8" title="1">{
                 sy = 1
-        }</span> else<span class="cov0" title="0"> {
+        }</span> else<span class="cov8" title="1"> {
                 sy = -1
         }</span>
 
-        <span class="cov0" title="0">err := dx - dy
+        <span class="cov8" title="1">err := dx - dy
         x, y := x0, y0
 
-        for </span><span class="cov0" title="0">{
+        for </span><span class="cov8" title="1">{
                 // ターゲットに到達したら見える
-                if x == x1 &amp;&amp; y == y1 </span><span class="cov0" title="0">{
+                if x == x1 &amp;&amp; y == y1 </span><span class="cov8" title="1">{
                         return true
                 }</span>
 
-                // 現在のタイルが壁かチェック（ターゲット以外）
-                <span class="cov0" title="0">if x != x1 || y != y1 </span><span class="cov0" title="0">{
-                        tileCenterX := float64(x*int(consts.TileSize) + int(consts.TileSize)/2)
-                        tileCenterY := float64(y*int(consts.TileSize) + int(consts.TileSize)/2)
-                        if isBlockedByWall(world, consts.Pixel(tileCenterX), consts.Pixel(tileCenterY)) </span><span class="cov0" title="0">{
-                                return false // 壁に遮られている
-                        }</span>
-                }
+                // 現在のタイルが視界を遮るかチェック
+                <span class="cov8" title="1">if blockIndex[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] </span><span class="cov8" title="1">{
+                        return false
+                }</span>
 
-                <span class="cov0" title="0">e2 := 2 * err
-                if e2 &gt; -dy </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">e2 := 2 * err
+                if e2 &gt; -dy </span><span class="cov8" title="1">{
                         err -= dy
                         x += sx
                 }</span>
-                <span class="cov0" title="0">if e2 &lt; dx </span><span class="cov0" title="0">{
+                <span class="cov8" title="1">if e2 &lt; dx </span><span class="cov8" title="1">{
                         err += dx
                         y += sy
                 }</span>
@@ -34579,27 +34571,17 @@ const (
         DarknessRemembered RememberedDarkness = 0.75
 )
 
-// isBlockedByWall は直接的な壁チェック
-func isBlockedByWall(world w.World, x, y consts.Pixel) bool <span class="cov0" title="0">{
-        fx, fy := float64(x), float64(y)
-
-        // GridElement + BlockView のチェック（32x32タイル）
-        tileX := int(fx / float64(consts.TileSize))
-        tileY := int(fy / float64(consts.TileSize))
-
-        // タイル座標でのチェック（1回のスキャンで済ませる）
-        blocked := false
+// buildBlockViewIndex は全BlockViewエンティティのタイル座標をインデックス化する
+func buildBlockViewIndex(world w.World) map[gc.GridElement]bool <span class="cov8" title="1">{
+        index := make(map[gc.GridElement]bool)
         world.Manager.Join(
                 world.Components.GridElement,
                 world.Components.BlockView,
-        ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
+        ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-                if int(grid.X) == tileX &amp;&amp; int(grid.Y) == tileY </span><span class="cov0" title="0">{
-                        blocked = true
-                }</span>
-        }))
-
-        <span class="cov0" title="0">return blocked</span>
+                index[*grid] = true
+        }</span>))
+        <span class="cov8" title="1">return index</span>
 }
 </pre>
 		
@@ -35514,11 +35496,9 @@ import (
         "image/color"
 
         "github.com/hajimehoshi/ebiten/v2"
-        "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/widgets/messagelog"
         "github.com/kijimaD/ruins/internal/widgets/styled"
         w "github.com/kijimaD/ruins/internal/world"
-        "github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // MessageAreaConfig はメッセージエリアの設定
@@ -35563,7 +35543,6 @@ func NewMessageArea(world w.World) *MessageArea <span class="cov0" title="0">{
         }
 
         widget := messagelog.NewWidget(widgetConfig, world)
-        widget.SetStore(worldhelper.GetGameLog(world))
 
         return &amp;MessageArea{
                 widget:  widget,
@@ -35571,14 +35550,6 @@ func NewMessageArea(world w.World) *MessageArea <span class="cov0" title="0">{
                 enabled: true,
         }
 }</span>
-
-// SetStore はログストアを設定する
-func (area *MessageArea) SetStore(store *gamelog.SafeSlice) <span class="cov0" title="0">{
-        if area.widget == nil </span><span class="cov0" title="0">{
-                return
-        }</span>
-        <span class="cov0" title="0">area.widget.SetStore(store)</span>
-}
 
 // SetConfig は設定を変更する
 func (area *MessageArea) SetConfig(config MessageAreaConfig) <span class="cov0" title="0">{
@@ -35594,7 +35565,7 @@ func (area *MessageArea) GetConfig() MessageAreaConfig <span class="cov0" title=
 }</span>
 
 // Update はメッセージエリアを更新する
-func (area *MessageArea) Update(_ w.World) <span class="cov0" title="0">{
+func (area *MessageArea) Update() <span class="cov0" title="0">{
         if !area.enabled || area.widget == nil </span><span class="cov0" title="0">{
                 return
         }</span>
@@ -36091,6 +36062,7 @@ import (
         "github.com/kijimaD/ruins/internal/gamelog"
         "github.com/kijimaD/ruins/internal/widgets/styled"
         w "github.com/kijimaD/ruins/internal/world"
+        "github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // Insets はパディング設定を表す
@@ -36112,7 +36084,6 @@ type WidgetConfig struct {
 // Widget はメッセージログ表示ウィジェット
 type Widget struct {
         ui        *ebitenui.UI
-        store     *gamelog.SafeSlice
         lastCount int
         config    WidgetConfig
         world     w.World
@@ -36126,15 +36097,10 @@ func NewWidget(config WidgetConfig, world w.World) *Widget <span class="cov0" ti
         }
 }</span>
 
-// SetStore はログストアを設定する
-func (widget *Widget) SetStore(store *gamelog.SafeSlice) <span class="cov0" title="0">{
-        widget.store = store
-        widget.initUI()
-}</span>
-
 // Update はウィジェットを更新する
 func (widget *Widget) Update() <span class="cov0" title="0">{
         if widget.ui == nil </span><span class="cov0" title="0">{
+                widget.initUI()
                 return
         }</span>
 
@@ -36165,12 +36131,13 @@ func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) <span 
 
 // initUI は初期UIを作成する
 func (widget *Widget) initUI() <span class="cov0" title="0">{
-        if widget.store == nil </span><span class="cov0" title="0">{
+        store := worldhelper.GetGameLog(widget.world)
+        if store == nil </span><span class="cov0" title="0">{
                 return
         }</span>
 
         // 色付きログエントリを取得
-        <span class="cov0" title="0">entries := widget.store.GetRecentEntries(widget.config.MaxLines)
+        <span class="cov0" title="0">entries := store.GetRecentEntries(widget.config.MaxLines)
 
         // 色付きログエントリ用のコンテナを作成
         logContainer := widget.createColoredLogContainer(entries)
@@ -36179,16 +36146,17 @@ func (widget *Widget) initUI() <span class="cov0" title="0">{
         widget.ui = &amp;ebitenui.UI{Container: logContainer}
 
         // 初期メッセージ数を設定
-        widget.lastCount = widget.store.Count()</span>
+        widget.lastCount = store.Count()</span>
 }
 
 // updateUI はログメッセージが更新された場合にUIを再構築する
 func (widget *Widget) updateUI() <span class="cov0" title="0">{
-        if widget.store == nil </span><span class="cov0" title="0">{
+        store := worldhelper.GetGameLog(widget.world)
+        if store == nil </span><span class="cov0" title="0">{
                 return
         }</span>
 
-        <span class="cov0" title="0">currentMessageCount := widget.store.Count()
+        <span class="cov0" title="0">currentMessageCount := store.Count()
 
         // メッセージ数が変わっていない場合は更新不要
         if currentMessageCount == widget.lastCount </span><span class="cov0" title="0">{
@@ -36196,7 +36164,7 @@ func (widget *Widget) updateUI() <span class="cov0" title="0">{
         }</span>
 
         // 色付きログエントリを取得
-        <span class="cov0" title="0">entries := widget.store.GetRecentEntries(widget.config.MaxLines)
+        <span class="cov0" title="0">entries := store.GetRecentEntries(widget.config.MaxLines)
 
         // 色付きログエントリ用のコンテナを作成
         logContainer := widget.createColoredLogContainer(entries)
@@ -40568,7 +40536,7 @@ import (
 // 定数定義
 const (
         // カメラスケール
-        cameraNormalScale = 1.0 // カメラの通常スケール
+        cameraNormalScale = 0.6 // カメラの通常スケール
 
         // AI設定
         aiVisionDistance = 160.0 // AIの視界距離（ピクセル）
