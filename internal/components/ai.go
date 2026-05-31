@@ -5,6 +5,28 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
+// DispositionType はエンティティの他者に対する態度を表す
+type DispositionType int
+
+const (
+	// DispositionHostile は敵対態度を示す。視界内のプレイヤーを攻撃する
+	DispositionHostile DispositionType = iota
+	// DispositionNeutral は中立態度を示す。攻撃されると反撃する
+	DispositionNeutral
+	// DispositionCowardly は臆病な態度を示す。攻撃されると逃亡する
+	DispositionCowardly
+	// DispositionFleeing は逃亡中を示す。プレイヤーから距離を取る
+	DispositionFleeing
+)
+
+// Disposition はエンティティの動的な態度を管理するコンポーネント
+type Disposition struct {
+	// Default は初期態度。逃亡後にこの値に復帰する
+	Default DispositionType
+	// Current は現在の態度。被ダメージなどで変化する
+	Current DispositionType
+}
+
 // AIMoveFSM はAI移動の有限状態マシン
 type AIMoveFSM struct {
 	// AIシステムによる制御を示すマーカーコンポーネント
@@ -20,6 +42,8 @@ const (
 	AIRoamingDriving = AIRoamingSubState("DRIVING")
 	// AIRoamingChasing はプレイヤーを追跡する状態
 	AIRoamingChasing = AIRoamingSubState("CHASING")
+	// AIRoamingFleeing はプレイヤーから逃亡する状態
+	AIRoamingFleeing = AIRoamingSubState("FLEEING")
 )
 
 // AIVision はAIの視界システム

@@ -264,6 +264,27 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
+func TestSpawnEnemy_Disposition(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	spriteSheets := make(map[string]gc.SpriteSheet)
+	spriteSheets["field"] = gc.SpriteSheet{
+		Sprites: map[string]gc.Sprite{
+			"red_ball": {Width: 32, Height: 32},
+		},
+	}
+	world.Resources.SpriteSheets = spriteSheets
+
+	enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
+	require.NoError(t, err)
+
+	assert.True(t, enemy.HasComponent(world.Components.Disposition))
+	disposition := world.Components.Disposition.Get(enemy).(*gc.Disposition)
+	assert.Equal(t, gc.DispositionHostile, disposition.Default)
+	assert.Equal(t, gc.DispositionHostile, disposition.Current)
+}
+
 func TestSpawnItem(t *testing.T) {
 	t.Parallel()
 

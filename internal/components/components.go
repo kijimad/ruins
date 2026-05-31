@@ -38,6 +38,7 @@ type EntitySpec struct {
 	AIRoaming       *AIRoaming
 	AIVision        *AIVision
 	AIChasing       *AIChasing
+	Disposition     *Disposition
 	Camera          *Camera
 	Position        *Position
 	GridElement     *GridElement
@@ -112,6 +113,7 @@ type Components struct {
 	AIRoaming       *ecs.SliceComponent
 	AIVision        *ecs.SliceComponent
 	AIChasing       *ecs.SliceComponent
+	Disposition     *ecs.SliceComponent
 	Camera          *ecs.SliceComponent `save:"true"`
 	Position        *ecs.SliceComponent
 	GridElement     *ecs.SliceComponent `save:"true"`

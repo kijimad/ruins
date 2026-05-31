@@ -84,7 +84,7 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 
 	// 状態更新
 	oldState := context.Roaming.SubState
-	p.stateMachine.UpdateState(context.Roaming, canSeePlayer, turnNumber)
+	p.stateMachine.UpdateState(context.Roaming, context.Disposition, canSeePlayer, turnNumber)
 	if oldState != context.Roaming.SubState {
 		p.logger.Debug("AI状態変化", "entity", entity, "from", oldState, "to", context.Roaming.SubState)
 	}
@@ -151,6 +151,7 @@ type EntityContext struct {
 	GridElement *gc.GridElement
 	Vision      *gc.AIVision
 	Roaming     *gc.AIRoaming
+	Disposition *gc.Disposition
 }
 
 // gatherEntityContext はエンティティから必要なコンポーネントを収集する
@@ -174,10 +175,17 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 	}
 	roaming := aiRoaming.(*gc.AIRoaming)
 
+	// Dispositionコンポーネント取得
+	var disposition *gc.Disposition
+	if d := world.Components.Disposition.Get(entity); d != nil {
+		disposition = d.(*gc.Disposition)
+	}
+
 	return &EntityContext{
 		GridElement: gridElement,
 		Vision:      vision,
 		Roaming:     roaming,
+		Disposition: disposition,
 	}, nil
 }
 

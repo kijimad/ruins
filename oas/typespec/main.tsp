@@ -148,6 +148,16 @@ enum FactionMemberType {
   FactionNeutral,
 }
 
+/** 態度タイプ。エンティティの他者に対する初期態度を定義する */
+enum DispositionType {
+  /** 敵対態度。視界内のプレイヤーを攻撃する */
+  hostile,
+  /** 中立態度。攻撃されると反撃する */
+  neutral,
+  /** 臆病な態度。攻撃されると逃亡する */
+  cowardly,
+}
+
 /** スプライト描画深度 */
 enum SpriteDepth {
   /** 床レイヤー */
@@ -437,6 +447,8 @@ model Member {
   lightSource?: LightSource;
   /** 所属する派閥。未設定なら敵対 */
   factionType?: FactionMemberType;
+  /** 態度 */
+  disposition?: DispositionType;
   /** 会話データ。未設定なら会話不可 */
   dialog?: Dialog;
   /** 参照するコマンドテーブル名 */

@@ -322,6 +322,9 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	entitySpec.Interactable = &gc.Interactable{
 		Data: gc.MeleeInteraction{},
 	}
+	if entitySpec.Disposition == nil {
+		return ecs.Entity(0), fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
+	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)

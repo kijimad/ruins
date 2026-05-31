@@ -31,6 +31,10 @@ func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity
 		// 追跡モード：プレイヤーに向かって移動
 		return ap.planChaseAction(world, aiEntity, playerEntity, context.GridElement)
 
+	case gc.AIRoamingFleeing:
+		// 逃亡モード：プレイヤーから離れる
+		return ap.planFleeAction(world, aiEntity, playerEntity, context.GridElement)
+
 	case gc.AIRoamingDriving:
 		// 移動モード：ランダム移動
 		return ap.planRandomMoveAction(world, aiEntity, context.GridElement)
@@ -81,6 +85,35 @@ func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerE
 
 	// どこにも移動できない場合は待機
 	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI追跡失敗"}
+}
+
+// planFleeAction はプレイヤーから逃亡するアクションを計画する。追跡の逆方向に移動する
+func (ap *DefaultActionPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+
+	// プレイヤーと逆方向に移動する
+	dx := int(aiGrid.X) - int(playerGrid.X)
+	dy := int(aiGrid.Y) - int(playerGrid.Y)
+
+	// 逆方向の移動候補を計算する
+	moveCandidates := ap.calculateMoveCandidates(dx, dy)
+
+	for _, candidate := range moveCandidates {
+		destX := int(aiGrid.X) + candidate.x
+		destY := int(aiGrid.Y) + candidate.y
+
+		fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+			return &activity.MoveActivity{}, activity.ActionParams{
+				Actor:       aiEntity,
+				Destination: &dest,
+			}
+		}
+	}
+
+	// 逃げ場がない場合はランダム移動を試みる
+	return ap.planRandomMoveAction(world, aiEntity, aiGrid)
 }
 
 // planRandomMoveAction はランダム移動アクションを計画

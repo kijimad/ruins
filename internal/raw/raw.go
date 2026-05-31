@@ -559,6 +559,20 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	// 態度タイプの処理
+	if member.Disposition != nil && string(*member.Disposition) != "" {
+		switch string(*member.Disposition) {
+		case "hostile":
+			entitySpec.Disposition = &gc.Disposition{Default: gc.DispositionHostile, Current: gc.DispositionHostile}
+		case "neutral":
+			entitySpec.Disposition = &gc.Disposition{Default: gc.DispositionNeutral, Current: gc.DispositionNeutral}
+		case "cowardly":
+			entitySpec.Disposition = &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionCowardly}
+		default:
+			return gc.EntitySpec{}, fmt.Errorf("無効な態度タイプ '%s' が指定されています: %s", *member.Disposition, name)
+		}
+	}
+
 	if member.Dialog != nil {
 		entitySpec.Dialog = &gc.Dialog{
 			MessageKey: member.Dialog.MessageKey,
