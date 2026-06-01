@@ -95,11 +95,7 @@ export function SearchableSelect({
               const matches =
                 !filterText || item.toLowerCase().includes(filterText);
               return (
-                <ComboboxItem
-                  key={item}
-                  item={item}
-                  hidden={!matches}
-                >
+                <ComboboxItem key={item} item={item} hidden={!matches}>
                   {renderItem ? renderItem(item) : null}
                   <ComboboxItemText>{item}</ComboboxItemText>
                 </ComboboxItem>

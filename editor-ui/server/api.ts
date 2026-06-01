@@ -177,9 +177,7 @@ class RawStore {
 
   private save(raws: Raws): void {
     sortAll(raws);
-    const content = tomlStringify(
-      raws as unknown as Record<string, unknown>,
-    );
+    const content = tomlStringify(raws as unknown as Record<string, unknown>);
     fs.writeFileSync(this.filePath, content, "utf-8");
   }
 

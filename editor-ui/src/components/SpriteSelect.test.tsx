@@ -53,7 +53,11 @@ describe("SpriteSelect", () => {
   test("シートデータ未取得時はinputが無効化される", () => {
     setupSheet(undefined);
     render(
-      <SpriteSelect sheetName="field" value="wooden_sword" onChange={vi.fn()} />,
+      <SpriteSelect
+        sheetName="field"
+        value="wooden_sword"
+        onChange={vi.fn()}
+      />,
       { wrapper },
     );
 
@@ -64,7 +68,11 @@ describe("SpriteSelect", () => {
   test("シートデータ取得後は現在の値がinputに表示される", () => {
     setupSheet(mockSheet);
     render(
-      <SpriteSelect sheetName="field" value="wooden_sword" onChange={vi.fn()} />,
+      <SpriteSelect
+        sheetName="field"
+        value="wooden_sword"
+        onChange={vi.fn()}
+      />,
       { wrapper },
     );
 
@@ -73,10 +81,9 @@ describe("SpriteSelect", () => {
 
   test("入力で候補がフィルタリングされる", async () => {
     setupSheet(mockSheet);
-    render(
-      <SpriteSelect sheetName="field" value="" onChange={vi.fn()} />,
-      { wrapper },
-    );
+    render(<SpriteSelect sheetName="field" value="" onChange={vi.fn()} />, {
+      wrapper,
+    });
 
     const input = getComboboxInput();
     await userEvent.type(input, "sword");
@@ -89,10 +96,9 @@ describe("SpriteSelect", () => {
   test("候補クリックでonChangeが呼ばれる", async () => {
     setupSheet(mockSheet);
     const onChange = vi.fn();
-    render(
-      <SpriteSelect sheetName="field" value="" onChange={onChange} />,
-      { wrapper },
-    );
+    render(<SpriteSelect sheetName="field" value="" onChange={onChange} />, {
+      wrapper,
+    });
 
     const input = getComboboxInput();
     await userEvent.click(input);
@@ -108,10 +114,9 @@ describe("SpriteSelect", () => {
 
   test("値が空のときプレースホルダーが表示される", () => {
     setupSheet(mockSheet);
-    render(
-      <SpriteSelect sheetName="field" value="" onChange={vi.fn()} />,
-      { wrapper },
-    );
+    render(<SpriteSelect sheetName="field" value="" onChange={vi.fn()} />, {
+      wrapper,
+    });
 
     expect(getComboboxInput()).toHaveAttribute("placeholder", "(未選択)");
   });
