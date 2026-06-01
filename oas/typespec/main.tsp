@@ -158,6 +158,24 @@ enum DispositionType {
   cowardly,
 }
 
+/** 非戦闘時の移動パターン */
+enum BehaviorStrategyType {
+  /** ランダム移動 */
+  random,
+  /** 定点巡回 */
+  patrol,
+  /** 壁沿い移動 */
+  wallHug,
+  /** 固定。移動しない */
+  stationary,
+  /** 徘徊。低頻度で周辺をランダム移動する */
+  wander,
+  /** 縄張り。スポーン地点から一定範囲内で移動する */
+  territorial,
+  /** 群れ。同種族の仲間に寄る */
+  swarm,
+}
+
 /** スプライト描画深度 */
 enum SpriteDepth {
   /** 床レイヤー */
@@ -449,6 +467,8 @@ model Member {
   factionType?: FactionMemberType;
   /** 態度 */
   disposition?: DispositionType;
+  /** 非戦闘時の移動パターン */
+  behaviorStrategy?: BehaviorStrategyType;
   /** 会話データ。未設定なら会話不可 */
   dialog?: Dialog;
   /** 参照するコマンドテーブル名 */

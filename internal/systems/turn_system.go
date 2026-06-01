@@ -42,6 +42,8 @@ func (sys *TurnSystem) Update(world w.World) error {
 		if err := processAITurn(world); err != nil {
 			return err
 		}
+		// AIターン完了後に視界を再計算させる
+		worldhelper.GetDungeon(world).NeedsForceUpdate = true
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
 		// ターン終了処理

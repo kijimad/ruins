@@ -1,23 +1,36 @@
 package components
 
 import (
+	"fmt"
+
 	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // DispositionType はエンティティの他者に対する態度を表す
-type DispositionType int
+type DispositionType string
 
 const (
 	// DispositionHostile は敵対態度を示す。視界内のプレイヤーを攻撃する
-	DispositionHostile DispositionType = iota
+	DispositionHostile DispositionType = "hostile"
 	// DispositionNeutral は中立態度を示す。攻撃されると反撃する
-	DispositionNeutral
+	DispositionNeutral DispositionType = "neutral"
 	// DispositionCowardly は臆病な態度を示す。攻撃されると逃亡する
-	DispositionCowardly
+	DispositionCowardly DispositionType = "cowardly"
 	// DispositionFleeing は逃亡中を示す。プレイヤーから距離を取る
-	DispositionFleeing
+	DispositionFleeing DispositionType = "fleeing"
 )
+
+// ValidAsDefault はデータ入力で指定可能なDispositionTypeかを検証する。
+// DispositionFleeingはランタイム専用の値なので含めない
+func (d DispositionType) ValidAsDefault() error {
+	switch d {
+	case DispositionHostile, DispositionNeutral, DispositionCowardly:
+		return nil
+	default:
+		return fmt.Errorf("get %s: %w", d, ErrInvalidEnumType)
+	}
+}
 
 // Disposition はエンティティの動的な態度を管理するコンポーネント
 type Disposition struct {
@@ -25,6 +38,37 @@ type Disposition struct {
 	Default DispositionType
 	// Current は現在の態度。被ダメージなどで変化する
 	Current DispositionType
+}
+
+// BehaviorStrategy は非戦闘時の移動パターンを表す
+type BehaviorStrategy string
+
+const (
+	// BehaviorRandom はランダム移動。既存の動作と同じ
+	BehaviorRandom BehaviorStrategy = "random"
+	// BehaviorPatrol は定点巡回。指定経路を往復する
+	BehaviorPatrol BehaviorStrategy = "patrol"
+	// BehaviorWallHug は壁沿い移動。壁に沿って移動する
+	BehaviorWallHug BehaviorStrategy = "wallHug"
+	// BehaviorStationary は固定。移動しない番兵タイプ
+	BehaviorStationary BehaviorStrategy = "stationary"
+	// BehaviorWander は徘徊。低頻度でスポーン地点周辺をランダム移動する
+	BehaviorWander BehaviorStrategy = "wander"
+	// BehaviorTerritorial は縄張り。スポーン地点から一定範囲内で移動する
+	BehaviorTerritorial BehaviorStrategy = "territorial"
+	// BehaviorSwarm は群れ。同種族の仲間に寄る
+	BehaviorSwarm BehaviorStrategy = "swarm"
+)
+
+// Valid はBehaviorStrategyの値が有効かを検証する
+func (bs BehaviorStrategy) Valid() error {
+	switch bs {
+	case BehaviorRandom, BehaviorPatrol, BehaviorWallHug, BehaviorStationary,
+		BehaviorWander, BehaviorTerritorial, BehaviorSwarm:
+		return nil
+	default:
+		return fmt.Errorf("get %s: %w", bs, ErrInvalidEnumType)
+	}
 }
 
 // AIMoveFSM はAI移動の有限状態マシン

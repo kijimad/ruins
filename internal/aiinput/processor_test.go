@@ -105,6 +105,54 @@ func TestStateMachine_NilDisposition(t *testing.T) {
 	assert.Equal(t, gc.AIRoamingChasing, roaming.SubState, "Dispositionなしはデフォルトで追跡")
 }
 
+func TestStateMachine_NeutralToHostile_StartChasing(t *testing.T) {
+	t.Parallel()
+
+	sm := NewStateMachine()
+	disposition := &gc.Disposition{Default: gc.DispositionNeutral, Current: gc.DispositionNeutral}
+
+	roaming := &gc.AIRoaming{
+		SubState:              gc.AIRoamingDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 5,
+	}
+
+	// Neutralはプレイヤーを見ても追跡しない
+	sm.UpdateState(roaming, disposition, true, 2)
+	assert.Equal(t, gc.AIRoamingDriving, roaming.SubState, "Neutralは追跡しない")
+
+	// 被ダメージでDispositionがHostileに変化した（reactToHostileAction相当）
+	disposition.Current = gc.DispositionHostile
+
+	// 次のターンでプレイヤーを見たら追跡を開始する
+	sm.UpdateState(roaming, disposition, true, 3)
+	assert.Equal(t, gc.AIRoamingChasing, roaming.SubState, "Hostile化後はプレイヤー発見で追跡開始")
+}
+
+func TestStateMachine_CowardlyToFleeing_StartFleeing(t *testing.T) {
+	t.Parallel()
+
+	sm := NewStateMachine()
+	disposition := &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionCowardly}
+
+	roaming := &gc.AIRoaming{
+		SubState:              gc.AIRoamingWaiting,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 5,
+	}
+
+	// 被ダメージでDispositionがFleeingに変化した（reactToHostileAction相当）
+	disposition.Current = gc.DispositionFleeing
+
+	// プレイヤーを見ていなくてもFleeing化後は逃亡状態へ遷移する
+	sm.UpdateState(roaming, disposition, false, 2)
+	assert.Equal(t, gc.AIRoamingWaiting, roaming.SubState, "プレイヤーが見えてなければまだ待機")
+
+	// プレイヤーが見える場合は逃亡開始
+	sm.UpdateState(roaming, disposition, true, 3)
+	assert.Equal(t, gc.AIRoamingFleeing, roaming.SubState, "Fleeing化後はプレイヤー発見で逃亡開始")
+}
+
 func TestVisionSystem(t *testing.T) {
 	t.Parallel()
 

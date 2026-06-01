@@ -264,9 +264,20 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	// フィールド用のコンポーネントを設定
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.BlockPass = &gc.BlockPass{} // NPCは通行不可
+	entitySpec.BlockPass = &gc.BlockPass{}
 
-	// 中立NPCにはAIを付けない（動かない）
+	// BehaviorStrategyが指定されていればAIで動かす
+	if entitySpec.BehaviorStrategy != nil {
+		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
+		entitySpec.AIRoaming = &gc.AIRoaming{
+			SubState:              gc.AIRoamingWaiting,
+			StartSubStateTurn:     1,
+			DurationSubStateTurns: 2 + rand.IntN(3),
+		}
+		entitySpec.AIVision = &gc.AIVision{
+			ViewDistance: consts.Pixel(aiVisionDistance),
+		}
+	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
@@ -324,6 +335,9 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 	if entitySpec.Disposition == nil {
 		return ecs.Entity(0), fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
+	}
+	if entitySpec.BehaviorStrategy == nil {
+		return ecs.Entity(0), fmt.Errorf("敵エンティティに移動パターン(behaviorStrategy)が指定されていません: %s", entitySpec.Name)
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)

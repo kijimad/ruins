@@ -371,8 +371,26 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("敵スポーン:苔亀(neutral)", func(world w.World) error {
 			return spawnEnemyNearPlayer(world, "苔亀")
 		}).
+		WithChoice("敵スポーン:苔亀(wander)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "苔亀")
+		}).
 		WithChoice("敵スポーン:ネズミ(cowardly)", func(world w.World) error {
 			return spawnEnemyNearPlayer(world, "ネズミ")
+		}).
+		WithChoice("敵スポーン:鉄の番兵(stationary)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "鉄の番兵")
+		}).
+		WithChoice("敵スポーン:毒蜘蛛(wallHug)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "毒蜘蛛")
+		}).
+		WithChoice("敵スポーン:スライム(swarm)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "スライム")
+		}).
+		WithChoice("敵スポーン:骸骨兵(patrol)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "骸骨兵")
+		}).
+		WithChoice("敵スポーン:野犬(territorial)", func(world w.World) error {
+			return spawnEnemyNearPlayer(world, "野犬")
 		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
@@ -384,14 +402,14 @@ func NewDebugMenuState() es.State[w.World] {
 	return messageState
 }
 
-// spawnEnemyNearPlayer はプレイヤーの右隣に指定した敵をスポーンする
+// spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする
 func spawnEnemyNearPlayer(world w.World, name string) error {
 	player, err := worldhelper.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
-	_, err = worldhelper.SpawnEnemy(world, int(playerGrid.X)+2, int(playerGrid.Y), name)
+	_, err = worldhelper.SpawnEnemy(world, int(playerGrid.X)+8, int(playerGrid.Y), name)
 	return err
 }
 

@@ -640,6 +640,106 @@ Defense = 2
 	assert.Nil(t, entitySpec.Disposition)
 }
 
+func TestMemberBehaviorStrategy(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		strategy string
+		expected gc.BehaviorStrategy
+	}{
+		{"random", "random", gc.BehaviorRandom},
+		{"stationary", "stationary", gc.BehaviorStationary},
+		{"wander", "wander", gc.BehaviorWander},
+		{"patrol", "patrol", gc.BehaviorPatrol},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			toml := `
+[[Members]]
+Name = "テスト敵"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+BehaviorStrategy = "` + tt.strategy + `"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+			raw, err := Load(toml)
+			require.NoError(t, err)
+
+			entitySpec, err := raw.NewMemberSpec("テスト敵")
+			require.NoError(t, err)
+			require.NotNil(t, entitySpec.BehaviorStrategy)
+			assert.Equal(t, tt.expected, *entitySpec.BehaviorStrategy)
+		})
+	}
+}
+
+func TestMemberBehaviorStrategyUnset(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "パターンなし"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	entitySpec, err := raw.NewMemberSpec("パターンなし")
+	require.NoError(t, err)
+	assert.Nil(t, entitySpec.BehaviorStrategy)
+}
+
+func TestMemberBehaviorStrategyInvalid(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "無効パターン"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+BehaviorStrategy = "invalid_pattern"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	_, err = raw.NewMemberSpec("無効パターン")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "移動パターンが不正です")
+}
+
 func TestMemberDispositionInvalid(t *testing.T) {
 	t.Parallel()
 
@@ -665,5 +765,5 @@ Defense = 2
 
 	_, err = raw.NewMemberSpec("無効態度")
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "無効な態度タイプ")
+	assert.Contains(t, err.Error(), "態度タイプが不正です")
 }

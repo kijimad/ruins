@@ -1415,6 +1415,17 @@ components:
         - CANON
         - BOW
       description: 攻撃種別
+    BehaviorStrategyType:
+      type: string
+      enum:
+        - random
+        - patrol
+        - wallHug
+        - stationary
+        - wander
+        - territorial
+        - swarm
+      description: 非戦闘時の移動パターン
     Book:
       type: object
       required:
@@ -2036,6 +2047,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/DispositionType'
           description: 態度
+        behaviorStrategy:
+          allOf:
+            - $ref: '#/components/schemas/BehaviorStrategyType'
+          description: 非戦闘時の移動パターン
         dialog:
           allOf:
             - $ref: '#/components/schemas/Dialog'

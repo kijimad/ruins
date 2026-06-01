@@ -22,6 +22,17 @@ const (
 	SWORD   AttackCategory = "SWORD"
 )
 
+// Defines values for BehaviorStrategyType.
+const (
+	Patrol      BehaviorStrategyType = "patrol"
+	Random      BehaviorStrategyType = "random"
+	Stationary  BehaviorStrategyType = "stationary"
+	Swarm       BehaviorStrategyType = "swarm"
+	Territorial BehaviorStrategyType = "territorial"
+	WallHug     BehaviorStrategyType = "wallHug"
+	Wander      BehaviorStrategyType = "wander"
+)
+
 // Defines values for DispositionType.
 const (
 	Cowardly DispositionType = "cowardly"
@@ -162,6 +173,9 @@ type AmmoTag string
 
 // AttackCategory 攻撃種別
 type AttackCategory string
+
+// BehaviorStrategyType 非戦闘時の移動パターン
+type BehaviorStrategyType string
 
 // Book 本の設定
 type Book struct {
@@ -515,6 +529,9 @@ type Member struct {
 
 	// AnimKeys アニメーション用スプライトキーの配列
 	AnimKeys []string `json:"animKeys"`
+
+	// BehaviorStrategy 非戦闘時の移動パターン
+	BehaviorStrategy *BehaviorStrategyType `json:"behaviorStrategy,omitempty"`
 
 	// CommandTableName 参照するコマンドテーブル名
 	CommandTableName string `json:"commandTableName"`

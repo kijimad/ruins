@@ -11,6 +11,13 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
+// eightDirections は隣接8方向の座標差分
+var eightDirections = []struct{ x, y int }{
+	{-1, -1}, {0, -1}, {1, -1},
+	{-1, 0}, {1, 0},
+	{-1, 1}, {0, 1}, {1, 1},
+}
+
 // ActionPlanner はAIのアクション計画システム
 type ActionPlanner interface {
 	PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, canSeePlayer bool) (activity.Behavior, activity.ActionParams)
@@ -36,8 +43,8 @@ func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity
 		return ap.planFleeAction(world, aiEntity, playerEntity, context.GridElement)
 
 	case gc.AIRoamingDriving:
-		// 移動モード：ランダム移動
-		return ap.planRandomMoveAction(world, aiEntity, context.GridElement)
+		// 移動モード：BehaviorStrategyに基づく移動
+		return ap.planDrivingAction(world, aiEntity, context)
 
 	case gc.AIRoamingWaiting:
 		// 待機モード：何もしない
@@ -123,16 +130,9 @@ func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs
 		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AIランダム待機"}
 	}
 
-	// ランダムに隣接する8方向から選択
-	directions := []struct{ x, y int }{
-		{-1, -1}, {0, -1}, {1, -1},
-		{-1, 0}, {1, 0},
-		{-1, 1}, {0, 1}, {1, 1},
-	}
-
 	// 移動可能な方向をシャッフルして試行
-	shuffledDirections := make([]struct{ x, y int }, len(directions))
-	copy(shuffledDirections, directions)
+	shuffledDirections := make([]struct{ x, y int }, len(eightDirections))
+	copy(shuffledDirections, eightDirections)
 
 	// Fisher-Yatesアルゴリズムでシャッフル
 	for i := len(shuffledDirections) - 1; i > 0; i-- {
@@ -211,6 +211,163 @@ func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandid
 	}
 
 	return candidates
+}
+
+// planDrivingAction はBehaviorStrategyに基づく移動アクションを計画する
+func (ap *DefaultActionPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
+	switch context.BehaviorStrategy {
+	case gc.BehaviorStationary:
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI固定待機"}
+	case gc.BehaviorWander:
+		return ap.planWanderAction(world, aiEntity, context.GridElement)
+	case gc.BehaviorWallHug:
+		return ap.planWallHugAction(world, aiEntity, context.GridElement)
+	case gc.BehaviorSwarm:
+		return ap.planSwarmAction(world, aiEntity, context.GridElement)
+	default:
+		return ap.planRandomMoveAction(world, aiEntity, context.GridElement)
+	}
+}
+
+// planWanderAction は低頻度でランダム移動するアクションを計画する。街のNPC向け
+func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	// 80%の確率で待機する
+	if rand.Float64() < 0.8 {
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI徘徊待機"}
+	}
+
+	return ap.planRandomMoveAction(world, aiEntity, aiGrid)
+}
+
+// planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
+func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	// 30%の確率で待機
+	if rand.Float64() < 0.3 {
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI壁沿い待機"}
+	}
+
+	// 壁の空間インデックスを構築する。isWallAt を繰り返し呼ぶ代わりに O(1) でルックアップする
+	wallIndex := buildBlockPassIndex(world)
+
+	// 移動可能な方向を壁隣接スコアでソートする
+	type scoredDir struct {
+		x, y  int
+		score int
+	}
+	var candidates []scoredDir
+
+	for _, d := range eightDirections {
+		destX := int(aiGrid.X) + d.x
+		destY := int(aiGrid.Y) + d.y
+		fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+
+		if !activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+			continue
+		}
+
+		// 移動先の隣接4方向に壁がいくつあるかをカウントする
+		wallCount := 0
+		for _, adj := range []struct{ x, y int }{{0, -1}, {0, 1}, {-1, 0}, {1, 0}} {
+			if wallIndex[gc.GridElement{X: consts.Tile(destX + adj.x), Y: consts.Tile(destY + adj.y)}] {
+				wallCount++
+			}
+		}
+		candidates = append(candidates, scoredDir{d.x, d.y, wallCount})
+	}
+
+	if len(candidates) == 0 {
+		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI壁沿い移動失敗"}
+	}
+
+	// 同スコアの最高スコア候補からランダムに選ぶ
+	best := candidates[0].score
+	for _, c := range candidates[1:] {
+		if c.score > best {
+			best = c.score
+		}
+	}
+	var tied []scoredDir
+	for _, c := range candidates {
+		if c.score == best {
+			tied = append(tied, c)
+		}
+	}
+	chosen := tied[rand.IntN(len(tied))]
+
+	dest := gc.GridElement{X: consts.Tile(int(aiGrid.X) + chosen.x), Y: consts.Tile(int(aiGrid.Y) + chosen.y)}
+	return &activity.MoveActivity{}, activity.ActionParams{
+		Actor:       aiEntity,
+		Destination: &dest,
+	}
+}
+
+// planSwarmAction は最寄りのAIエンティティに接近するアクションを計画する
+func (ap *DefaultActionPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	// 最寄りのAIエンティティを探す
+	var nearestGrid *gc.GridElement
+	nearestDist := -1
+
+	world.Manager.Join(
+		world.Components.AIMoveFSM,
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if entity == aiEntity {
+			return
+		}
+		if entity.HasComponent(world.Components.Dead) {
+			return
+		}
+
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		dist := geometry.Abs(int(grid.X)-int(aiGrid.X)) + geometry.Abs(int(grid.Y)-int(aiGrid.Y))
+		if nearestDist < 0 || dist < nearestDist {
+			nearestDist = dist
+			nearestGrid = grid
+		}
+	}))
+
+	// 仲間が見つからない、または既に隣接している場合はランダム移動する
+	if nearestGrid == nil || nearestDist <= 1 {
+		return ap.planRandomMoveAction(world, aiEntity, aiGrid)
+	}
+
+	// 仲間に向かって移動する
+	dx := int(nearestGrid.X) - int(aiGrid.X)
+	dy := int(nearestGrid.Y) - int(aiGrid.Y)
+
+	moveCandidates := ap.calculateMoveCandidates(dx, dy)
+	for _, candidate := range moveCandidates {
+		destX := int(aiGrid.X) + candidate.x
+		destY := int(aiGrid.Y) + candidate.y
+
+		fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+			return &activity.MoveActivity{}, activity.ActionParams{
+				Actor:       aiEntity,
+				Destination: &dest,
+			}
+		}
+	}
+
+	return ap.planRandomMoveAction(world, aiEntity, aiGrid)
+}
+
+// buildBlockPassIndex は全BlockPassエンティティのタイル座標をインデックス化する。
+// 繰り返しの壁判定を O(1) で行うために使用する
+func buildBlockPassIndex(world w.World) map[gc.GridElement]bool {
+	index := make(map[gc.GridElement]bool)
+	world.Manager.Join(
+		world.Components.GridElement,
+		world.Components.BlockPass,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if entity.HasComponent(world.Components.Dead) {
+			return
+		}
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		index[*grid] = true
+	}))
+	return index
 }
 
 // isAdjacent は2つのタイルが隣接しているかを判定する（同じタイルは除く）
