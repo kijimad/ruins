@@ -105,6 +105,10 @@ type AIRoaming struct {
 	StartSubStateTurn int
 	// サブステートの持続ターン数
 	DurationSubStateTurns int
+	// スポーン地点。Territorial移動の範囲基準に使う
+	SpawnX, SpawnY int
+	// 巡回方向。Patrol移動で現在の進行方向を保持する
+	PatrolDirX, PatrolDirY int
 }
 
 // AIChasing は追跡状態のコンポーネント

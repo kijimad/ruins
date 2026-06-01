@@ -224,6 +224,10 @@ func (ap *DefaultActionPlanner) planDrivingAction(world w.World, aiEntity ecs.En
 		return ap.planWallHugAction(world, aiEntity, context.GridElement)
 	case gc.MovementSwarm:
 		return ap.planSwarmAction(world, aiEntity, context.GridElement)
+	case gc.MovementPatrol:
+		return ap.planPatrolAction(world, aiEntity, context)
+	case gc.MovementTerritorial:
+		return ap.planTerritorialAction(world, aiEntity, context)
 	default:
 		return ap.planRandomMoveAction(world, aiEntity, context.GridElement)
 	}
@@ -351,6 +355,84 @@ func (ap *DefaultActionPlanner) planSwarmAction(world w.World, aiEntity ecs.Enti
 	}
 
 	return ap.planRandomMoveAction(world, aiEntity, aiGrid)
+}
+
+// territorialRadius はTerritorial移動パターンのスポーン地点からの最大距離（タイル数）
+const territorialRadius = 5
+
+// planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
+func (ap *DefaultActionPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
+	aiGrid := context.GridElement
+	roaming := context.Roaming
+
+	// 現在の巡回方向に移動を試みる
+	destX := int(aiGrid.X) + roaming.PatrolDirX
+	destY := int(aiGrid.Y) + roaming.PatrolDirY
+
+	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+		dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+		return &activity.MoveActivity{}, activity.ActionParams{
+			Actor:       aiEntity,
+			Destination: &dest,
+		}
+	}
+
+	// 進めないので方向を反転する
+	roaming.PatrolDirX = -roaming.PatrolDirX
+	roaming.PatrolDirY = -roaming.PatrolDirY
+
+	// 反転方向に移動を試みる
+	destX = int(aiGrid.X) + roaming.PatrolDirX
+	destY = int(aiGrid.Y) + roaming.PatrolDirY
+	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+		dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+		return &activity.MoveActivity{}, activity.ActionParams{
+			Actor:       aiEntity,
+			Destination: &dest,
+		}
+	}
+
+	// どちらにも進めない場合は待機する
+	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI巡回移動失敗"}
+}
+
+// planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
+func (ap *DefaultActionPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
+	aiGrid := context.GridElement
+	roaming := context.Roaming
+
+	// 移動可能な方向をシャッフルして、範囲内の候補だけ試行する
+	shuffledDirections := make([]struct{ x, y int }, len(eightDirections))
+	copy(shuffledDirections, eightDirections)
+	for i := len(shuffledDirections) - 1; i > 0; i-- {
+		j := rand.IntN(i + 1)
+		shuffledDirections[i], shuffledDirections[j] = shuffledDirections[j], shuffledDirections[i]
+	}
+
+	for _, d := range shuffledDirections {
+		destX := int(aiGrid.X) + d.x
+		destY := int(aiGrid.Y) + d.y
+
+		// スポーン地点からの距離をチェックする
+		dx := geometry.Abs(destX - roaming.SpawnX)
+		dy := geometry.Abs(destY - roaming.SpawnY)
+		if dx > territorialRadius || dy > territorialRadius {
+			continue
+		}
+
+		fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+			dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+			return &activity.MoveActivity{}, activity.ActionParams{
+				Actor:       aiEntity,
+				Destination: &dest,
+			}
+		}
+	}
+
+	// 範囲内に移動先がない場合は待機する
+	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI縄張り移動失敗"}
 }
 
 // buildBlockPassIndex は全BlockPassエンティティのタイル座標をインデックス化する。

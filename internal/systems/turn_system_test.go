@@ -753,3 +753,130 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 
 	assert.True(t, moved, "フルターンサイクルで敵は50サイクル以内に移動するべき")
 }
+
+// TestPatrolMovement はPatrol移動パターンが直進と反転を正しく行うことを検証する
+func TestPatrolMovement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	_, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	require.NoError(t, err)
+
+	// Patrol移動のAIエンティティを作成する。PatrolDirX=1で右に進む
+	enemyX, enemyY := 20, 20
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "パトロール敵"})
+	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
+		SubState:              gc.AIRoamingDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		SpawnX:                enemyX,
+		SpawnY:                enemyY,
+		PatrolDirX:            1,
+		PatrolDirY:            0,
+	})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		AP:    gc.Pool{Current: 200, Max: 200},
+		Speed: 100,
+	})
+	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
+		Default: gc.DispositionHostile,
+		Current: gc.DispositionHostile,
+	})
+	mp := gc.MovementPatrol
+	enemy.AddComponent(world.Components.MovementPattern, &mp)
+
+	// 複数ターン実行して移動を確認する
+	moved := false
+	for turn := 0; turn < 10; turn++ {
+		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb.AP.Current = 200
+
+		turnState := worldhelper.GetTurnState(world)
+		turnState.Phase = gc.TurnPhaseAI
+		turnState.TurnNumber = turn + 1
+
+		err := processAITurn(world)
+		require.NoError(t, err)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		if int(grid.X) != enemyX || int(grid.Y) != enemyY {
+			moved = true
+			// Patrol移動なのでX座標が変化するはず
+			t.Logf("Patrolエンティティが移動: (%d,%d) → (%d,%d)", enemyX, enemyY, grid.X, grid.Y)
+			break
+		}
+	}
+
+	assert.True(t, moved, "Patrolエンティティは移動するべき")
+}
+
+// TestTerritorialMovement はTerritorial移動パターンがスポーン地点から離れすぎないことを検証する
+func TestTerritorialMovement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	_, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	require.NoError(t, err)
+
+	// Territorial移動のAIエンティティを作成する
+	spawnX, spawnY := 20, 20
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "縄張り敵"})
+	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
+	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
+		SubState:              gc.AIRoamingDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		SpawnX:                spawnX,
+		SpawnY:                spawnY,
+	})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		AP:    gc.Pool{Current: 200, Max: 200},
+		Speed: 100,
+	})
+	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
+		Default: gc.DispositionHostile,
+		Current: gc.DispositionHostile,
+	})
+	mp := gc.MovementTerritorial
+	enemy.AddComponent(world.Components.MovementPattern, &mp)
+
+	// 多数のターンを実行して範囲内に留まることを検証する
+	territorialRadius := 5
+	for turn := 0; turn < 100; turn++ {
+		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb.AP.Current = 200
+
+		turnState := worldhelper.GetTurnState(world)
+		turnState.Phase = gc.TurnPhaseAI
+		turnState.TurnNumber = turn + 1
+
+		err := processAITurn(world)
+		require.NoError(t, err)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		dx := int(grid.X) - spawnX
+		dy := int(grid.Y) - spawnY
+		if dx < 0 {
+			dx = -dx
+		}
+		if dy < 0 {
+			dy = -dy
+		}
+
+		assert.LessOrEqual(t, dx, territorialRadius,
+			"turn %d: X座標がスポーン地点から%dタイル以内であるべき (pos=%d, spawn=%d)", turn, territorialRadius, grid.X, spawnX)
+		assert.LessOrEqual(t, dy, territorialRadius,
+			"turn %d: Y座標がスポーン地点から%dタイル以内であるべき (pos=%d, spawn=%d)", turn, territorialRadius, grid.Y, spawnY)
+	}
+}

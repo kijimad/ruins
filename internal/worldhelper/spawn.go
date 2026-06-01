@@ -167,6 +167,14 @@ func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
 	return 0
 }
 
+// initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
+func initialPatrolDir() int {
+	if rand.IntN(2) == 0 {
+		return 1
+	}
+	return -1
+}
+
 // ================
 // Field
 // ================
@@ -273,6 +281,9 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 			SubState:              gc.AIRoamingWaiting,
 			StartSubStateTurn:     1,
 			DurationSubStateTurns: 2 + rand.IntN(3),
+			SpawnX:                tileX,
+			SpawnY:                tileY,
+			PatrolDirX:            initialPatrolDir(),
 		}
 		entitySpec.AIVision = &gc.AIVision{
 			ViewDistance: consts.Pixel(aiVisionDistance),
@@ -326,6 +337,9 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		SubState:              gc.AIRoamingWaiting,
 		StartSubStateTurn:     1,                // 初期ターン
 		DurationSubStateTurns: 2 + rand.IntN(3), // 2-4ターン待機
+		SpawnX:                tileX,
+		SpawnY:                tileY,
+		PatrolDirX:            initialPatrolDir(),
 	}
 	entitySpec.AIVision = &gc.AIVision{
 		ViewDistance: consts.Pixel(aiVisionDistance),
