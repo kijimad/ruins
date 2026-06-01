@@ -129,25 +129,6 @@ export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
 
 
 /**
- * 非戦闘時の移動パターン
- * @export
- * @enum {string}
- */
-
-export const BehaviorStrategyType = {
-    Random: 'random',
-    Patrol: 'patrol',
-    WallHug: 'wallHug',
-    Stationary: 'stationary',
-    Wander: 'wander',
-    Territorial: 'territorial',
-    Swarm: 'swarm'
-} as const;
-
-export type BehaviorStrategyType = typeof BehaviorStrategyType[keyof typeof BehaviorStrategyType];
-
-
-/**
  * 本の設定
  * @export
  * @interface Book
@@ -975,10 +956,10 @@ export interface Member {
     'disposition'?: DispositionType;
     /**
      * 非戦闘時の移動パターン
-     * @type {BehaviorStrategyType}
+     * @type {MovementPatternType}
      * @memberof Member
      */
-    'behaviorStrategy'?: BehaviorStrategyType;
+    'movementPattern'?: MovementPatternType;
     /**
      * 会話データ。未設定なら会話不可
      * @type {Dialog}
@@ -1032,6 +1013,25 @@ export interface ModelError {
      */
     'message': string;
 }
+/**
+ * 非戦闘時の移動パターン
+ * @export
+ * @enum {string}
+ */
+
+export const MovementPatternType = {
+    Random: 'random',
+    Patrol: 'patrol',
+    WallHug: 'wallHug',
+    Stationary: 'stationary',
+    Wander: 'wander',
+    Territorial: 'territorial',
+    Swarm: 'swarm'
+} as const;
+
+export type MovementPatternType = typeof MovementPatternType[keyof typeof MovementPatternType];
+
+
 /**
  * パレット
  * @export

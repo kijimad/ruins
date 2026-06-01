@@ -640,18 +640,18 @@ Defense = 2
 	assert.Nil(t, entitySpec.Disposition)
 }
 
-func TestMemberBehaviorStrategy(t *testing.T) {
+func TestMemberMovementPattern(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name     string
 		strategy string
-		expected gc.BehaviorStrategy
+		expected gc.MovementPattern
 	}{
-		{"random", "random", gc.BehaviorRandom},
-		{"stationary", "stationary", gc.BehaviorStationary},
-		{"wander", "wander", gc.BehaviorWander},
-		{"patrol", "patrol", gc.BehaviorPatrol},
+		{"random", "random", gc.MovementRandom},
+		{"stationary", "stationary", gc.MovementStationary},
+		{"wander", "wander", gc.MovementWander},
+		{"patrol", "patrol", gc.MovementPatrol},
 	}
 
 	for _, tt := range tests {
@@ -665,7 +665,7 @@ SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
 CommandTableName = ""
 DropTableName = ""
-BehaviorStrategy = "` + tt.strategy + `"
+movementPattern = "` + tt.strategy + `"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -679,13 +679,13 @@ Defense = 2
 
 			entitySpec, err := raw.NewMemberSpec("テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.BehaviorStrategy)
-			assert.Equal(t, tt.expected, *entitySpec.BehaviorStrategy)
+			require.NotNil(t, entitySpec.MovementPattern)
+			assert.Equal(t, tt.expected, *entitySpec.MovementPattern)
 		})
 	}
 }
 
-func TestMemberBehaviorStrategyUnset(t *testing.T) {
+func TestMemberMovementPatternUnset(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -709,10 +709,10 @@ Defense = 2
 
 	entitySpec, err := raw.NewMemberSpec("パターンなし")
 	require.NoError(t, err)
-	assert.Nil(t, entitySpec.BehaviorStrategy)
+	assert.Nil(t, entitySpec.MovementPattern)
 }
 
-func TestMemberBehaviorStrategyInvalid(t *testing.T) {
+func TestMemberMovementPatternInvalid(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -723,7 +723,7 @@ SpriteKey = "enemy"
 AnimKeys = ["enemy_0"]
 CommandTableName = ""
 DropTableName = ""
-BehaviorStrategy = "invalid_pattern"
+movementPattern = "invalid_pattern"
 [Members.Abilities]
 Vitality = 10
 Strength = 5

@@ -40,31 +40,31 @@ type Disposition struct {
 	Current DispositionType
 }
 
-// BehaviorStrategy は非戦闘時の移動パターンを表す
-type BehaviorStrategy string
+// MovementPattern は非戦闘時の移動パターンを表す
+type MovementPattern string
 
 const (
-	// BehaviorRandom はランダム移動。既存の動作と同じ
-	BehaviorRandom BehaviorStrategy = "random"
-	// BehaviorPatrol は定点巡回。指定経路を往復する
-	BehaviorPatrol BehaviorStrategy = "patrol"
-	// BehaviorWallHug は壁沿い移動。壁に沿って移動する
-	BehaviorWallHug BehaviorStrategy = "wallHug"
-	// BehaviorStationary は固定。移動しない番兵タイプ
-	BehaviorStationary BehaviorStrategy = "stationary"
-	// BehaviorWander は徘徊。低頻度でスポーン地点周辺をランダム移動する
-	BehaviorWander BehaviorStrategy = "wander"
-	// BehaviorTerritorial は縄張り。スポーン地点から一定範囲内で移動する
-	BehaviorTerritorial BehaviorStrategy = "territorial"
-	// BehaviorSwarm は群れ。同種族の仲間に寄る
-	BehaviorSwarm BehaviorStrategy = "swarm"
+	// MovementRandom はランダム移動。既存の動作と同じ
+	MovementRandom MovementPattern = "random"
+	// MovementPatrol は定点巡回。指定経路を往復する
+	MovementPatrol MovementPattern = "patrol"
+	// MovementWallHug は壁沿い移動。壁に沿って移動する
+	MovementWallHug MovementPattern = "wallHug"
+	// MovementStationary は固定。移動しない番兵タイプ
+	MovementStationary MovementPattern = "stationary"
+	// MovementWander は徘徊。低頻度でスポーン地点周辺をランダム移動する
+	MovementWander MovementPattern = "wander"
+	// MovementTerritorial は縄張り。スポーン地点から一定範囲内で移動する
+	MovementTerritorial MovementPattern = "territorial"
+	// MovementSwarm は群れ。同種族の仲間に寄る
+	MovementSwarm MovementPattern = "swarm"
 )
 
-// Valid はBehaviorStrategyの値が有効かを検証する
-func (bs BehaviorStrategy) Valid() error {
+// Valid はMovementPatternの値が有効かを検証する
+func (bs MovementPattern) Valid() error {
 	switch bs {
-	case BehaviorRandom, BehaviorPatrol, BehaviorWallHug, BehaviorStationary,
-		BehaviorWander, BehaviorTerritorial, BehaviorSwarm:
+	case MovementRandom, MovementPatrol, MovementWallHug, MovementStationary,
+		MovementWander, MovementTerritorial, MovementSwarm:
 		return nil
 	default:
 		return fmt.Errorf("get %s: %w", bs, ErrInvalidEnumType)

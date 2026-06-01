@@ -614,8 +614,8 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 		Default: gc.DispositionHostile,
 		Current: gc.DispositionHostile,
 	})
-	bs := gc.BehaviorRandom
-	enemy.AddComponent(world.Components.BehaviorStrategy, &bs)
+	mp := gc.MovementRandom
+	enemy.AddComponent(world.Components.MovementPattern, &mp)
 
 	// AIターンを複数回実行して移動を確認
 	// planRandomMoveActionは30%待機なので、十分な回数試行する

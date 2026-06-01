@@ -43,7 +43,7 @@ func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity
 		return ap.planFleeAction(world, aiEntity, playerEntity, context.GridElement)
 
 	case gc.AIRoamingDriving:
-		// 移動モード：BehaviorStrategyに基づく移動
+		// 移動モード：MovementPatternに基づく移動
 		return ap.planDrivingAction(world, aiEntity, context)
 
 	case gc.AIRoamingWaiting:
@@ -213,16 +213,16 @@ func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandid
 	return candidates
 }
 
-// planDrivingAction はBehaviorStrategyに基づく移動アクションを計画する
+// planDrivingAction はMovementPatternに基づく移動アクションを計画する
 func (ap *DefaultActionPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
-	switch context.BehaviorStrategy {
-	case gc.BehaviorStationary:
+	switch context.MovementPattern {
+	case gc.MovementStationary:
 		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI固定待機"}
-	case gc.BehaviorWander:
+	case gc.MovementWander:
 		return ap.planWanderAction(world, aiEntity, context.GridElement)
-	case gc.BehaviorWallHug:
+	case gc.MovementWallHug:
 		return ap.planWallHugAction(world, aiEntity, context.GridElement)
-	case gc.BehaviorSwarm:
+	case gc.MovementSwarm:
 		return ap.planSwarmAction(world, aiEntity, context.GridElement)
 	default:
 		return ap.planRandomMoveAction(world, aiEntity, context.GridElement)

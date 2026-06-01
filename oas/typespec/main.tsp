@@ -159,7 +159,7 @@ enum DispositionType {
 }
 
 /** 非戦闘時の移動パターン */
-enum BehaviorStrategyType {
+enum MovementPatternType {
   /** ランダム移動 */
   random,
   /** 定点巡回 */
@@ -468,7 +468,7 @@ model Member {
   /** 態度 */
   disposition?: DispositionType;
   /** 非戦闘時の移動パターン */
-  behaviorStrategy?: BehaviorStrategyType;
+  movementPattern?: MovementPatternType;
   /** 会話データ。未設定なら会話不可 */
   dialog?: Dialog;
   /** 参照するコマンドテーブル名 */

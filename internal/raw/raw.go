@@ -569,12 +569,12 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 	}
 
 	// 移動パターンの処理
-	if member.BehaviorStrategy != nil && string(*member.BehaviorStrategy) != "" {
-		bs := gc.BehaviorStrategy(*member.BehaviorStrategy)
-		if err := bs.Valid(); err != nil {
+	if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
+		mp := gc.MovementPattern(*member.MovementPattern)
+		if err := mp.Valid(); err != nil {
 			return gc.EntitySpec{}, fmt.Errorf("移動パターンが不正です(%s): %w", name, err)
 		}
-		entitySpec.BehaviorStrategy = &bs
+		entitySpec.MovementPattern = &mp
 	}
 
 	if member.Dialog != nil {

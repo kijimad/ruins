@@ -148,11 +148,11 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 
 // EntityContext はAIエンティティの必要な情報をまとめる
 type EntityContext struct {
-	GridElement      *gc.GridElement
-	Vision           *gc.AIVision
-	Roaming          *gc.AIRoaming
-	Disposition      *gc.Disposition
-	BehaviorStrategy gc.BehaviorStrategy
+	GridElement     *gc.GridElement
+	Vision          *gc.AIVision
+	Roaming         *gc.AIRoaming
+	Disposition     *gc.Disposition
+	MovementPattern gc.MovementPattern
 }
 
 // gatherEntityContext はエンティティから必要なコンポーネントを収集する
@@ -182,18 +182,18 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 		disposition = d.(*gc.Disposition)
 	}
 
-	// BehaviorStrategyコンポーネント取得
-	behaviorStrategy := gc.BehaviorRandom
-	if bs := world.Components.BehaviorStrategy.Get(entity); bs != nil {
-		behaviorStrategy = *bs.(*gc.BehaviorStrategy)
+	// MovementPatternコンポーネント取得
+	movementPattern := gc.MovementRandom
+	if mp := world.Components.MovementPattern.Get(entity); mp != nil {
+		movementPattern = *mp.(*gc.MovementPattern)
 	}
 
 	return &EntityContext{
-		GridElement:      gridElement,
-		Vision:           vision,
-		Roaming:          roaming,
-		Disposition:      disposition,
-		BehaviorStrategy: behaviorStrategy,
+		GridElement:     gridElement,
+		Vision:          vision,
+		Roaming:         roaming,
+		Disposition:     disposition,
+		MovementPattern: movementPattern,
 	}, nil
 }
 
