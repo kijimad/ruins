@@ -2,6 +2,8 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
 import "@typespec/openapi";
+import "./req.tsp";
+import "./resp.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;
@@ -21,6 +23,101 @@ model Error {
   /** エラーメッセージ */
   message: string;
 }
+
+// ================== スカラー型 ==================
+
+/** 命中率 */
+scalar Accuracy extends int32;
+/** 命中率補正値 */
+scalar AccuracyBonus extends int32;
+/** 行動コスト */
+scalar ActionCost extends int32;
+/** 敏捷性。行動順に影響する */
+scalar Agility extends int32;
+/** 防具の防御力 */
+scalar ArmorDefense extends int32;
+/** 1ターンあたりの攻撃回数 */
+scalar AttackCount extends int32;
+/** 基本ダメージ */
+scalar BaseDamage extends int32;
+/** 通行を妨げるかどうか */
+scalar BlocksPassage extends boolean;
+/** 視線を遮るかどうか */
+scalar BlocksView extends boolean;
+/** RGBA色チャネル値 (0-255) */
+scalar ColorChannel extends uint8;
+/** ダメージ補正値 */
+scalar DamageBonus extends int32;
+/** 防御力。被ダメージを軽減する */
+scalar Defense extends int32;
+/** 階層レベル */
+scalar DepthLevel extends int32;
+/** 器用さ。クリティカル率に影響する */
+scalar Dexterity extends int32;
+/** 説明文 */
+scalar EntityDescription extends string;
+/** エンティティ名 */
+scalar EntityName extends string;
+/** テーブルエントリの重み。大きいほど選ばれやすい */
+scalar EntryWeight extends float64;
+/** 回復固定量 */
+scalar HealAmount extends int32;
+/** 回復割合。0.0〜1.0 */
+scalar HealRatio extends float64;
+/** 画像ファイルパス */
+scalar ImagePath extends string;
+/** 耐寒性能 */
+scalar InsulationCold extends int32;
+/** 耐暑性能 */
+scalar InsulationHeat extends int32;
+/** ボスモンスターかどうか */
+scalar IsBoss extends boolean;
+/** プレイヤーキャラクターかどうか */
+scalar IsPlayer extends boolean;
+/** アイテム所持数 */
+scalar ItemCount extends int32;
+/** 売買価格 */
+scalar ItemValue extends int32;
+/** アイテム重量 */
+scalar ItemWeight extends float64;
+/** 光源が有効かどうか */
+scalar LightEnabled extends boolean;
+/** 光の到達半径 */
+scalar LightRadius extends int32;
+/** マガジン容量 */
+scalar MagazineSize extends int32;
+/** 素材必要数 */
+scalar MaterialAmount extends int32;
+/** メッセージリソースのキー */
+scalar MessageKey extends string;
+/** 栄養価 */
+scalar NutritionAmount extends int32;
+/** パレットID */
+scalar PaletteId extends string;
+/** 職業ID */
+scalar ProfessionId extends string;
+/** 読了に必要な総読書量 */
+scalar ReadingEffort extends int32;
+/** リロードに必要な行動力 */
+scalar ReloadEffort extends int32;
+/** 感覚。命中率と回避率に影響する */
+scalar Sensation extends int32;
+/** スキルID */
+scalar SkillId extends string;
+/** スキルレベル */
+scalar SkillLevel extends int32;
+/** スプライトキー */
+scalar SpriteKey extends string;
+/** スプライトシート名 */
+scalar SpriteSheetName extends string;
+/** スタック可能かどうか */
+scalar Stackable extends boolean;
+/** 筋力。物理ダメージに影響する */
+scalar Strength extends int32;
+/** AI視界距離（タイル単位） */
+scalar ViewDistance extends int32;
+/** 体力。HPに影響する */
+scalar Vitality extends int32;
 
 // ================== 共通enum ==================
 
@@ -218,600 +315,10 @@ enum FoliageType {
   Forest: -3,
 }
 
-// ================== アイテム ==================
-
-/** 消費可能アイテムの設定 */
-model Consumable {
-  /** 使用可能なシーン */
-  usableScene: UsableScene;
-  /** 効果の対象グループ */
-  targetGroup: TargetGroup;
-  /** 効果の対象数 */
-  targetNum: TargetNum;
-}
-
 /** 回復量の計算方式 */
 enum HealingValueType {
   /** 最大値に対する割合で回復 */
   PERCENTAGE,
-}
-
-/** 回復効果 */
-model ProvidesHealing {
-  /** 回復量の計算方式 */
-  valueType: HealingValueType;
-  /** 回復固定量 */
-  amount: int32;
-  /** 回復割合。0.0〜1.0 */
-  ratio: float64;
-}
-
-/** 装備可能設定 */
-model Wearable {
-  /** 防御力 */
-  defense: int32;
-  /** 装備する部位 */
-  equipmentCategory: EquipmentCategory;
-  /** 耐寒性能 */
-  insulationCold: int32;
-  /** 耐暑性能 */
-  insulationHeat: int32;
-}
-
-/** 装備ボーナス */
-model EquipBonus {
-  /** 体力ボーナス */
-  vitality: int32;
-  /** 筋力ボーナス */
-  strength: int32;
-  /** 感覚ボーナス */
-  sensation: int32;
-  /** 器用さボーナス */
-  dexterity: int32;
-  /** 敏捷性ボーナス */
-  agility: int32;
-}
-
-/** 武器マーカー */
-model Weapon {}
-
-/** 弾薬設定 */
-model Ammo {
-  /** 弾薬の種類タグ */
-  ammoTag: AmmoTag;
-  /** ダメージ補正値 */
-  damageBonus: int32;
-  /** 命中率補正値 */
-  accuracyBonus: int32;
-}
-
-/** 近接攻撃設定 */
-model Melee {
-  /** 命中率 */
-  accuracy: int32;
-  /** ダメージ */
-  damage: int32;
-  /** 1ターンあたりの攻撃回数 */
-  attackCount: int32;
-  /** 攻撃属性 */
-  element: Element;
-  /** 攻撃種別 */
-  attackCategory: AttackCategory;
-  /** 行動コスト */
-  cost: int32;
-  /** 対象グループ */
-  targetGroup: TargetGroup;
-  /** 対象数 */
-  targetNum: TargetNum;
-}
-
-/** 遠距離攻撃設定 */
-model Fire {
-  /** 命中率 */
-  accuracy: int32;
-  /** ダメージ */
-  damage: int32;
-  /** 1ターンあたりの攻撃回数 */
-  attackCount: int32;
-  /** 攻撃属性 */
-  element: Element;
-  /** 攻撃種別 */
-  attackCategory: AttackCategory;
-  /** 行動コスト */
-  cost: int32;
-  /** 対象グループ */
-  targetGroup: TargetGroup;
-  /** 対象数 */
-  targetNum: TargetNum;
-  /** マガジン容量 */
-  magazineSize: int32;
-  /** リロードに必要な行動力 */
-  reloadEffort: int32;
-  /** 使用する弾薬の種類 */
-  ammoTag: AmmoTag;
-}
-
-/** スキル本設定 */
-model SkillBook {
-  /** 習得対象のスキルID */
-  targetSkill: string;
-  /** 習得に必要なスキルレベル */
-  requiredLevel: int32;
-  /** 習得可能な最大レベル */
-  maxLevel: int32;
-}
-
-/** 本の設定 */
-model Book {
-  /** 読了に必要な総読書量 */
-  totalEffort: int32;
-  /** スキル本としての設定。未設定なら娯楽本 */
-  skill?: SkillBook;
-}
-
-/** アイテム */
-model Item {
-  /** アイテム名 */
-  name: string;
-  /** アイテムの説明文 */
-  description: string;
-  /** スプライトシート名 */
-  spriteSheetName: string;
-  /** スプライトキー */
-  spriteKey: string;
-  /** アニメーション用スプライトキーの配列 */
-  animKeys: string[];
-  /** 売買価格 */
-  value: int32;
-  /** 重量。未設定なら0 */
-  weight?: float64;
-  /** 投擲ダメージ。未設定なら投擲不可 */
-  inflictsDamage?: int32;
-  /** 栄養価。未設定なら食べられない */
-  providesNutrition?: int32;
-  /** スタック可能かどうか */
-  stackable?: boolean;
-  /** 消費アイテム設定 */
-  consumable?: Consumable;
-  /** 回復効果 */
-  providesHealing?: ProvidesHealing;
-  /** 防具設定 */
-  wearable?: Wearable;
-  /** 装備ボーナス */
-  equipBonus?: EquipBonus;
-  /** 武器マーカー。存在すれば武器として扱う */
-  weapon?: Weapon;
-  /** 弾薬設定 */
-  ammo?: Ammo;
-  /** 近接攻撃設定 */
-  melee?: Melee;
-  /** 遠距離攻撃設定 */
-  fire?: Fire;
-  /** 本設定 */
-  book?: Book;
-}
-
-/** アイテム一覧レスポンス */
-model ItemList {
-  /** アイテムの配列 */
-  data: Item[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== メンバー ==================
-
-/** 能力値 */
-model Abilities {
-  /** 体力。HPに影響する */
-  vitality: int32;
-  /** 筋力。物理ダメージに影響する */
-  strength: int32;
-  /** 感覚。命中率と回避率に影響する */
-  sensation: int32;
-  /** 器用さ。クリティカル率に影響する */
-  dexterity: int32;
-  /** 敏捷性。行動順に影響する */
-  agility: int32;
-  /** 防御力。被ダメージを軽減する */
-  defense: int32;
-}
-
-/** 光源設定 */
-model LightSource {
-  /** 光の到達半径 */
-  radius: int32;
-  /** 光の色 */
-  color: RGBAColor;
-  /** 光源が有効かどうか */
-  enabled: boolean;
-}
-
-/** RGBA色 */
-model RGBAColor {
-  /** 赤 (0-255) */
-  r: uint8;
-  /** 緑 (0-255) */
-  g: uint8;
-  /** 青 (0-255) */
-  b: uint8;
-  /** 透明度 (0-255) */
-  a: uint8;
-}
-
-/** 会話データ */
-model Dialog {
-  /** メッセージリソースのキー */
-  messageKey: string;
-}
-
-/** メンバー */
-model Member {
-  /** メンバー名 */
-  name: string;
-  /** プレイヤーキャラクターかどうか */
-  player?: boolean;
-  /** ボスモンスターかどうか */
-  isBoss: boolean;
-  /** 基本能力値 */
-  abilities: Abilities;
-  /** スプライトシート名 */
-  spriteSheetName: string;
-  /** スプライトキー */
-  spriteKey: string;
-  /** アニメーション用スプライトキーの配列 */
-  animKeys: string[];
-  /** 光源設定。未設定なら光源なし */
-  lightSource?: LightSource;
-  /** 所属する派閥。未設定なら敵対 */
-  factionType?: FactionMemberType;
-  /** 態度 */
-  disposition?: DispositionType;
-  /** 非戦闘時の移動パターン */
-  movementPattern?: MovementPatternType;
-  /** AI視界距離。タイル単位 */
-  viewDistance?: int32;
-  /** 会話データ。未設定なら会話不可 */
-  dialog?: Dialog;
-  /** 参照するコマンドテーブル名 */
-  commandTableName: string;
-  /** 参照するドロップテーブル名 */
-  dropTableName: string;
-}
-
-/** メンバー一覧レスポンス */
-model MemberList {
-  /** メンバーの配列 */
-  data: Member[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== レシピ ==================
-
-/** レシピ素材 */
-model RecipeInput {
-  /** 素材アイテム名 */
-  name: string;
-  /** 必要個数 */
-  amount: int32;
-}
-
-/** レシピ */
-model Recipe {
-  /** レシピ名。生成されるアイテム名と一致する */
-  name: string;
-  /** 必要素材のリスト */
-  inputs: RecipeInput[];
-}
-
-/** レシピ一覧レスポンス */
-model RecipeList {
-  /** レシピの配列 */
-  data: Recipe[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== テーブル ==================
-
-/** コマンドテーブルエントリ */
-model CommandTableEntry {
-  /** 使用する武器名 */
-  weapon: string;
-  /** 選択される重み。大きいほど選ばれやすい */
-  weight: float64;
-}
-
-/** コマンドテーブル */
-model CommandTable {
-  /** テーブル名 */
-  name: string;
-  /** コマンドエントリのリスト */
-  entries: CommandTableEntry[];
-}
-
-/** コマンドテーブル一覧 */
-model CommandTableList {
-  /** コマンドテーブルの配列 */
-  data: CommandTable[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-/** ドロップテーブルエントリ */
-model DropTableEntry {
-  /** ドロップする素材名 */
-  material: string;
-  /** ドロップする重み。大きいほど選ばれやすい */
-  weight: float64;
-}
-
-/** ドロップテーブル */
-model DropTable {
-  /** テーブル名 */
-  name: string;
-  /** ドロップエントリのリスト */
-  entries: DropTableEntry[];
-}
-
-/** ドロップテーブル一覧 */
-model DropTableList {
-  /** ドロップテーブルの配列 */
-  data: DropTable[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-/** アイテムテーブルエントリ */
-model ItemTableEntry {
-  /** 出現するアイテム名 */
-  itemName: string;
-  /** 出現する重み。大きいほど選ばれやすい */
-  weight: float64;
-  /** 出現する最小階層 */
-  minDepth: int32;
-  /** 出現する最大階層 */
-  maxDepth: int32;
-}
-
-/** アイテムテーブル */
-model ItemTable {
-  /** テーブル名 */
-  name: string;
-  /** アイテムエントリのリスト */
-  entries: ItemTableEntry[];
-}
-
-/** アイテムテーブル一覧 */
-model ItemTableList {
-  /** アイテムテーブルの配列 */
-  data: ItemTable[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-/** 敵テーブルエントリ */
-model EnemyTableEntry {
-  /** 出現する敵メンバー名 */
-  enemyName: string;
-  /** 出現する重み。大きいほど選ばれやすい */
-  weight: float64;
-  /** 出現する最小階層 */
-  minDepth: int32;
-  /** 出現する最大階層 */
-  maxDepth: int32;
-}
-
-/** 敵テーブル */
-model EnemyTable {
-  /** テーブル名 */
-  name: string;
-  /** 敵エントリのリスト */
-  entries: EnemyTableEntry[];
-}
-
-/** 敵テーブル一覧 */
-model EnemyTableList {
-  /** 敵テーブルの配列 */
-  data: EnemyTable[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== タイル ==================
-
-/** スプライトレンダー設定 */
-model SpriteRender {
-  /** スプライトシート名 */
-  spriteSheetName: string;
-  /** スプライトキー */
-  spriteKey: string;
-  /** 描画深度。レイヤー順序を決定する */
-  depth: SpriteDepth;
-}
-
-/** タイル */
-model Tile {
-  /** タイル名 */
-  name: string;
-  /** タイルの説明文 */
-  description: string;
-  /** 通行を妨げるかどうか */
-  blockPass: boolean;
-  /** 視線を遮るかどうか */
-  blockView: boolean;
-  /** スプライト描画設定 */
-  spriteRender: SpriteRender;
-  /** 遮蔽タイプ。戦闘時の命中率に影響する */
-  shelter: ShelterType;
-  /** 水タイプ。移動コストに影響する */
-  water: WaterType;
-  /** 植生タイプ。視界に影響する */
-  foliage: FoliageType;
-}
-
-/** タイル一覧 */
-model TileList {
-  /** タイルの配列 */
-  data: Tile[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== 置物 ==================
-
-/** 扉ローデータ */
-model DoorRaw {}
-
-/** 扉ロックトリガー */
-model DoorLockTriggerRaw {}
-
-/** 次階層ワープトリガー */
-model WarpNextTriggerRaw {}
-
-/** 脱出ワープトリガー */
-model WarpEscapeTriggerRaw {}
-
-/** ダンジョン選択ゲートトリガー */
-model DungeonGateTriggerRaw {}
-
-/** 置物 */
-model Prop {
-  /** 置物名 */
-  name: string;
-  /** 置物の説明文 */
-  description: string;
-  /** スプライト描画設定 */
-  spriteRender: SpriteRender;
-  /** アニメーション用スプライトキーの配列 */
-  animKeys: string[];
-  /** 通行を妨げるかどうか */
-  blockPass: boolean;
-  /** 視線を遮るかどうか */
-  blockView: boolean;
-  /** 光源設定。未設定なら光源なし */
-  lightSource?: LightSource;
-  /** 扉データ。設定すると開閉可能な扉として動作する */
-  door?: DoorRaw;
-  /** 扉ロックトリガー。設定すると鍵付き扉として動作する */
-  doorLockTrigger?: DoorLockTriggerRaw;
-  /** 次階層ワープトリガー。踏むと次の階層に進む */
-  warpNextTrigger?: WarpNextTriggerRaw;
-  /** 脱出ワープトリガー。踏むとダンジョンから脱出する */
-  warpEscapeTrigger?: WarpEscapeTriggerRaw;
-  /** ダンジョン選択ゲートトリガー。調べるとダンジョン選択画面を開く */
-  dungeonGateTrigger?: DungeonGateTriggerRaw;
-}
-
-/** 置物一覧 */
-model PropList {
-  /** 置物の配列 */
-  data: Prop[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== 職業 ==================
-
-/** 職業スキル初期値 */
-model ProfessionSkill {
-  /** スキルID */
-  id: string;
-  /** 初期スキルレベル */
-  value: int32;
-}
-
-/** 職業初期所持アイテム */
-model ProfessionItem {
-  /** アイテム名 */
-  name: string;
-  /** 所持数 */
-  count: int32;
-}
-
-/** 職業初期装備 */
-model ProfessionEquip {
-  /** 装備アイテム名 */
-  name: string;
-  /** 装備するスロット */
-  slot: EquipSlot;
-}
-
-/** 職業 */
-model Profession {
-  /** 職業ID */
-  id: string;
-  /** 職業名 */
-  name: string;
-  /** 職業の説明文 */
-  description: string;
-  /** 基本能力値 */
-  abilities: Abilities;
-  /** 初期スキルのリスト */
-  skills: ProfessionSkill[];
-  /** 初期所持アイテムのリスト */
-  items: ProfessionItem[];
-  /** 初期装備のリスト */
-  equips: ProfessionEquip[];
-}
-
-/** 職業一覧 */
-model ProfessionList {
-  /** 職業の配列 */
-  data: Profession[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== スプライトシート ==================
-
-/** スプライトシート */
-model SpriteSheet {
-  /** シート名 */
-  name: string;
-  /** 画像ファイルパス */
-  path: string;
-}
-
-/** スプライトシート一覧 */
-model SpriteSheetList {
-  /** スプライトシートの配列 */
-  data: SpriteSheet[];
-  /** 総件数 */
-  totalCount: int32;
-}
-
-// ================== パレット ==================
-
-/** パレットエントリ */
-model PaletteEntry {
-  /** エントリID */
-  id: string;
-  /** 対応するタイル名 */
-  tile: string;
-}
-
-/** パレット */
-model Palette {
-  /** パレットID */
-  id: string;
-  /** パレットの説明文 */
-  description: string;
-  /** 地形マッピング。マップ文字からタイル名への対応 */
-  terrain: Record<string>;
-  /** 置物マッピング。マップ文字から置物エントリへの対応 */
-  props: Record<PaletteEntry>;
-  /** NPCマッピング。マップ文字からNPCエントリへの対応 */
-  npcs: Record<PaletteEntry>;
-}
-
-/** パレット一覧 */
-model PaletteList {
-  /** パレットの配列 */
-  data: Palette[];
-  /** 総件数 */
-  totalCount: int32;
 }
 
 // ================== API エンドポイント ==================
