@@ -562,6 +562,9 @@ type Member struct {
 
 	// SpriteSheetName スプライトシート名
 	SpriteSheetName string `json:"spriteSheetName"`
+
+	// ViewDistance AI視界距離。タイル単位
+	ViewDistance *int32 `json:"viewDistance,omitempty"`
 }
 
 // MemberList メンバー一覧レスポンス

@@ -21,7 +21,7 @@ func setupTestAI(t *testing.T, world w.World, x, y int, mp gc.MovementPattern, r
 	entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
 	entity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	entity.AddComponent(world.Components.AIRoaming, roaming)
-	entity.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	entity.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	entity.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.Pool{Current: 200, Max: 200},
 		Speed: 100,

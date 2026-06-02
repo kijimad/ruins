@@ -469,6 +469,8 @@ model Member {
   disposition?: DispositionType;
   /** 非戦闘時の移動パターン */
   movementPattern?: MovementPatternType;
+  /** AI視界距離。タイル単位 */
+  viewDistance?: int32;
   /** 会話データ。未設定なら会話不可 */
   dialog?: Dialog;
   /** 参照するコマンドテーブル名 */

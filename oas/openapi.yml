@@ -2040,6 +2040,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/MovementPatternType'
           description: 非戦闘時の移動パターン
+        viewDistance:
+          type: integer
+          format: int32
+          description: AI視界距離。タイル単位
         dialog:
           allOf:
             - $ref: '#/components/schemas/Dialog'

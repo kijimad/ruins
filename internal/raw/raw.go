@@ -577,6 +577,13 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		entitySpec.MovementPattern = &mp
 	}
 
+	// 視界距離の処理
+	if member.ViewDistance != nil && *member.ViewDistance > 0 {
+		entitySpec.AIVision = &gc.AIVision{
+			ViewDistance: consts.Tile(*member.ViewDistance),
+		}
+	}
+
 	if member.Dialog != nil {
 		entitySpec.Dialog = &gc.Dialog{
 			MessageKey: member.Dialog.MessageKey,

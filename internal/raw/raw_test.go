@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -738,6 +739,62 @@ Defense = 2
 	_, err = raw.NewMemberSpec("無効パターン")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "移動パターンが不正です")
+}
+
+func TestMemberViewDistance(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "広視界敵"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+viewDistance = 8
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	entitySpec, err := raw.NewMemberSpec("広視界敵")
+	require.NoError(t, err)
+	require.NotNil(t, entitySpec.AIVision)
+	assert.Equal(t, consts.Tile(8), entitySpec.AIVision.ViewDistance)
+}
+
+func TestMemberViewDistanceUnset(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "視界未設定"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	entitySpec, err := raw.NewMemberSpec("視界未設定")
+	require.NoError(t, err)
+	assert.Nil(t, entitySpec.AIVision)
 }
 
 func TestMemberDispositionInvalid(t *testing.T) {
