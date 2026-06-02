@@ -50,6 +50,8 @@ func (sys *TurnSystem) Update(world w.World) error {
 		if err := processTurnEnd(world); err != nil {
 			return err
 		}
+		// 空間インデックスを無効化する。次ターンで再構築される
+		worldhelper.InvalidateSpatialIndex(world)
 		turnState.TurnNumber++
 		turnState.Phase = gc.TurnPhasePlayer
 	}

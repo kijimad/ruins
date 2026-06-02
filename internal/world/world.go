@@ -69,6 +69,7 @@ func (world World) InitSingleton() {
 	singleton.AddComponent(world.Components.GameProgress, gc.NewGameProgress())
 	singleton.AddComponent(world.Components.DungeonState, gc.NewDungeon())
 	singleton.AddComponent(world.Components.TurnState, gc.NewTurnState())
+	singleton.AddComponent(world.Components.SpatialIndex, gc.NewSpatialIndex())
 	world.Resources.SingletonEntity = singleton
 }
 

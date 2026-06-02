@@ -199,15 +199,9 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 
 // findPlayer はプレイヤーエンティティを探す
 func (p *Processor) findPlayer(world w.World) *ecs.Entity {
-	var playerEntity *ecs.Entity
-
-	world.Manager.Join(world.Components.Player, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// 死亡しているエンティティは除外
-		if entity.HasComponent(world.Components.Dead) {
-			return
-		}
-		playerEntity = &entity
-	}))
-
-	return playerEntity
+	si := worldhelper.GetSpatialIndex(world)
+	if si == nil {
+		return nil
+	}
+	return si.PlayerEntity
 }

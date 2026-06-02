@@ -169,6 +169,7 @@ type Components struct {
 	DungeonState *ecs.SliceComponent // ダンジョン状態
 	GameProgress *ecs.SliceComponent // ゲーム進行データ
 	TurnState    *ecs.SliceComponent // ターン状態
+	SpatialIndex *ecs.SliceComponent // 空間インデックス
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

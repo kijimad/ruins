@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -250,8 +251,7 @@ func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.En
 		return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI壁沿い待機"}
 	}
 
-	// 壁の空間インデックスを構築する。isWallAt を繰り返し呼ぶ代わりに O(1) でルックアップする
-	wallIndex := buildBlockPassIndex(world)
+	si := worldhelper.GetSpatialIndex(world)
 
 	// 移動可能な方向を壁隣接スコアでソートする
 	type scoredDir struct {
@@ -272,7 +272,7 @@ func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.En
 		// 移動先の隣接4方向に壁がいくつあるかをカウントする
 		wallCount := 0
 		for _, adj := range []struct{ x, y int }{{0, -1}, {0, 1}, {-1, 0}, {1, 0}} {
-			if wallIndex[gc.GridElement{X: consts.Tile(destX + adj.x), Y: consts.Tile(destY + adj.y)}] {
+			if si.IsBlockPass(destX+adj.x, destY+adj.y) {
 				wallCount++
 			}
 		}
@@ -433,23 +433,6 @@ func (ap *DefaultActionPlanner) planTerritorialAction(world w.World, aiEntity ec
 
 	// 範囲内に移動先がない場合は待機する
 	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: "AI縄張り移動失敗"}
-}
-
-// buildBlockPassIndex は全BlockPassエンティティのタイル座標をインデックス化する。
-// 繰り返しの壁判定を O(1) で行うために使用する
-func buildBlockPassIndex(world w.World) map[gc.GridElement]bool {
-	index := make(map[gc.GridElement]bool)
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockPass,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
-			return
-		}
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		index[*grid] = true
-	}))
-	return index
 }
 
 // isAdjacent は2つのタイルが隣接しているかを判定する（同じタイルは除く）
