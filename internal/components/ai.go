@@ -40,6 +40,23 @@ type Disposition struct {
 	Current DispositionType
 }
 
+// ResetToDefault は態度をデフォルトに復帰させる
+func (d *Disposition) ResetToDefault() {
+	d.Current = d.Default
+}
+
+// ReactToHostile は敵対行動を受けた際の態度変化を適用する
+func (d *Disposition) ReactToHostile() {
+	switch d.Default {
+	case DispositionNeutral:
+		d.Current = DispositionHostile
+	case DispositionCowardly:
+		d.Current = DispositionFleeing
+	case DispositionHostile, DispositionFleeing:
+		// 既に敵対的または逃亡中なので変化なし
+	}
+}
+
 // MovementPattern は非戦闘時の移動パターンを表す
 type MovementPattern string
 

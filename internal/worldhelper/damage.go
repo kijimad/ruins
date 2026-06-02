@@ -43,15 +43,7 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 		return
 	}
 	disposition := d.(*gc.Disposition)
-
-	switch disposition.Default {
-	case gc.DispositionNeutral:
-		disposition.Current = gc.DispositionHostile
-	case gc.DispositionCowardly:
-		disposition.Current = gc.DispositionFleeing
-	case gc.DispositionHostile, gc.DispositionFleeing:
-		// 変化なし
-	}
+	disposition.ReactToHostile()
 }
 
 // logDamageDealt はダメージログを出力する

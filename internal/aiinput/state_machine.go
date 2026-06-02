@@ -111,7 +111,7 @@ func (sm *DefaultStateMachine) updateFromFleeing(roaming *gc.AIRoaming, disposit
 	if !canSeePlayer && elapsedTurns >= roaming.DurationSubStateTurns {
 		// プレイヤーを見失い、逃亡時間が終了 → デフォルト態度に復帰して移動へ
 		if disposition != nil {
-			disposition.Current = disposition.Default
+			disposition.ResetToDefault()
 		}
 		sm.transitionToDriving(roaming, currentTurn)
 	} else if canSeePlayer {
