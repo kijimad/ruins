@@ -559,6 +559,24 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	// 態度タイプの処理
+	if member.Disposition != nil && string(*member.Disposition) != "" {
+		dt := gc.DispositionType(*member.Disposition)
+		if err := dt.ValidAsDefault(); err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("態度タイプが不正です(%s): %w", name, err)
+		}
+		entitySpec.Disposition = &gc.Disposition{Default: dt, Current: dt}
+	}
+
+	// 移動パターンの処理
+	if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
+		mp := gc.MovementPattern(*member.MovementPattern)
+		if err := mp.Valid(); err != nil {
+			return gc.EntitySpec{}, fmt.Errorf("移動パターンが不正です(%s): %w", name, err)
+		}
+		entitySpec.MovementPattern = &mp
+	}
+
 	if member.Dialog != nil {
 		entitySpec.Dialog = &gc.Dialog{
 			MessageKey: member.Dialog.MessageKey,

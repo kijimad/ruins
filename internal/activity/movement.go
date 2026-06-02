@@ -1,10 +1,10 @@
 package activity
 
 import (
-	gc "github.com/kijimaD/ruins/internal/components"
-	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
+
+	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // CanMoveTo は指定位置に移動可能かチェックする
@@ -40,10 +40,9 @@ import (
 // CanMoveTo は指定位置に移動可能かチェックする。
 // fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する
 func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {
-	// 基本的な境界チェック（実際のマップサイズを使用）
-	mapWidth := int(worldhelper.GetDungeon(world).Level.TileWidth)
-	mapHeight := int(worldhelper.GetDungeon(world).Level.TileHeight)
-	if tileX < 0 || tileY < 0 || tileX >= mapWidth || tileY >= mapHeight {
+	si := worldhelper.GetSpatialIndex(world)
+
+	if tileX < 0 || tileY < 0 || tileX >= si.MapWidth || tileY >= si.MapHeight {
 		return false
 	}
 
@@ -51,92 +50,14 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 	dx := tileX - fromX
 	dy := tileY - fromY
 	if dx != 0 && dy != 0 {
-		if isBlockedAt(world, fromX+dx, fromY, movingEntity) && isBlockedAt(world, fromX, fromY+dy, movingEntity) {
+		if si.IsBlockPass(fromX+dx, fromY) && si.IsBlockPass(fromX, fromY+dy) {
 			return false
 		}
 	}
 
-	// 他のエンティティとの衝突チェック
-	canMove := true
-
-	// 壁やブロックとの衝突チェック
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockPass,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// 自分自身は除外
-		if entity == movingEntity {
-			return
-		}
-
-		// 死亡しているエンティティは除外
-		if entity.HasComponent(world.Components.Dead) {
-			return
-		}
-
-		gridElementComponent := world.Components.GridElement.Get(entity)
-		if gridElementComponent == nil {
-			return
-		}
-		gridElement := gridElementComponent.(*gc.GridElement)
-		if int(gridElement.X) == tileX && int(gridElement.Y) == tileY {
-			canMove = false
-		}
-	}))
-
-	// キャラクター同士の衝突チェック（プレイヤー、敵）
-	if canMove {
-		world.Manager.Join(
-			world.Components.GridElement,
-		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			// 自分自身は除外
-			if entity == movingEntity {
-				return
-			}
-
-			// 死亡しているエンティティは除外
-			if entity.HasComponent(world.Components.Dead) {
-				return
-			}
-
-			// キャラクターエンティティのみチェック（プレイヤーまたは敵AI）
-			isCharacter := entity.HasComponent(world.Components.Player) || entity.HasComponent(world.Components.AIMoveFSM)
-			if !isCharacter {
-				return
-			}
-
-			gridElementComponent := world.Components.GridElement.Get(entity)
-			if gridElementComponent == nil {
-				return
-			}
-			gridElement := gridElementComponent.(*gc.GridElement)
-			if int(gridElement.X) == tileX && int(gridElement.Y) == tileY {
-				canMove = false
-			}
-		}))
+	if si.IsBlockPass(tileX, tileY) {
+		return false
 	}
 
-	return canMove
-}
-
-// isBlockedAt は指定座標にBlockPassエンティティがあるかをチェックする
-func isBlockedAt(world w.World, tileX, tileY int, movingEntity ecs.Entity) bool {
-	blocked := false
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.BlockPass,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity == movingEntity || entity.HasComponent(world.Components.Dead) {
-			return
-		}
-		gridElement := world.Components.GridElement.Get(entity)
-		if gridElement == nil {
-			return
-		}
-		grid := gridElement.(*gc.GridElement)
-		if int(grid.X) == tileX && int(grid.Y) == tileY {
-			blocked = true
-		}
-	}))
-	return blocked
+	return !si.IsCharacterAt(tileX, tileY, movingEntity)
 }

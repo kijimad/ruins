@@ -38,6 +38,8 @@ type EntitySpec struct {
 	AIRoaming       *AIRoaming
 	AIVision        *AIVision
 	AIChasing       *AIChasing
+	Disposition     *Disposition
+	MovementPattern *MovementPattern
 	Camera          *Camera
 	Position        *Position
 	GridElement     *GridElement
@@ -112,6 +114,8 @@ type Components struct {
 	AIRoaming       *ecs.SliceComponent
 	AIVision        *ecs.SliceComponent
 	AIChasing       *ecs.SliceComponent
+	Disposition     *ecs.SliceComponent
+	MovementPattern *ecs.SliceComponent
 	Camera          *ecs.SliceComponent `save:"true"`
 	Position        *ecs.SliceComponent
 	GridElement     *ecs.SliceComponent `save:"true"`
@@ -165,6 +169,7 @@ type Components struct {
 	DungeonState *ecs.SliceComponent // ダンジョン状態
 	GameProgress *ecs.SliceComponent // ゲーム進行データ
 	TurnState    *ecs.SliceComponent // ターン状態
+	SpatialIndex *ecs.SliceComponent // 空間インデックス
 }
 
 // InitializeComponents はComponentInitializerインターフェースを実装する

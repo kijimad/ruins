@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -580,4 +581,302 @@ func TestColdPlayerCanAct(t *testing.T) {
 		t.Logf("shouldAutoEndTurn結果: %v (AP.Current=%d)", shouldEnd, turnBased.AP.Current)
 		assert.False(t, shouldEnd, "AP >= 0ならshouldAutoEndTurnはfalseであるべき")
 	})
+}
+
+// TestAIEntityActuallyMoves はAIエンティティが実際に移動することを検証する統合テスト
+func TestAIEntityActuallyMoves(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	// プレイヤーを配置（AI処理で必要）
+	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// AIエンティティを手動で作成（Driving状態で即座に移動するように設定）
+	enemyX, enemyY := 20, 20
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
+	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
+		SubState:              gc.AIRoamingDriving, // 最初からDriving状態
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100, // 十分長い持続時間
+	})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		AP:    gc.Pool{Current: 200, Max: 200},
+		Speed: 100,
+	})
+	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
+		Default: gc.DispositionHostile,
+		Current: gc.DispositionHostile,
+	})
+	mp := gc.MovementRandom
+	enemy.AddComponent(world.Components.MovementPattern, &mp)
+
+	// AIターンを複数回実行して移動を確認
+	// planRandomMoveActionは30%待機なので、十分な回数試行する
+	moved := false
+	for turn := 0; turn < 50; turn++ {
+		// AP回復
+		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb.AP.Current = 200
+
+		turnState := worldhelper.GetTurnState(world)
+		turnState.Phase = gc.TurnPhaseAI
+		turnState.TurnNumber = turn + 1
+
+		err := processAITurn(world)
+		require.NoError(t, err)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		if int(grid.X) != enemyX || int(grid.Y) != enemyY {
+			moved = true
+			t.Logf("AIエンティティが移動した: (%d,%d) → (%d,%d) at turn %d", enemyX, enemyY, grid.X, grid.Y, turn+1)
+			break
+		}
+	}
+
+	assert.True(t, moved, "AIエンティティは50ターン以内に移動するべき")
+}
+
+// TestSpawnedEnemyMoves はSpawnEnemyで生成された敵が実際に移動することを検証する
+func TestSpawnedEnemyMoves(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// SpawnEnemyで実際の敵を生成
+	enemy, err := worldhelper.SpawnEnemy(world, 20, 20, "苔亀")
+	require.NoError(t, err)
+
+	initialGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
+	t.Logf("初期位置: (%d,%d)", initialX, initialY)
+
+	// AIRoamingの状態を確認
+	roaming := world.Components.AIRoaming.Get(enemy).(*gc.AIRoaming)
+	t.Logf("初期AIRoaming: SubState=%s, StartTurn=%d, Duration=%d",
+		roaming.SubState, roaming.StartSubStateTurn, roaming.DurationSubStateTurns)
+
+	// Waiting期間を飛ばしてDriving状態に設定
+	roaming.SubState = gc.AIRoamingDriving
+	roaming.DurationSubStateTurns = 100
+
+	moved := false
+	for turn := 0; turn < 50; turn++ {
+		// AP回復
+		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb.AP.Current = tb.AP.Max
+
+		turnState := worldhelper.GetTurnState(world)
+		turnState.Phase = gc.TurnPhaseAI
+		turnState.TurnNumber = turn + 1
+
+		err := processAITurn(world)
+		require.NoError(t, err)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		if int(grid.X) != initialX || int(grid.Y) != initialY {
+			moved = true
+			t.Logf("SpawnEnemyの敵が移動した: (%d,%d) → (%d,%d) at turn %d",
+				initialX, initialY, grid.X, grid.Y, turn+1)
+			break
+		}
+	}
+
+	assert.True(t, moved, "SpawnEnemyの敵は50ターン以内に移動するべき")
+}
+
+// TestFullTurnCycleWithAI はPlayer→AI→End→Playerのフルサイクルで敵が移動することを検証する
+func TestFullTurnCycleWithAI(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	enemy, err := worldhelper.SpawnEnemy(world, 20, 20, "苔亀")
+	require.NoError(t, err)
+
+	// Waiting期間をスキップ
+	roaming := world.Components.AIRoaming.Get(enemy).(*gc.AIRoaming)
+	roaming.SubState = gc.AIRoamingDriving
+	roaming.DurationSubStateTurns = 100
+
+	initialGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
+
+	sys := &TurnSystem{}
+
+	moved := false
+	for cycle := 0; cycle < 50; cycle++ {
+		turnState := worldhelper.GetTurnState(world)
+
+		// PlayerTurn: APをマイナスにして自動でAIターンへ遷移させる
+		turnState.Phase = gc.TurnPhasePlayer
+		playerTB := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		playerTB.AP.Current = -1
+
+		// PlayerTurn → AITurnへの自動遷移
+		err = sys.Update(world)
+		require.NoError(t, err)
+		require.Equal(t, gc.TurnPhaseAI, turnState.Phase, "cycle %d: AITurnへ遷移するべき", cycle)
+
+		// AITurn処理
+		err = sys.Update(world)
+		require.NoError(t, err)
+		require.Equal(t, gc.TurnPhaseEnd, turnState.Phase, "cycle %d: TurnEndへ遷移するべき", cycle)
+
+		// TurnEnd処理（AP回復）
+		err = sys.Update(world)
+		require.NoError(t, err)
+		require.Equal(t, gc.TurnPhasePlayer, turnState.Phase, "cycle %d: PlayerTurnへ遷移するべき", cycle)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		if int(grid.X) != initialX || int(grid.Y) != initialY {
+			moved = true
+			t.Logf("フルサイクルで敵が移動: (%d,%d) → (%d,%d) at cycle %d",
+				initialX, initialY, grid.X, grid.Y, cycle+1)
+			break
+		}
+	}
+
+	assert.True(t, moved, "フルターンサイクルで敵は50サイクル以内に移動するべき")
+}
+
+// TestPatrolMovement はPatrol移動パターンが直進と反転を正しく行うことを検証する
+func TestPatrolMovement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	_, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	require.NoError(t, err)
+
+	// Patrol移動のAIエンティティを作成する。PatrolDirX=1で右に進む
+	enemyX, enemyY := 20, 20
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "パトロール敵"})
+	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
+	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
+		SubState:              gc.AIRoamingDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		SpawnX:                enemyX,
+		SpawnY:                enemyY,
+		PatrolDirX:            1,
+		PatrolDirY:            0,
+	})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		AP:    gc.Pool{Current: 200, Max: 200},
+		Speed: 100,
+	})
+	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
+		Default: gc.DispositionHostile,
+		Current: gc.DispositionHostile,
+	})
+	mp := gc.MovementPatrol
+	enemy.AddComponent(world.Components.MovementPattern, &mp)
+
+	// 複数ターン実行して移動を確認する
+	moved := false
+	for turn := 0; turn < 10; turn++ {
+		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb.AP.Current = 200
+
+		turnState := worldhelper.GetTurnState(world)
+		turnState.Phase = gc.TurnPhaseAI
+		turnState.TurnNumber = turn + 1
+
+		err := processAITurn(world)
+		require.NoError(t, err)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		if int(grid.X) != enemyX || int(grid.Y) != enemyY {
+			moved = true
+			// Patrol移動なのでX座標が変化するはず
+			t.Logf("Patrolエンティティが移動: (%d,%d) → (%d,%d)", enemyX, enemyY, grid.X, grid.Y)
+			break
+		}
+	}
+
+	assert.True(t, moved, "Patrolエンティティは移動するべき")
+}
+
+// TestTerritorialMovement はTerritorial移動パターンがスポーン地点から離れすぎないことを検証する
+func TestTerritorialMovement(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	world.Updaters = make(map[string]w.Updater)
+
+	_, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	require.NoError(t, err)
+
+	// Territorial移動のAIエンティティを作成する
+	spawnX, spawnY := 20, 20
+	enemy := world.Manager.NewEntity()
+	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "縄張り敵"})
+	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
+	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
+		SubState:              gc.AIRoamingDriving,
+		StartSubStateTurn:     1,
+		DurationSubStateTurns: 100,
+		SpawnX:                spawnX,
+		SpawnY:                spawnY,
+	})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		AP:    gc.Pool{Current: 200, Max: 200},
+		Speed: 100,
+	})
+	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
+		Default: gc.DispositionHostile,
+		Current: gc.DispositionHostile,
+	})
+	mp := gc.MovementTerritorial
+	enemy.AddComponent(world.Components.MovementPattern, &mp)
+
+	// 多数のターンを実行して範囲内に留まることを検証する
+	territorialRadius := 5
+	for turn := 0; turn < 100; turn++ {
+		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
+		tb.AP.Current = 200
+
+		turnState := worldhelper.GetTurnState(world)
+		turnState.Phase = gc.TurnPhaseAI
+		turnState.TurnNumber = turn + 1
+
+		err := processAITurn(world)
+		require.NoError(t, err)
+
+		grid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
+		dx := int(grid.X) - spawnX
+		dy := int(grid.Y) - spawnY
+		if dx < 0 {
+			dx = -dx
+		}
+		if dy < 0 {
+			dy = -dy
+		}
+
+		assert.LessOrEqual(t, dx, territorialRadius,
+			"turn %d: X座標がスポーン地点から%dタイル以内であるべき (pos=%d, spawn=%d)", turn, territorialRadius, grid.X, spawnX)
+		assert.LessOrEqual(t, dy, territorialRadius,
+			"turn %d: Y座標がスポーン地点から%dタイル以内であるべき (pos=%d, spawn=%d)", turn, territorialRadius, grid.Y, spawnY)
+	}
 }

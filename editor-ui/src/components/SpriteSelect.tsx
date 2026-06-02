@@ -42,7 +42,11 @@ export function SpritePreview({
   );
 }
 
-export function SpriteSelect({ sheetName, value, onChange }: SpriteSelectProps) {
+export function SpriteSelect({
+  sheetName,
+  value,
+  onChange,
+}: SpriteSelectProps) {
   const { data: sheet } = useSpriteSheet(sheetName);
 
   const spriteMap = useMemo(() => {

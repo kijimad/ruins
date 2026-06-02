@@ -167,6 +167,14 @@ func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
 	return 0
 }
 
+// initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
+func initialPatrolDir() int {
+	if rand.IntN(2) == 0 {
+		return 1
+	}
+	return -1
+}
+
 // ================
 // Field
 // ================
@@ -264,9 +272,23 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	// フィールド用のコンポーネントを設定
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.BlockPass = &gc.BlockPass{} // NPCは通行不可
+	entitySpec.BlockPass = &gc.BlockPass{}
 
-	// 中立NPCにはAIを付けない（動かない）
+	// MovementPatternが指定されていればAIで動かす
+	if entitySpec.MovementPattern != nil {
+		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
+		entitySpec.AIRoaming = &gc.AIRoaming{
+			SubState:              gc.AIRoamingWaiting,
+			StartSubStateTurn:     1,
+			DurationSubStateTurns: 2 + rand.IntN(3),
+			SpawnX:                tileX,
+			SpawnY:                tileY,
+			PatrolDirX:            initialPatrolDir(),
+		}
+		entitySpec.AIVision = &gc.AIVision{
+			ViewDistance: consts.Pixel(aiVisionDistance),
+		}
+	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
@@ -315,12 +337,21 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		SubState:              gc.AIRoamingWaiting,
 		StartSubStateTurn:     1,                // 初期ターン
 		DurationSubStateTurns: 2 + rand.IntN(3), // 2-4ターン待機
+		SpawnX:                tileX,
+		SpawnY:                tileY,
+		PatrolDirX:            initialPatrolDir(),
 	}
 	entitySpec.AIVision = &gc.AIVision{
 		ViewDistance: consts.Pixel(aiVisionDistance),
 	}
 	entitySpec.Interactable = &gc.Interactable{
 		Data: gc.MeleeInteraction{},
+	}
+	if entitySpec.Disposition == nil {
+		return ecs.Entity(0), fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
+	}
+	if entitySpec.MovementPattern == nil {
+		return ecs.Entity(0), fmt.Errorf("敵エンティティに移動パターン(movementPattern)が指定されていません: %s", entitySpec.Name)
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)

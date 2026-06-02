@@ -84,7 +84,7 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 
 	// 状態更新
 	oldState := context.Roaming.SubState
-	p.stateMachine.UpdateState(context.Roaming, canSeePlayer, turnNumber)
+	p.stateMachine.UpdateState(context.Roaming, context.Disposition, canSeePlayer, turnNumber)
 	if oldState != context.Roaming.SubState {
 		p.logger.Debug("AI状態変化", "entity", entity, "from", oldState, "to", context.Roaming.SubState)
 	}
@@ -109,15 +109,15 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 		}
 
 		// アクション決定
-		actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context, canSeePlayer)
+		actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context)
 
 		// アクション実行
-		activityName := actorImpl.Name()
-		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "count", activitiesExecuted)
 		if actorImpl == nil {
 			p.logger.Debug("アクション無し", "entity", entity)
 			break
 		}
+		activityName := actorImpl.Name()
+		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "count", activitiesExecuted)
 
 		// APが足りるか確認する
 		actionCost := actorImpl.Info().ActionPointCost
@@ -148,9 +148,11 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 
 // EntityContext はAIエンティティの必要な情報をまとめる
 type EntityContext struct {
-	GridElement *gc.GridElement
-	Vision      *gc.AIVision
-	Roaming     *gc.AIRoaming
+	GridElement     *gc.GridElement
+	Vision          *gc.AIVision
+	Roaming         *gc.AIRoaming
+	Disposition     *gc.Disposition
+	MovementPattern gc.MovementPattern
 }
 
 // gatherEntityContext はエンティティから必要なコンポーネントを収集する
@@ -174,24 +176,32 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 	}
 	roaming := aiRoaming.(*gc.AIRoaming)
 
+	// Dispositionコンポーネント取得
+	var disposition *gc.Disposition
+	if d := world.Components.Disposition.Get(entity); d != nil {
+		disposition = d.(*gc.Disposition)
+	}
+
+	// MovementPatternコンポーネント取得
+	movementPattern := gc.MovementRandom
+	if mp := world.Components.MovementPattern.Get(entity); mp != nil {
+		movementPattern = *mp.(*gc.MovementPattern)
+	}
+
 	return &EntityContext{
-		GridElement: gridElement,
-		Vision:      vision,
-		Roaming:     roaming,
+		GridElement:     gridElement,
+		Vision:          vision,
+		Roaming:         roaming,
+		Disposition:     disposition,
+		MovementPattern: movementPattern,
 	}, nil
 }
 
 // findPlayer はプレイヤーエンティティを探す
 func (p *Processor) findPlayer(world w.World) *ecs.Entity {
-	var playerEntity *ecs.Entity
-
-	world.Manager.Join(world.Components.Player, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// 死亡しているエンティティは除外
-		if entity.HasComponent(world.Components.Dead) {
-			return
-		}
-		playerEntity = &entity
-	}))
-
-	return playerEntity
+	si := worldhelper.GetSpatialIndex(world)
+	if si == nil {
+		return nil
+	}
+	return si.PlayerEntity
 }

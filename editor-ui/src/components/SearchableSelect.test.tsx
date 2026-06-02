@@ -45,10 +45,9 @@ describe("SearchableSelect", () => {
   });
 
   test("入力でドロップダウンが開き候補が表示される", async () => {
-    render(
-      <SearchableSelect options={options} value="" onChange={vi.fn()} />,
-      { wrapper },
-    );
+    render(<SearchableSelect options={options} value="" onChange={vi.fn()} />, {
+      wrapper,
+    });
     const input = getComboboxInput();
     await userEvent.click(input);
     await userEvent.type(input, "a");

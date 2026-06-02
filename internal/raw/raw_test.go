@@ -566,3 +566,204 @@ Depth = 1
 	assert.NotNil(t, entitySpec.SpriteRender)
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
+
+func TestMemberDisposition(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name            string
+		disposition     string
+		expectedDefault gc.DispositionType
+		expectedCurrent gc.DispositionType
+	}{
+		{"hostile", "hostile", gc.DispositionHostile, gc.DispositionHostile},
+		{"neutral", "neutral", gc.DispositionNeutral, gc.DispositionNeutral},
+		{"cowardly", "cowardly", gc.DispositionCowardly, gc.DispositionCowardly},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			toml := `
+[[Members]]
+Name = "テスト敵"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0", "enemy_1"]
+CommandTableName = ""
+DropTableName = ""
+Disposition = "` + tt.disposition + `"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+			raw, err := Load(toml)
+			require.NoError(t, err)
+
+			entitySpec, err := raw.NewMemberSpec("テスト敵")
+			require.NoError(t, err)
+			require.NotNil(t, entitySpec.Disposition)
+			assert.Equal(t, tt.expectedDefault, entitySpec.Disposition.Default)
+			assert.Equal(t, tt.expectedCurrent, entitySpec.Disposition.Current)
+		})
+	}
+}
+
+func TestMemberDispositionUnset(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "態度なし"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	entitySpec, err := raw.NewMemberSpec("態度なし")
+	require.NoError(t, err)
+	assert.Nil(t, entitySpec.Disposition)
+}
+
+func TestMemberMovementPattern(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		strategy string
+		expected gc.MovementPattern
+	}{
+		{"random", "random", gc.MovementRandom},
+		{"stationary", "stationary", gc.MovementStationary},
+		{"wander", "wander", gc.MovementWander},
+		{"patrol", "patrol", gc.MovementPatrol},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			toml := `
+[[Members]]
+Name = "テスト敵"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+movementPattern = "` + tt.strategy + `"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+			raw, err := Load(toml)
+			require.NoError(t, err)
+
+			entitySpec, err := raw.NewMemberSpec("テスト敵")
+			require.NoError(t, err)
+			require.NotNil(t, entitySpec.MovementPattern)
+			assert.Equal(t, tt.expected, *entitySpec.MovementPattern)
+		})
+	}
+}
+
+func TestMemberMovementPatternUnset(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "パターンなし"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	entitySpec, err := raw.NewMemberSpec("パターンなし")
+	require.NoError(t, err)
+	assert.Nil(t, entitySpec.MovementPattern)
+}
+
+func TestMemberMovementPatternInvalid(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "無効パターン"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+movementPattern = "invalid_pattern"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	_, err = raw.NewMemberSpec("無効パターン")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "移動パターンが不正です")
+}
+
+func TestMemberDispositionInvalid(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "無効態度"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+AnimKeys = ["enemy_0"]
+CommandTableName = ""
+DropTableName = ""
+Disposition = "aggressive"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raw, err := Load(str)
+	require.NoError(t, err)
+
+	_, err = raw.NewMemberSpec("無効態度")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "態度タイプが不正です")
+}

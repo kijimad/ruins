@@ -15,24 +15,6 @@ tags:
   - name: Professions
   - name: SpriteSheets
   - name: Palettes
-x-tagGroups:
-  - name: Endpoints
-    tags:
-      - Items
-      - Members
-      - Recipes
-      - CommandTables
-      - DropTables
-      - ItemTables
-      - EnemyTables
-      - Tiles
-      - Props
-      - Professions
-      - SpriteSheets
-      - Palettes
-  - name: Models
-    tags:
-      - Models
 paths:
   /api/v1/command-tables:
     get:
@@ -1521,6 +1503,13 @@ components:
           type: string
           description: メッセージリソースのキー
       description: 会話データ
+    DispositionType:
+      type: string
+      enum:
+        - hostile
+        - neutral
+        - cowardly
+      description: 態度タイプ。エンティティの他者に対する初期態度を定義する
     DoorLockTriggerRaw:
       type: object
       description: 扉ロックトリガー
@@ -2043,6 +2032,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/FactionMemberType'
           description: 所属する派閥。未設定なら敵対
+        disposition:
+          allOf:
+            - $ref: '#/components/schemas/DispositionType'
+          description: 態度
+        movementPattern:
+          allOf:
+            - $ref: '#/components/schemas/MovementPatternType'
+          description: 非戦闘時の移動パターン
         dialog:
           allOf:
             - $ref: '#/components/schemas/Dialog'
@@ -2070,6 +2067,17 @@ components:
           format: int32
           description: 総件数
       description: メンバー一覧レスポンス
+    MovementPatternType:
+      type: string
+      enum:
+        - random
+        - patrol
+        - wallHug
+        - stationary
+        - wander
+        - territorial
+        - swarm
+      description: 非戦闘時の移動パターン
     Palette:
       type: object
       required:

@@ -42,12 +42,16 @@ func (sys *TurnSystem) Update(world w.World) error {
 		if err := processAITurn(world); err != nil {
 			return err
 		}
+		// AIターン完了後に視界を再計算させる
+		worldhelper.GetDungeon(world).NeedsForceUpdate = true
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
 		// ターン終了処理
 		if err := processTurnEnd(world); err != nil {
 			return err
 		}
+		// 空間インデックスを無効化する。次ターンで再構築される
+		worldhelper.InvalidateSpatialIndex(world)
 		turnState.TurnNumber++
 		turnState.Phase = gc.TurnPhasePlayer
 	}
@@ -74,16 +78,15 @@ func shouldAutoEndTurn(world w.World) bool {
 
 // processAITurn はAIターンの処理を行う
 func processAITurn(world w.World) error {
-	logger := logger.New(logger.CategoryTurn)
-	logger.Debug("AIターン処理開始")
+	log := logger.New(logger.CategoryTurn)
+	log.Debug("AIターン処理開始")
 
-	// AI・NPCエンティティを処理
 	processor := aiinput.NewProcessor()
 	if err := processor.ProcessAllEntities(world); err != nil {
 		return err
 	}
 
-	logger.Debug("AIターン処理完了")
+	log.Debug("AIターン処理完了")
 	return nil
 }
 

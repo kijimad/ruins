@@ -148,6 +148,34 @@ enum FactionMemberType {
   FactionNeutral,
 }
 
+/** 態度タイプ。エンティティの他者に対する初期態度を定義する */
+enum DispositionType {
+  /** 敵対態度。視界内のプレイヤーを攻撃する */
+  hostile,
+  /** 中立態度。攻撃されると反撃する */
+  neutral,
+  /** 臆病な態度。攻撃されると逃亡する */
+  cowardly,
+}
+
+/** 非戦闘時の移動パターン */
+enum MovementPatternType {
+  /** ランダム移動 */
+  random,
+  /** 定点巡回 */
+  patrol,
+  /** 壁沿い移動 */
+  wallHug,
+  /** 固定。移動しない */
+  stationary,
+  /** 徘徊。低頻度で周辺をランダム移動する */
+  wander,
+  /** 縄張り。スポーン地点から一定範囲内で移動する */
+  territorial,
+  /** 群れ。同種族の仲間に寄る */
+  swarm,
+}
+
 /** スプライト描画深度 */
 enum SpriteDepth {
   /** 床レイヤー */
@@ -437,6 +465,10 @@ model Member {
   lightSource?: LightSource;
   /** 所属する派閥。未設定なら敵対 */
   factionType?: FactionMemberType;
+  /** 態度 */
+  disposition?: DispositionType;
+  /** 非戦闘時の移動パターン */
+  movementPattern?: MovementPatternType;
   /** 会話データ。未設定なら会話不可 */
   dialog?: Dialog;
   /** 参照するコマンドテーブル名 */
