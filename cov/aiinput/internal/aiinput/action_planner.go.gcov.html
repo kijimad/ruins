@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">2.4&nbsp;%</td>
-            <td class="headerCovTableEntry">127</td>
-            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">94.8&nbsp;%</td>
+            <td class="headerCovTableEntry">270</td>
+            <td class="headerCovTableEntry">256</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-31 23:42:11</td>
+            <td class="headerValue">2026-06-02 15:07:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,182 +70,388 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/geometry&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              : )</span>
-<span id="L13"><span class="lineNum">      13</span>              : </span>
-<span id="L14"><span class="lineNum">      14</span>              : // ActionPlanner はAIのアクション計画システム</span>
-<span id="L15"><span class="lineNum">      15</span>              : type ActionPlanner interface {</span>
-<span id="L16"><span class="lineNum">      16</span>              :         PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, canSeePlayer bool) (activity.Behavior, activity.ActionParams)</span>
-<span id="L17"><span class="lineNum">      17</span>              : }</span>
-<span id="L18"><span class="lineNum">      18</span>              : </span>
-<span id="L19"><span class="lineNum">      19</span>              : // DefaultActionPlanner は標準的なアクション計画実装</span>
-<span id="L20"><span class="lineNum">      20</span>              : type DefaultActionPlanner struct{}</span>
+<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              : )</span>
+<span id="L14"><span class="lineNum">      14</span>              : </span>
+<span id="L15"><span class="lineNum">      15</span>              : // eightDirections は隣接8方向の座標差分</span>
+<span id="L16"><span class="lineNum">      16</span>              : var eightDirections = []struct{ x, y int }{</span>
+<span id="L17"><span class="lineNum">      17</span>              :         {-1, -1}, {0, -1}, {1, -1},</span>
+<span id="L18"><span class="lineNum">      18</span>              :         {-1, 0}, {1, 0},</span>
+<span id="L19"><span class="lineNum">      19</span>              :         {-1, 1}, {0, 1}, {1, 1},</span>
+<span id="L20"><span class="lineNum">      20</span>              : }</span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
-<span id="L22"><span class="lineNum">      22</span>              : // NewActionPlanner は新しいActionPlannerを作成する</span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC tlaBgGNC">           1 : func NewActionPlanner() ActionPlanner {</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         return &amp;DefaultActionPlanner{}</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L22"><span class="lineNum">      22</span>              : // ActionPlanner はAIのアクション計画システム</span>
+<span id="L23"><span class="lineNum">      23</span>              : type ActionPlanner interface {</span>
+<span id="L24"><span class="lineNum">      24</span>              :         PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams)</span>
+<span id="L25"><span class="lineNum">      25</span>              : }</span>
 <span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span>              : // PlanAction は現在の状態に基づいてアクションを決定する</span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 : func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext, _ bool) (activity.Behavior, activity.ActionParams) {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         switch context.Roaming.SubState {</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         case gc.AIRoamingChasing:</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                 // 追跡モード：プレイヤーに向かって移動</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return ap.planChaseAction(world, aiEntity, playerEntity, context.GridElement)</span></span>
-<span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         case gc.AIRoamingDriving:</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                 // 移動モード：ランダム移動</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return ap.planRandomMoveAction(world, aiEntity, context.GridElement)</span></span>
-<span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         case gc.AIRoamingWaiting:</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 // 待機モード：何もしない</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: &quot;AI待機&quot;}</span></span>
-<span id="L41"><span class="lineNum">      41</span>              : </span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 // 不明な状態：待機</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: &quot;AIデフォルト待機&quot;}</span></span>
-<span id="L45"><span class="lineNum">      45</span>              :         }</span>
-<span id="L46"><span class="lineNum">      46</span>              : }</span>
-<span id="L47"><span class="lineNum">      47</span>              : </span>
-<span id="L48"><span class="lineNum">      48</span>              : // planChaseAction はプレイヤー追跡アクションを計画</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         // プレイヤーと隣接タイルにいる場合は攻撃</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         if ap.isAdjacent(aiGrid, playerGrid) {</span></span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 return &amp;activity.AttackActivity{}, activity.ActionParams{</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                         Actor:  aiEntity,</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                         Target: &amp;playerEntity,</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L59"><span class="lineNum">      59</span>              : </span>
-<span id="L60"><span class="lineNum">      60</span>              :         // プレイヤーに向かう方向を計算</span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         dx := int(playerGrid.X) - int(aiGrid.X)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         dy := int(playerGrid.Y) - int(aiGrid.Y)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :         // 移動候補を優先度順で試行</span></span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         moveCandidates := ap.calculateMoveCandidates(dx, dy)</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         // 移動可能な候補を探す</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         for _, candidate := range moveCandidates {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                 destX := int(aiGrid.X) + candidate.x</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 destY := int(aiGrid.Y) + candidate.y</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                 if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                         dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                         return &amp;activity.MoveActivity{}, activity.ActionParams{</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                                 Actor:       aiEntity,</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                                 Destination: &amp;dest,</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L80"><span class="lineNum">      80</span>              :         }</span>
-<span id="L81"><span class="lineNum">      81</span>              : </span>
-<span id="L82"><span class="lineNum">      82</span>              :         // どこにも移動できない場合は待機</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :         return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: &quot;AI追跡失敗&quot;}</span></span>
-<span id="L84"><span class="lineNum">      84</span>              : }</span>
-<span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span>              : // planRandomMoveAction はランダム移動アクションを計画</span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 : func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         // 30%の確率で待機</span></span>
-<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :         if rand.Float64() &lt; 0.3 {</span></span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                 return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: &quot;AIランダム待機&quot;}</span></span>
-<span id="L91"><span class="lineNum">      91</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L92"><span class="lineNum">      92</span>              : </span>
-<span id="L93"><span class="lineNum">      93</span>              :         // ランダムに隣接する8方向から選択</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :         directions := []struct{ x, y int }{</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC">           0 :                 {-1, -1}, {0, -1}, {1, -1},</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                 {-1, 0}, {1, 0},</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 {-1, 1}, {0, 1}, {1, 1},</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC">           0 :         // 移動可能な方向をシャッフルして試行</span></span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         shuffledDirections := make([]struct{ x, y int }, len(directions))</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :         copy(shuffledDirections, directions)</span></span>
-<span id="L103"><span class="lineNum">     103</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L104"><span class="lineNum">     104</span> <span class="tlaUNC">           0 :         // Fisher-Yatesアルゴリズムでシャッフル</span></span>
-<span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC">           0 :         for i := len(shuffledDirections) - 1; i &gt; 0; i-- {</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 j := rand.IntN(i + 1)</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 shuffledDirections[i], shuffledDirections[j] = shuffledDirections[j], shuffledDirections[i]</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L109"><span class="lineNum">     109</span>              : </span>
-<span id="L110"><span class="lineNum">     110</span>              :         // 移動可能な方向を探す</span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :         for _, direction := range shuffledDirections {</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 destX := int(aiGrid.X) + direction.x</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                 destY := int(aiGrid.Y) + direction.y</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                         dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                         return &amp;activity.MoveActivity{}, activity.ActionParams{</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                                 Actor:       aiEntity,</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                                 Destination: &amp;dest,</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L123"><span class="lineNum">     123</span>              :         }</span>
-<span id="L124"><span class="lineNum">     124</span>              : </span>
-<span id="L125"><span class="lineNum">     125</span>              :         // どこにも移動できない場合は待機</span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: &quot;AI追跡失敗&quot;}</span></span>
-<span id="L127"><span class="lineNum">     127</span>              : }</span>
-<span id="L128"><span class="lineNum">     128</span>              : </span>
-<span id="L129"><span class="lineNum">     129</span>              : // MoveCandidate は移動候補を表す</span>
-<span id="L130"><span class="lineNum">     130</span>              : type MoveCandidate struct {</span>
-<span id="L131"><span class="lineNum">     131</span>              :         x, y int</span>
-<span id="L132"><span class="lineNum">     132</span>              : }</span>
-<span id="L133"><span class="lineNum">     133</span>              : </span>
-<span id="L134"><span class="lineNum">     134</span>              : // calculateMoveCandidates はプレイヤーに向かう移動候補を計算する</span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 : func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandidate {</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         var candidates []MoveCandidate</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         if dx != 0 &amp;&amp; dy != 0 {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 // 斜め移動が最優先</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 moveX := 1</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 if dx &lt; 0 {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                         moveX = -1</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 moveY := 1</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 if dy &lt; 0 {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                         moveY = -1</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{moveX, moveY})</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 // 代替案として軸に沿った移動</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 if geometry.Abs(dx) &gt; geometry.Abs(dy) {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                         candidates = append(candidates, MoveCandidate{moveX, 0})</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                         candidates = append(candidates, MoveCandidate{0, moveY})</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :                 } else {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                         candidates = append(candidates, MoveCandidate{0, moveY})</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                         candidates = append(candidates, MoveCandidate{moveX, 0})</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         } else if dx != 0 {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 // 水平移動のみ</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 moveX := 1</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 if dx &lt; 0 {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                         moveX = -1</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{moveX, 0})</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 // 代替案として垂直移動</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{0, 1})</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{0, -1})</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         } else if dy != 0 {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 // 垂直移動のみ</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 moveY := 1</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :                 if dy &lt; 0 {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :                         moveY = -1</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{0, moveY})</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 // 代替案として水平移動</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{1, 0})</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                 candidates = append(candidates, MoveCandidate{-1, 0})</span></span>
-<span id="L178"><span class="lineNum">     178</span>              :         }</span>
-<span id="L179"><span class="lineNum">     179</span>              : </span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         return candidates</span></span>
-<span id="L181"><span class="lineNum">     181</span>              : }</span>
-<span id="L182"><span class="lineNum">     182</span>              : </span>
-<span id="L183"><span class="lineNum">     183</span>              : // isAdjacent は2つのタイルが隣接しているかを判定する（同じタイルは除く）</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 : func (ap *DefaultActionPlanner) isAdjacent(aiGrid, playerGrid *gc.GridElement) bool {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         return geometry.IsAdjacent(int(aiGrid.X), int(aiGrid.Y), int(playerGrid.X), int(playerGrid.Y))</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : // DefaultActionPlanner は標準的なアクション計画実装</span>
+<span id="L28"><span class="lineNum">      28</span>              : type DefaultActionPlanner struct{}</span>
+<span id="L29"><span class="lineNum">      29</span>              : </span>
+<span id="L30"><span class="lineNum">      30</span>              : // NewActionPlanner は新しいActionPlannerを作成する</span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 : func NewActionPlanner() ActionPlanner {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         return &amp;DefaultActionPlanner{}</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L34"><span class="lineNum">      34</span>              : </span>
+<span id="L35"><span class="lineNum">      35</span>              : // PlanAction は現在の状態に基づいてアクションを決定する</span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         switch context.Roaming.SubState {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         case gc.AIRoamingChasing:</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 return ap.planChaseAction(world, aiEntity, playerEntity, context.GridElement)</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         case gc.AIRoamingFleeing:</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 return ap.planFleeAction(world, aiEntity, playerEntity, context.GridElement)</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         case gc.AIRoamingDriving:</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 return ap.planDrivingAction(world, aiEntity, context)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         case gc.AIRoamingWaiting:</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 return waitAction(aiEntity, &quot;AI待機&quot;)</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return waitAction(aiEntity, &quot;AIデフォルト待機&quot;)</span></span>
+<span id="L48"><span class="lineNum">      48</span>              :         }</span>
+<span id="L49"><span class="lineNum">      49</span>              : }</span>
+<span id="L50"><span class="lineNum">      50</span>              : </span>
+<span id="L51"><span class="lineNum">      51</span>              : // planChaseAction はプレイヤー追跡アクションを計画する</span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         // プレイヤーと隣接タイルにいる場合は攻撃</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :         if ap.isAdjacent(aiGrid, playerGrid) {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 return &amp;activity.AttackActivity{}, activity.ActionParams{</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         Actor:  aiEntity,</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         Target: &amp;playerEntity,</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L62"><span class="lineNum">      62</span>              : </span>
+<span id="L63"><span class="lineNum">      63</span>              :         // プレイヤーに向かう方向を計算</span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :         dx := int(playerGrid.X) - int(aiGrid.X)</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :         dy := int(playerGrid.Y) - int(aiGrid.Y)</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         candidates := ap.calculateMoveCandidates(dx, dy)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         if b, p, ok := ap.tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return b, p</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span>              : </span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction(aiEntity, &quot;AI追跡失敗&quot;)</span></span>
+<span id="L73"><span class="lineNum">      73</span>              : }</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : // planFleeAction はプレイヤーから逃亡するアクションを計画する。追跡の逆方向に移動する</span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC tlaBgGNC">           1 : func (ap *DefaultActionPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         // プレイヤーと逆方向に移動する</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :         dx := int(aiGrid.X) - int(playerGrid.X)</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         dy := int(aiGrid.Y) - int(playerGrid.Y)</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :         candidates := ap.calculateMoveCandidates(dx, dy)</span></span>
+<span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           2 :         if b, p, ok := ap.tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {</span></span>
+<span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           1 :                 return b, p</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L87"><span class="lineNum">      87</span>              : </span>
+<span id="L88"><span class="lineNum">      88</span>              :         // 逃げ場がない場合はランダム移動を試みる</span>
+<span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC tlaBgUNC">           0 :         return ap.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
+<span id="L90"><span class="lineNum">      90</span>              : }</span>
+<span id="L91"><span class="lineNum">      91</span>              : </span>
+<span id="L92"><span class="lineNum">      92</span>              : // planRandomMoveAction はランダム移動アクションを計画する</span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC tlaBgGNC">           1 : func (ap *DefaultActionPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         // 30%の確率で待機</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           2 :         if rand.Float64() &lt; 0.3 {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :                 return waitAction(aiEntity, &quot;AIランダム待機&quot;)</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L98"><span class="lineNum">      98</span>              : </span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         shuffled := shuffledEightDirections()</span></span>
+<span id="L100"><span class="lineNum">     100</span> <span class="tlaGNC">           1 :         fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           2 :         for _, d := range shuffled {</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                 destX := fromX + d.x</span></span>
+<span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           1 :                 destY := fromY + d.y</span></span>
+<span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           2 :                 if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
+<span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :                         return moveAction(aiEntity, destX, destY)</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L107"><span class="lineNum">     107</span>              :         }</span>
+<span id="L108"><span class="lineNum">     108</span>              : </span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction(aiEntity, &quot;AIランダム移動失敗&quot;)</span></span>
+<span id="L110"><span class="lineNum">     110</span>              : }</span>
+<span id="L111"><span class="lineNum">     111</span>              : </span>
+<span id="L112"><span class="lineNum">     112</span>              : // MoveCandidate は移動候補を表す</span>
+<span id="L113"><span class="lineNum">     113</span>              : type MoveCandidate struct {</span>
+<span id="L114"><span class="lineNum">     114</span>              :         x, y int</span>
+<span id="L115"><span class="lineNum">     115</span>              : }</span>
+<span id="L116"><span class="lineNum">     116</span>              : </span>
+<span id="L117"><span class="lineNum">     117</span>              : // calculateMoveCandidates はプレイヤーに向かう移動候補を計算する</span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC tlaBgGNC">           1 : func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandidate {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         var candidates []MoveCandidate</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           2 :         if dx != 0 &amp;&amp; dy != 0 {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 // 斜め移動が最優先</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :                 moveX := 1</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           2 :                 if dx &lt; 0 {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                         moveX = -1</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 moveY := 1</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           2 :                 if dy &lt; 0 {</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                         moveY = -1</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, MoveCandidate{moveX, moveY})</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                 // 代替案として軸に沿った移動</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           2 :                 if geometry.Abs(dx) &gt; geometry.Abs(dy) {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                         candidates = append(candidates, MoveCandidate{moveX, 0})</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         candidates = append(candidates, MoveCandidate{0, moveY})</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           2 :                 } else {</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                         candidates = append(candidates, MoveCandidate{0, moveY})</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                         candidates = append(candidates, MoveCandidate{moveX, 0})</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           2 :         } else if dx != 0 {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 // 水平移動のみ</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 moveX := 1</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           2 :                 if dx &lt; 0 {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                         moveX = -1</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, MoveCandidate{moveX, 0})</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 // 代替案として垂直移動</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, MoveCandidate{0, 1})</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, MoveCandidate{0, -1})</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           2 :         } else if dy != 0 {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 // 垂直移動のみ</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 moveY := 1</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 :                 if dy &lt; 0 {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC tlaBgUNC">           0 :                         moveY = -1</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC tlaBgGNC">           1 :                 candidates = append(candidates, MoveCandidate{0, moveY})</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 // 代替案として水平移動</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, MoveCandidate{1, 0})</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, MoveCandidate{-1, 0})</span></span>
+<span id="L161"><span class="lineNum">     161</span>              :         }</span>
+<span id="L162"><span class="lineNum">     162</span>              : </span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         return candidates</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : }</span>
+<span id="L165"><span class="lineNum">     165</span>              : </span>
+<span id="L166"><span class="lineNum">     166</span>              : // planDrivingAction はMovementPatternに基づく移動アクションを計画する</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         switch context.MovementPattern {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         case gc.MovementStationary:</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                 return waitAction(aiEntity, &quot;AI固定待機&quot;)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         case gc.MovementWander:</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 return ap.planWanderAction(world, aiEntity, context.GridElement)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         case gc.MovementWallHug:</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 return ap.planWallHugAction(world, aiEntity, context.GridElement)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         case gc.MovementSwarm:</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :                 return ap.planSwarmAction(world, aiEntity, context.GridElement)</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         case gc.MovementPatrol:</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 return ap.planPatrolAction(world, aiEntity, context)</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         case gc.MovementTerritorial:</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 return ap.planTerritorialAction(world, aiEntity, context)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 return ap.planRandomMoveAction(world, aiEntity, context.GridElement)</span></span>
+<span id="L183"><span class="lineNum">     183</span>              :         }</span>
+<span id="L184"><span class="lineNum">     184</span>              : }</span>
+<span id="L185"><span class="lineNum">     185</span>              : </span>
+<span id="L186"><span class="lineNum">     186</span>              : // planWanderAction は低頻度でランダム移動するアクションを計画する。街のNPC向け</span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         // 80%の確率で待機する</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         if rand.Float64() &lt; 0.8 {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 return waitAction(aiEntity, &quot;AI徘徊待機&quot;)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         return ap.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : }</span>
+<span id="L194"><span class="lineNum">     194</span>              : </span>
+<span id="L195"><span class="lineNum">     195</span>              : // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する</span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         // 30%の確率で待機</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           2 :         if rand.Float64() &lt; 0.3 {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 return waitAction(aiEntity, &quot;AI壁沿い待機&quot;)</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L201"><span class="lineNum">     201</span>              : </span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         si := worldhelper.GetSpatialIndex(world)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :         // 移動可能な方向を壁隣接スコアでソートする</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         type scoredDir struct {</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 x, y  int</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 score int</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         var candidates []scoredDir</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :         fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           2 :         for _, d := range eightDirections {</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 destX := fromX + d.x</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :                 destY := fromY + d.y</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :                 if !activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L218"><span class="lineNum">     218</span>              :                 }</span>
+<span id="L219"><span class="lineNum">     219</span>              : </span>
+<span id="L220"><span class="lineNum">     220</span>              :                 // 移動先の隣接4方向に壁がいくつあるかをカウントする</span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC">           1 :                 wallCount := 0</span></span>
+<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC">           2 :                 for _, adj := range []struct{ x, y int }{{0, -1}, {0, 1}, {-1, 0}, {1, 0}} {</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           2 :                         if si.IsBlockPass(destX+adj.x, destY+adj.y) {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :                                 wallCount++</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L226"><span class="lineNum">     226</span>              :                 }</span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 candidates = append(candidates, scoredDir{d.x, d.y, wallCount})</span></span>
+<span id="L228"><span class="lineNum">     228</span>              :         }</span>
+<span id="L229"><span class="lineNum">     229</span>              : </span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         if len(candidates) == 0 {</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC tlaBgUNC">           0 :                 return waitAction(aiEntity, &quot;AI壁沿い移動失敗&quot;)</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L233"><span class="lineNum">     233</span>              : </span>
+<span id="L234"><span class="lineNum">     234</span>              :         // 同スコアの最高スコア候補からランダムに選ぶ</span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC tlaBgGNC">           1 :         best := candidates[0].score</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           2 :         for _, c := range candidates[1:] {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 if c.score &gt; best {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 :                         best = c.score</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L240"><span class="lineNum">     240</span>              :         }</span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC tlaBgGNC">           1 :         var tied []scoredDir</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           2 :         for _, c := range candidates {</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           2 :                 if c.score == best {</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :                         tied = append(tied, c)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L246"><span class="lineNum">     246</span>              :         }</span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         chosen := tied[rand.IntN(len(tied))]</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         return moveAction(aiEntity, fromX+chosen.x, fromY+chosen.y)</span></span>
+<span id="L250"><span class="lineNum">     250</span>              : }</span>
+<span id="L251"><span class="lineNum">     251</span>              : </span>
+<span id="L252"><span class="lineNum">     252</span>              : // planSwarmAction は最寄りのAIエンティティに接近するアクションを計画する</span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         // 最寄りのAIエンティティを探す</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         var nearestGrid *gc.GridElement</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         nearestDist := -1</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 world.Components.AIMoveFSM,</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           2 :                 if entity == aiEntity {</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                         return</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 if entity.HasComponent(world.Components.Dead) {</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC tlaBgUNC">           0 :                         return</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L268"><span class="lineNum">     268</span>              : </span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 :                 grid := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 dist := geometry.Abs(int(grid.X)-int(aiGrid.X)) + geometry.Abs(int(grid.Y)-int(aiGrid.Y))</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           2 :                 if nearestDist &lt; 0 || dist &lt; nearestDist {</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                         nearestDist = dist</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                         nearestGrid = grid</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L275"><span class="lineNum">     275</span>              :         }))</span>
+<span id="L276"><span class="lineNum">     276</span>              : </span>
+<span id="L277"><span class="lineNum">     277</span>              :         // 仲間が見つからない、または既に隣接している場合はランダム移動する</span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           2 :         if nearestGrid == nil || nearestDist &lt;= 1 {</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 return ap.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L281"><span class="lineNum">     281</span>              : </span>
+<span id="L282"><span class="lineNum">     282</span>              :         // 仲間に向かって移動する</span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         dx := int(nearestGrid.X) - int(aiGrid.X)</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         dy := int(nearestGrid.Y) - int(aiGrid.Y)</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         candidates := ap.calculateMoveCandidates(dx, dy)</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           2 :         if b, p, ok := ap.tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 return b, p</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L290"><span class="lineNum">     290</span>              : </span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaUNC tlaBgUNC">           0 :         return ap.planRandomMoveAction(world, aiEntity, aiGrid)</span></span>
+<span id="L292"><span class="lineNum">     292</span>              : }</span>
+<span id="L293"><span class="lineNum">     293</span>              : </span>
+<span id="L294"><span class="lineNum">     294</span>              : // territorialRadius はTerritorial移動パターンのスポーン地点からの最大距離（タイル数）</span>
+<span id="L295"><span class="lineNum">     295</span>              : const territorialRadius = 5</span>
+<span id="L296"><span class="lineNum">     296</span>              : </span>
+<span id="L297"><span class="lineNum">     297</span>              : // planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する</span>
+<span id="L298"><span class="lineNum">     298</span> <span class="tlaGNC tlaBgGNC">           1 : func (ap *DefaultActionPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC">           1 :         aiGrid := context.GridElement</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :         roaming := context.Roaming</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :         fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :         // 現在の巡回方向に移動を試みる</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :         destX := fromX + roaming.PatrolDirX</span></span>
+<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :         destY := fromY + roaming.PatrolDirY</span></span>
+<span id="L306"><span class="lineNum">     306</span> <span class="tlaGNC">           2 :         if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
+<span id="L307"><span class="lineNum">     307</span> <span class="tlaGNC">           1 :                 return moveAction(aiEntity, destX, destY)</span></span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L309"><span class="lineNum">     309</span>              : </span>
+<span id="L310"><span class="lineNum">     310</span>              :         // 進めないので方向を反転する</span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         roaming.PatrolDirX = -roaming.PatrolDirX</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :         roaming.PatrolDirY = -roaming.PatrolDirY</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         // 反転方向に移動を試みる</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         destX = fromX + roaming.PatrolDirX</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :         destY = fromY + roaming.PatrolDirY</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           2 :         if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                 return moveAction(aiEntity, destX, destY)</span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L320"><span class="lineNum">     320</span>              : </span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         return waitAction(aiEntity, &quot;AI巡回移動失敗&quot;)</span></span>
+<span id="L322"><span class="lineNum">     322</span>              : }</span>
+<span id="L323"><span class="lineNum">     323</span>              : </span>
+<span id="L324"><span class="lineNum">     324</span>              : // planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する</span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :         aiGrid := context.GridElement</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :         roaming := context.Roaming</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           2 :         for _, d := range shuffledEightDirections() {</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 destX := fromX + d.x</span></span>
+<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 destY := fromY + d.y</span></span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                 // スポーン地点からの距離をチェックする</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                 dx := geometry.Abs(destX - roaming.SpawnX)</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                 dy := geometry.Abs(destY - roaming.SpawnY)</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           2 :                 if dx &gt; territorialRadius || dy &gt; territorialRadius {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L339"><span class="lineNum">     339</span>              :                 }</span>
+<span id="L340"><span class="lineNum">     340</span>              : </span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           2 :                 if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                         return moveAction(aiEntity, destX, destY)</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L344"><span class="lineNum">     344</span>              :         }</span>
+<span id="L345"><span class="lineNum">     345</span>              : </span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC tlaBgUNC">           0 :         return waitAction(aiEntity, &quot;AI縄張り移動失敗&quot;)</span></span>
+<span id="L347"><span class="lineNum">     347</span>              : }</span>
+<span id="L348"><span class="lineNum">     348</span>              : </span>
+<span id="L349"><span class="lineNum">     349</span>              : // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す。</span>
+<span id="L350"><span class="lineNum">     350</span>              : // 移動可能な候補がなければ nil を返す</span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC tlaBgGNC">           1 : func (ap *DefaultActionPlanner) tryMoveCandidates(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement, candidates []MoveCandidate) (activity.Behavior, activity.ActionParams, bool) {</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :         fromX, fromY := int(aiGrid.X), int(aiGrid.Y)</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           2 :         for _, candidate := range candidates {</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :                 destX := fromX + candidate.x</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 :                 destY := fromY + candidate.y</span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           2 :                 if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :                         b, p := moveAction(aiEntity, destX, destY)</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :                         return b, p, true</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L360"><span class="lineNum">     360</span>              :         }</span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC tlaBgUNC">           0 :         return nil, activity.ActionParams{}, false</span></span>
+<span id="L362"><span class="lineNum">     362</span>              : }</span>
+<span id="L363"><span class="lineNum">     363</span>              : </span>
+<span id="L364"><span class="lineNum">     364</span>              : // moveAction は指定座標への移動アクションを生成する</span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC tlaBgGNC">           1 : func moveAction(aiEntity ecs.Entity, destX, destY int) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         return &amp;activity.MoveActivity{}, activity.ActionParams{</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                 Actor:       aiEntity,</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 Destination: &amp;dest,</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L372"><span class="lineNum">     372</span>              : </span>
+<span id="L373"><span class="lineNum">     373</span>              : // waitAction は待機アクションを生成する</span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 : func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity.ActionParams) {</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :         return &amp;activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: reason}</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L377"><span class="lineNum">     377</span>              : </span>
+<span id="L378"><span class="lineNum">     378</span>              : // shuffledEightDirections は8方向をシャッフルして返す</span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 : func shuffledEightDirections() []struct{ x, y int } {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaGNC">           1 :         shuffled := make([]struct{ x, y int }, len(eightDirections))</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 :         copy(shuffled, eightDirections)</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           2 :         for i := len(shuffled) - 1; i &gt; 0; i-- {</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 j := rand.IntN(i + 1)</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :                 shuffled[i], shuffled[j] = shuffled[j], shuffled[i]</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         return shuffled</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : }</span>
+<span id="L388"><span class="lineNum">     388</span>              : </span>
+<span id="L389"><span class="lineNum">     389</span>              : // isAdjacent は2つのタイルが隣接しているかを判定する（同じタイルは除く）</span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 : func (ap *DefaultActionPlanner) isAdjacent(aiGrid, playerGrid *gc.GridElement) bool {</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :         return geometry.IsAdjacent(int(aiGrid.X), int(aiGrid.Y), int(playerGrid.X), int(playerGrid.Y))</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

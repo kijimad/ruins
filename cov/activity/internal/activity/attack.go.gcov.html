@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.3&nbsp;%</td>
+            <td class="headerCovTableEntryMed">77.6&nbsp;%</td>
             <td class="headerCovTableEntry">304</td>
-            <td class="headerCovTableEntry">238</td>
+            <td class="headerCovTableEntry">236</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-31 23:42:11</td>
+            <td class="headerValue">2026-06-02 15:07:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -328,13 +328,13 @@
 <span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L267"><span class="lineNum">     267</span>              : </span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC tlaBgGNC">           1 :         hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           2 :         if !hit {</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :                 return nil</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         if !hit {</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC tlaBgUNC">           0 :                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L274"><span class="lineNum">     274</span>              : </span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         damage := calculateDamage(actor, target, world, attack, criticalHit, damageModifier)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC tlaBgGNC">           1 :         damage := calculateDamage(actor, target, world, attack, criticalHit, damageModifier)</span></span>
 <span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         if damage &lt; 0 {</span></span>
 <span id="L277"><span class="lineNum">     277</span> <span class="tlaUNC tlaBgUNC">           0 :                 damage = 0</span></span>
 <span id="L278"><span class="lineNum">     278</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -345,11 +345,11 @@
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         worldhelper.ApplyDamage(world, target, damage, actor)</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           1 :         // 被ダメージで中断可能なアクティビティをキャンセルする</span></span>
-<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         if comp := worldhelper.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) {</span></span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaUNC tlaBgUNC">           0 :                 CancelActivity(target, &quot;攻撃を受けた&quot;, world)</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           2 :         if comp := worldhelper.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :                 CancelActivity(target, &quot;攻撃を受けた&quot;, world)</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L289"><span class="lineNum">     289</span>              : </span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L291"><span class="lineNum">     291</span>              : }</span>
 <span id="L292"><span class="lineNum">     292</span>              : </span>
 <span id="L293"><span class="lineNum">     293</span>              : // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する</span>

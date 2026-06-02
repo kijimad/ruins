@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">6.1&nbsp;%</td>
-            <td class="headerCovTableEntry">132</td>
+            <td class="headerCovTableEntryLo">5.7&nbsp;%</td>
+            <td class="headerCovTableEntry">141</td>
             <td class="headerCovTableEntry">8</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-05-31 23:42:11</td>
+            <td class="headerValue">2026-06-02 15:07:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -146,7 +146,7 @@
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaUNC">           0 :         // 状態更新</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         oldState := context.Roaming.SubState</span></span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         p.stateMachine.UpdateState(context.Roaming, canSeePlayer, turnNumber)</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :         p.stateMachine.UpdateState(context.Roaming, context.Disposition, canSeePlayer, turnNumber)</span></span>
 <span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :         if oldState != context.Roaming.SubState {</span></span>
 <span id="L89"><span class="lineNum">      89</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;AI状態変化&quot;, &quot;entity&quot;, entity, &quot;from&quot;, oldState, &quot;to&quot;, context.Roaming.SubState)</span></span>
 <span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -171,17 +171,17 @@
 <span id="L109"><span class="lineNum">     109</span>              :                 }</span>
 <span id="L110"><span class="lineNum">     110</span>              : </span>
 <span id="L111"><span class="lineNum">     111</span>              :                 // アクション決定</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context, canSeePlayer)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context)</span></span>
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 // アクション実行</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 activityName := actorImpl.Name()</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;アクティビティ決定&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName, &quot;state&quot;, context.Roaming.SubState, &quot;count&quot;, activitiesExecuted)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                 if actorImpl == nil {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                         p.logger.Debug(&quot;アクション無し&quot;, &quot;entity&quot;, entity)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                         break</span></span>
-<span id="L120"><span class="lineNum">     120</span>              :                 }</span>
-<span id="L121"><span class="lineNum">     121</span>              : </span>
-<span id="L122"><span class="lineNum">     122</span>              :                 // APが足りるか確認する</span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :                 if actorImpl == nil {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :                         p.logger.Debug(&quot;アクション無し&quot;, &quot;entity&quot;, entity)</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :                         break</span></span>
+<span id="L118"><span class="lineNum">     118</span>              :                 }</span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 activityName := actorImpl.Name()</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :                 p.logger.Debug(&quot;アクティビティ決定&quot;, &quot;entity&quot;, entity, &quot;activity&quot;, activityName, &quot;state&quot;, context.Roaming.SubState, &quot;count&quot;, activitiesExecuted)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 // APが足りるか確認する</span></span>
 <span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :                 actionCost := actorImpl.Info().ActionPointCost</span></span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 tbComp := world.Components.TurnBased.Get(entity)</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current &lt; 0 {</span></span>
@@ -210,53 +210,63 @@
 <span id="L148"><span class="lineNum">     148</span>              : </span>
 <span id="L149"><span class="lineNum">     149</span>              : // EntityContext はAIエンティティの必要な情報をまとめる</span>
 <span id="L150"><span class="lineNum">     150</span>              : type EntityContext struct {</span>
-<span id="L151"><span class="lineNum">     151</span>              :         GridElement *gc.GridElement</span>
-<span id="L152"><span class="lineNum">     152</span>              :         Vision      *gc.AIVision</span>
-<span id="L153"><span class="lineNum">     153</span>              :         Roaming     *gc.AIRoaming</span>
-<span id="L154"><span class="lineNum">     154</span>              : }</span>
-<span id="L155"><span class="lineNum">     155</span>              : </span>
-<span id="L156"><span class="lineNum">     156</span>              : // gatherEntityContext はエンティティから必要なコンポーネントを収集する</span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 : func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*EntityContext, error) {</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :         // GridElementコンポーネント取得</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :         gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIエンティティ位置&quot;, &quot;entity&quot;, entity, &quot;x&quot;, gridElement.X, &quot;y&quot;, gridElement.Y)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         // AIVisionコンポーネント確認</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         aiVision := world.Components.AIVision.Get(entity)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         if aiVision == nil {</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIVisionコンポーネントなし&quot;, Entity: entity}</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         vision := aiVision.(*gc.AIVision)</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIVision設定&quot;, &quot;entity&quot;, entity, &quot;viewDistance&quot;, vision.ViewDistance)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         // AIRoamingコンポーネント確認</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         aiRoaming := world.Components.AIRoaming.Get(entity)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         if aiRoaming == nil {</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIRoamingコンポーネントなし&quot;, Entity: entity}</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         roaming := aiRoaming.(*gc.AIRoaming)</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         return &amp;EntityContext{</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :                 GridElement: gridElement,</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 Vision:      vision,</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 Roaming:     roaming,</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         }, nil</span></span>
-<span id="L182"><span class="lineNum">     182</span>              : }</span>
-<span id="L183"><span class="lineNum">     183</span>              : </span>
-<span id="L184"><span class="lineNum">     184</span>              : // findPlayer はプレイヤーエンティティを探す</span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 : func (p *Processor) findPlayer(world w.World) *ecs.Entity {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         var playerEntity *ecs.Entity</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :         world.Manager.Join(world.Components.Player, world.Components.GridElement).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                 // 死亡しているエンティティは除外</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 if entity.HasComponent(world.Components.Dead) {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                         return</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 playerEntity = &amp;entity</span></span>
-<span id="L194"><span class="lineNum">     194</span>              :         }))</span>
-<span id="L195"><span class="lineNum">     195</span>              : </span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :         return playerEntity</span></span>
-<span id="L197"><span class="lineNum">     197</span>              : }</span>
+<span id="L151"><span class="lineNum">     151</span>              :         GridElement     *gc.GridElement</span>
+<span id="L152"><span class="lineNum">     152</span>              :         Vision          *gc.AIVision</span>
+<span id="L153"><span class="lineNum">     153</span>              :         Roaming         *gc.AIRoaming</span>
+<span id="L154"><span class="lineNum">     154</span>              :         Disposition     *gc.Disposition</span>
+<span id="L155"><span class="lineNum">     155</span>              :         MovementPattern gc.MovementPattern</span>
+<span id="L156"><span class="lineNum">     156</span>              : }</span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              : // gatherEntityContext はエンティティから必要なコンポーネントを収集する</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 : func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*EntityContext, error) {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :         // GridElementコンポーネント取得</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIエンティティ位置&quot;, &quot;entity&quot;, entity, &quot;x&quot;, gridElement.X, &quot;y&quot;, gridElement.Y)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         // AIVisionコンポーネント確認</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         aiVision := world.Components.AIVision.Get(entity)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         if aiVision == nil {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIVisionコンポーネントなし&quot;, Entity: entity}</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         vision := aiVision.(*gc.AIVision)</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIVision設定&quot;, &quot;entity&quot;, entity, &quot;viewDistance&quot;, vision.ViewDistance)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         // AIRoamingコンポーネント確認</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         aiRoaming := world.Components.AIRoaming.Get(entity)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         if aiRoaming == nil {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIRoamingコンポーネントなし&quot;, Entity: entity}</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         roaming := aiRoaming.(*gc.AIRoaming)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         // Dispositionコンポーネント取得</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         var disposition *gc.Disposition</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         if d := world.Components.Disposition.Get(entity); d != nil {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                 disposition = d.(*gc.Disposition)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L184"><span class="lineNum">     184</span>              : </span>
+<span id="L185"><span class="lineNum">     185</span>              :         // MovementPatternコンポーネント取得</span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         movementPattern := gc.MovementRandom</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         if mp := world.Components.MovementPattern.Get(entity); mp != nil {</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 movementPattern = *mp.(*gc.MovementPattern)</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L190"><span class="lineNum">     190</span>              : </span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         return &amp;EntityContext{</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                 GridElement:     gridElement,</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                 Vision:          vision,</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 Roaming:         roaming,</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 Disposition:     disposition,</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 MovementPattern: movementPattern,</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L198"><span class="lineNum">     198</span>              : }</span>
+<span id="L199"><span class="lineNum">     199</span>              : </span>
+<span id="L200"><span class="lineNum">     200</span>              : // findPlayer はプレイヤーエンティティを探す</span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 : func (p *Processor) findPlayer(world w.World) *ecs.Entity {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         si := worldhelper.GetSpatialIndex(world)</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         if si == nil {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 return nil</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         return si.PlayerEntity</span></span>
+<span id="L207"><span class="lineNum">     207</span>              : }</span>
         </pre>
               </td>
             </tr>
