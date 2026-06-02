@@ -39,17 +39,3 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 
 	return distance <= viewDistanceInTiles
 }
-
-// CalculateDistance は2つのエンティティ間の距離を計算（タイル単位）
-func (vs *DefaultVisionSystem) CalculateDistance(world w.World, entity1, entity2 ecs.Entity) float64 {
-	grid1 := world.Components.GridElement.Get(entity1).(*gc.GridElement)
-	grid2 := world.Components.GridElement.Get(entity2).(*gc.GridElement)
-
-	return geometry.Distance(float64(grid1.X), float64(grid1.Y), float64(grid2.X), float64(grid2.Y))
-}
-
-// IsInRange は指定した範囲内にターゲットがいるかチェック
-func (vs *DefaultVisionSystem) IsInRange(world w.World, aiEntity, targetEntity ecs.Entity, rangeInTiles float64) bool {
-	distance := vs.CalculateDistance(world, aiEntity, targetEntity)
-	return distance <= rangeInTiles
-}

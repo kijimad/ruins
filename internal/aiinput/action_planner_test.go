@@ -57,7 +57,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 		MovementPattern: mp,
 	}
 
-	behavior, params := ap.PlanAction(world, entity, player, context, false)
+	behavior, params := ap.PlanAction(world, entity, player, context)
 	assert.Equal(t, gc.BehaviorWait, behavior.Name())
 	assert.Equal(t, entity, params.Actor)
 }
@@ -85,7 +85,7 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 		MovementPattern: mp,
 	}
 
-	behavior, params := ap.PlanAction(world, entity, player, context, true)
+	behavior, params := ap.PlanAction(world, entity, player, context)
 	assert.Equal(t, gc.BehaviorAttack, behavior.Name())
 	assert.NotNil(t, params.Target)
 }
@@ -113,7 +113,7 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 		MovementPattern: mp,
 	}
 
-	behavior, params := ap.PlanAction(world, entity, player, context, true)
+	behavior, params := ap.PlanAction(world, entity, player, context)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
 	assert.NotNil(t, params.Destination)
 }
@@ -141,7 +141,7 @@ func TestPlanAction_FleeingState(t *testing.T) {
 		MovementPattern: mp,
 	}
 
-	behavior, _ := ap.PlanAction(world, entity, player, context, true)
+	behavior, _ := ap.PlanAction(world, entity, player, context)
 	name := behavior.Name()
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait,
 		"逃亡時は移動か待機を返すべき: got %s", name)
@@ -170,7 +170,7 @@ func TestPlanAction_DrivingState(t *testing.T) {
 		MovementPattern: mp,
 	}
 
-	behavior, _ := ap.PlanAction(world, entity, player, context, false)
+	behavior, _ := ap.PlanAction(world, entity, player, context)
 	name := behavior.Name()
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait,
 		"Driving状態は移動か待機を返すべき: got %s", name)
@@ -199,7 +199,7 @@ func TestPlanAction_UnknownState(t *testing.T) {
 		MovementPattern: mp,
 	}
 
-	behavior, _ := ap.PlanAction(world, entity, player, context, false)
+	behavior, _ := ap.PlanAction(world, entity, player, context)
 	assert.Equal(t, gc.BehaviorWait, behavior.Name())
 }
 

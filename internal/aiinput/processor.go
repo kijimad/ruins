@@ -109,15 +109,15 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 		}
 
 		// アクション決定
-		actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context, canSeePlayer)
+		actorImpl, actionParams := p.actionPlanner.PlanAction(world, entity, *playerEntity, context)
 
 		// アクション実行
-		activityName := actorImpl.Name()
-		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "count", activitiesExecuted)
 		if actorImpl == nil {
 			p.logger.Debug("アクション無し", "entity", entity)
 			break
 		}
+		activityName := actorImpl.Name()
+		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "count", activitiesExecuted)
 
 		// APが足りるか確認する
 		actionCost := actorImpl.Info().ActionPointCost

@@ -78,16 +78,15 @@ func shouldAutoEndTurn(world w.World) bool {
 
 // processAITurn はAIターンの処理を行う
 func processAITurn(world w.World) error {
-	logger := logger.New(logger.CategoryTurn)
-	logger.Debug("AIターン処理開始")
+	log := logger.New(logger.CategoryTurn)
+	log.Debug("AIターン処理開始")
 
-	// AI・NPCエンティティを処理
 	processor := aiinput.NewProcessor()
 	if err := processor.ProcessAllEntities(world); err != nil {
 		return err
 	}
 
-	logger.Debug("AIターン処理完了")
+	log.Debug("AIターン処理完了")
 	return nil
 }
 
