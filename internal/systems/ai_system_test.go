@@ -26,7 +26,7 @@ func TestAISystem(t *testing.T) {
 	aiEntity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
 	aiEntity.AddComponent(world.Components.AIVision, &gc.AIVision{
-		ViewDistance: consts.Pixel(100), // 3タイル程度の視界
+		ViewDistance: 3, // 3タイルの視界
 		TargetEntity: &player,
 	})
 	aiEntity.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{

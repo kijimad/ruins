@@ -203,7 +203,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 
 		screenX := (pixelX-float64(cameraPos.X))*cameraScale + float64(screenDimensions.Width)/2
 		screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
-		scaledRadius := float32(float64(vision.ViewDistance) * cameraScale)
+		scaledRadius := float32(float64(vision.ViewDistance) * float64(consts.TileSize) * cameraScale)
 
 		visionRanges = append(visionRanges, hud.VisionRangeInfo{
 			ScreenX:      screenX,
