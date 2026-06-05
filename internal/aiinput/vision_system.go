@@ -2,7 +2,6 @@ package aiinput
 
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -25,17 +24,17 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 	aiGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
 	targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)
 
-	// 距離計算（タイル単位）
-	distance := geometry.Distance(float64(aiGrid.X), float64(aiGrid.Y), float64(targetGrid.X), float64(targetGrid.Y))
+	dx := int(aiGrid.X) - int(targetGrid.X)
+	dy := int(aiGrid.Y) - int(targetGrid.Y)
+	distSq := dx*dx + dy*dy
 
-	// 視界距離内かチェック（タイル単位で計算）
-	viewDistanceInTiles := float64(vision.ViewDistance) / 32.0 // 仮にタイル1つ=32ピクセル
+	viewDist := float64(vision.ViewDistance)
 
 	// ターゲットの隠密スキルによる被発見距離倍率を適用する
 	if targetEntity.HasComponent(world.Components.CharModifiers) {
 		mods := world.Components.CharModifiers.Get(targetEntity).(*gc.CharModifiers)
-		viewDistanceInTiles = viewDistanceInTiles * float64(mods.EnemyVision) / 100
+		viewDist = viewDist * float64(mods.EnemyVision) / 100
 	}
 
-	return distance <= viewDistanceInTiles
+	return float64(distSq) <= viewDist*viewDist
 }

@@ -19,7 +19,7 @@ const (
 	cameraNormalScale = 0.6 // カメラの通常スケール
 
 	// AI設定
-	aiVisionDistance = 160.0 // AIの視界距離（ピクセル）
+	aiVisionDistance = 5 // AIの視界距離（タイル単位）
 
 	// ステータス計算係数
 	spVitalityMultiply  = 2    // SP計算の体力係数
@@ -286,7 +286,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 			PatrolDirX:            initialPatrolDir(),
 		}
 		entitySpec.AIVision = &gc.AIVision{
-			ViewDistance: consts.Pixel(aiVisionDistance),
+			ViewDistance: aiVisionDistance,
 		}
 	}
 
@@ -342,7 +342,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		PatrolDirX:            initialPatrolDir(),
 	}
 	entitySpec.AIVision = &gc.AIVision{
-		ViewDistance: consts.Pixel(aiVisionDistance),
+		ViewDistance: aiVisionDistance,
 	}
 	entitySpec.Interactable = &gc.Interactable{
 		Data: gc.MeleeInteraction{},

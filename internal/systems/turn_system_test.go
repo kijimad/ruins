@@ -605,7 +605,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100, // 十分長い持続時間
 	})
-	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.Pool{Current: 200, Max: 200},
 		Speed: 100,
@@ -779,7 +779,7 @@ func TestPatrolMovement(t *testing.T) {
 		PatrolDirX:            1,
 		PatrolDirY:            0,
 	})
-	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.Pool{Current: 200, Max: 200},
 		Speed: 100,
@@ -839,7 +839,7 @@ func TestTerritorialMovement(t *testing.T) {
 		SpawnX:                spawnX,
 		SpawnY:                spawnY,
 	})
-	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 160})
+	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.Pool{Current: 200, Max: 200},
 		Speed: 100,
