@@ -1,12 +1,3 @@
-import "@typespec/http";
-import "@typespec/rest";
-import "@typespec/openapi3";
-import "@typespec/openapi";
-
-using TypeSpec.Http;
-using TypeSpec.Rest;
-using TypeSpec.OpenAPI;
-
 namespace RuinsEditorApi;
 
 // ================== スカラー型 ==================

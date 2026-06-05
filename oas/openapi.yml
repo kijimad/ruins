@@ -1352,30 +1352,34 @@ components:
         - defense
       properties:
         vitality:
-          type: integer
-          format: int32
-          description: 体力。HPに影響する
+          $ref: '#/components/schemas/Vitality'
         strength:
-          type: integer
-          format: int32
-          description: 筋力。物理ダメージに影響する
+          $ref: '#/components/schemas/Strength'
         sensation:
-          type: integer
-          format: int32
-          description: 感覚。命中率と回避率に影響する
+          $ref: '#/components/schemas/Sensation'
         dexterity:
-          type: integer
-          format: int32
-          description: 器用さ。クリティカル率に影響する
+          $ref: '#/components/schemas/Dexterity'
         agility:
-          type: integer
-          format: int32
-          description: 敏捷性。行動順に影響する
+          $ref: '#/components/schemas/Agility'
         defense:
-          type: integer
-          format: int32
-          description: 防御力。被ダメージを軽減する
+          $ref: '#/components/schemas/Defense'
       description: 能力値
+    Accuracy:
+      type: integer
+      format: int32
+      description: 命中率
+    AccuracyBonus:
+      type: integer
+      format: int32
+      description: 命中率補正値
+    ActionCost:
+      type: integer
+      format: int32
+      description: 行動コスト
+    Agility:
+      type: integer
+      format: int32
+      description: 敏捷性。行動順に影響する
     Ammo:
       type: object
       required:
@@ -1384,17 +1388,11 @@ components:
         - accuracyBonus
       properties:
         ammoTag:
-          allOf:
-            - $ref: '#/components/schemas/AmmoTag'
-          description: 弾薬の種類タグ
+          $ref: '#/components/schemas/AmmoTag'
         damageBonus:
-          type: integer
-          format: int32
-          description: ダメージ補正値
+          $ref: '#/components/schemas/DamageBonus'
         accuracyBonus:
-          type: integer
-          format: int32
-          description: 命中率補正値
+          $ref: '#/components/schemas/AccuracyBonus'
       description: 弾薬設定
     AmmoTag:
       type: string
@@ -1404,6 +1402,10 @@ components:
         - shell
         - energy_cell
       description: 弾薬タグ
+    ArmorDefense:
+      type: integer
+      format: int32
+      description: 防具の防御力
     AttackCategory:
       type: string
       enum:
@@ -1415,20 +1417,34 @@ components:
         - CANON
         - BOW
       description: 攻撃種別
+    AttackCount:
+      type: integer
+      format: int32
+      description: 1ターンあたりの攻撃回数
+    BaseDamage:
+      type: integer
+      format: int32
+      description: 基本ダメージ
+    BlocksPassage:
+      type: boolean
+      description: 通行を妨げるかどうか
+    BlocksView:
+      type: boolean
+      description: 視線を遮るかどうか
     Book:
       type: object
       required:
         - totalEffort
       properties:
         totalEffort:
-          type: integer
-          format: int32
-          description: 読了に必要な総読書量
+          $ref: '#/components/schemas/ReadingEffort'
         skill:
-          allOf:
-            - $ref: '#/components/schemas/SkillBook'
-          description: スキル本としての設定。未設定なら娯楽本
+          $ref: '#/components/schemas/SkillBook'
       description: 本の設定
+    ColorChannel:
+      type: integer
+      format: uint8
+      description: RGBA色チャネル値 (0-255)
     CommandTable:
       type: object
       required:
@@ -1436,13 +1452,11 @@ components:
         - entries
       properties:
         name:
-          type: string
-          description: テーブル名
+          $ref: '#/components/schemas/EntityName'
         entries:
           type: array
           items:
             $ref: '#/components/schemas/CommandTableEntry'
-          description: コマンドエントリのリスト
       description: コマンドテーブル
     CommandTableEntry:
       type: object
@@ -1451,12 +1465,9 @@ components:
         - weight
       properties:
         weapon:
-          type: string
-          description: 使用する武器名
+          $ref: '#/components/schemas/EntityName'
         weight:
-          type: number
-          format: double
-          description: 選択される重み。大きいほど選ばれやすい
+          $ref: '#/components/schemas/EntryWeight'
       description: コマンドテーブルエントリ
     CommandTableList:
       type: object
@@ -1468,11 +1479,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CommandTable'
-          description: コマンドテーブルの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: コマンドテーブル一覧
     Consumable:
       type: object
@@ -1482,26 +1491,35 @@ components:
         - targetNum
       properties:
         usableScene:
-          allOf:
-            - $ref: '#/components/schemas/UsableScene'
-          description: 使用可能なシーン
+          $ref: '#/components/schemas/UsableScene'
         targetGroup:
-          allOf:
-            - $ref: '#/components/schemas/TargetGroup'
-          description: 効果の対象グループ
+          $ref: '#/components/schemas/TargetGroup'
         targetNum:
-          allOf:
-            - $ref: '#/components/schemas/TargetNum'
-          description: 効果の対象数
+          $ref: '#/components/schemas/TargetNum'
       description: 消費可能アイテムの設定
+    DamageBonus:
+      type: integer
+      format: int32
+      description: ダメージ補正値
+    Defense:
+      type: integer
+      format: int32
+      description: 防御力。被ダメージを軽減する
+    DepthLevel:
+      type: integer
+      format: int32
+      description: 階層レベル
+    Dexterity:
+      type: integer
+      format: int32
+      description: 器用さ。クリティカル率に影響する
     Dialog:
       type: object
       required:
         - messageKey
       properties:
         messageKey:
-          type: string
-          description: メッセージリソースのキー
+          $ref: '#/components/schemas/MessageKey'
       description: 会話データ
     DispositionType:
       type: string
@@ -1523,13 +1541,11 @@ components:
         - entries
       properties:
         name:
-          type: string
-          description: テーブル名
+          $ref: '#/components/schemas/EntityName'
         entries:
           type: array
           items:
             $ref: '#/components/schemas/DropTableEntry'
-          description: ドロップエントリのリスト
       description: ドロップテーブル
     DropTableEntry:
       type: object
@@ -1538,12 +1554,9 @@ components:
         - weight
       properties:
         material:
-          type: string
-          description: ドロップする素材名
+          $ref: '#/components/schemas/EntityName'
         weight:
-          type: number
-          format: double
-          description: ドロップする重み。大きいほど選ばれやすい
+          $ref: '#/components/schemas/EntryWeight'
       description: ドロップテーブルエントリ
     DropTableList:
       type: object
@@ -1555,11 +1568,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DropTable'
-          description: ドロップテーブルの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: ドロップテーブル一覧
     DungeonGateTriggerRaw:
       type: object
@@ -1580,13 +1591,11 @@ components:
         - entries
       properties:
         name:
-          type: string
-          description: テーブル名
+          $ref: '#/components/schemas/EntityName'
         entries:
           type: array
           items:
             $ref: '#/components/schemas/EnemyTableEntry'
-          description: 敵エントリのリスト
       description: 敵テーブル
     EnemyTableEntry:
       type: object
@@ -1597,20 +1606,13 @@ components:
         - maxDepth
       properties:
         enemyName:
-          type: string
-          description: 出現する敵メンバー名
+          $ref: '#/components/schemas/EntityName'
         weight:
-          type: number
-          format: double
-          description: 出現する重み。大きいほど選ばれやすい
+          $ref: '#/components/schemas/EntryWeight'
         minDepth:
-          type: integer
-          format: int32
-          description: 出現する最小階層
+          $ref: '#/components/schemas/DepthLevel'
         maxDepth:
-          type: integer
-          format: int32
-          description: 出現する最大階層
+          $ref: '#/components/schemas/DepthLevel'
       description: 敵テーブルエントリ
     EnemyTableList:
       type: object
@@ -1622,12 +1624,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EnemyTable'
-          description: 敵テーブルの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: 敵テーブル一覧
+    EntityDescription:
+      type: string
+      description: 説明文
+    EntityName:
+      type: string
+      description: エンティティ名
+    EntryWeight:
+      type: number
+      format: double
+      description: テーブルエントリの重み。大きいほど選ばれやすい
     EquipBonus:
       type: object
       required:
@@ -1638,25 +1648,15 @@ components:
         - agility
       properties:
         vitality:
-          type: integer
-          format: int32
-          description: 体力ボーナス
+          $ref: '#/components/schemas/Vitality'
         strength:
-          type: integer
-          format: int32
-          description: 筋力ボーナス
+          $ref: '#/components/schemas/Strength'
         sensation:
-          type: integer
-          format: int32
-          description: 感覚ボーナス
+          $ref: '#/components/schemas/Sensation'
         dexterity:
-          type: integer
-          format: int32
-          description: 器用さボーナス
+          $ref: '#/components/schemas/Dexterity'
         agility:
-          type: integer
-          format: int32
-          description: 敏捷性ボーナス
+          $ref: '#/components/schemas/Agility'
       description: 装備ボーナス
     EquipSlot:
       type: string
@@ -1714,49 +1714,27 @@ components:
         - ammoTag
       properties:
         accuracy:
-          type: integer
-          format: int32
-          description: 命中率
+          $ref: '#/components/schemas/Accuracy'
         damage:
-          type: integer
-          format: int32
-          description: ダメージ
+          $ref: '#/components/schemas/BaseDamage'
         attackCount:
-          type: integer
-          format: int32
-          description: 1ターンあたりの攻撃回数
+          $ref: '#/components/schemas/AttackCount'
         element:
-          allOf:
-            - $ref: '#/components/schemas/Element'
-          description: 攻撃属性
+          $ref: '#/components/schemas/Element'
         attackCategory:
-          allOf:
-            - $ref: '#/components/schemas/AttackCategory'
-          description: 攻撃種別
+          $ref: '#/components/schemas/AttackCategory'
         cost:
-          type: integer
-          format: int32
-          description: 行動コスト
+          $ref: '#/components/schemas/ActionCost'
         targetGroup:
-          allOf:
-            - $ref: '#/components/schemas/TargetGroup'
-          description: 対象グループ
+          $ref: '#/components/schemas/TargetGroup'
         targetNum:
-          allOf:
-            - $ref: '#/components/schemas/TargetNum'
-          description: 対象数
+          $ref: '#/components/schemas/TargetNum'
         magazineSize:
-          type: integer
-          format: int32
-          description: マガジン容量
+          $ref: '#/components/schemas/MagazineSize'
         reloadEffort:
-          type: integer
-          format: int32
-          description: リロードに必要な行動力
+          $ref: '#/components/schemas/ReloadEffort'
         ammoTag:
-          allOf:
-            - $ref: '#/components/schemas/AmmoTag'
-          description: 使用する弾薬の種類
+          $ref: '#/components/schemas/AmmoTag'
       description: 遠距離攻撃設定
     FoliageType:
       type: number
@@ -1765,11 +1743,36 @@ components:
         - -1
         - -3
       description: 植生タイプ
+    HealAmount:
+      type: integer
+      format: int32
+      description: 回復固定量
+    HealRatio:
+      type: number
+      format: double
+      description: 回復割合。0.0〜1.0
     HealingValueType:
       type: string
       enum:
         - PERCENTAGE
       description: 回復量の計算方式
+    ImagePath:
+      type: string
+      description: 画像ファイルパス
+    InsulationCold:
+      type: integer
+      format: int32
+      description: 耐寒性能
+    InsulationHeat:
+      type: integer
+      format: int32
+      description: 耐暑性能
+    IsBoss:
+      type: boolean
+      description: ボスモンスターかどうか
+    IsPlayer:
+      type: boolean
+      description: プレイヤーキャラクターかどうか
     Item:
       type: object
       required:
@@ -1781,78 +1784,50 @@ components:
         - value
       properties:
         name:
-          type: string
-          description: アイテム名
+          $ref: '#/components/schemas/EntityName'
         description:
-          type: string
-          description: アイテムの説明文
+          $ref: '#/components/schemas/EntityDescription'
         spriteSheetName:
-          type: string
-          description: スプライトシート名
+          $ref: '#/components/schemas/SpriteSheetName'
         spriteKey:
-          type: string
-          description: スプライトキー
+          $ref: '#/components/schemas/SpriteKey'
         animKeys:
           type: array
           items:
-            type: string
-          description: アニメーション用スプライトキーの配列
+            $ref: '#/components/schemas/SpriteKey'
         value:
-          type: integer
-          format: int32
-          description: 売買価格
+          $ref: '#/components/schemas/ItemValue'
         weight:
-          type: number
-          format: double
-          description: 重量。未設定なら0
+          $ref: '#/components/schemas/ItemWeight'
         inflictsDamage:
-          type: integer
-          format: int32
-          description: 投擲ダメージ。未設定なら投擲不可
+          $ref: '#/components/schemas/BaseDamage'
         providesNutrition:
-          type: integer
-          format: int32
-          description: 栄養価。未設定なら食べられない
+          $ref: '#/components/schemas/NutritionAmount'
         stackable:
-          type: boolean
-          description: スタック可能かどうか
+          $ref: '#/components/schemas/Stackable'
         consumable:
-          allOf:
-            - $ref: '#/components/schemas/Consumable'
-          description: 消費アイテム設定
+          $ref: '#/components/schemas/Consumable'
         providesHealing:
-          allOf:
-            - $ref: '#/components/schemas/ProvidesHealing'
-          description: 回復効果
+          $ref: '#/components/schemas/ProvidesHealing'
         wearable:
-          allOf:
-            - $ref: '#/components/schemas/Wearable'
-          description: 防具設定
+          $ref: '#/components/schemas/Wearable'
         equipBonus:
-          allOf:
-            - $ref: '#/components/schemas/EquipBonus'
-          description: 装備ボーナス
+          $ref: '#/components/schemas/EquipBonus'
         weapon:
-          allOf:
-            - $ref: '#/components/schemas/Weapon'
-          description: 武器マーカー。存在すれば武器として扱う
+          $ref: '#/components/schemas/Weapon'
         ammo:
-          allOf:
-            - $ref: '#/components/schemas/Ammo'
-          description: 弾薬設定
+          $ref: '#/components/schemas/Ammo'
         melee:
-          allOf:
-            - $ref: '#/components/schemas/Melee'
-          description: 近接攻撃設定
+          $ref: '#/components/schemas/Melee'
         fire:
-          allOf:
-            - $ref: '#/components/schemas/Fire'
-          description: 遠距離攻撃設定
+          $ref: '#/components/schemas/Fire'
         book:
-          allOf:
-            - $ref: '#/components/schemas/Book'
-          description: 本設定
+          $ref: '#/components/schemas/Book'
       description: アイテム
+    ItemCount:
+      type: integer
+      format: int32
+      description: アイテム所持数
     ItemList:
       type: object
       required:
@@ -1863,11 +1838,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Item'
-          description: アイテムの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: アイテム一覧レスポンス
     ItemTable:
       type: object
@@ -1876,13 +1849,11 @@ components:
         - entries
       properties:
         name:
-          type: string
-          description: テーブル名
+          $ref: '#/components/schemas/EntityName'
         entries:
           type: array
           items:
             $ref: '#/components/schemas/ItemTableEntry'
-          description: アイテムエントリのリスト
       description: アイテムテーブル
     ItemTableEntry:
       type: object
@@ -1893,20 +1864,13 @@ components:
         - maxDepth
       properties:
         itemName:
-          type: string
-          description: 出現するアイテム名
+          $ref: '#/components/schemas/EntityName'
         weight:
-          type: number
-          format: double
-          description: 出現する重み。大きいほど選ばれやすい
+          $ref: '#/components/schemas/EntryWeight'
         minDepth:
-          type: integer
-          format: int32
-          description: 出現する最小階層
+          $ref: '#/components/schemas/DepthLevel'
         maxDepth:
-          type: integer
-          format: int32
-          description: 出現する最大階層
+          $ref: '#/components/schemas/DepthLevel'
       description: アイテムテーブルエントリ
     ItemTableList:
       type: object
@@ -1918,12 +1882,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ItemTable'
-          description: アイテムテーブルの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: アイテムテーブル一覧
+    ItemValue:
+      type: integer
+      format: int32
+      description: 売買価格
+    ItemWeight:
+      type: number
+      format: double
+      description: アイテム重量
+    LightEnabled:
+      type: boolean
+      description: 光源が有効かどうか
+    LightRadius:
+      type: integer
+      format: int32
+      description: 光の到達半径
     LightSource:
       type: object
       required:
@@ -1932,17 +1909,20 @@ components:
         - enabled
       properties:
         radius:
-          type: integer
-          format: int32
-          description: 光の到達半径
+          $ref: '#/components/schemas/LightRadius'
         color:
-          allOf:
-            - $ref: '#/components/schemas/RGBAColor'
-          description: 光の色
+          $ref: '#/components/schemas/RGBAColor'
         enabled:
-          type: boolean
-          description: 光源が有効かどうか
+          $ref: '#/components/schemas/LightEnabled'
       description: 光源設定
+    MagazineSize:
+      type: integer
+      format: int32
+      description: マガジン容量
+    MaterialAmount:
+      type: integer
+      format: int32
+      description: 素材必要数
     Melee:
       type: object
       required:
@@ -1956,37 +1936,21 @@ components:
         - targetNum
       properties:
         accuracy:
-          type: integer
-          format: int32
-          description: 命中率
+          $ref: '#/components/schemas/Accuracy'
         damage:
-          type: integer
-          format: int32
-          description: ダメージ
+          $ref: '#/components/schemas/BaseDamage'
         attackCount:
-          type: integer
-          format: int32
-          description: 1ターンあたりの攻撃回数
+          $ref: '#/components/schemas/AttackCount'
         element:
-          allOf:
-            - $ref: '#/components/schemas/Element'
-          description: 攻撃属性
+          $ref: '#/components/schemas/Element'
         attackCategory:
-          allOf:
-            - $ref: '#/components/schemas/AttackCategory'
-          description: 攻撃種別
+          $ref: '#/components/schemas/AttackCategory'
         cost:
-          type: integer
-          format: int32
-          description: 行動コスト
+          $ref: '#/components/schemas/ActionCost'
         targetGroup:
-          allOf:
-            - $ref: '#/components/schemas/TargetGroup'
-          description: 対象グループ
+          $ref: '#/components/schemas/TargetGroup'
         targetNum:
-          allOf:
-            - $ref: '#/components/schemas/TargetNum'
-          description: 対象数
+          $ref: '#/components/schemas/TargetNum'
       description: 近接攻撃設定
     Member:
       type: object
@@ -2001,55 +1965,37 @@ components:
         - dropTableName
       properties:
         name:
-          type: string
-          description: メンバー名
+          $ref: '#/components/schemas/EntityName'
         player:
-          type: boolean
-          description: プレイヤーキャラクターかどうか
+          $ref: '#/components/schemas/IsPlayer'
         isBoss:
-          type: boolean
-          description: ボスモンスターかどうか
+          $ref: '#/components/schemas/IsBoss'
         abilities:
-          allOf:
-            - $ref: '#/components/schemas/Abilities'
-          description: 基本能力値
+          $ref: '#/components/schemas/Abilities'
         spriteSheetName:
-          type: string
-          description: スプライトシート名
+          $ref: '#/components/schemas/SpriteSheetName'
         spriteKey:
-          type: string
-          description: スプライトキー
+          $ref: '#/components/schemas/SpriteKey'
         animKeys:
           type: array
           items:
-            type: string
-          description: アニメーション用スプライトキーの配列
+            $ref: '#/components/schemas/SpriteKey'
         lightSource:
-          allOf:
-            - $ref: '#/components/schemas/LightSource'
-          description: 光源設定。未設定なら光源なし
+          $ref: '#/components/schemas/LightSource'
         factionType:
-          allOf:
-            - $ref: '#/components/schemas/FactionMemberType'
-          description: 所属する派閥。未設定なら敵対
+          $ref: '#/components/schemas/FactionMemberType'
         disposition:
-          allOf:
-            - $ref: '#/components/schemas/DispositionType'
-          description: 態度
+          $ref: '#/components/schemas/DispositionType'
         movementPattern:
-          allOf:
-            - $ref: '#/components/schemas/MovementPatternType'
-          description: 非戦闘時の移動パターン
+          $ref: '#/components/schemas/MovementPatternType'
+        viewDistance:
+          $ref: '#/components/schemas/ViewDistance'
         dialog:
-          allOf:
-            - $ref: '#/components/schemas/Dialog'
-          description: 会話データ。未設定なら会話不可
+          $ref: '#/components/schemas/Dialog'
         commandTableName:
-          type: string
-          description: 参照するコマンドテーブル名
+          $ref: '#/components/schemas/EntityName'
         dropTableName:
-          type: string
-          description: 参照するドロップテーブル名
+          $ref: '#/components/schemas/EntityName'
       description: メンバー
     MemberList:
       type: object
@@ -2061,12 +2007,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Member'
-          description: メンバーの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: メンバー一覧レスポンス
+    MessageKey:
+      type: string
+      description: メッセージリソースのキー
     MovementPatternType:
       type: string
       enum:
@@ -2078,6 +2025,10 @@ components:
         - territorial
         - swarm
       description: 非戦闘時の移動パターン
+    NutritionAmount:
+      type: integer
+      format: int32
+      description: 栄養価
     Palette:
       type: object
       required:
@@ -2088,26 +2039,21 @@ components:
         - npcs
       properties:
         id:
-          type: string
-          description: パレットID
+          $ref: '#/components/schemas/PaletteId'
         description:
-          type: string
-          description: パレットの説明文
+          $ref: '#/components/schemas/EntityDescription'
         terrain:
           type: object
           additionalProperties:
-            type: string
-          description: 地形マッピング。マップ文字からタイル名への対応
+            $ref: '#/components/schemas/EntityName'
         props:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/PaletteEntry'
-          description: 置物マッピング。マップ文字から置物エントリへの対応
         npcs:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/PaletteEntry'
-          description: NPCマッピング。マップ文字からNPCエントリへの対応
       description: パレット
     PaletteEntry:
       type: object
@@ -2116,12 +2062,13 @@ components:
         - tile
       properties:
         id:
-          type: string
-          description: エントリID
+          $ref: '#/components/schemas/PaletteId'
         tile:
-          type: string
-          description: 対応するタイル名
+          $ref: '#/components/schemas/EntityName'
       description: パレットエントリ
+    PaletteId:
+      type: string
+      description: パレットID
     PaletteList:
       type: object
       required:
@@ -2132,11 +2079,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Palette'
-          description: パレットの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: パレット一覧
     Profession:
       type: object
@@ -2150,33 +2095,25 @@ components:
         - equips
       properties:
         id:
-          type: string
-          description: 職業ID
+          $ref: '#/components/schemas/ProfessionId'
         name:
-          type: string
-          description: 職業名
+          $ref: '#/components/schemas/EntityName'
         description:
-          type: string
-          description: 職業の説明文
+          $ref: '#/components/schemas/EntityDescription'
         abilities:
-          allOf:
-            - $ref: '#/components/schemas/Abilities'
-          description: 基本能力値
+          $ref: '#/components/schemas/Abilities'
         skills:
           type: array
           items:
             $ref: '#/components/schemas/ProfessionSkill'
-          description: 初期スキルのリスト
         items:
           type: array
           items:
             $ref: '#/components/schemas/ProfessionItem'
-          description: 初期所持アイテムのリスト
         equips:
           type: array
           items:
             $ref: '#/components/schemas/ProfessionEquip'
-          description: 初期装備のリスト
       description: 職業
     ProfessionEquip:
       type: object
@@ -2185,13 +2122,13 @@ components:
         - slot
       properties:
         name:
-          type: string
-          description: 装備アイテム名
+          $ref: '#/components/schemas/EntityName'
         slot:
-          allOf:
-            - $ref: '#/components/schemas/EquipSlot'
-          description: 装備するスロット
+          $ref: '#/components/schemas/EquipSlot'
       description: 職業初期装備
+    ProfessionId:
+      type: string
+      description: 職業ID
     ProfessionItem:
       type: object
       required:
@@ -2199,12 +2136,9 @@ components:
         - count
       properties:
         name:
-          type: string
-          description: アイテム名
+          $ref: '#/components/schemas/EntityName'
         count:
-          type: integer
-          format: int32
-          description: 所持数
+          $ref: '#/components/schemas/ItemCount'
       description: 職業初期所持アイテム
     ProfessionList:
       type: object
@@ -2216,11 +2150,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Profession'
-          description: 職業の配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: 職業一覧
     ProfessionSkill:
       type: object
@@ -2229,12 +2161,9 @@ components:
         - value
       properties:
         id:
-          type: string
-          description: スキルID
+          $ref: '#/components/schemas/SkillId'
         value:
-          type: integer
-          format: int32
-          description: 初期スキルレベル
+          $ref: '#/components/schemas/SkillLevel'
       description: 職業スキル初期値
     Prop:
       type: object
@@ -2247,50 +2176,31 @@ components:
         - blockView
       properties:
         name:
-          type: string
-          description: 置物名
+          $ref: '#/components/schemas/EntityName'
         description:
-          type: string
-          description: 置物の説明文
+          $ref: '#/components/schemas/EntityDescription'
         spriteRender:
-          allOf:
-            - $ref: '#/components/schemas/SpriteRender'
-          description: スプライト描画設定
+          $ref: '#/components/schemas/SpriteRender'
         animKeys:
           type: array
           items:
-            type: string
-          description: アニメーション用スプライトキーの配列
+            $ref: '#/components/schemas/SpriteKey'
         blockPass:
-          type: boolean
-          description: 通行を妨げるかどうか
+          $ref: '#/components/schemas/BlocksPassage'
         blockView:
-          type: boolean
-          description: 視線を遮るかどうか
+          $ref: '#/components/schemas/BlocksView'
         lightSource:
-          allOf:
-            - $ref: '#/components/schemas/LightSource'
-          description: 光源設定。未設定なら光源なし
+          $ref: '#/components/schemas/LightSource'
         door:
-          allOf:
-            - $ref: '#/components/schemas/DoorRaw'
-          description: 扉データ。設定すると開閉可能な扉として動作する
+          $ref: '#/components/schemas/DoorRaw'
         doorLockTrigger:
-          allOf:
-            - $ref: '#/components/schemas/DoorLockTriggerRaw'
-          description: 扉ロックトリガー。設定すると鍵付き扉として動作する
+          $ref: '#/components/schemas/DoorLockTriggerRaw'
         warpNextTrigger:
-          allOf:
-            - $ref: '#/components/schemas/WarpNextTriggerRaw'
-          description: 次階層ワープトリガー。踏むと次の階層に進む
+          $ref: '#/components/schemas/WarpNextTriggerRaw'
         warpEscapeTrigger:
-          allOf:
-            - $ref: '#/components/schemas/WarpEscapeTriggerRaw'
-          description: 脱出ワープトリガー。踏むとダンジョンから脱出する
+          $ref: '#/components/schemas/WarpEscapeTriggerRaw'
         dungeonGateTrigger:
-          allOf:
-            - $ref: '#/components/schemas/DungeonGateTriggerRaw'
-          description: ダンジョン選択ゲートトリガー。調べるとダンジョン選択画面を開く
+          $ref: '#/components/schemas/DungeonGateTriggerRaw'
       description: 置物
     PropList:
       type: object
@@ -2302,11 +2212,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Prop'
-          description: 置物の配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: 置物一覧
     ProvidesHealing:
       type: object
@@ -2316,17 +2224,11 @@ components:
         - ratio
       properties:
         valueType:
-          allOf:
-            - $ref: '#/components/schemas/HealingValueType'
-          description: 回復量の計算方式
+          $ref: '#/components/schemas/HealingValueType'
         amount:
-          type: integer
-          format: int32
-          description: 回復固定量
+          $ref: '#/components/schemas/HealAmount'
         ratio:
-          type: number
-          format: double
-          description: 回復割合。0.0〜1.0
+          $ref: '#/components/schemas/HealRatio'
       description: 回復効果
     RGBAColor:
       type: object
@@ -2337,22 +2239,18 @@ components:
         - a
       properties:
         r:
-          type: integer
-          format: uint8
-          description: 赤 (0-255)
+          $ref: '#/components/schemas/ColorChannel'
         g:
-          type: integer
-          format: uint8
-          description: 緑 (0-255)
+          $ref: '#/components/schemas/ColorChannel'
         b:
-          type: integer
-          format: uint8
-          description: 青 (0-255)
+          $ref: '#/components/schemas/ColorChannel'
         a:
-          type: integer
-          format: uint8
-          description: 透明度 (0-255)
+          $ref: '#/components/schemas/ColorChannel'
       description: RGBA色
+    ReadingEffort:
+      type: integer
+      format: int32
+      description: 読了に必要な総読書量
     Recipe:
       type: object
       required:
@@ -2360,13 +2258,11 @@ components:
         - inputs
       properties:
         name:
-          type: string
-          description: レシピ名。生成されるアイテム名と一致する
+          $ref: '#/components/schemas/EntityName'
         inputs:
           type: array
           items:
             $ref: '#/components/schemas/RecipeInput'
-          description: 必要素材のリスト
       description: レシピ
     RecipeInput:
       type: object
@@ -2375,12 +2271,9 @@ components:
         - amount
       properties:
         name:
-          type: string
-          description: 素材アイテム名
+          $ref: '#/components/schemas/EntityName'
         amount:
-          type: integer
-          format: int32
-          description: 必要個数
+          $ref: '#/components/schemas/MaterialAmount'
       description: レシピ素材
     RecipeList:
       type: object
@@ -2392,12 +2285,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Recipe'
-          description: レシピの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: レシピ一覧レスポンス
+    ReloadEffort:
+      type: integer
+      format: int32
+      description: リロードに必要な行動力
+    Sensation:
+      type: integer
+      format: int32
+      description: 感覚。命中率と回避率に影響する
     ShelterType:
       type: number
       enum:
@@ -2413,17 +2312,19 @@ components:
         - maxLevel
       properties:
         targetSkill:
-          type: string
-          description: 習得対象のスキルID
+          $ref: '#/components/schemas/SkillId'
         requiredLevel:
-          type: integer
-          format: int32
-          description: 習得に必要なスキルレベル
+          $ref: '#/components/schemas/SkillLevel'
         maxLevel:
-          type: integer
-          format: int32
-          description: 習得可能な最大レベル
+          $ref: '#/components/schemas/SkillLevel'
       description: スキル本設定
+    SkillId:
+      type: string
+      description: スキルID
+    SkillLevel:
+      type: integer
+      format: int32
+      description: スキルレベル
     SpriteDepth:
       type: number
       enum:
@@ -2432,6 +2333,9 @@ components:
         - 2
         - 3
       description: スプライト描画深度
+    SpriteKey:
+      type: string
+      description: スプライトキー
     SpriteRender:
       type: object
       required:
@@ -2440,15 +2344,11 @@ components:
         - depth
       properties:
         spriteSheetName:
-          type: string
-          description: スプライトシート名
+          $ref: '#/components/schemas/SpriteSheetName'
         spriteKey:
-          type: string
-          description: スプライトキー
+          $ref: '#/components/schemas/SpriteKey'
         depth:
-          allOf:
-            - $ref: '#/components/schemas/SpriteDepth'
-          description: 描画深度。レイヤー順序を決定する
+          $ref: '#/components/schemas/SpriteDepth'
       description: スプライトレンダー設定
     SpriteSheet:
       type: object
@@ -2457,11 +2357,9 @@ components:
         - path
       properties:
         name:
-          type: string
-          description: シート名
+          $ref: '#/components/schemas/EntityName'
         path:
-          type: string
-          description: 画像ファイルパス
+          $ref: '#/components/schemas/ImagePath'
       description: スプライトシート
     SpriteSheetList:
       type: object
@@ -2473,12 +2371,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SpriteSheet'
-          description: スプライトシートの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: スプライトシート一覧
+    SpriteSheetName:
+      type: string
+      description: スプライトシート名
+    Stackable:
+      type: boolean
+      description: スタック可能かどうか
+    Strength:
+      type: integer
+      format: int32
+      description: 筋力。物理ダメージに影響する
     TargetGroup:
       type: string
       enum:
@@ -2506,33 +2412,21 @@ components:
         - foliage
       properties:
         name:
-          type: string
-          description: タイル名
+          $ref: '#/components/schemas/EntityName'
         description:
-          type: string
-          description: タイルの説明文
+          $ref: '#/components/schemas/EntityDescription'
         blockPass:
-          type: boolean
-          description: 通行を妨げるかどうか
+          $ref: '#/components/schemas/BlocksPassage'
         blockView:
-          type: boolean
-          description: 視線を遮るかどうか
+          $ref: '#/components/schemas/BlocksView'
         spriteRender:
-          allOf:
-            - $ref: '#/components/schemas/SpriteRender'
-          description: スプライト描画設定
+          $ref: '#/components/schemas/SpriteRender'
         shelter:
-          allOf:
-            - $ref: '#/components/schemas/ShelterType'
-          description: 遮蔽タイプ。戦闘時の命中率に影響する
+          $ref: '#/components/schemas/ShelterType'
         water:
-          allOf:
-            - $ref: '#/components/schemas/WaterType'
-          description: 水タイプ。移動コストに影響する
+          $ref: '#/components/schemas/WaterType'
         foliage:
-          allOf:
-            - $ref: '#/components/schemas/FoliageType'
-          description: 植生タイプ。視界に影響する
+          $ref: '#/components/schemas/FoliageType'
       description: タイル
     TileList:
       type: object
@@ -2544,11 +2438,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Tile'
-          description: タイルの配列
         totalCount:
           type: integer
           format: int32
-          description: 総件数
       description: タイル一覧
     UsableScene:
       type: string
@@ -2557,6 +2449,14 @@ components:
         - FIELD
         - ANY
       description: 使用可能シーン
+    ViewDistance:
+      type: integer
+      format: int32
+      description: AI視界距離（タイル単位）
+    Vitality:
+      type: integer
+      format: int32
+      description: 体力。HPに影響する
     WarpEscapeTriggerRaw:
       type: object
       description: 脱出ワープトリガー
@@ -2582,21 +2482,13 @@ components:
         - insulationHeat
       properties:
         defense:
-          type: integer
-          format: int32
-          description: 防御力
+          $ref: '#/components/schemas/ArmorDefense'
         equipmentCategory:
-          allOf:
-            - $ref: '#/components/schemas/EquipmentCategory'
-          description: 装備する部位
+          $ref: '#/components/schemas/EquipmentCategory'
         insulationCold:
-          type: integer
-          format: int32
-          description: 耐寒性能
+          $ref: '#/components/schemas/InsulationCold'
         insulationHeat:
-          type: integer
-          format: int32
-          description: 耐暑性能
+          $ref: '#/components/schemas/InsulationHeat'
       description: 装備可能設定
 servers:
   - url: http://localhost:8080
