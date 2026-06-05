@@ -13,6 +13,6 @@ docker run --rm \
          -g typescript-axios \
          -o oas/ts-axios
 
-mkdir -p editor-ui/src/oapi
-mv oas/ts-axios/*.ts editor-ui/src/oapi/
+mkdir -p editor-ui/src/generated
+mv oas/ts-axios/*.ts editor-ui/src/generated/
 rm -rf oas/ts-axios
