@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-03 23:51:45</td>
+            <td class="headerValue">2026-06-05 14:24:51</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -265,7 +265,7 @@
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                 screenX := (pixelX-float64(cameraPos.X))*cameraScale + float64(screenDimensions.Width)/2</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                 screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 scaledRadius := float32(float64(vision.ViewDistance) * cameraScale)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 scaledRadius := float32(float64(vision.ViewDistance) * float64(consts.TileSize) * cameraScale)</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 visionRanges = append(visionRanges, hud.VisionRangeInfo{</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                         ScreenX:      screenX,</span></span>

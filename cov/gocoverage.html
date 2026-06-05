@@ -97,7 +97,7 @@
 				
 				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/state_machine.go (68.4%)</option>
 				
-				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/vision_system.go (11.1%)</option>
+				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/vision_system.go (9.1%)</option>
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/balance/combat.go (88.7%)</option>
 				
@@ -4730,7 +4730,6 @@ func (sm *DefaultStateMachine) initializeToWaiting(roaming *gc.AIRoaming, curren
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
-        "github.com/kijimaD/ruins/internal/geometry"
         w "github.com/kijimaD/ruins/internal/world"
         ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -4753,19 +4752,19 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
         aiGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
         targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)
 
-        // 距離計算（タイル単位）
-        distance := geometry.Distance(float64(aiGrid.X), float64(aiGrid.Y), float64(targetGrid.X), float64(targetGrid.Y))
+        dx := int(aiGrid.X) - int(targetGrid.X)
+        dy := int(aiGrid.Y) - int(targetGrid.Y)
+        distSq := dx*dx + dy*dy
 
-        // 視界距離内かチェック（タイル単位で計算）
-        viewDistanceInTiles := float64(vision.ViewDistance) / 32.0 // 仮にタイル1つ=32ピクセル
+        viewDist := float64(vision.ViewDistance)
 
         // ターゲットの隠密スキルによる被発見距離倍率を適用する
         if targetEntity.HasComponent(world.Components.CharModifiers) </span><span class="cov0" title="0">{
                 mods := world.Components.CharModifiers.Get(targetEntity).(*gc.CharModifiers)
-                viewDistanceInTiles = viewDistanceInTiles * float64(mods.EnemyVision) / 100
+                viewDist = viewDist * float64(mods.EnemyVision) / 100
         }</span>
 
-        <span class="cov0" title="0">return distance &lt;= viewDistanceInTiles</span>
+        <span class="cov0" title="0">return float64(distSq) &lt;= viewDist*viewDist</span>
 }
 </pre>
 		
@@ -6320,8 +6319,8 @@ const (
 
 // AIVision はAIの視界システム
 type AIVision struct {
-        // ViewDistance は視界距離（ピクセル単位）
-        ViewDistance consts.Pixel
+        // ViewDistance は視界距離（タイル単位）
+        ViewDistance consts.Tile
         // TargetEntity は追跡対象のエンティティ（プレイヤーなど）
         TargetEntity *ecs.Entity
 }
@@ -32989,7 +32988,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData <span class="cov0" 
 
                 screenX := (pixelX-float64(cameraPos.X))*cameraScale + float64(screenDimensions.Width)/2
                 screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
-                scaledRadius := float32(float64(vision.ViewDistance) * cameraScale)
+                scaledRadius := float32(float64(vision.ViewDistance) * float64(consts.TileSize) * cameraScale)
 
                 visionRanges = append(visionRanges, hud.VisionRangeInfo{
                         ScreenX:      screenX,
@@ -41091,7 +41090,7 @@ const (
         cameraNormalScale = 0.6 // カメラの通常スケール
 
         // AI設定
-        aiVisionDistance = 160.0 // AIの視界距離（ピクセル）
+        aiVisionDistance = 5 // AIの視界距離（タイル単位）
 
         // ステータス計算係数
         spVitalityMultiply  = 2    // SP計算の体力係数
@@ -41358,7 +41357,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
                         PatrolDirX:            initialPatrolDir(),
                 }
                 entitySpec.AIVision = &amp;gc.AIVision{
-                        ViewDistance: consts.Pixel(aiVisionDistance),
+                        ViewDistance: aiVisionDistance,
                 }
         }</span>
 
@@ -41414,7 +41413,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
                 PatrolDirX:            initialPatrolDir(),
         }
         entitySpec.AIVision = &amp;gc.AIVision{
-                ViewDistance: consts.Pixel(aiVisionDistance),
+                ViewDistance: aiVisionDistance,
         }
         entitySpec.Interactable = &amp;gc.Interactable{
                 Data: gc.MeleeInteraction{},
