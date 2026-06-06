@@ -608,6 +608,20 @@ func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAtt
 	}
 }
 
+// reachableSelector はマップ全体からランダムに選び、プレイヤーから到達可能な位置を返す
+func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector {
+	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
+		for i := 0; i < maxAttempts; i++ {
+			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
+			if planData.IsSpawnableTile(world, x, y) && pf.IsReachable(playerPos.X, playerPos.Y, int(x), int(y)) {
+				return x, y, true
+			}
+		}
+		return 0, 0, false
+	}
+}
+
 // findPosition はセレクタを順に試し、最初に成功した結果を返す。
 // 全セレクタが失敗した場合はエラーを返す
 func findPosition(planData *MetaPlan, world w.World, selectors ...positionSelector) (consts.Tile, consts.Tile, error) {

@@ -42,41 +42,25 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		return fmt.Errorf("%w: %v", ErrConnectivity, err)
 	}
 
-	// 次の階へ進むポータルを配置する
-	placed := false
-	for attempt := 0; attempt < maxPortalPlacementAttempts; attempt++ {
-		x := planData.RNG.IntN(int(planData.Level.TileWidth))
-		y := planData.RNG.IntN(int(planData.Level.TileHeight))
+	selector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)
 
-		if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
-			planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: x, Y: y})
-			placed = true
-			break
-		}
-	}
-	if !placed {
+	// 次の階へ進むポータルを配置する
+	x, y, err := findPosition(planData, p.world, selector)
+	if err != nil {
 		return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 	}
+	planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: int(x), Y: int(y)})
 
 	if worldhelper.GetDungeon(p.world) == nil {
 		return fmt.Errorf("Dungeonが初期化されていません")
 	}
 	// 間隔ごとに帰還ポータルを配置する
 	if worldhelper.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
-		placed = false
-		for attempt := 0; attempt < maxPortalPlacementAttempts; attempt++ {
-			x := planData.RNG.IntN(int(planData.Level.TileWidth))
-			y := planData.RNG.IntN(int(planData.Level.TileHeight))
-
-			if planData.IsSpawnableTile(p.world, consts.Tile(x), consts.Tile(y)) && pathFinder.IsReachable(playerPos.X, playerPos.Y, x, y) {
-				planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: x, Y: y})
-				placed = true
-				break
-			}
-		}
-		if !placed {
+		ex, ey, escErr := findPosition(planData, p.world, selector)
+		if escErr != nil {
 			return fmt.Errorf("%w: EscapePortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 		}
+		planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: int(ex), Y: int(ey)})
 	}
 
 	return nil
