@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -12,9 +11,9 @@ import (
 // アイテム配置用の定数
 const (
 	// アイテム配置関連
-	baseItemCount     = 15 // アイテム配置の基本数
-	randomItemCount   = 9  // アイテム配置のランダム追加数（0-8の範囲）
-	itemIncreaseDepth = 5  // アイテム数増加の深度しきい値
+	baseItemCount     = 8 // アイテム配置の基本数
+	randomItemCount   = 5 // アイテム配置のランダム追加数（0-4の範囲）
+	itemIncreaseDepth = 5 // アイテム数増加の深度しきい値
 
 	// 配置処理関連
 	maxItemPlacementAttempts = 200 // アイテム配置処理の最大試行回数
@@ -61,17 +60,12 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 
 	// アイテムを配置
 	for j := 0; j < itemCount; j++ {
-		itemName, err := raw.SelectByWeightFunc(
-			i.plannerType.ItemEntries,
-			func(e SpawnEntry) float64 { return e.Weight },
-			func(e SpawnEntry) string { return e.Name },
-			planData.RNG,
-		)
+		entry, err := selectSpawnEntry(i.plannerType.ItemEntries, planData.RNG)
 		if err != nil {
 			return err
 		}
-		if itemName != "" {
-			if err := i.addItem(planData, itemName); err != nil {
+		if entry.Name != "" {
+			if err := i.addItem(planData, entry.Name); err != nil {
 				return err
 			}
 		}
@@ -80,43 +74,23 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	return nil
 }
 
-// addItem は単一のアイテムをMetaPlanに追加する
+// addItem は単一のアイテムをMetaPlanに追加する。
+// 部屋がある場合は部屋内を優先し、見つからなければマップ全体にフォールバックする
 func (i *ItemPlanner) addItem(planData *MetaPlan, itemName string) error {
-	failCount := 0
-
-	for {
-		if failCount > maxItemPlacementAttempts {
-			return fmt.Errorf("アイテム配置の試行回数が上限に達しました。アイテム: %s", itemName)
-		}
-
-		// ランダムな位置を選択
-		x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
-		y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
-
-		// スポーン可能な位置かチェック
-		if !i.isValidItemPosition(planData, x, y) {
-			failCount++
-			continue
-		}
-
-		// MetaPlanにアイテムを追加
-		planData.Items = append(planData.Items, ItemSpec{
-			Coord: consts.Coord[int]{X: int(x), Y: int(y)},
-			Name:  itemName,
-		})
-
-		return nil
+	var selectors []positionSelector
+	if room, _, ok := planData.selectRoom(); ok {
+		selectors = append(selectors, inRoomSelector(room, maxRoomAttempts))
 	}
-}
+	selectors = append(selectors, onMapSelector(maxItemPlacementAttempts))
 
-// isValidItemPosition はアイテム配置に適した位置かチェックする
-func (i *ItemPlanner) isValidItemPosition(planData *MetaPlan, x, y consts.Tile) bool {
-	tileIdx := planData.Level.XYTileIndex(x, y)
-	if int(tileIdx) >= len(planData.Tiles) {
-		return false
+	x, y, err := findPosition(planData, i.world, selectors...)
+	if err != nil {
+		return fmt.Errorf("%w: アイテム: %s", err, itemName)
 	}
 
-	tile := planData.Tiles[tileIdx]
-	// 歩行可能なタイルに配置可能
-	return !tile.BlockPass
+	planData.Items = append(planData.Items, ItemSpec{
+		Coord: consts.Coord[int]{X: int(x), Y: int(y)},
+		Name:  itemName,
+	})
+	return nil
 }

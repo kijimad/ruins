@@ -217,6 +217,8 @@ model EnemyTableEntry {
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
+  packMin: PackMin;
+  packMax: PackMax;
 }
 
 /** 敵テーブル */

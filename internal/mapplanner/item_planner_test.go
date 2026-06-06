@@ -175,4 +175,41 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		assert.NotEmpty(t, chain.PlanData.Items)
 	})
+
+	t.Run("部屋がある場合はアイテムが部屋内に配置される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
+
+		plannerType := PlannerType{
+			Name: "test_room_based_items",
+			ItemEntries: []SpawnEntry{
+				{Name: "薬草", Weight: 1.0},
+			},
+		}
+
+		chain, err := NewSmallRoomPlanner(30, 30, 12345)
+		require.NoError(t, err)
+		chain.PlanData.RawMaster = CreateTestRawMaster()
+		err = chain.Plan()
+		require.NoError(t, err)
+		require.NotEmpty(t, chain.PlanData.Rooms, "テストにはRoomsが必要")
+
+		planner := NewItemPlanner(world, plannerType)
+		err = planner.PlanMeta(&chain.PlanData)
+		require.NoError(t, err)
+
+		// 各アイテムがいずれかの部屋内にいることを確認
+		for _, item := range chain.PlanData.Items {
+			inRoom := false
+			for _, room := range chain.PlanData.Rooms {
+				if item.X >= int(room.X1) && item.X < int(room.X2) &&
+					item.Y >= int(room.Y1) && item.Y < int(room.Y2) {
+					inRoom = true
+					break
+				}
+			}
+			assert.True(t, inRoom, "アイテム(%d,%d)がどの部屋にも属していない", item.X, item.Y)
+		}
+	})
 }

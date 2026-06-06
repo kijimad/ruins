@@ -1604,6 +1604,8 @@ components:
         - weight
         - minDepth
         - maxDepth
+        - packMin
+        - packMax
       properties:
         enemyName:
           $ref: '#/components/schemas/EntityName'
@@ -1613,6 +1615,10 @@ components:
           $ref: '#/components/schemas/DepthLevel'
         maxDepth:
           $ref: '#/components/schemas/DepthLevel'
+        packMin:
+          $ref: '#/components/schemas/PackMin'
+        packMax:
+          $ref: '#/components/schemas/PackMax'
       description: 敵テーブルエントリ
     EnemyTableList:
       type: object
@@ -2029,6 +2035,14 @@ components:
       type: integer
       format: int32
       description: 栄養価
+    PackMax:
+      type: integer
+      format: int32
+      description: パックの最大数
+    PackMin:
+      type: integer
+      format: int32
+      description: パックの最小数
     Palette:
       type: object
       required:

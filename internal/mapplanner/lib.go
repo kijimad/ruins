@@ -372,10 +372,20 @@ func NewBigRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Pla
 	return chain, nil
 }
 
-// SpawnEntry はスポーン対象のエントリを表す
+// SpawnEntry はスポーン対象のエントリを表す。
 type SpawnEntry struct {
-	Name   string
-	Weight float64
+	Name    string
+	Weight  float64
+	PackMin int // パックの最小数。1以上
+	PackMax int // パックの最大数。PackMin以上
+}
+
+// PackSize はPackMin〜PackMaxの範囲でランダムなパックサイズを返す
+func (e SpawnEntry) PackSize(rng *rand.Rand) int {
+	if e.PackMin == e.PackMax {
+		return e.PackMin
+	}
+	return e.PackMin + rng.IntN(e.PackMax-e.PackMin+1)
 }
 
 // PlannerType はマップ生成の設定を表す構造体
@@ -499,6 +509,114 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 		return nil, fmt.Errorf("ランダムプランナー選択エラー: %w", err)
 	}
 	return chain, nil
+}
+
+// selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する
+func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) {
+	name, err := raw.SelectByWeightFunc(
+		entries,
+		func(e SpawnEntry) float64 { return e.Weight },
+		func(e SpawnEntry) string { return e.Name },
+		rng,
+	)
+	if err != nil {
+		return SpawnEntry{}, err
+	}
+	for _, e := range entries {
+		if e.Name == name {
+			return e, nil
+		}
+	}
+	return SpawnEntry{}, nil
+}
+
+// selectRoom は部屋リストからランダムに1つ選択し、部屋とそのインデックスを返す
+// 部屋がない場合はfalseを返す
+func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
+	if len(bm.Rooms) == 0 {
+		return gc.Rect{}, 0, false
+	}
+	idx := bm.RNG.IntN(len(bm.Rooms))
+	return bm.Rooms[idx], idx, true
+}
+
+// randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
+// maxAttemptsを超えても見つからない場合はfalseを返す
+func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
+	rw := int(room.X2 - room.X1)
+	rh := int(room.Y2 - room.Y1)
+	if rw <= 0 || rh <= 0 {
+		return 0, 0, false
+	}
+	for i := 0; i < maxAttempts; i++ {
+		tx := consts.Tile(int(room.X1) + bm.RNG.IntN(rw))
+		ty := consts.Tile(int(room.Y1) + bm.RNG.IntN(rh))
+		if bm.IsSpawnableTile(world, tx, ty) {
+			return tx, ty, true
+		}
+	}
+	return 0, 0, false
+}
+
+// randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。
+// 大部屋でクラスタメンバーを密集させるために使用する
+func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
+	for i := 0; i < maxAttempts; i++ {
+		dx := bm.RNG.IntN(radius*2+1) - radius
+		dy := bm.RNG.IntN(radius*2+1) - radius
+		tx := consts.Tile(int(centerX) + dx)
+		ty := consts.Tile(int(centerY) + dy)
+		if tx < room.X1 || tx >= room.X2 || ty < room.Y1 || ty >= room.Y2 {
+			continue
+		}
+		if bm.IsSpawnableTile(world, tx, ty) {
+			return tx, ty, true
+		}
+	}
+	return 0, 0, false
+}
+
+// positionSelector は配置位置を選択する関数型。
+// 内部でリトライを行い、有効な位置が見つかった場合は座標とtrueを返す
+type positionSelector func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool)
+
+// inRoomSelector は指定された部屋内からランダムに配置位置を選択する
+func inRoomSelector(room gc.Rect, maxAttempts int) positionSelector {
+	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
+		return planData.randomPositionInRoom(room, world, maxAttempts)
+	}
+}
+
+// onMapSelector はマップ全体からランダムに配置位置を選択する
+func onMapSelector(maxAttempts int) positionSelector {
+	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
+		for i := 0; i < maxAttempts; i++ {
+			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
+			if planData.IsSpawnableTile(world, x, y) {
+				return x, y, true
+			}
+		}
+		return 0, 0, false
+	}
+}
+
+// nearSelector は指定座標の周辺かつ部屋内から配置位置を選択する
+func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAttempts int) positionSelector {
+	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
+		return planData.randomPositionNear(centerX, centerY, radius, room, world, maxAttempts)
+	}
+}
+
+// findPosition はセレクタを順に試し、最初に成功した結果を返す。
+// 全セレクタが失敗した場合はエラーを返す
+func findPosition(planData *MetaPlan, world w.World, selectors ...positionSelector) (consts.Tile, consts.Tile, error) {
+	for _, sel := range selectors {
+		if x, y, ok := sel(planData, world); ok {
+			return x, y, nil
+		}
+	}
+	return 0, 0, fmt.Errorf("配置位置が見つかりません")
 }
 
 // GetTile はタイルを生成する

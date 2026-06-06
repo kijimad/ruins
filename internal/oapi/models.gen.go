@@ -138,94 +138,132 @@ const (
 // Abilities 能力値
 type Abilities struct {
 	// Agility 敏捷性。行動順に影響する
-	Agility int32 `json:"agility"`
+	Agility Agility `json:"agility"`
 
 	// Defense 防御力。被ダメージを軽減する
-	Defense int32 `json:"defense"`
+	Defense Defense `json:"defense"`
 
 	// Dexterity 器用さ。クリティカル率に影響する
-	Dexterity int32 `json:"dexterity"`
+	Dexterity Dexterity `json:"dexterity"`
 
 	// Sensation 感覚。命中率と回避率に影響する
-	Sensation int32 `json:"sensation"`
+	Sensation Sensation `json:"sensation"`
 
 	// Strength 筋力。物理ダメージに影響する
-	Strength int32 `json:"strength"`
+	Strength Strength `json:"strength"`
 
 	// Vitality 体力。HPに影響する
-	Vitality int32 `json:"vitality"`
+	Vitality Vitality `json:"vitality"`
 }
+
+// Accuracy 命中率
+type Accuracy = int32
+
+// AccuracyBonus 命中率補正値
+type AccuracyBonus = int32
+
+// ActionCost 行動コスト
+type ActionCost = int32
+
+// Agility 敏捷性。行動順に影響する
+type Agility = int32
 
 // Ammo 弾薬設定
 type Ammo struct {
 	// AccuracyBonus 命中率補正値
-	AccuracyBonus int32 `json:"accuracyBonus"`
+	AccuracyBonus AccuracyBonus `json:"accuracyBonus"`
 
-	// AmmoTag 弾薬の種類タグ
+	// AmmoTag 弾薬タグ
 	AmmoTag AmmoTag `json:"ammoTag"`
 
 	// DamageBonus ダメージ補正値
-	DamageBonus int32 `json:"damageBonus"`
+	DamageBonus DamageBonus `json:"damageBonus"`
 }
 
 // AmmoTag 弾薬タグ
 type AmmoTag string
 
+// ArmorDefense 防具の防御力
+type ArmorDefense = int32
+
 // AttackCategory 攻撃種別
 type AttackCategory string
 
+// AttackCount 1ターンあたりの攻撃回数
+type AttackCount = int32
+
+// BaseDamage 基本ダメージ
+type BaseDamage = int32
+
+// BlocksPassage 通行を妨げるかどうか
+type BlocksPassage = bool
+
+// BlocksView 視線を遮るかどうか
+type BlocksView = bool
+
 // Book 本の設定
 type Book struct {
-	// Skill スキル本としての設定。未設定なら娯楽本
+	// Skill スキル本設定
 	Skill *SkillBook `json:"skill,omitempty"`
 
 	// TotalEffort 読了に必要な総読書量
-	TotalEffort int32 `json:"totalEffort"`
+	TotalEffort ReadingEffort `json:"totalEffort"`
 }
+
+// ColorChannel RGBA色チャネル値 (0-255)
+type ColorChannel = uint8
 
 // CommandTable コマンドテーブル
 type CommandTable struct {
-	// Entries コマンドエントリのリスト
 	Entries []CommandTableEntry `json:"entries"`
 
-	// Name テーブル名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // CommandTableEntry コマンドテーブルエントリ
 type CommandTableEntry struct {
-	// Weapon 使用する武器名
-	Weapon string `json:"weapon"`
+	// Weapon エンティティ名
+	Weapon EntityName `json:"weapon"`
 
-	// Weight 選択される重み。大きいほど選ばれやすい
-	Weight float64 `json:"weight"`
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
 }
 
 // CommandTableList コマンドテーブル一覧
 type CommandTableList struct {
-	// Data コマンドテーブルの配列
-	Data []CommandTable `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []CommandTable `json:"data"`
+	TotalCount int32          `json:"totalCount"`
 }
 
 // Consumable 消費可能アイテムの設定
 type Consumable struct {
-	// TargetGroup 効果の対象グループ
+	// TargetGroup ターゲットグループ
 	TargetGroup TargetGroup `json:"targetGroup"`
 
-	// TargetNum 効果の対象数
+	// TargetNum ターゲット数
 	TargetNum TargetNum `json:"targetNum"`
 
-	// UsableScene 使用可能なシーン
+	// UsableScene 使用可能シーン
 	UsableScene UsableScene `json:"usableScene"`
 }
+
+// DamageBonus ダメージ補正値
+type DamageBonus = int32
+
+// Defense 防御力。被ダメージを軽減する
+type Defense = int32
+
+// DepthLevel 階層レベル
+type DepthLevel = int32
+
+// Dexterity 器用さ。クリティカル率に影響する
+type Dexterity = int32
 
 // Dialog 会話データ
 type Dialog struct {
 	// MessageKey メッセージリソースのキー
-	MessageKey string `json:"messageKey"`
+	MessageKey MessageKey `json:"messageKey"`
 }
 
 // DispositionType 態度タイプ。エンティティの他者に対する初期態度を定義する
@@ -239,29 +277,25 @@ type DoorRaw = map[string]interface{}
 
 // DropTable ドロップテーブル
 type DropTable struct {
-	// Entries ドロップエントリのリスト
 	Entries []DropTableEntry `json:"entries"`
 
-	// Name テーブル名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // DropTableEntry ドロップテーブルエントリ
 type DropTableEntry struct {
-	// Material ドロップする素材名
-	Material string `json:"material"`
+	// Material エンティティ名
+	Material EntityName `json:"material"`
 
-	// Weight ドロップする重み。大きいほど選ばれやすい
-	Weight float64 `json:"weight"`
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
 }
 
 // DropTableList ドロップテーブル一覧
 type DropTableList struct {
-	// Data ドロップテーブルの配列
-	Data []DropTable `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []DropTable `json:"data"`
+	TotalCount int32       `json:"totalCount"`
 }
 
 // DungeonGateTriggerRaw ダンジョン選択ゲートトリガー
@@ -272,53 +306,64 @@ type Element string
 
 // EnemyTable 敵テーブル
 type EnemyTable struct {
-	// Entries 敵エントリのリスト
 	Entries []EnemyTableEntry `json:"entries"`
 
-	// Name テーブル名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // EnemyTableEntry 敵テーブルエントリ
 type EnemyTableEntry struct {
-	// EnemyName 出現する敵メンバー名
-	EnemyName string `json:"enemyName"`
+	// EnemyName エンティティ名
+	EnemyName EntityName `json:"enemyName"`
 
-	// MaxDepth 出現する最大階層
-	MaxDepth int32 `json:"maxDepth"`
+	// MaxDepth 階層レベル
+	MaxDepth DepthLevel `json:"maxDepth"`
 
-	// MinDepth 出現する最小階層
-	MinDepth int32 `json:"minDepth"`
+	// MinDepth 階層レベル
+	MinDepth DepthLevel `json:"minDepth"`
 
-	// Weight 出現する重み。大きいほど選ばれやすい
-	Weight float64 `json:"weight"`
+	// PackMax パックの最大数
+	PackMax PackMax `json:"packMax"`
+
+	// PackMin パックの最小数
+	PackMin PackMin `json:"packMin"`
+
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
 }
 
 // EnemyTableList 敵テーブル一覧
 type EnemyTableList struct {
-	// Data 敵テーブルの配列
-	Data []EnemyTable `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []EnemyTable `json:"data"`
+	TotalCount int32        `json:"totalCount"`
 }
+
+// EntityDescription 説明文
+type EntityDescription = string
+
+// EntityName エンティティ名
+type EntityName = string
+
+// EntryWeight テーブルエントリの重み。大きいほど選ばれやすい
+type EntryWeight = float64
 
 // EquipBonus 装備ボーナス
 type EquipBonus struct {
-	// Agility 敏捷性ボーナス
-	Agility int32 `json:"agility"`
+	// Agility 敏捷性。行動順に影響する
+	Agility Agility `json:"agility"`
 
-	// Dexterity 器用さボーナス
-	Dexterity int32 `json:"dexterity"`
+	// Dexterity 器用さ。クリティカル率に影響する
+	Dexterity Dexterity `json:"dexterity"`
 
-	// Sensation 感覚ボーナス
-	Sensation int32 `json:"sensation"`
+	// Sensation 感覚。命中率と回避率に影響する
+	Sensation Sensation `json:"sensation"`
 
-	// Strength 筋力ボーナス
-	Strength int32 `json:"strength"`
+	// Strength 筋力。物理ダメージに影響する
+	Strength Strength `json:"strength"`
 
-	// Vitality 体力ボーナス
-	Vitality int32 `json:"vitality"`
+	// Vitality 体力。HPに影響する
+	Vitality Vitality `json:"vitality"`
 }
 
 // EquipSlot 装備スロット。防具部位 + 武器スロット
@@ -339,61 +384,80 @@ type FactionMemberType string
 // Fire 遠距離攻撃設定
 type Fire struct {
 	// Accuracy 命中率
-	Accuracy int32 `json:"accuracy"`
+	Accuracy Accuracy `json:"accuracy"`
 
-	// AmmoTag 使用する弾薬の種類
+	// AmmoTag 弾薬タグ
 	AmmoTag AmmoTag `json:"ammoTag"`
 
 	// AttackCategory 攻撃種別
 	AttackCategory AttackCategory `json:"attackCategory"`
 
 	// AttackCount 1ターンあたりの攻撃回数
-	AttackCount int32 `json:"attackCount"`
+	AttackCount AttackCount `json:"attackCount"`
 
 	// Cost 行動コスト
-	Cost int32 `json:"cost"`
+	Cost ActionCost `json:"cost"`
 
-	// Damage ダメージ
-	Damage int32 `json:"damage"`
+	// Damage 基本ダメージ
+	Damage BaseDamage `json:"damage"`
 
 	// Element 攻撃属性
 	Element Element `json:"element"`
 
 	// MagazineSize マガジン容量
-	MagazineSize int32 `json:"magazineSize"`
+	MagazineSize MagazineSize `json:"magazineSize"`
 
 	// ReloadEffort リロードに必要な行動力
-	ReloadEffort int32 `json:"reloadEffort"`
+	ReloadEffort ReloadEffort `json:"reloadEffort"`
 
-	// TargetGroup 対象グループ
+	// TargetGroup ターゲットグループ
 	TargetGroup TargetGroup `json:"targetGroup"`
 
-	// TargetNum 対象数
+	// TargetNum ターゲット数
 	TargetNum TargetNum `json:"targetNum"`
 }
 
 // FoliageType 植生タイプ
 type FoliageType float32
 
+// HealAmount 回復固定量
+type HealAmount = int32
+
+// HealRatio 回復割合。0.0〜1.0
+type HealRatio = float64
+
 // HealingValueType 回復量の計算方式
 type HealingValueType string
+
+// ImagePath 画像ファイルパス
+type ImagePath = string
+
+// InsulationCold 耐寒性能
+type InsulationCold = int32
+
+// InsulationHeat 耐暑性能
+type InsulationHeat = int32
+
+// IsBoss ボスモンスターかどうか
+type IsBoss = bool
+
+// IsPlayer プレイヤーキャラクターかどうか
+type IsPlayer = bool
 
 // Item アイテム
 type Item struct {
 	// Ammo 弾薬設定
-	Ammo *Ammo `json:"ammo,omitempty"`
+	Ammo     *Ammo       `json:"ammo,omitempty"`
+	AnimKeys []SpriteKey `json:"animKeys"`
 
-	// AnimKeys アニメーション用スプライトキーの配列
-	AnimKeys []string `json:"animKeys"`
-
-	// Book 本設定
+	// Book 本の設定
 	Book *Book `json:"book,omitempty"`
 
-	// Consumable 消費アイテム設定
+	// Consumable 消費可能アイテムの設定
 	Consumable *Consumable `json:"consumable,omitempty"`
 
-	// Description アイテムの説明文
-	Description string `json:"description"`
+	// Description 説明文
+	Description EntityDescription `json:"description"`
 
 	// EquipBonus 装備ボーナス
 	EquipBonus *EquipBonus `json:"equipBonus,omitempty"`
@@ -401,332 +465,340 @@ type Item struct {
 	// Fire 遠距離攻撃設定
 	Fire *Fire `json:"fire,omitempty"`
 
-	// InflictsDamage 投擲ダメージ。未設定なら投擲不可
-	InflictsDamage *int32 `json:"inflictsDamage,omitempty"`
+	// InflictsDamage 基本ダメージ
+	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
 
 	// Melee 近接攻撃設定
 	Melee *Melee `json:"melee,omitempty"`
 
-	// Name アイテム名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
 	// ProvidesHealing 回復効果
 	ProvidesHealing *ProvidesHealing `json:"providesHealing,omitempty"`
 
-	// ProvidesNutrition 栄養価。未設定なら食べられない
-	ProvidesNutrition *int32 `json:"providesNutrition,omitempty"`
+	// ProvidesNutrition 栄養価
+	ProvidesNutrition *NutritionAmount `json:"providesNutrition,omitempty"`
 
 	// SpriteKey スプライトキー
-	SpriteKey string `json:"spriteKey"`
+	SpriteKey SpriteKey `json:"spriteKey"`
 
 	// SpriteSheetName スプライトシート名
-	SpriteSheetName string `json:"spriteSheetName"`
+	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 
 	// Stackable スタック可能かどうか
-	Stackable *bool `json:"stackable,omitempty"`
+	Stackable *Stackable `json:"stackable,omitempty"`
 
 	// Value 売買価格
-	Value int32 `json:"value"`
+	Value ItemValue `json:"value"`
 
-	// Weapon 武器マーカー。存在すれば武器として扱う
+	// Weapon 武器マーカー
 	Weapon *Weapon `json:"weapon,omitempty"`
 
-	// Wearable 防具設定
+	// Wearable 装備可能設定
 	Wearable *Wearable `json:"wearable,omitempty"`
 
-	// Weight 重量。未設定なら0
-	Weight *float64 `json:"weight,omitempty"`
+	// Weight アイテム重量
+	Weight *ItemWeight `json:"weight,omitempty"`
 }
+
+// ItemCount アイテム所持数
+type ItemCount = int32
 
 // ItemList アイテム一覧レスポンス
 type ItemList struct {
-	// Data アイテムの配列
-	Data []Item `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Item `json:"data"`
+	TotalCount int32  `json:"totalCount"`
 }
 
 // ItemTable アイテムテーブル
 type ItemTable struct {
-	// Entries アイテムエントリのリスト
 	Entries []ItemTableEntry `json:"entries"`
 
-	// Name テーブル名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // ItemTableEntry アイテムテーブルエントリ
 type ItemTableEntry struct {
-	// ItemName 出現するアイテム名
-	ItemName string `json:"itemName"`
+	// ItemName エンティティ名
+	ItemName EntityName `json:"itemName"`
 
-	// MaxDepth 出現する最大階層
-	MaxDepth int32 `json:"maxDepth"`
+	// MaxDepth 階層レベル
+	MaxDepth DepthLevel `json:"maxDepth"`
 
-	// MinDepth 出現する最小階層
-	MinDepth int32 `json:"minDepth"`
+	// MinDepth 階層レベル
+	MinDepth DepthLevel `json:"minDepth"`
 
-	// Weight 出現する重み。大きいほど選ばれやすい
-	Weight float64 `json:"weight"`
+	// Weight テーブルエントリの重み。大きいほど選ばれやすい
+	Weight EntryWeight `json:"weight"`
 }
 
 // ItemTableList アイテムテーブル一覧
 type ItemTableList struct {
-	// Data アイテムテーブルの配列
-	Data []ItemTable `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []ItemTable `json:"data"`
+	TotalCount int32       `json:"totalCount"`
 }
+
+// ItemValue 売買価格
+type ItemValue = int32
+
+// ItemWeight アイテム重量
+type ItemWeight = float64
+
+// LightEnabled 光源が有効かどうか
+type LightEnabled = bool
+
+// LightRadius 光の到達半径
+type LightRadius = int32
 
 // LightSource 光源設定
 type LightSource struct {
-	// Color 光の色
+	// Color RGBA色
 	Color RGBAColor `json:"color"`
 
 	// Enabled 光源が有効かどうか
-	Enabled bool `json:"enabled"`
+	Enabled LightEnabled `json:"enabled"`
 
 	// Radius 光の到達半径
-	Radius int32 `json:"radius"`
+	Radius LightRadius `json:"radius"`
 }
+
+// MagazineSize マガジン容量
+type MagazineSize = int32
+
+// MaterialAmount 素材必要数
+type MaterialAmount = int32
 
 // Melee 近接攻撃設定
 type Melee struct {
 	// Accuracy 命中率
-	Accuracy int32 `json:"accuracy"`
+	Accuracy Accuracy `json:"accuracy"`
 
 	// AttackCategory 攻撃種別
 	AttackCategory AttackCategory `json:"attackCategory"`
 
 	// AttackCount 1ターンあたりの攻撃回数
-	AttackCount int32 `json:"attackCount"`
+	AttackCount AttackCount `json:"attackCount"`
 
 	// Cost 行動コスト
-	Cost int32 `json:"cost"`
+	Cost ActionCost `json:"cost"`
 
-	// Damage ダメージ
-	Damage int32 `json:"damage"`
+	// Damage 基本ダメージ
+	Damage BaseDamage `json:"damage"`
 
 	// Element 攻撃属性
 	Element Element `json:"element"`
 
-	// TargetGroup 対象グループ
+	// TargetGroup ターゲットグループ
 	TargetGroup TargetGroup `json:"targetGroup"`
 
-	// TargetNum 対象数
+	// TargetNum ターゲット数
 	TargetNum TargetNum `json:"targetNum"`
 }
 
 // Member メンバー
 type Member struct {
-	// Abilities 基本能力値
-	Abilities Abilities `json:"abilities"`
+	// Abilities 能力値
+	Abilities Abilities   `json:"abilities"`
+	AnimKeys  []SpriteKey `json:"animKeys"`
 
-	// AnimKeys アニメーション用スプライトキーの配列
-	AnimKeys []string `json:"animKeys"`
+	// CommandTableName エンティティ名
+	CommandTableName EntityName `json:"commandTableName"`
 
-	// CommandTableName 参照するコマンドテーブル名
-	CommandTableName string `json:"commandTableName"`
-
-	// Dialog 会話データ。未設定なら会話不可
+	// Dialog 会話データ
 	Dialog *Dialog `json:"dialog,omitempty"`
 
-	// Disposition 態度
+	// Disposition 態度タイプ。エンティティの他者に対する初期態度を定義する
 	Disposition *DispositionType `json:"disposition,omitempty"`
 
-	// DropTableName 参照するドロップテーブル名
-	DropTableName string `json:"dropTableName"`
+	// DropTableName エンティティ名
+	DropTableName EntityName `json:"dropTableName"`
 
-	// FactionType 所属する派閥。未設定なら敵対
+	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`
 
 	// IsBoss ボスモンスターかどうか
-	IsBoss bool `json:"isBoss"`
+	IsBoss IsBoss `json:"isBoss"`
 
-	// LightSource 光源設定。未設定なら光源なし
+	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
 	// MovementPattern 非戦闘時の移動パターン
 	MovementPattern *MovementPatternType `json:"movementPattern,omitempty"`
 
-	// Name メンバー名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
 	// Player プレイヤーキャラクターかどうか
-	Player *bool `json:"player,omitempty"`
+	Player *IsPlayer `json:"player,omitempty"`
 
 	// SpriteKey スプライトキー
-	SpriteKey string `json:"spriteKey"`
+	SpriteKey SpriteKey `json:"spriteKey"`
 
 	// SpriteSheetName スプライトシート名
-	SpriteSheetName string `json:"spriteSheetName"`
+	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
+
+	// ViewDistance AI視界距離（タイル単位）
+	ViewDistance *ViewDistance `json:"viewDistance,omitempty"`
 }
 
 // MemberList メンバー一覧レスポンス
 type MemberList struct {
-	// Data メンバーの配列
-	Data []Member `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Member `json:"data"`
+	TotalCount int32    `json:"totalCount"`
 }
+
+// MessageKey メッセージリソースのキー
+type MessageKey = string
 
 // MovementPatternType 非戦闘時の移動パターン
 type MovementPatternType string
 
+// NutritionAmount 栄養価
+type NutritionAmount = int32
+
+// PackMax パックの最大数
+type PackMax = int32
+
+// PackMin パックの最小数
+type PackMin = int32
+
 // Palette パレット
 type Palette struct {
-	// Description パレットの説明文
-	Description string `json:"description"`
+	// Description 説明文
+	Description EntityDescription `json:"description"`
 
 	// Id パレットID
-	Id string `json:"id"`
-
-	// Npcs NPCマッピング。マップ文字からNPCエントリへの対応
-	Npcs map[string]PaletteEntry `json:"npcs"`
-
-	// Props 置物マッピング。マップ文字から置物エントリへの対応
-	Props map[string]PaletteEntry `json:"props"`
-
-	// Terrain 地形マッピング。マップ文字からタイル名への対応
-	Terrain map[string]string `json:"terrain"`
+	Id      PaletteId               `json:"id"`
+	Npcs    map[string]PaletteEntry `json:"npcs"`
+	Props   map[string]PaletteEntry `json:"props"`
+	Terrain map[string]EntityName   `json:"terrain"`
 }
 
 // PaletteEntry パレットエントリ
 type PaletteEntry struct {
-	// Id エントリID
-	Id string `json:"id"`
+	// Id パレットID
+	Id PaletteId `json:"id"`
 
-	// Tile 対応するタイル名
-	Tile string `json:"tile"`
+	// Tile エンティティ名
+	Tile EntityName `json:"tile"`
 }
+
+// PaletteId パレットID
+type PaletteId = string
 
 // PaletteList パレット一覧
 type PaletteList struct {
-	// Data パレットの配列
-	Data []Palette `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Palette `json:"data"`
+	TotalCount int32     `json:"totalCount"`
 }
 
 // Profession 職業
 type Profession struct {
-	// Abilities 基本能力値
+	// Abilities 能力値
 	Abilities Abilities `json:"abilities"`
 
-	// Description 職業の説明文
-	Description string `json:"description"`
-
-	// Equips 初期装備のリスト
-	Equips []ProfessionEquip `json:"equips"`
+	// Description 説明文
+	Description EntityDescription `json:"description"`
+	Equips      []ProfessionEquip `json:"equips"`
 
 	// Id 職業ID
-	Id string `json:"id"`
-
-	// Items 初期所持アイテムのリスト
+	Id    ProfessionId     `json:"id"`
 	Items []ProfessionItem `json:"items"`
 
-	// Name 職業名
-	Name string `json:"name"`
-
-	// Skills 初期スキルのリスト
+	// Name エンティティ名
+	Name   EntityName        `json:"name"`
 	Skills []ProfessionSkill `json:"skills"`
 }
 
 // ProfessionEquip 職業初期装備
 type ProfessionEquip struct {
-	// Name 装備アイテム名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
-	// Slot 装備するスロット
+	// Slot 装備スロット。防具部位 + 武器スロット
 	Slot EquipSlot `json:"slot"`
 }
 
+// ProfessionId 職業ID
+type ProfessionId = string
+
 // ProfessionItem 職業初期所持アイテム
 type ProfessionItem struct {
-	// Count 所持数
-	Count int32 `json:"count"`
+	// Count アイテム所持数
+	Count ItemCount `json:"count"`
 
-	// Name アイテム名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // ProfessionList 職業一覧
 type ProfessionList struct {
-	// Data 職業の配列
-	Data []Profession `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Profession `json:"data"`
+	TotalCount int32        `json:"totalCount"`
 }
 
 // ProfessionSkill 職業スキル初期値
 type ProfessionSkill struct {
 	// Id スキルID
-	Id string `json:"id"`
+	Id SkillId `json:"id"`
 
-	// Value 初期スキルレベル
-	Value int32 `json:"value"`
+	// Value スキルレベル
+	Value SkillLevel `json:"value"`
 }
 
 // Prop 置物
 type Prop struct {
-	// AnimKeys アニメーション用スプライトキーの配列
-	AnimKeys []string `json:"animKeys"`
+	AnimKeys []SpriteKey `json:"animKeys"`
 
 	// BlockPass 通行を妨げるかどうか
-	BlockPass bool `json:"blockPass"`
+	BlockPass BlocksPassage `json:"blockPass"`
 
 	// BlockView 視線を遮るかどうか
-	BlockView bool `json:"blockView"`
+	BlockView BlocksView `json:"blockView"`
 
-	// Description 置物の説明文
-	Description string `json:"description"`
+	// Description 説明文
+	Description EntityDescription `json:"description"`
 
-	// Door 扉データ。設定すると開閉可能な扉として動作する
+	// Door 扉ローデータ
 	Door *DoorRaw `json:"door,omitempty"`
 
-	// DoorLockTrigger 扉ロックトリガー。設定すると鍵付き扉として動作する
+	// DoorLockTrigger 扉ロックトリガー
 	DoorLockTrigger *DoorLockTriggerRaw `json:"doorLockTrigger,omitempty"`
 
-	// DungeonGateTrigger ダンジョン選択ゲートトリガー。調べるとダンジョン選択画面を開く
+	// DungeonGateTrigger ダンジョン選択ゲートトリガー
 	DungeonGateTrigger *DungeonGateTriggerRaw `json:"dungeonGateTrigger,omitempty"`
 
-	// LightSource 光源設定。未設定なら光源なし
+	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
-	// Name 置物名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
-	// SpriteRender スプライト描画設定
+	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
-	// WarpEscapeTrigger 脱出ワープトリガー。踏むとダンジョンから脱出する
+	// WarpEscapeTrigger 脱出ワープトリガー
 	WarpEscapeTrigger *WarpEscapeTriggerRaw `json:"warpEscapeTrigger,omitempty"`
 
-	// WarpNextTrigger 次階層ワープトリガー。踏むと次の階層に進む
+	// WarpNextTrigger 次階層ワープトリガー
 	WarpNextTrigger *WarpNextTriggerRaw `json:"warpNextTrigger,omitempty"`
 }
 
 // PropList 置物一覧
 type PropList struct {
-	// Data 置物の配列
-	Data []Prop `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Prop `json:"data"`
+	TotalCount int32  `json:"totalCount"`
 }
 
 // ProvidesHealing 回復効果
 type ProvidesHealing struct {
 	// Amount 回復固定量
-	Amount int32 `json:"amount"`
+	Amount HealAmount `json:"amount"`
 
 	// Ratio 回復割合。0.0〜1.0
-	Ratio float64 `json:"ratio"`
+	Ratio HealRatio `json:"ratio"`
 
 	// ValueType 回復量の計算方式
 	ValueType HealingValueType `json:"valueType"`
@@ -734,93 +806,113 @@ type ProvidesHealing struct {
 
 // RGBAColor RGBA色
 type RGBAColor struct {
-	// A 透明度 (0-255)
-	A uint8 `json:"a"`
+	// A RGBA色チャネル値 (0-255)
+	A ColorChannel `json:"a"`
 
-	// B 青 (0-255)
-	B uint8 `json:"b"`
+	// B RGBA色チャネル値 (0-255)
+	B ColorChannel `json:"b"`
 
-	// G 緑 (0-255)
-	G uint8 `json:"g"`
+	// G RGBA色チャネル値 (0-255)
+	G ColorChannel `json:"g"`
 
-	// R 赤 (0-255)
-	R uint8 `json:"r"`
+	// R RGBA色チャネル値 (0-255)
+	R ColorChannel `json:"r"`
 }
+
+// ReadingEffort 読了に必要な総読書量
+type ReadingEffort = int32
 
 // Recipe レシピ
 type Recipe struct {
-	// Inputs 必要素材のリスト
 	Inputs []RecipeInput `json:"inputs"`
 
-	// Name レシピ名。生成されるアイテム名と一致する
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // RecipeInput レシピ素材
 type RecipeInput struct {
-	// Amount 必要個数
-	Amount int32 `json:"amount"`
+	// Amount 素材必要数
+	Amount MaterialAmount `json:"amount"`
 
-	// Name 素材アイテム名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 }
 
 // RecipeList レシピ一覧レスポンス
 type RecipeList struct {
-	// Data レシピの配列
-	Data []Recipe `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Recipe `json:"data"`
+	TotalCount int32    `json:"totalCount"`
 }
+
+// ReloadEffort リロードに必要な行動力
+type ReloadEffort = int32
+
+// Sensation 感覚。命中率と回避率に影響する
+type Sensation = int32
 
 // ShelterType 遮蔽タイプ
 type ShelterType float32
 
 // SkillBook スキル本設定
 type SkillBook struct {
-	// MaxLevel 習得可能な最大レベル
-	MaxLevel int32 `json:"maxLevel"`
+	// MaxLevel スキルレベル
+	MaxLevel SkillLevel `json:"maxLevel"`
 
-	// RequiredLevel 習得に必要なスキルレベル
-	RequiredLevel int32 `json:"requiredLevel"`
+	// RequiredLevel スキルレベル
+	RequiredLevel SkillLevel `json:"requiredLevel"`
 
-	// TargetSkill 習得対象のスキルID
-	TargetSkill string `json:"targetSkill"`
+	// TargetSkill スキルID
+	TargetSkill SkillId `json:"targetSkill"`
 }
+
+// SkillId スキルID
+type SkillId = string
+
+// SkillLevel スキルレベル
+type SkillLevel = int32
 
 // SpriteDepth スプライト描画深度
 type SpriteDepth float32
 
+// SpriteKey スプライトキー
+type SpriteKey = string
+
 // SpriteRender スプライトレンダー設定
 type SpriteRender struct {
-	// Depth 描画深度。レイヤー順序を決定する
+	// Depth スプライト描画深度
 	Depth SpriteDepth `json:"depth"`
 
 	// SpriteKey スプライトキー
-	SpriteKey string `json:"spriteKey"`
+	SpriteKey SpriteKey `json:"spriteKey"`
 
 	// SpriteSheetName スプライトシート名
-	SpriteSheetName string `json:"spriteSheetName"`
+	SpriteSheetName SpriteSheetName `json:"spriteSheetName"`
 }
 
 // SpriteSheet スプライトシート
 type SpriteSheet struct {
-	// Name シート名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
 	// Path 画像ファイルパス
-	Path string `json:"path"`
+	Path ImagePath `json:"path"`
 }
 
 // SpriteSheetList スプライトシート一覧
 type SpriteSheetList struct {
-	// Data スプライトシートの配列
-	Data []SpriteSheet `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []SpriteSheet `json:"data"`
+	TotalCount int32         `json:"totalCount"`
 }
+
+// SpriteSheetName スプライトシート名
+type SpriteSheetName = string
+
+// Stackable スタック可能かどうか
+type Stackable = bool
+
+// Strength 筋力。物理ダメージに影響する
+type Strength = int32
 
 // TargetGroup ターゲットグループ
 type TargetGroup string
@@ -831,41 +923,44 @@ type TargetNum string
 // Tile タイル
 type Tile struct {
 	// BlockPass 通行を妨げるかどうか
-	BlockPass bool `json:"blockPass"`
+	BlockPass BlocksPassage `json:"blockPass"`
 
 	// BlockView 視線を遮るかどうか
-	BlockView bool `json:"blockView"`
+	BlockView BlocksView `json:"blockView"`
 
-	// Description タイルの説明文
-	Description string `json:"description"`
+	// Description 説明文
+	Description EntityDescription `json:"description"`
 
-	// Foliage 植生タイプ。視界に影響する
+	// Foliage 植生タイプ
 	Foliage FoliageType `json:"foliage"`
 
-	// Name タイル名
-	Name string `json:"name"`
+	// Name エンティティ名
+	Name EntityName `json:"name"`
 
-	// Shelter 遮蔽タイプ。戦闘時の命中率に影響する
+	// Shelter 遮蔽タイプ
 	Shelter ShelterType `json:"shelter"`
 
-	// SpriteRender スプライト描画設定
+	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
-	// Water 水タイプ。移動コストに影響する
+	// Water 水タイプ
 	Water WaterType `json:"water"`
 }
 
 // TileList タイル一覧
 type TileList struct {
-	// Data タイルの配列
-	Data []Tile `json:"data"`
-
-	// TotalCount 総件数
-	TotalCount int32 `json:"totalCount"`
+	Data       []Tile `json:"data"`
+	TotalCount int32  `json:"totalCount"`
 }
 
 // UsableScene 使用可能シーン
 type UsableScene string
+
+// ViewDistance AI視界距離（タイル単位）
+type ViewDistance = int32
+
+// Vitality 体力。HPに影響する
+type Vitality = int32
 
 // WarpEscapeTriggerRaw 脱出ワープトリガー
 type WarpEscapeTriggerRaw = map[string]interface{}
@@ -881,17 +976,17 @@ type Weapon = map[string]interface{}
 
 // Wearable 装備可能設定
 type Wearable struct {
-	// Defense 防御力
-	Defense int32 `json:"defense"`
+	// Defense 防具の防御力
+	Defense ArmorDefense `json:"defense"`
 
-	// EquipmentCategory 装備する部位
+	// EquipmentCategory 装備部位
 	EquipmentCategory EquipmentCategory `json:"equipmentCategory"`
 
 	// InsulationCold 耐寒性能
-	InsulationCold int32 `json:"insulationCold"`
+	InsulationCold InsulationCold `json:"insulationCold"`
 
 	// InsulationHeat 耐暑性能
-	InsulationHeat int32 `json:"insulationHeat"`
+	InsulationHeat InsulationHeat `json:"insulationHeat"`
 }
 
 // CommandTablesCreateJSONRequestBody defines body for CommandTablesCreate for application/json ContentType.

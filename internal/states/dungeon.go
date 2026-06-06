@@ -612,8 +612,10 @@ func filterEnemyEntries(entries []oapi.EnemyTableEntry, depth int) []mapplanner.
 			continue
 		}
 		result = append(result, mapplanner.SpawnEntry{
-			Name:   entry.EnemyName,
-			Weight: entry.Weight,
+			Name:    entry.EnemyName,
+			Weight:  entry.Weight,
+			PackMin: int(entry.PackMin),
+			PackMax: int(entry.PackMax),
 		})
 	}
 	return result

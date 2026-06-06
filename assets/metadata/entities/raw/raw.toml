@@ -11866,198 +11866,264 @@ enemyName = "スライム"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ネズミ"
 maxDepth = 8
 minDepth = 1
 weight = 1.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "朽ちた兵士"
 maxDepth = 10
 minDepth = 2
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "浮遊眼"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "コウモリ"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰蟲"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影鼠"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "錆びた人形"
 maxDepth = 10
 minDepth = 2
 weight = 0.7
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蜘蛛"
 maxDepth = 20
 minDepth = 3
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "野犬"
 maxDepth = 22
 minDepth = 3
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "骸骨兵"
 maxDepth = 25
 minDepth = 9
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 25
 minDepth = 7
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鉄の番兵"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "水晶の亡霊"
 maxDepth = 25
 minDepth = 11
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰の偶像"
 maxDepth = 35
 minDepth = 19
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青獣"
 maxDepth = 25
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "暗黒医師"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "三頭竜"
 maxDepth = 35
 minDepth = 16
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "黒屍"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤線の男"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰色戦車"
 maxDepth = 30
 minDepth = 15
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "重砲戦車"
 maxDepth = 35
 minDepth = 18
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青い人影"
 maxDepth = 25
 minDepth = 7
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "旧式戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "化学戦車"
 maxDepth = 30
 minDepth = 14
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ピンクスライム"
 maxDepth = 10
 minDepth = 2
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "紫の浮遊体"
 maxDepth = 20
 minDepth = 10
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "電撃球"
 maxDepth = 22
 minDepth = 12
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "竜頭"
 maxDepth = 30
 minDepth = 18
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鎧ゴースト"
 maxDepth = 25
 minDepth = 14
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影司祭"
 maxDepth = 25
 minDepth = 16
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "防衛兵"
 maxDepth = 22
 minDepth = 12
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables]]
 name = "森"
@@ -12067,162 +12133,216 @@ enemyName = "スライム"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "コウモリ"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒キノコ"
 maxDepth = 10
 minDepth = 2
 weight = 0.7
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "大蜂"
 maxDepth = 8
 minDepth = 1
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "光虫"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蛙"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影鼠"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "苔亀"
 maxDepth = 10
 minDepth = 2
 weight = 0.6
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火猫"
 maxDepth = 20
 minDepth = 4
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "野犬"
 maxDepth = 22
 minDepth = 3
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "夢蛾"
 maxDepth = 25
 minDepth = 5
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 22
 minDepth = 6
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "闇蟹"
 maxDepth = 25
 minDepth = 8
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑竜"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "樹霊"
 maxDepth = 25
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "金スライム"
 maxDepth = 25
 minDepth = 3
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "虹竜"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "暗黒医師"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑喰い"
 maxDepth = 22
 minDepth = 5
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤線の男"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "砂漠戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青い人影"
 maxDepth = 22
 minDepth = 7
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "化学戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "蝶"
 maxDepth = 15
 minDepth = 1
 weight = 3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ピンクスライム"
 maxDepth = 12
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ゴリラ"
 maxDepth = 22
 minDepth = 12
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables]]
 name = "洞窟"
@@ -12232,198 +12352,264 @@ enemyName = "スライム"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ネズミ"
 maxDepth = 8
 minDepth = 1
 weight = 1.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "コウモリ"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "光虫"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰蟲"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蛙"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "苔亀"
 maxDepth = 10
 minDepth = 2
 weight = 0.6
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蜘蛛"
 maxDepth = 20
 minDepth = 3
 weight = 0.7
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "氷犬"
 maxDepth = 22
 minDepth = 6
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "骸骨兵"
 maxDepth = 25
 minDepth = 8
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 22
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鉄の番兵"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "水晶の亡霊"
 maxDepth = 25
 minDepth = 11
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 25
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑竜"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "夢鯨"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青獣"
 maxDepth = 22
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "三頭竜"
 maxDepth = 35
 minDepth = 16
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "金スライム"
 maxDepth = 25
 minDepth = 3
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "黒屍"
 maxDepth = 25
 minDepth = 9
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑喰い"
 maxDepth = 22
 minDepth = 6
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤線の男"
 maxDepth = 25
 minDepth = 10
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤戦車"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "重砲戦車"
 maxDepth = 35
 minDepth = 16
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青い人影"
 maxDepth = 25
 minDepth = 7
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "氷結戦車"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "旧式戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ペンギン"
 maxDepth = 10
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "紫の浮遊体"
 maxDepth = 20
 minDepth = 10
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "電撃球"
 maxDepth = 22
 minDepth = 12
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "竜頭"
 maxDepth = 30
 minDepth = 18
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鎧ゴースト"
 maxDepth = 25
 minDepth = 14
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影司祭"
 maxDepth = 25
 minDepth = 16
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[spriteSheets]]
 name = "bg"
