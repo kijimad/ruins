@@ -30,7 +30,7 @@ import {
   ShelterType,
   WaterType,
   FoliageType,
-} from "../oapi";
+} from "../generated";
 import {
   useResourceList,
   useResourceUpdate,
