@@ -131,39 +131,29 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, total int) e
 
 // planWithRandomPosition は部屋がない場合のフォールバック。マップ全体からランダムに配置する
 func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, total int) error {
-	failCount := 0
-	successCount := 0
+	selector := onMapSelector(maxHostileNPCFailCount)
+	placed := 0
 
-	for successCount < total && failCount <= maxHostileNPCFailCount {
-		tx := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
-		ty := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
-
-		if !planData.IsSpawnableTile(n.world, tx, ty) {
-			failCount++
-			continue
-		}
-
+	for placed < total {
 		entry, err := selectSpawnEntry(n.plannerType.EnemyEntries, planData.RNG)
 		if err != nil {
 			return err
 		}
 		if entry.Name == "" {
-			failCount++
 			continue
+		}
+
+		tx, ty, posErr := findPosition(planData, n.world, selector)
+		if posErr != nil {
+			log.Printf("HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d", placed, total)
+			break
 		}
 
 		planData.NPCs = append(planData.NPCs, NPCSpec{
 			Coord: consts.Coord[int]{X: int(tx), Y: int(ty)},
 			Name:  entry.Name,
 		})
-
-		successCount++
-		failCount = 0
-	}
-
-	if failCount > maxHostileNPCFailCount {
-		// エラーは記録するが、エラーを返さずに部分的な配置で続行
-		log.Printf("HostileNPCPlanner: 敵NPC配置の試行回数が上限に達しました。配置数: %d/%d", successCount, total)
+		placed++
 	}
 	return nil
 }
