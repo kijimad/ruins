@@ -91,8 +91,8 @@ func (widget *Widget) initUI() {
 	// UIを初期化
 	widget.ui = &ebitenui.UI{Container: logContainer}
 
-	// 初期メッセージ数を設定
-	widget.lastCount = store.Count()
+	// 初期バージョンを設定
+	widget.lastCount = store.Version()
 }
 
 // updateUI はログメッセージが更新された場合にUIを再構築する
@@ -102,10 +102,10 @@ func (widget *Widget) updateUI() {
 		return
 	}
 
-	currentMessageCount := store.Count()
+	currentVersion := store.Version()
 
-	// メッセージ数が変わっていない場合は更新不要
-	if currentMessageCount == widget.lastCount {
+	// バージョンが変わっていない場合は更新不要
+	if currentVersion == widget.lastCount {
 		return
 	}
 
@@ -118,8 +118,8 @@ func (widget *Widget) updateUI() {
 	// UIを更新
 	widget.ui.Container = logContainer
 
-	// メッセージ数を更新
-	widget.lastCount = currentMessageCount
+	// バージョンを更新
+	widget.lastCount = currentVersion
 }
 
 // createColoredLogContainer は色付きログエントリ用のコンテナを作成

@@ -17,6 +17,7 @@ const (
 type SafeSlice struct {
 	coloredEntries []LogEntry
 	maxSize        int
+	version        int // 変更検知用のカウンター
 	mu             sync.Mutex
 }
 
@@ -71,14 +72,24 @@ func (s *SafeSlice) Clear() {
 	defer s.mu.Unlock()
 
 	s.coloredEntries = []LogEntry{}
+	s.version = 0
 }
 
-// Count は現在のログ行数
+// Count は現在のログ行数を返す
 func (s *SafeSlice) Count() int {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	return len(s.coloredEntries)
+}
+
+// Version はログの総追加数を返す。変更検知に使用する。
+// maxSizeに達しても増え続けるため、表示更新の判定に利用できる
+func (s *SafeSlice) Version() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	return s.version
 }
 
 // MaxHistory は履歴の最大保持行数
@@ -93,6 +104,7 @@ func (s *SafeSlice) pushColoredEntry(entry LogEntry) {
 
 	// 新しいエントリを追加
 	s.coloredEntries = append(s.coloredEntries, entry)
+	s.version++
 
 	// 最大サイズを超えた場合、古いものから削除（FIFO）
 	if len(s.coloredEntries) > s.maxSize {
