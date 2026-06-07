@@ -200,6 +200,48 @@ func TestLogAPI(t *testing.T) {
 	})
 }
 
+func TestSafeSliceVersion(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Pushごとにバージョンが増加する", func(t *testing.T) {
+		t.Parallel()
+		log := NewSafeSlice(10)
+
+		assert.Equal(t, 0, log.Version())
+
+		log.Push("msg1")
+		assert.Equal(t, 1, log.Version())
+
+		log.Push("msg2")
+		assert.Equal(t, 2, log.Version())
+	})
+
+	t.Run("maxSizeを超えてもバージョンは増加し続ける", func(t *testing.T) {
+		t.Parallel()
+		log := NewSafeSlice(3)
+
+		for i := 0; i < 10; i++ {
+			log.Push(fmt.Sprintf("msg%d", i))
+		}
+
+		// CountはmaxSizeで頭打ちだが、Versionは総追加数を反映する
+		assert.Equal(t, 3, log.Count())
+		assert.Equal(t, 10, log.Version())
+	})
+
+	t.Run("Clearでバージョンがリセットされる", func(t *testing.T) {
+		t.Parallel()
+		log := NewSafeSlice(10)
+
+		log.Push("msg1")
+		log.Push("msg2")
+		assert.Equal(t, 2, log.Version())
+
+		log.Clear()
+		assert.Equal(t, 0, log.Version())
+	})
+}
+
 func TestSafeSliceColoredEntries(t *testing.T) {
 	t.Parallel()
 
