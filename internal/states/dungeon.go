@@ -19,6 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -102,7 +103,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 		if err != nil {
 			return fmt.Errorf("アイテムテーブルが見つかりません: %s: %w", def.ItemTableName, err)
 		}
-		builderType.ItemEntries = filterItemEntries(itemTable.Entries, st.Depth)
+		builderType.ItemSources, err = resolveItemSources(&rawMaster, itemTable.Entries, st.Depth)
+		if err != nil {
+			return err
+		}
 	}
 	if def.EnemyTableName != "" {
 		enemyTable, err := rawMaster.GetEnemyTable(def.EnemyTableName)
@@ -536,19 +540,34 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 	})
 }
 
-// filterItemEntries はアイテムテーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
-func filterItemEntries(entries []oapi.ItemTableEntry, depth int) []mapplanner.SpawnEntry {
-	result := make([]mapplanner.SpawnEntry, 0, len(entries))
+// resolveItemSources はアイテムテーブルエントリを階層フィルタしてItemSourceに変換する
+func resolveItemSources(rawMaster *raw.Master, entries []oapi.ItemTableEntry, depth int) ([]mapplanner.ItemSource, error) {
+	result := make([]mapplanner.ItemSource, 0, len(entries))
 	for _, entry := range entries {
 		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
-		result = append(result, mapplanner.SpawnEntry{
-			Name:   entry.ItemName,
-			Weight: entry.Weight,
+
+		group, err := rawMaster.GetItemGroup(entry.GroupName)
+		if err != nil {
+			return nil, fmt.Errorf("アイテムグループが見つかりません: %s: %w", entry.GroupName, err)
+		}
+		spawnEntries := make([]mapplanner.SpawnEntry, len(group.Entries))
+		for i, ge := range group.Entries {
+			spawnEntries[i] = mapplanner.SpawnEntry{
+				Name:    ge.ItemName,
+				Weight:  ge.Weight,
+				PackMin: int(ge.PackMin),
+				PackMax: int(ge.PackMax),
+			}
+		}
+		result = append(result, mapplanner.ItemSource{
+			Weight:  entry.Weight,
+			Subtype: mapplanner.ItemGroupSubtype(group.Subtype),
+			Entries: spawnEntries,
 		})
 	}
-	return result
+	return result, nil
 }
 
 // handleMoveInput は8方向移動のキー入力を処理する

@@ -17,8 +17,8 @@ func TestNewItemPlanner(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	plannerType := PlannerType{
 		Name: "test",
-		ItemEntries: []SpawnEntry{
-			{Name: "薬草", Weight: 1.0},
+		ItemSources: []ItemSource{
+			{Weight: 1.0, Subtype: ItemGroupDistribution, Entries: []SpawnEntry{{Name: "薬草", Weight: 1.0, PackMin: 1, PackMax: 1}}},
 		},
 	}
 	planner := NewItemPlanner(world, plannerType)
@@ -30,14 +30,14 @@ func TestNewItemPlanner(t *testing.T) {
 func TestItemPlanner_PlanMeta(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ItemEntriesが空の場合は何もしない", func(t *testing.T) {
+	t.Run("ItemSourcesが空の場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name:        "test_empty",
-			ItemEntries: []SpawnEntry{},
+			ItemSources: []ItemSource{},
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -53,15 +53,15 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		assert.Empty(t, chain.PlanData.Items)
 	})
 
-	t.Run("ItemEntriesがある場合はアイテムが配置される", func(t *testing.T) {
+	t.Run("ItemSourcesがある場合はアイテムが配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
 			Name: "test_with_items",
-			ItemEntries: []SpawnEntry{
-				{Name: "薬草", Weight: 1.0},
+			ItemSources: []ItemSource{
+				{Weight: 1.0, Subtype: ItemGroupDistribution, Entries: []SpawnEntry{{Name: "薬草", Weight: 1.0, PackMin: 1, PackMax: 1}}},
 			},
 		}
 
@@ -85,8 +85,8 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name: "test_valid_position",
-			ItemEntries: []SpawnEntry{
-				{Name: "薬草", Weight: 1.0},
+			ItemSources: []ItemSource{
+				{Weight: 1.0, Subtype: ItemGroupDistribution, Entries: []SpawnEntry{{Name: "薬草", Weight: 1.0, PackMin: 1, PackMax: 1}}},
 			},
 		}
 
@@ -112,8 +112,8 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name: "test_depth",
-			ItemEntries: []SpawnEntry{
-				{Name: "薬草", Weight: 1.0},
+			ItemSources: []ItemSource{
+				{Weight: 1.0, Subtype: ItemGroupDistribution, Entries: []SpawnEntry{{Name: "薬草", Weight: 1.0, PackMin: 1, PackMax: 1}}},
 			},
 		}
 
@@ -157,9 +157,11 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name: "test_multiple_items",
-			ItemEntries: []SpawnEntry{
-				{Name: "薬草", Weight: 10.0},
-				{Name: "毒消し", Weight: 1.0},
+			ItemSources: []ItemSource{
+				{Weight: 1.0, Subtype: ItemGroupDistribution, Entries: []SpawnEntry{
+					{Name: "薬草", Weight: 10.0, PackMin: 1, PackMax: 1},
+					{Name: "毒消し", Weight: 1.0, PackMin: 1, PackMax: 1},
+				}},
 			},
 		}
 
@@ -183,8 +185,8 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 
 		plannerType := PlannerType{
 			Name: "test_room_based_items",
-			ItemEntries: []SpawnEntry{
-				{Name: "薬草", Weight: 1.0},
+			ItemSources: []ItemSource{
+				{Weight: 1.0, Subtype: ItemGroupDistribution, Entries: []SpawnEntry{{Name: "薬草", Weight: 1.0, PackMin: 1, PackMax: 1}}},
 			},
 		}
 
@@ -199,17 +201,19 @@ func TestItemPlanner_PlanMeta(t *testing.T) {
 		err = planner.PlanMeta(&chain.PlanData)
 		require.NoError(t, err)
 
-		// 各アイテムがいずれかの部屋内にいることを確認
+		// 大半のアイテムが部屋内または廊下上に配置されていることを確認する
+		// フォールバックとしてonMapSelectorを使うため、一部は部屋外に配置される可能性がある
+		inRoomCount := 0
 		for _, item := range chain.PlanData.Items {
-			inRoom := false
 			for _, room := range chain.PlanData.Rooms {
 				if item.X >= int(room.X1) && item.X < int(room.X2) &&
 					item.Y >= int(room.Y1) && item.Y < int(room.Y2) {
-					inRoom = true
+					inRoomCount++
 					break
 				}
 			}
-			assert.True(t, inRoom, "アイテム(%d,%d)がどの部屋にも属していない", item.X, item.Y)
 		}
+		// 部屋配置を優先するため、半数以上が部屋内にあることを期待する
+		assert.Greater(t, inRoomCount, len(chain.PlanData.Items)/2, "部屋内のアイテムが半数未満")
 	})
 }

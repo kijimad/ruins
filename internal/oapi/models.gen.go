@@ -81,6 +81,12 @@ const (
 	PERCENTAGE HealingValueType = "PERCENTAGE"
 )
 
+// Defines values for ItemGroupSubtype.
+const (
+	Collection   ItemGroupSubtype = "collection"
+	Distribution ItemGroupSubtype = "distribution"
+)
+
 // Defines values for MovementPatternType.
 const (
 	Patrol      MovementPatternType = "patrol"
@@ -505,6 +511,41 @@ type Item struct {
 // ItemCount アイテム所持数
 type ItemCount = int32
 
+// ItemGroup アイテムグループ。アイテムの出現セットを定義する
+type ItemGroup struct {
+	Entries []ItemGroupEntry `json:"entries"`
+
+	// Name エンティティ名
+	Name EntityName `json:"name"`
+
+	// Subtype アイテムグループのサブタイプ
+	Subtype ItemGroupSubtype `json:"subtype"`
+}
+
+// ItemGroupEntry アイテムグループエントリ
+type ItemGroupEntry struct {
+	// ItemName エンティティ名
+	ItemName EntityName `json:"itemName"`
+
+	// PackMax パックの最大数
+	PackMax PackMax `json:"packMax"`
+
+	// PackMin パックの最小数
+	PackMin PackMin `json:"packMin"`
+
+	// Weight distribution: 相対重み。collection: 確率（0-100）
+	Weight EntryWeight `json:"weight"`
+}
+
+// ItemGroupList アイテムグループ一覧
+type ItemGroupList struct {
+	Data       []ItemGroup `json:"data"`
+	TotalCount int32       `json:"totalCount"`
+}
+
+// ItemGroupSubtype アイテムグループのサブタイプ
+type ItemGroupSubtype string
+
 // ItemList アイテム一覧レスポンス
 type ItemList struct {
 	Data       []Item `json:"data"`
@@ -519,10 +560,10 @@ type ItemTable struct {
 	Name EntityName `json:"name"`
 }
 
-// ItemTableEntry アイテムテーブルエントリ
+// ItemTableEntry アイテムテーブルエントリ。アイテムグループを参照する
 type ItemTableEntry struct {
-	// ItemName エンティティ名
-	ItemName EntityName `json:"itemName"`
+	// GroupName 参照するアイテムグループ名
+	GroupName EntityName `json:"groupName"`
 
 	// MaxDepth 階層レベル
 	MaxDepth DepthLevel `json:"maxDepth"`
@@ -1006,6 +1047,12 @@ type EnemyTablesCreateJSONRequestBody = EnemyTable
 
 // EnemyTablesUpdateJSONRequestBody defines body for EnemyTablesUpdate for application/json ContentType.
 type EnemyTablesUpdateJSONRequestBody = EnemyTable
+
+// ItemGroupsCreateJSONRequestBody defines body for ItemGroupsCreate for application/json ContentType.
+type ItemGroupsCreateJSONRequestBody = ItemGroup
+
+// ItemGroupsUpdateJSONRequestBody defines body for ItemGroupsUpdate for application/json ContentType.
+type ItemGroupsUpdateJSONRequestBody = ItemGroup
 
 // ItemTablesCreateJSONRequestBody defines body for ItemTablesCreate for application/json ContentType.
 type ItemTablesCreateJSONRequestBody = ItemTable

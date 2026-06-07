@@ -37,6 +37,12 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: "item-groups",
+        element: (
+          <ResourcePage resource="item-groups" label="アイテムグループ" />
+        ),
+      },
+      {
         path: "item-tables",
         element: (
           <ResourcePage resource="item-tables" label="アイテムテーブル" />

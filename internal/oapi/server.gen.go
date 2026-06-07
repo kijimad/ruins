@@ -54,6 +54,18 @@ type ServerInterface interface {
 	// (PUT /api/v1/enemy-tables/{index})
 	EnemyTablesUpdate(w http.ResponseWriter, r *http.Request, index int32)
 
+	// (GET /api/v1/item-groups)
+	ItemGroupsList(w http.ResponseWriter, r *http.Request)
+
+	// (POST /api/v1/item-groups)
+	ItemGroupsCreate(w http.ResponseWriter, r *http.Request)
+
+	// (DELETE /api/v1/item-groups/{index})
+	ItemGroupsDelete(w http.ResponseWriter, r *http.Request, index int32)
+
+	// (PUT /api/v1/item-groups/{index})
+	ItemGroupsUpdate(w http.ResponseWriter, r *http.Request, index int32)
+
 	// (GET /api/v1/item-tables)
 	ItemTablesList(w http.ResponseWriter, r *http.Request)
 
@@ -415,6 +427,84 @@ func (siw *ServerInterfaceWrapper) EnemyTablesUpdate(w http.ResponseWriter, r *h
 
 	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		siw.Handler.EnemyTablesUpdate(w, r, index)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ItemGroupsList operation middleware
+func (siw *ServerInterfaceWrapper) ItemGroupsList(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ItemGroupsList(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ItemGroupsCreate operation middleware
+func (siw *ServerInterfaceWrapper) ItemGroupsCreate(w http.ResponseWriter, r *http.Request) {
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ItemGroupsCreate(w, r)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ItemGroupsDelete operation middleware
+func (siw *ServerInterfaceWrapper) ItemGroupsDelete(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "index" -------------
+	var index int32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ItemGroupsDelete(w, r, index)
+	}))
+
+	for _, middleware := range siw.HandlerMiddlewares {
+		handler = middleware(handler)
+	}
+
+	handler.ServeHTTP(w, r)
+}
+
+// ItemGroupsUpdate operation middleware
+func (siw *ServerInterfaceWrapper) ItemGroupsUpdate(w http.ResponseWriter, r *http.Request) {
+
+	var err error
+
+	// ------------- Path parameter "index" -------------
+	var index int32
+
+	err = runtime.BindStyledParameterWithOptions("simple", "index", r.PathValue("index"), &index, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		siw.ErrorHandlerFunc(w, r, &InvalidParamFormatError{ParamName: "index", Err: err})
+		return
+	}
+
+	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		siw.Handler.ItemGroupsUpdate(w, r, index)
 	}))
 
 	for _, middleware := range siw.HandlerMiddlewares {
@@ -1408,6 +1498,10 @@ func HandlerWithOptions(si ServerInterface, options StdHTTPServerOptions) http.H
 	m.HandleFunc("POST "+options.BaseURL+"/api/v1/enemy-tables", wrapper.EnemyTablesCreate)
 	m.HandleFunc("DELETE "+options.BaseURL+"/api/v1/enemy-tables/{index}", wrapper.EnemyTablesDelete)
 	m.HandleFunc("PUT "+options.BaseURL+"/api/v1/enemy-tables/{index}", wrapper.EnemyTablesUpdate)
+	m.HandleFunc("GET "+options.BaseURL+"/api/v1/item-groups", wrapper.ItemGroupsList)
+	m.HandleFunc("POST "+options.BaseURL+"/api/v1/item-groups", wrapper.ItemGroupsCreate)
+	m.HandleFunc("DELETE "+options.BaseURL+"/api/v1/item-groups/{index}", wrapper.ItemGroupsDelete)
+	m.HandleFunc("PUT "+options.BaseURL+"/api/v1/item-groups/{index}", wrapper.ItemGroupsUpdate)
 	m.HandleFunc("GET "+options.BaseURL+"/api/v1/item-tables", wrapper.ItemTablesList)
 	m.HandleFunc("POST "+options.BaseURL+"/api/v1/item-tables", wrapper.ItemTablesCreate)
 	m.HandleFunc("DELETE "+options.BaseURL+"/api/v1/item-tables/{index}", wrapper.ItemTablesDelete)
@@ -1793,6 +1887,121 @@ type EnemyTablesUpdatedefaultJSONResponse struct {
 }
 
 func (response EnemyTablesUpdatedefaultJSONResponse) VisitEnemyTablesUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type ItemGroupsListRequestObject struct {
+}
+
+type ItemGroupsListResponseObject interface {
+	VisitItemGroupsListResponse(w http.ResponseWriter) error
+}
+
+type ItemGroupsList200JSONResponse ItemGroupList
+
+func (response ItemGroupsList200JSONResponse) VisitItemGroupsListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemGroupsListdefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response ItemGroupsListdefaultJSONResponse) VisitItemGroupsListResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type ItemGroupsCreateRequestObject struct {
+	Body *ItemGroupsCreateJSONRequestBody
+}
+
+type ItemGroupsCreateResponseObject interface {
+	VisitItemGroupsCreateResponse(w http.ResponseWriter) error
+}
+
+type ItemGroupsCreate201JSONResponse ItemGroup
+
+func (response ItemGroupsCreate201JSONResponse) VisitItemGroupsCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemGroupsCreatedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response ItemGroupsCreatedefaultJSONResponse) VisitItemGroupsCreateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type ItemGroupsDeleteRequestObject struct {
+	Index int32 `json:"index"`
+}
+
+type ItemGroupsDeleteResponseObject interface {
+	VisitItemGroupsDeleteResponse(w http.ResponseWriter) error
+}
+
+type ItemGroupsDelete204Response struct {
+}
+
+func (response ItemGroupsDelete204Response) VisitItemGroupsDeleteResponse(w http.ResponseWriter) error {
+	w.WriteHeader(204)
+	return nil
+}
+
+type ItemGroupsDeletedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response ItemGroupsDeletedefaultJSONResponse) VisitItemGroupsDeleteResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(response.StatusCode)
+
+	return json.NewEncoder(w).Encode(response.Body)
+}
+
+type ItemGroupsUpdateRequestObject struct {
+	Index int32 `json:"index"`
+	Body  *ItemGroupsUpdateJSONRequestBody
+}
+
+type ItemGroupsUpdateResponseObject interface {
+	VisitItemGroupsUpdateResponse(w http.ResponseWriter) error
+}
+
+type ItemGroupsUpdate200JSONResponse ItemGroup
+
+func (response ItemGroupsUpdate200JSONResponse) VisitItemGroupsUpdateResponse(w http.ResponseWriter) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+
+	return json.NewEncoder(w).Encode(response)
+}
+
+type ItemGroupsUpdatedefaultJSONResponse struct {
+	Body       Error
+	StatusCode int
+}
+
+func (response ItemGroupsUpdatedefaultJSONResponse) VisitItemGroupsUpdateResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(response.StatusCode)
 
@@ -3047,6 +3256,18 @@ type StrictServerInterface interface {
 	// (PUT /api/v1/enemy-tables/{index})
 	EnemyTablesUpdate(ctx context.Context, request EnemyTablesUpdateRequestObject) (EnemyTablesUpdateResponseObject, error)
 
+	// (GET /api/v1/item-groups)
+	ItemGroupsList(ctx context.Context, request ItemGroupsListRequestObject) (ItemGroupsListResponseObject, error)
+
+	// (POST /api/v1/item-groups)
+	ItemGroupsCreate(ctx context.Context, request ItemGroupsCreateRequestObject) (ItemGroupsCreateResponseObject, error)
+
+	// (DELETE /api/v1/item-groups/{index})
+	ItemGroupsDelete(ctx context.Context, request ItemGroupsDeleteRequestObject) (ItemGroupsDeleteResponseObject, error)
+
+	// (PUT /api/v1/item-groups/{index})
+	ItemGroupsUpdate(ctx context.Context, request ItemGroupsUpdateRequestObject) (ItemGroupsUpdateResponseObject, error)
+
 	// (GET /api/v1/item-tables)
 	ItemTablesList(ctx context.Context, request ItemTablesListRequestObject) (ItemTablesListResponseObject, error)
 
@@ -3538,6 +3759,120 @@ func (sh *strictHandler) EnemyTablesUpdate(w http.ResponseWriter, r *http.Reques
 		sh.options.ResponseErrorHandlerFunc(w, r, err)
 	} else if validResponse, ok := response.(EnemyTablesUpdateResponseObject); ok {
 		if err := validResponse.VisitEnemyTablesUpdateResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ItemGroupsList operation middleware
+func (sh *strictHandler) ItemGroupsList(w http.ResponseWriter, r *http.Request) {
+	var request ItemGroupsListRequestObject
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemGroupsList(ctx, request.(ItemGroupsListRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemGroupsList")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ItemGroupsListResponseObject); ok {
+		if err := validResponse.VisitItemGroupsListResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ItemGroupsCreate operation middleware
+func (sh *strictHandler) ItemGroupsCreate(w http.ResponseWriter, r *http.Request) {
+	var request ItemGroupsCreateRequestObject
+
+	var body ItemGroupsCreateJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemGroupsCreate(ctx, request.(ItemGroupsCreateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemGroupsCreate")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ItemGroupsCreateResponseObject); ok {
+		if err := validResponse.VisitItemGroupsCreateResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ItemGroupsDelete operation middleware
+func (sh *strictHandler) ItemGroupsDelete(w http.ResponseWriter, r *http.Request, index int32) {
+	var request ItemGroupsDeleteRequestObject
+
+	request.Index = index
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemGroupsDelete(ctx, request.(ItemGroupsDeleteRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemGroupsDelete")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ItemGroupsDeleteResponseObject); ok {
+		if err := validResponse.VisitItemGroupsDeleteResponse(w); err != nil {
+			sh.options.ResponseErrorHandlerFunc(w, r, err)
+		}
+	} else if response != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, fmt.Errorf("unexpected response type: %T", response))
+	}
+}
+
+// ItemGroupsUpdate operation middleware
+func (sh *strictHandler) ItemGroupsUpdate(w http.ResponseWriter, r *http.Request, index int32) {
+	var request ItemGroupsUpdateRequestObject
+
+	request.Index = index
+
+	var body ItemGroupsUpdateJSONRequestBody
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		sh.options.RequestErrorHandlerFunc(w, r, fmt.Errorf("can't decode JSON body: %w", err))
+		return
+	}
+	request.Body = &body
+
+	handler := func(ctx context.Context, w http.ResponseWriter, r *http.Request, request interface{}) (interface{}, error) {
+		return sh.ssi.ItemGroupsUpdate(ctx, request.(ItemGroupsUpdateRequestObject))
+	}
+	for _, middleware := range sh.middlewares {
+		handler = middleware(handler, "ItemGroupsUpdate")
+	}
+
+	response, err := handler(r.Context(), w, r, request)
+
+	if err != nil {
+		sh.options.ResponseErrorHandlerFunc(w, r, err)
+	} else if validResponse, ok := response.(ItemGroupsUpdateResponseObject); ok {
+		if err := validResponse.VisitItemGroupsUpdateResponse(w); err != nil {
 			sh.options.ResponseErrorHandlerFunc(w, r, err)
 		}
 	} else if response != nil {

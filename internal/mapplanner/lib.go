@@ -388,14 +388,32 @@ func (e SpawnEntry) PackSize(rng *rand.Rand) int {
 	return e.PackMin + rng.IntN(e.PackMax-e.PackMin+1)
 }
 
+// ItemGroupSubtype はアイテムグループの選択方式
+type ItemGroupSubtype string
+
+const (
+	// ItemGroupDistribution はエントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う
+	ItemGroupDistribution ItemGroupSubtype = "distribution"
+	// ItemGroupCollection は各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。両方出ることも、どちらも出ないこともある
+	ItemGroupCollection ItemGroupSubtype = "collection"
+)
+
+// ItemSource はアイテム配置の元になるデータ
+// テーブルエントリから解決済みの状態で保持する
+type ItemSource struct {
+	Weight  float64          // テーブルレベルの重み
+	Subtype ItemGroupSubtype // グループの選択方式
+	Entries []SpawnEntry     // グループ内のエントリ
+}
+
 // PlannerType はマップ生成の設定を表す構造体
 type PlannerType struct {
 	// プランナー名
 	Name string
 	// ポータル位置を固定するか
 	UseFixedPortalPos bool
-	// スポーンするアイテムのエントリ（階層でフィルタリング済み）
-	ItemEntries []SpawnEntry
+	// スポーンするアイテムソース（階層でフィルタリング済み）
+	ItemSources []ItemSource
 	// スポーンする敵のエントリ（階層でフィルタリング済み）
 	EnemyEntries []SpawnEntry
 	// プランナー関数
@@ -513,21 +531,12 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 
 // selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する
 func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) {
-	name, err := raw.SelectByWeightFunc(
+	return raw.SelectByWeightFunc(
 		entries,
 		func(e SpawnEntry) float64 { return e.Weight },
-		func(e SpawnEntry) string { return e.Name },
+		func(e SpawnEntry) SpawnEntry { return e },
 		rng,
 	)
-	if err != nil {
-		return SpawnEntry{}, err
-	}
-	for _, e := range entries {
-		if e.Name == name {
-			return e, nil
-		}
-	}
-	return SpawnEntry{}, nil
 }
 
 // selectRoom は部屋リストからランダムに1つ選択し、部屋とそのインデックスを返す

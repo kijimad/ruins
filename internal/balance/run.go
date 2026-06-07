@@ -169,7 +169,7 @@ func rollFloorLoot(master *raw.Master, tableName string, depth int, playerMaxHP 
 	itemCount := 15 + rng.IntN(9)
 
 	for i := 0; i < itemCount; i++ {
-		itemName, err := raw.SelectItemByWeight(itemTable, rng, depth)
+		itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)
 		if err != nil || itemName == "" {
 			continue
 		}

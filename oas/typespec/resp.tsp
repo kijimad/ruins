@@ -32,6 +32,12 @@ model DropTableList {
   totalCount: int32;
 }
 
+/** アイテムグループ一覧 */
+model ItemGroupList {
+  data: ItemGroup[];
+  totalCount: int32;
+}
+
 /** アイテムテーブル一覧 */
 model ItemTableList {
   data: ItemTable[];

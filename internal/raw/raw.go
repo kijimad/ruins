@@ -20,6 +20,7 @@ type Master struct {
 	MemberIndex       map[string]int
 	CommandTableIndex map[string]int
 	DropTableIndex    map[string]int
+	ItemGroupIndex    map[string]int
 	ItemTableIndex    map[string]int
 	EnemyTableIndex   map[string]int
 	SpriteSheetIndex  map[string]int
@@ -35,6 +36,7 @@ type Raws struct {
 	Members       []oapi.Member
 	CommandTables []oapi.CommandTable
 	DropTables    []oapi.DropTable
+	ItemGroups    []oapi.ItemGroup
 	ItemTables    []oapi.ItemTable
 	EnemyTables   []oapi.EnemyTable
 	SpriteSheets  []oapi.SpriteSheet
@@ -84,6 +86,7 @@ func Load(entityMetadataContent string) (Master, error) {
 		MemberIndex:       map[string]int{},
 		CommandTableIndex: map[string]int{},
 		DropTableIndex:    map[string]int{},
+		ItemGroupIndex:    map[string]int{},
 		ItemTableIndex:    map[string]int{},
 		EnemyTableIndex:   map[string]int{},
 		SpriteSheetIndex:  map[string]int{},
@@ -106,6 +109,9 @@ func Load(entityMetadataContent string) (Master, error) {
 	}
 	for i, dropTable := range rw.Raws.DropTables {
 		rw.DropTableIndex[dropTable.Name] = i
+	}
+	for i, itemGroup := range rw.Raws.ItemGroups {
+		rw.ItemGroupIndex[itemGroup.Name] = i
 	}
 	for i, itemTable := range rw.Raws.ItemTables {
 		rw.ItemTableIndex[itemTable.Name] = i
@@ -634,6 +640,18 @@ func (rw *Master) GetDropTable(name string) (oapi.DropTable, error) {
 	return rw.Raws.DropTables[dtIdx], nil
 }
 
+// GetItemGroup は指定された名前のアイテムグループを取得する
+func (rw *Master) GetItemGroup(name string) (oapi.ItemGroup, error) {
+	idx, ok := rw.ItemGroupIndex[name]
+	if !ok {
+		return oapi.ItemGroup{}, fmt.Errorf("アイテムグループが存在しない: %s", name)
+	}
+	if idx >= len(rw.Raws.ItemGroups) {
+		return oapi.ItemGroup{}, fmt.Errorf("アイテムグループインデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.ItemGroups))
+	}
+	return rw.Raws.ItemGroups[idx], nil
+}
+
 // GetItemTable は指定された名前のアイテムテーブルを取得する
 func (rw *Master) GetItemTable(name string) (oapi.ItemTable, error) {
 	itIdx, ok := rw.ItemTableIndex[name]
@@ -819,8 +837,9 @@ func SelectDropByWeight(dt oapi.DropTable, rng *rand.Rand) (string, error) {
 	)
 }
 
-// SelectItemByWeight はアイテムテーブルから深度を考慮して重み付きランダム選択する
-func SelectItemByWeight(it oapi.ItemTable, rng *rand.Rand, depth int) (string, error) {
+// SelectItemByWeight はアイテムテーブルから深度を考慮してグループ経由で重み付きランダム選択する
+// テーブルエントリからグループを選び、グループ内からアイテムを選択して返す
+func SelectItemByWeight(master *Master, it oapi.ItemTable, rng *rand.Rand, depth int) (string, error) {
 	filtered := make([]oapi.ItemTableEntry, 0, len(it.Entries))
 	for _, entry := range it.Entries {
 		if depth < int(entry.MinDepth) || depth > int(entry.MaxDepth) {
@@ -829,10 +848,26 @@ func SelectItemByWeight(it oapi.ItemTable, rng *rand.Rand, depth int) (string, e
 		filtered = append(filtered, entry)
 	}
 
-	return SelectByWeightFunc(
+	// テーブルエントリからグループ名を重み付き選択する
+	groupName, err := SelectByWeightFunc(
 		filtered,
 		func(e oapi.ItemTableEntry) float64 { return e.Weight },
-		func(e oapi.ItemTableEntry) string { return e.ItemName },
+		func(e oapi.ItemTableEntry) string { return e.GroupName },
+		rng,
+	)
+	if err != nil || groupName == "" {
+		return "", err
+	}
+
+	// グループからアイテムを選択する
+	group, err := master.GetItemGroup(groupName)
+	if err != nil {
+		return "", err
+	}
+	return SelectByWeightFunc(
+		group.Entries,
+		func(e oapi.ItemGroupEntry) float64 { return e.Weight },
+		func(e oapi.ItemGroupEntry) string { return e.ItemName },
 		rng,
 	)
 }

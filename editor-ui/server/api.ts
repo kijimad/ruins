@@ -7,6 +7,7 @@ import type {
   DropTable,
   EnemyTable,
   Item,
+  ItemGroup,
   ItemTable,
   Member,
   Profession,
@@ -14,7 +15,7 @@ import type {
   Recipe,
   SpriteSheet,
   Tile,
-} from "../src/oapi/api";
+} from "../src/generated/api";
 
 // Aseprite JSON のフレーム定義
 interface AsepriteFrame {
@@ -80,6 +81,7 @@ interface Raws {
   members?: Member[];
   commandTables?: CommandTable[];
   dropTables?: DropTable[];
+  itemGroups?: ItemGroup[];
   itemTables?: ItemTable[];
   enemyTables?: EnemyTable[];
   spriteSheets?: SpriteSheet[];
@@ -155,6 +157,7 @@ function sortAll(raws: Raws): void {
   if (raws.recipes) sortByName(raws.recipes, "name");
   if (raws.commandTables) sortByName(raws.commandTables, "name");
   if (raws.dropTables) sortByName(raws.dropTables, "name");
+  if (raws.itemGroups) sortByName(raws.itemGroups, "name");
   if (raws.itemTables) sortByName(raws.itemTables, "name");
   if (raws.enemyTables) sortByName(raws.enemyTables, "name");
   if (raws.spriteSheets) sortByName(raws.spriteSheets, "name");
@@ -363,6 +366,7 @@ const RESOURCE_MAP: Record<
   professions: { key: "professions", idField: "id", hasGet: false },
   "command-tables": { key: "commandTables", idField: "name", hasGet: false },
   "drop-tables": { key: "dropTables", idField: "name", hasGet: false },
+  "item-groups": { key: "itemGroups", idField: "name", hasGet: false },
   "item-tables": { key: "itemTables", idField: "name", hasGet: false },
   "enemy-tables": { key: "enemyTables", idField: "name", hasGet: false },
   "sprite-sheets": { key: "spriteSheets", idField: "name", hasGet: false },
