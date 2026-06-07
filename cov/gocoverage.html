@@ -67,7 +67,7 @@
 				
 				<option value="file5">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (91.8%)</option>
 				
-				<option value="file6">github.com/kijimaD/ruins/internal/activity/move.go (78.2%)</option>
+				<option value="file6">github.com/kijimaD/ruins/internal/activity/move.go (78.6%)</option>
 				
 				<option value="file7">github.com/kijimaD/ruins/internal/activity/movement.go (90.9%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (94.0%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (93.4%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (0.0%)</option>
 				
@@ -237,15 +237,15 @@
 				
 				<option value="file90">github.com/kijimaD/ruins/internal/mapplanner/item_planner.go (82.6%)</option>
 				
-				<option value="file91">github.com/kijimaD/ruins/internal/mapplanner/lib.go (82.9%)</option>
+				<option value="file91">github.com/kijimaD/ruins/internal/mapplanner/lib.go (84.3%)</option>
 				
 				<option value="file92">github.com/kijimaD/ruins/internal/mapplanner/line_corridor.go (100.0%)</option>
 				
 				<option value="file93">github.com/kijimaD/ruins/internal/mapplanner/pathfinder.go (95.0%)</option>
 				
-				<option value="file94">github.com/kijimaD/ruins/internal/mapplanner/plan.go (72.7%)</option>
+				<option value="file94">github.com/kijimaD/ruins/internal/mapplanner/plan.go (84.8%)</option>
 				
-				<option value="file95">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (95.5%)</option>
+				<option value="file95">github.com/kijimaD/ruins/internal/mapplanner/position_selector.go (97.3%)</option>
 				
 				<option value="file96">github.com/kijimaD/ruins/internal/mapplanner/rect_room.go (100.0%)</option>
 				
@@ -261,7 +261,7 @@
 				
 				<option value="file102">github.com/kijimaD/ruins/internal/mapplanner/wall_type.go (90.9%)</option>
 				
-				<option value="file103">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (95.0%)</option>
+				<option value="file103">github.com/kijimaD/ruins/internal/mapplanner/warp_portal_planner.go (100.0%)</option>
 				
 				<option value="file104">github.com/kijimaD/ruins/internal/mapspawner/spawner.go (31.1%)</option>
 				
@@ -2059,7 +2059,11 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
                 return err
         }</span>
 
-        <span class="cov8" title="1">Complete(comp)
+        // 移動後に空間インデックスを無効化する
+        // 同一ターン内で後続のAIが移動先を正しく判定できるようにする
+        <span class="cov8" title="1">worldhelper.InvalidateSpatialIndex(world)
+
+        Complete(comp)
         return nil</span>
 }
 
@@ -4142,7 +4146,7 @@ func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Ent
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         // 30%の確率で待機
-        if rand.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
+        if rand.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -13764,7 +13768,7 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
         }</span>
 
         // planning段階では、MetaPlan内の計画済みエンティティをチェック
-        <span class="cov8" title="1">if bm.existPlannedEntityOnTile(int(tx), int(ty)) </span><span class="cov0" title="0">{
+        <span class="cov8" title="1">if bm.existPlannedEntityOnTile(int(tx), int(ty)) </span><span class="cov8" title="1">{
                 return false
         }</span>
 
@@ -13774,13 +13778,13 @@ func (bm MetaPlan) IsSpawnableTile(_ w.World, tx consts.Tile, ty consts.Tile) bo
 // existPlannedEntityOnTile は指定座標に計画済みエンティティがあるかをチェック
 func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool <span class="cov8" title="1">{
         for _, portal := range bm.NextPortals </span><span class="cov8" title="1">{
-                if portal.X == x &amp;&amp; portal.Y == y </span><span class="cov0" title="0">{
+                if portal.X == x &amp;&amp; portal.Y == y </span><span class="cov8" title="1">{
                         return true
                 }</span>
         }
 
         <span class="cov8" title="1">for _, portal := range bm.EscapePortals </span><span class="cov8" title="1">{
-                if portal.X == x &amp;&amp; portal.Y == y </span><span class="cov8" title="1">{
+                if portal.X == x &amp;&amp; portal.Y == y </span><span class="cov0" title="0">{
                         return true
                 }</span>
         }
@@ -14023,7 +14027,7 @@ func (b *PlannerChain) Plan() error <span class="cov8" title="1">{
         }</span>
 
         <span class="cov8" title="1">for _, meta := range b.Planners </span><span class="cov8" title="1">{
-                if err := meta.PlanMeta(&amp;b.PlanData); err != nil </span><span class="cov0" title="0">{
+                if err := meta.PlanMeta(&amp;b.PlanData); err != nil </span><span class="cov8" title="1">{
                         return fmt.Errorf("PlanMeta failed: %w", err)
                 }</span>
         }
@@ -14322,6 +14326,16 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile <span class="cov8" title="1">
                 panic(fmt.Sprintf("タイル生成エラー: %v", err))</span>
         }
         <span class="cov8" title="1">return tile</span>
+}
+
+// isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
+func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool <span class="cov8" title="1">{
+        for _, room := range bm.Rooms </span><span class="cov8" title="1">{
+                if x &gt;= room.X1 &amp;&amp; x &lt; room.X2 &amp;&amp; y &gt;= room.Y1 &amp;&amp; y &lt; room.Y2 </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+        }
+        <span class="cov8" title="1">return false</span>
 }
 
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
@@ -14777,13 +14791,13 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
                 plan, err := attemptMetaPlan(world, width, height, currentSeed, plannerType)
                 if err == nil </span><span class="cov8" title="1">{
                         // 成功時にリトライがあった場合は警告ログを出力
-                        if attempt &gt; 0 </span><span class="cov0" title="0">{
+                        if attempt &gt; 0 </span><span class="cov8" title="1">{
                                 fmt.Printf("マップ生成成功（試行回数: %d回, PlannerType: %s, 最終seed: %d）\n", attempt+1, plannerType.Name, currentSeed)
                         }</span>
                         <span class="cov8" title="1">return plan, nil</span>
                 }
 
-                <span class="cov0" title="0">lastErr = err
+                <span class="cov8" title="1">lastErr = err
 
                 // 接続性エラー以外は即座に失敗
                 if !errors.Is(err, ErrConnectivity) </span><span class="cov0" title="0">{
@@ -14828,7 +14842,7 @@ func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType 
         chain.With(portalPlanner)
 
         // プランナーチェーンを実行
-        if err := chain.Plan(); err != nil </span><span class="cov0" title="0">{
+        if err := chain.Plan(); err != nil </span><span class="cov8" title="1">{
                 return nil, err
         }</span>
 
@@ -14894,13 +14908,41 @@ func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAtt
         }</span>
 }
 
-// reachableSelector はマップ全体からランダムに選び、プレイヤーから到達可能な位置を返す
+// reachableSelector はマップ全体からランダムに選び、部屋内かつプレイヤーから到達可能な位置を返す
 func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector <span class="cov8" title="1">{
         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) </span><span class="cov8" title="1">{
                 for i := 0; i &lt; maxAttempts; i++ </span><span class="cov8" title="1">{
                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
-                        if planData.IsSpawnableTile(world, x, y) &amp;&amp; pf.IsReachable(playerPos.X, playerPos.Y, int(x), int(y)) </span><span class="cov8" title="1">{
+                        if planData.IsSpawnableTile(world, x, y) &amp;&amp;
+                                planData.isInAnyRoom(x, y) &amp;&amp;
+                                pf.IsReachable(playerPos.X, playerPos.Y, int(x), int(y)) </span><span class="cov8" title="1">{
+                                return x, y, true
+                        }</span>
+                }
+                <span class="cov8" title="1">return 0, 0, false</span>
+        }
+}
+
+// minDistanceReachableSelector はマップ全体からランダムに選び、
+// 部屋内かつ全基準点から到達可能かつ最低歩数以上離れた位置を返す
+func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[int], minDist int, maxAttempts int) positionSelector <span class="cov8" title="1">{
+        return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) </span><span class="cov8" title="1">{
+                for i := 0; i &lt; maxAttempts; i++ </span><span class="cov8" title="1">{
+                        x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+                        y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
+                        if !planData.IsSpawnableTile(world, x, y) || !planData.isInAnyRoom(x, y) </span><span class="cov8" title="1">{
+                                continue</span>
+                        }
+                        <span class="cov8" title="1">farEnough := true
+                        for _, ref := range referencePoints </span><span class="cov8" title="1">{
+                                path := pf.FindPath(ref.X, ref.Y, int(x), int(y))
+                                if len(path) == 0 || len(path) &lt; minDist </span><span class="cov8" title="1">{
+                                        farEnough = false
+                                        break</span>
+                                }
+                        }
+                        <span class="cov8" title="1">if farEnough </span><span class="cov8" title="1">{
                                 return x, y, true
                         }</span>
                 }
@@ -15660,6 +15702,7 @@ import (
 const (
         maxPortalPlacementAttempts = 200 // ポータル配置処理の最大試行回数
         escapePortalInterval       = 5   // 帰還ポータル配置間隔（n階層ごと）
+        minPortalDistance          = 10  // ポータル間およびプレイヤーからの最低歩数
 )
 
 // PortalPlanner はポータル配置を担当するプランナー
@@ -15690,22 +15733,29 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error <span class="cov8" ti
                 return fmt.Errorf("%w: %v", ErrConnectivity, err)
         }</span>
 
-        <span class="cov8" title="1">selector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)
+        // 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック
+        <span class="cov8" title="1">refs := []consts.Coord[int]{playerPos}
+        distSelector := minDistanceReachableSelector(pathFinder, refs, minPortalDistance, maxPortalPlacementAttempts)
+        fallbackSelector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)
 
         // 次の階へ進むポータルを配置する
-        x, y, err := findPosition(planData, p.world, selector)
+        x, y, err := findPosition(planData, p.world, distSelector, fallbackSelector)
         if err != nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
         }</span>
-        <span class="cov8" title="1">planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: int(x), Y: int(y)})
+        <span class="cov8" title="1">nextPortalPos := consts.Coord[int]{X: int(x), Y: int(y)}
+        planData.NextPortals = append(planData.NextPortals, nextPortalPos)
 
         if worldhelper.GetDungeon(p.world) == nil </span><span class="cov8" title="1">{
                 return fmt.Errorf("Dungeonが初期化されていません")
         }</span>
         // 間隔ごとに帰還ポータルを配置する
         <span class="cov8" title="1">if worldhelper.GetDungeon(p.world).Depth%escapePortalInterval == 0 </span><span class="cov8" title="1">{
-                ex, ey, escErr := findPosition(planData, p.world, selector)
-                if escErr != nil </span><span class="cov0" title="0">{
+                // プレイヤー位置とNextPortal位置の両方から最低距離を確保する
+                escRefs := []consts.Coord[int]{playerPos, nextPortalPos}
+                escDistSelector := minDistanceReachableSelector(pathFinder, escRefs, minPortalDistance, maxPortalPlacementAttempts)
+                ex, ey, escErr := findPosition(planData, p.world, escDistSelector, fallbackSelector)
+                if escErr != nil </span><span class="cov8" title="1">{
                         return fmt.Errorf("%w: EscapePortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
                 }</span>
                 <span class="cov8" title="1">planData.EscapePortals = append(planData.EscapePortals, consts.Coord[int]{X: int(ex), Y: int(ey)})</span>
