@@ -18,8 +18,8 @@ test: ## テストを実行する
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
-	go test -coverprofile=cover.out $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
-	go tool cover -func=cover.out
+	go test -coverprofile=coverage.out $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+	go tool cover -func=coverage.out
 
 .PHONY: build
 build: ## ビルドする
