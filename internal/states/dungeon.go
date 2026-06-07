@@ -128,6 +128,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 	worldhelper.GetDungeon(world).Level = level
 
+	// 前フロアのSpatialIndexが残っている可能性があるため無効化する
+	// SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に
+	// 発生するため、古いフロアのデータが残り移動不能になることがある
+	worldhelper.InvalidateSpatialIndex(world)
+
 	// プレイヤーを配置する
 	playerPos, err := plan.GetPlayerStartPosition()
 	if err != nil {
