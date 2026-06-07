@@ -622,6 +622,16 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 	return tile
 }
 
+// isInAnyRoom は指定座標がいずれかの部屋内に含まれるかを判定する
+func (bm *MetaPlan) isInAnyRoom(x, y consts.Tile) bool {
+	for _, room := range bm.Rooms {
+		if x >= room.X1 && x < room.X2 && y >= room.Y1 && y < room.Y2 {
+			return true
+		}
+	}
+	return false
+}
+
 // GetPlayerStartPosition はプレイヤーの開始位置を取得する
 // ポータルへの到達性も確認し、到達可能な位置を返す
 func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) {
