@@ -444,7 +444,7 @@ type Abilities struct {
 	Vitality Vitality `json:"vitality"`
 }
 
-// Accuracy 命中率
+// Accuracy 命中率。0で必中なし、100で必中
 type Accuracy = int32
 
 // AccuracyBonus 命中率補正値
@@ -573,8 +573,8 @@ type DropTable struct {
 
 // DropTableEntry ドロップテーブルエントリ
 type DropTableEntry struct {
-	// Material エンティティ名
-	Material EntityName `json:"material"`
+	// Material ドロップする素材名。空文字はドロップなしを意味する
+	Material string `json:"material"`
 
 	// Weight テーブルエントリの重み。大きいほど選ばれやすい
 	Weight EntryWeight `json:"weight"`
@@ -671,7 +671,7 @@ type FactionMemberType string
 
 // Fire 遠距離攻撃設定
 type Fire struct {
-	// Accuracy 命中率
+	// Accuracy 命中率。0で必中なし、100で必中
 	Accuracy Accuracy `json:"accuracy"`
 
 	// AmmoTag 弾薬タグ
@@ -786,7 +786,7 @@ type Item struct {
 	// Wearable 装備可能設定
 	Wearable *Wearable `json:"wearable,omitempty"`
 
-	// Weight アイテム重量
+	// Weight アイテム重量（kg）
 	Weight *ItemWeight `json:"weight,omitempty"`
 }
 
@@ -866,13 +866,13 @@ type ItemTableList struct {
 // ItemValue 売買価格
 type ItemValue = int32
 
-// ItemWeight アイテム重量
+// ItemWeight アイテム重量（kg）
 type ItemWeight = float64
 
 // LightEnabled 光源が有効かどうか
 type LightEnabled = bool
 
-// LightRadius 光の到達半径
+// LightRadius 光の到達半径（タイル単位）
 type LightRadius = int32
 
 // LightSource 光源設定
@@ -883,7 +883,7 @@ type LightSource struct {
 	// Enabled 光源が有効かどうか
 	Enabled LightEnabled `json:"enabled"`
 
-	// Radius 光の到達半径
+	// Radius 光の到達半径（タイル単位）
 	Radius LightRadius `json:"radius"`
 }
 
@@ -895,7 +895,7 @@ type MaterialAmount = int32
 
 // Melee 近接攻撃設定
 type Melee struct {
-	// Accuracy 命中率
+	// Accuracy 命中率。0で必中なし、100で必中
 	Accuracy Accuracy `json:"accuracy"`
 
 	// AttackCategory 攻撃種別
@@ -926,8 +926,8 @@ type Member struct {
 	Abilities Abilities    `json:"abilities"`
 	AnimKeys  *[]SpriteKey `json:"animKeys,omitempty"`
 
-	// CommandTableName エンティティ名
-	CommandTableName EntityName `json:"commandTableName"`
+	// CommandTableName プレイヤーキャラクターでは省略可能
+	CommandTableName *EntityName `json:"commandTableName,omitempty"`
 
 	// Dialog 会話データ
 	Dialog *Dialog `json:"dialog,omitempty"`
@@ -935,8 +935,8 @@ type Member struct {
 	// Disposition 態度タイプ。エンティティの他者に対する初期態度を定義する
 	Disposition *DispositionType `json:"disposition,omitempty"`
 
-	// DropTableName エンティティ名
-	DropTableName EntityName `json:"dropTableName"`
+	// DropTableName プレイヤーキャラクターでは省略可能
+	DropTableName *EntityName `json:"dropTableName,omitempty"`
 
 	// FactionType 派閥タイプ
 	FactionType *FactionMemberType `json:"factionType,omitempty"`

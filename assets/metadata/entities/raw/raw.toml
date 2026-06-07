@@ -1445,6 +1445,8 @@ damage = 5
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+magazineSize = 1
+reloadEffort = 1
 
 [[items]]
 description = "投擲用の小型刃物。命中精度が高く複数枚を連続で投げられる"
@@ -1464,6 +1466,8 @@ damage = 4
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+magazineSize = 1
+reloadEffort = 1
 
 [[items]]
 description = "水晶で作られた杖。魔力を増幅して放出する"
@@ -1483,6 +1487,8 @@ damage = 16
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+magazineSize = 1
+reloadEffort = 1
 
 [[items]]
 description = "狩人が愛用する弓。静かに遠距離から狙える"
@@ -1502,6 +1508,8 @@ damage = 12
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+magazineSize = 1
+reloadEffort = 1
 
 [[items]]
 description = "鉄製の弩弓。弓より威力が高いが装填に時間がかかる"
@@ -1521,6 +1529,8 @@ damage = 16
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+magazineSize = 1
+reloadEffort = 1
 
 [[items]]
 description = "回転させて投げつける円環型の武器"
@@ -1540,6 +1550,8 @@ damage = 6
 element = "NONE"
 targetGroup = "ENEMY"
 targetNum = "SINGLE"
+magazineSize = 1
+reloadEffort = 1
 
 [[items]]
 description = "先が尖った不思議な靴"
@@ -8146,8 +8158,6 @@ name = "鉄"
 
 [[members]]
 animKeys = [ "player_0", "player_1" ]
-commandTableName = ""
-dropTableName = ""
 disposition = "neutral"
 movementPattern = "random"
 isBoss = false
@@ -8358,7 +8368,6 @@ vitality = 1
 [[members]]
 animKeys = [ "slime_0", "slime_1" ]
 commandTableName = "凍晶化した猟師"
-dropTableName = ""
 disposition = "hostile"
 movementPattern = "random"
 isBoss = true
@@ -8405,8 +8414,6 @@ r = 100
 
 [[members]]
 animKeys = [ "merchant_0", "merchant_1" ]
-commandTableName = ""
-dropTableName = ""
 factionType = "FactionNeutral"
 disposition = "neutral"
 movementPattern = "wander"
@@ -8533,8 +8540,6 @@ vitality = 1
 
 [[members]]
 animKeys = [ "doctor_0", "doctor_1" ]
-commandTableName = ""
-dropTableName = ""
 factionType = "FactionNeutral"
 disposition = "neutral"
 movementPattern = "wander"
@@ -9015,8 +9020,6 @@ vitality = 5
 
 [[members]]
 animKeys = [ "old_soldier_0", "old_soldier_1" ]
-commandTableName = ""
-dropTableName = ""
 factionType = "FactionNeutral"
 disposition = "neutral"
 movementPattern = "wander"

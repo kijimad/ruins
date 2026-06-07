@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 )
 
-// PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする。
+// PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする
 // nilポインタの場合はnilスライスを返す
 func PtrSlice[T any](p *[]T) []T {
 	if p == nil {
@@ -48,7 +48,7 @@ func LoadFromFile(path string) (oapi.Raws, error) {
 	return raws, nil
 }
 
-// DecodeRaws はTOML文字列をoapi.Raws構造体にデコードする。
+// DecodeRaws はTOML文字列をoapi.Raws構造体にデコードする
 // 未知のキーが含まれる場合はエラーを返す
 func DecodeRaws(content string) (oapi.Raws, error) {
 	var raws oapi.Raws
@@ -116,44 +116,20 @@ func toGCLightSource(ls *oapi.LightSource) *gc.LightSource {
 }
 
 // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする
-func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) (gc.TargetType, error) {
+// enum値の妥当性はOpenAPIスキーマで検証済み
+func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {
 	if targetGroup == "" {
-		return gc.TargetType{}, nil
-	}
-	if err := gc.TargetGroupType(string(targetGroup)).Valid(); err != nil {
-		return gc.TargetType{}, fmt.Errorf("invalid attack target group: %w", err)
-	}
-	if err := gc.TargetNumType(string(targetNum)).Valid(); err != nil {
-		return gc.TargetType{}, fmt.Errorf("invalid attack target num: %w", err)
+		return gc.TargetType{}
 	}
 	return gc.TargetType{
 		TargetGroup: gc.TargetGroupType(string(targetGroup)),
 		TargetNum:   gc.TargetNumType(string(targetNum)),
-	}, nil
-}
-
-// parseAttackType はAttackCategory文字列をパース・検証する
-func parseAttackType(category oapi.AttackCategory) (gc.AttackType, error) {
-	attackType, err := gc.ParseAttackType(string(category))
-	if err != nil {
-		return gc.AttackType{}, err
 	}
-	if err := attackType.Valid(); err != nil {
-		return gc.AttackType{}, err
-	}
-	return attackType, nil
 }
 
 // parseMelee はoapi.Meleeからgc.Meleeを生成する
 func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
-	if err := gc.ElementType(string(m.Element)).Valid(); err != nil {
-		return nil, err
-	}
-	attackType, err := parseAttackType(m.AttackCategory)
-	if err != nil {
-		return nil, err
-	}
-	targetType, err := parseTargetType(m.TargetGroup, m.TargetNum)
+	attackType, err := gc.ParseAttackType(string(m.AttackCategory))
 	if err != nil {
 		return nil, err
 	}
@@ -164,20 +140,13 @@ func parseMelee(m *oapi.Melee) (*gc.Melee, error) {
 		Element:        gc.ElementType(string(m.Element)),
 		AttackCategory: attackType,
 		Cost:           int(m.Cost),
-		TargetType:     targetType,
+		TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),
 	}, nil
 }
 
 // parseFire はoapi.Fireからgc.Fireを生成する
 func parseFire(f *oapi.Fire) (*gc.Fire, error) {
-	if err := gc.ElementType(string(f.Element)).Valid(); err != nil {
-		return nil, err
-	}
-	attackType, err := parseAttackType(f.AttackCategory)
-	if err != nil {
-		return nil, err
-	}
-	targetType, err := parseTargetType(f.TargetGroup, f.TargetNum)
+	attackType, err := gc.ParseAttackType(string(f.AttackCategory))
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +161,7 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		Element:        gc.ElementType(string(f.Element)),
 		AttackCategory: attackType,
 		Cost:           int(f.Cost),
-		TargetType:     targetType,
+		TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),
 		Magazine:       int(f.MagazineSize),
 		MagazineSize:   int(f.MagazineSize),
 		ReloadEffort:   int(f.ReloadEffort),
@@ -201,18 +170,13 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 }
 
 // newProvidesHealingFromAPI はoapi.ProvidesHealingからProvidesHealingコンポーネントを生成する
-func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) (*gc.ProvidesHealing, error) {
-	vt := ValueType(h.ValueType)
-	if err := vt.Valid(); err != nil {
-		return nil, fmt.Errorf("%s: %w", "invalid value type", err)
-	}
-	switch vt {
-	case PercentageType:
-		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}, nil
-	case AbsoluteType, NumeralType:
-		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}, nil
+// enum値の妥当性はOpenAPIスキーマで検証済み
+func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {
+	switch h.ValueType {
+	case oapi.PERCENTAGE:
+		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}
 	default:
-		return nil, fmt.Errorf("不明なValueType: %v", vt)
+		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}
 	}
 }
 
@@ -267,32 +231,17 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Consumable != nil {
-		if err := gc.TargetGroupType(item.Consumable.TargetGroup).Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("%s: %w", "invalid target group type", err)
-		}
-		if err := gc.TargetNumType(item.Consumable.TargetNum).Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("%s: %w", "invalid target num type", err)
-		}
-		targetType := gc.TargetType{
-			TargetGroup: gc.TargetGroupType(item.Consumable.TargetGroup),
-			TargetNum:   gc.TargetNumType(item.Consumable.TargetNum),
-		}
-
-		if err := gc.UsableSceneType(item.Consumable.UsableScene).Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("%s: %w", "invalid usable scene type", err)
-		}
 		entitySpec.Consumable = &gc.Consumable{
 			UsableScene: gc.UsableSceneType(item.Consumable.UsableScene),
-			TargetType:  targetType,
+			TargetType: gc.TargetType{
+				TargetGroup: gc.TargetGroupType(item.Consumable.TargetGroup),
+				TargetNum:   gc.TargetNumType(item.Consumable.TargetNum),
+			},
 		}
 	}
 
 	if item.ProvidesHealing != nil {
-		healing, err := newProvidesHealingFromAPI(item.ProvidesHealing)
-		if err != nil {
-			return gc.EntitySpec{}, err
-		}
-		entitySpec.ProvidesHealing = healing
+		entitySpec.ProvidesHealing = newProvidesHealingFromAPI(item.ProvidesHealing)
 	}
 	if item.ProvidesNutrition != nil {
 		entitySpec.ProvidesNutrition = &gc.ProvidesNutrition{Amount: int(*item.ProvidesNutrition)}
@@ -342,9 +291,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if item.Wearable != nil {
-		if err := gc.EquipmentType(item.Wearable.EquipmentCategory).Valid(); err != nil {
-			return gc.EntitySpec{}, err
-		}
 		entitySpec.Wearable = &gc.Wearable{
 			Defense:           int(item.Wearable.Defense),
 			EquipmentCategory: gc.EquipmentType(item.Wearable.EquipmentCategory),
@@ -480,15 +426,15 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Player = &gc.Player{}
 	}
 
-	if member.CommandTableName != "" {
-		ct, err := GetCommandTable(raws, member.CommandTableName)
+	if member.CommandTableName != nil && *member.CommandTableName != "" {
+		ct, err := GetCommandTable(raws, *member.CommandTableName)
 		if err == nil {
 			entitySpec.CommandTable = &gc.CommandTable{Name: ct.Name}
 		}
 	}
 
-	if member.DropTableName != "" {
-		dt, err := GetDropTable(raws, member.DropTableName)
+	if member.DropTableName != nil && *member.DropTableName != "" {
+		dt, err := GetDropTable(raws, *member.DropTableName)
 		if err == nil {
 			entitySpec.DropTable = &gc.DropTable{Name: dt.Name}
 		}
@@ -513,18 +459,12 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	// 態度タイプの処理
 	if member.Disposition != nil && string(*member.Disposition) != "" {
 		dt := gc.DispositionType(*member.Disposition)
-		if err := dt.ValidAsDefault(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("態度タイプが不正です(%s): %w", name, err)
-		}
 		entitySpec.Disposition = &gc.Disposition{Default: dt, Current: dt}
 	}
 
 	// 移動パターンの処理
 	if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
 		mp := gc.MovementPattern(*member.MovementPattern)
-		if err := mp.Valid(); err != nil {
-			return gc.EntitySpec{}, fmt.Errorf("移動パターンが不正です(%s): %w", name, err)
-		}
 		entitySpec.MovementPattern = &mp
 	}
 

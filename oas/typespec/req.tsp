@@ -153,8 +153,10 @@ model Member {
   movementPattern?: MovementPatternType;
   viewDistance?: ViewDistance;
   dialog?: Dialog;
-  commandTableName: EntityName;
-  dropTableName: EntityName;
+  /** プレイヤーキャラクターでは省略可能 */
+  commandTableName?: EntityName;
+  /** プレイヤーキャラクターでは省略可能 */
+  dropTableName?: EntityName;
 }
 
 // ================== レシピ ==================
@@ -187,7 +189,8 @@ model CommandTable {
 
 /** ドロップテーブルエントリ */
 model DropTableEntry {
-  material: EntityName;
+  /** ドロップする素材名。空文字はドロップなしを意味する */
+  material: string;
   weight: EntryWeight;
 }
 

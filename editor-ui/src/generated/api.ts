@@ -341,7 +341,7 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
  */
 export interface Fire {
     /**
-     * 命中率
+     * 命中率。0で必中なし、100で必中
      */
     'accuracy': number;
     /**
@@ -418,13 +418,13 @@ export interface Item {
      * スプライトキー
      */
     'spriteKey': string;
-    'animKeys': Array<string>;
+    'animKeys'?: Array<string>;
     /**
      * 売買価格
      */
     'value': number;
     /**
-     * アイテム重量
+     * アイテム重量（kg）
      */
     'weight'?: number;
     /**
@@ -555,7 +555,7 @@ export interface ItemTableList {
  */
 export interface LightSource {
     /**
-     * 光の到達半径
+     * 光の到達半径（タイル単位）
      */
     'radius': number;
     'color': RGBAColor;
@@ -569,7 +569,7 @@ export interface LightSource {
  */
 export interface Melee {
     /**
-     * 命中率
+     * 命中率。0で必中なし、100で必中
      */
     'accuracy': number;
     /**
@@ -616,7 +616,7 @@ export interface Member {
      * スプライトキー
      */
     'spriteKey': string;
-    'animKeys': Array<string>;
+    'animKeys'?: Array<string>;
     'lightSource'?: LightSource;
     'factionType'?: FactionMemberType;
     'disposition'?: DispositionType;
@@ -723,7 +723,7 @@ export interface Profession {
      */
     'description': string;
     'abilities': Abilities;
-    'skills': Array<ProfessionSkill>;
+    'skills'?: Array<ProfessionSkill>;
     'items': Array<ProfessionItem>;
     'equips': Array<ProfessionEquip>;
 }
@@ -785,7 +785,7 @@ export interface Prop {
      */
     'description': string;
     'spriteRender': SpriteRender;
-    'animKeys': Array<string>;
+    'animKeys'?: Array<string>;
     /**
      * 通行を妨げるかどうか
      */

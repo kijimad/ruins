@@ -1674,7 +1674,8 @@ components:
         - weight
       properties:
         material:
-          $ref: '#/components/schemas/EntityName'
+          type: string
+          description: ドロップする素材名。空文字はドロップなしを意味する
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: ドロップテーブルエントリ
@@ -2171,8 +2172,6 @@ components:
         - abilities
         - spriteSheetName
         - spriteKey
-        - commandTableName
-        - dropTableName
       properties:
         name:
           $ref: '#/components/schemas/EntityName'
@@ -2203,9 +2202,13 @@ components:
         dialog:
           $ref: '#/components/schemas/Dialog'
         commandTableName:
-          $ref: '#/components/schemas/EntityName'
+          allOf:
+            - $ref: '#/components/schemas/EntityName'
+          description: プレイヤーキャラクターでは省略可能
         dropTableName:
-          $ref: '#/components/schemas/EntityName'
+          allOf:
+            - $ref: '#/components/schemas/EntityName'
+          description: プレイヤーキャラクターでは省略可能
       description: メンバー
     MemberList:
       type: object
