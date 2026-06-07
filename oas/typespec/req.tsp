@@ -38,7 +38,7 @@ model Weapon {}
 
 /** 弾薬設定 */
 model Ammo {
-  ammoTag: AmmoTag;
+  ammoTag?: AmmoTag;
   damageBonus: DamageBonus;
   accuracyBonus: AccuracyBonus;
 }
@@ -67,7 +67,7 @@ model Fire {
   targetNum: TargetNum;
   magazineSize: MagazineSize;
   reloadEffort: ReloadEffort;
-  ammoTag: AmmoTag;
+  ammoTag?: AmmoTag;
 }
 
 /** スキル本設定 */
@@ -89,7 +89,7 @@ model Item {
   description: EntityDescription;
   spriteSheetName: SpriteSheetName;
   spriteKey: SpriteKey;
-  animKeys: SpriteKey[];
+  animKeys?: SpriteKey[];
   value: ItemValue;
   weight?: ItemWeight;
   inflictsDamage?: BaseDamage;
@@ -146,15 +146,17 @@ model Member {
   abilities: Abilities;
   spriteSheetName: SpriteSheetName;
   spriteKey: SpriteKey;
-  animKeys: SpriteKey[];
+  animKeys?: SpriteKey[];
   lightSource?: LightSource;
   factionType?: FactionMemberType;
   disposition?: DispositionType;
   movementPattern?: MovementPatternType;
   viewDistance?: ViewDistance;
   dialog?: Dialog;
-  commandTableName: EntityName;
-  dropTableName: EntityName;
+  /** プレイヤーキャラクターでは省略可能 */
+  commandTableName?: EntityName;
+  /** プレイヤーキャラクターでは省略可能 */
+  dropTableName?: EntityName;
 }
 
 // ================== レシピ ==================
@@ -187,7 +189,8 @@ model CommandTable {
 
 /** ドロップテーブルエントリ */
 model DropTableEntry {
-  material: EntityName;
+  /** ドロップする素材名。空文字はドロップなしを意味する */
+  material: string;
   weight: EntryWeight;
 }
 
@@ -297,7 +300,7 @@ model Prop {
   name: EntityName;
   description: EntityDescription;
   spriteRender: SpriteRender;
-  animKeys: SpriteKey[];
+  animKeys?: SpriteKey[];
   blockPass: BlocksPassage;
   blockView: BlocksView;
   lightSource?: LightSource;
@@ -334,7 +337,7 @@ model Profession {
   name: EntityName;
   description: EntityDescription;
   abilities: Abilities;
-  skills: ProfessionSkill[];
+  skills?: ProfessionSkill[];
   items: ProfessionItem[];
   equips: ProfessionEquip[];
 }
@@ -345,6 +348,24 @@ model Profession {
 model SpriteSheet {
   name: EntityName;
   path: ImagePath;
+}
+
+// ================== ローデータ全体 ==================
+
+/** ローデータ全体。TOMLファイルのルート構造を定義する */
+model Raws {
+  items?: Item[];
+  recipes?: Recipe[];
+  members?: Member[];
+  commandTables?: CommandTable[];
+  dropTables?: DropTable[];
+  itemGroups?: ItemGroup[];
+  itemTables?: ItemTable[];
+  enemyTables?: EnemyTable[];
+  spriteSheets?: SpriteSheet[];
+  tiles?: Tile[];
+  props?: Prop[];
+  professions?: Profession[];
 }
 
 // ================== パレット ==================

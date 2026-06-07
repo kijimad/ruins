@@ -204,10 +204,9 @@ func isStackableItem(planData *MetaPlan, name string) bool {
 	if planData.RawMaster == nil {
 		return false
 	}
-	itemIdx, ok := planData.RawMaster.ItemIndex[name]
-	if !ok {
+	item, err := raw.FindItem(*planData.RawMaster, name)
+	if err != nil {
 		return false
 	}
-	item := planData.RawMaster.Raws.Items[itemIdx]
 	return item.Stackable != nil && *item.Stackable
 }

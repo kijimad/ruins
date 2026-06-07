@@ -72,7 +72,7 @@ jobs:
       - name: test
         run: make test
       - name: coverage for octocov
-        run: go test ./... -coverprofile=coverage.out
+        run: make report
       - uses: k1LoW/octocov-action@v1
 
   vrt:

@@ -59,16 +59,6 @@ const (
 	TargetAll = TargetNumType("ALL")
 )
 
-// Valid はTargetNumTypeの値が有効かを検証する
-func (enum TargetNumType) Valid() error {
-	switch enum {
-	case TargetSingle, TargetAll:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
-}
-
 // ================
 
 // TargetGroupType は使用者から見たターゲットの種別。相対的な指定なので、所有者が敵グループだと対象グループは逆転する
@@ -85,16 +75,6 @@ const (
 	TargetGroupNone = TargetGroupType("NONE") // なし
 )
 
-// Valid はTargetGroupTypeの値が有効かを検証する
-func (enum TargetGroupType) Valid() error {
-	switch enum {
-	case TargetGroupAlly, TargetGroupEnemy, TargetGroupWeapon, TargetGroupNone:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
-}
-
 // ================
 
 // UsableSceneType は使えるシーンを表す
@@ -108,16 +88,6 @@ const (
 	// UsableSceneAny はいつでも使えるシーン
 	UsableSceneAny = UsableSceneType("ANY") // いつでも
 )
-
-// Valid はUsableSceneTypeの値が有効かを検証する
-func (enum UsableSceneType) Valid() error {
-	switch enum {
-	case UsableSceneBattle, UsableSceneField, UsableSceneAny:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
-}
 
 // ================
 
@@ -165,17 +135,6 @@ var AllAttackTypes = []AttackType{
 	AttackFist,
 	AttackCanon,
 	AttackBow,
-}
-
-// Valid はAttackTypeの値が有効かを検証する
-func (at AttackType) Valid() error {
-	for _, valid := range AllAttackTypes {
-		if at.Type == valid.Type {
-			return nil
-		}
-	}
-
-	return fmt.Errorf("get %s: %w", at.Type, ErrInvalidEnumType)
 }
 
 // ParseAttackType は文字列からAttackTypeを生成する
@@ -301,16 +260,6 @@ const (
 	// ElementTypePhoton は光属性
 	ElementTypePhoton ElementType = "PHOTON"
 )
-
-// Valid はElementTypeの値が有効かを検証する
-func (enum ElementType) Valid() error {
-	switch enum {
-	case ElementTypeNone, ElementTypeFire, ElementTypeThunder, ElementTypeChill, ElementTypePhoton:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
-	}
-}
 
 func (enum ElementType) String() string {
 	switch enum {

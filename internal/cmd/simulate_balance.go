@@ -30,7 +30,7 @@ func runSimulateBalance(_ context.Context, _ *cli.Command) error {
 		return fmt.Errorf("raw.tomlの読み込みに失敗: %w", err)
 	}
 
-	report, err := balance.GenerateReport(&master, "Ash", "素手", simMaxDepth, simTrials, simSeed)
+	report, err := balance.GenerateReport(master, "Ash", "素手", simMaxDepth, simTrials, simSeed)
 	if err != nil {
 		return err
 	}

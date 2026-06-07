@@ -2,101 +2,236 @@ namespace RuinsEditorApi;
 
 // ================== スカラー型 ==================
 
-/** 命中率 */
+/** 命中率。0で必中なし、100で必中 */
+@minValue(0)
+@maxValue(100)
 scalar Accuracy extends int32;
+
 /** 命中率補正値 */
+@minValue(-100)
+@maxValue(100)
 scalar AccuracyBonus extends int32;
+
 /** 行動コスト */
+@minValue(0)
+@maxValue(100)
 scalar ActionCost extends int32;
+
 /** 敏捷性。行動順に影響する */
+@minValue(-100)
+@maxValue(100)
 scalar Agility extends int32;
+
 /** 防具の防御力 */
+@minValue(0)
+@maxValue(999)
 scalar ArmorDefense extends int32;
+
 /** 1ターンあたりの攻撃回数 */
+@minValue(1)
+@maxValue(10)
 scalar AttackCount extends int32;
+
 /** 基本ダメージ */
+@minValue(0)
+@maxValue(9999)
 scalar BaseDamage extends int32;
+
 /** 通行を妨げるかどうか */
 scalar BlocksPassage extends boolean;
+
 /** 視線を遮るかどうか */
 scalar BlocksView extends boolean;
+
 /** RGBA色チャネル値 (0-255) */
 scalar ColorChannel extends uint8;
+
 /** ダメージ補正値 */
+@minValue(-100)
+@maxValue(100)
 scalar DamageBonus extends int32;
+
 /** 防御力。被ダメージを軽減する */
+@minValue(-100)
+@maxValue(100)
 scalar Defense extends int32;
+
 /** 階層レベル */
+@minValue(0)
+@maxValue(100)
 scalar DepthLevel extends int32;
+
 /** 器用さ。クリティカル率に影響する */
+@minValue(-100)
+@maxValue(100)
 scalar Dexterity extends int32;
+
 /** 説明文 */
+@minLength(1)
+@maxLength(200)
 scalar EntityDescription extends string;
+
 /** エンティティ名 */
+@minLength(1)
+@maxLength(50)
 scalar EntityName extends string;
+
 /** テーブルエントリの重み。大きいほど選ばれやすい */
+@minValue(0)
 scalar EntryWeight extends float64;
+
 /** 回復固定量 */
+@minValue(0)
+@maxValue(9999)
 scalar HealAmount extends int32;
+
 /** 回復割合。0.0〜1.0 */
+@minValue(0)
+@maxValue(1)
 scalar HealRatio extends float64;
+
 /** 画像ファイルパス */
+@minLength(1)
+@maxLength(200)
+@pattern("^[a-zA-Z0-9_/\\-]+\\.[a-zA-Z0-9]+$")
 scalar ImagePath extends string;
+
 /** 耐寒性能 */
+@minValue(-100)
+@maxValue(100)
 scalar InsulationCold extends int32;
+
 /** 耐暑性能 */
+@minValue(-100)
+@maxValue(100)
 scalar InsulationHeat extends int32;
+
 /** ボスモンスターかどうか */
 scalar IsBoss extends boolean;
+
 /** プレイヤーキャラクターかどうか */
 scalar IsPlayer extends boolean;
+
 /** アイテム所持数 */
+@minValue(1)
+@maxValue(9999)
 scalar ItemCount extends int32;
+
 /** 売買価格 */
+@minValue(0)
+@maxValue(99999)
 scalar ItemValue extends int32;
-/** アイテム重量 */
+
+/** アイテム重量（kg） */
+@minValue(0)
+@maxValue(1000)
 scalar ItemWeight extends float64;
+
 /** 光源が有効かどうか */
 scalar LightEnabled extends boolean;
-/** 光の到達半径 */
+
+/** 光の到達半径（タイル単位） */
+@minValue(1)
+@maxValue(100)
 scalar LightRadius extends int32;
+
 /** マガジン容量 */
+@minValue(1)
+@maxValue(100)
 scalar MagazineSize extends int32;
+
 /** 素材必要数 */
+@minValue(1)
+@maxValue(99)
 scalar MaterialAmount extends int32;
+
 /** メッセージリソースのキー */
+@minLength(1)
+@maxLength(100)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar MessageKey extends string;
+
 /** 栄養価 */
+@minValue(0)
+@maxValue(9999)
 scalar NutritionAmount extends int32;
+
 /** パックの最大数 */
+@minValue(1)
+@maxValue(100)
 scalar PackMax extends int32;
+
 /** パックの最小数 */
+@minValue(1)
+@maxValue(100)
 scalar PackMin extends int32;
+
 /** パレットID */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-zA-Z][a-zA-Z0-9_]*$")
 scalar PaletteId extends string;
+
 /** 職業ID */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar ProfessionId extends string;
+
 /** 読了に必要な総読書量 */
+@minValue(1)
+@maxValue(9999)
 scalar ReadingEffort extends int32;
+
 /** リロードに必要な行動力 */
+@minValue(1)
+@maxValue(100)
 scalar ReloadEffort extends int32;
+
 /** 感覚。命中率と回避率に影響する */
+@minValue(-100)
+@maxValue(100)
 scalar Sensation extends int32;
+
 /** スキルID */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar SkillId extends string;
+
 /** スキルレベル */
+@minValue(0)
+@maxValue(100)
 scalar SkillLevel extends int32;
+
 /** スプライトキー */
+@minLength(1)
+@maxLength(100)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar SpriteKey extends string;
+
 /** スプライトシート名 */
+@minLength(1)
+@maxLength(50)
+@pattern("^[a-z][a-z0-9_]*$")
 scalar SpriteSheetName extends string;
+
 /** スタック可能かどうか */
 scalar Stackable extends boolean;
+
 /** 筋力。物理ダメージに影響する */
+@minValue(-100)
+@maxValue(100)
 scalar Strength extends int32;
+
 /** AI視界距離（タイル単位） */
+@minValue(1)
+@maxValue(100)
 scalar ViewDistance extends int32;
+
 /** 体力。HPに影響する */
+@minValue(-100)
+@maxValue(100)
 scalar Vitality extends int32;
 
 // ================== 共通enum ==================
@@ -299,4 +434,8 @@ enum FoliageType {
 enum HealingValueType {
   /** 最大値に対する割合で回復 */
   PERCENTAGE,
+  /** 固定値で回復 */
+  ABSOLUTE,
+  /** 数値で回復 */
+  NUMERAL,
 }

@@ -18,10 +18,8 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 	}
 
 	commandTableName := commandTableComp.(*gc.CommandTable).Name
-	rawMaster := world.Resources.RawMaster
-
 	// CommandTableを取得
-	commandTable, err := rawMaster.GetCommandTable(commandTableName)
+	commandTable, err := raw.GetCommandTable(world.Resources.RawMaster, commandTableName)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get command table: %w", err)
 	}
@@ -36,7 +34,7 @@ func GetAttackFromCommandTable(world w.World, enemyEntity ecs.Entity) (gc.Attack
 	}
 
 	// 武器名からEntitySpecを取得（エンティティは生成しない）
-	weaponSpec, err := rawMaster.NewWeaponSpec(weaponName)
+	weaponSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, weaponName)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to get weapon spec: %w", err)
 	}

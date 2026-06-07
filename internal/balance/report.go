@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -96,7 +97,7 @@ type DepthStat struct {
 }
 
 // GenerateReport はマスターデータからシミュレーションを実行し、レポートを生成する
-func GenerateReport(master *raw.Master, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) {
+func GenerateReport(master oapi.Raws, playerName string, weaponName string, maxDepth int, trials int, seed uint64) (*Report, error) {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		return nil, fmt.Errorf("プレイヤーのロードに失敗: %w", err)
@@ -125,7 +126,7 @@ func GenerateReport(master *raw.Master, playerName string, weaponName string, ma
 		},
 	}
 
-	for _, table := range master.Raws.EnemyTables {
+	for _, table := range raw.PtrSlice(master.EnemyTables) {
 		stats := RunSimulations(master, table.Name, player, weapon, maxDepth, trials, seed)
 
 		run := EnemyTableRun{
@@ -201,7 +202,7 @@ func GenerateReport(master *raw.Master, playerName string, weaponName string, ma
 const battleMetricTrials = 500
 
 // generateBattleMetrics は全武器×全敵の組み合わせで戦闘シミュレーションを実行する
-func generateBattleMetrics(master *raw.Master, playerName string, seed uint64) []BattleMetric {
+func generateBattleMetrics(master oapi.Raws, playerName string, seed uint64) []BattleMetric {
 	player, err := LoadCombatantFromMember(master, playerName)
 	if err != nil {
 		return nil
@@ -213,7 +214,7 @@ func generateBattleMetrics(master *raw.Master, playerName string, seed uint64) [
 		stats WeaponStats
 	}
 	var weapons []weaponEntry
-	for _, item := range master.Raws.Items {
+	for _, item := range raw.PtrSlice(master.Items) {
 		w, err := LoadWeaponFromItem(master, item.Name)
 		if err != nil {
 			continue
@@ -223,7 +224,7 @@ func generateBattleMetrics(master *raw.Master, playerName string, seed uint64) [
 
 	// 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）
 	enemySet := make(map[string]struct{})
-	for _, table := range master.Raws.EnemyTables {
+	for _, table := range raw.PtrSlice(master.EnemyTables) {
 		for _, entry := range table.Entries {
 			enemySet[entry.EnemyName] = struct{}{}
 		}

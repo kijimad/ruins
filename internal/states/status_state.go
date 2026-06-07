@@ -11,6 +11,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
@@ -166,7 +167,7 @@ func (st *StatusState) fetchProps(world w.World) statusProps {
 	professionName := ""
 	if playerEntity.HasComponent(world.Components.Profession) {
 		profComp := world.Components.Profession.Get(playerEntity).(*gc.Profession)
-		if prof, err := world.Resources.RawMaster.GetProfession(profComp.ID); err == nil {
+		if prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID); err == nil {
 			professionName = prof.Name
 		}
 	}

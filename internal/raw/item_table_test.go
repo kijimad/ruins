@@ -9,19 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// テスト用のMasterを作成する。アイテムグループとアイテムテーブルを含む
-func newTestMasterForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) *Master {
-	groupIndex := make(map[string]int)
-	for i, g := range groups {
-		groupIndex[g.Name] = i
-	}
-	return &Master{
-		Raws: Raws{
-			ItemGroups: groups,
-			ItemTables: []oapi.ItemTable{table},
-		},
-		ItemGroupIndex: groupIndex,
-		ItemTableIndex: map[string]int{table.Name: 0},
+// テスト用のoapi.Rawsを作成する。アイテムグループとアイテムテーブルを含む
+func newTestRawsForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) oapi.Raws {
+	tables := []oapi.ItemTable{table}
+	return oapi.Raws{
+		ItemGroups: &groups,
+		ItemTables: &tables,
 	}
 }
 
@@ -60,10 +53,10 @@ func TestItemTable_SelectByWeight_SingleEntry(t *testing.T) {
 			{GroupName: "回復", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 		},
 	}
-	master := newTestMasterForItemTable(testGroups, table)
+	raws := newTestRawsForItemTable(testGroups, table)
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := SelectItemByWeight(master, table, rng, 5)
+	result, err := SelectItemByWeight(raws, table, rng, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, "回復薬", result, "グループに1アイテムのみの場合はそれが選択されるべき")
@@ -79,14 +72,14 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 			{GroupName: "武器", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 		},
 	}
-	master := newTestMasterForItemTable(testGroups, table)
+	raws := newTestRawsForItemTable(testGroups, table)
 
 	results := make(map[string]int)
 	iterations := 10000
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
 	for i := 0; i < iterations; i++ {
-		result, err := SelectItemByWeight(master, table, rng, 5)
+		result, err := SelectItemByWeight(raws, table, rng, 5)
 		require.NoError(t, err)
 		results[result]++
 	}
@@ -107,10 +100,10 @@ func TestItemTable_SelectByWeight_AllZeroWeight(t *testing.T) {
 			{GroupName: "武器", Weight: 0, MinDepth: 1, MaxDepth: 10},
 		},
 	}
-	master := newTestMasterForItemTable(testGroups, table)
+	raws := newTestRawsForItemTable(testGroups, table)
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := SelectItemByWeight(master, table, rng, 5)
+	result, err := SelectItemByWeight(raws, table, rng, 5)
 	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "重みが全て0の場合は空文字列を返すべき")
@@ -123,10 +116,10 @@ func TestItemTable_SelectByWeight_EmptyEntries(t *testing.T) {
 		Name:    "空",
 		Entries: []oapi.ItemTableEntry{},
 	}
-	master := newTestMasterForItemTable(testGroups, table)
+	raws := newTestRawsForItemTable(testGroups, table)
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	result, err := SelectItemByWeight(master, table, rng, 1)
+	result, err := SelectItemByWeight(raws, table, rng, 1)
 	require.NoError(t, err)
 
 	assert.Equal(t, "", result, "エントリが空の場合は空文字列を返すべき")
@@ -143,15 +136,15 @@ func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
 			{GroupName: "素材", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
 		},
 	}
-	master := newTestMasterForItemTable(testGroups, table)
+	raws := newTestRawsForItemTable(testGroups, table)
 
 	seed := uint64(99999)
 	rng1 := rand.New(rand.NewPCG(seed, seed+1))
 	rng2 := rand.New(rand.NewPCG(seed, seed+1))
 
 	for i := 0; i < 100; i++ {
-		result1, err1 := SelectItemByWeight(master, table, rng1, 5)
-		result2, err2 := SelectItemByWeight(master, table, rng2, 5)
+		result1, err1 := SelectItemByWeight(raws, table, rng1, 5)
+		result2, err2 := SelectItemByWeight(raws, table, rng2, 5)
 		require.NoError(t, err1)
 		require.NoError(t, err2)
 		assert.Equal(t, result1, result2, "同じシードで同じ結果が得られるべき")

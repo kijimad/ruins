@@ -1,8 +1,6 @@
 package components
 
 import (
-	"fmt"
-
 	"github.com/kijimaD/ruins/internal/consts"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -20,17 +18,6 @@ const (
 	// DispositionFleeing は逃亡中を示す。プレイヤーから距離を取る
 	DispositionFleeing DispositionType = "fleeing"
 )
-
-// ValidAsDefault はデータ入力で指定可能なDispositionTypeかを検証する。
-// DispositionFleeingはランタイム専用の値なので含めない
-func (d DispositionType) ValidAsDefault() error {
-	switch d {
-	case DispositionHostile, DispositionNeutral, DispositionCowardly:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", d, ErrInvalidEnumType)
-	}
-}
 
 // Disposition はエンティティの動的な態度を管理するコンポーネント
 type Disposition struct {
@@ -76,17 +63,6 @@ const (
 	// MovementSwarm は群れ。同種族の仲間に寄る
 	MovementSwarm MovementPattern = "swarm"
 )
-
-// Valid はMovementPatternの値が有効かを検証する
-func (bs MovementPattern) Valid() error {
-	switch bs {
-	case MovementRandom, MovementPatrol, MovementWallHug, MovementStationary,
-		MovementWander, MovementTerritorial, MovementSwarm:
-		return nil
-	default:
-		return fmt.Errorf("get %s: %w", bs, ErrInvalidEnumType)
-	}
-}
 
 // AIMoveFSM はAI移動の有限状態マシン
 type AIMoveFSM struct {

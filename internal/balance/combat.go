@@ -5,6 +5,7 @@ import (
 	"math/rand/v2"
 
 	"github.com/kijimaD/ruins/internal/formula"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -90,8 +91,8 @@ func SimulateBattle(player, enemy CombatantStats, playerWeapon, enemyWeapon Weap
 }
 
 // LoadCombatantFromMember はraw.Masterのメンバー定義からCombatantStatsを生成する
-func LoadCombatantFromMember(master *raw.Master, name string) (CombatantStats, error) {
-	spec, err := master.NewMemberSpec(name)
+func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {
+	spec, err := raw.NewMemberSpec(master, name)
 	if err != nil {
 		return CombatantStats{}, fmt.Errorf("メンバー %q のロードに失敗: %w", name, err)
 	}
@@ -113,8 +114,8 @@ func LoadCombatantFromMember(master *raw.Master, name string) (CombatantStats, e
 }
 
 // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する
-func LoadWeaponFromItem(master *raw.Master, name string) (WeaponStats, error) {
-	spec, err := master.NewItemSpec(name)
+func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {
+	spec, err := raw.NewItemSpec(master, name)
 	if err != nil {
 		return WeaponStats{}, fmt.Errorf("武器 %q のロードに失敗: %w", name, err)
 	}
@@ -139,8 +140,8 @@ func LoadWeaponFromItem(master *raw.Master, name string) (WeaponStats, error) {
 }
 
 // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す
-func LoadEnemyWeapon(master *raw.Master, enemyName string) (WeaponStats, error) {
-	spec, err := master.NewMemberSpec(enemyName)
+func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {
+	spec, err := raw.NewMemberSpec(master, enemyName)
 	if err != nil {
 		return WeaponStats{}, err
 	}
@@ -150,7 +151,7 @@ func LoadEnemyWeapon(master *raw.Master, enemyName string) (WeaponStats, error) 
 		return LoadWeaponFromItem(master, "素手")
 	}
 
-	ct, err := master.GetCommandTable(spec.CommandTable.Name)
+	ct, err := raw.GetCommandTable(master, spec.CommandTable.Name)
 	if err != nil {
 		return WeaponStats{}, err
 	}

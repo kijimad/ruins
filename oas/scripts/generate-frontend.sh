@@ -8,7 +8,7 @@ docker run --rm \
        -v $PWD:/workdir \
        -w /workdir \
        -u "$(id -u):$(id -g)" \
-       openapitools/openapi-generator-cli:v7.11.0 generate \
+       openapitools/openapi-generator-cli:v7.22.0 generate \
          -i oas/openapi.yml \
          -g typescript-axios \
          -o oas/ts-axios

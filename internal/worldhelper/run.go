@@ -5,6 +5,7 @@ import (
 	"sort"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -122,7 +123,7 @@ func reapplyProfession(world w.World, playerEntity ecs.Entity) error {
 	}
 	profComp := world.Components.Profession.Get(playerEntity).(*gc.Profession)
 
-	prof, err := world.Resources.RawMaster.GetProfession(profComp.ID)
+	prof, err := raw.GetProfession(world.Resources.RawMaster, profComp.ID)
 	if err != nil {
 		return fmt.Errorf("職業データの取得に失敗: %w", err)
 	}

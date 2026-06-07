@@ -87,7 +87,7 @@ func TestLoadRaws(t *testing.T) {
 		rawMaster, err := LoadRaws()
 
 		assert.NoError(t, err)
-		assert.NotEmpty(t, rawMaster.Raws.Items)
+		assert.NotEmpty(t, rawMaster.Items)
 	})
 }
 

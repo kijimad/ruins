@@ -1466,23 +1466,30 @@ components:
     Accuracy:
       type: integer
       format: int32
-      description: 命中率
+      minimum: 0
+      maximum: 100
+      description: 命中率。0で必中なし、100で必中
     AccuracyBonus:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 命中率補正値
     ActionCost:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 100
       description: 行動コスト
     Agility:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 敏捷性。行動順に影響する
     Ammo:
       type: object
       required:
-        - ammoTag
         - damageBonus
         - accuracyBonus
       properties:
@@ -1504,6 +1511,8 @@ components:
     ArmorDefense:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 999
       description: 防具の防御力
     AttackCategory:
       type: string
@@ -1519,10 +1528,14 @@ components:
     AttackCount:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 10
       description: 1ターンあたりの攻撃回数
     BaseDamage:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 9999
       description: 基本ダメージ
     BlocksPassage:
       type: boolean
@@ -1599,18 +1612,26 @@ components:
     DamageBonus:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: ダメージ補正値
     Defense:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 防御力。被ダメージを軽減する
     DepthLevel:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 100
       description: 階層レベル
     Dexterity:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 器用さ。クリティカル率に影響する
     Dialog:
       type: object
@@ -1653,7 +1674,8 @@ components:
         - weight
       properties:
         material:
-          $ref: '#/components/schemas/EntityName'
+          type: string
+          description: ドロップする素材名。空文字はドロップなしを意味する
         weight:
           $ref: '#/components/schemas/EntryWeight'
       description: ドロップテーブルエントリ
@@ -1735,13 +1757,18 @@ components:
       description: 敵テーブル一覧
     EntityDescription:
       type: string
+      minLength: 1
+      maxLength: 200
       description: 説明文
     EntityName:
       type: string
+      minLength: 1
+      maxLength: 50
       description: エンティティ名
     EntryWeight:
       type: number
       format: double
+      minimum: 0
       description: テーブルエントリの重み。大きいほど選ばれやすい
     EquipBonus:
       type: object
@@ -1816,7 +1843,6 @@ components:
         - targetNum
         - magazineSize
         - reloadEffort
-        - ammoTag
       properties:
         accuracy:
           $ref: '#/components/schemas/Accuracy'
@@ -1851,26 +1877,39 @@ components:
     HealAmount:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 9999
       description: 回復固定量
     HealRatio:
       type: number
       format: double
+      minimum: 0
+      maximum: 1
       description: 回復割合。0.0〜1.0
     HealingValueType:
       type: string
       enum:
         - PERCENTAGE
+        - ABSOLUTE
+        - NUMERAL
       description: 回復量の計算方式
     ImagePath:
       type: string
+      minLength: 1
+      maxLength: 200
+      pattern: ^[a-zA-Z0-9_/\-]+\.[a-zA-Z0-9]+$
       description: 画像ファイルパス
     InsulationCold:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 耐寒性能
     InsulationHeat:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 耐暑性能
     IsBoss:
       type: boolean
@@ -1885,7 +1924,6 @@ components:
         - description
         - spriteSheetName
         - spriteKey
-        - animKeys
         - value
       properties:
         name:
@@ -1932,6 +1970,8 @@ components:
     ItemCount:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 9999
       description: アイテム所持数
     ItemGroup:
       type: object
@@ -2051,18 +2091,24 @@ components:
     ItemValue:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 99999
       description: 売買価格
     ItemWeight:
       type: number
       format: double
-      description: アイテム重量
+      minimum: 0
+      maximum: 1000
+      description: アイテム重量（kg）
     LightEnabled:
       type: boolean
       description: 光源が有効かどうか
     LightRadius:
       type: integer
       format: int32
-      description: 光の到達半径
+      minimum: 1
+      maximum: 100
+      description: 光の到達半径（タイル単位）
     LightSource:
       type: object
       required:
@@ -2080,10 +2126,14 @@ components:
     MagazineSize:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 100
       description: マガジン容量
     MaterialAmount:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 99
       description: 素材必要数
     Melee:
       type: object
@@ -2122,9 +2172,6 @@ components:
         - abilities
         - spriteSheetName
         - spriteKey
-        - animKeys
-        - commandTableName
-        - dropTableName
       properties:
         name:
           $ref: '#/components/schemas/EntityName'
@@ -2155,9 +2202,13 @@ components:
         dialog:
           $ref: '#/components/schemas/Dialog'
         commandTableName:
-          $ref: '#/components/schemas/EntityName'
+          allOf:
+            - $ref: '#/components/schemas/EntityName'
+          description: プレイヤーキャラクターでは省略可能
         dropTableName:
-          $ref: '#/components/schemas/EntityName'
+          allOf:
+            - $ref: '#/components/schemas/EntityName'
+          description: プレイヤーキャラクターでは省略可能
       description: メンバー
     MemberList:
       type: object
@@ -2175,6 +2226,9 @@ components:
       description: メンバー一覧レスポンス
     MessageKey:
       type: string
+      minLength: 1
+      maxLength: 100
+      pattern: ^[a-z][a-z0-9_]*$
       description: メッセージリソースのキー
     MovementPatternType:
       type: string
@@ -2190,14 +2244,20 @@ components:
     NutritionAmount:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 9999
       description: 栄養価
     PackMax:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 100
       description: パックの最大数
     PackMin:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 100
       description: パックの最小数
     Palette:
       type: object
@@ -2238,6 +2298,9 @@ components:
       description: パレットエントリ
     PaletteId:
       type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-zA-Z][a-zA-Z0-9_]*$
       description: パレットID
     PaletteList:
       type: object
@@ -2260,7 +2323,6 @@ components:
         - name
         - description
         - abilities
-        - skills
         - items
         - equips
       properties:
@@ -2298,6 +2360,9 @@ components:
       description: 職業初期装備
     ProfessionId:
       type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
       description: 職業ID
     ProfessionItem:
       type: object
@@ -2341,7 +2406,6 @@ components:
         - name
         - description
         - spriteRender
-        - animKeys
         - blockPass
         - blockView
       properties:
@@ -2417,9 +2481,63 @@ components:
         a:
           $ref: '#/components/schemas/ColorChannel'
       description: RGBA色
+    Raws:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        recipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipe'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+        commandTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandTable'
+        dropTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/DropTable'
+        itemGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemGroup'
+        itemTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemTable'
+        enemyTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnemyTable'
+        spriteSheets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpriteSheet'
+        tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tile'
+        props:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prop'
+        professions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profession'
+      description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 9999
       description: 読了に必要な総読書量
     Recipe:
       type: object
@@ -2462,10 +2580,14 @@ components:
     ReloadEffort:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 100
       description: リロードに必要な行動力
     Sensation:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 感覚。命中率と回避率に影響する
     ShelterType:
       type: number
@@ -2490,10 +2612,15 @@ components:
       description: スキル本設定
     SkillId:
       type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
       description: スキルID
     SkillLevel:
       type: integer
       format: int32
+      minimum: 0
+      maximum: 100
       description: スキルレベル
     SpriteDepth:
       type: number
@@ -2505,6 +2632,9 @@ components:
       description: スプライト描画深度
     SpriteKey:
       type: string
+      minLength: 1
+      maxLength: 100
+      pattern: ^[a-z][a-z0-9_]*$
       description: スプライトキー
     SpriteRender:
       type: object
@@ -2547,6 +2677,9 @@ components:
       description: スプライトシート一覧
     SpriteSheetName:
       type: string
+      minLength: 1
+      maxLength: 50
+      pattern: ^[a-z][a-z0-9_]*$
       description: スプライトシート名
     Stackable:
       type: boolean
@@ -2554,6 +2687,8 @@ components:
     Strength:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 筋力。物理ダメージに影響する
     TargetGroup:
       type: string
@@ -2622,10 +2757,14 @@ components:
     ViewDistance:
       type: integer
       format: int32
+      minimum: 1
+      maximum: 100
       description: AI視界距離（タイル単位）
     Vitality:
       type: integer
       format: int32
+      minimum: -100
+      maximum: 100
       description: 体力。HPに影響する
     WarpEscapeTriggerRaw:
       type: object

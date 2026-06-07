@@ -18,6 +18,7 @@ import (
 	_ "net/http/pprof" // pprofのHTTPエンドポイントを登録するためのインポート
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/states"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -113,7 +114,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		if err != nil {
 			return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 		}
-		professions := world.Resources.RawMaster.Raws.Professions
+		professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 		if len(professions) > 0 {
 			if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil {
 				return fmt.Errorf("職業の適用に失敗: %w", err)

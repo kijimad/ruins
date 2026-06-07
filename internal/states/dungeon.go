@@ -97,19 +97,18 @@ func (st *DungeonState) OnStart(world w.World) error {
 	}
 
 	// スポーンエントリを設定する
-	rawMaster := world.Resources.RawMaster
 	if def.ItemTableName != "" {
-		itemTable, err := rawMaster.GetItemTable(def.ItemTableName)
+		itemTable, err := raw.GetItemTable(world.Resources.RawMaster, def.ItemTableName)
 		if err != nil {
 			return fmt.Errorf("アイテムテーブルが見つかりません: %s: %w", def.ItemTableName, err)
 		}
-		builderType.ItemSources, err = resolveItemSources(&rawMaster, itemTable.Entries, st.Depth)
+		builderType.ItemSources, err = resolveItemSources(world.Resources.RawMaster, itemTable.Entries, st.Depth)
 		if err != nil {
 			return err
 		}
 	}
 	if def.EnemyTableName != "" {
-		enemyTable, err := rawMaster.GetEnemyTable(def.EnemyTableName)
+		enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, def.EnemyTableName)
 		if err != nil {
 			return fmt.Errorf("敵テーブルが見つかりません: %s: %w", def.EnemyTableName, err)
 		}
@@ -546,14 +545,14 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 }
 
 // resolveItemSources はアイテムテーブルエントリを階層フィルタしてItemSourceに変換する
-func resolveItemSources(rawMaster *raw.Master, entries []oapi.ItemTableEntry, depth int) ([]mapplanner.ItemSource, error) {
+func resolveItemSources(rawMaster oapi.Raws, entries []oapi.ItemTableEntry, depth int) ([]mapplanner.ItemSource, error) {
 	result := make([]mapplanner.ItemSource, 0, len(entries))
 	for _, entry := range entries {
 		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
 			continue
 		}
 
-		group, err := rawMaster.GetItemGroup(entry.GroupName)
+		group, err := raw.GetItemGroup(rawMaster, entry.GroupName)
 		if err != nil {
 			return nil, fmt.Errorf("アイテムグループが見つかりません: %s: %w", entry.GroupName, err)
 		}

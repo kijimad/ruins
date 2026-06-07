@@ -6,6 +6,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -72,14 +73,12 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 	}
 
 	// NPCを生成する
-	rawMaster := world.Resources.RawMaster
 	for _, npc := range metaPlan.NPCs {
 		// NPCが中立かどうかを判断
-		memberIdx, ok := rawMaster.MemberIndex[npc.Name]
-		if !ok {
+		member, err := raw.FindMember(world.Resources.RawMaster, npc.Name)
+		if err != nil {
 			return gc.Level{}, fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
-		member := rawMaster.Raws.Members[memberIdx]
 
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutral.String() {
 			// 中立NPCの場合
@@ -116,7 +115,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 	for _, prop := range metaPlan.Props {
 		tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)
 
-		propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)
+		propRaw, err := raw.GetProp(*metaPlan.RawMaster, prop.Name)
 		if err != nil {
 			return gc.Level{}, fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
 		}
