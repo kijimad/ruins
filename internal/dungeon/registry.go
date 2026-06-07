@@ -4,9 +4,9 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 
 // 全ダンジョン定義
 var (
-	// DungeonTown は街用ダンジョン定義
+	// DungeonTown は拠点用ダンジョン定義
 	DungeonTown = Definition{
-		Name:            "街",
+		Name:            "晶営地",
 		TotalFloors:     1,
 		EnemyTableName:  "",
 		ItemTableName:   "",
