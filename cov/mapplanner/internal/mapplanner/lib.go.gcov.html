@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">79.8&nbsp;%</td>
+            <td class="headerCovTableEntryMed">80.9&nbsp;%</td>
+            <td class="headerCovTableEntry">330</td>
             <td class="headerCovTableEntry">267</td>
-            <td class="headerCovTableEntry">213</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-06 01:44:46</td>
+            <td class="headerValue">2026-06-07 08:08:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -153,9 +153,9 @@
 <span id="L91"><span class="lineNum">      91</span>              :         }</span>
 <span id="L92"><span class="lineNum">      92</span>              : </span>
 <span id="L93"><span class="lineNum">      93</span>              :         // アイテムをチェック</span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :         for _, item := range bm.Items {</span></span>
-<span id="L95"><span class="lineNum">      95</span> <span class="tlaUNC tlaBgUNC">           0 :                 if item.X == x &amp;&amp; item.Y == y {</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC">           0 :                         return true</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           2 :         for _, item := range bm.Items {</span></span>
+<span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :                 if item.X == x &amp;&amp; item.Y == y {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaUNC tlaBgUNC">           0 :                         return true</span></span>
 <span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L98"><span class="lineNum">      98</span>              :         }</span>
 <span id="L99"><span class="lineNum">      99</span>              : </span>
@@ -434,153 +434,261 @@
 <span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           1 :         return chain, nil</span></span>
 <span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L374"><span class="lineNum">     374</span>              : </span>
-<span id="L375"><span class="lineNum">     375</span>              : // SpawnEntry はスポーン対象のエントリを表す</span>
+<span id="L375"><span class="lineNum">     375</span>              : // SpawnEntry はスポーン対象のエントリを表す。</span>
 <span id="L376"><span class="lineNum">     376</span>              : type SpawnEntry struct {</span>
-<span id="L377"><span class="lineNum">     377</span>              :         Name   string</span>
-<span id="L378"><span class="lineNum">     378</span>              :         Weight float64</span>
-<span id="L379"><span class="lineNum">     379</span>              : }</span>
-<span id="L380"><span class="lineNum">     380</span>              : </span>
-<span id="L381"><span class="lineNum">     381</span>              : // PlannerType はマップ生成の設定を表す構造体</span>
-<span id="L382"><span class="lineNum">     382</span>              : type PlannerType struct {</span>
-<span id="L383"><span class="lineNum">     383</span>              :         // プランナー名</span>
-<span id="L384"><span class="lineNum">     384</span>              :         Name string</span>
-<span id="L385"><span class="lineNum">     385</span>              :         // ポータル位置を固定するか</span>
-<span id="L386"><span class="lineNum">     386</span>              :         UseFixedPortalPos bool</span>
-<span id="L387"><span class="lineNum">     387</span>              :         // スポーンするアイテムのエントリ（階層でフィルタリング済み）</span>
-<span id="L388"><span class="lineNum">     388</span>              :         ItemEntries []SpawnEntry</span>
-<span id="L389"><span class="lineNum">     389</span>              :         // スポーンする敵のエントリ（階層でフィルタリング済み）</span>
-<span id="L390"><span class="lineNum">     390</span>              :         EnemyEntries []SpawnEntry</span>
-<span id="L391"><span class="lineNum">     391</span>              :         // プランナー関数</span>
-<span id="L392"><span class="lineNum">     392</span>              :         PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)</span>
-<span id="L393"><span class="lineNum">     393</span>              : }</span>
-<span id="L394"><span class="lineNum">     394</span>              : </span>
-<span id="L395"><span class="lineNum">     395</span>              : var (</span>
-<span id="L396"><span class="lineNum">     396</span>              :         // PlannerTypeRandom はランダム選択用のプランナータイプ</span>
-<span id="L397"><span class="lineNum">     397</span>              :         PlannerTypeRandom = PlannerType{</span>
-<span id="L398"><span class="lineNum">     398</span>              :                 Name: &quot;ランダム&quot;,</span>
-<span id="L399"><span class="lineNum">     399</span>              :         }</span>
+<span id="L377"><span class="lineNum">     377</span>              :         Name    string</span>
+<span id="L378"><span class="lineNum">     378</span>              :         Weight  float64</span>
+<span id="L379"><span class="lineNum">     379</span>              :         PackMin int // パックの最小数。1以上</span>
+<span id="L380"><span class="lineNum">     380</span>              :         PackMax int // パックの最大数。PackMin以上</span>
+<span id="L381"><span class="lineNum">     381</span>              : }</span>
+<span id="L382"><span class="lineNum">     382</span>              : </span>
+<span id="L383"><span class="lineNum">     383</span>              : // PackSize はPackMin〜PackMaxの範囲でランダムなパックサイズを返す</span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 : func (e SpawnEntry) PackSize(rng *rand.Rand) int {</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           2 :         if e.PackMin == e.PackMax {</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :                 return e.PackMin</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         return e.PackMin + rng.IntN(e.PackMax-e.PackMin+1)</span></span>
+<span id="L389"><span class="lineNum">     389</span>              : }</span>
+<span id="L390"><span class="lineNum">     390</span>              : </span>
+<span id="L391"><span class="lineNum">     391</span>              : // ItemGroupSubtype はアイテムグループの選択方式</span>
+<span id="L392"><span class="lineNum">     392</span>              : type ItemGroupSubtype string</span>
+<span id="L393"><span class="lineNum">     393</span>              : </span>
+<span id="L394"><span class="lineNum">     394</span>              : const (</span>
+<span id="L395"><span class="lineNum">     395</span>              :         // ItemGroupDistribution はエントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う</span>
+<span id="L396"><span class="lineNum">     396</span>              :         ItemGroupDistribution ItemGroupSubtype = &quot;distribution&quot;</span>
+<span id="L397"><span class="lineNum">     397</span>              :         // ItemGroupCollection は各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。両方出ることも、どちらも出ないこともある</span>
+<span id="L398"><span class="lineNum">     398</span>              :         ItemGroupCollection ItemGroupSubtype = &quot;collection&quot;</span>
+<span id="L399"><span class="lineNum">     399</span>              : )</span>
 <span id="L400"><span class="lineNum">     400</span>              : </span>
-<span id="L401"><span class="lineNum">     401</span>              :         // PlannerTypeSmallRoom は小部屋ダンジョンのプランナータイプ</span>
-<span id="L402"><span class="lineNum">     402</span>              :         PlannerTypeSmallRoom = PlannerType{</span>
-<span id="L403"><span class="lineNum">     403</span>              :                 Name:        &quot;小部屋&quot;,</span>
-<span id="L404"><span class="lineNum">     404</span>              :                 PlannerFunc: NewSmallRoomPlanner,</span>
-<span id="L405"><span class="lineNum">     405</span>              :         }</span>
-<span id="L406"><span class="lineNum">     406</span>              : </span>
-<span id="L407"><span class="lineNum">     407</span>              :         // PlannerTypeBigRoom は大部屋ダンジョンのプランナータイプ</span>
-<span id="L408"><span class="lineNum">     408</span>              :         PlannerTypeBigRoom = PlannerType{</span>
-<span id="L409"><span class="lineNum">     409</span>              :                 Name:        &quot;大部屋&quot;,</span>
-<span id="L410"><span class="lineNum">     410</span>              :                 PlannerFunc: NewBigRoomPlanner,</span>
-<span id="L411"><span class="lineNum">     411</span>              :         }</span>
-<span id="L412"><span class="lineNum">     412</span>              : </span>
-<span id="L413"><span class="lineNum">     413</span>              :         // PlannerTypeCave は洞窟ダンジョンのプランナータイプ</span>
-<span id="L414"><span class="lineNum">     414</span>              :         PlannerTypeCave = PlannerType{</span>
-<span id="L415"><span class="lineNum">     415</span>              :                 Name:        &quot;洞窟&quot;,</span>
-<span id="L416"><span class="lineNum">     416</span>              :                 PlannerFunc: NewCavePlanner,</span>
-<span id="L417"><span class="lineNum">     417</span>              :         }</span>
-<span id="L418"><span class="lineNum">     418</span>              : </span>
-<span id="L419"><span class="lineNum">     419</span>              :         // PlannerTypeRuins は廃墟ダンジョンのプランナータイプ</span>
-<span id="L420"><span class="lineNum">     420</span>              :         PlannerTypeRuins = PlannerType{</span>
-<span id="L421"><span class="lineNum">     421</span>              :                 Name:        &quot;廃墟&quot;,</span>
-<span id="L422"><span class="lineNum">     422</span>              :                 PlannerFunc: NewRuinsPlanner,</span>
-<span id="L423"><span class="lineNum">     423</span>              :         }</span>
-<span id="L424"><span class="lineNum">     424</span>              : </span>
-<span id="L425"><span class="lineNum">     425</span>              :         // PlannerTypeForest は森ダンジョンのプランナータイプ</span>
-<span id="L426"><span class="lineNum">     426</span>              :         PlannerTypeForest = PlannerType{</span>
-<span id="L427"><span class="lineNum">     427</span>              :                 Name:        &quot;森&quot;,</span>
-<span id="L428"><span class="lineNum">     428</span>              :                 PlannerFunc: NewForestPlanner,</span>
-<span id="L429"><span class="lineNum">     429</span>              :         }</span>
-<span id="L430"><span class="lineNum">     430</span>              : </span>
-<span id="L431"><span class="lineNum">     431</span>              :         // PlannerTypeTown は市街地のプランナータイプ</span>
-<span id="L432"><span class="lineNum">     432</span>              :         PlannerTypeTown = PlannerType{</span>
-<span id="L433"><span class="lineNum">     433</span>              :                 Name:              &quot;市街地&quot;,</span>
-<span id="L434"><span class="lineNum">     434</span>              :                 UseFixedPortalPos: true,</span>
-<span id="L435"><span class="lineNum">     435</span> <span class="tlaGNC">           1 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L436"><span class="lineNum">     436</span> <span class="tlaGNC">           1 :                         return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)</span></span>
-<span id="L437"><span class="lineNum">     437</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L438"><span class="lineNum">     438</span>              :         }</span>
-<span id="L439"><span class="lineNum">     439</span>              : </span>
-<span id="L440"><span class="lineNum">     440</span>              :         // PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ</span>
-<span id="L441"><span class="lineNum">     441</span>              :         PlannerTypeOfficeBuilding = PlannerType{</span>
-<span id="L442"><span class="lineNum">     442</span>              :                 Name: &quot;事務所ビル&quot;,</span>
-<span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC tlaBgUNC">           0 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                         return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)</span></span>
-<span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L446"><span class="lineNum">     446</span>              :         }</span>
-<span id="L447"><span class="lineNum">     447</span>              : </span>
-<span id="L448"><span class="lineNum">     448</span>              :         // PlannerTypeSmallTown は小さな町（複数の建物を配置）</span>
-<span id="L449"><span class="lineNum">     449</span>              :         PlannerTypeSmallTown = PlannerType{</span>
-<span id="L450"><span class="lineNum">     450</span>              :                 Name: &quot;小さな町&quot;,</span>
-<span id="L451"><span class="lineNum">     451</span> <span class="tlaUNC">           0 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L452"><span class="lineNum">     452</span> <span class="tlaUNC">           0 :                         return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)</span></span>
-<span id="L453"><span class="lineNum">     453</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L454"><span class="lineNum">     454</span>              :         }</span>
-<span id="L455"><span class="lineNum">     455</span>              : </span>
-<span id="L456"><span class="lineNum">     456</span>              :         // PlannerTypeTownPlaza は町の広場</span>
-<span id="L457"><span class="lineNum">     457</span>              :         PlannerTypeTownPlaza = PlannerType{</span>
-<span id="L458"><span class="lineNum">     458</span>              :                 Name:              &quot;広場&quot;,</span>
-<span id="L459"><span class="lineNum">     459</span>              :                 UseFixedPortalPos: true,</span>
-<span id="L460"><span class="lineNum">     460</span> <span class="tlaGNC tlaBgGNC">           1 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L461"><span class="lineNum">     461</span> <span class="tlaGNC">           1 :                         return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)</span></span>
-<span id="L462"><span class="lineNum">     462</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L463"><span class="lineNum">     463</span>              :         }</span>
-<span id="L464"><span class="lineNum">     464</span>              : </span>
-<span id="L465"><span class="lineNum">     465</span>              :         // PlannerTypeBossFloor はボスフロアのプランナータイプ</span>
-<span id="L466"><span class="lineNum">     466</span>              :         PlannerTypeBossFloor = PlannerType{</span>
-<span id="L467"><span class="lineNum">     467</span>              :                 Name:              &quot;ボスフロア&quot;,</span>
-<span id="L468"><span class="lineNum">     468</span>              :                 UseFixedPortalPos: true,</span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           1 :                         return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 },</span></span>
-<span id="L472"><span class="lineNum">     472</span>              :         }</span>
-<span id="L473"><span class="lineNum">     473</span>              : )</span>
-<span id="L474"><span class="lineNum">     474</span>              : </span>
-<span id="L475"><span class="lineNum">     475</span>              : // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する</span>
-<span id="L476"><span class="lineNum">     476</span> <span class="tlaGNC">           1 : func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
-<span id="L477"><span class="lineNum">     477</span> <span class="tlaGNC">           1 :         // シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される</span></span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC tlaBgUNC">           0 :                 seed = uint64(time.Now().UnixNano())</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L481"><span class="lineNum">     481</span>              : </span>
-<span id="L482"><span class="lineNum">     482</span>              :         // シード値からランダムソースを作成（ビルダー選択用）</span>
-<span id="L483"><span class="lineNum">     483</span> <span class="tlaGNC tlaBgGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaGNC">           1 :         // ランダム選択対象のプランナータイプ（街は除外）</span></span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 :         candidateTypes := []PlannerType{</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :                 PlannerTypeSmallRoom,</span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :                 PlannerTypeBigRoom,</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :                 PlannerTypeCave,</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :                 PlannerTypeRuins,</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :                 PlannerTypeForest,</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         // ランダムに選択</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaGNC">           1 :         selectedType := candidateTypes[rng.IntN(len(candidateTypes))]</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :         chain, err := selectedType.PlannerFunc(width, height, seed)</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;ランダムプランナー選択エラー: %w&quot;, err)</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaGNC tlaBgGNC">           1 :         return chain, nil</span></span>
-<span id="L502"><span class="lineNum">     502</span>              : }</span>
-<span id="L503"><span class="lineNum">     503</span>              : </span>
-<span id="L504"><span class="lineNum">     504</span>              : // GetTile はタイルを生成する</span>
-<span id="L505"><span class="lineNum">     505</span>              : // TODO: エラーを潰しているだけなので直す</span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 : func (bm *MetaPlan) GetTile(name string) oapi.Tile {</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaGNC">           1 :         if bm.RawMaster == nil {</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;RawMasterが設定されていない。TOMLからのタイル生成が必須である&quot;)</span></span>
-<span id="L509"><span class="lineNum">     509</span>              :         }</span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaGNC tlaBgGNC">           1 :         tile, err := bm.RawMaster.GetTile(name)</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;タイル生成エラー: %v&quot;, err))</span></span>
-<span id="L513"><span class="lineNum">     513</span>              :         }</span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC tlaBgGNC">           1 :         return tile</span></span>
-<span id="L515"><span class="lineNum">     515</span>              : }</span>
-<span id="L516"><span class="lineNum">     516</span>              : </span>
-<span id="L517"><span class="lineNum">     517</span>              : // GetPlayerStartPosition はプレイヤーの開始位置を取得する</span>
-<span id="L518"><span class="lineNum">     518</span>              : // ポータルへの到達性も確認し、到達可能な位置を返す</span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 : func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) {</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :         return NewPathFinder(bm).FindPlayerStartPosition()</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L401"><span class="lineNum">     401</span>              : // ItemSource はアイテム配置の元になるデータ</span>
+<span id="L402"><span class="lineNum">     402</span>              : // テーブルエントリから解決済みの状態で保持する</span>
+<span id="L403"><span class="lineNum">     403</span>              : type ItemSource struct {</span>
+<span id="L404"><span class="lineNum">     404</span>              :         Weight  float64          // テーブルレベルの重み</span>
+<span id="L405"><span class="lineNum">     405</span>              :         Subtype ItemGroupSubtype // グループの選択方式</span>
+<span id="L406"><span class="lineNum">     406</span>              :         Entries []SpawnEntry     // グループ内のエントリ</span>
+<span id="L407"><span class="lineNum">     407</span>              : }</span>
+<span id="L408"><span class="lineNum">     408</span>              : </span>
+<span id="L409"><span class="lineNum">     409</span>              : // PlannerType はマップ生成の設定を表す構造体</span>
+<span id="L410"><span class="lineNum">     410</span>              : type PlannerType struct {</span>
+<span id="L411"><span class="lineNum">     411</span>              :         // プランナー名</span>
+<span id="L412"><span class="lineNum">     412</span>              :         Name string</span>
+<span id="L413"><span class="lineNum">     413</span>              :         // ポータル位置を固定するか</span>
+<span id="L414"><span class="lineNum">     414</span>              :         UseFixedPortalPos bool</span>
+<span id="L415"><span class="lineNum">     415</span>              :         // スポーンするアイテムソース（階層でフィルタリング済み）</span>
+<span id="L416"><span class="lineNum">     416</span>              :         ItemSources []ItemSource</span>
+<span id="L417"><span class="lineNum">     417</span>              :         // スポーンする敵のエントリ（階層でフィルタリング済み）</span>
+<span id="L418"><span class="lineNum">     418</span>              :         EnemyEntries []SpawnEntry</span>
+<span id="L419"><span class="lineNum">     419</span>              :         // プランナー関数</span>
+<span id="L420"><span class="lineNum">     420</span>              :         PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)</span>
+<span id="L421"><span class="lineNum">     421</span>              : }</span>
+<span id="L422"><span class="lineNum">     422</span>              : </span>
+<span id="L423"><span class="lineNum">     423</span>              : var (</span>
+<span id="L424"><span class="lineNum">     424</span>              :         // PlannerTypeRandom はランダム選択用のプランナータイプ</span>
+<span id="L425"><span class="lineNum">     425</span>              :         PlannerTypeRandom = PlannerType{</span>
+<span id="L426"><span class="lineNum">     426</span>              :                 Name: &quot;ランダム&quot;,</span>
+<span id="L427"><span class="lineNum">     427</span>              :         }</span>
+<span id="L428"><span class="lineNum">     428</span>              : </span>
+<span id="L429"><span class="lineNum">     429</span>              :         // PlannerTypeSmallRoom は小部屋ダンジョンのプランナータイプ</span>
+<span id="L430"><span class="lineNum">     430</span>              :         PlannerTypeSmallRoom = PlannerType{</span>
+<span id="L431"><span class="lineNum">     431</span>              :                 Name:        &quot;小部屋&quot;,</span>
+<span id="L432"><span class="lineNum">     432</span>              :                 PlannerFunc: NewSmallRoomPlanner,</span>
+<span id="L433"><span class="lineNum">     433</span>              :         }</span>
+<span id="L434"><span class="lineNum">     434</span>              : </span>
+<span id="L435"><span class="lineNum">     435</span>              :         // PlannerTypeBigRoom は大部屋ダンジョンのプランナータイプ</span>
+<span id="L436"><span class="lineNum">     436</span>              :         PlannerTypeBigRoom = PlannerType{</span>
+<span id="L437"><span class="lineNum">     437</span>              :                 Name:        &quot;大部屋&quot;,</span>
+<span id="L438"><span class="lineNum">     438</span>              :                 PlannerFunc: NewBigRoomPlanner,</span>
+<span id="L439"><span class="lineNum">     439</span>              :         }</span>
+<span id="L440"><span class="lineNum">     440</span>              : </span>
+<span id="L441"><span class="lineNum">     441</span>              :         // PlannerTypeCave は洞窟ダンジョンのプランナータイプ</span>
+<span id="L442"><span class="lineNum">     442</span>              :         PlannerTypeCave = PlannerType{</span>
+<span id="L443"><span class="lineNum">     443</span>              :                 Name:        &quot;洞窟&quot;,</span>
+<span id="L444"><span class="lineNum">     444</span>              :                 PlannerFunc: NewCavePlanner,</span>
+<span id="L445"><span class="lineNum">     445</span>              :         }</span>
+<span id="L446"><span class="lineNum">     446</span>              : </span>
+<span id="L447"><span class="lineNum">     447</span>              :         // PlannerTypeRuins は廃墟ダンジョンのプランナータイプ</span>
+<span id="L448"><span class="lineNum">     448</span>              :         PlannerTypeRuins = PlannerType{</span>
+<span id="L449"><span class="lineNum">     449</span>              :                 Name:        &quot;廃墟&quot;,</span>
+<span id="L450"><span class="lineNum">     450</span>              :                 PlannerFunc: NewRuinsPlanner,</span>
+<span id="L451"><span class="lineNum">     451</span>              :         }</span>
+<span id="L452"><span class="lineNum">     452</span>              : </span>
+<span id="L453"><span class="lineNum">     453</span>              :         // PlannerTypeForest は森ダンジョンのプランナータイプ</span>
+<span id="L454"><span class="lineNum">     454</span>              :         PlannerTypeForest = PlannerType{</span>
+<span id="L455"><span class="lineNum">     455</span>              :                 Name:        &quot;森&quot;,</span>
+<span id="L456"><span class="lineNum">     456</span>              :                 PlannerFunc: NewForestPlanner,</span>
+<span id="L457"><span class="lineNum">     457</span>              :         }</span>
+<span id="L458"><span class="lineNum">     458</span>              : </span>
+<span id="L459"><span class="lineNum">     459</span>              :         // PlannerTypeTown は市街地のプランナータイプ</span>
+<span id="L460"><span class="lineNum">     460</span>              :         PlannerTypeTown = PlannerType{</span>
+<span id="L461"><span class="lineNum">     461</span>              :                 Name:              &quot;市街地&quot;,</span>
+<span id="L462"><span class="lineNum">     462</span>              :                 UseFixedPortalPos: true,</span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC">           1 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :                         return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L466"><span class="lineNum">     466</span>              :         }</span>
+<span id="L467"><span class="lineNum">     467</span>              : </span>
+<span id="L468"><span class="lineNum">     468</span>              :         // PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ</span>
+<span id="L469"><span class="lineNum">     469</span>              :         PlannerTypeOfficeBuilding = PlannerType{</span>
+<span id="L470"><span class="lineNum">     470</span>              :                 Name: &quot;事務所ビル&quot;,</span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC tlaBgUNC">           0 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                         return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                 },</span></span>
+<span id="L474"><span class="lineNum">     474</span>              :         }</span>
+<span id="L475"><span class="lineNum">     475</span>              : </span>
+<span id="L476"><span class="lineNum">     476</span>              :         // PlannerTypeSmallTown は小さな町（複数の建物を配置）</span>
+<span id="L477"><span class="lineNum">     477</span>              :         PlannerTypeSmallTown = PlannerType{</span>
+<span id="L478"><span class="lineNum">     478</span>              :                 Name: &quot;小さな町&quot;,</span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :                         return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 },</span></span>
+<span id="L482"><span class="lineNum">     482</span>              :         }</span>
+<span id="L483"><span class="lineNum">     483</span>              : </span>
+<span id="L484"><span class="lineNum">     484</span>              :         // PlannerTypeTownPlaza は町の広場</span>
+<span id="L485"><span class="lineNum">     485</span>              :         PlannerTypeTownPlaza = PlannerType{</span>
+<span id="L486"><span class="lineNum">     486</span>              :                 Name:              &quot;広場&quot;,</span>
+<span id="L487"><span class="lineNum">     487</span>              :                 UseFixedPortalPos: true,</span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC tlaBgGNC">           1 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :                         return NewPlannerChainByTemplateType(TemplateTypeTownPlaza, seed)</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L491"><span class="lineNum">     491</span>              :         }</span>
+<span id="L492"><span class="lineNum">     492</span>              : </span>
+<span id="L493"><span class="lineNum">     493</span>              :         // PlannerTypeBossFloor はボスフロアのプランナータイプ</span>
+<span id="L494"><span class="lineNum">     494</span>              :         PlannerTypeBossFloor = PlannerType{</span>
+<span id="L495"><span class="lineNum">     495</span>              :                 Name:              &quot;ボスフロア&quot;,</span>
+<span id="L496"><span class="lineNum">     496</span>              :                 UseFixedPortalPos: true,</span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 :                 PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 :                         return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L500"><span class="lineNum">     500</span>              :         }</span>
+<span id="L501"><span class="lineNum">     501</span>              : )</span>
+<span id="L502"><span class="lineNum">     502</span>              : </span>
+<span id="L503"><span class="lineNum">     503</span>              : // NewRandomPlanner はシード値を使用してランダムにプランナーを選択し作成する</span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 : func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error) {</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaGNC">           1 :         // シードが0の場合はランダムなシードを生成する。後続のビルダーに渡される</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaGNC">           1 :         if seed == 0 {</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC tlaBgUNC">           0 :                 seed = uint64(time.Now().UnixNano())</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L509"><span class="lineNum">     509</span>              : </span>
+<span id="L510"><span class="lineNum">     510</span>              :         // シード値からランダムソースを作成（ビルダー選択用）</span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaGNC tlaBgGNC">           1 :         rng := rand.New(rand.NewPCG(seed, 0))</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :         // ランダム選択対象のプランナータイプ（街は除外）</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaGNC">           1 :         candidateTypes := []PlannerType{</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaGNC">           1 :                 PlannerTypeSmallRoom,</span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaGNC">           1 :                 PlannerTypeBigRoom,</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 :                 PlannerTypeCave,</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           1 :                 PlannerTypeRuins,</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 PlannerTypeForest,</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :         // ランダムに選択</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 :         selectedType := candidateTypes[rng.IntN(len(candidateTypes))]</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         chain, err := selectedType.PlannerFunc(width, height, seed)</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;ランダムプランナー選択エラー: %w&quot;, err)</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC tlaBgGNC">           1 :         return chain, nil</span></span>
+<span id="L530"><span class="lineNum">     530</span>              : }</span>
+<span id="L531"><span class="lineNum">     531</span>              : </span>
+<span id="L532"><span class="lineNum">     532</span>              : // selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する</span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 : func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) {</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :         return raw.SelectByWeightFunc(</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           1 :                 entries,</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           2 :                 func(e SpawnEntry) float64 { return e.Weight },</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :                 func(e SpawnEntry) SpawnEntry { return e },</span></span>
+<span id="L538"><span class="lineNum">     538</span>              :                 rng,</span>
+<span id="L539"><span class="lineNum">     539</span>              :         )</span>
+<span id="L540"><span class="lineNum">     540</span>              : }</span>
+<span id="L541"><span class="lineNum">     541</span>              : </span>
+<span id="L542"><span class="lineNum">     542</span>              : // selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す</span>
+<span id="L543"><span class="lineNum">     543</span>              : // 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる</span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 : func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {</span></span>
+<span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :         if len(bm.Rooms) == 0 {</span></span>
+<span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.Rect{}, 0, false</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC tlaBgGNC">           1 :         totalArea := 0</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaGNC">           2 :         for _, r := range bm.Rooms {</span></span>
+<span id="L550"><span class="lineNum">     550</span> <span class="tlaGNC">           1 :                 w := int(r.X2 - r.X1)</span></span>
+<span id="L551"><span class="lineNum">     551</span> <span class="tlaGNC">           1 :                 h := int(r.Y2 - r.Y1)</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC">           2 :                 if w &gt; 0 &amp;&amp; h &gt; 0 {</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 :                         totalArea += w * h</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L555"><span class="lineNum">     555</span>              :         }</span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC">           1 :         if totalArea == 0 {</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC tlaBgUNC">           0 :                 idx := bm.RNG.IntN(len(bm.Rooms))</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :                 return bm.Rooms[idx], idx, true</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC tlaBgGNC">           1 :         roll := bm.RNG.IntN(totalArea)</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :         cumulative := 0</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           2 :         for i, r := range bm.Rooms {</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 :                 w := int(r.X2 - r.X1)</span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           1 :                 h := int(r.Y2 - r.Y1)</span></span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           2 :                 if w &gt; 0 &amp;&amp; h &gt; 0 {</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">           1 :                         cumulative += w * h</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           2 :                 if roll &lt; cumulative {</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :                         return bm.Rooms[i], i, true</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L571"><span class="lineNum">     571</span>              :         }</span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC tlaBgUNC">           0 :         idx := len(bm.Rooms) - 1</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         return bm.Rooms[idx], idx, true</span></span>
+<span id="L574"><span class="lineNum">     574</span>              : }</span>
+<span id="L575"><span class="lineNum">     575</span>              : </span>
+<span id="L576"><span class="lineNum">     576</span>              : // randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す</span>
+<span id="L577"><span class="lineNum">     577</span>              : // maxAttemptsを超えても見つからない場合はfalseを返す</span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC tlaBgGNC">           1 : func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :         rw := int(room.X2 - room.X1)</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :         rh := int(room.Y2 - room.Y1)</span></span>
+<span id="L581"><span class="lineNum">     581</span> <span class="tlaGNC">           1 :         if rw &lt;= 0 || rh &lt;= 0 {</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, 0, false</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC tlaBgGNC">           2 :         for i := 0; i &lt; maxAttempts; i++ {</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(room.X1) + bm.RNG.IntN(rw))</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(room.Y1) + bm.RNG.IntN(rh))</span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           2 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
+<span id="L588"><span class="lineNum">     588</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
+<span id="L589"><span class="lineNum">     589</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L590"><span class="lineNum">     590</span>              :         }</span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaUNC tlaBgUNC">           0 :         return 0, 0, false</span></span>
+<span id="L592"><span class="lineNum">     592</span>              : }</span>
+<span id="L593"><span class="lineNum">     593</span>              : </span>
+<span id="L594"><span class="lineNum">     594</span>              : // randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。</span>
+<span id="L595"><span class="lineNum">     595</span>              : // 大部屋でクラスタメンバーを密集させるために使用する</span>
+<span id="L596"><span class="lineNum">     596</span> <span class="tlaGNC tlaBgGNC">           1 : func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {</span></span>
+<span id="L597"><span class="lineNum">     597</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; maxAttempts; i++ {</span></span>
+<span id="L598"><span class="lineNum">     598</span> <span class="tlaGNC">           1 :                 dx := bm.RNG.IntN(radius*2+1) - radius</span></span>
+<span id="L599"><span class="lineNum">     599</span> <span class="tlaGNC">           1 :                 dy := bm.RNG.IntN(radius*2+1) - radius</span></span>
+<span id="L600"><span class="lineNum">     600</span> <span class="tlaGNC">           1 :                 tx := consts.Tile(int(centerX) + dx)</span></span>
+<span id="L601"><span class="lineNum">     601</span> <span class="tlaGNC">           1 :                 ty := consts.Tile(int(centerY) + dy)</span></span>
+<span id="L602"><span class="lineNum">     602</span> <span class="tlaGNC">           2 :                 if tx &lt; room.X1 || tx &gt;= room.X2 || ty &lt; room.Y1 || ty &gt;= room.Y2 {</span></span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L604"><span class="lineNum">     604</span>              :                 }</span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaGNC">           2 :                 if bm.IsSpawnableTile(world, tx, ty) {</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaGNC">           1 :                         return tx, ty, true</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L608"><span class="lineNum">     608</span>              :         }</span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaGNC">           1 :         return 0, 0, false</span></span>
+<span id="L610"><span class="lineNum">     610</span>              : }</span>
+<span id="L611"><span class="lineNum">     611</span>              : </span>
+<span id="L612"><span class="lineNum">     612</span>              : // GetTile はタイルを生成する</span>
+<span id="L613"><span class="lineNum">     613</span>              : // TODO: エラーを潰しているだけなので直す</span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaGNC">           1 : func (bm *MetaPlan) GetTile(name string) oapi.Tile {</span></span>
+<span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         if bm.RawMaster == nil {</span></span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;RawMasterが設定されていない。TOMLからのタイル生成が必須である&quot;)</span></span>
+<span id="L617"><span class="lineNum">     617</span>              :         }</span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC tlaBgGNC">           1 :         tile, err := bm.RawMaster.GetTile(name)</span></span>
+<span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L620"><span class="lineNum">     620</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;タイル生成エラー: %v&quot;, err))</span></span>
+<span id="L621"><span class="lineNum">     621</span>              :         }</span>
+<span id="L622"><span class="lineNum">     622</span> <span class="tlaGNC tlaBgGNC">           1 :         return tile</span></span>
+<span id="L623"><span class="lineNum">     623</span>              : }</span>
+<span id="L624"><span class="lineNum">     624</span>              : </span>
+<span id="L625"><span class="lineNum">     625</span>              : // GetPlayerStartPosition はプレイヤーの開始位置を取得する</span>
+<span id="L626"><span class="lineNum">     626</span>              : // ポータルへの到達性も確認し、到達可能な位置を返す</span>
+<span id="L627"><span class="lineNum">     627</span> <span class="tlaGNC">           1 : func (bm *MetaPlan) GetPlayerStartPosition() (consts.Coord[int], error) {</span></span>
+<span id="L628"><span class="lineNum">     628</span> <span class="tlaGNC">           1 :         return NewPathFinder(bm).FindPlayerStartPosition()</span></span>
+<span id="L629"><span class="lineNum">     629</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

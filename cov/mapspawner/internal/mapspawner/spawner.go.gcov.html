@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">30.2&nbsp;%</td>
-            <td class="headerCovTableEntry">139</td>
+            <td class="headerCovTableEntryLo">29.6&nbsp;%</td>
+            <td class="headerCovTableEntry">142</td>
             <td class="headerCovTableEntry">42</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-06 01:44:46</td>
+            <td class="headerValue">2026-06-07 08:08:41</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -165,94 +165,97 @@
 <span id="L103"><span class="lineNum">     103</span>              :         // アイテムを生成する</span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, item := range metaPlan.Items {</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := consts.Tile(item.X), consts.Tile(item.Y)</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 _, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY)</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;アイテム生成エラー (%d, %d): %w&quot;, item.X, item.Y, err)</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L110"><span class="lineNum">     110</span>              :         }</span>
-<span id="L111"><span class="lineNum">     111</span>              : </span>
-<span id="L112"><span class="lineNum">     112</span>              :         // Propsを生成する</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, prop := range metaPlan.Props {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;props取得エラー (%s): %w&quot;, prop.Name, err)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L120"><span class="lineNum">     120</span>              : </span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC tlaBgGNC">           1 :                 propEntity, err := worldhelper.SpawnProp(world, prop.Name, tileX, tileY)</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;props生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L125"><span class="lineNum">     125</span>              : </span>
-<span id="L126"><span class="lineNum">     126</span>              :                 // Door componentがあれば向きを設定して閉じた状態で初期化</span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC tlaBgGNC">           1 :                 if propRaw.Door != nil {</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC tlaBgUNC">           0 :                         orientation := detectDoorOrientation(metaPlan, prop.X, prop.Y)</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                         doorComp := world.Components.Door.Get(propEntity).(*gc.Door)</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :                         doorComp.Orientation = orientation</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :                         if err := worldhelper.CloseDoor(world, propEntity); err != nil {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                                 return gc.Level{}, fmt.Errorf(&quot;扉初期化エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L134"><span class="lineNum">     134</span>              :                 }</span>
-<span id="L135"><span class="lineNum">     135</span>              :         }</span>
-<span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span>              :         // NextPortalsを生成する</span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, portal := range metaPlan.NextPortals {</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 _, err := worldhelper.SpawnProp(world, &quot;warp_next&quot;, tileX, tileY)</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;NextPortal生成エラー (%d, %d): %w&quot;, portal.X, portal.Y, err)</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L144"><span class="lineNum">     144</span>              :         }</span>
-<span id="L145"><span class="lineNum">     145</span>              : </span>
-<span id="L146"><span class="lineNum">     146</span>              :         // EscapePortalsを生成する</span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, portal := range metaPlan.EscapePortals {</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                 _, err := worldhelper.SpawnProp(world, &quot;warp_escape&quot;, tileX, tileY)</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;EscapePortal生成エラー (%d, %d): %w&quot;, portal.X, portal.Y, err)</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L153"><span class="lineNum">     153</span>              :         }</span>
-<span id="L154"><span class="lineNum">     154</span>              : </span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC tlaBgGNC">           1 :         return level, nil</span></span>
-<span id="L156"><span class="lineNum">     156</span>              : }</span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC">           0 :                 if item.Count &lt;= 0 {</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;アイテムの個数が不正です (%d, %d): count=%d&quot;, item.X, item.Y, item.Count)</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 _, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;アイテム生成エラー (%d, %d): %w&quot;, item.X, item.Y, err)</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L113"><span class="lineNum">     113</span>              :         }</span>
+<span id="L114"><span class="lineNum">     114</span>              : </span>
+<span id="L115"><span class="lineNum">     115</span>              :         // Propsを生成する</span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC tlaBgGNC">           2 :         for _, prop := range metaPlan.Props {</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 tileX, tileY := consts.Tile(prop.X), consts.Tile(prop.Y)</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 propRaw, err := metaPlan.RawMaster.GetProp(prop.Name)</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;props取得エラー (%s): %w&quot;, prop.Name, err)</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L123"><span class="lineNum">     123</span>              : </span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">           1 :                 propEntity, err := worldhelper.SpawnProp(world, prop.Name, tileX, tileY)</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;props生成エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L128"><span class="lineNum">     128</span>              : </span>
+<span id="L129"><span class="lineNum">     129</span>              :                 // Door componentがあれば向きを設定して閉じた状態で初期化</span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC tlaBgGNC">           1 :                 if propRaw.Door != nil {</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC tlaBgUNC">           0 :                         orientation := detectDoorOrientation(metaPlan, prop.X, prop.Y)</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                         doorComp := world.Components.Door.Get(propEntity).(*gc.Door)</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         doorComp.Orientation = orientation</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                         if err := worldhelper.CloseDoor(world, propEntity); err != nil {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                                 return gc.Level{}, fmt.Errorf(&quot;扉初期化エラー (%d, %d): %w&quot;, prop.X, prop.Y, err)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L137"><span class="lineNum">     137</span>              :                 }</span>
+<span id="L138"><span class="lineNum">     138</span>              :         }</span>
+<span id="L139"><span class="lineNum">     139</span>              : </span>
+<span id="L140"><span class="lineNum">     140</span>              :         // NextPortalsを生成する</span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, portal := range metaPlan.NextPortals {</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 _, err := worldhelper.SpawnProp(world, &quot;warp_next&quot;, tileX, tileY)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;NextPortal生成エラー (%d, %d): %w&quot;, portal.X, portal.Y, err)</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L147"><span class="lineNum">     147</span>              :         }</span>
+<span id="L148"><span class="lineNum">     148</span>              : </span>
+<span id="L149"><span class="lineNum">     149</span>              :         // EscapePortalsを生成する</span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC tlaBgGNC">           1 :         for _, portal := range metaPlan.EscapePortals {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC tlaBgUNC">           0 :                 tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                 _, err := worldhelper.SpawnProp(world, &quot;warp_escape&quot;, tileX, tileY)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :                         return gc.Level{}, fmt.Errorf(&quot;EscapePortal生成エラー (%d, %d): %w&quot;, portal.X, portal.Y, err)</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L156"><span class="lineNum">     156</span>              :         }</span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
-<span id="L158"><span class="lineNum">     158</span>              : // detectDoorOrientation は隣接タイルから扉の向きを判定する</span>
-<span id="L159"><span class="lineNum">     159</span>              : // 左右が壁の場合は縦向き、上下が壁の場合は横向き</span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 : func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :         width := int(metaPlan.Level.TileWidth)</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         height := int(metaPlan.Level.TileHeight)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         // 範囲外チェック</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         if x &lt;= 0 || x &gt;= width-1 || y &lt;= 0 || y &gt;= height-1 {</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 // デフォルトは横向き</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationHorizontal</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L169"><span class="lineNum">     169</span>              : </span>
-<span id="L170"><span class="lineNum">     170</span>              :         // 隣接タイルを取得</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         leftIdx := y*width + (x - 1)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         rightIdx := y*width + (x + 1)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         topIdx := (y-1)*width + x</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         bottomIdx := (y+1)*width + x</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         leftTile := metaPlan.Tiles[leftIdx]</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         rightTile := metaPlan.Tiles[rightIdx]</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         topTile := metaPlan.Tiles[topIdx]</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         bottomTile := metaPlan.Tiles[bottomIdx]</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         // 左右が壁（通行不可）の場合は縦向き</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         if leftTile.BlockPass &amp;&amp; rightTile.BlockPass {</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationVertical</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L185"><span class="lineNum">     185</span>              : </span>
-<span id="L186"><span class="lineNum">     186</span>              :         // 上下が壁（通行不可）の場合は横向き</span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         if topTile.BlockPass &amp;&amp; bottomTile.BlockPass {</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationHorizontal</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L190"><span class="lineNum">     190</span>              : </span>
-<span id="L191"><span class="lineNum">     191</span>              :         // どちらでもない場合はデフォルト（横向き）</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         return gc.DoorOrientationHorizontal</span></span>
-<span id="L193"><span class="lineNum">     193</span>              : }</span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :         return level, nil</span></span>
+<span id="L159"><span class="lineNum">     159</span>              : }</span>
+<span id="L160"><span class="lineNum">     160</span>              : </span>
+<span id="L161"><span class="lineNum">     161</span>              : // detectDoorOrientation は隣接タイルから扉の向きを判定する</span>
+<span id="L162"><span class="lineNum">     162</span>              : // 左右が壁の場合は縦向き、上下が壁の場合は横向き</span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC tlaBgUNC">           0 : func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         width := int(metaPlan.Level.TileWidth)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         height := int(metaPlan.Level.TileHeight)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         // 範囲外チェック</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         if x &lt;= 0 || x &gt;= width-1 || y &lt;= 0 || y &gt;= height-1 {</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 // デフォルトは横向き</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationHorizontal</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L172"><span class="lineNum">     172</span>              : </span>
+<span id="L173"><span class="lineNum">     173</span>              :         // 隣接タイルを取得</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         leftIdx := y*width + (x - 1)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         rightIdx := y*width + (x + 1)</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         topIdx := (y-1)*width + x</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         bottomIdx := (y+1)*width + x</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         leftTile := metaPlan.Tiles[leftIdx]</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         rightTile := metaPlan.Tiles[rightIdx]</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         topTile := metaPlan.Tiles[topIdx]</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         bottomTile := metaPlan.Tiles[bottomIdx]</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         // 左右が壁（通行不可）の場合は縦向き</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         if leftTile.BlockPass &amp;&amp; rightTile.BlockPass {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationVertical</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L188"><span class="lineNum">     188</span>              : </span>
+<span id="L189"><span class="lineNum">     189</span>              :         // 上下が壁（通行不可）の場合は横向き</span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         if topTile.BlockPass &amp;&amp; bottomTile.BlockPass {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationHorizontal</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L193"><span class="lineNum">     193</span>              : </span>
+<span id="L194"><span class="lineNum">     194</span>              :         // どちらでもない場合はデフォルト（横向き）</span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         return gc.DoorOrientationHorizontal</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : }</span>
         </pre>
               </td>
             </tr>
