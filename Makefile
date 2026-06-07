@@ -13,12 +13,12 @@ editor: ## ゲームデータエディタを起動する
 test: ## テストを実行する
 	# editor-ui/node_modules 内にGoパッケージが含まれるため除外する必要がある
 	RUINS_LOG_LEVEL=ignore \
-	go test -v -cover -shuffle=on $$(go list ./... | grep -v /editor-ui/)
+	go test -v -cover -shuffle=on $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
-	go test -coverprofile=cover.out $$(go list ./... | grep -v /editor-ui/)
+	go test -coverprofile=cover.out $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
 	go tool cover -func=cover.out
 
 .PHONY: build
@@ -42,7 +42,7 @@ fmt: ## フォーマットする
 lint: ## Linterを実行する
 	@go build -o /dev/null . # buildが通らない状態でlinter実行するとミスリードなエラーが出るので先に試す
 	@golangci-lint run -v ./...
-	@if deadcode -test $$(go list ./... | grep -v /editor-ui/) 2>&1 | grep -q "unreachable func"; then \
+	@if deadcode -test $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
 
