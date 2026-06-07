@@ -134,7 +134,7 @@ func TestGetVisibleItems(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界内にアイテムを配置
-		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12))
+		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(12), consts.Tile(12), 1)
 		require.NoError(t, err)
 
 		// 可視タイルに設定
@@ -172,7 +172,7 @@ func TestGetVisibleItems(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 視界外にアイテムを配置
-		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50))
+		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(50), consts.Tile(50), 1)
 		require.NoError(t, err)
 
 		GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
@@ -193,7 +193,7 @@ func TestGetVisibleItems(t *testing.T) {
 		playerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// アイテムを配置
-		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10))
+		_, err := SpawnFieldItem(world, "回復薬", consts.Tile(11), consts.Tile(10), 1)
 		require.NoError(t, err)
 
 		GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{

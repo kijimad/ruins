@@ -25,7 +25,8 @@ const (
 // ItemSpec はアイテム配置仕様を表す
 type ItemSpec struct {
 	consts.Coord[int]
-	Name string // アイテム名
+	Name  string // アイテム名
+	Count int    // 個数
 }
 
 // ItemPlanner はアイテム配置を担当するプランナー
@@ -102,8 +103,9 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = append(planData.Items, ItemSpec{
 			Coord: consts.Coord[int]{X: int(anchorX), Y: int(anchorY)},
 			Name:  first.Name,
+			Count: first.Count,
 		})
-		placed++
+		placed += first.Count
 		failCount = 0
 
 		// 残りのアイテムをアンカー周辺に配置
@@ -122,8 +124,9 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 			planData.Items = append(planData.Items, ItemSpec{
 				Coord: consts.Coord[int]{X: int(nx), Y: int(ny)},
 				Name:  items[idx].Name,
+				Count: items[idx].Count,
 			})
-			placed++
+			placed += items[idx].Count
 			failCount = 0
 		}
 	}
@@ -147,10 +150,12 @@ func resolveItemSource(source ItemSource, planData *MetaPlan) ([]resolvedItem, e
 }
 
 type resolvedItem struct {
-	Name string
+	Name  string
+	Count int
 }
 
-// resolveDistribution は重みで1つ選択し、PackSize分のアイテムを返す
+// resolveDistribution は重みで1つ選択し、PackSize分のアイテムを返す。
+// Stackableアイテムの場合はCount=PackSizeの1エントリにまとめる
 func resolveDistribution(entries []SpawnEntry, planData *MetaPlan) []resolvedItem {
 	if len(entries) == 0 {
 		return nil
@@ -160,15 +165,18 @@ func resolveDistribution(entries []SpawnEntry, planData *MetaPlan) []resolvedIte
 		return nil
 	}
 	packSize := entry.PackSize(planData.RNG)
+	if isStackableItem(planData, entry.Name) {
+		return []resolvedItem{{Name: entry.Name, Count: packSize}}
+	}
 	result := make([]resolvedItem, packSize)
 	for i := range result {
-		result[i] = resolvedItem{Name: entry.Name}
+		result[i] = resolvedItem{Name: entry.Name, Count: 1}
 	}
 	return result
 }
 
 // resolveCollection は各エントリを確率判定（weight を 0-100 の確率として扱う）し、
-// 当選したもののPackSize分を返す
+// 当選したもののPackSize分を返す。Stackableアイテムの場合はCount=PackSizeの1エントリにまとめる
 func resolveCollection(entries []SpawnEntry, planData *MetaPlan) []resolvedItem {
 	var result []resolvedItem
 	for _, entry := range entries {
@@ -179,10 +187,27 @@ func resolveCollection(entries []SpawnEntry, planData *MetaPlan) []resolvedItem 
 		roll := planData.RNG.Float64() * 100
 		if roll < prob {
 			packSize := entry.PackSize(planData.RNG)
-			for j := 0; j < packSize; j++ {
-				result = append(result, resolvedItem{Name: entry.Name})
+			if isStackableItem(planData, entry.Name) {
+				result = append(result, resolvedItem{Name: entry.Name, Count: packSize})
+			} else {
+				for j := 0; j < packSize; j++ {
+					result = append(result, resolvedItem{Name: entry.Name, Count: 1})
+				}
 			}
 		}
 	}
 	return result
+}
+
+// isStackableItem はRawMasterを参照してアイテムがStackableかを判定する
+func isStackableItem(planData *MetaPlan, name string) bool {
+	if planData.RawMaster == nil {
+		return false
+	}
+	itemIdx, ok := planData.RawMaster.ItemIndex[name]
+	if !ok {
+		return false
+	}
+	item := planData.RawMaster.Raws.Items[itemIdx]
+	return item.Stackable != nil && *item.Stackable
 }

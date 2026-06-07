@@ -74,7 +74,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 
 		// フィールドにアイテムをスポーン
-		_, err = worldhelper.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y)
+		_, err = worldhelper.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y, 1)
 		if err != nil {
 			logger.Debug("ドロップアイテム生成失敗", "error", err, "material", materialName)
 		} else {

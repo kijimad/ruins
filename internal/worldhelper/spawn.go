@@ -529,10 +529,9 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// SpawnFieldItem はフィールド上にアイテムを生成する
-func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile) (ecs.Entity, error) {
-	// すべてのアイテムはcount=1で生成
-	item, err := SpawnItem(world, itemName, 1, gc.ItemLocationOnField)
+// SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する
+func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
+	item, err := SpawnItem(world, itemName, count, gc.ItemLocationOnField)
 	if err != nil {
 		return ecs.Entity(0), err
 	}
