@@ -79,7 +79,7 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 		if !ok {
 			return gc.Level{}, fmt.Errorf("NPC '%s' が見つかりません", npc.Name)
 		}
-		member := rawMaster.Raws.Members[memberIdx]
+		member := (*rawMaster.Raws.Members)[memberIdx]
 
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutral.String() {
 			// 中立NPCの場合

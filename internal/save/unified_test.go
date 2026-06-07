@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -163,7 +164,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			// プレイヤーを生成してリアルなゲームデータを作成
 			player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 			require.NoError(t, err)
-			professions := world.Resources.RawMaster.Raws.Professions
+			professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
 			if len(professions) > 0 {
 				require.NoError(t, worldhelper.ApplyProfession(world, player, professions[0]))
 			}

@@ -18,76 +18,51 @@ import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
 import globalAxios from 'axios';
 // Some imports not used depending on template conditions
 // @ts-ignore
-import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObject, setBearerAuthToObject, setOAuthToObject, setSearchParams, serializeDataIfNeeded, toPathString, createRequestFunction } from './common';
+import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObject, setBearerAuthToObject, setOAuthToObject, setSearchParams, serializeDataIfNeeded, toPathString, createRequestFunction, replaceWithSerializableTypeIfNeeded } from './common';
 import type { RequestArgs } from './base';
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
  * 能力値
- * @export
- * @interface Abilities
  */
 export interface Abilities {
     /**
      * 体力。HPに影響する
-     * @type {number}
-     * @memberof Abilities
      */
     'vitality': number;
     /**
      * 筋力。物理ダメージに影響する
-     * @type {number}
-     * @memberof Abilities
      */
     'strength': number;
     /**
      * 感覚。命中率と回避率に影響する
-     * @type {number}
-     * @memberof Abilities
      */
     'sensation': number;
     /**
      * 器用さ。クリティカル率に影響する
-     * @type {number}
-     * @memberof Abilities
      */
     'dexterity': number;
     /**
      * 敏捷性。行動順に影響する
-     * @type {number}
-     * @memberof Abilities
      */
     'agility': number;
     /**
      * 防御力。被ダメージを軽減する
-     * @type {number}
-     * @memberof Abilities
      */
     'defense': number;
 }
 /**
  * 弾薬設定
- * @export
- * @interface Ammo
  */
 export interface Ammo {
-    /**
-     * 
-     * @type {AmmoTag}
-     * @memberof Ammo
-     */
-    'ammoTag': AmmoTag;
+    'ammoTag'?: AmmoTag;
     /**
      * ダメージ補正値
-     * @type {number}
-     * @memberof Ammo
      */
     'damageBonus': number;
     /**
      * 命中率補正値
-     * @type {number}
-     * @memberof Ammo
      */
     'accuracyBonus': number;
 }
@@ -95,15 +70,13 @@ export interface Ammo {
 
 /**
  * 弾薬タグ
- * @export
- * @enum {string}
  */
 
 export const AmmoTag = {
     _9mm: '9mm',
     Rifle: 'rifle',
     Shell: 'shell',
-    EnergyCell: 'energy_cell'
+    EnergyCell: 'energy_cell',
 } as const;
 
 export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
@@ -111,8 +84,6 @@ export type AmmoTag = typeof AmmoTag[keyof typeof AmmoTag];
 
 /**
  * 攻撃種別
- * @export
- * @enum {string}
  */
 
 export const AttackCategory = {
@@ -122,7 +93,7 @@ export const AttackCategory = {
     Handgun: 'HANDGUN',
     Rifle: 'RIFLE',
     Canon: 'CANON',
-    Bow: 'BOW'
+    Bow: 'BOW',
 } as const;
 
 export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
@@ -130,130 +101,71 @@ export type AttackCategory = typeof AttackCategory[keyof typeof AttackCategory];
 
 /**
  * 本の設定
- * @export
- * @interface Book
  */
 export interface Book {
     /**
      * 読了に必要な総読書量
-     * @type {number}
-     * @memberof Book
      */
     'totalEffort': number;
-    /**
-     * 
-     * @type {SkillBook}
-     * @memberof Book
-     */
     'skill'?: SkillBook;
 }
 /**
  * コマンドテーブル
- * @export
- * @interface CommandTable
  */
 export interface CommandTable {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof CommandTable
      */
     'name': string;
-    /**
-     * 
-     * @type {Array<CommandTableEntry>}
-     * @memberof CommandTable
-     */
     'entries': Array<CommandTableEntry>;
 }
 /**
  * コマンドテーブルエントリ
- * @export
- * @interface CommandTableEntry
  */
 export interface CommandTableEntry {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof CommandTableEntry
      */
     'weapon': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
-     * @type {number}
-     * @memberof CommandTableEntry
      */
     'weight': number;
 }
 /**
  * コマンドテーブル一覧
- * @export
- * @interface CommandTableList
  */
 export interface CommandTableList {
-    /**
-     * 
-     * @type {Array<CommandTable>}
-     * @memberof CommandTableList
-     */
     'data': Array<CommandTable>;
-    /**
-     * 
-     * @type {number}
-     * @memberof CommandTableList
-     */
     'totalCount': number;
 }
 /**
  * 消費可能アイテムの設定
- * @export
- * @interface Consumable
  */
 export interface Consumable {
-    /**
-     * 
-     * @type {UsableScene}
-     * @memberof Consumable
-     */
     'usableScene': UsableScene;
-    /**
-     * 
-     * @type {TargetGroup}
-     * @memberof Consumable
-     */
     'targetGroup': TargetGroup;
-    /**
-     * 
-     * @type {TargetNum}
-     * @memberof Consumable
-     */
     'targetNum': TargetNum;
 }
 
 
 /**
  * 会話データ
- * @export
- * @interface Dialog
  */
 export interface Dialog {
     /**
      * メッセージリソースのキー
-     * @type {string}
-     * @memberof Dialog
      */
     'messageKey': string;
 }
 /**
  * 態度タイプ。エンティティの他者に対する初期態度を定義する
- * @export
- * @enum {string}
  */
 
 export const DispositionType = {
     Hostile: 'hostile',
     Neutral: 'neutral',
-    Cowardly: 'cowardly'
+    Cowardly: 'cowardly',
 } as const;
 
 export type DispositionType = typeof DispositionType[keyof typeof DispositionType];
@@ -261,65 +173,36 @@ export type DispositionType = typeof DispositionType[keyof typeof DispositionTyp
 
 /**
  * ドロップテーブル
- * @export
- * @interface DropTable
  */
 export interface DropTable {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof DropTable
      */
     'name': string;
-    /**
-     * 
-     * @type {Array<DropTableEntry>}
-     * @memberof DropTable
-     */
     'entries': Array<DropTableEntry>;
 }
 /**
  * ドロップテーブルエントリ
- * @export
- * @interface DropTableEntry
  */
 export interface DropTableEntry {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof DropTableEntry
      */
     'material': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
-     * @type {number}
-     * @memberof DropTableEntry
      */
     'weight': number;
 }
 /**
  * ドロップテーブル一覧
- * @export
- * @interface DropTableList
  */
 export interface DropTableList {
-    /**
-     * 
-     * @type {Array<DropTable>}
-     * @memberof DropTableList
-     */
     'data': Array<DropTable>;
-    /**
-     * 
-     * @type {number}
-     * @memberof DropTableList
-     */
     'totalCount': number;
 }
 /**
  * 攻撃属性
- * @export
- * @enum {string}
  */
 
 export const Element = {
@@ -327,7 +210,7 @@ export const Element = {
     Fire: 'FIRE',
     Thunder: 'THUNDER',
     Chill: 'CHILL',
-    Photon: 'PHOTON'
+    Photon: 'PHOTON',
 } as const;
 
 export type Element = typeof Element[keyof typeof Element];
@@ -335,126 +218,77 @@ export type Element = typeof Element[keyof typeof Element];
 
 /**
  * 敵テーブル
- * @export
- * @interface EnemyTable
  */
 export interface EnemyTable {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof EnemyTable
      */
     'name': string;
-    /**
-     * 
-     * @type {Array<EnemyTableEntry>}
-     * @memberof EnemyTable
-     */
     'entries': Array<EnemyTableEntry>;
 }
 /**
  * 敵テーブルエントリ
- * @export
- * @interface EnemyTableEntry
  */
 export interface EnemyTableEntry {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof EnemyTableEntry
      */
     'enemyName': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
-     * @type {number}
-     * @memberof EnemyTableEntry
      */
     'weight': number;
     /**
      * 階層レベル
-     * @type {number}
-     * @memberof EnemyTableEntry
      */
     'minDepth': number;
     /**
      * 階層レベル
-     * @type {number}
-     * @memberof EnemyTableEntry
      */
     'maxDepth': number;
     /**
      * パックの最小数
-     * @type {number}
-     * @memberof EnemyTableEntry
      */
     'packMin': number;
     /**
      * パックの最大数
-     * @type {number}
-     * @memberof EnemyTableEntry
      */
     'packMax': number;
 }
 /**
  * 敵テーブル一覧
- * @export
- * @interface EnemyTableList
  */
 export interface EnemyTableList {
-    /**
-     * 
-     * @type {Array<EnemyTable>}
-     * @memberof EnemyTableList
-     */
     'data': Array<EnemyTable>;
-    /**
-     * 
-     * @type {number}
-     * @memberof EnemyTableList
-     */
     'totalCount': number;
 }
 /**
  * 装備ボーナス
- * @export
- * @interface EquipBonus
  */
 export interface EquipBonus {
     /**
      * 体力。HPに影響する
-     * @type {number}
-     * @memberof EquipBonus
      */
     'vitality': number;
     /**
      * 筋力。物理ダメージに影響する
-     * @type {number}
-     * @memberof EquipBonus
      */
     'strength': number;
     /**
      * 感覚。命中率と回避率に影響する
-     * @type {number}
-     * @memberof EquipBonus
      */
     'sensation': number;
     /**
      * 器用さ。クリティカル率に影響する
-     * @type {number}
-     * @memberof EquipBonus
      */
     'dexterity': number;
     /**
      * 敏捷性。行動順に影響する
-     * @type {number}
-     * @memberof EquipBonus
      */
     'agility': number;
 }
 /**
  * 装備スロット。防具部位 + 武器スロット
- * @export
- * @enum {string}
  */
 
 export const EquipSlot = {
@@ -468,7 +302,7 @@ export const EquipSlot = {
     Weapon2: 'WEAPON2',
     Weapon3: 'WEAPON3',
     Weapon4: 'WEAPON4',
-    Weapon5: 'WEAPON5'
+    Weapon5: 'WEAPON5',
 } as const;
 
 export type EquipSlot = typeof EquipSlot[keyof typeof EquipSlot];
@@ -476,8 +310,6 @@ export type EquipSlot = typeof EquipSlot[keyof typeof EquipSlot];
 
 /**
  * 装備部位
- * @export
- * @enum {string}
  */
 
 export const EquipmentCategory = {
@@ -487,7 +319,7 @@ export const EquipmentCategory = {
     Hands: 'HANDS',
     Legs: 'LEGS',
     Feet: 'FEET',
-    Jewelry: 'JEWELRY'
+    Jewelry: 'JEWELRY',
 } as const;
 
 export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentCategory];
@@ -495,12 +327,10 @@ export type EquipmentCategory = typeof EquipmentCategory[keyof typeof EquipmentC
 
 /**
  * 派閥タイプ
- * @export
- * @enum {string}
  */
 
 export const FactionMemberType = {
-    FactionNeutral: 'FactionNeutral'
+    FactionNeutral: 'FactionNeutral',
 } as const;
 
 export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMemberType];
@@ -508,89 +338,48 @@ export type FactionMemberType = typeof FactionMemberType[keyof typeof FactionMem
 
 /**
  * 遠距離攻撃設定
- * @export
- * @interface Fire
  */
 export interface Fire {
     /**
      * 命中率
-     * @type {number}
-     * @memberof Fire
      */
     'accuracy': number;
     /**
      * 基本ダメージ
-     * @type {number}
-     * @memberof Fire
      */
     'damage': number;
     /**
      * 1ターンあたりの攻撃回数
-     * @type {number}
-     * @memberof Fire
      */
     'attackCount': number;
-    /**
-     * 
-     * @type {Element}
-     * @memberof Fire
-     */
     'element': Element;
-    /**
-     * 
-     * @type {AttackCategory}
-     * @memberof Fire
-     */
     'attackCategory': AttackCategory;
     /**
      * 行動コスト
-     * @type {number}
-     * @memberof Fire
      */
     'cost': number;
-    /**
-     * 
-     * @type {TargetGroup}
-     * @memberof Fire
-     */
     'targetGroup': TargetGroup;
-    /**
-     * 
-     * @type {TargetNum}
-     * @memberof Fire
-     */
     'targetNum': TargetNum;
     /**
      * マガジン容量
-     * @type {number}
-     * @memberof Fire
      */
     'magazineSize': number;
     /**
      * リロードに必要な行動力
-     * @type {number}
-     * @memberof Fire
      */
     'reloadEffort': number;
-    /**
-     * 
-     * @type {AmmoTag}
-     * @memberof Fire
-     */
-    'ammoTag': AmmoTag;
+    'ammoTag'?: AmmoTag;
 }
 
 
 /**
  * 植生タイプ
- * @export
- * @enum {number}
  */
 
 export const FoliageType = {
     NUMBER_0: 0,
     NUMBER_MINUS_1: -1,
-    NUMBER_MINUS_3: -3
+    NUMBER_MINUS_3: -3,
 } as const;
 
 export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
@@ -598,12 +387,12 @@ export type FoliageType = typeof FoliageType[keyof typeof FoliageType];
 
 /**
  * 回復量の計算方式
- * @export
- * @enum {string}
  */
 
 export const HealingValueType = {
-    Percentage: 'PERCENTAGE'
+    Percentage: 'PERCENTAGE',
+    Absolute: 'ABSOLUTE',
+    Numeral: 'NUMERAL',
 } as const;
 
 export type HealingValueType = typeof HealingValueType[keyof typeof HealingValueType];
@@ -611,211 +400,106 @@ export type HealingValueType = typeof HealingValueType[keyof typeof HealingValue
 
 /**
  * アイテム
- * @export
- * @interface Item
  */
 export interface Item {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Item
      */
     'name': string;
     /**
      * 説明文
-     * @type {string}
-     * @memberof Item
      */
     'description': string;
     /**
      * スプライトシート名
-     * @type {string}
-     * @memberof Item
      */
     'spriteSheetName': string;
     /**
      * スプライトキー
-     * @type {string}
-     * @memberof Item
      */
     'spriteKey': string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof Item
-     */
     'animKeys': Array<string>;
     /**
      * 売買価格
-     * @type {number}
-     * @memberof Item
      */
     'value': number;
     /**
      * アイテム重量
-     * @type {number}
-     * @memberof Item
      */
     'weight'?: number;
     /**
      * 基本ダメージ
-     * @type {number}
-     * @memberof Item
      */
     'inflictsDamage'?: number;
     /**
      * 栄養価
-     * @type {number}
-     * @memberof Item
      */
     'providesNutrition'?: number;
     /**
      * スタック可能かどうか
-     * @type {boolean}
-     * @memberof Item
      */
     'stackable'?: boolean;
-    /**
-     * 
-     * @type {Consumable}
-     * @memberof Item
-     */
     'consumable'?: Consumable;
-    /**
-     * 
-     * @type {ProvidesHealing}
-     * @memberof Item
-     */
     'providesHealing'?: ProvidesHealing;
-    /**
-     * 
-     * @type {Wearable}
-     * @memberof Item
-     */
     'wearable'?: Wearable;
-    /**
-     * 
-     * @type {EquipBonus}
-     * @memberof Item
-     */
     'equipBonus'?: EquipBonus;
     /**
      * 武器マーカー
-     * @type {object}
-     * @memberof Item
      */
     'weapon'?: object;
-    /**
-     * 
-     * @type {Ammo}
-     * @memberof Item
-     */
     'ammo'?: Ammo;
-    /**
-     * 
-     * @type {Melee}
-     * @memberof Item
-     */
     'melee'?: Melee;
-    /**
-     * 
-     * @type {Fire}
-     * @memberof Item
-     */
     'fire'?: Fire;
-    /**
-     * 
-     * @type {Book}
-     * @memberof Item
-     */
     'book'?: Book;
 }
 /**
  * アイテムグループ。アイテムの出現セットを定義する
- * @export
- * @interface ItemGroup
  */
 export interface ItemGroup {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof ItemGroup
      */
     'name': string;
-    /**
-     * 
-     * @type {ItemGroupSubtype}
-     * @memberof ItemGroup
-     */
     'subtype': ItemGroupSubtype;
-    /**
-     * 
-     * @type {Array<ItemGroupEntry>}
-     * @memberof ItemGroup
-     */
     'entries': Array<ItemGroupEntry>;
 }
 
 
 /**
  * アイテムグループエントリ
- * @export
- * @interface ItemGroupEntry
  */
 export interface ItemGroupEntry {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof ItemGroupEntry
      */
     'itemName': string;
     /**
      * distribution: 相対重み。collection: 確率（0-100）
-     * @type {number}
-     * @memberof ItemGroupEntry
      */
     'weight': number;
     /**
      * パックの最小数
-     * @type {number}
-     * @memberof ItemGroupEntry
      */
     'packMin': number;
     /**
      * パックの最大数
-     * @type {number}
-     * @memberof ItemGroupEntry
      */
     'packMax': number;
 }
 /**
  * アイテムグループ一覧
- * @export
- * @interface ItemGroupList
  */
 export interface ItemGroupList {
-    /**
-     * 
-     * @type {Array<ItemGroup>}
-     * @memberof ItemGroupList
-     */
     'data': Array<ItemGroup>;
-    /**
-     * 
-     * @type {number}
-     * @memberof ItemGroupList
-     */
     'totalCount': number;
 }
 /**
  * アイテムグループのサブタイプ
- * @export
- * @enum {string}
  */
 
 export const ItemGroupSubtype = {
     Distribution: 'distribution',
-    Collection: 'collection'
+    Collection: 'collection',
 } as const;
 
 export type ItemGroupSubtype = typeof ItemGroupSubtype[keyof typeof ItemGroupSubtype];
@@ -823,268 +507,131 @@ export type ItemGroupSubtype = typeof ItemGroupSubtype[keyof typeof ItemGroupSub
 
 /**
  * アイテム一覧レスポンス
- * @export
- * @interface ItemList
  */
 export interface ItemList {
-    /**
-     * 
-     * @type {Array<Item>}
-     * @memberof ItemList
-     */
     'data': Array<Item>;
-    /**
-     * 
-     * @type {number}
-     * @memberof ItemList
-     */
     'totalCount': number;
 }
 /**
  * アイテムテーブル
- * @export
- * @interface ItemTable
  */
 export interface ItemTable {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof ItemTable
      */
     'name': string;
-    /**
-     * 
-     * @type {Array<ItemTableEntry>}
-     * @memberof ItemTable
-     */
     'entries': Array<ItemTableEntry>;
 }
 /**
  * アイテムテーブルエントリ。アイテムグループを参照する
- * @export
- * @interface ItemTableEntry
  */
 export interface ItemTableEntry {
     /**
      * 参照するアイテムグループ名
-     * @type {string}
-     * @memberof ItemTableEntry
      */
     'groupName': string;
     /**
      * テーブルエントリの重み。大きいほど選ばれやすい
-     * @type {number}
-     * @memberof ItemTableEntry
      */
     'weight': number;
     /**
      * 階層レベル
-     * @type {number}
-     * @memberof ItemTableEntry
      */
     'minDepth': number;
     /**
      * 階層レベル
-     * @type {number}
-     * @memberof ItemTableEntry
      */
     'maxDepth': number;
 }
 /**
  * アイテムテーブル一覧
- * @export
- * @interface ItemTableList
  */
 export interface ItemTableList {
-    /**
-     * 
-     * @type {Array<ItemTable>}
-     * @memberof ItemTableList
-     */
     'data': Array<ItemTable>;
-    /**
-     * 
-     * @type {number}
-     * @memberof ItemTableList
-     */
     'totalCount': number;
 }
 /**
  * 光源設定
- * @export
- * @interface LightSource
  */
 export interface LightSource {
     /**
      * 光の到達半径
-     * @type {number}
-     * @memberof LightSource
      */
     'radius': number;
-    /**
-     * 
-     * @type {RGBAColor}
-     * @memberof LightSource
-     */
     'color': RGBAColor;
     /**
      * 光源が有効かどうか
-     * @type {boolean}
-     * @memberof LightSource
      */
     'enabled': boolean;
 }
 /**
  * 近接攻撃設定
- * @export
- * @interface Melee
  */
 export interface Melee {
     /**
      * 命中率
-     * @type {number}
-     * @memberof Melee
      */
     'accuracy': number;
     /**
      * 基本ダメージ
-     * @type {number}
-     * @memberof Melee
      */
     'damage': number;
     /**
      * 1ターンあたりの攻撃回数
-     * @type {number}
-     * @memberof Melee
      */
     'attackCount': number;
-    /**
-     * 
-     * @type {Element}
-     * @memberof Melee
-     */
     'element': Element;
-    /**
-     * 
-     * @type {AttackCategory}
-     * @memberof Melee
-     */
     'attackCategory': AttackCategory;
     /**
      * 行動コスト
-     * @type {number}
-     * @memberof Melee
      */
     'cost': number;
-    /**
-     * 
-     * @type {TargetGroup}
-     * @memberof Melee
-     */
     'targetGroup': TargetGroup;
-    /**
-     * 
-     * @type {TargetNum}
-     * @memberof Melee
-     */
     'targetNum': TargetNum;
 }
 
 
 /**
  * メンバー
- * @export
- * @interface Member
  */
 export interface Member {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Member
      */
     'name': string;
     /**
      * プレイヤーキャラクターかどうか
-     * @type {boolean}
-     * @memberof Member
      */
     'player'?: boolean;
     /**
      * ボスモンスターかどうか
-     * @type {boolean}
-     * @memberof Member
      */
     'isBoss': boolean;
-    /**
-     * 
-     * @type {Abilities}
-     * @memberof Member
-     */
     'abilities': Abilities;
     /**
      * スプライトシート名
-     * @type {string}
-     * @memberof Member
      */
     'spriteSheetName': string;
     /**
      * スプライトキー
-     * @type {string}
-     * @memberof Member
      */
     'spriteKey': string;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof Member
-     */
     'animKeys': Array<string>;
-    /**
-     * 
-     * @type {LightSource}
-     * @memberof Member
-     */
     'lightSource'?: LightSource;
-    /**
-     * 
-     * @type {FactionMemberType}
-     * @memberof Member
-     */
     'factionType'?: FactionMemberType;
-    /**
-     * 
-     * @type {DispositionType}
-     * @memberof Member
-     */
     'disposition'?: DispositionType;
-    /**
-     * 
-     * @type {MovementPatternType}
-     * @memberof Member
-     */
     'movementPattern'?: MovementPatternType;
     /**
      * AI視界距離（タイル単位）
-     * @type {number}
-     * @memberof Member
      */
     'viewDistance'?: number;
-    /**
-     * 
-     * @type {Dialog}
-     * @memberof Member
-     */
     'dialog'?: Dialog;
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Member
      */
     'commandTableName': string;
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Member
      */
     'dropTableName': string;
 }
@@ -1092,40 +639,22 @@ export interface Member {
 
 /**
  * メンバー一覧レスポンス
- * @export
- * @interface MemberList
  */
 export interface MemberList {
-    /**
-     * 
-     * @type {Array<Member>}
-     * @memberof MemberList
-     */
     'data': Array<Member>;
-    /**
-     * 
-     * @type {number}
-     * @memberof MemberList
-     */
     'totalCount': number;
 }
 /**
  * エラーレスポンス
- * @export
- * @interface ModelError
  */
 export interface ModelError {
     /**
      * エラーメッセージ
-     * @type {string}
-     * @memberof ModelError
      */
     'message': string;
 }
 /**
  * 非戦闘時の移動パターン
- * @export
- * @enum {string}
  */
 
 export const MovementPatternType = {
@@ -1135,7 +664,7 @@ export const MovementPatternType = {
     Stationary: 'stationary',
     Wander: 'wander',
     Territorial: 'territorial',
-    Swarm: 'swarm'
+    Swarm: 'swarm',
 } as const;
 
 export type MovementPatternType = typeof MovementPatternType[keyof typeof MovementPatternType];
@@ -1143,326 +672,168 @@ export type MovementPatternType = typeof MovementPatternType[keyof typeof Moveme
 
 /**
  * パレット
- * @export
- * @interface Palette
  */
 export interface Palette {
     /**
      * パレットID
-     * @type {string}
-     * @memberof Palette
      */
     'id': string;
     /**
      * 説明文
-     * @type {string}
-     * @memberof Palette
      */
     'description': string;
-    /**
-     * 
-     * @type {{ [key: string]: string; }}
-     * @memberof Palette
-     */
     'terrain': { [key: string]: string; };
-    /**
-     * 
-     * @type {{ [key: string]: PaletteEntry; }}
-     * @memberof Palette
-     */
     'props': { [key: string]: PaletteEntry; };
-    /**
-     * 
-     * @type {{ [key: string]: PaletteEntry; }}
-     * @memberof Palette
-     */
     'npcs': { [key: string]: PaletteEntry; };
 }
 /**
  * パレットエントリ
- * @export
- * @interface PaletteEntry
  */
 export interface PaletteEntry {
     /**
      * パレットID
-     * @type {string}
-     * @memberof PaletteEntry
      */
     'id': string;
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof PaletteEntry
      */
     'tile': string;
 }
 /**
  * パレット一覧
- * @export
- * @interface PaletteList
  */
 export interface PaletteList {
-    /**
-     * 
-     * @type {Array<Palette>}
-     * @memberof PaletteList
-     */
     'data': Array<Palette>;
-    /**
-     * 
-     * @type {number}
-     * @memberof PaletteList
-     */
     'totalCount': number;
 }
 /**
  * 職業
- * @export
- * @interface Profession
  */
 export interface Profession {
     /**
      * 職業ID
-     * @type {string}
-     * @memberof Profession
      */
     'id': string;
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Profession
      */
     'name': string;
     /**
      * 説明文
-     * @type {string}
-     * @memberof Profession
      */
     'description': string;
-    /**
-     * 
-     * @type {Abilities}
-     * @memberof Profession
-     */
     'abilities': Abilities;
-    /**
-     * 
-     * @type {Array<ProfessionSkill>}
-     * @memberof Profession
-     */
     'skills': Array<ProfessionSkill>;
-    /**
-     * 
-     * @type {Array<ProfessionItem>}
-     * @memberof Profession
-     */
     'items': Array<ProfessionItem>;
-    /**
-     * 
-     * @type {Array<ProfessionEquip>}
-     * @memberof Profession
-     */
     'equips': Array<ProfessionEquip>;
 }
 /**
  * 職業初期装備
- * @export
- * @interface ProfessionEquip
  */
 export interface ProfessionEquip {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof ProfessionEquip
      */
     'name': string;
-    /**
-     * 
-     * @type {EquipSlot}
-     * @memberof ProfessionEquip
-     */
     'slot': EquipSlot;
 }
 
 
 /**
  * 職業初期所持アイテム
- * @export
- * @interface ProfessionItem
  */
 export interface ProfessionItem {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof ProfessionItem
      */
     'name': string;
     /**
      * アイテム所持数
-     * @type {number}
-     * @memberof ProfessionItem
      */
     'count': number;
 }
 /**
  * 職業一覧
- * @export
- * @interface ProfessionList
  */
 export interface ProfessionList {
-    /**
-     * 
-     * @type {Array<Profession>}
-     * @memberof ProfessionList
-     */
     'data': Array<Profession>;
-    /**
-     * 
-     * @type {number}
-     * @memberof ProfessionList
-     */
     'totalCount': number;
 }
 /**
  * 職業スキル初期値
- * @export
- * @interface ProfessionSkill
  */
 export interface ProfessionSkill {
     /**
      * スキルID
-     * @type {string}
-     * @memberof ProfessionSkill
      */
     'id': string;
     /**
      * スキルレベル
-     * @type {number}
-     * @memberof ProfessionSkill
      */
     'value': number;
 }
 /**
  * 置物
- * @export
- * @interface Prop
  */
 export interface Prop {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Prop
      */
     'name': string;
     /**
      * 説明文
-     * @type {string}
-     * @memberof Prop
      */
     'description': string;
-    /**
-     * 
-     * @type {SpriteRender}
-     * @memberof Prop
-     */
     'spriteRender': SpriteRender;
-    /**
-     * 
-     * @type {Array<string>}
-     * @memberof Prop
-     */
     'animKeys': Array<string>;
     /**
      * 通行を妨げるかどうか
-     * @type {boolean}
-     * @memberof Prop
      */
     'blockPass': boolean;
     /**
      * 視線を遮るかどうか
-     * @type {boolean}
-     * @memberof Prop
      */
     'blockView': boolean;
-    /**
-     * 
-     * @type {LightSource}
-     * @memberof Prop
-     */
     'lightSource'?: LightSource;
     /**
      * 扉ローデータ
-     * @type {object}
-     * @memberof Prop
      */
     'door'?: object;
     /**
      * 扉ロックトリガー
-     * @type {object}
-     * @memberof Prop
      */
     'doorLockTrigger'?: object;
     /**
      * 次階層ワープトリガー
-     * @type {object}
-     * @memberof Prop
      */
     'warpNextTrigger'?: object;
     /**
      * 脱出ワープトリガー
-     * @type {object}
-     * @memberof Prop
      */
     'warpEscapeTrigger'?: object;
     /**
      * ダンジョン選択ゲートトリガー
-     * @type {object}
-     * @memberof Prop
      */
     'dungeonGateTrigger'?: object;
 }
 /**
  * 置物一覧
- * @export
- * @interface PropList
  */
 export interface PropList {
-    /**
-     * 
-     * @type {Array<Prop>}
-     * @memberof PropList
-     */
     'data': Array<Prop>;
-    /**
-     * 
-     * @type {number}
-     * @memberof PropList
-     */
     'totalCount': number;
 }
 /**
  * 回復効果
- * @export
- * @interface ProvidesHealing
  */
 export interface ProvidesHealing {
-    /**
-     * 
-     * @type {HealingValueType}
-     * @memberof ProvidesHealing
-     */
     'valueType': HealingValueType;
     /**
      * 回復固定量
-     * @type {number}
-     * @memberof ProvidesHealing
      */
     'amount': number;
     /**
      * 回復割合。0.0〜1.0
-     * @type {number}
-     * @memberof ProvidesHealing
      */
     'ratio': number;
 }
@@ -1470,102 +841,80 @@ export interface ProvidesHealing {
 
 /**
  * RGBA色
- * @export
- * @interface RGBAColor
  */
 export interface RGBAColor {
     /**
      * RGBA色チャネル値 (0-255)
-     * @type {number}
-     * @memberof RGBAColor
      */
     'r': number;
     /**
      * RGBA色チャネル値 (0-255)
-     * @type {number}
-     * @memberof RGBAColor
      */
     'g': number;
     /**
      * RGBA色チャネル値 (0-255)
-     * @type {number}
-     * @memberof RGBAColor
      */
     'b': number;
     /**
      * RGBA色チャネル値 (0-255)
-     * @type {number}
-     * @memberof RGBAColor
      */
     'a': number;
 }
 /**
+ * ローデータ全体。TOMLファイルのルート構造を定義する
+ */
+export interface Raws {
+    'items'?: Array<Item>;
+    'recipes'?: Array<Recipe>;
+    'members'?: Array<Member>;
+    'commandTables'?: Array<CommandTable>;
+    'dropTables'?: Array<DropTable>;
+    'itemGroups'?: Array<ItemGroup>;
+    'itemTables'?: Array<ItemTable>;
+    'enemyTables'?: Array<EnemyTable>;
+    'spriteSheets'?: Array<SpriteSheet>;
+    'tiles'?: Array<Tile>;
+    'props'?: Array<Prop>;
+    'professions'?: Array<Profession>;
+}
+/**
  * レシピ
- * @export
- * @interface Recipe
  */
 export interface Recipe {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Recipe
      */
     'name': string;
-    /**
-     * 
-     * @type {Array<RecipeInput>}
-     * @memberof Recipe
-     */
     'inputs': Array<RecipeInput>;
 }
 /**
  * レシピ素材
- * @export
- * @interface RecipeInput
  */
 export interface RecipeInput {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof RecipeInput
      */
     'name': string;
     /**
      * 素材必要数
-     * @type {number}
-     * @memberof RecipeInput
      */
     'amount': number;
 }
 /**
  * レシピ一覧レスポンス
- * @export
- * @interface RecipeList
  */
 export interface RecipeList {
-    /**
-     * 
-     * @type {Array<Recipe>}
-     * @memberof RecipeList
-     */
     'data': Array<Recipe>;
-    /**
-     * 
-     * @type {number}
-     * @memberof RecipeList
-     */
     'totalCount': number;
 }
 /**
  * 遮蔽タイプ
- * @export
- * @enum {number}
  */
 
 export const ShelterType = {
     NUMBER_0: 0,
     NUMBER_5: 5,
-    NUMBER_10: 10
+    NUMBER_10: 10,
 } as const;
 
 export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
@@ -1573,40 +922,30 @@ export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
 
 /**
  * スキル本設定
- * @export
- * @interface SkillBook
  */
 export interface SkillBook {
     /**
      * スキルID
-     * @type {string}
-     * @memberof SkillBook
      */
     'targetSkill': string;
     /**
      * スキルレベル
-     * @type {number}
-     * @memberof SkillBook
      */
     'requiredLevel': number;
     /**
      * スキルレベル
-     * @type {number}
-     * @memberof SkillBook
      */
     'maxLevel': number;
 }
 /**
  * スプライト描画深度
- * @export
- * @enum {number}
  */
 
 export const SpriteDepth = {
     NUMBER_0: 0,
     NUMBER_1: 1,
     NUMBER_2: 2,
-    NUMBER_3: 3
+    NUMBER_3: 3,
 } as const;
 
 export type SpriteDepth = typeof SpriteDepth[keyof typeof SpriteDepth];
@@ -1614,80 +953,49 @@ export type SpriteDepth = typeof SpriteDepth[keyof typeof SpriteDepth];
 
 /**
  * スプライトレンダー設定
- * @export
- * @interface SpriteRender
  */
 export interface SpriteRender {
     /**
      * スプライトシート名
-     * @type {string}
-     * @memberof SpriteRender
      */
     'spriteSheetName': string;
     /**
      * スプライトキー
-     * @type {string}
-     * @memberof SpriteRender
      */
     'spriteKey': string;
-    /**
-     * 
-     * @type {SpriteDepth}
-     * @memberof SpriteRender
-     */
     'depth': SpriteDepth;
 }
 
 
 /**
  * スプライトシート
- * @export
- * @interface SpriteSheet
  */
 export interface SpriteSheet {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof SpriteSheet
      */
     'name': string;
     /**
      * 画像ファイルパス
-     * @type {string}
-     * @memberof SpriteSheet
      */
     'path': string;
 }
 /**
  * スプライトシート一覧
- * @export
- * @interface SpriteSheetList
  */
 export interface SpriteSheetList {
-    /**
-     * 
-     * @type {Array<SpriteSheet>}
-     * @memberof SpriteSheetList
-     */
     'data': Array<SpriteSheet>;
-    /**
-     * 
-     * @type {number}
-     * @memberof SpriteSheetList
-     */
     'totalCount': number;
 }
 /**
  * ターゲットグループ
- * @export
- * @enum {string}
  */
 
 export const TargetGroup = {
     Enemy: 'ENEMY',
     Ally: 'ALLY',
     Weapon: 'WEAPON',
-    None: 'NONE'
+    None: 'NONE',
 } as const;
 
 export type TargetGroup = typeof TargetGroup[keyof typeof TargetGroup];
@@ -1695,13 +1003,11 @@ export type TargetGroup = typeof TargetGroup[keyof typeof TargetGroup];
 
 /**
  * ターゲット数
- * @export
- * @enum {string}
  */
 
 export const TargetNum = {
     Single: 'SINGLE',
-    All: 'ALL'
+    All: 'ALL',
 } as const;
 
 export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
@@ -1709,90 +1015,46 @@ export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
 
 /**
  * タイル
- * @export
- * @interface Tile
  */
 export interface Tile {
     /**
      * エンティティ名
-     * @type {string}
-     * @memberof Tile
      */
     'name': string;
     /**
      * 説明文
-     * @type {string}
-     * @memberof Tile
      */
     'description': string;
     /**
      * 通行を妨げるかどうか
-     * @type {boolean}
-     * @memberof Tile
      */
     'blockPass': boolean;
     /**
      * 視線を遮るかどうか
-     * @type {boolean}
-     * @memberof Tile
      */
     'blockView': boolean;
-    /**
-     * 
-     * @type {SpriteRender}
-     * @memberof Tile
-     */
     'spriteRender': SpriteRender;
-    /**
-     * 
-     * @type {ShelterType}
-     * @memberof Tile
-     */
     'shelter': ShelterType;
-    /**
-     * 
-     * @type {WaterType}
-     * @memberof Tile
-     */
     'water': WaterType;
-    /**
-     * 
-     * @type {FoliageType}
-     * @memberof Tile
-     */
     'foliage': FoliageType;
 }
 
 
 /**
  * タイル一覧
- * @export
- * @interface TileList
  */
 export interface TileList {
-    /**
-     * 
-     * @type {Array<Tile>}
-     * @memberof TileList
-     */
     'data': Array<Tile>;
-    /**
-     * 
-     * @type {number}
-     * @memberof TileList
-     */
     'totalCount': number;
 }
 /**
  * 使用可能シーン
- * @export
- * @enum {string}
  */
 
 export const UsableScene = {
     Battle: 'BATTLE',
     Field: 'FIELD',
-    Any: 'ANY'
+    Any: 'ANY',
 } as const;
 
 export type UsableScene = typeof UsableScene[keyof typeof UsableScene];
@@ -1800,14 +1062,12 @@ export type UsableScene = typeof UsableScene[keyof typeof UsableScene];
 
 /**
  * 水タイプ
- * @export
- * @enum {number}
  */
 
 export const WaterType = {
     NUMBER_0: 0,
     NUMBER_MINUS_5: -5,
-    NUMBER_MINUS_10: -10
+    NUMBER_MINUS_10: -10,
 } as const;
 
 export type WaterType = typeof WaterType[keyof typeof WaterType];
@@ -1815,32 +1075,19 @@ export type WaterType = typeof WaterType[keyof typeof WaterType];
 
 /**
  * 装備可能設定
- * @export
- * @interface Wearable
  */
 export interface Wearable {
     /**
      * 防具の防御力
-     * @type {number}
-     * @memberof Wearable
      */
     'defense': number;
-    /**
-     * 
-     * @type {EquipmentCategory}
-     * @memberof Wearable
-     */
     'equipmentCategory': EquipmentCategory;
     /**
      * 耐寒性能
-     * @type {number}
-     * @memberof Wearable
      */
     'insulationCold': number;
     /**
      * 耐暑性能
-     * @type {number}
-     * @memberof Wearable
      */
     'insulationHeat': number;
 }
@@ -1849,7 +1096,6 @@ export interface Wearable {
 
 /**
  * CommandTablesApi - axios parameter creator
- * @export
  */
 export const CommandTablesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -1874,9 +1120,8 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1898,7 +1143,7 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
             // verify required parameter 'index' is not null or undefined
             assertParamExists('commandTablesDelete', 'index', index)
             const localVarPath = `/api/v1/command-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1910,8 +1155,8 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -1939,8 +1184,8 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -1963,7 +1208,7 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
             // verify required parameter 'commandTable' is not null or undefined
             assertParamExists('commandTablesUpdate', 'commandTable', commandTable)
             const localVarPath = `/api/v1/command-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -1975,9 +1220,8 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -1994,7 +1238,6 @@ export const CommandTablesApiAxiosParamCreator = function (configuration?: Confi
 
 /**
  * CommandTablesApi - functional programming interface
- * @export
  */
 export const CommandTablesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = CommandTablesApiAxiosParamCreator(configuration)
@@ -2052,7 +1295,6 @@ export const CommandTablesApiFp = function(configuration?: Configuration) {
 
 /**
  * CommandTablesApi - factory interface
- * @export
  */
 export const CommandTablesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = CommandTablesApiFp(configuration)
@@ -2098,9 +1340,6 @@ export const CommandTablesApiFactory = function (configuration?: Configuration, 
 
 /**
  * CommandTablesApi - object-oriented interface
- * @export
- * @class CommandTablesApi
- * @extends {BaseAPI}
  */
 export class CommandTablesApi extends BaseAPI {
     /**
@@ -2108,7 +1347,6 @@ export class CommandTablesApi extends BaseAPI {
      * @param {CommandTable} commandTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof CommandTablesApi
      */
     public commandTablesCreate(commandTable: CommandTable, options?: RawAxiosRequestConfig) {
         return CommandTablesApiFp(this.configuration).commandTablesCreate(commandTable, options).then((request) => request(this.axios, this.basePath));
@@ -2119,7 +1357,6 @@ export class CommandTablesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof CommandTablesApi
      */
     public commandTablesDelete(index: number, options?: RawAxiosRequestConfig) {
         return CommandTablesApiFp(this.configuration).commandTablesDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -2129,7 +1366,6 @@ export class CommandTablesApi extends BaseAPI {
      * コマンドテーブル一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof CommandTablesApi
      */
     public commandTablesList(options?: RawAxiosRequestConfig) {
         return CommandTablesApiFp(this.configuration).commandTablesList(options).then((request) => request(this.axios, this.basePath));
@@ -2141,7 +1377,6 @@ export class CommandTablesApi extends BaseAPI {
      * @param {CommandTable} commandTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof CommandTablesApi
      */
     public commandTablesUpdate(index: number, commandTable: CommandTable, options?: RawAxiosRequestConfig) {
         return CommandTablesApiFp(this.configuration).commandTablesUpdate(index, commandTable, options).then((request) => request(this.axios, this.basePath));
@@ -2152,7 +1387,6 @@ export class CommandTablesApi extends BaseAPI {
 
 /**
  * DropTablesApi - axios parameter creator
- * @export
  */
 export const DropTablesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -2177,9 +1411,8 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2201,7 +1434,7 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
             // verify required parameter 'index' is not null or undefined
             assertParamExists('dropTablesDelete', 'index', index)
             const localVarPath = `/api/v1/drop-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2213,8 +1446,8 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2242,8 +1475,8 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2266,7 +1499,7 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
             // verify required parameter 'dropTable' is not null or undefined
             assertParamExists('dropTablesUpdate', 'dropTable', dropTable)
             const localVarPath = `/api/v1/drop-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2278,9 +1511,8 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2297,7 +1529,6 @@ export const DropTablesApiAxiosParamCreator = function (configuration?: Configur
 
 /**
  * DropTablesApi - functional programming interface
- * @export
  */
 export const DropTablesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = DropTablesApiAxiosParamCreator(configuration)
@@ -2355,7 +1586,6 @@ export const DropTablesApiFp = function(configuration?: Configuration) {
 
 /**
  * DropTablesApi - factory interface
- * @export
  */
 export const DropTablesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = DropTablesApiFp(configuration)
@@ -2401,9 +1631,6 @@ export const DropTablesApiFactory = function (configuration?: Configuration, bas
 
 /**
  * DropTablesApi - object-oriented interface
- * @export
- * @class DropTablesApi
- * @extends {BaseAPI}
  */
 export class DropTablesApi extends BaseAPI {
     /**
@@ -2411,7 +1638,6 @@ export class DropTablesApi extends BaseAPI {
      * @param {DropTable} dropTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof DropTablesApi
      */
     public dropTablesCreate(dropTable: DropTable, options?: RawAxiosRequestConfig) {
         return DropTablesApiFp(this.configuration).dropTablesCreate(dropTable, options).then((request) => request(this.axios, this.basePath));
@@ -2422,7 +1648,6 @@ export class DropTablesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof DropTablesApi
      */
     public dropTablesDelete(index: number, options?: RawAxiosRequestConfig) {
         return DropTablesApiFp(this.configuration).dropTablesDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -2432,7 +1657,6 @@ export class DropTablesApi extends BaseAPI {
      * ドロップテーブル一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof DropTablesApi
      */
     public dropTablesList(options?: RawAxiosRequestConfig) {
         return DropTablesApiFp(this.configuration).dropTablesList(options).then((request) => request(this.axios, this.basePath));
@@ -2444,7 +1668,6 @@ export class DropTablesApi extends BaseAPI {
      * @param {DropTable} dropTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof DropTablesApi
      */
     public dropTablesUpdate(index: number, dropTable: DropTable, options?: RawAxiosRequestConfig) {
         return DropTablesApiFp(this.configuration).dropTablesUpdate(index, dropTable, options).then((request) => request(this.axios, this.basePath));
@@ -2455,7 +1678,6 @@ export class DropTablesApi extends BaseAPI {
 
 /**
  * EnemyTablesApi - axios parameter creator
- * @export
  */
 export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -2480,9 +1702,8 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2504,7 +1725,7 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
             // verify required parameter 'index' is not null or undefined
             assertParamExists('enemyTablesDelete', 'index', index)
             const localVarPath = `/api/v1/enemy-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2516,8 +1737,8 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2545,8 +1766,8 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2569,7 +1790,7 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
             // verify required parameter 'enemyTable' is not null or undefined
             assertParamExists('enemyTablesUpdate', 'enemyTable', enemyTable)
             const localVarPath = `/api/v1/enemy-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2581,9 +1802,8 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2600,7 +1820,6 @@ export const EnemyTablesApiAxiosParamCreator = function (configuration?: Configu
 
 /**
  * EnemyTablesApi - functional programming interface
- * @export
  */
 export const EnemyTablesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = EnemyTablesApiAxiosParamCreator(configuration)
@@ -2658,7 +1877,6 @@ export const EnemyTablesApiFp = function(configuration?: Configuration) {
 
 /**
  * EnemyTablesApi - factory interface
- * @export
  */
 export const EnemyTablesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = EnemyTablesApiFp(configuration)
@@ -2704,9 +1922,6 @@ export const EnemyTablesApiFactory = function (configuration?: Configuration, ba
 
 /**
  * EnemyTablesApi - object-oriented interface
- * @export
- * @class EnemyTablesApi
- * @extends {BaseAPI}
  */
 export class EnemyTablesApi extends BaseAPI {
     /**
@@ -2714,7 +1929,6 @@ export class EnemyTablesApi extends BaseAPI {
      * @param {EnemyTable} enemyTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EnemyTablesApi
      */
     public enemyTablesCreate(enemyTable: EnemyTable, options?: RawAxiosRequestConfig) {
         return EnemyTablesApiFp(this.configuration).enemyTablesCreate(enemyTable, options).then((request) => request(this.axios, this.basePath));
@@ -2725,7 +1939,6 @@ export class EnemyTablesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EnemyTablesApi
      */
     public enemyTablesDelete(index: number, options?: RawAxiosRequestConfig) {
         return EnemyTablesApiFp(this.configuration).enemyTablesDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -2735,7 +1948,6 @@ export class EnemyTablesApi extends BaseAPI {
      * 敵テーブル一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EnemyTablesApi
      */
     public enemyTablesList(options?: RawAxiosRequestConfig) {
         return EnemyTablesApiFp(this.configuration).enemyTablesList(options).then((request) => request(this.axios, this.basePath));
@@ -2747,7 +1959,6 @@ export class EnemyTablesApi extends BaseAPI {
      * @param {EnemyTable} enemyTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof EnemyTablesApi
      */
     public enemyTablesUpdate(index: number, enemyTable: EnemyTable, options?: RawAxiosRequestConfig) {
         return EnemyTablesApiFp(this.configuration).enemyTablesUpdate(index, enemyTable, options).then((request) => request(this.axios, this.basePath));
@@ -2758,7 +1969,6 @@ export class EnemyTablesApi extends BaseAPI {
 
 /**
  * ItemGroupsApi - axios parameter creator
- * @export
  */
 export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -2783,9 +1993,8 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2807,7 +2016,7 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
             // verify required parameter 'index' is not null or undefined
             assertParamExists('itemGroupsDelete', 'index', index)
             const localVarPath = `/api/v1/item-groups/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2819,8 +2028,8 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2848,8 +2057,8 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -2872,7 +2081,7 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
             // verify required parameter 'itemGroup' is not null or undefined
             assertParamExists('itemGroupsUpdate', 'itemGroup', itemGroup)
             const localVarPath = `/api/v1/item-groups/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -2884,9 +2093,8 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -2903,7 +2111,6 @@ export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configur
 
 /**
  * ItemGroupsApi - functional programming interface
- * @export
  */
 export const ItemGroupsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ItemGroupsApiAxiosParamCreator(configuration)
@@ -2961,7 +2168,6 @@ export const ItemGroupsApiFp = function(configuration?: Configuration) {
 
 /**
  * ItemGroupsApi - factory interface
- * @export
  */
 export const ItemGroupsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = ItemGroupsApiFp(configuration)
@@ -3007,9 +2213,6 @@ export const ItemGroupsApiFactory = function (configuration?: Configuration, bas
 
 /**
  * ItemGroupsApi - object-oriented interface
- * @export
- * @class ItemGroupsApi
- * @extends {BaseAPI}
  */
 export class ItemGroupsApi extends BaseAPI {
     /**
@@ -3017,7 +2220,6 @@ export class ItemGroupsApi extends BaseAPI {
      * @param {ItemGroup} itemGroup 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemGroupsApi
      */
     public itemGroupsCreate(itemGroup: ItemGroup, options?: RawAxiosRequestConfig) {
         return ItemGroupsApiFp(this.configuration).itemGroupsCreate(itemGroup, options).then((request) => request(this.axios, this.basePath));
@@ -3028,7 +2230,6 @@ export class ItemGroupsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemGroupsApi
      */
     public itemGroupsDelete(index: number, options?: RawAxiosRequestConfig) {
         return ItemGroupsApiFp(this.configuration).itemGroupsDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -3038,7 +2239,6 @@ export class ItemGroupsApi extends BaseAPI {
      * アイテムグループ一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemGroupsApi
      */
     public itemGroupsList(options?: RawAxiosRequestConfig) {
         return ItemGroupsApiFp(this.configuration).itemGroupsList(options).then((request) => request(this.axios, this.basePath));
@@ -3050,7 +2250,6 @@ export class ItemGroupsApi extends BaseAPI {
      * @param {ItemGroup} itemGroup 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemGroupsApi
      */
     public itemGroupsUpdate(index: number, itemGroup: ItemGroup, options?: RawAxiosRequestConfig) {
         return ItemGroupsApiFp(this.configuration).itemGroupsUpdate(index, itemGroup, options).then((request) => request(this.axios, this.basePath));
@@ -3061,7 +2260,6 @@ export class ItemGroupsApi extends BaseAPI {
 
 /**
  * ItemTablesApi - axios parameter creator
- * @export
  */
 export const ItemTablesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -3086,9 +2284,8 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3110,7 +2307,7 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
             // verify required parameter 'index' is not null or undefined
             assertParamExists('itemTablesDelete', 'index', index)
             const localVarPath = `/api/v1/item-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3122,8 +2319,8 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3151,8 +2348,8 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3175,7 +2372,7 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
             // verify required parameter 'itemTable' is not null or undefined
             assertParamExists('itemTablesUpdate', 'itemTable', itemTable)
             const localVarPath = `/api/v1/item-tables/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3187,9 +2384,8 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3206,7 +2402,6 @@ export const ItemTablesApiAxiosParamCreator = function (configuration?: Configur
 
 /**
  * ItemTablesApi - functional programming interface
- * @export
  */
 export const ItemTablesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ItemTablesApiAxiosParamCreator(configuration)
@@ -3264,7 +2459,6 @@ export const ItemTablesApiFp = function(configuration?: Configuration) {
 
 /**
  * ItemTablesApi - factory interface
- * @export
  */
 export const ItemTablesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = ItemTablesApiFp(configuration)
@@ -3310,9 +2504,6 @@ export const ItemTablesApiFactory = function (configuration?: Configuration, bas
 
 /**
  * ItemTablesApi - object-oriented interface
- * @export
- * @class ItemTablesApi
- * @extends {BaseAPI}
  */
 export class ItemTablesApi extends BaseAPI {
     /**
@@ -3320,7 +2511,6 @@ export class ItemTablesApi extends BaseAPI {
      * @param {ItemTable} itemTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemTablesApi
      */
     public itemTablesCreate(itemTable: ItemTable, options?: RawAxiosRequestConfig) {
         return ItemTablesApiFp(this.configuration).itemTablesCreate(itemTable, options).then((request) => request(this.axios, this.basePath));
@@ -3331,7 +2521,6 @@ export class ItemTablesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemTablesApi
      */
     public itemTablesDelete(index: number, options?: RawAxiosRequestConfig) {
         return ItemTablesApiFp(this.configuration).itemTablesDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -3341,7 +2530,6 @@ export class ItemTablesApi extends BaseAPI {
      * アイテムテーブル一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemTablesApi
      */
     public itemTablesList(options?: RawAxiosRequestConfig) {
         return ItemTablesApiFp(this.configuration).itemTablesList(options).then((request) => request(this.axios, this.basePath));
@@ -3353,7 +2541,6 @@ export class ItemTablesApi extends BaseAPI {
      * @param {ItemTable} itemTable 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemTablesApi
      */
     public itemTablesUpdate(index: number, itemTable: ItemTable, options?: RawAxiosRequestConfig) {
         return ItemTablesApiFp(this.configuration).itemTablesUpdate(index, itemTable, options).then((request) => request(this.axios, this.basePath));
@@ -3364,7 +2551,6 @@ export class ItemTablesApi extends BaseAPI {
 
 /**
  * ItemsApi - axios parameter creator
- * @export
  */
 export const ItemsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -3389,9 +2575,8 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3413,7 +2598,7 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'index' is not null or undefined
             assertParamExists('itemsDelete', 'index', index)
             const localVarPath = `/api/v1/items/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3425,8 +2610,8 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3446,7 +2631,7 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'index' is not null or undefined
             assertParamExists('itemsGet', 'index', index)
             const localVarPath = `/api/v1/items/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3458,8 +2643,8 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3487,8 +2672,8 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3511,7 +2696,7 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'item' is not null or undefined
             assertParamExists('itemsUpdate', 'item', item)
             const localVarPath = `/api/v1/items/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3523,9 +2708,8 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3542,7 +2726,6 @@ export const ItemsApiAxiosParamCreator = function (configuration?: Configuration
 
 /**
  * ItemsApi - functional programming interface
- * @export
  */
 export const ItemsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ItemsApiAxiosParamCreator(configuration)
@@ -3612,7 +2795,6 @@ export const ItemsApiFp = function(configuration?: Configuration) {
 
 /**
  * ItemsApi - factory interface
- * @export
  */
 export const ItemsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = ItemsApiFp(configuration)
@@ -3667,9 +2849,6 @@ export const ItemsApiFactory = function (configuration?: Configuration, basePath
 
 /**
  * ItemsApi - object-oriented interface
- * @export
- * @class ItemsApi
- * @extends {BaseAPI}
  */
 export class ItemsApi extends BaseAPI {
     /**
@@ -3677,7 +2856,6 @@ export class ItemsApi extends BaseAPI {
      * @param {Item} item 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemsApi
      */
     public itemsCreate(item: Item, options?: RawAxiosRequestConfig) {
         return ItemsApiFp(this.configuration).itemsCreate(item, options).then((request) => request(this.axios, this.basePath));
@@ -3688,7 +2866,6 @@ export class ItemsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemsApi
      */
     public itemsDelete(index: number, options?: RawAxiosRequestConfig) {
         return ItemsApiFp(this.configuration).itemsDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -3699,7 +2876,6 @@ export class ItemsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemsApi
      */
     public itemsGet(index: number, options?: RawAxiosRequestConfig) {
         return ItemsApiFp(this.configuration).itemsGet(index, options).then((request) => request(this.axios, this.basePath));
@@ -3709,7 +2885,6 @@ export class ItemsApi extends BaseAPI {
      * アイテム一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemsApi
      */
     public itemsList(options?: RawAxiosRequestConfig) {
         return ItemsApiFp(this.configuration).itemsList(options).then((request) => request(this.axios, this.basePath));
@@ -3721,7 +2896,6 @@ export class ItemsApi extends BaseAPI {
      * @param {Item} item 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ItemsApi
      */
     public itemsUpdate(index: number, item: Item, options?: RawAxiosRequestConfig) {
         return ItemsApiFp(this.configuration).itemsUpdate(index, item, options).then((request) => request(this.axios, this.basePath));
@@ -3732,7 +2906,6 @@ export class ItemsApi extends BaseAPI {
 
 /**
  * MembersApi - axios parameter creator
- * @export
  */
 export const MembersApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -3757,9 +2930,8 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3781,7 +2953,7 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'index' is not null or undefined
             assertParamExists('membersDelete', 'index', index)
             const localVarPath = `/api/v1/members/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3793,8 +2965,8 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3814,7 +2986,7 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'index' is not null or undefined
             assertParamExists('membersGet', 'index', index)
             const localVarPath = `/api/v1/members/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3826,8 +2998,8 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3855,8 +3027,8 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -3879,7 +3051,7 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'member' is not null or undefined
             assertParamExists('membersUpdate', 'member', member)
             const localVarPath = `/api/v1/members/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -3891,9 +3063,8 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -3910,7 +3081,6 @@ export const MembersApiAxiosParamCreator = function (configuration?: Configurati
 
 /**
  * MembersApi - functional programming interface
- * @export
  */
 export const MembersApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = MembersApiAxiosParamCreator(configuration)
@@ -3980,7 +3150,6 @@ export const MembersApiFp = function(configuration?: Configuration) {
 
 /**
  * MembersApi - factory interface
- * @export
  */
 export const MembersApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = MembersApiFp(configuration)
@@ -4035,9 +3204,6 @@ export const MembersApiFactory = function (configuration?: Configuration, basePa
 
 /**
  * MembersApi - object-oriented interface
- * @export
- * @class MembersApi
- * @extends {BaseAPI}
  */
 export class MembersApi extends BaseAPI {
     /**
@@ -4045,7 +3211,6 @@ export class MembersApi extends BaseAPI {
      * @param {Member} member 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof MembersApi
      */
     public membersCreate(member: Member, options?: RawAxiosRequestConfig) {
         return MembersApiFp(this.configuration).membersCreate(member, options).then((request) => request(this.axios, this.basePath));
@@ -4056,7 +3221,6 @@ export class MembersApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof MembersApi
      */
     public membersDelete(index: number, options?: RawAxiosRequestConfig) {
         return MembersApiFp(this.configuration).membersDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -4067,7 +3231,6 @@ export class MembersApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof MembersApi
      */
     public membersGet(index: number, options?: RawAxiosRequestConfig) {
         return MembersApiFp(this.configuration).membersGet(index, options).then((request) => request(this.axios, this.basePath));
@@ -4077,7 +3240,6 @@ export class MembersApi extends BaseAPI {
      * メンバー一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof MembersApi
      */
     public membersList(options?: RawAxiosRequestConfig) {
         return MembersApiFp(this.configuration).membersList(options).then((request) => request(this.axios, this.basePath));
@@ -4089,7 +3251,6 @@ export class MembersApi extends BaseAPI {
      * @param {Member} member 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof MembersApi
      */
     public membersUpdate(index: number, member: Member, options?: RawAxiosRequestConfig) {
         return MembersApiFp(this.configuration).membersUpdate(index, member, options).then((request) => request(this.axios, this.basePath));
@@ -4100,7 +3261,6 @@ export class MembersApi extends BaseAPI {
 
 /**
  * PalettesApi - axios parameter creator
- * @export
  */
 export const PalettesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -4125,9 +3285,8 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -4149,7 +3308,7 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             // verify required parameter 'id' is not null or undefined
             assertParamExists('palettesDelete', 'id', id)
             const localVarPath = `/api/v1/palettes/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+                .replace('{id}', encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4161,8 +3320,8 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4182,7 +3341,7 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             // verify required parameter 'id' is not null or undefined
             assertParamExists('palettesGet', 'id', id)
             const localVarPath = `/api/v1/palettes/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+                .replace('{id}', encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4194,8 +3353,8 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4223,8 +3382,8 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4247,7 +3406,7 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             // verify required parameter 'palette' is not null or undefined
             assertParamExists('palettesUpdate', 'palette', palette)
             const localVarPath = `/api/v1/palettes/{id}`
-                .replace(`{${"id"}}`, encodeURIComponent(String(id)));
+                .replace('{id}', encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4259,9 +3418,8 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -4278,7 +3436,6 @@ export const PalettesApiAxiosParamCreator = function (configuration?: Configurat
 
 /**
  * PalettesApi - functional programming interface
- * @export
  */
 export const PalettesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = PalettesApiAxiosParamCreator(configuration)
@@ -4348,7 +3505,6 @@ export const PalettesApiFp = function(configuration?: Configuration) {
 
 /**
  * PalettesApi - factory interface
- * @export
  */
 export const PalettesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = PalettesApiFp(configuration)
@@ -4403,9 +3559,6 @@ export const PalettesApiFactory = function (configuration?: Configuration, baseP
 
 /**
  * PalettesApi - object-oriented interface
- * @export
- * @class PalettesApi
- * @extends {BaseAPI}
  */
 export class PalettesApi extends BaseAPI {
     /**
@@ -4413,7 +3566,6 @@ export class PalettesApi extends BaseAPI {
      * @param {Palette} palette 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PalettesApi
      */
     public palettesCreate(palette: Palette, options?: RawAxiosRequestConfig) {
         return PalettesApiFp(this.configuration).palettesCreate(palette, options).then((request) => request(this.axios, this.basePath));
@@ -4424,7 +3576,6 @@ export class PalettesApi extends BaseAPI {
      * @param {string} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PalettesApi
      */
     public palettesDelete(id: string, options?: RawAxiosRequestConfig) {
         return PalettesApiFp(this.configuration).palettesDelete(id, options).then((request) => request(this.axios, this.basePath));
@@ -4435,7 +3586,6 @@ export class PalettesApi extends BaseAPI {
      * @param {string} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PalettesApi
      */
     public palettesGet(id: string, options?: RawAxiosRequestConfig) {
         return PalettesApiFp(this.configuration).palettesGet(id, options).then((request) => request(this.axios, this.basePath));
@@ -4445,7 +3595,6 @@ export class PalettesApi extends BaseAPI {
      * パレット一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PalettesApi
      */
     public palettesList(options?: RawAxiosRequestConfig) {
         return PalettesApiFp(this.configuration).palettesList(options).then((request) => request(this.axios, this.basePath));
@@ -4457,7 +3606,6 @@ export class PalettesApi extends BaseAPI {
      * @param {Palette} palette 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PalettesApi
      */
     public palettesUpdate(id: string, palette: Palette, options?: RawAxiosRequestConfig) {
         return PalettesApiFp(this.configuration).palettesUpdate(id, palette, options).then((request) => request(this.axios, this.basePath));
@@ -4468,7 +3616,6 @@ export class PalettesApi extends BaseAPI {
 
 /**
  * ProfessionsApi - axios parameter creator
- * @export
  */
 export const ProfessionsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -4493,9 +3640,8 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -4517,7 +3663,7 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
             // verify required parameter 'index' is not null or undefined
             assertParamExists('professionsDelete', 'index', index)
             const localVarPath = `/api/v1/professions/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4529,8 +3675,8 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4558,8 +3704,8 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4582,7 +3728,7 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
             // verify required parameter 'profession' is not null or undefined
             assertParamExists('professionsUpdate', 'profession', profession)
             const localVarPath = `/api/v1/professions/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4594,9 +3740,8 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -4613,7 +3758,6 @@ export const ProfessionsApiAxiosParamCreator = function (configuration?: Configu
 
 /**
  * ProfessionsApi - functional programming interface
- * @export
  */
 export const ProfessionsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ProfessionsApiAxiosParamCreator(configuration)
@@ -4671,7 +3815,6 @@ export const ProfessionsApiFp = function(configuration?: Configuration) {
 
 /**
  * ProfessionsApi - factory interface
- * @export
  */
 export const ProfessionsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = ProfessionsApiFp(configuration)
@@ -4717,9 +3860,6 @@ export const ProfessionsApiFactory = function (configuration?: Configuration, ba
 
 /**
  * ProfessionsApi - object-oriented interface
- * @export
- * @class ProfessionsApi
- * @extends {BaseAPI}
  */
 export class ProfessionsApi extends BaseAPI {
     /**
@@ -4727,7 +3867,6 @@ export class ProfessionsApi extends BaseAPI {
      * @param {Profession} profession 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProfessionsApi
      */
     public professionsCreate(profession: Profession, options?: RawAxiosRequestConfig) {
         return ProfessionsApiFp(this.configuration).professionsCreate(profession, options).then((request) => request(this.axios, this.basePath));
@@ -4738,7 +3877,6 @@ export class ProfessionsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProfessionsApi
      */
     public professionsDelete(index: number, options?: RawAxiosRequestConfig) {
         return ProfessionsApiFp(this.configuration).professionsDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -4748,7 +3886,6 @@ export class ProfessionsApi extends BaseAPI {
      * 職業一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProfessionsApi
      */
     public professionsList(options?: RawAxiosRequestConfig) {
         return ProfessionsApiFp(this.configuration).professionsList(options).then((request) => request(this.axios, this.basePath));
@@ -4760,7 +3897,6 @@ export class ProfessionsApi extends BaseAPI {
      * @param {Profession} profession 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProfessionsApi
      */
     public professionsUpdate(index: number, profession: Profession, options?: RawAxiosRequestConfig) {
         return ProfessionsApiFp(this.configuration).professionsUpdate(index, profession, options).then((request) => request(this.axios, this.basePath));
@@ -4771,7 +3907,6 @@ export class ProfessionsApi extends BaseAPI {
 
 /**
  * PropsApi - axios parameter creator
- * @export
  */
 export const PropsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -4796,9 +3931,8 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -4820,7 +3954,7 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'index' is not null or undefined
             assertParamExists('propsDelete', 'index', index)
             const localVarPath = `/api/v1/props/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4832,8 +3966,8 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4853,7 +3987,7 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'index' is not null or undefined
             assertParamExists('propsGet', 'index', index)
             const localVarPath = `/api/v1/props/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4865,8 +3999,8 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4894,8 +4028,8 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -4918,7 +4052,7 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'prop' is not null or undefined
             assertParamExists('propsUpdate', 'prop', prop)
             const localVarPath = `/api/v1/props/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4930,9 +4064,8 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -4949,7 +4082,6 @@ export const PropsApiAxiosParamCreator = function (configuration?: Configuration
 
 /**
  * PropsApi - functional programming interface
- * @export
  */
 export const PropsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = PropsApiAxiosParamCreator(configuration)
@@ -5019,7 +4151,6 @@ export const PropsApiFp = function(configuration?: Configuration) {
 
 /**
  * PropsApi - factory interface
- * @export
  */
 export const PropsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = PropsApiFp(configuration)
@@ -5074,9 +4205,6 @@ export const PropsApiFactory = function (configuration?: Configuration, basePath
 
 /**
  * PropsApi - object-oriented interface
- * @export
- * @class PropsApi
- * @extends {BaseAPI}
  */
 export class PropsApi extends BaseAPI {
     /**
@@ -5084,7 +4212,6 @@ export class PropsApi extends BaseAPI {
      * @param {Prop} prop 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PropsApi
      */
     public propsCreate(prop: Prop, options?: RawAxiosRequestConfig) {
         return PropsApiFp(this.configuration).propsCreate(prop, options).then((request) => request(this.axios, this.basePath));
@@ -5095,7 +4222,6 @@ export class PropsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PropsApi
      */
     public propsDelete(index: number, options?: RawAxiosRequestConfig) {
         return PropsApiFp(this.configuration).propsDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -5106,7 +4232,6 @@ export class PropsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PropsApi
      */
     public propsGet(index: number, options?: RawAxiosRequestConfig) {
         return PropsApiFp(this.configuration).propsGet(index, options).then((request) => request(this.axios, this.basePath));
@@ -5116,7 +4241,6 @@ export class PropsApi extends BaseAPI {
      * 置物一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PropsApi
      */
     public propsList(options?: RawAxiosRequestConfig) {
         return PropsApiFp(this.configuration).propsList(options).then((request) => request(this.axios, this.basePath));
@@ -5128,7 +4252,6 @@ export class PropsApi extends BaseAPI {
      * @param {Prop} prop 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof PropsApi
      */
     public propsUpdate(index: number, prop: Prop, options?: RawAxiosRequestConfig) {
         return PropsApiFp(this.configuration).propsUpdate(index, prop, options).then((request) => request(this.axios, this.basePath));
@@ -5139,7 +4262,6 @@ export class PropsApi extends BaseAPI {
 
 /**
  * RecipesApi - axios parameter creator
- * @export
  */
 export const RecipesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -5164,9 +4286,8 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -5188,7 +4309,7 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'index' is not null or undefined
             assertParamExists('recipesDelete', 'index', index)
             const localVarPath = `/api/v1/recipes/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5200,8 +4321,8 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5221,7 +4342,7 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'index' is not null or undefined
             assertParamExists('recipesGet', 'index', index)
             const localVarPath = `/api/v1/recipes/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5233,8 +4354,8 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5262,8 +4383,8 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5286,7 +4407,7 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             // verify required parameter 'recipe' is not null or undefined
             assertParamExists('recipesUpdate', 'recipe', recipe)
             const localVarPath = `/api/v1/recipes/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5298,9 +4419,8 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -5317,7 +4437,6 @@ export const RecipesApiAxiosParamCreator = function (configuration?: Configurati
 
 /**
  * RecipesApi - functional programming interface
- * @export
  */
 export const RecipesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = RecipesApiAxiosParamCreator(configuration)
@@ -5387,7 +4506,6 @@ export const RecipesApiFp = function(configuration?: Configuration) {
 
 /**
  * RecipesApi - factory interface
- * @export
  */
 export const RecipesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = RecipesApiFp(configuration)
@@ -5442,9 +4560,6 @@ export const RecipesApiFactory = function (configuration?: Configuration, basePa
 
 /**
  * RecipesApi - object-oriented interface
- * @export
- * @class RecipesApi
- * @extends {BaseAPI}
  */
 export class RecipesApi extends BaseAPI {
     /**
@@ -5452,7 +4567,6 @@ export class RecipesApi extends BaseAPI {
      * @param {Recipe} recipe 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof RecipesApi
      */
     public recipesCreate(recipe: Recipe, options?: RawAxiosRequestConfig) {
         return RecipesApiFp(this.configuration).recipesCreate(recipe, options).then((request) => request(this.axios, this.basePath));
@@ -5463,7 +4577,6 @@ export class RecipesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof RecipesApi
      */
     public recipesDelete(index: number, options?: RawAxiosRequestConfig) {
         return RecipesApiFp(this.configuration).recipesDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -5474,7 +4587,6 @@ export class RecipesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof RecipesApi
      */
     public recipesGet(index: number, options?: RawAxiosRequestConfig) {
         return RecipesApiFp(this.configuration).recipesGet(index, options).then((request) => request(this.axios, this.basePath));
@@ -5484,7 +4596,6 @@ export class RecipesApi extends BaseAPI {
      * レシピ一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof RecipesApi
      */
     public recipesList(options?: RawAxiosRequestConfig) {
         return RecipesApiFp(this.configuration).recipesList(options).then((request) => request(this.axios, this.basePath));
@@ -5496,7 +4607,6 @@ export class RecipesApi extends BaseAPI {
      * @param {Recipe} recipe 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof RecipesApi
      */
     public recipesUpdate(index: number, recipe: Recipe, options?: RawAxiosRequestConfig) {
         return RecipesApiFp(this.configuration).recipesUpdate(index, recipe, options).then((request) => request(this.axios, this.basePath));
@@ -5507,7 +4617,6 @@ export class RecipesApi extends BaseAPI {
 
 /**
  * SpriteSheetsApi - axios parameter creator
- * @export
  */
 export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -5532,9 +4641,8 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -5556,7 +4664,7 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
             // verify required parameter 'index' is not null or undefined
             assertParamExists('spriteSheetsDelete', 'index', index)
             const localVarPath = `/api/v1/sprite-sheets/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5568,8 +4676,8 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5597,8 +4705,8 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5621,7 +4729,7 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
             // verify required parameter 'spriteSheet' is not null or undefined
             assertParamExists('spriteSheetsUpdate', 'spriteSheet', spriteSheet)
             const localVarPath = `/api/v1/sprite-sheets/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5633,9 +4741,8 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -5652,7 +4759,6 @@ export const SpriteSheetsApiAxiosParamCreator = function (configuration?: Config
 
 /**
  * SpriteSheetsApi - functional programming interface
- * @export
  */
 export const SpriteSheetsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = SpriteSheetsApiAxiosParamCreator(configuration)
@@ -5710,7 +4816,6 @@ export const SpriteSheetsApiFp = function(configuration?: Configuration) {
 
 /**
  * SpriteSheetsApi - factory interface
- * @export
  */
 export const SpriteSheetsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = SpriteSheetsApiFp(configuration)
@@ -5756,9 +4861,6 @@ export const SpriteSheetsApiFactory = function (configuration?: Configuration, b
 
 /**
  * SpriteSheetsApi - object-oriented interface
- * @export
- * @class SpriteSheetsApi
- * @extends {BaseAPI}
  */
 export class SpriteSheetsApi extends BaseAPI {
     /**
@@ -5766,7 +4868,6 @@ export class SpriteSheetsApi extends BaseAPI {
      * @param {SpriteSheet} spriteSheet 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SpriteSheetsApi
      */
     public spriteSheetsCreate(spriteSheet: SpriteSheet, options?: RawAxiosRequestConfig) {
         return SpriteSheetsApiFp(this.configuration).spriteSheetsCreate(spriteSheet, options).then((request) => request(this.axios, this.basePath));
@@ -5777,7 +4878,6 @@ export class SpriteSheetsApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SpriteSheetsApi
      */
     public spriteSheetsDelete(index: number, options?: RawAxiosRequestConfig) {
         return SpriteSheetsApiFp(this.configuration).spriteSheetsDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -5787,7 +4887,6 @@ export class SpriteSheetsApi extends BaseAPI {
      * スプライトシート一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SpriteSheetsApi
      */
     public spriteSheetsList(options?: RawAxiosRequestConfig) {
         return SpriteSheetsApiFp(this.configuration).spriteSheetsList(options).then((request) => request(this.axios, this.basePath));
@@ -5799,7 +4898,6 @@ export class SpriteSheetsApi extends BaseAPI {
      * @param {SpriteSheet} spriteSheet 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof SpriteSheetsApi
      */
     public spriteSheetsUpdate(index: number, spriteSheet: SpriteSheet, options?: RawAxiosRequestConfig) {
         return SpriteSheetsApiFp(this.configuration).spriteSheetsUpdate(index, spriteSheet, options).then((request) => request(this.axios, this.basePath));
@@ -5810,7 +4908,6 @@ export class SpriteSheetsApi extends BaseAPI {
 
 /**
  * TilesApi - axios parameter creator
- * @export
  */
 export const TilesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
@@ -5835,9 +4932,8 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -5859,7 +4955,7 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'index' is not null or undefined
             assertParamExists('tilesDelete', 'index', index)
             const localVarPath = `/api/v1/tiles/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5871,8 +4967,8 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5892,7 +4988,7 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'index' is not null or undefined
             assertParamExists('tilesGet', 'index', index)
             const localVarPath = `/api/v1/tiles/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5904,8 +5000,8 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5933,8 +5029,8 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Accept'] = 'application/json';
 
-    
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
@@ -5957,7 +5053,7 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             // verify required parameter 'tile' is not null or undefined
             assertParamExists('tilesUpdate', 'tile', tile)
             const localVarPath = `/api/v1/tiles/{index}`
-                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+                .replace('{index}', encodeURIComponent(String(index)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -5969,9 +5065,8 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-
-    
             localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -5988,7 +5083,6 @@ export const TilesApiAxiosParamCreator = function (configuration?: Configuration
 
 /**
  * TilesApi - functional programming interface
- * @export
  */
 export const TilesApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = TilesApiAxiosParamCreator(configuration)
@@ -6058,7 +5152,6 @@ export const TilesApiFp = function(configuration?: Configuration) {
 
 /**
  * TilesApi - factory interface
- * @export
  */
 export const TilesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = TilesApiFp(configuration)
@@ -6113,9 +5206,6 @@ export const TilesApiFactory = function (configuration?: Configuration, basePath
 
 /**
  * TilesApi - object-oriented interface
- * @export
- * @class TilesApi
- * @extends {BaseAPI}
  */
 export class TilesApi extends BaseAPI {
     /**
@@ -6123,7 +5213,6 @@ export class TilesApi extends BaseAPI {
      * @param {Tile} tile 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof TilesApi
      */
     public tilesCreate(tile: Tile, options?: RawAxiosRequestConfig) {
         return TilesApiFp(this.configuration).tilesCreate(tile, options).then((request) => request(this.axios, this.basePath));
@@ -6134,7 +5223,6 @@ export class TilesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof TilesApi
      */
     public tilesDelete(index: number, options?: RawAxiosRequestConfig) {
         return TilesApiFp(this.configuration).tilesDelete(index, options).then((request) => request(this.axios, this.basePath));
@@ -6145,7 +5233,6 @@ export class TilesApi extends BaseAPI {
      * @param {number} index 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof TilesApi
      */
     public tilesGet(index: number, options?: RawAxiosRequestConfig) {
         return TilesApiFp(this.configuration).tilesGet(index, options).then((request) => request(this.axios, this.basePath));
@@ -6155,7 +5242,6 @@ export class TilesApi extends BaseAPI {
      * タイル一覧取得
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof TilesApi
      */
     public tilesList(options?: RawAxiosRequestConfig) {
         return TilesApiFp(this.configuration).tilesList(options).then((request) => request(this.axios, this.basePath));
@@ -6167,7 +5253,6 @@ export class TilesApi extends BaseAPI {
      * @param {Tile} tile 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof TilesApi
      */
     public tilesUpdate(index: number, tile: Tile, options?: RawAxiosRequestConfig) {
         return TilesApiFp(this.configuration).tilesUpdate(index, tile, options).then((request) => request(this.axios, this.basePath));

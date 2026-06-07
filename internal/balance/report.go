@@ -125,7 +125,7 @@ func GenerateReport(master *raw.Master, playerName string, weaponName string, ma
 		},
 	}
 
-	for _, table := range master.Raws.EnemyTables {
+	for _, table := range raw.PtrSlice(master.Raws.EnemyTables) {
 		stats := RunSimulations(master, table.Name, player, weapon, maxDepth, trials, seed)
 
 		run := EnemyTableRun{
@@ -213,7 +213,7 @@ func generateBattleMetrics(master *raw.Master, playerName string, seed uint64) [
 		stats WeaponStats
 	}
 	var weapons []weaponEntry
-	for _, item := range master.Raws.Items {
+	for _, item := range raw.PtrSlice(master.Raws.Items) {
 		w, err := LoadWeaponFromItem(master, item.Name)
 		if err != nil {
 			continue
@@ -223,7 +223,7 @@ func generateBattleMetrics(master *raw.Master, playerName string, seed uint64) [
 
 	// 敵一覧を収集する（全敵テーブルからユニークな敵名を取得する）
 	enemySet := make(map[string]struct{})
-	for _, table := range master.Raws.EnemyTables {
+	for _, table := range raw.PtrSlice(master.Raws.EnemyTables) {
 		for _, entry := range table.Entries {
 			enemySet[entry.EnemyName] = struct{}{}
 		}

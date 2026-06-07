@@ -406,7 +406,7 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 		if !ok {
 			return 0, fmt.Errorf("item not found: %s", name)
 		}
-		itemDef := rawMaster.Raws.Items[itemIdx]
+		itemDef := (*rawMaster.Raws.Items)[itemIdx]
 		isStackable := itemDef.Stackable != nil && *itemDef.Stackable
 
 		// Stackableでないアイテムにcount > 1を指定した場合はエラー

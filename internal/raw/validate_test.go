@@ -21,47 +21,48 @@ func TestValidateRaws_RealData(t *testing.T) {
 func TestValidateRaws_InvalidEnum(t *testing.T) {
 	t.Parallel()
 
-	raws := Raws{
-		Items: []oapi.Item{
-			{
-				Name: "不正武器",
-				Melee: &oapi.Melee{
-					Element:        "INVALID_ELEMENT",
-					AttackCategory: "SWORD",
-					TargetGroup:    "ENEMY",
-					TargetNum:      "SINGLE",
-				},
+	invalidItems := []oapi.Item{
+		{
+			Name: "不正武器",
+			Melee: &oapi.Melee{
+				Element:        "INVALID_ELEMENT",
+				AttackCategory: "SWORD",
+				TargetGroup:    "ENEMY",
+				TargetNum:      "SINGLE",
 			},
 		},
+	}
+	raws := oapi.Raws{
+		Items: &invalidItems,
 	}
 	err := ValidateRaws(raws)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "バリデーションエラー")
 }
 
-func TestValidateRaws_InvalidType(t *testing.T) {
+func TestValidateRaws_ValidItem(t *testing.T) {
 	t.Parallel()
 
-	raws := Raws{
-		Items: []oapi.Item{
-			{
-				Name:  "型不正アイテム",
-				Value: 100,
-				Melee: &oapi.Melee{
-					Element:        "NONE",
-					AttackCategory: "SWORD",
-					TargetGroup:    "ENEMY",
-					TargetNum:      "SINGLE",
-					Damage:         10,
-					Accuracy:       80,
-					AttackCount:    1,
-					Cost:           5,
-				},
+	validItems := []oapi.Item{
+		{
+			Name:  "正常アイテム",
+			Value: 100,
+			Melee: &oapi.Melee{
+				Element:        "NONE",
+				AttackCategory: "SWORD",
+				TargetGroup:    "ENEMY",
+				TargetNum:      "SINGLE",
+				Damage:         10,
+				Accuracy:       80,
+				AttackCount:    1,
+				Cost:           5,
 			},
 		},
 	}
+	raws := oapi.Raws{
+		Items: &validItems,
+	}
 
-	// 正常なデータはエラーにならない
 	err := ValidateRaws(raws)
 	assert.NoError(t, err)
 }
@@ -69,6 +70,6 @@ func TestValidateRaws_InvalidType(t *testing.T) {
 func TestValidateRaws_EmptyRaws(t *testing.T) {
 	t.Parallel()
 
-	err := ValidateRaws(Raws{})
+	err := ValidateRaws(oapi.Raws{})
 	assert.NoError(t, err)
 }

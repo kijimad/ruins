@@ -44,7 +44,7 @@ func LoadFonts() (map[string]resources.Font, error) {
 func LoadSpriteSheets(rawMaster raw.Master) (map[string]components.SpriteSheet, error) {
 	spriteSheets := make(map[string]components.SpriteSheet)
 
-	for _, spriteSheetDef := range rawMaster.Raws.SpriteSheets {
+	for _, spriteSheetDef := range raw.PtrSlice(rawMaster.Raws.SpriteSheets) {
 		sheet, err := LoadSpriteSheetFromAseprite(spriteSheetDef.Path)
 		if err != nil {
 			return nil, fmt.Errorf("スプライトシート '%s' の読み込みに失敗: %w", spriteSheetDef.Name, err)

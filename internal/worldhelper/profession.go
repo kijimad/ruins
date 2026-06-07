@@ -25,12 +25,14 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	abils.Defense = gc.Ability{Base: int(prof.Abilities.Defense)}
 
 	// 職業のスキル初期値を設定
-	skills := world.Components.Skills.Get(player).(*gc.Skills)
-	*skills = *gc.NewSkills()
-	for _, ps := range prof.Skills {
-		skills.Get(gc.SkillID(ps.Id)).Value = int(ps.Value)
+	playerSkills := world.Components.Skills.Get(player).(*gc.Skills)
+	*playerSkills = *gc.NewSkills()
+	if prof.Skills != nil {
+		for _, ps := range *prof.Skills {
+			playerSkills.Get(gc.SkillID(ps.Id)).Value = int(ps.Value)
+		}
 	}
-	modifiers := gc.RecalculateCharModifiers(skills, abils, nil)
+	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
 	player.AddComponent(world.Components.CharModifiers, modifiers)
 
 	// 属性値変更後にHP/SP/EP/APを再計算

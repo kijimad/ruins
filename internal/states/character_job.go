@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/oapi"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -132,7 +133,7 @@ type jobMenuItem struct {
 }
 
 func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
-	professions := world.Resources.RawMaster.Raws.Professions
+	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
 	items := make([]jobMenuItem, len(professions))
 	for i, p := range professions {
 		items[i] = jobMenuItem{Profession: p}
@@ -303,9 +304,9 @@ func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int,
 	}
 
 	// スキル
-	if len(prof.Skills) > 0 {
+	if profSkills := raw.PtrSlice(prof.Skills); len(profSkills) > 0 {
 		container.AddChild(styled.NewDescriptionText("スキル", res))
-		for _, skill := range prof.Skills {
+		for _, skill := range profSkills {
 			skillID := gc.SkillID(skill.Id)
 			name := skill.Id
 			if gc.HasSkillName(skillID) {

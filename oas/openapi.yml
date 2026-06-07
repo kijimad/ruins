@@ -1482,7 +1482,6 @@ components:
     Ammo:
       type: object
       required:
-        - ammoTag
         - damageBonus
         - accuracyBonus
       properties:
@@ -1816,7 +1815,6 @@ components:
         - targetNum
         - magazineSize
         - reloadEffort
-        - ammoTag
       properties:
         accuracy:
           $ref: '#/components/schemas/Accuracy'
@@ -1887,7 +1885,6 @@ components:
         - description
         - spriteSheetName
         - spriteKey
-        - animKeys
         - value
       properties:
         name:
@@ -2124,7 +2121,6 @@ components:
         - abilities
         - spriteSheetName
         - spriteKey
-        - animKeys
         - commandTableName
         - dropTableName
       properties:
@@ -2262,7 +2258,6 @@ components:
         - name
         - description
         - abilities
-        - skills
         - items
         - equips
       properties:
@@ -2343,7 +2338,6 @@ components:
         - name
         - description
         - spriteRender
-        - animKeys
         - blockPass
         - blockView
       properties:
@@ -2419,6 +2413,58 @@ components:
         a:
           $ref: '#/components/schemas/ColorChannel'
       description: RGBA色
+    Raws:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        recipes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipe'
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+        commandTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandTable'
+        dropTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/DropTable'
+        itemGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemGroup'
+        itemTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemTable'
+        enemyTables:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnemyTable'
+        spriteSheets:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpriteSheet'
+        tiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tile'
+        props:
+          type: array
+          items:
+            $ref: '#/components/schemas/Prop'
+        professions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profession'
+      description: ローデータ全体。TOMLファイルのルート構造を定義する
     ReadingEffort:
       type: integer
       format: int32

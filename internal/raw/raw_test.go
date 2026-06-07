@@ -23,12 +23,13 @@ Description = "半分程度回復する"
 	raw, err := Load(str)
 	assert.NoError(t, err)
 
+	expectedItems := []oapi.Item{
+		{Name: "リペア", Description: "半分程度回復する"},
+		{Name: "回復薬", Description: "半分程度回復する"},
+	}
 	expect := Master{
-		Raws: Raws{
-			Items: []oapi.Item{
-				{Name: "リペア", Description: "半分程度回復する"},
-				{Name: "回復薬", Description: "半分程度回復する"},
-			},
+		Raws: oapi.Raws{
+			Items: &expectedItems,
 		},
 		ItemIndex: map[string]int{
 			"リペア": 0,
@@ -392,8 +393,8 @@ Description = "正常なタイル"
 
 	master, err := Load(validToml)
 	assert.NoError(t, err, "正常なTOMLでエラーが発生してはいけない")
-	assert.Equal(t, 1, len(master.Raws.Items), "アイテムが1つ読み込まれるべき")
-	assert.Equal(t, 1, len(master.Raws.Tiles), "タイルが1つ読み込まれるべき")
+	assert.Equal(t, 1, len(PtrSlice(master.Raws.Items)), "アイテムが1つ読み込まれるべき")
+	assert.Equal(t, 1, len(PtrSlice(master.Raws.Tiles)), "タイルが1つ読み込まれるべき")
 }
 
 func TestItemWithAnimKeys(t *testing.T) {
@@ -410,9 +411,10 @@ AnimKeys = ["item_0", "item_1"]
 	assert.NoError(t, err)
 
 	// AnimKeysが正しく読み込まれていることを確認
-	assert.Equal(t, 1, len(raw.Raws.Items))
-	item := raw.Raws.Items[0]
-	assert.Equal(t, []string{"item_0", "item_1"}, item.AnimKeys)
+	items := PtrSlice(raw.Raws.Items)
+	assert.Equal(t, 1, len(items))
+	item := items[0]
+	assert.Equal(t, []string{"item_0", "item_1"}, PtrSlice(item.AnimKeys))
 
 	// NewItemSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := raw.NewItemSpec("アニメーションアイテム")
@@ -436,7 +438,7 @@ SpriteKey = "static_item"
 	assert.NoError(t, err)
 
 	// AnimKeysが指定されていない場合はnil
-	item := raw.Raws.Items[0]
+	item := PtrSlice(raw.Raws.Items)[0]
 	assert.Nil(t, item.AnimKeys)
 
 	// NewItemSpecでもAnimKeysはnil
@@ -469,9 +471,10 @@ Defense = 0
 	assert.NoError(t, err)
 
 	// AnimKeysが正しく読み込まれていることを確認
-	assert.Equal(t, 1, len(raw.Raws.Members))
-	member := raw.Raws.Members[0]
-	assert.Equal(t, []string{"player_0", "player_1"}, member.AnimKeys)
+	members := PtrSlice(raw.Raws.Members)
+	assert.Equal(t, 1, len(members))
+	member := members[0]
+	assert.Equal(t, []string{"player_0", "player_1"}, PtrSlice(member.AnimKeys))
 
 	// NewPlayerSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := raw.NewPlayerSpec("アニメーションキャラ")
@@ -500,7 +503,7 @@ Defense = 0
 	assert.NoError(t, err)
 
 	// AnimKeysが指定されていない場合はnil
-	member := raw.Raws.Members[0]
+	member := PtrSlice(raw.Raws.Members)[0]
 	assert.Nil(t, member.AnimKeys)
 
 	// NewPlayerSpecでもAnimKeysはnil
@@ -529,9 +532,10 @@ Depth = 1
 	assert.NoError(t, err)
 
 	// AnimKeysが正しく読み込まれていることを確認
-	assert.Equal(t, 1, len(raw.Raws.Props))
-	prop := raw.Raws.Props[0]
-	assert.Equal(t, []string{"fire_0_", "fire_1_"}, prop.AnimKeys)
+	props := PtrSlice(raw.Raws.Props)
+	assert.Equal(t, 1, len(props))
+	prop := props[0]
+	assert.Equal(t, []string{"fire_0_", "fire_1_"}, PtrSlice(prop.AnimKeys))
 
 	// NewPropSpecでAnimKeysがSpriteRenderに設定されることを確認
 	entitySpec, err := raw.NewPropSpec("アニメーションProp")
@@ -558,7 +562,7 @@ Depth = 1
 	assert.NoError(t, err)
 
 	// AnimKeysが指定されていない場合はnil
-	prop := raw.Raws.Props[0]
+	prop := PtrSlice(raw.Raws.Props)[0]
 	assert.Nil(t, prop.AnimKeys)
 
 	// NewPropSpecでもAnimKeysはnil

@@ -144,12 +144,12 @@ func CreateTestRawMaster() *raw.Master {
 	}
 
 	return &raw.Master{
-		Raws: raw.Raws{
-			Tiles:       testTiles,
-			Items:       testItems,
-			ItemGroups:  testItemGroups,
-			ItemTables:  testItemTables,
-			EnemyTables: testEnemyTables,
+		Raws: oapi.Raws{
+			Tiles:       &testTiles,
+			Items:       &testItems,
+			ItemGroups:  &testItemGroups,
+			ItemTables:  &testItemTables,
+			EnemyTables: &testEnemyTables,
 		},
 		TileIndex:       tileIndex,
 		ItemIndex:       itemIndex,

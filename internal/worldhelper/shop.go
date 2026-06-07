@@ -42,7 +42,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 	if !ok {
 		return fmt.Errorf("アイテムが見つかりません: %s", itemName)
 	}
-	itemDef := rawMaster.Raws.Items[itemIdx]
+	itemDef := (*rawMaster.Raws.Items)[itemIdx]
 
 	baseValue := itemDef.Value
 	price := CalculateBuyPrice(int(baseValue))

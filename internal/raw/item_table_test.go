@@ -15,10 +15,11 @@ func newTestMasterForItemTable(groups []oapi.ItemGroup, table oapi.ItemTable) *M
 	for i, g := range groups {
 		groupIndex[g.Name] = i
 	}
+	tables := []oapi.ItemTable{table}
 	return &Master{
-		Raws: Raws{
-			ItemGroups: groups,
-			ItemTables: []oapi.ItemTable{table},
+		Raws: oapi.Raws{
+			ItemGroups: &groups,
+			ItemTables: &tables,
 		},
 		ItemGroupIndex: groupIndex,
 		ItemTableIndex: map[string]int{table.Name: 0},

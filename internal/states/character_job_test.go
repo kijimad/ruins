@@ -6,6 +6,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,7 +16,7 @@ func TestProfessions(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	professions := world.Resources.RawMaster.Raws.Professions
+	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
 
 	assert.Equal(t, 6, len(professions), "職業は6種類")
 
@@ -34,7 +35,7 @@ func TestProfessionItems(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	professions := world.Resources.RawMaster.Raws.Professions
+	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
 
 	tests := []struct {
 		professionID string
@@ -68,7 +69,7 @@ func TestProfessionEquips(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	professions := world.Resources.RawMaster.Raws.Professions
+	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
 
 	tests := []struct {
 		professionID string

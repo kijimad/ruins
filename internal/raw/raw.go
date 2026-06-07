@@ -14,7 +14,7 @@ import (
 
 // Master はローデータを管理し、効率的な検索のためのインデックスを提供する
 type Master struct {
-	Raws              Raws
+	Raws              oapi.Raws
 	ItemIndex         map[string]int
 	RecipeIndex       map[string]int
 	MemberIndex       map[string]int
@@ -29,23 +29,16 @@ type Master struct {
 	ProfessionIndex   map[string]int
 }
 
-// Raws は全てのローデータを格納する構造体
-type Raws struct {
-	Items         []oapi.Item
-	Recipes       []oapi.Recipe
-	Members       []oapi.Member
-	CommandTables []oapi.CommandTable
-	DropTables    []oapi.DropTable
-	ItemGroups    []oapi.ItemGroup
-	ItemTables    []oapi.ItemTable
-	EnemyTables   []oapi.EnemyTable
-	SpriteSheets  []oapi.SpriteSheet
-	Tiles         []oapi.Tile
-	Props         []oapi.Prop
-	Professions   []oapi.Profession
+// PtrSlice はoapi.Rawsの*[]Tフィールドを安全にデリファレンスする。
+// nilポインタの場合はnilスライスを返す
+func PtrSlice[T any](p *[]T) []T {
+	if p == nil {
+		return nil
+	}
+	return *p
 }
 
-// LoadFromFile はファイルからローデータを読み込む
+// LoadFromFile はファイルからローデータを読み込み、OpenAPIスキーマで検証する
 func LoadFromFile(path string) (Master, error) {
 	bs, err := assets.FS.ReadFile(path)
 	if err != nil {
@@ -55,19 +48,22 @@ func LoadFromFile(path string) (Master, error) {
 	if err != nil {
 		return Master{}, err
 	}
+	if err := ValidateRaws(rw.Raws); err != nil {
+		return Master{}, fmt.Errorf("ローデータの検証に失敗(%s): %w", path, err)
+	}
 	return rw, nil
 }
 
-// DecodeRaws はTOML文字列をRaws構造体にデコードする。
+// DecodeRaws はTOML文字列をoapi.Raws構造体にデコードする。
 // 未知のキーが含まれる場合はエラーを返す
-func DecodeRaws(content string) (Raws, error) {
-	var raws Raws
+func DecodeRaws(content string) (oapi.Raws, error) {
+	var raws oapi.Raws
 	metaData, err := toml.Decode(content, &raws)
 	if err != nil {
-		return Raws{}, fmt.Errorf("TOML decode error: %w", err)
+		return oapi.Raws{}, fmt.Errorf("TOML decode error: %w", err)
 	}
 	if undecoded := metaData.Undecoded(); len(undecoded) > 0 {
-		return Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
+		return oapi.Raws{}, fmt.Errorf("unknown keys found in TOML: %v", undecoded)
 	}
 	return raws, nil
 }
@@ -95,40 +91,40 @@ func Load(entityMetadataContent string) (Master, error) {
 		ProfessionIndex:   map[string]int{},
 	}
 
-	for i, item := range rw.Raws.Items {
+	for i, item := range PtrSlice(rw.Raws.Items) {
 		rw.ItemIndex[item.Name] = i
 	}
-	for i, recipe := range rw.Raws.Recipes {
+	for i, recipe := range PtrSlice(rw.Raws.Recipes) {
 		rw.RecipeIndex[recipe.Name] = i
 	}
-	for i, member := range rw.Raws.Members {
+	for i, member := range PtrSlice(rw.Raws.Members) {
 		rw.MemberIndex[member.Name] = i
 	}
-	for i, commandTable := range rw.Raws.CommandTables {
+	for i, commandTable := range PtrSlice(rw.Raws.CommandTables) {
 		rw.CommandTableIndex[commandTable.Name] = i
 	}
-	for i, dropTable := range rw.Raws.DropTables {
+	for i, dropTable := range PtrSlice(rw.Raws.DropTables) {
 		rw.DropTableIndex[dropTable.Name] = i
 	}
-	for i, itemGroup := range rw.Raws.ItemGroups {
+	for i, itemGroup := range PtrSlice(rw.Raws.ItemGroups) {
 		rw.ItemGroupIndex[itemGroup.Name] = i
 	}
-	for i, itemTable := range rw.Raws.ItemTables {
+	for i, itemTable := range PtrSlice(rw.Raws.ItemTables) {
 		rw.ItemTableIndex[itemTable.Name] = i
 	}
-	for i, enemyTable := range rw.Raws.EnemyTables {
+	for i, enemyTable := range PtrSlice(rw.Raws.EnemyTables) {
 		rw.EnemyTableIndex[enemyTable.Name] = i
 	}
-	for i, spriteSheet := range rw.Raws.SpriteSheets {
+	for i, spriteSheet := range PtrSlice(rw.Raws.SpriteSheets) {
 		rw.SpriteSheetIndex[spriteSheet.Name] = i
 	}
-	for i, tile := range rw.Raws.Tiles {
+	for i, tile := range PtrSlice(rw.Raws.Tiles) {
 		rw.TileIndex[tile.Name] = i
 	}
-	for i, prop := range rw.Raws.Props {
+	for i, prop := range PtrSlice(rw.Raws.Props) {
 		rw.PropIndex[prop.Name] = i
 	}
-	for i, prof := range rw.Raws.Professions {
+	for i, prof := range PtrSlice(rw.Raws.Professions) {
 		rw.ProfessionIndex[prof.Id] = i
 	}
 
@@ -227,6 +223,10 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 	if err != nil {
 		return nil, err
 	}
+	var ammoTag string
+	if f.AmmoTag != nil {
+		ammoTag = string(*f.AmmoTag)
+	}
 	return &gc.Fire{
 		Accuracy:       int(f.Accuracy),
 		Damage:         int(f.Damage),
@@ -238,7 +238,7 @@ func parseFire(f *oapi.Fire) (*gc.Fire, error) {
 		Magazine:       int(f.MagazineSize),
 		MagazineSize:   int(f.MagazineSize),
 		ReloadEffort:   int(f.ReloadEffort),
-		AmmoTag:        string(f.AmmoTag),
+		AmmoTag:        ammoTag,
 	}, nil
 }
 
@@ -251,7 +251,7 @@ func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) (*gc.ProvidesHealing, er
 	switch vt {
 	case PercentageType:
 		return &gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}, nil
-	case NumeralType:
+	case AbsoluteType, NumeralType:
 		return &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}, nil
 	default:
 		return nil, fmt.Errorf("不明なValueType: %v", vt)
@@ -285,10 +285,11 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "ItemIndex")
 	}
-	if itemIdx >= len(rw.Raws.Items) {
-		return gc.EntitySpec{}, fmt.Errorf("アイテムインデックスが範囲外: %d (長さ: %d)", itemIdx, len(rw.Raws.Items))
+	items := PtrSlice(rw.Raws.Items)
+	if itemIdx >= len(items) {
+		return gc.EntitySpec{}, fmt.Errorf("アイテムインデックスが範囲外: %d (長さ: %d)", itemIdx, len(items))
 	}
-	item := rw.Raws.Items[itemIdx]
+	item := items[itemIdx]
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Item = &gc.Item{Count: 1}
@@ -308,7 +309,7 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: spriteSheetName,
 		SpriteKey:       spriteKey,
-		AnimKeys:        item.AnimKeys,
+		AnimKeys:        PtrSlice(item.AnimKeys),
 		Depth:           gc.DepthNumRug,
 	}
 
@@ -350,8 +351,12 @@ func (rw *Master) NewItemSpec(name string) (gc.EntitySpec, error) {
 	applyWeaponSpec(item, &entitySpec)
 
 	if item.Ammo != nil {
+		var ammoAmmoTag string
+		if item.Ammo.AmmoTag != nil {
+			ammoAmmoTag = string(*item.Ammo.AmmoTag)
+		}
 		entitySpec.Ammo = &gc.Ammo{
-			AmmoTag:       string(item.Ammo.AmmoTag),
+			AmmoTag:       ammoAmmoTag,
 			DamageBonus:   int(item.Ammo.DamageBonus),
 			AccuracyBonus: int(item.Ammo.AccuracyBonus),
 		}
@@ -434,10 +439,11 @@ func (rw *Master) NewRecipeSpec(name string) (gc.EntitySpec, error) {
 	if !ok {
 		return gc.EntitySpec{}, NewKeyNotFoundError(name, "RecipeIndex")
 	}
-	if recipeIdx >= len(rw.Raws.Recipes) {
-		return gc.EntitySpec{}, fmt.Errorf("レシピインデックスが範囲外: %d (長さ: %d)", recipeIdx, len(rw.Raws.Recipes))
+	recipes := PtrSlice(rw.Raws.Recipes)
+	if recipeIdx >= len(recipes) {
+		return gc.EntitySpec{}, fmt.Errorf("レシピインデックスが範囲外: %d (長さ: %d)", recipeIdx, len(recipes))
 	}
-	recipe := rw.Raws.Recipes[recipeIdx]
+	recipe := recipes[recipeIdx]
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: recipe.Name}
 	entitySpec.Recipe = &gc.Recipe{}
@@ -506,10 +512,11 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 	if !ok {
 		return gc.EntitySpec{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
-	if memberIdx >= len(rw.Raws.Members) {
-		return gc.EntitySpec{}, fmt.Errorf("メンバーインデックスが範囲外: %d (長さ: %d)", memberIdx, len(rw.Raws.Members))
+	members := PtrSlice(rw.Raws.Members)
+	if memberIdx >= len(members) {
+		return gc.EntitySpec{}, fmt.Errorf("メンバーインデックスが範囲外: %d (長さ: %d)", memberIdx, len(members))
 	}
-	member := rw.Raws.Members[memberIdx]
+	member := members[memberIdx]
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: member.Name}
@@ -517,7 +524,7 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
-		AnimKeys:        member.AnimKeys,
+		AnimKeys:        PtrSlice(member.AnimKeys),
 		Depth:           gc.DepthNumPlayer,
 	}
 	entitySpec.Abilities = &gc.Abilities{
@@ -535,16 +542,18 @@ func (rw *Master) NewMemberSpec(name string) (gc.EntitySpec, error) {
 
 	if member.CommandTableName != "" {
 		commandTableIdx, ok := rw.CommandTableIndex[member.CommandTableName]
-		if ok && commandTableIdx < len(rw.Raws.CommandTables) {
-			commandTable := rw.Raws.CommandTables[commandTableIdx]
+		commandTables := PtrSlice(rw.Raws.CommandTables)
+		if ok && commandTableIdx < len(commandTables) {
+			commandTable := commandTables[commandTableIdx]
 			entitySpec.CommandTable = &gc.CommandTable{Name: commandTable.Name}
 		}
 	}
 
 	if member.DropTableName != "" {
 		dropTableIdx, ok := rw.DropTableIndex[member.DropTableName]
-		if ok && dropTableIdx < len(rw.Raws.DropTables) {
-			dropTable := rw.Raws.DropTables[dropTableIdx]
+		dropTables := PtrSlice(rw.Raws.DropTables)
+		if ok && dropTableIdx < len(dropTables) {
+			dropTable := dropTables[dropTableIdx]
 			entitySpec.DropTable = &gc.DropTable{Name: dropTable.Name}
 		}
 	}
@@ -622,10 +631,11 @@ func (rw *Master) GetCommandTable(name string) (oapi.CommandTable, error) {
 	if !ok {
 		return oapi.CommandTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
-	if ctIdx >= len(rw.Raws.CommandTables) {
-		return oapi.CommandTable{}, fmt.Errorf("コマンドテーブルインデックスが範囲外: %d (長さ: %d)", ctIdx, len(rw.Raws.CommandTables))
+	commandTables := PtrSlice(rw.Raws.CommandTables)
+	if ctIdx >= len(commandTables) {
+		return oapi.CommandTable{}, fmt.Errorf("コマンドテーブルインデックスが範囲外: %d (長さ: %d)", ctIdx, len(commandTables))
 	}
-	return rw.Raws.CommandTables[ctIdx], nil
+	return commandTables[ctIdx], nil
 }
 
 // GetDropTable は指定された名前のドロップテーブルを取得する
@@ -634,10 +644,11 @@ func (rw *Master) GetDropTable(name string) (oapi.DropTable, error) {
 	if !ok {
 		return oapi.DropTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
-	if dtIdx >= len(rw.Raws.DropTables) {
-		return oapi.DropTable{}, fmt.Errorf("ドロップテーブルインデックスが範囲外: %d (長さ: %d)", dtIdx, len(rw.Raws.DropTables))
+	dropTables := PtrSlice(rw.Raws.DropTables)
+	if dtIdx >= len(dropTables) {
+		return oapi.DropTable{}, fmt.Errorf("ドロップテーブルインデックスが範囲外: %d (長さ: %d)", dtIdx, len(dropTables))
 	}
-	return rw.Raws.DropTables[dtIdx], nil
+	return dropTables[dtIdx], nil
 }
 
 // GetItemGroup は指定された名前のアイテムグループを取得する
@@ -646,10 +657,11 @@ func (rw *Master) GetItemGroup(name string) (oapi.ItemGroup, error) {
 	if !ok {
 		return oapi.ItemGroup{}, fmt.Errorf("アイテムグループが存在しない: %s", name)
 	}
-	if idx >= len(rw.Raws.ItemGroups) {
-		return oapi.ItemGroup{}, fmt.Errorf("アイテムグループインデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.ItemGroups))
+	itemGroups := PtrSlice(rw.Raws.ItemGroups)
+	if idx >= len(itemGroups) {
+		return oapi.ItemGroup{}, fmt.Errorf("アイテムグループインデックスが範囲外: %d (長さ: %d)", idx, len(itemGroups))
 	}
-	return rw.Raws.ItemGroups[idx], nil
+	return itemGroups[idx], nil
 }
 
 // GetItemTable は指定された名前のアイテムテーブルを取得する
@@ -658,10 +670,11 @@ func (rw *Master) GetItemTable(name string) (oapi.ItemTable, error) {
 	if !ok {
 		return oapi.ItemTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
-	if itIdx >= len(rw.Raws.ItemTables) {
-		return oapi.ItemTable{}, fmt.Errorf("アイテムテーブルインデックスが範囲外: %d (長さ: %d)", itIdx, len(rw.Raws.ItemTables))
+	itemTables := PtrSlice(rw.Raws.ItemTables)
+	if itIdx >= len(itemTables) {
+		return oapi.ItemTable{}, fmt.Errorf("アイテムテーブルインデックスが範囲外: %d (長さ: %d)", itIdx, len(itemTables))
 	}
-	return rw.Raws.ItemTables[itIdx], nil
+	return itemTables[itIdx], nil
 }
 
 // GetEnemyTable は指定された名前の敵テーブルを取得する
@@ -670,10 +683,11 @@ func (rw *Master) GetEnemyTable(name string) (oapi.EnemyTable, error) {
 	if !ok {
 		return oapi.EnemyTable{}, fmt.Errorf("キーが存在しない: %s", name)
 	}
-	if etIdx >= len(rw.Raws.EnemyTables) {
-		return oapi.EnemyTable{}, fmt.Errorf("敵テーブルインデックスが範囲外: %d (長さ: %d)", etIdx, len(rw.Raws.EnemyTables))
+	enemyTables := PtrSlice(rw.Raws.EnemyTables)
+	if etIdx >= len(enemyTables) {
+		return oapi.EnemyTable{}, fmt.Errorf("敵テーブルインデックスが範囲外: %d (長さ: %d)", etIdx, len(enemyTables))
 	}
-	return rw.Raws.EnemyTables[etIdx], nil
+	return enemyTables[etIdx], nil
 }
 
 // GetTile は指定された名前のタイルを取得する
@@ -683,10 +697,11 @@ func (rw *Master) GetTile(name string) (oapi.Tile, error) {
 	if !ok {
 		return oapi.Tile{}, NewKeyNotFoundError(name, "TileIndex")
 	}
-	if tileIdx >= len(rw.Raws.Tiles) {
-		return oapi.Tile{}, fmt.Errorf("タイルインデックスが範囲外: %d (長さ: %d)", tileIdx, len(rw.Raws.Tiles))
+	tiles := PtrSlice(rw.Raws.Tiles)
+	if tileIdx >= len(tiles) {
+		return oapi.Tile{}, fmt.Errorf("タイルインデックスが範囲外: %d (長さ: %d)", tileIdx, len(tiles))
 	}
-	return rw.Raws.Tiles[tileIdx], nil
+	return tiles[tileIdx], nil
 }
 
 // NewTileSpec は指定された名前のタイルのEntitySpecを生成する
@@ -732,10 +747,11 @@ func (rw *Master) GetProp(name string) (oapi.Prop, error) {
 	if !ok {
 		return oapi.Prop{}, NewKeyNotFoundError(name, "PropIndex")
 	}
-	if propIdx >= len(rw.Raws.Props) {
-		return oapi.Prop{}, fmt.Errorf("置物インデックスが範囲外: %d (長さ: %d)", propIdx, len(rw.Raws.Props))
+	props := PtrSlice(rw.Raws.Props)
+	if propIdx >= len(props) {
+		return oapi.Prop{}, fmt.Errorf("置物インデックスが範囲外: %d (長さ: %d)", propIdx, len(props))
 	}
-	return rw.Raws.Props[propIdx], nil
+	return props[propIdx], nil
 }
 
 // NewPropSpec は指定された名前の置物のEntitySpecを生成する
@@ -752,8 +768,8 @@ func (rw *Master) NewPropSpec(name string) (gc.EntitySpec, error) {
 
 	// SpriteRenderの設定（AnimKeysを含む）
 	spriteRender := toGCSpriteRender(propRaw.SpriteRender)
-	if len(propRaw.AnimKeys) > 0 {
-		spriteRender.AnimKeys = propRaw.AnimKeys
+	if animKeys := PtrSlice(propRaw.AnimKeys); len(animKeys) > 0 {
+		spriteRender.AnimKeys = animKeys
 	}
 	entitySpec.SpriteRender = &spriteRender
 
@@ -811,10 +827,11 @@ func (rw *Master) GetProfession(id string) (oapi.Profession, error) {
 	if !ok {
 		return oapi.Profession{}, NewKeyNotFoundError(id, "ProfessionIndex")
 	}
-	if idx >= len(rw.Raws.Professions) {
-		return oapi.Profession{}, fmt.Errorf("職業インデックスが範囲外: %d (長さ: %d)", idx, len(rw.Raws.Professions))
+	professions := PtrSlice(rw.Raws.Professions)
+	if idx >= len(professions) {
+		return oapi.Profession{}, fmt.Errorf("職業インデックスが範囲外: %d (長さ: %d)", idx, len(professions))
 	}
-	return rw.Raws.Professions[idx], nil
+	return professions[idx], nil
 }
 
 // SelectCommandByWeight はコマンドテーブルから重み付きランダム選択する
