@@ -78,6 +78,8 @@ const (
 
 // Defines values for HealingValueType.
 const (
+	ABSOLUTE   HealingValueType = "ABSOLUTE"
+	NUMERAL    HealingValueType = "NUMERAL"
 	PERCENTAGE HealingValueType = "PERCENTAGE"
 )
 

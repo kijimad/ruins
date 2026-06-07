@@ -1860,6 +1860,8 @@ components:
       type: string
       enum:
         - PERCENTAGE
+        - ABSOLUTE
+        - NUMERAL
       description: 回復量の計算方式
     ImagePath:
       type: string

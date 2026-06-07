@@ -299,4 +299,8 @@ enum FoliageType {
 enum HealingValueType {
   /** 最大値に対する割合で回復 */
   PERCENTAGE,
+  /** 固定値で回復 */
+  ABSOLUTE,
+  /** 数値で回復 */
+  NUMERAL,
 }

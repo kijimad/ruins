@@ -17,6 +17,8 @@ type ValueType string
 const (
 	// PercentageType はパーセンテージタイプを表す
 	PercentageType ValueType = "PERCENTAGE"
+	// AbsoluteType は固定値タイプを表す
+	AbsoluteType ValueType = "ABSOLUTE"
 	// NumeralType は数値タイプを表す
 	NumeralType ValueType = "NUMERAL"
 )
@@ -24,7 +26,7 @@ const (
 // Valid はValueTypeの値が有効かどうかを検証する
 func (enum ValueType) Valid() error {
 	switch enum {
-	case PercentageType, NumeralType:
+	case PercentageType, AbsoluteType, NumeralType:
 		return nil
 	default:
 		return fmt.Errorf("get %s: %w", enum, ErrInvalidEnumType)
