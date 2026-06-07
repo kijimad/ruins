@@ -197,7 +197,8 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		// ホットスポット配置により、少なくとも一部のNPC対がclusterRadius以内に密集していることを確認する
 		npcs := chain.PlanData.NPCs
 		nearPairs := 0
-		maxDistSq := clusterRadius * clusterRadius * 2 // 対角距離を考慮
+		// clusterRadius^2 * 2 は正方形の対角距離の二乗。dx=r, dy=r のケースを含める
+		maxDistSq := clusterRadius * clusterRadius * 2
 		for i, a := range npcs {
 			for j := i + 1; j < len(npcs); j++ {
 				b := npcs[j]
