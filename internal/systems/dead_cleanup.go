@@ -57,7 +57,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		dropTableComp := world.Components.DropTable.Get(entity).(*gc.DropTable)
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		dropTable, err := rawMaster.GetDropTable(dropTableComp.Name)
+		dropTable, err := raw.GetDropTable(rawMaster, dropTableComp.Name)
 		if err != nil {
 			logger.Debug("ドロップテーブル取得失敗", "error", err, "table_name", dropTableComp.Name)
 			continue

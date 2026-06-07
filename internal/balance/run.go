@@ -4,6 +4,7 @@ import (
 	"math/rand/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 )
 
@@ -34,7 +35,7 @@ type RunResult struct {
 // SimulateRun はラン全体を模擬する。
 // maxDepth まで進み、死亡したらそこで終了する。
 // フロアのアイテムドロップから武器を取得した場合、より強い武器に切り替える
-func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
+func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, rng *rand.Rand) RunResult {
 	result := RunResult{
 		HPByDepth:           make(map[int]int),
 		HPBeforeHealByDepth: make(map[int]int),
@@ -49,7 +50,7 @@ func SimulateRun(master *raw.Master, enemyTableName string, player CombatantStat
 	hunger := gc.NewHunger()
 	foodStock := 0 // 未消費の食料ストック（栄養値の合計）
 
-	enemyTable, err := master.GetEnemyTable(enemyTableName)
+	enemyTable, err := raw.GetEnemyTable(master, enemyTableName)
 	if err != nil {
 		result.ReachedDepth = 0
 		return result
@@ -157,10 +158,10 @@ type floorLoot struct {
 
 // rollFloorLoot はフロアで拾えるアイテムを計算する。
 // 回復アイテムと武器の両方を処理し、武器はフロア内で最も強いものを返す
-func rollFloorLoot(master *raw.Master, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
+func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP int, rng *rand.Rand) floorLoot {
 	result := floorLoot{}
 
-	itemTable, err := master.GetItemTable(tableName)
+	itemTable, err := raw.GetItemTable(master, tableName)
 	if err != nil {
 		return result
 	}
@@ -170,11 +171,12 @@ func rollFloorLoot(master *raw.Master, tableName string, depth int, playerMaxHP 
 
 	for i := 0; i < itemCount; i++ {
 		itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)
+
 		if err != nil || itemName == "" {
 			continue
 		}
 
-		spec, err := master.NewItemSpec(itemName)
+		spec, err := raw.NewItemSpec(master, itemName)
 		if err != nil {
 			continue
 		}
@@ -239,7 +241,7 @@ func (bs BattleStats) DPS() float64 {
 }
 
 // RunSimulations はN回のランシミュレーションを実行する
-func RunSimulations(master *raw.Master, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
+func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
 	results := make([]RunResult, n)
 	for i := 0; i < n; i++ {
 		rng := rand.New(rand.NewPCG(seed+uint64(i), 0))

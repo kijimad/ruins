@@ -6,6 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/kijimaD/ruins/assets"
 	"github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 )
@@ -40,11 +41,11 @@ func LoadFonts() (map[string]resources.Font, error) {
 	return metadata.Fonts, nil
 }
 
-// LoadSpriteSheets はraw.MasterのSpriteSheet定義に基づいてスプライトシートを読み込む
-func LoadSpriteSheets(rawMaster raw.Master) (map[string]components.SpriteSheet, error) {
+// LoadSpriteSheets はoapi.RawsのSpriteSheet定義に基づいてスプライトシートを読み込む
+func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error) {
 	spriteSheets := make(map[string]components.SpriteSheet)
 
-	for _, spriteSheetDef := range raw.PtrSlice(rawMaster.Raws.SpriteSheets) {
+	for _, spriteSheetDef := range raw.PtrSlice(raws.SpriteSheets) {
 		sheet, err := LoadSpriteSheetFromAseprite(spriteSheetDef.Path)
 		if err != nil {
 			return nil, fmt.Errorf("スプライトシート '%s' の読み込みに失敗: %w", spriteSheetDef.Name, err)
@@ -57,6 +58,6 @@ func LoadSpriteSheets(rawMaster raw.Master) (map[string]components.SpriteSheet, 
 }
 
 // LoadRaws はRawデータを読み込む
-func LoadRaws() (raw.Master, error) {
+func LoadRaws() (oapi.Raws, error) {
 	return raw.LoadFromFile(rawsPath)
 }

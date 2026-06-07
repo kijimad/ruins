@@ -133,7 +133,7 @@ type jobMenuItem struct {
 }
 
 func (st *CharacterJobState) fetchProps(world w.World) jobMenuProps {
-	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	items := make([]jobMenuItem, len(professions))
 	for i, p := range professions {
 		items[i] = jobMenuItem{Profession: p}

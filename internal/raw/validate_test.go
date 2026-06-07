@@ -14,7 +14,7 @@ func TestValidateRaws_RealData(t *testing.T) {
 	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err)
 
-	err = ValidateRaws(master.Raws)
+	err = ValidateRaws(master)
 	assert.NoError(t, err)
 }
 

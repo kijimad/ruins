@@ -30,14 +30,14 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 
 	// 全体を非土タイル（Floor）で初期化
 	for i := range metaPlan.Tiles {
-		tile, err := metaPlan.RawMaster.GetTile(floorTileType)
+		tile, err := raw.GetTile(*metaPlan.RawMaster, floorTileType)
 		require.NoError(t, err, "床タイル生成エラー")
 		metaPlan.Tiles[i] = tile
 	}
 
 	// 中央（2,2）を土タイルに設定
 	centerIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(2))
-	dirtTile, err := metaPlan.RawMaster.GetTile(dirtTileType)
+	dirtTile, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[centerIdx] = dirtTile
 
@@ -51,7 +51,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 
 	// テストケース2: 上に土タイルを追加（下だけが異なる状態）
 	topIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(1))
-	topDirt, err := metaPlan.RawMaster.GetTile(dirtTileType)
+	topDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[topIdx] = topDirt
 
@@ -72,7 +72,7 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 
 	// テストケース3: 右にも土タイルを追加（下左が異なる状態）
 	rightIdx := metaPlan.Level.XYTileIndex(consts.Tile(3), consts.Tile(2))
-	rightDirt, err := metaPlan.RawMaster.GetTile(dirtTileType)
+	rightDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[rightIdx] = rightDirt
 
@@ -86,9 +86,9 @@ func TestCalculateAutoTileIndex(t *testing.T) {
 	// テストケース4: 全方向に土タイルを配置（中央タイル）
 	bottomIdx := metaPlan.Level.XYTileIndex(consts.Tile(2), consts.Tile(3))
 	leftIdx := metaPlan.Level.XYTileIndex(consts.Tile(1), consts.Tile(2))
-	bottomDirt, err := metaPlan.RawMaster.GetTile(dirtTileType)
+	bottomDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
-	leftDirt, err := metaPlan.RawMaster.GetTile(dirtTileType)
+	leftDirt, err := raw.GetTile(*metaPlan.RawMaster, dirtTileType)
 	require.NoError(t, err, "土タイル生成エラー")
 	metaPlan.Tiles[bottomIdx] = bottomDirt
 	metaPlan.Tiles[leftIdx] = leftDirt
@@ -165,7 +165,7 @@ func TestIsValidIndex(t *testing.T) {
 }
 
 // createTestRawMaster はテスト用のrawマスターを作成する
-func createTestRawMaster(t *testing.T) *raw.Master {
+func createTestRawMaster(t *testing.T) *oapi.Raws {
 	t.Helper()
 
 	rawData := `
@@ -188,8 +188,8 @@ Description = "暗闇"
 BlockPass = true
 `
 
-	master, err := raw.Load(rawData)
+	raws, err := raw.DecodeRaws(rawData)
 	require.NoError(t, err)
 
-	return &master
+	return &raws
 }

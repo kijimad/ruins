@@ -14,6 +14,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -239,16 +240,15 @@ func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) [
 }
 
 func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
-	rawMaster := world.Resources.RawMaster
 	var items []string
 
-	for recipeName := range rawMaster.RecipeIndex {
-		spec, err := rawMaster.NewRecipeSpec(recipeName)
+	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
 		if err != nil {
 			continue
 		}
 		if spec.Consumable != nil {
-			items = append(items, recipeName)
+			items = append(items, recipe.Name)
 		}
 	}
 
@@ -257,16 +257,15 @@ func (st *CraftMenuState) queryMenuConsumable(world w.World) []string {
 }
 
 func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
-	rawMaster := world.Resources.RawMaster
 	var items []string
 
-	for recipeName := range rawMaster.RecipeIndex {
-		spec, err := rawMaster.NewRecipeSpec(recipeName)
+	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
 		if err != nil {
 			continue
 		}
 		if spec.Weapon != nil {
-			items = append(items, recipeName)
+			items = append(items, recipe.Name)
 		}
 	}
 
@@ -275,16 +274,15 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 }
 
 func (st *CraftMenuState) queryMenuWearable(world w.World) []string {
-	rawMaster := world.Resources.RawMaster
 	var items []string
 
-	for recipeName := range rawMaster.RecipeIndex {
-		spec, err := rawMaster.NewRecipeSpec(recipeName)
+	for _, recipe := range raw.PtrSlice(world.Resources.RawMaster.Recipes) {
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, recipe.Name)
 		if err != nil {
 			continue
 		}
 		if spec.Wearable != nil {
-			items = append(items, recipeName)
+			items = append(items, recipe.Name)
 		}
 	}
 
@@ -523,8 +521,7 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 	item := tab.Items[itemIndex]
 
 	// 性能表示
-	rawMaster := world.Resources.RawMaster
-	spec, err := rawMaster.NewRecipeSpec(item.RecipeName)
+	spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
 	if err == nil {
 		views.UpdateSpecFromSpec(world, specContainer, spec)
 	}
@@ -562,8 +559,7 @@ func (st *CraftMenuState) buildDescContainer(world w.World, tabs []craftTabData,
 
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
 		item := tabs[tabIndex].Items[itemIndex]
-		rawMaster := world.Resources.RawMaster
-		spec, err := rawMaster.NewRecipeSpec(item.RecipeName)
+		spec, err := raw.NewRecipeSpec(world.Resources.RawMaster, item.RecipeName)
 		if err == nil && spec.Description != nil {
 			desc = spec.Description.Description
 		}

@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/formula"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -163,8 +164,7 @@ func (aa *AttackActivity) canPerformAttack(attacker ecs.Entity, world w.World) b
 
 // getBareHandsAttack は素手武器の攻撃パラメータを取得する
 func getBareHandsAttack(world w.World) (gc.Attacker, string, error) {
-	rawMaster := world.Resources.RawMaster
-	bareHandsSpec, err := rawMaster.NewWeaponSpec("素手")
+	bareHandsSpec, err := raw.NewWeaponSpec(world.Resources.RawMaster, "素手")
 	if err != nil {
 		return nil, "", fmt.Errorf("素手武器が見つかりません: %w", err)
 	}

@@ -164,7 +164,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			// プレイヤーを生成してリアルなゲームデータを作成
 			player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 			require.NoError(t, err)
-			professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+			professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 			if len(professions) > 0 {
 				require.NoError(t, worldhelper.ApplyProfession(world, player, professions[0]))
 			}

@@ -14,7 +14,7 @@ func TestPreviewEndRun(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	prof := (*world.Resources.RawMaster.Raws.Professions)[0]
+	prof := (*world.Resources.RawMaster.Professions)[0]
 	player, err := SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
@@ -50,7 +50,7 @@ func TestExecuteEndRun(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	prof := (*world.Resources.RawMaster.Raws.Professions)[0]
+	prof := (*world.Resources.RawMaster.Professions)[0]
 	player, err := SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
@@ -87,7 +87,7 @@ func TestExecuteEndRunNoItems(t *testing.T) {
 
 	player, err := SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
-	prof := (*world.Resources.RawMaster.Raws.Professions)[0]
+	prof := (*world.Resources.RawMaster.Professions)[0]
 	player.AddComponent(world.Components.Profession, &gc.Profession{ID: prof.Id})
 
 	result, err := PreviewEndRun(world, player)

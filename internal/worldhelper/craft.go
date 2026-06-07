@@ -7,6 +7,7 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -87,7 +88,7 @@ func requiredMaterials(world w.World, need string) []gc.RecipeInput {
 	rawMaster := world.Resources.RawMaster
 
 	// RawMasterからレシピを取得
-	spec, err := rawMaster.NewRecipeSpec(need)
+	spec, err := raw.NewRecipeSpec(rawMaster, need)
 	if err != nil {
 		return []gc.RecipeInput{}
 	}

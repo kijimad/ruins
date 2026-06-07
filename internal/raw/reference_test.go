@@ -7,29 +7,30 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/assets"
+	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// loadTestMaster はテスト用にraw.tomlを読み込む
-func loadTestMaster(t *testing.T) Master {
+// loadTestRaws はテスト用にraw.tomlを読み込む
+func loadTestRaws(t *testing.T) oapi.Raws {
 	t.Helper()
-	master, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
 	require.NoError(t, err, "raw.tomlの読み込みに失敗")
-	return master
+	return raws
 }
 
 // TestRawItemReference はアイテム関連の参照整合性を検証する
 func TestRawItemReference(t *testing.T) {
 	t.Parallel()
-	master := loadTestMaster(t)
+	raws := loadTestRaws(t)
 
 	t.Run("アイテムのSpriteSheet参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, item := range PtrSlice(master.Raws.Items) {
+		for _, item := range PtrSlice(raws.Items) {
 			assert.NotEmpty(t, item.SpriteSheetName, "アイテム '%s' にSpriteSheetNameが設定されていません", item.Name)
-			_, ok := master.SpriteSheetIndex[item.SpriteSheetName]
-			assert.True(t, ok, "アイテム '%s' が参照するSpriteSheet '%s' が存在しません",
+			_, err := FindSpriteSheet(raws, item.SpriteSheetName)
+			assert.NoError(t, err, "アイテム '%s' が参照するSpriteSheet '%s' が存在しません",
 				item.Name, item.SpriteSheetName)
 		}
 	})
@@ -38,12 +39,12 @@ func TestRawItemReference(t *testing.T) {
 // TestRawMemberReference はメンバー関連の参照整合性を検証する
 func TestRawMemberReference(t *testing.T) {
 	t.Parallel()
-	master := loadTestMaster(t)
+	raws := loadTestRaws(t)
 
 	t.Run("メンバー名に対応するCommandTableが存在する場合は有効", func(t *testing.T) {
 		t.Parallel()
-		for _, member := range PtrSlice(master.Raws.Members) {
-			if _, ok := master.CommandTableIndex[member.Name]; ok {
+		for _, member := range PtrSlice(raws.Members) {
+			if _, err := GetCommandTable(raws, member.Name); err == nil {
 				assert.True(t, true)
 			}
 		}
@@ -51,8 +52,8 @@ func TestRawMemberReference(t *testing.T) {
 
 	t.Run("メンバー名に対応するDropTableが存在する場合は有効", func(t *testing.T) {
 		t.Parallel()
-		for _, member := range PtrSlice(master.Raws.Members) {
-			if _, ok := master.DropTableIndex[member.Name]; ok {
+		for _, member := range PtrSlice(raws.Members) {
+			if _, err := GetDropTable(raws, member.Name); err == nil {
 				assert.True(t, true)
 			}
 		}
@@ -60,9 +61,9 @@ func TestRawMemberReference(t *testing.T) {
 
 	t.Run("メンバーのSpriteSheet参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, member := range PtrSlice(master.Raws.Members) {
-			if _, ok := master.SpriteSheetIndex[member.SpriteSheetName]; ok {
-				assert.True(t, ok, "メンバー '%s' が参照するSpriteSheet '%s' が存在しません",
+		for _, member := range PtrSlice(raws.Members) {
+			if _, err := FindSpriteSheet(raws, member.SpriteSheetName); err == nil {
+				assert.True(t, true, "メンバー '%s' が参照するSpriteSheet '%s' が存在しません",
 					member.Name, member.SpriteSheetName)
 			}
 		}
@@ -72,17 +73,17 @@ func TestRawMemberReference(t *testing.T) {
 // TestRawTableReference はテーブル関連の参照整合性を検証する
 func TestRawTableReference(t *testing.T) {
 	t.Parallel()
-	master := loadTestMaster(t)
+	raws := loadTestRaws(t)
 
 	t.Run("DropTableのマテリアル参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, dropTable := range PtrSlice(master.Raws.DropTables) {
+		for _, dropTable := range PtrSlice(raws.DropTables) {
 			for _, entry := range dropTable.Entries {
 				if entry.Material == "" {
 					continue
 				}
-				_, ok := master.ItemIndex[entry.Material]
-				assert.True(t, ok, "DropTable '%s' が参照するマテリアル '%s' が存在しません",
+				_, err := FindItem(raws, entry.Material)
+				assert.NoError(t, err, "DropTable '%s' が参照するマテリアル '%s' が存在しません",
 					dropTable.Name, entry.Material)
 			}
 		}
@@ -90,10 +91,10 @@ func TestRawTableReference(t *testing.T) {
 
 	t.Run("ItemTableのグループ参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, itemTable := range PtrSlice(master.Raws.ItemTables) {
+		for _, itemTable := range PtrSlice(raws.ItemTables) {
 			for _, entry := range itemTable.Entries {
-				_, ok := master.ItemGroupIndex[entry.GroupName]
-				assert.True(t, ok, "ItemTable '%s' が参照するグループ '%s' が存在しません",
+				_, err := GetItemGroup(raws, entry.GroupName)
+				assert.NoError(t, err, "ItemTable '%s' が参照するグループ '%s' が存在しません",
 					itemTable.Name, entry.GroupName)
 			}
 		}
@@ -101,10 +102,10 @@ func TestRawTableReference(t *testing.T) {
 
 	t.Run("ItemGroupのアイテム参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, group := range PtrSlice(master.Raws.ItemGroups) {
+		for _, group := range PtrSlice(raws.ItemGroups) {
 			for _, entry := range group.Entries {
-				_, ok := master.ItemIndex[entry.ItemName]
-				assert.True(t, ok, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
+				_, err := FindItem(raws, entry.ItemName)
+				assert.NoError(t, err, "ItemGroup '%s' が参照するアイテム '%s' が存在しません",
 					group.Name, entry.ItemName)
 			}
 		}
@@ -112,13 +113,13 @@ func TestRawTableReference(t *testing.T) {
 
 	t.Run("CommandTableの武器参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, commandTable := range PtrSlice(master.Raws.CommandTables) {
+		for _, commandTable := range PtrSlice(raws.CommandTables) {
 			for _, entry := range commandTable.Entries {
 				if entry.Weapon == "" {
 					continue
 				}
-				_, ok := master.ItemIndex[entry.Weapon]
-				assert.True(t, ok, "CommandTable '%s' が参照する武器 '%s' が存在しません",
+				_, err := FindItem(raws, entry.Weapon)
+				assert.NoError(t, err, "CommandTable '%s' が参照する武器 '%s' が存在しません",
 					commandTable.Name, entry.Weapon)
 			}
 		}
@@ -126,13 +127,13 @@ func TestRawTableReference(t *testing.T) {
 
 	t.Run("EnemyTableのメンバー参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, enemyTable := range PtrSlice(master.Raws.EnemyTables) {
+		for _, enemyTable := range PtrSlice(raws.EnemyTables) {
 			for _, entry := range enemyTable.Entries {
 				if entry.EnemyName == "" {
 					continue
 				}
-				_, ok := master.MemberIndex[entry.EnemyName]
-				assert.True(t, ok, "EnemyTable '%s' が参照するメンバー '%s' が存在しません",
+				_, err := FindMember(raws, entry.EnemyName)
+				assert.NoError(t, err, "EnemyTable '%s' が参照するメンバー '%s' が存在しません",
 					enemyTable.Name, entry.EnemyName)
 			}
 		}
@@ -142,17 +143,17 @@ func TestRawTableReference(t *testing.T) {
 // TestRawMiscReference はレシピ、Prop、職業、タイルの参照整合性を検証する
 func TestRawMiscReference(t *testing.T) {
 	t.Parallel()
-	master := loadTestMaster(t)
+	raws := loadTestRaws(t)
 
 	t.Run("レシピの入力アイテム参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, recipe := range PtrSlice(master.Raws.Recipes) {
+		for _, recipe := range PtrSlice(raws.Recipes) {
 			for _, input := range recipe.Inputs {
 				if input.Name == "" {
 					continue
 				}
-				_, ok := master.ItemIndex[input.Name]
-				assert.True(t, ok, "レシピ '%s' が参照する入力アイテム '%s' が存在しません",
+				_, err := FindItem(raws, input.Name)
+				assert.NoError(t, err, "レシピ '%s' が参照する入力アイテム '%s' が存在しません",
 					recipe.Name, input.Name)
 			}
 		}
@@ -160,22 +161,22 @@ func TestRawMiscReference(t *testing.T) {
 
 	t.Run("PropのSpriteSheet参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, prop := range PtrSlice(master.Raws.Props) {
+		for _, prop := range PtrSlice(raws.Props) {
 			if prop.SpriteRender.SpriteSheetName == "" {
 				continue
 			}
-			_, ok := master.SpriteSheetIndex[prop.SpriteRender.SpriteSheetName]
-			assert.True(t, ok, "Prop '%s' が参照するSpriteSheet '%s' が存在しません",
+			_, err := FindSpriteSheet(raws, prop.SpriteRender.SpriteSheetName)
+			assert.NoError(t, err, "Prop '%s' が参照するSpriteSheet '%s' が存在しません",
 				prop.Name, prop.SpriteRender.SpriteSheetName)
 		}
 	})
 
 	t.Run("職業の初期アイテム参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, prof := range PtrSlice(master.Raws.Professions) {
+		for _, prof := range PtrSlice(raws.Professions) {
 			for _, item := range prof.Items {
-				_, ok := master.ItemIndex[item.Name]
-				assert.True(t, ok, "職業 '%s' が参照するアイテム '%s' が存在しません",
+				_, err := FindItem(raws, item.Name)
+				assert.NoError(t, err, "職業 '%s' が参照するアイテム '%s' が存在しません",
 					prof.Id, item.Name)
 			}
 		}
@@ -183,12 +184,12 @@ func TestRawMiscReference(t *testing.T) {
 
 	t.Run("TileのSpriteSheet参照が存在する", func(t *testing.T) {
 		t.Parallel()
-		for _, tile := range PtrSlice(master.Raws.Tiles) {
+		for _, tile := range PtrSlice(raws.Tiles) {
 			if tile.SpriteRender.SpriteSheetName == "" {
 				continue
 			}
-			_, ok := master.SpriteSheetIndex[tile.SpriteRender.SpriteSheetName]
-			assert.True(t, ok, "Tile '%s' が参照するSpriteSheet '%s' が存在しません",
+			_, err := FindSpriteSheet(raws, tile.SpriteRender.SpriteSheetName)
+			assert.NoError(t, err, "Tile '%s' が参照するSpriteSheet '%s' が存在しません",
 				tile.Name, tile.SpriteRender.SpriteSheetName)
 		}
 	})
@@ -198,12 +199,12 @@ func TestRawMiscReference(t *testing.T) {
 func TestRawDuplicateNames(t *testing.T) {
 	t.Parallel()
 
-	master := loadTestMaster(t)
+	raws := loadTestRaws(t)
 
 	t.Run("アイテム名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, item := range PtrSlice(master.Raws.Items) {
+		for _, item := range PtrSlice(raws.Items) {
 			names[item.Name]++
 		}
 		for name, count := range names {
@@ -214,7 +215,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("メンバー名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, member := range PtrSlice(master.Raws.Members) {
+		for _, member := range PtrSlice(raws.Members) {
 			names[member.Name]++
 		}
 		for name, count := range names {
@@ -225,7 +226,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("レシピ名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, recipe := range PtrSlice(master.Raws.Recipes) {
+		for _, recipe := range PtrSlice(raws.Recipes) {
 			names[recipe.Name]++
 		}
 		for name, count := range names {
@@ -236,7 +237,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("CommandTable名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, table := range PtrSlice(master.Raws.CommandTables) {
+		for _, table := range PtrSlice(raws.CommandTables) {
 			names[table.Name]++
 		}
 		for name, count := range names {
@@ -247,7 +248,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("DropTable名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, table := range PtrSlice(master.Raws.DropTables) {
+		for _, table := range PtrSlice(raws.DropTables) {
 			names[table.Name]++
 		}
 		for name, count := range names {
@@ -258,7 +259,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("ItemTable名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, table := range PtrSlice(master.Raws.ItemTables) {
+		for _, table := range PtrSlice(raws.ItemTables) {
 			names[table.Name]++
 		}
 		for name, count := range names {
@@ -269,7 +270,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("EnemyTable名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, table := range PtrSlice(master.Raws.EnemyTables) {
+		for _, table := range PtrSlice(raws.EnemyTables) {
 			names[table.Name]++
 		}
 		for name, count := range names {
@@ -280,7 +281,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("SpriteSheet名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, sheet := range PtrSlice(master.Raws.SpriteSheets) {
+		for _, sheet := range PtrSlice(raws.SpriteSheets) {
 			names[sheet.Name]++
 		}
 		for name, count := range names {
@@ -291,7 +292,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("Tile名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, tile := range PtrSlice(master.Raws.Tiles) {
+		for _, tile := range PtrSlice(raws.Tiles) {
 			names[tile.Name]++
 		}
 		for name, count := range names {
@@ -302,7 +303,7 @@ func TestRawDuplicateNames(t *testing.T) {
 	t.Run("Prop名の重複がない", func(t *testing.T) {
 		t.Parallel()
 		names := make(map[string]int)
-		for _, prop := range PtrSlice(master.Raws.Props) {
+		for _, prop := range PtrSlice(raws.Props) {
 			names[prop.Name]++
 		}
 		for name, count := range names {
@@ -312,11 +313,11 @@ func TestRawDuplicateNames(t *testing.T) {
 }
 
 // buildSpriteSheetSprites はSpriteSheetからスプライトキー一覧を構築する
-func buildSpriteSheetSprites(t *testing.T, master Master) map[string]map[string]bool {
+func buildSpriteSheetSprites(t *testing.T, raws oapi.Raws) map[string]map[string]bool {
 	t.Helper()
 	spriteSheetSprites := make(map[string]map[string]bool)
 
-	for _, sheet := range PtrSlice(master.Raws.SpriteSheets) {
+	for _, sheet := range PtrSlice(raws.SpriteSheets) {
 		data, err := assets.FS.ReadFile(sheet.Path)
 		require.NoError(t, err)
 
@@ -344,11 +345,11 @@ func buildSpriteSheetSprites(t *testing.T, master Master) map[string]map[string]
 func TestSpriteSheetFiles(t *testing.T) {
 	t.Parallel()
 
-	master := loadTestMaster(t)
+	raws := loadTestRaws(t)
 
 	t.Run("SpriteSheetのJSONファイルが実在する", func(t *testing.T) {
 		t.Parallel()
-		for _, sheet := range PtrSlice(master.Raws.SpriteSheets) {
+		for _, sheet := range PtrSlice(raws.SpriteSheets) {
 			data, err := assets.FS.ReadFile(sheet.Path)
 			assert.NoError(t, err, "SpriteSheet '%s' のファイル '%s' が読み込めません", sheet.Name, sheet.Path)
 			assert.NotEmpty(t, data, "SpriteSheet '%s' のファイル '%s' が空です", sheet.Name, sheet.Path)
@@ -357,8 +358,8 @@ func TestSpriteSheetFiles(t *testing.T) {
 
 	t.Run("アイテムが参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
 		t.Parallel()
-		spriteSheetSprites := buildSpriteSheetSprites(t, master)
-		for _, item := range PtrSlice(master.Raws.Items) {
+		spriteSheetSprites := buildSpriteSheetSprites(t, raws)
+		for _, item := range PtrSlice(raws.Items) {
 			if item.SpriteSheetName == "" || item.SpriteKey == "" {
 				continue
 			}
@@ -371,8 +372,8 @@ func TestSpriteSheetFiles(t *testing.T) {
 
 	t.Run("Propが参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
 		t.Parallel()
-		spriteSheetSprites := buildSpriteSheetSprites(t, master)
-		for _, prop := range PtrSlice(master.Raws.Props) {
+		spriteSheetSprites := buildSpriteSheetSprites(t, raws)
+		for _, prop := range PtrSlice(raws.Props) {
 			if prop.SpriteRender.SpriteSheetName == "" || prop.SpriteRender.SpriteKey == "" {
 				continue
 			}
@@ -385,8 +386,8 @@ func TestSpriteSheetFiles(t *testing.T) {
 
 	t.Run("Tileが参照するSpriteKeyがJSON内に存在する", func(t *testing.T) {
 		t.Parallel()
-		spriteSheetSprites := buildSpriteSheetSprites(t, master)
-		for _, tile := range PtrSlice(master.Raws.Tiles) {
+		spriteSheetSprites := buildSpriteSheetSprites(t, raws)
+		for _, tile := range PtrSlice(raws.Tiles) {
 			if tile.SpriteRender.SpriteSheetName == "" || tile.SpriteRender.SpriteKey == "" {
 				continue
 			}

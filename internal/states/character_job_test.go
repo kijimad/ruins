@@ -16,7 +16,7 @@ func TestProfessions(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 
 	assert.Equal(t, 6, len(professions), "職業は6種類")
 
@@ -35,7 +35,7 @@ func TestProfessionItems(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 
 	tests := []struct {
 		professionID string
@@ -69,7 +69,7 @@ func TestProfessionEquips(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 
 	tests := []struct {
 		professionID string

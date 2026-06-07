@@ -107,7 +107,7 @@ func RunTestGame(outputPath string, states ...es.State[w.World]) error {
 	if err != nil {
 		return fmt.Errorf("SpawnPlayer failed: %w", err)
 	}
-	professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	if len(professions) > 0 {
 		if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil {
 			return fmt.Errorf("ApplyProfession failed: %w", err)

@@ -9,6 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/engine/entities"
 	"github.com/kijimaD/ruins/internal/formula"
+	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -183,7 +184,7 @@ func initialPatrolDir() int {
 // autoTileIndexが指定された場合、spriteKeyを動的に生成する（例: "wall_5"）
 func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, autoTileIndex *int) (ecs.Entity, error) {
 	rawMaster := world.Resources.RawMaster
-	entitySpec, err := rawMaster.NewTileSpec(tileName, x, y, autoTileIndex)
+	entitySpec, err := raw.NewTileSpec(rawMaster, tileName, x, y, autoTileIndex)
 	if err != nil {
 		return ecs.Entity(0), err
 	}
@@ -208,8 +209,7 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 // SpawnPlayer はプレイヤーキャラクターを生成する
 func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	rawMaster := world.Resources.RawMaster
-	entitySpec, err := rawMaster.NewPlayerSpec(name)
+	entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
 	}
@@ -254,10 +254,8 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 // SpawnNeutralNPC はフィールド上に中立NPCを生成する（会話可能なNPC用）
 func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	rawMaster := world.Resources.RawMaster
-
 	// NewMemberSpecでEntitySpecを生成
-	entitySpec, err := rawMaster.NewMemberSpec(name)
+	entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("中立NPC生成エラー: %w", err)
 	}
@@ -321,10 +319,8 @@ func WithBoss() SpawnEnemyOption {
 // SpawnEnemy はフィールド上に敵キャラクターを生成する
 func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnEnemyOption) (ecs.Entity, error) {
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	rawMaster := world.Resources.RawMaster
-
-	// raw.Masterから敵データを取得
-	entitySpec, err := rawMaster.NewEnemySpec(name)
+	// 敵データを取得
+	entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrEnemyGeneration, err)
 	}
@@ -398,15 +394,12 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 		return 0, fmt.Errorf("count must be positive: %d", count)
 	}
 
-	rawMaster := world.Resources.RawMaster
-
 	{
 		// アイテム定義を取得してStackable対応かチェック
-		itemIdx, ok := rawMaster.ItemIndex[name]
-		if !ok {
+		itemDef, err := raw.FindItem(world.Resources.RawMaster, name)
+		if err != nil {
 			return 0, fmt.Errorf("item not found: %s", name)
 		}
-		itemDef := (*rawMaster.Raws.Items)[itemIdx]
 		isStackable := itemDef.Stackable != nil && *itemDef.Stackable
 
 		// Stackableでないアイテムにcount > 1を指定した場合はエラー
@@ -416,7 +409,7 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
-	entitySpec, err := rawMaster.NewItemSpec(name)
+	entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}

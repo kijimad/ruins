@@ -2,11 +2,10 @@ package mapplanner
 
 import (
 	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/raw"
 )
 
-// CreateTestRawMaster はテスト用の raw.Master インスタンスを作成する
-func CreateTestRawMaster() *raw.Master {
+// CreateTestRawMaster はテスト用の oapi.Raws インスタンスを作成する
+func CreateTestRawMaster() *oapi.Raws {
 	// テスト用の基本的なタイルデータを定義
 	testTiles := []oapi.Tile{
 		{Name: "wall", BlockPass: true},
@@ -87,22 +86,6 @@ func CreateTestRawMaster() *raw.Master {
 		},
 	}
 
-	// インデックスを作成
-	tileIndex := make(map[string]int)
-	for i, tile := range testTiles {
-		tileIndex[tile.Name] = i
-	}
-
-	itemTableIndex := make(map[string]int)
-	for i, table := range testItemTables {
-		itemTableIndex[table.Name] = i
-	}
-
-	enemyTableIndex := make(map[string]int)
-	for i, table := range testEnemyTables {
-		enemyTableIndex[table.Name] = i
-	}
-
 	// テスト用のアイテムグループを定義
 	testItemGroups := []oapi.ItemGroup{
 		{
@@ -123,11 +106,6 @@ func CreateTestRawMaster() *raw.Master {
 		},
 	}
 
-	itemGroupIndex := make(map[string]int)
-	for i, group := range testItemGroups {
-		itemGroupIndex[group.Name] = i
-	}
-
 	// テスト用のアイテム定義（Stackable判定に必要）
 	stackableTrue := true
 	testItems := []oapi.Item{
@@ -138,23 +116,12 @@ func CreateTestRawMaster() *raw.Master {
 		{Name: "薬草", Description: "薬草", Stackable: &stackableTrue},
 		{Name: "木刀", Description: "木製の刀"},
 	}
-	itemIndex := make(map[string]int)
-	for i, item := range testItems {
-		itemIndex[item.Name] = i
-	}
 
-	return &raw.Master{
-		Raws: oapi.Raws{
-			Tiles:       &testTiles,
-			Items:       &testItems,
-			ItemGroups:  &testItemGroups,
-			ItemTables:  &testItemTables,
-			EnemyTables: &testEnemyTables,
-		},
-		TileIndex:       tileIndex,
-		ItemIndex:       itemIndex,
-		ItemGroupIndex:  itemGroupIndex,
-		ItemTableIndex:  itemTableIndex,
-		EnemyTableIndex: enemyTableIndex,
+	return &oapi.Raws{
+		Tiles:       &testTiles,
+		Items:       &testItems,
+		ItemGroups:  &testItemGroups,
+		ItemTables:  &testItemTables,
+		EnemyTables: &testEnemyTables,
 	}
 }

@@ -114,7 +114,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 		if err != nil {
 			return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 		}
-		professions := raw.PtrSlice(world.Resources.RawMaster.Raws.Professions)
+		professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 		if len(professions) > 0 {
 			if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil {
 				return fmt.Errorf("職業の適用に失敗: %w", err)

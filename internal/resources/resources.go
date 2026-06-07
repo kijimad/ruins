@@ -3,7 +3,7 @@ package resources
 import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/raw"
+	"github.com/kijimaD/ruins/internal/oapi"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -17,7 +17,7 @@ type Resources struct {
 	Fonts            map[string]Font
 	Faces            map[string]text.Face
 	UIResources      UIResources
-	RawMaster        raw.Master
+	RawMaster        oapi.Raws
 	SingletonEntity  ecs.Entity // シングルトンエンティティIDキャッシュ
 }
 

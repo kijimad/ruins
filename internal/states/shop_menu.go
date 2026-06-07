@@ -12,6 +12,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -268,12 +269,10 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 }
 
 func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool) int {
-	rawMaster := world.Resources.RawMaster
-	itemIdx, ok := rawMaster.ItemIndex[itemName]
-	if !ok {
+	itemDef, err := raw.FindItem(world.Resources.RawMaster, itemName)
+	if err != nil {
 		return 0
 	}
-	itemDef := (*rawMaster.Raws.Items)[itemIdx]
 	baseValue := int(itemDef.Value)
 	if isBuy {
 		return worldhelper.CalculateBuyPrice(baseValue)
@@ -528,7 +527,7 @@ func (st *ShopMenuState) buildSpecContainer(world w.World, props shopProps, tabI
 
 	// RawMasterからEntitySpecを取得して性能を表示
 	rawMaster := world.Resources.RawMaster
-	spec, err := rawMaster.NewItemSpec(item.Label)
+	spec, err := raw.NewItemSpec(rawMaster, item.Label)
 	if err != nil {
 		return container
 	}
@@ -544,7 +543,7 @@ func (st *ShopMenuState) buildDescContainer(world w.World, tabs []shopTabData, t
 	if tabIndex < len(tabs) && itemIndex < len(tabs[tabIndex].Items) {
 		item := tabs[tabIndex].Items[itemIndex]
 		rawMaster := world.Resources.RawMaster
-		spec, err := rawMaster.NewItemSpec(item.Label)
+		spec, err := raw.NewItemSpec(rawMaster, item.Label)
 		if err == nil && spec.Description != nil {
 			desc = spec.Description.Description
 		}

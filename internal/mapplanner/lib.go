@@ -49,7 +49,7 @@ type MetaPlan struct {
 	// SpawnPoints はプレイヤーのスポーン地点リスト
 	SpawnPoints []maptemplate.SpawnPoint
 	// RawMaster はタイル生成に使用するマスターデータ
-	RawMaster *raw.Master
+	RawMaster *oapi.Raws
 }
 
 // IsSpawnableTile は指定タイル座標がスポーン可能かを返す
@@ -615,7 +615,7 @@ func (bm *MetaPlan) GetTile(name string) oapi.Tile {
 	if bm.RawMaster == nil {
 		panic("RawMasterが設定されていない。TOMLからのタイル生成が必須である")
 	}
-	tile, err := bm.RawMaster.GetTile(name)
+	tile, err := raw.GetTile(*bm.RawMaster, name)
 	if err != nil {
 		panic(fmt.Sprintf("タイル生成エラー: %v", err))
 	}
