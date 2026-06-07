@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-07 08:08:41</td>
+            <td class="headerValue">2026-06-07 13:19:20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,7 +111,7 @@
 <span id="L49"><span class="lineNum">      49</span>              :         // SpawnPoints はプレイヤーのスポーン地点リスト</span>
 <span id="L50"><span class="lineNum">      50</span>              :         SpawnPoints []maptemplate.SpawnPoint</span>
 <span id="L51"><span class="lineNum">      51</span>              :         // RawMaster はタイル生成に使用するマスターデータ</span>
-<span id="L52"><span class="lineNum">      52</span>              :         RawMaster *raw.Master</span>
+<span id="L52"><span class="lineNum">      52</span>              :         RawMaster *oapi.Raws</span>
 <span id="L53"><span class="lineNum">      53</span>              : }</span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              : // IsSpawnableTile は指定タイル座標がスポーン可能かを返す</span>
@@ -677,7 +677,7 @@
 <span id="L615"><span class="lineNum">     615</span> <span class="tlaGNC">           1 :         if bm.RawMaster == nil {</span></span>
 <span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(&quot;RawMasterが設定されていない。TOMLからのタイル生成が必須である&quot;)</span></span>
 <span id="L617"><span class="lineNum">     617</span>              :         }</span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC tlaBgGNC">           1 :         tile, err := bm.RawMaster.GetTile(name)</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaGNC tlaBgGNC">           1 :         tile, err := raw.GetTile(*bm.RawMaster, name)</span></span>
 <span id="L619"><span class="lineNum">     619</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L620"><span class="lineNum">     620</span> <span class="tlaUNC tlaBgUNC">           0 :                 panic(fmt.Sprintf(&quot;タイル生成エラー: %v&quot;, err))</span></span>
 <span id="L621"><span class="lineNum">     621</span>              :         }</span>
