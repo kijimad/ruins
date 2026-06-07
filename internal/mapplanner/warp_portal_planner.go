@@ -12,6 +12,7 @@ import (
 const (
 	maxPortalPlacementAttempts = 200 // ポータル配置処理の最大試行回数
 	escapePortalInterval       = 5   // 帰還ポータル配置間隔（n階層ごと）
+	minPortalDistance          = 10  // ポータル間およびプレイヤーからの最低歩数
 )
 
 // PortalPlanner はポータル配置を担当するプランナー
@@ -42,21 +43,28 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 		return fmt.Errorf("%w: %v", ErrConnectivity, err)
 	}
 
-	selector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)
+	// 最低距離付きセレクタを優先し、失敗時は距離制約なしにフォールバック
+	refs := []consts.Coord[int]{playerPos}
+	distSelector := minDistanceReachableSelector(pathFinder, refs, minPortalDistance, maxPortalPlacementAttempts)
+	fallbackSelector := reachableSelector(pathFinder, playerPos, maxPortalPlacementAttempts)
 
 	// 次の階へ進むポータルを配置する
-	x, y, err := findPosition(planData, p.world, selector)
+	x, y, err := findPosition(planData, p.world, distSelector, fallbackSelector)
 	if err != nil {
 		return fmt.Errorf("%w: NextPortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 	}
-	planData.NextPortals = append(planData.NextPortals, consts.Coord[int]{X: int(x), Y: int(y)})
+	nextPortalPos := consts.Coord[int]{X: int(x), Y: int(y)}
+	planData.NextPortals = append(planData.NextPortals, nextPortalPos)
 
 	if worldhelper.GetDungeon(p.world) == nil {
 		return fmt.Errorf("Dungeonが初期化されていません")
 	}
 	// 間隔ごとに帰還ポータルを配置する
 	if worldhelper.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
-		ex, ey, escErr := findPosition(planData, p.world, selector)
+		// プレイヤー位置とNextPortal位置の両方から最低距離を確保する
+		escRefs := []consts.Coord[int]{playerPos, nextPortalPos}
+		escDistSelector := minDistanceReachableSelector(pathFinder, escRefs, minPortalDistance, maxPortalPlacementAttempts)
+		ex, ey, escErr := findPosition(planData, p.world, escDistSelector, fallbackSelector)
 		if escErr != nil {
 			return fmt.Errorf("%w: EscapePortalの配置に失敗しました（%d回試行）", ErrConnectivity, maxPortalPlacementAttempts)
 		}

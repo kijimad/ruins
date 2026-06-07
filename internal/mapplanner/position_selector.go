@@ -63,3 +63,29 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts 
 		return 0, 0, false
 	}
 }
+
+// minDistanceReachableSelector はマップ全体からランダムに選び、
+// 全基準点から到達可能かつ最低歩数以上離れた位置を返す
+func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[int], minDist int, maxAttempts int) positionSelector {
+	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
+		for i := 0; i < maxAttempts; i++ {
+			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
+			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
+			if !planData.IsSpawnableTile(world, x, y) {
+				continue
+			}
+			farEnough := true
+			for _, ref := range referencePoints {
+				path := pf.FindPath(ref.X, ref.Y, int(x), int(y))
+				if len(path) == 0 || len(path) < minDist {
+					farEnough = false
+					break
+				}
+			}
+			if farEnough {
+				return x, y, true
+			}
+		}
+		return 0, 0, false
+	}
+}
