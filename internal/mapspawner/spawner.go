@@ -103,11 +103,10 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 	// アイテムを生成する
 	for _, item := range metaPlan.Items {
 		tileX, tileY := consts.Tile(item.X), consts.Tile(item.Y)
-		count := item.Count
-		if count <= 0 {
-			count = 1
+		if item.Count <= 0 {
+			return gc.Level{}, fmt.Errorf("アイテムの個数が不正です (%d, %d): count=%d", item.X, item.Y, item.Count)
 		}
-		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY, count)
+		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
 		if err != nil {
 			return gc.Level{}, fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
 		}
