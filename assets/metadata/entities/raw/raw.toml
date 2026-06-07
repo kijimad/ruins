@@ -10859,15 +10859,15 @@ subtype = "distribution"
 
 [[itemGroups.entries]]
 itemName = "回復薬"
-weight = 5
+weight = 4
 packMin = 1
-packMax = 3
+packMax = 2
 
 [[itemGroups.entries]]
 itemName = "緑ハーブ"
 weight = 3
 packMin = 1
-packMax = 2
+packMax = 1
 
 [[itemGroups.entries]]
 itemName = "黄ハーブ"
@@ -10877,7 +10877,7 @@ packMax = 1
 
 [[itemGroups.entries]]
 itemName = "毒消し"
-weight = 1.0
+weight = 1.5
 packMin = 1
 packMax = 1
 
@@ -10921,37 +10921,37 @@ subtype = "collection"
 
 [[itemGroups.entries]]
 itemName = "銀の欠片"
-weight = 30
+weight = 15
 packMin = 1
-packMax = 2
+packMax = 1
 
 [[itemGroups.entries]]
 itemName = "古い歯車"
-weight = 25
+weight = 12
 packMin = 1
 packMax = 1
 
 [[itemGroups.entries]]
 itemName = "水晶の粉"
-weight = 20
+weight = 10
 packMin = 1
 packMax = 1
 
 [[itemGroups.entries]]
 itemName = "鉄くず"
-weight = 25
+weight = 15
 packMin = 1
-packMax = 2
+packMax = 1
 
 [[itemGroups.entries]]
 itemName = "黒曜石"
-weight = 20
+weight = 10
 packMin = 1
 packMax = 1
 
 [[itemGroups.entries]]
 itemName = "雷光石"
-weight = 15
+weight = 8
 packMin = 1
 packMax = 1
 
@@ -11574,67 +11574,67 @@ name = "廃墟"
 groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
-weight = 6
+weight = 3
 
 [[itemTables.entries]]
 groupName = "素材類"
 maxDepth = 25
 minDepth = 3
-weight = 3
+weight = 2
 
 [[itemTables.entries]]
 groupName = "投擲武器"
-maxDepth = 35
-minDepth = 10
-weight = 2
+maxDepth = 30
+minDepth = 8
+weight = 1
 
 [[itemTables.entries]]
 groupName = "食料"
 maxDepth = 30
 minDepth = 1
-weight = 4
+weight = 2
+
+[[itemTables.entries]]
+groupName = "序盤近接武器"
+maxDepth = 8
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "序盤防具"
+maxDepth = 10
+minDepth = 1
+weight = 0.8
 
 [[itemTables.entries]]
 groupName = "中盤近接武器"
-maxDepth = 22
-minDepth = 2
-weight = 1.67
+maxDepth = 15
+minDepth = 5
+weight = 1.5
 
 [[itemTables.entries]]
 groupName = "中盤防具"
-maxDepth = 20
-minDepth = 4
-weight = 0.34
+maxDepth = 16
+minDepth = 5
+weight = 0.6
+
+[[itemTables.entries]]
+groupName = "終盤近接武器"
+maxDepth = 30
+minDepth = 12
+weight = 1
+
+[[itemTables.entries]]
+groupName = "終盤防具"
+maxDepth = 30
+minDepth = 12
+weight = 0.4
 
 [[itemTables.entries]]
 groupName = "射撃武器"
 maxDepth = 20
 minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-groupName = "序盤近接武器"
-maxDepth = 12
-minDepth = 1
-weight = 2.1
-
-[[itemTables.entries]]
-groupName = "序盤防具"
-maxDepth = 15
-minDepth = 3
-weight = 0.1
-
-[[itemTables.entries]]
-groupName = "終盤近接武器"
-maxDepth = 35
-minDepth = 7
-weight = 0.67
-
-[[itemTables.entries]]
-groupName = "終盤防具"
-maxDepth = 30
-minDepth = 6
-weight = 0.12
+weight = 0.3
 
 [[itemTables]]
 name = "森"
@@ -11643,61 +11643,61 @@ name = "森"
 groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
-weight = 8
+weight = 4
 
 [[itemTables.entries]]
 groupName = "食料"
 maxDepth = 25
 minDepth = 1
-weight = 4
+weight = 3
+
+[[itemTables.entries]]
+groupName = "序盤近接武器"
+maxDepth = 8
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "序盤防具"
+maxDepth = 10
+minDepth = 1
+weight = 1
 
 [[itemTables.entries]]
 groupName = "中盤近接武器"
-maxDepth = 25
-minDepth = 3
-weight = 1.15
+maxDepth = 15
+minDepth = 5
+weight = 1.2
 
 [[itemTables.entries]]
 groupName = "中盤防具"
-maxDepth = 18
-minDepth = 3
-weight = 0.24
+maxDepth = 16
+minDepth = 5
+weight = 0.5
+
+[[itemTables.entries]]
+groupName = "終盤近接武器"
+maxDepth = 30
+minDepth = 12
+weight = 0.8
 
 [[itemTables.entries]]
 groupName = "射撃武器"
 maxDepth = 20
-minDepth = 3
-weight = 0.37
-
-[[itemTables.entries]]
-groupName = "序盤近接武器"
-maxDepth = 10
-minDepth = 1
-weight = 2.15
-
-[[itemTables.entries]]
-groupName = "序盤防具"
-maxDepth = 15
-minDepth = 1
-weight = 0.48
+minDepth = 5
+weight = 0.5
 
 [[itemTables.entries]]
 groupName = "投げ武器"
-maxDepth = 12
+maxDepth = 10
 minDepth = 2
-weight = 0.35
+weight = 0.5
 
 [[itemTables.entries]]
 groupName = "投擲武器"
 maxDepth = 25
-minDepth = 6
-weight = 0.8
-
-[[itemTables.entries]]
-groupName = "終盤近接武器"
-maxDepth = 35
-minDepth = 7
-weight = 0.35
+minDepth = 8
+weight = 0.6
 
 [[itemTables]]
 name = "洞窟"
@@ -11706,67 +11706,67 @@ name = "洞窟"
 groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
-weight = 6
+weight = 2.5
 
 [[itemTables.entries]]
 groupName = "素材類"
 maxDepth = 25
-minDepth = 5
+minDepth = 3
 weight = 3
 
 [[itemTables.entries]]
 groupName = "食料"
 maxDepth = 20
 minDepth = 1
-weight = 3
-
-[[itemTables.entries]]
-groupName = "中盤近接武器"
-maxDepth = 25
-minDepth = 3
-weight = 1.16
-
-[[itemTables.entries]]
-groupName = "中盤防具"
-maxDepth = 20
-minDepth = 3
-weight = 0.18
-
-[[itemTables.entries]]
-groupName = "射撃武器"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
+weight = 1.5
 
 [[itemTables.entries]]
 groupName = "序盤近接武器"
-maxDepth = 12
+maxDepth = 8
 minDepth = 1
-weight = 1.45
+weight = 1.5
 
 [[itemTables.entries]]
 groupName = "序盤防具"
 maxDepth = 10
 minDepth = 1
-weight = 0.1
+weight = 0.6
+
+[[itemTables.entries]]
+groupName = "中盤近接武器"
+maxDepth = 15
+minDepth = 5
+weight = 1.5
+
+[[itemTables.entries]]
+groupName = "中盤防具"
+maxDepth = 16
+minDepth = 5
+weight = 0.5
+
+[[itemTables.entries]]
+groupName = "終盤近接武器"
+maxDepth = 30
+minDepth = 12
+weight = 1.2
+
+[[itemTables.entries]]
+groupName = "終盤防具"
+maxDepth = 30
+minDepth = 12
+weight = 0.5
+
+[[itemTables.entries]]
+groupName = "射撃武器"
+maxDepth = 20
+minDepth = 5
+weight = 0.2
 
 [[itemTables.entries]]
 groupName = "投擲武器"
 maxDepth = 30
 minDepth = 8
-weight = 0.3
-
-[[itemTables.entries]]
-groupName = "終盤近接武器"
-maxDepth = 35
-minDepth = 7
 weight = 0.5
-
-[[itemTables.entries]]
-groupName = "終盤防具"
-maxDepth = 30
-minDepth = 6
-weight = 0.17
 
 
 [[enemyTables]]
