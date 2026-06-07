@@ -128,7 +128,10 @@ func NewScreenTextEffect(text string, screenW, screenH int) *ScreenTextEffect {
 
 // NewDungeonTitleEffect はダンジョンタイトル表示エフェクトを作成する
 func NewDungeonTitleEffect(dungeonName string, depth int, screenW, screenH int) *ScreenTextEffect {
-	text := fmt.Sprintf("%s %dF", dungeonName, depth)
+	text := dungeonName
+	if depth > 0 {
+		text = fmt.Sprintf("%s %dF", dungeonName, depth)
+	}
 	return NewScreenTextEffect(text, screenW, screenH)
 }
 
