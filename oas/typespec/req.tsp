@@ -197,9 +197,36 @@ model DropTable {
   entries: DropTableEntry[];
 }
 
-/** アイテムテーブルエントリ */
-model ItemTableEntry {
+/**
+ * アイテムグループのサブタイプ
+ */
+enum ItemGroupSubtype {
+  /** エントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う */
+  distribution,
+  /** 各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。複数当選することもありうる */
+  collection,
+}
+
+/** アイテムグループエントリ */
+model ItemGroupEntry {
   itemName: EntityName;
+  /** distribution: 相対重み。collection: 確率（0-100） */
+  weight: EntryWeight;
+  packMin: PackMin;
+  packMax: PackMax;
+}
+
+/** アイテムグループ。アイテムの出現セットを定義する */
+model ItemGroup {
+  name: EntityName;
+  subtype: ItemGroupSubtype;
+  entries: ItemGroupEntry[];
+}
+
+/** アイテムテーブルエントリ。アイテムグループを参照する */
+model ItemTableEntry {
+  /** 参照するアイテムグループ名 */
+  groupName: EntityName;
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
@@ -217,6 +244,8 @@ model EnemyTableEntry {
   weight: EntryWeight;
   minDepth: DepthLevel;
   maxDepth: DepthLevel;
+  packMin: PackMin;
+  packMax: PackMax;
 }
 
 /** 敵テーブル */

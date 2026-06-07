@@ -68,6 +68,10 @@ scalar MaterialAmount extends int32;
 scalar MessageKey extends string;
 /** 栄養価 */
 scalar NutritionAmount extends int32;
+/** パックの最大数 */
+scalar PackMax extends int32;
+/** パックの最小数 */
+scalar PackMin extends int32;
 /** パレットID */
 scalar PaletteId extends string;
 /** 職業ID */

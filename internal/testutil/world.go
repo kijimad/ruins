@@ -70,7 +70,7 @@ func InitTestWorld(t *testing.T) w.World {
 	}
 	world.Resources.SpriteSheets = spriteSheets
 
-	// テスト用のLevel設定
+	// テスト用のLevel設定。worldhelperの循環importを避けるため直接設定する
 	d := world.Components.DungeonState.Get(world.Resources.SingletonEntity).(*gc.Dungeon)
 	d.Level = gc.Level{
 		TileWidth:  50,

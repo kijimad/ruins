@@ -24,30 +24,28 @@ func CreateTestRawMaster() *raw.Master {
 		{
 			Name: "通常",
 			Entries: []oapi.ItemTableEntry{
-				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{ItemName: "手榴弾", Weight: 0.5, MinDepth: 8, MaxDepth: 40},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+				{GroupName: "鉱石類", Weight: 0.5, MinDepth: 3, MaxDepth: 40},
 			},
 		},
 		{
 			Name: "洞窟",
 			Entries: []oapi.ItemTableEntry{
-				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
-				{ItemName: "毒消し", Weight: 0.8, MinDepth: 1, MaxDepth: 8},
-				{ItemName: "黒曜石", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 20},
+				{GroupName: "鉱石類", Weight: 0.6, MinDepth: 3, MaxDepth: 25},
 			},
 		},
 		{
 			Name: "森",
 			Entries: []oapi.ItemTableEntry{
-				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{ItemName: "緑ハーブ", Weight: 1.2, MinDepth: 1, MaxDepth: 15},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
 			},
 		},
 		{
 			Name: "廃墟",
 			Entries: []oapi.ItemTableEntry{
-				{ItemName: "回復薬", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
-				{ItemName: "銀の欠片", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
+				{GroupName: "回復アイテム", Weight: 1.0, MinDepth: 1, MaxDepth: 15},
+				{GroupName: "鉱石類", Weight: 0.8, MinDepth: 3, MaxDepth: 20},
 			},
 		},
 	}
@@ -105,13 +103,57 @@ func CreateTestRawMaster() *raw.Master {
 		enemyTableIndex[table.Name] = i
 	}
 
+	// テスト用のアイテムグループを定義
+	testItemGroups := []oapi.ItemGroup{
+		{
+			Name:    "回復アイテム",
+			Subtype: oapi.Distribution,
+			Entries: []oapi.ItemGroupEntry{
+				{ItemName: "回復薬", Weight: 1.0, PackMin: 1, PackMax: 3},
+				{ItemName: "毒消し", Weight: 0.5, PackMin: 1, PackMax: 1},
+			},
+		},
+		{
+			Name:    "鉱石類",
+			Subtype: oapi.Collection,
+			Entries: []oapi.ItemGroupEntry{
+				{ItemName: "黒曜石", Weight: 50, PackMin: 1, PackMax: 2},
+				{ItemName: "銀の欠片", Weight: 30, PackMin: 1, PackMax: 1},
+			},
+		},
+	}
+
+	itemGroupIndex := make(map[string]int)
+	for i, group := range testItemGroups {
+		itemGroupIndex[group.Name] = i
+	}
+
+	// テスト用のアイテム定義（Stackable判定に必要）
+	stackableTrue := true
+	testItems := []oapi.Item{
+		{Name: "回復薬", Description: "HPを回復する", Stackable: &stackableTrue},
+		{Name: "毒消し", Description: "毒を回復する", Stackable: &stackableTrue},
+		{Name: "黒曜石", Description: "黒い石", Stackable: &stackableTrue},
+		{Name: "銀の欠片", Description: "銀の欠片", Stackable: &stackableTrue},
+		{Name: "薬草", Description: "薬草", Stackable: &stackableTrue},
+		{Name: "木刀", Description: "木製の刀"},
+	}
+	itemIndex := make(map[string]int)
+	for i, item := range testItems {
+		itemIndex[item.Name] = i
+	}
+
 	return &raw.Master{
 		Raws: raw.Raws{
 			Tiles:       testTiles,
+			Items:       testItems,
+			ItemGroups:  testItemGroups,
 			ItemTables:  testItemTables,
 			EnemyTables: testEnemyTables,
 		},
 		TileIndex:       tileIndex,
+		ItemIndex:       itemIndex,
+		ItemGroupIndex:  itemGroupIndex,
 		ItemTableIndex:  itemTableIndex,
 		EnemyTableIndex: enemyTableIndex,
 	}

@@ -162,6 +162,18 @@ func (pf *PathFinder) countReachableFrom(startX, startY int) int {
 	return count
 }
 
+// hasAdjacentFreeTile は隣接4方向のうち少なくとも1つが歩行可能かつ計画済みエンティティがないかを判定する
+func (pf *PathFinder) hasAdjacentFreeTile(x, y int) bool {
+	directions := [][2]int{{0, 1}, {1, 0}, {0, -1}, {-1, 0}}
+	for _, d := range directions {
+		nx, ny := x+d[0], y+d[1]
+		if pf.IsWalkable(nx, ny) && !pf.planData.existPlannedEntityOnTile(nx, ny) {
+			return true
+		}
+	}
+	return false
+}
+
 // minReachableTiles はスポーン位置から到達可能なタイルの最小数。
 // 小さな孤立部屋にスポーンしてポータルが至近距離に配置される問題を防ぐ
 const minReachableTiles = 100
@@ -218,6 +230,12 @@ func (pf *PathFinder) isValidSpawnPosition(x, y int) bool {
 
 	// NPC・アイテム・ポータルなど計画済みエンティティとの重複を防ぐ
 	if planData.existPlannedEntityOnTile(x, y) {
+		return false
+	}
+
+	// 隣接4方向のうち少なくとも1つは移動可能なタイルが必要。
+	// 敵エンティティはBlockPassを持つため、全隣接タイルが占有されるとプレイヤーが移動不能になる
+	if !pf.hasAdjacentFreeTile(x, y) {
 		return false
 	}
 

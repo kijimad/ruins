@@ -372,10 +372,38 @@ func NewBigRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Pla
 	return chain, nil
 }
 
-// SpawnEntry はスポーン対象のエントリを表す
+// SpawnEntry はスポーン対象のエントリを表す。
 type SpawnEntry struct {
-	Name   string
-	Weight float64
+	Name    string
+	Weight  float64
+	PackMin int // パックの最小数。1以上
+	PackMax int // パックの最大数。PackMin以上
+}
+
+// PackSize はPackMin〜PackMaxの範囲でランダムなパックサイズを返す
+func (e SpawnEntry) PackSize(rng *rand.Rand) int {
+	if e.PackMin == e.PackMax {
+		return e.PackMin
+	}
+	return e.PackMin + rng.IntN(e.PackMax-e.PackMin+1)
+}
+
+// ItemGroupSubtype はアイテムグループの選択方式
+type ItemGroupSubtype string
+
+const (
+	// ItemGroupDistribution はエントリ群から重み比率に基づいて1つだけ選ぶ。weightは相対比率として扱う
+	ItemGroupDistribution ItemGroupSubtype = "distribution"
+	// ItemGroupCollection は各エントリを独立に確率判定する。weightは0-100の出現確率(%)として扱う。両方出ることも、どちらも出ないこともある
+	ItemGroupCollection ItemGroupSubtype = "collection"
+)
+
+// ItemSource はアイテム配置の元になるデータ
+// テーブルエントリから解決済みの状態で保持する
+type ItemSource struct {
+	Weight  float64          // テーブルレベルの重み
+	Subtype ItemGroupSubtype // グループの選択方式
+	Entries []SpawnEntry     // グループ内のエントリ
 }
 
 // PlannerType はマップ生成の設定を表す構造体
@@ -384,8 +412,8 @@ type PlannerType struct {
 	Name string
 	// ポータル位置を固定するか
 	UseFixedPortalPos bool
-	// スポーンするアイテムのエントリ（階層でフィルタリング済み）
-	ItemEntries []SpawnEntry
+	// スポーンするアイテムソース（階層でフィルタリング済み）
+	ItemSources []ItemSource
 	// スポーンする敵のエントリ（階層でフィルタリング済み）
 	EnemyEntries []SpawnEntry
 	// プランナー関数
@@ -499,6 +527,86 @@ func NewRandomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*Plan
 		return nil, fmt.Errorf("ランダムプランナー選択エラー: %w", err)
 	}
 	return chain, nil
+}
+
+// selectSpawnEntry はSpawnEntryリストから重み付き抽選で1つ選択する
+func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) {
+	return raw.SelectByWeightFunc(
+		entries,
+		func(e SpawnEntry) float64 { return e.Weight },
+		func(e SpawnEntry) SpawnEntry { return e },
+		rng,
+	)
+}
+
+// selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す
+// 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる
+func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
+	if len(bm.Rooms) == 0 {
+		return gc.Rect{}, 0, false
+	}
+	totalArea := 0
+	for _, r := range bm.Rooms {
+		w := int(r.X2 - r.X1)
+		h := int(r.Y2 - r.Y1)
+		if w > 0 && h > 0 {
+			totalArea += w * h
+		}
+	}
+	if totalArea == 0 {
+		idx := bm.RNG.IntN(len(bm.Rooms))
+		return bm.Rooms[idx], idx, true
+	}
+	roll := bm.RNG.IntN(totalArea)
+	cumulative := 0
+	for i, r := range bm.Rooms {
+		w := int(r.X2 - r.X1)
+		h := int(r.Y2 - r.Y1)
+		if w > 0 && h > 0 {
+			cumulative += w * h
+		}
+		if roll < cumulative {
+			return bm.Rooms[i], i, true
+		}
+	}
+	idx := len(bm.Rooms) - 1
+	return bm.Rooms[idx], idx, true
+}
+
+// randomPositionInRoom は指定した部屋内からスポーン可能なランダム座標を探す
+// maxAttemptsを超えても見つからない場合はfalseを返す
+func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
+	rw := int(room.X2 - room.X1)
+	rh := int(room.Y2 - room.Y1)
+	if rw <= 0 || rh <= 0 {
+		return 0, 0, false
+	}
+	for i := 0; i < maxAttempts; i++ {
+		tx := consts.Tile(int(room.X1) + bm.RNG.IntN(rw))
+		ty := consts.Tile(int(room.Y1) + bm.RNG.IntN(rh))
+		if bm.IsSpawnableTile(world, tx, ty) {
+			return tx, ty, true
+		}
+	}
+	return 0, 0, false
+}
+
+// randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。
+// 大部屋でクラスタメンバーを密集させるために使用する
+func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
+	for i := 0; i < maxAttempts; i++ {
+		dx := bm.RNG.IntN(radius*2+1) - radius
+		dy := bm.RNG.IntN(radius*2+1) - radius
+		tx := consts.Tile(int(centerX) + dx)
+		ty := consts.Tile(int(centerY) + dy)
+		if tx < room.X1 || tx >= room.X2 || ty < room.Y1 || ty >= room.Y2 {
+			continue
+		}
+		if bm.IsSpawnableTile(world, tx, ty) {
+			return tx, ty, true
+		}
+	}
+	return 0, 0, false
 }
 
 // GetTile はタイルを生成する

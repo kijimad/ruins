@@ -8,6 +8,7 @@ tags:
   - name: Recipes
   - name: CommandTables
   - name: DropTables
+  - name: ItemGroups
   - name: ItemTables
   - name: EnemyTables
   - name: Tiles
@@ -310,6 +311,104 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - EnemyTables
+  /api/v1/item-groups:
+    get:
+      operationId: ItemGroups_list
+      description: アイテムグループ一覧取得
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemGroupList'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemGroups
+    post:
+      operationId: ItemGroups_create
+      description: アイテムグループ作成
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemGroup'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemGroups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemGroup'
+  /api/v1/item-groups/{index}:
+    put:
+      operationId: ItemGroups_update
+      description: アイテムグループ更新
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemGroup'
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemGroups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemGroup'
+    delete:
+      operationId: ItemGroups_delete
+      description: アイテムグループ削除
+      parameters:
+        - name: index
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+        default:
+          description: An unexpected error response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - ItemGroups
   /api/v1/item-tables:
     get:
       operationId: ItemTables_list
@@ -1604,6 +1703,8 @@ components:
         - weight
         - minDepth
         - maxDepth
+        - packMin
+        - packMax
       properties:
         enemyName:
           $ref: '#/components/schemas/EntityName'
@@ -1613,6 +1714,10 @@ components:
           $ref: '#/components/schemas/DepthLevel'
         maxDepth:
           $ref: '#/components/schemas/DepthLevel'
+        packMin:
+          $ref: '#/components/schemas/PackMin'
+        packMax:
+          $ref: '#/components/schemas/PackMax'
       description: 敵テーブルエントリ
     EnemyTableList:
       type: object
@@ -1828,6 +1933,61 @@ components:
       type: integer
       format: int32
       description: アイテム所持数
+    ItemGroup:
+      type: object
+      required:
+        - name
+        - subtype
+        - entries
+      properties:
+        name:
+          $ref: '#/components/schemas/EntityName'
+        subtype:
+          $ref: '#/components/schemas/ItemGroupSubtype'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemGroupEntry'
+      description: アイテムグループ。アイテムの出現セットを定義する
+    ItemGroupEntry:
+      type: object
+      required:
+        - itemName
+        - weight
+        - packMin
+        - packMax
+      properties:
+        itemName:
+          $ref: '#/components/schemas/EntityName'
+        weight:
+          allOf:
+            - $ref: '#/components/schemas/EntryWeight'
+          description: 'distribution: 相対重み。collection: 確率（0-100）'
+        packMin:
+          $ref: '#/components/schemas/PackMin'
+        packMax:
+          $ref: '#/components/schemas/PackMax'
+      description: アイテムグループエントリ
+    ItemGroupList:
+      type: object
+      required:
+        - data
+        - totalCount
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemGroup'
+        totalCount:
+          type: integer
+          format: int32
+      description: アイテムグループ一覧
+    ItemGroupSubtype:
+      type: string
+      enum:
+        - distribution
+        - collection
+      description: アイテムグループのサブタイプ
     ItemList:
       type: object
       required:
@@ -1858,20 +2018,22 @@ components:
     ItemTableEntry:
       type: object
       required:
-        - itemName
+        - groupName
         - weight
         - minDepth
         - maxDepth
       properties:
-        itemName:
-          $ref: '#/components/schemas/EntityName'
+        groupName:
+          allOf:
+            - $ref: '#/components/schemas/EntityName'
+          description: 参照するアイテムグループ名
         weight:
           $ref: '#/components/schemas/EntryWeight'
         minDepth:
           $ref: '#/components/schemas/DepthLevel'
         maxDepth:
           $ref: '#/components/schemas/DepthLevel'
-      description: アイテムテーブルエントリ
+      description: アイテムテーブルエントリ。アイテムグループを参照する
     ItemTableList:
       type: object
       required:
@@ -2029,6 +2191,14 @@ components:
       type: integer
       format: int32
       description: 栄養価
+    PackMax:
+      type: integer
+      format: int32
+      description: パックの最大数
+    PackMin:
+      type: integer
+      format: int32
+      description: パックの最小数
     Palette:
       type: object
       required:

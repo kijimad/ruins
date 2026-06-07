@@ -20,7 +20,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 10, 10)
+		_, err = worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -40,7 +40,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// アイテムは別のタイルにある
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20)
+		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -100,7 +100,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10)
+		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -128,7 +128,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// 別のタイルにアイテムがある
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20)
+		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{

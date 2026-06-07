@@ -30,6 +30,7 @@ import {
   ShelterType,
   WaterType,
   FoliageType,
+  ItemGroupSubtype,
 } from "../generated";
 import {
   useResourceList,
@@ -182,6 +183,11 @@ const createTemplates: Record<string, Record<string, JsonValue>> = {
     name: "新規",
     entries: [],
   },
+  "item-groups": {
+    name: "新規",
+    subtype: "distribution",
+    entries: [],
+  },
   tiles: {
     name: "新規",
     description: "",
@@ -234,8 +240,9 @@ const arrayElementTemplates: Record<string, JsonValue> = {
 const entriesTemplates: Record<string, JsonValue> = {
   "command-tables": { weapon: "", weight: 1 },
   "drop-tables": { material: "", weight: 1 },
-  "item-tables": { itemName: "", minDepth: 1, maxDepth: 10, weight: 1 },
+  "item-tables": { groupName: "", minDepth: 1, maxDepth: 10, weight: 1 },
   "enemy-tables": { enemyName: "", minDepth: 1, maxDepth: 10, weight: 1 },
+  "item-groups": { itemName: "", weight: 1, packMin: 1, packMax: 1 },
 };
 
 // OAPIから生成されたenumの値を文字列配列として取得するヘルパー
@@ -262,6 +269,7 @@ const selectFieldOptions: Record<
   valueType: { options: enumValues(HealingValueType) },
   slot: { options: enumValues(EquipSlot) },
   ammoTag: { options: enumValues(AmmoTag), allowEmpty: true },
+  subtype: { options: enumValues(ItemGroupSubtype) },
 };
 
 // 数値enum型のフィールド。OAPIから生成されたenum値を使用する
@@ -326,10 +334,17 @@ const searchableFields: Record<string, SearchableFieldDef[]> = {
     { parentField: "entries", field: "material", optionsSource: "items" },
   ],
   "item-tables": [
-    { parentField: "entries", field: "itemName", optionsSource: "items" },
+    {
+      parentField: "entries",
+      field: "groupName",
+      optionsSource: "item-groups",
+    },
   ],
   "enemy-tables": [
     { parentField: "entries", field: "enemyName", optionsSource: "members" },
+  ],
+  "item-groups": [
+    { parentField: "entries", field: "itemName", optionsSource: "items" },
   ],
 };
 
@@ -464,6 +479,9 @@ export function ResourcePage({
   const propsQuery = useResourceList<Record<string, JsonValue>>(
     neededSources.has("props") ? "props" : "",
   );
+  const itemGroupsQuery = useResourceList<Record<string, JsonValue>>(
+    neededSources.has("item-groups") ? "item-groups" : "",
+  );
 
   // 参照先の名前リストを構築
   const referenceOptions = useMemo(() => {
@@ -494,6 +512,11 @@ export function ResourcePage({
     if (propsQuery.data?.data) {
       opts["props"] = propsQuery.data.data.map((p) => String(p["name"] ?? ""));
     }
+    if (itemGroupsQuery.data?.data) {
+      opts["item-groups"] = itemGroupsQuery.data.data.map((g) =>
+        String(g["name"] ?? ""),
+      );
+    }
     opts["skills"] = allSkillIDs;
     return opts;
   }, [
@@ -503,6 +526,7 @@ export function ResourcePage({
     dropTablesQuery.data,
     tilesQuery.data,
     propsQuery.data,
+    itemGroupsQuery.data,
   ]);
 
   const items = useMemo(() => data?.data ?? [], [data]);

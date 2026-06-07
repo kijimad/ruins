@@ -107,6 +107,19 @@ interface DropTables {
   @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
 }
 
+@tag("ItemGroups")
+@route("/api/v1/item-groups")
+interface ItemGroups {
+  /** アイテムグループ一覧取得 */
+  @get list(): ItemGroupList | Error;
+  /** アイテムグループ作成 */
+  @post create(@body group: ItemGroup): { @statusCode statusCode: 201; @body body: ItemGroup; } | Error;
+  /** アイテムグループ更新 */
+  @put @route("/{index}") update(@path index: int32, @body group: ItemGroup): ItemGroup | Error;
+  /** アイテムグループ削除 */
+  @delete @route("/{index}") delete(@path index: int32): { @statusCode statusCode: 204; } | Error;
+}
+
 @tag("ItemTables")
 @route("/api/v1/item-tables")
 interface ItemTables {

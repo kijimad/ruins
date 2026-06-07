@@ -10853,1010 +10853,921 @@ weight = 0.3
 material = "錆びた鎖"
 weight = 0.3
 
+[[itemGroups]]
+name = "回復アイテム"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "回復薬"
+weight = 4
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "緑ハーブ"
+weight = 3
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黄ハーブ"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "毒消し"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "投擲武器"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "手榴弾"
+weight = 3
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "閃光弾"
+weight = 2
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "火炎グレネード"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "毒グレネード"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "煙幕弾"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups]]
+name = "素材類"
+subtype = "collection"
+
+[[itemGroups.entries]]
+itemName = "銀の欠片"
+weight = 15
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "古い歯車"
+weight = 12
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "水晶の粉"
+weight = 10
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄くず"
+weight = 15
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黒曜石"
+weight = 10
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "雷光石"
+weight = 8
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "食料"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "ビスケット"
+weight = 3
+packMin = 1
+packMax = 3
+
+[[itemGroups.entries]]
+itemName = "乾肉"
+weight = 2
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "パン"
+weight = 2.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "バナナ"
+weight = 1.5
+packMin = 1
+packMax = 3
+
+[[itemGroups.entries]]
+itemName = "クッキー"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "ドーナツ"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "サンドイッチ"
+weight = 1
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "チョコレート"
+weight = 1
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "コーラ"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "チーズ"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "クロワッサン"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ハンバーガー"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "チェリー"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "パンケーキ"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "トマト"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "ブロッコリー"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "スイカ"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "カボチャ"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "スムージー"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ラーメン"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "牛肉"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "アイスクリーム"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ポップコーン"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "アーモンド"
+weight = 1.5
+packMin = 1
+packMax = 2
+
+[[itemGroups.entries]]
+itemName = "海老"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "序盤近接武器"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "たいまつ"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ほうき"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "木刀"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "木の棒"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "釘バット"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "カッターナイフ"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "フォーク"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ドライバー"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "モンキーレンチ"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "シャベル"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "針工具"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "プライヤー"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ツルハシ"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "消火器"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ヌンチャク"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鋳鉄の剣"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "中盤近接武器"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "鉄のナイフ"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄の剣"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "斧"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄の直剣"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄の曲刀"
+weight = 1.2
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ハンマー"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ブロックハンマー"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "細いレイピア"
+weight = 1.2
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "歪曲刀"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "大鎌"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄カッター"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "電動ドライバー"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "紫の刀"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "紫メイス"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "緑剣"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "水晶の剣"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "三叉槍"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄のチャクラム"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "アイスメイス"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "終盤近接武器"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "クレイモア"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黒い刀"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "天使の剣"
+weight = 0.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "青いバトルアックス"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "明メイス"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "ハルバード"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "重い曲刀"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "バトルアックス"
+weight = 0.6
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黒いバトルアックス"
+weight = 0.4
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "水晶杖"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "機械腕"
+weight = 0.6
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "強化機械腕"
+weight = 0.3
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "射撃武器"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "ハンドガン"
+weight = 2.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "狩人の弓"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄のクロスボウ"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "投げ武器"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "手裏剣"
+weight = 2.0
+packMin = 1
+packMax = 3
+
+[[itemGroups.entries]]
+itemName = "ブーメラン"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "序盤防具"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "緑の服"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "サンダル"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "革の脚絆"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "白い脚絆"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "道着"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "コック帽"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "中盤防具"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "赤いマント"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "紳士の服"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黒い道着"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "緑冒険者の服"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "世紀末の服"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黒い脚絆"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "防寒脚絆"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "毛皮付きコート"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "鉄の脚鎧"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups]]
+name = "終盤防具"
+subtype = "distribution"
+
+[[itemGroups.entries]]
+itemName = "鎖帷子"
+weight = 1.5
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "騎士の脚甲"
+weight = 1.0
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "黄金の脚鎧"
+weight = 0.8
+packMin = 1
+packMax = 1
+
+[[itemGroups.entries]]
+itemName = "十字軍の服"
+weight = 0.8
+packMin = 1
+packMax = 1
+
 [[itemTables]]
 name = "廃墟"
 
 [[itemTables.entries]]
-itemName = "回復薬"
+groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
-weight = 6
+weight = 3
 
 [[itemTables.entries]]
-itemName = "銀の欠片"
-maxDepth = 20
-minDepth = 3
-weight = 0.8
-
-[[itemTables.entries]]
-itemName = "古い歯車"
+groupName = "素材類"
 maxDepth = 25
-minDepth = 5
-weight = 0.7
+minDepth = 3
+weight = 2
 
 [[itemTables.entries]]
-itemName = "水晶の粉"
+groupName = "投擲武器"
 maxDepth = 30
 minDepth = 8
-weight = 0.6
+weight = 1
 
 [[itemTables.entries]]
-itemName = "手榴弾"
-maxDepth = 35
-minDepth = 10
-weight = 0.5
-
-[[itemTables.entries]]
-itemName = "閃光弾"
-maxDepth = 30
-minDepth = 15
-weight = 0.4
-
-[[itemTables.entries]]
-itemName = "ビスケット"
-maxDepth = 20
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "乾肉"
-maxDepth = 25
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "パン"
-maxDepth = 15
-minDepth = 1
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "木刀"
-maxDepth = 8
-minDepth = 2
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "鉄のナイフ"
-maxDepth = 15
-minDepth = 4
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "鉄の剣"
-maxDepth = 20
-minDepth = 6
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ハンドガン"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "緑ハーブ"
+groupName = "食料"
 maxDepth = 30
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-itemName = "黄ハーブ"
-maxDepth = 30
-minDepth = 3
+groupName = "序盤近接武器"
+maxDepth = 8
+minDepth = 1
+weight = 2
+
+[[itemTables.entries]]
+groupName = "序盤防具"
+maxDepth = 10
+minDepth = 1
+weight = 0.8
+
+[[itemTables.entries]]
+groupName = "中盤近接武器"
+maxDepth = 15
+minDepth = 5
 weight = 1.5
 
 [[itemTables.entries]]
-itemName = "釘バット"
-maxDepth = 6
-minDepth = 1
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "斧"
-maxDepth = 10
-minDepth = 3
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "クレイモア"
-maxDepth = 25
-minDepth = 7
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "バナナ"
-maxDepth = 15
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "クッキー"
-maxDepth = 10
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "ドーナツ"
-maxDepth = 15
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "水晶の剣"
-maxDepth = 20
+groupName = "中盤防具"
+maxDepth = 16
 minDepth = 5
-weight = 0.1
+weight = 0.6
 
 [[itemTables.entries]]
-itemName = "ハンマー"
-maxDepth = 15
-minDepth = 4
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ツルハシ"
-maxDepth = 6
-minDepth = 1
-weight = 0.25
-
-[[itemTables.entries]]
-itemName = "サンドイッチ"
-maxDepth = 20
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "チョコレート"
-maxDepth = 15
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "鎖帷子"
-maxDepth = 25
-minDepth = 6
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "赤いマント"
-maxDepth = 20
-minDepth = 4
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "鉄の直剣"
-maxDepth = 15
-minDepth = 4
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "鉄の曲刀"
-maxDepth = 18
-minDepth = 5
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "ブロックハンマー"
-maxDepth = 18
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "黒い刀"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "天使の剣"
-maxDepth = 30
-minDepth = 10
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "スムージー"
-maxDepth = 15
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ラーメン"
-maxDepth = 25
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "牛肉"
-maxDepth = 25
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "世紀末の服"
-maxDepth = 20
-minDepth = 4
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "火炎グレネード"
-maxDepth = 30
-minDepth = 8
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "毒グレネード"
-maxDepth = 25
-minDepth = 6
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "カッターナイフ"
-maxDepth = 5
-minDepth = 1
-weight = 0.25
-
-[[itemTables.entries]]
-itemName = "モンキーレンチ"
-maxDepth = 8
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "シャベル"
-maxDepth = 8
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "青いバトルアックス"
-maxDepth = 30
-minDepth = 9
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "明メイス"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "鉄の脚鎧"
-maxDepth = 20
-minDepth = 5
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "革の脚絆"
-maxDepth = 15
-minDepth = 3
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "紳士の服"
-maxDepth = 18
-minDepth = 4
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "鋳鉄の剣"
-maxDepth = 12
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "消火器"
-maxDepth = 8
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "ドライバー"
-maxDepth = 5
-minDepth = 1
-weight = 0.25
-
-[[itemTables.entries]]
-itemName = "電動ドライバー"
-maxDepth = 10
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "鉄カッター"
-maxDepth = 10
-minDepth = 2
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "機械腕"
-maxDepth = 25
-minDepth = 7
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "強化機械腕"
-maxDepth = 35
-minDepth = 10
-weight = 0.04
-
-[[itemTables.entries]]
-itemName = "騎士の脚甲"
-maxDepth = 30
-minDepth = 8
-weight = 0.04
-
-[[itemTables.entries]]
-itemName = "ハルバード"
-maxDepth = 25
-minDepth = 9
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "重い曲刀"
-maxDepth = 25
-minDepth = 9
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "バトルアックス"
+groupName = "終盤近接武器"
 maxDepth = 30
 minDepth = 12
-weight = 0.04
+weight = 1
 
 [[itemTables.entries]]
-itemName = "黒いバトルアックス"
-maxDepth = 35
-minDepth = 16
-weight = 0.03
+groupName = "終盤防具"
+maxDepth = 30
+minDepth = 12
+weight = 0.4
 
 [[itemTables.entries]]
-itemName = "三叉槍"
-maxDepth = 22
-minDepth = 7
-weight = 0.07
-
-[[itemTables.entries]]
-itemName = "紫の刀"
-maxDepth = 22
-minDepth = 7
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "歪曲刀"
+groupName = "射撃武器"
 maxDepth = 20
-minDepth = 6
-weight = 0.07
+minDepth = 5
+weight = 0.3
 
 [[itemTables]]
 name = "森"
 
 [[itemTables.entries]]
-itemName = "回復薬"
+groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
-weight = 8
+weight = 4
 
 [[itemTables.entries]]
-itemName = "緑ハーブ"
-maxDepth = 30
+groupName = "食料"
+maxDepth = 25
+minDepth = 1
+weight = 3
+
+[[itemTables.entries]]
+groupName = "序盤近接武器"
+maxDepth = 8
 minDepth = 1
 weight = 2
 
 [[itemTables.entries]]
-itemName = "黄ハーブ"
-maxDepth = 30
-minDepth = 3
-weight = 1.5
+groupName = "序盤防具"
+maxDepth = 10
+minDepth = 1
+weight = 1
 
 [[itemTables.entries]]
-itemName = "木の棒"
-maxDepth = 7
-minDepth = 1
+groupName = "中盤近接武器"
+maxDepth = 15
+minDepth = 5
+weight = 1.2
+
+[[itemTables.entries]]
+groupName = "中盤防具"
+maxDepth = 16
+minDepth = 5
 weight = 0.5
 
 [[itemTables.entries]]
-itemName = "毒消し"
-maxDepth = 10
-minDepth = 1
-weight = 0.7
-
-[[itemTables.entries]]
-itemName = "煙幕弾"
-maxDepth = 18
-minDepth = 8
-weight = 0.5
-
-[[itemTables.entries]]
-itemName = "パン"
-maxDepth = 18
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "コーラ"
-maxDepth = 12
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "チーズ"
-maxDepth = 15
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ビスケット"
-maxDepth = 10
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "木刀"
-maxDepth = 8
-minDepth = 1
-weight = 0.4
-
-[[itemTables.entries]]
-itemName = "鉄のナイフ"
-maxDepth = 15
-minDepth = 3
-weight = 0.25
-
-[[itemTables.entries]]
-itemName = "鉄の剣"
-maxDepth = 20
-minDepth = 5
-weight = 0.18
-
-[[itemTables.entries]]
-itemName = "ハンドガン"
-maxDepth = 20
-minDepth = 5
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "狩人の弓"
-maxDepth = 15
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "鉄のクロスボウ"
-maxDepth = 20
-minDepth = 7
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "クロワッサン"
-maxDepth = 15
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "バナナ"
-maxDepth = 15
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "ハンバーガー"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "細いレイピア"
-maxDepth = 15
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ヌンチャク"
-maxDepth = 10
-minDepth = 2
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "手裏剣"
-maxDepth = 12
-minDepth = 2
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "チェリー"
-maxDepth = 15
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "パンケーキ"
-maxDepth = 15
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "トマト"
-maxDepth = 12
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "道着"
-maxDepth = 15
-minDepth = 3
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "緑剣"
-maxDepth = 20
-minDepth = 5
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "歪曲刀"
-maxDepth = 18
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "鉄のチャクラム"
-maxDepth = 15
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "三叉槍"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "ブロッコリー"
-maxDepth = 15
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "スイカ"
-maxDepth = 18
-minDepth = 3
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "カボチャ"
-maxDepth = 18
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "緑冒険者の服"
-maxDepth = 18
-minDepth = 3
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "黒い道着"
-maxDepth = 15
-minDepth = 4
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "毒グレネード"
-maxDepth = 25
-minDepth = 6
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "たいまつ"
-maxDepth = 5
-minDepth = 1
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "ブーメラン"
-maxDepth = 10
-minDepth = 2
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "水晶杖"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "針工具"
-maxDepth = 5
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "緑の服"
-maxDepth = 12
-minDepth = 1
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "サンダル"
-maxDepth = 10
-minDepth = 1
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "革の脚絆"
-maxDepth = 15
-minDepth = 3
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "ほうき"
-maxDepth = 5
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "フォーク"
-maxDepth = 4
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "大鎌"
-maxDepth = 15
-minDepth = 4
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "プライヤー"
-maxDepth = 8
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "コック帽"
-maxDepth = 10
-minDepth = 1
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "黒い脚絆"
-maxDepth = 18
-minDepth = 5
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "ハルバード"
-maxDepth = 25
-minDepth = 8
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "重い曲刀"
-maxDepth = 25
-minDepth = 8
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "クレイモア"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "バトルアックス"
+groupName = "終盤近接武器"
 maxDepth = 30
 minDepth = 12
-weight = 0.04
+weight = 0.8
 
 [[itemTables.entries]]
-itemName = "黒いバトルアックス"
-maxDepth = 35
-minDepth = 16
-weight = 0.03
+groupName = "射撃武器"
+maxDepth = 20
+minDepth = 5
+weight = 0.5
+
+[[itemTables.entries]]
+groupName = "投げ武器"
+maxDepth = 10
+minDepth = 2
+weight = 0.5
+
+[[itemTables.entries]]
+groupName = "投擲武器"
+maxDepth = 25
+minDepth = 8
+weight = 0.6
 
 [[itemTables]]
 name = "洞窟"
 
 [[itemTables.entries]]
-itemName = "回復薬"
+groupName = "回復アイテム"
 maxDepth = 30
 minDepth = 1
-weight = 8
+weight = 2.5
 
 [[itemTables.entries]]
-itemName = "毒消し"
-maxDepth = 8
-minDepth = 1
-weight = 0.8
-
-[[itemTables.entries]]
-itemName = "雷光石"
-maxDepth = 10
-minDepth = 1
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "黒曜石"
+groupName = "素材類"
 maxDepth = 25
 minDepth = 3
-weight = 0.6
+weight = 3
 
 [[itemTables.entries]]
-itemName = "鉄くず"
-maxDepth = 12
-minDepth = 1
-weight = 0.7
-
-[[itemTables.entries]]
-itemName = "雷光石"
-maxDepth = 30
-minDepth = 10
-weight = 0.4
-
-[[itemTables.entries]]
-itemName = "コーラ"
-maxDepth = 12
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "乾肉"
+groupName = "食料"
 maxDepth = 20
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ビスケット"
-maxDepth = 15
 minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "木刀"
-maxDepth = 8
-minDepth = 2
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "鉄のナイフ"
-maxDepth = 15
-minDepth = 4
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "鉄の剣"
-maxDepth = 20
-minDepth = 6
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ハンドガン"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "緑ハーブ"
-maxDepth = 30
-minDepth = 1
-weight = 2
-
-[[itemTables.entries]]
-itemName = "黄ハーブ"
-maxDepth = 30
-minDepth = 3
 weight = 1.5
 
 [[itemTables.entries]]
-itemName = "釘バット"
-maxDepth = 6
-minDepth = 1
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "斧"
-maxDepth = 10
-minDepth = 3
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "ハルバード"
-maxDepth = 20
-minDepth = 8
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "ドーナツ"
-maxDepth = 15
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "クッキー"
-maxDepth = 10
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "ハンバーガー"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "紫の刀"
-maxDepth = 25
-minDepth = 6
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "バトルアックス"
-maxDepth = 30
-minDepth = 8
-weight = 0.06
-
-[[itemTables.entries]]
-itemName = "水晶の剣"
-maxDepth = 20
-minDepth = 5
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "アイスクリーム"
-maxDepth = 15
-minDepth = 1
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "ポップコーン"
-maxDepth = 12
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "サンドイッチ"
-maxDepth = 20
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "鎖帷子"
-maxDepth = 25
-minDepth = 6
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "重い曲刀"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "アイスメイス"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "紫メイス"
-maxDepth = 18
-minDepth = 4
-weight = 0.12
-
-[[itemTables.entries]]
-itemName = "黒いバトルアックス"
-maxDepth = 30
-minDepth = 9
-weight = 0.05
-
-[[itemTables.entries]]
-itemName = "アーモンド"
-maxDepth = 15
-minDepth = 1
-weight = 0.2
-
-[[itemTables.entries]]
-itemName = "海老"
-maxDepth = 20
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "十字軍の服"
-maxDepth = 30
-minDepth = 8
-weight = 0.05
-
-[[itemTables.entries]]
-itemName = "毛皮付きコート"
-maxDepth = 20
-minDepth = 5
-weight = 0.08
-
-[[itemTables.entries]]
-itemName = "火炎グレネード"
-maxDepth = 30
-minDepth = 8
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "たいまつ"
-maxDepth = 5
-minDepth = 1
-weight = 0.3
-
-[[itemTables.entries]]
-itemName = "カッターナイフ"
-maxDepth = 5
-minDepth = 1
-weight = 0.25
-
-[[itemTables.entries]]
-itemName = "青いバトルアックス"
-maxDepth = 30
-minDepth = 9
-weight = 0.05
-
-[[itemTables.entries]]
-itemName = "天使の剣"
-maxDepth = 35
-minDepth = 10
-weight = 0.04
-
-[[itemTables.entries]]
-itemName = "防寒脚絆"
-maxDepth = 18
-minDepth = 3
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "黄金の脚鎧"
-maxDepth = 30
-minDepth = 8
-weight = 0.04
-
-[[itemTables.entries]]
-itemName = "鋳鉄の剣"
-maxDepth = 12
-minDepth = 3
-weight = 0.15
-
-[[itemTables.entries]]
-itemName = "大鎌"
-maxDepth = 18
-minDepth = 5
-weight = 0.1
-
-[[itemTables.entries]]
-itemName = "消火器"
+groupName = "序盤近接武器"
 maxDepth = 8
 minDepth = 1
-weight = 0.15
+weight = 1.5
 
 [[itemTables.entries]]
-itemName = "白い脚絆"
+groupName = "序盤防具"
 maxDepth = 10
 minDepth = 1
-weight = 0.1
+weight = 0.6
 
 [[itemTables.entries]]
-itemName = "機械腕"
-maxDepth = 25
-minDepth = 7
-weight = 0.06
+groupName = "中盤近接武器"
+maxDepth = 15
+minDepth = 5
+weight = 1.5
 
 [[itemTables.entries]]
-itemName = "クレイモア"
-maxDepth = 25
-minDepth = 7
-weight = 0.08
+groupName = "中盤防具"
+maxDepth = 16
+minDepth = 5
+weight = 0.5
 
 [[itemTables.entries]]
-itemName = "歪曲刀"
+groupName = "終盤近接武器"
+maxDepth = 30
+minDepth = 12
+weight = 1.2
+
+[[itemTables.entries]]
+groupName = "終盤防具"
+maxDepth = 30
+minDepth = 12
+weight = 0.5
+
+[[itemTables.entries]]
+groupName = "射撃武器"
 maxDepth = 20
-minDepth = 6
-weight = 0.07
+minDepth = 5
+weight = 0.2
+
+[[itemTables.entries]]
+groupName = "投擲武器"
+maxDepth = 30
+minDepth = 8
+weight = 0.5
+
 
 [[enemyTables]]
 name = "廃墟"
@@ -11866,198 +11777,264 @@ enemyName = "スライム"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ネズミ"
 maxDepth = 8
 minDepth = 1
 weight = 1.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "朽ちた兵士"
 maxDepth = 10
 minDepth = 2
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "浮遊眼"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "コウモリ"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰蟲"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影鼠"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "錆びた人形"
 maxDepth = 10
 minDepth = 2
 weight = 0.7
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蜘蛛"
 maxDepth = 20
 minDepth = 3
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "野犬"
 maxDepth = 22
 minDepth = 3
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "骸骨兵"
 maxDepth = 25
 minDepth = 9
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 25
 minDepth = 7
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鉄の番兵"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "水晶の亡霊"
 maxDepth = 25
 minDepth = 11
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰の偶像"
 maxDepth = 35
 minDepth = 19
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青獣"
 maxDepth = 25
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "暗黒医師"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "三頭竜"
 maxDepth = 35
 minDepth = 16
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "黒屍"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤線の男"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰色戦車"
 maxDepth = 30
 minDepth = 15
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "重砲戦車"
 maxDepth = 35
 minDepth = 18
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青い人影"
 maxDepth = 25
 minDepth = 7
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "旧式戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "化学戦車"
 maxDepth = 30
 minDepth = 14
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ピンクスライム"
 maxDepth = 10
 minDepth = 2
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "紫の浮遊体"
 maxDepth = 20
 minDepth = 10
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "電撃球"
 maxDepth = 22
 minDepth = 12
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "竜頭"
 maxDepth = 30
 minDepth = 18
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鎧ゴースト"
 maxDepth = 25
 minDepth = 14
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影司祭"
 maxDepth = 25
 minDepth = 16
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "防衛兵"
 maxDepth = 22
 minDepth = 12
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables]]
 name = "森"
@@ -12067,162 +12044,216 @@ enemyName = "スライム"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "コウモリ"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒キノコ"
 maxDepth = 10
 minDepth = 2
 weight = 0.7
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "大蜂"
 maxDepth = 8
 minDepth = 1
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "光虫"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蛙"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影鼠"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "苔亀"
 maxDepth = 10
 minDepth = 2
 weight = 0.6
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火猫"
 maxDepth = 20
 minDepth = 4
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "野犬"
 maxDepth = 22
 minDepth = 3
 weight = 0.8
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "夢蛾"
 maxDepth = 25
 minDepth = 5
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 22
 minDepth = 6
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "闇蟹"
 maxDepth = 25
 minDepth = 8
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑竜"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "樹霊"
 maxDepth = 25
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "金スライム"
 maxDepth = 25
 minDepth = 3
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "虹竜"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "暗黒医師"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑喰い"
 maxDepth = 22
 minDepth = 5
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤線の男"
 maxDepth = 25
 minDepth = 9
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "砂漠戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青い人影"
 maxDepth = 22
 minDepth = 7
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "化学戦車"
 maxDepth = 30
 minDepth = 12
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "蝶"
 maxDepth = 15
 minDepth = 1
 weight = 3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ピンクスライム"
 maxDepth = 12
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ゴリラ"
 maxDepth = 22
 minDepth = 12
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables]]
 name = "洞窟"
@@ -12232,198 +12263,264 @@ enemyName = "スライム"
 maxDepth = 25
 minDepth = 1
 weight = 1.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ネズミ"
 maxDepth = 8
 minDepth = 1
 weight = 1.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "コウモリ"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "光虫"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "灰蟲"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蛙"
 maxDepth = 8
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "苔亀"
 maxDepth = 10
 minDepth = 2
 weight = 0.6
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "毒蜘蛛"
 maxDepth = 20
 minDepth = 3
 weight = 0.7
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "氷犬"
 maxDepth = 22
 minDepth = 6
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "骸骨兵"
 maxDepth = 25
 minDepth = 8
 weight = 0.5
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "火の玉"
 maxDepth = 22
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鉄の番兵"
 maxDepth = 25
 minDepth = 10
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "水晶の亡霊"
 maxDepth = 25
 minDepth = 11
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "軽戦車"
 maxDepth = 25
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑竜"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "夢鯨"
 maxDepth = 30
 minDepth = 12
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青獣"
 maxDepth = 22
 minDepth = 7
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "三頭竜"
 maxDepth = 35
 minDepth = 16
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "金スライム"
 maxDepth = 25
 minDepth = 3
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "黒屍"
 maxDepth = 25
 minDepth = 9
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "緑喰い"
 maxDepth = 22
 minDepth = 6
 weight = 0.4
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤線の男"
 maxDepth = 25
 minDepth = 10
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "赤戦車"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "重砲戦車"
 maxDepth = 35
 minDepth = 16
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "青い人影"
 maxDepth = 25
 minDepth = 7
 weight = 0.35
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "氷結戦車"
 maxDepth = 30
 minDepth = 14
 weight = 0.25
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "旧式戦車"
 maxDepth = 25
 minDepth = 10
 weight = 0.3
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "ペンギン"
 maxDepth = 10
 minDepth = 1
 weight = 1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "紫の浮遊体"
 maxDepth = 20
 minDepth = 10
 weight = 0.2
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "電撃球"
 maxDepth = 22
 minDepth = 12
 weight = 0.15
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "竜頭"
 maxDepth = 30
 minDepth = 18
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "鎧ゴースト"
 maxDepth = 25
 minDepth = 14
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[enemyTables.entries]]
 enemyName = "影司祭"
 maxDepth = 25
 minDepth = 16
 weight = 0.1
+packMin = 1
+packMax = 3
 
 [[spriteSheets]]
 name = "bg"

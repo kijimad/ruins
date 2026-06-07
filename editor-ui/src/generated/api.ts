@@ -73,7 +73,7 @@ export interface Abilities {
  */
 export interface Ammo {
     /**
-     * 弾薬の種類タグ
+     * 
      * @type {AmmoTag}
      * @memberof Ammo
      */
@@ -141,7 +141,7 @@ export interface Book {
      */
     'totalEffort': number;
     /**
-     * スキル本としての設定。未設定なら娯楽本
+     * 
      * @type {SkillBook}
      * @memberof Book
      */
@@ -154,13 +154,13 @@ export interface Book {
  */
 export interface CommandTable {
     /**
-     * テーブル名
+     * エンティティ名
      * @type {string}
      * @memberof CommandTable
      */
     'name': string;
     /**
-     * コマンドエントリのリスト
+     * 
      * @type {Array<CommandTableEntry>}
      * @memberof CommandTable
      */
@@ -173,13 +173,13 @@ export interface CommandTable {
  */
 export interface CommandTableEntry {
     /**
-     * 使用する武器名
+     * エンティティ名
      * @type {string}
      * @memberof CommandTableEntry
      */
     'weapon': string;
     /**
-     * 選択される重み。大きいほど選ばれやすい
+     * テーブルエントリの重み。大きいほど選ばれやすい
      * @type {number}
      * @memberof CommandTableEntry
      */
@@ -192,13 +192,13 @@ export interface CommandTableEntry {
  */
 export interface CommandTableList {
     /**
-     * コマンドテーブルの配列
+     * 
      * @type {Array<CommandTable>}
      * @memberof CommandTableList
      */
     'data': Array<CommandTable>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof CommandTableList
      */
@@ -211,19 +211,19 @@ export interface CommandTableList {
  */
 export interface Consumable {
     /**
-     * 使用可能なシーン
+     * 
      * @type {UsableScene}
      * @memberof Consumable
      */
     'usableScene': UsableScene;
     /**
-     * 効果の対象グループ
+     * 
      * @type {TargetGroup}
      * @memberof Consumable
      */
     'targetGroup': TargetGroup;
     /**
-     * 効果の対象数
+     * 
      * @type {TargetNum}
      * @memberof Consumable
      */
@@ -266,13 +266,13 @@ export type DispositionType = typeof DispositionType[keyof typeof DispositionTyp
  */
 export interface DropTable {
     /**
-     * テーブル名
+     * エンティティ名
      * @type {string}
      * @memberof DropTable
      */
     'name': string;
     /**
-     * ドロップエントリのリスト
+     * 
      * @type {Array<DropTableEntry>}
      * @memberof DropTable
      */
@@ -285,13 +285,13 @@ export interface DropTable {
  */
 export interface DropTableEntry {
     /**
-     * ドロップする素材名
+     * エンティティ名
      * @type {string}
      * @memberof DropTableEntry
      */
     'material': string;
     /**
-     * ドロップする重み。大きいほど選ばれやすい
+     * テーブルエントリの重み。大きいほど選ばれやすい
      * @type {number}
      * @memberof DropTableEntry
      */
@@ -304,13 +304,13 @@ export interface DropTableEntry {
  */
 export interface DropTableList {
     /**
-     * ドロップテーブルの配列
+     * 
      * @type {Array<DropTable>}
      * @memberof DropTableList
      */
     'data': Array<DropTable>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof DropTableList
      */
@@ -340,13 +340,13 @@ export type Element = typeof Element[keyof typeof Element];
  */
 export interface EnemyTable {
     /**
-     * テーブル名
+     * エンティティ名
      * @type {string}
      * @memberof EnemyTable
      */
     'name': string;
     /**
-     * 敵エントリのリスト
+     * 
      * @type {Array<EnemyTableEntry>}
      * @memberof EnemyTable
      */
@@ -359,29 +359,41 @@ export interface EnemyTable {
  */
 export interface EnemyTableEntry {
     /**
-     * 出現する敵メンバー名
+     * エンティティ名
      * @type {string}
      * @memberof EnemyTableEntry
      */
     'enemyName': string;
     /**
-     * 出現する重み。大きいほど選ばれやすい
+     * テーブルエントリの重み。大きいほど選ばれやすい
      * @type {number}
      * @memberof EnemyTableEntry
      */
     'weight': number;
     /**
-     * 出現する最小階層
+     * 階層レベル
      * @type {number}
      * @memberof EnemyTableEntry
      */
     'minDepth': number;
     /**
-     * 出現する最大階層
+     * 階層レベル
      * @type {number}
      * @memberof EnemyTableEntry
      */
     'maxDepth': number;
+    /**
+     * パックの最小数
+     * @type {number}
+     * @memberof EnemyTableEntry
+     */
+    'packMin': number;
+    /**
+     * パックの最大数
+     * @type {number}
+     * @memberof EnemyTableEntry
+     */
+    'packMax': number;
 }
 /**
  * 敵テーブル一覧
@@ -390,13 +402,13 @@ export interface EnemyTableEntry {
  */
 export interface EnemyTableList {
     /**
-     * 敵テーブルの配列
+     * 
      * @type {Array<EnemyTable>}
      * @memberof EnemyTableList
      */
     'data': Array<EnemyTable>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof EnemyTableList
      */
@@ -409,31 +421,31 @@ export interface EnemyTableList {
  */
 export interface EquipBonus {
     /**
-     * 体力ボーナス
+     * 体力。HPに影響する
      * @type {number}
      * @memberof EquipBonus
      */
     'vitality': number;
     /**
-     * 筋力ボーナス
+     * 筋力。物理ダメージに影響する
      * @type {number}
      * @memberof EquipBonus
      */
     'strength': number;
     /**
-     * 感覚ボーナス
+     * 感覚。命中率と回避率に影響する
      * @type {number}
      * @memberof EquipBonus
      */
     'sensation': number;
     /**
-     * 器用さボーナス
+     * 器用さ。クリティカル率に影響する
      * @type {number}
      * @memberof EquipBonus
      */
     'dexterity': number;
     /**
-     * 敏捷性ボーナス
+     * 敏捷性。行動順に影響する
      * @type {number}
      * @memberof EquipBonus
      */
@@ -507,7 +519,7 @@ export interface Fire {
      */
     'accuracy': number;
     /**
-     * ダメージ
+     * 基本ダメージ
      * @type {number}
      * @memberof Fire
      */
@@ -519,13 +531,13 @@ export interface Fire {
      */
     'attackCount': number;
     /**
-     * 攻撃属性
+     * 
      * @type {Element}
      * @memberof Fire
      */
     'element': Element;
     /**
-     * 攻撃種別
+     * 
      * @type {AttackCategory}
      * @memberof Fire
      */
@@ -537,13 +549,13 @@ export interface Fire {
      */
     'cost': number;
     /**
-     * 対象グループ
+     * 
      * @type {TargetGroup}
      * @memberof Fire
      */
     'targetGroup': TargetGroup;
     /**
-     * 対象数
+     * 
      * @type {TargetNum}
      * @memberof Fire
      */
@@ -561,7 +573,7 @@ export interface Fire {
      */
     'reloadEffort': number;
     /**
-     * 使用する弾薬の種類
+     * 
      * @type {AmmoTag}
      * @memberof Fire
      */
@@ -604,13 +616,13 @@ export type HealingValueType = typeof HealingValueType[keyof typeof HealingValue
  */
 export interface Item {
     /**
-     * アイテム名
+     * エンティティ名
      * @type {string}
      * @memberof Item
      */
     'name': string;
     /**
-     * アイテムの説明文
+     * 説明文
      * @type {string}
      * @memberof Item
      */
@@ -628,7 +640,7 @@ export interface Item {
      */
     'spriteKey': string;
     /**
-     * アニメーション用スプライトキーの配列
+     * 
      * @type {Array<string>}
      * @memberof Item
      */
@@ -640,19 +652,19 @@ export interface Item {
      */
     'value': number;
     /**
-     * 重量。未設定なら0
+     * アイテム重量
      * @type {number}
      * @memberof Item
      */
     'weight'?: number;
     /**
-     * 投擲ダメージ。未設定なら投擲不可
+     * 基本ダメージ
      * @type {number}
      * @memberof Item
      */
     'inflictsDamage'?: number;
     /**
-     * 栄養価。未設定なら食べられない
+     * 栄養価
      * @type {number}
      * @memberof Item
      */
@@ -664,60 +676,151 @@ export interface Item {
      */
     'stackable'?: boolean;
     /**
-     * 消費アイテム設定
+     * 
      * @type {Consumable}
      * @memberof Item
      */
     'consumable'?: Consumable;
     /**
-     * 回復効果
+     * 
      * @type {ProvidesHealing}
      * @memberof Item
      */
     'providesHealing'?: ProvidesHealing;
     /**
-     * 防具設定
+     * 
      * @type {Wearable}
      * @memberof Item
      */
     'wearable'?: Wearable;
     /**
-     * 装備ボーナス
+     * 
      * @type {EquipBonus}
      * @memberof Item
      */
     'equipBonus'?: EquipBonus;
     /**
-     * 武器マーカー。存在すれば武器として扱う
+     * 武器マーカー
      * @type {object}
      * @memberof Item
      */
     'weapon'?: object;
     /**
-     * 弾薬設定
+     * 
      * @type {Ammo}
      * @memberof Item
      */
     'ammo'?: Ammo;
     /**
-     * 近接攻撃設定
+     * 
      * @type {Melee}
      * @memberof Item
      */
     'melee'?: Melee;
     /**
-     * 遠距離攻撃設定
+     * 
      * @type {Fire}
      * @memberof Item
      */
     'fire'?: Fire;
     /**
-     * 本設定
+     * 
      * @type {Book}
      * @memberof Item
      */
     'book'?: Book;
 }
+/**
+ * アイテムグループ。アイテムの出現セットを定義する
+ * @export
+ * @interface ItemGroup
+ */
+export interface ItemGroup {
+    /**
+     * エンティティ名
+     * @type {string}
+     * @memberof ItemGroup
+     */
+    'name': string;
+    /**
+     * 
+     * @type {ItemGroupSubtype}
+     * @memberof ItemGroup
+     */
+    'subtype': ItemGroupSubtype;
+    /**
+     * 
+     * @type {Array<ItemGroupEntry>}
+     * @memberof ItemGroup
+     */
+    'entries': Array<ItemGroupEntry>;
+}
+
+
+/**
+ * アイテムグループエントリ
+ * @export
+ * @interface ItemGroupEntry
+ */
+export interface ItemGroupEntry {
+    /**
+     * エンティティ名
+     * @type {string}
+     * @memberof ItemGroupEntry
+     */
+    'itemName': string;
+    /**
+     * distribution: 相対重み。collection: 確率（0-100）
+     * @type {number}
+     * @memberof ItemGroupEntry
+     */
+    'weight': number;
+    /**
+     * パックの最小数
+     * @type {number}
+     * @memberof ItemGroupEntry
+     */
+    'packMin': number;
+    /**
+     * パックの最大数
+     * @type {number}
+     * @memberof ItemGroupEntry
+     */
+    'packMax': number;
+}
+/**
+ * アイテムグループ一覧
+ * @export
+ * @interface ItemGroupList
+ */
+export interface ItemGroupList {
+    /**
+     * 
+     * @type {Array<ItemGroup>}
+     * @memberof ItemGroupList
+     */
+    'data': Array<ItemGroup>;
+    /**
+     * 
+     * @type {number}
+     * @memberof ItemGroupList
+     */
+    'totalCount': number;
+}
+/**
+ * アイテムグループのサブタイプ
+ * @export
+ * @enum {string}
+ */
+
+export const ItemGroupSubtype = {
+    Distribution: 'distribution',
+    Collection: 'collection'
+} as const;
+
+export type ItemGroupSubtype = typeof ItemGroupSubtype[keyof typeof ItemGroupSubtype];
+
+
 /**
  * アイテム一覧レスポンス
  * @export
@@ -725,13 +828,13 @@ export interface Item {
  */
 export interface ItemList {
     /**
-     * アイテムの配列
+     * 
      * @type {Array<Item>}
      * @memberof ItemList
      */
     'data': Array<Item>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof ItemList
      */
@@ -744,44 +847,44 @@ export interface ItemList {
  */
 export interface ItemTable {
     /**
-     * テーブル名
+     * エンティティ名
      * @type {string}
      * @memberof ItemTable
      */
     'name': string;
     /**
-     * アイテムエントリのリスト
+     * 
      * @type {Array<ItemTableEntry>}
      * @memberof ItemTable
      */
     'entries': Array<ItemTableEntry>;
 }
 /**
- * アイテムテーブルエントリ
+ * アイテムテーブルエントリ。アイテムグループを参照する
  * @export
  * @interface ItemTableEntry
  */
 export interface ItemTableEntry {
     /**
-     * 出現するアイテム名
+     * 参照するアイテムグループ名
      * @type {string}
      * @memberof ItemTableEntry
      */
-    'itemName': string;
+    'groupName': string;
     /**
-     * 出現する重み。大きいほど選ばれやすい
+     * テーブルエントリの重み。大きいほど選ばれやすい
      * @type {number}
      * @memberof ItemTableEntry
      */
     'weight': number;
     /**
-     * 出現する最小階層
+     * 階層レベル
      * @type {number}
      * @memberof ItemTableEntry
      */
     'minDepth': number;
     /**
-     * 出現する最大階層
+     * 階層レベル
      * @type {number}
      * @memberof ItemTableEntry
      */
@@ -794,13 +897,13 @@ export interface ItemTableEntry {
  */
 export interface ItemTableList {
     /**
-     * アイテムテーブルの配列
+     * 
      * @type {Array<ItemTable>}
      * @memberof ItemTableList
      */
     'data': Array<ItemTable>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof ItemTableList
      */
@@ -819,7 +922,7 @@ export interface LightSource {
      */
     'radius': number;
     /**
-     * 光の色
+     * 
      * @type {RGBAColor}
      * @memberof LightSource
      */
@@ -844,7 +947,7 @@ export interface Melee {
      */
     'accuracy': number;
     /**
-     * ダメージ
+     * 基本ダメージ
      * @type {number}
      * @memberof Melee
      */
@@ -856,13 +959,13 @@ export interface Melee {
      */
     'attackCount': number;
     /**
-     * 攻撃属性
+     * 
      * @type {Element}
      * @memberof Melee
      */
     'element': Element;
     /**
-     * 攻撃種別
+     * 
      * @type {AttackCategory}
      * @memberof Melee
      */
@@ -874,13 +977,13 @@ export interface Melee {
      */
     'cost': number;
     /**
-     * 対象グループ
+     * 
      * @type {TargetGroup}
      * @memberof Melee
      */
     'targetGroup': TargetGroup;
     /**
-     * 対象数
+     * 
      * @type {TargetNum}
      * @memberof Melee
      */
@@ -895,7 +998,7 @@ export interface Melee {
  */
 export interface Member {
     /**
-     * メンバー名
+     * エンティティ名
      * @type {string}
      * @memberof Member
      */
@@ -913,7 +1016,7 @@ export interface Member {
      */
     'isBoss': boolean;
     /**
-     * 基本能力値
+     * 
      * @type {Abilities}
      * @memberof Member
      */
@@ -931,49 +1034,55 @@ export interface Member {
      */
     'spriteKey': string;
     /**
-     * アニメーション用スプライトキーの配列
+     * 
      * @type {Array<string>}
      * @memberof Member
      */
     'animKeys': Array<string>;
     /**
-     * 光源設定。未設定なら光源なし
+     * 
      * @type {LightSource}
      * @memberof Member
      */
     'lightSource'?: LightSource;
     /**
-     * 所属する派閥。未設定なら敵対
+     * 
      * @type {FactionMemberType}
      * @memberof Member
      */
     'factionType'?: FactionMemberType;
     /**
-     * 態度
+     * 
      * @type {DispositionType}
      * @memberof Member
      */
     'disposition'?: DispositionType;
     /**
-     * 非戦闘時の移動パターン
+     * 
      * @type {MovementPatternType}
      * @memberof Member
      */
     'movementPattern'?: MovementPatternType;
     /**
-     * 会話データ。未設定なら会話不可
+     * AI視界距離（タイル単位）
+     * @type {number}
+     * @memberof Member
+     */
+    'viewDistance'?: number;
+    /**
+     * 
      * @type {Dialog}
      * @memberof Member
      */
     'dialog'?: Dialog;
     /**
-     * 参照するコマンドテーブル名
+     * エンティティ名
      * @type {string}
      * @memberof Member
      */
     'commandTableName': string;
     /**
-     * 参照するドロップテーブル名
+     * エンティティ名
      * @type {string}
      * @memberof Member
      */
@@ -988,13 +1097,13 @@ export interface Member {
  */
 export interface MemberList {
     /**
-     * メンバーの配列
+     * 
      * @type {Array<Member>}
      * @memberof MemberList
      */
     'data': Array<Member>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof MemberList
      */
@@ -1045,25 +1154,25 @@ export interface Palette {
      */
     'id': string;
     /**
-     * パレットの説明文
+     * 説明文
      * @type {string}
      * @memberof Palette
      */
     'description': string;
     /**
-     * 地形マッピング。マップ文字からタイル名への対応
+     * 
      * @type {{ [key: string]: string; }}
      * @memberof Palette
      */
     'terrain': { [key: string]: string; };
     /**
-     * 置物マッピング。マップ文字から置物エントリへの対応
+     * 
      * @type {{ [key: string]: PaletteEntry; }}
      * @memberof Palette
      */
     'props': { [key: string]: PaletteEntry; };
     /**
-     * NPCマッピング。マップ文字からNPCエントリへの対応
+     * 
      * @type {{ [key: string]: PaletteEntry; }}
      * @memberof Palette
      */
@@ -1076,13 +1185,13 @@ export interface Palette {
  */
 export interface PaletteEntry {
     /**
-     * エントリID
+     * パレットID
      * @type {string}
      * @memberof PaletteEntry
      */
     'id': string;
     /**
-     * 対応するタイル名
+     * エンティティ名
      * @type {string}
      * @memberof PaletteEntry
      */
@@ -1095,13 +1204,13 @@ export interface PaletteEntry {
  */
 export interface PaletteList {
     /**
-     * パレットの配列
+     * 
      * @type {Array<Palette>}
      * @memberof PaletteList
      */
     'data': Array<Palette>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof PaletteList
      */
@@ -1120,37 +1229,37 @@ export interface Profession {
      */
     'id': string;
     /**
-     * 職業名
+     * エンティティ名
      * @type {string}
      * @memberof Profession
      */
     'name': string;
     /**
-     * 職業の説明文
+     * 説明文
      * @type {string}
      * @memberof Profession
      */
     'description': string;
     /**
-     * 基本能力値
+     * 
      * @type {Abilities}
      * @memberof Profession
      */
     'abilities': Abilities;
     /**
-     * 初期スキルのリスト
+     * 
      * @type {Array<ProfessionSkill>}
      * @memberof Profession
      */
     'skills': Array<ProfessionSkill>;
     /**
-     * 初期所持アイテムのリスト
+     * 
      * @type {Array<ProfessionItem>}
      * @memberof Profession
      */
     'items': Array<ProfessionItem>;
     /**
-     * 初期装備のリスト
+     * 
      * @type {Array<ProfessionEquip>}
      * @memberof Profession
      */
@@ -1163,13 +1272,13 @@ export interface Profession {
  */
 export interface ProfessionEquip {
     /**
-     * 装備アイテム名
+     * エンティティ名
      * @type {string}
      * @memberof ProfessionEquip
      */
     'name': string;
     /**
-     * 装備するスロット
+     * 
      * @type {EquipSlot}
      * @memberof ProfessionEquip
      */
@@ -1184,13 +1293,13 @@ export interface ProfessionEquip {
  */
 export interface ProfessionItem {
     /**
-     * アイテム名
+     * エンティティ名
      * @type {string}
      * @memberof ProfessionItem
      */
     'name': string;
     /**
-     * 所持数
+     * アイテム所持数
      * @type {number}
      * @memberof ProfessionItem
      */
@@ -1203,13 +1312,13 @@ export interface ProfessionItem {
  */
 export interface ProfessionList {
     /**
-     * 職業の配列
+     * 
      * @type {Array<Profession>}
      * @memberof ProfessionList
      */
     'data': Array<Profession>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof ProfessionList
      */
@@ -1228,7 +1337,7 @@ export interface ProfessionSkill {
      */
     'id': string;
     /**
-     * 初期スキルレベル
+     * スキルレベル
      * @type {number}
      * @memberof ProfessionSkill
      */
@@ -1241,25 +1350,25 @@ export interface ProfessionSkill {
  */
 export interface Prop {
     /**
-     * 置物名
+     * エンティティ名
      * @type {string}
      * @memberof Prop
      */
     'name': string;
     /**
-     * 置物の説明文
+     * 説明文
      * @type {string}
      * @memberof Prop
      */
     'description': string;
     /**
-     * スプライト描画設定
+     * 
      * @type {SpriteRender}
      * @memberof Prop
      */
     'spriteRender': SpriteRender;
     /**
-     * アニメーション用スプライトキーの配列
+     * 
      * @type {Array<string>}
      * @memberof Prop
      */
@@ -1277,37 +1386,37 @@ export interface Prop {
      */
     'blockView': boolean;
     /**
-     * 光源設定。未設定なら光源なし
+     * 
      * @type {LightSource}
      * @memberof Prop
      */
     'lightSource'?: LightSource;
     /**
-     * 扉データ。設定すると開閉可能な扉として動作する
+     * 扉ローデータ
      * @type {object}
      * @memberof Prop
      */
     'door'?: object;
     /**
-     * 扉ロックトリガー。設定すると鍵付き扉として動作する
+     * 扉ロックトリガー
      * @type {object}
      * @memberof Prop
      */
     'doorLockTrigger'?: object;
     /**
-     * 次階層ワープトリガー。踏むと次の階層に進む
+     * 次階層ワープトリガー
      * @type {object}
      * @memberof Prop
      */
     'warpNextTrigger'?: object;
     /**
-     * 脱出ワープトリガー。踏むとダンジョンから脱出する
+     * 脱出ワープトリガー
      * @type {object}
      * @memberof Prop
      */
     'warpEscapeTrigger'?: object;
     /**
-     * ダンジョン選択ゲートトリガー。調べるとダンジョン選択画面を開く
+     * ダンジョン選択ゲートトリガー
      * @type {object}
      * @memberof Prop
      */
@@ -1320,13 +1429,13 @@ export interface Prop {
  */
 export interface PropList {
     /**
-     * 置物の配列
+     * 
      * @type {Array<Prop>}
      * @memberof PropList
      */
     'data': Array<Prop>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof PropList
      */
@@ -1339,7 +1448,7 @@ export interface PropList {
  */
 export interface ProvidesHealing {
     /**
-     * 回復量の計算方式
+     * 
      * @type {HealingValueType}
      * @memberof ProvidesHealing
      */
@@ -1366,25 +1475,25 @@ export interface ProvidesHealing {
  */
 export interface RGBAColor {
     /**
-     * 赤 (0-255)
+     * RGBA色チャネル値 (0-255)
      * @type {number}
      * @memberof RGBAColor
      */
     'r': number;
     /**
-     * 緑 (0-255)
+     * RGBA色チャネル値 (0-255)
      * @type {number}
      * @memberof RGBAColor
      */
     'g': number;
     /**
-     * 青 (0-255)
+     * RGBA色チャネル値 (0-255)
      * @type {number}
      * @memberof RGBAColor
      */
     'b': number;
     /**
-     * 透明度 (0-255)
+     * RGBA色チャネル値 (0-255)
      * @type {number}
      * @memberof RGBAColor
      */
@@ -1397,13 +1506,13 @@ export interface RGBAColor {
  */
 export interface Recipe {
     /**
-     * レシピ名。生成されるアイテム名と一致する
+     * エンティティ名
      * @type {string}
      * @memberof Recipe
      */
     'name': string;
     /**
-     * 必要素材のリスト
+     * 
      * @type {Array<RecipeInput>}
      * @memberof Recipe
      */
@@ -1416,13 +1525,13 @@ export interface Recipe {
  */
 export interface RecipeInput {
     /**
-     * 素材アイテム名
+     * エンティティ名
      * @type {string}
      * @memberof RecipeInput
      */
     'name': string;
     /**
-     * 必要個数
+     * 素材必要数
      * @type {number}
      * @memberof RecipeInput
      */
@@ -1435,13 +1544,13 @@ export interface RecipeInput {
  */
 export interface RecipeList {
     /**
-     * レシピの配列
+     * 
      * @type {Array<Recipe>}
      * @memberof RecipeList
      */
     'data': Array<Recipe>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof RecipeList
      */
@@ -1469,19 +1578,19 @@ export type ShelterType = typeof ShelterType[keyof typeof ShelterType];
  */
 export interface SkillBook {
     /**
-     * 習得対象のスキルID
+     * スキルID
      * @type {string}
      * @memberof SkillBook
      */
     'targetSkill': string;
     /**
-     * 習得に必要なスキルレベル
+     * スキルレベル
      * @type {number}
      * @memberof SkillBook
      */
     'requiredLevel': number;
     /**
-     * 習得可能な最大レベル
+     * スキルレベル
      * @type {number}
      * @memberof SkillBook
      */
@@ -1522,7 +1631,7 @@ export interface SpriteRender {
      */
     'spriteKey': string;
     /**
-     * 描画深度。レイヤー順序を決定する
+     * 
      * @type {SpriteDepth}
      * @memberof SpriteRender
      */
@@ -1537,7 +1646,7 @@ export interface SpriteRender {
  */
 export interface SpriteSheet {
     /**
-     * シート名
+     * エンティティ名
      * @type {string}
      * @memberof SpriteSheet
      */
@@ -1556,13 +1665,13 @@ export interface SpriteSheet {
  */
 export interface SpriteSheetList {
     /**
-     * スプライトシートの配列
+     * 
      * @type {Array<SpriteSheet>}
      * @memberof SpriteSheetList
      */
     'data': Array<SpriteSheet>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof SpriteSheetList
      */
@@ -1605,13 +1714,13 @@ export type TargetNum = typeof TargetNum[keyof typeof TargetNum];
  */
 export interface Tile {
     /**
-     * タイル名
+     * エンティティ名
      * @type {string}
      * @memberof Tile
      */
     'name': string;
     /**
-     * タイルの説明文
+     * 説明文
      * @type {string}
      * @memberof Tile
      */
@@ -1629,25 +1738,25 @@ export interface Tile {
      */
     'blockView': boolean;
     /**
-     * スプライト描画設定
+     * 
      * @type {SpriteRender}
      * @memberof Tile
      */
     'spriteRender': SpriteRender;
     /**
-     * 遮蔽タイプ。戦闘時の命中率に影響する
+     * 
      * @type {ShelterType}
      * @memberof Tile
      */
     'shelter': ShelterType;
     /**
-     * 水タイプ。移動コストに影響する
+     * 
      * @type {WaterType}
      * @memberof Tile
      */
     'water': WaterType;
     /**
-     * 植生タイプ。視界に影響する
+     * 
      * @type {FoliageType}
      * @memberof Tile
      */
@@ -1662,13 +1771,13 @@ export interface Tile {
  */
 export interface TileList {
     /**
-     * タイルの配列
+     * 
      * @type {Array<Tile>}
      * @memberof TileList
      */
     'data': Array<Tile>;
     /**
-     * 総件数
+     * 
      * @type {number}
      * @memberof TileList
      */
@@ -1711,13 +1820,13 @@ export type WaterType = typeof WaterType[keyof typeof WaterType];
  */
 export interface Wearable {
     /**
-     * 防御力
+     * 防具の防御力
      * @type {number}
      * @memberof Wearable
      */
     'defense': number;
     /**
-     * 装備する部位
+     * 
      * @type {EquipmentCategory}
      * @memberof Wearable
      */
@@ -2642,6 +2751,309 @@ export class EnemyTablesApi extends BaseAPI {
      */
     public enemyTablesUpdate(index: number, enemyTable: EnemyTable, options?: RawAxiosRequestConfig) {
         return EnemyTablesApiFp(this.configuration).enemyTablesUpdate(index, enemyTable, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ItemGroupsApi - axios parameter creator
+ * @export
+ */
+export const ItemGroupsApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * アイテムグループ作成
+         * @param {ItemGroup} itemGroup 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsCreate: async (itemGroup: ItemGroup, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'itemGroup' is not null or undefined
+            assertParamExists('itemGroupsCreate', 'itemGroup', itemGroup)
+            const localVarPath = `/api/v1/item-groups`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(itemGroup, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * アイテムグループ削除
+         * @param {number} index 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsDelete: async (index: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'index' is not null or undefined
+            assertParamExists('itemGroupsDelete', 'index', index)
+            const localVarPath = `/api/v1/item-groups/{index}`
+                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * アイテムグループ一覧取得
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsList: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/item-groups`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * アイテムグループ更新
+         * @param {number} index 
+         * @param {ItemGroup} itemGroup 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsUpdate: async (index: number, itemGroup: ItemGroup, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'index' is not null or undefined
+            assertParamExists('itemGroupsUpdate', 'index', index)
+            // verify required parameter 'itemGroup' is not null or undefined
+            assertParamExists('itemGroupsUpdate', 'itemGroup', itemGroup)
+            const localVarPath = `/api/v1/item-groups/{index}`
+                .replace(`{${"index"}}`, encodeURIComponent(String(index)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(itemGroup, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ItemGroupsApi - functional programming interface
+ * @export
+ */
+export const ItemGroupsApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ItemGroupsApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * アイテムグループ作成
+         * @param {ItemGroup} itemGroup 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemGroupsCreate(itemGroup: ItemGroup, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemGroup>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemGroupsCreate(itemGroup, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemGroupsApi.itemGroupsCreate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * アイテムグループ削除
+         * @param {number} index 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemGroupsDelete(index: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemGroupsDelete(index, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemGroupsApi.itemGroupsDelete']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * アイテムグループ一覧取得
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemGroupsList(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemGroupList>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemGroupsList(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemGroupsApi.itemGroupsList']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * アイテムグループ更新
+         * @param {number} index 
+         * @param {ItemGroup} itemGroup 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async itemGroupsUpdate(index: number, itemGroup: ItemGroup, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ItemGroup>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.itemGroupsUpdate(index, itemGroup, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ItemGroupsApi.itemGroupsUpdate']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ItemGroupsApi - factory interface
+ * @export
+ */
+export const ItemGroupsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ItemGroupsApiFp(configuration)
+    return {
+        /**
+         * アイテムグループ作成
+         * @param {ItemGroup} itemGroup 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsCreate(itemGroup: ItemGroup, options?: RawAxiosRequestConfig): AxiosPromise<ItemGroup> {
+            return localVarFp.itemGroupsCreate(itemGroup, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * アイテムグループ削除
+         * @param {number} index 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsDelete(index: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.itemGroupsDelete(index, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * アイテムグループ一覧取得
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsList(options?: RawAxiosRequestConfig): AxiosPromise<ItemGroupList> {
+            return localVarFp.itemGroupsList(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * アイテムグループ更新
+         * @param {number} index 
+         * @param {ItemGroup} itemGroup 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        itemGroupsUpdate(index: number, itemGroup: ItemGroup, options?: RawAxiosRequestConfig): AxiosPromise<ItemGroup> {
+            return localVarFp.itemGroupsUpdate(index, itemGroup, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * ItemGroupsApi - object-oriented interface
+ * @export
+ * @class ItemGroupsApi
+ * @extends {BaseAPI}
+ */
+export class ItemGroupsApi extends BaseAPI {
+    /**
+     * アイテムグループ作成
+     * @param {ItemGroup} itemGroup 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemGroupsApi
+     */
+    public itemGroupsCreate(itemGroup: ItemGroup, options?: RawAxiosRequestConfig) {
+        return ItemGroupsApiFp(this.configuration).itemGroupsCreate(itemGroup, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * アイテムグループ削除
+     * @param {number} index 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemGroupsApi
+     */
+    public itemGroupsDelete(index: number, options?: RawAxiosRequestConfig) {
+        return ItemGroupsApiFp(this.configuration).itemGroupsDelete(index, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * アイテムグループ一覧取得
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemGroupsApi
+     */
+    public itemGroupsList(options?: RawAxiosRequestConfig) {
+        return ItemGroupsApiFp(this.configuration).itemGroupsList(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * アイテムグループ更新
+     * @param {number} index 
+     * @param {ItemGroup} itemGroup 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ItemGroupsApi
+     */
+    public itemGroupsUpdate(index: number, itemGroup: ItemGroup, options?: RawAxiosRequestConfig) {
+        return ItemGroupsApiFp(this.configuration).itemGroupsUpdate(index, itemGroup, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
