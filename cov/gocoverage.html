@@ -9147,9 +9147,12 @@ func NewScreenTextEffect(text string, screenW, screenH int) *ScreenTextEffect <s
 
 // NewDungeonTitleEffect はダンジョンタイトル表示エフェクトを作成する
 func NewDungeonTitleEffect(dungeonName string, depth int, screenW, screenH int) *ScreenTextEffect <span class="cov0" title="0">{
-        text := fmt.Sprintf("%s %dF", dungeonName, depth)
-        return NewScreenTextEffect(text, screenW, screenH)
-}</span>
+        text := dungeonName
+        if depth &gt; 0 </span><span class="cov0" title="0">{
+                text = fmt.Sprintf("%s %dF", dungeonName, depth)
+        }</span>
+        <span class="cov0" title="0">return NewScreenTextEffect(text, screenW, screenH)</span>
+}
 
 // NewDamageEffect はダメージ数値表示エフェクトを作成する
 func NewDamageEffect(damage int) *DamageTextEffect <span class="cov0" title="0">{
@@ -9613,9 +9616,9 @@ import "github.com/kijimaD/ruins/internal/mapplanner"
 
 // 全ダンジョン定義
 var (
-        // DungeonTown は街用ダンジョン定義
+        // DungeonTown は拠点用ダンジョン定義
         DungeonTown = Definition{
-                Name:            "街",
+                Name:            "晶営地",
                 TotalFloors:     1,
                 EnemyTableName:  "",
                 ItemTableName:   "",
