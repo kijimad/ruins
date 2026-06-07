@@ -102,6 +102,10 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		return err
 	}
 
+	// 移動後に空間インデックスを無効化する
+	// 同一ターン内で後続のAIが移動先を正しく判定できるようにする
+	worldhelper.InvalidateSpatialIndex(world)
+
 	Complete(comp)
 	return nil
 }
