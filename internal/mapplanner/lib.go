@@ -539,13 +539,37 @@ func selectSpawnEntry(entries []SpawnEntry, rng *rand.Rand) (SpawnEntry, error) 
 	)
 }
 
-// selectRoom は部屋リストからランダムに1つ選択し、部屋とそのインデックスを返す
-// 部屋がない場合はfalseを返す
+// selectRoom は部屋リストから面積で重み付けして1つ選択し、部屋とそのインデックスを返す
+// 大きな部屋ほど選ばれやすくなり、配置可能タイル数に比例した自然な分布になる
 func (bm *MetaPlan) selectRoom() (gc.Rect, int, bool) {
 	if len(bm.Rooms) == 0 {
 		return gc.Rect{}, 0, false
 	}
-	idx := bm.RNG.IntN(len(bm.Rooms))
+	totalArea := 0
+	for _, r := range bm.Rooms {
+		w := int(r.X2 - r.X1)
+		h := int(r.Y2 - r.Y1)
+		if w > 0 && h > 0 {
+			totalArea += w * h
+		}
+	}
+	if totalArea == 0 {
+		idx := bm.RNG.IntN(len(bm.Rooms))
+		return bm.Rooms[idx], idx, true
+	}
+	roll := bm.RNG.IntN(totalArea)
+	cumulative := 0
+	for i, r := range bm.Rooms {
+		w := int(r.X2 - r.X1)
+		h := int(r.Y2 - r.Y1)
+		if w > 0 && h > 0 {
+			cumulative += w * h
+		}
+		if roll < cumulative {
+			return bm.Rooms[i], i, true
+		}
+	}
+	idx := len(bm.Rooms) - 1
 	return bm.Rooms[idx], idx, true
 }
 
