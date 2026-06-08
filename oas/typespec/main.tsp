@@ -5,6 +5,7 @@ import "@typespec/openapi";
 import "./types.tsp";
 import "./req.tsp";
 import "./resp.tsp";
+import "./save.tsp";
 
 using TypeSpec.Http;
 using TypeSpec.Rest;

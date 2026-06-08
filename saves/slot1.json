@@ -1,6 +1,6 @@
 {
-  "checksum": "f5c8ea74c0f06ff70c6c9d2a8cb99c1f1d1a8277bd528ddb1c41ba3600bfa1ee",
-  "timestamp": "2026-05-31T16:59:14.293515825+09:00",
+  "checksum": "ffb0cfb2530b832a6c4343259c625d41f50151f81dbc9a7bed91b8e7c2f1f63b",
+  "timestamp": "2026-06-09T00:20:08.500754996+09:00",
   "version": "1.0.0",
   "world": {
     "entities": [
@@ -39,17 +39,17 @@
             }
           },
           "Camera": {
-            "Scale": 1,
-            "ScaleTo": 1,
+            "Scale": 0.8,
+            "ScaleTo": 0.8,
             "TargetX": 784,
-            "TargetY": 528,
+            "TargetY": 336,
             "X": 784,
-            "Y": 528.1083371834284
+            "Y": 336
           },
           "FactionAllyData": {},
           "GridElement": {
             "X": 24,
-            "Y": 16
+            "Y": 10
           },
           "LightSource": {
             "Color": {
@@ -58,7 +58,7 @@
               "G": 255,
               "R": 255
             },
-            "Enabled": true,
+            "Enabled": false,
             "Radius": 4
           },
           "Name": {
@@ -89,31 +89,15 @@
               "player_1"
             ],
             "Depth": 3,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
-            "SpriteKey": "player_1",
+            "SpriteKey": "player_0",
             "SpriteSheetName": "field"
           },
           "TurnBased": {
             "AP": {
-              "Current": 46,
+              "Current": 120,
               "Max": 120
             },
-            "Speed": 121
+            "Speed": 0
           },
           "Wallet": {
             "Currency": 1000
@@ -147,24 +131,7 @@
             "Amount": 30
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "food_item",
             "SpriteSheetName": "field"
           },
@@ -201,24 +168,7 @@
             "Amount": 30
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "biscuit",
             "SpriteSheetName": "field"
           },
@@ -258,24 +208,7 @@
             }
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "healing_potion",
             "SpriteSheetName": "field"
           },
@@ -308,24 +241,7 @@
             "Name": "布の帽子"
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "field_item",
             "SpriteSheetName": "field"
           },
@@ -370,24 +286,7 @@
             "Name": "布のシャツ"
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "waiter_outfit",
             "SpriteSheetName": "field"
           },
@@ -432,24 +331,7 @@
             "Name": "布の腕巻き"
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "field_item",
             "SpriteSheetName": "field"
           },
@@ -494,24 +376,7 @@
             "Name": "布の手袋"
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "field_item",
             "SpriteSheetName": "field"
           },
@@ -556,24 +421,7 @@
             "Name": "布のズボン"
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "field_item",
             "SpriteSheetName": "field"
           },
@@ -618,24 +466,7 @@
             "Name": "布の靴"
           },
           "SpriteRender": {
-            "AnimKeys": null,
             "Depth": 1,
-            "Options": {
-              "Blend": {
-                "BlendFactorDestinationAlpha": 0,
-                "BlendFactorDestinationRGB": 0,
-                "BlendFactorSourceAlpha": 0,
-                "BlendFactorSourceRGB": 0,
-                "BlendOperationAlpha": 0,
-                "BlendOperationRGB": 0
-              },
-              "ColorM": {},
-              "ColorScale": {},
-              "CompositeMode": 0,
-              "DisableMipmaps": false,
-              "Filter": 0,
-              "GeoM": {}
-            },
             "SpriteKey": "field_item",
             "SpriteSheetName": "field"
           },
@@ -663,11 +494,7 @@
       }
     ],
     "game_progress": {
-      "cleared_dungeons": {
-        "亡者の森": true,
-        "忘却の廃都": true,
-        "灰の洞窟": true
-      },
+      "cleared_dungeons": {},
       "events": {}
     }
   }

@@ -2583,6 +2583,852 @@ components:
       minimum: 1
       maximum: 100
       description: リロードに必要な行動力
+    SaveData.AbilitiesComponent:
+      type: object
+      required:
+        - Vitality
+        - Strength
+        - Sensation
+        - Dexterity
+        - Agility
+        - Defense
+      properties:
+        Vitality:
+          $ref: '#/components/schemas/SaveData.AbilityValue'
+        Strength:
+          $ref: '#/components/schemas/SaveData.AbilityValue'
+        Sensation:
+          $ref: '#/components/schemas/SaveData.AbilityValue'
+        Dexterity:
+          $ref: '#/components/schemas/SaveData.AbilityValue'
+        Agility:
+          $ref: '#/components/schemas/SaveData.AbilityValue'
+        Defense:
+          $ref: '#/components/schemas/SaveData.AbilityValue'
+      description: 能力値
+    SaveData.AbilityBase:
+      type: integer
+      format: int32
+      description: 能力値の基本値
+    SaveData.AbilityBonus:
+      type: integer
+      format: int32
+      description: 能力値ボーナス
+    SaveData.AbilityModifier:
+      type: integer
+      format: int32
+      description: 能力値の装備・状態変化による修正値
+    SaveData.AbilityTotal:
+      type: integer
+      format: int32
+      description: 能力値の算出された現在値
+    SaveData.AbilityValue:
+      type: object
+      required:
+        - Base
+        - Modifier
+        - Total
+      properties:
+        Base:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AbilityBase'
+          description: 固有の基本値
+        Modifier:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AbilityModifier'
+          description: 装備や状態変化による修正値
+        Total:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AbilityTotal'
+          description: 算出された現在値
+      description: 単一能力値。基本値・修正値・合計値を持つ
+    SaveData.AmmoComponent:
+      type: object
+      required:
+        - AmmoTag
+        - DamageBonus
+        - AccuracyBonus
+      properties:
+        AmmoTag:
+          $ref: '#/components/schemas/SaveData.AmmoTag'
+        DamageBonus:
+          $ref: '#/components/schemas/DamageBonus'
+        AccuracyBonus:
+          $ref: '#/components/schemas/AccuracyBonus'
+      description: 弾薬設定
+    SaveData.AmmoTag:
+      type: string
+      description: 弾薬の口径タグ。セーブデータでは任意文字列を許容する
+    SaveData.AttackCategoryData:
+      type: object
+      required:
+        - Type
+        - Range
+        - Label
+      properties:
+        Type:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AttackTypeId'
+          description: 武器種別の識別子
+        Range:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AttackRangeType'
+          description: 近接/遠距離の区分
+        Label:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AttackTypeLabel'
+          description: 表示用ラベル
+      description: 攻撃種別
+    SaveData.AttackRangeType:
+      type: string
+      enum:
+        - MELEE
+        - RANGED
+      description: 攻撃射程。types.tspに対応するenumがないためセーブ固有で定義する
+    SaveData.AttackTypeId:
+      type: string
+      description: 武器種別の識別子
+    SaveData.AttackTypeLabel:
+      type: string
+      description: 攻撃種別の表示用ラベル
+    SaveData.CameraComponent:
+      type: object
+      required:
+        - Scale
+        - ScaleTo
+        - X
+        - Y
+        - TargetX
+        - TargetY
+      properties:
+        Scale:
+          $ref: '#/components/schemas/SaveData.CameraScale'
+        ScaleTo:
+          $ref: '#/components/schemas/SaveData.CameraScale'
+        X:
+          $ref: '#/components/schemas/SaveData.CameraPosition'
+        Y:
+          $ref: '#/components/schemas/SaveData.CameraPosition'
+        TargetX:
+          $ref: '#/components/schemas/SaveData.CameraPosition'
+        TargetY:
+          $ref: '#/components/schemas/SaveData.CameraPosition'
+      description: カメラ状態
+    SaveData.CameraPosition:
+      type: number
+      format: double
+      description: カメラ座標
+    SaveData.CameraScale:
+      type: number
+      format: double
+      description: カメラのスケール値
+    SaveData.Checksum:
+      type: string
+      description: SHA-256チェックサム
+    SaveData.ComponentsMap:
+      type: object
+      properties:
+        Player:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: プレイヤーマーカー
+        FactionAllyData:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: 味方派閥マーカー
+        Item:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: アイテムマーカー
+        LocationInPlayerBackpack:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: プレイヤーバックパック内の位置マーカー
+        StatsChanged:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: ステータス変更フラグ
+        Weapon:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: 武器マーカー
+        Stackable:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MarkerComponent'
+          description: スタック可能マーカー
+        LocationEquipped:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.LocationEquippedComponent'
+          description: 装備位置。エンティティ参照を含む
+        Name:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.NameComponent'
+          description: エンティティ名
+        Description:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.DescriptionComponent'
+          description: 説明文
+        Pools:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.PoolsComponent'
+          description: HP/SP/EP/重量のプール
+        TurnBased:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.TurnBasedComponent'
+          description: アクションポイントと速度
+        Abilities:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AbilitiesComponent'
+          description: 能力値
+        Camera:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.CameraComponent'
+          description: カメラ状態
+        GridElement:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.GridElementComponent'
+          description: グリッド上の位置
+        SpriteRender:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.SpriteRenderComponent'
+          description: スプライト描画設定
+        LightSource:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.LightSourceComponent'
+          description: 光源設定
+        Wearable:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.WearableComponent'
+          description: 防具設定
+        Value:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.ValueComponent'
+          description: 売買価格
+        Melee:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MeleeComponent'
+          description: 近接攻撃設定
+        Fire:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.FireComponent'
+          description: 遠距離攻撃設定
+        Recipe:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.RecipeComponent'
+          description: レシピ設定
+        Ammo:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AmmoComponent'
+          description: 弾薬設定
+        Consumable:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.ConsumableComponent'
+          description: 消費可能アイテム設定
+        ProvidesHealing:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.ProvidesHealingComponent'
+          description: 回復効果
+        ProvidesNutrition:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.ProvidesNutritionComponent'
+          description: 栄養補給効果
+        InflictsDamage:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.InflictsDamageComponent'
+          description: ダメージ効果
+        Wallet:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.WalletComponent'
+          description: 所持金
+      description: |-
+        エンティティが持つコンポーネントのマップ。
+        存在するコンポーネントのみがキーとして含まれる。
+        保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
+    SaveData.ConsumableComponent:
+      type: object
+      required:
+        - UsableScene
+        - TargetType
+      properties:
+        UsableScene:
+          $ref: '#/components/schemas/UsableScene'
+        TargetType:
+          $ref: '#/components/schemas/SaveData.TargetTypeData'
+      description: 消費可能アイテム設定
+    SaveData.Currency:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 所持金
+    SaveData.DamageAmount:
+      type: integer
+      format: int32
+      minimum: 0
+      description: ダメージ量
+    SaveData.DescriptionComponent:
+      type: object
+      required:
+        - Description
+      properties:
+        Description:
+          $ref: '#/components/schemas/SaveData.EntityDescription'
+      description: 説明文
+    SaveData.EntityDescription:
+      type: string
+      description: 説明文。セーブデータでは空文字を許容する
+    SaveData.EntityGeneration:
+      type: integer
+      format: uint32
+      minimum: 0
+      description: エンティティ世代番号
+    SaveData.EntityIndex:
+      type: integer
+      format: uint32
+      minimum: 0
+      description: エンティティインデックス
+    SaveData.EntityName:
+      type: string
+      description: エンティティ名。セーブデータでは空文字を許容する
+    SaveData.EntitySaveData:
+      type: object
+      required:
+        - stable_id
+        - components
+      properties:
+        stable_id:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.StableID'
+          description: エンティティの安定ID
+        components:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.ComponentsMap'
+          description: コンポーネントのマップ。キーはコンポーネント型名で、値は型ごとに異なる
+      description: 単一エンティティのセーブデータ
+    SaveData.EquipBonusData:
+      type: object
+      required:
+        - Vitality
+        - Strength
+        - Sensation
+        - Dexterity
+        - Agility
+      properties:
+        Vitality:
+          $ref: '#/components/schemas/SaveData.AbilityBonus'
+        Strength:
+          $ref: '#/components/schemas/SaveData.AbilityBonus'
+        Sensation:
+          $ref: '#/components/schemas/SaveData.AbilityBonus'
+        Dexterity:
+          $ref: '#/components/schemas/SaveData.AbilityBonus'
+        Agility:
+          $ref: '#/components/schemas/SaveData.AbilityBonus'
+      description: 装備ボーナス
+    SaveData.EquipmentSlotNumber:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 装備スロット番号
+    SaveData.EventState:
+      type: object
+      required:
+        - active
+        - seen
+      properties:
+        active:
+          type: boolean
+          description: イベントがアクティブかどうか
+        seen:
+          type: boolean
+          description: イベントが表示済みかどうか
+      description: イベントの状態
+    SaveData.FireComponent:
+      type: object
+      required:
+        - Accuracy
+        - Damage
+        - AttackCount
+        - Element
+        - AttackCategory
+        - Cost
+        - TargetType
+        - Magazine
+        - MagazineSize
+        - ReloadEffort
+        - AmmoTag
+        - LoadedDamageBonus
+        - LoadedAccuracyBonus
+      properties:
+        Accuracy:
+          $ref: '#/components/schemas/Accuracy'
+        Damage:
+          $ref: '#/components/schemas/BaseDamage'
+        AttackCount:
+          $ref: '#/components/schemas/AttackCount'
+        Element:
+          $ref: '#/components/schemas/Element'
+        AttackCategory:
+          $ref: '#/components/schemas/SaveData.AttackCategoryData'
+        Cost:
+          $ref: '#/components/schemas/ActionCost'
+        TargetType:
+          $ref: '#/components/schemas/SaveData.TargetTypeData'
+        Magazine:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.Magazine'
+          description: 現在の装弾数
+        MagazineSize:
+          allOf:
+            - $ref: '#/components/schemas/MagazineSize'
+          description: 最大装弾数
+        ReloadEffort:
+          allOf:
+            - $ref: '#/components/schemas/ReloadEffort'
+          description: リロード完了に必要な総工数
+        AmmoTag:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.AmmoTag'
+          description: 使用する弾薬の口径タグ
+        LoadedDamageBonus:
+          allOf:
+            - $ref: '#/components/schemas/DamageBonus'
+          description: 装填中の弾薬によるダメージ修正値
+        LoadedAccuracyBonus:
+          allOf:
+            - $ref: '#/components/schemas/AccuracyBonus'
+          description: 装填中の弾薬による命中修正値
+      description: 遠距離攻撃設定
+    SaveData.FloatPool:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolFloatMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
+      description: 浮動小数点プール。最大値と現在値を持つ
+    SaveData.GameProgress:
+      type: object
+      required:
+        - cleared_dungeons
+        - events
+      properties:
+        cleared_dungeons:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: クリア済みダンジョンのマップ。キーはダンジョン名
+        events:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SaveData.EventState'
+          description: イベント状態のマップ。キーはイベント名
+      description: ゲーム進行状態
+    SaveData.GridElementComponent:
+      type: object
+      required:
+        - X
+        - Y
+      properties:
+        X:
+          $ref: '#/components/schemas/SaveData.TileCoord'
+        Y:
+          $ref: '#/components/schemas/SaveData.TileCoord'
+      description: グリッド上の位置 (タイル座標)
+    SaveData.HealNumeral:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 固定回復量
+    SaveData.HealingAmountData:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.HealingAmountType'
+          description: 回復量の計算方式
+        ratio:
+          allOf:
+            - $ref: '#/components/schemas/HealRatio'
+          description: 最大HPに対する回復割合 (0.0-1.0)。typeが"ratio"の場合に使用する
+        numeral:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.HealNumeral'
+          description: 固定回復量。typeが"numeral"の場合に使用する
+      description: 回復量データ。typeフィールドで計算方式を判別する
+    SaveData.HealingAmountType:
+      type: string
+      enum:
+        - ratio
+        - numeral
+      description: 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する
+    SaveData.InflictsDamageComponent:
+      type: object
+      required:
+        - Amount
+      properties:
+        Amount:
+          $ref: '#/components/schemas/SaveData.DamageAmount'
+      description: ダメージ効果
+    SaveData.IntPool:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolCurrent'
+      description: 整数プール。最大値と現在値を持つ
+    SaveData.LightRadius:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 光源の到達半径 (タイル単位)。無効時は0を許容する
+    SaveData.LightSourceComponent:
+      type: object
+      required:
+        - Radius
+        - Color
+        - Enabled
+      properties:
+        Radius:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.LightRadius'
+          description: 光の到達半径 (タイル単位)
+        Color:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.RGBAColor'
+          description: RGBA色
+        Enabled:
+          allOf:
+            - $ref: '#/components/schemas/LightEnabled'
+          description: 有効/無効
+      description: 光源設定
+    SaveData.LocationEquippedComponent:
+      type: object
+      required:
+        - OwnerRef
+        - EquipmentSlot
+      properties:
+        OwnerRef:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.StableID'
+          description: 装備者のStableID
+        EquipmentSlot:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.EquipmentSlotNumber'
+          description: 装備スロット番号
+      description: |-
+        装備位置コンポーネント。
+        Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+    SaveData.Magazine:
+      type: integer
+      format: int32
+      minimum: 0
+      description: 現在の装弾数
+    SaveData.MarkerComponent:
+      type: object
+      description: マーカーコンポーネント。データを持たず、存在の有無だけが意味を持つ
+    SaveData.MaterialName:
+      type: string
+      description: レシピ素材名
+    SaveData.MeleeComponent:
+      type: object
+      required:
+        - Accuracy
+        - Damage
+        - AttackCount
+        - Element
+        - AttackCategory
+        - Cost
+        - TargetType
+      properties:
+        Accuracy:
+          $ref: '#/components/schemas/Accuracy'
+        Damage:
+          $ref: '#/components/schemas/BaseDamage'
+        AttackCount:
+          $ref: '#/components/schemas/AttackCount'
+        Element:
+          $ref: '#/components/schemas/Element'
+        AttackCategory:
+          $ref: '#/components/schemas/SaveData.AttackCategoryData'
+        Cost:
+          $ref: '#/components/schemas/ActionCost'
+        TargetType:
+          $ref: '#/components/schemas/SaveData.TargetTypeData'
+      description: 近接攻撃設定
+    SaveData.NameComponent:
+      type: object
+      required:
+        - Name
+      properties:
+        Name:
+          $ref: '#/components/schemas/SaveData.EntityName'
+      description: エンティティ名
+    SaveData.PoolCurrent:
+      type: integer
+      format: int32
+      description: プール現在値 (整数)
+    SaveData.PoolFloatCurrent:
+      type: number
+      format: double
+      description: プール現在値 (浮動小数点)
+    SaveData.PoolFloatMax:
+      type: number
+      format: double
+      description: プール最大値 (浮動小数点)
+    SaveData.PoolMax:
+      type: integer
+      format: int32
+      description: プール最大値 (整数)
+    SaveData.PoolsComponent:
+      type: object
+      required:
+        - HP
+        - SP
+        - EP
+        - Weight
+      properties:
+        HP:
+          $ref: '#/components/schemas/SaveData.IntPool'
+        SP:
+          $ref: '#/components/schemas/SaveData.IntPool'
+        EP:
+          $ref: '#/components/schemas/SaveData.IntPool'
+        Weight:
+          $ref: '#/components/schemas/SaveData.FloatPool'
+      description: HP/SP/EP/重量のプール
+    SaveData.ProvidesHealingComponent:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          $ref: '#/components/schemas/SaveData.HealingAmountData'
+      description: 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
+    SaveData.ProvidesNutritionComponent:
+      type: object
+      required:
+        - Amount
+      properties:
+        Amount:
+          $ref: '#/components/schemas/NutritionAmount'
+      description: 栄養補給効果
+    SaveData.RGBAColor:
+      type: object
+      required:
+        - R
+        - G
+        - B
+        - A
+      properties:
+        R:
+          $ref: '#/components/schemas/ColorChannel'
+        G:
+          $ref: '#/components/schemas/ColorChannel'
+        B:
+          $ref: '#/components/schemas/ColorChannel'
+        A:
+          $ref: '#/components/schemas/ColorChannel'
+      description: RGBA色。各チャネル0-255
+    SaveData.RecipeComponent:
+      type: object
+      required:
+        - Inputs
+      properties:
+        Inputs:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveData.RecipeInputData'
+      description: レシピ設定
+    SaveData.RecipeInputData:
+      type: object
+      required:
+        - Name
+        - Amount
+      properties:
+        Name:
+          $ref: '#/components/schemas/SaveData.MaterialName'
+        Amount:
+          $ref: '#/components/schemas/MaterialAmount'
+      description: レシピ素材
+    SaveData.SaveData:
+      type: object
+      required:
+        - version
+        - timestamp
+        - world
+        - checksum
+      properties:
+        version:
+          type: string
+          enum:
+            - 1.0.0
+          description: セーブデータのバージョン。現在は "1.0.0" のみ
+        timestamp:
+          type: string
+          format: date-time
+          description: 保存日時 (RFC3339形式)
+        world:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.WorldSaveData'
+          description: ワールドデータ
+        checksum:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.Checksum'
+          description: データ改ざん検知用SHA-256ハッシュ値
+      description: セーブデータの最上位構造。ファイルに保存されるJSON全体を表す
+    SaveData.Speed:
+      type: integer
+      format: int32
+      minimum: 0
+      description: APの毎ターン回復量
+    SaveData.SpriteDepth:
+      type: integer
+      format: int32
+      description: スプライト描画深度
+    SaveData.SpriteKey:
+      type: string
+      description: スプライトキー。セーブデータではパターン制約を適用しない
+    SaveData.SpriteRenderComponent:
+      type: object
+      required:
+        - SpriteSheetName
+        - SpriteKey
+        - Depth
+      properties:
+        SpriteSheetName:
+          $ref: '#/components/schemas/SaveData.SpriteSheetName'
+        SpriteKey:
+          $ref: '#/components/schemas/SaveData.SpriteKey'
+        AnimKeys:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveData.SpriteKey'
+          nullable: true
+        Depth:
+          $ref: '#/components/schemas/SaveData.SpriteDepth'
+        Options:
+          type: object
+          additionalProperties: {}
+          description: Ebitengine DrawImageOptions。レンダラ内部状態
+      description: スプライト描画設定
+    SaveData.SpriteSheetName:
+      type: string
+      description: スプライトシート名。セーブデータではパターン制約を適用しない
+    SaveData.StableID:
+      type: object
+      required:
+        - index
+        - generation
+      properties:
+        index:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.EntityIndex'
+          description: エンティティインデックス
+        generation:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.EntityGeneration'
+          description: 世代番号。同一インデックスの再利用を区別する
+      description: エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
+    SaveData.TargetTypeData:
+      type: object
+      required:
+        - TargetGroup
+        - TargetNum
+      properties:
+        TargetGroup:
+          $ref: '#/components/schemas/TargetGroup'
+        TargetNum:
+          $ref: '#/components/schemas/TargetNum'
+      description: 対象指定
+    SaveData.TileCoord:
+      type: integer
+      format: int32
+      description: タイル座標
+    SaveData.TurnBasedComponent:
+      type: object
+      required:
+        - AP
+        - Speed
+      properties:
+        AP:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.IntPool'
+          description: アクションポイント
+        Speed:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.Speed'
+          description: APの毎ターン回復量
+      description: アクションポイントと速度
+    SaveData.ValueComponent:
+      type: object
+      required:
+        - Value
+      properties:
+        Value:
+          $ref: '#/components/schemas/ItemValue'
+      description: 売買価格
+    SaveData.WalletComponent:
+      type: object
+      required:
+        - Currency
+      properties:
+        Currency:
+          $ref: '#/components/schemas/SaveData.Currency'
+      description: 所持金
+    SaveData.WearableComponent:
+      type: object
+      required:
+        - Defense
+        - EquipmentCategory
+        - EquipBonus
+        - InsulationCold
+        - InsulationHeat
+      properties:
+        Defense:
+          allOf:
+            - $ref: '#/components/schemas/ArmorDefense'
+          description: 防御力
+        EquipmentCategory:
+          allOf:
+            - $ref: '#/components/schemas/EquipmentCategory'
+          description: 装備部位
+        EquipBonus:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.EquipBonusData'
+          description: 装備ボーナス
+        InsulationCold:
+          allOf:
+            - $ref: '#/components/schemas/InsulationCold'
+          description: 耐寒性能
+        InsulationHeat:
+          allOf:
+            - $ref: '#/components/schemas/InsulationHeat'
+          description: 耐暑性能
+      description: 防具設定
+    SaveData.WorldSaveData:
+      type: object
+      required:
+        - entities
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveData.EntitySaveData'
+          description: エンティティの配列。StableIDでソートされる
+        game_progress:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.GameProgress'
+          description: ゲーム進行状態
+      description: ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する
     Sensation:
       type: integer
       format: int32

@@ -5,145 +5,92 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"sort"
-	"strings"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// コンポーネント名の定数
-const (
-	ComponentLocationEquipped = "LocationEquipped"
-)
+const saveDataVersion = "1.0.0"
 
-// Data はセーブデータの最上位構造
-type Data struct {
-	Version   string        `json:"version"`
-	Timestamp time.Time     `json:"timestamp"`
-	World     WorldSaveData `json:"world"`
-	Checksum  string        `json:"checksum"` // データ改ざん検知用ハッシュ値
-}
-
-// WorldSaveData はワールド全体のセーブデータ
-type WorldSaveData struct {
-	Entities     []EntitySaveData `json:"entities"`
-	GameProgress *gc.GameProgress `json:"game_progress,omitempty"`
-}
-
-// EntitySaveData は単一エンティティのセーブデータ
-type EntitySaveData struct {
-	StableID   StableID               `json:"stable_id"`
-	Components map[string]interface{} `json:"components"`
-}
-
-// EntityReference はエンティティ参照のセーブデータ
-type EntityReference struct {
-	TargetStableID *StableID `json:"target_stable_id,omitempty"`
-}
-
-// SerializationManager は安定ID + リフレクションベースのシリアライゼーションを管理
+// SerializationManager は安定ID + 静的型ベースのシリアライゼーションを管理する
 type SerializationManager struct {
-	saveDirectory     string
-	stableIDManager   *StableIDManager
-	componentRegistry *ComponentRegistry
+	saveDirectory   string
+	stableIDManager *StableIDManager
 }
 
-// NewSerializationManager は新しいSerializationManagerを作成
+// NewSerializationManager は新しいSerializationManagerを作成する
 func NewSerializationManager(saveDir string) *SerializationManager {
 	sm := &SerializationManager{
-		saveDirectory:     saveDir,
-		stableIDManager:   NewStableIDManager(),
-		componentRegistry: NewComponentRegistry(),
+		saveDirectory:   saveDir,
+		stableIDManager: NewStableIDManager(),
 	}
-
-	// プラットフォーム固有の初期化処理
 	sm.initImpl()
-
 	return sm
 }
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する
 func (sm *SerializationManager) GenerateWorldJSON(world w.World) (string, error) {
-	// コンポーネントレジストリを初期化
-	err := sm.componentRegistry.InitializeFromWorld(world)
-	if err != nil {
-		return "", fmt.Errorf("failed to initialize component registry: %w", err)
-	}
-
-	// ワールドデータを抽出
 	worldData := sm.extractWorldData(world)
 
-	// セーブデータを作成（チェックサムは後で計算）
-	saveData := Data{
-		Version:   "1.0.0",
+	saveData := oapi.SaveDataSaveData{
+		Version:   saveDataVersion,
 		Timestamp: time.Now(),
 		World:     worldData,
 	}
 
-	// チェックサムを計算して設定
-	checksum := sm.calculateChecksum(&saveData)
+	checksum, err := sm.calculateChecksum(&saveData)
+	if err != nil {
+		return "", err
+	}
 	saveData.Checksum = checksum
 
-	// JSONにシリアライズ（キーをソート）
-	data, err := sm.marshalSortedJSON(saveData)
+	data, err := json.MarshalIndent(saveData, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal save data: %w", err)
 	}
-
 	return string(data), nil
 }
 
-// SaveWorld はワールド全体をファイルに保存（既存のインターフェース維持）
+// SaveWorld はワールド全体をファイルに保存する
 func (sm *SerializationManager) SaveWorld(world w.World, slotName string) error {
-	// JSON生成
 	jsonData, err := sm.GenerateWorldJSON(world)
 	if err != nil {
 		return err
 	}
-
-	// ファイル保存
 	return sm.saveDataImpl(slotName, []byte(jsonData))
 }
 
 // LoadWorldJSON はJSON文字列をファイルから読み込む
 func (sm *SerializationManager) LoadWorldJSON(slotName string) (string, error) {
-	// プラットフォーム固有のデータ読み込み処理を実行
 	data, err := sm.loadDataImpl(slotName)
 	if err != nil {
 		return "", fmt.Errorf("failed to load save data: %w", err)
 	}
-
 	return string(data), nil
 }
 
-// RestoreWorldFromJSON はJSON文字列からワールドを復元する（ファイル読み込みなし）
+// RestoreWorldFromJSON はJSON文字列からワールドを復元する
 func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData string) error {
-	// コンポーネントレジストリを初期化
-	err := sm.componentRegistry.InitializeFromWorld(world)
-	if err != nil {
-		return fmt.Errorf("failed to initialize component registry: %w", err)
+	// OpenAPIスキーマでバリデーション
+	if err := ValidateSaveJSON(jsonData); err != nil {
+		return err
 	}
 
-	// JSONをパース
-	var saveData Data
-	err = json.Unmarshal([]byte(jsonData), &saveData)
-	if err != nil {
+	var saveData oapi.SaveDataSaveData
+	if err := json.Unmarshal([]byte(jsonData), &saveData); err != nil {
 		return fmt.Errorf("failed to unmarshal save data: %w", err)
 	}
 
-	// チェックサム検証（データ改ざん検知）
-	err = sm.validateChecksum(&saveData)
-	if err != nil {
+	if err := sm.validateChecksum(&saveData); err != nil {
 		return fmt.Errorf("save data validation failed: %w", err)
 	}
 
-	// バージョンチェック
-	if saveData.Version != "1.0.0" {
+	if string(saveData.Version) != saveDataVersion {
 		return fmt.Errorf("unsupported save data version: %s", saveData.Version)
 	}
 
@@ -151,275 +98,392 @@ func (sm *SerializationManager) RestoreWorldFromJSON(world w.World, jsonData str
 	world.InitSingleton()
 	sm.stableIDManager.Clear()
 
-	// ワールドデータを復元
-	err = sm.restoreWorldData(world, saveData.World)
-	if err != nil {
+	if err := sm.restoreWorldData(world, saveData.World); err != nil {
 		return fmt.Errorf("failed to restore world data: %w", err)
 	}
-
 	return nil
 }
 
-// LoadWorld はファイルからワールドを復元（既存のインターフェース維持）
+// LoadWorld はファイルからワールドを復元する
 func (sm *SerializationManager) LoadWorld(world w.World, slotName string) error {
-	// JSONファイル読み込み
 	jsonData, err := sm.LoadWorldJSON(slotName)
 	if err != nil {
 		return err
 	}
-
-	// JSON文字列から復元
 	return sm.RestoreWorldFromJSON(world, jsonData)
 }
 
-// extractWorldData はワールドからセーブデータを抽出
-// プレイヤーエンティティとその所持アイテム（バックパック・装備）のみを保存する
-// 地形、扉、フィールドアイテム、敵などは毎回再生成し、保存しない
-func (sm *SerializationManager) extractWorldData(world w.World) WorldSaveData {
-	entities := []EntitySaveData{}
-	processedEntities := make(map[ecs.Entity]bool) // 重複処理防止
+// extractWorldData はワールドからセーブデータを抽出する。
+// プレイヤーエンティティとその所持アイテム（バックパック・装備）のみを保存する。
+// 地形、扉、フィールドアイテム、敵などは毎回再生成し、保存しない。
+func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWorldSaveData {
+	entities := []oapi.SaveDataEntitySaveData{}
+	processed := make(map[ecs.Entity]bool)
 
-	// 1. プレイヤーエンティティを保存
-	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
-		sm.processEntityForSave(entity, world, &entities, processedEntities)
-	}))
+	collect := func(entity ecs.Entity) {
+		if processed[entity] {
+			return
+		}
+		processed[entity] = true
+		entityData := sm.extractEntity(entity, world)
+		entities = append(entities, entityData)
+	}
 
-	// 2. バックパック内のアイテムを保存
-	world.Manager.Join(world.Components.ItemLocationInPlayerBackpack).Visit(ecs.Visit(func(entity ecs.Entity) {
-		sm.processEntityForSave(entity, world, &entities, processedEntities)
-	}))
+	// 1. プレイヤーエンティティ
+	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(collect))
+	// 2. バックパック内アイテム
+	world.Manager.Join(world.Components.ItemLocationInPlayerBackpack).Visit(ecs.Visit(collect))
+	// 3. 装備中アイテム
+	world.Manager.Join(world.Components.ItemLocationEquipped).Visit(ecs.Visit(collect))
 
-	// 3. 装備中のアイテムを保存
-	world.Manager.Join(world.Components.ItemLocationEquipped).Visit(ecs.Visit(func(entity ecs.Entity) {
-		sm.processEntityForSave(entity, world, &entities, processedEntities)
-	}))
-
-	// エンティティをStableIDでソートして決定的な順序にする
 	sort.Slice(entities, func(i, j int) bool {
-		return entities[i].StableID.Index < entities[j].StableID.Index
+		return entities[i].StableId.Index < entities[j].StableId.Index
 	})
 
-	worldData := WorldSaveData{
-		Entities: entities,
+	return oapi.SaveDataWorldSaveData{
+		Entities:     entities,
+		GameProgress: gameProgressToSaveData(worldhelper.GetGameProgress(world)),
 	}
-
-	// GameProgressを保存
-	worldData.GameProgress = worldhelper.GetGameProgress(world)
-
-	return worldData
 }
 
-// processEntityForSave はエンティティを処理してセーブデータに追加
-func (sm *SerializationManager) processEntityForSave(entity ecs.Entity, world w.World, entities *[]EntitySaveData, processed map[ecs.Entity]bool) {
-	// 既に処理済みかチェック
-	if processed[entity] {
-		return
-	}
-	processed[entity] = true
-
-	// 安定IDを取得
+// extractEntity はエンティティのコンポーネントをSaveData型に変換する
+func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) oapi.SaveDataEntitySaveData {
 	stableID := sm.stableIDManager.GetStableID(entity)
+	c := world.Components
+	comp := oapi.SaveDataComponentsMap{}
 
-	// エンティティデータを作成
-	entityData := EntitySaveData{
-		StableID:   stableID,
-		Components: make(map[string]interface{}),
+	// マーカーコンポーネント (NullComponent)
+	if entity.HasComponent(c.Player) {
+		comp.Player = emptyMarker()
+	}
+	if entity.HasComponent(c.FactionAlly) {
+		comp.FactionAllyData = emptyMarker()
+	}
+	if entity.HasComponent(c.ItemLocationInPlayerBackpack) {
+		comp.LocationInPlayerBackpack = emptyMarker()
+	}
+	if entity.HasComponent(c.StatsChanged) {
+		comp.StatsChanged = emptyMarker()
 	}
 
-	// 各コンポーネント型をチェック
-	for _, typeInfo := range sm.componentRegistry.GetAllTypes() {
-		if data, hasComponent := typeInfo.ExtractFunc(world, entity); hasComponent {
-			// エンティティ参照の処理
-			processedData := sm.processEntityReferences(data, typeInfo)
+	// マーカーコンポーネント (SliceComponent, 空struct)
+	if entity.HasComponent(c.Weapon) {
+		comp.Weapon = emptyMarker()
+	}
+	if entity.HasComponent(c.Stackable) {
+		comp.Stackable = emptyMarker()
+	}
 
-			// コンポーネントデータを直接格納する。キー名が型名を示す
-			entityData.Components[typeInfo.Name] = processedData
+	// Item (SliceComponent, Countフィールドあり)
+	if entity.HasComponent(c.Item) {
+		item := c.Item.Get(entity).(*gc.Item)
+		m := oapi.SaveDataMarkerComponent{"Count": item.Count}
+		comp.Item = &m
+	}
+
+	// データコンポーネント
+	if entity.HasComponent(c.Name) {
+		name := c.Name.Get(entity).(*gc.Name)
+		comp.Name = &oapi.SaveDataNameComponent{Name: name.Name}
+	}
+	if entity.HasComponent(c.Description) {
+		desc := c.Description.Get(entity).(*gc.Description)
+		comp.Description = &oapi.SaveDataDescriptionComponent{Description: desc.Description}
+	}
+	if entity.HasComponent(c.Pools) {
+		pools := c.Pools.Get(entity).(*gc.Pools)
+		sd := poolsToSaveData(*pools)
+		comp.Pools = &sd
+	}
+	if entity.HasComponent(c.TurnBased) {
+		tb := c.TurnBased.Get(entity).(*gc.TurnBased)
+		sd := turnBasedToSaveData(*tb)
+		comp.TurnBased = &sd
+	}
+	if entity.HasComponent(c.Abilities) {
+		ab := c.Abilities.Get(entity).(*gc.Abilities)
+		sd := abilitiesToSaveData(*ab)
+		comp.Abilities = &sd
+	}
+
+	// 表示コンポーネント
+	if entity.HasComponent(c.Camera) {
+		cam := c.Camera.Get(entity).(*gc.Camera)
+		sd := cameraToSaveData(*cam)
+		comp.Camera = &sd
+	}
+	if entity.HasComponent(c.GridElement) {
+		ge := c.GridElement.Get(entity).(*gc.GridElement)
+		sd := gridElementToSaveData(*ge)
+		comp.GridElement = &sd
+	}
+	if entity.HasComponent(c.SpriteRender) {
+		sr := c.SpriteRender.Get(entity).(*gc.SpriteRender)
+		sd := spriteRenderToSaveData(*sr)
+		comp.SpriteRender = &sd
+	}
+	if entity.HasComponent(c.LightSource) {
+		ls := c.LightSource.Get(entity).(*gc.LightSource)
+		sd := lightSourceToSaveData(*ls)
+		comp.LightSource = &sd
+	}
+
+	// アイテム属性コンポーネント
+	if entity.HasComponent(c.Wearable) {
+		w := c.Wearable.Get(entity).(*gc.Wearable)
+		sd := wearableToSaveData(*w)
+		comp.Wearable = &sd
+	}
+	if entity.HasComponent(c.Value) {
+		v := c.Value.Get(entity).(*gc.Value)
+		comp.Value = &oapi.SaveDataValueComponent{Value: int32(v.Value)}
+	}
+	if entity.HasComponent(c.Melee) {
+		m := c.Melee.Get(entity).(*gc.Melee)
+		sd := meleeToSaveData(*m)
+		comp.Melee = &sd
+	}
+	if entity.HasComponent(c.Fire) {
+		f := c.Fire.Get(entity).(*gc.Fire)
+		sd := fireToSaveData(*f)
+		comp.Fire = &sd
+	}
+	if entity.HasComponent(c.Recipe) {
+		r := c.Recipe.Get(entity).(*gc.Recipe)
+		sd := recipeToSaveData(*r)
+		comp.Recipe = &sd
+	}
+	if entity.HasComponent(c.Ammo) {
+		a := c.Ammo.Get(entity).(*gc.Ammo)
+		sd := ammoToSaveData(*a)
+		comp.Ammo = &sd
+	}
+
+	// アイテム効果コンポーネント
+	if entity.HasComponent(c.Consumable) {
+		con := c.Consumable.Get(entity).(*gc.Consumable)
+		sd := consumableToSaveData(*con)
+		comp.Consumable = &sd
+	}
+	if entity.HasComponent(c.ProvidesHealing) {
+		ph := c.ProvidesHealing.Get(entity).(*gc.ProvidesHealing)
+		sd := providesHealingToSaveData(*ph)
+		comp.ProvidesHealing = &sd
+	}
+	if entity.HasComponent(c.ProvidesNutrition) {
+		pn := c.ProvidesNutrition.Get(entity).(*gc.ProvidesNutrition)
+		comp.ProvidesNutrition = &oapi.SaveDataProvidesNutritionComponent{Amount: int32(pn.Amount)}
+	}
+	if entity.HasComponent(c.InflictsDamage) {
+		id := c.InflictsDamage.Get(entity).(*gc.InflictsDamage)
+		comp.InflictsDamage = &oapi.SaveDataInflictsDamageComponent{Amount: int32(id.Amount)}
+	}
+	if entity.HasComponent(c.Wallet) {
+		wal := c.Wallet.Get(entity).(*gc.Wallet)
+		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
+	}
+
+	// エンティティ参照コンポーネント (LocationEquipped)
+	if entity.HasComponent(c.ItemLocationEquipped) {
+		equipped := c.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+		ownerStableID := sm.stableIDManager.GetStableID(equipped.Owner)
+		comp.LocationEquipped = &oapi.SaveDataLocationEquippedComponent{
+			OwnerRef:      stableIDToSaveData(ownerStableID),
+			EquipmentSlot: int32(equipped.EquipmentSlot),
 		}
 	}
 
-	// コンポーネントがあるエンティティのみ保存
-	if len(entityData.Components) > 0 {
-		*entities = append(*entities, entityData)
+	return oapi.SaveDataEntitySaveData{
+		StableId:   stableIDToSaveData(stableID),
+		Components: comp,
 	}
 }
 
-// processEntityReferences はエンティティ参照を安定IDに変換
-func (sm *SerializationManager) processEntityReferences(data interface{}, typeInfo *ComponentTypeInfo) interface{} {
-	// LocationEquippedのOwnerを特別処理
-	if typeInfo.Name == ComponentLocationEquipped {
-		if equipped, ok := data.(gc.LocationEquipped); ok {
-			ownerStableID := sm.stableIDManager.GetStableID(equipped.Owner)
-			equippedRef := struct {
-				OwnerRef      StableID               `json:"OwnerRef"`
-				EquipmentSlot gc.EquipmentSlotNumber `json:"EquipmentSlot"`
-			}{
-				OwnerRef:      ownerStableID,
-				EquipmentSlot: equipped.EquipmentSlot,
-			}
-			return equippedRef
-		}
-	}
-
-	// 他の型はそのまま返す
-	return data
+// entityEntry はエンティティ復元時の一時データ
+type entityEntry struct {
+	entity ecs.Entity
+	data   oapi.SaveDataEntitySaveData
 }
 
-// restoreWorldData はセーブデータからワールドを復元
-func (sm *SerializationManager) restoreWorldData(world w.World, worldData WorldSaveData) error {
+// restoreWorldData はセーブデータからワールドを復元する
+func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.SaveDataWorldSaveData) error {
 	// 第1段階: 全エンティティを作成して安定IDマッピング
-	entityMap := make(map[StableID]ecs.Entity)
-	entityDataMap := make(map[StableID]EntitySaveData)
-
+	entries := make([]entityEntry, 0, len(worldData.Entities))
 	for _, entityData := range worldData.Entities {
 		entity := world.Manager.NewEntity()
-
-		// 安定IDマッピングを登録
-		err := sm.stableIDManager.RegisterEntity(entity, entityData.StableID)
-		if err != nil {
+		stableID := stableIDFromSaveData(entityData.StableId)
+		if err := sm.stableIDManager.RegisterEntity(entity, stableID); err != nil {
 			return fmt.Errorf("failed to register entity mapping: %w", err)
 		}
-
-		entityMap[entityData.StableID] = entity
-		entityDataMap[entityData.StableID] = entityData
+		entries = append(entries, entityEntry{entity: entity, data: entityData})
 	}
 
-	// 第2段階: コンポーネントを復元（エンティティ参照なし）
-	for stableID, entityData := range entityDataMap {
-		entity := entityMap[stableID]
-
-		for componentName, componentData := range entityData.Components {
-			typeInfo, exists := sm.componentRegistry.GetTypeInfoByName(componentName)
-			if !exists {
-				return fmt.Errorf("unknown component type: %s", componentName)
-			}
-
-			// JSONからコンポーネントデータを復元
-			restoredData, err := sm.restoreComponentData(componentData, typeInfo)
-			if err != nil {
-				return fmt.Errorf("failed to restore component %s: %w", componentName, err)
-			}
-
-			// コンポーネントをエンティティに追加
-			err = typeInfo.RestoreFunc(world, entity, restoredData)
-			if err != nil {
-				return fmt.Errorf("failed to add component %s to entity: %w", componentName, err)
-			}
-		}
+	// 第2段階: コンポーネントを復元
+	c := world.Components
+	for _, entry := range entries {
+		restoreComponents(entry.entity, entry.data.Components, c)
 	}
 
 	// 第3段階: エンティティ参照を解決
-	for stableID, entityData := range entityDataMap {
-		entity := entityMap[stableID]
-
-		for componentName, componentData := range entityData.Components {
-			typeInfo, exists := sm.componentRegistry.GetTypeInfoByName(componentName)
-			if !exists || typeInfo.ResolveRefFunc == nil {
-				continue
-			}
-
-			err := sm.resolveEntityReferences(world, entity, componentData, typeInfo)
-			if err != nil {
-				return fmt.Errorf("failed to resolve references for %s: %w", componentName, err)
-			}
+	for _, entry := range entries {
+		if entry.data.Components.LocationEquipped == nil {
+			continue
 		}
+		ownerStableID := stableIDFromSaveData(entry.data.Components.LocationEquipped.OwnerRef)
+		ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
+		if !exists {
+			return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
+		}
+		equipped := c.ItemLocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
+		equipped.Owner = ownerEntity
 	}
 
 	// GameProgressを復元
-	if worldData.GameProgress != nil {
-		*worldhelper.GetGameProgress(world) = *worldData.GameProgress
+	if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil {
+		*worldhelper.GetGameProgress(world) = *gp
 	}
 
 	return nil
 }
 
-// restoreComponentData はJSONデータからコンポーネントデータを復元
-func (sm *SerializationManager) restoreComponentData(jsonData interface{}, typeInfo *ComponentTypeInfo) (interface{}, error) {
-	// ProvidesHealingを特別処理（Amounterインターフェースのため）
-	if typeInfo.Name == "ProvidesHealing" {
-		// この型はreflection.goのrestoreProvidesHealingで処理されるため、
-		// ここではデータをそのまま返す
-		return jsonData, nil
+// restoreComponents はComponentsMapから全コンポーネントをエンティティに復元する
+func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
+	// マーカーコンポーネント (NullComponent)
+	if comp.Player != nil {
+		entity.AddComponent(c.Player, &gc.Player{})
+	}
+	if comp.FactionAllyData != nil {
+		entity.AddComponent(c.FactionAlly, &gc.FactionAllyData{})
+	}
+	if comp.LocationInPlayerBackpack != nil {
+		entity.AddComponent(c.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
+	}
+	if comp.StatsChanged != nil {
+		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
 	}
 
-	// LocationEquippedを特別処理（カスタムシリアライズ形式のため）
-	if typeInfo.Name == ComponentLocationEquipped {
-		dataMap, ok := jsonData.(map[string]interface{})
-		if !ok {
-			return nil, fmt.Errorf("invalid LocationEquipped JSON data type: %T", jsonData)
-		}
-
-		// EquipmentSlotを取得
-		equipmentSlotVal, exists := dataMap["EquipmentSlot"]
-		if !exists {
-			return nil, fmt.Errorf("EquipmentSlot not found in LocationEquipped data")
-		}
-		equipmentSlot, ok := equipmentSlotVal.(float64)
-		if !ok {
-			return nil, fmt.Errorf("invalid EquipmentSlot type: %T", equipmentSlotVal)
-		}
-
-		// LocationEquipped構造体を作成（Ownerは後で解決）
-		equipped := gc.LocationEquipped{
-			Owner:         0, // 一時的に無効なエンティティID
-			EquipmentSlot: gc.EquipmentSlotNumber(equipmentSlot),
-		}
-		return equipped, nil
+	// マーカーコンポーネント (SliceComponent, 空struct)
+	if comp.Weapon != nil {
+		entity.AddComponent(c.Weapon, &gc.Weapon{})
+	}
+	if comp.Stackable != nil {
+		entity.AddComponent(c.Stackable, &gc.Stackable{})
 	}
 
-	// 通常のコンポーネント処理
-	// JSONデータをバイトに変換
-	jsonBytes, err := json.Marshal(jsonData)
-	if err != nil {
-		return nil, err
-	}
-
-	// 型に応じて適切な構造体を作成
-	targetValue := reflect.New(typeInfo.Type).Interface()
-
-	// JSONからデコード
-	err = json.Unmarshal(jsonBytes, targetValue)
-	if err != nil {
-		return nil, err
-	}
-
-	// ポインタから値を取得
-	return reflect.ValueOf(targetValue).Elem().Interface(), nil
-}
-
-// resolveEntityReferences はエンティティ参照を解決
-func (sm *SerializationManager) resolveEntityReferences(world w.World, entity ecs.Entity, jsonData interface{}, typeInfo *ComponentTypeInfo) error {
-	if typeInfo.Name == ComponentLocationEquipped {
-		// JSONデータを変換
-		jsonBytes, err := json.Marshal(jsonData)
-		if err != nil {
-			return err
-		}
-
-		var equippedRef struct {
-			OwnerRef      StableID               `json:"OwnerRef"`
-			EquipmentSlot gc.EquipmentSlotNumber `json:"EquipmentSlot"`
-		}
-
-		err = json.Unmarshal(jsonBytes, &equippedRef)
-		if err != nil {
-			return err
-		}
-
-		// LocationEquippedコンポーネントを取得
-		if entity.HasComponent(world.Components.ItemLocationEquipped) {
-			equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
-
-			// エンティティ参照を解決
-			if ownerEntity, exists := sm.stableIDManager.GetEntity(equippedRef.OwnerRef); exists {
-				equipped.Owner = ownerEntity
-			} else {
-				// Owner参照が解決できない場合はエラーを返す
-				return fmt.Errorf("required owner entity not found for stable ID: %v", equippedRef.OwnerRef)
+	// Item (Countフィールドあり)
+	if comp.Item != nil {
+		item := gc.Item{}
+		if count, ok := (*comp.Item)["Count"]; ok {
+			if countFloat, ok := count.(float64); ok {
+				item.Count = int(countFloat)
 			}
 		}
+		entity.AddComponent(c.Item, &item)
 	}
 
-	return nil
+	// データコンポーネント
+	restoreDataComponents(entity, comp, c)
+
+	// アイテム属性コンポーネント
+	restoreItemComponents(entity, comp, c)
+
+	// アイテム効果コンポーネント
+	restoreEffectComponents(entity, comp, c)
+
+	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
+	if comp.LocationEquipped != nil {
+		equipped := gc.LocationEquipped{
+			Owner:         0,
+			EquipmentSlot: gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot),
+		}
+		entity.AddComponent(c.ItemLocationEquipped, &equipped)
+	}
+}
+
+// restoreDataComponents はデータ/表示コンポーネントを復元する
+func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
+	if comp.Name != nil {
+		entity.AddComponent(c.Name, &gc.Name{Name: comp.Name.Name})
+	}
+	if comp.Description != nil {
+		entity.AddComponent(c.Description, &gc.Description{Description: comp.Description.Description})
+	}
+	if comp.Pools != nil {
+		p := poolsFromSaveData(*comp.Pools)
+		entity.AddComponent(c.Pools, &p)
+	}
+	if comp.TurnBased != nil {
+		tb := turnBasedFromSaveData(*comp.TurnBased)
+		entity.AddComponent(c.TurnBased, &tb)
+	}
+	if comp.Abilities != nil {
+		ab := abilitiesFromSaveData(*comp.Abilities)
+		entity.AddComponent(c.Abilities, &ab)
+	}
+	if comp.Camera != nil {
+		cam := cameraFromSaveData(*comp.Camera)
+		entity.AddComponent(c.Camera, &cam)
+	}
+	if comp.GridElement != nil {
+		ge := gridElementFromSaveData(*comp.GridElement)
+		entity.AddComponent(c.GridElement, &ge)
+	}
+	if comp.SpriteRender != nil {
+		sr := spriteRenderFromSaveData(*comp.SpriteRender)
+		entity.AddComponent(c.SpriteRender, &sr)
+	}
+	if comp.LightSource != nil {
+		ls := lightSourceFromSaveData(*comp.LightSource)
+		entity.AddComponent(c.LightSource, &ls)
+	}
+}
+
+// restoreItemComponents はアイテム属性コンポーネントを復元する
+func restoreItemComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
+	if comp.Wearable != nil {
+		w := wearableFromSaveData(*comp.Wearable)
+		entity.AddComponent(c.Wearable, &w)
+	}
+	if comp.Value != nil {
+		entity.AddComponent(c.Value, &gc.Value{Value: int(comp.Value.Value)})
+	}
+	if comp.Melee != nil {
+		m := meleeFromSaveData(*comp.Melee)
+		entity.AddComponent(c.Melee, &m)
+	}
+	if comp.Fire != nil {
+		f := fireFromSaveData(*comp.Fire)
+		entity.AddComponent(c.Fire, &f)
+	}
+	if comp.Recipe != nil {
+		r := recipeFromSaveData(*comp.Recipe)
+		entity.AddComponent(c.Recipe, &r)
+	}
+	if comp.Ammo != nil {
+		a := ammoFromSaveData(*comp.Ammo)
+		entity.AddComponent(c.Ammo, &a)
+	}
+}
+
+// restoreEffectComponents はアイテム効果コンポーネントを復元する
+func restoreEffectComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc.Components) {
+	if comp.Consumable != nil {
+		con := consumableFromSaveData(*comp.Consumable)
+		entity.AddComponent(c.Consumable, &con)
+	}
+	if comp.ProvidesHealing != nil {
+		ph := providesHealingFromSaveData(*comp.ProvidesHealing)
+		entity.AddComponent(c.ProvidesHealing, &ph)
+	}
+	if comp.ProvidesNutrition != nil {
+		entity.AddComponent(c.ProvidesNutrition, &gc.ProvidesNutrition{Amount: int(comp.ProvidesNutrition.Amount)})
+	}
+	if comp.InflictsDamage != nil {
+		entity.AddComponent(c.InflictsDamage, &gc.InflictsDamage{Amount: int(comp.InflictsDamage.Amount)})
+	}
+	if comp.Wallet != nil {
+		entity.AddComponent(c.Wallet, &gc.Wallet{Currency: int(comp.Wallet.Currency)})
+	}
 }
 
 // SaveFileExists はセーブファイルが存在するかチェックする
@@ -427,228 +491,51 @@ func (sm *SerializationManager) SaveFileExists(slotName string) bool {
 	return sm.saveFileExistsImpl(slotName)
 }
 
-// GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する
-// JSONファイルの中身のtimestampフィールドを読み取る
+// GetSaveFileTimestamp はセーブファイルのタイムスタンプを取得する。
+// セーブデータ全体をデシリアライズせず、タイムスタンプだけを抽出する。
 func (sm *SerializationManager) GetSaveFileTimestamp(slotName string) (time.Time, error) {
 	data, err := sm.loadDataImpl(slotName)
 	if err != nil {
 		return time.Time{}, err
 	}
-
-	var saveData Data
-	err = json.Unmarshal(data, &saveData)
-	if err != nil {
+	var partial struct {
+		Timestamp time.Time `json:"timestamp"`
+	}
+	if err := json.Unmarshal(data, &partial); err != nil {
 		return time.Time{}, fmt.Errorf("failed to parse save data: %w", err)
 	}
-
-	return saveData.Timestamp, nil
+	return partial.Timestamp, nil
 }
 
-// calculateChecksum はセーブデータのチェックサムを計算する
-// 決定的な順序でハッシュ計算を行うため、エンティティとコンポーネントをソートする
-func (sm *SerializationManager) calculateChecksum(data *Data) string {
-	return sm.calculateDeterministicHash(data)
-}
-
-// calculateDeterministicHash は決定的な順序でハッシュを計算する
-func (sm *SerializationManager) calculateDeterministicHash(data *Data) string {
-	hashParts := make([]string, 0, len(data.World.Entities)+1)
-
-	// バージョン情報
-	hashParts = append(hashParts, fmt.Sprintf("version:%s", data.Version))
-
-	// エンティティを StableID の Index でソート
-	entities := make([]EntitySaveData, len(data.World.Entities))
-	copy(entities, data.World.Entities)
-
-	sort.Slice(entities, func(i, j int) bool {
-		return entities[i].StableID.Index < entities[j].StableID.Index
-	})
-
-	// 各エンティティのハッシュを計算
-	for _, entity := range entities {
-		entityHash := sm.calculateEntityHash(entity)
-		hashParts = append(hashParts, fmt.Sprintf("entity:%s", entityHash))
+// calculateChecksum はセーブデータからチェックサムを計算する。
+// Checksum自身を除いた全データのJSON表現をSHA-256でハッシュする。
+func (sm *SerializationManager) calculateChecksum(data *oapi.SaveDataSaveData) (string, error) {
+	// チェックサムフィールドを空にしたコピーでハッシュ計算
+	hashTarget := oapi.SaveDataSaveData{
+		Version:   data.Version,
+		Timestamp: data.Timestamp,
+		World:     data.World,
 	}
-
-	// GameProgressのハッシュを追加
-	if data.World.GameProgress != nil {
-		gpBytes, err := json.Marshal(data.World.GameProgress)
-		if err != nil {
-			panic(fmt.Sprintf("failed to marshal GameProgress for checksum: %v", err))
-		}
-		gpHash := sha256.Sum256(gpBytes)
-		hashParts = append(hashParts, fmt.Sprintf("game_progress:%s", hex.EncodeToString(gpHash[:])))
+	jsonBytes, err := json.Marshal(hashTarget)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal save data for checksum: %w", err)
 	}
-
-	// 全体のハッシュを計算
-	finalData := fmt.Sprintf("checksum_data:%s", fmt.Sprintf("%v", hashParts))
-	hash := sha256.Sum256([]byte(finalData))
-	return hex.EncodeToString(hash[:])
-}
-
-// calculateEntityHash は単一エンティティの決定的ハッシュを計算する
-func (sm *SerializationManager) calculateEntityHash(entity EntitySaveData) string {
-	parts := make([]string, 0, len(entity.Components)+1)
-
-	// StableID
-	parts = append(parts, fmt.Sprintf("stable_id:%d:%d", entity.StableID.Index, entity.StableID.Generation))
-
-	// コンポーネント名をソート
-	componentNames := make([]string, 0, len(entity.Components))
-	for name := range entity.Components {
-		componentNames = append(componentNames, name)
-	}
-	sort.Strings(componentNames)
-
-	// 各コンポーネントのハッシュを計算
-	for _, name := range componentNames {
-		component := entity.Components[name]
-		componentHash := sm.calculateComponentHash(name, component)
-		parts = append(parts, fmt.Sprintf("component:%s:%s", name, componentHash))
-	}
-
-	entityData := fmt.Sprintf("entity_data:%s", fmt.Sprintf("%v", parts))
-	hash := sha256.Sum256([]byte(entityData))
-	return hex.EncodeToString(hash[:])
-}
-
-// calculateComponentHash はコンポーネントの決定的ハッシュを計算する
-func (sm *SerializationManager) calculateComponentHash(name string, component interface{}) string {
-	// シンプルな実装: コンポーネント名とデータサイズでハッシュ計算
-	// より厳密には、データの内容を決定的にシリアライズする必要がある
-
-	var dataSize int
-	if component != nil {
-		// JSON marshal でサイズを概算
-		if jsonBytes, err := json.Marshal(component); err == nil {
-			dataSize = len(jsonBytes)
-		}
-	}
-
-	hashData := fmt.Sprintf("component:%s:size:%d", name, dataSize)
-	hash := sha256.Sum256([]byte(hashData))
-	return hex.EncodeToString(hash[:])
+	hash := sha256.Sum256(jsonBytes)
+	return hex.EncodeToString(hash[:]), nil
 }
 
 // validateChecksum はセーブデータのチェックサムを検証する
-func (sm *SerializationManager) validateChecksum(data *Data) error {
+func (sm *SerializationManager) validateChecksum(data *oapi.SaveDataSaveData) error {
 	if data.Checksum == "" {
 		return fmt.Errorf("checksum field is missing: このセーブデータは改ざんされているか、古いバージョンです")
 	}
-
-	// 現在のデータからチェックサムを計算
-	expectedChecksum := sm.calculateChecksum(data)
-
-	// チェックサムを比較
-	if data.Checksum != expectedChecksum {
-		return fmt.Errorf("checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)",
-			expectedChecksum, data.Checksum)
-	}
-
-	return nil
-}
-
-// marshalSortedJSON はキーをソートしてJSONマーシャリングを行う
-func (sm *SerializationManager) marshalSortedJSON(data interface{}) ([]byte, error) {
-	// 最初に標準のMarshalでJSONに変換
-	jsonBytes, err := json.Marshal(data)
+	expected, err := sm.calculateChecksum(data)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("failed to calculate checksum: %w", err)
 	}
-
-	// JSONを一度map[string]interface{}に変換
-	var jsonObj interface{}
-	if err := json.Unmarshal(jsonBytes, &jsonObj); err != nil {
-		return nil, err
+	if data.Checksum != expected {
+		return fmt.Errorf("checksum mismatch: expected %s, got %s (データが改ざんされている可能性があります)",
+			expected, data.Checksum)
 	}
-
-	// ソート済みJSONを生成
-	return sm.marshalSortedIndent(jsonObj, "", "  ")
-}
-
-// marshalSortedIndent は再帰的にキーをソートしてインデント付きJSONを生成
-func (sm *SerializationManager) marshalSortedIndent(v interface{}, prefix, indent string) ([]byte, error) {
-	switch value := v.(type) {
-	case map[string]interface{}:
-		return sm.marshalSortedObject(value, prefix, indent)
-	case []interface{}:
-		return sm.marshalSortedArray(value, prefix, indent)
-	default:
-		// プリミティブ値の場合は標準のMarshalを使用
-		return json.Marshal(value)
-	}
-}
-
-// marshalSortedObject はオブジェクトのキーをソートしてマーシャリング
-func (sm *SerializationManager) marshalSortedObject(obj map[string]interface{}, prefix, indent string) ([]byte, error) {
-	if len(obj) == 0 {
-		return []byte("{}"), nil
-	}
-
-	// キーを取得してソート
-	keys := make([]string, 0, len(obj))
-	for k := range obj {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	var buf strings.Builder
-	buf.WriteString("{\n")
-
-	newPrefix := prefix + indent
-	for i, key := range keys {
-		// キーを書き込み
-		buf.WriteString(newPrefix)
-		keyBytes, _ := json.Marshal(key)
-		buf.Write(keyBytes)
-		buf.WriteString(": ")
-
-		// 値を再帰的に処理
-		valueBytes, err := sm.marshalSortedIndent(obj[key], newPrefix, indent)
-		if err != nil {
-			return nil, err
-		}
-		buf.Write(valueBytes)
-
-		// 最後の要素以外はカンマを追加
-		if i < len(keys)-1 {
-			buf.WriteString(",")
-		}
-		buf.WriteString("\n")
-	}
-
-	buf.WriteString(prefix + "}")
-	return []byte(buf.String()), nil
-}
-
-// marshalSortedArray は配列をマーシャリング
-func (sm *SerializationManager) marshalSortedArray(arr []interface{}, prefix, indent string) ([]byte, error) {
-	if len(arr) == 0 {
-		return []byte("[]"), nil
-	}
-
-	var buf strings.Builder
-	buf.WriteString("[\n")
-
-	newPrefix := prefix + indent
-	for i, item := range arr {
-		buf.WriteString(newPrefix)
-
-		// 要素を再帰的に処理
-		itemBytes, err := sm.marshalSortedIndent(item, newPrefix, indent)
-		if err != nil {
-			return nil, err
-		}
-		buf.Write(itemBytes)
-
-		// 最後の要素以外はカンマを追加
-		if i < len(arr)-1 {
-			buf.WriteString(",")
-		}
-		buf.WriteString("\n")
-	}
-
-	buf.WriteString(prefix + "]")
-	return []byte(buf.String()), nil
+	return nil
 }

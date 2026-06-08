@@ -186,7 +186,7 @@ export interface DropTable {
  */
 export interface DropTableEntry {
     /**
-     * エンティティ名
+     * ドロップする素材名。空文字はドロップなしを意味する
      */
     'material': string;
     /**
@@ -627,13 +627,13 @@ export interface Member {
     'viewDistance'?: number;
     'dialog'?: Dialog;
     /**
-     * エンティティ名
+     * プレイヤーキャラクターでは省略可能
      */
-    'commandTableName': string;
+    'commandTableName'?: string;
     /**
-     * エンティティ名
+     * プレイヤーキャラクターでは省略可能
      */
-    'dropTableName': string;
+    'dropTableName'?: string;
 }
 
 
