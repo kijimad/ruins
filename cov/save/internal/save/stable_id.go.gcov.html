@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">80.9&nbsp;%</td>
-            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntryMed">87.7&nbsp;%</td>
+            <td class="headerCovTableEntry">106</td>
             <td class="headerCovTableEntry">93</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-07 14:36:49</td>
+            <td class="headerValue">2026-06-08 16:48:35</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -220,31 +220,18 @@
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         m.freeIndices = make([]uint32, 0)</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L160"><span class="lineNum">     160</span>              : </span>
-<span id="L161"><span class="lineNum">     161</span>              : // GetAllStableIDs は登録されている全ての安定IDを取得</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 : func (m *StableIDManager) GetAllStableIDs() []StableID {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         m.mutex.RLock()</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         defer m.mutex.RUnlock()</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         stableIDs := make([]StableID, 0, len(m.entityToStable))</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         for _, stableID := range m.entityToStable {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 stableIDs = append(stableIDs, stableID)</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L161"><span class="lineNum">     161</span>              : // String は安定IDの文字列表現を返す</span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 : func (id StableID) String() string {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(&quot;StableID{%d:%d}&quot;, id.Index, id.Generation)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L165"><span class="lineNum">     165</span>              : </span>
+<span id="L166"><span class="lineNum">     166</span>              : // IsNull は安定IDが無効（null）かどうかをチェック</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 : func (id StableID) IsNull() bool {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         return id.Index == 0</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L170"><span class="lineNum">     170</span>              : </span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         return stableIDs</span></span>
-<span id="L172"><span class="lineNum">     172</span>              : }</span>
-<span id="L173"><span class="lineNum">     173</span>              : </span>
-<span id="L174"><span class="lineNum">     174</span>              : // String は安定IDの文字列表現を返す</span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 : func (id StableID) String() string {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(&quot;StableID{%d:%d}&quot;, id.Index, id.Generation)</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L178"><span class="lineNum">     178</span>              : </span>
-<span id="L179"><span class="lineNum">     179</span>              : // IsNull は安定IDが無効（null）かどうかをチェック</span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 : func (id StableID) IsNull() bool {</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         return id.Index == 0</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L183"><span class="lineNum">     183</span>              : </span>
-<span id="L184"><span class="lineNum">     184</span>              : // NullStableID は無効な安定IDを表す</span>
-<span id="L185"><span class="lineNum">     185</span>              : var NullStableID = StableID{Index: 0, Generation: 0}</span>
+<span id="L171"><span class="lineNum">     171</span>              : // NullStableID は無効な安定IDを表す</span>
+<span id="L172"><span class="lineNum">     172</span>              : var NullStableID = StableID{Index: 0, Generation: 0}</span>
         </pre>
               </td>
             </tr>
