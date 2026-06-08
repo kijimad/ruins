@@ -4,6 +4,7 @@ package save
 // セーブ時はgc型→SaveData型、ロード時はSaveData型→gc型に変換する。
 
 import (
+	"fmt"
 	"image/color"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -360,9 +361,7 @@ func providesHealingToSaveData(ph gc.ProvidesHealing) oapi.SaveDataProvidesHeali
 		numeral := int32(a.Numeral)
 		amountData.Numeral = &numeral
 	default:
-		amountData.Type = oapi.Ratio
-		fallback := 0.5
-		amountData.Ratio = &fallback
+		panic(fmt.Sprintf("未知のAmounter型: %T", ph.Amount))
 	}
 	return oapi.SaveDataProvidesHealingComponent{Amount: amountData}
 }
@@ -378,6 +377,8 @@ func providesHealingFromSaveData(sd oapi.SaveDataProvidesHealingComponent) gc.Pr
 		if sd.Amount.Numeral != nil {
 			amount = gc.NumeralAmount{Numeral: int(*sd.Amount.Numeral)}
 		}
+	default:
+		panic(fmt.Sprintf("未知のHealingAmountData型: %s", sd.Amount.Type))
 	}
 	return gc.ProvidesHealing{Amount: amount}
 }
