@@ -158,19 +158,6 @@ func (m *StableIDManager) Clear() {
 	m.freeIndices = make([]uint32, 0)
 }
 
-// GetAllStableIDs は登録されている全ての安定IDを取得
-func (m *StableIDManager) GetAllStableIDs() []StableID {
-	m.mutex.RLock()
-	defer m.mutex.RUnlock()
-
-	stableIDs := make([]StableID, 0, len(m.entityToStable))
-	for _, stableID := range m.entityToStable {
-		stableIDs = append(stableIDs, stableID)
-	}
-
-	return stableIDs
-}
-
 // String は安定IDの文字列表現を返す
 func (id StableID) String() string {
 	return fmt.Sprintf("StableID{%d:%d}", id.Index, id.Generation)

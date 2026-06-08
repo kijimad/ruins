@@ -48,7 +48,7 @@ lint: ## Linterを実行する
 
 .PHONY: gendata
 gendata: ## 現在の設定でデータファイルを生成する
-	UPDATE_GOLDEN=1 RUINS_LOG_LEVEL=ignore \
+	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
 	go test ./... -run Golden -v
 
 .PHONY: aseprite

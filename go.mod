@@ -37,6 +37,8 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
+	github.com/sebdah/goldie/v2 v2.8.0 // indirect
+	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/yourbasic/bit v0.0.0-20180313074424-45a4409f4082 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/image v0.38.0 // indirect

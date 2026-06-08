@@ -1,0 +1,380 @@
+{
+  "version": "1.0.0",
+  "world": {
+    "entities": [
+      {
+        "components": {
+          "Abilities": {
+            "Agility": {
+              "Base": 9,
+              "Modifier": 1,
+              "Total": 10
+            },
+            "Defense": {
+              "Base": 7,
+              "Modifier": 0,
+              "Total": 7
+            },
+            "Dexterity": {
+              "Base": 12,
+              "Modifier": 3,
+              "Total": 15
+            },
+            "Sensation": {
+              "Base": 8,
+              "Modifier": 0,
+              "Total": 8
+            },
+            "Strength": {
+              "Base": 15,
+              "Modifier": -1,
+              "Total": 14
+            },
+            "Vitality": {
+              "Base": 10,
+              "Modifier": 2,
+              "Total": 12
+            }
+          },
+          "Camera": {
+            "Scale": 2,
+            "ScaleTo": 2.5,
+            "TargetX": 150,
+            "TargetY": 250,
+            "X": 100,
+            "Y": 200
+          },
+          "Description": {
+            "Description": "説明文"
+          },
+          "FactionAllyData": {},
+          "GridElement": {
+            "X": 5,
+            "Y": 10
+          },
+          "LightSource": {
+            "Color": {
+              "A": 128,
+              "B": 100,
+              "G": 200,
+              "R": 255
+            },
+            "Enabled": true,
+            "Radius": 3
+          },
+          "Name": {
+            "Name": "テストプレイヤー"
+          },
+          "Player": {},
+          "Pools": {
+            "EP": {
+              "Current": 25,
+              "Max": 30
+            },
+            "HP": {
+              "Current": 80,
+              "Max": 100
+            },
+            "SP": {
+              "Current": 40,
+              "Max": 50
+            },
+            "Weight": {
+              "Current": 12.5,
+              "Max": 50
+            }
+          },
+          "SpriteRender": {
+            "AnimKeys": [
+              "walk_left",
+              "walk_right"
+            ],
+            "Depth": 10,
+            "SpriteKey": "idle",
+            "SpriteSheetName": "player_sheet"
+          },
+          "TurnBased": {
+            "AP": {
+              "Current": 3,
+              "Max": 5
+            },
+            "Speed": 12
+          },
+          "Wallet": {
+            "Currency": 9999
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 1
+        }
+      },
+      {
+        "components": {
+          "Description": {
+            "Description": "炎属性の剣"
+          },
+          "Item": {
+            "Count": 1
+          },
+          "LocationInPlayerBackpack": {},
+          "Melee": {
+            "Accuracy": 90,
+            "AttackCategory": {
+              "Label": "剣",
+              "Range": "MELEE",
+              "Type": "SWORD"
+            },
+            "AttackCount": 2,
+            "Cost": 3,
+            "Damage": 25,
+            "Element": "FIRE",
+            "TargetType": {
+              "TargetGroup": "ENEMY",
+              "TargetNum": "SINGLE"
+            }
+          },
+          "Name": {
+            "Name": "炎の剣"
+          },
+          "Value": {
+            "Value": 500
+          },
+          "Weapon": {}
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 2
+        }
+      },
+      {
+        "components": {
+          "Fire": {
+            "Accuracy": 80,
+            "AmmoTag": "9mm",
+            "AttackCategory": {
+              "Label": "拳銃",
+              "Range": "RANGED",
+              "Type": "HANDGUN"
+            },
+            "AttackCount": 1,
+            "Cost": 2,
+            "Damage": 15,
+            "Element": "NONE",
+            "LoadedAccuracyBonus": 10,
+            "LoadedDamageBonus": 5,
+            "Magazine": 6,
+            "MagazineSize": 8,
+            "ReloadEffort": 3,
+            "TargetType": {
+              "TargetGroup": "ENEMY",
+              "TargetNum": "SINGLE"
+            }
+          },
+          "Item": {
+            "Count": 0
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "ハンドガン"
+          },
+          "Weapon": {}
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 3
+        }
+      },
+      {
+        "components": {
+          "Ammo": {
+            "AccuracyBonus": 10,
+            "AmmoTag": "9mm",
+            "DamageBonus": 5
+          },
+          "Item": {
+            "Count": 30
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "9mm弾"
+          },
+          "Stackable": {}
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 4
+        }
+      },
+      {
+        "components": {
+          "Consumable": {
+            "TargetType": {
+              "TargetGroup": "ALLY",
+              "TargetNum": "SINGLE"
+            },
+            "UsableScene": "ANY"
+          },
+          "Item": {
+            "Count": 3
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "回復薬"
+          },
+          "ProvidesHealing": {
+            "amount": {
+              "ratio": 0.5,
+              "type": "ratio"
+            }
+          },
+          "Stackable": {}
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 5
+        }
+      },
+      {
+        "components": {
+          "Item": {
+            "Count": 5
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "薬草"
+          },
+          "ProvidesHealing": {
+            "amount": {
+              "numeral": 30,
+              "type": "numeral"
+            }
+          },
+          "Stackable": {}
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 6
+        }
+      },
+      {
+        "components": {
+          "Item": {
+            "Count": 2
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "携帯食料"
+          },
+          "ProvidesNutrition": {
+            "Amount": 50
+          },
+          "Stackable": {}
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 7
+        }
+      },
+      {
+        "components": {
+          "Consumable": {
+            "TargetType": {
+              "TargetGroup": "ENEMY",
+              "TargetNum": "ALL"
+            },
+            "UsableScene": "BATTLE"
+          },
+          "InflictsDamage": {
+            "Amount": 40
+          },
+          "Item": {
+            "Count": 1
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "手榴弾"
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 8
+        }
+      },
+      {
+        "components": {
+          "Item": {
+            "Count": 0
+          },
+          "LocationInPlayerBackpack": {},
+          "Name": {
+            "Name": "合成武器"
+          },
+          "Recipe": {
+            "Inputs": [
+              {
+                "Amount": 3,
+                "Name": "鉄"
+              },
+              {
+                "Amount": 1,
+                "Name": "木材"
+              }
+            ]
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 9
+        }
+      },
+      {
+        "components": {
+          "Item": {
+            "Count": 0
+          },
+          "LocationEquipped": {
+            "EquipmentSlot": 1,
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
+          "Name": {
+            "Name": "鋼の鎧"
+          },
+          "StatsChanged": {},
+          "Wearable": {
+            "Defense": 20,
+            "EquipBonus": {
+              "Agility": -2,
+              "Dexterity": -1,
+              "Sensation": 0,
+              "Strength": 1,
+              "Vitality": 3
+            },
+            "EquipmentCategory": "TORSO",
+            "InsulationCold": 5,
+            "InsulationHeat": 2
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 10
+        }
+      }
+    ],
+    "game_progress": {
+      "cleared_dungeons": {
+        "洞窟": true,
+        "遺跡": true
+      },
+      "events": {
+        "boss_defeated": {
+          "active": true,
+          "seen": true
+        }
+      }
+    }
+  }
+}
