@@ -14,10 +14,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// TestAllComponentsRoundTrip はセーブ対象の全コンポーネントとリソースを含むワールドを
+// TestAllComponentsGolden はセーブ対象の全コンポーネントとリソースを含むワールドを
 // save→load→saveし、2回のJSON出力が一致することで網羅性を確認する。
 // さらにゴールデンファイルと比較して、シリアライズ形式の意図しない変更を検知する。
-func TestAllComponentsRoundTrip(t *testing.T) {
+func TestAllComponentsGolden(t *testing.T) {
 	t.Parallel()
 	sm := createTestSerializationManager(t)
 	world := buildAllComponentsWorld(t)
