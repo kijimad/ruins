@@ -2736,6 +2736,17 @@ components:
       type: number
       format: double
       description: カメラのスケール値
+    SaveData.CarryWeightComponent:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolFloatMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
+      description: 所持重量。最大値と現在値を持つ
     SaveData.Checksum:
       type: string
       description: SHA-256チェックサム
@@ -2786,10 +2797,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.HPComponent'
           description: 生命力
-        Pools:
+        CarryWeight:
           allOf:
-            - $ref: '#/components/schemas/SaveData.PoolsComponent'
-          description: 重量のプール
+            - $ref: '#/components/schemas/SaveData.CarryWeightComponent'
+          description: 所持重量
         TurnBased:
           allOf:
             - $ref: '#/components/schemas/SaveData.TurnBasedComponent'
@@ -3217,14 +3228,6 @@ components:
       type: integer
       format: int32
       description: プール最大値 (整数)
-    SaveData.PoolsComponent:
-      type: object
-      required:
-        - Weight
-      properties:
-        Weight:
-          $ref: '#/components/schemas/SaveData.FloatPool'
-      description: 重量のプール
     SaveData.ProvidesHealingComponent:
       type: object
       required:

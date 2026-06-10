@@ -442,7 +442,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
 	})
 	player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
-	player.AddComponent(world.Components.Pools, &gc.Pools{})
+	player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 
 	// 決定的なアイテム作成（手動でコンポーネント追加）
 	var items []ecs.Entity
@@ -519,7 +519,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 			Defense:   gc.Ability{Base: 5 + i, Modifier: 0, Total: 5 + i},
 		})
 		npc.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100 + i*10, Max: 100 + i*10}})
-		npc.AddComponent(world.Components.Pools, &gc.Pools{})
+		npc.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 	}
 
 	// 決定的なマテリアル追加（手動で作成）

@@ -194,9 +194,9 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		sd := hpToSaveData(*c.HP.Get(entity).(*gc.HP))
 		comp.HP = &sd
 	}
-	if entity.HasComponent(c.Pools) {
-		sd := poolsToSaveData(*c.Pools.Get(entity).(*gc.Pools))
-		comp.Pools = &sd
+	if entity.HasComponent(c.CarryWeight) {
+		sd := carryWeightToSaveData(*c.CarryWeight.Get(entity).(*gc.CarryWeight))
+		comp.CarryWeight = &sd
 	}
 	if entity.HasComponent(c.TurnBased) {
 		tb := c.TurnBased.Get(entity).(*gc.TurnBased)
@@ -415,9 +415,9 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 		hp := hpFromSaveData(*comp.HP)
 		entity.AddComponent(c.HP, &hp)
 	}
-	if comp.Pools != nil {
-		p := poolsFromSaveData(*comp.Pools)
-		entity.AddComponent(c.Pools, &p)
+	if comp.CarryWeight != nil {
+		cw := carryWeightFromSaveData(*comp.CarryWeight)
+		entity.AddComponent(c.CarryWeight, &cw)
 	}
 	if comp.TurnBased != nil {
 		tb := turnBasedFromSaveData(*comp.TurnBased)

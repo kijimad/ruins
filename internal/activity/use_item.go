@@ -55,7 +55,7 @@ func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	// アクターがHPコンポーネントを持っているかチェック
 	if !actor.HasComponent(world.Components.HP) {
-		return ErrActorNoPools
+		return ErrActorNoHP
 	}
 
 	return nil

@@ -422,7 +422,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
 	}
 	entitySpec.HP = &gc.HP{}
-	entitySpec.Pools = &gc.Pools{}
+	entitySpec.CarryWeight = &gc.CarryWeight{}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}

@@ -137,21 +137,21 @@ func hungerSpeedPenalty(current int) int {
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
 func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
-	poolsComp := world.Components.Pools.Get(entity)
-	if poolsComp == nil {
+	cwComp := world.Components.CarryWeight.Get(entity)
+	if cwComp == nil {
 		return 0
 	}
 
-	pools := poolsComp.(*gc.Pools)
-	if pools.Weight.Max == 0 {
+	cw := cwComp.(*gc.CarryWeight)
+	if cw.Max == 0 {
 		return 0
 	}
 
 	// 最大重量を超えた分に応じてペナルティ
 	// 超過分の25%をペナルティとする（最大-75）
-	if pools.Weight.Current > pools.Weight.Max {
-		overweight := pools.Weight.Current - pools.Weight.Max
-		penalty := int((overweight * 25) / pools.Weight.Max)
+	if cw.Current > cw.Max {
+		overweight := cw.Current - cw.Max
+		penalty := int((overweight * 25) / cw.Max)
 		if penalty > 75 {
 			penalty = 75
 		}

@@ -294,12 +294,12 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		assert.Equal(t, ErrItemNoEffect, err)
 	})
 
-	t.Run("ActorにPoolsがない場合はエラー", func(t *testing.T) {
+	t.Run("ActorにHPがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		actor := world.Manager.NewEntity()
-		// Poolsなし
+		// HPなし
 
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})
@@ -313,7 +313,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
 		assert.Error(t, err)
-		assert.Equal(t, ErrActorNoPools, err)
+		assert.Equal(t, ErrActorNoHP, err)
 	})
 }
 

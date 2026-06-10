@@ -62,8 +62,8 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	player.AddComponent(world.Components.Name, &gc.Name{Name: "テストプレイヤー"})
 	player.AddComponent(world.Components.Description, &gc.Description{Description: "説明文"})
 	player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 80, Max: 100}})
-	player.AddComponent(world.Components.Pools, &gc.Pools{
-		Weight: gc.PoolFloat{Current: 12.5, Max: 50.0},
+	player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{
+		PoolFloat: gc.PoolFloat{Current: 12.5, Max: 50.0},
 	})
 	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.Pool{Current: 3, Max: 5},

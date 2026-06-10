@@ -184,7 +184,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		require.NoError(t, err)
 
 		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
-		player.AddComponent(world.Components.Pools, &gc.Pools{})
+		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 			AP: gc.Pool{Current: initialAP, Max: initialAP},
 		})
@@ -254,7 +254,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		initialHP := maxHP(abils)
 
 		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: initialHP, Max: initialHP}})
-		player.AddComponent(world.Components.Pools, &gc.Pools{})
+		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 			AP: gc.Pool{Current: 100, Max: 100},
 		})

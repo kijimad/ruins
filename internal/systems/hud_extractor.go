@@ -35,14 +35,14 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	world.Manager.Join(
 		world.Components.Player,
 		world.Components.HP,
-		world.Components.Pools,
+		world.Components.CarryWeight,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		hp := world.Components.HP.Get(entity).(*gc.HP)
-		pools := world.Components.Pools.Get(entity).(*gc.Pools)
+		cw := world.Components.CarryWeight.Get(entity).(*gc.CarryWeight)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
-		playerWeight = pools.Weight.Current
-		playerMaxWeight = pools.Weight.Max
+		playerWeight = cw.Current
+		playerMaxWeight = cw.Max
 	}))
 
 	// 画面サイズを取得

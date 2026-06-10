@@ -620,7 +620,7 @@ Depth = 1
 
 	entitySpec, err := NewPropSpec(raws, "壊れないProp")
 	assert.NoError(t, err)
-	assert.Nil(t, entitySpec.Pools)
+	assert.Nil(t, entitySpec.CarryWeight)
 	assert.Nil(t, entitySpec.Interactable, "破壊可能でない通常PropにはInteractableが設定されないべき")
 }
 

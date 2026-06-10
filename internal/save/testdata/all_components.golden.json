@@ -44,6 +44,10 @@
             "X": 100,
             "Y": 200
           },
+          "CarryWeight": {
+            "Current": 12.5,
+            "Max": 50
+          },
           "Description": {
             "Description": "説明文"
           },
@@ -70,12 +74,6 @@
             "Name": "テストプレイヤー"
           },
           "Player": {},
-          "Pools": {
-            "Weight": {
-              "Current": 12.5,
-              "Max": 50
-            }
-          },
           "SpriteRender": {
             "AnimKeys": [
               "walk_left",

@@ -21,7 +21,7 @@ type EntitySpec struct {
 	HP               *HP
 	Item             *Item
 	Consumable       *Consumable
-	Pools            *Pools
+	CarryWeight      *CarryWeight
 	Melee            *Melee
 	Fire             *Fire
 	Value            *Value
@@ -97,7 +97,7 @@ type Components struct {
 	HP                           *ecs.SliceComponent `save:"true"`
 	Item                         *ecs.SliceComponent `save:"true"`
 	Consumable                   *ecs.SliceComponent `save:"true"`
-	Pools                        *ecs.SliceComponent `save:"true"`
+	CarryWeight                  *ecs.SliceComponent `save:"true"`
 	Melee                        *ecs.SliceComponent `save:"true"`
 	Fire                         *ecs.SliceComponent `save:"true"`
 	Value                        *ecs.SliceComponent `save:"true"`
@@ -285,11 +285,10 @@ type HP struct {
 	Pool
 }
 
-// Pools はキャラクター固有のプール情報
-type Pools struct {
-	// 所持重量 Weight
-	// 超過量に応じたペナルティが発生する
-	Weight PoolFloat
+// CarryWeight は所持重量を表すコンポーネント
+// 超過量に応じたペナルティが発生する
+type CarryWeight struct {
+	PoolFloat
 }
 
 // ProvidesHealing は回復する性質

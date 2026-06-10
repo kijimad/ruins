@@ -192,11 +192,11 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 func TestUpdateCarryingWeight(t *testing.T) {
 	t.Parallel()
-	t.Run("Poolsとabilitiesがある場合に更新される", func(t *testing.T) {
+	t.Run("CarryWeightとabilitiesがある場合に更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Pools, &gc.Pools{})
+		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 		player.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Strength: gc.Ability{Base: 10},
 		})
@@ -209,12 +209,12 @@ func TestUpdateCarryingWeight(t *testing.T) {
 
 		UpdateCarryingWeight(world, player)
 
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		assert.Equal(t, 30.0, pools.Weight.Max)    // 10 + 10*2
-		assert.Equal(t, 2.0, pools.Weight.Current) // 2kg
+		cw := world.Components.CarryWeight.Get(player).(*gc.CarryWeight)
+		assert.Equal(t, 30.0, cw.Max)    // 10 + 10*2
+		assert.Equal(t, 2.0, cw.Current) // 2kg
 	})
 
-	t.Run("Poolsがない場合は何もしない", func(t *testing.T) {
+	t.Run("CarryWeightがない場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.Manager.NewEntity()
@@ -228,7 +228,7 @@ func TestUpdateCarryingWeight(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Pools, &gc.Pools{})
+		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 
 		// パニックしないことを確認
 		UpdateCarryingWeight(world, player)
