@@ -145,6 +145,11 @@ scalar MagazineSize extends int32;
 @maxValue(99)
 scalar MaterialAmount extends int32;
 
+/** 通行コスト加算値。0で変化なし、50でベースコスト+50 */
+@minValue(0)
+@maxValue(9999)
+scalar PassCost extends int32;
+
 /** メッセージリソースのキー */
 @minLength(1)
 @maxLength(100)

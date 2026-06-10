@@ -392,6 +392,18 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("敵スポーン:野犬(territorial)", func(world w.World) error {
 			return spawnEnemyNearPlayer(world, "野犬")
 		}).
+		WithChoice("Propスポーン:moving_stone(PassCost)", func(world w.World) error {
+			return spawnPropNearPlayer(world, "moving_stone")
+		}).
+		WithChoice("Propスポーン:bonfire(光源)", func(world w.World) error {
+			return spawnPropNearPlayer(world, "bonfire")
+		}).
+		WithChoice("Propスポーン:barrel", func(world w.World) error {
+			return spawnPropNearPlayer(world, "barrel")
+		}).
+		WithChoice("Propスポーン:construction_sign(通行不可)", func(world w.World) error {
+			return spawnPropNearPlayer(world, "construction_sign")
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -400,6 +412,17 @@ func NewDebugMenuState() es.State[w.World] {
 		})
 
 	return messageState
+}
+
+// spawnPropNearPlayer はプレイヤーの隣にPropをスポーンする
+func spawnPropNearPlayer(world w.World, name string) error {
+	player, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	_, err = worldhelper.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
+	return err
 }
 
 // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする

@@ -621,11 +621,17 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.SpriteRender = &spriteRender
 
+	if propRaw.BlockPass && propRaw.PassCost != nil {
+		return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPassとpassCostは同時に設定できません。通行不可ならpassCostは不要です", name)
+	}
 	if propRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 	if propRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
+	}
+	if propRaw.PassCost != nil {
+		entitySpec.PassCost = &gc.PassCost{Value: int(*propRaw.PassCost)}
 	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)

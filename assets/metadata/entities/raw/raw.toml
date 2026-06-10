@@ -13038,6 +13038,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "動く石。微かに振動している"
+passCost = 50
 name = "moving_stone"
 
 [props.spriteRender]

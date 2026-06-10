@@ -65,7 +65,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 		ProcessTurn(world)
 
 		// ターン管理システムに移動コストを通知
-		consumeMoveCost(world, behavior, params.Actor)
+		consumePassCost(world, behavior, params.Actor, params.Destination)
 
 		// 結果を確認
 		currentActivity := worldhelper.GetActivity(world, params.Actor)
@@ -330,10 +330,15 @@ func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.A
 	return comp, nil
 }
 
-// consumeMoveCost はアクションのAPコストを消費する
-func consumeMoveCost(world w.World, behavior Behavior, actor ecs.Entity) {
+// consumePassCost はアクションのAPコストを消費する
+func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) {
 	info := behavior.Info()
 	cost := info.ActionPointCost
+
+	// 移動行動の場合、移動先タイルのPassCostを加算する
+	if behavior.Name() == gc.BehaviorMove && destination != nil {
+		cost += getPassCostAt(world, int(destination.X), int(destination.Y))
+	}
 
 	// TurnBasedコンポーネントから直接APを消費
 	tbComp := world.Components.TurnBased.Get(actor)
@@ -351,6 +356,22 @@ func consumeMoveCost(world w.World, behavior Behavior, actor ecs.Entity) {
 		"remaining", tb.AP.Current,
 		"actor", actor,
 		"isPlayer", actor.HasComponent(world.Components.Player))
+}
+
+// getPassCostAt は指定座標にあるPropのPassCostを合算して返す
+func getPassCostAt(world w.World, x, y int) int {
+	total := 0
+	world.Manager.Join(
+		world.Components.GridElement,
+		world.Components.PassCost,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if int(grid.X) == x && int(grid.Y) == y {
+			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+			total += mc.Value
+		}
+	}))
+	return total
 }
 
 // getEntityMaxAP はエンティティの最大AP値を取得する

@@ -49,6 +49,12 @@ type BlockPass struct{}
 // TODO: 能動態のほうがわかりやすそう
 type BlockView struct{}
 
+// PassCost はフィールド上のタイルの移動コストを修正する。
+// ベースコストへの加算値で表現する
+type PassCost struct {
+	Value int // 移動コスト加算値。0で変化なし、50でコスト+50
+}
+
 // Renderable はフィールド上で描画できる
 type Renderable struct{}
 

@@ -550,6 +550,29 @@ Depth = 1
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
 
+func TestPropBlockPassWithPassCostIsError(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "矛盾Prop"
+Description = "通行不可なのに移動コストがある"
+BlockPass = true
+BlockView = false
+PassCost = 100
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	_, err = NewPropSpec(raws, "矛盾Prop")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
+}
+
 func TestMemberDisposition(t *testing.T) {
 	t.Parallel()
 

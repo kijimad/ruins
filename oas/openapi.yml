@@ -2230,6 +2230,12 @@ components:
       maxLength: 100
       pattern: ^[a-z][a-z0-9_]*$
       description: メッセージリソースのキー
+    PassCost:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 9999
+      description: 通行コスト加算値。0で変化なし、50でベースコスト+50
     MovementPatternType:
       type: string
       enum:
@@ -2423,6 +2429,8 @@ components:
           $ref: '#/components/schemas/BlocksPassage'
         blockView:
           $ref: '#/components/schemas/BlocksView'
+        passCost:
+          $ref: '#/components/schemas/PassCost'
         lightSource:
           $ref: '#/components/schemas/LightSource'
         door:

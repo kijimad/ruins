@@ -91,8 +91,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed += calculateStatusSpeedPenalty(world, entity)
 	speed += calculateOverweightPenalty(world, entity)
 
-	// MoveCost Effect倍率を適用する。
-	// MoveCost 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
+	// MoveCost倍率を適用する。
+	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	if entity.HasComponent(world.Components.CharModifiers) {
 		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
 		moveCost := effects.MoveCost
@@ -111,7 +111,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 }
 
 // calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する。
-// 体温ペナルティはEffects.MoveCost経由で適用されるためここには含まない。
+// 体温ペナルティはCharModifiers.MoveCost経由で適用されるためここには含まない。
 func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 

@@ -1030,6 +1030,9 @@ type MemberList struct {
 // MessageKey メッセージリソースのキー
 type MessageKey = string
 
+// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+type PassCost = int32
+
 // MovementPatternType 非戦闘時の移動パターン
 type MovementPatternType string
 
@@ -1150,6 +1153,9 @@ type Prop struct {
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
+
+	// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+	PassCost *PassCost `json:"passCost,omitempty"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`

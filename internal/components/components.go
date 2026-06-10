@@ -46,6 +46,7 @@ type EntitySpec struct {
 	SpriteRender    *SpriteRender
 	BlockView       *BlockView
 	BlockPass       *BlockPass
+	PassCost        *PassCost
 	TurnBased       *TurnBased
 	Prop            *Prop
 	LightSource     *LightSource
@@ -122,6 +123,7 @@ type Components struct {
 	SpriteRender    *ecs.SliceComponent `save:"true"`
 	BlockView       *ecs.NullComponent
 	BlockPass       *ecs.NullComponent
+	PassCost        *ecs.SliceComponent
 	Door            *ecs.SliceComponent
 	Prop            *ecs.NullComponent
 	LightSource     *ecs.SliceComponent `save:"true"`
