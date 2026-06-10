@@ -398,7 +398,7 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("Propスポーン:bonfire(光源)", func(world w.World) error {
 			return spawnPropNearPlayer(world, "bonfire")
 		}).
-		WithChoice("Propスポーン:barrel", func(world w.World) error {
+		WithChoice("Propスポーン:barrel(破壊可能)", func(world w.World) error {
 			return spawnPropNearPlayer(world, "barrel")
 		}).
 		WithChoice("Propスポーン:construction_sign(通行不可)", func(world w.World) error {

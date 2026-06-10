@@ -59,7 +59,8 @@ func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage 
 	}).Append(fmt.Sprintf(" に %d のダメージを与えた。", damage)).Log()
 }
 
-// logDeath は死亡ログを出力する
+// logDeath は死亡・破壊ログを出力する。
+// Propは「壊れた」、それ以外は「倒れた」と表示する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	// プレイヤー関連の場合のみログ出力
 	if !isPlayerEntity(source, world) && !isPlayerEntity(target, world) {
@@ -68,11 +69,16 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 
 	targetName := GetEntityName(target, world)
 
+	suffix := " は倒れた。"
+	if target.HasComponent(world.Components.Prop) {
+		suffix = " は壊れた。"
+	}
+
 	gamelog.New(GetGameLog(world)).
 		Build(func(l *gamelog.Logger) {
 			AppendNameWithColor(l, target, targetName, world)
 		}).
-		Append(" は倒れた。").
+		Append(suffix).
 		Log()
 }
 

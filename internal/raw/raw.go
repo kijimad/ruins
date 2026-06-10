@@ -633,6 +633,11 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if propRaw.PassCost != nil {
 		entitySpec.PassCost = &gc.PassCost{Value: int(*propRaw.PassCost)}
 	}
+	if propRaw.Hp != nil {
+		hp := int(*propRaw.Hp)
+		entitySpec.Pools = &gc.Pools{HP: gc.Pool{Max: hp, Current: hp}}
+		entitySpec.Interactable = &gc.Interactable{Data: gc.MeleeInteraction{}}
+	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 

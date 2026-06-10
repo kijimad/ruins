@@ -387,3 +387,84 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		assert.True(t, result.Success)
 	})
 }
+
+func TestGetInteractionActions_BreakableProp(t *testing.T) {
+	t.Parallel()
+
+	t.Run("破壊可能Propはメニューに表示される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		actions := GetInteractionActions(world)
+		require.Len(t, actions, 1)
+		assert.Equal(t, "攻撃する(木箱)", actions[0].Label)
+	})
+
+	t.Run("敵対NPCもメニューに表示される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		enemy := world.Manager.NewEntity()
+		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "ゴブリン"})
+		enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
+			Default: gc.DispositionHostile,
+			Current: gc.DispositionHostile,
+		})
+		enemy.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		actions := GetInteractionActions(world)
+		require.Len(t, actions, 1)
+		assert.Equal(t, "攻撃する(ゴブリン)", actions[0].Label)
+	})
+
+	t.Run("方向キーで破壊可能Propを自動攻撃しない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 9})
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		// 上に移動しようとする
+		err := activity.ExecuteMoveAction(world, gc.DirectionUp)
+		assert.NoError(t, err)
+
+		// Propに自動攻撃せず、移動もブロックされる
+		grid := world.Components.GridElement.Get(player).(*gc.GridElement)
+		assert.Equal(t, 10, int(grid.X))
+		assert.Equal(t, 10, int(grid.Y))
+		pools := world.Components.Pools.Get(prop).(*gc.Pools)
+		assert.Equal(t, 30, pools.HP.Current, "Propに自動攻撃しないのでHPは減らない")
+	})
+}

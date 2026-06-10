@@ -304,6 +304,10 @@ model Prop {
   blockPass: BlocksPassage;
   blockView: BlocksView;
   passCost?: PassCost;
+  /** 耐久値。設定すると破壊可能になる */
+  @minValue(1)
+  @maxValue(9999)
+  hp?: int32;
   lightSource?: LightSource;
   door?: DoorRaw;
   doorLockTrigger?: DoorLockTriggerRaw;

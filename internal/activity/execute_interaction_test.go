@@ -535,6 +535,75 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
 }
 
+// TestExecuteInteraction_Breakable はBreakableInteractionの動作を確認
+func TestExecuteInteraction_Breakable(t *testing.T) {
+	t.Parallel()
+
+	t.Run("BreakablePropを攻撃できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Strength:  gc.Ability{Base: 5, Total: 5},
+			Dexterity: gc.Ability{Base: 5, Total: 5},
+		})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+
+		result, err := ExecuteInteraction(player, prop, world)
+
+		require.NoError(t, err)
+		require.NotNil(t, result)
+		assert.True(t, result.Success)
+		assert.Equal(t, gc.BehaviorAttack, result.ActivityName)
+
+		pools := world.Components.Pools.Get(prop).(*gc.Pools)
+		assert.Less(t, pools.HP.Current, 30)
+	})
+
+	t.Run("Dead済みのBreakablePropは攻撃できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Strength:  gc.Ability{Base: 5, Total: 5},
+			Dexterity: gc.Ability{Base: 5, Total: 5},
+		})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "壊れた木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 0}})
+		prop.AddComponent(world.Components.Dead, &gc.Dead{})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		result, err := ExecuteInteraction(player, prop, world)
+
+		require.Error(t, err)
+		require.NotNil(t, result)
+		assert.False(t, result.Success)
+	})
+}
+
 // UnknownInteraction は未知の相互作用タイプのテスト用
 type UnknownInteraction struct{}
 

@@ -63,3 +63,64 @@ func TestReactToHostileAction(t *testing.T) {
 		})
 	})
 }
+
+func TestApplyDamage_Breakable(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ダメージでHPが減少する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		source := world.Manager.NewEntity()
+		source.AddComponent(world.Components.Player, &gc.Player{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+
+		ApplyDamage(world, prop, 10, source)
+
+		pools := world.Components.Pools.Get(prop).(*gc.Pools)
+		assert.Equal(t, 20, pools.HP.Current)
+		assert.False(t, prop.HasComponent(world.Components.Dead))
+	})
+
+	t.Run("HPが0になるとDeadが付与される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		source := world.Manager.NewEntity()
+		source.AddComponent(world.Components.Player, &gc.Player{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 10}})
+
+		ApplyDamage(world, prop, 10, source)
+
+		pools := world.Components.Pools.Get(prop).(*gc.Pools)
+		assert.Equal(t, 0, pools.HP.Current)
+		assert.True(t, prop.HasComponent(world.Components.Dead))
+	})
+
+	t.Run("過剰ダメージでもHPは0で止まる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		source := world.Manager.NewEntity()
+		source.AddComponent(world.Components.Player, &gc.Player{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 5}})
+
+		ApplyDamage(world, prop, 100, source)
+
+		pools := world.Components.Pools.Get(prop).(*gc.Pools)
+		assert.Equal(t, 0, pools.HP.Current)
+		assert.True(t, prop.HasComponent(world.Components.Dead))
+	})
+}

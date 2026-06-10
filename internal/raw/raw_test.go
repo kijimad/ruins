@@ -573,6 +573,57 @@ Depth = 1
 	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
 }
 
+func TestPropBreakable(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "壊れるProp"
+Description = "破壊可能な置物"
+BlockPass = true
+BlockView = false
+Hp = 20
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "壊れるProp")
+	assert.NoError(t, err)
+	assert.NotNil(t, entitySpec.Pools)
+	assert.Equal(t, 20, entitySpec.Pools.HP.Max)
+	assert.Equal(t, 20, entitySpec.Pools.HP.Current)
+	assert.NotNil(t, entitySpec.Interactable)
+	_, ok := entitySpec.Interactable.Data.(gc.MeleeInteraction)
+	assert.True(t, ok, "破壊可能PropにはMeleeInteractionが設定されるべき")
+}
+
+func TestPropWithoutBreakable(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "壊れないProp"
+Description = "破壊不能な置物"
+BlockPass = true
+BlockView = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "壊れないProp")
+	assert.NoError(t, err)
+	assert.Nil(t, entitySpec.Pools)
+	assert.Nil(t, entitySpec.Interactable, "破壊可能でない通常PropにはInteractableが設定されないべき")
+}
+
 func TestMemberDisposition(t *testing.T) {
 	t.Parallel()
 

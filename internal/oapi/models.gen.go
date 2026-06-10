@@ -1030,9 +1030,6 @@ type MemberList struct {
 // MessageKey メッセージリソースのキー
 type MessageKey = string
 
-// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
-type PassCost = int32
-
 // MovementPatternType 非戦闘時の移動パターン
 type MovementPatternType string
 
@@ -1074,6 +1071,9 @@ type PaletteList struct {
 	Data       []Palette `json:"data"`
 	TotalCount int32     `json:"totalCount"`
 }
+
+// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+type PassCost = int32
 
 // Profession 職業
 type Profession struct {
@@ -1151,14 +1151,17 @@ type Prop struct {
 	// DungeonGateTrigger ダンジョン選択ゲートトリガー
 	DungeonGateTrigger *DungeonGateTriggerRaw `json:"dungeonGateTrigger,omitempty"`
 
+	// Hp 耐久値。設定すると破壊可能になる
+	Hp *int32 `json:"hp,omitempty"`
+
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
-	// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
-	PassCost *PassCost `json:"passCost,omitempty"`
-
 	// Name エンティティ名
 	Name EntityName `json:"name"`
+
+	// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+	PassCost *PassCost `json:"passCost,omitempty"`
 
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`

@@ -12564,6 +12564,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "何か入っているかもしれない樽"
+hp = 20
 name = "barrel"
 
 [props.spriteRender]
@@ -12761,6 +12762,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "頑丈そうな木箱"
+hp = 30
 name = "crate"
 
 [props.spriteRender]
