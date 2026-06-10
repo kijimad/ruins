@@ -71,10 +71,6 @@
           },
           "Player": {},
           "Pools": {
-            "EP": {
-              "Current": 25,
-              "Max": 30
-            },
             "Weight": {
               "Current": 12.5,
               "Max": 50

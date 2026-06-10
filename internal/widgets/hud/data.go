@@ -20,8 +20,6 @@ type GameInfoData struct {
 	FloorNumber       int              // フロア番号
 	PlayerHP          int              // プレイヤーの現在HP
 	PlayerMaxHP       int              // プレイヤーの最大HP
-	PlayerEP          int              // プレイヤーの現在EP
-	PlayerMaxEP       int              // プレイヤーの最大EP
 	PlayerWeight      float64          // プレイヤーの現在所持重量（kg）
 	PlayerMaxWeight   float64          // プレイヤーの所持可能重量（kg）
 	MessageAreaHeight int              // メッセージエリアの高さ（ステータス表示位置計算用）

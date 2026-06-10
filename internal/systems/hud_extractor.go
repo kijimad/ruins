@@ -30,7 +30,7 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	floorNumber := worldhelper.GetDungeon(world).Depth
 
 	// プレイヤー情報を抽出する
-	var playerHP, playerMaxHP, playerEP, playerMaxEP int
+	var playerHP, playerMaxHP int
 	var playerWeight, playerMaxWeight float64
 	world.Manager.Join(
 		world.Components.Player,
@@ -41,8 +41,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		pools := world.Components.Pools.Get(entity).(*gc.Pools)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
-		playerEP = pools.EP.Current
-		playerMaxEP = pools.EP.Max
 		playerWeight = pools.Weight.Current
 		playerMaxWeight = pools.Weight.Max
 	}))
@@ -58,8 +56,6 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 		FloorNumber:       floorNumber,
 		PlayerHP:          playerHP,
 		PlayerMaxHP:       playerMaxHP,
-		PlayerEP:          playerEP,
-		PlayerMaxEP:       playerMaxEP,
 		PlayerWeight:      playerWeight,
 		PlayerMaxWeight:   playerMaxWeight,
 		MessageAreaHeight: messageAreaHeight,

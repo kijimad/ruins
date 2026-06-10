@@ -213,7 +213,6 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 	if playerEntity.HasComponent(world.Components.Pools) {
 		pools := world.Components.Pools.Get(playerEntity).(*gc.Pools)
 		items = append(items,
-			statusItemData{Label: "EP", Value: fmt.Sprintf("%d", pools.EP.Max), Description: "電力。電子機器の使用に消費する"},
 			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", pools.Weight.Max, consts.IconKg), Description: "所持可能な最大重量"},
 		)
 	}

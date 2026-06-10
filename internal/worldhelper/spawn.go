@@ -22,11 +22,6 @@ const (
 	// AI設定
 	aiVisionDistance = 5 // AIの視界距離（タイル単位）
 
-	// ステータス計算係数
-	epBaseValue         = 50   // EP計算の基本値
-	epSensationMultiply = 3    // EP計算の感覚係数
-	hpLevelGrowthRate   = 0.03 // HPのレベル成長率
-
 	// Speed計算係数
 	speedBaseValue         = 100 // Speed計算の基本値
 	speedAgilityMultiply   = 2   // Speed計算の敏捷係数
@@ -438,11 +433,10 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	return entity, nil
 }
 
-// FullRecover はエンティティのHP/EP/APを全回復する
+// FullRecover はエンティティのHP/APを全回復する
 func FullRecover(world w.World, entity ecs.Entity) error {
-	// 新しく生成されたエンティティの最大HP/EPを設定
 	if err := setMaxStats(world, entity); err != nil {
-		return fmt.Errorf("最大HP/EP設定エラー: %w", err)
+		return fmt.Errorf("最大HP設定エラー: %w", err)
 	}
 
 	// HP全回復
@@ -452,14 +446,6 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	}
 	hp := hpComponent.(*gc.HP)
 	hp.Current = hp.Max
-
-	// EP全回復
-	poolsComponent := world.Components.Pools.Get(entity)
-	if poolsComponent == nil {
-		return fmt.Errorf("Poolsコンポーネントがありません")
-	}
-	pools := poolsComponent.(*gc.Pools)
-	pools.EP.Current = pools.EP.Max
 
 	// TurnBasedコンポーネントがある場合は最大APに設定
 	if entity.HasComponent(world.Components.TurnBased) {
@@ -475,15 +461,13 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// setMaxStats はエンティティの最大HP/EPを設定する
+// setMaxStats はエンティティの最大HPを設定する
 func setMaxStats(world w.World, entity ecs.Entity) error {
-
-	if !entity.HasComponent(world.Components.HP) || !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Abilities) {
-		return fmt.Errorf("entity %v does not have required components (HP, Pools or Abilities)", entity)
+	if !entity.HasComponent(world.Components.HP) || !entity.HasComponent(world.Components.Abilities) {
+		return fmt.Errorf("entity %v does not have required components (HP or Abilities)", entity)
 	}
 
 	hp := world.Components.HP.Get(entity).(*gc.HP)
-	pools := world.Components.Pools.Get(entity).(*gc.Pools)
 	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 	// Totalが設定されていない場合はBaseから初期化
@@ -508,10 +492,6 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 
 	hp.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
 	hp.Current = hp.Max
-
-	// 最大EP計算: base+(感覚*multiplyS+器用さ)
-	pools.EP.Max = int(epBaseValue) + abils.Sensation.Total*epSensationMultiply + abils.Dexterity.Total
-	pools.EP.Current = pools.EP.Max
 
 	return nil
 }

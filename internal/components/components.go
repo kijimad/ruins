@@ -287,9 +287,6 @@ type HP struct {
 
 // Pools はキャラクター固有のプール情報
 type Pools struct {
-	// 電力 Electricity point
-	// 機能のトグルで消費量が変わる
-	EP Pool
 	// 所持重量 Weight
 	// 超過量に応じたペナルティが発生する
 	Weight PoolFloat

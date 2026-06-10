@@ -2789,7 +2789,7 @@ components:
         Pools:
           allOf:
             - $ref: '#/components/schemas/SaveData.PoolsComponent'
-          description: EP/重量のプール
+          description: 重量のプール
         TurnBased:
           allOf:
             - $ref: '#/components/schemas/SaveData.TurnBasedComponent'
@@ -3220,14 +3220,11 @@ components:
     SaveData.PoolsComponent:
       type: object
       required:
-        - EP
         - Weight
       properties:
-        EP:
-          $ref: '#/components/schemas/SaveData.IntPool'
         Weight:
           $ref: '#/components/schemas/SaveData.FloatPool'
-      description: EP/重量のプール
+      description: 重量のプール
     SaveData.ProvidesHealingComponent:
       type: object
       required:
