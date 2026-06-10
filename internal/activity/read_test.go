@@ -39,7 +39,7 @@ func TestReadActivity_Validate_AlreadyCompleted(t *testing.T) {
 	bookEntity := world.Manager.NewEntity()
 
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10, Current: 10},
+		Effort: gc.IntPool{Max: 10, Current: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 1},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -61,7 +61,7 @@ func TestReadActivity_Validate_RequiredLevelNotMet(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 5, RequiredLevel: 3},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -86,7 +86,7 @@ func TestReadActivity_Validate_RequiredLevelMet(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 5, RequiredLevel: 3},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -105,7 +105,7 @@ func TestReadActivity_Validate_Success(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 1},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -126,7 +126,7 @@ func TestReadActivity_DoTurn_AdvancesProgress(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 100},
+		Effort: gc.IntPool{Max: 100},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -160,7 +160,7 @@ func TestReadActivity_DoTurn_GainsSkillExp(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -193,7 +193,7 @@ func TestReadActivity_DoTurn_NoExpWhenTooHard(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 10}, // プレイヤーLv0, 本Lv10 → diff=10 → 0%
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -224,7 +224,7 @@ func TestReadActivity_DoTurn_CompletesWhenEffortReached(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 15, Current: 8},
+		Effort: gc.IntPool{Max: 15, Current: 8},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -258,7 +258,7 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -296,7 +296,7 @@ func TestReadActivity_DoTurn_SkillLevelUp(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)
@@ -329,7 +329,7 @@ func TestReadActivity_NoSkillsComponent(t *testing.T) {
 
 	bookEntity := world.Manager.NewEntity()
 	book := &gc.Book{
-		Effort: gc.Pool{Max: 10},
+		Effort: gc.IntPool{Max: 10},
 		Skill:  &gc.SkillBookEffect{TargetSkill: gc.SkillSword, MaxLevel: 0},
 	}
 	bookEntity.AddComponent(world.Components.Book, book)

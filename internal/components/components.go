@@ -281,15 +281,11 @@ type Wallet struct {
 
 // HP は生命力を表すコンポーネント
 // なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う
-type HP struct {
-	Pool
-}
+type HP Pool[int]
 
 // CarryWeight は所持重量を表すコンポーネント
 // 超過量に応じたペナルティが発生する
-type CarryWeight struct {
-	PoolFloat
-}
+type CarryWeight Pool[float64]
 
 // ProvidesHealing は回復する性質
 // 直接的な数値が作用し、ステータスなどは考慮されない

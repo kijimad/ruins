@@ -103,7 +103,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		player.AddComponent(world.Components.Player, &gc.Player{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Current: 50, Max: 50},
+			AP: gc.IntPool{Current: 50, Max: 50},
 		})
 
 		// 移動を実行（APがマイナスになる）
@@ -403,7 +403,7 @@ func TestGetInteractionActions_BreakableProp(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Data: gc.MeleeInteraction{},
 		})
@@ -450,7 +450,7 @@ func TestGetInteractionActions_BreakableProp(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 9})
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Data: gc.MeleeInteraction{},

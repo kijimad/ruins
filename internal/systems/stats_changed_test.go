@@ -183,10 +183,10 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		initialAP, err := worldhelper.CalculateMaxActionPoints(world, player)
 		require.NoError(t, err)
 
-		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
+		player.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Current: initialAP, Max: initialAP},
+			AP: gc.IntPool{Current: initialAP, Max: initialAP},
 		})
 
 		// 素早さを上げる装備を作成
@@ -253,10 +253,10 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		// maxHP: 30 + (体力*8 + 力 + 感覚) = 30 + (10*8 + 5 + 5) = 30 + 90 = 120
 		initialHP := maxHP(abils)
 
-		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: initialHP, Max: initialHP}})
+		player.AddComponent(world.Components.HP, &gc.HP{Current: initialHP, Max: initialHP})
 		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Current: 100, Max: 100},
+			AP: gc.IntPool{Current: 100, Max: 100},
 		})
 
 		// 体力を上げる装備を作成

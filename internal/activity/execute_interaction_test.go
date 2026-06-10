@@ -262,7 +262,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 		Agility:   gc.Ability{Base: 1, Total: 1},
 		Defense:   gc.Ability{Base: 0, Total: 0},
 	})
-	enemyEntity.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 10, Current: 10}})
+	enemyEntity.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 
 	// 武器スロット1を選択
 	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -554,7 +554,7 @@ func TestExecuteInteraction_Breakable(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Data: gc.MeleeInteraction{},
 		})
@@ -588,7 +588,7 @@ func TestExecuteInteraction_Breakable(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "壊れた木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 0}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 0})
 		prop.AddComponent(world.Components.Dead, &gc.Dead{})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Data: gc.MeleeInteraction{},

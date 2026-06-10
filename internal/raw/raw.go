@@ -192,7 +192,7 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	}
 
 	return &gc.Book{
-		Effort: gc.Pool{Max: int(b.TotalEffort)},
+		Effort: gc.IntPool{Max: int(b.TotalEffort)},
 		Skill: &gc.SkillBookEffect{
 			TargetSkill:   skillID,
 			MaxLevel:      int(b.Skill.MaxLevel),
@@ -406,7 +406,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: member.Name}
-	entitySpec.TurnBased = &gc.TurnBased{AP: gc.Pool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
+	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
@@ -636,7 +636,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	if propRaw.Hp != nil {
 		hp := int(*propRaw.Hp)
-		entitySpec.HP = &gc.HP{Pool: gc.Pool{Max: hp, Current: hp}}
+		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
 		entitySpec.Interactable = &gc.Interactable{Data: gc.MeleeInteraction{}}
 	}
 

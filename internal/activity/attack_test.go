@@ -311,7 +311,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
+		target.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 		target.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
 		})
@@ -353,7 +353,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 10000, Max: 10000}})
+		target.AddComponent(world.Components.HP, &gc.HP{Current: 10000, Max: 10000})
 		target.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
 		})
@@ -390,7 +390,7 @@ func TestApplyAttackDamage_InterruptsActivity(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		target := world.Manager.NewEntity()
-		target.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 1, Max: 100}})
+		target.AddComponent(world.Components.HP, &gc.HP{Current: 1, Max: 100})
 		target.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Agility: gc.Ability{Total: 0},
 		})

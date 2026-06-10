@@ -153,7 +153,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 
 		actor := world.Manager.NewEntity()
 		actor.AddComponent(world.Components.Player, &gc.Player{})
-		actor.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
+		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 		hunger := gc.NewHunger()
 		hunger.Current = 250
 		actor.AddComponent(world.Components.Hunger, hunger)
@@ -192,7 +192,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 
 		actor := world.Manager.NewEntity()
 		actor.AddComponent(world.Components.Player, &gc.Player{})
-		actor.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
+		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -217,7 +217,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		actor := world.Manager.NewEntity()
 		actor.AddComponent(world.Components.Player, &gc.Player{})
-		actor.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
+		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})

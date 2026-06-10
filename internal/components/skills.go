@@ -203,8 +203,8 @@ var weaponSkillIDs = []SkillID{
 
 // Skill は個別のスキル
 type Skill struct {
-	Value int  // スキル値
-	Exp   Pool // 蓄積経験値。Maxに達するとスキルアップする
+	Value int     // スキル値
+	Exp   IntPool // 蓄積経験値。Maxに達するとスキルアップする
 }
 
 // Skills はエンティティが持つスキルセット
@@ -228,7 +228,7 @@ const LevelUpExp = 100
 func NewSkills() *Skills {
 	data := make(map[SkillID]*Skill, len(AllSkillIDs))
 	for _, id := range AllSkillIDs {
-		data[id] = &Skill{Exp: Pool{Max: LevelUpExp}}
+		data[id] = &Skill{Exp: IntPool{Max: LevelUpExp}}
 	}
 	return &Skills{Data: data}
 }

@@ -77,7 +77,7 @@ func TestApplyDamage_Breakable(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 
 		ApplyDamage(world, prop, 10, source)
 
@@ -96,7 +96,7 @@ func TestApplyDamage_Breakable(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 10}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 10})
 
 		ApplyDamage(world, prop, 10, source)
 
@@ -115,7 +115,7 @@ func TestApplyDamage_Breakable(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 5}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 5})
 
 		ApplyDamage(world, prop, 100, source)
 
