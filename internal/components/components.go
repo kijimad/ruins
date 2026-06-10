@@ -287,9 +287,6 @@ type HP struct {
 
 // Pools はキャラクター固有のプール情報
 type Pools struct {
-	// スタミナ Stamina point
-	// 走ったり攻撃したら減る。自動回復する
-	SP Pool
 	// 電力 Electricity point
 	// 機能のトグルで消費量が変わる
 	EP Pool

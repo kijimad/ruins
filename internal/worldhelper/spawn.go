@@ -23,11 +23,9 @@ const (
 	aiVisionDistance = 5 // AIの視界距離（タイル単位）
 
 	// ステータス計算係数
-	spVitalityMultiply  = 2    // SP計算の体力係数
 	epBaseValue         = 50   // EP計算の基本値
 	epSensationMultiply = 3    // EP計算の感覚係数
 	hpLevelGrowthRate   = 0.03 // HPのレベル成長率
-	spLevelGrowthRate   = 0.02 // SPのレベル成長率
 
 	// Speed計算係数
 	speedBaseValue         = 100 // Speed計算の基本値
@@ -440,11 +438,11 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	return entity, nil
 }
 
-// FullRecover はエンティティのHP/SP/EP/APを全回復する
+// FullRecover はエンティティのHP/EP/APを全回復する
 func FullRecover(world w.World, entity ecs.Entity) error {
-	// 新しく生成されたエンティティの最大HP/SPを設定
-	if err := setMaxHPSP(world, entity); err != nil {
-		return fmt.Errorf("最大HP/SP設定エラー: %w", err)
+	// 新しく生成されたエンティティの最大HP/EPを設定
+	if err := setMaxStats(world, entity); err != nil {
+		return fmt.Errorf("最大HP/EP設定エラー: %w", err)
 	}
 
 	// HP全回復
@@ -455,13 +453,12 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	hp := hpComponent.(*gc.HP)
 	hp.Current = hp.Max
 
-	// SP/EP全回復
+	// EP全回復
 	poolsComponent := world.Components.Pools.Get(entity)
 	if poolsComponent == nil {
 		return fmt.Errorf("Poolsコンポーネントがありません")
 	}
 	pools := poolsComponent.(*gc.Pools)
-	pools.SP.Current = pools.SP.Max
 	pools.EP.Current = pools.EP.Max
 
 	// TurnBasedコンポーネントがある場合は最大APに設定
@@ -478,8 +475,8 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// setMaxHPSP はエンティティの最大HP/SPを設定する
-func setMaxHPSP(world w.World, entity ecs.Entity) error {
+// setMaxStats はエンティティの最大HP/EPを設定する
+func setMaxStats(world w.World, entity ecs.Entity) error {
 
 	if !entity.HasComponent(world.Components.HP) || !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Abilities) {
 		return fmt.Errorf("entity %v does not have required components (HP, Pools or Abilities)", entity)
@@ -511,10 +508,6 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 
 	hp.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
 	hp.Current = hp.Max
-
-	// 最大SP計算: (体力*multiplyV+器用さ+素早さ)
-	pools.SP.Max = abils.Vitality.Total*spVitalityMultiply + abils.Dexterity.Total + abils.Agility.Total
-	pools.SP.Current = pools.SP.Max
 
 	// 最大EP計算: base+(感覚*multiplyS+器用さ)
 	pools.EP.Max = int(epBaseValue) + abils.Sensation.Total*epSensationMultiply + abils.Dexterity.Total

@@ -35,7 +35,7 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 	modifiers := gc.RecalculateCharModifiers(playerSkills, abils, nil)
 	player.AddComponent(world.Components.CharModifiers, modifiers)
 
-	// 属性値変更後にHP/SP/EP/APを再計算
+	// 属性値変更後にHP/EP/APを再計算
 	_ = FullRecover(world, player)
 
 	// 初期アイテムをバックパックに付与

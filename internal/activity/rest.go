@@ -116,21 +116,6 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 		}
 	}
 
-	// SPも少し回復
-	poolsComponent := world.Components.Pools.Get(actor)
-	if poolsComponent != nil {
-		pools := poolsComponent.(*gc.Pools)
-		if pools.SP.Current < pools.SP.Max {
-			bonusStamina := 10
-			pools.SP.Current += bonusStamina
-			if pools.SP.Current > pools.SP.Max {
-				pools.SP.Current = pools.SP.Max
-			}
-
-			log.Debug("スタミナ回復", "bonus", bonusStamina, "current", pools.SP.Current)
-		}
-	}
-
 	return nil
 }
 

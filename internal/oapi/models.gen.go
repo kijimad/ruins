@@ -1417,7 +1417,7 @@ type SaveDataComponentsMap struct {
 	// Player プレイヤーマーカー
 	Player *SaveDataMarkerComponent `json:"Player,omitempty"`
 
-	// Pools SP/EP/重量のプール
+	// Pools EP/重量のプール
 	Pools *SaveDataPoolsComponent `json:"Pools,omitempty"`
 
 	// ProvidesHealing 回復効果
@@ -1713,13 +1713,10 @@ type SaveDataPoolFloatMax = float64
 // SaveDataPoolMax プール最大値 (整数)
 type SaveDataPoolMax = int32
 
-// SaveDataPoolsComponent SP/EP/重量のプール
+// SaveDataPoolsComponent EP/重量のプール
 type SaveDataPoolsComponent struct {
 	// EP 整数プール。最大値と現在値を持つ
 	EP SaveDataIntPool `json:"EP"`
-
-	// SP 整数プール。最大値と現在値を持つ
-	SP SaveDataIntPool `json:"SP"`
 
 	// Weight 浮動小数点プール。最大値と現在値を持つ
 	Weight SaveDataFloatPool `json:"Weight"`

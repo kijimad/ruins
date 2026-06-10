@@ -159,84 +159,6 @@ func TestMaxHP(t *testing.T) {
 	})
 }
 
-func TestMaxSP(t *testing.T) {
-	t.Parallel()
-	t.Run("calculate max SP with base stats", func(t *testing.T) {
-		t.Parallel()
-		abils := &gc.Abilities{
-			Vitality: gc.Ability{
-				Base:     10,
-				Modifier: 0,
-				Total:    10,
-			},
-			Dexterity: gc.Ability{
-				Base:     8,
-				Modifier: 0,
-				Total:    8,
-			},
-			Agility: gc.Ability{
-				Base:     6,
-				Modifier: 0,
-				Total:    6,
-			},
-		}
-		result := maxSP(abils)
-		// 10*2 + 8 + 6 = 20 + 8 + 6 = 34
-		expected := 34
-		assert.Equal(t, expected, result, "maxSPの計算が正しくない")
-	})
-
-	t.Run("calculate max SP with level bonus", func(t *testing.T) {
-		t.Parallel()
-		abils := &gc.Abilities{
-			Vitality: gc.Ability{
-				Base:     10,
-				Modifier: 0,
-				Total:    10,
-			},
-			Dexterity: gc.Ability{
-				Base:     8,
-				Modifier: 0,
-				Total:    8,
-			},
-			Agility: gc.Ability{
-				Base:     6,
-				Modifier: 0,
-				Total:    6,
-			},
-		}
-		result := maxSP(abils)
-		// 10*2 + 8 + 6 = 20 + 8 + 6 = 34
-		expected := 34
-		assert.Equal(t, expected, result, "maxSPの計算が正しくない")
-	})
-
-	t.Run("calculate max SP with high stats", func(t *testing.T) {
-		t.Parallel()
-		abils := &gc.Abilities{
-			Vitality: gc.Ability{
-				Base:     20,
-				Modifier: 5,
-				Total:    25,
-			},
-			Dexterity: gc.Ability{
-				Base:     15,
-				Modifier: 3,
-				Total:    18,
-			},
-			Agility: gc.Ability{
-				Base:     12,
-				Modifier: 2,
-				Total:    14,
-			},
-		}
-		result := maxSP(abils)
-		// 25*2 + 18 + 14 = 50 + 18 + 14 = 82
-		expected := 82
-		assert.Equal(t, expected, result, "高ステータスでのmaxSPの計算が正しくない")
-	})
-}
-
 func TestStatsChangedAPRecalculation(t *testing.T) {
 	t.Parallel()
 
@@ -262,9 +184,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		require.NoError(t, err)
 
 		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
-		player.AddComponent(world.Components.Pools, &gc.Pools{
-			SP: gc.Pool{Current: 50, Max: 50},
-		})
+		player.AddComponent(world.Components.Pools, &gc.Pools{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 			AP: gc.Pool{Current: initialAP, Max: initialAP},
 		})
@@ -329,16 +249,12 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		}
 		player.AddComponent(world.Components.Abilities, abils)
 
-		// 初期HP/SPを計算式から算出
+		// 初期HPを計算式から算出
 		// maxHP: 30 + (体力*8 + 力 + 感覚) = 30 + (10*8 + 5 + 5) = 30 + 90 = 120
-		// maxSP: 体力*2 + 器用さ + 素早さ = 10*2 + 5 + 5 = 30
 		initialHP := maxHP(abils)
-		initialSP := maxSP(abils)
 
 		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: initialHP, Max: initialHP}})
-		player.AddComponent(world.Components.Pools, &gc.Pools{
-			SP: gc.Pool{Current: initialSP, Max: initialSP},
-		})
+		player.AddComponent(world.Components.Pools, &gc.Pools{})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 			AP: gc.Pool{Current: 100, Max: 100},
 		})
@@ -362,12 +278,10 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		err := sys.Update(world)
 		require.NoError(t, err)
 
-		// HP/SPが再計算されていることを確認
-		// 体力10→20で: HP = 30 + (20*8 + 5 + 5) = 200、SP = 20*2 + 5 + 5 = 50
+		// HPが再計算されていることを確認
+		// 体力10→20で: HP = 30 + (20*8 + 5 + 5) = 200
 		hp := world.Components.HP.Get(player).(*gc.HP)
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
 		assert.Greater(t, hp.Max, initialHP, "装備追加でHP.Maxが増加するべき")
-		assert.Greater(t, pools.SP.Max, initialSP, "装備追加でSP.Maxが増加するべき")
 	})
 
 }

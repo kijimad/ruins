@@ -70,7 +70,6 @@ func hpFromSaveData(sd oapi.SaveDataHPComponent) gc.HP {
 
 func poolsToSaveData(p gc.Pools) oapi.SaveDataPoolsComponent {
 	return oapi.SaveDataPoolsComponent{
-		SP:     oapi.SaveDataIntPool{Max: int32(p.SP.Max), Current: int32(p.SP.Current)},
 		EP:     oapi.SaveDataIntPool{Max: int32(p.EP.Max), Current: int32(p.EP.Current)},
 		Weight: oapi.SaveDataFloatPool{Max: p.Weight.Max, Current: p.Weight.Current},
 	}
@@ -78,7 +77,6 @@ func poolsToSaveData(p gc.Pools) oapi.SaveDataPoolsComponent {
 
 func poolsFromSaveData(sd oapi.SaveDataPoolsComponent) gc.Pools {
 	return gc.Pools{
-		SP:     gc.Pool{Max: int(sd.SP.Max), Current: int(sd.SP.Current)},
 		EP:     gc.Pool{Max: int(sd.EP.Max), Current: int(sd.EP.Current)},
 		Weight: gc.PoolFloat{Max: sd.Weight.Max, Current: sd.Weight.Current},
 	}

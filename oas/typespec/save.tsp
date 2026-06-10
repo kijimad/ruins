@@ -207,7 +207,7 @@ model ComponentsMap {
   /** 生命力 */
   HP?: HPComponent;
 
-  /** SP/EP/重量のプール */
+  /** EP/重量のプール */
   Pools?: PoolsComponent;
 
   /** アクションポイントと速度 */
@@ -285,9 +285,8 @@ model HPComponent {
   Current: PoolCurrent;
 }
 
-/** SP/EP/重量のプール */
+/** EP/重量のプール */
 model PoolsComponent {
-  SP: IntPool;
   EP: IntPool;
   Weight: FloatPool;
 }

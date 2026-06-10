@@ -443,7 +443,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	})
 	player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
 	player.AddComponent(world.Components.Pools, &gc.Pools{
-		SP: gc.Pool{Current: 50, Max: 50},
 		EP: gc.Pool{Current: 30, Max: 30},
 	})
 
@@ -523,7 +522,6 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 		})
 		npc.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100 + i*10, Max: 100 + i*10}})
 		npc.AddComponent(world.Components.Pools, &gc.Pools{
-			SP: gc.Pool{Current: 50 + i*5, Max: 50 + i*5},
 			EP: gc.Pool{Current: 30 + i*3, Max: 30 + i*3},
 		})
 	}
