@@ -99,12 +99,14 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			entity.AddComponent(world.Components.CharModifiers, effects)
 		}
 
-		// Pools（HP/SP）を更新
+		// HP/Poolsを更新
+		if entity.HasComponent(world.Components.HP) {
+			hp := world.Components.HP.Get(entity).(*gc.HP)
+			hp.Max = maxHP(abils)
+			hp.Current = min(hp.Max, hp.Current)
+		}
 		if entity.HasComponent(world.Components.Pools) {
 			pools := world.Components.Pools.Get(entity).(*gc.Pools)
-
-			pools.HP.Max = maxHP(abils)
-			pools.HP.Current = min(pools.HP.Max, pools.HP.Current)
 			pools.SP.Max = maxSP(abils)
 			pools.SP.Current = min(pools.SP.Max, pools.SP.Current)
 

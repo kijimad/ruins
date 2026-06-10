@@ -98,14 +98,14 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 	}
 
 	// 最終的なHP回復（ボーナス）
-	poolsComponent := world.Components.Pools.Get(actor)
-	if poolsComponent != nil {
-		pools := poolsComponent.(*gc.Pools)
-		if pools.HP.Current < pools.HP.Max {
+	hpComponent := world.Components.HP.Get(actor)
+	if hpComponent != nil {
+		hp := hpComponent.(*gc.HP)
+		if hp.Current < hp.Max {
 			bonusHealing := 5 / 2 // 完了ボーナス
-			pools.HP.Current += bonusHealing
-			if pools.HP.Current > pools.HP.Max {
-				pools.HP.Current = pools.HP.Max
+			hp.Current += bonusHealing
+			if hp.Current > hp.Max {
+				hp.Current = hp.Max
 			}
 
 			gamelog.New(worldhelper.GetGameLog(world)).
@@ -114,8 +114,12 @@ func (ra *RestActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.World) 
 				Append(" HP回復した").
 				Log()
 		}
+	}
 
-		// SPも少し回復
+	// SPも少し回復
+	poolsComponent := world.Components.Pools.Get(actor)
+	if poolsComponent != nil {
+		pools := poolsComponent.(*gc.Pools)
 		if pools.SP.Current < pools.SP.Max {
 			bonusStamina := 10
 			pools.SP.Current += bonusStamina
@@ -146,18 +150,16 @@ func (ra *RestActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.Wo
 
 // performHealing はHP回復処理を実行する
 func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	// Poolsコンポーネントを取得
-	poolsComponent := world.Components.Pools.Get(actor)
-	if poolsComponent == nil {
-		// HPコンポーネントがない場合はスキップ（エラーにしない）
+	hpComponent := world.Components.HP.Get(actor)
+	if hpComponent == nil {
 		return nil
 	}
 
-	pools, ok := poolsComponent.(*gc.Pools)
+	hp, ok := hpComponent.(*gc.HP)
 	if !ok {
-		return fmt.Errorf("Poolsコンポーネントの型変換に失敗しました")
+		return fmt.Errorf("HPコンポーネントの型変換に失敗しました")
 	}
-	if pools.HP.Current >= pools.HP.Max {
+	if hp.Current >= hp.Max {
 		// 既に満タンの場合は早期完了
 		Complete(comp)
 		return nil
@@ -165,12 +167,12 @@ func (ra *RestActivity) performHealing(comp *gc.Activity, actor ecs.Entity, worl
 
 	// 直接HP回復（1ターンあたり5HP）
 	healAmount := 5
-	beforeHP := pools.HP.Current
-	pools.HP.Current += healAmount
-	if pools.HP.Current > pools.HP.Max {
-		pools.HP.Current = pools.HP.Max
+	beforeHP := hp.Current
+	hp.Current += healAmount
+	if hp.Current > hp.Max {
+		hp.Current = hp.Max
 	}
-	actualHealing := pools.HP.Current - beforeHP
+	actualHealing := hp.Current - beforeHP
 
 	// 5ターン毎にゲームログ出力（プレイヤーの場合のみ）
 	if actor.HasComponent(world.Components.Player) && comp.TurnsTotal-comp.TurnsLeft > 0 && (comp.TurnsTotal-comp.TurnsLeft)%5 == 0 {

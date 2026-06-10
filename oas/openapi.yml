@@ -2782,10 +2782,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.DescriptionComponent'
           description: 説明文
+        HP:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.HPComponent'
+          description: 生命力
         Pools:
           allOf:
             - $ref: '#/components/schemas/SaveData.PoolsComponent'
-          description: HP/SP/EP/重量のプール
+          description: SP/EP/重量のプール
         TurnBased:
           allOf:
             - $ref: '#/components/schemas/SaveData.TurnBasedComponent'
@@ -3051,6 +3055,17 @@ components:
         Y:
           $ref: '#/components/schemas/SaveData.TileCoord'
       description: グリッド上の位置 (タイル座標)
+    SaveData.HPComponent:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolCurrent'
+      description: 生命力。最大値と現在値を持つ
     SaveData.HealNumeral:
       type: integer
       format: int32
@@ -3205,20 +3220,17 @@ components:
     SaveData.PoolsComponent:
       type: object
       required:
-        - HP
         - SP
         - EP
         - Weight
       properties:
-        HP:
-          $ref: '#/components/schemas/SaveData.IntPool'
         SP:
           $ref: '#/components/schemas/SaveData.IntPool'
         EP:
           $ref: '#/components/schemas/SaveData.IntPool'
         Weight:
           $ref: '#/components/schemas/SaveData.FloatPool'
-      description: HP/SP/EP/重量のプール
+      description: SP/EP/重量のプール
     SaveData.ProvidesHealingComponent:
       type: object
       required:

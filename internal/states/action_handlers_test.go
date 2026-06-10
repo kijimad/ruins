@@ -243,8 +243,8 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
-		initialEnemyHP := enemyPools.HP.Current
+		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		initialEnemyHP := enemyHP.Current
 
 		// 移動（攻撃）を実行
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
@@ -258,7 +258,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 10, int(gridAfter.Y))
-		assert.Less(t, enemyPools.HP.Current, initialEnemyHP)
+		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
 	t.Run("冷えた状態でも敵への攻撃が可能", func(t *testing.T) {
@@ -282,8 +282,8 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		// APが0以上なら行動可能であることを確認
 		tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		assert.GreaterOrEqual(t, tb.AP.Current, 0, "冷えた状態でもAPが0以上なら行動可能")
-		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
-		initialEnemyHP := enemyPools.HP.Current
+		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		initialEnemyHP := enemyHP.Current
 
 		// 攻撃を実行
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
@@ -293,7 +293,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		result := activity.GetLastResult(player, world)
 		require.NotNil(t, result)
 		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
-		assert.Less(t, enemyPools.HP.Current, initialEnemyHP)
+		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 
 	t.Run("冷えた状態で攻撃するとAPが消費される", func(t *testing.T) {
@@ -316,8 +316,8 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		require.NoError(t, err)
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		initialAP := turnBased.AP.Current
-		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
-		initialEnemyHP := enemyPools.HP.Current
+		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		initialEnemyHP := enemyHP.Current
 
 		// 攻撃を実行
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
@@ -329,7 +329,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		assert.Equal(t, gc.BehaviorAttack, result.BehaviorName)
 		assert.True(t, result.Success)
 		assert.Less(t, turnBased.AP.Current, initialAP)
-		assert.Less(t, enemyPools.HP.Current, initialEnemyHP)
+		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 }
 
@@ -367,8 +367,8 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
-		enemyPools.HP.Current = 1
+		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP.Current = 1
 
 		// 1回目: 攻撃で敵を倒す
 		err = activity.ExecuteMoveAction(world, gc.DirectionUp)
@@ -403,7 +403,7 @@ func TestGetInteractionActions_BreakableProp(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Data: gc.MeleeInteraction{},
 		})
@@ -450,7 +450,7 @@ func TestGetInteractionActions_BreakableProp(t *testing.T) {
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 9})
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Data: gc.MeleeInteraction{},
@@ -464,7 +464,7 @@ func TestGetInteractionActions_BreakableProp(t *testing.T) {
 		grid := world.Components.GridElement.Get(player).(*gc.GridElement)
 		assert.Equal(t, 10, int(grid.X))
 		assert.Equal(t, 10, int(grid.Y))
-		pools := world.Components.Pools.Get(prop).(*gc.Pools)
-		assert.Equal(t, 30, pools.HP.Current, "Propに自動攻撃しないのでHPは減らない")
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 30, hp.Current, "Propに自動攻撃しないのでHPは減らない")
 	})
 }

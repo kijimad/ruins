@@ -447,21 +447,21 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 		return fmt.Errorf("最大HP/SP設定エラー: %w", err)
 	}
 
-	// Poolsコンポーネントを取得
+	// HP全回復
+	hpComponent := world.Components.HP.Get(entity)
+	if hpComponent == nil {
+		return fmt.Errorf("HPコンポーネントがありません")
+	}
+	hp := hpComponent.(*gc.HP)
+	hp.Current = hp.Max
+
+	// SP/EP全回復
 	poolsComponent := world.Components.Pools.Get(entity)
 	if poolsComponent == nil {
 		return fmt.Errorf("Poolsコンポーネントがありません")
 	}
-
 	pools := poolsComponent.(*gc.Pools)
-
-	// HP全回復
-	pools.HP.Current = pools.HP.Max
-
-	// SP全回復
 	pools.SP.Current = pools.SP.Max
-
-	// EP全回復
 	pools.EP.Current = pools.EP.Max
 
 	// TurnBasedコンポーネントがある場合は最大APに設定
@@ -481,10 +481,11 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 // setMaxHPSP はエンティティの最大HP/SPを設定する
 func setMaxHPSP(world w.World, entity ecs.Entity) error {
 
-	if !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Abilities) {
-		return fmt.Errorf("entity %v does not have required components (Pools or Abilities)", entity)
+	if !entity.HasComponent(world.Components.HP) || !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Abilities) {
+		return fmt.Errorf("entity %v does not have required components (HP, Pools or Abilities)", entity)
 	}
 
+	hp := world.Components.HP.Get(entity).(*gc.HP)
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)
 	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
@@ -508,8 +509,8 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 		abils.Defense.Total = abils.Defense.Base
 	}
 
-	pools.HP.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
-	pools.HP.Current = pools.HP.Max
+	hp.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
+	hp.Current = hp.Max
 
 	// 最大SP計算: (体力*multiplyV+器用さ+素早さ)
 	pools.SP.Max = abils.Vitality.Total*spVitalityMultiply + abils.Dexterity.Total + abils.Agility.Total

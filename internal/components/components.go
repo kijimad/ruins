@@ -18,6 +18,7 @@ type EntitySpec struct {
 	Description *Description
 
 	// item ================
+	HP               *HP
 	Item             *Item
 	Consumable       *Consumable
 	Pools            *Pools
@@ -93,6 +94,7 @@ type Components struct {
 	Description *ecs.SliceComponent `save:"true"`
 
 	// item ================
+	HP                           *ecs.SliceComponent `save:"true"`
 	Item                         *ecs.SliceComponent `save:"true"`
 	Consumable                   *ecs.SliceComponent `save:"true"`
 	Pools                        *ecs.SliceComponent `save:"true"`
@@ -277,11 +279,14 @@ type Wallet struct {
 	Currency int
 }
 
-// Pools はキャラクターのプール情報
+// HP は生命力を表すコンポーネント
+// なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う
+type HP struct {
+	Pool
+}
+
+// Pools はキャラクター固有のプール情報
 type Pools struct {
-	// 生命力 Health point
-	// なくなるとゲームオーバー
-	HP Pool
 	// スタミナ Stamina point
 	// 走ったり攻撃したら減る。自動回復する
 	SP Pool

@@ -204,7 +204,10 @@ model ComponentsMap {
   /** 説明文 */
   Description?: DescriptionComponent;
 
-  /** HP/SP/EP/重量のプール */
+  /** 生命力 */
+  HP?: HPComponent;
+
+  /** SP/EP/重量のプール */
   Pools?: PoolsComponent;
 
   /** アクションポイントと速度 */
@@ -276,9 +279,14 @@ model DescriptionComponent {
   Description: EntityDescription;
 }
 
-/** HP/SP/EP/重量のプール */
+/** 生命力。最大値と現在値を持つ */
+model HPComponent {
+  Max: PoolMax;
+  Current: PoolCurrent;
+}
+
+/** SP/EP/重量のプール */
 model PoolsComponent {
-  HP: IntPool;
   SP: IntPool;
   EP: IntPool;
   Weight: FloatPool;

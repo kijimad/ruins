@@ -77,12 +77,12 @@ func TestApplyDamage_Breakable(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 30}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 30}})
 
 		ApplyDamage(world, prop, 10, source)
 
-		pools := world.Components.Pools.Get(prop).(*gc.Pools)
-		assert.Equal(t, 20, pools.HP.Current)
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 20, hp.Current)
 		assert.False(t, prop.HasComponent(world.Components.Dead))
 	})
 
@@ -96,12 +96,12 @@ func TestApplyDamage_Breakable(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 10}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 10}})
 
 		ApplyDamage(world, prop, 10, source)
 
-		pools := world.Components.Pools.Get(prop).(*gc.Pools)
-		assert.Equal(t, 0, pools.HP.Current)
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 0, hp.Current)
 		assert.True(t, prop.HasComponent(world.Components.Dead))
 	})
 
@@ -115,12 +115,12 @@ func TestApplyDamage_Breakable(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
 		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Pools, &gc.Pools{HP: gc.Pool{Max: 30, Current: 5}})
+		prop.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Max: 30, Current: 5}})
 
 		ApplyDamage(world, prop, 100, source)
 
-		pools := world.Components.Pools.Get(prop).(*gc.Pools)
-		assert.Equal(t, 0, pools.HP.Current)
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 0, hp.Current)
 		assert.True(t, prop.HasComponent(world.Components.Dead))
 	})
 }

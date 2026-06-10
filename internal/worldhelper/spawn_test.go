@@ -79,9 +79,9 @@ func TestSetMaxHPSP(t *testing.T) {
 				Defense:   gc.Ability{Base: 5, Total: 0},
 			})
 
-			// Poolsコンポーネントを追加
+			// HP/Poolsコンポーネントを追加
+			entity.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 0, Max: 0}})
 			entity.AddComponent(world.Components.Pools, &gc.Pools{
-				HP: gc.Pool{Current: 0, Max: 0},
 				SP: gc.Pool{Current: 0, Max: 0},
 			})
 
@@ -90,6 +90,7 @@ func TestSetMaxHPSP(t *testing.T) {
 			require.NoError(t, err)
 
 			// 結果を検証
+			hp := world.Components.HP.Get(entity).(*gc.HP)
 			pools := world.Components.Pools.Get(entity).(*gc.Pools)
 			abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
@@ -101,8 +102,8 @@ func TestSetMaxHPSP(t *testing.T) {
 			assert.Equal(t, tt.agility, abils.Agility.Total, "素早さのTotal値が正しく初期化されていない")
 
 			// HP/SPが正しく計算されたことを確認
-			assert.Equal(t, tt.expectedHP, pools.HP.Max, "最大HPの計算が正しくない: %s", tt.description)
-			assert.Equal(t, tt.expectedHP, pools.HP.Current, "現在HPが最大HPと同じでない: %s", tt.description)
+			assert.Equal(t, tt.expectedHP, hp.Max, "最大HPの計算が正しくない: %s", tt.description)
+			assert.Equal(t, tt.expectedHP, hp.Current, "現在HPが最大HPと同じでない: %s", tt.description)
 			assert.Equal(t, tt.expectedSP, pools.SP.Max, "最大SPの計算が正しくない: %s", tt.description)
 			assert.Equal(t, tt.expectedSP, pools.SP.Current, "現在SPが最大SPと同じでない: %s", tt.description)
 
@@ -142,8 +143,8 @@ func TestFullRecover(t *testing.T) {
 		Agility:   gc.Ability{Base: 9, Total: 0},
 		Defense:   gc.Ability{Base: 5, Total: 0},
 	})
+	entity.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 0, Max: 0}})
 	entity.AddComponent(world.Components.Pools, &gc.Pools{
-		HP: gc.Pool{Current: 0, Max: 0},
 		SP: gc.Pool{Current: 0, Max: 0},
 	})
 
@@ -152,6 +153,7 @@ func TestFullRecover(t *testing.T) {
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
 	// 結果を検証
+	hp := world.Components.HP.Get(entity).(*gc.HP)
 	pools := world.Components.Pools.Get(entity).(*gc.Pools)
 	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
@@ -162,8 +164,8 @@ func TestFullRecover(t *testing.T) {
 	// HP/SPが正しく計算されたことを確認
 	expectedHP := int(30 + float64(10*8+8+7)*1.0) // 30 + 95 = 125
 	expectedSP := int(float64(10*2+6+9) * 1.0)    // 35
-	assert.Equal(t, expectedHP, pools.HP.Max, "最大HPが正しく計算されていない")
-	assert.Equal(t, expectedHP, pools.HP.Current, "現在HPが最大HPと一致していない")
+	assert.Equal(t, expectedHP, hp.Max, "最大HPが正しく計算されていない")
+	assert.Equal(t, expectedHP, hp.Current, "現在HPが最大HPと一致していない")
 	assert.Equal(t, expectedSP, pools.SP.Max, "最大SPが正しく計算されていない")
 	assert.Equal(t, expectedSP, pools.SP.Current, "現在SPが最大SPと一致していない")
 

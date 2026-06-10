@@ -297,13 +297,13 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 	}
 
 	// HPを持つエンティティはHP表示
-	if entity.HasComponent(world.Components.Pools) {
-		pools := world.Components.Pools.Get(entity).(*gc.Pools)
+	if entity.HasComponent(world.Components.HP) {
+		hp := world.Components.HP.Get(entity).(*gc.HP)
 		label := "HP"
 		if entity.HasComponent(world.Components.Prop) {
 			label = "耐久"
 		}
-		drawText(fmt.Sprintf("  %s: %d/%d", label, pools.HP.Current, pools.HP.Max))
+		drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))
 	}
 }
 

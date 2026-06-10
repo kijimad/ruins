@@ -1390,6 +1390,9 @@ type SaveDataComponentsMap struct {
 	// GridElement グリッド上の位置
 	GridElement *SaveDataGridElementComponent `json:"GridElement,omitempty"`
 
+	// HP 生命力
+	HP *SaveDataHPComponent `json:"HP,omitempty"`
+
 	// InflictsDamage ダメージ効果
 	InflictsDamage *SaveDataInflictsDamageComponent `json:"InflictsDamage,omitempty"`
 
@@ -1414,7 +1417,7 @@ type SaveDataComponentsMap struct {
 	// Player プレイヤーマーカー
 	Player *SaveDataMarkerComponent `json:"Player,omitempty"`
 
-	// Pools HP/SP/EP/重量のプール
+	// Pools SP/EP/重量のプール
 	Pools *SaveDataPoolsComponent `json:"Pools,omitempty"`
 
 	// ProvidesHealing 回復効果
@@ -1592,6 +1595,15 @@ type SaveDataGridElementComponent struct {
 	Y SaveDataTileCoord `json:"Y"`
 }
 
+// SaveDataHPComponent 生命力。最大値と現在値を持つ
+type SaveDataHPComponent struct {
+	// Current プール現在値 (整数)
+	Current SaveDataPoolCurrent `json:"Current"`
+
+	// Max プール最大値 (整数)
+	Max SaveDataPoolMax `json:"Max"`
+}
+
 // SaveDataHealNumeral 固定回復量
 type SaveDataHealNumeral = int32
 
@@ -1701,13 +1713,10 @@ type SaveDataPoolFloatMax = float64
 // SaveDataPoolMax プール最大値 (整数)
 type SaveDataPoolMax = int32
 
-// SaveDataPoolsComponent HP/SP/EP/重量のプール
+// SaveDataPoolsComponent SP/EP/重量のプール
 type SaveDataPoolsComponent struct {
 	// EP 整数プール。最大値と現在値を持つ
 	EP SaveDataIntPool `json:"EP"`
-
-	// HP 整数プール。最大値と現在値を持つ
-	HP SaveDataIntPool `json:"HP"`
 
 	// SP 整数プール。最大値と現在値を持つ
 	SP SaveDataIntPool `json:"SP"`

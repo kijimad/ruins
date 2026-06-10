@@ -368,9 +368,9 @@ func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawTe
 		st.targetIndex+1, len(st.enemies)))
 
 	// HP
-	if target.HasComponent(world.Components.Pools) {
-		pools := world.Components.Pools.Get(target).(*gc.Pools)
-		drawText(fmt.Sprintf("HP: %d/%d", pools.HP.Current, pools.HP.Max))
+	if target.HasComponent(world.Components.HP) {
+		hp := world.Components.HP.Get(target).(*gc.HP)
+		drawText(fmt.Sprintf("HP: %d/%d", hp.Current, hp.Max))
 	}
 
 	drawText(fmt.Sprintf("命中率: %d%%", st.cachedHitRate))

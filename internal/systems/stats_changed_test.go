@@ -261,8 +261,8 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		initialAP, err := worldhelper.CalculateMaxActionPoints(world, player)
 		require.NoError(t, err)
 
+		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: 100, Max: 100}})
 		player.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: 100, Max: 100},
 			SP: gc.Pool{Current: 50, Max: 50},
 		})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
@@ -335,8 +335,8 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		initialHP := maxHP(abils)
 		initialSP := maxSP(abils)
 
+		player.AddComponent(world.Components.HP, &gc.HP{Pool: gc.Pool{Current: initialHP, Max: initialHP}})
 		player.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: initialHP, Max: initialHP},
 			SP: gc.Pool{Current: initialSP, Max: initialSP},
 		})
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
@@ -364,8 +364,9 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// HP/SPが再計算されていることを確認
 		// 体力10→20で: HP = 30 + (20*8 + 5 + 5) = 200、SP = 20*2 + 5 + 5 = 50
+		hp := world.Components.HP.Get(player).(*gc.HP)
 		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		assert.Greater(t, pools.HP.Max, initialHP, "装備追加でHP.Maxが増加するべき")
+		assert.Greater(t, hp.Max, initialHP, "装備追加でHP.Maxが増加するべき")
 		assert.Greater(t, pools.SP.Max, initialSP, "装備追加でSP.Maxが増加するべき")
 	})
 

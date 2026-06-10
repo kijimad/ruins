@@ -53,8 +53,8 @@ func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 		return ErrItemNoEffect
 	}
 
-	// アクターがPoolsコンポーネントを持っているかチェック
-	if !actor.HasComponent(world.Components.Pools) {
+	// アクターがHPコンポーネントを持っているかチェック
+	if !actor.HasComponent(world.Components.HP) {
 		return ErrActorNoPools
 	}
 
@@ -133,8 +133,8 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 		amount = amt.Calc()
 	case gc.RatioAmount:
 		// 最大HPに対する割合で回復
-		pools := world.Components.Pools.Get(actor).(*gc.Pools)
-		amount = amt.Calc(pools.HP.Max)
+		hp := world.Components.HP.Get(actor).(*gc.HP)
+		amount = amt.Calc(hp.Max)
 	default:
 		return fmt.Errorf("未対応のAmounterタイプ: %T", amounter)
 	}

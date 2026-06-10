@@ -34,19 +34,19 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	var playerWeight, playerMaxWeight float64
 	world.Manager.Join(
 		world.Components.Player,
+		world.Components.HP,
 		world.Components.Pools,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if poolsComponent := world.Components.Pools.Get(entity); poolsComponent != nil {
-			pools := poolsComponent.(*gc.Pools)
-			playerHP = pools.HP.Current
-			playerMaxHP = pools.HP.Max
-			playerSP = pools.SP.Current
-			playerMaxSP = pools.SP.Max
-			playerEP = pools.EP.Current
-			playerMaxEP = pools.EP.Max
-			playerWeight = pools.Weight.Current
-			playerMaxWeight = pools.Weight.Max
-		}
+		hp := world.Components.HP.Get(entity).(*gc.HP)
+		pools := world.Components.Pools.Get(entity).(*gc.Pools)
+		playerHP = hp.Current
+		playerMaxHP = hp.Max
+		playerSP = pools.SP.Current
+		playerMaxSP = pools.SP.Max
+		playerEP = pools.EP.Current
+		playerMaxEP = pools.EP.Max
+		playerWeight = pools.Weight.Current
+		playerMaxWeight = pools.Weight.Max
 	}))
 
 	// 画面サイズを取得
@@ -212,11 +212,11 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		})
 	}))
 
-	// HP表示情報を抽出（プレイヤー以外のPoolsを持つエンティティ）
+	// HP表示情報を抽出（プレイヤー以外のHPを持つエンティティ）
 	var hpDisplays []hud.HPDisplayInfo
 	world.Manager.Join(
 		world.Components.GridElement,
-		world.Components.Pools,
+		world.Components.HP,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		// プレイヤーは除外
 		if entity.HasComponent(world.Components.Player) {
@@ -224,7 +224,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		}
 
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		pools := world.Components.Pools.Get(entity).(*gc.Pools)
+		hp := world.Components.HP.Get(entity).(*gc.HP)
 
 		// エンティティ名を取得（デバッグ用）
 		var entityName string
@@ -245,8 +245,8 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		hpDisplays = append(hpDisplays, hud.HPDisplayInfo{
 			ScreenX:    screenX,
 			ScreenY:    screenY,
-			CurrentHP:  pools.HP.Current,
-			MaxHP:      pools.HP.Max,
+			CurrentHP:  hp.Current,
+			MaxHP:      hp.Max,
 			EntityName: entityName,
 		})
 	}))

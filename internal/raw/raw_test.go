@@ -593,9 +593,9 @@ Depth = 1
 
 	entitySpec, err := NewPropSpec(raws, "壊れるProp")
 	assert.NoError(t, err)
-	assert.NotNil(t, entitySpec.Pools)
-	assert.Equal(t, 20, entitySpec.Pools.HP.Max)
-	assert.Equal(t, 20, entitySpec.Pools.HP.Current)
+	assert.NotNil(t, entitySpec.HP)
+	assert.Equal(t, 20, entitySpec.HP.Max)
+	assert.Equal(t, 20, entitySpec.HP.Current)
 	assert.NotNil(t, entitySpec.Interactable)
 	_, ok := entitySpec.Interactable.Data.(gc.MeleeInteraction)
 	assert.True(t, ok, "破壊可能PropにはMeleeInteractionが設定されるべき")

@@ -421,6 +421,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		Agility:   gc.Ability{Base: int(member.Abilities.Agility)},
 		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
 	}
+	entitySpec.HP = &gc.HP{}
 	entitySpec.Pools = &gc.Pools{}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
@@ -635,7 +636,7 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	if propRaw.Hp != nil {
 		hp := int(*propRaw.Hp)
-		entitySpec.Pools = &gc.Pools{HP: gc.Pool{Max: hp, Current: hp}}
+		entitySpec.HP = &gc.HP{Pool: gc.Pool{Max: hp, Current: hp}}
 		entitySpec.Interactable = &gc.Interactable{Data: gc.MeleeInteraction{}}
 	}
 
