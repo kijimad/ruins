@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -162,6 +163,15 @@ func Complete(comp *gc.Activity) {
 func Cancel(comp *gc.Activity, reason string) {
 	comp.State = gc.ActivityStateCanceled
 	comp.CancelReason = reason
+}
+
+// requireDestination はActivityのDestinationからタイル座標を取得する。
+// Destinationが未設定の場合はエラーを返す
+func requireDestination(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
+	if comp.Destination == nil {
+		return consts.Coord[consts.Tile]{}, fmt.Errorf("目的地が指定されていません")
+	}
+	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
 }
 
 // progressHunger はターン経過による空腹進行を処理する

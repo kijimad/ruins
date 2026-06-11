@@ -243,6 +243,9 @@ func (st *PlaceState) Draw(world w.World, screen *ebiten.Image) error {
 // placeCursorCache はカーソル画像のキャッシュ
 var placeCursorCache *ebiten.Image
 
+// placePanelCache は情報パネル画像のキャッシュ
+var placePanelCache *ebiten.Image
+
 func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(st.cursor.X) * tileSize)
@@ -284,14 +287,16 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		lineHeight  = 20
 	)
 
-	panelImg := ebiten.NewImage(panelWidth, panelHeight)
-	panelImg.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+	if placePanelCache == nil {
+		placePanelCache = ebiten.NewImage(panelWidth, panelHeight)
+		placePanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+	}
 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
 	panelOp := &ebiten.DrawImageOptions{}
 	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(panelImg, panelOp)
+	screen.DrawImage(placePanelCache, panelOp)
 
 	textX := float64(panelX + 10)
 	y := panelY + 10

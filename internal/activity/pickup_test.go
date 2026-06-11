@@ -72,7 +72,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, player, world)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "拾得先が指定されていません")
+		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 

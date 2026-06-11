@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -45,7 +44,7 @@ func (da *DropActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 	}
 
 	// 配置先タイル座標を取得できるか確認する
-	if _, err := da.getDropTargetTile(comp); err != nil {
+	if _, err := requireDestination(comp); err != nil {
 		return err
 	}
 
@@ -83,17 +82,9 @@ func (da *DropActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 	return nil
 }
 
-// getDropTargetTile は配置先タイルの座標を返す。Destinationは必須である
-func (da *DropActivity) getDropTargetTile(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
-	if comp.Destination == nil {
-		return consts.Coord[consts.Tile]{}, fmt.Errorf("配置先が指定されていません")
-	}
-	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
-}
-
 // performDropActivity は実際のアイテムドロップ処理を実行する
 func (da *DropActivity) performDropActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	targetTile, err := da.getDropTargetTile(comp)
+	targetTile, err := requireDestination(comp)
 	if err != nil {
 		return err
 	}

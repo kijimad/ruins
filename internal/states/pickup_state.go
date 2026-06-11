@@ -168,13 +168,7 @@ func (st *PickupState) refreshItems(world w.World) {
 		if int(grid.X) != targetX || int(grid.Y) != targetY {
 			return
 		}
-		// フィールドアイテム
-		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
-			st.itemsAtTarget = append(st.itemsAtTarget, entity)
-			return
-		}
-		// Interactableを持たないPropは拾える
-		if entity.HasComponent(world.Components.Prop) && !entity.HasComponent(world.Components.Interactable) {
+		if worldhelper.IsPickable(entity, world) {
 			st.itemsAtTarget = append(st.itemsAtTarget, entity)
 		}
 	}))
@@ -204,6 +198,9 @@ func (st *PickupState) Draw(world w.World, screen *ebiten.Image) error {
 
 // pickupCursorCache はカーソル画像のキャッシュ
 var pickupCursorCache *ebiten.Image
+
+// pickupPanelCache は情報パネル画像のキャッシュ
+var pickupPanelCache *ebiten.Image
 
 func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
@@ -246,14 +243,16 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 		lineHeight  = 20
 	)
 
-	panelImg := ebiten.NewImage(panelWidth, panelHeight)
-	panelImg.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+	if pickupPanelCache == nil {
+		pickupPanelCache = ebiten.NewImage(panelWidth, panelHeight)
+		pickupPanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+	}
 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
 	panelOp := &ebiten.DrawImageOptions{}
 	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(panelImg, panelOp)
+	screen.DrawImage(pickupPanelCache, panelOp)
 
 	textX := float64(panelX + 10)
 	y := panelY + 10

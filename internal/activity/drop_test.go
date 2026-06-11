@@ -95,7 +95,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		da := &DropActivity{}
 		err = da.Validate(comp, player, world)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "配置先が指定されていません")
+		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
@@ -175,7 +175,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		da := &DropActivity{}
 		err = da.performDropActivity(comp, player, world)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "配置先が指定されていません")
+		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 

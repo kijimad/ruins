@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -34,7 +33,7 @@ func (pa *PickupActivity) Name() gc.BehaviorName {
 
 // Validate はアイテム拾得アクティビティの検証を行う
 func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
-	target, err := pa.getTargetTile(comp)
+	target, err := requireDestination(comp)
 	if err != nil {
 		return err
 	}
@@ -50,13 +49,7 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
-		// フィールドアイテムは拾える
-		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
-			hasPickable = true
-			return
-		}
-		// Interactableを持たないPropは拾える
-		if entity.HasComponent(world.Components.Prop) && !entity.HasComponent(world.Components.Interactable) {
+		if worldhelper.IsPickable(entity, world) {
 			hasPickable = true
 		}
 	}))
@@ -100,17 +93,9 @@ func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 	return nil
 }
 
-// getTargetTile は拾得対象タイルの座標を返す。Destinationは必須である
-func (pa *PickupActivity) getTargetTile(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
-	if comp.Destination == nil {
-		return consts.Coord[consts.Tile]{}, fmt.Errorf("拾得先が指定されていません")
-	}
-	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
-}
-
 // performPickupActivity は実際のアイテム拾得処理を実行する
 func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	target, err := pa.getTargetTile(comp)
+	target, err := requireDestination(comp)
 	if err != nil {
 		return err
 	}
@@ -125,9 +110,12 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
+		if !worldhelper.IsPickable(entity, world) {
+			return
+		}
 		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
 			itemsToCollect = append(itemsToCollect, entity)
-		} else if entity.HasComponent(world.Components.Prop) && !entity.HasComponent(world.Components.Interactable) {
+		} else {
 			propsToCollect = append(propsToCollect, entity)
 		}
 	}))
@@ -147,7 +135,10 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		collectedCount++
 	}
 	for _, propEntity := range propsToCollect {
-		pa.collectProp(actor, world, propEntity)
+		if err := pa.collectProp(actor, world, propEntity); err != nil {
+			errs = append(errs, err)
+			continue
+		}
 		collectedCount++
 	}
 
@@ -171,14 +162,10 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 	return nil
 }
 
-// collectProp はPropをバックパックに移動する
+// collectProp はPropをバックパックに移動する。
 // Prop系コンポーネントは保持したまま、座標だけ消してバックパックに入れる
-func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) {
-	formattedName := "不明"
-	if propEntity.HasComponent(world.Components.Name) {
-		name := world.Components.Name.Get(propEntity).(*gc.Name)
-		formattedName = name.Name
-	}
+func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) error {
+	formattedName := worldhelper.GetEntityName(propEntity, world)
 
 	// Item化してバックパックに移動する
 	if !propEntity.HasComponent(world.Components.Item) {
@@ -193,15 +180,13 @@ func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntit
 		ItemName(formattedName).
 		Append(" を拾った。").
 		Log()
+
+	return nil
 }
 
 // collectFieldItem はフィールドアイテムを収集してバックパックに移動する
 func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, itemEntity ecs.Entity) error {
-	itemName := "Unknown Item"
-	if nameComp := world.Components.Name.Get(itemEntity); nameComp != nil {
-		name := nameComp.(*gc.Name)
-		itemName = name.Name
-	}
+	itemName := worldhelper.GetEntityName(itemEntity, world)
 
 	formattedName := worldhelper.FormatItemName(world, itemEntity)
 
