@@ -309,7 +309,10 @@ func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.A
 	// 基本のdurationを計算
 	duration := params.Duration
 	if duration <= 0 {
-		characterAP := getEntityMaxAP(params.Actor, world)
+		characterAP, err := getEntityMaxAP(params.Actor, world)
+		if err != nil {
+			return nil, err
+		}
 		duration = CalculateRequiredTurns(behavior, characterAP)
 	}
 
@@ -375,11 +378,10 @@ func getPassCostAt(world w.World, x, y int) int {
 }
 
 // getEntityMaxAP はエンティティの最大AP値を取得する
-func getEntityMaxAP(entity ecs.Entity, world w.World) int {
-	if turnBasedComponent := world.Components.TurnBased.Get(entity); turnBasedComponent != nil {
-		turnBased := turnBasedComponent.(*gc.TurnBased)
-		return turnBased.AP.Max
+func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {
+	if !entity.HasComponent(world.Components.TurnBased) {
+		return 0, fmt.Errorf("TurnBasedコンポーネントが見つからない: entity=%v", entity)
 	}
-	log.Debug("TurnBasedコンポーネントが見つからない", "entity", entity)
-	return 100 // デフォルトAP値
+	turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)
+	return turnBased.AP.Max, nil
 }

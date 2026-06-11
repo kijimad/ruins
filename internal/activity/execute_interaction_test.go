@@ -89,6 +89,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を作成（閉じている）
@@ -120,6 +121,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を作成（開いている）
@@ -152,6 +154,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	// プレイヤーを作成
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
+	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 	// NPCを作成
@@ -241,6 +244,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	// プレイヤーを作成（武器なし、素手で攻撃）
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
+	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	player.AddComponent(world.Components.Abilities, &gc.Abilities{
 		Strength:  gc.Ability{Base: 5, Total: 5},
@@ -465,6 +469,7 @@ func TestExecuteInteraction_Door_Locked(t *testing.T) {
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		doorEntity := world.Manager.NewEntity()
