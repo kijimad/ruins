@@ -23,9 +23,11 @@ func TestDropActivity_Validate(t *testing.T) {
 		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
@@ -62,9 +64,11 @@ func TestDropActivity_Validate(t *testing.T) {
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
@@ -73,13 +77,12 @@ func TestDropActivity_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "バックパック内にありません")
 	})
 
-	t.Run("プレイヤーの位置情報がない場合はエラー", func(t *testing.T) {
+	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
 
 		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
@@ -92,7 +95,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		da := &DropActivity{}
 		err = da.Validate(comp, player, world)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "位置情報が見つかりません")
+		assert.Contains(t, err.Error(), "配置先が指定されていません")
 	})
 }
 
@@ -127,9 +130,11 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
@@ -149,20 +154,18 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		store := worldhelper.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "を捨てた")
+		assert.Contains(t, recent[0], "を置いた")
 	})
 
-	t.Run("位置情報がない場合はエラー", func(t *testing.T) {
+	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
 
-		// アイテムも手動で作成
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
@@ -170,8 +173,9 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		}
 
 		da := &DropActivity{}
-		err := da.performDropActivity(comp, player, world)
+		err = da.performDropActivity(comp, player, world)
 		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "配置先が指定されていません")
 	})
 }
 
@@ -179,6 +183,31 @@ func TestDropActivity_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常にドロップして完了する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
+
+		destination := gc.GridElement{X: 10, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			State:        gc.ActivityStateRunning,
+			Target:       &item,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+	})
+
+	t.Run("Destinationがない場合はキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -196,31 +225,6 @@ func TestDropActivity_DoTurn(t *testing.T) {
 
 		da := &DropActivity{}
 		err = da.DoTurn(comp, player, world)
-
-		require.NoError(t, err)
-		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-	})
-
-	t.Run("エラー時はキャンセルされる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-
-		// アイテムも手動で作成
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
-
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorDrop,
-			State:        gc.ActivityStateRunning,
-			Target:       &item,
-		}
-
-		da := &DropActivity{}
-		err := da.DoTurn(comp, player, world)
 
 		assert.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)

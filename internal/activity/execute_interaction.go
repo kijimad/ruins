@@ -114,11 +114,17 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 }
 
 func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
-	params := ActionParams{
-		Actor: actor,
+	gridElement := world.Components.GridElement.Get(actor)
+	if gridElement == nil {
+		return nil, fmt.Errorf("位置情報が見つかりません")
 	}
-	result, err := Execute(&PickupActivity{}, params, world)
-	return result, err
+	playerGrid := gridElement.(*gc.GridElement)
+	destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
+	params := ActionParams{
+		Actor:       actor,
+		Destination: &destination,
+	}
+	return Execute(&PickupActivity{}, params, world)
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -32,32 +33,36 @@ func (pa *PickupActivity) Name() gc.BehaviorName {
 }
 
 // Validate はアイテム拾得アクティビティの検証を行う
-func (pa *PickupActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	// プレイヤーの位置情報が必要
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
-		return fmt.Errorf("位置情報が見つかりません")
+func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	target, err := pa.getTargetTile(comp)
+	if err != nil {
+		return err
 	}
 
-	playerGrid := gridElement.(*gc.GridElement)
-	playerTileX := int(playerGrid.X)
-	playerTileY := int(playerGrid.Y)
-
-	// 同じタイルにフィールドアイテムがあるかチェック
-	hasItems := false
+	hasPickable := false
 	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationOnField,
 		world.Components.GridElement,
-	).Visit(ecs.Visit(func(itemEntity ecs.Entity) {
-		itemGrid := world.Components.GridElement.Get(itemEntity).(*gc.GridElement)
-		if int(itemGrid.X) == playerTileX && int(itemGrid.Y) == playerTileY {
-			hasItems = true
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if hasPickable {
+			return
+		}
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if grid.X != target.X || grid.Y != target.Y {
+			return
+		}
+		// フィールドアイテムは拾える
+		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
+			hasPickable = true
+			return
+		}
+		// Interactableを持たないPropは拾える
+		if entity.HasComponent(world.Components.Prop) && !entity.HasComponent(world.Components.Interactable) {
+			hasPickable = true
 		}
 	}))
 
-	if !hasItems {
-		return fmt.Errorf("拾えるアイテムがありません")
+	if !hasPickable {
+		return fmt.Errorf("拾えるものがありません")
 	}
 
 	return nil
@@ -95,34 +100,40 @@ func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 	return nil
 }
 
+// getTargetTile は拾得対象タイルの座標を返す。Destinationは必須である
+func (pa *PickupActivity) getTargetTile(comp *gc.Activity) (consts.Coord[consts.Tile], error) {
+	if comp.Destination == nil {
+		return consts.Coord[consts.Tile]{}, fmt.Errorf("拾得先が指定されていません")
+	}
+	return consts.Coord[consts.Tile]{X: comp.Destination.X, Y: comp.Destination.Y}, nil
+}
+
 // performPickupActivity は実際のアイテム拾得処理を実行する
-func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity, world w.World) error {
-	// プレイヤー位置を取得
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
-		return fmt.Errorf("位置情報が見つかりません")
+func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	target, err := pa.getTargetTile(comp)
+	if err != nil {
+		return err
 	}
 
-	playerGrid := gridElement.(*gc.GridElement)
-	playerTileX := int(playerGrid.X)
-	playerTileY := int(playerGrid.Y)
-
-	// 同じタイルのフィールドアイテムを検索
+	// 対象タイルのフィールドアイテムと拾えるPropを検索
 	var itemsToCollect []ecs.Entity
+	var propsToCollect []ecs.Entity
 	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationOnField,
 		world.Components.GridElement,
-	).Visit(ecs.Visit(func(itemEntity ecs.Entity) {
-		itemGrid := world.Components.GridElement.Get(itemEntity).(*gc.GridElement)
-		// タイル単位の位置判定
-		if int(itemGrid.X) == playerTileX && int(itemGrid.Y) == playerTileY {
-			itemsToCollect = append(itemsToCollect, itemEntity)
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if grid.X != target.X || grid.Y != target.Y {
+			return
+		}
+		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
+			itemsToCollect = append(itemsToCollect, entity)
+		} else if entity.HasComponent(world.Components.Prop) && !entity.HasComponent(world.Components.Interactable) {
+			propsToCollect = append(propsToCollect, entity)
 		}
 	}))
 
-	if len(itemsToCollect) == 0 {
-		return fmt.Errorf("拾えるアイテムがありません")
+	if len(itemsToCollect) == 0 && len(propsToCollect) == 0 {
+		return fmt.Errorf("拾えるものがありません")
 	}
 
 	// 収集されたアイテムを処理
@@ -135,25 +146,53 @@ func (pa *PickupActivity) performPickupActivity(_ *gc.Activity, actor ecs.Entity
 		}
 		collectedCount++
 	}
-
-	if collectedCount == 0 {
-		return fmt.Errorf("アイテムの拾得に失敗しました")
+	for _, propEntity := range propsToCollect {
+		pa.collectProp(actor, world, propEntity)
+		collectedCount++
 	}
 
-	log.Debug("アイテム拾得完了", "count", collectedCount)
+	if collectedCount == 0 {
+		return fmt.Errorf("拾得に失敗しました")
+	}
 
-	// プレイヤーの場合のみ複数アイテム収集時の総括メッセージを表示
+	log.Debug("拾得完了", "count", collectedCount)
+
+	// プレイヤーの場合のみ複数収集時の総括メッセージを表示
 	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
 		gamelog.New(worldhelper.GetGameLog(world)).
-			Append(fmt.Sprintf("%d個のアイテムを入手した", collectedCount)).
+			Append(fmt.Sprintf("%d個を入手した", collectedCount)).
 			Log()
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("一部アイテムの拾得に失敗: %w", errors.Join(errs...))
+		return fmt.Errorf("一部の拾得に失敗: %w", errors.Join(errs...))
 	}
 
 	return nil
+}
+
+// collectProp はPropをバックパックに移動する
+// Prop系コンポーネントは保持したまま、座標だけ消してバックパックに入れる
+func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) {
+	formattedName := "不明"
+	if propEntity.HasComponent(world.Components.Name) {
+		name := world.Components.Name.Get(propEntity).(*gc.Name)
+		formattedName = name.Name
+	}
+
+	// Item化してバックパックに移動する
+	if !propEntity.HasComponent(world.Components.Item) {
+		propEntity.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+	}
+	worldhelper.MoveToBackpack(world, propEntity, actor)
+
+	// フィールドから消す
+	propEntity.RemoveComponent(world.Components.GridElement)
+
+	gamelog.New(worldhelper.GetGameLog(world)).
+		ItemName(formattedName).
+		Append(" を拾った。").
+		Log()
 }
 
 // collectFieldItem はフィールドアイテムを収集してバックパックに移動する

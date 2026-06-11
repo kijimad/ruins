@@ -304,6 +304,16 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 		return inputmapper.ActionShoot, true
 	}
 
+	// 拾うモード
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyG) {
+		return inputmapper.ActionPickup, true
+	}
+
+	// 置くモード
+	if keyboardInput.IsKeyJustPressed(ebiten.KeyP) {
+		return inputmapper.ActionPlace, true
+	}
+
 	// 移動入力
 	if action, ok := handleMoveInput(keyboardInput); ok {
 		return action, true
@@ -345,7 +355,7 @@ func (st *DungeonState) HandleInput(cfg *config.Config) (inputmapper.ActionID, b
 func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	// UI系アクションは常に実行可能
 	switch action {
-	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionShoot:
+	case inputmapper.ActionOpenDungeonMenu, inputmapper.ActionOpenDebugMenu, inputmapper.ActionOpenInventory, inputmapper.ActionOpenInteractionMenu, inputmapper.ActionOpenFieldInfo, inputmapper.ActionShoot, inputmapper.ActionPickup, inputmapper.ActionPlace:
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
@@ -377,6 +387,14 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 	case inputmapper.ActionShoot:
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return &ShootingState{} },
+		}}, nil
+	case inputmapper.ActionPickup:
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return &PickupState{} },
+		}}, nil
+	case inputmapper.ActionPlace:
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return &PlaceState{} },
 		}}, nil
 
 	// 移動系アクション

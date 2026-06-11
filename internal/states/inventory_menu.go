@@ -600,9 +600,12 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 			return err
 		}
 
+		playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+		destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
 		params := activity.ActionParams{
-			Actor:  playerEntity,
-			Target: &entity,
+			Actor:       playerEntity,
+			Target:      &entity,
+			Destination: &destination,
 		}
 		_, err = activity.Execute(&activity.DropActivity{}, params, world)
 		if err != nil {
