@@ -230,3 +230,207 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
+
+func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("隣接タイルにアイテムをドロップできる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
+
+		// プレイヤーの右隣にドロップ
+		destination := gc.GridElement{X: 11, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			Target:       &item,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.performDropActivity(comp, player, world)
+		require.NoError(t, err)
+
+		assert.True(t, item.HasComponent(world.Components.GridElement))
+		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 10, int(gridElement.Y))
+		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+	})
+
+	t.Run("斜め隣接タイルにアイテムをドロップできる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
+
+		// 右下斜めにドロップ
+		destination := gc.GridElement{X: 11, Y: 11}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			Target:       &item,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.performDropActivity(comp, player, world)
+		require.NoError(t, err)
+
+		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 11, int(gridElement.Y))
+	})
+}
+
+func TestDropActivity_PropDerivedItem(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Prop由来アイテムをドロップするとPropコンポーネントが保持される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
+		prop, err := worldhelper.SpawnProp(world, "bed", 6, 6)
+		require.NoError(t, err)
+		// Propを拾った後の状態にする
+		prop.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+		worldhelper.MoveToBackpack(world, prop, player)
+		prop.RemoveComponent(world.Components.GridElement)
+
+		// ドロップ実行
+		destination := gc.GridElement{X: 11, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			Target:       &prop,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.performDropActivity(comp, player, world)
+		require.NoError(t, err)
+
+		// Propコンポーネントが保持されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+		// BlockPassも保持されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.BlockPass))
+		// フィールドに配置されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, prop.HasComponent(world.Components.GridElement))
+		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 10, int(gridElement.Y))
+	})
+}
+
+func TestPickupAndDropRoundTrip(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Propを拾ってドロップするとPropコンポーネントが保持される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		prop, err := worldhelper.SpawnProp(world, "bed", 4, 4)
+		require.NoError(t, err)
+
+		// 拾う
+		pickupDest := gc.GridElement{X: 4, Y: 4}
+		pickupComp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &pickupDest,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(pickupComp, player, world)
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, pickupComp.State)
+
+		// バックパックにあることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+
+		// ドロップ
+		dropDest := gc.GridElement{X: 11, Y: 11}
+		dropComp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			State:        gc.ActivityStateRunning,
+			Target:       &prop,
+			Destination:  &dropDest,
+		}
+
+		da := &DropActivity{}
+		err = da.DoTurn(dropComp, player, world)
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, dropComp.State)
+
+		// フィールドに戻っていることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, prop.HasComponent(world.Components.GridElement))
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+		assert.True(t, prop.HasComponent(world.Components.BlockPass))
+		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 11, int(gridElement.Y))
+	})
+
+	t.Run("通常アイテムの拾得とドロップの往復", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		require.NoError(t, err)
+
+		// 拾う
+		pickupDest := gc.GridElement{X: 10, Y: 10}
+		pickupComp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &pickupDest,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(pickupComp, player, world)
+		require.NoError(t, err)
+
+		assert.True(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.False(t, item.HasComponent(world.Components.GridElement))
+
+		// ドロップ
+		dropDest := gc.GridElement{X: 9, Y: 9}
+		dropComp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			State:        gc.ActivityStateRunning,
+			Target:       &item,
+			Destination:  &dropDest,
+		}
+
+		da := &DropActivity{}
+		err = da.DoTurn(dropComp, player, world)
+		require.NoError(t, err)
+
+		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		assert.Equal(t, 9, int(gridElement.X))
+		assert.Equal(t, 9, int(gridElement.Y))
+		// 通常アイテムはPropコンポーネントを持たない
+		assert.False(t, item.HasComponent(world.Components.Prop))
+	})
+}
