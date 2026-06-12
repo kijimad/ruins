@@ -135,10 +135,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		collectedCount++
 	}
 	for _, propEntity := range propsToCollect {
-		if err := pa.collectProp(actor, world, propEntity); err != nil {
-			errs = append(errs, err)
-			continue
-		}
+		pa.collectProp(actor, world, propEntity)
 		collectedCount++
 	}
 
@@ -164,7 +161,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 // collectProp はPropをバックパックに移動する。
 // Prop系コンポーネントは保持したまま、座標だけ消してバックパックに入れる
-func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) error {
+func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) {
 	formattedName := worldhelper.GetEntityName(propEntity, world)
 
 	// Item化してバックパックに移動する
@@ -180,8 +177,6 @@ func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntit
 		ItemName(formattedName).
 		Append(" を拾った。").
 		Log()
-
-	return nil
 }
 
 // collectFieldItem はフィールドアイテムを収集してバックパックに移動する
