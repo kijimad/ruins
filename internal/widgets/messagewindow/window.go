@@ -224,35 +224,14 @@ func (w *Window) createTitleContainer() *widget.Container {
 	return styled.NewWindowHeaderContainer(title, w.world.Resources.UIResources)
 }
 
-// calculateWindowPosition はウィンドウの表示位置を計算する
+// calculateWindowPosition はウィンドウの表示位置を計算する。
+// 上端を画面高さの約1/3の位置に統一して配置する
 func (w *Window) calculateWindowPosition(windowSize WindowSize) (x, y int) {
 	screenWidth := w.world.Resources.ScreenDimensions.Width
 	screenHeight := w.world.Resources.ScreenDimensions.Height
 
 	x = (screenWidth - windowSize.Width) / 2
-
-	numChoices := len(w.content.Choices)
-	if w.hasChoices && numChoices > 0 {
-		// メッセージがない場合は、より高い位置に配置
-		if !w.hasMessage() {
-			// メッセージなし: 中央より少し上に配置
-			y = (screenHeight - windowSize.Height) / 2
-			if numChoices > 5 {
-				y = screenHeight / 3
-			}
-		} else {
-			// メッセージあり: 選択肢数に応じて配置
-			if numChoices <= 3 {
-				y = (screenHeight - windowSize.Height) / 2
-			} else if numChoices <= 8 {
-				y = screenHeight / 3
-			} else {
-				y = screenHeight / 5
-			}
-		}
-	} else {
-		y = (screenHeight - windowSize.Height) / 2
-	}
+	y = screenHeight / 4
 
 	margin := 30
 	if y+windowSize.Height > screenHeight-margin {

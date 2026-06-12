@@ -583,7 +583,7 @@ func (st *CraftMenuState) buildActionWindow(world w.World, windowProps craftWind
 
 	for i, action := range actionItems {
 		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 
@@ -606,7 +606,7 @@ func (st *CraftMenuState) buildResultWindow(world w.World, resultProps craftResu
 	// ボタン項目を表示
 	for i, action := range resultItems {
 		isSelected := i == resultIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 

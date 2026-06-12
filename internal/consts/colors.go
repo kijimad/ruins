@@ -32,6 +32,16 @@ var (
 	// BlackColor は非透過黒背景色を表す
 	BlackColor = color.RGBA{30, 30, 30, 255}
 
+	// PanelBackgroundColor はパネルの背景色。深い紺色で純黒より上品に見える
+	PanelBackgroundColor = color.RGBA{R: 12, G: 18, B: 30, A: 220}
+	// PanelHighlightColor はパネル上辺のハイライト線。微かに明るい線で立体感を出す
+	PanelHighlightColor = color.RGBA{R: 60, G: 75, B: 100, A: 180}
+	// PanelShadowColor はパネル下辺のシャドウ線。暗い線で接地感を出す
+	PanelShadowColor = color.RGBA{R: 0, G: 0, B: 10, A: 200}
+
+	// SelectionTextColor は選択項目のテキスト色。通常より明るい白
+	SelectionTextColor = color.RGBA{R: 255, G: 255, B: 240, A: 255}
+
 	// WindowBodyColor はウィンドウ本体色を表す
 	WindowBodyColor = RGB(0x808080)
 	// WindowHeaderColor はウィンドウヘッダー色を表す

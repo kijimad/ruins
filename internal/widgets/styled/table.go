@@ -3,6 +3,7 @@ package styled
 import (
 	"image/color"
 
+	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -18,25 +19,20 @@ const (
 )
 
 // NewTableContainer はテーブルのコンテナを作成する
-// columnWidths で各列の幅を指定する
-func NewTableContainer(columnWidths []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {
-	columns := len(columnWidths)
-	if columns == 0 {
-		columns = 1
-	}
-
-	stretch := make([]bool, columns)
-	for i := range stretch {
-		stretch[i] = false
-	}
-
+// 各行がコンテナとなる縦並びレイアウトで、行単位の背景色設定が可能
+func NewTableContainer(_ []int, _ resources.UIResources, opts ...widget.ContainerOpt) *widget.Container {
 	defaultOpts := []widget.ContainerOpt{
 		widget.ContainerOpts.Layout(
-			widget.NewGridLayout(
-				widget.GridLayoutOpts.Columns(columns),
-				widget.GridLayoutOpts.Spacing(2, 2),
-				widget.GridLayoutOpts.Stretch(stretch, []bool{false}),
+			widget.NewRowLayout(
+				widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+				widget.RowLayoutOpts.Spacing(0),
 			),
+		),
+		// 親の RowLayout 内で横幅いっぱいに伸長する
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
 		),
 	}
 
@@ -49,6 +45,7 @@ func NewTableContainer(columnWidths []int, _ resources.UIResources, opts ...widg
 
 // NewTableHeaderRow はヘッダー行のセル群を作成してコンテナに追加する
 func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res resources.UIResources) {
+	row := newRowContainer(columnWidths, image.NewNineSliceColor(color.NRGBA{}))
 	for i, header := range headers {
 		width := 80
 		if i < len(columnWidths) {
@@ -63,8 +60,9 @@ func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers 
 				widget.WidgetOpts.MinSize(width, 20),
 			),
 		)
-		container.AddChild(cell)
+		row.AddChild(cell)
 	}
+	container.AddChild(row)
 }
 
 // NewTableRow はテーブル行を作成する
@@ -82,46 +80,89 @@ func NewTableRow(container *widget.Container, columnWidths []int, values []strin
 // 内部関数
 // ================
 
-func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
-	cursorColor := color.RGBA{}
-	if isSelected {
-		cursorColor = consts.PrimaryColor
+// newRowContainer は行コンテナを作成する。背景画像を指定でき、横幅は親に合わせて伸びる
+func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Container {
+	columns := len(columnWidths)
+	if columns == 0 {
+		columns = 1
 	}
 
-	cursorText := widget.NewText(
-		widget.TextOpts.Text(consts.IconCursor, &res.Text.BodyFace, cursorColor),
-		widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
-		widget.TextOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.GridLayoutData{}),
-			widget.WidgetOpts.MinSize(columnWidths[0], 24),
+	stretch := make([]bool, columns)
+	// 最後の列を伸縮させて親コンテナの幅を埋める
+	if columns > 0 {
+		stretch[columns-1] = true
+	}
+
+	return widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(bgImage),
+		widget.ContainerOpts.Layout(
+			widget.NewGridLayout(
+				widget.GridLayoutOpts.Columns(columns),
+				widget.GridLayoutOpts.Spacing(2, 0),
+				widget.GridLayoutOpts.Stretch(stretch, []bool{false}),
+				widget.GridLayoutOpts.Padding(&widget.Insets{}),
+			),
+		),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
 		),
 	)
-	container.AddChild(cursorText)
+}
 
-	for i := 1; i < len(values); i++ {
+func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
+	bgImage := image.NewNineSliceColor(color.NRGBA{})
+	textColor := consts.ForegroundColor
+	if isSelected {
+		bgImage = res.Panel.SelectionBar
+		textColor = consts.SelectionTextColor
+	}
+
+	row := newRowContainer(columnWidths, bgImage)
+
+	for i := 0; i < len(values); i++ {
 		width := 80
 		if i < len(columnWidths) {
 			width = columnWidths[i]
 		}
 
 		textPos := widget.TextPositionStart
+		gridData := widget.GridLayoutData{}
 		if aligns != nil && i < len(aligns) && aligns[i] == AlignRight {
 			textPos = widget.TextPositionEnd
+			gridData.HorizontalPosition = widget.GridLayoutPositionEnd
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(values[i], &res.Text.BodyFace, consts.TextColor),
+			widget.TextOpts.Text(values[i], &res.Text.BodyFace, textColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
-				widget.WidgetOpts.LayoutData(widget.GridLayoutData{}),
+				widget.WidgetOpts.LayoutData(gridData),
 				widget.WidgetOpts.MinSize(width, 24),
 			),
 		)
-		container.AddChild(textWidget)
+		row.AddChild(textWidget)
 	}
+
+	container.AddChild(row)
+
+	// 白線は常にグラデーションの上に表示
+	separator := widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.SeparatorLine),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+			widget.WidgetOpts.MinSize(0, 1),
+		),
+	)
+	container.AddChild(separator)
 }
 
 func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {
+	row := newRowContainer(columnWidths, image.NewNineSliceColor(color.NRGBA{}))
+
 	for i, value := range values {
 		width := 80
 		if i < len(columnWidths) {
@@ -129,18 +170,22 @@ func addDataRow(container *widget.Container, columnWidths []int, values []string
 		}
 
 		textPos := widget.TextPositionStart
+		gridData := widget.GridLayoutData{}
 		if aligns != nil && i < len(aligns) && aligns[i] == AlignRight {
 			textPos = widget.TextPositionEnd
+			gridData.HorizontalPosition = widget.GridLayoutPositionEnd
 		}
 
 		textWidget := widget.NewText(
 			widget.TextOpts.Text(value, &res.Text.BodyFace, consts.TextColor),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
-				widget.WidgetOpts.LayoutData(widget.GridLayoutData{}),
+				widget.WidgetOpts.LayoutData(gridData),
 				widget.WidgetOpts.MinSize(width, 24),
 			),
 		)
-		container.AddChild(textWidget)
+		row.AddChild(textWidget)
 	}
+
+	container.AddChild(row)
 }

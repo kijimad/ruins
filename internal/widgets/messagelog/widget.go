@@ -182,7 +182,7 @@ func (widget *Widget) createColoredLogContainer(entries []gamelog.LogEntry) *eui
 
 	// エントリがない場合
 	if len(entries) == 0 {
-		placeholderWidget := styled.NewListItemText("ログメッセージなし", consts.ForegroundColor, false, widget.world.Resources.UIResources)
+		placeholderWidget := styled.NewFragmentText("ログメッセージなし", consts.ForegroundColor, widget.world.Resources.UIResources)
 		logContainer.AddChild(placeholderWidget)
 	}
 

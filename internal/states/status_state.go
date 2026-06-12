@@ -220,7 +220,7 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 	if playerEntity.HasComponent(world.Components.Hunger) {
 		hunger := world.Components.Hunger.Get(playerEntity).(*gc.Hunger)
 		items = append(items,
-			statusItemData{Label: "空腹度", Value: fmt.Sprintf("%d (%s)", hunger.Current, hunger.GetLevel().String()), Description: "空腹度。高いと行動に支障が出る"},
+			statusItemData{Label: "空腹度", Value: hunger.GetLevel().String(), Description: "空腹度。高いと行動に支障が出る"},
 		)
 	}
 
@@ -433,29 +433,54 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
-	root := styled.NewItemGridContainer(
+	// 1列グリッドで縦に並べる。コンテンツ行だけ縦に伸縮する
+	root := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.Layout(
+			widget.NewGridLayout(
+				widget.GridLayoutOpts.Columns(1),
+				widget.GridLayoutOpts.Spacing(0, 4),
+				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
+				widget.GridLayoutOpts.Padding(&widget.Insets{
+					Top:    8,
+					Bottom: 8,
+					Left:   8,
+					Right:  8,
+				}),
+			),
+		),
 	)
 
+	// Row 0: タイトル
 	root.AddChild(styled.NewTitleText(props.PlayerName, res))
-	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(widget.NewContainer())
 
-	// 一覧と詳細を横並びにする
-	midRow := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Spacing(8),
-		)),
+	// Row 1: カテゴリタブを中央寄せ
+	tabRow := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
-	midRow.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
-	midRow.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
-	root.AddChild(midRow)
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
+	categoryInner := st.buildCategoryContainer(props.Tabs, tabIndex, res)
+	categoryInner.GetWidget().LayoutData = widget.AnchorLayoutData{
+		HorizontalPosition: widget.AnchorLayoutPositionCenter,
+	}
+	tabRow.AddChild(categoryInner)
+	root.AddChild(tabRow)
 
+	// Row 2: コンテンツ。常に2列で半々に分割する
+	content := widget.NewContainer(
+		widget.ContainerOpts.Layout(
+			widget.NewGridLayout(
+				widget.GridLayoutOpts.Columns(2),
+				widget.GridLayoutOpts.Spacing(8, 0),
+				widget.GridLayoutOpts.Stretch([]bool{true, true}, []bool{true}),
+			),
+		),
+	)
+	content.AddChild(st.buildItemContainer(props.Tabs, tabIndex, itemIndex, res))
+	content.AddChild(st.buildDetailContainer(world, props, tabIndex, itemIndex, res))
+	root.AddChild(content)
+
+	// Row 3: 説明文
 	root.AddChild(st.buildDescContainer(props.Tabs, tabIndex, itemIndex, res))
-	root.AddChild(widget.NewContainer())
-	root.AddChild(widget.NewContainer())
 
 	return &ebitenui.UI{Container: root}
 }
@@ -489,17 +514,34 @@ func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIn
 	}
 	container.AddChild(styled.NewPageIndicator(pageText, res))
 
-	columnWidths := []int{20, 100, 60, 60}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	// 能力タブは修正値列があるため3列、他のタブは2列で値を右端に寄せる
+	hasModifier := currentTab.ID == tabAbilities
+	var columnWidths []int
+	var aligns []styled.TextAlign
+	if hasModifier {
+		columnWidths = []int{100, 60, 60}
+		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
+	} else {
+		columnWidths = []int{100, 60}
+		aligns = []styled.TextAlign{styled.AlignLeft, styled.AlignRight}
+	}
 
 	table := styled.NewTableContainer(columnWidths, res)
 	for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
 		if entry.Item.IsHeader {
-			styled.NewTableHeaderRow(table, columnWidths, []string{"", entry.Item.Label, "", ""}, res)
+			if hasModifier {
+				styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label, "", ""}, res)
+			} else {
+				styled.NewTableHeaderRow(table, columnWidths, []string{entry.Item.Label, ""}, res)
+			}
 			continue
 		}
 		isSelected := pg.IsSelectedInPage(entry.Index)
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, entry.Item.Value, entry.Item.Modifier}, aligns, &isSelected, res)
+		if hasModifier {
+			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Value, entry.Item.Modifier}, aligns, &isSelected, res)
+		} else {
+			styled.NewTableRow(table, columnWidths, []string{entry.Item.Label, entry.Item.Value}, aligns, &isSelected, res)
+		}
 	}
 	container.AddChild(table)
 
@@ -511,21 +553,24 @@ func (st *StatusState) buildItemContainer(tabs []statusTabData, tabIndex, itemIn
 }
 
 func (st *StatusState) buildDetailContainer(world w.World, props statusProps, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
+	needsDetail := false
+	if tabIndex < len(props.Tabs) && itemIndex < len(props.Tabs[tabIndex].Items) {
+		switch props.Tabs[tabIndex].ID {
+		case tabSkills, tabEffects, tabHealth:
+			needsDetail = true
+		}
+	}
+
+	if !needsDetail {
+		return styled.NewVerticalContainer()
+	}
+
 	container := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	if tabIndex >= len(props.Tabs) {
-		return container
-	}
-	if itemIndex >= len(props.Tabs[tabIndex].Items) {
-		return container
-	}
-
-	tabID := props.Tabs[tabIndex].ID
 	item := props.Tabs[tabIndex].Items[itemIndex]
-
-	switch tabID {
+	switch props.Tabs[tabIndex].ID {
 	case tabSkills:
 		st.buildSkillDetail(container, item, res)
 	case tabEffects:

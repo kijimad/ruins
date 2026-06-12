@@ -1,9 +1,8 @@
 package hud
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -43,10 +42,10 @@ func NewMessageArea(world w.World) *MessageArea {
 		LineHeight: config.LineHeight,
 		Spacing:    3,
 		Padding: messagelog.Insets{
-			Top:    2,
-			Bottom: 2,
-			Left:   2,
-			Right:  2,
+			Top:    4,
+			Bottom: 4,
+			Left:   8,
+			Right:  8,
 		},
 	}
 
@@ -84,9 +83,9 @@ func (area *MessageArea) Update() {
 // messageBackgroundStyle はメッセージエリアの背景スタイル
 func messageBackgroundStyle() styled.BackgroundStyle {
 	return styled.BackgroundStyle{
-		BorderColor:     color.RGBA{0, 0, 0, 0},   // 透明（枠線なし）
-		BackgroundColor: color.RGBA{0, 0, 0, 150}, // 半透明の黒背景
-		BorderWidth:     0,                        // 枠線なし
+		BackgroundColor: consts.PanelBackgroundColor,
+		HighlightColor:  consts.PanelHighlightColor,
+		ShadowColor:     consts.PanelShadowColor,
 	}
 }
 

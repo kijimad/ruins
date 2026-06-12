@@ -174,14 +174,13 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 func TestPickupActivity_Validate_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Interactableを持たないPropは拾える", func(t *testing.T) {
+	t.Run("HPを持たないPropは拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		// Interactableを持たないPropを直接構築する
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
@@ -196,10 +195,11 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, ecs.Entity(0), world)
-		assert.NoError(t, err)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
-	t.Run("Interactableを持つPropは拾えない", func(t *testing.T) {
+	t.Run("HPを持つPropは拾える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -217,8 +217,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, ecs.Entity(0), world)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "拾えるものがありません")
+		assert.NoError(t, err)
 	})
 
 	t.Run("アイテムとPropが同じタイルにある場合も拾える", func(t *testing.T) {
@@ -259,10 +258,10 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 3, 4, "Ash")
 		require.NoError(t, err)
 
-		// Interactableを持たないPropを直接構築する
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
 		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
@@ -292,16 +291,18 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		assert.False(t, prop.HasComponent(world.Components.GridElement))
 	})
 
-	t.Run("Interactableを持つPropのみのタイルでは拾得に失敗する", func(t *testing.T) {
+	t.Run("HPを持たないPropのみのタイルでは拾得に失敗する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		player, err := worldhelper.SpawnPlayer(world, 8, 6, "Ash")
 		require.NoError(t, err)
 
-		// Interactableを持つPropだけがあるタイル
-		_, err = worldhelper.SpawnProp(world, "barrel", 8, 6)
-		require.NoError(t, err)
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 8, Y: 6})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 8, Y: 6}
 		comp := &gc.Activity{

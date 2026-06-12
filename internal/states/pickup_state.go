@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -199,9 +200,6 @@ func (st *PickupState) Draw(world w.World, screen *ebiten.Image) error {
 // pickupCursorCache はカーソル画像のキャッシュ
 var pickupCursorCache *ebiten.Image
 
-// pickupPanelCache は情報パネル画像のキャッシュ
-var pickupPanelCache *ebiten.Image
-
 func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(st.cursor.X) * tileSize)
@@ -243,28 +241,23 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 		lineHeight  = 20
 	)
 
-	if pickupPanelCache == nil {
-		pickupPanelCache = ebiten.NewImage(panelWidth, panelHeight)
-		pickupPanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
-	}
-
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
-	panelOp := &ebiten.DrawImageOptions{}
-	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(pickupPanelCache, panelOp)
+	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
 
-	textX := float64(panelX + 10)
-	y := panelY + 10
+	textX := float64(panelX + 12)
+	y := panelY + 12
 
-	drawText := func(str string) {
+	drawColorText := func(str string, c color.RGBA) {
 		op := &text.DrawOptions{}
 		op.GeoM.Translate(textX, float64(y))
+		op.ColorScale.ScaleWithColor(c)
 		text.Draw(screen, str, face, op)
 		y += lineHeight
 	}
+	drawText := func(str string) { drawColorText(str, consts.TextColor) }
 
-	drawText("== 拾うモード ==")
+	drawColorText("拾うモード", consts.PrimaryColor)
 	y += 5
 
 	dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))
@@ -272,12 +265,12 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	y += 5
 
 	if len(st.itemsAtTarget) == 0 {
-		drawText("拾えるものがありません")
+		drawColorText("拾えるものがありません", consts.ForegroundColor)
 	} else {
 		drawText(fmt.Sprintf("アイテム: %d個", len(st.itemsAtTarget)))
 		for i, entity := range st.itemsAtTarget {
 			if i >= 5 {
-				drawText("...")
+				drawColorText("...", consts.ForegroundColor)
 				break
 			}
 			name := worldhelper.GetEntityName(entity, world)
@@ -286,7 +279,7 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	}
 
 	y = panelY + panelHeight - 30
-	drawText("WASD/矢印:移動 Enter:拾う Esc:戻る")
+	drawColorText("WASD/矢印:移動 Enter:拾う Esc:戻る", consts.ForegroundColor)
 
 	return nil
 }

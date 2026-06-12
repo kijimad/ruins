@@ -513,15 +513,11 @@ func (st *InventoryMenuState) buildActionWindow(world w.World, res resources.UIR
 
 	for i, action := range actions {
 		isSelected := i == focusIndex
-		textColor := consts.TextColor
-		if !action.Enabled {
-			textColor = consts.ForegroundColor
-		}
 		var actionWidget *widget.Container
 		if action.Reason != "" {
-			actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res, action.Reason)
+			actionWidget = styled.NewListItemText(action.Label, consts.ForegroundColor, isSelected, res, action.Reason)
 		} else {
-			actionWidget = styled.NewListItemText(action.Label, textColor, isSelected, res)
+			actionWidget = styled.NewListItemText(action.Label, consts.ForegroundColor, isSelected, res)
 		}
 		windowContainer.AddChild(actionWidget)
 	}

@@ -127,10 +127,12 @@ type ProgressBarResources struct {
 
 // PanelResources はパネルリソースを管理する
 type PanelResources struct {
-	Image      *image.NineSlice
-	ImageTrans *image.NineSlice
-	TitleBar   *image.NineSlice
-	Padding    widget.Insets
+	Image         *image.NineSlice
+	ImageTrans    *image.NineSlice
+	TitleBar      *image.NineSlice
+	SelectionBar  *image.NineSlice
+	SeparatorLine *image.NineSlice
+	Padding       widget.Insets
 }
 
 // TabBookResources はタブブックリソースを管理する
@@ -214,7 +216,10 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		return UIResources{}, err
 	}
 
-	panel := newPanelResources()
+	panel, err := newPanelResources()
+	if err != nil {
+		return UIResources{}, err
+	}
 
 	tabBook := newTabBookResources(fonts)
 
@@ -614,27 +619,45 @@ func newProgressBarResources() (*ProgressBarResources, error) {
 	}, nil
 }
 
-// シンプルな単色パネル
-func newPanelResources() *PanelResources {
-	panelColor := color.NRGBA{R: 19, G: 26, B: 34, A: 240}
-	panelTransColor := color.NRGBA{R: 0, G: 0, B: 0, A: 0}
-	titleBarColor := color.NRGBA{R: 42, G: 57, B: 68, A: 0}
+func newPanelResources() (*PanelResources, error) {
+	i, err := loadImageNineSlice("assets/graphics/panel-idle.png", 40, 40)
+	if err != nil {
+		return nil, err
+	}
 
-	i := image.NewNineSliceColor(panelColor)
-	it := image.NewNineSliceColor(panelTransColor)
-	t := image.NewNineSliceColor(titleBarColor)
+	it, err := loadImageNineSlice("assets/graphics/list-idle-trans.png", 40, 40)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := loadImageNineSlice("assets/graphics/titlebar-idle.png", 40, 24)
+	if err != nil {
+		return nil, err
+	}
+
+	sb, err := loadImageNineSlice("assets/graphics/selection-bar.png", 56, 10)
+	if err != nil {
+		return nil, err
+	}
+
+	sl, err := loadImageNineSlice("assets/graphics/separator-line.png", 40, 1)
+	if err != nil {
+		return nil, err
+	}
 
 	return &PanelResources{
-		Image:      i,
-		ImageTrans: it,
-		TitleBar:   t,
+		Image:         i,
+		ImageTrans:    it,
+		TitleBar:      t,
+		SelectionBar:  sb,
+		SeparatorLine: sl,
 		Padding: widget.Insets{
 			Left:   30,
 			Right:  30,
 			Top:    20,
 			Bottom: 20,
 		},
-	}
+	}, nil
 }
 
 func newTabBookResources(fonts *fonts) *TabBookResources {

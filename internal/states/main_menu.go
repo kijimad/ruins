@@ -175,11 +175,25 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
-	// メニューコンテナを構築
-	menuContainer := styled.NewVerticalContainer()
+	// メニューコンテナを構築（半透明背景で視認性を確保）
+	menuContainer := widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Padding(&widget.Insets{
+				Left: 20, Right: 20, Top: 10, Bottom: 10,
+			}),
+		)),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+			widget.WidgetOpts.MinSize(200, 0),
+		),
+	)
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Label, consts.TextColor, isSelected, res)
+		itemWidget := styled.NewListItemText(item.Label, consts.ForegroundColor, isSelected, res)
 		menuContainer.AddChild(itemWidget)
 	}
 

@@ -228,7 +228,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	leftContainer := styled.NewVerticalContainer()
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Profession.Name, consts.TextColor, isSelected, res)
+		itemWidget := styled.NewListItemText(item.Profession.Name, consts.ForegroundColor, isSelected, res)
 		leftContainer.AddChild(itemWidget)
 	}
 	rightContainer := st.buildDetailPanel(props, itemIndex, res)
@@ -291,7 +291,7 @@ func (st *CharacterJobState) buildDetailPanel(props jobMenuProps, itemIndex int,
 			if slot, ok := gc.ParseEquipmentSlot(string(equip.Slot)); ok {
 				slotLabel = slot.String()
 			}
-			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s: %s", slotLabel, equip.Name), res))
+			container.AddChild(styled.NewMenuText(fmt.Sprintf(" %s %s", slotLabel, equip.Name), res))
 		}
 	}
 

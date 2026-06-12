@@ -771,7 +771,7 @@ func (st *EquipMenuState) buildActionWindow(world w.World, windowProps windowScr
 
 	for i, action := range actionItems {
 		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 
