@@ -350,6 +350,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 4, Y: 4})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
 
 		// 拾う
 		pickupDest := gc.GridElement{X: 4, Y: 4}

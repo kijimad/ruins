@@ -186,6 +186,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
@@ -264,6 +265,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 3, Y: 4}
 		comp := &gc.Activity{

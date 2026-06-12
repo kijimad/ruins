@@ -36,15 +36,21 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) {
 }
 
 // IsPickable はエンティティが拾得可能かを判定する。
-// フィールドアイテムとInteractableを持たないPropが対象となる
+// フィールド上のアイテムと、Interactableを持たないフィールド上のPropが対象となる
 func IsPickable(entity ecs.Entity, world w.World) bool {
-	if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
+	if !entity.HasComponent(world.Components.ItemLocationOnField) {
+		return false
+	}
+	if entity.HasComponent(world.Components.Item) {
 		return true
 	}
-	if entity.HasComponent(world.Components.Prop) && !entity.HasComponent(world.Components.Interactable) {
-		return true
+	if !entity.HasComponent(world.Components.Prop) {
+		return false
 	}
-	return false
+	if entity.HasComponent(world.Components.Interactable) {
+		return false
+	}
+	return true
 }
 
 // GetEntitiesAt は指定座標にあるすべてのエンティティを返す
