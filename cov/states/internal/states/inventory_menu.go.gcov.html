@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">18.7&nbsp;%</td>
-            <td class="headerCovTableEntry">418</td>
+            <td class="headerCovTableEntryLo">18.5&nbsp;%</td>
+            <td class="headerCovTableEntry">421</td>
             <td class="headerCovTableEntry">78</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-08 16:48:35</td>
+            <td class="headerValue">2026-06-12 13:37:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -662,23 +662,26 @@
 <span id="L600"><span class="lineNum">     600</span> <span class="tlaUNC">           0 :                         return err</span></span>
 <span id="L601"><span class="lineNum">     601</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L602"><span class="lineNum">     602</span>              : </span>
-<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
-<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :                         Actor:  playerEntity,</span></span>
-<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :                         Target: &amp;entity,</span></span>
-<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
-<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
-<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                         return err</span></span>
-<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L612"><span class="lineNum">     612</span>              : </span>
-<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L614"><span class="lineNum">     614</span> <span class="tlaUNC">           0 :         case actionClose:</span></span>
-<span id="L615"><span class="lineNum">     615</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
-<span id="L616"><span class="lineNum">     616</span>              :         }</span>
-<span id="L617"><span class="lineNum">     617</span>              : </span>
-<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC">           0 :         return nil</span></span>
-<span id="L619"><span class="lineNum">     619</span>              : }</span>
+<span id="L603"><span class="lineNum">     603</span> <span class="tlaUNC">           0 :                 playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
+<span id="L604"><span class="lineNum">     604</span> <span class="tlaUNC">           0 :                 destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}</span></span>
+<span id="L605"><span class="lineNum">     605</span> <span class="tlaUNC">           0 :                 params := activity.ActionParams{</span></span>
+<span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :                         Actor:       playerEntity,</span></span>
+<span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :                         Target:      &amp;entity,</span></span>
+<span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :                         Destination: &amp;destination,</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                 _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
+<span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
+<span id="L612"><span class="lineNum">     612</span> <span class="tlaUNC">           0 :                         st.subState = invSubStateMenu</span></span>
+<span id="L613"><span class="lineNum">     613</span> <span class="tlaUNC">           0 :                         return err</span></span>
+<span id="L614"><span class="lineNum">     614</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L615"><span class="lineNum">     615</span>              : </span>
+<span id="L616"><span class="lineNum">     616</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L617"><span class="lineNum">     617</span> <span class="tlaUNC">           0 :         case actionClose:</span></span>
+<span id="L618"><span class="lineNum">     618</span> <span class="tlaUNC">           0 :                 st.subState = invSubStateMenu</span></span>
+<span id="L619"><span class="lineNum">     619</span>              :         }</span>
+<span id="L620"><span class="lineNum">     620</span>              : </span>
+<span id="L621"><span class="lineNum">     621</span> <span class="tlaUNC">           0 :         return nil</span></span>
+<span id="L622"><span class="lineNum">     622</span>              : }</span>
         </pre>
               </td>
             </tr>

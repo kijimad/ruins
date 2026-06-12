@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-08 16:48:35</td>
+            <td class="headerValue">2026-06-12 13:37:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,9 +115,9 @@
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                 return ErrItemNoEffect</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L55"><span class="lineNum">      55</span>              : </span>
-<span id="L56"><span class="lineNum">      56</span>              :         // アクターがPoolsコンポーネントを持っているかチェック</span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !actor.HasComponent(world.Components.Pools) {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return ErrActorNoPools</span></span>
+<span id="L56"><span class="lineNum">      56</span>              :         // アクターがHPコンポーネントを持っているかチェック</span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           2 :         if !actor.HasComponent(world.Components.HP) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 return ErrActorNoHP</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return nil</span></span>
@@ -195,8 +195,8 @@
 <span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                 amount = amt.Calc()</span></span>
 <span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :         case gc.RatioAmount:</span></span>
 <span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                 // 最大HPに対する割合で回復</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 pools := world.Components.Pools.Get(actor).(*gc.Pools)</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 amount = amt.Calc(pools.HP.Max)</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                 hp := world.Components.HP.Get(actor).(*gc.HP)</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 amount = amt.Calc(hp.Max)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :         default:</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 return fmt.Errorf(&quot;未対応のAmounterタイプ: %T&quot;, amounter)</span></span>
 <span id="L140"><span class="lineNum">     140</span>              :         }</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-08 16:48:35</td>
+            <td class="headerValue">2026-06-12 13:37:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,16 +76,16 @@
 <span id="L14"><span class="lineNum">      14</span>              : )</span>
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // UpdateCarryingWeight はエンティティの所持重量プールを更新する</span>
-<span id="L17"><span class="lineNum">      17</span>              : // 現在の所持重量と所持可能重量を再計算してPoolsコンポーネントに反映する</span>
+<span id="L17"><span class="lineNum">      17</span>              : // 現在の所持重量と所持可能重量を再計算してCarryWeightコンポーネントに反映する</span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func UpdateCarryingWeight(world w.World, entity ecs.Entity) {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.Pools) {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.CarryWeight) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.Abilities) {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L25"><span class="lineNum">      25</span>              : </span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         pools := world.Components.Pools.Get(entity).(*gc.Pools)</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         cw := world.Components.CarryWeight.Get(entity).(*gc.CarryWeight)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         // 所持可能重量を計算</span></span>
@@ -97,11 +97,11 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 maxWeight = maxWeight * float64(mods.MaxWeight) / 100</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L37"><span class="lineNum">      37</span>              : </span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         pools.Weight.Max = maxWeight</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         cw.Max = maxWeight</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         // 現在の所持重量を計算</span></span>
 <span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         currentWeight := calculateCurrentCarryingWeight(world, entity)</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         pools.Weight.Current = currentWeight</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         cw.Current = currentWeight</span></span>
 <span id="L43"><span class="lineNum">      43</span>              : }</span>
 <span id="L44"><span class="lineNum">      44</span>              : </span>
 <span id="L45"><span class="lineNum">      45</span>              : // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する</span>

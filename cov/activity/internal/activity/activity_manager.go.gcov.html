@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">76.2&nbsp;%</td>
-            <td class="headerCovTableEntry">260</td>
-            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntryMed">79.7&nbsp;%</td>
+            <td class="headerCovTableEntry">276</td>
+            <td class="headerCovTableEntry">220</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-08 16:48:35</td>
+            <td class="headerValue">2026-06-12 13:37:15</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -98,19 +98,19 @@
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         // アクティビティを作成</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         comp, err := buildActivity(behavior, params, world)</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC tlaBgUNC">           0 :                 result := &amp;ActionResult{</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                         Success:      false,</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                         State:        gc.ActivityStateCanceled,</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                         ActivityName: behaviorName,</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                         Message:      err.Error(),</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                 setLastResult(params.Actor, result, world)</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 return result, err</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 result := &amp;ActionResult{</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                         Success:      false,</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                         State:        gc.ActivityStateCanceled,</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                         ActivityName: behaviorName,</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                         Message:      err.Error(),</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 setLastResult(params.Actor, result, world)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                 return result, err</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              :         // アクティビティを開始</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC tlaBgGNC">           2 :         if err := StartActivity(comp, params.Actor, world); err != nil {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           2 :         if err := StartActivity(comp, params.Actor, world); err != nil {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 result := &amp;ActionResult{</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         Success:      false,</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                         State:        gc.ActivityStateCanceled,</span></span>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 :                 ProcessTurn(world)</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 // ターン管理システムに移動コストを通知</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 consumeMoveCost(world, behavior, params.Actor)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :                 consumePassCost(world, behavior, params.Actor, params.Destination)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 // 結果を確認</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 currentActivity := worldhelper.GetActivity(world, params.Actor)</span></span>
@@ -371,59 +371,82 @@
 <span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :         // 基本のdurationを計算</span></span>
 <span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :         duration := params.Duration</span></span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           2 :         if duration &lt;= 0 {</span></span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 characterAP := getEntityMaxAP(params.Actor, world)</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :                 duration = CalculateRequiredTurns(behavior, characterAP)</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L315"><span class="lineNum">     315</span>              : </span>
-<span id="L316"><span class="lineNum">     316</span>              :         // アクティビティを作成</span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(behavior, duration)</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L321"><span class="lineNum">     321</span>              : </span>
-<span id="L322"><span class="lineNum">     322</span>              :         // パラメータを設定</span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC tlaBgGNC">           2 :         if params.Destination != nil {</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                 comp.Destination = params.Destination</span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           2 :         if params.Target != nil {</span></span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 comp.Target = params.Target</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 :                 characterAP, err := getEntityMaxAP(params.Actor, world)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           2 :                 if err != nil {</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :                         return nil, err</span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 duration = CalculateRequiredTurns(behavior, characterAP)</span></span>
+<span id="L317"><span class="lineNum">     317</span>              :         }</span>
+<span id="L318"><span class="lineNum">     318</span>              : </span>
+<span id="L319"><span class="lineNum">     319</span>              :         // アクティビティを作成</span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         comp, err := NewActivity(behavior, duration)</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L324"><span class="lineNum">     324</span>              : </span>
+<span id="L325"><span class="lineNum">     325</span>              :         // パラメータを設定</span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC tlaBgGNC">           2 :         if params.Destination != nil {</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 comp.Destination = params.Destination</span></span>
 <span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L329"><span class="lineNum">     329</span>              : </span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         return comp, nil</span></span>
-<span id="L331"><span class="lineNum">     331</span>              : }</span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           2 :         if params.Target != nil {</span></span>
+<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :                 comp.Target = params.Target</span></span>
+<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L332"><span class="lineNum">     332</span>              : </span>
-<span id="L333"><span class="lineNum">     333</span>              : // consumeMoveCost はアクションのAPコストを消費する</span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 : func consumeMoveCost(world w.World, behavior Behavior, actor ecs.Entity) {</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :         info := behavior.Info()</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :         cost := info.ActionPointCost</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         // TurnBasedコンポーネントから直接APを消費</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         tbComp := world.Components.TurnBased.Get(actor)</span></span>
-<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           2 :         if tbComp == nil {</span></span>
-<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;TurnBasedコンポーネントがない&quot;, &quot;actor&quot;, actor)</span></span>
-<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           1 :                 return</span></span>
-<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L344"><span class="lineNum">     344</span>              : </span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaGNC">           1 :         tb := tbComp.(*gc.TurnBased)</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaGNC">           1 :         tb.AP.Current -= cost</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動コスト消費&quot;,</span></span>
-<span id="L349"><span class="lineNum">     349</span> <span class="tlaGNC">           1 :                 &quot;activity&quot;, behavior.Name(),</span></span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaGNC">           1 :                 &quot;cost&quot;, cost,</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaGNC">           1 :                 &quot;remaining&quot;, tb.AP.Current,</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC">           1 :                 &quot;isPlayer&quot;, actor.HasComponent(world.Components.Player))</span></span>
-<span id="L354"><span class="lineNum">     354</span>              : }</span>
-<span id="L355"><span class="lineNum">     355</span>              : </span>
-<span id="L356"><span class="lineNum">     356</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 : func getEntityMaxAP(entity ecs.Entity, world w.World) int {</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           2 :         if turnBasedComponent := world.Components.TurnBased.Get(entity); turnBasedComponent != nil {</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 turnBased := turnBasedComponent.(*gc.TurnBased)</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :                 return turnBased.AP.Max</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaGNC">           1 :         log.Debug(&quot;TurnBasedコンポーネントが見つからない&quot;, &quot;entity&quot;, entity)</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaGNC">           1 :         return 100 // デフォルトAP値</span></span>
-<span id="L364"><span class="lineNum">     364</span>              : }</span>
+<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :         return comp, nil</span></span>
+<span id="L334"><span class="lineNum">     334</span>              : }</span>
+<span id="L335"><span class="lineNum">     335</span>              : </span>
+<span id="L336"><span class="lineNum">     336</span>              : // consumePassCost はアクションのAPコストを消費する</span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 : func consumePassCost(world w.World, behavior Behavior, actor ecs.Entity, destination *gc.GridElement) {</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         info := behavior.Info()</span></span>
+<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 :         cost := info.ActionPointCost</span></span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaGNC">           1 :         // 移動行動の場合、移動先タイルのPassCostを加算する</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaGNC">           2 :         if behavior.Name() == gc.BehaviorMove &amp;&amp; destination != nil {</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaGNC">           1 :                 cost += getPassCostAt(world, int(destination.X), int(destination.Y))</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L345"><span class="lineNum">     345</span>              : </span>
+<span id="L346"><span class="lineNum">     346</span>              :         // TurnBasedコンポーネントから直接APを消費</span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaGNC">           1 :         tbComp := world.Components.TurnBased.Get(actor)</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaGNC">           1 :         if tbComp == nil {</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC tlaBgUNC">           0 :                 log.Debug(&quot;TurnBasedコンポーネントがない&quot;, &quot;actor&quot;, actor)</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L352"><span class="lineNum">     352</span>              : </span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaGNC tlaBgGNC">           1 :         tb := tbComp.(*gc.TurnBased)</span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaGNC">           1 :         tb.AP.Current -= cost</span></span>
+<span id="L355"><span class="lineNum">     355</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L356"><span class="lineNum">     356</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動コスト消費&quot;,</span></span>
+<span id="L357"><span class="lineNum">     357</span> <span class="tlaGNC">           1 :                 &quot;activity&quot;, behavior.Name(),</span></span>
+<span id="L358"><span class="lineNum">     358</span> <span class="tlaGNC">           1 :                 &quot;cost&quot;, cost,</span></span>
+<span id="L359"><span class="lineNum">     359</span> <span class="tlaGNC">           1 :                 &quot;remaining&quot;, tb.AP.Current,</span></span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaGNC">           1 :                 &quot;isPlayer&quot;, actor.HasComponent(world.Components.Player))</span></span>
+<span id="L362"><span class="lineNum">     362</span>              : }</span>
+<span id="L363"><span class="lineNum">     363</span>              : </span>
+<span id="L364"><span class="lineNum">     364</span>              : // getPassCostAt は指定座標にあるPropのPassCostを合算して返す</span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaGNC">           1 : func getPassCostAt(world w.World, x, y int) int {</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaGNC">           1 :         total := 0</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaGNC">           1 :                 world.Components.PassCost,</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L371"><span class="lineNum">     371</span> <span class="tlaGNC">           1 :                 grid := world.Components.GridElement.Get(entity).(*gc.GridElement)</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC">           2 :                 if int(grid.X) == x &amp;&amp; int(grid.Y) == y {</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :                         mc := world.Components.PassCost.Get(entity).(*gc.PassCost)</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           1 :                         total += mc.Value</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L376"><span class="lineNum">     376</span>              :         }))</span>
+<span id="L377"><span class="lineNum">     377</span> <span class="tlaGNC">           1 :         return total</span></span>
+<span id="L378"><span class="lineNum">     378</span>              : }</span>
+<span id="L379"><span class="lineNum">     379</span>              : </span>
+<span id="L380"><span class="lineNum">     380</span>              : // getEntityMaxAP はエンティティの最大AP値を取得する</span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC">           1 : func getEntityMaxAP(entity ecs.Entity, world w.World) (int, error) {</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaGNC">           2 :         if !entity.HasComponent(world.Components.TurnBased) {</span></span>
+<span id="L383"><span class="lineNum">     383</span> <span class="tlaGNC">           1 :                 return 0, fmt.Errorf(&quot;TurnBasedコンポーネントが見つからない: entity=%v&quot;, entity)</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :         turnBased := world.Components.TurnBased.Get(entity).(*gc.TurnBased)</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         return turnBased.AP.Max, nil</span></span>
+<span id="L387"><span class="lineNum">     387</span>              : }</span>
         </pre>
               </td>
             </tr>
