@@ -181,8 +181,11 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		_, err = worldhelper.SpawnProp(world, "bed", 10, 10)
-		require.NoError(t, err)
+		// Interactableを持たないPropを直接構築する
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
@@ -226,8 +229,12 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 
 		_, err = worldhelper.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnProp(world, "bed", 5, 5)
-		require.NoError(t, err)
+		// Interactableを持つPropも同じタイルにある
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.MeleeInteraction{}})
 
 		destination := gc.GridElement{X: 5, Y: 5}
 		comp := &gc.Activity{
@@ -251,8 +258,12 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 3, 4, "Ash")
 		require.NoError(t, err)
 
-		prop, err := worldhelper.SpawnProp(world, "bed", 3, 4)
-		require.NoError(t, err)
+		// Interactableを持たないPropを直接構築する
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
 
 		destination := gc.GridElement{X: 3, Y: 4}
 		comp := &gc.Activity{

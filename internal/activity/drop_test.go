@@ -302,12 +302,12 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		require.NoError(t, err)
 
 		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
-		prop, err := worldhelper.SpawnProp(world, "bed", 6, 6)
-		require.NoError(t, err)
-		// Propを拾った後の状態にする
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.Item, &gc.Item{Count: 1})
 		worldhelper.MoveToBackpack(world, prop, player)
-		prop.RemoveComponent(world.Components.GridElement)
 
 		// ドロップ実行
 		destination := gc.GridElement{X: 11, Y: 10}
@@ -344,8 +344,12 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		prop, err := worldhelper.SpawnProp(world, "bed", 4, 4)
-		require.NoError(t, err)
+		// Interactableを持たないPropを直接構築する
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 4, Y: 4})
 
 		// 拾う
 		pickupDest := gc.GridElement{X: 4, Y: 4}

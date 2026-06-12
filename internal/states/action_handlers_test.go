@@ -388,10 +388,10 @@ func TestDeadEnemyInteraction(t *testing.T) {
 	})
 }
 
-func TestGetInteractionActions_BreakableProp(t *testing.T) {
+func TestGetInteractionActions_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("破壊可能Propはメニューに表示される", func(t *testing.T) {
+	t.Run("攻撃可能なPropはメニューに表示される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -437,7 +437,7 @@ func TestGetInteractionActions_BreakableProp(t *testing.T) {
 		assert.Equal(t, "攻撃する(ゴブリン)", actions[0].Label)
 	})
 
-	t.Run("方向キーで破壊可能Propを自動攻撃しない", func(t *testing.T) {
+	t.Run("方向キーでPropを自動攻撃しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

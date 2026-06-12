@@ -538,11 +538,11 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
 }
 
-// TestExecuteInteraction_Breakable はBreakableInteractionの動作を確認
-func TestExecuteInteraction_Breakable(t *testing.T) {
+// TestExecuteInteraction_Prop はPropへのMeleeInteractionの動作を確認する
+func TestExecuteInteraction_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("BreakablePropを攻撃できる", func(t *testing.T) {
+	t.Run("Propを攻撃できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -577,7 +577,7 @@ func TestExecuteInteraction_Breakable(t *testing.T) {
 		assert.Less(t, hp.Current, 30)
 	})
 
-	t.Run("Dead済みのBreakablePropは攻撃できない", func(t *testing.T) {
+	t.Run("Dead済みのPropは攻撃できない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

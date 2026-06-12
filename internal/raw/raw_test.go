@@ -573,7 +573,7 @@ Depth = 1
 	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
 }
 
-func TestPropBreakable(t *testing.T) {
+func TestPropWithHP(t *testing.T) {
 	t.Parallel()
 	str := `
 [[Props]]
@@ -598,10 +598,10 @@ Depth = 1
 	assert.Equal(t, 20, entitySpec.HP.Current)
 	assert.NotNil(t, entitySpec.Interactable)
 	_, ok := entitySpec.Interactable.Data.(gc.MeleeInteraction)
-	assert.True(t, ok, "破壊可能PropにはMeleeInteractionが設定されるべき")
+	assert.True(t, ok, "HPを持つPropにはMeleeInteractionが設定されるべき")
 }
 
-func TestPropWithoutBreakable(t *testing.T) {
+func TestPropWithoutHP(t *testing.T) {
 	t.Parallel()
 	str := `
 [[Props]]
@@ -621,7 +621,7 @@ Depth = 1
 	entitySpec, err := NewPropSpec(raws, "壊れないProp")
 	assert.NoError(t, err)
 	assert.Nil(t, entitySpec.CarryWeight)
-	assert.Nil(t, entitySpec.Interactable, "破壊可能でない通常PropにはInteractableが設定されないべき")
+	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
 }
 
 func TestMemberDisposition(t *testing.T) {

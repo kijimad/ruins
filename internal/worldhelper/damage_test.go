@@ -64,7 +64,7 @@ func TestReactToHostileAction(t *testing.T) {
 	})
 }
 
-func TestApplyDamage_Breakable(t *testing.T) {
+func TestApplyDamage_Prop(t *testing.T) {
 	t.Parallel()
 
 	t.Run("ダメージでHPが減少する", func(t *testing.T) {
