@@ -51,8 +51,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				}
 				// 開いている扉は通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
-		} else if isHostileEntity(interactableEntity, world) {
-			// 敵対エンティティのみ自動攻撃する
+		} else if _, isMelee := interactable.Data.(gc.MeleeInteraction); isMelee {
+			// MeleeInteractionは敵対エンティティのみ自動攻撃する
+			if isHostileEntity(interactableEntity, world) {
+				_, err := ExecuteInteraction(entity, interactableEntity, world)
+				return err
+			}
+		} else if _, isTalk := interactable.Data.(gc.TalkInteraction); isTalk {
 			_, err := ExecuteInteraction(entity, interactableEntity, world)
 			return err
 		}
