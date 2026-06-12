@@ -21,7 +21,7 @@ func TestCanPlayerAct(t *testing.T) {
 
 		// TurnBasedコンポーネントを追加する
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Max: 100, Current: 100},
+			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
 		state := GetTurnState(world)
@@ -39,7 +39,7 @@ func TestCanPlayerAct(t *testing.T) {
 		require.NoError(t, err)
 
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Max: 100, Current: 100},
+			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
 		state := GetTurnState(world)
@@ -57,7 +57,7 @@ func TestCanPlayerAct(t *testing.T) {
 		require.NoError(t, err)
 
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Max: 100, Current: -1},
+			AP: gc.IntPool{Max: 100, Current: -1},
 		})
 
 		state := GetTurnState(world)
@@ -86,7 +86,7 @@ func TestConsumeActionPoints(t *testing.T) {
 		require.NoError(t, err)
 
 		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{
-			AP: gc.Pool{Max: 100, Current: 100},
+			AP: gc.IntPool{Max: 100, Current: 100},
 		})
 
 		ok := ConsumeActionPoints(world, player, 30)

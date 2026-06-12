@@ -14,16 +14,16 @@ const (
 )
 
 // UpdateCarryingWeight はエンティティの所持重量プールを更新する
-// 現在の所持重量と所持可能重量を再計算してPoolsコンポーネントに反映する
+// 現在の所持重量と所持可能重量を再計算してCarryWeightコンポーネントに反映する
 func UpdateCarryingWeight(world w.World, entity ecs.Entity) {
-	if !entity.HasComponent(world.Components.Pools) {
+	if !entity.HasComponent(world.Components.CarryWeight) {
 		return
 	}
 	if !entity.HasComponent(world.Components.Abilities) {
 		return
 	}
 
-	pools := world.Components.Pools.Get(entity).(*gc.Pools)
+	cw := world.Components.CarryWeight.Get(entity).(*gc.CarryWeight)
 	abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 	// 所持可能重量を計算
@@ -35,11 +35,11 @@ func UpdateCarryingWeight(world w.World, entity ecs.Entity) {
 		maxWeight = maxWeight * float64(mods.MaxWeight) / 100
 	}
 
-	pools.Weight.Max = maxWeight
+	cw.Max = maxWeight
 
 	// 現在の所持重量を計算
 	currentWeight := calculateCurrentCarryingWeight(world, entity)
-	pools.Weight.Current = currentWeight
+	cw.Current = currentWeight
 }
 
 // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する

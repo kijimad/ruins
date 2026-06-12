@@ -135,9 +135,9 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		beforeHP := pools.HP.Current
-		pools.HP.Current = pools.HP.Max / 2
+		hp := world.Components.HP.Get(player).(*gc.HP)
+		beforeHP := hp.Current
+		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -150,7 +150,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPが増加したことを確認
-		assert.Greater(t, pools.HP.Current, beforeHP/2)
+		assert.Greater(t, hp.Current, beforeHP/2)
 	})
 
 	t.Run("HPが最大値を超えない", func(t *testing.T) {
@@ -161,8 +161,8 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを最大値付近に設定
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		pools.HP.Current = pools.HP.Max - 1
+		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp.Current = hp.Max - 1
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -175,7 +175,7 @@ func TestRestActivity_performHealing(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPが最大値を超えていないことを確認
-		assert.LessOrEqual(t, pools.HP.Current, pools.HP.Max)
+		assert.LessOrEqual(t, hp.Current, hp.Max)
 	})
 
 	t.Run("HP満タンの場合は早期完了", func(t *testing.T) {
@@ -230,8 +230,8 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		pools.HP.Current = pools.HP.Max / 2
+		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -302,8 +302,8 @@ func TestRestActivity_DoTurn(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		pools.HP.Current = pools.HP.Max / 2
+		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,
@@ -360,8 +360,8 @@ func TestRestActivity_Finish(t *testing.T) {
 		require.NoError(t, err)
 
 		// HPを減らす
-		pools := world.Components.Pools.Get(player).(*gc.Pools)
-		pools.HP.Current = pools.HP.Max / 2
+		hp := world.Components.HP.Get(player).(*gc.HP)
+		hp.Current = hp.Max / 2
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorRest,

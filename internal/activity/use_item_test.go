@@ -153,9 +153,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 
 		actor := world.Manager.NewEntity()
 		actor.AddComponent(world.Components.Player, &gc.Player{})
-		actor.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: 100, Max: 100},
-		})
+		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 		hunger := gc.NewHunger()
 		hunger.Current = 250
 		actor.AddComponent(world.Components.Hunger, hunger)
@@ -194,9 +192,7 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 
 		actor := world.Manager.NewEntity()
 		actor.AddComponent(world.Components.Player, &gc.Player{})
-		actor.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: 100, Max: 100},
-		})
+		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -221,9 +217,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 
 		actor := world.Manager.NewEntity()
 		actor.AddComponent(world.Components.Player, &gc.Player{})
-		actor.AddComponent(world.Components.Pools, &gc.Pools{
-			HP: gc.Pool{Current: 100, Max: 100},
-		})
+		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})
@@ -244,7 +238,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.Pools, &gc.Pools{})
+		actor.AddComponent(world.Components.HP, &gc.HP{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -262,7 +256,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.Pools, &gc.Pools{})
+		actor.AddComponent(world.Components.HP, &gc.HP{})
 
 		item := world.Manager.NewEntity()
 		// Itemコンポーネントなし
@@ -283,7 +277,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		actor := world.Manager.NewEntity()
-		actor.AddComponent(world.Components.Pools, &gc.Pools{})
+		actor.AddComponent(world.Components.HP, &gc.HP{})
 
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})
@@ -300,12 +294,12 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		assert.Equal(t, ErrItemNoEffect, err)
 	})
 
-	t.Run("ActorにPoolsがない場合はエラー", func(t *testing.T) {
+	t.Run("ActorにHPがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		actor := world.Manager.NewEntity()
-		// Poolsなし
+		// HPなし
 
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})
@@ -319,7 +313,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
 		assert.Error(t, err)
-		assert.Equal(t, ErrActorNoPools, err)
+		assert.Equal(t, ErrActorNoHP, err)
 	})
 }
 

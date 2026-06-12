@@ -141,7 +141,7 @@ func TestChangeItemCount(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.Pools, &gc.Pools{})
+		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 		player.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Strength: gc.Ability{Base: 10},
 		})

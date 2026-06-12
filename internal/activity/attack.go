@@ -293,9 +293,14 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 // calculateHitRate は命中率を算出する。ダイスロールなしの純粋な計算で、UI表示と命中判定の両方で使用する
 func calculateHitRate(attacker, target ecs.Entity, world w.World, attack gc.Attacker, modifier int) int {
 	attackerAbils := world.Components.Abilities.Get(attacker).(*gc.Abilities)
-	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
 
-	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAbils.Agility.Total)*formula.HitRatePerStatPoint
+	// Abilitiesを持たないターゲットには自動命中する
+	targetAgility := 0
+	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
+		targetAgility = targetAbilsComp.(*gc.Abilities).Agility.Total
+	}
+
+	hitRate := formula.BaseHitRate + (attackerAbils.Dexterity.Total-targetAgility)*formula.HitRatePerStatPoint
 	hitRate += getWeaponAccuracyFromAttack(attack)
 	hitRate = hitRate * getSkillMult(attacker, attack, world, false) / 100
 	hitRate += modifier
@@ -335,8 +340,10 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		baseAbil = attackerAbils.Sensation.Total
 	}
 
-	targetAbils := world.Components.Abilities.Get(target).(*gc.Abilities)
-	targetDefense := targetAbils.Defense.Total
+	targetDefense := 0
+	if targetAbilsComp := world.Components.Abilities.Get(target); targetAbilsComp != nil {
+		targetDefense = targetAbilsComp.(*gc.Abilities).Defense.Total
+	}
 
 	baseDamage := baseAbil + world.Config.RNG.IntN(formula.DamageRandomRange) + 1
 	baseDamage += attack.GetDamage()

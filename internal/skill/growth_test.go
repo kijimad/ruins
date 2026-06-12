@@ -8,7 +8,7 @@ import (
 )
 
 func newTestSkill(value int, exp int) *gc.Skill {
-	return &gc.Skill{Value: value, Exp: gc.Pool{Max: gc.LevelUpExp, Current: exp}}
+	return &gc.Skill{Value: value, Exp: gc.IntPool{Max: gc.LevelUpExp, Current: exp}}
 }
 
 func TestGainExp_SkillLevelUp(t *testing.T) {

@@ -10,7 +10,7 @@ func TestPool(t *testing.T) {
 	t.Parallel()
 	t.Run("create pool", func(t *testing.T) {
 		t.Parallel()
-		pool := Pool{
+		pool := IntPool{
 			Max:     100,
 			Current: 75,
 		}
@@ -20,7 +20,7 @@ func TestPool(t *testing.T) {
 
 	t.Run("empty pool", func(t *testing.T) {
 		t.Parallel()
-		pool := Pool{
+		pool := IntPool{
 			Max:     50,
 			Current: 0,
 		}
@@ -30,7 +30,7 @@ func TestPool(t *testing.T) {
 
 	t.Run("full pool", func(t *testing.T) {
 		t.Parallel()
-		pool := Pool{
+		pool := IntPool{
 			Max:     200,
 			Current: 200,
 		}

@@ -51,8 +51,13 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 				}
 				// 開いている扉は通過可能なので、相互作用を実行せずに下の移動処理に進む
 			}
-		} else {
-			// 扉以外のOnCollision相互作用（攻撃など）を実行
+		} else if _, isMelee := interactable.Data.(gc.MeleeInteraction); isMelee {
+			// MeleeInteractionは敵対エンティティのみ自動攻撃する
+			if isHostileEntity(interactableEntity, world) {
+				_, err := ExecuteInteraction(entity, interactableEntity, world)
+				return err
+			}
+		} else if _, isTalk := interactable.Data.(gc.TalkInteraction); isTalk {
 			_, err := ExecuteInteraction(entity, interactableEntity, world)
 			return err
 		}
@@ -183,6 +188,15 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 	}))
 
 	return results
+}
+
+// isHostileEntity はエンティティがプレイヤーに敵対しているかを判定する
+func isHostileEntity(entity ecs.Entity, world w.World) bool {
+	d := world.Components.Disposition.Get(entity)
+	if d == nil {
+		return false
+	}
+	return d.(*gc.Disposition).Current == gc.DispositionHostile
 }
 
 // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する

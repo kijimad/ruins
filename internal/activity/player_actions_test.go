@@ -101,8 +101,8 @@ func TestExecuteMoveAction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
-		initialEnemyHP := enemyPools.HP.Current
+		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		initialEnemyHP := enemyHP.Current
 
 		// 移動（攻撃）を実行
 		err = ExecuteMoveAction(world, gc.DirectionUp)
@@ -116,7 +116,7 @@ func TestExecuteMoveAction(t *testing.T) {
 		gridAfter := world.Components.GridElement.Get(player).(*gc.GridElement)
 		assert.Equal(t, 10, int(gridAfter.X))
 		assert.Equal(t, 10, int(gridAfter.Y))
-		assert.Less(t, enemyPools.HP.Current, initialEnemyHP)
+		assert.Less(t, enemyHP.Current, initialEnemyHP)
 	})
 }
 
@@ -417,8 +417,8 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		require.NoError(t, err)
 		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
-		enemyPools := world.Components.Pools.Get(enemy).(*gc.Pools)
-		enemyPools.HP.Current = 1
+		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
+		enemyHP.Current = 1
 
 		// 1回目: 攻撃で敵を倒す
 		err = ExecuteMoveAction(world, gc.DirectionUp)

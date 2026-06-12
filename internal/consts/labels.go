@@ -5,8 +5,6 @@ package consts
 const (
 	// HPLabel はHP表示ラベル
 	HPLabel = "HP"
-	// SPLabel はSP表示ラベル
-	SPLabel = "SP"
 	// VitalityLabel は体力表示ラベル
 	VitalityLabel = "体力"
 	// StrengthLabel は筋力表示ラベル

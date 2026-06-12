@@ -79,7 +79,7 @@ func TestValidateSaveJSON_InvalidCases(t *testing.T) {
 		},
 		{
 			name:    "コンポーネントの必須フィールド欠落",
-			json:    `{"version":"1.0.0","timestamp":"2026-01-01T00:00:00Z","world":{"entities":[{"stable_id":{"index":0,"generation":0},"components":{"Pools":{"HP":{"Max":100}}}}]},"checksum":"abc"}`,
+			json:    `{"version":"1.0.0","timestamp":"2026-01-01T00:00:00Z","world":{"entities":[{"stable_id":{"index":0,"generation":0},"components":{"HP":{"Max":100}}}]},"checksum":"abc"}`,
 			wantErr: `property "Current" is missing`,
 		},
 	}

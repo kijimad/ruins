@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestPickupActivity_Validate(t *testing.T) {
@@ -23,8 +24,10 @@ func TestPickupActivity_Validate(t *testing.T) {
 		_, err = worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
+			Destination:  &destination,
 		}
 
 		pa := &PickupActivity{}
@@ -32,7 +35,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		assert.NoError(t, err)
 	})
 
-	t.Run("同じタイルにアイテムがない場合はエラー", func(t *testing.T) {
+	t.Run("対象タイルにアイテムがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -43,6 +46,25 @@ func TestPickupActivity_Validate(t *testing.T) {
 		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.Validate(comp, player, world)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "拾えるものがありません")
+	})
+
+	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 		}
@@ -50,25 +72,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, player, world)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "拾えるアイテムがありません")
-	})
-
-	t.Run("位置情報がない場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-		}
-
-		pa := &PickupActivity{}
-		err := pa.Validate(comp, player, world)
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "位置情報が見つかりません")
+		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
@@ -103,9 +107,11 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
+			Destination:  &destination,
 		}
 
 		pa := &PickupActivity{}
@@ -120,7 +126,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		assert.False(t, item.HasComponent(world.Components.GridElement))
 	})
 
-	t.Run("拾えるアイテムがない場合はキャンセルされる", func(t *testing.T) {
+	t.Run("対象タイルにアイテムがない場合はキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -129,6 +135,27 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 
 		// 別のタイルにアイテムがある
 		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20, 1)
+		require.NoError(t, err)
+
+		destination := gc.GridElement{X: 10, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(comp, player, world)
+
+		assert.Error(t, err)
+		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+	})
+
+	t.Run("Destinationがない場合はキャンセルされる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -142,22 +169,149 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		assert.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
+}
 
-	t.Run("位置情報がない場合はキャンセルされる", func(t *testing.T) {
+func TestPickupActivity_Validate_Prop(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Interactableを持たないPropは拾える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
 
+		// Interactableを持たないPropを直接構築する
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
+			Destination:  &destination,
 		}
 
 		pa := &PickupActivity{}
-		err := pa.DoTurn(comp, player, world)
+		err = pa.Validate(comp, ecs.Entity(0), world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Interactableを持つPropは拾えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := worldhelper.SpawnPlayer(world, 7, 7, "Ash")
+		require.NoError(t, err)
+
+		_, err = worldhelper.SpawnProp(world, "barrel", 7, 7)
+		require.NoError(t, err)
+
+		destination := gc.GridElement{X: 7, Y: 7}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.Validate(comp, ecs.Entity(0), world)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "拾えるものがありません")
+	})
+
+	t.Run("アイテムとPropが同じタイルにある場合も拾える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		_, err = worldhelper.SpawnFieldItem(world, "木刀", 5, 5, 1)
+		require.NoError(t, err)
+		// Interactableを持つPropも同じタイルにある
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.MeleeInteraction{}})
+
+		destination := gc.GridElement{X: 5, Y: 5}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.Validate(comp, ecs.Entity(0), world)
+		assert.NoError(t, err)
+	})
+}
+
+func TestPickupActivity_DoTurn_Prop(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Propを拾うとPropコンポーネントが保持される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 3, 4, "Ash")
+		require.NoError(t, err)
+
+		// Interactableを持たないPropを直接構築する
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+
+		destination := gc.GridElement{X: 3, Y: 4}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+
+		// Propコンポーネントが保持されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+		// BlockPassも保持されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.BlockPass))
+		// バックパックに移動していることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		// Itemコンポーネントが追加されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.Item))
+		// フィールドから消えていることを確認
+		assert.False(t, prop.HasComponent(world.Components.GridElement))
+	})
+
+	t.Run("Interactableを持つPropのみのタイルでは拾得に失敗する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 8, 6, "Ash")
+		require.NoError(t, err)
+
+		// Interactableを持つPropだけがあるタイル
+		_, err = worldhelper.SpawnProp(world, "barrel", 8, 6)
+		require.NoError(t, err)
+
+		destination := gc.GridElement{X: 8, Y: 6}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(comp, player, world)
 
 		assert.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)

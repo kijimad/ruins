@@ -64,8 +64,8 @@ type Activity struct {
 	State        ActivityState // 実行状態
 	TurnsTotal   int           // 総必要ターン数
 	TurnsLeft    int           // 残りターン数
-	Target       *ecs.Entity   // 対象エンティティ
-	Destination  *GridElement  // 移動先のグリッド座標
+	Target       *ecs.Entity   // 操作対象のエンティティ
+	Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う
 	CancelReason string        // キャンセル理由
 }
 

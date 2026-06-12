@@ -21,6 +21,8 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 
 	// 位置情報を設定
 	entitySpec.GridElement = &gc.GridElement{X: x, Y: y}
+	loc := gc.ItemLocationOnField
+	entitySpec.ItemLocationType = &loc
 
 	// エンティティを生成
 	componentList := entities.ComponentList[gc.EntitySpec]{}

@@ -1,23 +1,22 @@
 package components
 
 // Pool は最大値と現在値を持つようなパラメータ
-type Pool struct {
-	Max     int // 計算式で算出される
-	Current int // 現在値
+type Pool[T int | float64] struct {
+	Max     T // 最大値
+	Current T // 現在値
 }
 
-// PoolFloat はPoolのfloat64精度版
-// TODO(kijima): ジェネリクスを検討すべきかもしれない
-type PoolFloat struct {
-	Max     float64 // 計算式で算出される
-	Current float64 // 現在値
-}
+// IntPool はPool[int]のエイリアス
+type IntPool = Pool[int]
+
+// FloatPool はPool[float64]のエイリアス
+type FloatPool = Pool[float64]
 
 // TurnBased はエンティティのアクションポイント管理コンポーネント
 // ターン制戦闘で、プレイヤー・敵共通で使用される
 type TurnBased struct {
 	// Action Point
-	AP Pool
+	AP IntPool
 	// Speed は毎ターンのAP回復量。能力値・状態異常・装備で変動する
 	Speed int
 }

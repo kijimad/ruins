@@ -10,6 +10,7 @@ runs:
         sudo apt install -y libc6-dev libglu1-mesa-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev libasound2-dev pkg-config
         echo "DISPLAY=:99" >> $GITHUB_ENV
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+        sleep 1
     - name: set up go
       uses: actions/setup-go@v6
       with:

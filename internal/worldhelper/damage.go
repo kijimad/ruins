@@ -12,12 +12,12 @@ import (
 // ApplyDamage は共通のダメージ処理を実行する
 // source から target へダメージを与え、死亡判定とログ出力を行う
 func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity) {
-	pools := world.Components.Pools.Get(target).(*gc.Pools)
+	hp := world.Components.HP.Get(target).(*gc.HP)
 
-	beforeHP := pools.HP.Current
-	pools.HP.Current -= damage
-	if pools.HP.Current < 0 {
-		pools.HP.Current = 0
+	beforeHP := hp.Current
+	hp.Current -= damage
+	if hp.Current < 0 {
+		hp.Current = 0
 	}
 
 	// ダメージログ出力（プレイヤー関連の場合のみ）
@@ -29,7 +29,7 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	reactToHostileAction(world, target)
 
 	// 死亡チェック
-	if pools.HP.Current <= 0 && beforeHP > 0 {
+	if hp.Current <= 0 && beforeHP > 0 {
 		target.AddComponent(world.Components.Dead, &gc.Dead{})
 		logDeath(world, target, source)
 	}
@@ -59,7 +59,8 @@ func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage 
 	}).Append(fmt.Sprintf(" に %d のダメージを与えた。", damage)).Log()
 }
 
-// logDeath は死亡ログを出力する
+// logDeath は死亡・破壊ログを出力する。
+// Propは「壊れた」、それ以外は「倒れた」と表示する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 	// プレイヤー関連の場合のみログ出力
 	if !isPlayerEntity(source, world) && !isPlayerEntity(target, world) {
@@ -68,11 +69,16 @@ func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
 
 	targetName := GetEntityName(target, world)
 
+	suffix := " は倒れた。"
+	if target.HasComponent(world.Components.Prop) {
+		suffix = " は壊れた。"
+	}
+
 	gamelog.New(GetGameLog(world)).
 		Build(func(l *gamelog.Logger) {
 			AppendNameWithColor(l, target, targetName, world)
 		}).
-		Append(" は倒れた。").
+		Append(suffix).
 		Log()
 }
 
@@ -105,14 +111,14 @@ func isPlayerEntity(entity ecs.Entity, world w.World) bool {
 // target に amount 分のHPを回復させる
 // 実際の回復量を返す
 func ApplyHealing(world w.World, target ecs.Entity, amount int) int {
-	pools := world.Components.Pools.Get(target).(*gc.Pools)
+	hp := world.Components.HP.Get(target).(*gc.HP)
 
-	beforeHP := pools.HP.Current
-	pools.HP.Current += amount
-	if pools.HP.Current > pools.HP.Max {
-		pools.HP.Current = pools.HP.Max
+	beforeHP := hp.Current
+	hp.Current += amount
+	if hp.Current > hp.Max {
+		hp.Current = hp.Max
 	}
-	actualHealing := pools.HP.Current - beforeHP
+	actualHealing := hp.Current - beforeHP
 
 	// 回復エフェクトを生成
 	if actualHealing > 0 {

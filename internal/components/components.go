@@ -18,9 +18,10 @@ type EntitySpec struct {
 	Description *Description
 
 	// item ================
+	HP               *HP
 	Item             *Item
 	Consumable       *Consumable
-	Pools            *Pools
+	CarryWeight      *CarryWeight
 	Melee            *Melee
 	Fire             *Fire
 	Value            *Value
@@ -46,6 +47,7 @@ type EntitySpec struct {
 	SpriteRender    *SpriteRender
 	BlockView       *BlockView
 	BlockPass       *BlockPass
+	PassCost        *PassCost
 	TurnBased       *TurnBased
 	Prop            *Prop
 	LightSource     *LightSource
@@ -92,9 +94,10 @@ type Components struct {
 	Description *ecs.SliceComponent `save:"true"`
 
 	// item ================
+	HP                           *ecs.SliceComponent `save:"true"`
 	Item                         *ecs.SliceComponent `save:"true"`
 	Consumable                   *ecs.SliceComponent `save:"true"`
-	Pools                        *ecs.SliceComponent `save:"true"`
+	CarryWeight                  *ecs.SliceComponent `save:"true"`
 	Melee                        *ecs.SliceComponent `save:"true"`
 	Fire                         *ecs.SliceComponent `save:"true"`
 	Value                        *ecs.SliceComponent `save:"true"`
@@ -122,6 +125,7 @@ type Components struct {
 	SpriteRender    *ecs.SliceComponent `save:"true"`
 	BlockView       *ecs.NullComponent
 	BlockPass       *ecs.NullComponent
+	PassCost        *ecs.SliceComponent
 	Door            *ecs.SliceComponent
 	Prop            *ecs.NullComponent
 	LightSource     *ecs.SliceComponent `save:"true"`
@@ -275,21 +279,13 @@ type Wallet struct {
 	Currency int
 }
 
-// Pools はキャラクターのプール情報
-type Pools struct {
-	// 生命力 Health point
-	// なくなるとゲームオーバー
-	HP Pool
-	// スタミナ Stamina point
-	// 走ったり攻撃したら減る。自動回復する
-	SP Pool
-	// 電力 Electricity point
-	// 機能のトグルで消費量が変わる
-	EP Pool
-	// 所持重量 Weight
-	// 超過量に応じたペナルティが発生する
-	Weight PoolFloat
-}
+// HP は生命力を表すコンポーネント
+// なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う
+type HP Pool[int]
+
+// CarryWeight は所持重量を表すコンポーネント
+// 超過量に応じたペナルティが発生する
+type CarryWeight Pool[float64]
 
 // ProvidesHealing は回復する性質
 // 直接的な数値が作用し、ステータスなどは考慮されない

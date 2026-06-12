@@ -31,22 +31,21 @@ func (da *DropActivity) Name() gc.BehaviorName {
 }
 
 // Validate はアイテムドロップアクティビティの検証を行う
-func (da *DropActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (da *DropActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("ドロップ対象が指定されていません")
 	}
 
 	target := *comp.Target
 
-	// Targetがバックパック内にあることを確認
+	// Targetがバックパック内にあることを確認する
 	if !target.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 
-	// プレイヤーの位置情報が必要
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
-		return fmt.Errorf("位置情報が見つかりません")
+	// 配置先タイル座標を取得できるか確認する
+	if _, err := requireDestination(comp); err != nil {
+		return err
 	}
 
 	return nil
@@ -85,30 +84,23 @@ func (da *DropActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World)
 
 // performDropActivity は実際のアイテムドロップ処理を実行する
 func (da *DropActivity) performDropActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	// プレイヤー位置を取得
-	gridElement := world.Components.GridElement.Get(actor)
-	if gridElement == nil {
-		return fmt.Errorf("位置情報が見つかりません")
+	targetTile, err := requireDestination(comp)
+	if err != nil {
+		return err
 	}
 
-	playerGrid := gridElement.(*gc.GridElement)
 	target := *comp.Target
-
-	// アイテム情報を取得
 	formattedName := worldhelper.FormatItemName(world, target)
 
-	// バックパックから削除してフィールドに移動
 	worldhelper.MoveToField(world, target, actor)
-
-	// グリッド位置を設定
 	target.AddComponent(world.Components.GridElement, &gc.GridElement{
-		X: playerGrid.X,
-		Y: playerGrid.Y,
+		X: targetTile.X,
+		Y: targetTile.Y,
 	})
 
 	gamelog.New(worldhelper.GetGameLog(world)).
 		ItemName(formattedName).
-		Append(" を捨てた。").
+		Append(" を置いた。").
 		Log()
 
 	return nil

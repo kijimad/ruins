@@ -89,6 +89,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を作成（閉じている）
@@ -120,6 +121,7 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		// 扉を作成（開いている）
@@ -152,6 +154,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	// プレイヤーを作成
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
+	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 	// NPCを作成
@@ -241,6 +244,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	// プレイヤーを作成（武器なし、素手で攻撃）
 	player := world.Manager.NewEntity()
 	player.AddComponent(world.Components.Player, &gc.Player{})
+	player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 	player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	player.AddComponent(world.Components.Abilities, &gc.Abilities{
 		Strength:  gc.Ability{Base: 5, Total: 5},
@@ -262,9 +266,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 		Agility:   gc.Ability{Base: 1, Total: 1},
 		Defense:   gc.Ability{Base: 0, Total: 0},
 	})
-	enemyEntity.AddComponent(world.Components.Pools, &gc.Pools{
-		HP: gc.Pool{Max: 10, Current: 10},
-	})
+	enemyEntity.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 
 	// 武器スロット1を選択
 	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -278,14 +280,14 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 
 	// 敵のHPが減少していることを確認
 	// 攻撃には命中判定があり、稀に外れる可能性があるため、外れた場合は再試行する
-	pools := world.Components.Pools.Get(enemyEntity).(*gc.Pools)
+	hp := world.Components.HP.Get(enemyEntity).(*gc.HP)
 	maxRetries := 20
-	for i := 0; i < maxRetries && pools.HP.Current >= 10; i++ {
+	for i := 0; i < maxRetries && hp.Current >= 10; i++ {
 		result, err = ExecuteInteraction(player, enemyEntity, world)
 		require.NoError(t, err)
 		require.NotNil(t, result)
 	}
-	assert.Less(t, pools.HP.Current, 10, "素手攻撃でダメージが入るべき")
+	assert.Less(t, hp.Current, 10, "素手攻撃でダメージが入るべき")
 }
 
 // TestExecuteInteraction_Portal はポータル相互作用の動作を確認
@@ -467,6 +469,7 @@ func TestExecuteInteraction_Door_Locked(t *testing.T) {
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 
 		doorEntity := world.Manager.NewEntity()
@@ -533,6 +536,75 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
+}
+
+// TestExecuteInteraction_Prop はPropへのMeleeInteractionの動作を確認する
+func TestExecuteInteraction_Prop(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Propを攻撃できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Strength:  gc.Ability{Base: 5, Total: 5},
+			Dexterity: gc.Ability{Base: 5, Total: 5},
+		})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+
+		result, err := ExecuteInteraction(player, prop, world)
+
+		require.NoError(t, err)
+		require.NotNil(t, result)
+		assert.True(t, result.Success)
+		assert.Equal(t, gc.BehaviorAttack, result.ActivityName)
+
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Less(t, hp.Current, 30)
+	})
+
+	t.Run("Dead済みのPropは攻撃できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		player.AddComponent(world.Components.Abilities, &gc.Abilities{
+			Strength:  gc.Ability{Base: 5, Total: 5},
+			Dexterity: gc.Ability{Base: 5, Total: 5},
+		})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "壊れた木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 0})
+		prop.AddComponent(world.Components.Dead, &gc.Dead{})
+		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Data: gc.MeleeInteraction{},
+		})
+
+		result, err := ExecuteInteraction(player, prop, world)
+
+		require.Error(t, err)
+		require.NotNil(t, result)
+		assert.False(t, result.Success)
+	})
 }
 
 // UnknownInteraction は未知の相互作用タイプのテスト用

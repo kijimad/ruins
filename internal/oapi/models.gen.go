@@ -772,6 +772,9 @@ type HealRatio = float64
 // HealingValueType 回復量の計算方式
 type HealingValueType string
 
+// HitPoints 耐久値。設定すると破壊可能になる
+type HitPoints = int32
+
 // ImagePath 画像ファイルパス
 type ImagePath = string
 
@@ -1072,6 +1075,9 @@ type PaletteList struct {
 	TotalCount int32     `json:"totalCount"`
 }
 
+// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+type PassCost = int32
+
 // Profession 職業
 type Profession struct {
 	// Abilities 能力値
@@ -1148,11 +1154,17 @@ type Prop struct {
 	// DungeonGateTrigger ダンジョン選択ゲートトリガー
 	DungeonGateTrigger *DungeonGateTriggerRaw `json:"dungeonGateTrigger,omitempty"`
 
+	// Hp 耐久値。設定すると破壊可能になる
+	Hp *HitPoints `json:"hp,omitempty"`
+
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
 
 	// Name エンティティ名
 	Name EntityName `json:"name"`
+
+	// PassCost 通行コスト加算値。0で変化なし、50でベースコスト+50
+	PassCost *PassCost `json:"passCost,omitempty"`
 
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
@@ -1350,6 +1362,15 @@ type SaveDataCameraPosition = float64
 // SaveDataCameraScale カメラのスケール値
 type SaveDataCameraScale = float64
 
+// SaveDataCarryWeightComponent 所持重量。最大値と現在値を持つ
+type SaveDataCarryWeightComponent struct {
+	// Current プール現在値 (浮動小数点)
+	Current SaveDataPoolFloatCurrent `json:"Current"`
+
+	// Max プール最大値 (浮動小数点)
+	Max SaveDataPoolFloatMax `json:"Max"`
+}
+
 // SaveDataChecksum SHA-256チェックサム
 type SaveDataChecksum = string
 
@@ -1366,6 +1387,9 @@ type SaveDataComponentsMap struct {
 	// Camera カメラ状態
 	Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
 
+	// CarryWeight 所持重量
+	CarryWeight *SaveDataCarryWeightComponent `json:"CarryWeight,omitempty"`
+
 	// Consumable 消費可能アイテム設定
 	Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`
 
@@ -1380,6 +1404,9 @@ type SaveDataComponentsMap struct {
 
 	// GridElement グリッド上の位置
 	GridElement *SaveDataGridElementComponent `json:"GridElement,omitempty"`
+
+	// HP 生命力
+	HP *SaveDataHPComponent `json:"HP,omitempty"`
 
 	// InflictsDamage ダメージ効果
 	InflictsDamage *SaveDataInflictsDamageComponent `json:"InflictsDamage,omitempty"`
@@ -1404,9 +1431,6 @@ type SaveDataComponentsMap struct {
 
 	// Player プレイヤーマーカー
 	Player *SaveDataMarkerComponent `json:"Player,omitempty"`
-
-	// Pools HP/SP/EP/重量のプール
-	Pools *SaveDataPoolsComponent `json:"Pools,omitempty"`
 
 	// ProvidesHealing 回復効果
 	ProvidesHealing *SaveDataProvidesHealingComponent `json:"ProvidesHealing,omitempty"`
@@ -1583,6 +1607,15 @@ type SaveDataGridElementComponent struct {
 	Y SaveDataTileCoord `json:"Y"`
 }
 
+// SaveDataHPComponent 生命力。最大値と現在値を持つ
+type SaveDataHPComponent struct {
+	// Current プール現在値 (整数)
+	Current SaveDataPoolCurrent `json:"Current"`
+
+	// Max プール最大値 (整数)
+	Max SaveDataPoolMax `json:"Max"`
+}
+
 // SaveDataHealNumeral 固定回復量
 type SaveDataHealNumeral = int32
 
@@ -1691,21 +1724,6 @@ type SaveDataPoolFloatMax = float64
 
 // SaveDataPoolMax プール最大値 (整数)
 type SaveDataPoolMax = int32
-
-// SaveDataPoolsComponent HP/SP/EP/重量のプール
-type SaveDataPoolsComponent struct {
-	// EP 整数プール。最大値と現在値を持つ
-	EP SaveDataIntPool `json:"EP"`
-
-	// HP 整数プール。最大値と現在値を持つ
-	HP SaveDataIntPool `json:"HP"`
-
-	// SP 整数プール。最大値と現在値を持つ
-	SP SaveDataIntPool `json:"SP"`
-
-	// Weight 浮動小数点プール。最大値と現在値を持つ
-	Weight SaveDataFloatPool `json:"Weight"`
-}
 
 // SaveDataProvidesHealingComponent 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
 type SaveDataProvidesHealingComponent struct {

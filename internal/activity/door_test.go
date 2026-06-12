@@ -60,6 +60,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// 普通の壁を作成（Doorコンポーネントなし）
 		wall := world.Manager.NewEntity()
@@ -130,6 +131,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
 
 		// OpenDoorActivityを実行（Targetなし）
 		params := ActionParams{

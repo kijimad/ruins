@@ -80,6 +80,11 @@ scalar EntityName extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
+/** 耐久値。設定すると破壊可能になる */
+@minValue(1)
+@maxValue(9999)
+scalar HitPoints extends int32;
+
 /** 回復固定量 */
 @minValue(0)
 @maxValue(9999)
@@ -144,6 +149,11 @@ scalar MagazineSize extends int32;
 @minValue(1)
 @maxValue(99)
 scalar MaterialAmount extends int32;
+
+/** 通行コスト加算値。0で変化なし、50でベースコスト+50 */
+@minValue(0)
+@maxValue(9999)
+scalar PassCost extends int32;
 
 /** メッセージリソースのキー */
 @minLength(1)

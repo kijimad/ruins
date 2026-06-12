@@ -44,6 +44,10 @@
             "X": 100,
             "Y": 200
           },
+          "CarryWeight": {
+            "Current": 12.5,
+            "Max": 50
+          },
           "Description": {
             "Description": "説明文"
           },
@@ -51,6 +55,10 @@
           "GridElement": {
             "X": 5,
             "Y": 10
+          },
+          "HP": {
+            "Current": 80,
+            "Max": 100
           },
           "LightSource": {
             "Color": {
@@ -66,24 +74,6 @@
             "Name": "テストプレイヤー"
           },
           "Player": {},
-          "Pools": {
-            "EP": {
-              "Current": 25,
-              "Max": 30
-            },
-            "HP": {
-              "Current": 80,
-              "Max": 100
-            },
-            "SP": {
-              "Current": 40,
-              "Max": 50
-            },
-            "Weight": {
-              "Current": 12.5,
-              "Max": 50
-            }
-          },
           "SpriteRender": {
             "AnimKeys": [
               "walk_left",

@@ -15,7 +15,6 @@ func TestConstants(t *testing.T) {
 
 	// ラベルの値をテスト
 	assert.Equal(t, "HP", HPLabel, "HPLabelの値が正しくない")
-	assert.Equal(t, "SP", SPLabel, "SPLabelの値が正しくない")
 	assert.Equal(t, "体力", VitalityLabel, "VitalityLabelの値が正しくない")
 	assert.Equal(t, "筋力", StrengthLabel, "StrengthLabelの値が正しくない")
 	assert.Equal(t, "感覚", SensationLabel, "SensationLabelの値が正しくない")

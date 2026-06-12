@@ -4,7 +4,7 @@ import "fmt"
 
 // Book は読書可能な本のコンポーネント
 type Book struct {
-	Effort Pool             // Max=読了に必要な総工数, Current=蓄積した工数
+	Effort IntPool          // Max=読了に必要な総工数, Current=蓄積した工数
 	Skill  *SkillBookEffect // スキル経験値を毎ターン獲得する効果
 }
 

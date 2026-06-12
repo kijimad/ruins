@@ -63,3 +63,64 @@ func TestReactToHostileAction(t *testing.T) {
 		})
 	})
 }
+
+func TestApplyDamage_Prop(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ダメージでHPが減少する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		source := world.Manager.NewEntity()
+		source.AddComponent(world.Components.Player, &gc.Player{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
+
+		ApplyDamage(world, prop, 10, source)
+
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 20, hp.Current)
+		assert.False(t, prop.HasComponent(world.Components.Dead))
+	})
+
+	t.Run("HPが0になるとDeadが付与される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		source := world.Manager.NewEntity()
+		source.AddComponent(world.Components.Player, &gc.Player{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 10})
+
+		ApplyDamage(world, prop, 10, source)
+
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 0, hp.Current)
+		assert.True(t, prop.HasComponent(world.Components.Dead))
+	})
+
+	t.Run("過剰ダメージでもHPは0で止まる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		source := world.Manager.NewEntity()
+		source.AddComponent(world.Components.Player, &gc.Player{})
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "木箱"})
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 5})
+
+		ApplyDamage(world, prop, 100, source)
+
+		hp := world.Components.HP.Get(prop).(*gc.HP)
+		assert.Equal(t, 0, hp.Current)
+		assert.True(t, prop.HasComponent(world.Components.Dead))
+	})
+}

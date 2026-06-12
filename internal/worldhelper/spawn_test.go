@@ -12,7 +12,7 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-func TestSetMaxHPSP(t *testing.T) {
+func TestSetMaxStats(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name        string
@@ -22,7 +22,6 @@ func TestSetMaxHPSP(t *testing.T) {
 		dexterity   int
 		agility     int
 		expectedHP  int
-		expectedSP  int
 		description string
 	}{
 		{
@@ -33,8 +32,7 @@ func TestSetMaxHPSP(t *testing.T) {
 			dexterity:   6,
 			agility:     9,
 			expectedHP:  30 + 10*8 + 8 + 7, // 30 + 95 = 125
-			expectedSP:  10*2 + 6 + 9,      // 35
-			description: "基本的なHP/SP計算",
+			description: "基本的なHP計算",
 		},
 		{
 			name:        "中ステータス",
@@ -44,8 +42,7 @@ func TestSetMaxHPSP(t *testing.T) {
 			dexterity:   8,
 			agility:     11,
 			expectedHP:  30 + 15*8 + 12 + 10, // 30 + 142 = 172
-			expectedSP:  15*2 + 8 + 11,       // 49
-			description: "中ステータスでのHP/SP計算",
+			description: "中ステータスでのHP計算",
 		},
 		{
 			name:        "高ステータス",
@@ -55,21 +52,16 @@ func TestSetMaxHPSP(t *testing.T) {
 			dexterity:   14,
 			agility:     16,
 			expectedHP:  30 + 20*8 + 18 + 15, // 30 + 193 = 223
-			expectedSP:  20*2 + 14 + 16,      // 70
-			description: "高ステータスでのHP/SP計算",
+			description: "高ステータスでのHP計算",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			// 独立したworldを作成
 			world := testutil.InitTestWorld(t)
 
-			// エンティティを作成
 			entity := world.Manager.NewEntity()
-
-			// Abilitiesコンポーネントを追加（BaseとTotalを0に設定してsetMaxHPSPの初期化をテスト）
 			entity.AddComponent(world.Components.Abilities, &gc.Abilities{
 				Vitality:  gc.Ability{Base: tt.vitality, Total: 0},
 				Strength:  gc.Ability{Base: tt.strength, Total: 0},
@@ -79,52 +71,39 @@ func TestSetMaxHPSP(t *testing.T) {
 				Defense:   gc.Ability{Base: 5, Total: 0},
 			})
 
-			// Poolsコンポーネントを追加
-			entity.AddComponent(world.Components.Pools, &gc.Pools{
-				HP: gc.Pool{Current: 0, Max: 0},
-				SP: gc.Pool{Current: 0, Max: 0},
-			})
+			entity.AddComponent(world.Components.HP, &gc.HP{Current: 0, Max: 0})
+			entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 
-			// 関数を実行
-			err := setMaxHPSP(world, entity)
+			err := setMaxStats(world, entity)
 			require.NoError(t, err)
 
-			// 結果を検証
-			pools := world.Components.Pools.Get(entity).(*gc.Pools)
+			hp := world.Components.HP.Get(entity).(*gc.HP)
 			abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
-			// Totalが正しく初期化されたことを確認
 			assert.Equal(t, tt.vitality, abils.Vitality.Total, "体力のTotal値が正しく初期化されていない")
 			assert.Equal(t, tt.strength, abils.Strength.Total, "力のTotal値が正しく初期化されていない")
 			assert.Equal(t, tt.sensation, abils.Sensation.Total, "感覚のTotal値が正しく初期化されていない")
 			assert.Equal(t, tt.dexterity, abils.Dexterity.Total, "器用さのTotal値が正しく初期化されていない")
 			assert.Equal(t, tt.agility, abils.Agility.Total, "素早さのTotal値が正しく初期化されていない")
 
-			// HP/SPが正しく計算されたことを確認
-			assert.Equal(t, tt.expectedHP, pools.HP.Max, "最大HPの計算が正しくない: %s", tt.description)
-			assert.Equal(t, tt.expectedHP, pools.HP.Current, "現在HPが最大HPと同じでない: %s", tt.description)
-			assert.Equal(t, tt.expectedSP, pools.SP.Max, "最大SPの計算が正しくない: %s", tt.description)
-			assert.Equal(t, tt.expectedSP, pools.SP.Current, "現在SPが最大SPと同じでない: %s", tt.description)
+			assert.Equal(t, tt.expectedHP, hp.Max, "最大HPの計算が正しくない: %s", tt.description)
+			assert.Equal(t, tt.expectedHP, hp.Current, "現在HPが最大HPと同じでない: %s", tt.description)
 
-			// クリーンアップ
 			world.Manager.DeleteEntity(entity)
 		})
 	}
 }
 
-func TestSetMaxHPSP_WithoutComponents(t *testing.T) {
+func TestSetMaxStats_WithoutComponents(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	// 必要なコンポーネントがないエンティティ
 	entity := world.Manager.NewEntity()
 
-	// 関数を実行してエラーが発生することを確認
-	err := setMaxHPSP(world, entity)
+	err := setMaxStats(world, entity)
 	require.Error(t, err, "必要なコンポーネントがない場合はエラーを返すべき")
 	assert.Contains(t, err.Error(), "does not have required components", "エラーメッセージが適切であるべき")
 
-	// クリーンアップ
 	world.Manager.DeleteEntity(entity)
 }
 
@@ -142,32 +121,22 @@ func TestFullRecover(t *testing.T) {
 		Agility:   gc.Ability{Base: 9, Total: 0},
 		Defense:   gc.Ability{Base: 5, Total: 0},
 	})
-	entity.AddComponent(world.Components.Pools, &gc.Pools{
-		HP: gc.Pool{Current: 0, Max: 0},
-		SP: gc.Pool{Current: 0, Max: 0},
-	})
+	entity.AddComponent(world.Components.HP, &gc.HP{Current: 0, Max: 0})
+	entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
 
-	// FullRecoverを実行
 	err := FullRecover(world, entity)
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
 
-	// 結果を検証
-	pools := world.Components.Pools.Get(entity).(*gc.Pools)
+	hp := world.Components.HP.Get(entity).(*gc.HP)
 	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
-	// 能力値のTotalが正しく設定されたことを確認
 	assert.Equal(t, 10, abils.Vitality.Total, "体力のTotal値が正しく設定されていない")
 	assert.Equal(t, 8, abils.Strength.Total, "力のTotal値が正しく設定されていない")
 
-	// HP/SPが正しく計算されたことを確認
-	expectedHP := int(30 + float64(10*8+8+7)*1.0) // 30 + 95 = 125
-	expectedSP := int(float64(10*2+6+9) * 1.0)    // 35
-	assert.Equal(t, expectedHP, pools.HP.Max, "最大HPが正しく計算されていない")
-	assert.Equal(t, expectedHP, pools.HP.Current, "現在HPが最大HPと一致していない")
-	assert.Equal(t, expectedSP, pools.SP.Max, "最大SPが正しく計算されていない")
-	assert.Equal(t, expectedSP, pools.SP.Current, "現在SPが最大SPと一致していない")
+	expectedHP := 30 + 10*8 + 8 + 7 // 30 + 95 = 125
+	assert.Equal(t, expectedHP, hp.Max, "最大HPが正しく計算されていない")
+	assert.Equal(t, expectedHP, hp.Current, "現在HPが最大HPと一致していない")
 
-	// クリーンアップ
 	world.Manager.DeleteEntity(entity)
 }
 
@@ -625,7 +594,7 @@ func TestCalculateSpeed(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Pool: gc.Pool{Current: 20, Max: 100}}) // 飢餓状態
+		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Current: 20, Max: 100}) // 飢餓状態
 
 		speed := CalculateSpeed(world, entity)
 		// 基本100 - 飢餓ペナルティ50 = 50
@@ -637,9 +606,7 @@ func TestCalculateSpeed(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Pools, &gc.Pools{
-			Weight: gc.PoolFloat{Max: 100, Current: 150}, // 50%超過
-		})
+		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 150}) // 50%超過
 
 		speed := CalculateSpeed(world, entity)
 		// 基本100 - 超過ペナルティ(50*25/100=12) = 88
@@ -677,10 +644,8 @@ func TestCalculateSpeed(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Pool: gc.Pool{Current: 5, Max: 100}}) // 餓死寸前(-75)
-		entity.AddComponent(world.Components.Pools, &gc.Pools{
-			Weight: gc.PoolFloat{Max: 100, Current: 400}, // 大幅超過（最大-75）
-		})
+		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Current: 5, Max: 100})             // 餓死寸前(-75)
+		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 400}) // 大幅超過（最大-75）
 
 		speed := CalculateSpeed(world, entity)
 		// ペナルティが大きくても最小値25を下回らない
@@ -720,9 +685,7 @@ func TestOverweightPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Pools, &gc.Pools{
-			Weight: gc.PoolFloat{Max: 100, Current: 80},
-		})
+		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 80})
 
 		penalty := calculateOverweightPenalty(world, entity)
 		assert.Equal(t, 0, penalty)
@@ -733,9 +696,7 @@ func TestOverweightPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Pools, &gc.Pools{
-			Weight: gc.PoolFloat{Max: 100, Current: 150},
-		})
+		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 150})
 
 		penalty := calculateOverweightPenalty(world, entity)
 		// 50 * 25 / 100 = 12.5 -> -12
@@ -747,9 +708,7 @@ func TestOverweightPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Pools, &gc.Pools{
-			Weight: gc.PoolFloat{Max: 100, Current: 500}, // 400%超過
-		})
+		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 500}) // 400%超過
 
 		penalty := calculateOverweightPenalty(world, entity)
 		// 最大-75

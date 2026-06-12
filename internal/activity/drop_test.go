@@ -23,9 +23,11 @@ func TestDropActivity_Validate(t *testing.T) {
 		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
@@ -62,9 +64,11 @@ func TestDropActivity_Validate(t *testing.T) {
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Item, &gc.Item{})
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
@@ -73,13 +77,12 @@ func TestDropActivity_Validate(t *testing.T) {
 		assert.Contains(t, err.Error(), "バックパック内にありません")
 	})
 
-	t.Run("プレイヤーの位置情報がない場合はエラー", func(t *testing.T) {
+	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
 
 		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
@@ -92,7 +95,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		da := &DropActivity{}
 		err = da.Validate(comp, player, world)
 		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "位置情報が見つかりません")
+		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
@@ -127,9 +130,11 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
 		require.NoError(t, err)
 
+		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
@@ -149,20 +154,18 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		store := worldhelper.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
-		assert.Contains(t, recent[0], "を捨てた")
+		assert.Contains(t, recent[0], "を置いた")
 	})
 
-	t.Run("位置情報がない場合はエラー", func(t *testing.T) {
+	t.Run("Destinationがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
 
-		// アイテムも手動で作成
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
@@ -170,8 +173,9 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		}
 
 		da := &DropActivity{}
-		err := da.performDropActivity(comp, player, world)
+		err = da.performDropActivity(comp, player, world)
 		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "目的地が指定されていません")
 	})
 }
 
@@ -179,6 +183,31 @@ func TestDropActivity_DoTurn(t *testing.T) {
 	t.Parallel()
 
 	t.Run("正常にドロップして完了する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
+
+		destination := gc.GridElement{X: 10, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			State:        gc.ActivityStateRunning,
+			Target:       &item,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+	})
+
+	t.Run("Destinationがない場合はキャンセルされる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -197,32 +226,216 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		da := &DropActivity{}
 		err = da.DoTurn(comp, player, world)
 
-		require.NoError(t, err)
-		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+		assert.Error(t, err)
+		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
+}
 
-	t.Run("エラー時はキャンセルされる", func(t *testing.T) {
+func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("隣接タイルにアイテムをドロップできる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// 位置情報なしのプレイヤーを手動で作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
 
-		// アイテムも手動で作成
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
 
+		// プレイヤーの右隣にドロップ
+		destination := gc.GridElement{X: 11, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
-			State:        gc.ActivityStateRunning,
 			Target:       &item,
+			Destination:  &destination,
 		}
 
 		da := &DropActivity{}
-		err := da.DoTurn(comp, player, world)
+		err = da.performDropActivity(comp, player, world)
+		require.NoError(t, err)
 
-		assert.Error(t, err)
-		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
+		assert.True(t, item.HasComponent(world.Components.GridElement))
+		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 10, int(gridElement.Y))
+		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+	})
+
+	t.Run("斜め隣接タイルにアイテムをドロップできる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		require.NoError(t, err)
+
+		// 右下斜めにドロップ
+		destination := gc.GridElement{X: 11, Y: 11}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			Target:       &item,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.performDropActivity(comp, player, world)
+		require.NoError(t, err)
+
+		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 11, int(gridElement.Y))
+	})
+}
+
+func TestDropActivity_PropDerivedItem(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Prop由来アイテムをドロップするとPropコンポーネントが保持される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		prop.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+		worldhelper.MoveToBackpack(world, prop, player)
+
+		// ドロップ実行
+		destination := gc.GridElement{X: 11, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			Target:       &prop,
+			Destination:  &destination,
+		}
+
+		da := &DropActivity{}
+		err = da.performDropActivity(comp, player, world)
+		require.NoError(t, err)
+
+		// Propコンポーネントが保持されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+		// BlockPassも保持されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.BlockPass))
+		// フィールドに配置されていることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, prop.HasComponent(world.Components.GridElement))
+		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 10, int(gridElement.Y))
+	})
+}
+
+func TestPickupAndDropRoundTrip(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Propを拾ってドロップするとPropコンポーネントが保持される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		// Interactableを持たないPropを直接構築する
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 4, Y: 4})
+		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+
+		// 拾う
+		pickupDest := gc.GridElement{X: 4, Y: 4}
+		pickupComp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &pickupDest,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(pickupComp, player, world)
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, pickupComp.State)
+
+		// バックパックにあることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+
+		// ドロップ
+		dropDest := gc.GridElement{X: 11, Y: 11}
+		dropComp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			State:        gc.ActivityStateRunning,
+			Target:       &prop,
+			Destination:  &dropDest,
+		}
+
+		da := &DropActivity{}
+		err = da.DoTurn(dropComp, player, world)
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, dropComp.State)
+
+		// フィールドに戻っていることを確認
+		assert.True(t, prop.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, prop.HasComponent(world.Components.GridElement))
+		assert.True(t, prop.HasComponent(world.Components.Prop))
+		assert.True(t, prop.HasComponent(world.Components.BlockPass))
+		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
+		assert.Equal(t, 11, int(gridElement.X))
+		assert.Equal(t, 11, int(gridElement.Y))
+	})
+
+	t.Run("通常アイテムの拾得とドロップの往復", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		require.NoError(t, err)
+
+		// 拾う
+		pickupDest := gc.GridElement{X: 10, Y: 10}
+		pickupComp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Destination:  &pickupDest,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(pickupComp, player, world)
+		require.NoError(t, err)
+
+		assert.True(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.False(t, item.HasComponent(world.Components.GridElement))
+
+		// ドロップ
+		dropDest := gc.GridElement{X: 9, Y: 9}
+		dropComp := &gc.Activity{
+			BehaviorName: gc.BehaviorDrop,
+			State:        gc.ActivityStateRunning,
+			Target:       &item,
+			Destination:  &dropDest,
+		}
+
+		da := &DropActivity{}
+		err = da.DoTurn(dropComp, player, world)
+		require.NoError(t, err)
+
+		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
+		assert.Equal(t, 9, int(gridElement.X))
+		assert.Equal(t, 9, int(gridElement.Y))
+		// 通常アイテムはPropコンポーネントを持たない
+		assert.False(t, item.HasComponent(world.Components.Prop))
 	})
 }

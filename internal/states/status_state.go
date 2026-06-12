@@ -204,13 +204,16 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 		items = append(items, statusItemData{Label: "職業", Value: professionName, Description: "職業"})
 	}
 
-	if playerEntity.HasComponent(world.Components.Pools) {
-		pools := world.Components.Pools.Get(playerEntity).(*gc.Pools)
+	if playerEntity.HasComponent(world.Components.HP) {
+		hp := world.Components.HP.Get(playerEntity).(*gc.HP)
 		items = append(items,
-			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", pools.HP.Max), Description: "体力。0になると死亡する"},
-			statusItemData{Label: "SP", Value: fmt.Sprintf("%d", pools.SP.Max), Description: "スタミナ。行動に消費する"},
-			statusItemData{Label: "EP", Value: fmt.Sprintf("%d", pools.EP.Max), Description: "電力。電子機器の使用に消費する"},
-			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", pools.Weight.Max, consts.IconKg), Description: "所持可能な最大重量"},
+			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"},
+		)
+	}
+	if playerEntity.HasComponent(world.Components.CarryWeight) {
+		cw := world.Components.CarryWeight.Get(playerEntity).(*gc.CarryWeight)
+		items = append(items,
+			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", cw.Max, consts.IconKg), Description: "所持可能な最大重量"},
 		)
 	}
 

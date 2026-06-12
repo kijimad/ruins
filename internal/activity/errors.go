@@ -15,14 +15,14 @@ var (
 	ErrUnsupportedActivity   = errors.New("未対応のアクティビティタイプです")
 
 	// 攻撃関連エラー
-	ErrAttackTargetNotSet     = errors.New("攻撃対象が設定されていません")
-	ErrAttackTargetInvalid    = errors.New("攻撃対象が無効です")
-	ErrAttackerDead           = errors.New("攻撃者が死亡しています")
-	ErrAttackTargetNotExists  = errors.New("攻撃対象が存在しません")
-	ErrAttackTargetDead       = errors.New("攻撃対象が既に死亡しています")
-	ErrAttackOutOfRange       = errors.New("攻撃対象が射程外です")
-	ErrAttackNoWeapon         = errors.New("攻撃手段がありません")
-	ErrTargetNoPoolsComponent = errors.New("ターゲットにPoolsコンポーネントがありません")
+	ErrAttackTargetNotSet    = errors.New("攻撃対象が設定されていません")
+	ErrAttackTargetInvalid   = errors.New("攻撃対象が無効です")
+	ErrAttackerDead          = errors.New("攻撃者が死亡しています")
+	ErrAttackTargetNotExists = errors.New("攻撃対象が存在しません")
+	ErrAttackTargetDead      = errors.New("攻撃対象が既に死亡しています")
+	ErrAttackOutOfRange      = errors.New("攻撃対象が射程外です")
+	ErrAttackNoWeapon        = errors.New("攻撃手段がありません")
+	ErrTargetNoHPComponent   = errors.New("ターゲットにHPコンポーネントがありません")
 
 	// 射撃関連エラー
 	ErrShootNoFireWeapon       = errors.New("遠距離武器を装備していません")
@@ -45,7 +45,7 @@ var (
 	ErrItemNotSet       = errors.New("アイテムが指定されていません")
 	ErrInvalidItem      = errors.New("無効なアイテムです")
 	ErrItemNoEffect     = errors.New("このアイテムには効果がありません")
-	ErrActorNoPools     = errors.New("アクターにPoolsコンポーネントがありません")
+	ErrActorNoHP        = errors.New("アクターにHPコンポーネントがありません")
 
 	// 休息関連エラー
 	ErrRestEnemiesNearby   = errors.New("周囲に敵がいるため休息できません")

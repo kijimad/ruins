@@ -1893,6 +1893,12 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
+    HitPoints:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 9999
+      description: 耐久値。設定すると破壊可能になる
     ImagePath:
       type: string
       minLength: 1
@@ -2316,6 +2322,12 @@ components:
           type: integer
           format: int32
       description: パレット一覧
+    PassCost:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 9999
+      description: 通行コスト加算値。0で変化なし、50でベースコスト+50
     Profession:
       type: object
       required:
@@ -2423,6 +2435,10 @@ components:
           $ref: '#/components/schemas/BlocksPassage'
         blockView:
           $ref: '#/components/schemas/BlocksView'
+        passCost:
+          $ref: '#/components/schemas/PassCost'
+        hp:
+          $ref: '#/components/schemas/HitPoints'
         lightSource:
           $ref: '#/components/schemas/LightSource'
         door:
@@ -2722,6 +2738,17 @@ components:
       type: number
       format: double
       description: カメラのスケール値
+    SaveData.CarryWeightComponent:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolFloatMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
+      description: 所持重量。最大値と現在値を持つ
     SaveData.Checksum:
       type: string
       description: SHA-256チェックサム
@@ -2768,10 +2795,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.DescriptionComponent'
           description: 説明文
-        Pools:
+        HP:
           allOf:
-            - $ref: '#/components/schemas/SaveData.PoolsComponent'
-          description: HP/SP/EP/重量のプール
+            - $ref: '#/components/schemas/SaveData.HPComponent'
+          description: 生命力
+        CarryWeight:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.CarryWeightComponent'
+          description: 所持重量
         TurnBased:
           allOf:
             - $ref: '#/components/schemas/SaveData.TurnBasedComponent'
@@ -3037,6 +3068,17 @@ components:
         Y:
           $ref: '#/components/schemas/SaveData.TileCoord'
       description: グリッド上の位置 (タイル座標)
+    SaveData.HPComponent:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolCurrent'
+      description: 生命力。最大値と現在値を持つ
     SaveData.HealNumeral:
       type: integer
       format: int32
@@ -3188,23 +3230,6 @@ components:
       type: integer
       format: int32
       description: プール最大値 (整数)
-    SaveData.PoolsComponent:
-      type: object
-      required:
-        - HP
-        - SP
-        - EP
-        - Weight
-      properties:
-        HP:
-          $ref: '#/components/schemas/SaveData.IntPool'
-        SP:
-          $ref: '#/components/schemas/SaveData.IntPool'
-        EP:
-          $ref: '#/components/schemas/SaveData.IntPool'
-        Weight:
-          $ref: '#/components/schemas/SaveData.FloatPool'
-      description: HP/SP/EP/重量のプール
     SaveData.ProvidesHealingComponent:
       type: object
       required:

@@ -38,9 +38,8 @@ func (h HungerLevel) String() string {
 }
 
 // Hunger はプレイヤー専用の空腹度システム
-type Hunger struct {
-	Pool // 0が飢餓状態、値が大きいほど満腹
-}
+// 0が飢餓状態、値が大きいほど満腹
+type Hunger Pool[int]
 
 // GetLevel は現在の空腹度レベルを取得する
 func (h *Hunger) GetLevel() HungerLevel {
@@ -96,9 +95,7 @@ func (h *Hunger) GetStatusPenalty() int {
 // NewHunger は新しいHungerを作成する
 func NewHunger() *Hunger {
 	return &Hunger{
-		Pool: Pool{
-			Max:     DefaultMaxHunger,     // 最大満腹度
-			Current: DefaultInitialHunger, // 初期状態は満腹
-		},
+		Max:     DefaultMaxHunger,     // 最大満腹度
+		Current: DefaultInitialHunger, // 初期状態は満腹
 	}
 }

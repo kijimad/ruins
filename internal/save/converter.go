@@ -60,22 +60,20 @@ func gameProgressFromSaveData(sd *oapi.SaveDataGameProgress) *gc.GameProgress {
 
 // ================== データコンポーネント変換 ==================
 
-func poolsToSaveData(p gc.Pools) oapi.SaveDataPoolsComponent {
-	return oapi.SaveDataPoolsComponent{
-		HP:     oapi.SaveDataIntPool{Max: int32(p.HP.Max), Current: int32(p.HP.Current)},
-		SP:     oapi.SaveDataIntPool{Max: int32(p.SP.Max), Current: int32(p.SP.Current)},
-		EP:     oapi.SaveDataIntPool{Max: int32(p.EP.Max), Current: int32(p.EP.Current)},
-		Weight: oapi.SaveDataFloatPool{Max: p.Weight.Max, Current: p.Weight.Current},
-	}
+func hpToSaveData(hp gc.HP) oapi.SaveDataHPComponent {
+	return oapi.SaveDataHPComponent{Max: int32(hp.Max), Current: int32(hp.Current)}
 }
 
-func poolsFromSaveData(sd oapi.SaveDataPoolsComponent) gc.Pools {
-	return gc.Pools{
-		HP:     gc.Pool{Max: int(sd.HP.Max), Current: int(sd.HP.Current)},
-		SP:     gc.Pool{Max: int(sd.SP.Max), Current: int(sd.SP.Current)},
-		EP:     gc.Pool{Max: int(sd.EP.Max), Current: int(sd.EP.Current)},
-		Weight: gc.PoolFloat{Max: sd.Weight.Max, Current: sd.Weight.Current},
-	}
+func hpFromSaveData(sd oapi.SaveDataHPComponent) gc.HP {
+	return gc.HP{Max: int(sd.Max), Current: int(sd.Current)}
+}
+
+func carryWeightToSaveData(cw gc.CarryWeight) oapi.SaveDataCarryWeightComponent {
+	return oapi.SaveDataCarryWeightComponent{Max: cw.Max, Current: cw.Current}
+}
+
+func carryWeightFromSaveData(sd oapi.SaveDataCarryWeightComponent) gc.CarryWeight {
+	return gc.CarryWeight{Max: sd.Max, Current: sd.Current}
 }
 
 func turnBasedToSaveData(tb gc.TurnBased) oapi.SaveDataTurnBasedComponent {
@@ -87,7 +85,7 @@ func turnBasedToSaveData(tb gc.TurnBased) oapi.SaveDataTurnBasedComponent {
 
 func turnBasedFromSaveData(sd oapi.SaveDataTurnBasedComponent) gc.TurnBased {
 	return gc.TurnBased{
-		AP:    gc.Pool{Max: int(sd.AP.Max), Current: int(sd.AP.Current)},
+		AP:    gc.IntPool{Max: int(sd.AP.Max), Current: int(sd.AP.Current)},
 		Speed: int(sd.Speed),
 	}
 }

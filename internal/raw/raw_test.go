@@ -550,6 +550,80 @@ Depth = 1
 	assert.Nil(t, entitySpec.SpriteRender.AnimKeys)
 }
 
+func TestPropBlockPassWithPassCostIsError(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "矛盾Prop"
+Description = "通行不可なのに移動コストがある"
+BlockPass = true
+BlockView = false
+PassCost = 100
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	_, err = NewPropSpec(raws, "矛盾Prop")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "blockPassとpassCostは同時に設定できません")
+}
+
+func TestPropWithHP(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "壊れるProp"
+Description = "破壊可能な置物"
+BlockPass = true
+BlockView = false
+Hp = 20
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "壊れるProp")
+	assert.NoError(t, err)
+	assert.NotNil(t, entitySpec.HP)
+	assert.Equal(t, 20, entitySpec.HP.Max)
+	assert.Equal(t, 20, entitySpec.HP.Current)
+	assert.NotNil(t, entitySpec.Interactable)
+	_, ok := entitySpec.Interactable.Data.(gc.MeleeInteraction)
+	assert.True(t, ok, "HPを持つPropにはMeleeInteractionが設定されるべき")
+}
+
+func TestPropWithoutHP(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "壊れないProp"
+Description = "破壊不能な置物"
+BlockPass = true
+BlockView = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "prop_table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "壊れないProp")
+	assert.NoError(t, err)
+	assert.Nil(t, entitySpec.CarryWeight)
+	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
+}
+
 func TestMemberDisposition(t *testing.T) {
 	t.Parallel()
 

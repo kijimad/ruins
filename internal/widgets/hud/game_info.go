@@ -41,12 +41,6 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 	// HP情報
 	info.drawHealthBar(screen, data.PlayerHP, data.PlayerMaxHP)
 
-	// SP情報
-	info.drawStaminaBar(screen, data.PlayerSP, data.PlayerMaxSP)
-
-	// EP情報
-	info.drawElectricityBar(screen, data.PlayerEP, data.PlayerMaxEP)
-
 	// 所持重量表示（右下）
 	info.drawWeightDisplay(screen, data)
 
@@ -122,81 +116,6 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
 	textY := y + float64(gaugeHeight)/2 - 6.0
 	drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, color.White)
-}
-
-// drawStaminaBar はプレイヤーのスタミナポイントゲージを描画する
-func (info *GameInfo) drawStaminaBar(screen *ebiten.Image, currentSP, maxSP int) {
-	y := gaugeBaseY + (gaugeHeight+gaugeSpacing)*1
-	gageX := float32(gaugeBaseX)
-
-	// 背景（暗いグレー領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{100, 100, 100, 255}, false)
-
-	// SP比率を計算
-	if maxSP > 0 {
-		spRatio := float32(currentSP) / float32(maxSP)
-		if spRatio > 1.0 {
-			spRatio = 1.0
-		}
-		if spRatio < 0.0 {
-			spRatio = 0.0
-		}
-
-		var barColor color.RGBA
-		if spRatio > 0.5 {
-			barColor = color.RGBA{255, 200, 0, 255}
-		} else {
-			intensity := uint8(spRatio * 2.0 * 200)
-			barColor = color.RGBA{255, intensity, 0, 255}
-		}
-
-		currentWidth := float32(gaugeWidth) * spRatio
-		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)
-	}
-
-	spText := fmt.Sprintf("%d/%d", currentSP, maxSP)
-	textWidth, _ := text.Measure(spText, info.bodyFace, 0)
-	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
-	textY := y + float64(gaugeHeight)/2 - 6.0
-	drawOutlinedText(screen, spText, info.bodyFace, textX, textY, color.White)
-}
-
-// drawElectricityBar はプレイヤーの電力ポイントゲージを描画する
-func (info *GameInfo) drawElectricityBar(screen *ebiten.Image, currentEP, maxEP int) {
-	y := gaugeBaseY + (gaugeHeight+gaugeSpacing)*2
-	gageX := float32(gaugeBaseX)
-
-	// 背景（暗い青い領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{0, 0, 80, 255}, false)
-
-	// EP比率を計算
-	if maxEP > 0 {
-		epRatio := float32(currentEP) / float32(maxEP)
-		if epRatio > 1.0 {
-			epRatio = 1.0
-		}
-		if epRatio < 0.0 {
-			epRatio = 0.0
-		}
-
-		var barColor color.RGBA
-		if epRatio > 0.5 {
-			intensity := uint8((1.0 - epRatio) * 2.0 * 100)
-			barColor = color.RGBA{intensity, 200, 255, 255}
-		} else {
-			intensity := uint8(epRatio * 2.0 * 200)
-			barColor = color.RGBA{0, intensity, 100 + uint8(epRatio*155), 255}
-		}
-
-		currentWidth := float32(gaugeWidth) * epRatio
-		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)
-	}
-
-	epText := fmt.Sprintf("%d/%d", currentEP, maxEP)
-	textWidth, _ := text.Measure(epText, info.bodyFace, 0)
-	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
-	textY := y + float64(gaugeHeight)/2 - 6.0
-	drawOutlinedText(screen, epText, info.bodyFace, textX, textY, color.White)
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する

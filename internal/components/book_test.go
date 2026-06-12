@@ -14,10 +14,10 @@ func TestBook_IsCompleted(t *testing.T) {
 		book     Book
 		expected bool
 	}{
-		{"未読", Book{Effort: Pool{Max: 10, Current: 0}}, false},
-		{"途中", Book{Effort: Pool{Max: 10, Current: 5}}, false},
-		{"読了", Book{Effort: Pool{Max: 10, Current: 10}}, true},
-		{"超過", Book{Effort: Pool{Max: 10, Current: 15}}, true},
+		{"未読", Book{Effort: IntPool{Max: 10, Current: 0}}, false},
+		{"途中", Book{Effort: IntPool{Max: 10, Current: 5}}, false},
+		{"読了", Book{Effort: IntPool{Max: 10, Current: 10}}, true},
+		{"超過", Book{Effort: IntPool{Max: 10, Current: 15}}, true},
 	}
 
 	for _, tt := range tests {

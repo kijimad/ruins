@@ -99,15 +99,13 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			entity.AddComponent(world.Components.CharModifiers, effects)
 		}
 
-		// Pools（HP/SP）を更新
-		if entity.HasComponent(world.Components.Pools) {
-			pools := world.Components.Pools.Get(entity).(*gc.Pools)
-
-			pools.HP.Max = maxHP(abils)
-			pools.HP.Current = min(pools.HP.Max, pools.HP.Current)
-			pools.SP.Max = maxSP(abils)
-			pools.SP.Current = min(pools.SP.Max, pools.SP.Current)
-
+		// HP/Poolsを更新
+		if entity.HasComponent(world.Components.HP) {
+			hp := world.Components.HP.Get(entity).(*gc.HP)
+			hp.Max = maxHP(abils)
+			hp.Current = min(hp.Max, hp.Current)
+		}
+		if entity.HasComponent(world.Components.CarryWeight) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
 			entity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
 		}
@@ -137,9 +135,4 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 // 30+(体力*8+力+感覚)
 func maxHP(abils *gc.Abilities) int {
 	return 30 + abils.Vitality.Total*8 + abils.Strength.Total + abils.Sensation.Total
-}
-
-// 体力*2+器用さ+素早さ
-func maxSP(abils *gc.Abilities) int {
-	return abils.Vitality.Total*2 + abils.Dexterity.Total + abils.Agility.Total
 }

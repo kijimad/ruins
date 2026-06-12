@@ -12542,6 +12542,7 @@ spriteSheetName = "tile"
 blockPass = false
 blockView = false
 description = "目覚まし時計"
+hp = 5
 name = "alarm_clock"
 
 [props.spriteRender]
@@ -12553,6 +12554,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "デザイナーズ本棚"
+hp = 20
 name = "artistic_shelf"
 
 [props.spriteRender]
@@ -12564,6 +12566,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "何か入っているかもしれない樽"
+hp = 20
 name = "barrel"
 
 [props.spriteRender]
@@ -12575,6 +12578,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "バスタブ"
+hp = 30
 name = "bathtub"
 
 [props.spriteRender]
@@ -12586,6 +12590,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "簡素だが清潔な寝台"
+hp = 25
 name = "bed"
 
 [props.spriteRender]
@@ -12597,6 +12602,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "ベッドランプ"
+hp = 5
 name = "bed_lamp"
 
 [props.spriteRender]
@@ -12618,6 +12624,7 @@ r = 255
 blockPass = true
 blockView = false
 description = "ベンチ"
+hp = 20
 name = "bench"
 
 [props.spriteRender]
@@ -12630,6 +12637,7 @@ animKeys = [ "bonfire_0", "bonfire_1", "bonfire_2", "bonfire_3", "bonfire_4", "b
 blockPass = true
 blockView = false
 description = "焚き火"
+hp = 15
 name = "bonfire"
 
 [props.spriteRender]
@@ -12651,6 +12659,7 @@ r = 255
 blockPass = true
 blockView = false
 description = "本がぎっしり詰まった本棚"
+hp = 25
 name = "book_shelf_2"
 
 [props.spriteRender]
@@ -12662,6 +12671,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "ガラス扉のついた本棚"
+hp = 20
 name = "book_showcase"
 
 [props.spriteRender]
@@ -12673,6 +12683,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = true
 description = "たくさんの本が並んだ本棚"
+hp = 25
 name = "bookshelf"
 
 [props.spriteRender]
@@ -12684,6 +12695,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "蝋燭。微かな光を灯す"
+hp = 3
 name = "candle"
 
 [props.spriteRender]
@@ -12695,7 +12707,9 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "敷かれた絨毯"
+hp = 10
 name = "carpet"
+passCost = 10
 
 [props.spriteRender]
 depth = 0
@@ -12706,6 +12720,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "座り心地の良い椅子"
+hp = 15
 name = "chair"
 
 [props.spriteRender]
@@ -12717,6 +12732,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "壁掛け時計"
+hp = 5
 name = "clock"
 
 [props.spriteRender]
@@ -12728,6 +12744,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "収納用のクローゼット"
+hp = 25
 name = "closet"
 
 [props.spriteRender]
@@ -12739,6 +12756,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "コーヒーメーカー"
+hp = 8
 name = "coffee_maker"
 
 [props.spriteRender]
@@ -12750,7 +12768,9 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "工事中の標識"
+hp = 10
 name = "construction_sign"
+passCost = 30
 
 [props.spriteRender]
 depth = 0
@@ -12761,6 +12781,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "頑丈そうな木箱"
+hp = 30
 name = "crate"
 
 [props.spriteRender]
@@ -12772,6 +12793,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "書類や文具が置かれた机"
+hp = 20
 name = "desk"
 
 [props.spriteRender]
@@ -12783,6 +12805,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "デスクランプ"
+hp = 5
 name = "desk_light"
 
 [props.spriteRender]
@@ -12794,6 +12817,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "デスクトップPC"
+hp = 20
 name = "desktop_pc"
 
 [props.spriteRender]
@@ -12805,6 +12829,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "食器棚"
+hp = 20
 name = "dish_shelf"
 
 [props.spriteRender]
@@ -12840,6 +12865,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "引き出し付きのチェスト"
+hp = 20
 name = "drawer_chest"
 
 [props.spriteRender]
@@ -12874,6 +12900,7 @@ r = 255
 blockPass = true
 blockView = false
 description = "電気式のロッカー"
+hp = 35
 name = "electric_locker"
 
 [props.spriteRender]
@@ -12885,6 +12912,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "旗を立てるポット"
+hp = 5
 name = "flag_pot"
 
 [props.spriteRender]
@@ -12896,6 +12924,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "産業用フォークリフト"
+hp = 50
 name = "forklift"
 
 [props.spriteRender]
@@ -12907,6 +12936,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "溶鉱炉。金属を精錬するのに使う"
+hp = 40
 name = "furnace"
 
 [props.spriteRender]
@@ -12918,6 +12948,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "計器類が並ぶ機械"
+hp = 30
 name = "gauge_machine"
 
 [props.spriteRender]
@@ -12929,6 +12960,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "緑色の発電機"
+hp = 40
 name = "generator_green"
 
 [props.spriteRender]
@@ -12940,6 +12972,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "黄色い発電機"
+hp = 40
 name = "generator_yellow"
 
 [props.spriteRender]
@@ -12951,6 +12984,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "商品が並ぶ棚"
+hp = 20
 name = "goods_shelf"
 
 [props.spriteRender]
@@ -12962,6 +12996,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "鉄製の棚"
+hp = 30
 name = "iron_shelf"
 
 [props.spriteRender]
@@ -12973,6 +13008,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "床置きランタン。広い範囲を明るく照らす"
+hp = 15
 name = "lantern"
 
 [props.spriteRender]
@@ -12994,6 +13030,7 @@ r = 255
 blockPass = true
 blockView = false
 description = "洗濯機。乾いた衣類が入っている"
+hp = 30
 name = "laundry"
 
 [props.spriteRender]
@@ -13005,6 +13042,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "電子レンジ"
+hp = 20
 name = "microwave"
 
 [props.spriteRender]
@@ -13016,6 +13054,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "姿見の鏡"
+hp = 5
 name = "mirror"
 
 [props.spriteRender]
@@ -13027,6 +13066,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "食品用のミキサー"
+hp = 8
 name = "mixer"
 
 [props.spriteRender]
@@ -13038,6 +13078,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "動く石。微かに振動している"
+passCost = 50
 name = "moving_stone"
 
 [props.spriteRender]
@@ -13049,6 +13090,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "古びたランプ。まだ灯りがつく"
+hp = 5
 name = "old_lamp"
 
 [props.spriteRender]
@@ -13060,6 +13102,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "大きな本棚"
+hp = 25
 name = "prop_bookshelf"
 
 [props.spriteRender]
@@ -13071,6 +13114,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "木の椅子"
+hp = 15
 name = "prop_chair"
 
 [props.spriteRender]
@@ -13082,6 +13126,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "小さなテーブル"
+hp = 20
 name = "prop_table"
 
 [props.spriteRender]
@@ -13093,6 +13138,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "冷蔵庫。中に食料が残っているかも"
+hp = 35
 name = "refrigerator"
 
 [props.spriteRender]
@@ -13104,6 +13150,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "レジスター。かつての店の名残"
+hp = 15
 name = "register"
 
 [props.spriteRender]
@@ -13115,6 +13162,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "流し台"
+hp = 25
 name = "sink"
 
 [props.spriteRender]
@@ -13126,6 +13174,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "革張りのソファ"
+hp = 20
 name = "sofa"
 
 [props.spriteRender]
@@ -13137,6 +13186,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "石の柱"
+hp = 50
 name = "stone_pillar"
 
 [props.spriteRender]
@@ -13148,6 +13198,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "頑丈な木製のテーブル"
+hp = 25
 name = "table"
 
 [props.spriteRender]
@@ -13159,6 +13210,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "背の高いスタンドランプ"
+hp = 8
 name = "tall_lamp"
 
 [props.spriteRender]
@@ -13170,6 +13222,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "便器。水は出ない"
+hp = 15
 name = "toilet"
 
 [props.spriteRender]
@@ -13227,6 +13280,7 @@ r = 100
 blockPass = true
 blockView = false
 description = "木製の本棚"
+hp = 25
 name = "wood_bookshelf"
 
 [props.spriteRender]
@@ -13238,6 +13292,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "木製のチェスト。何か入っているかもしれない"
+hp = 25
 name = "wood_chest"
 
 [props.spriteRender]
@@ -13249,6 +13304,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "木製の地図看板"
+hp = 10
 name = "wooden_map_sign"
 
 [props.spriteRender]
@@ -13260,6 +13316,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "木製の道標"
+hp = 10
 name = "wooden_sign"
 
 [props.spriteRender]
@@ -13271,6 +13328,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "シンク"
+hp = 25
 name = "シンク"
 
 [props.spriteRender]
@@ -13282,6 +13340,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "鏡台付きのドレッサー"
+hp = 20
 name = "ドレッサー"
 
 [props.spriteRender]
@@ -13293,6 +13352,7 @@ spriteSheetName = "field"
 blockPass = false
 blockView = false
 description = "ベッドサイドテーブル"
+hp = 10
 name = "ベッドサイド"
 
 [props.spriteRender]
@@ -13304,6 +13364,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "二人がけのソファ"
+hp = 25
 name = "二人がけのソファ"
 
 [props.spriteRender]
@@ -13315,6 +13376,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "使い込まれた仕事机"
+hp = 20
 name = "仕事机"
 
 [props.spriteRender]
@@ -13326,6 +13388,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "暖炉。かすかに温もりが残る"
+hp = 40
 name = "暖炉"
 
 [props.spriteRender]
@@ -13337,6 +13400,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "毒々しい色の液体が入った危険な樽"
+hp = 15
 name = "毒樽"
 
 [props.spriteRender]
@@ -13348,6 +13412,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "毛皮張りの高級な椅子"
+hp = 20
 name = "毛皮張りの椅子"
 
 [props.spriteRender]
@@ -13359,6 +13424,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "廃墟に残された洗濯機。もう動かない"
+hp = 30
 name = "洗濯機"
 
 [props.spriteRender]
@@ -13370,6 +13436,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "水が入ったままの洗濯機。重くて動かせない"
+hp = 35
 name = "洗濯機(満杯)"
 
 [props.spriteRender]
@@ -13381,6 +13448,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "白く塗られた清潔な樽"
+hp = 20
 name = "白い樽"
 
 [props.spriteRender]
@@ -13392,6 +13460,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "深緑色に塗装されたドラム缶。軍用物資が入っている"
+hp = 30
 name = "緑のドラム缶"
 
 [props.spriteRender]
@@ -13403,6 +13472,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "茶色の木製の樽。中に物資が入っていることがある"
+hp = 20
 name = "茶色い樽"
 
 [props.spriteRender]
@@ -13414,6 +13484,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "赤く塗装されたドラム缶。可燃物の警告マークがある"
+hp = 30
 name = "赤いドラム缶"
 
 [props.spriteRender]
@@ -13425,6 +13496,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "黒い革張りの椅子"
+hp = 20
 name = "黒いチェア"
 
 [props.spriteRender]
@@ -13436,6 +13508,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "艶のある黒い花瓶。高級感がある"
+hp = 5
 name = "黒い花瓶"
 
 [props.spriteRender]

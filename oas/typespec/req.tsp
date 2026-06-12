@@ -303,6 +303,8 @@ model Prop {
   animKeys?: SpriteKey[];
   blockPass: BlocksPassage;
   blockView: BlocksView;
+  passCost?: PassCost;
+  hp?: HitPoints;
   lightSource?: LightSource;
   door?: DoorRaw;
   doorLockTrigger?: DoorLockTriggerRaw;

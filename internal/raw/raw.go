@@ -192,7 +192,7 @@ func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {
 	}
 
 	return &gc.Book{
-		Effort: gc.Pool{Max: int(b.TotalEffort)},
+		Effort: gc.IntPool{Max: int(b.TotalEffort)},
 		Skill: &gc.SkillBookEffect{
 			TargetSkill:   skillID,
 			MaxLevel:      int(b.Skill.MaxLevel),
@@ -406,7 +406,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 
 	entitySpec := gc.EntitySpec{}
 	entitySpec.Name = &gc.Name{Name: member.Name}
-	entitySpec.TurnBased = &gc.TurnBased{AP: gc.Pool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
+	entitySpec.TurnBased = &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}} // TODO: Abilitiesから計算する
 	entitySpec.SpriteRender = &gc.SpriteRender{
 		SpriteSheetName: member.SpriteSheetName,
 		SpriteKey:       member.SpriteKey,
@@ -421,7 +421,8 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		Agility:   gc.Ability{Base: int(member.Abilities.Agility)},
 		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
 	}
-	entitySpec.Pools = &gc.Pools{}
+	entitySpec.HP = &gc.HP{}
+	entitySpec.CarryWeight = &gc.CarryWeight{}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}
@@ -621,11 +622,22 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 	entitySpec.SpriteRender = &spriteRender
 
+	if propRaw.BlockPass && propRaw.PassCost != nil {
+		return gc.EntitySpec{}, fmt.Errorf("prop '%s': blockPassとpassCostは同時に設定できません。通行不可ならpassCostは不要です", name)
+	}
 	if propRaw.BlockPass {
 		entitySpec.BlockPass = &gc.BlockPass{}
 	}
 	if propRaw.BlockView {
 		entitySpec.BlockView = &gc.BlockView{}
+	}
+	if propRaw.PassCost != nil {
+		entitySpec.PassCost = &gc.PassCost{Value: int(*propRaw.PassCost)}
+	}
+	if propRaw.Hp != nil {
+		hp := int(*propRaw.Hp)
+		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
+		entitySpec.Interactable = &gc.Interactable{Data: gc.MeleeInteraction{}}
 	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)

@@ -104,6 +104,15 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 			Label:  "ダンジョンを選ぶ",
 			Target: interactableEntity,
 		})
+	case gc.MeleeInteraction:
+		// 近接攻撃対象をメニューに表示する
+		if interactableEntity.HasComponent(world.Components.Name) {
+			name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+			result = append(result, InteractionAction{
+				Label:  "攻撃する(" + name.Name + ")",
+				Target: interactableEntity,
+			})
+		}
 	}
 
 	return result

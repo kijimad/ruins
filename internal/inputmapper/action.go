@@ -33,6 +33,7 @@ const (
 const (
 	ActionPickup  ActionID = "pickup"
 	ActionDrop    ActionID = "drop"
+	ActionPlace   ActionID = "place"
 	ActionUseItem ActionID = "use_item"
 	ActionEquip   ActionID = "equip"
 	ActionUnequip ActionID = "unequip"

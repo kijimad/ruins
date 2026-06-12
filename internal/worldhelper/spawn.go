@@ -22,13 +22,6 @@ const (
 	// AI設定
 	aiVisionDistance = 5 // AIの視界距離（タイル単位）
 
-	// ステータス計算係数
-	spVitalityMultiply  = 2    // SP計算の体力係数
-	epBaseValue         = 50   // EP計算の基本値
-	epSensationMultiply = 3    // EP計算の感覚係数
-	hpLevelGrowthRate   = 0.03 // HPのレベル成長率
-	spLevelGrowthRate   = 0.02 // SPのレベル成長率
-
 	// Speed計算係数
 	speedBaseValue         = 100 // Speed計算の基本値
 	speedAgilityMultiply   = 2   // Speed計算の敏捷係数
@@ -91,8 +84,8 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	speed += calculateStatusSpeedPenalty(world, entity)
 	speed += calculateOverweightPenalty(world, entity)
 
-	// MoveCost Effect倍率を適用する。
-	// MoveCost 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
+	// MoveCost倍率を適用する。
+	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	if entity.HasComponent(world.Components.CharModifiers) {
 		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
 		moveCost := effects.MoveCost
@@ -111,7 +104,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 }
 
 // calculateStatusSpeedPenalty は状態異常によるSpeedペナルティを計算する。
-// 体温ペナルティはEffects.MoveCost経由で適用されるためここには含まない。
+// 体温ペナルティはCharModifiers.MoveCost経由で適用されるためここには含まない。
 func calculateStatusSpeedPenalty(world w.World, entity ecs.Entity) int {
 	penalty := 0
 
@@ -144,21 +137,21 @@ func hungerSpeedPenalty(current int) int {
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
 func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
-	poolsComp := world.Components.Pools.Get(entity)
-	if poolsComp == nil {
+	cwComp := world.Components.CarryWeight.Get(entity)
+	if cwComp == nil {
 		return 0
 	}
 
-	pools := poolsComp.(*gc.Pools)
-	if pools.Weight.Max == 0 {
+	cw := cwComp.(*gc.CarryWeight)
+	if cw.Max == 0 {
 		return 0
 	}
 
 	// 最大重量を超えた分に応じてペナルティ
 	// 超過分の25%をペナルティとする（最大-75）
-	if pools.Weight.Current > pools.Weight.Max {
-		overweight := pools.Weight.Current - pools.Weight.Max
-		penalty := int((overweight * 25) / pools.Weight.Max)
+	if cw.Current > cw.Max {
+		overweight := cw.Current - cw.Max
+		penalty := int((overweight * 25) / cw.Max)
 		if penalty > 75 {
 			penalty = 75
 		}
@@ -440,29 +433,19 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	return entity, nil
 }
 
-// FullRecover はエンティティのHP/SP/EP/APを全回復する
+// FullRecover はエンティティのHP/APを全回復する
 func FullRecover(world w.World, entity ecs.Entity) error {
-	// 新しく生成されたエンティティの最大HP/SPを設定
-	if err := setMaxHPSP(world, entity); err != nil {
-		return fmt.Errorf("最大HP/SP設定エラー: %w", err)
+	if err := setMaxStats(world, entity); err != nil {
+		return fmt.Errorf("最大HP設定エラー: %w", err)
 	}
-
-	// Poolsコンポーネントを取得
-	poolsComponent := world.Components.Pools.Get(entity)
-	if poolsComponent == nil {
-		return fmt.Errorf("Poolsコンポーネントがありません")
-	}
-
-	pools := poolsComponent.(*gc.Pools)
 
 	// HP全回復
-	pools.HP.Current = pools.HP.Max
-
-	// SP全回復
-	pools.SP.Current = pools.SP.Max
-
-	// EP全回復
-	pools.EP.Current = pools.EP.Max
+	hpComponent := world.Components.HP.Get(entity)
+	if hpComponent == nil {
+		return fmt.Errorf("HPコンポーネントがありません")
+	}
+	hp := hpComponent.(*gc.HP)
+	hp.Current = hp.Max
 
 	// TurnBasedコンポーネントがある場合は最大APに設定
 	if entity.HasComponent(world.Components.TurnBased) {
@@ -478,14 +461,13 @@ func FullRecover(world w.World, entity ecs.Entity) error {
 	return nil
 }
 
-// setMaxHPSP はエンティティの最大HP/SPを設定する
-func setMaxHPSP(world w.World, entity ecs.Entity) error {
-
-	if !entity.HasComponent(world.Components.Pools) || !entity.HasComponent(world.Components.Abilities) {
-		return fmt.Errorf("entity %v does not have required components (Pools or Abilities)", entity)
+// setMaxStats はエンティティの最大HPを設定する
+func setMaxStats(world w.World, entity ecs.Entity) error {
+	if !entity.HasComponent(world.Components.HP) || !entity.HasComponent(world.Components.Abilities) {
+		return fmt.Errorf("entity %v does not have required components (HP or Abilities)", entity)
 	}
 
-	pools := world.Components.Pools.Get(entity).(*gc.Pools)
+	hp := world.Components.HP.Get(entity).(*gc.HP)
 	abils := world.Components.Abilities.Get(entity).(*gc.Abilities)
 
 	// Totalが設定されていない場合はBaseから初期化
@@ -508,16 +490,8 @@ func setMaxHPSP(world w.World, entity ecs.Entity) error {
 		abils.Defense.Total = abils.Defense.Base
 	}
 
-	pools.HP.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
-	pools.HP.Current = pools.HP.Max
-
-	// 最大SP計算: (体力*multiplyV+器用さ+素早さ)
-	pools.SP.Max = abils.Vitality.Total*spVitalityMultiply + abils.Dexterity.Total + abils.Agility.Total
-	pools.SP.Current = pools.SP.Max
-
-	// 最大EP計算: base+(感覚*multiplyS+器用さ)
-	pools.EP.Max = int(epBaseValue) + abils.Sensation.Total*epSensationMultiply + abils.Dexterity.Total
-	pools.EP.Current = pools.EP.Max
+	hp.Max = formula.CalcHP(abils.Vitality.Total, abils.Strength.Total, abils.Sensation.Total)
+	hp.Current = hp.Max
 
 	return nil
 }

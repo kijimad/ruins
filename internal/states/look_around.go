@@ -252,6 +252,9 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 		}
 	}
 
+	// 移動コストを表示
+	st.drawPassCost(world, entities, &y, drawText)
+
 	// タイル温度を表示（TileTemperatureコンポーネントを持つエンティティ）
 	st.drawTileTemperature(world, entities, &y, drawText)
 
@@ -277,12 +280,14 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 		typeStr = "[NPC]"
 	case entity.HasComponent(world.Components.Item):
 		typeStr = "[物]"
-	case entity.HasComponent(world.Components.BlockPass) && entity.HasComponent(world.Components.BlockView):
-		typeStr = "[壁]"
-	case entity.HasComponent(world.Components.BlockPass):
-		typeStr = "[障害物]"
+	case entity.HasComponent(world.Components.Prop):
+		typeStr = "[置物]"
 	default:
-		typeStr = "[床]"
+		// 床・壁などは名前だけ表示する
+		if name != "" {
+			drawText(name)
+		}
+		return
 	}
 
 	if name != "" {
@@ -292,9 +297,35 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 	}
 
 	// HPを持つエンティティはHP表示
-	if entity.HasComponent(world.Components.Pools) {
-		pools := world.Components.Pools.Get(entity).(*gc.Pools)
-		drawText(fmt.Sprintf("  HP: %d/%d", pools.HP.Current, pools.HP.Max))
+	if entity.HasComponent(world.Components.HP) {
+		hp := world.Components.HP.Get(entity).(*gc.HP)
+		label := "HP"
+		if entity.HasComponent(world.Components.Prop) {
+			label = "耐久"
+		}
+		drawText(fmt.Sprintf("  %s: %d/%d", label, hp.Current, hp.Max))
+	}
+}
+
+// drawPassCost は移動コストを描画する
+func (st *LookAroundState) drawPassCost(world w.World, entities []ecs.Entity, y *int, drawText func(string)) {
+	blocked := false
+	totalAdd := 0
+	for _, entity := range entities {
+		if entity.HasComponent(world.Components.BlockPass) {
+			blocked = true
+		}
+		if entity.HasComponent(world.Components.PassCost) {
+			mc := world.Components.PassCost.Get(entity).(*gc.PassCost)
+			totalAdd += mc.Value
+		}
+	}
+	*y += 5
+	if blocked {
+		drawText("移動コスト: 不可")
+	} else {
+		cost := consts.StandardActionCost + totalAdd
+		drawText(fmt.Sprintf("移動コスト: %d", cost))
 	}
 }
 

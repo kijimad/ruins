@@ -276,6 +276,84 @@ func TestActivitySummary(t *testing.T) {
 	assert.Equal(t, 1, summary["paused"], "Expected 1 paused activity")
 }
 
+func TestGetPassCostAt(t *testing.T) {
+	t.Parallel()
+
+	t.Run("PassCostがないタイルでは0を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		cost := getPassCostAt(world, 5, 5)
+		assert.Equal(t, 0, cost)
+	})
+
+	t.Run("PassCostがあるタイルではValue値を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		prop.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 50})
+
+		cost := getPassCostAt(world, 5, 5)
+		assert.Equal(t, 50, cost)
+	})
+
+	t.Run("同一タイルに複数のPassCostがある場合は合算する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		prop1 := world.Manager.NewEntity()
+		prop1.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		prop1.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 30})
+
+		prop2 := world.Manager.NewEntity()
+		prop2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+		prop2.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 20})
+
+		cost := getPassCostAt(world, 5, 5)
+		assert.Equal(t, 50, cost)
+	})
+}
+
+func TestConsumePassCostWithPassCost(t *testing.T) {
+	t.Parallel()
+
+	t.Run("PassCostがある移動先ではAPコストが増加する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		// 通常移動のAP消費を記録する
+		tbBefore := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+		apBefore := tbBefore.AP.Current
+
+		params := ActionParams{Actor: player, Destination: &gc.GridElement{X: 11, Y: 10}}
+		_, err = Execute(&MoveActivity{}, params, world)
+		require.NoError(t, err)
+
+		normalCost := apBefore - tbBefore.AP.Current
+
+		// APをリセットしてPassCostありの移動をテスト
+		tbBefore.AP.Current = apBefore
+
+		// 移動先にPassCostを持つPropを配置
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 12, Y: 10})
+		prop.AddComponent(world.Components.PassCost, &gc.PassCost{Value: 50})
+
+		params = ActionParams{Actor: player, Destination: &gc.GridElement{X: 12, Y: 10}}
+		_, err = Execute(&MoveActivity{}, params, world)
+		require.NoError(t, err)
+
+		modCost := apBefore - tbBefore.AP.Current
+		// PassCost 50加算: normalCost + 50
+		assert.Equal(t, normalCost+50, modCost)
+	})
+}
+
 func TestLastActivity(t *testing.T) {
 	t.Parallel()
 
