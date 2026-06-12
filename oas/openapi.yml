@@ -1893,6 +1893,12 @@ components:
         - ABSOLUTE
         - NUMERAL
       description: 回復量の計算方式
+    HitPoints:
+      type: integer
+      format: int32
+      minimum: 1
+      maximum: 9999
+      description: 耐久値。設定すると破壊可能になる
     ImagePath:
       type: string
       minLength: 1
@@ -2432,11 +2438,7 @@ components:
         passCost:
           $ref: '#/components/schemas/PassCost'
         hp:
-          type: integer
-          format: int32
-          minimum: 1
-          maximum: 9999
-          description: 耐久値。設定すると破壊可能になる
+          $ref: '#/components/schemas/HitPoints'
         lightSource:
           $ref: '#/components/schemas/LightSource'
         door:

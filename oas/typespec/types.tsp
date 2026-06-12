@@ -80,6 +80,11 @@ scalar EntityName extends string;
 @minValue(0)
 scalar EntryWeight extends float64;
 
+/** 耐久値。設定すると破壊可能になる */
+@minValue(1)
+@maxValue(9999)
+scalar HitPoints extends int32;
+
 /** 回復固定量 */
 @minValue(0)
 @maxValue(9999)

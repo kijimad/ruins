@@ -772,6 +772,9 @@ type HealRatio = float64
 // HealingValueType 回復量の計算方式
 type HealingValueType string
 
+// HitPoints 耐久値。設定すると破壊可能になる
+type HitPoints = int32
+
 // ImagePath 画像ファイルパス
 type ImagePath = string
 
@@ -1152,7 +1155,7 @@ type Prop struct {
 	DungeonGateTrigger *DungeonGateTriggerRaw `json:"dungeonGateTrigger,omitempty"`
 
 	// Hp 耐久値。設定すると破壊可能になる
-	Hp *int32 `json:"hp,omitempty"`
+	Hp *HitPoints `json:"hp,omitempty"`
 
 	// LightSource 光源設定
 	LightSource *LightSource `json:"lightSource,omitempty"`
