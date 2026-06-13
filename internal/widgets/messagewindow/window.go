@@ -272,13 +272,10 @@ func (w *Window) calculateWindowSize() WindowSize {
 		// 合計高さを計算
 		calculatedHeight := messageHeight + choiceHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight
 
-		// 最低高さと最大高さを設定
-		minHeightWithChoices := 300
-		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8) // 画面高さの80%まで
+		// 最大高さを画面高さの80%に制限
+		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
 
-		if calculatedHeight < minHeightWithChoices {
-			baseHeight = minHeightWithChoices
-		} else if calculatedHeight > maxHeightWithChoices {
+		if calculatedHeight > maxHeightWithChoices {
 			baseHeight = maxHeightWithChoices
 		} else {
 			baseHeight = calculatedHeight
