@@ -19,7 +19,7 @@
 | <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status | <img src="internal/states/testdata/TestGolden_Town.png" width="200" /><br>Town | | |
 
 
-各画像は自動キャプチャされる。
+各画像はゴールデンテストで自動生成される。
 
 ## キーボード操作
 
