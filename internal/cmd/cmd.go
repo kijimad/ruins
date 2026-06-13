@@ -26,8 +26,8 @@ func NewMainApp() *cli.Command {
 		Version:     consts.AppVersion,
 		Commands: []*cli.Command{
 			CmdPlay,
-			CmdScreenshot,
 			CmdSimulateBalance,
+			CmdGenReadme,
 		},
 	}
 

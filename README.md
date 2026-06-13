@@ -9,23 +9,17 @@
 
 ## Play Images
 
-<img src="./vrtimages/MainMenu.png" width="50%" /><img src="./vrtimages/Dungeon.png" width="50%" />
+| | | | |
+|---|---|---|---|
+| <img src="internal/states/testdata/TestGolden_AutoSell.png" width="200" /><br>AutoSell | <img src="internal/states/testdata/TestGolden_CharacterJob.png" width="200" /><br>CharacterJob | <img src="internal/states/testdata/TestGolden_CharacterNaming.png" width="200" /><br>CharacterNaming | <img src="internal/states/testdata/TestGolden_CraftMenu.png" width="200" /><br>CraftMenu |
+| <img src="internal/states/testdata/TestGolden_DebugMenu.png" width="200" /><br>DebugMenu | <img src="internal/states/testdata/TestGolden_Dungeon.png" width="200" /><br>Dungeon | <img src="internal/states/testdata/TestGolden_DungeonSelect.png" width="200" /><br>DungeonSelect | <img src="internal/states/testdata/TestGolden_EquipMenu.png" width="200" /><br>EquipMenu |
+| <img src="internal/states/testdata/TestGolden_GameOver.png" width="200" /><br>GameOver | <img src="internal/states/testdata/TestGolden_InventoryMenu.png" width="200" /><br>InventoryMenu | <img src="internal/states/testdata/TestGolden_LoadMenu.png" width="200" /><br>LoadMenu | <img src="internal/states/testdata/TestGolden_LookAround.png" width="200" /><br>LookAround |
+| <img src="internal/states/testdata/TestGolden_MainMenu.png" width="200" /><br>MainMenu | <img src="internal/states/testdata/TestGolden_Message.png" width="200" /><br>Message | <img src="internal/states/testdata/TestGolden_PersistentMessage.png" width="200" /><br>PersistentMessage | <img src="internal/states/testdata/TestGolden_Pickup.png" width="200" /><br>Pickup |
+| <img src="internal/states/testdata/TestGolden_Place.png" width="200" /><br>Place | <img src="internal/states/testdata/TestGolden_SaveMenu.png" width="200" /><br>SaveMenu | <img src="internal/states/testdata/TestGolden_Shooting.png" width="200" /><br>Shooting | <img src="internal/states/testdata/TestGolden_ShopMenu.png" width="200" /><br>ShopMenu |
+| <img src="internal/states/testdata/TestGolden_Status.png" width="200" /><br>Status | <img src="internal/states/testdata/TestGolden_Town.png" width="200" /><br>Town | | |
 
-<img src="./vrtimages/Town.png" width="50%" /><img src="./vrtimages/InventoryMenu.png" width="50%" />
 
-<img src="./vrtimages/CraftMenu.png" width="50%" /><img src="./vrtimages/EquipMenu.png" width="50%" />
-
-<img src="./vrtimages/LoadMenu.png" width="50%" /><img src="./vrtimages/SaveMenu.png" width="50%" />
-
-<img src="./vrtimages/GameOver.png" width="50%" /><img src="./vrtimages/Message.png" width="50%" />
-
-<img src="./vrtimages/DebugMenu.png" width="50%" /><img src="./vrtimages/ShopMenu.png" width="50%" />
-
-<img src="./vrtimages/LookAround.png" width="50%" /><img src="./vrtimages/AutoSell.png" width="50%" />
-
-<img src="./vrtimages/DungeonSelect.png" width="50%" />
-
-各画像は全自動でキャプチャされる。最新なことをCIで保証している。
+各画像はゴールデンテストで自動生成される。
 
 ## キーボード操作
 
@@ -51,21 +45,7 @@
 依存関係はDockerfileを参考にする。
 
 ```
-$ make
-run                  実行する。スクショのキーを指定している
-test                 テストを実行する
-report               AIが読みやすい形でカバレッジレポートを表示する
-build                ビルドする
-vrt                  各ステートでスクショを取得する
-fmt                  フォーマットする
-lint                 Linterを実行する
-gendata              現在の設定でデータファイルを生成する
-aseprite             asepriteでパッキングする。画像の変更を反映したら実行する
-toolsinstall         開発ツールをインストールする
-check                一気にチェックする
-memp                 実行毎に保存しているプロファイルを見る
-pprof                サーバ経由で取得したプロファイルを見る。起動中でなければならない
-help                 ヘルプを表示する
+$ make help
 ```
 
 ## Reference

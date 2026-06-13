@@ -182,9 +182,11 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 	op.GeoM.Translate(cursorPixelX, cursorPixelY)
 	gs.SetTranslate(world, op)
 
-	// 点滅エフェクト: アルファ値を変化させる
-	alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-	op.ColorScale.ScaleAlpha(float32(alpha))
+	// 点滅エフェクト: アルファ値を変化させる。アニメーション無効時は固定値
+	if !world.Config.DisableAnimation {
+		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
+		op.ColorScale.ScaleAlpha(float32(alpha))
+	}
 
 	screen.DrawImage(cursorImageCache, op)
 }

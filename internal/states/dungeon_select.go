@@ -75,7 +75,10 @@ func (st *DungeonSelectState) Update(world w.World) (es.Transition[w.World], err
 
 // Draw はステートの描画処理
 func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
-	// 右半分に選択中ダンジョンの背景画像を描画する
+	// ウィジェットを先に描画する
+	st.widget.Draw(screen)
+
+	// 画像をパネルの上に描画して、半透明パネルで暗くならないようにする
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
 	if !ok {
 		return fmt.Errorf("dselectステートの取得に失敗")
@@ -99,20 +102,15 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 		rect := image.Rect(sprite.X, sprite.Y, sprite.X+sprite.Width, sprite.Y+sprite.Height)
 		bgImage := bgSheet.Texture.Image.SubImage(rect).(*ebiten.Image)
 
-		// 右パネル位置にパディング付きでスケーリングして描画する
-		padding := 12.0
+		scaleX := float64(dungeonSelectImageWidth) / float64(sprite.Width)
+		scaleY := float64(dungeonSelectImageHeight) / float64(sprite.Height)
+
 		op := &ebiten.DrawImageOptions{}
-		panelX := float64(dungeonSelectLeftWidth) + padding
-		panelW := float64(consts.MinGameWidth-dungeonSelectLeftWidth) - padding*2
-		panelH := float64(dungeonSelectImageHeight) - padding
-		scaleX := panelW / float64(sprite.Width)
-		scaleY := panelH / float64(sprite.Height)
 		op.GeoM.Scale(scaleX, scaleY)
-		op.GeoM.Translate(panelX, padding)
+		op.GeoM.Translate(dungeonSelectImageX, dungeonSelectImageY)
 		screen.DrawImage(bgImage, op)
 	}
 
-	st.widget.Draw(screen)
 	return nil
 }
 
@@ -138,8 +136,20 @@ func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (
 
 // レイアウト定数
 const (
-	dungeonSelectLeftWidth   = 160
-	dungeonSelectImageHeight = 480
+	dungeonSelectListWidth   = 160
+	dungeonSelectImageWidth  = 320
+	dungeonSelectImageHeight = 240
+	dungeonSelectWindowPad   = 20
+)
+
+// ウィンドウ中央配置から算出した画像描画位置。
+// ウィンドウ幅 = pad + listWidth + pad(spacing) + imageWidth + pad
+const (
+	dungeonSelectWindowWidth = dungeonSelectWindowPad*3 + dungeonSelectListWidth + dungeonSelectImageWidth
+	// ウィンドウ左端X = (screenW - windowW) / 2
+	// 画像左端X = ウィンドウ左端 + pad + listWidth + pad(spacing)
+	dungeonSelectImageX = float64(consts.MinGameWidth-dungeonSelectWindowWidth)/2 + dungeonSelectWindowPad*2 + dungeonSelectListWidth
+	dungeonSelectImageY = float64(consts.MinGameHeight-dungeonSelectImageHeight) / 2
 )
 
 type dungeonSelectProps struct {
@@ -147,11 +157,10 @@ type dungeonSelectProps struct {
 }
 
 type dungeonSelectItem struct {
-	Name        string
-	Description string
-	Cleared     bool
-	ImageKey    string // bgスプライトシート内のキー
-	IsCancel    bool   // 「やめる」項目
+	Name     string
+	Cleared  bool
+	ImageKey string // bgスプライトシート内のキー
+	IsCancel bool   // 「やめる」項目
 }
 
 func (st *DungeonSelectState) fetchProps(world w.World) dungeonSelectProps {
@@ -161,10 +170,9 @@ func (st *DungeonSelectState) fetchProps(world w.World) dungeonSelectProps {
 
 	for _, d := range allDungeons {
 		items = append(items, dungeonSelectItem{
-			Name:        d.Name,
-			Description: d.Description,
-			Cleared:     gp.IsDungeonCleared(d.Name),
-			ImageKey:    d.ImageKey,
+			Name:     d.Name,
+			Cleared:  gp.IsDungeonCleared(d.Name),
+			ImageKey: d.ImageKey,
 		})
 	}
 
@@ -186,7 +194,6 @@ func (st *DungeonSelectState) handleSelection() (es.Transition[w.World], error) 
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	}
 
-	// ダンジョンへ遷移する
 	return es.Transition[w.World]{
 		Type: es.TransPush,
 		NewStateFuncs: []es.StateFactory[w.World]{
@@ -205,37 +212,55 @@ func (st *DungeonSelectState) buildUI(world w.World) *ebitenui.UI {
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "dselect")
 	itemIndex := menuState.ItemIndex
 
-	// ルートコンテナ: 横2列（左リスト | 右詳細）
-	// 背景画像はDrawで直接描画するため、ルートは透明にする
 	root := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewGridLayout(
-			widget.GridLayoutOpts.Columns(2),
-			widget.GridLayoutOpts.Spacing(0, 0),
-			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{true}),
-			widget.GridLayoutOpts.Padding(&widget.Insets{
-				Top: theme.Space2, Bottom: theme.Space2, Left: theme.Space2, Right: theme.Space2,
-			}),
-		)),
+		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
-	root.AddChild(st.buildListPanel(props, itemIndex, res))
-	root.AddChild(st.buildDetailPanel(props, itemIndex, res))
-
-	return &ebitenui.UI{Container: root}
-}
-
-func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex int, res resources.UIResources) *widget.Container {
-	container := widget.NewContainer(
+	// ウィンドウコンテナ: 左に選択肢、右に画像スペーサーを横並びにする
+	windowContainer := widget.NewContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(theme.Space2),
-			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top: theme.Space6, Bottom: theme.Space4, Left: theme.Space2, Right: theme.Space2,
+		widget.ContainerOpts.Layout(widget.NewGridLayout(
+			widget.GridLayoutOpts.Columns(2),
+			widget.GridLayoutOpts.Spacing(dungeonSelectWindowPad, 0),
+			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{true}),
+			widget.GridLayoutOpts.Padding(&widget.Insets{
+				Top: dungeonSelectWindowPad, Bottom: dungeonSelectWindowPad,
+				Left: dungeonSelectWindowPad, Right: dungeonSelectWindowPad,
 			}),
 		)),
 		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(dungeonSelectLeftWidth, 0),
+			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
+				HorizontalPosition: widget.AnchorLayoutPositionCenter,
+				VerticalPosition:   widget.AnchorLayoutPositionCenter,
+			}),
+			widget.WidgetOpts.MinSize(dungeonSelectWindowWidth, 0),
+		),
+	)
+
+	// 左: 選択肢リスト
+	windowContainer.AddChild(st.buildListItems(props, itemIndex, res))
+
+	// 右: 画像エリアのスペーサー（Drawで直接描画する）
+	spacer := widget.NewContainer(
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.MinSize(dungeonSelectImageWidth, dungeonSelectImageHeight),
+		),
+		widget.ContainerOpts.Layout(widget.NewRowLayout()),
+	)
+	windowContainer.AddChild(spacer)
+
+	root.AddChild(windowContainer)
+	return &ebitenui.UI{Container: root}
+}
+
+func (st *DungeonSelectState) buildListItems(props dungeonSelectProps, itemIndex int, res resources.UIResources) *widget.Container {
+	container := widget.NewContainer(
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
+		)),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.MinSize(dungeonSelectListWidth, 0),
 		),
 	)
 
@@ -247,35 +272,6 @@ func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex
 		}
 		color := theme.TextPrimary
 		container.AddChild(styled.NewListItemText(label, color, isSelected, res))
-	}
-
-	return container
-}
-
-func (st *DungeonSelectState) buildDetailPanel(props dungeonSelectProps, itemIndex int, res resources.UIResources) *widget.Container {
-	container := widget.NewContainer(
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(theme.Space2),
-			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top: theme.Space2, Bottom: theme.Space4, Left: theme.Space3, Right: theme.Space3,
-			}),
-		)),
-	)
-
-	// 画像エリアのスペーサー（Drawで直接描画するので空のコンテナで高さを確保する）
-	spacer := widget.NewContainer(
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.MinSize(0, dungeonSelectImageHeight),
-		),
-		widget.ContainerOpts.Layout(widget.NewRowLayout()),
-	)
-	container.AddChild(spacer)
-
-	// 説明文
-	if itemIndex < len(props.Items) && !props.Items[itemIndex].IsCancel {
-		item := props.Items[itemIndex]
-		container.AddChild(styled.NewMenuText(item.Description, res))
 	}
 
 	return container

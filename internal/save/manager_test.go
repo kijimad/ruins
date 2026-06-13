@@ -62,10 +62,7 @@ func TestStableIDGeneration(t *testing.T) {
 
 func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	t.Parallel()
-	testDir := "./test_saves"
-	defer func() {
-		_ = os.RemoveAll(testDir)
-	}()
+	testDir := t.TempDir()
 
 	manager := NewSerializationManager(testDir)
 	world := testutil.InitTestWorld(t)
@@ -103,10 +100,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 
 func TestSerializationManager_EmptyWorld(t *testing.T) {
 	t.Parallel()
-	testDir := "./test_saves_empty"
-	defer func() {
-		_ = os.RemoveAll(testDir)
-	}()
+	testDir := t.TempDir()
 
 	manager := NewSerializationManager(testDir)
 	world := testutil.InitTestWorld(t)
@@ -131,13 +125,7 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 
 func TestValidJSONButNoChecksum(t *testing.T) {
 	t.Parallel()
-	testDir := "./test_saves_valid_no_checksum"
-	defer func() {
-		_ = os.RemoveAll(testDir)
-	}()
-
-	err := os.MkdirAll(testDir, 0755)
-	require.NoError(t, err)
+	testDir := t.TempDir()
 
 	validJSONNoChecksum := `{
 		"version": "1.0.0",
@@ -146,7 +134,7 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 			"entities": []
 		}
 	}`
-	err = os.WriteFile(testDir+"/valid_no_checksum.json", []byte(validJSONNoChecksum), 0644)
+	err := os.WriteFile(testDir+"/valid_no_checksum.json", []byte(validJSONNoChecksum), 0644)
 	require.NoError(t, err)
 
 	manager := NewSerializationManager(testDir)

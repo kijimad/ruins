@@ -1,5 +1,8 @@
 .DEFAULT_GOAL := help
 
+# bwrapが利用可能か実行時にテストする。CI環境ではunprivileged user namespaceが制限されていて使えない場合がある
+BWRAP_CMD := $(shell bwrap --dev-bind / / --tmpfs /dev/input -- true 2>/dev/null && echo "bwrap --dev-bind / / --tmpfs /dev/input --")
+
 .PHONY: run
 run: ## 実行する。スクショのキーを指定している
 	RUINS_PROFILE=development \
@@ -10,10 +13,13 @@ editor: ## ゲームデータエディタを起動する
 	npm run --prefix editor-ui dev
 
 .PHONY: test
-test: ## テストを実行する
+test: ## テストを実行する。COUNT=N で繰り返し実行できる（デフォルト1）
 	# editor-ui/node_modules 内にGoパッケージが含まれるため除外する必要がある
+	# bwrap: /dev/input を隠してebitenのgamepad初期化エラー(EINTR)を防ぐ
+	# xvfb-run: ebitenのゴールデンテストがウィンドウを開くのを防ぐ
 	RUINS_LOG_LEVEL=ignore \
-	go test -v -cover -shuffle=on $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+	$(BWRAP_CMD) xvfb-run -a go test -v -cover -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
+		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
@@ -29,10 +35,6 @@ build: ## ビルドする
 build-steam: ## Steam向けビルドする
 	./scripts/build_steam.sh
 
-.PHONY: vrt
-vrt: ## 各ステートでスクショを取得する
-	./scripts/vrt.sh
-
 .PHONY: fmt
 fmt: ## フォーマットする
 	goimports -w .
@@ -47,9 +49,9 @@ lint: ## Linterを実行する
 	fi
 
 .PHONY: gendata
-gendata: ## 現在の設定でデータファイルを生成する
+gendata: ## ゴールデンテスト用の基準画像を生成する
 	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
-	go test ./... -run Golden -v
+	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する
@@ -60,8 +62,13 @@ toolsinstall: ## 開発ツールをインストールする
 	@go install golang.org/x/tools/cmd/goimports@latest
 	@go install golang.org/x/tools/cmd/deadcode@latest
 	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.3
+	@sudo apt-get install -y bubblewrap
 	@npm install
 	@./scripts/setup-hooks.sh
+
+.PHONY: genreadme
+genreadme: ## README.tmpl.mdからREADME.mdを生成する
+	go run . genreadme
 
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする

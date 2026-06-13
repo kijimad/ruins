@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/BurntSushi/toml"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/kijimaD/ruins/assets"
 	"github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
@@ -55,6 +56,26 @@ func LoadSpriteSheets(raws oapi.Raws) (map[string]components.SpriteSheet, error)
 	}
 
 	return spriteSheets, nil
+}
+
+// LoadUIResources はフォントマップからUIリソースを初期化する
+func LoadUIResources(fonts map[string]resources.Font) (resources.UIResources, error) {
+	fontSources := []*text.GoTextFaceSource{
+		fonts["dougenzaka"].FaceSource,
+		fonts["nerd"].FaceSource,
+	}
+
+	return resources.NewUIResources(fontSources)
+}
+
+// BuildFaces はフォントマップからFaceマップを構築する
+func BuildFaces(fonts map[string]resources.Font) map[string]text.Face {
+	return map[string]text.Face{
+		"dougenzaka": &text.GoTextFace{
+			Source: fonts["dougenzaka"].FaceSource,
+			Size:   16,
+		},
+	}
 }
 
 // LoadRaws はRawデータを読み込む
