@@ -128,12 +128,11 @@ type ProgressBarResources struct {
 
 // PanelResources はパネルリソースを管理する
 type PanelResources struct {
-	Image         *image.NineSlice
-	ImageTrans    *image.NineSlice
-	TitleBar      *image.NineSlice
-	SelectionBar  *image.NineSlice
-	SeparatorLine *image.NineSlice
-	Padding       widget.Insets
+	Image        *image.NineSlice
+	ImageTrans   *image.NineSlice
+	TitleBar     *image.NineSlice
+	SelectionBar *image.NineSlice
+	Padding      widget.Insets
 }
 
 // TabBookResources はタブブックリソースを管理する
@@ -642,17 +641,11 @@ func newPanelResources() (*PanelResources, error) {
 		return nil, err
 	}
 
-	sl, err := loadImageNineSlice("assets/graphics/separator-line.png", 1, 1)
-	if err != nil {
-		return nil, err
-	}
-
 	return &PanelResources{
-		Image:         i,
-		ImageTrans:    it,
-		TitleBar:      t,
-		SelectionBar:  sb,
-		SeparatorLine: sl,
+		Image:        i,
+		ImageTrans:   it,
+		TitleBar:     t,
+		SelectionBar: sb,
 		Padding: widget.Insets{
 			Left:   30,
 			Right:  30,
