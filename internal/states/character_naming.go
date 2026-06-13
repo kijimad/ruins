@@ -231,7 +231,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("名前", &res.Text.TitleFontFace, consts.PrimaryColor),
+		widget.TextOpts.Text("名前", &res.Text.TitleFontFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

@@ -215,13 +215,12 @@ func (w *Window) createAndAddWindow() {
 	w.ui.AddWindow(w.window)
 }
 
-// createTitleContainer はタイトルコンテナを作成する
+// createTitleContainer はタイトルコンテナを作成する。タイトルが空の場合は空コンテナを返す
 func (w *Window) createTitleContainer() *widget.Container {
-	title := ""
-	if w.content.SpeakerName != "" {
-		title = w.content.SpeakerName
+	if w.content.SpeakerName == "" {
+		return widget.NewContainer()
 	}
-	return styled.NewWindowHeaderContainer(title, w.world.Resources.UIResources)
+	return styled.NewWindowHeaderContainer(w.content.SpeakerName, w.world.Resources.UIResources)
 }
 
 // calculateWindowPosition はウィンドウの表示位置を計算する。
@@ -259,10 +258,13 @@ func (w *Window) calculateWindowSize() WindowSize {
 		}
 		choiceItemHeight := 40 // 選択肢1つあたりの高さ
 		choiceHeight := numChoices * choiceItemHeight
-		topPadding := 20     // 上部パディング
-		bottomPadding := 15  // 下部パディング
-		titleBarHeight := 40 // タイトルバーの高さ
-		spacingHeight := 10  // スペーサー間隔（メッセージがある場合のみ）
+		topPadding := 20    // 上部パディング
+		bottomPadding := 15 // 下部パディング
+		titleBarHeight := 0 // タイトルバーの高さ
+		if w.content.SpeakerName != "" {
+			titleBarHeight = 40
+		}
+		spacingHeight := 10 // スペーサー間隔（メッセージがある場合のみ）
 		if !w.hasMessage() {
 			spacingHeight = 0
 		}

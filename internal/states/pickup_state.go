@@ -228,7 +228,7 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	}
 	drawText := func(str string) { drawColorText(str, consts.TextColor) }
 
-	drawColorText("拾うモード", consts.PrimaryColor)
+	drawColorText("拾うモード", consts.TextColor)
 	y += 5
 
 	dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))

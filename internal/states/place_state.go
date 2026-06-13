@@ -283,7 +283,7 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 
 	switch st.phase {
 	case placePhaseSelectItem:
-		drawColorText("置くモード: アイテム選択", consts.PrimaryColor)
+		drawColorText("置くモード: アイテム選択", consts.TextColor)
 		y += 5
 
 		if len(st.backpackItems) == 0 {
@@ -307,7 +307,7 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		drawColorText("↑↓:選択 Enter:決定 Esc:戻る", consts.ForegroundColor)
 
 	case placePhaseSelectTile:
-		drawColorText("置くモード: 配置先選択", consts.PrimaryColor)
+		drawColorText("置くモード: 配置先選択", consts.TextColor)
 		y += 5
 
 		item := st.backpackItems[st.selectedIndex]

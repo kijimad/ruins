@@ -234,7 +234,7 @@ func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources
 
 	totalText := fmt.Sprintf("合計  %s", worldhelper.FormatCurrency(props.Total))
 	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(totalText, &res.Text.BodyFace, consts.PrimaryColor),
+		widget.TextOpts.Text(totalText, &res.Text.BodyFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionEnd,

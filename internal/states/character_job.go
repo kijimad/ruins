@@ -215,7 +215,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, consts.PrimaryColor),
+		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,

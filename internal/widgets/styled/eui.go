@@ -137,13 +137,13 @@ func NewWindowHeaderContainer(title string, res resources.UIResources) *widget.C
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.PrimaryColor),
+		widget.TextOpts.Text(title, &res.Text.SmallFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionCenter,
 			VerticalPosition:   widget.AnchorLayoutPositionCenter,
 			Padding: &widget.Insets{
-				Top:    6,
-				Bottom: 6,
+				Top:    4,
+				Bottom: 4,
 				Left:   8,
 				Right:  8,
 			},
@@ -167,10 +167,10 @@ func NewMenuText(title string, res resources.UIResources) *widget.Text {
 	return text
 }
 
-// NewTitleText はタイトル用テキストを作成する。PrimaryColorで見出しとして目立たせる
+// NewTitleText はタイトル用テキストを作成する
 func NewTitleText(text string, res resources.UIResources) *widget.Text {
 	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.BodyFace, consts.PrimaryColor),
+		widget.TextOpts.Text(text, &res.Text.SmallFace, consts.TextColor),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -342,10 +342,14 @@ func NewFragmentText(text string, textColor color.RGBA, res resources.UIResource
 
 // NewSmallWindow は小さなウィンドウを作成する
 func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...widget.WindowOpt) *widget.Window {
+	titleBarHeight := 25
+	if len(title.Children()) == 0 {
+		titleBarHeight = 0
+	}
 	// デフォルトのオプション
 	defaultOpts := []widget.WindowOpt{
 		widget.WindowOpts.Contents(content),
-		widget.WindowOpts.TitleBar(title, 25),
+		widget.WindowOpts.TitleBar(title, titleBarHeight),
 		widget.WindowOpts.Modal(),
 		widget.WindowOpts.CloseMode(widget.CLICK_OUT),
 		widget.WindowOpts.Draggable(),
