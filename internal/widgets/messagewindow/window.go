@@ -576,18 +576,30 @@ func (w *Window) rebuildUI() {
 
 // calculateItemsPerPage は1ページあたりのアイテム数を計算する
 func (w *Window) calculateItemsPerPage(totalItems int) int {
-	windowHeight := w.calculateWindowSize().Height
+	maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
 
-	// メッセージがある場合のみメッセージエリアの高さを確保
-	textAreaHeight := 0
+	// ウィンドウ内のオーバーヘッドを計算する
+	messageHeight := 0
 	if w.hasMessage() {
-		textAreaHeight = 150
+		messageHeight = 150
+	}
+	topPadding := 20
+	bottomPadding := 15
+	titleBarHeight := 0
+	if w.content.SpeakerName != "" {
+		titleBarHeight = 40
+	}
+	spacingHeight := 0
+	if w.hasMessage() {
+		spacingHeight = 10
 	}
 	pageIndicatorHeight := 30
-	availableHeight := windowHeight - textAreaHeight - pageIndicatorHeight
 
-	itemHeight := 35
-	maxItemsPerPage := availableHeight / itemHeight
+	overhead := messageHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight + pageIndicatorHeight
+	availableHeight := maxHeightWithChoices - overhead
+
+	choiceItemHeight := 40
+	maxItemsPerPage := availableHeight / choiceItemHeight
 
 	if maxItemsPerPage < 3 {
 		maxItemsPerPage = 3
