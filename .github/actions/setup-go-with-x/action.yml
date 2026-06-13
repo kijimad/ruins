@@ -11,6 +11,8 @@ runs:
         echo "DISPLAY=:99" >> $GITHUB_ENV
         sudo Xvfb -ac :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
         sleep 1
+        # ebitenのgamepad初期化がEINTRでパニックするのを防ぐ
+        sudo mount -t tmpfs tmpfs /dev/input
     - name: set up go
       uses: actions/setup-go@v6
       with:
