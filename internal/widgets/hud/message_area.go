@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -18,11 +19,11 @@ type MessageAreaConfig struct {
 
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
-	LogAreaHeight: 120, // 余裕を持たせて大きめに
-	MaxLogLines:   5,   // 表示する最大行数
-	LogAreaMargin: 8,   // 余白
-	LineHeight:    20,  // 1行の高さ
-	YPadding:      12,  // 下端の追加パディング
+	LogAreaHeight: 120,          // 余裕を持たせて大きめに
+	MaxLogLines:   5,            // 表示する最大行数
+	LogAreaMargin: theme.Space3, // 余白
+	LineHeight:    20,           // 1行の高さ
+	YPadding:      12,           // 下端の追加パディング
 }
 
 // MessageArea はHUDメッセージエリア
@@ -41,10 +42,10 @@ func NewMessageArea(world w.World) *MessageArea {
 		LineHeight: config.LineHeight,
 		Spacing:    3,
 		Padding: messagelog.Insets{
-			Top:    4,
-			Bottom: 4,
-			Left:   8,
-			Right:  8,
+			Top:    theme.Space2,
+			Bottom: theme.Space2,
+			Left:   theme.Space3,
+			Right:  theme.Space3,
 		},
 	}
 

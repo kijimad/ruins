@@ -221,7 +221,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	centerContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(20),
+			widget.RowLayoutOpts.Spacing(theme.Space6),
 		)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{

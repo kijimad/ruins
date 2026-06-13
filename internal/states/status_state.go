@@ -440,13 +440,13 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(1),
-				widget.GridLayoutOpts.Spacing(0, 4),
+				widget.GridLayoutOpts.Spacing(0, theme.Space2),
 				widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, false, true, false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{
-					Top:    8,
-					Bottom: 8,
-					Left:   8,
-					Right:  8,
+					Top:    theme.Space3,
+					Bottom: theme.Space3,
+					Left:   theme.Space3,
+					Right:  theme.Space3,
 				}),
 			),
 		),
@@ -471,7 +471,7 @@ func (st *StatusState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(2),
-				widget.GridLayoutOpts.Spacing(8, 0),
+				widget.GridLayoutOpts.Spacing(theme.Space3, 0),
 				widget.GridLayoutOpts.Stretch([]bool{true, true}, []bool{true}),
 			),
 		),

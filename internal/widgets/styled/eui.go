@@ -47,13 +47,13 @@ func NewItemGridContainer(opts ...widget.ContainerOpt) *widget.Container {
 				widget.NewGridLayout(
 					// アイテム, スクロール, アイテム性能で3列になっている
 					widget.GridLayoutOpts.Columns(3),
-					widget.GridLayoutOpts.Spacing(theme.SpaceM, theme.SpaceM),
+					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
 					widget.GridLayoutOpts.Stretch([]bool{true, false, true}, []bool{false, true, false}),
 					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    theme.SpaceM,
-						Bottom: theme.SpaceM,
-						Left:   theme.SpaceM,
-						Right:  theme.SpaceM,
+						Top:    theme.Space3,
+						Bottom: theme.Space3,
+						Left:   theme.Space3,
+						Right:  theme.Space3,
 					}),
 				)),
 		}, opts...)...,
@@ -67,13 +67,13 @@ func NewVSplitContainer(top *widget.Container, bottom *widget.Container, opts ..
 			widget.ContainerOpts.Layout(
 				widget.NewGridLayout(
 					widget.GridLayoutOpts.Columns(1),
-					widget.GridLayoutOpts.Spacing(theme.SpaceM, theme.SpaceM),
+					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
 					widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true, true}),
 					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    theme.SpaceM,
-						Bottom: theme.SpaceM,
-						Left:   theme.SpaceM,
-						Right:  theme.SpaceM,
+						Top:    theme.Space3,
+						Bottom: theme.Space3,
+						Left:   theme.Space3,
+						Right:  theme.Space3,
 					}),
 				)),
 		}, opts...)...,
@@ -91,13 +91,13 @@ func NewWSplitContainer(right *widget.Container, left *widget.Container, opts ..
 			widget.ContainerOpts.Layout(
 				widget.NewGridLayout(
 					widget.GridLayoutOpts.Columns(2),
-					widget.GridLayoutOpts.Spacing(theme.SpaceM, theme.SpaceM),
+					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
 					widget.GridLayoutOpts.Stretch([]bool{true, true}, []bool{true}),
 					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    theme.SpaceM,
-						Bottom: theme.SpaceM,
-						Left:   theme.SpaceM,
-						Right:  theme.SpaceM,
+						Top:    theme.Space3,
+						Bottom: theme.Space3,
+						Left:   theme.Space3,
+						Right:  theme.Space3,
 					}),
 				)),
 		}, opts...)...,
@@ -115,12 +115,12 @@ func NewWindowContainer(res resources.UIResources) *widget.Container {
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top:    theme.SpaceXL,
-				Bottom: theme.SpaceXL,
-				Left:   theme.SpaceL,
-				Right:  theme.SpaceL,
+				Top:    theme.Space7,
+				Bottom: theme.Space7,
+				Left:   theme.Space5,
+				Right:  theme.Space5,
 			}),
-			widget.RowLayoutOpts.Spacing(theme.SpaceM),
+			widget.RowLayoutOpts.Spacing(theme.Space3),
 		)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.GridLayoutData{
@@ -142,10 +142,10 @@ func NewWindowHeaderContainer(title string, res resources.UIResources) *widget.C
 			HorizontalPosition: widget.AnchorLayoutPositionCenter,
 			VerticalPosition:   widget.AnchorLayoutPositionCenter,
 			Padding: &widget.Insets{
-				Top:    theme.SpaceS,
-				Bottom: theme.SpaceS,
-				Left:   theme.SpaceM,
-				Right:  theme.SpaceM,
+				Top:    theme.Space2,
+				Bottom: theme.Space2,
+				Left:   theme.Space3,
+				Right:  theme.Space3,
 			},
 		})),
 	))
@@ -190,7 +190,7 @@ func NewDescriptionText(text string, res resources.UIResources) *widget.Text {
 // NewPageIndicator は右寄せのページインジケーターを作成する
 func NewPageIndicator(text string, res resources.UIResources) *widget.Container {
 	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{})),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(theme.Transparent)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -207,10 +207,10 @@ func NewPageIndicator(text string, res resources.UIResources) *widget.Container 
 				HorizontalPosition: widget.AnchorLayoutPositionEnd, // 右寄せ
 				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 				Padding: &widget.Insets{
-					Top:    theme.SpaceXS,
-					Bottom: theme.SpaceXS,
-					Left:   theme.SpaceM,
-					Right:  theme.SpaceM,
+					Top:    theme.Space1,
+					Bottom: theme.Space1,
+					Left:   theme.Space3,
+					Right:  theme.Space3,
 				},
 			}),
 		),
@@ -236,7 +236,7 @@ func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.
 // additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示
 func NewListItemText(text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
 	// 選択時: グラデーション背景バー + 明るいテキスト、非選択時: 透明背景 + 通常テキスト
-	bgImage := image.NewNineSliceColor(color.NRGBA{})
+	bgImage := image.NewNineSliceColor(theme.Transparent)
 	displayTextColor := textColor
 	if isSelected {
 		bgImage = res.Panel.SelectionBar
@@ -260,12 +260,12 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 		widget.ContainerOpts.BackgroundImage(bgImage),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-			widget.RowLayoutOpts.Spacing(theme.SpaceS),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top:    theme.SpaceXS,
-				Bottom: theme.SpaceXS,
-				Left:   theme.SpaceM,
-				Right:  theme.SpaceM,
+				Top:    theme.Space1,
+				Bottom: theme.Space1,
+				Left:   theme.Space3,
+				Right:  theme.Space3,
 			}),
 		)),
 		widget.ContainerOpts.WidgetOpts(
@@ -369,12 +369,12 @@ func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...
 // BaseRowLayoutOpts は基本的な行レイアウトオプションを返す
 func BaseRowLayoutOpts() []widget.RowLayoutOpt {
 	return []widget.RowLayoutOpt{
-		widget.RowLayoutOpts.Spacing(theme.SpaceM),
+		widget.RowLayoutOpts.Spacing(theme.Space3),
 		widget.RowLayoutOpts.Padding(&widget.Insets{
-			Top:    theme.SpaceM,
-			Bottom: theme.SpaceM,
-			Left:   theme.SpaceM,
-			Right:  theme.SpaceM,
+			Top:    theme.Space3,
+			Bottom: theme.Space3,
+			Left:   theme.Space3,
+			Right:  theme.Space3,
 		}),
 	}
 }

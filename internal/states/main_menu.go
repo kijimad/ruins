@@ -182,7 +182,7 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Left: 20, Right: 20, Top: 10, Bottom: 10,
+				Left: theme.Space6, Right: theme.Space6, Top: theme.Space4, Bottom: theme.Space4,
 			}),
 		)),
 		widget.ContainerOpts.WidgetOpts(
@@ -216,8 +216,8 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 				HorizontalPosition: widget.AnchorLayoutPositionEnd,
 				VerticalPosition:   widget.AnchorLayoutPositionEnd,
 				Padding: &widget.Insets{
-					Right:  20,
-					Bottom: 20,
+					Right:  theme.Space6,
+					Bottom: theme.Space6,
 				},
 			}),
 		),

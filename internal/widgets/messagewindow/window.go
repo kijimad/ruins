@@ -3,7 +3,6 @@ package messagewindow
 import (
 	"fmt"
 	"image"
-	"image/color"
 
 	"github.com/ebitenui/ebitenui"
 	eui_image "github.com/ebitenui/ebitenui/image"
@@ -336,12 +335,12 @@ func (w *Window) createWindowContainer() *widget.Container {
 			widget.NewRowLayout(
 				widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 				widget.RowLayoutOpts.Padding(&widget.Insets{
-					Top:    20,
+					Top:    theme.Space6,
 					Bottom: bottomPadding,
-					Left:   10,
-					Right:  10,
+					Left:   theme.Space4,
+					Right:  theme.Space4,
 				}),
-				widget.RowLayoutOpts.Spacing(10),
+				widget.RowLayoutOpts.Spacing(theme.Space4),
 			),
 		),
 		widget.ContainerOpts.WidgetOpts(
@@ -642,8 +641,8 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 				widget.RowLayoutOpts.Padding(&widget.Insets{
 					Top:    0,
 					Bottom: 0,
-					Left:   8,
-					Right:  8,
+					Left:   theme.Space3,
+					Right:  theme.Space3,
 				}),
 			),
 		),
@@ -756,7 +755,7 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 		backgroundColor = eui_image.NewNineSliceColor(theme.ChoiceSelectedBg)
 	} else {
 		// 非選択は透明
-		backgroundColor = eui_image.NewNineSliceColor(color.NRGBA{R: 0, G: 0, B: 0, A: 0})
+		backgroundColor = eui_image.NewNineSliceColor(theme.Transparent)
 	}
 
 	// コンテナ（自然な幅を保持）
@@ -773,10 +772,10 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
 				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 				Padding: &widget.Insets{
-					Top:    4,
-					Bottom: 4,
-					Left:   16,
-					Right:  16,
+					Top:    theme.Space2,
+					Bottom: theme.Space2,
+					Left:   theme.Space5,
+					Right:  theme.Space5,
 				},
 			}),
 		),

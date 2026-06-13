@@ -86,7 +86,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 
 		// 白文字でテキストを描画
 		textY := badgeY + paddingY
-		drawOutlinedText(screen, badge.Text, sb.bodyFace, marginLeft, textY, color.White)
+		drawOutlinedText(screen, badge.Text, sb.bodyFace, marginLeft, textY, theme.TextPrimary)
 
 		// 次のバッジの位置を更新
 		currentY = badgeY - badgeGap
@@ -106,6 +106,6 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), theme.HUDBadgeBg, false)
 
 		textY := badgeY + paddingY
-		drawOutlinedText(screen, moreText, sb.bodyFace, marginLeft, textY, color.White)
+		drawOutlinedText(screen, moreText, sb.bodyFace, marginLeft, textY, theme.TextPrimary)
 	}
 }

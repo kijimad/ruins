@@ -1,8 +1,6 @@
 package styled
 
 import (
-	"image/color"
-
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -45,7 +43,7 @@ func NewTableContainer(_ []int, _ resources.UIResources, opts ...widget.Containe
 
 // NewTableHeaderRow はヘッダー行のセル群を作成してコンテナに追加する
 func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers []string, res resources.UIResources) {
-	row := newRowContainer(columnWidths, image.NewNineSliceColor(color.NRGBA{}))
+	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
 	for i, header := range headers {
 		width := 80
 		if i < len(columnWidths) {
@@ -98,7 +96,7 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 		widget.ContainerOpts.Layout(
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(columns),
-				widget.GridLayoutOpts.Spacing(theme.SpaceXS, 0),
+				widget.GridLayoutOpts.Spacing(theme.Space1, 0),
 				widget.GridLayoutOpts.Stretch(stretch, []bool{false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{}),
 			),
@@ -112,7 +110,7 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 }
 
 func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
-	bgImage := image.NewNineSliceColor(color.NRGBA{})
+	bgImage := image.NewNineSliceColor(theme.Transparent)
 	textColor := theme.TextSecondary
 	if isSelected {
 		bgImage = res.Panel.SelectionBar
@@ -161,7 +159,7 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 }
 
 func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {
-	row := newRowContainer(columnWidths, image.NewNineSliceColor(color.NRGBA{}))
+	row := newRowContainer(columnWidths, image.NewNineSliceColor(theme.Transparent))
 
 	for i, value := range values {
 		width := 80

@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image/color"
 	"math/rand/v2"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -21,6 +20,7 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -61,7 +61,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 	screenHeight := world.Resources.ScreenDimensions.Height
 	if screenWidth > 0 && screenHeight > 0 {
 		baseImage = ebiten.NewImage(screenWidth, screenHeight)
-		baseImage.Fill(color.Black)
+		baseImage.Fill(theme.ScreenBackground)
 	}
 
 	worldhelper.GetDungeon(world).Depth = st.Depth

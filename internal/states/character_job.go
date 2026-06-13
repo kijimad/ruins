@@ -200,11 +200,11 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	rootContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
-			widget.GridLayoutOpts.Spacing(0, 10),
+			widget.GridLayoutOpts.Spacing(0, theme.Space4),
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
 			widget.GridLayoutOpts.Padding(&widget.Insets{
-				Top:    20,
-				Bottom: 20,
+				Top:    theme.Space6,
+				Bottom: theme.Space6,
 				Left:   40,
 				Right:  40,
 			}),
@@ -239,7 +239,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	footerContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
 		)),
 	)
 	description := ""

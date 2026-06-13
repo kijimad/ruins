@@ -65,7 +65,7 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
 	x := float64(data.ScreenDimensions.Width) - textWidth - marginRight
 	y := marginTop
 
-	drawOutlinedText(screen, floorText, info.headingFace, x, y, color.White)
+	drawOutlinedText(screen, floorText, info.headingFace, x, y, theme.TextPrimary)
 }
 
 // ゲージ共通のレイアウト定数
@@ -116,7 +116,7 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 	textWidth, _ := text.Measure(hpText, info.bodyFace, 0)
 	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
 	textY := y + float64(gaugeHeight)/2 - 6.0
-	drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, color.White)
+	drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, theme.TextPrimary)
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する

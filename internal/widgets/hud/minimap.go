@@ -116,5 +116,5 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 	textY := float64(minimapY + 70)
 	noDataText := "No Data"
 
-	drawOutlinedText(screen, noDataText, minimap.face, textX, textY, color.White)
+	drawOutlinedText(screen, noDataText, minimap.face, textX, textY, theme.TextPrimary)
 }

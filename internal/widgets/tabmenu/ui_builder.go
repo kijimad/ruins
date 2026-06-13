@@ -1,8 +1,6 @@
 package tabmenu
 
 import (
-	"image/color"
-
 	eui_image "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
@@ -110,7 +108,7 @@ func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) {
 		if isFocused {
 			contentContainer.SetBackgroundImage(b.world.Resources.UIResources.Panel.SelectionBar)
 		} else {
-			contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(color.NRGBA{}))
+			contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(theme.Transparent))
 		}
 
 		// テキストの色を更新
@@ -134,7 +132,7 @@ func (b *uiBuilder) CreatePageIndicator(tabMenu *tabMenu) *widget.Text {
 	pageText := tabMenu.GetPageIndicatorText()
 
 	return widget.NewText(
-		widget.TextOpts.Text(pageText, &res.Text.SmallFace, color.White),
+		widget.TextOpts.Text(pageText, &res.Text.SmallFace, theme.TextPrimary),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
