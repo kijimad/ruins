@@ -12,7 +12,6 @@ type Definition struct {
 	ItemTableName   string                  // アイテムテーブル名
 	PlannerPool     []PlannerWeight         // 使用するマップ種類と重み
 	BaseTemperature int                     // 基本気温（摂氏）
-	Dark            bool                    // 光源がないと見えない暗闇フロアかどうか
 	BossPlannerType *mapplanner.PlannerType // 最終階層で使用するボスフロアプランナー。nilの場合はボスフロアなし
 }
 

@@ -28,8 +28,6 @@ type Dungeon struct {
 	SelectedWeaponSlot int
 	// VisibleTiles は現在フレームで実際に見えているタイルのマップ。毎フレーム更新される
 	VisibleTiles map[GridElement]bool
-	// Dark は光源がないと見えない暗闇フロアかどうか
-	Dark bool
 }
 
 // NewDungeon は初期化されたDungeonを返す

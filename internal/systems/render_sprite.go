@@ -470,8 +470,6 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 			case TileRenderVisible:
 				darkness = float64(v.Darkness)
 				lightColor = v.LightColor
-			case TileRenderDark:
-				darkness = float64(v.Darkness)
 			case TileRenderRemembered:
 				darkness = float64(v.Darkness)
 			}

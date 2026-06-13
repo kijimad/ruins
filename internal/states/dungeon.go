@@ -75,8 +75,6 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if !found {
 		return fmt.Errorf("ダンジョン定義が見つかりません: %s", worldhelper.GetDungeon(world).DefinitionName)
 	}
-	worldhelper.GetDungeon(world).Dark = def.Dark
-
 	// ステージ用シードを生成する
 	stageSeed := world.Config.RNG.Uint64()
 	stageRNG := rand.New(rand.NewPCG(stageSeed, 0))
