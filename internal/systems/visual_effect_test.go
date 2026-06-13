@@ -17,7 +17,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	world.Resources.SetScreenDimensions(800, 600)
 
 	// ダンジョンタイトルエフェクトを作成
-	titleEffect := gc.NewDungeonTitleEffect("テストダンジョン", 1, 800, 600)
+	titleEffect := gc.NewScreenTextEffect("テストダンジョン 1F", 800, 600)
 	titleEntity := world.Manager.NewEntity()
 	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
@@ -103,7 +103,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	world.Config.DisableAnimation = true
 
 	// エフェクトを作成
-	titleEffect := gc.NewDungeonTitleEffect("テストダンジョン", 1, 800, 600)
+	titleEffect := gc.NewScreenTextEffect("テストダンジョン 1F", 800, 600)
 	titleEntity := world.Manager.NewEntity()
 	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},

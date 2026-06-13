@@ -106,35 +106,8 @@ func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {
 	return 1.0 - (fadeOutElapsed / fadeOutMs)
 }
 
-// NewScreenTextEffect は画面中央にフェード表示するテキストエフェクトを作成する
+// NewScreenTextEffect は画面にフェード表示するテキストエフェクトを作成する
 func NewScreenTextEffect(text string, screenW, screenH int) *ScreenTextEffect {
-	fadeInMs := 500.0
-	holdMs := 2000.0
-	fadeOutMs := 500.0
-	totalMs := fadeInMs + holdMs + fadeOutMs
-
-	return &ScreenTextEffect{
-		OffsetX:     float64(screenW) / 2,
-		OffsetY:     float64(screenH) / 3,
-		Text:        text,
-		Color:       color.RGBA{255, 255, 255, 255},
-		FadeInMs:    fadeInMs,
-		HoldMs:      holdMs,
-		FadeOutMs:   fadeOutMs,
-		TotalMs:     totalMs,
-		RemainingMs: totalMs,
-		Alpha:       0.0,
-	}
-}
-
-// NewDungeonTitleEffect はダンジョンタイトル表示エフェクトを作成する。
-// テキストの下に水平線を表示する
-func NewDungeonTitleEffect(dungeonName string, depth int, screenW, screenH int) *ScreenTextEffect {
-	titleText := dungeonName
-	if depth > 0 {
-		titleText = fmt.Sprintf("%s %dF", dungeonName, depth)
-	}
-
 	fadeInMs := 800.0
 	holdMs := 2000.0
 	fadeOutMs := 800.0
@@ -143,7 +116,7 @@ func NewDungeonTitleEffect(dungeonName string, depth int, screenW, screenH int) 
 	return &ScreenTextEffect{
 		OffsetX:     float64(screenW) / 2,
 		OffsetY:     float64(screenH) * 2 / 5,
-		Text:        titleText,
+		Text:        text,
 		Color:       color.RGBA{255, 255, 255, 255},
 		FadeInMs:    fadeInMs,
 		HoldMs:      holdMs,

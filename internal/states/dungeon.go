@@ -149,7 +149,11 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// ダンジョンタイトルエフェクト用エンティティを作成する
 	screenW, screenH := world.Resources.GetScreenDimensions()
-	titleEffect := gc.NewDungeonTitleEffect(def.Name, st.Depth, screenW, screenH)
+	titleText := def.Name
+	if st.Depth > 0 {
+		titleText = fmt.Sprintf("%s %dF", def.Name, st.Depth)
+	}
+	titleEffect := gc.NewScreenTextEffect(titleText, screenW, screenH)
 	titleEntity := world.Manager.NewEntity()
 	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
