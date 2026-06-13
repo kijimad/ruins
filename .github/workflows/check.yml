@@ -75,38 +75,6 @@ jobs:
         run: make report
       - uses: k1LoW/octocov-action@v1
 
-  vrt:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.head_ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: ./.github/actions/setup-go-with-x
-      - name: Cache Go modules
-        uses: actions/cache@main
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-      - name: vrt
-        run: make vrt
-      # 差分があればコミット（PRの場合のみ）
-      - name: commit for changes
-        if: github.event_name == 'pull_request'
-        run: |
-          if ! git diff --exit-code --quiet
-          then
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git add .
-            git commit -m "chore: update by GitHub Actions"
-            git push
-          fi
-
   check-ui:
     runs-on: ubuntu-latest
     permissions:

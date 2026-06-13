@@ -249,8 +249,10 @@ func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	op.GeoM.Translate(cursorPixelX, cursorPixelY)
 	gs.SetTranslate(world, op)
 
-	alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
-	op.ColorScale.ScaleAlpha(float32(alpha))
+	if !world.Config.DisableAnimation {
+		alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)
+		op.ColorScale.ScaleAlpha(float32(alpha))
+	}
 
 	screen.DrawImage(placeCursorCache, op)
 }
