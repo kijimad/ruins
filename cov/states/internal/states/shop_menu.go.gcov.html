@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-12 13:37:15</td>
+            <td class="headerValue">2026-06-13 03:19:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -70,14 +70,14 @@
 <span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
 <span id="L9"><span class="lineNum">       9</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/config&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/pagination&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/pagination&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/views&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
@@ -501,9 +501,9 @@
 <span id="L439"><span class="lineNum">     439</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L440"><span class="lineNum">     440</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
 <span id="L441"><span class="lineNum">     441</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
-<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                 color := consts.ForegroundColor</span></span>
+<span id="L442"><span class="lineNum">     442</span> <span class="tlaUNC">           0 :                 color := theme.TextSecondary</span></span>
 <span id="L443"><span class="lineNum">     443</span> <span class="tlaUNC">           0 :                 if isSelected {</span></span>
-<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                         color = consts.TextColor</span></span>
+<span id="L444"><span class="lineNum">     444</span> <span class="tlaUNC">           0 :                         color = theme.TextPrimary</span></span>
 <span id="L445"><span class="lineNum">     445</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L446"><span class="lineNum">     446</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))</span></span>
 <span id="L447"><span class="lineNum">     447</span>              :         }</span>
@@ -629,7 +629,7 @@
 <span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
 <span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)</span></span>
 <span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
 <span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L573"><span class="lineNum">     573</span>              : </span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-12 13:37:15</td>
+            <td class="headerValue">2026-06-13 03:19:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,9 +66,9 @@
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/ebitenui/ebitenui&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         euiwidget &quot;github.com/ebitenui/ebitenui/widget&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/kijimaD/ruins/internal/gamelog&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L10"><span class="lineNum">      10</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              : )</span>
@@ -244,7 +244,7 @@
 <span id="L182"><span class="lineNum">     182</span>              : </span>
 <span id="L183"><span class="lineNum">     183</span>              :         // エントリがない場合</span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         if len(entries) == 0 {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 placeholderWidget := styled.NewListItemText(&quot;ログメッセージなし&quot;, consts.ForegroundColor, false, widget.world.Resources.UIResources)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 placeholderWidget := styled.NewFragmentText(&quot;ログメッセージなし&quot;, theme.TextSecondary, widget.world.Resources.UIResources)</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 logContainer.AddChild(placeholderWidget)</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L188"><span class="lineNum">     188</span>              : </span>

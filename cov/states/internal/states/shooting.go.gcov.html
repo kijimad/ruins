@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-12 13:37:15</td>
+            <td class="headerValue">2026-06-13 03:19:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,19 +64,19 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;image/color&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;math&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              :         &quot;sort&quot;</span>
-<span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/activity&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;sort&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              : </span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/activity&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
 <span id="L20"><span class="lineNum">      20</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
@@ -303,7 +303,7 @@
 <span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :         if shootingCursorCache == nil {</span></span>
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 shootingCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 cursorColor := color.RGBA{R: 255, G: 50, B: 50, A: 255} // 赤</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 cursorColor := theme.CursorShoot</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 for i := 0; i &lt; 3; i++ {</span></span>
 <span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                                 shootingCursorCache.Set(x, i, cursorColor)</span></span>
@@ -344,7 +344,7 @@
 <span id="L282"><span class="lineNum">     282</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L283"><span class="lineNum">     283</span> <span class="tlaUNC">           0 :         if shootingPanelCache == nil {</span></span>
 <span id="L284"><span class="lineNum">     284</span> <span class="tlaUNC">           0 :                 shootingPanelCache = ebiten.NewImage(panelWidth, panelHeight)</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 shootingPanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})</span></span>
+<span id="L285"><span class="lineNum">     285</span> <span class="tlaUNC">           0 :                 shootingPanelCache.Fill(theme.Overlay)</span></span>
 <span id="L286"><span class="lineNum">     286</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L287"><span class="lineNum">     287</span>              : </span>
 <span id="L288"><span class="lineNum">     288</span> <span class="tlaUNC">           0 :         panelX := screen.Bounds().Dx() - panelWidth - marginX</span></span>

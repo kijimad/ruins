@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-12 13:37:15</td>
+            <td class="headerValue">2026-06-13 03:19:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -64,17 +64,17 @@
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
 <span id="L4"><span class="lineNum">       4</span>              :         &quot;fmt&quot;</span>
-<span id="L5"><span class="lineNum">       5</span>              :         &quot;image/color&quot;</span>
-<span id="L6"><span class="lineNum">       6</span>              :         &quot;math&quot;</span>
-<span id="L7"><span class="lineNum">       7</span>              : </span>
-<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
-<span id="L9"><span class="lineNum">       9</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
-<span id="L10"><span class="lineNum">      10</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
-<span id="L11"><span class="lineNum">      11</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L12"><span class="lineNum">      12</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              :         &quot;math&quot;</span>
+<span id="L6"><span class="lineNum">       6</span>              : </span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
+<span id="L11"><span class="lineNum">      11</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/input&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         gs &quot;github.com/kijimaD/ruins/internal/systems&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L16"><span class="lineNum">      16</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
 <span id="L18"><span class="lineNum">      18</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
@@ -219,7 +219,7 @@
 <span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         if cursorImageCache == nil {</span></span>
 <span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 cursorImageCache = ebiten.NewImage(tileSize, tileSize)</span></span>
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 // 枠線を描画（太さ3px、白色で目立つように）</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 cursorColor := color.RGBA{R: 255, G: 255, B: 255, A: 255} // 白</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 cursorColor := theme.CursorLook</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 for i := 0; i &lt; 3; i++ {</span></span>
 <span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                         // 上辺</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
@@ -266,7 +266,7 @@
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         // パネル背景をキャッシュから取得または生成</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         if panelImageCache == nil {</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 panelImageCache = ebiten.NewImage(panelWidth, panelHeight)</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 panelImageCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                 panelImageCache.Fill(theme.Overlay)</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L209"><span class="lineNum">     209</span>              : </span>
 <span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :         panelX := screen.Bounds().Dx() - panelWidth - marginX</span></span>

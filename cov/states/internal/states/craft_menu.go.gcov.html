@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-12 13:37:15</td>
+            <td class="headerValue">2026-06-13 03:19:36</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -72,14 +72,14 @@
 <span id="L10"><span class="lineNum">      10</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
 <span id="L11"><span class="lineNum">      11</span>              :         gc &quot;github.com/kijimaD/ruins/internal/components&quot;</span>
 <span id="L12"><span class="lineNum">      12</span>              :         &quot;github.com/kijimaD/ruins/internal/config&quot;</span>
-<span id="L13"><span class="lineNum">      13</span>              :         &quot;github.com/kijimaD/ruins/internal/consts&quot;</span>
-<span id="L14"><span class="lineNum">      14</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
-<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
-<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
-<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
-<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
-<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/pagination&quot;</span>
-<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L13"><span class="lineNum">      13</span>              :         es &quot;github.com/kijimaD/ruins/internal/engine/states&quot;</span>
+<span id="L14"><span class="lineNum">      14</span>              :         &quot;github.com/kijimaD/ruins/internal/hooks&quot;</span>
+<span id="L15"><span class="lineNum">      15</span>              :         &quot;github.com/kijimaD/ruins/internal/inputmapper&quot;</span>
+<span id="L16"><span class="lineNum">      16</span>              :         &quot;github.com/kijimaD/ruins/internal/raw&quot;</span>
+<span id="L17"><span class="lineNum">      17</span>              :         &quot;github.com/kijimaD/ruins/internal/resources&quot;</span>
+<span id="L18"><span class="lineNum">      18</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/pagination&quot;</span>
+<span id="L19"><span class="lineNum">      19</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/styled&quot;</span>
+<span id="L20"><span class="lineNum">      20</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
 <span id="L21"><span class="lineNum">      21</span>              :         &quot;github.com/kijimaD/ruins/internal/widgets/views&quot;</span>
 <span id="L22"><span class="lineNum">      22</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
 <span id="L23"><span class="lineNum">      23</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
@@ -526,9 +526,9 @@
 <span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         container := styled.NewRowContainer()</span></span>
 <span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :         for i, tab := range tabs {</span></span>
 <span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :                 isSelected := i == tabIndex</span></span>
-<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                 color := consts.ForegroundColor</span></span>
+<span id="L467"><span class="lineNum">     467</span> <span class="tlaUNC">           0 :                 color := theme.TextSecondary</span></span>
 <span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :                 if isSelected {</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                         color = consts.TextColor</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 :                         color = theme.TextPrimary</span></span>
 <span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))</span></span>
 <span id="L472"><span class="lineNum">     472</span>              :         }</span>
@@ -606,9 +606,9 @@
 <span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 :                 str := fmt.Sprintf(&quot;%s %d pcs\n    所持: %d pcs&quot;, input.Name, input.Amount, currentAmount)</span></span>
 <span id="L545"><span class="lineNum">     545</span> <span class="tlaUNC">           0 :                 var textColor color.RGBA</span></span>
 <span id="L546"><span class="lineNum">     546</span> <span class="tlaUNC">           0 :                 if currentAmount &gt;= input.Amount {</span></span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                         textColor = consts.SuccessColor</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 :                         textColor = theme.StatusSuccess</span></span>
 <span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :                 } else {</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                         textColor = consts.DangerColor</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                         textColor = theme.StatusDanger</span></span>
 <span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L551"><span class="lineNum">     551</span>              : </span>
 <span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :                 container.AddChild(styled.NewBodyText(str, textColor, res))</span></span>
@@ -645,7 +645,7 @@
 <span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :         for i, action := range actionItems {</span></span>
 <span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :                 isSelected := i == actionIndex</span></span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)</span></span>
 <span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
 <span id="L588"><span class="lineNum">     588</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L589"><span class="lineNum">     589</span>              : </span>
@@ -668,7 +668,7 @@
 <span id="L606"><span class="lineNum">     606</span> <span class="tlaUNC">           0 :         // ボタン項目を表示</span></span>
 <span id="L607"><span class="lineNum">     607</span> <span class="tlaUNC">           0 :         for i, action := range resultItems {</span></span>
 <span id="L608"><span class="lineNum">     608</span> <span class="tlaUNC">           0 :                 isSelected := i == resultIndex</span></span>
-<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, consts.TextColor, isSelected, res)</span></span>
+<span id="L609"><span class="lineNum">     609</span> <span class="tlaUNC">           0 :                 actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)</span></span>
 <span id="L610"><span class="lineNum">     610</span> <span class="tlaUNC">           0 :                 windowContainer.AddChild(actionWidget)</span></span>
 <span id="L611"><span class="lineNum">     611</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L612"><span class="lineNum">     612</span>              : </span>
