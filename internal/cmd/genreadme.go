@@ -48,9 +48,14 @@ func runGenReadme(_ context.Context, _ *cli.Command) error {
 
 // buildImageTable はtestdata内のPNG画像から4列のMarkdownテーブルを生成する
 func buildImageTable() (string, error) {
-	entries, err := os.ReadDir(imageDir)
+	return buildImageTableFrom(imageDir)
+}
+
+// buildImageTableFrom は指定ディレクトリ内のPNG画像から4列のMarkdownテーブルを生成する
+func buildImageTableFrom(dir string) (string, error) {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return "", fmt.Errorf("%sの読み込みに失敗: %w", imageDir, err)
+		return "", fmt.Errorf("%sの読み込みに失敗: %w", dir, err)
 	}
 
 	var images []string
@@ -86,7 +91,7 @@ func buildImageTable() (string, error) {
 			sb.WriteString("|")
 		}
 		label := strings.TrimSuffix(strings.TrimPrefix(name, "TestGolden_"), ".png")
-		imgPath := filepath.Join(imageDir, name)
+		imgPath := filepath.Join(dir, name)
 		fmt.Fprintf(&sb, " <img src=\"%s\" width=\"200\" /><br>%s |", imgPath, label)
 	}
 	// 最終行の残りセルを埋める
