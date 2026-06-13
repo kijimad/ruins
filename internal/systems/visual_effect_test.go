@@ -37,7 +37,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	assert.Equal(t, 400.0, effect.OffsetX, "画面中央X")
 	assert.Equal(t, 240.0, effect.OffsetY, "画面上部2/5")
 	assert.Equal(t, 0.0, effect.Alpha, "初期Alpha")
-	assert.Equal(t, 3600.0, effect.TotalMs, "合計時間")
+	assert.Equal(t, 2800.0, effect.TotalMs, "合計時間")
 	assert.Greater(t, effect.LineWidth, 0.0, "水平線が有効")
 
 	// Update実行後のAlphaを確認
