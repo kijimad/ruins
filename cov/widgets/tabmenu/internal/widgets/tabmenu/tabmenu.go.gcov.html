@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">43.7&nbsp;%</td>
+            <td class="headerCovTableEntryLo">58.0&nbsp;%</td>
             <td class="headerCovTableEntry">371</td>
-            <td class="headerCovTableEntry">162</td>
+            <td class="headerCovTableEntry">215</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-13 03:19:36</td>
+            <td class="headerValue">2026-06-13 13:24:37</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -119,9 +119,9 @@
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         // 初期タブのアイテム数を確認してインデックスを調整</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         if len(config.Tabs) &gt; 0 &amp;&amp; config.InitialTabIndex &lt; len(config.Tabs) {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 initialTab := config.Tabs[config.InitialTabIndex]</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 if len(initialTab.Items) == 0 {</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                         tm.currentItemIndex = -1</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else if config.InitialItemIndex &gt;= len(initialTab.Items) {</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           2 :                 if len(initialTab.Items) == 0 {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                         tm.currentItemIndex = -1</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                 } else if config.InitialItemIndex &gt;= len(initialTab.Items) {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                         tm.currentItemIndex = len(initialTab.Items) - 1</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else if config.InitialItemIndex &lt; 0 {</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 :                         tm.currentItemIndex = 0</span></span>
@@ -522,102 +522,102 @@
 <span id="L460"><span class="lineNum">     460</span>              : }</span>
 <span id="L461"><span class="lineNum">     461</span>              : </span>
 <span id="L462"><span class="lineNum">     462</span>              : // GetVisibleItems は現在のページで表示される項目とその元のインデックスを返す</span>
-<span id="L463"><span class="lineNum">     463</span> <span class="tlaUNC">           0 : func (tm *tabMenu) GetVisibleItems() ([]Item, []int) {</span></span>
-<span id="L464"><span class="lineNum">     464</span> <span class="tlaUNC">           0 :         if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) {</span></span>
-<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC">           0 :                 return []Item{}, []int{}</span></span>
+<span id="L463"><span class="lineNum">     463</span> <span class="tlaGNC tlaBgGNC">           1 : func (tm *tabMenu) GetVisibleItems() ([]Item, []int) {</span></span>
+<span id="L464"><span class="lineNum">     464</span> <span class="tlaGNC">           1 :         if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) {</span></span>
+<span id="L465"><span class="lineNum">     465</span> <span class="tlaUNC tlaBgUNC">           0 :                 return []Item{}, []int{}</span></span>
 <span id="L466"><span class="lineNum">     466</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L467"><span class="lineNum">     467</span>              : </span>
-<span id="L468"><span class="lineNum">     468</span> <span class="tlaUNC">           0 :         currentTab := tm.config.Tabs[tm.currentTabIndex]</span></span>
-<span id="L469"><span class="lineNum">     469</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L470"><span class="lineNum">     470</span> <span class="tlaUNC">           0 :         if tm.config.ItemsPerPage &lt;= 0 {</span></span>
-<span id="L471"><span class="lineNum">     471</span> <span class="tlaUNC">           0 :                 indices := make([]int, len(currentTab.Items))</span></span>
-<span id="L472"><span class="lineNum">     472</span> <span class="tlaUNC">           0 :                 for i := range indices {</span></span>
-<span id="L473"><span class="lineNum">     473</span> <span class="tlaUNC">           0 :                         indices[i] = i</span></span>
-<span id="L474"><span class="lineNum">     474</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L475"><span class="lineNum">     475</span> <span class="tlaUNC">           0 :                 return currentTab.Items, indices</span></span>
+<span id="L468"><span class="lineNum">     468</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := tm.config.Tabs[tm.currentTabIndex]</span></span>
+<span id="L469"><span class="lineNum">     469</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L470"><span class="lineNum">     470</span> <span class="tlaGNC">           2 :         if tm.config.ItemsPerPage &lt;= 0 {</span></span>
+<span id="L471"><span class="lineNum">     471</span> <span class="tlaGNC">           1 :                 indices := make([]int, len(currentTab.Items))</span></span>
+<span id="L472"><span class="lineNum">     472</span> <span class="tlaGNC">           2 :                 for i := range indices {</span></span>
+<span id="L473"><span class="lineNum">     473</span> <span class="tlaGNC">           1 :                         indices[i] = i</span></span>
+<span id="L474"><span class="lineNum">     474</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L475"><span class="lineNum">     475</span> <span class="tlaGNC">           1 :                 return currentTab.Items, indices</span></span>
 <span id="L476"><span class="lineNum">     476</span>              :         }</span>
 <span id="L477"><span class="lineNum">     477</span>              : </span>
-<span id="L478"><span class="lineNum">     478</span> <span class="tlaUNC">           0 :         start := tm.currentPage * tm.config.ItemsPerPage</span></span>
-<span id="L479"><span class="lineNum">     479</span> <span class="tlaUNC">           0 :         end := start + tm.config.ItemsPerPage</span></span>
-<span id="L480"><span class="lineNum">     480</span> <span class="tlaUNC">           0 :         if end &gt; len(currentTab.Items) {</span></span>
-<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC">           0 :                 end = len(currentTab.Items)</span></span>
+<span id="L478"><span class="lineNum">     478</span> <span class="tlaGNC">           1 :         start := tm.currentPage * tm.config.ItemsPerPage</span></span>
+<span id="L479"><span class="lineNum">     479</span> <span class="tlaGNC">           1 :         end := start + tm.config.ItemsPerPage</span></span>
+<span id="L480"><span class="lineNum">     480</span> <span class="tlaGNC">           1 :         if end &gt; len(currentTab.Items) {</span></span>
+<span id="L481"><span class="lineNum">     481</span> <span class="tlaUNC tlaBgUNC">           0 :                 end = len(currentTab.Items)</span></span>
 <span id="L482"><span class="lineNum">     482</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L483"><span class="lineNum">     483</span>              : </span>
-<span id="L484"><span class="lineNum">     484</span> <span class="tlaUNC">           0 :         if start &gt;= len(currentTab.Items) {</span></span>
-<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC">           0 :                 return []Item{}, []int{}</span></span>
+<span id="L484"><span class="lineNum">     484</span> <span class="tlaGNC tlaBgGNC">           1 :         if start &gt;= len(currentTab.Items) {</span></span>
+<span id="L485"><span class="lineNum">     485</span> <span class="tlaUNC tlaBgUNC">           0 :                 return []Item{}, []int{}</span></span>
 <span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L487"><span class="lineNum">     487</span>              : </span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :         visibleItems := currentTab.Items[start:end]</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :         indices := make([]int, len(visibleItems))</span></span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :         for i := range indices {</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :                 indices[i] = start + i</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC tlaBgGNC">           1 :         visibleItems := currentTab.Items[start:end]</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaGNC">           1 :         indices := make([]int, len(visibleItems))</span></span>
+<span id="L490"><span class="lineNum">     490</span> <span class="tlaGNC">           2 :         for i := range indices {</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC">           1 :                 indices[i] = start + i</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L493"><span class="lineNum">     493</span>              : </span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :         return visibleItems, indices</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaGNC">           1 :         return visibleItems, indices</span></span>
 <span id="L495"><span class="lineNum">     495</span>              : }</span>
 <span id="L496"><span class="lineNum">     496</span>              : </span>
 <span id="L497"><span class="lineNum">     497</span>              : // GetCurrentPage は現在のページ番号を返す(表示用なので1ベース)</span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 : func (tm *tabMenu) GetCurrentPage() int {</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :         return tm.currentPage + 1</span></span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           1 : func (tm *tabMenu) GetCurrentPage() int {</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           1 :         return tm.currentPage + 1</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L501"><span class="lineNum">     501</span>              : </span>
 <span id="L502"><span class="lineNum">     502</span>              : // GetTotalPages は総ページ数を返す</span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 : func (tm *tabMenu) GetTotalPages() int {</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :         if tm.config.ItemsPerPage &lt;= 0 {</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :                 return 1</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaGNC">           1 : func (tm *tabMenu) GetTotalPages() int {</span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaGNC">           1 :         if tm.config.ItemsPerPage &lt;= 0 {</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 1</span></span>
 <span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L507"><span class="lineNum">     507</span>              : </span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) {</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                 return 1</span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) {</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 1</span></span>
 <span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L511"><span class="lineNum">     511</span>              : </span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :         currentTab := tm.config.Tabs[tm.currentTabIndex]</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :         return (len(currentTab.Items) + tm.config.ItemsPerPage - 1) / tm.config.ItemsPerPage</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := tm.config.Tabs[tm.currentTabIndex]</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaGNC">           1 :         return (len(currentTab.Items) + tm.config.ItemsPerPage - 1) / tm.config.ItemsPerPage</span></span>
 <span id="L514"><span class="lineNum">     514</span>              : }</span>
 <span id="L515"><span class="lineNum">     515</span>              : </span>
 <span id="L516"><span class="lineNum">     516</span>              : // GetPageIndicatorText はページインジケーターのテキストを返す</span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 : func (tm *tabMenu) GetPageIndicatorText() string {</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :         if tm.config.ItemsPerPage &lt;= 0 || tm.GetTotalPages() &lt;= 1 {</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                 return &quot;&quot;</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaGNC">           1 : func (tm *tabMenu) GetPageIndicatorText() string {</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaGNC">           2 :         if tm.config.ItemsPerPage &lt;= 0 || tm.GetTotalPages() &lt;= 1 {</span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaGNC">           1 :                 return &quot;&quot;</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L521"><span class="lineNum">     521</span>              : </span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :         arrows := &quot;&quot;</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :         // 前のページがある場合は上矢印を追加</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         if tm.HasPreviousPage() {</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :                 arrows += &quot; ↑&quot;</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :                 arrows += &quot; 　&quot;</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L522"><span class="lineNum">     522</span> <span class="tlaGNC">           1 :         arrows := &quot;&quot;</span></span>
+<span id="L523"><span class="lineNum">     523</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 :         // 前のページがある場合は上矢印を追加</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           1 :         if tm.HasPreviousPage() {</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC tlaBgUNC">           0 :                 arrows += &quot; ↑&quot;</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :                 arrows += &quot; 　&quot;</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L530"><span class="lineNum">     530</span>              : </span>
 <span id="L531"><span class="lineNum">     531</span>              :         // 次のページがある場合は下矢印を追加</span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :         if tm.HasNextPage() {</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :                 arrows += &quot; ↓&quot;</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         } else {</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :                 arrows += &quot; 　&quot;</span></span>
+<span id="L532"><span class="lineNum">     532</span> <span class="tlaGNC">           2 :         if tm.HasNextPage() {</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 :                 arrows += &quot; ↓&quot;</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           1 :         } else {</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC tlaBgUNC">           0 :                 arrows += &quot; 　&quot;</span></span>
 <span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L537"><span class="lineNum">     537</span>              : </span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(&quot;%d/%d%s&quot;, tm.GetCurrentPage(), tm.GetTotalPages(), arrows)</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC tlaBgGNC">           1 :         return fmt.Sprintf(&quot;%d/%d%s&quot;, tm.GetCurrentPage(), tm.GetTotalPages(), arrows)</span></span>
 <span id="L539"><span class="lineNum">     539</span>              : }</span>
 <span id="L540"><span class="lineNum">     540</span>              : </span>
 <span id="L541"><span class="lineNum">     541</span>              : // HasPreviousPage は前のページがあるかを返す</span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC">           0 : func (tm *tabMenu) HasPreviousPage() bool {</span></span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :         return tm.currentPage &gt; 0</span></span>
-<span id="L544"><span class="lineNum">     544</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaGNC">           1 : func (tm *tabMenu) HasPreviousPage() bool {</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 :         return tm.currentPage &gt; 0</span></span>
+<span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L545"><span class="lineNum">     545</span>              : </span>
 <span id="L546"><span class="lineNum">     546</span>              : // HasNextPage は次のページがあるかを返す</span>
-<span id="L547"><span class="lineNum">     547</span> <span class="tlaUNC">           0 : func (tm *tabMenu) HasNextPage() bool {</span></span>
-<span id="L548"><span class="lineNum">     548</span> <span class="tlaUNC">           0 :         if tm.config.ItemsPerPage &lt;= 0 {</span></span>
-<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L547"><span class="lineNum">     547</span> <span class="tlaGNC">           1 : func (tm *tabMenu) HasNextPage() bool {</span></span>
+<span id="L548"><span class="lineNum">     548</span> <span class="tlaGNC">           1 :         if tm.config.ItemsPerPage &lt;= 0 {</span></span>
+<span id="L549"><span class="lineNum">     549</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false</span></span>
 <span id="L550"><span class="lineNum">     550</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L551"><span class="lineNum">     551</span>              : </span>
-<span id="L552"><span class="lineNum">     552</span> <span class="tlaUNC">           0 :         if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) {</span></span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC">           0 :                 return false</span></span>
+<span id="L552"><span class="lineNum">     552</span> <span class="tlaGNC tlaBgGNC">           1 :         if len(tm.config.Tabs) == 0 || tm.currentTabIndex &gt;= len(tm.config.Tabs) {</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false</span></span>
 <span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L555"><span class="lineNum">     555</span>              : </span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :         currentTab := tm.config.Tabs[tm.currentTabIndex]</span></span>
-<span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :         nextPageStart := (tm.currentPage + 1) * tm.config.ItemsPerPage</span></span>
-<span id="L558"><span class="lineNum">     558</span> <span class="tlaUNC">           0 :         return nextPageStart &lt; len(currentTab.Items)</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaGNC tlaBgGNC">           1 :         currentTab := tm.config.Tabs[tm.currentTabIndex]</span></span>
+<span id="L557"><span class="lineNum">     557</span> <span class="tlaGNC">           1 :         nextPageStart := (tm.currentPage + 1) * tm.config.ItemsPerPage</span></span>
+<span id="L558"><span class="lineNum">     558</span> <span class="tlaGNC">           1 :         return nextPageStart &lt; len(currentTab.Items)</span></span>
 <span id="L559"><span class="lineNum">     559</span>              : }</span>
         </pre>
               </td>
