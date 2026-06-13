@@ -9,14 +9,12 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/loader"
-	gr "github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/screeneffect"
 	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -187,24 +185,10 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.Fonts = fonts
 
-	dougenzakaFont := world.Resources.Fonts["dougenzaka"]
-	nerdFont := world.Resources.Fonts["nerd"]
-
-	dougenzaka := &text.GoTextFace{
-		Source: dougenzakaFont.FaceSource,
-		Size:   16,
-	}
-
-	world.Resources.Faces = map[string]text.Face{
-		"dougenzaka": dougenzaka,
-	}
+	world.Resources.Faces = loader.BuildFaces(fonts)
 
 	// UIリソースを読み込む
-	fontSources := []*text.GoTextFaceSource{
-		dougenzakaFont.FaceSource,
-		nerdFont.FaceSource,
-	}
-	uir, err := gr.NewUIResources(fontSources)
+	uir, err := loader.LoadUIResources(fonts)
 	if err != nil {
 		return w.World{}, err
 	}
