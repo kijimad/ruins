@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image/color"
 	"math"
 	"sort"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -241,7 +241,7 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 
 	if shootingCursorCache == nil {
 		shootingCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := color.RGBA{R: 255, G: 50, B: 50, A: 255} // 赤
+		cursorColor := theme.CursorShoot
 		for i := 0; i < 3; i++ {
 			for x := 0; x < tileSize; x++ {
 				shootingCursorCache.Set(x, i, cursorColor)
@@ -282,7 +282,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
 	if shootingPanelCache == nil {
 		shootingPanelCache = ebiten.NewImage(panelWidth, panelHeight)
-		shootingPanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+		shootingPanelCache.Fill(theme.Overlay)
 	}
 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX

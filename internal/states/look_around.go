@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"image/color"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -13,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -157,7 +157,7 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 	if cursorImageCache == nil {
 		cursorImageCache = ebiten.NewImage(tileSize, tileSize)
 		// 枠線を描画（太さ3px、白色で目立つように）
-		cursorColor := color.RGBA{R: 255, G: 255, B: 255, A: 255} // 白
+		cursorColor := theme.CursorLook
 		for i := 0; i < 3; i++ {
 			// 上辺
 			for x := 0; x < tileSize; x++ {
@@ -204,7 +204,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	// パネル背景をキャッシュから取得または生成
 	if panelImageCache == nil {
 		panelImageCache = ebiten.NewImage(panelWidth, panelHeight)
-		panelImageCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
+		panelImageCache.Fill(theme.Overlay)
 	}
 
 	panelX := screen.Bounds().Dx() - panelWidth - marginX

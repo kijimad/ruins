@@ -1,11 +1,10 @@
 package hud
 
 import (
-	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -20,11 +19,11 @@ type MessageAreaConfig struct {
 
 // DefaultMessageAreaConfig はデフォルトのメッセージエリア設定
 var DefaultMessageAreaConfig = MessageAreaConfig{
-	LogAreaHeight: 120, // 余裕を持たせて大きめに
-	MaxLogLines:   5,   // 表示する最大行数
-	LogAreaMargin: 8,   // 余白
-	LineHeight:    20,  // 1行の高さ
-	YPadding:      12,  // 下端の追加パディング
+	LogAreaHeight: 120,          // 余裕を持たせて大きめに
+	MaxLogLines:   5,            // 表示する最大行数
+	LogAreaMargin: theme.Space3, // 余白
+	LineHeight:    20,           // 1行の高さ
+	YPadding:      12,           // 下端の追加パディング
 }
 
 // MessageArea はHUDメッセージエリア
@@ -43,10 +42,10 @@ func NewMessageArea(world w.World) *MessageArea {
 		LineHeight: config.LineHeight,
 		Spacing:    3,
 		Padding: messagelog.Insets{
-			Top:    2,
-			Bottom: 2,
-			Left:   2,
-			Right:  2,
+			Top:    theme.Space2,
+			Bottom: theme.Space2,
+			Left:   theme.Space3,
+			Right:  theme.Space3,
 		},
 	}
 
@@ -81,15 +80,6 @@ func (area *MessageArea) Update() {
 	area.widget.Update()
 }
 
-// messageBackgroundStyle はメッセージエリアの背景スタイル
-func messageBackgroundStyle() styled.BackgroundStyle {
-	return styled.BackgroundStyle{
-		BorderColor:     color.RGBA{0, 0, 0, 0},   // 透明（枠線なし）
-		BackgroundColor: color.RGBA{0, 0, 0, 150}, // 半透明の黒背景
-		BorderWidth:     0,                        // 枠線なし
-	}
-}
-
 // Draw はメッセージエリアを描画する
 func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	if !area.enabled || area.widget == nil {
@@ -109,7 +99,7 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaY := screenHeight - fixedHeight
 
 	// 背景を描画
-	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, messageBackgroundStyle())
+	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, styled.PanelStyle())
 
 	// オフスクリーンサイズ
 	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2

@@ -5,8 +5,8 @@ import (
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // NewRowContainer は汎用的なrowコンテナを作成する
@@ -47,13 +47,13 @@ func NewItemGridContainer(opts ...widget.ContainerOpt) *widget.Container {
 				widget.NewGridLayout(
 					// アイテム, スクロール, アイテム性能で3列になっている
 					widget.GridLayoutOpts.Columns(3),
-					widget.GridLayoutOpts.Spacing(4, 4),
+					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
 					widget.GridLayoutOpts.Stretch([]bool{true, false, true}, []bool{false, true, false}),
 					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    4,
-						Bottom: 4,
-						Left:   4,
-						Right:  4,
+						Top:    theme.Space3,
+						Bottom: theme.Space3,
+						Left:   theme.Space3,
+						Right:  theme.Space3,
 					}),
 				)),
 		}, opts...)...,
@@ -67,13 +67,13 @@ func NewVSplitContainer(top *widget.Container, bottom *widget.Container, opts ..
 			widget.ContainerOpts.Layout(
 				widget.NewGridLayout(
 					widget.GridLayoutOpts.Columns(1),
-					widget.GridLayoutOpts.Spacing(4, 4),
+					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
 					widget.GridLayoutOpts.Stretch([]bool{true}, []bool{true, true}),
 					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    4,
-						Bottom: 4,
-						Left:   4,
-						Right:  4,
+						Top:    theme.Space3,
+						Bottom: theme.Space3,
+						Left:   theme.Space3,
+						Right:  theme.Space3,
 					}),
 				)),
 		}, opts...)...,
@@ -91,13 +91,13 @@ func NewWSplitContainer(right *widget.Container, left *widget.Container, opts ..
 			widget.ContainerOpts.Layout(
 				widget.NewGridLayout(
 					widget.GridLayoutOpts.Columns(2),
-					widget.GridLayoutOpts.Spacing(4, 4),
+					widget.GridLayoutOpts.Spacing(theme.Space3, theme.Space3),
 					widget.GridLayoutOpts.Stretch([]bool{true, true}, []bool{true}),
 					widget.GridLayoutOpts.Padding(&widget.Insets{
-						Top:    4,
-						Bottom: 4,
-						Left:   4,
-						Right:  4,
+						Top:    theme.Space3,
+						Bottom: theme.Space3,
+						Left:   theme.Space3,
+						Right:  theme.Space3,
 					}),
 				)),
 		}, opts...)...,
@@ -115,12 +115,12 @@ func NewWindowContainer(res resources.UIResources) *widget.Container {
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top:    20,
-				Bottom: 20,
-				Left:   10,
-				Right:  10,
+				Top:    theme.Space7,
+				Bottom: theme.Space7,
+				Left:   theme.Space5,
+				Right:  theme.Space5,
 			}),
-			widget.RowLayoutOpts.Spacing(2),
+			widget.RowLayoutOpts.Spacing(theme.Space3),
 		)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.GridLayoutData{
@@ -137,15 +137,15 @@ func NewWindowHeaderContainer(title string, res resources.UIResources) *widget.C
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
+		widget.TextOpts.Text(title, &res.Text.SmallFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			HorizontalPosition: widget.AnchorLayoutPositionCenter,
 			VerticalPosition:   widget.AnchorLayoutPositionCenter,
 			Padding: &widget.Insets{
-				Top:    4,
-				Bottom: 4,
-				Left:   8,
-				Right:  8,
+				Top:    theme.Space2,
+				Bottom: theme.Space2,
+				Left:   theme.Space3,
+				Right:  theme.Space3,
 			},
 		})),
 	))
@@ -158,7 +158,7 @@ func NewWindowHeaderContainer(title string, res resources.UIResources) *widget.C
 // NewMenuText は汎用メニューテキストを作成する
 func NewMenuText(title string, res resources.UIResources) *widget.Text {
 	text := widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
+		widget.TextOpts.Text(title, &res.Text.BodyFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -167,10 +167,10 @@ func NewMenuText(title string, res resources.UIResources) *widget.Text {
 	return text
 }
 
-// NewTitleText はタイトル用テキストを作成する（大きめ、目立つ）
+// NewTitleText はタイトル用テキストを作成する
 func NewTitleText(text string, res resources.UIResources) *widget.Text {
 	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.BodyFace, consts.TextColor),
+		widget.TextOpts.Text(text, &res.Text.SmallFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -180,7 +180,7 @@ func NewTitleText(text string, res resources.UIResources) *widget.Text {
 // NewDescriptionText は説明文用テキストを作成する（小さめ、補助的）
 func NewDescriptionText(text string, res resources.UIResources) *widget.Text {
 	return widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.SmallFace, consts.ForegroundColor),
+		widget.TextOpts.Text(text, &res.Text.SmallFace, theme.TextSecondary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -190,7 +190,7 @@ func NewDescriptionText(text string, res resources.UIResources) *widget.Text {
 // NewPageIndicator は右寄せのページインジケーターを作成する
 func NewPageIndicator(text string, res resources.UIResources) *widget.Container {
 	container := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.NRGBA{})),
+		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(theme.Transparent)),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -201,16 +201,16 @@ func NewPageIndicator(text string, res resources.UIResources) *widget.Container 
 
 	// 右寄せのテキスト
 	textWidget := widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.SmallFace, consts.TextColor),
+		widget.TextOpts.Text(text, &res.Text.SmallFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionEnd, // 右寄せ
 				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 				Padding: &widget.Insets{
-					Top:    2,
-					Bottom: 2,
-					Left:   8,
-					Right:  8,
+					Top:    theme.Space1,
+					Bottom: theme.Space1,
+					Left:   theme.Space3,
+					Right:  theme.Space3,
 				},
 			}),
 		),
@@ -223,7 +223,7 @@ func NewPageIndicator(text string, res resources.UIResources) *widget.Container 
 // NewBodyText は本文用テキストを作成する
 func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.Text {
 	text := widget.NewText(
-		widget.TextOpts.Text(title, &res.Text.BodyFace, consts.TextColor),
+		widget.TextOpts.Text(title, &res.Text.BodyFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
 		),
@@ -232,25 +232,21 @@ func NewBodyText(title string, _ color.RGBA, res resources.UIResources) *widget.
 	return text
 }
 
-// NewListItemText はリスト項目用テキストを作成する（カーソルで選択状態を表現）
+// NewListItemText はリスト項目用テキストを作成する（背景バーとカーソルで選択状態を表現）
 // additionalLabels が空の場合は単純なテキスト表示、指定された場合は右側に追加ラベルを表示
 func NewListItemText(text string, textColor color.RGBA, isSelected bool, res resources.UIResources, additionalLabels ...string) *widget.Container {
-	// カーソルの色: 選択時は表示、非選択時は透明
-	cursorColor := color.RGBA{}
+	// 選択時: グラデーション背景バー + 明るいテキスト、非選択時: 透明背景 + 通常テキスト
+	bgImage := image.NewNineSliceColor(theme.Transparent)
+	displayTextColor := textColor
 	if isSelected {
-		cursorColor = consts.PrimaryColor
+		bgImage = res.Panel.SelectionBar
+		displayTextColor = theme.TextSelected
 	}
 
-	container := widget.NewContainer(
+	// ラッパー: コンテンツ行 + 白線を縦に並べる
+	wrapper := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
-			widget.RowLayoutOpts.Spacing(4),
-			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top:    0,
-				Bottom: 0,
-				Left:   4,
-				Right:  8,
-			}),
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 		)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -260,16 +256,28 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 		),
 	)
 
-	// カーソル（常に同じ文字を表示、色で表示/非表示を制御）
-	cursorText := widget.NewText(
-		widget.TextOpts.Text(consts.IconCursor+" ", &res.Text.BodyFace, cursorColor),
-		widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
+	container := widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(bgImage),
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionHorizontal),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
+			widget.RowLayoutOpts.Padding(&widget.Insets{
+				Top:    theme.Space1,
+				Bottom: theme.Space1,
+				Left:   theme.Space3,
+				Right:  theme.Space3,
+			}),
+		)),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+		),
 	)
-	container.AddChild(cursorText)
 
 	// メインテキスト
 	mainText := widget.NewText(
-		widget.TextOpts.Text(text, &res.Text.BodyFace, textColor),
+		widget.TextOpts.Text(text, &res.Text.BodyFace, displayTextColor),
 		widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -294,13 +302,27 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 	// 右側: 追加ラベル群
 	for _, label := range additionalLabels {
 		labelText := widget.NewText(
-			widget.TextOpts.Text(label, &res.Text.BodyFace, textColor),
+			widget.TextOpts.Text(label, &res.Text.BodyFace, displayTextColor),
 			widget.TextOpts.Position(widget.TextPositionEnd, widget.TextPositionCenter),
 		)
 		container.AddChild(labelText)
 	}
 
-	return container
+	wrapper.AddChild(container)
+
+	// 白線は常に最前面に表示
+	separator := widget.NewContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.SeparatorLine),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+			widget.WidgetOpts.MinSize(0, 1),
+		),
+	)
+	wrapper.AddChild(separator)
+
+	return wrapper
 }
 
 // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）
@@ -320,10 +342,14 @@ func NewFragmentText(text string, textColor color.RGBA, res resources.UIResource
 
 // NewSmallWindow は小さなウィンドウを作成する
 func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...widget.WindowOpt) *widget.Window {
+	titleBarHeight := 25
+	if len(title.Children()) == 0 {
+		titleBarHeight = 0
+	}
 	// デフォルトのオプション
 	defaultOpts := []widget.WindowOpt{
 		widget.WindowOpts.Contents(content),
-		widget.WindowOpts.TitleBar(title, 25),
+		widget.WindowOpts.TitleBar(title, titleBarHeight),
 		widget.WindowOpts.Modal(),
 		widget.WindowOpts.CloseMode(widget.CLICK_OUT),
 		widget.WindowOpts.Draggable(),
@@ -343,12 +369,12 @@ func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...
 // BaseRowLayoutOpts は基本的な行レイアウトオプションを返す
 func BaseRowLayoutOpts() []widget.RowLayoutOpt {
 	return []widget.RowLayoutOpt{
-		widget.RowLayoutOpts.Spacing(4),
+		widget.RowLayoutOpts.Spacing(theme.Space3),
 		widget.RowLayoutOpts.Padding(&widget.Insets{
-			Top:    10,
-			Bottom: 10,
-			Left:   4,
-			Right:  4,
+			Top:    theme.Space3,
+			Bottom: theme.Space3,
+			Left:   theme.Space3,
+			Right:  theme.Space3,
 		}),
 	}
 }

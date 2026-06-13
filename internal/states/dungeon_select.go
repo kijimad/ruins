@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -212,7 +213,7 @@ func (st *DungeonSelectState) buildUI(world w.World) *ebitenui.UI {
 			widget.GridLayoutOpts.Spacing(0, 0),
 			widget.GridLayoutOpts.Stretch([]bool{false, true}, []bool{true}),
 			widget.GridLayoutOpts.Padding(&widget.Insets{
-				Top: 4, Bottom: 4, Left: 4, Right: 4,
+				Top: theme.Space2, Bottom: theme.Space2, Left: theme.Space2, Right: theme.Space2,
 			}),
 		)),
 	)
@@ -228,9 +229,9 @@ func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top: 20, Bottom: 10, Left: 4, Right: 4,
+				Top: theme.Space6, Bottom: theme.Space4, Left: theme.Space2, Right: theme.Space2,
 			}),
 		)),
 		widget.ContainerOpts.WidgetOpts(
@@ -244,7 +245,7 @@ func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex
 		if item.Cleared {
 			label = consts.IconStar + " " + label
 		}
-		color := consts.TextColor
+		color := theme.TextPrimary
 		container.AddChild(styled.NewListItemText(label, color, isSelected, res))
 	}
 
@@ -255,9 +256,9 @@ func (st *DungeonSelectState) buildDetailPanel(props dungeonSelectProps, itemInd
 	container := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(4),
+			widget.RowLayoutOpts.Spacing(theme.Space2),
 			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Top: 4, Bottom: 10, Left: 8, Right: 8,
+				Top: theme.Space2, Bottom: theme.Space4, Left: theme.Space3, Right: theme.Space3,
 			}),
 		)),
 	)

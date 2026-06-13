@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -120,7 +121,7 @@ func (st *CharacterNamingState) Update(world w.World) (es.Transition[w.World], e
 
 // Draw はスクリーンに描画する
 func (st *CharacterNamingState) Draw(_ w.World, screen *ebiten.Image) error {
-	screen.Fill(consts.BlackColor)
+	screen.Fill(theme.ScreenBackground)
 	if st.widget != nil {
 		st.widget.Draw(screen)
 	}
@@ -220,7 +221,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	centerContainer := widget.NewContainer(
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Spacing(20),
+			widget.RowLayoutOpts.Spacing(theme.Space6),
 		)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
@@ -231,7 +232,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("名前", &res.Text.TitleFontFace, consts.PrimaryColor),
+		widget.TextOpts.Text("名前", &res.Text.TitleFontFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
@@ -262,7 +263,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 
 	// エラーメッセージ
 	errorText := widget.NewText(
-		widget.TextOpts.Text(props.ErrorMessage, &res.Text.SmallFace, consts.DangerColor),
+		widget.TextOpts.Text(props.ErrorMessage, &res.Text.SmallFace, theme.StatusDanger),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionStart,
@@ -272,7 +273,7 @@ func (st *CharacterNamingState) buildUI(world w.World) *ebitenui.UI {
 
 	// 操作ヒント
 	hintLabel := widget.NewText(
-		widget.TextOpts.Text(consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

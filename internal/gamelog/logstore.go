@@ -2,8 +2,6 @@ package gamelog
 
 import (
 	"sync"
-
-	"github.com/kijimaD/ruins/internal/consts"
 )
 
 const (
@@ -38,7 +36,7 @@ func (s *SafeSlice) Push(message string) {
 	entry := LogEntry{
 		Fragments: []LogFragment{{
 			Text:  message,
-			Color: consts.ColorWhite, // デフォルト色は白
+			Color: ColorWhite, // デフォルト色は白
 		}},
 	}
 	s.pushColoredEntry(entry)

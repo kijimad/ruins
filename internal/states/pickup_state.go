@@ -11,9 +11,12 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -107,16 +110,16 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 
 	case inputmapper.ActionMoveNorth:
-		st.moveCursor(0, -1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, -1)
 		st.refreshItems(world)
 	case inputmapper.ActionMoveSouth:
-		st.moveCursor(0, 1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, 1)
 		st.refreshItems(world)
 	case inputmapper.ActionMoveWest:
-		st.moveCursor(-1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, -1, 0)
 		st.refreshItems(world)
 	case inputmapper.ActionMoveEast:
-		st.moveCursor(1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 1, 0)
 		st.refreshItems(world)
 
 	case inputmapper.ActionPickup:
@@ -134,44 +137,14 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 	return st.ConsumeTransition(), nil
 }
 
-// moveCursor はカーソルを移動する。プレイヤーからチェビシェフ距離1以内に制限する
-func (st *PickupState) moveCursor(dx, dy int) {
-	newX := int(st.cursor.X) + dx
-	newY := int(st.cursor.Y) + dy
-
-	distX := newX - int(st.playerPos.X)
-	distY := newY - int(st.playerPos.Y)
-	if distX < 0 {
-		distX = -distX
-	}
-	if distY < 0 {
-		distY = -distY
-	}
-
-	if distX <= 1 && distY <= 1 {
-		st.cursor.X = consts.Tile(newX)
-		st.cursor.Y = consts.Tile(newY)
-	}
-}
-
 // refreshItems はカーソル位置のタイル上の拾得可能エンティティを更新する
 func (st *PickupState) refreshItems(world w.World) {
 	st.itemsAtTarget = nil
-
-	targetX := int(st.cursor.X)
-	targetY := int(st.cursor.Y)
-
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		if int(grid.X) != targetX || int(grid.Y) != targetY {
-			return
-		}
+	for _, entity := range worldhelper.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {
 		if worldhelper.IsPickable(entity, world) {
 			st.itemsAtTarget = append(st.itemsAtTarget, entity)
 		}
-	}))
+	}
 }
 
 // executePickup は拾得アクションを実行する
@@ -199,9 +172,6 @@ func (st *PickupState) Draw(world w.World, screen *ebiten.Image) error {
 // pickupCursorCache はカーソル画像のキャッシュ
 var pickupCursorCache *ebiten.Image
 
-// pickupPanelCache は情報パネル画像のキャッシュ
-var pickupPanelCache *ebiten.Image
-
 func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(st.cursor.X) * tileSize)
@@ -209,7 +179,7 @@ func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 
 	if pickupCursorCache == nil {
 		pickupCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := color.RGBA{R: 50, G: 200, B: 255, A: 255} // 青
+		cursorColor := theme.CursorPickup
 		for i := 0; i < 3; i++ {
 			for x := 0; x < tileSize; x++ {
 				pickupCursorCache.Set(x, i, cursorColor)
@@ -243,28 +213,23 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 		lineHeight  = 20
 	)
 
-	if pickupPanelCache == nil {
-		pickupPanelCache = ebiten.NewImage(panelWidth, panelHeight)
-		pickupPanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
-	}
-
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
-	panelOp := &ebiten.DrawImageOptions{}
-	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(pickupPanelCache, panelOp)
+	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
 
-	textX := float64(panelX + 10)
-	y := panelY + 10
+	textX := float64(panelX + 12)
+	y := panelY + 12
 
-	drawText := func(str string) {
+	drawColorText := func(str string, c color.RGBA) {
 		op := &text.DrawOptions{}
 		op.GeoM.Translate(textX, float64(y))
+		op.ColorScale.ScaleWithColor(c)
 		text.Draw(screen, str, face, op)
 		y += lineHeight
 	}
+	drawText := func(str string) { drawColorText(str, theme.TextPrimary) }
 
-	drawText("== 拾うモード ==")
+	drawColorText("拾うモード", theme.TextPrimary)
 	y += 5
 
 	dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))
@@ -272,12 +237,12 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	y += 5
 
 	if len(st.itemsAtTarget) == 0 {
-		drawText("拾えるものがありません")
+		drawColorText("拾えるものがありません", theme.TextSecondary)
 	} else {
 		drawText(fmt.Sprintf("アイテム: %d個", len(st.itemsAtTarget)))
 		for i, entity := range st.itemsAtTarget {
 			if i >= 5 {
-				drawText("...")
+				drawColorText("...", theme.TextSecondary)
 				break
 			}
 			name := worldhelper.GetEntityName(entity, world)
@@ -286,9 +251,19 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	}
 
 	y = panelY + panelHeight - 30
-	drawText("WASD/矢印:移動 Enter:拾う Esc:戻る")
+	drawColorText("WASD/矢印:移動 Enter:拾う Esc:戻る", theme.TextSecondary)
 
 	return nil
+}
+
+// moveCursorAdjacent はカーソルを移動する。基準点からチェビシェフ距離1以内に制限する
+func moveCursorAdjacent(cursor *consts.Coord[consts.Tile], origin consts.Coord[consts.Tile], dx, dy int) {
+	newX := int(cursor.X) + dx
+	newY := int(cursor.Y) + dy
+	if geometry.ChebyshevDistance(newX, newY, int(origin.X), int(origin.Y)) <= 1 {
+		cursor.X = consts.Tile(newX)
+		cursor.Y = consts.Tile(newY)
+	}
 }
 
 // offsetToLabel はプレイヤーからのオフセットを日本語ラベルに変換する

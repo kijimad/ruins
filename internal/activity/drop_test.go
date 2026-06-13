@@ -344,10 +344,10 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		// Interactableを持たないPropを直接構築する
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 4, Y: 4})
 		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})

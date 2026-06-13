@@ -3,7 +3,6 @@ package messagewindow
 import (
 	"fmt"
 	"image"
-	"image/color"
 
 	"github.com/ebitenui/ebitenui"
 	eui_image "github.com/ebitenui/ebitenui/image"
@@ -14,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -215,44 +215,22 @@ func (w *Window) createAndAddWindow() {
 	w.ui.AddWindow(w.window)
 }
 
-// createTitleContainer はタイトルコンテナを作成する
+// createTitleContainer はタイトルコンテナを作成する。タイトルが空の場合は空コンテナを返す
 func (w *Window) createTitleContainer() *widget.Container {
-	title := ""
-	if w.content.SpeakerName != "" {
-		title = w.content.SpeakerName
+	if w.content.SpeakerName == "" {
+		return widget.NewContainer()
 	}
-	return styled.NewWindowHeaderContainer(title, w.world.Resources.UIResources)
+	return styled.NewWindowHeaderContainer(w.content.SpeakerName, w.world.Resources.UIResources)
 }
 
-// calculateWindowPosition はウィンドウの表示位置を計算する
+// calculateWindowPosition はウィンドウの表示位置を計算する。
+// 上端を画面高さの約1/4の位置に統一して配置する
 func (w *Window) calculateWindowPosition(windowSize WindowSize) (x, y int) {
 	screenWidth := w.world.Resources.ScreenDimensions.Width
 	screenHeight := w.world.Resources.ScreenDimensions.Height
 
 	x = (screenWidth - windowSize.Width) / 2
-
-	numChoices := len(w.content.Choices)
-	if w.hasChoices && numChoices > 0 {
-		// メッセージがない場合は、より高い位置に配置
-		if !w.hasMessage() {
-			// メッセージなし: 中央より少し上に配置
-			y = (screenHeight - windowSize.Height) / 2
-			if numChoices > 5 {
-				y = screenHeight / 3
-			}
-		} else {
-			// メッセージあり: 選択肢数に応じて配置
-			if numChoices <= 3 {
-				y = (screenHeight - windowSize.Height) / 2
-			} else if numChoices <= 8 {
-				y = screenHeight / 3
-			} else {
-				y = screenHeight / 5
-			}
-		}
-	} else {
-		y = (screenHeight - windowSize.Height) / 2
-	}
+	y = screenHeight / 4
 
 	margin := 30
 	if y+windowSize.Height > screenHeight-margin {
@@ -280,10 +258,13 @@ func (w *Window) calculateWindowSize() WindowSize {
 		}
 		choiceItemHeight := 40 // 選択肢1つあたりの高さ
 		choiceHeight := numChoices * choiceItemHeight
-		topPadding := 20     // 上部パディング
-		bottomPadding := 15  // 下部パディング
-		titleBarHeight := 40 // タイトルバーの高さ
-		spacingHeight := 10  // スペーサー間隔（メッセージがある場合のみ）
+		topPadding := 20    // 上部パディング
+		bottomPadding := 15 // 下部パディング
+		titleBarHeight := 0 // タイトルバーの高さ
+		if w.content.SpeakerName != "" {
+			titleBarHeight = 40
+		}
+		spacingHeight := 10 // スペーサー間隔（メッセージがある場合のみ）
 		if !w.hasMessage() {
 			spacingHeight = 0
 		}
@@ -291,13 +272,10 @@ func (w *Window) calculateWindowSize() WindowSize {
 		// 合計高さを計算
 		calculatedHeight := messageHeight + choiceHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight
 
-		// 最低高さと最大高さを設定
-		minHeightWithChoices := 300
-		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8) // 画面高さの80%まで
+		// 最大高さを画面高さの80%に制限
+		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
 
-		if calculatedHeight < minHeightWithChoices {
-			baseHeight = minHeightWithChoices
-		} else if calculatedHeight > maxHeightWithChoices {
+		if calculatedHeight > maxHeightWithChoices {
 			baseHeight = maxHeightWithChoices
 		} else {
 			baseHeight = calculatedHeight
@@ -354,12 +332,12 @@ func (w *Window) createWindowContainer() *widget.Container {
 			widget.NewRowLayout(
 				widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 				widget.RowLayoutOpts.Padding(&widget.Insets{
-					Top:    20,
+					Top:    theme.Space6,
 					Bottom: bottomPadding,
-					Left:   10,
-					Right:  10,
+					Left:   theme.Space4,
+					Right:  theme.Space4,
 				}),
-				widget.RowLayoutOpts.Spacing(10),
+				widget.RowLayoutOpts.Spacing(theme.Space4),
 			),
 		),
 		widget.ContainerOpts.WidgetOpts(
@@ -494,7 +472,7 @@ func (w *Window) createEnterPrompt() *widget.Container {
 
 	prompt := styled.NewListItemText(
 		"Enter",
-		color.RGBA{255, 255, 255, 255},
+		theme.TextPrimary,
 		true,
 		w.world.Resources.UIResources,
 	)
@@ -598,18 +576,30 @@ func (w *Window) rebuildUI() {
 
 // calculateItemsPerPage は1ページあたりのアイテム数を計算する
 func (w *Window) calculateItemsPerPage(totalItems int) int {
-	windowHeight := w.calculateWindowSize().Height
+	maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
 
-	// メッセージがある場合のみメッセージエリアの高さを確保
-	textAreaHeight := 0
+	// ウィンドウ内のオーバーヘッドを計算する
+	messageHeight := 0
 	if w.hasMessage() {
-		textAreaHeight = 150
+		messageHeight = 150
+	}
+	topPadding := 20
+	bottomPadding := 15
+	titleBarHeight := 0
+	if w.content.SpeakerName != "" {
+		titleBarHeight = 40
+	}
+	spacingHeight := 0
+	if w.hasMessage() {
+		spacingHeight = 10
 	}
 	pageIndicatorHeight := 30
-	availableHeight := windowHeight - textAreaHeight - pageIndicatorHeight
 
-	itemHeight := 35
-	maxItemsPerPage := availableHeight / itemHeight
+	overhead := messageHeight + topPadding + bottomPadding + titleBarHeight + spacingHeight + pageIndicatorHeight
+	availableHeight := maxHeightWithChoices - overhead
+
+	choiceItemHeight := 40
+	maxItemsPerPage := availableHeight / choiceItemHeight
 
 	if maxItemsPerPage < 3 {
 		maxItemsPerPage = 3
@@ -660,8 +650,8 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 				widget.RowLayoutOpts.Padding(&widget.Insets{
 					Top:    0,
 					Bottom: 0,
-					Left:   8,
-					Right:  8,
+					Left:   theme.Space3,
+					Right:  theme.Space3,
 				}),
 			),
 		),
@@ -771,10 +761,10 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 	var backgroundColor *eui_image.NineSlice
 	if isSelected {
 		// 選択中は背景色を付ける
-		backgroundColor = eui_image.NewNineSliceColor(color.NRGBA{R: 75, G: 104, B: 122, A: 100})
+		backgroundColor = eui_image.NewNineSliceColor(theme.ChoiceSelectedBg)
 	} else {
 		// 非選択は透明
-		backgroundColor = eui_image.NewNineSliceColor(color.NRGBA{R: 0, G: 0, B: 0, A: 0})
+		backgroundColor = eui_image.NewNineSliceColor(theme.Transparent)
 	}
 
 	// コンテナ（自然な幅を保持）
@@ -791,10 +781,10 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
 				VerticalPosition:   widget.AnchorLayoutPositionCenter,
 				Padding: &widget.Insets{
-					Top:    4,
-					Bottom: 4,
-					Left:   16,
-					Right:  16,
+					Top:    theme.Space2,
+					Bottom: theme.Space2,
+					Left:   theme.Space5,
+					Right:  theme.Space5,
 				},
 			}),
 		),

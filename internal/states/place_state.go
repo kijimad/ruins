@@ -14,6 +14,8 @@ import (
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
+	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -158,13 +160,13 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 		return st.ConsumeTransition(), nil
 
 	case inputmapper.ActionMoveNorth:
-		st.moveCursor(0, -1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, -1)
 	case inputmapper.ActionMoveSouth:
-		st.moveCursor(0, 1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, 1)
 	case inputmapper.ActionMoveWest:
-		st.moveCursor(-1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, -1, 0)
 	case inputmapper.ActionMoveEast:
-		st.moveCursor(1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 1, 0)
 
 	case inputmapper.ActionPlace:
 		if err := st.executeDrop(world); err != nil {
@@ -176,26 +178,6 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 	}
 
 	return st.ConsumeTransition(), nil
-}
-
-// moveCursor はカーソルを移動する。プレイヤーからチェビシェフ距離1以内に制限する
-func (st *PlaceState) moveCursor(dx, dy int) {
-	newX := int(st.cursor.X) + dx
-	newY := int(st.cursor.Y) + dy
-
-	distX := newX - int(st.playerPos.X)
-	distY := newY - int(st.playerPos.Y)
-	if distX < 0 {
-		distX = -distX
-	}
-	if distY < 0 {
-		distY = -distY
-	}
-
-	if distX <= 1 && distY <= 1 {
-		st.cursor.X = consts.Tile(newX)
-		st.cursor.Y = consts.Tile(newY)
-	}
 }
 
 // refreshBackpackItems はバックパック内の全アイテムを取得する
@@ -243,9 +225,6 @@ func (st *PlaceState) Draw(world w.World, screen *ebiten.Image) error {
 // placeCursorCache はカーソル画像のキャッシュ
 var placeCursorCache *ebiten.Image
 
-// placePanelCache は情報パネル画像のキャッシュ
-var placePanelCache *ebiten.Image
-
 func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	tileSize := int(consts.TileSize)
 	cursorPixelX := float64(int(st.cursor.X) * tileSize)
@@ -253,7 +232,7 @@ func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 
 	if placeCursorCache == nil {
 		placeCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := color.RGBA{R: 50, G: 255, B: 100, A: 255} // 緑
+		cursorColor := theme.CursorPlace
 		for i := 0; i < 3; i++ {
 			for x := 0; x < tileSize; x++ {
 				placeCursorCache.Set(x, i, cursorColor)
@@ -287,38 +266,33 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		lineHeight  = 20
 	)
 
-	if placePanelCache == nil {
-		placePanelCache = ebiten.NewImage(panelWidth, panelHeight)
-		placePanelCache.Fill(color.RGBA{R: 0, G: 0, B: 0, A: 200})
-	}
-
 	panelX := screen.Bounds().Dx() - panelWidth - marginX
 	panelY := marginY
-	panelOp := &ebiten.DrawImageOptions{}
-	panelOp.GeoM.Translate(float64(panelX), float64(panelY))
-	screen.DrawImage(placePanelCache, panelOp)
+	styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())
 
-	textX := float64(panelX + 10)
-	y := panelY + 10
+	textX := float64(panelX + 12)
+	y := panelY + 12
 
-	drawText := func(str string) {
+	drawColorText := func(str string, c color.RGBA) {
 		op := &text.DrawOptions{}
 		op.GeoM.Translate(textX, float64(y))
+		op.ColorScale.ScaleWithColor(c)
 		text.Draw(screen, str, face, op)
 		y += lineHeight
 	}
+	drawText := func(str string) { drawColorText(str, theme.TextPrimary) }
 
 	switch st.phase {
 	case placePhaseSelectItem:
-		drawText("== 置くモード: アイテム選択 ==")
+		drawColorText("置くモード: アイテム選択", theme.TextPrimary)
 		y += 5
 
 		if len(st.backpackItems) == 0 {
-			drawText("置けるアイテムがありません")
+			drawColorText("置けるアイテムがありません", theme.TextSecondary)
 		} else {
 			for i, entity := range st.backpackItems {
 				if i >= 7 {
-					drawText("...")
+					drawColorText("...", theme.TextSecondary)
 					break
 				}
 				name := worldhelper.GetEntityName(entity, world)
@@ -331,10 +305,10 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		}
 
 		y = panelY + panelHeight - 30
-		drawText("↑↓:選択 Enter:決定 Esc:戻る")
+		drawColorText("↑↓:選択 Enter:決定 Esc:戻る", theme.TextSecondary)
 
 	case placePhaseSelectTile:
-		drawText("== 置くモード: 配置先選択 ==")
+		drawColorText("置くモード: 配置先選択", theme.TextPrimary)
 		y += 5
 
 		item := st.backpackItems[st.selectedIndex]
@@ -345,7 +319,7 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		drawText(fmt.Sprintf("方向: %s", dirLabel))
 
 		y = panelY + panelHeight - 30
-		drawText("WASD/矢印:移動 Enter:置く Esc:戻る")
+		drawColorText("WASD/矢印:移動 Enter:置く Esc:戻る", theme.TextSecondary)
 	}
 
 	return nil

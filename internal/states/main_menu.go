@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -175,11 +176,18 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
-	// メニューコンテナを構築
-	menuContainer := styled.NewVerticalContainer()
+	menuContainer := styled.NewVerticalContainer(
+		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
+		widget.ContainerOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+				Stretch: true,
+			}),
+			widget.WidgetOpts.MinSize(200, 0),
+		),
+	)
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Label, consts.TextColor, isSelected, res)
+		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, res)
 		menuContainer.AddChild(itemWidget)
 	}
 
@@ -195,14 +203,14 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 		versionInfo = append(versionInfo, consts.AppDate)
 	}
 	versionText := widget.NewText(
-		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionEnd,
 				VerticalPosition:   widget.AnchorLayoutPositionEnd,
 				Padding: &widget.Insets{
-					Right:  20,
-					Bottom: 20,
+					Right:  theme.Space6,
+					Bottom: theme.Space6,
 				},
 			}),
 		),

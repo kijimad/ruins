@@ -1,11 +1,10 @@
 package tabmenu
 
 import (
-	"image/color"
-
+	eui_image "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -61,11 +60,7 @@ func (b *uiBuilder) CreateMenuButton(tabMenu *tabMenu, index int, item Item) wid
 	// フォーカス状態をチェック
 	isFocused := index == tabMenu.GetCurrentItemIndex()
 
-	// 無効時は灰色テキスト
-	textColor := consts.TextColor
-	if item.Disabled {
-		textColor = consts.ForegroundColor
-	}
+	textColor := theme.TextSecondary
 
 	return styled.NewListItemText(
 		item.Label,
@@ -77,7 +72,7 @@ func (b *uiBuilder) CreateMenuButton(tabMenu *tabMenu, index int, item Item) wid
 }
 
 // UpdateFocus はメニューのフォーカス表示を更新する
-// カーソルの色を変更して選択状態を表現する
+// カーソルの色、背景バー、テキスト色を変更して選択状態を表現する
 func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) {
 	if len(b.itemWidgets) == 0 {
 		return
@@ -86,7 +81,7 @@ func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) {
 	// 表示中の項目とそのインデックスを取得
 	_, indices := tabMenu.GetVisibleItems()
 
-	// 全てのアイテムのカーソル色を更新
+	// 全てのアイテムのフォーカス表示を更新
 	for i, w := range b.itemWidgets {
 		if i >= len(indices) {
 			continue
@@ -95,19 +90,36 @@ func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) {
 		originalIndex := indices[i]
 		isFocused := originalIndex == tabMenu.GetCurrentItemIndex()
 
-		// カーソルの色を決定
-		cursorColor := color.RGBA{}
-		if isFocused {
-			cursorColor = consts.PrimaryColor
+		// wrapperコンテナの最初の子がコンテンツ行
+		wrapper, ok := w.(*widget.Container)
+		if !ok {
+			continue
+		}
+		wrapperChildren := wrapper.Children()
+		if len(wrapperChildren) == 0 {
+			continue
+		}
+		contentContainer, ok := wrapperChildren[0].(*widget.Container)
+		if !ok {
+			continue
 		}
 
-		// コンテナの場合、最初の子要素（カーソルText）の色を更新
-		if container, ok := w.(*widget.Container); ok {
-			children := container.Children()
-			if len(children) > 0 {
-				if cursorText, ok := children[0].(*widget.Text); ok {
-					cursorText.SetColor(cursorColor)
-				}
+		// 背景バーの画像を更新
+		if isFocused {
+			contentContainer.SetBackgroundImage(b.world.Resources.UIResources.Panel.SelectionBar)
+		} else {
+			contentContainer.SetBackgroundImage(eui_image.NewNineSliceColor(theme.Transparent))
+		}
+
+		// テキストの色を更新
+		textColor := theme.TextSecondary
+		if isFocused {
+			textColor = theme.TextSelected
+		}
+
+		for _, child := range contentContainer.Children() {
+			if textWidget, ok := child.(*widget.Text); ok {
+				textWidget.SetColor(textColor)
 			}
 		}
 	}
@@ -120,7 +132,7 @@ func (b *uiBuilder) CreatePageIndicator(tabMenu *tabMenu) *widget.Text {
 	pageText := tabMenu.GetPageIndicatorText()
 
 	return widget.NewText(
-		widget.TextOpts.Text(pageText, &res.Text.SmallFace, color.White),
+		widget.TextOpts.Text(pageText, &res.Text.SmallFace, theme.TextPrimary),
 		widget.TextOpts.Position(widget.TextPositionCenter, widget.TextPositionCenter),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
@@ -155,19 +167,8 @@ func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, tabMe
 		actualIndex := indices[i]
 		isSelected := actualIndex == currentItemIndex && currentItemIndex >= 0
 
-		// Disabledアイテムの場合は灰色で表示
-		if item.Disabled {
-			itemWidget := styled.NewListItemText(item.Label, consts.ForegroundColor, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
-			container.AddChild(itemWidget)
-		} else if isSelected {
-			// 選択中のアイテムは背景色付きで明るい文字色
-			itemWidget := styled.NewListItemText(item.Label, consts.TextColor, true, b.world.Resources.UIResources, item.AdditionalLabels...)
-			container.AddChild(itemWidget)
-		} else {
-			// 非選択のアイテムは背景なしで明るい文字色
-			itemWidget := styled.NewListItemText(item.Label, consts.TextColor, false, b.world.Resources.UIResources, item.AdditionalLabels...)
-			container.AddChild(itemWidget)
-		}
+		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
+		container.AddChild(itemWidget)
 	}
 
 	// アイテムがない場合の表示

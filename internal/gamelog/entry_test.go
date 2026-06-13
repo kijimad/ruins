@@ -2,8 +2,6 @@ package gamelog
 
 import (
 	"testing"
-
-	"github.com/kijimaD/ruins/internal/consts"
 )
 
 func TestLogEntry_Text(t *testing.T) {
@@ -13,9 +11,9 @@ func TestLogEntry_Text(t *testing.T) {
 		t.Parallel()
 		entry := LogEntry{
 			Fragments: []LogFragment{
-				{Color: consts.ColorWhite, Text: "Hello "},
-				{Color: consts.ColorRed, Text: "World"},
-				{Color: consts.ColorWhite, Text: "!"},
+				{Color: ColorWhite, Text: "Hello "},
+				{Color: ColorRed, Text: "World"},
+				{Color: ColorWhite, Text: "!"},
 			},
 		}
 
@@ -31,7 +29,7 @@ func TestLogEntry_Text(t *testing.T) {
 		t.Parallel()
 		entry := LogEntry{
 			Fragments: []LogFragment{
-				{Color: consts.ColorGreen, Text: "Success"},
+				{Color: ColorGreen, Text: "Success"},
 			},
 		}
 
@@ -87,7 +85,7 @@ func TestLogEntry_IsEmpty(t *testing.T) {
 		t.Parallel()
 		entry := LogEntry{
 			Fragments: []LogFragment{
-				{Color: consts.ColorWhite, Text: "Not empty"},
+				{Color: ColorWhite, Text: "Not empty"},
 			},
 		}
 
@@ -100,7 +98,7 @@ func TestLogEntry_IsEmpty(t *testing.T) {
 		t.Parallel()
 		entry := LogEntry{
 			Fragments: []LogFragment{
-				{Color: consts.ColorWhite, Text: ""},
+				{Color: ColorWhite, Text: ""},
 			},
 		}
 

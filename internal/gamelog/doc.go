@@ -70,7 +70,7 @@
 //
 //	// 定義済み色を使用
 //	gamelog.New(store).
-//	    ColorRGBA(consts.ColorBlue).
+//	    ColorRGBA(ColorBlue).
 //	    Append("青色のテキスト").
 //	    Log()
 //

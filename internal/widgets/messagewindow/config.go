@@ -4,6 +4,7 @@ import (
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // 最小サイズの定数
@@ -82,8 +83,8 @@ func DefaultConfig() Config {
 		Center: true,
 
 		WindowStyle: WindowStyle{
-			BackgroundColor: color.RGBA{20, 20, 30, 240},
-			BorderColor:     color.RGBA{100, 100, 120, 255},
+			BackgroundColor: theme.WindowBackground,
+			BorderColor:     theme.WindowBorder,
 			BorderWidth:     2,
 			Padding: Padding{
 				Top:    20,
@@ -94,15 +95,15 @@ func DefaultConfig() Config {
 		},
 
 		TextStyle: TextStyle{
-			Color:      color.RGBA{255, 255, 255, 255},
+			Color:      theme.TextPrimary,
 			LineHeight: 24,
 		},
 
 		ActionStyle: ActionStyle{
 			ShowCloseButton: true,
 			CloseButtonText: "閉じる [Enter/Escape]",
-			ActionAreaColor: color.RGBA{40, 40, 50, 255},
-			ActionTextColor: color.RGBA{180, 180, 200, 255},
+			ActionAreaColor: theme.WindowActionBg,
+			ActionTextColor: theme.WindowActionText,
 		},
 
 		SkippableKeys: []ebiten.Key{
