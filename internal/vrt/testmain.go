@@ -22,6 +22,7 @@ func (g *testHostGame) Update() error {
 	if !g.started {
 		g.started = true
 		go func() {
+			// ゲームループが回っている状態で、テストは別goroutineとして実行する
 			g.exitCode = g.testFunc()
 			g.done.Store(true)
 		}()
@@ -43,7 +44,7 @@ func (g *testHostGame) Layout(_, _ int) (int, int) {
 // gamepad初期化のEINTR回避のため、bwrapで/dev/inputを隠した環境で実行すること
 func RunTestMain(m *testing.M) int {
 	g := &testHostGame{testFunc: m.Run}
-	ebiten.SetWindowSize(1, 1)
+	// ebiten.RunGame()はメインスレッドをブロックする
 	if err := ebiten.RunGame(g); err != nil {
 		if g.done.Load() {
 			return g.exitCode
