@@ -2,12 +2,12 @@ package hud
 
 import (
 	"image"
-	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	gc "github.com/kijimaD/ruins/internal/components"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -86,15 +86,12 @@ func drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool, bor
 	fborder := float32(borderWidth)
 
 	// 背景色（半透明の黒）
-	bgColor := color.RGBA{0, 0, 0, 180}
-	vector.FillRect(screen, fx, fy, fsize, fsize, bgColor, false)
+	vector.FillRect(screen, fx, fy, fsize, fsize, theme.HUDSlotBg, false)
 
-	// 枠線色（選択中は明るい黄色、非選択時は白）
-	var borderColor color.RGBA
+	// 枠線色（選択中は明るい黄色、非選択時はグレー）
+	borderColor := theme.HUDSlotBorder
 	if selected {
-		borderColor = color.RGBA{255, 255, 100, 255} // 明るい黄色
-	} else {
-		borderColor = color.RGBA{200, 200, 200, 255} // グレー
+		borderColor = theme.HUDSlotSelectedBorder
 	}
 
 	// 上辺
@@ -112,7 +109,7 @@ func drawSlotNumber(screen *ebiten.Image, face text.Face, x, y, _ int, number in
 	numberText := string(rune('0' + number))
 	op := &text.DrawOptions{}
 	op.GeoM.Translate(float64(x+4), float64(y+4))
-	op.ColorScale.ScaleWithColor(color.RGBA{255, 255, 255, 255})
+	op.ColorScale.ScaleWithColor(theme.TextPrimary)
 	text.Draw(screen, numberText, face, op)
 }
 

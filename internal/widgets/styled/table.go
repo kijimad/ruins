@@ -5,8 +5,8 @@ import (
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // TextAlign はテーブルセル内のテキスト揃え方向を表す
@@ -53,7 +53,7 @@ func NewTableHeaderRow(container *widget.Container, columnWidths []int, headers 
 		}
 
 		cell := widget.NewText(
-			widget.TextOpts.Text(header, &res.Text.SmallFace, consts.ForegroundColor),
+			widget.TextOpts.Text(header, &res.Text.SmallFace, theme.TextSecondary),
 			widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(widget.GridLayoutData{}),
@@ -98,7 +98,7 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 		widget.ContainerOpts.Layout(
 			widget.NewGridLayout(
 				widget.GridLayoutOpts.Columns(columns),
-				widget.GridLayoutOpts.Spacing(2, 0),
+				widget.GridLayoutOpts.Spacing(theme.SpaceXS, 0),
 				widget.GridLayoutOpts.Stretch(stretch, []bool{false}),
 				widget.GridLayoutOpts.Padding(&widget.Insets{}),
 			),
@@ -113,10 +113,10 @@ func newRowContainer(columnWidths []int, bgImage *image.NineSlice) *widget.Conta
 
 func addSelectableRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, isSelected bool, res resources.UIResources) {
 	bgImage := image.NewNineSliceColor(color.NRGBA{})
-	textColor := consts.ForegroundColor
+	textColor := theme.TextSecondary
 	if isSelected {
 		bgImage = res.Panel.SelectionBar
-		textColor = consts.SelectionTextColor
+		textColor = theme.TextSelected
 	}
 
 	row := newRowContainer(columnWidths, bgImage)
@@ -177,7 +177,7 @@ func addDataRow(container *widget.Container, columnWidths []int, values []string
 		}
 
 		textWidget := widget.NewText(
-			widget.TextOpts.Text(value, &res.Text.BodyFace, consts.TextColor),
+			widget.TextOpts.Text(value, &res.Text.BodyFace, theme.TextPrimary),
 			widget.TextOpts.Position(textPos, widget.TextPositionCenter),
 			widget.TextOpts.WidgetOpts(
 				widget.WidgetOpts.LayoutData(gridData),

@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -244,7 +245,7 @@ func (st *DungeonSelectState) buildListPanel(props dungeonSelectProps, itemIndex
 		if item.Cleared {
 			label = consts.IconStar + " " + label
 		}
-		color := consts.TextColor
+		color := theme.TextPrimary
 		container.AddChild(styled.NewListItemText(label, color, isSelected, res))
 	}
 

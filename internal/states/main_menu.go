@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -193,7 +194,7 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 	)
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Label, consts.ForegroundColor, isSelected, res)
+		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, res)
 		menuContainer.AddChild(itemWidget)
 	}
 
@@ -209,7 +210,7 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 		versionInfo = append(versionInfo, consts.AppDate)
 	}
 	versionText := widget.NewText(
-		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(strings.Join(versionInfo, "\n"), &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionEnd,

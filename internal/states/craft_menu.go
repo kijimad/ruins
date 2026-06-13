@@ -10,7 +10,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -18,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -464,9 +464,9 @@ func (st *CraftMenuState) buildCategoryContainer(tabs []craftTabData, tabIndex i
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
-		color := consts.ForegroundColor
+		color := theme.TextSecondary
 		if isSelected {
-			color = consts.TextColor
+			color = theme.TextPrimary
 		}
 		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
 	}
@@ -544,9 +544,9 @@ func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Conta
 		str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
 		var textColor color.RGBA
 		if currentAmount >= input.Amount {
-			textColor = consts.SuccessColor
+			textColor = theme.StatusSuccess
 		} else {
-			textColor = consts.DangerColor
+			textColor = theme.StatusDanger
 		}
 
 		container.AddChild(styled.NewBodyText(str, textColor, res))
@@ -583,7 +583,7 @@ func (st *CraftMenuState) buildActionWindow(world w.World, windowProps craftWind
 
 	for i, action := range actionItems {
 		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 
@@ -606,7 +606,7 @@ func (st *CraftMenuState) buildResultWindow(world w.World, resultProps craftResu
 	// ボタン項目を表示
 	for i, action := range resultItems {
 		isSelected := i == resultIndex
-		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 

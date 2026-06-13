@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -111,7 +112,7 @@ func (st *AutoSellState) Update(world w.World) (es.Transition[w.World], error) {
 
 // Draw はスクリーンに描画する
 func (st *AutoSellState) Draw(_ w.World, screen *ebiten.Image) error {
-	screen.Fill(consts.BlackColor)
+	screen.Fill(theme.ScreenBackground)
 	st.widget.Draw(screen)
 	return nil
 }
@@ -234,7 +235,7 @@ func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources
 
 	totalText := fmt.Sprintf("合計  %s", worldhelper.FormatCurrency(props.Total))
 	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(totalText, &res.Text.BodyFace, consts.TextColor),
+		widget.TextOpts.Text(totalText, &res.Text.BodyFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionEnd,
@@ -244,7 +245,7 @@ func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources
 
 	hintText := consts.IconArrowUp + consts.IconArrowDown + " 選択 / " + consts.IconKeyEnter + " 決定"
 	container.AddChild(widget.NewText(
-		widget.TextOpts.Text(hintText, &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(hintText, &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

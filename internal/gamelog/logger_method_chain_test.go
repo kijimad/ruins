@@ -3,8 +3,6 @@ package gamelog
 import (
 	"image/color"
 	"testing"
-
-	"github.com/kijimaD/ruins/internal/consts"
 )
 
 func TestLoggerBuildMethod(t *testing.T) {
@@ -40,11 +38,11 @@ func TestLoggerBuildMethod(t *testing.T) {
 		text  string
 		color color.RGBA
 	}{
-		{"開始", consts.ColorWhite},
-		{"プレイヤー", consts.ColorGreen},
-		{" が ", consts.ColorWhite},
-		{"敵", consts.ColorYellow},
-		{" を攻撃した。", consts.ColorWhite},
+		{"開始", ColorWhite},
+		{"プレイヤー", ColorGreen},
+		{" が ", ColorWhite},
+		{"敵", ColorYellow},
+		{" を攻撃した。", ColorWhite},
 	}
 
 	for i, exp := range expected {
@@ -140,10 +138,10 @@ func TestLoggerBuildWithEntityLogic(t *testing.T) {
 	}
 
 	// 色の確認
-	if fragments[0].Color != consts.ColorGreen { // PlayerName
+	if fragments[0].Color != ColorGreen { // PlayerName
 		t.Errorf("Expected player name to be green, got %v", fragments[0].Color)
 	}
-	if fragments[2].Color != consts.ColorYellow { // NPCName
+	if fragments[2].Color != ColorYellow { // NPCName
 		t.Errorf("Expected NPC name to be yellow, got %v", fragments[2].Color)
 	}
 }
@@ -192,12 +190,12 @@ func TestComplexMethodChain(t *testing.T) {
 	// 期待される内容: "プレイヤー が ゴブリン を攻撃した。15ダメージ"
 	expectedTexts := []string{"プレイヤー", " が ", "ゴブリン", " を攻撃した。", "15", "ダメージ"}
 	expectedColors := []color.RGBA{
-		consts.ColorGreen,  // プレイヤー名
-		consts.ColorWhite,  // " が "
-		consts.ColorYellow, // NPC名
-		consts.ColorWhite,  // " を攻撃した。"
-		consts.ColorRed,    // ダメージ数値
-		consts.ColorWhite,  // "ダメージ"
+		ColorGreen,  // プレイヤー名
+		ColorWhite,  // " が "
+		ColorYellow, // NPC名
+		ColorWhite,  // " を攻撃した。"
+		ColorRed,    // ダメージ数値
+		ColorWhite,  // "ダメージ"
 	}
 
 	for i, expectedText := range expectedTexts {

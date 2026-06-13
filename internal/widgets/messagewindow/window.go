@@ -14,6 +14,7 @@ import (
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/tabmenu"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -475,7 +476,7 @@ func (w *Window) createEnterPrompt() *widget.Container {
 
 	prompt := styled.NewListItemText(
 		"Enter",
-		color.RGBA{255, 255, 255, 255},
+		theme.TextPrimary,
 		true,
 		w.world.Resources.UIResources,
 	)
@@ -752,7 +753,7 @@ func (w *Window) createChoiceText(choiceText string, isSelected bool) *widget.Co
 	var backgroundColor *eui_image.NineSlice
 	if isSelected {
 		// 選択中は背景色を付ける
-		backgroundColor = eui_image.NewNineSliceColor(color.NRGBA{R: 75, G: 104, B: 122, A: 100})
+		backgroundColor = eui_image.NewNineSliceColor(theme.ChoiceSelectedBg)
 	} else {
 		// 非選択は透明
 		backgroundColor = eui_image.NewNineSliceColor(color.NRGBA{R: 0, G: 0, B: 0, A: 0})

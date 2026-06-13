@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -178,7 +179,7 @@ func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 
 	if pickupCursorCache == nil {
 		pickupCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := color.RGBA{R: 50, G: 200, B: 255, A: 255} // 青
+		cursorColor := theme.CursorPickup
 		for i := 0; i < 3; i++ {
 			for x := 0; x < tileSize; x++ {
 				pickupCursorCache.Set(x, i, cursorColor)
@@ -226,9 +227,9 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 		text.Draw(screen, str, face, op)
 		y += lineHeight
 	}
-	drawText := func(str string) { drawColorText(str, consts.TextColor) }
+	drawText := func(str string) { drawColorText(str, theme.TextPrimary) }
 
-	drawColorText("拾うモード", consts.TextColor)
+	drawColorText("拾うモード", theme.TextPrimary)
 	y += 5
 
 	dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))
@@ -236,12 +237,12 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	y += 5
 
 	if len(st.itemsAtTarget) == 0 {
-		drawColorText("拾えるものがありません", consts.ForegroundColor)
+		drawColorText("拾えるものがありません", theme.TextSecondary)
 	} else {
 		drawText(fmt.Sprintf("アイテム: %d個", len(st.itemsAtTarget)))
 		for i, entity := range st.itemsAtTarget {
 			if i >= 5 {
-				drawColorText("...", consts.ForegroundColor)
+				drawColorText("...", theme.TextSecondary)
 				break
 			}
 			name := worldhelper.GetEntityName(entity, world)
@@ -250,7 +251,7 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	}
 
 	y = panelY + panelHeight - 30
-	drawColorText("WASD/矢印:移動 Enter:拾う Esc:戻る", consts.ForegroundColor)
+	drawColorText("WASD/矢印:移動 Enter:拾う Esc:戻る", theme.TextSecondary)
 
 	return nil
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/config"
-	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
@@ -16,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -439,9 +439,9 @@ func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
-		color := consts.ForegroundColor
+		color := theme.TextSecondary
 		if isSelected {
-			color = consts.TextColor
+			color = theme.TextPrimary
 		}
 		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
 	}
@@ -567,7 +567,7 @@ func (st *ShopMenuState) buildActionWindow(world w.World, windowProps shopWindow
 
 	for i, action := range actionItems {
 		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 

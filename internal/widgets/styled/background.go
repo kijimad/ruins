@@ -5,7 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
-	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // BackgroundStyle は背景描画のスタイル設定を表す
@@ -72,8 +72,8 @@ func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style B
 // PanelStyle はゲーム内パネルの標準スタイルを返す
 func PanelStyle() BackgroundStyle {
 	return BackgroundStyle{
-		BackgroundColor: consts.PanelBackgroundColor,
-		HighlightColor:  consts.PanelHighlightColor,
-		ShadowColor:     consts.PanelShadowColor,
+		BackgroundColor: theme.PanelBackground,
+		HighlightColor:  theme.PanelHighlight,
+		ShadowColor:     theme.PanelShadow,
 	}
 }

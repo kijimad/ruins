@@ -15,6 +15,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -231,7 +232,7 @@ func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 
 	if placeCursorCache == nil {
 		placeCursorCache = ebiten.NewImage(tileSize, tileSize)
-		cursorColor := color.RGBA{R: 50, G: 255, B: 100, A: 255} // 緑
+		cursorColor := theme.CursorPlace
 		for i := 0; i < 3; i++ {
 			for x := 0; x < tileSize; x++ {
 				placeCursorCache.Set(x, i, cursorColor)
@@ -279,19 +280,19 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		text.Draw(screen, str, face, op)
 		y += lineHeight
 	}
-	drawText := func(str string) { drawColorText(str, consts.TextColor) }
+	drawText := func(str string) { drawColorText(str, theme.TextPrimary) }
 
 	switch st.phase {
 	case placePhaseSelectItem:
-		drawColorText("置くモード: アイテム選択", consts.TextColor)
+		drawColorText("置くモード: アイテム選択", theme.TextPrimary)
 		y += 5
 
 		if len(st.backpackItems) == 0 {
-			drawColorText("置けるアイテムがありません", consts.ForegroundColor)
+			drawColorText("置けるアイテムがありません", theme.TextSecondary)
 		} else {
 			for i, entity := range st.backpackItems {
 				if i >= 7 {
-					drawColorText("...", consts.ForegroundColor)
+					drawColorText("...", theme.TextSecondary)
 					break
 				}
 				name := worldhelper.GetEntityName(entity, world)
@@ -304,10 +305,10 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		}
 
 		y = panelY + panelHeight - 30
-		drawColorText("↑↓:選択 Enter:決定 Esc:戻る", consts.ForegroundColor)
+		drawColorText("↑↓:選択 Enter:決定 Esc:戻る", theme.TextSecondary)
 
 	case placePhaseSelectTile:
-		drawColorText("置くモード: 配置先選択", consts.TextColor)
+		drawColorText("置くモード: 配置先選択", theme.TextPrimary)
 		y += 5
 
 		item := st.backpackItems[st.selectedIndex]
@@ -318,7 +319,7 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		drawText(fmt.Sprintf("方向: %s", dirLabel))
 
 		y = panelY + panelHeight - 30
-		drawColorText("WASD/矢印:移動 Enter:置く Esc:戻る", consts.ForegroundColor)
+		drawColorText("WASD/矢印:移動 Enter:置く Esc:戻る", theme.TextSecondary)
 	}
 
 	return nil

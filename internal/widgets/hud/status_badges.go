@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // StatusBadge はステータスバッジの情報
@@ -102,7 +103,7 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		// グレーの背景
 		bgX := float32(marginLeft - paddingX)
 		bgWidth := float32(textWidth + paddingX*2)
-		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), color.RGBA{100, 100, 100, 255}, false)
+		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), theme.HUDBadgeBg, false)
 
 		textY := badgeY + paddingY
 		drawOutlinedText(screen, moreText, sb.bodyFace, marginLeft, textY, color.White)

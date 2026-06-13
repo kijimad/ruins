@@ -16,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -489,9 +490,9 @@ func (st *StatusState) buildCategoryContainer(tabs []statusTabData, tabIndex int
 	container := styled.NewRowContainer()
 	for i, tab := range tabs {
 		isSelected := i == tabIndex
-		color := consts.ForegroundColor
+		color := theme.TextSecondary
 		if isSelected {
-			color = consts.TextColor
+			color = theme.TextPrimary
 		}
 		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
 	}

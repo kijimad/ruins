@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 )
 
 // OutlinedText は枠線付きテキストを描画する
@@ -35,5 +36,5 @@ func OutlinedText(screen *ebiten.Image, str string, face text.Face, x, y float64
 // drawOutlinedText は枠線付きテキストを描画する
 // textColorを指定することで任意の色でテキストを描画できる
 func drawOutlinedText(screen *ebiten.Image, textStr string, face text.Face, x, y float64, textColor color.Color) {
-	OutlinedText(screen, textStr, face, x, y, textColor, color.RGBA{0, 0, 0, 255})
+	OutlinedText(screen, textStr, face, x, y, textColor, theme.HUDTextOutline)
 }

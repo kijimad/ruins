@@ -17,6 +17,7 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
 )
@@ -93,7 +94,7 @@ func (st *CharacterJobState) Update(world w.World) (es.Transition[w.World], erro
 
 // Draw はスクリーンに描画する
 func (st *CharacterJobState) Draw(_ w.World, screen *ebiten.Image) error {
-	screen.Fill(consts.BlackColor)
+	screen.Fill(theme.ScreenBackground)
 	st.widget.Draw(screen)
 	return nil
 }
@@ -215,7 +216,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 	titleLabel := widget.NewText(
-		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, consts.TextColor),
+		widget.TextOpts.Text("職業", &res.Text.TitleFontFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 				HorizontalPosition: widget.AnchorLayoutPositionCenter,
@@ -228,7 +229,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 	leftContainer := styled.NewVerticalContainer()
 	for i, item := range props.Items {
 		isSelected := i == itemIndex
-		itemWidget := styled.NewListItemText(item.Profession.Name, consts.ForegroundColor, isSelected, res)
+		itemWidget := styled.NewListItemText(item.Profession.Name, theme.TextSecondary, isSelected, res)
 		leftContainer.AddChild(itemWidget)
 	}
 	rightContainer := st.buildDetailPanel(props, itemIndex, res)
@@ -246,7 +247,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 		description = props.Items[itemIndex].Profession.Description
 	}
 	descriptionText := widget.NewText(
-		widget.TextOpts.Text(description, &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(description, &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,
@@ -254,7 +255,7 @@ func (st *CharacterJobState) buildUI(world w.World) *ebitenui.UI {
 		),
 	)
 	hintLabel := widget.NewText(
-		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, consts.SecondaryColor),
+		widget.TextOpts.Text(consts.IconArrowUp+consts.IconArrowDown+" 選択 / "+consts.IconKeyEnter+" 決定 / "+consts.IconKeyEsc+" 戻る", &res.Text.SmallFace, theme.TextAccent),
 		widget.TextOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Position: widget.RowLayoutPositionCenter,

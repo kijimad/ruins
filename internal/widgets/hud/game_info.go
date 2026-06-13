@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 	"github.com/kijimaD/ruins/internal/consts"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -82,7 +83,7 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 	gageX := float32(gaugeBaseX)
 
 	// 背景（暗い赤い領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), color.RGBA{100, 0, 0, 255}, false)
+	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), theme.HUDGaugeBg, false)
 
 	// HP比率を計算
 	if maxHP > 0 {
@@ -146,16 +147,16 @@ func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData)
 		ratio := data.PlayerWeight / data.PlayerMaxWeight
 		if ratio > 1.0 {
 			// 超過: 赤
-			textColor = color.RGBA{255, 50, 50, 255}
+			textColor = theme.HUDWeightDanger
 		} else if ratio > 0.8 {
 			// 80%以上: 黄色
-			textColor = color.RGBA{255, 200, 0, 255}
+			textColor = theme.HUDWeightWarning
 		} else {
 			// 通常: 白
-			textColor = color.RGBA{255, 255, 255, 255}
+			textColor = theme.TextPrimary
 		}
 	} else {
-		textColor = color.RGBA{255, 255, 255, 255}
+		textColor = theme.TextPrimary
 	}
 
 	drawOutlinedText(screen, weightText, info.bodyFace, x, y, textColor)

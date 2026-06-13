@@ -16,6 +16,7 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/pagination"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -771,7 +772,7 @@ func (st *EquipMenuState) buildActionWindow(world w.World, windowProps windowScr
 
 	for i, action := range actionItems {
 		isSelected := i == actionIndex
-		actionWidget := styled.NewListItemText(action, consts.ForegroundColor, isSelected, res)
+		actionWidget := styled.NewListItemText(action, theme.TextSecondary, isSelected, res)
 		windowContainer.AddChild(actionWidget)
 	}
 

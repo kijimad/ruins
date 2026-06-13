@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
+	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -51,7 +52,7 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	// ミニマップの背景を描画
 	if minimapWidth > 0 && minimapHeight > 0 {
 		minimapBg := ebiten.NewImage(minimapWidth, minimapHeight)
-		minimapBg.Fill(color.RGBA{0, 0, 0, 128})
+		minimapBg.Fill(theme.HUDMinimapBg)
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(minimapX), float64(minimapY))
 		screen.DrawImage(minimapBg, op)
@@ -90,7 +91,7 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	// プレイヤーの位置を赤い点で表示
 	playerMapX := float32(centerX)
 	playerMapY := float32(centerY)
-	vector.FillCircle(screen, playerMapX, playerMapY, 2, color.RGBA{255, 0, 0, 255}, false)
+	vector.FillCircle(screen, playerMapX, playerMapY, 2, theme.HUDPlayerMarker, false)
 }
 
 // drawEmpty は空のミニマップを描画する
@@ -104,7 +105,7 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 	// ミニマップの背景を描画（半透明の黒い四角）
 	if minimapWidth > 0 && minimapHeight > 0 {
 		minimapBg := ebiten.NewImage(minimapWidth, minimapHeight)
-		minimapBg.Fill(color.RGBA{0, 0, 0, 128})
+		minimapBg.Fill(theme.HUDMinimapBg)
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(float64(minimapX), float64(minimapY))
 		screen.DrawImage(minimapBg, op)

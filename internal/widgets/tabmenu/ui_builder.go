@@ -5,8 +5,8 @@ import (
 
 	eui_image "github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
@@ -62,7 +62,7 @@ func (b *uiBuilder) CreateMenuButton(tabMenu *tabMenu, index int, item Item) wid
 	// フォーカス状態をチェック
 	isFocused := index == tabMenu.GetCurrentItemIndex()
 
-	textColor := consts.ForegroundColor
+	textColor := theme.TextSecondary
 
 	return styled.NewListItemText(
 		item.Label,
@@ -114,9 +114,9 @@ func (b *uiBuilder) UpdateFocus(tabMenu *tabMenu) {
 		}
 
 		// テキストの色を更新
-		textColor := consts.ForegroundColor
+		textColor := theme.TextSecondary
 		if isFocused {
-			textColor = consts.SelectionTextColor
+			textColor = theme.TextSelected
 		}
 
 		for _, child := range contentContainer.Children() {
@@ -169,7 +169,7 @@ func (b *uiBuilder) UpdateTabDisplayContainer(container *widget.Container, tabMe
 		actualIndex := indices[i]
 		isSelected := actualIndex == currentItemIndex && currentItemIndex >= 0
 
-		itemWidget := styled.NewListItemText(item.Label, consts.ForegroundColor, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
+		itemWidget := styled.NewListItemText(item.Label, theme.TextSecondary, isSelected, b.world.Resources.UIResources, item.AdditionalLabels...)
 		container.AddChild(itemWidget)
 	}
 
