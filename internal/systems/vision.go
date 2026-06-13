@@ -107,8 +107,6 @@ func (sys *VisionSystem) Update(world w.World) error {
 		// 光源情報キャッシュをクリア（更新前）
 		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
 
-		isDark := worldhelper.GetDungeon(world).Dark
-
 		// 視界内タイルの光源情報を計算し、探索済みマークを行う
 		for _, tileData := range visibilityData {
 			if tileData.Visible {
@@ -118,10 +116,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 				// 光源情報をキャッシュに保存
 				sys.lightSourceCache[gridElement] = lightInfo
 
-				// 暗闇フロアでは光源範囲内のみ探索済み、明るいフロアでは視界内すべて探索済み
-				if !isDark || lightInfo.Darkness < 1.0 {
-					worldhelper.GetDungeon(world).ExploredTiles[gridElement] = true
-				}
+				worldhelper.GetDungeon(world).ExploredTiles[gridElement] = true
 			}
 		}
 
@@ -130,15 +125,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		for _, tileData := range visibilityData {
 			if tileData.Visible {
 				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-				if isDark {
-					// 暗闇フロアでは光源範囲内のみ可視
-					if li, ok := sys.lightSourceCache[gridElement]; ok && li.Darkness < 1.0 {
-						visibleTiles[gridElement] = true
-					}
-				} else {
-					// 明るいフロアでは視界内すべて可視
-					visibleTiles[gridElement] = true
-				}
+				visibleTiles[gridElement] = true
 			}
 		}
 		worldhelper.GetDungeon(world).VisibleTiles = visibleTiles
@@ -163,8 +150,6 @@ type TileVisibility struct {
 type (
 	// VisibleDarkness は視界内タイルの暗闇の強さを表す
 	VisibleDarkness float64
-	// DarkDarkness は暗闇フロアで光源外タイルの暗闇の強さを表す
-	DarkDarkness float64
 	// RememberedDarkness は記憶済みタイルの暗闇の強さを表す
 	RememberedDarkness float64
 )
@@ -181,13 +166,6 @@ type TileRenderVisible struct {
 }
 
 func (TileRenderVisible) tileRenderInfo() {}
-
-// TileRenderDark は視界内だが暗くて見えない状態。暗闇フロアで光源外のタイル
-type TileRenderDark struct {
-	Darkness DarkDarkness
-}
-
-func (TileRenderDark) tileRenderInfo() {}
 
 // TileRenderRemembered は視界外だが記憶済みの状態。床のみうっすら描画する
 type TileRenderRemembered struct {
@@ -209,15 +187,6 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 			visible.LightColor = li.Color
 		}
 		result[grid] = visible
-	}
-
-	// 暗闇フロアで視界内だが光源外のタイルを設定する
-	if worldhelper.GetDungeon(world).Dark {
-		for grid, li := range lights {
-			if _, exists := result[grid]; !exists && li.Darkness >= 1.0 {
-				result[grid] = TileRenderDark{Darkness: DarknessDark}
-			}
-		}
 	}
 
 	// 視界外だが記憶済みのタイルを設定する
@@ -445,7 +414,6 @@ func calculateLightSourceDarkness(world w.World, tileX, tileY int) LightInfo {
 // 各タイル状態の暗闇の強さ
 const (
 	DarknessVisible    VisibleDarkness    = 0.15
-	DarknessDark       DarkDarkness       = 0.9
 	DarknessRemembered RememberedDarkness = 0.75
 )
 

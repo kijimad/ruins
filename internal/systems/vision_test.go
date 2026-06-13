@@ -70,40 +70,6 @@ func TestComputeTileRenderMap(t *testing.T) {
 		assert.Equal(t, color.RGBA{R: 255, G: 200, B: 100, A: 255}, v.LightColor)
 	})
 
-	t.Run("暗闇フロアで光源外のタイルはTileRenderDarkになる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		worldhelper.GetDungeon(world).Dark = true
-
-		litGrid := gc.GridElement{X: 5, Y: 5}
-		darkGrid := gc.GridElement{X: 15, Y: 15}
-		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{litGrid: true}
-		worldhelper.GetDungeon(world).ExploredTiles[litGrid] = true
-
-		lights := map[gc.GridElement]LightInfo{
-			darkGrid: {Darkness: 1.0},
-		}
-
-		result := computeTileRenderMap(world, lights)
-
-		assert.IsType(t, TileRenderVisible{}, result[litGrid])
-		assert.IsType(t, TileRenderDark{}, result[darkGrid])
-	})
-
-	t.Run("明るいフロアではTileRenderDarkが生成されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		worldhelper.GetDungeon(world).Dark = false
-
-		grid := gc.GridElement{X: 10, Y: 10}
-		lights := map[gc.GridElement]LightInfo{
-			grid: {Darkness: 1.0},
-		}
-
-		result := computeTileRenderMap(world, lights)
-
-		assert.NotContains(t, result, grid)
-	})
 }
 
 func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
@@ -119,23 +85,6 @@ func TestComputeTileRenderMap_DarknessValues(t *testing.T) {
 
 		v := result[grid].(TileRenderVisible)
 		assert.Equal(t, DarknessVisible, v.Darkness)
-	})
-
-	t.Run("暗闇タイルにはDarknessDarkが設定される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-		worldhelper.GetDungeon(world).Dark = true
-		grid := gc.GridElement{X: 10, Y: 10}
-		worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{}
-
-		lights := map[gc.GridElement]LightInfo{
-			grid: {Darkness: 1.0},
-		}
-
-		result := computeTileRenderMap(world, lights)
-
-		v := result[grid].(TileRenderDark)
-		assert.Equal(t, DarknessDark, v.Darkness)
 	})
 
 	t.Run("記憶済みタイルにはDarknessRememberedが設定される", func(t *testing.T) {
