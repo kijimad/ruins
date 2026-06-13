@@ -87,7 +87,7 @@ func buildImageTable() (string, error) {
 		}
 		label := strings.TrimSuffix(strings.TrimPrefix(name, "TestGolden_"), ".png")
 		imgPath := filepath.Join(imageDir, name)
-		sb.WriteString(fmt.Sprintf(" <img src=\"%s\" width=\"200\" /><br>%s |", imgPath, label))
+		fmt.Fprintf(&sb, " <img src=\"%s\" width=\"200\" /><br>%s |", imgPath, label)
 	}
 	// 最終行の残りセルを埋める
 	if rem := len(images) % columns; rem != 0 {
