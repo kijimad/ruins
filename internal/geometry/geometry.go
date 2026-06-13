@@ -61,6 +61,16 @@ func BresenhamLine(x0, y0, x1, y1 int) []consts.Coord[int] {
 	return points
 }
 
+// ChebyshevDistance は2点間のチェビシェフ距離を返す
+func ChebyshevDistance(x0, y0, x1, y1 int) int {
+	dx := Abs(x0 - x1)
+	dy := Abs(y0 - y1)
+	if dx > dy {
+		return dx
+	}
+	return dy
+}
+
 // Abs は整数の絶対値を返す
 func Abs(x int) int {
 	if x < 0 {

@@ -2,7 +2,6 @@ package hud
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -80,15 +79,6 @@ func (area *MessageArea) Update() {
 	area.widget.Update()
 }
 
-// messageBackgroundStyle はメッセージエリアの背景スタイル
-func messageBackgroundStyle() styled.BackgroundStyle {
-	return styled.BackgroundStyle{
-		BackgroundColor: consts.PanelBackgroundColor,
-		HighlightColor:  consts.PanelHighlightColor,
-		ShadowColor:     consts.PanelShadowColor,
-	}
-}
-
 // Draw はメッセージエリアを描画する
 func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	if !area.enabled || area.widget == nil {
@@ -108,7 +98,7 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	logAreaY := screenHeight - fixedHeight
 
 	// 背景を描画
-	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, messageBackgroundStyle())
+	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, styled.PanelStyle())
 
 	// オフスクリーンサイズ
 	offscreenWidth := logAreaWidth - area.config.LogAreaMargin*2

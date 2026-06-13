@@ -225,7 +225,7 @@ func (w *Window) createTitleContainer() *widget.Container {
 }
 
 // calculateWindowPosition はウィンドウの表示位置を計算する。
-// 上端を画面高さの約1/3の位置に統一して配置する
+// 上端を画面高さの約1/4の位置に統一して配置する
 func (w *Window) calculateWindowPosition(windowSize WindowSize) (x, y int) {
 	screenWidth := w.world.Resources.ScreenDimensions.Width
 	screenHeight := w.world.Resources.ScreenDimensions.Height

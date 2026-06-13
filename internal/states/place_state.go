@@ -159,13 +159,13 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 		return st.ConsumeTransition(), nil
 
 	case inputmapper.ActionMoveNorth:
-		st.moveCursor(0, -1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, -1)
 	case inputmapper.ActionMoveSouth:
-		st.moveCursor(0, 1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, 1)
 	case inputmapper.ActionMoveWest:
-		st.moveCursor(-1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, -1, 0)
 	case inputmapper.ActionMoveEast:
-		st.moveCursor(1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 1, 0)
 
 	case inputmapper.ActionPlace:
 		if err := st.executeDrop(world); err != nil {
@@ -177,26 +177,6 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 	}
 
 	return st.ConsumeTransition(), nil
-}
-
-// moveCursor はカーソルを移動する。プレイヤーからチェビシェフ距離1以内に制限する
-func (st *PlaceState) moveCursor(dx, dy int) {
-	newX := int(st.cursor.X) + dx
-	newY := int(st.cursor.Y) + dy
-
-	distX := newX - int(st.playerPos.X)
-	distY := newY - int(st.playerPos.Y)
-	if distX < 0 {
-		distX = -distX
-	}
-	if distY < 0 {
-		distY = -distY
-	}
-
-	if distX <= 1 && distY <= 1 {
-		st.cursor.X = consts.Tile(newX)
-		st.cursor.Y = consts.Tile(newY)
-	}
 }
 
 // refreshBackpackItems はバックパック内の全アイテムを取得する

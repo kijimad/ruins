@@ -11,6 +11,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
+	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/input"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	gs "github.com/kijimaD/ruins/internal/systems"
@@ -108,16 +109,16 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 
 	case inputmapper.ActionMoveNorth:
-		st.moveCursor(0, -1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, -1)
 		st.refreshItems(world)
 	case inputmapper.ActionMoveSouth:
-		st.moveCursor(0, 1)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 0, 1)
 		st.refreshItems(world)
 	case inputmapper.ActionMoveWest:
-		st.moveCursor(-1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, -1, 0)
 		st.refreshItems(world)
 	case inputmapper.ActionMoveEast:
-		st.moveCursor(1, 0)
+		moveCursorAdjacent(&st.cursor, st.playerPos, 1, 0)
 		st.refreshItems(world)
 
 	case inputmapper.ActionPickup:
@@ -135,44 +136,14 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 	return st.ConsumeTransition(), nil
 }
 
-// moveCursor はカーソルを移動する。プレイヤーからチェビシェフ距離1以内に制限する
-func (st *PickupState) moveCursor(dx, dy int) {
-	newX := int(st.cursor.X) + dx
-	newY := int(st.cursor.Y) + dy
-
-	distX := newX - int(st.playerPos.X)
-	distY := newY - int(st.playerPos.Y)
-	if distX < 0 {
-		distX = -distX
-	}
-	if distY < 0 {
-		distY = -distY
-	}
-
-	if distX <= 1 && distY <= 1 {
-		st.cursor.X = consts.Tile(newX)
-		st.cursor.Y = consts.Tile(newY)
-	}
-}
-
 // refreshItems はカーソル位置のタイル上の拾得可能エンティティを更新する
 func (st *PickupState) refreshItems(world w.World) {
 	st.itemsAtTarget = nil
-
-	targetX := int(st.cursor.X)
-	targetY := int(st.cursor.Y)
-
-	world.Manager.Join(
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		if int(grid.X) != targetX || int(grid.Y) != targetY {
-			return
-		}
+	for _, entity := range worldhelper.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {
 		if worldhelper.IsPickable(entity, world) {
 			st.itemsAtTarget = append(st.itemsAtTarget, entity)
 		}
-	}))
+	}
 }
 
 // executePickup は拾得アクションを実行する
@@ -282,6 +253,16 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 	drawColorText("WASD/矢印:移動 Enter:拾う Esc:戻る", consts.ForegroundColor)
 
 	return nil
+}
+
+// moveCursorAdjacent はカーソルを移動する。基準点からチェビシェフ距離1以内に制限する
+func moveCursorAdjacent(cursor *consts.Coord[consts.Tile], origin consts.Coord[consts.Tile], dx, dy int) {
+	newX := int(cursor.X) + dx
+	newY := int(cursor.Y) + dy
+	if geometry.ChebyshevDistance(newX, newY, int(origin.X), int(origin.Y)) <= 1 {
+		cursor.X = consts.Tile(newX)
+		cursor.Y = consts.Tile(newY)
+	}
 }
 
 // offsetToLabel はプレイヤーからのオフセットを日本語ラベルに変換する

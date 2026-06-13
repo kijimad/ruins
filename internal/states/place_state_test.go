@@ -68,7 +68,7 @@ func TestPlaceState_moveCursor(t *testing.T) {
 				cursor:    consts.Coord[consts.Tile]{X: 10, Y: 10},
 				playerPos: consts.Coord[consts.Tile]{X: 10, Y: 10},
 			}
-			state.moveCursor(tt.dx, tt.dy)
+			moveCursorAdjacent(&state.cursor, state.playerPos, tt.dx, tt.dy)
 			assert.Equal(t, tt.expectedX, state.cursor.X)
 			assert.Equal(t, tt.expectedY, state.cursor.Y)
 		})
@@ -85,7 +85,7 @@ func TestPlaceState_moveCursor_ChebyshevConstraint(t *testing.T) {
 			cursor:    consts.Coord[consts.Tile]{X: 11, Y: 10},
 			playerPos: consts.Coord[consts.Tile]{X: 10, Y: 10},
 		}
-		state.moveCursor(1, 0) // X=12 はプレイヤーから距離2なので移動不可
+		moveCursorAdjacent(&state.cursor, state.playerPos, 1, 0) // X=12 はプレイヤーから距離2なので移動不可
 		assert.Equal(t, consts.Tile(11), state.cursor.X)
 		assert.Equal(t, consts.Tile(10), state.cursor.Y)
 	})
@@ -97,7 +97,7 @@ func TestPlaceState_moveCursor_ChebyshevConstraint(t *testing.T) {
 			cursor:    consts.Coord[consts.Tile]{X: 11, Y: 11},
 			playerPos: consts.Coord[consts.Tile]{X: 10, Y: 10},
 		}
-		state.moveCursor(1, 0) // X=12, Y=11 はプレイヤーから距離2なので移動不可
+		moveCursorAdjacent(&state.cursor, state.playerPos, 1, 0) // X=12, Y=11 はプレイヤーから距離2なので移動不可
 		assert.Equal(t, consts.Tile(11), state.cursor.X)
 		assert.Equal(t, consts.Tile(11), state.cursor.Y)
 	})
@@ -109,7 +109,7 @@ func TestPlaceState_moveCursor_ChebyshevConstraint(t *testing.T) {
 			cursor:    consts.Coord[consts.Tile]{X: 11, Y: 10},
 			playerPos: consts.Coord[consts.Tile]{X: 10, Y: 10},
 		}
-		state.moveCursor(-1, 0) // X=10, Y=10 はプレイヤー位置なので移動可
+		moveCursorAdjacent(&state.cursor, state.playerPos, -1, 0) // X=10, Y=10 はプレイヤー位置なので移動可
 		assert.Equal(t, consts.Tile(10), state.cursor.X)
 		assert.Equal(t, consts.Tile(10), state.cursor.Y)
 	})
