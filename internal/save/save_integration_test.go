@@ -15,11 +15,7 @@ import (
 
 func TestSaveLoadIntegration(t *testing.T) {
 	t.Parallel()
-	// テスト用ディレクトリを準備
-	testDir := "./test_save_integration"
-	defer func() {
-		_ = os.RemoveAll(testDir)
-	}()
+	testDir := t.TempDir()
 
 	// テスト用のワールドを作成
 	world := testutil.InitTestWorld(t)
@@ -70,11 +66,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 
 func TestSaveSlotInfo(t *testing.T) {
 	t.Parallel()
-	// テスト用ディレクトリを準備
-	testDir := "./test_save_slots"
-	defer func() {
-		_ = os.RemoveAll(testDir)
-	}()
+	testDir := t.TempDir()
 
 	// セーブマネージャーを作成
 	saveManager := NewSerializationManager(testDir)
@@ -119,9 +111,7 @@ func TestSaveSlotInfo(t *testing.T) {
 func TestSaveLoadInPlace(t *testing.T) {
 	t.Parallel()
 
-	tempDir, err := os.MkdirTemp("", "save_inplace_")
-	require.NoError(t, err)
-	defer func() { _ = os.RemoveAll(tempDir) }()
+	tempDir := t.TempDir()
 
 	world := testutil.InitTestWorld(t)
 
@@ -134,7 +124,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	worldhelper.GetGameProgress(world).MarkDungeonCleared("遺跡")
 
 	sm := NewSerializationManager(tempDir)
-	err = sm.SaveWorld(world, "inplace")
+	err := sm.SaveWorld(world, "inplace")
 	require.NoError(t, err)
 
 	// 同一ワールドにロードする（ゲーム内と同じフロー）
