@@ -66,6 +66,10 @@ toolsinstall: ## 開発ツールをインストールする
 	@npm install
 	@./scripts/setup-hooks.sh
 
+.PHONY: genreadme
+genreadme: ## README.tmpl.mdからREADME.mdを生成する
+	go run . genreadme
+
 .PHONY: check
 check: fmt build test lint ## 一気にチェックする
 
