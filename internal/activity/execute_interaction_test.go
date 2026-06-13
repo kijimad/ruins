@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"math/rand/v2"
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -240,6 +241,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
+	world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 	// プレイヤーを作成（武器なし、素手で攻撃）
 	player := world.Manager.NewEntity()
@@ -271,22 +273,11 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	// 武器スロット1を選択
 	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
-	// ExecuteInteractionを実行（素手で攻撃）
 	result, err := ExecuteInteraction(player, enemyEntity, world)
-
-	// 素手攻撃が成功すること
 	require.NoError(t, err)
 	require.NotNil(t, result)
 
-	// 敵のHPが減少していることを確認
-	// 攻撃には命中判定があり、稀に外れる可能性があるため、外れた場合は再試行する
 	hp := world.Components.HP.Get(enemyEntity).(*gc.HP)
-	maxRetries := 20
-	for i := 0; i < maxRetries && hp.Current >= 10; i++ {
-		result, err = ExecuteInteraction(player, enemyEntity, world)
-		require.NoError(t, err)
-		require.NotNil(t, result)
-	}
 	assert.Less(t, hp.Current, 10, "素手攻撃でダメージが入るべき")
 }
 
@@ -545,6 +536,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 	t.Run("Propを攻撃できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
+		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
@@ -567,14 +559,13 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 		result, err := ExecuteInteraction(player, prop, world)
-
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.True(t, result.Success)
 		assert.Equal(t, gc.BehaviorAttack, result.ActivityName)
 
 		hp := world.Components.HP.Get(prop).(*gc.HP)
-		assert.Less(t, hp.Current, 30)
+		assert.Less(t, hp.Current, 30, "攻撃でダメージが入るべき")
 	})
 
 	t.Run("Dead済みのPropは攻撃できない", func(t *testing.T) {
