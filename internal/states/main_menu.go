@@ -176,15 +176,8 @@ func (st *MainMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout()),
 	)
 
-	// メニューコンテナを構築（半透明背景で視認性を確保）
-	menuContainer := widget.NewContainer(
+	menuContainer := styled.NewVerticalContainer(
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Padding(&widget.Insets{
-				Left: theme.Space6, Right: theme.Space6, Top: theme.Space4, Bottom: theme.Space4,
-			}),
-		)),
 		widget.ContainerOpts.WidgetOpts(
 			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 				Stretch: true,
