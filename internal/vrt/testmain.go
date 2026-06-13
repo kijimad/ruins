@@ -1,7 +1,6 @@
 package vrt
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"sync/atomic"
@@ -28,7 +27,7 @@ func (g *testHostGame) Update() error {
 		}()
 	}
 	if g.done.Load() {
-		return errors.New("テスト完了")
+		return ebiten.Termination
 	}
 	return nil
 }
@@ -44,11 +43,9 @@ func (g *testHostGame) Layout(_, _ int) (int, int) {
 // gamepad初期化のEINTR回避のため、bwrapで/dev/inputを隠した環境で実行すること
 func RunTestMain(m *testing.M) int {
 	g := &testHostGame{testFunc: m.Run}
-	// ebiten.RunGame()はメインスレッドをブロックする
+	// ebiten.RunGame()はメインスレッドをブロックする。
+	// ebiten.Terminationを返すとRunGameはnilを返して正常終了する
 	if err := ebiten.RunGame(g); err != nil {
-		if g.done.Load() {
-			return g.exitCode
-		}
 		fmt.Fprintf(os.Stderr, "RunGame failed: %v\n", err)
 		return 1
 	}
