@@ -10,13 +10,14 @@ editor: ## ゲームデータエディタを起動する
 	npm run --prefix editor-ui dev
 
 .PHONY: test
-test: ## テストを実行する
+test: ## テストを実行する。COUNT=N で繰り返し実行できる（デフォルト1）
 	# editor-ui/node_modules 内にGoパッケージが含まれるため除外する必要がある
 	# bwrap: /dev/input を隠してebitenのgamepad初期化エラー(EINTR)を防ぐ
 	# xvfb-run: ebitenのゴールデンテストがウィンドウを開くのを防ぐ
 	RUINS_LOG_LEVEL=ignore \
 	bwrap --dev-bind / / --tmpfs /dev/input -- \
-	xvfb-run -a go test -v -cover -shuffle=on $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
+	xvfb-run -a go test -v -cover -shuffle=on -count=$(or $(COUNT),1) \
+		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
 
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
@@ -60,6 +61,7 @@ toolsinstall: ## 開発ツールをインストールする
 	@go install golang.org/x/tools/cmd/goimports@latest
 	@go install golang.org/x/tools/cmd/deadcode@latest
 	@go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.3
+	@sudo apt-get install -y bubblewrap
 	@npm install
 	@./scripts/setup-hooks.sh
 
