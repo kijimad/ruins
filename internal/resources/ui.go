@@ -642,7 +642,7 @@ func newPanelResources() (*PanelResources, error) {
 		return nil, err
 	}
 
-	sl, err := loadImageNineSlice("assets/graphics/separator-line.png", 40, 1)
+	sl, err := loadImageNineSlice("assets/graphics/separator-line.png", 1, 1)
 	if err != nil {
 		return nil, err
 	}

@@ -187,16 +187,17 @@ func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Imag
 // gradientLineCache は両端グラデーション線画像のキャッシュ
 var gradientLineCache *ebiten.Image
 
-// drawHorizontalLine は両端がフェードアウトする水平線を描画する
+// drawHorizontalLine は両端がグラデーションで透明になる水平線を描画する
 func (sys *VisualEffectSystem) drawHorizontalLine(screen *ebiten.Image, x, y float64, width int, clr color.RGBA) {
 	if width <= 0 {
 		return
 	}
 
 	// キャッシュがない、または幅が変わった場合に再生成する
-	const lineHeight = 2
+	const lineHeight = 1
 	if gradientLineCache == nil || gradientLineCache.Bounds().Dx() != width {
 		gradientLineCache = ebiten.NewImage(width, lineHeight)
+		pixels := make([]byte, width*lineHeight*4)
 		fadePixels := width / 4 // 両端25%ずつグラデーション
 		for px := 0; px < width; px++ {
 			a := 1.0
@@ -207,11 +208,16 @@ func (sys *VisualEffectSystem) drawHorizontalLine(screen *ebiten.Image, x, y flo
 					a = float64(width-1-px) / float64(fadePixels)
 				}
 			}
-			c := color.RGBA{255, 255, 255, uint8(a * 255)}
+			alpha := byte(a * 255)
 			for py := 0; py < lineHeight; py++ {
-				gradientLineCache.Set(px, py, c)
+				i := (py*width + px) * 4
+				pixels[i] = alpha
+				pixels[i+1] = alpha
+				pixels[i+2] = alpha
+				pixels[i+3] = alpha
 			}
 		}
+		gradientLineCache.WritePixels(pixels)
 	}
 
 	op := &ebiten.DrawImageOptions{}

@@ -1,6 +1,8 @@
 package styled
 
 import (
+	"image/color"
+
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
 	"github.com/kijimaD/ruins/internal/resources"
@@ -145,17 +147,7 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 
 	container.AddChild(row)
 
-	// 白線は常にグラデーションの上に表示
-	separator := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.SeparatorLine),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Stretch: true,
-			}),
-			widget.WidgetOpts.MinSize(0, 1),
-		),
-	)
-	container.AddChild(separator)
+	container.AddChild(NewGradientLine(color.RGBA{255, 255, 255, 80}, 1))
 }
 
 func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {

@@ -21,6 +21,11 @@ test: ## テストを実行する。COUNT=N で繰り返し実行できる（デ
 	$(BWRAP_CMD) xvfb-run -a go test -v -cover -shuffle=on -timeout=60m -count=$(or $(COUNT),1) \
 		$$(go list ./... | grep -v -e /editor-ui/ -e /oapi/)
 
+.PHONY: updategolden
+updategolden: ## ゴールデンテスト用の基準画像を生成する
+	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
+	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
+
 .PHONY: report
 report: ## AIが読みやすい形でカバレッジレポートを表示する
 	RUINS_LOG_LEVEL=ignore \
@@ -47,11 +52,6 @@ lint: ## Linterを実行する
 	@if deadcode -test $$(go list ./... | grep -v -e /editor-ui/ -e /oapi/) 2>&1 | grep -q "unreachable func"; then \
 		exit 1; \
 	fi
-
-.PHONY: gendata
-gendata: ## ゴールデンテスト用の基準画像を生成する
-	GOLDIE_UPDATE=1 RUINS_LOG_LEVEL=ignore \
-	$(BWRAP_CMD) xvfb-run -a go test ./... -run Golden -v
 
 .PHONY: aseprite
 aseprite: ## asepriteでパッキングする。画像の変更を反映したら実行する

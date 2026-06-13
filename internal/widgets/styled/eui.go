@@ -310,17 +310,7 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 
 	wrapper.AddChild(container)
 
-	// 白線は常に最前面に表示
-	separator := widget.NewContainer(
-		widget.ContainerOpts.BackgroundImage(res.Panel.SeparatorLine),
-		widget.ContainerOpts.WidgetOpts(
-			widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-				Stretch: true,
-			}),
-			widget.WidgetOpts.MinSize(0, 1),
-		),
-	)
-	wrapper.AddChild(separator)
+	wrapper.AddChild(NewGradientLine(color.RGBA{255, 255, 255, 80}, 1))
 
 	return wrapper
 }
