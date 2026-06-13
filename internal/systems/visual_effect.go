@@ -81,6 +81,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return nil
 	}
 	face := world.Resources.UIResources.Text.TitleFontFace
+	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	smallFace := world.Resources.UIResources.Text.SmallFace
 	if face == nil || smallFace == nil {
 		return nil
@@ -95,8 +96,12 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.ScreenTextEffect:
-				// 画面座標で描画（ダンジョンタイトルなど）
-				sys.drawScreenText(screen, face, e)
+				// 水平線付きはスプラッシュ用の大きいフォントを使う
+				f := face
+				if e.LineWidth > 0 && splashFace != nil {
+					f = splashFace
+				}
+				sys.drawScreenText(screen, f, e)
 			case *gc.DamageTextEffect:
 				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
@@ -140,6 +145,13 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 
 	// アウトライン付きテキストを描画
 	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+
+	// テキストの下に水平線を描画する
+	if effect.LineWidth > 0 {
+		lineY := y + textHeight + 2
+		lineLeft := effect.OffsetX - effect.LineWidth/2
+		sys.drawHorizontalLine(screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+	}
 }
 
 // drawDamageText はエンティティ座標でダメージテキストを描画する
@@ -170,6 +182,42 @@ func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Imag
 
 	// アウトライン付きテキストを描画
 	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+}
+
+// gradientLineCache は両端グラデーション線画像のキャッシュ
+var gradientLineCache *ebiten.Image
+
+// drawHorizontalLine は両端がフェードアウトする水平線を描画する
+func (sys *VisualEffectSystem) drawHorizontalLine(screen *ebiten.Image, x, y float64, width int, clr color.RGBA) {
+	if width <= 0 {
+		return
+	}
+
+	// キャッシュがない、または幅が変わった場合に再生成する
+	const lineHeight = 2
+	if gradientLineCache == nil || gradientLineCache.Bounds().Dx() != width {
+		gradientLineCache = ebiten.NewImage(width, lineHeight)
+		fadePixels := width / 4 // 両端25%ずつグラデーション
+		for px := 0; px < width; px++ {
+			a := 1.0
+			if fadePixels > 0 {
+				if px < fadePixels {
+					a = float64(px) / float64(fadePixels)
+				} else if px >= width-fadePixels {
+					a = float64(width-1-px) / float64(fadePixels)
+				}
+			}
+			c := color.RGBA{255, 255, 255, uint8(a * 255)}
+			for py := 0; py < lineHeight; py++ {
+				gradientLineCache.Set(px, py, c)
+			}
+		}
+	}
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(x, y)
+	op.ColorScale.ScaleWithColor(clr)
+	screen.DrawImage(gradientLineCache, op)
 }
 
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する

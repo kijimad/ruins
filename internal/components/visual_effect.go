@@ -28,6 +28,7 @@ type ScreenTextEffect struct {
 	TotalMs     float64    // 合計時間
 	RemainingMs float64    // 残り時間（ミリ秒）
 	Alpha       float64    // 現在の透明度（0.0-1.0）
+	LineWidth   float64    // 水平線の幅。0の場合は線を描画しない
 }
 
 // Update はエフェクトを更新し、継続中ならtrueを返す
@@ -126,13 +127,32 @@ func NewScreenTextEffect(text string, screenW, screenH int) *ScreenTextEffect {
 	}
 }
 
-// NewDungeonTitleEffect はダンジョンタイトル表示エフェクトを作成する
+// NewDungeonTitleEffect はダンジョンタイトル表示エフェクトを作成する。
+// テキストの下に水平線を表示する
 func NewDungeonTitleEffect(dungeonName string, depth int, screenW, screenH int) *ScreenTextEffect {
-	text := dungeonName
+	titleText := dungeonName
 	if depth > 0 {
-		text = fmt.Sprintf("%s %dF", dungeonName, depth)
+		titleText = fmt.Sprintf("%s %dF", dungeonName, depth)
 	}
-	return NewScreenTextEffect(text, screenW, screenH)
+
+	fadeInMs := 800.0
+	holdMs := 2000.0
+	fadeOutMs := 800.0
+	totalMs := fadeInMs + holdMs + fadeOutMs
+
+	return &ScreenTextEffect{
+		OffsetX:     float64(screenW) / 2,
+		OffsetY:     float64(screenH) * 2 / 5,
+		Text:        titleText,
+		Color:       color.RGBA{255, 255, 255, 255},
+		FadeInMs:    fadeInMs,
+		HoldMs:      holdMs,
+		FadeOutMs:   fadeOutMs,
+		TotalMs:     totalMs,
+		RemainingMs: totalMs,
+		Alpha:       0.0,
+		LineWidth:   float64(screenW) * 0.4,
+	}
 }
 
 // NewDamageEffect はダメージ数値表示エフェクトを作成する

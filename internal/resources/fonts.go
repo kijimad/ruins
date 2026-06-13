@@ -7,9 +7,10 @@ import (
 )
 
 type fonts struct {
-	smallFace     text.Face
-	bodyFace      text.Face
-	titleFontFace text.Face
+	smallFace      text.Face
+	bodyFace       text.Face
+	titleFontFace  text.Face
+	splashFontFace text.Face
 }
 
 // loadFonts は指定されたサイズでフォントフェイスを作成する
@@ -27,11 +28,16 @@ func loadFonts(sources []*text.GoTextFaceSource) (*fonts, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load title font: %w", err)
 	}
+	splashFontFace, err := loadFont(sources, 48)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load splash font: %w", err)
+	}
 
 	return &fonts{
-		smallFace:     smallFace,
-		bodyFace:      bodyFace,
-		titleFontFace: titleFontFace,
+		smallFace:      smallFace,
+		bodyFace:       bodyFace,
+		titleFontFace:  titleFontFace,
+		splashFontFace: splashFontFace,
 	}, nil
 }
 

@@ -64,9 +64,10 @@ type UIResources struct {
 
 // TextResources はテキストリソースを管理する
 type TextResources struct {
-	SmallFace     text.Face
-	BodyFace      text.Face
-	TitleFontFace text.Face
+	SmallFace      text.Face
+	BodyFace       text.Face
+	TitleFontFace  text.Face
+	SplashFontFace text.Face
 }
 
 // ButtonResources はボタンリソースを管理する
@@ -249,9 +250,10 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		SeparatorColor: hexToColor(separatorColor),
 
 		Text: &TextResources{
-			SmallFace:     fonts.smallFace,
-			BodyFace:      fonts.bodyFace,
-			TitleFontFace: fonts.titleFontFace,
+			SmallFace:      fonts.smallFace,
+			BodyFace:       fonts.bodyFace,
+			TitleFontFace:  fonts.titleFontFace,
+			SplashFontFace: fonts.splashFontFace,
 		},
 
 		Button:      button,
