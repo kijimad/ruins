@@ -25,6 +25,14 @@ func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
 
 	c := vec4(r, g, b, a)
 
+	// CRT蛍光体のざらつきをRGBチャンネル独立のノイズで再現する
+	nr := fract(sin(dot(dstPos.xy, vec2(12.9898, 78.233))) * 43758.5453)
+	ng := fract(sin(dot(dstPos.xy, vec2(93.9898, 67.345))) * 28461.6743)
+	nb := fract(sin(dot(dstPos.xy, vec2(53.1215, 31.879))) * 15731.2819)
+	c.r *= 1.0 + (nr-0.5)*0.25
+	c.g *= 1.0 + (ng-0.5)*0.25
+	c.b *= 1.0 + (nb-0.5)*0.25
+
 	// 走査線
 	if int(dstPos.y)%2 == 0 {
 		c.rgb *= 1.0 - ScanlineStrength

@@ -109,7 +109,7 @@ func calculateFadeAlpha(elapsed, fadeInMs, holdMs, fadeOutMs float64) float64 {
 // NewScreenTextEffect は画面にフェード表示するテキストエフェクトを作成する
 func NewScreenTextEffect(text string, screenW, screenH int) *ScreenTextEffect {
 	fadeInMs := 800.0
-	holdMs := 2000.0
+	holdMs := 1200.0
 	fadeOutMs := 800.0
 	totalMs := fadeInMs + holdMs + fadeOutMs
 
