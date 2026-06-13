@@ -69,8 +69,6 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Install tools
-        run: make toolsinstall
       - name: test
         run: make test
       - name: coverage for octocov
@@ -91,8 +89,6 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: Install tools
-        run: make toolsinstall
       - name: Flaky check
         run: make test COUNT=20
 
