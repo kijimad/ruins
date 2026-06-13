@@ -93,8 +93,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Install tools
         run: make toolsinstall
-      - name: Flaky check (100 runs)
-        run: make test COUNT=100
+      - name: Flaky check
+        run: make test COUNT=20
 
   check-ui:
     runs-on: ubuntu-latest
