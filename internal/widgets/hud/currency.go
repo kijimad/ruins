@@ -54,7 +54,7 @@ func (c *CurrencyDisplay) Draw(screen *ebiten.Image, data CurrencyData) {
 
 	// メッセージウィンドウの上端の上に配置（テキスト下端がマージン分上になるように）
 	currencyX := float64(screenWidth-data.Config.LogAreaMargin) - textWidth
-	currencyY := float64(logAreaY) - textHeight - float64(theme.Space4)
+	currencyY := float64(logAreaY) - textHeight - theme.Space4F
 
 	drawOutlinedText(screen, currencyText, c.face, currencyX, currencyY, theme.TextPrimary)
 }

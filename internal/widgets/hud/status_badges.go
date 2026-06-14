@@ -43,19 +43,17 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		return
 	}
 
-	var (
-		marginLeft   = float64(theme.Space4)
-		marginBottom = float64(theme.Space4)
-		badgeGap     = 4.0 // バッジ間の隙間
-		paddingX     = 6.0 // バッジ内の左右パディング
-		paddingY     = 4.0 // バッジ内の上下パディング
-		maxVisible   = 5   // 最大表示数
+	const (
+		badgeGap   = 4.0 // バッジ間の隙間
+		paddingX   = 6.0 // バッジ内の左右パディング
+		paddingY   = 4.0 // バッジ内の上下パディング
+		maxVisible = 5   // 最大表示数
 	)
 
 	// メッセージエリアの上に表示
 	messageAreaHeight := float64(data.MessageAreaHeight)
 	screenHeight := float64(data.ScreenDimensions.Height)
-	baseY := screenHeight - messageAreaHeight - marginBottom
+	baseY := screenHeight - messageAreaHeight - theme.Space4F
 
 	// 表示するバッジを決定
 	badges := data.Badges
@@ -80,13 +78,13 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		badgeY := currentY - badgeHeight
 
 		// 背景矩形を描画
-		bgX := float32(marginLeft)
+		bgX := float32(theme.Space4F)
 		bgWidth := float32(textWidth + paddingX*2)
 		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), badge.Color, false)
 
 		// 白文字でテキストを描画
 		textY := badgeY + paddingY
-		drawOutlinedText(screen, badge.Text, sb.bodyFace, marginLeft+paddingX, textY, theme.TextPrimary)
+		drawOutlinedText(screen, badge.Text, sb.bodyFace, theme.Space4F+paddingX, textY, theme.TextPrimary)
 
 		// 次のバッジの位置を更新
 		currentY = badgeY - badgeGap
@@ -101,11 +99,11 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) {
 		badgeY := currentY - badgeHeight
 
 		// グレーの背景
-		bgX := float32(marginLeft)
+		bgX := float32(theme.Space4F)
 		bgWidth := float32(textWidth + paddingX*2)
 		vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), theme.HUDBadgeBg, false)
 
 		textY := badgeY + paddingY
-		drawOutlinedText(screen, moreText, sb.bodyFace, marginLeft, textY, theme.TextPrimary)
+		drawOutlinedText(screen, moreText, sb.bodyFace, theme.Space4F, textY, theme.TextPrimary)
 	}
 }

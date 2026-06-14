@@ -11,3 +11,9 @@ const (
 	Space6 = 20 // パネル内の大きなパディング
 	Space7 = 24 // 大きなセクション間
 )
+
+// float64版。描画計算で頻繁に使う。変換を省略する
+const (
+	Space2F = float64(Space2)
+	Space4F = float64(Space4)
+)
