@@ -7,9 +7,27 @@ var ScreenSize vec2
 const ChromaticAberration = 0.6
 const VignetteStrength = 0.2
 const ScanlineStrength = 0.1
+const BarrelStrength = 0.2
+
+// barrelDistort はUV座標にバレル歪みを適用する
+func barrelDistort(uv vec2) vec2 {
+	c := uv - vec2(0.5, 0.5)
+	r2 := dot(c, c)
+	return uv + c*r2*BarrelStrength
+}
+
+// sampleAt は歪み後のUV座標からピクセルをサンプリングする。色収差を含む
+func sampleAt(uv vec2, origin vec2, size vec2) vec4 {
+	p := origin + uv*size
+	r := imageSrc0At(p + vec2(ChromaticAberration, 0)).r
+	g := imageSrc0At(p).g
+	b := imageSrc0At(p - vec2(ChromaticAberration, 0)).b
+	a := imageSrc0At(p).a
+	return vec4(r, g, b, a)
+}
 
 // レトロ効果を適用するフィルター
-// CRTカーブは細い線がガタつくため除外している
+// バレル歪みに3x3スーパーサンプリングを適用して線のガタつきを抑える
 func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
 	origin := imageSrc0Origin()
 	size := imageSrc0Size()
@@ -17,29 +35,26 @@ func Fragment(dstPos vec4, srcPos vec2, color vec4) vec4 {
 	uv := (srcPos - origin) / size
 	center := vec2(0.5, 0.5)
 
-	// 色収差
-	r := imageSrc0At(srcPos + vec2(ChromaticAberration, 0)).r
-	g := imageSrc0At(srcPos).g
-	b := imageSrc0At(srcPos - vec2(ChromaticAberration, 0)).b
-	a := imageSrc0At(srcPos).a
-
-	c := vec4(r, g, b, a)
-
-	// CRT蛍光体のざらつきをRGBチャンネル独立のノイズで再現する
-	nr := fract(sin(dot(dstPos.xy, vec2(12.9898, 78.233))) * 43758.5453)
-	ng := fract(sin(dot(dstPos.xy, vec2(93.9898, 67.345))) * 28461.6743)
-	nb := fract(sin(dot(dstPos.xy, vec2(53.1215, 31.879))) * 15731.2819)
-	c.r *= 1.0 + (nr-0.5)*0.25
-	c.g *= 1.0 + (ng-0.5)*0.25
-	c.b *= 1.0 + (nb-0.5)*0.25
+	// 3x3スーパーサンプリングでバレル歪みのエイリアシングを軽減する
+	step := vec2(1.0/3.0, 1.0/3.0) / size
+	c := vec4(0)
+	for dy := -1; dy <= 1; dy++ {
+		for dx := -1; dx <= 1; dx++ {
+			offset := vec2(float(dx), float(dy)) * step
+			d := barrelDistort(uv + offset)
+			c += sampleAt(d, origin, size)
+		}
+	}
+	c *= 1.0 / 9.0
 
 	// 走査線
 	if int(dstPos.y)%2 == 0 {
 		c.rgb *= 1.0 - ScanlineStrength
 	}
 
-	// ビネット
-	v := 1.0 - distance(uv, center) * VignetteStrength * 2.0
+	// ビネット。歪み後のUV中心からの距離で計算する
+	distUV := barrelDistort(uv)
+	v := 1.0 - distance(distUV, center) * VignetteStrength * 2.0
 	c.rgb *= clamp(v, 0.0, 1.0)
 
 	return c
