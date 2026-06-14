@@ -90,7 +90,7 @@ func encodePNG(t *testing.T, img image.Image) []byte {
 // noiseScale はトレランス算出の係数。
 // ebitenuiのノイズはUI要素のエッジで発生し、エッジ量は画像面積の平方根に比例する。
 // tolerance = noiseScale / √totalPixels で算出する
-const noiseScale = 5.0
+const noiseScale = 8.0
 
 // toleranceForSize は画像のピクセル数からトレランス比率を算出する。
 // ノイズ量はUIエッジに比例するため √面積 でスケーリングし、

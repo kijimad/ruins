@@ -14,10 +14,10 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-var whiteSilhouetteShader *ebiten.Shader
-
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
-type VisualEffectSystem struct{}
+type VisualEffectSystem struct {
+	silhouetteShader *ebiten.Shader
+}
 
 // String はシステム名を返す
 func (sys VisualEffectSystem) String() string {
@@ -90,21 +90,21 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if err != nil {
+			return
+		}
 		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
 
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
-			case *gc.ScreenTextEffect:
-				// 画面座標で描画（ダンジョンタイトルなど）
-				sys.drawScreenText(screen, face, e)
+			case *gc.SplashTextEffect:
+				sys.drawSplashText(world, screen, e)
 			case *gc.DamageTextEffect:
-				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 					sys.drawDamageText(world, screen, smallFace, gridElement, e)
 				}
 			case *gc.SpriteFadeoutEffect:
-				// スプライトフェードアウトエフェクトを描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
@@ -115,21 +115,18 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 			}
 		}
 	}))
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
-// drawScreenText は画面座標でテキストを描画する
-func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Face, effect *gc.ScreenTextEffect) {
+// drawSplashText はスプラッシュテキストを画面座標で描画する
+func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Image, effect *gc.SplashTextEffect) {
 	if effect.Alpha <= 0 {
 		return
 	}
 
 	// テキストサイズを測定して中央揃え
-	textWidth, textHeight := text.Measure(effect.Text, face, 0)
+	textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
 	x := effect.OffsetX - textWidth/2
 	y := effect.OffsetY - textHeight/2
 
@@ -139,7 +136,14 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+	hud.OutlinedText(screen, effect.Text, effect.Face, x, y, textColor, outlineColor)
+
+	// テキストの下に水平線を描画する
+	if effect.LineWidth > 0 {
+		lineY := y + textHeight + 2
+		lineLeft := effect.OffsetX - effect.LineWidth/2
+		sys.drawHorizontalLine(world, screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+	}
 }
 
 // drawDamageText はエンティティ座標でダメージテキストを描画する
@@ -172,6 +176,25 @@ func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Imag
 	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
+// drawHorizontalLine は両端がグラデーションで透明になる水平線を描画する
+func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.Image, x, y float64, width int, clr color.RGBA) {
+	if width <= 0 {
+		return
+	}
+
+	img := world.Resources.UIResources.GradientLine
+	if img == nil {
+		return
+	}
+
+	op := &ebiten.DrawImageOptions{}
+	srcWidth := float64(img.Bounds().Dx())
+	op.GeoM.Scale(float64(width)/srcWidth, 1)
+	op.GeoM.Translate(x, y)
+	op.ColorScale.ScaleWithColor(color.NRGBA(clr))
+	screen.DrawImage(img, op)
+}
+
 // drawSpriteFadeoutEffect はスプライトの白シルエットフェードアウトエフェクトを描画する
 func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *ebiten.Image, gridElement *gc.GridElement, effect *gc.SpriteFadeoutEffect) error {
 	if effect.Alpha <= 0 {
@@ -182,12 +205,12 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	}
 
 	// シェーダーを初期化（初回のみ）
-	if whiteSilhouetteShader == nil {
+	if sys.silhouetteShader == nil {
 		shaderSource, err := assets.FS.ReadFile("file/shaders/white_silhouette.kage")
 		if err != nil {
 			return err
 		}
-		whiteSilhouetteShader, err = ebiten.NewShader(shaderSource)
+		sys.silhouetteShader, err = ebiten.NewShader(shaderSource)
 		if err != nil {
 			return err
 		}
@@ -237,6 +260,6 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	op.ColorScale.ScaleAlpha(float32(effect.Alpha))
 
 	// シェーダーで白シルエットを描画
-	screen.DrawRectShader(sprite.Width, sprite.Height, whiteSilhouetteShader, op)
+	screen.DrawRectShader(sprite.Width, sprite.Height, sys.silhouetteShader, op)
 	return nil
 }

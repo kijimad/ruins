@@ -6,6 +6,7 @@ import (
 
 	"github.com/ebitenui/ebitenui/image"
 	"github.com/ebitenui/ebitenui/widget"
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
@@ -46,6 +47,8 @@ type UIResources struct {
 
 	SeparatorColor color.Color
 
+	GradientLine *ebiten.Image
+
 	Text        *TextResources
 	Button      *ButtonResources
 	Label       *LabelResources
@@ -64,9 +67,10 @@ type UIResources struct {
 
 // TextResources はテキストリソースを管理する
 type TextResources struct {
-	SmallFace     text.Face
-	BodyFace      text.Face
-	TitleFontFace text.Face
+	SmallFace      text.Face
+	BodyFace       text.Face
+	TitleFontFace  text.Face
+	SplashFontFace text.Face
 }
 
 // ButtonResources はボタンリソースを管理する
@@ -127,12 +131,11 @@ type ProgressBarResources struct {
 
 // PanelResources はパネルリソースを管理する
 type PanelResources struct {
-	Image         *image.NineSlice
-	ImageTrans    *image.NineSlice
-	TitleBar      *image.NineSlice
-	SelectionBar  *image.NineSlice
-	SeparatorLine *image.NineSlice
-	Padding       widget.Insets
+	Image        *image.NineSlice
+	ImageTrans   *image.NineSlice
+	TitleBar     *image.NineSlice
+	SelectionBar *image.NineSlice
+	Padding      widget.Insets
 }
 
 // TabBookResources はタブブックリソースを管理する
@@ -241,17 +244,24 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		return UIResources{}, err
 	}
 
+	gradientLine, err := newImageFromFile("assets/graphics/gradient-line.png")
+	if err != nil {
+		return UIResources{}, err
+	}
+
 	return UIResources{
 		Fonts: fonts,
 
 		Background: background,
 
 		SeparatorColor: hexToColor(separatorColor),
+		GradientLine:   gradientLine,
 
 		Text: &TextResources{
-			SmallFace:     fonts.smallFace,
-			BodyFace:      fonts.bodyFace,
-			TitleFontFace: fonts.titleFontFace,
+			SmallFace:      fonts.smallFace,
+			BodyFace:       fonts.bodyFace,
+			TitleFontFace:  fonts.titleFontFace,
+			SplashFontFace: fonts.splashFontFace,
 		},
 
 		Button:      button,
@@ -640,17 +650,11 @@ func newPanelResources() (*PanelResources, error) {
 		return nil, err
 	}
 
-	sl, err := loadImageNineSlice("assets/graphics/separator-line.png", 40, 1)
-	if err != nil {
-		return nil, err
-	}
-
 	return &PanelResources{
-		Image:         i,
-		ImageTrans:    it,
-		TitleBar:      t,
-		SelectionBar:  sb,
-		SeparatorLine: sl,
+		Image:        i,
+		ImageTrans:   it,
+		TitleBar:     t,
+		SelectionBar: sb,
 		Padding: widget.Insets{
 			Left:   30,
 			Right:  30,
