@@ -3,7 +3,6 @@ package vrt
 import (
 	"fmt"
 	"os"
-	"sync/atomic"
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,8 +11,6 @@ import (
 // testHostGame はテスト実行中にebitenグラフィックスコンテキストを維持するゲーム
 type testHostGame struct {
 	testFunc func() int
-	exitCode int
-	done     atomic.Bool
 	started  bool
 }
 
@@ -22,12 +19,11 @@ func (g *testHostGame) Update() error {
 		g.started = true
 		go func() {
 			// ゲームループが回っている状態で、テストは別goroutineとして実行する
-			g.exitCode = g.testFunc()
-			g.done.Store(true)
+			code := g.testFunc()
+			// テスト完了後、ebitenのシャットダウン処理でEGL/X11ドライバがsegfaultすることがあるため、
+			// テスト結果が確定した時点で即座にプロセスを終了する
+			os.Exit(code)
 		}()
-	}
-	if g.done.Load() {
-		return ebiten.Termination
 	}
 	return nil
 }
@@ -44,10 +40,10 @@ func (g *testHostGame) Layout(_, _ int) (int, int) {
 func RunTestMain(m *testing.M) int {
 	g := &testHostGame{testFunc: m.Run}
 	// ebiten.RunGame()はメインスレッドをブロックする。
-	// ebiten.Terminationを返すとRunGameはnilを返して正常終了する
 	if err := ebiten.RunGame(g); err != nil {
 		fmt.Fprintf(os.Stderr, "RunGame failed: %v\n", err)
 		return 1
 	}
-	return g.exitCode
+	// テストが正常完了した場合、goroutine内でos.Exitが呼ばれるためここには到達しない
+	return 0
 }
