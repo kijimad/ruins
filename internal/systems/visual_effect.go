@@ -90,6 +90,9 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	world.Manager.Join(
 		world.Components.VisualEffect,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if err != nil {
+			return
+		}
 		ve := world.Components.VisualEffect.Get(entity).(*gc.VisualEffects)
 
 		for _, effect := range ve.Effects {
@@ -97,13 +100,11 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 			case *gc.SplashTextEffect:
 				sys.drawSplashText(world, screen, e)
 			case *gc.DamageTextEffect:
-				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 					sys.drawDamageText(world, screen, smallFace, gridElement, e)
 				}
 			case *gc.SpriteFadeoutEffect:
-				// スプライトフェードアウトエフェクトを描画
 				if entity.HasComponent(world.Components.GridElement) {
 					gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 					err = sys.drawSpriteFadeoutEffect(world, screen, gridElement, e)
@@ -114,11 +115,8 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 			}
 		}
 	}))
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 // drawSplashText はスプラッシュテキストを画面座標で描画する
