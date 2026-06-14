@@ -7,16 +7,11 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 )
 
-// ScreenTextEffect は画面座標でテキストを表示するエフェクト
-type ScreenTextEffect struct {
-	FadeAnimation
-	TextProperties
-}
-
 // SplashTextEffect はダンジョン開始時などに画面中央にスプラッシュ表示するエフェクト。
 // 指定フォントで描画し、テキストの下に水平線を付ける
 type SplashTextEffect struct {
-	ScreenTextEffect
+	FadeAnimation
+	TextProperties
 	Face      text.Face // 描画に使用するフォント
 	LineWidth float64   // テキスト下の水平線の幅
 }
@@ -51,21 +46,19 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 	totalMs := fadeInMs + holdMs + fadeOutMs
 
 	return &SplashTextEffect{
-		ScreenTextEffect: ScreenTextEffect{
-			FadeAnimation: FadeAnimation{
-				FadeInMs:    fadeInMs,
-				HoldMs:      holdMs,
-				FadeOutMs:   fadeOutMs,
-				TotalMs:     totalMs,
-				RemainingMs: totalMs,
-				Alpha:       0.0,
-			},
-			TextProperties: TextProperties{
-				OffsetX: float64(screenW) / 2,
-				OffsetY: float64(screenH) * 2 / 5,
-				Text:    textStr,
-				Color:   color.RGBA{255, 255, 255, 255},
-			},
+		FadeAnimation: FadeAnimation{
+			FadeInMs:    fadeInMs,
+			HoldMs:      holdMs,
+			FadeOutMs:   fadeOutMs,
+			TotalMs:     totalMs,
+			RemainingMs: totalMs,
+			Alpha:       0.0,
+		},
+		TextProperties: TextProperties{
+			OffsetX: float64(screenW) / 2,
+			OffsetY: float64(screenH) * 2 / 5,
+			Text:    textStr,
+			Color:   color.RGBA{255, 255, 255, 255},
 		},
 		Face:      face,
 		LineWidth: float64(screenW) * 0.4,

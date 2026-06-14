@@ -128,7 +128,7 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 完了間近のエフェクトを作成
-	effect := &gc.ScreenTextEffect{
+	effect := &gc.SplashTextEffect{
 		FadeAnimation: gc.FadeAnimation{
 			Alpha:       0.01,
 			TotalMs:     100,

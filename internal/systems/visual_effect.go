@@ -95,9 +95,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.SplashTextEffect:
-				sys.drawScreenText(screen, e.Face, &e.ScreenTextEffect, e.LineWidth)
-			case *gc.ScreenTextEffect:
-				sys.drawScreenText(screen, face, e)
+				sys.drawSplashText(screen, e)
 			case *gc.DamageTextEffect:
 				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
@@ -123,15 +121,14 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// drawScreenText は画面座標でテキストを描画する。
-// 水平線の幅を指定すると、テキストの下に水平線を描画する
-func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Face, effect *gc.ScreenTextEffect, lineWidth ...float64) {
+// drawSplashText はスプラッシュテキストを画面座標で描画する
+func (sys *VisualEffectSystem) drawSplashText(screen *ebiten.Image, effect *gc.SplashTextEffect) {
 	if effect.Alpha <= 0 {
 		return
 	}
 
 	// テキストサイズを測定して中央揃え
-	textWidth, textHeight := text.Measure(effect.Text, face, 0)
+	textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
 	x := effect.OffsetX - textWidth/2
 	y := effect.OffsetY - textHeight/2
 
@@ -141,14 +138,13 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 	outlineColor := color.RGBA{0, 0, 0, alpha}
 
 	// アウトライン付きテキストを描画
-	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
+	hud.OutlinedText(screen, effect.Text, effect.Face, x, y, textColor, outlineColor)
 
 	// テキストの下に水平線を描画する
-	if len(lineWidth) > 0 && lineWidth[0] > 0 {
-		lw := lineWidth[0]
+	if effect.LineWidth > 0 {
 		lineY := y + textHeight + 2
-		lineLeft := effect.OffsetX - lw/2
-		sys.drawHorizontalLine(screen, lineLeft, lineY, int(lw), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+		lineLeft := effect.OffsetX - effect.LineWidth/2
+		sys.drawHorizontalLine(screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
 	}
 }
 
