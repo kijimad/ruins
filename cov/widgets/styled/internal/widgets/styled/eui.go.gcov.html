@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">56.7&nbsp;%</td>
-            <td class="headerCovTableEntry">323</td>
-            <td class="headerCovTableEntry">183</td>
+            <td class="headerCovTableEntryLo">55.3&nbsp;%</td>
+            <td class="headerCovTableEntry">313</td>
+            <td class="headerCovTableEntry">173</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-13 23:37:57</td>
+            <td class="headerValue">2026-06-14 06:29:52</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -372,74 +372,64 @@
 <span id="L310"><span class="lineNum">     310</span>              : </span>
 <span id="L311"><span class="lineNum">     311</span> <span class="tlaGNC">           1 :         wrapper.AddChild(container)</span></span>
 <span id="L312"><span class="lineNum">     312</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         // 白線は常に最前面に表示</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 :         separator := widget.NewContainer(</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :                 widget.ContainerOpts.BackgroundImage(res.Panel.SeparatorLine),</span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaGNC">           1 :                 widget.ContainerOpts.WidgetOpts(</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaGNC">           1 :                                 Stretch: true,</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 :                         }),</span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.MinSize(0, 1),</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 ),</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :         wrapper.AddChild(separator)</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :         return wrapper</span></span>
-<span id="L326"><span class="lineNum">     326</span>              : }</span>
-<span id="L327"><span class="lineNum">     327</span>              : </span>
-<span id="L328"><span class="lineNum">     328</span>              : // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）</span>
-<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 : func NewFragmentText(text string, textColor color.RGBA, res resources.UIResources) *widget.Text {</span></span>
-<span id="L330"><span class="lineNum">     330</span> <span class="tlaGNC">           1 :         return widget.NewText(</span></span>
-<span id="L331"><span class="lineNum">     331</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(text, &amp;res.Text.BodyFace, textColor),</span></span>
-<span id="L332"><span class="lineNum">     332</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L333"><span class="lineNum">     333</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L334"><span class="lineNum">     334</span> <span class="tlaGNC">           1 :                                 Stretch: false, // 横幅を伸ばさない</span></span>
-<span id="L335"><span class="lineNum">     335</span> <span class="tlaGNC">           1 :                         }),</span></span>
-<span id="L336"><span class="lineNum">     336</span> <span class="tlaGNC">           1 :                         // MinSizeは指定しない（テキストの自然な幅を使用）</span></span>
-<span id="L337"><span class="lineNum">     337</span> <span class="tlaGNC">           1 :                 ),</span></span>
-<span id="L338"><span class="lineNum">     338</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L339"><span class="lineNum">     339</span> <span class="tlaGNC">           1 : }</span></span>
-<span id="L340"><span class="lineNum">     340</span>              : </span>
-<span id="L341"><span class="lineNum">     341</span>              : // window ================</span>
-<span id="L342"><span class="lineNum">     342</span>              : </span>
-<span id="L343"><span class="lineNum">     343</span>              : // NewSmallWindow は小さなウィンドウを作成する</span>
-<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC tlaBgUNC">           0 : func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...widget.WindowOpt) *widget.Window {</span></span>
-<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :         titleBarHeight := 25</span></span>
-<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :         if len(title.Children()) == 0 {</span></span>
-<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 titleBarHeight = 0</span></span>
-<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L349"><span class="lineNum">     349</span>              :         // デフォルトのオプション</span>
-<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         defaultOpts := []widget.WindowOpt{</span></span>
-<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Contents(content),</span></span>
-<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.TitleBar(title, titleBarHeight),</span></span>
-<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Modal(),</span></span>
-<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.CloseMode(widget.CLICK_OUT),</span></span>
-<span id="L355"><span class="lineNum">     355</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Draggable(),</span></span>
-<span id="L356"><span class="lineNum">     356</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Resizeable(),</span></span>
-<span id="L357"><span class="lineNum">     357</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.MinSize(200, 200),</span></span>
-<span id="L358"><span class="lineNum">     358</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.MaxSize(650, 550),</span></span>
-<span id="L359"><span class="lineNum">     359</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 :         allOpts := make([]widget.WindowOpt, 0, len(defaultOpts)+len(opts))</span></span>
-<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         allOpts = append(allOpts, defaultOpts...)</span></span>
-<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :         allOpts = append(allOpts, opts...)</span></span>
-<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :         return widget.NewWindow(allOpts...)</span></span>
-<span id="L365"><span class="lineNum">     365</span>              : }</span>
-<span id="L366"><span class="lineNum">     366</span>              : </span>
-<span id="L367"><span class="lineNum">     367</span>              : // opts ================</span>
-<span id="L368"><span class="lineNum">     368</span>              : </span>
-<span id="L369"><span class="lineNum">     369</span>              : // BaseRowLayoutOpts は基本的な行レイアウトオプションを返す</span>
-<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 : func BaseRowLayoutOpts() []widget.RowLayoutOpt {</span></span>
-<span id="L371"><span class="lineNum">     371</span> <span class="tlaUNC">           0 :         return []widget.RowLayoutOpt{</span></span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 :                 widget.RowLayoutOpts.Spacing(theme.Space3),</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :                 widget.RowLayoutOpts.Padding(&amp;widget.Insets{</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :                         Top:    theme.Space3,</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                         Bottom: theme.Space3,</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :                         Left:   theme.Space3,</span></span>
-<span id="L377"><span class="lineNum">     377</span> <span class="tlaUNC">           0 :                         Right:  theme.Space3,</span></span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                 }),</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaGNC">           1 :         wrapper.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaGNC">           1 :         return wrapper</span></span>
+<span id="L316"><span class="lineNum">     316</span>              : }</span>
+<span id="L317"><span class="lineNum">     317</span>              : </span>
+<span id="L318"><span class="lineNum">     318</span>              : // NewFragmentText は色付きログフラグメント専用のテキストを作成する（文字数分だけの幅）</span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaGNC">           1 : func NewFragmentText(text string, textColor color.RGBA, res resources.UIResources) *widget.Text {</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaGNC">           1 :         return widget.NewText(</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(text, &amp;res.Text.BodyFace, textColor),</span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L324"><span class="lineNum">     324</span> <span class="tlaGNC">           1 :                                 Stretch: false, // 横幅を伸ばさない</span></span>
+<span id="L325"><span class="lineNum">     325</span> <span class="tlaGNC">           1 :                         }),</span></span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC">           1 :                         // MinSizeは指定しない（テキストの自然な幅を使用）</span></span>
+<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC">           1 :                 ),</span></span>
+<span id="L328"><span class="lineNum">     328</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L329"><span class="lineNum">     329</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L330"><span class="lineNum">     330</span>              : </span>
+<span id="L331"><span class="lineNum">     331</span>              : // window ================</span>
+<span id="L332"><span class="lineNum">     332</span>              : </span>
+<span id="L333"><span class="lineNum">     333</span>              : // NewSmallWindow は小さなウィンドウを作成する</span>
+<span id="L334"><span class="lineNum">     334</span> <span class="tlaUNC tlaBgUNC">           0 : func NewSmallWindow(title *widget.Container, content *widget.Container, opts ...widget.WindowOpt) *widget.Window {</span></span>
+<span id="L335"><span class="lineNum">     335</span> <span class="tlaUNC">           0 :         titleBarHeight := 25</span></span>
+<span id="L336"><span class="lineNum">     336</span> <span class="tlaUNC">           0 :         if len(title.Children()) == 0 {</span></span>
+<span id="L337"><span class="lineNum">     337</span> <span class="tlaUNC">           0 :                 titleBarHeight = 0</span></span>
+<span id="L338"><span class="lineNum">     338</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L339"><span class="lineNum">     339</span>              :         // デフォルトのオプション</span>
+<span id="L340"><span class="lineNum">     340</span> <span class="tlaUNC">           0 :         defaultOpts := []widget.WindowOpt{</span></span>
+<span id="L341"><span class="lineNum">     341</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Contents(content),</span></span>
+<span id="L342"><span class="lineNum">     342</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.TitleBar(title, titleBarHeight),</span></span>
+<span id="L343"><span class="lineNum">     343</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Modal(),</span></span>
+<span id="L344"><span class="lineNum">     344</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.CloseMode(widget.CLICK_OUT),</span></span>
+<span id="L345"><span class="lineNum">     345</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Draggable(),</span></span>
+<span id="L346"><span class="lineNum">     346</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.Resizeable(),</span></span>
+<span id="L347"><span class="lineNum">     347</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.MinSize(200, 200),</span></span>
+<span id="L348"><span class="lineNum">     348</span> <span class="tlaUNC">           0 :                 widget.WindowOpts.MaxSize(650, 550),</span></span>
+<span id="L349"><span class="lineNum">     349</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L350"><span class="lineNum">     350</span> <span class="tlaUNC">           0 :         allOpts := make([]widget.WindowOpt, 0, len(defaultOpts)+len(opts))</span></span>
+<span id="L351"><span class="lineNum">     351</span> <span class="tlaUNC">           0 :         allOpts = append(allOpts, defaultOpts...)</span></span>
+<span id="L352"><span class="lineNum">     352</span> <span class="tlaUNC">           0 :         allOpts = append(allOpts, opts...)</span></span>
+<span id="L353"><span class="lineNum">     353</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L354"><span class="lineNum">     354</span> <span class="tlaUNC">           0 :         return widget.NewWindow(allOpts...)</span></span>
+<span id="L355"><span class="lineNum">     355</span>              : }</span>
+<span id="L356"><span class="lineNum">     356</span>              : </span>
+<span id="L357"><span class="lineNum">     357</span>              : // opts ================</span>
+<span id="L358"><span class="lineNum">     358</span>              : </span>
+<span id="L359"><span class="lineNum">     359</span>              : // BaseRowLayoutOpts は基本的な行レイアウトオプションを返す</span>
+<span id="L360"><span class="lineNum">     360</span> <span class="tlaUNC">           0 : func BaseRowLayoutOpts() []widget.RowLayoutOpt {</span></span>
+<span id="L361"><span class="lineNum">     361</span> <span class="tlaUNC">           0 :         return []widget.RowLayoutOpt{</span></span>
+<span id="L362"><span class="lineNum">     362</span> <span class="tlaUNC">           0 :                 widget.RowLayoutOpts.Spacing(theme.Space3),</span></span>
+<span id="L363"><span class="lineNum">     363</span> <span class="tlaUNC">           0 :                 widget.RowLayoutOpts.Padding(&amp;widget.Insets{</span></span>
+<span id="L364"><span class="lineNum">     364</span> <span class="tlaUNC">           0 :                         Top:    theme.Space3,</span></span>
+<span id="L365"><span class="lineNum">     365</span> <span class="tlaUNC">           0 :                         Bottom: theme.Space3,</span></span>
+<span id="L366"><span class="lineNum">     366</span> <span class="tlaUNC">           0 :                         Left:   theme.Space3,</span></span>
+<span id="L367"><span class="lineNum">     367</span> <span class="tlaUNC">           0 :                         Right:  theme.Space3,</span></span>
+<span id="L368"><span class="lineNum">     368</span> <span class="tlaUNC">           0 :                 }),</span></span>
+<span id="L369"><span class="lineNum">     369</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L370"><span class="lineNum">     370</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>
