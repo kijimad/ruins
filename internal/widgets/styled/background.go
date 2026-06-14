@@ -73,6 +73,8 @@ func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style B
 func PanelStyle() BackgroundStyle {
 	return BackgroundStyle{
 		BackgroundColor: theme.PanelBackground,
+		BorderColor:     theme.PanelHighlight,
+		BorderWidth:     1,
 		HighlightColor:  theme.PanelHighlight,
 		ShadowColor:     theme.PanelShadow,
 	}

@@ -90,13 +90,14 @@ func (area *MessageArea) Draw(screen *ebiten.Image, data MessageData) {
 	screenWidth := data.ScreenDimensions.Width
 	screenHeight := data.ScreenDimensions.Height
 
-	// ログエリアの位置とサイズを計算（画面下部、横幅いっぱい）
-	logAreaX := 0
-	logAreaWidth := screenWidth
+	// ログエリアの位置とサイズを計算（画面下部、左右と下にマージン）
+	boxMargin := theme.Space3
+	logAreaX := boxMargin
+	logAreaWidth := screenWidth - boxMargin*2
 
 	// 設定を使用してサイズを計算
 	fixedHeight := area.config.LogAreaMargin*2 + area.config.MaxLogLines*area.config.LineHeight + area.config.YPadding*2
-	logAreaY := screenHeight - fixedHeight
+	logAreaY := screenHeight - fixedHeight - boxMargin
 
 	// 背景を描画
 	styled.DrawFramedBackground(screen, logAreaX, logAreaY, logAreaWidth, fixedHeight, styled.PanelStyle())
