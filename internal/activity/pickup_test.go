@@ -285,8 +285,8 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		assert.True(t, prop.HasComponent(world.Components.BlockPass))
 		// バックパックに移動していることを確認
 		assert.True(t, prop.HasComponent(world.Components.LocationInBackpack))
-		// Itemコンポーネントが追加されていることを確認
-		assert.True(t, prop.HasComponent(world.Components.Item))
+		// PropにはItemコンポーネントが付与されないことを確認
+		assert.False(t, prop.HasComponent(world.Components.Item))
 		// フィールドから消えていることを確認
 		assert.False(t, prop.HasComponent(world.Components.GridElement))
 	})

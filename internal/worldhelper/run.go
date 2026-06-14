@@ -90,7 +90,6 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 	var items []SoldItem
 	total := 0
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := ""
@@ -100,7 +99,10 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 		price := 0
 		if entity.HasComponent(world.Components.Value) {
-			count := world.Components.Item.Get(entity).(*gc.Item).Count
+			count := 1
+			if entity.HasComponent(world.Components.Item) {
+				count = world.Components.Item.Get(entity).(*gc.Item).Count
+			}
 			baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
 			price = CalculateSellPrice(baseValue) * count * sellPriceMod / 100
 		}

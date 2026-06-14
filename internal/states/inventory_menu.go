@@ -246,7 +246,7 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 			Name:   name,
 		}
 
-		// Stackableコンポーネントがあれば個数を表示する
+		// Stackableであれば個数を表示する
 		if entity.HasComponent(world.Components.Stackable) {
 			itemComp := world.Components.Item.Get(entity).(*gc.Item)
 			item.Count = fmt.Sprintf("%d", itemComp.Count)
@@ -265,10 +265,9 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 }
 
 func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity {
-	items := []ecs.Entity{}
+	var items []ecs.Entity
 
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationInBackpack,
 		world.Components.Wearable.Not(),
 		world.Components.Weapon.Not(),
@@ -280,10 +279,9 @@ func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity {
 }
 
 func (st *InventoryMenuState) queryMenuWeapon(world w.World) []ecs.Entity {
-	items := []ecs.Entity{}
+	var items []ecs.Entity
 
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.Weapon,
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -294,10 +292,9 @@ func (st *InventoryMenuState) queryMenuWeapon(world w.World) []ecs.Entity {
 }
 
 func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity {
-	items := []ecs.Entity{}
+	var items []ecs.Entity
 
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.Wearable,
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
