@@ -88,8 +88,6 @@ var (
 // ========== HUD色 ==========
 
 var (
-	// HUDSlotBg は武器スロットの背景色
-	HUDSlotBg = color.RGBA{R: 0, G: 0, B: 0, A: 180}
 	// HUDSlotSelectedBorder は選択中スロットの枠線色
 	HUDSlotSelectedBorder = color.RGBA{R: 255, G: 255, B: 100, A: 255}
 	// HUDSlotBorder は非選択スロットの枠線色

@@ -29,7 +29,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
-		weaponSlots:     hud.NewWeaponSlots(smallFace),
+		weaponSlots:     hud.NewWeaponSlots(smallFace, world.Resources.UIResources.Panel.Image),
 		statusBadges:    hud.NewStatusBadges(smallFace),
 		enabled:         true,
 	}
