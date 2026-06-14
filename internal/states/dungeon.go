@@ -153,7 +153,8 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if st.Depth > 0 {
 		titleText = fmt.Sprintf("%s %dF", def.Name, st.Depth)
 	}
-	titleEffect := gc.NewScreenTextEffect(titleText, screenW, screenH)
+	splashFace := world.Resources.UIResources.Text.SplashFontFace
+	titleEffect := gc.NewSplashTextEffect(titleText, splashFace, screenW, screenH)
 	titleEntity := world.Manager.NewEntity()
 	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},

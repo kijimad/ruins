@@ -81,7 +81,6 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		return nil
 	}
 	face := world.Resources.UIResources.Text.TitleFontFace
-	splashFace := world.Resources.UIResources.Text.SplashFontFace
 	smallFace := world.Resources.UIResources.Text.SmallFace
 	if face == nil || smallFace == nil {
 		return nil
@@ -95,13 +94,10 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
+			case *gc.SplashTextEffect:
+				sys.drawScreenText(screen, e.Face, &e.ScreenTextEffect, e.LineWidth)
 			case *gc.ScreenTextEffect:
-				// 水平線付きはスプラッシュ用の大きいフォントを使う
-				f := face
-				if e.LineWidth > 0 && splashFace != nil {
-					f = splashFace
-				}
-				sys.drawScreenText(screen, f, e)
+				sys.drawScreenText(screen, face, e)
 			case *gc.DamageTextEffect:
 				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
@@ -127,8 +123,9 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	return nil
 }
 
-// drawScreenText は画面座標でテキストを描画する
-func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Face, effect *gc.ScreenTextEffect) {
+// drawScreenText は画面座標でテキストを描画する。
+// 水平線の幅を指定すると、テキストの下に水平線を描画する
+func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Face, effect *gc.ScreenTextEffect, lineWidth ...float64) {
 	if effect.Alpha <= 0 {
 		return
 	}
@@ -147,10 +144,11 @@ func (sys *VisualEffectSystem) drawScreenText(screen *ebiten.Image, face text.Fa
 	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 
 	// テキストの下に水平線を描画する
-	if effect.LineWidth > 0 {
+	if len(lineWidth) > 0 && lineWidth[0] > 0 {
+		lw := lineWidth[0]
 		lineY := y + textHeight + 2
-		lineLeft := effect.OffsetX - effect.LineWidth/2
-		sys.drawHorizontalLine(screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+		lineLeft := effect.OffsetX - lw/2
+		sys.drawHorizontalLine(screen, lineLeft, lineY, int(lw), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
 	}
 }
 

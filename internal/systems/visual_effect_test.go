@@ -17,7 +17,7 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	world.Resources.SetScreenDimensions(800, 600)
 
 	// ダンジョンタイトルエフェクトを作成
-	titleEffect := gc.NewScreenTextEffect("テストダンジョン 1F", 800, 600)
+	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)
 	titleEntity := world.Manager.NewEntity()
 	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
@@ -30,8 +30,8 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 	// エフェクトの初期値を確認
 	ve := world.Components.VisualEffect.Get(titleEntity).(*gc.VisualEffects)
 	require.Len(t, ve.Effects, 1)
-	effect, ok := ve.Effects[0].(*gc.ScreenTextEffect)
-	require.True(t, ok, "ScreenTextEffectであるべき")
+	effect, ok := ve.Effects[0].(*gc.SplashTextEffect)
+	require.True(t, ok, "SplashTextEffectであるべき")
 
 	assert.Equal(t, "テストダンジョン 1F", effect.Text)
 	assert.Equal(t, 400.0, effect.OffsetX, "画面中央X")
@@ -47,8 +47,8 @@ func TestVisualEffectSystem_DungeonTitle(t *testing.T) {
 
 	ve = world.Components.VisualEffect.Get(titleEntity).(*gc.VisualEffects)
 	require.Len(t, ve.Effects, 1)
-	effect, ok = ve.Effects[0].(*gc.ScreenTextEffect)
-	require.True(t, ok, "ScreenTextEffectであるべき")
+	effect, ok = ve.Effects[0].(*gc.SplashTextEffect)
+	require.True(t, ok, "SplashTextEffectであるべき")
 
 	assert.Greater(t, effect.Alpha, 0.0, "Update後はAlphaが0より大きいべき")
 	t.Logf("Alpha after update: %f", effect.Alpha)
@@ -103,7 +103,7 @@ func TestVisualEffectSystem_DisableAnimation(t *testing.T) {
 	world.Config.DisableAnimation = true
 
 	// エフェクトを作成
-	titleEffect := gc.NewScreenTextEffect("テストダンジョン 1F", 800, 600)
+	titleEffect := gc.NewSplashTextEffect("テストダンジョン 1F", nil, 800, 600)
 	titleEntity := world.Manager.NewEntity()
 	titleEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{titleEffect},
@@ -129,12 +129,16 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 
 	// 完了間近のエフェクトを作成
 	effect := &gc.ScreenTextEffect{
-		Text:        "テスト",
-		OffsetX:     100,
-		OffsetY:     100,
-		Alpha:       0.01,
-		TotalMs:     100,
-		RemainingMs: 1, // ほぼ完了（残り1ミリ秒）
+		FadeAnimation: gc.FadeAnimation{
+			Alpha:       0.01,
+			TotalMs:     100,
+			RemainingMs: 1, // ほぼ完了（残り1ミリ秒）
+		},
+		TextProperties: gc.TextProperties{
+			Text:    "テスト",
+			OffsetX: 100,
+			OffsetY: 100,
+		},
 	}
 	effectEntity := world.Manager.NewEntity()
 	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
