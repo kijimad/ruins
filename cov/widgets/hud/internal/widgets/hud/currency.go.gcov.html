@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 09:46:51</td>
+            <td class="headerValue">2026-06-14 10:39:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -107,16 +107,16 @@
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         // 通貨テキスト</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         currencyText := worldhelper.FormatCurrency(data.Currency)</span></span>
 <span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         // テキストの幅を計算</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         textWidth, _ := text.Measure(currencyText, c.face, 0)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         // テキストのサイズを計算</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         textWidth, textHeight := text.Measure(currencyText, c.face, 0)</span></span>
 <span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         // メッセージウィンドウの位置を計算</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         fixedHeight := data.Config.LogAreaMargin*2 + data.Config.MaxLogLines*data.Config.LineHeight + data.Config.YPadding*2</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         logAreaY := screenHeight - fixedHeight</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         // メッセージウィンドウの上端の上に配置（右寄せ）</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         // メッセージウィンドウの上端の上に配置（テキスト下端がマージン分上になるように）</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         currencyX := float64(screenWidth-data.Config.LogAreaMargin) - textWidth</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         currencyY := float64(logAreaY - 25) // メッセージウィンドウの上に十分なスペースを取って表示</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :         currencyY := float64(logAreaY) - textHeight - theme.Space4F</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :         drawOutlinedText(screen, currencyText, c.face, currencyX, currencyY, theme.TextPrimary)</span></span>
 <span id="L60"><span class="lineNum">      60</span>              : }</span>

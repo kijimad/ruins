@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (80.7%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.0%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (94.0%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (93.4%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (0.0%)</option>
 				
@@ -1394,7 +1394,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1411,7 +1411,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         worldhelper.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := worldhelper.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
+        if comp := worldhelper.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
                 CancelActivity(target, "攻撃を受けた", world)
         }</span>
 
@@ -1479,7 +1479,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1547,7 +1547,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov8" title="1">worldhelper.AppendNameWithColor(l, target, targetName, world)</span>
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
-                        if !hit </span><span class="cov8" title="1">{
+                        if !hit </span><span class="cov0" title="0">{
                                 l.Append(" を攻撃したが外れた。")
                         }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
@@ -4222,7 +4222,7 @@ func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Ent
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         // 30%の確率で待機
-        if rand.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
+        if rand.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -39925,16 +39925,16 @@ func (c *CurrencyDisplay) Draw(screen *ebiten.Image, data CurrencyData) <span cl
         // 通貨テキスト
         currencyText := worldhelper.FormatCurrency(data.Currency)
 
-        // テキストの幅を計算
-        textWidth, _ := text.Measure(currencyText, c.face, 0)
+        // テキストのサイズを計算
+        textWidth, textHeight := text.Measure(currencyText, c.face, 0)
 
         // メッセージウィンドウの位置を計算
         fixedHeight := data.Config.LogAreaMargin*2 + data.Config.MaxLogLines*data.Config.LineHeight + data.Config.YPadding*2
         logAreaY := screenHeight - fixedHeight
 
-        // メッセージウィンドウの上端の上に配置（右寄せ）
+        // メッセージウィンドウの上端の上に配置（テキスト下端がマージン分上になるように）
         currencyX := float64(screenWidth-data.Config.LogAreaMargin) - textWidth
-        currencyY := float64(logAreaY - 25) // メッセージウィンドウの上に十分なスペースを取って表示
+        currencyY := float64(logAreaY) - textHeight - theme.Space4F
 
         drawOutlinedText(screen, currencyText, c.face, currencyX, currencyY, theme.TextPrimary)</span>
 }
@@ -40103,27 +40103,22 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) <span class=
 
 // drawFloorNumber は階層番号を描画する
 func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) <span class="cov0" title="0">{
-        const (
-                marginRight = 10.0
-                marginTop   = 10.0
-        )
-
         floorText := fmt.Sprintf("%3dF", data.FloorNumber)
 
         // テキストの幅を測定
         textWidth, _ := text.Measure(floorText, info.headingFace, 0)
 
         // 右上に配置
-        x := float64(data.ScreenDimensions.Width) - textWidth - marginRight
-        y := marginTop
+        x := float64(data.ScreenDimensions.Width) - textWidth - theme.Space4F
+        y := theme.Space4F
 
         drawOutlinedText(screen, floorText, info.headingFace, x, y, theme.TextPrimary)
 }</span>
 
 // ゲージ共通のレイアウト定数
 const (
-        gaugeBaseX      = 30.0                           // 左マージン
-        gaugeBaseY      = 10.0                           // 最初のゲージの上マージン
+        gaugeBaseX      = theme.Space4F                  // 左マージン
+        gaugeBaseY      = theme.Space4F                  // 最初のゲージの上マージン
         gaugeWidth      = 180.0                          // ゲージの幅
         gaugeBorderH    = 2.0                            // 白枠線の合計（上1 + 下1）
         gaugeFillHeight = 12.0                           // ゲージ塗り部分の高さ
@@ -40186,25 +40181,20 @@ func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio floa
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
 func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) <span class="cov0" title="0">{
-        const (
-                marginRight  = 10.0 // 右マージン
-                marginBottom = 10.0 // 下マージン
-        )
-
         // 所持重量テキストを作成
         weightText := fmt.Sprintf("%.2f / %.2f%s", data.PlayerWeight, data.PlayerMaxWeight, consts.IconKg)
 
         // テキストの幅を測定
-        textWidth, _ := text.Measure(weightText, info.bodyFace, 0)
+        textWidth, textHeight := text.Measure(weightText, info.bodyFace, 0)
 
         // メッセージエリアの高さを取得
         messageAreaHeight := float64(data.MessageAreaHeight)
 
-        // 画面右下に配置（メッセージエリアの上）
+        // 画面右下に配置（通貨表示の上に重ならないように2行分上げる）
         screenWidth := float64(data.ScreenDimensions.Width)
         screenHeight := float64(data.ScreenDimensions.Height)
-        x := screenWidth - textWidth - marginRight
-        y := screenHeight - messageAreaHeight - marginBottom
+        x := screenWidth - textWidth - theme.Space4F
+        y := screenHeight - messageAreaHeight - theme.Space4F - textHeight*2 - theme.Space2F
 
         // 重量比率を計算して色を決定
         var textColor color.RGBA
@@ -40391,8 +40381,8 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) <span class
         minimapHeight := data.MinimapConfig.Height
         minimapScale := data.MinimapConfig.Scale
         screenWidth := data.ScreenDimensions.Width
-        minimapX := screenWidth - minimapWidth - 10
-        minimapY := 10
+        minimapX := screenWidth - minimapWidth - theme.Space4
+        minimapY := theme.Space4
 
         // ミニマップの背景を描画
         if minimapWidth &gt; 0 &amp;&amp; minimapHeight &gt; 0 </span><span class="cov0" title="0">{
@@ -40444,8 +40434,8 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) <span 
         minimapWidth := data.MinimapConfig.Width
         minimapHeight := data.MinimapConfig.Height
         screenWidth := data.ScreenDimensions.Width
-        minimapX := screenWidth - minimapWidth - 10
-        minimapY := 10
+        minimapX := screenWidth - minimapWidth - theme.Space4
+        minimapY := theme.Space4
 
         // ミニマップの背景を描画（半透明の黒い四角）
         if minimapWidth &gt; 0 &amp;&amp; minimapHeight &gt; 0 </span><span class="cov0" title="0">{
@@ -40511,18 +40501,16 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) <span 
         }</span>
 
         <span class="cov0" title="0">const (
-                marginLeft   = 10.0 // 左マージン
-                marginBottom = 10.0 // 下マージン
-                badgeGap     = 4.0  // バッジ間の隙間
-                paddingX     = 6.0  // バッジ内の左右パディング
-                paddingY     = 4.0  // バッジ内の上下パディング
-                maxVisible   = 5    // 最大表示数
+                badgeGap   = 4.0 // バッジ間の隙間
+                paddingX   = 6.0 // バッジ内の左右パディング
+                paddingY   = 4.0 // バッジ内の上下パディング
+                maxVisible = 5   // 最大表示数
         )
 
         // メッセージエリアの上に表示
         messageAreaHeight := float64(data.MessageAreaHeight)
         screenHeight := float64(data.ScreenDimensions.Height)
-        baseY := screenHeight - messageAreaHeight - marginBottom
+        baseY := screenHeight - messageAreaHeight - theme.Space4F
 
         // 表示するバッジを決定
         badges := data.Badges
@@ -40547,13 +40535,13 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) <span 
                 badgeY := currentY - badgeHeight
 
                 // 背景矩形を描画
-                bgX := float32(marginLeft - paddingX)
+                bgX := float32(theme.Space4F)
                 bgWidth := float32(textWidth + paddingX*2)
                 vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), badge.Color, false)
 
                 // 白文字でテキストを描画
                 textY := badgeY + paddingY
-                drawOutlinedText(screen, badge.Text, sb.bodyFace, marginLeft, textY, theme.TextPrimary)
+                drawOutlinedText(screen, badge.Text, sb.bodyFace, theme.Space4F+paddingX, textY, theme.TextPrimary)
 
                 // 次のバッジの位置を更新
                 currentY = badgeY - badgeGap
@@ -40568,12 +40556,12 @@ func (sb *StatusBadges) Draw(screen *ebiten.Image, data StatusBadgesData) <span 
                 badgeY := currentY - badgeHeight
 
                 // グレーの背景
-                bgX := float32(marginLeft - paddingX)
+                bgX := float32(theme.Space4F)
                 bgWidth := float32(textWidth + paddingX*2)
                 vector.FillRect(screen, bgX, float32(badgeY), bgWidth, float32(badgeHeight), theme.HUDBadgeBg, false)
 
                 textY := badgeY + paddingY
-                drawOutlinedText(screen, moreText, sb.bodyFace, marginLeft, textY, theme.TextPrimary)
+                drawOutlinedText(screen, moreText, sb.bodyFace, theme.Space4F, textY, theme.TextPrimary)
         }</span>
 }
 </pre>
@@ -40645,7 +40633,7 @@ type weaponSlotsConfig struct {
 var defaultWeaponSlotsConfig = weaponSlotsConfig{
         SlotSize:    48,
         SlotSpacing: 8,
-        YOffset:     20,
+        YOffset:     theme.Space4,
 }
 
 // WeaponSlots は武器スロット表示ウィジェット
