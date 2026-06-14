@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (80.7%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (80.0%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -387,7 +387,7 @@
 				
 				<option value="file165">github.com/kijimaD/ruins/internal/systems/vision.go (30.1%)</option>
 				
-				<option value="file166">github.com/kijimaD/ruins/internal/systems/visual_effect.go (17.2%)</option>
+				<option value="file166">github.com/kijimaD/ruins/internal/systems/visual_effect.go (15.7%)</option>
 				
 				<option value="file167">github.com/kijimaD/ruins/internal/testutil/world.go (0.0%)</option>
 				
@@ -1394,7 +1394,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -1411,7 +1411,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         worldhelper.ApplyDamage(world, target, damage, actor)
 
         // 被ダメージで中断可能なアクティビティをキャンセルする
-        if comp := worldhelper.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov8" title="1">{
+        if comp := worldhelper.GetActivity(world, target); comp != nil &amp;&amp; CanInterrupt(comp) </span><span class="cov0" title="0">{
                 CancelActivity(target, "攻撃を受けた", world)
         }</span>
 
@@ -1479,7 +1479,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov0" title="0">{
+        if critical </span><span class="cov8" title="1">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1547,7 +1547,7 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
                         <span class="cov8" title="1">worldhelper.AppendNameWithColor(l, target, targetName, world)</span>
                 }).
                 Build(func(l *gamelog.Logger) <span class="cov8" title="1">{
-                        if !hit </span><span class="cov0" title="0">{
+                        if !hit </span><span class="cov8" title="1">{
                                 l.Append(" を攻撃したが外れた。")
                         }</span> else<span class="cov8" title="1"> if critical </span><span class="cov0" title="0">{
                                 l.Append(fmt.Sprintf(" にクリティカルヒットし、%d のダメージを与えた！", damage))
@@ -9220,7 +9220,7 @@ type SpriteFadeoutEffect struct {
 // NewSplashTextEffect はダンジョン開始時などのスプラッシュエフェクトを作成する
 func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *SplashTextEffect <span class="cov8" title="1">{
         fadeInMs := 800.0
-        holdMs := 1200.0
+        holdMs := 1600.0
         fadeOutMs := 800.0
         totalMs := fadeInMs + holdMs + fadeOutMs
 
@@ -9240,7 +9240,7 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
                         Color:   color.RGBA{255, 255, 255, 255},
                 },
                 Face:      face,
-                LineWidth: float64(screenW) * 0.4,
+                LineWidth: float64(screenW) * 0.7,
         }
 }</span>
 
@@ -26320,6 +26320,7 @@ type UIResources struct {
         SeparatorColor color.Color
 
         GradientLine *ebiten.Image
+        GaugeFill    *ebiten.Image
 
         Text        *TextResources
         Button      *ButtonResources
@@ -26521,6 +26522,11 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) <span
                 return UIResources{}, err
         }</span>
 
+        <span class="cov0" title="0">gaugeFill, err := newImageFromFile("assets/graphics/gauge-fill.png")
+        if err != nil </span><span class="cov0" title="0">{
+                return UIResources{}, err
+        }</span>
+
         <span class="cov0" title="0">return UIResources{
                 Fonts: fonts,
 
@@ -26528,6 +26534,7 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) <span
 
                 SeparatorColor: hexToColor(separatorColor),
                 GradientLine:   gradientLine,
+                GaugeFill:      gaugeFill,
 
                 Text: &amp;TextResources{
                         SmallFace:      fonts.smallFace,
@@ -37345,12 +37352,12 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem <span class="cov0"
         titleFace := world.Resources.UIResources.Text.TitleFontFace
 
         return &amp;HUDRenderingSystem{
-                gameInfo:        hud.NewGameInfo(smallFace, titleFace),
+                gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
                 minimap:         hud.NewMinimap(titleFace),
                 debugOverlay:    hud.NewDebugOverlay(smallFace),
                 messageArea:     hud.NewMessageArea(world),
                 currencyDisplay: hud.NewCurrencyDisplay(smallFace),
-                weaponSlots:     hud.NewWeaponSlots(smallFace),
+                weaponSlots:     hud.NewWeaponSlots(smallFace, world.Resources.UIResources.Panel.Image),
                 statusBadges:    hud.NewStatusBadges(smallFace),
                 enabled:         true,
         }
@@ -39218,31 +39225,58 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error <
         <span class="cov0" title="0">return err</span>
 }
 
-// drawSplashText はスプラッシュテキストを画面座標で描画する
+// drawSplashText はスプラッシュテキストを画面座標で描画する。
+// テキストとラインをオフスクリーンバッファにフル不透明で描画し、
+// バッファごとアルファを適用することでフェードタイミングを一致させる
 func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Image, effect *gc.SplashTextEffect) <span class="cov0" title="0">{
         if effect.Alpha &lt;= 0 </span><span class="cov0" title="0">{
                 return
         }</span>
 
+        <span class="cov0" title="0">screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
+        buf := ebiten.NewImage(screenW, screenH)
+
         // テキストサイズを測定して中央揃え
-        <span class="cov0" title="0">textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
+        textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
         x := effect.OffsetX - textWidth/2
         y := effect.OffsetY - textHeight/2
 
-        // 透明度を適用した色
-        alpha := uint8(effect.Alpha * 255)
-        textColor := color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha}
-        outlineColor := color.RGBA{0, 0, 0, alpha}
+        // フル不透明でバッファに描画する
+        textColor := effect.Color
+        outlineColor := color.RGBA{0, 0, 0, 255}
 
-        // アウトライン付きテキストを描画
-        hud.OutlinedText(screen, effect.Text, effect.Face, x, y, textColor, outlineColor)
+        // グラデーション影を描画する。遠いレイヤーから順に描画して近いレイヤーで上書きする
+        shadowLayers := [...]struct {
+                offset float64
+                alpha  uint8
+        }{
+                {5, 30},
+                {4, 50},
+                {3, 80},
+                {2, 120},
+                {1, 160},
+        }
+        shadowOp := &amp;text.DrawOptions{}
+        for _, layer := range shadowLayers </span><span class="cov0" title="0">{
+                shadowOp.GeoM.Reset()
+                shadowOp.GeoM.Translate(x+layer.offset, y+layer.offset)
+                shadowOp.ColorScale.Reset()
+                shadowOp.ColorScale.ScaleWithColor(color.RGBA{0, 0, 0, layer.alpha})
+                text.Draw(buf, effect.Text, effect.Face, shadowOp)
+        }</span>
 
-        // テキストの下に水平線を描画する
+        <span class="cov0" title="0">hud.OutlinedText(buf, effect.Text, effect.Face, x, y, textColor, outlineColor)
+
         if effect.LineWidth &gt; 0 </span><span class="cov0" title="0">{
                 lineY := y + textHeight + 2
                 lineLeft := effect.OffsetX - effect.LineWidth/2
-                sys.drawHorizontalLine(world, screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+                sys.drawHorizontalLine(world, buf, lineLeft, lineY, int(effect.LineWidth), effect.Color)
         }</span>
+
+        // バッファ全体にアルファを適用して画面に合成する
+        <span class="cov0" title="0">op := &amp;ebiten.DrawImageOptions{}
+        op.ColorScale.ScaleAlpha(float32(effect.Alpha))
+        screen.DrawImage(buf, op)</span>
 }
 
 // drawDamageText はエンティティ座標でダメージテキストを描画する
@@ -39290,7 +39324,7 @@ func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.
         srcWidth := float64(img.Bounds().Dx())
         op.GeoM.Scale(float64(width)/srcWidth, 1)
         op.GeoM.Translate(x, y)
-        op.ColorScale.ScaleWithColor(color.NRGBA(clr))
+        op.ColorScale.ScaleWithColor(clr)
         screen.DrawImage(img, op)</span>
 }
 
@@ -40031,15 +40065,17 @@ import (
 // GameInfo はHUDの基本ゲーム情報エリア
 type GameInfo struct {
         bodyFace    text.Face
-        headingFace text.Face // 階層表示用の大きなフォント
+        headingFace text.Face     // 階層表示用の大きなフォント
+        gaugeFill   *ebiten.Image // ゲージ埋め。縦方向グラデーション
         enabled     bool
 }
 
 // NewGameInfo は新しいHUDGameInfoを作成する
-func NewGameInfo(bodyFace text.Face, headingFace text.Face) *GameInfo <span class="cov0" title="0">{
+func NewGameInfo(bodyFace text.Face, headingFace text.Face, gaugeFill *ebiten.Image) *GameInfo <span class="cov0" title="0">{
         return &amp;GameInfo{
                 bodyFace:    bodyFace,
                 headingFace: headingFace,
+                gaugeFill:   gaugeFill,
                 enabled:     true,
         }
 }</span>
@@ -40086,53 +40122,66 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) <
 
 // ゲージ共通のレイアウト定数
 const (
-        gaugeBaseX   = 10.0  // 左マージン
-        gaugeBaseY   = 20.0  // 最初のゲージの上マージン。gaugeBaseXと統一する
-        gaugeWidth   = 120.0 // ゲージの幅
-        gaugeHeight  = 20.0  // ゲージの高さ
-        gaugeSpacing = 4.0   // ゲージ間の間隔
+        gaugeBaseX      = 30.0                           // 左マージン
+        gaugeBaseY      = 10.0                           // 最初のゲージの上マージン
+        gaugeWidth      = 180.0                          // ゲージの幅
+        gaugeBorderH    = 2.0                            // 白枠線の合計（上1 + 下1）
+        gaugeFillHeight = 12.0                           // ゲージ塗り部分の高さ
+        gaugeHeight     = gaugeBorderH + gaugeFillHeight // 白枠 + 塗り
+        gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) <span class="cov0" title="0">{
+        x := gaugeBaseX
         y := gaugeBaseY
-        gageX := float32(gaugeBaseX)
-
-        // 背景（暗い赤い領域）を描画
-        vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), theme.HUDGaugeBg, false)
 
         // HP比率を計算
+        hpRatio := float64(0)
         if maxHP &gt; 0 </span><span class="cov0" title="0">{
-                hpRatio := float32(currentHP) / float32(maxHP)
-                if hpRatio &gt; 1.0 </span><span class="cov0" title="0">{
-                        hpRatio = 1.0
-                }</span>
-                <span class="cov0" title="0">if hpRatio &lt; 0.0 </span><span class="cov0" title="0">{
-                        hpRatio = 0.0
-                }</span>
+                hpRatio = float64(currentHP) / float64(maxHP)
+                hpRatio = max(0, min(1, hpRatio))
+        }</span>
 
-                // 現在のHP（緑〜赤のグラデーション）
-                <span class="cov0" title="0">var barColor color.RGBA
-                if hpRatio &gt; 0.5 </span><span class="cov0" title="0">{
-                        // 緑から黄色へ（HP 50%以上）
-                        intensity := uint8((1.0 - hpRatio) * 2.0 * 255)
-                        barColor = color.RGBA{intensity, 255, 0, 255}
-                }</span> else<span class="cov0" title="0"> {
-                        // 黄色から赤へ（HP 50%以下）
-                        intensity := uint8(hpRatio * 2.0 * 255)
-                        barColor = color.RGBA{255, intensity, 0, 255}
-                }</span>
+        // HP残量に応じた塗り色を決定
+        <span class="cov0" title="0">var fillColor color.RGBA
+        if hpRatio &gt; 0.5 </span><span class="cov0" title="0">{
+                intensity := uint8((1.0 - hpRatio) * 2.0 * 255)
+                fillColor = color.RGBA{intensity, 255, 0, 255}
+        }</span> else<span class="cov0" title="0"> {
+                intensity := uint8(hpRatio * 2.0 * 255)
+                fillColor = color.RGBA{255, intensity, 0, 255}
+        }</span>
 
-                <span class="cov0" title="0">currentWidth := float32(gaugeWidth) * hpRatio
-                vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)</span>
-        }
+        <span class="cov0" title="0">info.drawGaugeBar(screen, x, y, gaugeWidth, hpRatio, fillColor, theme.HUDGaugeBorder)</span>
+}
 
-        // 数値をゲージの中央に描画
-        <span class="cov0" title="0">hpText := fmt.Sprintf("%d/%d", currentHP, maxHP)
-        textWidth, _ := text.Measure(hpText, info.bodyFace, 0)
-        textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
-        textY := y + float64(gaugeHeight)/2 - 6.0
-        drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, theme.TextPrimary)</span>
+// セパレーターライン・枠線がゲージ塗りから左右にはみ出す量
+const gaugeOverhang = 6.0
+
+// drawGaugeBar はゲージバーを描画する。
+// 上下にグラデーションセパレーターライン、その間に白枠線で囲まれたグラデーション塗りを描画する。
+// セパレーターラインと枠線はゲージ塗りより左右に少しはみ出す
+func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio float64, fillColor, borderColor color.RGBA) <span class="cov0" title="0">{
+        fy := float32(y)
+        frameX := float32(x - gaugeOverhang)
+        frameW := float32(width + gaugeOverhang*2)
+        fillAreaH := float32(gaugeBorderH + gaugeFillHeight)
+
+        // 白い枠線（上辺と下辺のみ）
+        vector.FillRect(screen, frameX, fy, frameW, 1, borderColor, false)
+        vector.FillRect(screen, frameX, fy+fillAreaH-1, frameW, 1, borderColor, false)
+
+        // 塗り（縦方向グラデーション: 上が明るく下が暗い光沢効果）
+        if ratio &gt; 0 &amp;&amp; info.gaugeFill != nil </span><span class="cov0" title="0">{
+                fillW := width * ratio
+                srcH := float64(info.gaugeFill.Bounds().Dy())
+                op := &amp;ebiten.DrawImageOptions{}
+                op.GeoM.Scale(fillW, gaugeFillHeight/srcH)
+                op.GeoM.Translate(x, float64(fy)+1)
+                op.ColorScale.ScaleWithColor(color.NRGBA(fillColor))
+                screen.DrawImage(info.gaugeFill, op)
+        }</span>
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
@@ -40576,6 +40625,7 @@ func drawOutlinedText(screen *ebiten.Image, textStr string, face text.Face, x, y
 import (
         "image"
 
+        euiimage "github.com/ebitenui/ebitenui/image"
         "github.com/hajimehoshi/ebiten/v2"
         "github.com/hajimehoshi/ebiten/v2/text/v2"
         "github.com/hajimehoshi/ebiten/v2/vector"
@@ -40588,7 +40638,6 @@ import (
 type weaponSlotsConfig struct {
         SlotSize    int // 各スロットのサイズ（ピクセル）
         SlotSpacing int // スロット間の間隔（ピクセル）
-        BorderWidth int // 枠線の幅（ピクセル）
         YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
@@ -40596,19 +40645,20 @@ type weaponSlotsConfig struct {
 var defaultWeaponSlotsConfig = weaponSlotsConfig{
         SlotSize:    48,
         SlotSpacing: 8,
-        BorderWidth: 2,
         YOffset:     20,
 }
 
 // WeaponSlots は武器スロット表示ウィジェット
 type WeaponSlots struct {
-        face text.Face
+        face      text.Face
+        slotImage *euiimage.NineSlice // スロット背景のNineSlice画像。PanelResourcesと共有する
 }
 
 // NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face) *WeaponSlots <span class="cov0" title="0">{
+func NewWeaponSlots(face text.Face, slotImage *euiimage.NineSlice) *WeaponSlots <span class="cov0" title="0">{
         return &amp;WeaponSlots{
-                face: face,
+                face:      face,
+                slotImage: slotImage,
         }
 }</span>
 
@@ -40641,7 +40691,7 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
                 isSelected := i == data.SelectedSlot
 
                 // スロットの背景を描画
-                drawSlotBackground(screen, x, y, config.SlotSize, isSelected, config.BorderWidth)
+                ws.drawSlotBackground(screen, x, y, config.SlotSize, isSelected)
 
                 // 武器スプライトを描画
                 drawWeaponSprite(screen, x, y, config.SlotSize, slot, spriteSheets)
@@ -40651,30 +40701,20 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
         }</span>
 }
 
-// drawSlotBackground はスロットの背景と枠線を描画
-func drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool, borderWidth int) <span class="cov0" title="0">{
-        fx := float32(x)
-        fy := float32(y)
-        fsize := float32(size)
-        fborder := float32(borderWidth)
-
-        // 背景色（半透明の黒）
-        vector.FillRect(screen, fx, fy, fsize, fsize, theme.HUDSlotBg, false)
-
-        // 枠線色（選択中は明るい黄色、非選択時はグレー）
-        borderColor := theme.HUDSlotBorder
-        if selected </span><span class="cov0" title="0">{
-                borderColor = theme.HUDSlotSelectedBorder
+// drawSlotBackground はスロット背景をNineSlice描画する
+func (ws *WeaponSlots) drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool) <span class="cov0" title="0">{
+        if ws.slotImage == nil </span><span class="cov0" title="0">{
+                return
         }</span>
 
-        // 上辺
-        <span class="cov0" title="0">vector.FillRect(screen, fx, fy, fsize, fborder, borderColor, false)
-        // 下辺
-        vector.FillRect(screen, fx, fy+fsize-fborder, fsize, fborder, borderColor, false)
-        // 左辺
-        vector.FillRect(screen, fx, fy, fborder, fsize, borderColor, false)
-        // 右辺
-        vector.FillRect(screen, fx+fsize-fborder, fy, fborder, fsize, borderColor, false)</span>
+        <span class="cov0" title="0">ws.slotImage.Draw(screen, size, size, func(opts *ebiten.DrawImageOptions) </span><span class="cov0" title="0">{
+                opts.GeoM.Translate(float64(x), float64(y))
+        }</span>)
+
+        // 選択中のスロットには明るい枠線を重ねて描画する
+        <span class="cov0" title="0">if selected </span><span class="cov0" title="0">{
+                vector.StrokeRect(screen, float32(x), float32(y), float32(size), float32(size), 2, theme.HUDSlotSelectedBorder, false)
+        }</span>
 }
 
 // drawSlotNumber はスロット番号を左上に描画
@@ -43788,8 +43828,6 @@ var (
 // ========== HUD色 ==========
 
 var (
-        // HUDSlotBg は武器スロットの背景色
-        HUDSlotBg = color.RGBA{R: 0, G: 0, B: 0, A: 180}
         // HUDSlotSelectedBorder は選択中スロットの枠線色
         HUDSlotSelectedBorder = color.RGBA{R: 255, G: 255, B: 100, A: 255}
         // HUDSlotBorder は非選択スロットの枠線色
@@ -43798,6 +43836,8 @@ var (
         HUDBadgeBg = color.RGBA{R: 100, G: 100, B: 100, A: 255}
         // HUDGaugeBg はHPゲージの背景色
         HUDGaugeBg = color.RGBA{R: 100, G: 0, B: 0, A: 255}
+        // HUDGaugeBorder はHPゲージの白い枠線色
+        HUDGaugeBorder = color.RGBA{R: 220, G: 220, B: 220, A: 230}
         // HUDMinimapBg はミニマップの背景色
         HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}
         // HUDPlayerMarker はミニマップのプレイヤー表示色
