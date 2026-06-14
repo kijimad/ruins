@@ -3,6 +3,7 @@ package hud
 import (
 	"image"
 
+	euiimage "github.com/ebitenui/ebitenui/image"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -15,7 +16,6 @@ import (
 type weaponSlotsConfig struct {
 	SlotSize    int // 各スロットのサイズ（ピクセル）
 	SlotSpacing int // スロット間の間隔（ピクセル）
-	BorderWidth int // 枠線の幅（ピクセル）
 	YOffset     int // 画面上端からのオフセット（ピクセル）
 }
 
@@ -23,19 +23,20 @@ type weaponSlotsConfig struct {
 var defaultWeaponSlotsConfig = weaponSlotsConfig{
 	SlotSize:    48,
 	SlotSpacing: 8,
-	BorderWidth: 2,
 	YOffset:     20,
 }
 
 // WeaponSlots は武器スロット表示ウィジェット
 type WeaponSlots struct {
-	face text.Face
+	face      text.Face
+	slotImage *euiimage.NineSlice // スロット背景のNineSlice画像。PanelResourcesと共有する
 }
 
 // NewWeaponSlots は新しいWeaponSlotsを作成する
-func NewWeaponSlots(face text.Face) *WeaponSlots {
+func NewWeaponSlots(face text.Face, slotImage *euiimage.NineSlice) *WeaponSlots {
 	return &WeaponSlots{
-		face: face,
+		face:      face,
+		slotImage: slotImage,
 	}
 }
 
@@ -68,7 +69,7 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 		isSelected := i == data.SelectedSlot
 
 		// スロットの背景を描画
-		drawSlotBackground(screen, x, y, config.SlotSize, isSelected, config.BorderWidth)
+		ws.drawSlotBackground(screen, x, y, config.SlotSize, isSelected)
 
 		// 武器スプライトを描画
 		drawWeaponSprite(screen, x, y, config.SlotSize, slot, spriteSheets)
@@ -78,30 +79,20 @@ func (ws *WeaponSlots) Draw(screen *ebiten.Image, data WeaponSlotsData, world w.
 	}
 }
 
-// drawSlotBackground はスロットの背景と枠線を描画
-func drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool, borderWidth int) {
-	fx := float32(x)
-	fy := float32(y)
-	fsize := float32(size)
-	fborder := float32(borderWidth)
-
-	// 背景色（半透明の黒）
-	vector.FillRect(screen, fx, fy, fsize, fsize, theme.HUDSlotBg, false)
-
-	// 枠線色（選択中は明るい黄色、非選択時はグレー）
-	borderColor := theme.HUDSlotBorder
-	if selected {
-		borderColor = theme.HUDSlotSelectedBorder
+// drawSlotBackground はスロット背景をNineSlice描画する
+func (ws *WeaponSlots) drawSlotBackground(screen *ebiten.Image, x, y, size int, selected bool) {
+	if ws.slotImage == nil {
+		return
 	}
 
-	// 上辺
-	vector.FillRect(screen, fx, fy, fsize, fborder, borderColor, false)
-	// 下辺
-	vector.FillRect(screen, fx, fy+fsize-fborder, fsize, fborder, borderColor, false)
-	// 左辺
-	vector.FillRect(screen, fx, fy, fborder, fsize, borderColor, false)
-	// 右辺
-	vector.FillRect(screen, fx+fsize-fborder, fy, fborder, fsize, borderColor, false)
+	ws.slotImage.Draw(screen, size, size, func(opts *ebiten.DrawImageOptions) {
+		opts.GeoM.Translate(float64(x), float64(y))
+	})
+
+	// 選択中のスロットには明るい枠線を重ねて描画する
+	if selected {
+		vector.StrokeRect(screen, float32(x), float32(y), float32(size), float32(size), 2, theme.HUDSlotSelectedBorder, false)
+	}
 }
 
 // drawSlotNumber はスロット番号を左上に描画

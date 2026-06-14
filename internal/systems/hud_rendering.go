@@ -24,12 +24,12 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	titleFace := world.Resources.UIResources.Text.TitleFontFace
 
 	return &HUDRenderingSystem{
-		gameInfo:        hud.NewGameInfo(smallFace, titleFace),
+		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
 		minimap:         hud.NewMinimap(titleFace),
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
 		currencyDisplay: hud.NewCurrencyDisplay(smallFace),
-		weaponSlots:     hud.NewWeaponSlots(smallFace),
+		weaponSlots:     hud.NewWeaponSlots(smallFace, world.Resources.UIResources.Panel.Image),
 		statusBadges:    hud.NewStatusBadges(smallFace),
 		enabled:         true,
 	}

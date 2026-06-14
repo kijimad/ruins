@@ -15,15 +15,17 @@ import (
 // GameInfo はHUDの基本ゲーム情報エリア
 type GameInfo struct {
 	bodyFace    text.Face
-	headingFace text.Face // 階層表示用の大きなフォント
+	headingFace text.Face     // 階層表示用の大きなフォント
+	gaugeFill   *ebiten.Image // ゲージ埋め。縦方向グラデーション
 	enabled     bool
 }
 
 // NewGameInfo は新しいHUDGameInfoを作成する
-func NewGameInfo(bodyFace text.Face, headingFace text.Face) *GameInfo {
+func NewGameInfo(bodyFace text.Face, headingFace text.Face, gaugeFill *ebiten.Image) *GameInfo {
 	return &GameInfo{
 		bodyFace:    bodyFace,
 		headingFace: headingFace,
+		gaugeFill:   gaugeFill,
 		enabled:     true,
 	}
 }
@@ -70,53 +72,66 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
 
 // ゲージ共通のレイアウト定数
 const (
-	gaugeBaseX   = 10.0  // 左マージン
-	gaugeBaseY   = 20.0  // 最初のゲージの上マージン。gaugeBaseXと統一する
-	gaugeWidth   = 120.0 // ゲージの幅
-	gaugeHeight  = 20.0  // ゲージの高さ
-	gaugeSpacing = 4.0   // ゲージ間の間隔
+	gaugeBaseX      = 30.0                           // 左マージン
+	gaugeBaseY      = 10.0                           // 最初のゲージの上マージン
+	gaugeWidth      = 180.0                          // ゲージの幅
+	gaugeBorderH    = 2.0                            // 白枠線の合計（上1 + 下1）
+	gaugeFillHeight = 12.0                           // ゲージ塗り部分の高さ
+	gaugeHeight     = gaugeBorderH + gaugeFillHeight // 白枠 + 塗り
+	gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
 func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) {
+	x := gaugeBaseX
 	y := gaugeBaseY
-	gageX := float32(gaugeBaseX)
-
-	// 背景（暗い赤い領域）を描画
-	vector.FillRect(screen, gageX, float32(y), float32(gaugeWidth), float32(gaugeHeight), theme.HUDGaugeBg, false)
 
 	// HP比率を計算
+	hpRatio := float64(0)
 	if maxHP > 0 {
-		hpRatio := float32(currentHP) / float32(maxHP)
-		if hpRatio > 1.0 {
-			hpRatio = 1.0
-		}
-		if hpRatio < 0.0 {
-			hpRatio = 0.0
-		}
-
-		// 現在のHP（緑〜赤のグラデーション）
-		var barColor color.RGBA
-		if hpRatio > 0.5 {
-			// 緑から黄色へ（HP 50%以上）
-			intensity := uint8((1.0 - hpRatio) * 2.0 * 255)
-			barColor = color.RGBA{intensity, 255, 0, 255}
-		} else {
-			// 黄色から赤へ（HP 50%以下）
-			intensity := uint8(hpRatio * 2.0 * 255)
-			barColor = color.RGBA{255, intensity, 0, 255}
-		}
-
-		currentWidth := float32(gaugeWidth) * hpRatio
-		vector.FillRect(screen, gageX, float32(y), currentWidth, float32(gaugeHeight), barColor, false)
+		hpRatio = float64(currentHP) / float64(maxHP)
+		hpRatio = max(0, min(1, hpRatio))
 	}
 
-	// 数値をゲージの中央に描画
-	hpText := fmt.Sprintf("%d/%d", currentHP, maxHP)
-	textWidth, _ := text.Measure(hpText, info.bodyFace, 0)
-	textX := float64(gageX) + float64(gaugeWidth)/2 - textWidth/2
-	textY := y + float64(gaugeHeight)/2 - 6.0
-	drawOutlinedText(screen, hpText, info.bodyFace, textX, textY, theme.TextPrimary)
+	// HP残量に応じた塗り色を決定
+	var fillColor color.RGBA
+	if hpRatio > 0.5 {
+		intensity := uint8((1.0 - hpRatio) * 2.0 * 255)
+		fillColor = color.RGBA{intensity, 255, 0, 255}
+	} else {
+		intensity := uint8(hpRatio * 2.0 * 255)
+		fillColor = color.RGBA{255, intensity, 0, 255}
+	}
+
+	info.drawGaugeBar(screen, x, y, gaugeWidth, hpRatio, fillColor, theme.HUDGaugeBorder)
+}
+
+// セパレーターライン・枠線がゲージ塗りから左右にはみ出す量
+const gaugeOverhang = 6.0
+
+// drawGaugeBar はゲージバーを描画する。
+// 上下にグラデーションセパレーターライン、その間に白枠線で囲まれたグラデーション塗りを描画する。
+// セパレーターラインと枠線はゲージ塗りより左右に少しはみ出す
+func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio float64, fillColor, borderColor color.RGBA) {
+	fy := float32(y)
+	frameX := float32(x - gaugeOverhang)
+	frameW := float32(width + gaugeOverhang*2)
+	fillAreaH := float32(gaugeBorderH + gaugeFillHeight)
+
+	// 白い枠線（上辺と下辺のみ）
+	vector.FillRect(screen, frameX, fy, frameW, 1, borderColor, false)
+	vector.FillRect(screen, frameX, fy+fillAreaH-1, frameW, 1, borderColor, false)
+
+	// 塗り（縦方向グラデーション: 上が明るく下が暗い光沢効果）
+	if ratio > 0 && info.gaugeFill != nil {
+		fillW := width * ratio
+		srcH := float64(info.gaugeFill.Bounds().Dy())
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Scale(fillW, gaugeFillHeight/srcH)
+		op.GeoM.Translate(x, float64(fy)+1)
+		op.ColorScale.ScaleWithColor(color.NRGBA(fillColor))
+		screen.DrawImage(info.gaugeFill, op)
+	}
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する

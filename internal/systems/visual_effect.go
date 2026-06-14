@@ -119,31 +119,58 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 	return err
 }
 
-// drawSplashText はスプラッシュテキストを画面座標で描画する
+// drawSplashText はスプラッシュテキストを画面座標で描画する。
+// テキストとラインをオフスクリーンバッファにフル不透明で描画し、
+// バッファごとアルファを適用することでフェードタイミングを一致させる
 func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Image, effect *gc.SplashTextEffect) {
 	if effect.Alpha <= 0 {
 		return
 	}
+
+	screenW, screenH := screen.Bounds().Dx(), screen.Bounds().Dy()
+	buf := ebiten.NewImage(screenW, screenH)
 
 	// テキストサイズを測定して中央揃え
 	textWidth, textHeight := text.Measure(effect.Text, effect.Face, 0)
 	x := effect.OffsetX - textWidth/2
 	y := effect.OffsetY - textHeight/2
 
-	// 透明度を適用した色
-	alpha := uint8(effect.Alpha * 255)
-	textColor := color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha}
-	outlineColor := color.RGBA{0, 0, 0, alpha}
+	// フル不透明でバッファに描画する
+	textColor := effect.Color
+	outlineColor := color.RGBA{0, 0, 0, 255}
 
-	// アウトライン付きテキストを描画
-	hud.OutlinedText(screen, effect.Text, effect.Face, x, y, textColor, outlineColor)
+	// グラデーション影を描画する。遠いレイヤーから順に描画して近いレイヤーで上書きする
+	shadowLayers := [...]struct {
+		offset float64
+		alpha  uint8
+	}{
+		{5, 30},
+		{4, 50},
+		{3, 80},
+		{2, 120},
+		{1, 160},
+	}
+	shadowOp := &text.DrawOptions{}
+	for _, layer := range shadowLayers {
+		shadowOp.GeoM.Reset()
+		shadowOp.GeoM.Translate(x+layer.offset, y+layer.offset)
+		shadowOp.ColorScale.Reset()
+		shadowOp.ColorScale.ScaleWithColor(color.RGBA{0, 0, 0, layer.alpha})
+		text.Draw(buf, effect.Text, effect.Face, shadowOp)
+	}
 
-	// テキストの下に水平線を描画する
+	hud.OutlinedText(buf, effect.Text, effect.Face, x, y, textColor, outlineColor)
+
 	if effect.LineWidth > 0 {
 		lineY := y + textHeight + 2
 		lineLeft := effect.OffsetX - effect.LineWidth/2
-		sys.drawHorizontalLine(world, screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+		sys.drawHorizontalLine(world, buf, lineLeft, lineY, int(effect.LineWidth), effect.Color)
 	}
+
+	// バッファ全体にアルファを適用して画面に合成する
+	op := &ebiten.DrawImageOptions{}
+	op.ColorScale.ScaleAlpha(float32(effect.Alpha))
+	screen.DrawImage(buf, op)
 }
 
 // drawDamageText はエンティティ座標でダメージテキストを描画する
@@ -191,7 +218,7 @@ func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.
 	srcWidth := float64(img.Bounds().Dx())
 	op.GeoM.Scale(float64(width)/srcWidth, 1)
 	op.GeoM.Translate(x, y)
-	op.ColorScale.ScaleWithColor(color.NRGBA(clr))
+	op.ColorScale.ScaleWithColor(clr)
 	screen.DrawImage(img, op)
 }
 

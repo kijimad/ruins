@@ -48,6 +48,7 @@ type UIResources struct {
 	SeparatorColor color.Color
 
 	GradientLine *ebiten.Image
+	GaugeFill    *ebiten.Image
 
 	Text        *TextResources
 	Button      *ButtonResources
@@ -249,6 +250,11 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 		return UIResources{}, err
 	}
 
+	gaugeFill, err := newImageFromFile("assets/graphics/gauge-fill.png")
+	if err != nil {
+		return UIResources{}, err
+	}
+
 	return UIResources{
 		Fonts: fonts,
 
@@ -256,6 +262,7 @@ func NewUIResources(sources []*text.GoTextFaceSource) (UIResources, error) {
 
 		SeparatorColor: hexToColor(separatorColor),
 		GradientLine:   gradientLine,
+		GaugeFill:      gaugeFill,
 
 		Text: &TextResources{
 			SmallFace:      fonts.smallFace,

@@ -88,8 +88,6 @@ var (
 // ========== HUD色 ==========
 
 var (
-	// HUDSlotBg は武器スロットの背景色
-	HUDSlotBg = color.RGBA{R: 0, G: 0, B: 0, A: 180}
 	// HUDSlotSelectedBorder は選択中スロットの枠線色
 	HUDSlotSelectedBorder = color.RGBA{R: 255, G: 255, B: 100, A: 255}
 	// HUDSlotBorder は非選択スロットの枠線色
@@ -98,6 +96,8 @@ var (
 	HUDBadgeBg = color.RGBA{R: 100, G: 100, B: 100, A: 255}
 	// HUDGaugeBg はHPゲージの背景色
 	HUDGaugeBg = color.RGBA{R: 100, G: 0, B: 0, A: 255}
+	// HUDGaugeBorder はHPゲージの白い枠線色
+	HUDGaugeBorder = color.RGBA{R: 220, G: 220, B: 220, A: 230}
 	// HUDMinimapBg はミニマップの背景色
 	HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}
 	// HUDPlayerMarker はミニマップのプレイヤー表示色
