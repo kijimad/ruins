@@ -53,27 +53,22 @@ func (info *GameInfo) Draw(screen *ebiten.Image, data GameInfoData) {
 
 // drawFloorNumber は階層番号を描画する
 func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
-	const (
-		marginRight = 10.0
-		marginTop   = 10.0
-	)
-
 	floorText := fmt.Sprintf("%3dF", data.FloorNumber)
 
 	// テキストの幅を測定
 	textWidth, _ := text.Measure(floorText, info.headingFace, 0)
 
 	// 右上に配置
-	x := float64(data.ScreenDimensions.Width) - textWidth - marginRight
-	y := marginTop
+	x := float64(data.ScreenDimensions.Width) - textWidth - theme.Space4F
+	y := theme.Space4F
 
 	drawOutlinedText(screen, floorText, info.headingFace, x, y, theme.TextPrimary)
 }
 
 // ゲージ共通のレイアウト定数
 const (
-	gaugeBaseX      = 30.0                           // 左マージン
-	gaugeBaseY      = 10.0                           // 最初のゲージの上マージン
+	gaugeBaseX      = theme.Space4F                  // 左マージン
+	gaugeBaseY      = theme.Space4F                  // 最初のゲージの上マージン
 	gaugeWidth      = 180.0                          // ゲージの幅
 	gaugeBorderH    = 2.0                            // 白枠線の合計（上1 + 下1）
 	gaugeFillHeight = 12.0                           // ゲージ塗り部分の高さ
@@ -136,25 +131,20 @@ func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio floa
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する
 func (info *GameInfo) drawWeightDisplay(screen *ebiten.Image, data GameInfoData) {
-	const (
-		marginRight  = 10.0 // 右マージン
-		marginBottom = 10.0 // 下マージン
-	)
-
 	// 所持重量テキストを作成
 	weightText := fmt.Sprintf("%.2f / %.2f%s", data.PlayerWeight, data.PlayerMaxWeight, consts.IconKg)
 
 	// テキストの幅を測定
-	textWidth, _ := text.Measure(weightText, info.bodyFace, 0)
+	textWidth, textHeight := text.Measure(weightText, info.bodyFace, 0)
 
 	// メッセージエリアの高さを取得
 	messageAreaHeight := float64(data.MessageAreaHeight)
 
-	// 画面右下に配置（メッセージエリアの上）
+	// 画面右下に配置（通貨表示の上に重ならないように2行分上げる）
 	screenWidth := float64(data.ScreenDimensions.Width)
 	screenHeight := float64(data.ScreenDimensions.Height)
-	x := screenWidth - textWidth - marginRight
-	y := screenHeight - messageAreaHeight - marginBottom
+	x := screenWidth - textWidth - theme.Space4F
+	y := screenHeight - messageAreaHeight - theme.Space4F - textHeight*2 - theme.Space2F
 
 	// 重量比率を計算して色を決定
 	var textColor color.RGBA

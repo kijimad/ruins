@@ -46,8 +46,8 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 	minimapHeight := data.MinimapConfig.Height
 	minimapScale := data.MinimapConfig.Scale
 	screenWidth := data.ScreenDimensions.Width
-	minimapX := screenWidth - minimapWidth - 10
-	minimapY := 10
+	minimapX := screenWidth - minimapWidth - theme.Space4
+	minimapY := theme.Space4
 
 	// ミニマップの背景を描画
 	if minimapWidth > 0 && minimapHeight > 0 {
@@ -99,8 +99,8 @@ func (minimap *Minimap) drawEmpty(screen *ebiten.Image, data MinimapData) {
 	minimapWidth := data.MinimapConfig.Width
 	minimapHeight := data.MinimapConfig.Height
 	screenWidth := data.ScreenDimensions.Width
-	minimapX := screenWidth - minimapWidth - 10
-	minimapY := 10
+	minimapX := screenWidth - minimapWidth - theme.Space4
+	minimapY := theme.Space4
 
 	// ミニマップの背景を描画（半透明の黒い四角）
 	if minimapWidth > 0 && minimapHeight > 0 {
