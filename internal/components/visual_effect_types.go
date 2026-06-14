@@ -41,7 +41,7 @@ type SpriteFadeoutEffect struct {
 // NewSplashTextEffect はダンジョン開始時などのスプラッシュエフェクトを作成する
 func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *SplashTextEffect {
 	fadeInMs := 800.0
-	holdMs := 1200.0
+	holdMs := 1600.0
 	fadeOutMs := 800.0
 	totalMs := fadeInMs + holdMs + fadeOutMs
 
@@ -61,7 +61,7 @@ func NewSplashTextEffect(textStr string, face text.Face, screenW, screenH int) *
 			Color:   color.RGBA{255, 255, 255, 255},
 		},
 		Face:      face,
-		LineWidth: float64(screenW) * 0.4,
+		LineWidth: float64(screenW) * 0.7,
 	}
 }
 

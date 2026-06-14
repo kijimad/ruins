@@ -121,8 +121,8 @@ func TestNewSplashTextEffect(t *testing.T) {
 	assert.Equal(t, "テスト", effect.Text)
 	assert.Equal(t, 400.0, effect.OffsetX, "画面中央X")
 	assert.Equal(t, 240.0, effect.OffsetY, "画面上部2/5")
-	assert.Equal(t, 320.0, effect.LineWidth, "画面幅の40%")
-	assert.Equal(t, 2800.0, effect.TotalMs)
+	assert.Equal(t, 560.0, effect.LineWidth, "画面幅の70%")
+	assert.Equal(t, 3200.0, effect.TotalMs)
 	assert.Equal(t, color.RGBA{255, 255, 255, 255}, effect.Color)
 }
 

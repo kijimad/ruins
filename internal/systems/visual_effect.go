@@ -138,6 +138,27 @@ func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Imag
 	// フル不透明でバッファに描画する
 	textColor := effect.Color
 	outlineColor := color.RGBA{0, 0, 0, 255}
+
+	// グラデーション影を描画する。遠いレイヤーから順に描画して近いレイヤーで上書きする
+	shadowLayers := [...]struct {
+		offset float64
+		alpha  uint8
+	}{
+		{5, 30},
+		{4, 50},
+		{3, 80},
+		{2, 120},
+		{1, 160},
+	}
+	shadowOp := &text.DrawOptions{}
+	for _, layer := range shadowLayers {
+		shadowOp.GeoM.Reset()
+		shadowOp.GeoM.Translate(x+layer.offset, y+layer.offset)
+		shadowOp.ColorScale.Reset()
+		shadowOp.ColorScale.ScaleWithColor(color.RGBA{0, 0, 0, layer.alpha})
+		text.Draw(buf, effect.Text, effect.Face, shadowOp)
+	}
+
 	hud.OutlinedText(buf, effect.Text, effect.Face, x, y, textColor, outlineColor)
 
 	if effect.LineWidth > 0 {
