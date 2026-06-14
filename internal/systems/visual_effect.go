@@ -14,10 +14,10 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-var whiteSilhouetteShader *ebiten.Shader
-
 // VisualEffectSystem はビジュアルエフェクトを管理するシステム
-type VisualEffectSystem struct{}
+type VisualEffectSystem struct {
+	silhouetteShader *ebiten.Shader
+}
 
 // String はシステム名を返す
 func (sys VisualEffectSystem) String() string {
@@ -207,12 +207,12 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	}
 
 	// シェーダーを初期化（初回のみ）
-	if whiteSilhouetteShader == nil {
+	if sys.silhouetteShader == nil {
 		shaderSource, err := assets.FS.ReadFile("file/shaders/white_silhouette.kage")
 		if err != nil {
 			return err
 		}
-		whiteSilhouetteShader, err = ebiten.NewShader(shaderSource)
+		sys.silhouetteShader, err = ebiten.NewShader(shaderSource)
 		if err != nil {
 			return err
 		}
@@ -262,6 +262,6 @@ func (sys *VisualEffectSystem) drawSpriteFadeoutEffect(world w.World, screen *eb
 	op.ColorScale.ScaleAlpha(float32(effect.Alpha))
 
 	// シェーダーで白シルエットを描画
-	screen.DrawRectShader(sprite.Width, sprite.Height, whiteSilhouetteShader, op)
+	screen.DrawRectShader(sprite.Width, sprite.Height, sys.silhouetteShader, op)
 	return nil
 }
