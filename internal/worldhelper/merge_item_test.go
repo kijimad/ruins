@@ -38,8 +38,8 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
 		if name.Name == "鉄くず" {
 			ironCount++
-			item := world.Components.Item.Get(entity).(*gc.Item)
-			totalCount += item.Count
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			totalCount += stackable.Count
 		}
 	}))
 

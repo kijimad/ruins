@@ -264,8 +264,8 @@ func TestSpawnItem(t *testing.T) {
 		item, err := SpawnItem(world, "回復薬", 5, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 5, itemComp.Count)
+		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		assert.Equal(t, 5, stackableComp.Count)
 	})
 
 	t.Run("Stackableでないアイテムにcount=1を指定できる", func(t *testing.T) {
@@ -275,8 +275,7 @@ func TestSpawnItem(t *testing.T) {
 		item, err := SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 1, itemComp.Count)
+		assert.Equal(t, 1, GetEntityCount(world, item))
 	})
 
 	t.Run("Stackableでないアイテムにcount>1を指定するとエラー", func(t *testing.T) {

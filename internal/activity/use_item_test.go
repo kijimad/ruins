@@ -159,11 +159,11 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		actor.AddComponent(world.Components.Hunger, hunger)
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 3})
+		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item.AddComponent(world.Components.ProvidesNutrition, &gc.ProvidesNutrition{Amount: 100})
 		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
-		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -182,8 +182,8 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, 350, hungerComp.Current)
 
 		// アイテムが1つ消費されていることを確認
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 2, itemComp.Count)
+		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		assert.Equal(t, 2, stackableComp.Count)
 	})
 
 	t.Run("Targetがnilの場合はキャンセルされる", func(t *testing.T) {

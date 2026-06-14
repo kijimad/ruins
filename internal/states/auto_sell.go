@@ -203,8 +203,8 @@ func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, 
 		countStr := ""
 		entity := entry.Item.Entity
 		if entity.HasComponent(world.Components.Stackable) {
-			count := world.Components.Item.Get(entity).(*gc.Item).Count
-			countStr = fmt.Sprintf("%d", count)
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			countStr = fmt.Sprintf("%d", stackable.Count)
 		}
 		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, countStr, worldhelper.FormatCurrency(entry.Item.Price)}, aligns, &isSelected, res)
 	}

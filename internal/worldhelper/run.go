@@ -63,7 +63,6 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 func unequipAll(world w.World, playerEntity ecs.Entity) {
 	var equipped []ecs.Entity
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
@@ -98,10 +97,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 		price := 0
 		if entity.HasComponent(world.Components.Value) {
-			count := 1
-			if entity.HasComponent(world.Components.Item) {
-				count = world.Components.Item.Get(entity).(*gc.Item).Count
-			}
+			count := GetEntityCount(world, entity)
 			baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
 			price = CalculateSellPrice(baseValue) * count * sellPriceMod / 100
 		}

@@ -209,7 +209,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Item = &gc.Item{Count: 1}
+	entitySpec.Item = &gc.Item{}
 	entitySpec.Name = &gc.Name{Name: item.Name}
 	entitySpec.Description = &gc.Description{Description: item.Description}
 

@@ -95,7 +95,7 @@ type Components struct {
 
 	// item ================
 	HP                 *ecs.SliceComponent `save:"true"`
-	Item               *ecs.SliceComponent `save:"true"`
+	Item               *ecs.NullComponent  `save:"true"`
 	Consumable         *ecs.SliceComponent `save:"true"`
 	CarryWeight        *ecs.SliceComponent `save:"true"`
 	Melee              *ecs.SliceComponent `save:"true"`
@@ -223,14 +223,9 @@ type Camera struct {
 	TargetY float64
 }
 
-// Item はキャラクターが保持できるもの
+// Item はキャラクターが保持できるアイテムを示すマーカーコンポーネント
 // 装備品、武器、回復アイテム、売却アイテム、素材など
-type Item struct {
-	Count int // 所持数。非スタックは常に1になる
-	// TODO(kijima): ここにStackableフィールドをもたせるべきか検討する
-	// 所持上限と所持個数は密接に関連しておりコンポーネントとして分離させる意味があまりない
-	// また、読み取り上すべてcountを持っていたほうが処理がシンプルになる。読み取りの箇所すべてでスタック可能/スタック不可を区別するのはややこしい。書き込みは限られた箇所にしか登場しないが、読み取りは多くの場所で登場する
-}
+type Item struct{}
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
@@ -304,9 +299,11 @@ type InflictsDamage struct {
 	Amount int
 }
 
-// Stackable はスタック可能なアイテムを示すマーカーコンポーネント
-// 実際の所持数は Item.Count フィールドを使用する
-type Stackable struct{}
+// Stackable はスタック可能なエンティティを示すコンポーネント
+// 所持数を管理する。非Stackableエンティティの個数は常に1として扱う
+type Stackable struct {
+	Count int // 所持数
+}
 
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される

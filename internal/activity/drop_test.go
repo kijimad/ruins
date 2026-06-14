@@ -306,7 +306,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		prop.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+		prop.AddComponent(world.Components.Item, &gc.Item{})
 		worldhelper.MoveToBackpack(world, prop, player)
 
 		// ドロップ実行

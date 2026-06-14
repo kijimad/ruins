@@ -367,7 +367,6 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 
 	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
 		world.Manager.Join(
-			world.Components.Item,
 			world.Components.LocationInBackpack,
 			world.Components.Weapon,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -395,7 +394,6 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 		}
 
 		world.Manager.Join(
-			world.Components.Item,
 			world.Components.LocationInBackpack,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {

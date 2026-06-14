@@ -175,15 +175,16 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.Weapon) {
 		comp.Weapon = emptyMarker()
 	}
-	if entity.HasComponent(c.Stackable) {
-		comp.Stackable = emptyMarker()
+	// Item (NullComponent, マーカー)
+	if entity.HasComponent(c.Item) {
+		comp.Item = emptyMarker()
 	}
 
-	// Item (SliceComponent, Countフィールドあり)
-	if entity.HasComponent(c.Item) {
-		item := c.Item.Get(entity).(*gc.Item)
-		m := oapi.SaveDataMarkerComponent{"Count": item.Count}
-		comp.Item = &m
+	// Stackable (SliceComponent, Countフィールドあり)
+	if entity.HasComponent(c.Stackable) {
+		stackable := c.Stackable.Get(entity).(*gc.Stackable)
+		m := oapi.SaveDataMarkerComponent{"Count": stackable.Count}
+		comp.Stackable = &m
 	}
 
 	// データコンポーネント
@@ -388,19 +389,20 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	if comp.Weapon != nil {
 		entity.AddComponent(c.Weapon, &gc.Weapon{})
 	}
-	if comp.Stackable != nil {
-		entity.AddComponent(c.Stackable, &gc.Stackable{})
+	// Item (NullComponent, マーカー)
+	if comp.Item != nil {
+		entity.AddComponent(c.Item, &gc.Item{})
 	}
 
-	// Item (Countフィールドあり)
-	if comp.Item != nil {
-		item := gc.Item{}
-		if count, ok := (*comp.Item)["Count"]; ok {
+	// Stackable (Countフィールドあり)
+	if comp.Stackable != nil {
+		stackable := gc.Stackable{}
+		if count, ok := (*comp.Stackable)["Count"]; ok {
 			if countFloat, ok := count.(float64); ok {
-				item.Count = int(countFloat)
+				stackable.Count = int(countFloat)
 			}
 		}
-		entity.AddComponent(c.Item, &item)
+		entity.AddComponent(c.Stackable, &stackable)
 	}
 
 	// データコンポーネント

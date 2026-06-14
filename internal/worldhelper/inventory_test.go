@@ -18,7 +18,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=1のアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 1})
+		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 
@@ -36,8 +36,8 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=5のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 5})
-		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 5})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 
@@ -46,8 +46,8 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// 残り3個であることを確認
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 3, itemComp.Count)
+		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		assert.Equal(t, 3, stackableComp.Count)
 		assert.True(t, item.HasComponent(world.Components.Item), "アイテムは残っているべき")
 	})
 
@@ -57,8 +57,8 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=3のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 3})
-		item.AddComponent(world.Components.Stackable, &gc.Stackable{})
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 
@@ -74,9 +74,10 @@ func TestChangeItemCount(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=2のアイテムを作成
+		// Count=2のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 2})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 
@@ -87,17 +88,18 @@ func TestChangeItemCount(t *testing.T) {
 
 		// エンティティは削除されていない
 		assert.True(t, item.HasComponent(world.Components.Item), "アイテムは残っているべき")
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 2, itemComp.Count, "個数は変更されていないべき")
+		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		assert.Equal(t, 2, stackableComp.Count, "個数は変更されていないべき")
 	})
 
 	t.Run("正の値で個数を増やせる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		// Count=3のアイテムを作成
+		// Count=3のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 3})
+		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// 2個追加
@@ -105,8 +107,8 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// 5個になっていることを確認
-		itemComp := world.Components.Item.Get(item).(*gc.Item)
-		assert.Equal(t, 5, itemComp.Count)
+		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
+		assert.Equal(t, 5, stackableComp.Count)
 	})
 
 	t.Run("0を指定するとエラー", func(t *testing.T) {
@@ -114,7 +116,7 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 5})
+		item.AddComponent(world.Components.Item, &gc.Item{})
 
 		err := ChangeItemCount(world, item, 0)
 		require.Error(t, err)
@@ -148,7 +150,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// アイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{Count: 2})
+		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// 1個消費

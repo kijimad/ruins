@@ -249,11 +249,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 			baseValue := worldhelper.GetItemValue(world, entity)
 			price := worldhelper.CalculateSellPrice(baseValue) * sellPriceMod / 100
 
-			count := 1
-			if entity.HasComponent(world.Components.Stackable) {
-				itemComp := world.Components.Item.Get(entity).(*gc.Item)
-				count = itemComp.Count
-			}
+			count := worldhelper.GetEntityCount(world, entity)
 
 			items = append(items, shopItemData{
 				Label:  itemName,

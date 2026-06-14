@@ -14,7 +14,6 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 	weapons := make([]*ecs.Entity, 5)
 
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationEquipped,
 		world.Components.Weapon,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -37,7 +36,6 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 	entities := make([]*ecs.Entity, 7)
 
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationEquipped,
 		world.Components.Wearable,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {

@@ -104,9 +104,7 @@
           "Description": {
             "Description": "炎属性の剣"
           },
-          "Item": {
-            "Count": 1
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -166,9 +164,7 @@
               "TargetNum": "SINGLE"
             }
           },
-          "Item": {
-            "Count": 0
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -192,9 +188,7 @@
             "AmmoTag": "9mm",
             "DamageBonus": 5
           },
-          "Item": {
-            "Count": 30
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -204,7 +198,9 @@
           "Name": {
             "Name": "9mm弾"
           },
-          "Stackable": {}
+          "Stackable": {
+            "Count": 0
+          }
         },
         "stable_id": {
           "generation": 0,
@@ -220,9 +216,7 @@
             },
             "UsableScene": "ANY"
           },
-          "Item": {
-            "Count": 3
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -238,7 +232,9 @@
               "type": "ratio"
             }
           },
-          "Stackable": {}
+          "Stackable": {
+            "Count": 0
+          }
         },
         "stable_id": {
           "generation": 0,
@@ -247,9 +243,7 @@
       },
       {
         "components": {
-          "Item": {
-            "Count": 5
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -265,7 +259,9 @@
               "type": "numeral"
             }
           },
-          "Stackable": {}
+          "Stackable": {
+            "Count": 0
+          }
         },
         "stable_id": {
           "generation": 0,
@@ -274,9 +270,7 @@
       },
       {
         "components": {
-          "Item": {
-            "Count": 2
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -289,7 +283,9 @@
           "ProvidesNutrition": {
             "Amount": 50
           },
-          "Stackable": {}
+          "Stackable": {
+            "Count": 0
+          }
         },
         "stable_id": {
           "generation": 0,
@@ -308,9 +304,7 @@
           "InflictsDamage": {
             "Amount": 40
           },
-          "Item": {
-            "Count": 1
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -328,9 +322,7 @@
       },
       {
         "components": {
-          "Item": {
-            "Count": 0
-          },
+          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -360,9 +352,7 @@
       },
       {
         "components": {
-          "Item": {
-            "Count": 0
-          },
+          "Item": {},
           "LocationEquipped": {
             "EquipmentSlot": 1,
             "OwnerRef": {

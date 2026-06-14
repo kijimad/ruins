@@ -407,7 +407,10 @@ func SpawnItem(world w.World, name string, count int, locationType gc.LocationTy
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}
 	entitySpec.LocationType = &locationType
-	entitySpec.Item.Count = count
+	// Stackableアイテムの場合はcountを設定する
+	if entitySpec.Stackable != nil {
+		entitySpec.Stackable.Count = count
+	}
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
 	if err != nil {

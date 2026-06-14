@@ -248,8 +248,8 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 
 		// Stackableであれば個数を表示する
 		if entity.HasComponent(world.Components.Stackable) {
-			itemComp := world.Components.Item.Get(entity).(*gc.Item)
-			item.Count = fmt.Sprintf("%d", itemComp.Count)
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			item.Count = fmt.Sprintf("%d", stackable.Count)
 		}
 
 		// 説明文

@@ -32,9 +32,9 @@ func MergeInventoryItem(world w.World, itemName string) error {
 	targetEntity := stackableItems[0]
 	for i := 1; i < len(stackableItems); i++ {
 		itemToMerge := stackableItems[i]
-		itemComp := world.Components.Item.Get(itemToMerge).(*gc.Item)
+		mergeCount := GetEntityCount(world, itemToMerge)
 
-		if err := ChangeItemCount(world, targetEntity, itemComp.Count); err != nil {
+		if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {
 			return fmt.Errorf("数量統合エラー: %w", err)
 		}
 

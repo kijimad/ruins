@@ -107,11 +107,11 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 			Cancel(comp, "弾薬がなくなった")
 			return nil
 		}
-		ammoItem := world.Components.Item.Get(ammoEntity).(*gc.Item)
+		ammoCount := worldhelper.GetEntityCount(world, ammoEntity)
 
 		loaded := needed
-		if ammoItem.Count < loaded {
-			loaded = ammoItem.Count
+		if ammoCount < loaded {
+			loaded = ammoCount
 		}
 
 		// 装填した弾薬の修正値を記録する
