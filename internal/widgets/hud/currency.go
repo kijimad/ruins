@@ -45,16 +45,16 @@ func (c *CurrencyDisplay) Draw(screen *ebiten.Image, data CurrencyData) {
 	// 通貨テキスト
 	currencyText := worldhelper.FormatCurrency(data.Currency)
 
-	// テキストの幅を計算
-	textWidth, _ := text.Measure(currencyText, c.face, 0)
+	// テキストのサイズを計算
+	textWidth, textHeight := text.Measure(currencyText, c.face, 0)
 
 	// メッセージウィンドウの位置を計算
 	fixedHeight := data.Config.LogAreaMargin*2 + data.Config.MaxLogLines*data.Config.LineHeight + data.Config.YPadding*2
 	logAreaY := screenHeight - fixedHeight
 
-	// メッセージウィンドウの上端の上に配置（右寄せ）
+	// メッセージウィンドウの上端の上に配置（テキスト下端がマージン分上になるように）
 	currencyX := float64(screenWidth-data.Config.LogAreaMargin) - textWidth
-	currencyY := float64(logAreaY - 25) // メッセージウィンドウの上に十分なスペースを取って表示
+	currencyY := float64(logAreaY) - textHeight - float64(theme.Space4)
 
 	drawOutlinedText(screen, currencyText, c.face, currencyX, currencyY, theme.TextPrimary)
 }

@@ -23,7 +23,7 @@ type weaponSlotsConfig struct {
 var defaultWeaponSlotsConfig = weaponSlotsConfig{
 	SlotSize:    48,
 	SlotSpacing: 8,
-	YOffset:     20,
+	YOffset:     theme.Space4,
 }
 
 // WeaponSlots は武器スロット表示ウィジェット
