@@ -310,7 +310,7 @@ func NewListItemText(text string, textColor color.RGBA, isSelected bool, res res
 
 	wrapper.AddChild(container)
 
-	wrapper.AddChild(NewGradientLine(color.RGBA{255, 255, 255, 80}, 1))
+	wrapper.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
 
 	return wrapper
 }

@@ -147,7 +147,7 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 
 	container.AddChild(row)
 
-	container.AddChild(NewGradientLine(color.RGBA{255, 255, 255, 80}, 1))
+	container.AddChild(NewGradientLine(res.GradientLine, color.RGBA{255, 255, 255, 80}, 1))
 }
 
 func addDataRow(container *widget.Container, columnWidths []int, values []string, aligns []TextAlign, res resources.UIResources) {

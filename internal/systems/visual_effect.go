@@ -95,7 +95,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 		for _, effect := range ve.Effects {
 			switch e := effect.(type) {
 			case *gc.SplashTextEffect:
-				sys.drawSplashText(screen, e)
+				sys.drawSplashText(world, screen, e)
 			case *gc.DamageTextEffect:
 				// エンティティ座標で描画
 				if entity.HasComponent(world.Components.GridElement) {
@@ -122,7 +122,7 @@ func (sys *VisualEffectSystem) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // drawSplashText はスプラッシュテキストを画面座標で描画する
-func (sys *VisualEffectSystem) drawSplashText(screen *ebiten.Image, effect *gc.SplashTextEffect) {
+func (sys *VisualEffectSystem) drawSplashText(world w.World, screen *ebiten.Image, effect *gc.SplashTextEffect) {
 	if effect.Alpha <= 0 {
 		return
 	}
@@ -144,7 +144,7 @@ func (sys *VisualEffectSystem) drawSplashText(screen *ebiten.Image, effect *gc.S
 	if effect.LineWidth > 0 {
 		lineY := y + textHeight + 2
 		lineLeft := effect.OffsetX - effect.LineWidth/2
-		sys.drawHorizontalLine(screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
+		sys.drawHorizontalLine(world, screen, lineLeft, lineY, int(effect.LineWidth), color.RGBA{effect.Color.R, effect.Color.G, effect.Color.B, alpha})
 	}
 }
 
@@ -178,43 +178,22 @@ func (sys *VisualEffectSystem) drawDamageText(world w.World, screen *ebiten.Imag
 	hud.OutlinedText(screen, effect.Text, face, x, y, textColor, outlineColor)
 }
 
-// gradientLineCache は線幅ごとの両端グラデーション線画像のキャッシュ
-var gradientLineCache = map[int]*ebiten.Image{}
-
 // drawHorizontalLine は両端がグラデーションで透明になる水平線を描画する
-func (sys *VisualEffectSystem) drawHorizontalLine(screen *ebiten.Image, x, y float64, width int, clr color.RGBA) {
+func (sys *VisualEffectSystem) drawHorizontalLine(world w.World, screen *ebiten.Image, x, y float64, width int, clr color.RGBA) {
 	if width <= 0 {
 		return
 	}
 
-	img, ok := gradientLineCache[width]
-	if !ok {
-		img = ebiten.NewImage(width, 1)
-		pixels := make([]byte, width*4)
-		fadePixels := width / 4 // 両端25%ずつグラデーション
-		for px := 0; px < width; px++ {
-			a := 1.0
-			if fadePixels > 0 {
-				if px < fadePixels {
-					a = float64(px) / float64(fadePixels)
-				} else if px >= width-fadePixels {
-					a = float64(width-1-px) / float64(fadePixels)
-				}
-			}
-			alpha := byte(a * 255)
-			i := px * 4
-			pixels[i] = alpha
-			pixels[i+1] = alpha
-			pixels[i+2] = alpha
-			pixels[i+3] = alpha
-		}
-		img.WritePixels(pixels)
-		gradientLineCache[width] = img
+	img := world.Resources.UIResources.GradientLine
+	if img == nil {
+		return
 	}
 
 	op := &ebiten.DrawImageOptions{}
+	srcWidth := float64(img.Bounds().Dx())
+	op.GeoM.Scale(float64(width)/srcWidth, 1)
 	op.GeoM.Translate(x, y)
-	op.ColorScale.ScaleWithColor(clr)
+	op.ColorScale.ScaleWithColor(color.NRGBA(clr))
 	screen.DrawImage(img, op)
 }
 
