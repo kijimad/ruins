@@ -261,7 +261,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "回復薬", 5, gc.ItemLocationInPlayerBackpack)
+		item, err := SpawnItem(world, "回復薬", 5, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		itemComp := world.Components.Item.Get(item).(*gc.Item)
@@ -272,7 +272,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		itemComp := world.Components.Item.Get(item).(*gc.Item)
@@ -283,7 +283,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 2, gc.ItemLocationInPlayerBackpack)
+		_, err := SpawnItem(world, "木刀", 2, gc.LocationTypeInBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "is not stackable")
 		assert.Contains(t, err.Error(), "count must be 1")
@@ -293,7 +293,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 0, gc.ItemLocationInPlayerBackpack)
+		_, err := SpawnItem(world, "木刀", 0, gc.LocationTypeInBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -302,7 +302,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", -1, gc.ItemLocationInPlayerBackpack)
+		_, err := SpawnItem(world, "木刀", -1, gc.LocationTypeInBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -311,7 +311,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.ItemLocationInPlayerBackpack)
+		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.LocationTypeInBackpack)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "item not found")
 	})

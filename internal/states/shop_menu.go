@@ -241,7 +241,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 		world.Manager.Join(
 			world.Components.Item,
 			world.Components.Name,
-			world.Components.ItemLocationInPlayerBackpack,
+			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
 			nameComp := world.Components.Name.Get(entity).(*gc.Name)
 			itemName := nameComp.Name

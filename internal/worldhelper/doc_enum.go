@@ -16,22 +16,22 @@
 //	worldhelper.MoveToField(world, item, owner)               // フィールドにドロップ（InventoryChangedフラグ付き）
 //
 //	// ❌ 非推奨: 直接操作（排他制御なし）
-//	item.AddComponent(world.Components.ItemLocationInPlayerBackpack)
+//	item.AddComponent(world.Components.LocationInBackpack)
 //
 // 位置の判定は型取得してswitch分岐、またはHasComponentで判定します：
 //
 //	// ✅ HasComponentで直接判定
-//	if item.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+//	if item.HasComponent(world.Components.LocationInBackpack) {
 //	    // バックパック内処理
 //	}
 //
 //	// ✅ 複数の可能性を判定する場合はHasComponentで分岐
-//	if item.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+//	if item.HasComponent(world.Components.LocationInBackpack) {
 //	    // バックパック処理
-//	} else if item.HasComponent(world.Components.ItemLocationEquipped) {
-//	    equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+//	} else if item.HasComponent(world.Components.LocationEquipped) {
+//	    equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
 //	    // 装備処理（equipped.Owner, equipped.EquipmentSlotにアクセス可能）
-//	} else if item.HasComponent(world.Components.ItemLocationOnField) {
+//	} else if item.HasComponent(world.Components.LocationOnField) {
 //	    // フィールド処理
 //	}
 //

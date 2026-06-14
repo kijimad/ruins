@@ -15,7 +15,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) {
 
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if found {
@@ -38,7 +38,7 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) {
 
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 		world.Components.Ammo,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if found {

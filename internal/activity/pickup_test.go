@@ -121,7 +121,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
 
 		// アイテムがバックパックに移動していることを確認
-		assert.True(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
 		// フィールドから消えていることを確認
 		assert.False(t, item.HasComponent(world.Components.GridElement))
 	})
@@ -185,7 +185,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
@@ -264,7 +264,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
-		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 3, Y: 4}
 		comp := &gc.Activity{
@@ -284,7 +284,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		// BlockPassも保持されていることを確認
 		assert.True(t, prop.HasComponent(world.Components.BlockPass))
 		// バックパックに移動していることを確認
-		assert.True(t, prop.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.True(t, prop.HasComponent(world.Components.LocationInBackpack))
 		// Itemコンポーネントが追加されていることを確認
 		assert.True(t, prop.HasComponent(world.Components.Item))
 		// フィールドから消えていることを確認
@@ -302,7 +302,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 8, Y: 6})
-		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 
 		destination := gc.GridElement{X: 8, Y: 6}
 		comp := &gc.Activity{

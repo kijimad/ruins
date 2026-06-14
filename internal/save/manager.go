@@ -132,9 +132,9 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 	// 1. プレイヤーエンティティ
 	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(collect))
 	// 2. バックパック内アイテム
-	world.Manager.Join(world.Components.ItemLocationInPlayerBackpack).Visit(ecs.Visit(collect))
+	world.Manager.Join(world.Components.LocationInBackpack).Visit(ecs.Visit(collect))
 	// 3. 装備中アイテム
-	world.Manager.Join(world.Components.ItemLocationEquipped).Visit(ecs.Visit(collect))
+	world.Manager.Join(world.Components.LocationEquipped).Visit(ecs.Visit(collect))
 
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].StableId.Index < entities[j].StableId.Index
@@ -159,8 +159,13 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.FactionAlly) {
 		comp.FactionAllyData = emptyMarker()
 	}
-	if entity.HasComponent(c.ItemLocationInPlayerBackpack) {
-		comp.LocationInPlayerBackpack = emptyMarker()
+	// LocationInBackpack（エンティティ参照を含む）
+	if entity.HasComponent(c.LocationInBackpack) {
+		backpack := c.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		ownerStableID := sm.stableIDManager.GetStableID(backpack.Owner)
+		comp.LocationInBackpack = &oapi.SaveDataLocationInBackpackComponent{
+			OwnerRef: stableIDToSaveData(ownerStableID),
+		}
 	}
 	if entity.HasComponent(c.StatsChanged) {
 		comp.StatsChanged = emptyMarker()
@@ -287,8 +292,8 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	}
 
 	// エンティティ参照コンポーネント (LocationEquipped)
-	if entity.HasComponent(c.ItemLocationEquipped) {
-		equipped := c.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+	if entity.HasComponent(c.LocationEquipped) {
+		equipped := c.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 		ownerStableID := sm.stableIDManager.GetStableID(equipped.Owner)
 		comp.LocationEquipped = &oapi.SaveDataLocationEquippedComponent{
 			OwnerRef:      stableIDToSaveData(ownerStableID),
@@ -329,16 +334,29 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 
 	// 第3段階: エンティティ参照を解決
 	for _, entry := range entries {
-		if entry.data.Components.LocationEquipped == nil {
-			continue
+		comp := entry.data.Components
+
+		// LocationInBackpack の Owner を解決
+		if comp.LocationInBackpack != nil {
+			ownerStableID := stableIDFromSaveData(comp.LocationInBackpack.OwnerRef)
+			ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
+			if !exists {
+				return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
+			}
+			backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)
+			backpack.Owner = ownerEntity
 		}
-		ownerStableID := stableIDFromSaveData(entry.data.Components.LocationEquipped.OwnerRef)
-		ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
-		if !exists {
-			return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
+
+		// LocationEquipped の Owner を解決
+		if comp.LocationEquipped != nil {
+			ownerStableID := stableIDFromSaveData(comp.LocationEquipped.OwnerRef)
+			ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
+			if !exists {
+				return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
+			}
+			equipped := c.LocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
+			equipped.Owner = ownerEntity
 		}
-		equipped := c.ItemLocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
-		equipped.Owner = ownerEntity
 	}
 
 	// GameProgressを復元
@@ -358,8 +376,9 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	if comp.FactionAllyData != nil {
 		entity.AddComponent(c.FactionAlly, &gc.FactionAllyData{})
 	}
-	if comp.LocationInPlayerBackpack != nil {
-		entity.AddComponent(c.ItemLocationInPlayerBackpack, &gc.LocationInPlayerBackpack{})
+	// LocationInBackpack（Ownerは第3段階で解決）
+	if comp.LocationInBackpack != nil {
+		entity.AddComponent(c.LocationInBackpack, &gc.LocationInBackpack{})
 	}
 	if comp.StatsChanged != nil {
 		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
@@ -399,7 +418,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 			Owner:         0,
 			EquipmentSlot: gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot),
 		}
-		entity.AddComponent(c.ItemLocationEquipped, &equipped)
+		entity.AddComponent(c.LocationEquipped, &equipped)
 	}
 }
 

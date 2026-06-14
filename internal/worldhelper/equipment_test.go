@@ -15,7 +15,7 @@ func TestEquipDisarm(t *testing.T) {
 	// アイテムエンティティを作成
 	item := world.Manager.NewEntity()
 	item.AddComponent(world.Components.Item, &gc.Item{})
-	item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &gc.ItemLocationInPlayerBackpack)
+	item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 	// オーナーエンティティを作成
 	owner := world.Manager.NewEntity()
@@ -24,11 +24,11 @@ func TestEquipDisarm(t *testing.T) {
 	MoveToEquip(world, item, owner, gc.EquipmentSlotNumber(0))
 
 	// 装備されたことを確認
-	assert.True(t, item.HasComponent(world.Components.ItemLocationEquipped), "アイテムが装備されていない")
-	assert.False(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack), "アイテムがまだバックパックにある")
+	assert.True(t, item.HasComponent(world.Components.LocationEquipped), "アイテムが装備されていない")
+	assert.False(t, item.HasComponent(world.Components.LocationInBackpack), "アイテムがまだバックパックにある")
 	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
 
-	equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+	equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
 	assert.Equal(t, owner, equipped.Owner, "オーナーが正しく設定されていない")
 	assert.Equal(t, gc.EquipmentSlotNumber(0), equipped.EquipmentSlot, "スロット番号が正しく設定されていない")
 
@@ -36,8 +36,8 @@ func TestEquipDisarm(t *testing.T) {
 	MoveToBackpack(world, item, owner)
 
 	// 装備が外されたことを確認
-	assert.False(t, item.HasComponent(world.Components.ItemLocationEquipped), "アイテムがまだ装備されている")
-	assert.True(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack), "アイテムがバックパックに戻っていない")
+	assert.False(t, item.HasComponent(world.Components.LocationEquipped), "アイテムがまだ装備されている")
+	assert.True(t, item.HasComponent(world.Components.LocationInBackpack), "アイテムがバックパックに戻っていない")
 	assert.True(t, owner.HasComponent(world.Components.StatsChanged), "オーナーにステータス再計算フラグが設定されていない")
 
 	// クリーンアップ

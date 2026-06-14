@@ -65,14 +65,14 @@ func calculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 {
 		weight := world.Components.Weight.Get(itemEntity).(*gc.Weight)
 
 		// バックパック内のアイテム
-		if itemEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+		if itemEntity.HasComponent(world.Components.LocationInBackpack) {
 			item := world.Components.Item.Get(itemEntity).(*gc.Item)
 			totalWeight += weight.Kg * float64(item.Count)
 		}
 
 		// 装備中のアイテム
-		if itemEntity.HasComponent(world.Components.ItemLocationEquipped) {
-			equipped := world.Components.ItemLocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
+		if itemEntity.HasComponent(world.Components.LocationEquipped) {
+			equipped := world.Components.LocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
 			// このエンティティが装備しているアイテムのみ
 			if equipped.Owner == entity {
 				totalWeight += weight.Kg

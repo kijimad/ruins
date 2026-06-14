@@ -45,7 +45,7 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 	var toDelete []ecs.Entity
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		toDelete = append(toDelete, entity)
 	}))
@@ -65,9 +65,9 @@ func unequipAll(world w.World, playerEntity ecs.Entity) {
 	var equipped []ecs.Entity
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationEquipped,
+		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 		if loc.Owner == playerEntity {
 			equipped = append(equipped, entity)
 		}
@@ -91,7 +91,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 	total := 0
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := ""
 		if entity.HasComponent(world.Components.Name) {

@@ -183,7 +183,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 		item.AddComponent(world.Components.Item, &gc.Item{})
 
-		// ItemLocationOnFieldがないので拾えるアイテムがない
+		// LocationOnFieldがないので拾えるアイテムがない
 		err := ExecuteEnterAction(world)
 		assert.Error(t, err)
 

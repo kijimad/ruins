@@ -2767,10 +2767,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.MarkerComponent'
           description: アイテムマーカー
-        LocationInPlayerBackpack:
+        LocationInBackpack:
           allOf:
-            - $ref: '#/components/schemas/SaveData.MarkerComponent'
-          description: プレイヤーバックパック内の位置マーカー
+            - $ref: '#/components/schemas/SaveData.LocationInBackpackComponent'
+          description: バックパック内の位置。所有者エンティティ参照を含む
         StatsChanged:
           allOf:
             - $ref: '#/components/schemas/SaveData.MarkerComponent'
@@ -3168,6 +3168,18 @@ components:
           description: 装備スロット番号
       description: |-
         装備位置コンポーネント。
+        Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+    SaveData.LocationInBackpackComponent:
+      type: object
+      required:
+        - OwnerRef
+      properties:
+        OwnerRef:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.StableID'
+          description: 所有者のStableID
+      description: |-
+        バックパック位置コンポーネント。
         Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
     SaveData.Magazine:
       type: integer

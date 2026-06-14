@@ -183,8 +183,8 @@ model ComponentsMap {
   /** アイテムマーカー */
   Item?: MarkerComponent;
 
-  /** プレイヤーバックパック内の位置マーカー */
-  LocationInPlayerBackpack?: MarkerComponent;
+  /** バックパック内の位置。所有者エンティティ参照を含む */
+  LocationInBackpack?: LocationInBackpackComponent;
 
   /** ステータス変更フラグ */
   StatsChanged?: MarkerComponent;
@@ -516,6 +516,15 @@ model WalletComponent {
 }
 
 // ================== エンティティ参照コンポーネント ==================
+
+/**
+ * バックパック位置コンポーネント。
+ * Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+ */
+model LocationInBackpackComponent {
+  /** 所有者のStableID */
+  OwnerRef: StableID;
+}
 
 /**
  * 装備位置コンポーネント。

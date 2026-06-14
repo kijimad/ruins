@@ -20,9 +20,9 @@ func TestPreviewEndRun(t *testing.T) {
 	require.NoError(t, ApplyProfession(world, player, prof))
 
 	// バックパックにアイテムを追加する
-	item1, err := SpawnItem(world, "回復薬", 1, gc.ItemLocationInPlayerBackpack)
+	item1, err := SpawnItem(world, "回復薬", 1, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
-	item2, err := SpawnItem(world, "回復薬", 1, gc.ItemLocationInPlayerBackpack)
+	item2, err := SpawnItem(world, "回復薬", 1, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
 
 	// プレビューを生成する
@@ -72,7 +72,7 @@ func TestExecuteEndRun(t *testing.T) {
 	hasEquipped := false
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationEquipped,
+		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		hasEquipped = true
 	}))

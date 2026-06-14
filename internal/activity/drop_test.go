@@ -20,7 +20,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -84,7 +84,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -127,7 +127,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -148,7 +148,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		assert.Equal(t, 10, int(gridElement.Y))
 
 		// バックパックから削除されていることを確認
-		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, item.HasComponent(world.Components.LocationOnField))
 
 		// ドロップログが出力されていることを確認する
 		store := worldhelper.GetGameLog(world)
@@ -164,7 +164,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -189,7 +189,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -214,7 +214,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -241,7 +241,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		// プレイヤーの右隣にドロップ
@@ -260,7 +260,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
 		assert.Equal(t, 11, int(gridElement.X))
 		assert.Equal(t, 10, int(gridElement.Y))
-		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, item.HasComponent(world.Components.LocationOnField))
 	})
 
 	t.Run("斜め隣接タイルにアイテムをドロップできる", func(t *testing.T) {
@@ -270,7 +270,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		// 右下斜めにドロップ
@@ -326,7 +326,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		// BlockPassも保持されていることを確認
 		assert.True(t, prop.HasComponent(world.Components.BlockPass))
 		// フィールドに配置されていることを確認
-		assert.True(t, prop.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, prop.HasComponent(world.Components.LocationOnField))
 		assert.True(t, prop.HasComponent(world.Components.GridElement))
 		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
 		assert.Equal(t, 11, int(gridElement.X))
@@ -350,7 +350,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 4, Y: 4})
-		prop.AddComponent(world.Components.ItemLocationOnField, &gc.LocationOnField{})
+		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 
 		// 拾う
 		pickupDest := gc.GridElement{X: 4, Y: 4}
@@ -366,7 +366,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, pickupComp.State)
 
 		// バックパックにあることを確認
-		assert.True(t, prop.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.True(t, prop.HasComponent(world.Components.LocationInBackpack))
 		assert.True(t, prop.HasComponent(world.Components.Prop))
 
 		// ドロップ
@@ -384,7 +384,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		assert.Equal(t, gc.ActivityStateCompleted, dropComp.State)
 
 		// フィールドに戻っていることを確認
-		assert.True(t, prop.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, prop.HasComponent(world.Components.LocationOnField))
 		assert.True(t, prop.HasComponent(world.Components.GridElement))
 		assert.True(t, prop.HasComponent(world.Components.Prop))
 		assert.True(t, prop.HasComponent(world.Components.BlockPass))
@@ -415,7 +415,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		err = pa.DoTurn(pickupComp, player, world)
 		require.NoError(t, err)
 
-		assert.True(t, item.HasComponent(world.Components.ItemLocationInPlayerBackpack))
+		assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
 		assert.False(t, item.HasComponent(world.Components.GridElement))
 
 		// ドロップ
@@ -431,7 +431,7 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		err = da.DoTurn(dropComp, player, world)
 		require.NoError(t, err)
 
-		assert.True(t, item.HasComponent(world.Components.ItemLocationOnField))
+		assert.True(t, item.HasComponent(world.Components.LocationOnField))
 		gridElement := world.Components.GridElement.Get(item).(*gc.GridElement)
 		assert.Equal(t, 9, int(gridElement.X))
 		assert.Equal(t, 9, int(gridElement.Y))

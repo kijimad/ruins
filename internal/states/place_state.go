@@ -186,7 +186,7 @@ func (st *PlaceState) refreshBackpackItems(world w.World) {
 
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		st.backpackItems = append(st.backpackItems, entity)
 	}))

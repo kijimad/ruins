@@ -382,7 +382,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 // ================
 
 // SpawnItem はアイテムを生成する
-func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocationType) (ecs.Entity, error) {
+func SpawnItem(world w.World, name string, count int, locationType gc.LocationType) (ecs.Entity, error) {
 	if count <= 0 {
 		return 0, fmt.Errorf("count must be positive: %d", count)
 	}
@@ -406,7 +406,7 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}
-	entitySpec.ItemLocationType = &locationType
+	entitySpec.LocationType = &locationType
 	entitySpec.Item.Count = count
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
@@ -419,13 +419,15 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 
 	entity := entitiesSlice[len(entitiesSlice)-1]
 
-	// バックパックに追加した場合はインベントリ重量を再計算する
-	if locationType == gc.ItemLocationInPlayerBackpack {
+	// バックパックに追加した場合はOwnerを設定し、インベントリ重量を再計算する
+	if locationType == gc.LocationTypeInBackpack {
 		var playerEntity ecs.Entity
 		world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
 			playerEntity = e
 		}))
 		if playerEntity != 0 {
+			loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+			loc.Owner = playerEntity
 			UpdateCarryingWeight(world, playerEntity)
 		}
 	}
@@ -498,7 +500,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 
 // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
-	item, err := SpawnItem(world, itemName, count, gc.ItemLocationOnField)
+	item, err := SpawnItem(world, itemName, count, gc.LocationTypeOnField)
 	if err != nil {
 		return ecs.Entity(0), err
 	}

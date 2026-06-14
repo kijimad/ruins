@@ -32,7 +32,7 @@ func Craft(world w.World, name string) (*ecs.Entity, error) {
 		smithQualityPct = mods.SmithQuality
 	}
 
-	resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInPlayerBackpack)
+	resultEntity, err := SpawnItem(world, name, 1, gc.LocationTypeInBackpack)
 	if err != nil {
 		return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}

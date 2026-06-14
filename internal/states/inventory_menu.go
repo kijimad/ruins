@@ -269,7 +269,7 @@ func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity {
 
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 		world.Components.Wearable.Not(),
 		world.Components.Weapon.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -285,7 +285,7 @@ func (st *InventoryMenuState) queryMenuWeapon(world w.World) []ecs.Entity {
 	world.Manager.Join(
 		world.Components.Item,
 		world.Components.Weapon,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		items = append(items, entity)
 	}))
@@ -299,7 +299,7 @@ func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity {
 	world.Manager.Join(
 		world.Components.Item,
 		world.Components.Wearable,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		items = append(items, entity)
 	}))

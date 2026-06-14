@@ -15,10 +15,10 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationEquipped,
+		world.Components.LocationEquipped,
 		world.Components.Weapon,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 		if owner == equipped.Owner {
 			// 武器スロットの場合は配列インデックスに変換（SlotWeapon1=4 -> index 0）
 			if equipped.EquipmentSlot >= gc.SlotWeapon1 && equipped.EquipmentSlot <= gc.SlotWeapon5 {
@@ -38,10 +38,10 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity {
 
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationEquipped,
+		world.Components.LocationEquipped,
 		world.Components.Wearable,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 		if owner == equipped.Owner {
 			// スロット番号から配列インデックスを決定
 			switch equipped.EquipmentSlot {

@@ -107,7 +107,12 @@
           "Item": {
             "Count": 1
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Melee": {
             "Accuracy": 90,
             "AttackCategory": {
@@ -164,7 +169,12 @@
           "Item": {
             "Count": 0
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "ハンドガン"
           },
@@ -185,7 +195,12 @@
           "Item": {
             "Count": 30
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "9mm弾"
           },
@@ -208,7 +223,12 @@
           "Item": {
             "Count": 3
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "回復薬"
           },
@@ -230,7 +250,12 @@
           "Item": {
             "Count": 5
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "薬草"
           },
@@ -252,7 +277,12 @@
           "Item": {
             "Count": 2
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "携帯食料"
           },
@@ -281,7 +311,12 @@
           "Item": {
             "Count": 1
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "手榴弾"
           }
@@ -296,7 +331,12 @@
           "Item": {
             "Count": 0
           },
-          "LocationInPlayerBackpack": {},
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
           "Name": {
             "Name": "合成武器"
           },

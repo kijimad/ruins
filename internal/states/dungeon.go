@@ -179,8 +179,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		// プレイヤーエンティティ、バックパック内アイテム、装備中アイテムは次のフロアでも必要なので削除しない
 		if !entity.HasComponent(world.Components.Player) &&
-			!entity.HasComponent(world.Components.ItemLocationInPlayerBackpack) &&
-			!entity.HasComponent(world.Components.ItemLocationEquipped) {
+			!entity.HasComponent(world.Components.LocationInBackpack) &&
+			!entity.HasComponent(world.Components.LocationEquipped) {
 			world.Manager.DeleteEntity(entity)
 		}
 	}))

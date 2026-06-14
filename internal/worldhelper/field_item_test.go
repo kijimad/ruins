@@ -38,8 +38,8 @@ func TestSpawnFieldItem(t *testing.T) {
 	assert.Equal(t, "healing_potion", sprite.SpriteKey, "スプライトキーが正しくない")
 	assert.Equal(t, gc.DepthNumRug, sprite.Depth, "描画深度が正しくない")
 
-	// ItemLocationOnFieldコンポーネントの確認
-	assert.True(t, item.HasComponent(world.Components.ItemLocationOnField), "ItemLocationOnFieldコンポーネントが必要")
+	// LocationOnFieldコンポーネントの確認
+	assert.True(t, item.HasComponent(world.Components.LocationOnField), "LocationOnFieldコンポーネントが必要")
 
 	// クリーンアップ
 	world.Manager.DeleteEntity(item)
@@ -77,7 +77,7 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 	fieldItemCount := 0
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationOnField,
+		world.Components.LocationOnField,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		fieldItemCount++
