@@ -100,10 +100,6 @@ var (
 	HUDGaugeBg = color.RGBA{R: 100, G: 0, B: 0, A: 255}
 	// HUDGaugeBorder はHPゲージの白い枠線色
 	HUDGaugeBorder = color.RGBA{R: 220, G: 220, B: 220, A: 230}
-	// HUDGaugeHighlight はゲージセパレーターのハイライト線の色
-	HUDGaugeHighlight = color.RGBA{R: 180, G: 185, B: 195, A: 200}
-	// HUDGaugeShadow はゲージセパレーターのシャドウ線の色
-	HUDGaugeShadow = color.RGBA{R: 15, G: 18, B: 28, A: 255}
 	// HUDMinimapBg はミニマップの背景色
 	HUDMinimapBg = color.RGBA{R: 0, G: 0, B: 0, A: 128}
 	// HUDPlayerMarker はミニマップのプレイヤー表示色

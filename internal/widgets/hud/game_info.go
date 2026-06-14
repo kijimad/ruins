@@ -14,21 +14,19 @@ import (
 
 // GameInfo はHUDの基本ゲーム情報エリア
 type GameInfo struct {
-	bodyFace     text.Face
-	headingFace  text.Face     // 階層表示用の大きなフォント
-	gaugeFill    *ebiten.Image // ゲージ埋め。縦方向グラデーション
-	gradientLine *ebiten.Image // 両端フェードアウトする横グラデーションライン
-	enabled      bool
+	bodyFace    text.Face
+	headingFace text.Face     // 階層表示用の大きなフォント
+	gaugeFill   *ebiten.Image // ゲージ埋め。縦方向グラデーション
+	enabled     bool
 }
 
 // NewGameInfo は新しいHUDGameInfoを作成する
-func NewGameInfo(bodyFace text.Face, headingFace text.Face, gaugeFill *ebiten.Image, gradientLine *ebiten.Image) *GameInfo {
+func NewGameInfo(bodyFace text.Face, headingFace text.Face, gaugeFill *ebiten.Image) *GameInfo {
 	return &GameInfo{
-		bodyFace:     bodyFace,
-		headingFace:  headingFace,
-		gaugeFill:    gaugeFill,
-		gradientLine: gradientLine,
-		enabled:      true,
+		bodyFace:    bodyFace,
+		headingFace: headingFace,
+		gaugeFill:   gaugeFill,
+		enabled:     true,
 	}
 }
 
@@ -74,14 +72,13 @@ func (info *GameInfo) drawFloorNumber(screen *ebiten.Image, data GameInfoData) {
 
 // ゲージ共通のレイアウト定数
 const (
-	gaugeBaseX      = 30.0                                              // 左マージン
-	gaugeBaseY      = 10.0                                              // 最初のゲージの上マージン
-	gaugeWidth      = 180.0                                             // ゲージの幅
-	gaugeSepHeight  = 2.0                                               // セパレーターラインの高さ（ハイライト＋シャドウ）
-	gaugeBorderH    = 2.0                                               // 白枠線の合計（上1 + 下1）
-	gaugeFillHeight = 12.0                                              // ゲージ塗り部分の高さ
-	gaugeHeight     = gaugeSepHeight*2 + gaugeBorderH + gaugeFillHeight // セパレーター×2 + 白枠 + 塗り
-	gaugeSpacing    = 4.0                                               // ゲージ間の間隔
+	gaugeBaseX      = 30.0                           // 左マージン
+	gaugeBaseY      = 10.0                           // 最初のゲージの上マージン
+	gaugeWidth      = 180.0                          // ゲージの幅
+	gaugeBorderH    = 2.0                            // 白枠線の合計（上1 + 下1）
+	gaugeFillHeight = 12.0                           // ゲージ塗り部分の高さ
+	gaugeHeight     = gaugeBorderH + gaugeFillHeight // 白枠 + 塗り
+	gaugeSpacing    = 4.0                            // ゲージ間の間隔
 )
 
 // drawHealthBar はプレイヤーの体力ゲージを描画する
@@ -112,10 +109,6 @@ func (info *GameInfo) drawHealthBar(screen *ebiten.Image, currentHP, maxHP int) 
 // セパレーターライン・枠線がゲージ塗りから左右にはみ出す量
 const gaugeOverhang = 6.0
 
-// グラデーション画像の両端フェードアウトが占める比率（片側）。
-// gradient-line.pngは256pxで両端約32pxがフェードアウトなので 32/256 = 0.125
-const gaugeFadeRatio = 0.125
-
 // drawGaugeBar はゲージバーを描画する。
 // 上下にグラデーションセパレーターライン、その間に白枠線で囲まれたグラデーション塗りを描画する。
 // セパレーターラインと枠線はゲージ塗りより左右に少しはみ出す
@@ -123,20 +116,11 @@ func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio floa
 	fy := float32(y)
 	frameX := float32(x - gaugeOverhang)
 	frameW := float32(width + gaugeOverhang*2)
+	fillAreaH := float32(gaugeBorderH + gaugeFillHeight)
 
-	// セパレーターライン（上）
-	info.drawSeparatorLine(screen, float64(frameX), y, float64(frameW))
-
-	// 白い枠線とゲージ塗りの開始Y
-	borderY := fy + float32(gaugeSepHeight)
-	fillAreaH := float32(gaugeBorderH + gaugeFillHeight) // 白枠 + 塗り
-
-	// 白い枠線（上辺と下辺のみ）。フェードアウト分だけ長くして見える部分がゲージ端まで届くようにする
-	borderExtra := float64(frameW) * gaugeFadeRatio
-	bx := float64(frameX) - borderExtra
-	bw := float64(frameW) + borderExtra*2
-	info.drawGradientLine(screen, bx, float64(borderY), bw, borderColor)
-	info.drawGradientLine(screen, bx, float64(borderY+fillAreaH-1), bw, borderColor)
+	// 白い枠線（上辺と下辺のみ）
+	vector.FillRect(screen, frameX, fy, frameW, 1, borderColor, false)
+	vector.FillRect(screen, frameX, fy+fillAreaH-1, frameW, 1, borderColor, false)
 
 	// 塗り（縦方向グラデーション: 上が明るく下が暗い光沢効果）
 	if ratio > 0 && info.gaugeFill != nil {
@@ -144,33 +128,10 @@ func (info *GameInfo) drawGaugeBar(screen *ebiten.Image, x, y, width, ratio floa
 		srcH := float64(info.gaugeFill.Bounds().Dy())
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(fillW, gaugeFillHeight/srcH)
-		op.GeoM.Translate(x, float64(borderY)+1)
+		op.GeoM.Translate(x, float64(fy)+1)
 		op.ColorScale.ScaleWithColor(color.NRGBA(fillColor))
 		screen.DrawImage(info.gaugeFill, op)
 	}
-
-	// セパレーターライン（下）
-	info.drawSeparatorLine(screen, float64(frameX), float64(borderY+fillAreaH), float64(frameW))
-}
-
-// drawSeparatorLine はベベル（ハイライト＋シャドウ）のセパレーターラインを描画する
-func (info *GameInfo) drawSeparatorLine(screen *ebiten.Image, x, y, width float64) {
-	info.drawGradientLine(screen, x, y, width, theme.HUDGaugeHighlight)
-	info.drawGradientLine(screen, x, y+1, width, theme.HUDGaugeShadow)
-}
-
-// drawGradientLine は両端フェードアウトする1px高の横線を描画する
-func (info *GameInfo) drawGradientLine(screen *ebiten.Image, x, y, width float64, clr color.RGBA) {
-	if info.gradientLine == nil {
-		vector.FillRect(screen, float32(x), float32(y), float32(width), 1, clr, false)
-		return
-	}
-	srcW := float64(info.gradientLine.Bounds().Dx())
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Scale(width/srcW, 1)
-	op.GeoM.Translate(x, y)
-	op.ColorScale.ScaleWithColor(clr)
-	screen.DrawImage(info.gradientLine, op)
 }
 
 // drawWeightDisplay はプレイヤーの所持重量を右下に描画する

@@ -24,7 +24,7 @@ func NewHUDRenderingSystem(world w.World) *HUDRenderingSystem {
 	titleFace := world.Resources.UIResources.Text.TitleFontFace
 
 	return &HUDRenderingSystem{
-		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill, world.Resources.UIResources.GradientLine),
+		gameInfo:        hud.NewGameInfo(smallFace, titleFace, world.Resources.UIResources.GaugeFill),
 		minimap:         hud.NewMinimap(titleFace),
 		debugOverlay:    hud.NewDebugOverlay(smallFace),
 		messageArea:     hud.NewMessageArea(world),
