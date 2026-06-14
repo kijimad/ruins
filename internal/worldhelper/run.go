@@ -41,10 +41,9 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 		wallet.Currency += total
 	}
 
-	// バックパック内アイテムを全て削除する
+	// バックパック内エンティティを全て削除する
 	var toDelete []ecs.Entity
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		toDelete = append(toDelete, entity)
