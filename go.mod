@@ -12,8 +12,9 @@ require (
 	github.com/oapi-codegen/runtime v1.4.1
 	github.com/pelletier/go-toml/v2 v2.3.1
 	github.com/pkg/profile v1.7.0
+	github.com/sebdah/goldie/v2 v2.8.0
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.9.0
+	github.com/urfave/cli/v3 v3.10.0
 	github.com/x-hgg-x/goecs/v2 v2.0.5
 )
 
@@ -37,7 +38,6 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2 // indirect
-	github.com/sebdah/goldie/v2 v2.8.0 // indirect
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/yourbasic/bit v0.0.0-20180313074424-45a4409f4082 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
