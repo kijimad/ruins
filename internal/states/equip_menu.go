@@ -369,7 +369,8 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 		world.Manager.Join(
 			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != gc.CategoryWeapon {
+			cat, _ := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
+			if cat != gc.CategoryWeapon {
 				return
 			}
 			items = append(items, entity)

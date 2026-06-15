@@ -729,8 +729,8 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 		entity, err := SpawnItem(world, item.Name, 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Name)
 
-		cat := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
-		if cat == "" {
+		_, ok := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
+		if !ok {
 			uncategorized = append(uncategorized, item.Name)
 		}
 	}

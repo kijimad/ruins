@@ -85,70 +85,90 @@ func TestCategory(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Melee, &Melee{})
-		assert.Equal(t, "武器", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "武器", cat)
 	})
 
 	t.Run("防具カテゴリ", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Wearable, &Wearable{})
-		assert.Equal(t, "防具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "防具", cat)
 	})
 
 	t.Run("射撃武器カテゴリ", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Fire, &Fire{})
-		assert.Equal(t, "武器", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "武器", cat)
 	})
 
 	t.Run("道具カテゴリは本を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Book, &Book{})
-		assert.Equal(t, "道具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは消耗品を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Consumable, &Consumable{})
-		assert.Equal(t, "道具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは素材を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Material, &Material{})
-		assert.Equal(t, "道具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは弾薬を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Ammo, &Ammo{})
-		assert.Equal(t, "道具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは素材を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Material, nil)
-		assert.Equal(t, "道具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("道具カテゴリは置物を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Prop, nil)
-		assert.Equal(t, "道具", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "道具", cat)
 	})
 
 	t.Run("どのカテゴリにも属さない", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Name, &Name{Name: "何か"})
-		assert.Equal(t, "", c.CategoryOf(InventoryCategoryKey, entity))
+		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
+		assert.False(t, ok)
+		assert.Equal(t, "", cat)
 	})
 
 	t.Run("CategoryはPredとして使える", func(t *testing.T) {
