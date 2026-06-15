@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -76,7 +76,7 @@
 <span id="L14"><span class="lineNum">      14</span> <span class="tlaGNC">           1 :         var stackableItems []ecs.Entity</span></span>
 <span id="L15"><span class="lineNum">      15</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC">           1 :                 world.Components.Stackable,</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 world.Components.ItemLocationInPlayerBackpack,</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :                 world.Components.LocationInBackpack,</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 world.Components.Name,</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 name := world.Components.Name.Get(entity).(*gc.Name)</span></span>
@@ -94,9 +94,9 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         targetEntity := stackableItems[0]</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         for i := 1; i &lt; len(stackableItems); i++ {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 itemToMerge := stackableItems[i]</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 itemComp := world.Components.Item.Get(itemToMerge).(*gc.Item)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                 mergeCount := GetEntityCount(world, itemToMerge)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 if err := ChangeItemCount(world, targetEntity, itemComp.Count); err != nil {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;数量統合エラー: %w&quot;, err)</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L40"><span class="lineNum">      40</span>              : </span>
@@ -127,7 +127,7 @@
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L66"><span class="lineNum">      66</span>              : </span>
 <span id="L67"><span class="lineNum">      67</span>              :         // 増やす操作で存在しない場合は新規作成する</span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         _, err := SpawnItem(world, name, amount, gc.ItemLocationInPlayerBackpack)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         _, err := SpawnItem(world, name, amount, gc.LocationTypeInBackpack)</span></span>
 <span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :         return err</span></span>
 <span id="L70"><span class="lineNum">      70</span>              : }</span>
         </pre>

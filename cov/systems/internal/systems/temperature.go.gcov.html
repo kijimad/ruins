@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -175,10 +175,10 @@
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :         var total Insulation</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 world.Components.ItemLocationEquipped,</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :                 world.Components.LocationEquipped,</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                 world.Components.Wearable,</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(item ecs.Entity) {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)</span></span>
 <span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 if equipped.Owner != owner {</span></span>
 <span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC tlaBgUNC">           0 :                         return</span></span>
 <span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 }</span></span>

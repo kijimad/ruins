@@ -71,7 +71,7 @@
 				
 				<option value="file7">github.com/kijimaD/ruins/internal/activity/movement.go (90.9%)</option>
 				
-				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (84.4%)</option>
+				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (84.0%)</option>
 				
 				<option value="file9">github.com/kijimaD/ruins/internal/activity/player_actions.go (80.0%)</option>
 				
@@ -303,7 +303,7 @@
 				
 				<option value="file123">github.com/kijimaD/ruins/internal/save/desktop.go (60.0%)</option>
 				
-				<option value="file124">github.com/kijimaD/ruins/internal/save/manager.go (92.1%)</option>
+				<option value="file124">github.com/kijimaD/ruins/internal/save/manager.go (92.0%)</option>
 				
 				<option value="file125">github.com/kijimaD/ruins/internal/save/stable_id.go (90.9%)</option>
 				
@@ -323,7 +323,7 @@
 				
 				<option value="file133">github.com/kijimaD/ruins/internal/states/character_naming.go (82.7%)</option>
 				
-				<option value="file134">github.com/kijimaD/ruins/internal/states/craft_menu.go (56.8%)</option>
+				<option value="file134">github.com/kijimaD/ruins/internal/states/craft_menu.go (57.0%)</option>
 				
 				<option value="file135">github.com/kijimaD/ruins/internal/states/dungeon.go (56.9%)</option>
 				
@@ -353,7 +353,7 @@
 				
 				<option value="file148">github.com/kijimaD/ruins/internal/states/shooting.go (40.8%)</option>
 				
-				<option value="file149">github.com/kijimaD/ruins/internal/states/shop_menu.go (58.5%)</option>
+				<option value="file149">github.com/kijimaD/ruins/internal/states/shop_menu.go (58.0%)</option>
 				
 				<option value="file150">github.com/kijimaD/ruins/internal/states/status_state.go (77.5%)</option>
 				
@@ -463,11 +463,11 @@
 				
 				<option value="file203">github.com/kijimaD/ruins/internal/worldhelper/interaction.go (100.0%)</option>
 				
-				<option value="file204">github.com/kijimaD/ruins/internal/worldhelper/inventory.go (67.6%)</option>
+				<option value="file204">github.com/kijimaD/ruins/internal/worldhelper/inventory.go (71.1%)</option>
 				
 				<option value="file205">github.com/kijimaD/ruins/internal/worldhelper/item_format.go (100.0%)</option>
 				
-				<option value="file206">github.com/kijimaD/ruins/internal/worldhelper/item_location.go (82.4%)</option>
+				<option value="file206">github.com/kijimaD/ruins/internal/worldhelper/location.go (82.4%)</option>
 				
 				<option value="file207">github.com/kijimaD/ruins/internal/worldhelper/profession.go (82.1%)</option>
 				
@@ -481,7 +481,7 @@
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/worldhelper/sort.go (100.0%)</option>
 				
-				<option value="file213">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (75.6%)</option>
+				<option value="file213">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (75.9%)</option>
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/worldhelper/spawn_prop.go (78.8%)</option>
 				
@@ -1805,7 +1805,7 @@ func (da *DropActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
         <span class="cov8" title="1">target := *comp.Target
 
         // Targetがバックパック内にあることを確認する
-        if !target.HasComponent(world.Components.ItemLocationInPlayerBackpack) </span><span class="cov8" title="1">{
+        if !target.HasComponent(world.Components.LocationInBackpack) </span><span class="cov8" title="1">{
                 return fmt.Errorf("アイテムがバックパック内にありません")
         }</span>
 
@@ -2344,7 +2344,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
                 <span class="cov8" title="1">if !worldhelper.IsPickable(entity, world) </span><span class="cov8" title="1">{
                         return
                 }</span>
-                <span class="cov8" title="1">if entity.HasComponent(world.Components.Item) &amp;&amp; entity.HasComponent(world.Components.ItemLocationOnField) </span><span class="cov8" title="1">{
+                <span class="cov8" title="1">if entity.HasComponent(world.Components.Item) &amp;&amp; entity.HasComponent(world.Components.LocationOnField) </span><span class="cov8" title="1">{
                         itemsToCollect = append(itemsToCollect, entity)
                 }</span> else<span class="cov8" title="1"> {
                         propsToCollect = append(propsToCollect, entity)
@@ -2395,11 +2395,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) <span class="cov8" title="1">{
         formattedName := worldhelper.GetEntityName(propEntity, world)
 
-        // Item化してバックパックに移動する
-        if !propEntity.HasComponent(world.Components.Item) </span><span class="cov8" title="1">{
-                propEntity.AddComponent(world.Components.Item, &amp;gc.Item{Count: 1})
-        }</span>
-        <span class="cov8" title="1">worldhelper.MoveToBackpack(world, propEntity, actor)
+        worldhelper.MoveToBackpack(world, propEntity, actor)
 
         // フィールドから消す
         propEntity.RemoveComponent(world.Components.GridElement)
@@ -2407,8 +2403,8 @@ func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntit
         gamelog.New(worldhelper.GetGameLog(world)).
                 ItemName(formattedName).
                 Append(" を拾った。").
-                Log()</span>
-}
+                Log()
+}</span>
 
 // collectFieldItem はフィールドアイテムを収集してバックパックに移動する
 func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, itemEntity ecs.Entity) error <span class="cov8" title="1">{
@@ -3037,11 +3033,11 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
                         Cancel(comp, "弾薬がなくなった")
                         return nil
                 }</span>
-                <span class="cov8" title="1">ammoItem := world.Components.Item.Get(ammoEntity).(*gc.Item)
+                <span class="cov8" title="1">ammoCount := worldhelper.GetEntityCount(world, ammoEntity)
 
                 loaded := needed
-                if ammoItem.Count &lt; loaded </span><span class="cov8" title="1">{
-                        loaded = ammoItem.Count
+                if ammoCount &lt; loaded </span><span class="cov8" title="1">{
+                        loaded = ammoCount
                 }</span>
 
                 // 装填した弾薬の修正値を記録する
@@ -6525,21 +6521,21 @@ type EntitySpec struct {
         Description *Description
 
         // item ================
-        HP               *HP
-        Item             *Item
-        Consumable       *Consumable
-        CarryWeight      *CarryWeight
-        Melee            *Melee
-        Fire             *Fire
-        Value            *Value
-        Weight           *Weight
-        Recipe           *Recipe
-        Wearable         *Wearable
-        Abilities        *Abilities
-        Weapon           *Weapon
-        Ammo             *Ammo
-        Stackable        *Stackable
-        ItemLocationType *ItemLocationType
+        HP           *HP
+        Item         *Item
+        Consumable   *Consumable
+        CarryWeight  *CarryWeight
+        Melee        *Melee
+        Fire         *Fire
+        Value        *Value
+        Weight       *Weight
+        Recipe       *Recipe
+        Wearable     *Wearable
+        Abilities    *Abilities
+        Weapon       *Weapon
+        Ammo         *Ammo
+        Stackable    *Stackable
+        LocationType *LocationType
 
         // field ================
         AIMoveFSM       *AIMoveFSM
@@ -6601,23 +6597,23 @@ type Components struct {
         Description *ecs.SliceComponent `save:"true"`
 
         // item ================
-        HP                           *ecs.SliceComponent `save:"true"`
-        Item                         *ecs.SliceComponent `save:"true"`
-        Consumable                   *ecs.SliceComponent `save:"true"`
-        CarryWeight                  *ecs.SliceComponent `save:"true"`
-        Melee                        *ecs.SliceComponent `save:"true"`
-        Fire                         *ecs.SliceComponent `save:"true"`
-        Value                        *ecs.SliceComponent `save:"true"`
-        Weight                       *ecs.SliceComponent `save:"true"`
-        Recipe                       *ecs.SliceComponent `save:"true"`
-        Wearable                     *ecs.SliceComponent `save:"true"`
-        Abilities                    *ecs.SliceComponent `save:"true"`
-        Weapon                       *ecs.SliceComponent `save:"true"`
-        Ammo                         *ecs.SliceComponent `save:"true"`
-        Stackable                    *ecs.SliceComponent `save:"true"`
-        ItemLocationInPlayerBackpack *ecs.NullComponent  `save:"true"`
-        ItemLocationEquipped         *ecs.SliceComponent `save:"true"`
-        ItemLocationOnField          *ecs.NullComponent
+        HP                 *ecs.SliceComponent `save:"true"`
+        Item               *ecs.NullComponent  `save:"true"`
+        Consumable         *ecs.SliceComponent `save:"true"`
+        CarryWeight        *ecs.SliceComponent `save:"true"`
+        Melee              *ecs.SliceComponent `save:"true"`
+        Fire               *ecs.SliceComponent `save:"true"`
+        Value              *ecs.SliceComponent `save:"true"`
+        Weight             *ecs.SliceComponent `save:"true"`
+        Recipe             *ecs.SliceComponent `save:"true"`
+        Wearable           *ecs.SliceComponent `save:"true"`
+        Abilities          *ecs.SliceComponent `save:"true"`
+        Weapon             *ecs.SliceComponent `save:"true"`
+        Ammo               *ecs.SliceComponent `save:"true"`
+        Stackable          *ecs.SliceComponent `save:"true"`
+        LocationInBackpack *ecs.SliceComponent `save:"true"`
+        LocationEquipped   *ecs.SliceComponent `save:"true"`
+        LocationOnField    *ecs.NullComponent
 
         // field ================
         AIMoveFSM       *ecs.SliceComponent
@@ -6730,14 +6726,9 @@ type Camera struct {
         TargetY float64
 }
 
-// Item はキャラクターが保持できるもの
+// Item はキャラクターが保持できるアイテムを示すマーカーコンポーネント
 // 装備品、武器、回復アイテム、売却アイテム、素材など
-type Item struct {
-        Count int // 所持数。非スタックは常に1になる
-        // TODO(kijima): ここにStackableフィールドをもたせるべきか検討する
-        // 所持上限と所持個数は密接に関連しておりコンポーネントとして分離させる意味があまりない
-        // また、読み取り上すべてcountを持っていたほうが処理がシンプルになる。読み取りの箇所すべてでスタック可能/スタック不可を区別するのはややこしい。書き込みは限られた箇所にしか登場しないが、読み取りは多くの場所で登場する
-}
+type Item struct{}
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
@@ -6811,9 +6802,11 @@ type InflictsDamage struct {
         Amount int
 }
 
-// Stackable はスタック可能なアイテムを示すマーカーコンポーネント
-// 実際の所持数は Item.Count フィールドを使用する
-type Stackable struct{}
+// Stackable はスタック可能なエンティティを示すコンポーネント
+// 所持数を管理する。非Stackableエンティティの個数は常に1として扱う
+type Stackable struct {
+        Count int // 所持数
+}
 
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される
@@ -6983,23 +6976,25 @@ func (c FactionNeutralData) String() string <span class="cov0" title="0">{
         return "FactionNeutral"
 }</span>
 
-// ItemLocationType はアイテムの場所
-type ItemLocationType fmt.Stringer
+// LocationType はエンティティの場所
+type LocationType fmt.Stringer
 
 var (
-        // ItemLocationInPlayerBackpack はプレイヤーのバックパック内
-        ItemLocationInPlayerBackpack ItemLocationType = LocationInPlayerBackpack{}
-        // ItemLocationEquipped は味方が装備中
-        ItemLocationEquipped ItemLocationType = LocationEquipped{}
-        // ItemLocationOnField はフィールド上
-        ItemLocationOnField ItemLocationType = LocationOnField{}
+        // LocationTypeInBackpack はバックパック内
+        LocationTypeInBackpack LocationType = LocationInBackpack{}
+        // LocationTypeEquipped は装備中
+        LocationTypeEquipped LocationType = LocationEquipped{}
+        // LocationTypeOnField はフィールド上
+        LocationTypeOnField LocationType = LocationOnField{}
 )
 
-// LocationInPlayerBackpack はプレイヤーのバックパック内位置
-type LocationInPlayerBackpack struct{}
+// LocationInBackpack はバックパック内位置
+type LocationInBackpack struct {
+        Owner ecs.Entity // バックパックの所有者
+}
 
-func (c LocationInPlayerBackpack) String() string <span class="cov0" title="0">{
-        return "ItemLocationInPlayerBackpack"
+func (c LocationInBackpack) String() string <span class="cov0" title="0">{
+        return "LocationInBackpack"
 }</span>
 
 // LocationEquipped は装備中位置
@@ -7009,14 +7004,14 @@ type LocationEquipped struct {
 }
 
 func (c LocationEquipped) String() string <span class="cov0" title="0">{
-        return "ItemLocationEquipped"
+        return "LocationEquipped"
 }</span>
 
 // LocationOnField はフィールド上位置
 type LocationOnField struct{}
 
 func (c LocationOnField) String() string <span class="cov0" title="0">{
-        return "ItemLocationOnField"
+        return "LocationOnField"
 }</span>
 
 // Prop は置物を表すマーカーコンポーネント
@@ -18586,8 +18581,8 @@ type SaveDataComponentsMap struct {
         // LocationEquipped 装備位置。エンティティ参照を含む
         LocationEquipped *SaveDataLocationEquippedComponent `json:"LocationEquipped,omitempty"`
 
-        // LocationInPlayerBackpack プレイヤーバックパック内の位置マーカー
-        LocationInPlayerBackpack *SaveDataMarkerComponent `json:"LocationInPlayerBackpack,omitempty"`
+        // LocationInBackpack バックパック内の位置。所有者エンティティ参照を含む
+        LocationInBackpack *SaveDataLocationInBackpackComponent `json:"LocationInBackpack,omitempty"`
 
         // Melee 近接攻撃設定
         Melee *SaveDataMeleeComponent `json:"Melee,omitempty"`
@@ -18837,6 +18832,13 @@ type SaveDataLocationEquippedComponent struct {
         EquipmentSlot SaveDataEquipmentSlotNumber `json:"EquipmentSlot"`
 
         // OwnerRef 装備者のStableID
+        OwnerRef SaveDataStableID `json:"OwnerRef"`
+}
+
+// SaveDataLocationInBackpackComponent バックパック位置コンポーネント。
+// Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+type SaveDataLocationInBackpackComponent struct {
+        // OwnerRef 所有者のStableID
         OwnerRef SaveDataStableID `json:"OwnerRef"`
 }
 
@@ -24995,91 +24997,92 @@ var swaggerSpec = []string{
         "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",
-        "Ghbxi+K4lH1dcPctPn+QJFFLZFiJEGqT8PirVckhdhfw06t9UuZUUcqcWp8F8h2r1DPV3gv+FXReBMcd",
-        "FmzHZVvwTXFFFOK9KnSowWZ8GaVl2q6IgpuEb/3Z7mUsJewl5hB8PXC3CBlCQxD3pGNrk7zTB/eMRa+e",
-        "Vh5Mtf545A7D9YnGpI0b8rlv+eZc2RrwRZvFpEk258vaG7T0j9HSjzQnJlrX3hGjILPJrYMyxgko0bbG",
-        "iMYndwOapJX2D0uFobY0Y7Qh4MwltQ9G7Y05M9q889KoX0cceYYu+GW1sE8qtUXfaRt6JD1F6z9r3U7g",
-        "WuCrydxq9Z759hHybdkuh5iDQO24+41MZ1IRhaNSLgfaQTa4YRTAfBXRcVIIdnxZrbzvPmk6SuQgjDs1",
-        "qykXL6Lc8/bmqXAv0RSsH7lKHcOVgM0zUeL+XPl0miDcXhGFrztTd+5rT905YmR80wKyP9BqNrtyQ3PW",
-        "c98suTcbhEVZL11JHMqKoIlIh3aD4lbp8K5jV/SocYcmJXzctyLkv3EXIU6FEY4zxi11FcMNg2kfBAWg",
-        "SizzoR8bLb++sfzuQev6b+bEK38t1DjLhml3F7Lg+0hWKEtHX7QNXW/WTjxG4ZX14bz9K8uxTa2oFxwH",
-        "LQSVqLkf2y5CGghp52e4GdA27T2lfmzevQxZqs8aVR3Zb5+ady8b+jVkCpxvXX9mpUHH6XVP5MB3cjto",
-        "YAC17e6KBPkNvWE2Rs3Gbfi9by+7gxBJ1vK3tZPrmb7AEQrdtBmh5Hir244wcnpoO8LI7aHNCCOng3Yj",
-        "jOju8/YijMIXOg8K2kBO0XrL9KxFwdo5QQUaV4WdhjQ1iZoHASrLW87OZDgCpYwmnw5tPWbhZWuv3AhN",
-        "TVcCoBDaKXZ6Nl+PIFcAt8dAIio0aosOd2m8Bsc2K8+k2shdRoRYtGHkRxEjAZW1vPQB1adFJVRpkRr0",
-        "iv0x4gU84RjB8vsxMqjtj51BrZ3E9unYGdR6FCkLsoEYoGhr5IsGopr6pueXXy/AdbEWyIq5Mq8uLb9e",
-        "8ERe4aH4ooKiDcQTHxRnGCTm9gzGzlvY1t3QakoxcSOnrBWKuPi+ef0ZLUdiNHre2kLB+yfyBXvo+KOU",
-        "o9Hx1iGiGI7c4GazMRZ8EmC+emjR78D10B/75abg67JT8KU8KfjSTgq+lD8F336cgo8YFbHsvlXxMU8k",
-        "os6CYkvfVXy9nFMkrU9RaLExfzTMy9dxmqCWZStbNOrzn46//6CUB32qMqQCaj0Zq+Dt/dXq7yvTY4yT",
-        "PZMDkgqy31mPi7mZgoIHuJ8iqoVe+9U6rL1leJm43/sZLl0ZmDQ47dxR2sgzRINClOG7uANzi31Vcb+k",
-        "jte3pgEmO/Phry/NHUlZZ7o3MvGZm8cXBfR8Hlj86PFNg3IO7FcUNRsvtIlo5mMJjmHiTp/0ilKKU1lO",
-        "0Y3Z7mvY6Wvc5IeAlOst54FKi6LH1decMmVruCNYzh9sg2MYGpxqaI5VA0dlokewDyztWx819FmyWJpR",
-        "mzRHZlAAI/URbMGdXFy3OcEaajg9yRt7rPrYMZvkMQECn/svzSsjhj5PombP6+5ooyLeeTMwx6E+HLlq",
-        "AXOipl3is+TO5I7dO5Ofk6NEA+CPUWsv6Nez2IxgY2btO78sa6HG4yC5yJX2vHG/Df+zeGQGeop2/phj",
-        "DIoZA4zXWXTkkBsEzIqe4BqtGSkHUpHeKtKN5MFgf+YbPGLsLCR1/WXz+rMNBlCbp1HDEuKj7PqenPjk",
-        "UYpS4sN92jo3DRf2Vs3QnyaDBt12FTE1WCVeznwn0UNcb7ibRj+gDuwsEahQuJNgPxoBb6p9inYcNS+9",
-        "2YX5iV9Q2GvTTqCPnZ2fFt8Tuq4Bueq3k/rvt5L6pzlJ/SPE/TDsfVbQDNVeXq0dKxw5UwBq4Jx9ygwS",
-        "0huWFqzqtm0bHj4zo82JOziGFnm1IVi3Igxqbxnns8dq2cai0Kye7JdoAbNnRRTQ5PshqU4a9jHFlep5",
-        "Q2+4n/mW3yEt+vjAXX7SSBJq6GhfVfid7dQyEraXnSVbLpiz1Ps9Q79tVHU7OLvRnBptnZs29PuGftXQ",
-        "x5rnJsyrL8izgMcH/M6e4T3zvuX3XKQoR68vEqyd4hJtGWi37aQ8O+lf3nbF3ajeeL9o/t2AVEVKVU9x",
-        "J/snjv7IHS6Jm+j1fuHR4AC2xGcY2X0e8yF1wL4VjZbXHvd5zIc9HqMYm6CDTDtCMDqt9hjJiqzk5iYz",
-        "qjUM54FqhTJYmeevo8c7OHXwpHn+1fLST8gbPm+OXFiZfRDzXJfiXT+CBoKAuy3CHYQT7MnIcO+J9Wzv",
-        "ChWoAdzG5Sk8gZpRrZlXzhl1HRUdGTfq88kdX+zZExxz3Kxn++I2OBi3Qf+a8qr1C5AkHKcopEK46Iu3",
-        "ZWMCxgneHS+XkY8wam2fxdwEyt3s/ETMPmMnK0q1mawo1oHjwWDUI0eMtAHYAUi0aKdGc6q6/PrS8tK4",
-        "lQkPAk0yVd48frJnJX6oXf6PgSO9Vma92uTK9JyhBxNJZ4j3jXEjleymNEedNermtTeGfsOo/dScmWrd",
-        "e9i6Nuc8m5xAoWSvjPpDyw2qyXlQ0qQ85Vkknljz5sPmrVris/4D+7/88suvzKVfzcUJ7xElaWAH7IeG",
-        "ek8DtcSIsqMwG5ePcT0t1Zp9z3iaOCbs3pncmTwmJPBrSsLyhf6Bau86o6i5duKojsJ2jqTQeP3Uvb46",
-        "MWmB3JbW5Ek222MSXSngi2sR0IonpvqgbD790Snm0gnbOY7od2qIRgjjb756br59FBNNDJA1lbhELEcV",
-        "OxCRLGdjjvyr9fKcUZtc1R8j4/JNnEqBexmjP2KINnnW5Sx2RukgYyqiUCjncjiSXFPLIJj2LFKpV+rS",
-        "VkThCJoYzw0Z8CqmT8gaKAzJBZDoUqUz3fBGY3WDlOITdMOoGvXH5oXzq/U5x08blO3INbWojBmIWVzL",
-        "2wlRZcufnyBQDWuAKNrPrmDLJBAu3a9wklV+sO3aZdw2CkV6+e7EhJJD2uWEgKze+AkOixKsPLn8uto8",
-        "N2Ho8zhpCKussif0Oq4Nzh+9TQkaI4K1EZQdQ1HF/lBqONEL4+YIYmNtEuWfeeg6pGQ7SLutAeIQ70gx",
-        "uMEY70C2e9SZSDKOK4Y+s0TwioayCzTHLrJfeLRTcHNw7QU3Bz3FMge5xTIprnmKeHviBmIeU5SXVfTi",
-        "yWEPqwIHRF9bz52x0yvW4y6sLkFbD8twuyA5DvII3Ef7BJs+dwl9z8fCimF7uflNlGISbqXtQHg0s4wE",
-        "880Z9+kQzaGYiX7SOQ3843T+gT/UwBuyYAgw+YQs+DDIyfAZMUJUzSuq3Yr+Xu39tPXk330f0K73xX1c",
-        "wHS8kK8LKoSzgzR8RyzRGmjKIrpan1teGsdZDUrlnITtQXEuHr52FELVK+bTyWZ11qr16jY4BCStHUKo",
-        "HZVQ8/ZVm1DghRdeaBpfPesb4ERgxHwx9ly/KPYI9/Zl3bVpb4QQLPW+Odfn8F41f9KtnDy1SfsCT0Ur",
-        "AJ7ntGqKdOy0en7cHLlpVGuus3LWKgcKTwTLRiCIMS8GvqdTlCTIQ1IefFckYijjZgwhQzBpZwwtBtMv",
-        "Hg6zqItLPqzx6c9z91Ye3YZgDQWNt368aOhz5p27q/oH9PO8ufR89d4HTkgCPZfyDvQr5YgfBjnNqntM",
-        "eSLRWLm2ZEOHm66ZISnuEXcnj9NM8afkXG6fopyiQ35UOqk5xcrPiapzncZZ86IWRHL53kZTXIXcqfgU",
-        "qWiTP1aK6MI/FtGdEVUOrC7ZrOp4zTJi+myq6AZrpSKMKmB06WrfiuJI2m7xC/FLqqjFtJ10uvKwP2cE",
-        "fwiuUWCRIfzZSFYMr/Fic2py+x9Icmpni9a0jjONH7jWQ2QDQQdKERalcD4jm04f/JBRFwB1EjIrRmkA",
-        "xsw6UawprHzGBtQHWIvpp9PKjsynEpoMJexlI/mY1RcBtHAZR623Rh+3rlwg40Q7f2L7zBLBaz6k+7td",
-        "9/iZXb6IOL2FdG/68D8EUUj19MD/HU2n+o70CqLQe6Q3TfUdeAwaXIo4+skmNNDde7AnjSnRO5bpi2MZ",
-        "KwKb4aMrKnhSyckRQnYO4M9w3HZbxWcxjgvVDwTcW3ORPS1KRTyHWpRCePTKd4ECefZk7UG4bKYpJChj",
-        "LE1syVknVC+92NDG6FxfHhna02E7sQ1Wti+ITbovNTiINumB7nQPxJup3n9QNytcjC65pEmFDIVMqnvl",
-        "0Y3W9TH8qPrPxRFfHO6fi6Nrrf1CZgPwz/EnrIHxg4zOalxqdchgrOK55+bFt/Z9/CYuNm/UnmDkGVgy",
-        "Sq3I4GXwyfTq7R/N5zMxemVe5prPXlJvcjv2iDvodzk3Y1RouifaUIj0TzRLERZIJhaOVF7Ha3Kzql77",
-        "TVwxDVuiIAcsV3HsVWR72yAVxwzlVwCOnQlQ7Eyy37Qkh5mWKmiAJ9ErKE3W4PoI/WW5UEqks7KmqIlU",
-        "X7dABCsISRRRUBEFpQgKUlEW9gpfoj9hDIyWa5dUlHed3r3LKn64Q3MK9w3Rsf0LJD0vUMjABdtWZalh",
-        "c+KG+R6KKBQInAozK+wVyBKJJaTPIaNKRaVQwqS+SCZx9puCZqeKLRZzMo7a3/VfJSzKmO1x6jEiWohv",
-        "3lkMDoMEXClQ0hLDUilRKmcyAGRBdicGDielck7r2IjSqqqotGGkColyAXxfBBkNZBMAfpaw+bITJ0aT",
-        "hkrIbu4pTXkc3oSUUpzlWZpqjlzhL8x+FUgasAwhoKTtU7Jn12VVMCvcnaKpZVAJSMTudaQdURoSUiGb",
-        "kBIFcAYuC3oEhD44AUAhkUHsyiakUkKC/1zOaR+L9FRExrbf9QNy01awYOUAPUUNXcTM0Uurt2b4ItaF",
-        "+4TqR5XyQEP1OL/9QZBhx+habgNox1/sFRORYFo4HjseEKp/D85ncBioICGXEgUlYS1YQlMSJVDIJk4q",
-        "akIblku2eIiJE2UtoQ2DxDCQskAtJfLS2cQJkCiXwMlybmfi41Ef5Rjao3nnZfPGM/7Sfl3MShu9tH8F",
-        "NZXcfDX1EaqdrKoUQ6EGFMIFK91DVKjhlE5ed5zhUNoyIMPlHQ9hsFaFjjDcPtcVXhAVszcWW/gIf2LA",
-        "wiMx9O0dCVIwZIoBKVyq23jir6EpyjEUBQNMuF1uDSQRUyMlN1kjfWwaBhRA/mwYgmhe/yMycEjDDjcG",
-        "Obiktgx0ILjHwQ7+9aBDBqKvdcUMLp2NBg1+yp8YavAKC2NTR8ENPnliwAWC3DZe+Iuoh3K4dmDgBKKr",
-        "rQEU4qqh5GaroY9OrcgayO8YUpVykefXIMqdEaEXXMzQrYE8iuZYd8jgUNoyiMHlHdedwVgVOnJw+1xX",
-        "4OCQ2Wjc4CP8icEGj8TQt3c0/wVdphjowaW6DR7+GpqiHENRMECE2+XWwBAxNVJykzXSR6lhQgMjyHqp",
-        "EY0OkODG2BwcSlsKQESIh2CsChtAbIDlwSGzGQDi07U7eCSGvr1jA4hw84NLdRtA/DU0RTmGouAAiK1k",
-        "hIipkZKbrJE+Rg0TDTqEwoUNQQpbCiRExQccTLD+cGAzkMAnCwJouzPuyc857bcP+k3f7aF6duXxi9bL",
-        "Zzw9exBom7iCyc3b6R+BLg9DcBzUtoUA22ZgtS0lScQZkAf5E0gSmMGo0ygu+opRX+RitMO4o/VGaZjM",
-        "lsFpFte4cafEAtCRmtXJumI1TGOj0RpJ9RPDa65kBHdrtNhSV24YmM0isY3aNn/vh+peLm6zetoqyK2N",
-        "Xf9R6PdyyBoz0JvVx9bAb3HOkW2JinouFKUc0DTum6KrKJ1T3Unaw1AlfVZP643jLDpbBsjZfOMiOWIN",
-        "6EjO7mVdoZxFZKOxnIfsJwbmCOmg7NpdP8jZECznSg4Dy9kU4oC5LPeI8OVS2cZt1K0eqm25wM3uKjJy",
-        "W+uSJTd1O38cyrscsqIMmGZ3EgentbGcm3webAtQDP2uKidBqWSX6qCqihX9VfPhAh+Sud2sOypzSG0d",
-        "YEYsAhubWcvAQGVuF+sLzBw6G47NfJQ/NXjmkRH6Do5ic8NSxEJobl/bFre/iC4oM1UB65B3e9ga9pi4",
-        "Oie52TrnY9QhnPdXraVGa/Rx2Plf3IiTv7iVznzu8yqL6czTvrju53xxE0744qd6thdpOzLKeY7lhH2e",
-        "b7+N2vwdztGqfNML7GGreMxi7+6PQHOXmevKxmbFrYPKipuAx7aWDBEaX0U1snnuMatENheI4Urb6w7F",
-        "MJktA8YsrnEdYzb36YjM6mFdMRmmsdGojKT6ieEyVyyC+zRafJMlNAx4ZvW/DdA2f9fzVS4XpVndbBWc",
-        "1sZ+/yjUepm3wAy4ZnWwNQBbnONjW5yiHge4hs6O0jAAGu8ZIa84GUOxECW/1h3Q+curbYX1IvnHfWfI",
-        "WBs60iN7XVe45yk6t7GYL0D6EwN+Pslhbfdo7xIZZfnokJCkvI0L/yp6oxxDbTCgBNnp1sATsfVTctP1",
-        "08enbzSZn9jIU2mPgSMG5Q1IYuSUA9wK64E4xoUMNt/pGAG1X1dwgMsibiwqcGl+YnDAFgf/vox2/tvl",
-        "GukHPup7+6Tf7H3OV69c+w/qZKtYf2Lv8Y9AhZd5S8uAa6j51sBp0Y+KbTFiq/6KKJSAetoWAW9/XeA0",
-        "yCmoimgCfyWIQlnNCXuFYU0r7t21K6dkpNywUtL2/j3596QA19oiYZfatzIfVETnD/YzOuJPtgmK+JO3",
-        "khfxD0R5DuKvRB5N31+D35JZu4k/Y54Qf8DeTO8fnEAz4s8emEt+boemV45X/icAAP//",
+        "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",
+        "f8DeTO8fnEAz4s8emEt+boemV45X/icAAP//",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
@@ -25405,7 +25408,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span class
         }</span>
 
         <span class="cov8" title="1">entitySpec := gc.EntitySpec{}
-        entitySpec.Item = &amp;gc.Item{Count: 1}
+        entitySpec.Item = &amp;gc.Item{}
         entitySpec.Name = &amp;gc.Name{Name: item.Name}
         entitySpec.Description = &amp;gc.Description{Description: item.Description}
 
@@ -27699,9 +27702,9 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
         // 1. プレイヤーエンティティ
         <span class="cov8" title="1">world.Manager.Join(world.Components.Player).Visit(ecs.Visit(collect))
         // 2. バックパック内アイテム
-        world.Manager.Join(world.Components.ItemLocationInPlayerBackpack).Visit(ecs.Visit(collect))
+        world.Manager.Join(world.Components.LocationInBackpack).Visit(ecs.Visit(collect))
         // 3. 装備中アイテム
-        world.Manager.Join(world.Components.ItemLocationEquipped).Visit(ecs.Visit(collect))
+        world.Manager.Join(world.Components.LocationEquipped).Visit(ecs.Visit(collect))
 
         sort.Slice(entities, func(i, j int) bool </span><span class="cov8" title="1">{
                 return entities[i].StableId.Index &lt; entities[j].StableId.Index
@@ -27726,8 +27729,13 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
         <span class="cov8" title="1">if entity.HasComponent(c.FactionAlly) </span><span class="cov8" title="1">{
                 comp.FactionAllyData = emptyMarker()
         }</span>
-        <span class="cov8" title="1">if entity.HasComponent(c.ItemLocationInPlayerBackpack) </span><span class="cov8" title="1">{
-                comp.LocationInPlayerBackpack = emptyMarker()
+        // LocationInBackpack（エンティティ参照を含む）
+        <span class="cov8" title="1">if entity.HasComponent(c.LocationInBackpack) </span><span class="cov8" title="1">{
+                backpack := c.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+                ownerStableID := sm.stableIDManager.GetStableID(backpack.Owner)
+                comp.LocationInBackpack = &amp;oapi.SaveDataLocationInBackpackComponent{
+                        OwnerRef: stableIDToSaveData(ownerStableID),
+                }
         }</span>
         <span class="cov8" title="1">if entity.HasComponent(c.StatsChanged) </span><span class="cov8" title="1">{
                 comp.StatsChanged = emptyMarker()
@@ -27737,15 +27745,16 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
         <span class="cov8" title="1">if entity.HasComponent(c.Weapon) </span><span class="cov8" title="1">{
                 comp.Weapon = emptyMarker()
         }</span>
-        <span class="cov8" title="1">if entity.HasComponent(c.Stackable) </span><span class="cov8" title="1">{
-                comp.Stackable = emptyMarker()
+        // Item (NullComponent, マーカー)
+        <span class="cov8" title="1">if entity.HasComponent(c.Item) </span><span class="cov8" title="1">{
+                comp.Item = emptyMarker()
         }</span>
 
-        // Item (SliceComponent, Countフィールドあり)
-        <span class="cov8" title="1">if entity.HasComponent(c.Item) </span><span class="cov8" title="1">{
-                item := c.Item.Get(entity).(*gc.Item)
-                m := oapi.SaveDataMarkerComponent{"Count": item.Count}
-                comp.Item = &amp;m
+        // Stackable (SliceComponent, Countフィールドあり)
+        <span class="cov8" title="1">if entity.HasComponent(c.Stackable) </span><span class="cov8" title="1">{
+                stackable := c.Stackable.Get(entity).(*gc.Stackable)
+                m := oapi.SaveDataMarkerComponent{"Count": stackable.Count}
+                comp.Stackable = &amp;m
         }</span>
 
         // データコンポーネント
@@ -27854,8 +27863,8 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
         }</span>
 
         // エンティティ参照コンポーネント (LocationEquipped)
-        <span class="cov8" title="1">if entity.HasComponent(c.ItemLocationEquipped) </span><span class="cov8" title="1">{
-                equipped := c.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+        <span class="cov8" title="1">if entity.HasComponent(c.LocationEquipped) </span><span class="cov8" title="1">{
+                equipped := c.LocationEquipped.Get(entity).(*gc.LocationEquipped)
                 ownerStableID := sm.stableIDManager.GetStableID(equipped.Owner)
                 comp.LocationEquipped = &amp;oapi.SaveDataLocationEquippedComponent{
                         OwnerRef:      stableIDToSaveData(ownerStableID),
@@ -27896,16 +27905,29 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 
         // 第3段階: エンティティ参照を解決
         <span class="cov8" title="1">for _, entry := range entries </span><span class="cov8" title="1">{
-                if entry.data.Components.LocationEquipped == nil </span><span class="cov8" title="1">{
-                        continue</span>
+                comp := entry.data.Components
+
+                // LocationInBackpack の Owner を解決
+                if comp.LocationInBackpack != nil </span><span class="cov8" title="1">{
+                        ownerStableID := stableIDFromSaveData(comp.LocationInBackpack.OwnerRef)
+                        ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
+                        if !exists </span><span class="cov0" title="0">{
+                                return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
+                        }</span>
+                        <span class="cov8" title="1">backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)
+                        backpack.Owner = ownerEntity</span>
                 }
-                <span class="cov8" title="1">ownerStableID := stableIDFromSaveData(entry.data.Components.LocationEquipped.OwnerRef)
-                ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
-                if !exists </span><span class="cov0" title="0">{
-                        return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
-                }</span>
-                <span class="cov8" title="1">equipped := c.ItemLocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
-                equipped.Owner = ownerEntity</span>
+
+                // LocationEquipped の Owner を解決
+                <span class="cov8" title="1">if comp.LocationEquipped != nil </span><span class="cov8" title="1">{
+                        ownerStableID := stableIDFromSaveData(comp.LocationEquipped.OwnerRef)
+                        ownerEntity, exists := sm.stableIDManager.GetEntity(ownerStableID)
+                        if !exists </span><span class="cov0" title="0">{
+                                return fmt.Errorf("required owner entity not found for stable ID: %v", ownerStableID)
+                        }</span>
+                        <span class="cov8" title="1">equipped := c.LocationEquipped.Get(entry.entity).(*gc.LocationEquipped)
+                        equipped.Owner = ownerEntity</span>
+                }
         }
 
         // GameProgressを復元
@@ -27925,8 +27947,9 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
         <span class="cov8" title="1">if comp.FactionAllyData != nil </span><span class="cov8" title="1">{
                 entity.AddComponent(c.FactionAlly, &amp;gc.FactionAllyData{})
         }</span>
-        <span class="cov8" title="1">if comp.LocationInPlayerBackpack != nil </span><span class="cov8" title="1">{
-                entity.AddComponent(c.ItemLocationInPlayerBackpack, &amp;gc.LocationInPlayerBackpack{})
+        // LocationInBackpack（Ownerは第3段階で解決）
+        <span class="cov8" title="1">if comp.LocationInBackpack != nil </span><span class="cov8" title="1">{
+                entity.AddComponent(c.LocationInBackpack, &amp;gc.LocationInBackpack{})
         }</span>
         <span class="cov8" title="1">if comp.StatsChanged != nil </span><span class="cov8" title="1">{
                 entity.AddComponent(c.StatsChanged, &amp;gc.StatsChanged{})
@@ -27936,19 +27959,20 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
         <span class="cov8" title="1">if comp.Weapon != nil </span><span class="cov8" title="1">{
                 entity.AddComponent(c.Weapon, &amp;gc.Weapon{})
         }</span>
-        <span class="cov8" title="1">if comp.Stackable != nil </span><span class="cov8" title="1">{
-                entity.AddComponent(c.Stackable, &amp;gc.Stackable{})
+        // Item (NullComponent, マーカー)
+        <span class="cov8" title="1">if comp.Item != nil </span><span class="cov8" title="1">{
+                entity.AddComponent(c.Item, &amp;gc.Item{})
         }</span>
 
-        // Item (Countフィールドあり)
-        <span class="cov8" title="1">if comp.Item != nil </span><span class="cov8" title="1">{
-                item := gc.Item{}
-                if count, ok := (*comp.Item)["Count"]; ok </span><span class="cov8" title="1">{
+        // Stackable (Countフィールドあり)
+        <span class="cov8" title="1">if comp.Stackable != nil </span><span class="cov8" title="1">{
+                stackable := gc.Stackable{}
+                if count, ok := (*comp.Stackable)["Count"]; ok </span><span class="cov8" title="1">{
                         if countFloat, ok := count.(float64); ok </span><span class="cov8" title="1">{
-                                item.Count = int(countFloat)
+                                stackable.Count = int(countFloat)
                         }</span>
                 }
-                <span class="cov8" title="1">entity.AddComponent(c.Item, &amp;item)</span>
+                <span class="cov8" title="1">entity.AddComponent(c.Stackable, &amp;stackable)</span>
         }
 
         // データコンポーネント
@@ -27966,7 +27990,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
                         Owner:         0,
                         EquipmentSlot: gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot),
                 }
-                entity.AddComponent(c.ItemLocationEquipped, &amp;equipped)
+                entity.AddComponent(c.LocationEquipped, &amp;equipped)
         }</span>
 }
 
@@ -28832,8 +28856,8 @@ func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, 
                 countStr := ""
                 entity := entry.Item.Entity
                 if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
-                        count := world.Components.Item.Get(entity).(*gc.Item).Count
-                        countStr = fmt.Sprintf("%d", count)
+                        stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+                        countStr = fmt.Sprintf("%d", stackable.Count)
                 }</span>
                 <span class="cov8" title="1">styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, countStr, worldhelper.FormatCurrency(entry.Item.Price)}, aligns, &amp;isSelected, res)</span>
         }
@@ -30043,8 +30067,7 @@ func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Conta
         for _, input := range recipe.Inputs </span><span class="cov8" title="1">{
                 var currentAmount int
                 if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found </span><span class="cov0" title="0">{
-                        item := world.Components.Item.Get(stackableEntity).(*gc.Item)
-                        currentAmount = item.Count
+                        currentAmount = worldhelper.GetEntityCount(world, stackableEntity)
                 }</span>
                 <span class="cov8" title="1">str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
                 var textColor color.RGBA
@@ -30301,8 +30324,8 @@ func (st *DungeonState) OnStop(world w.World) error <span class="cov0" title="0"
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
                 // プレイヤーエンティティ、バックパック内アイテム、装備中アイテムは次のフロアでも必要なので削除しない
                 if !entity.HasComponent(world.Components.Player) &amp;&amp;
-                        !entity.HasComponent(world.Components.ItemLocationInPlayerBackpack) &amp;&amp;
-                        !entity.HasComponent(world.Components.ItemLocationEquipped) </span><span class="cov0" title="0">{
+                        !entity.HasComponent(world.Components.LocationInBackpack) &amp;&amp;
+                        !entity.HasComponent(world.Components.LocationEquipped) </span><span class="cov0" title="0">{
                         world.Manager.DeleteEntity(entity)
                 }</span>
         }))
@@ -31437,8 +31460,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 
         if gc.SlotWeapon1 &lt;= slotNumber &amp;&amp; slotNumber &lt;= gc.SlotWeapon5 </span><span class="cov8" title="1">{
                 world.Manager.Join(
-                        world.Components.Item,
-                        world.Components.ItemLocationInPlayerBackpack,
+                        world.Components.LocationInBackpack,
                         world.Components.Weapon,
                 ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                         items = append(items, entity)
@@ -31465,8 +31487,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
                 }
 
                 <span class="cov8" title="1">world.Manager.Join(
-                        world.Components.Item,
-                        world.Components.ItemLocationInPlayerBackpack,
+                        world.Components.LocationInBackpack,
                         world.Components.Wearable,
                 ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                         wearable := world.Components.Wearable.Get(entity).(*gc.Wearable)
@@ -31940,7 +31961,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
 
         messageState.messageData = messagedata.NewSystemMessage("").
                 WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error </span><span class="cov0" title="0">{
-                        _, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.ItemLocationInPlayerBackpack)
+                        _, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.LocationTypeInBackpack)
                         if err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("error spawning item: %w", err)
                         }</span>
@@ -31948,7 +31969,7 @@ func NewDebugMenuState() es.State[w.World] <span class="cov8" title="1">{
                         return nil</span>
                 }).
                 WithChoice("レイガンスポーン(インベントリ)", func(world w.World) error <span class="cov0" title="0">{
-                        _, err := worldhelper.SpawnItem(world, "レイガン", 1, gc.ItemLocationInPlayerBackpack)
+                        _, err := worldhelper.SpawnItem(world, "レイガン", 1, gc.LocationTypeInBackpack)
                         if err != nil </span><span class="cov0" title="0">{
                                 return fmt.Errorf("error spawning item: %w", err)
                         }</span>
@@ -32949,10 +32970,10 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
                         Name:   name,
                 }
 
-                // Stackableコンポーネントがあれば個数を表示する
+                // Stackableであれば個数を表示する
                 if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
-                        itemComp := world.Components.Item.Get(entity).(*gc.Item)
-                        item.Count = fmt.Sprintf("%d", itemComp.Count)
+                        stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+                        item.Count = fmt.Sprintf("%d", stackable.Count)
                 }</span>
 
                 // 説明文
@@ -32968,11 +32989,10 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 }
 
 func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity <span class="cov8" title="1">{
-        items := []ecs.Entity{}
+        var items []ecs.Entity
 
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
                 world.Components.Wearable.Not(),
                 world.Components.Weapon.Not(),
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
@@ -32983,12 +33003,11 @@ func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity <span cl
 }
 
 func (st *InventoryMenuState) queryMenuWeapon(world w.World) []ecs.Entity <span class="cov8" title="1">{
-        items := []ecs.Entity{}
+        var items []ecs.Entity
 
         world.Manager.Join(
-                world.Components.Item,
                 world.Components.Weapon,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
                 items = append(items, entity)
         }</span>))
@@ -32997,12 +33016,11 @@ func (st *InventoryMenuState) queryMenuWeapon(world w.World) []ecs.Entity <span 
 }
 
 func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity <span class="cov8" title="1">{
-        items := []ecs.Entity{}
+        var items []ecs.Entity
 
         world.Manager.Join(
-                world.Components.Item,
                 world.Components.Wearable,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
                 items = append(items, entity)
         }</span>))
@@ -34617,13 +34635,12 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
         <span class="cov0" title="0">return st.ConsumeTransition(), nil</span>
 }
 
-// refreshBackpackItems はバックパック内の全アイテムを取得する
+// refreshBackpackItems はバックパック内の全エンティティを取得する
 func (st *PlaceState) refreshBackpackItems(world w.World) <span class="cov8" title="1">{
         st.backpackItems = nil
 
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 st.backpackItems = append(st.backpackItems, entity)
         }</span>))
@@ -35389,7 +35406,7 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
                 world.Manager.Join(
                         world.Components.Item,
                         world.Components.Name,
-                        world.Components.ItemLocationInPlayerBackpack,
+                        world.Components.LocationInBackpack,
                 ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                         nameComp := world.Components.Name.Get(entity).(*gc.Name)
                         itemName := nameComp.Name
@@ -35397,20 +35414,16 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
                         baseValue := worldhelper.GetItemValue(world, entity)
                         price := worldhelper.CalculateSellPrice(baseValue) * sellPriceMod / 100
 
-                        count := 1
-                        if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
-                                itemComp := world.Components.Item.Get(entity).(*gc.Item)
-                                count = itemComp.Count
-                        }</span>
+                        count := worldhelper.GetEntityCount(world, entity)
 
-                        <span class="cov8" title="1">items = append(items, shopItemData{
+                        items = append(items, shopItemData{
                                 Label:  itemName,
                                 Price:  price,
                                 Count:  count,
                                 Entity: entity,
                                 IsBuy:  false,
-                        })</span>
-                }))
+                        })
+                }</span>))
         })
 
         <span class="cov8" title="1">return items</span>
@@ -38085,10 +38098,10 @@ func (sys *StatsChangedSystem) Update(world w.World) error <span class="cov8" ti
 
                 // 装備効果を加算
                 <span class="cov8" title="1">world.Manager.Join(
-                        world.Components.ItemLocationEquipped,
+                        world.Components.LocationEquipped,
                         world.Components.Wearable,
                 ).Visit(ecs.Visit(func(item ecs.Entity) </span><span class="cov8" title="1">{
-                        equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+                        equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
 
                         // このエンティティの装備のみ処理
                         if equipped.Owner != entity </span><span class="cov0" title="0">{
@@ -38289,10 +38302,10 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation <sp
         var total Insulation
 
         world.Manager.Join(
-                world.Components.ItemLocationEquipped,
+                world.Components.LocationEquipped,
                 world.Components.Wearable,
         ).Visit(ecs.Visit(func(item ecs.Entity) </span><span class="cov8" title="1">{
-                equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+                equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
                 if equipped.Owner != owner </span><span class="cov0" title="0">{
                         return
                 }</span>
@@ -44346,7 +44359,7 @@ func Craft(world w.World, name string) (*ecs.Entity, error) <span class="cov8" t
                 smithQualityPct = mods.SmithQuality
         }</span>
 
-        <span class="cov8" title="1">resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInPlayerBackpack)
+        <span class="cov8" title="1">resultEntity, err := SpawnItem(world, name, 1, gc.LocationTypeInBackpack)
         if err != nil </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
         }</span>
@@ -44372,8 +44385,8 @@ func CanCraft(world w.World, name string) (bool, error) <span class="cov8" title
                 if !found </span><span class="cov8" title="1">{
                         return false, nil
                 }</span>
-                <span class="cov8" title="1">item := world.Components.Item.Get(entity).(*gc.Item)
-                if item.Count &lt; recipeInput.Amount </span><span class="cov8" title="1">{
+                <span class="cov8" title="1">count := GetEntityCount(world, entity)
+                if count &lt; recipeInput.Amount </span><span class="cov8" title="1">{
                         return false, nil
                 }</span>
         }
@@ -44793,11 +44806,10 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity <span class="cov0
         weapons := make([]*ecs.Entity, 5)
 
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationEquipped,
+                world.Components.LocationEquipped,
                 world.Components.Weapon,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
-                equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+                equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
                 if owner == equipped.Owner </span><span class="cov0" title="0">{
                         // 武器スロットの場合は配列インデックスに変換（SlotWeapon1=4 -&gt; index 0）
                         if equipped.EquipmentSlot &gt;= gc.SlotWeapon1 &amp;&amp; equipped.EquipmentSlot &lt;= gc.SlotWeapon5 </span><span class="cov0" title="0">{
@@ -44816,11 +44828,10 @@ func GetArmorEquipments(world w.World, owner ecs.Entity) []*ecs.Entity <span cla
         entities := make([]*ecs.Entity, 7)
 
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationEquipped,
+                world.Components.LocationEquipped,
                 world.Components.Wearable,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
-                equipped := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+                equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
                 if owner == equipped.Owner </span><span class="cov0" title="0">{
                         // スロット番号から配列インデックスを決定
                         switch equipped.EquipmentSlot </span>{
@@ -44885,7 +44896,7 @@ func FindStackableInInventory(world w.World, name string) (ecs.Entity, bool) <sp
 
         world.Manager.Join(
                 world.Components.Stackable,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
                 world.Components.Name,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 if found </span><span class="cov0" title="0">{
@@ -44908,7 +44919,7 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) <span
 
         world.Manager.Join(
                 world.Components.Stackable,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
                 world.Components.Ammo,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
                 if found </span><span class="cov0" title="0">{
@@ -44924,35 +44935,41 @@ func FindAmmoInInventory(world w.World, ammoTag string) (ecs.Entity, bool) <span
         <span class="cov0" title="0">return foundEntity, found</span>
 }
 
-// ChangeItemCount は対象アイテムの個数を変更する。Stackable/非Stackableに関わらず使用できる。
-// 使用、売却、破棄、拾得など、個数を変更する全ての用途で使用する。
+// GetEntityCount はエンティティの個数を返す。
+// Stackableであれば Stackable.Count を返し、そうでなければ1を返す。
+func GetEntityCount(world w.World, entity ecs.Entity) int <span class="cov8" title="1">{
+        if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
+                return world.Components.Stackable.Get(entity).(*gc.Stackable).Count
+        }</span>
+        <span class="cov8" title="1">return 1</span>
+}
+
+// ChangeItemCount は対象エンティティの個数を変更する。
+// Stackableならカウントを増減し、非Stackableなら delta=-1 でエンティティを削除する。
 // 個数が0以下になった場合はエンティティを削除する。
-func ChangeItemCount(world w.World, itemEntity ecs.Entity, delta int) error <span class="cov8" title="1">{
+func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error <span class="cov8" title="1">{
         if delta == 0 </span><span class="cov8" title="1">{
                 return fmt.Errorf("delta must not be zero")
         }</span>
 
-        <span class="cov8" title="1">if !itemEntity.HasComponent(world.Components.Item) </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if !entity.HasComponent(world.Components.Item) </span><span class="cov8" title="1">{
                 return fmt.Errorf("entity does not have Item component")
         }</span>
 
-        <span class="cov8" title="1">item := world.Components.Item.Get(itemEntity).(*gc.Item)
-        newCount := item.Count + delta
+        <span class="cov8" title="1">currentCount := GetEntityCount(world, entity)
+        newCount := currentCount + delta
 
-        // 減少の場合、結果がマイナスになるならエラー
         if newCount &lt; 0 </span><span class="cov8" title="1">{
-                return fmt.Errorf("アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d", item.Count, delta, newCount)
+                return fmt.Errorf("アイテム数が不足しています: 現在=%d, 変更=%d, 結果=%d", currentCount, delta, newCount)
         }</span>
 
-        <span class="cov8" title="1">item.Count = newCount
-
-        // 個数が0になったらエンティティを削除
-        if item.Count == 0 </span><span class="cov8" title="1">{
-                world.Manager.DeleteEntity(itemEntity)
+        <span class="cov8" title="1">if newCount == 0 </span><span class="cov8" title="1">{
+                world.Manager.DeleteEntity(entity)
+        }</span> else<span class="cov8" title="1"> if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
+                world.Components.Stackable.Get(entity).(*gc.Stackable).Count = newCount
         }</span>
 
         // インベントリ変動フラグを立てる
-        // TODO(kijima): 移動ヘルパーで書くようにしたい
         <span class="cov8" title="1">world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) </span><span class="cov8" title="1">{
                 playerEntity.AddComponent(world.Components.InventoryChanged, &amp;gc.InventoryChanged{})
         }</span>))
@@ -44981,13 +44998,9 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string <span class="co
                 name = n.Name
         }</span>
 
-        <span class="cov8" title="1">count := 1
-        if itemComp := world.Components.Item.Get(itemEntity); itemComp != nil </span><span class="cov8" title="1">{
-                item := itemComp.(*gc.Item)
-                count = item.Count
-        }</span>
+        <span class="cov8" title="1">count := GetEntityCount(world, itemEntity)
 
-        <span class="cov8" title="1">if count &lt;= 1 </span><span class="cov8" title="1">{
+        if count &lt;= 1 </span><span class="cov8" title="1">{
                 return name
         }</span>
         <span class="cov8" title="1">return fmt.Sprintf("%s(%d個)", name, count)</span>
@@ -45002,63 +45015,62 @@ import (
         ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// ItemLocationType はアイテムの位置を表すenum型
-type ItemLocationType int
+// LocationType はエンティティの位置を表すenum型
+type LocationType int
 
 const (
-        // ItemLocationInPlayerBackpack はプレイヤーのバックパック内
-        ItemLocationInPlayerBackpack ItemLocationType = iota
-        // ItemLocationEquipped は装備中
-        ItemLocationEquipped
-        // ItemLocationOnField はフィールド上
-        ItemLocationOnField
+        // LocationInBackpack はプレイヤーのバックパック内
+        LocationInBackpack LocationType = iota
+        // LocationEquipped は装備中
+        LocationEquipped
+        // LocationOnField はフィールド上
+        LocationOnField
 )
 
-// MoveToBackpack はアイテムをバックパックに移動する
-func MoveToBackpack(world w.World, item ecs.Entity, owner ecs.Entity) <span class="cov8" title="1">{
-        setItemLocation(world, item, ItemLocationInPlayerBackpack, nil)
+// MoveToBackpack はエンティティをバックパックに移動する
+func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) <span class="cov8" title="1">{
+        backpackData := &amp;gc.LocationInBackpack{Owner: owner}
+        setLocation(world, entity, LocationInBackpack, backpackData)
         owner.AddComponent(world.Components.StatsChanged, &amp;gc.StatsChanged{})
         owner.AddComponent(world.Components.InventoryChanged, &amp;gc.InventoryChanged{})
 }</span>
 
-// MoveToEquip はアイテムを指定スロットに装備する
-func MoveToEquip(world w.World, item ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) <span class="cov8" title="1">{
+// MoveToEquip はエンティティを指定スロットに装備する
+func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) <span class="cov8" title="1">{
         equipData := &amp;gc.LocationEquipped{
                 Owner:         owner,
                 EquipmentSlot: slot,
         }
-        setItemLocation(world, item, ItemLocationEquipped, equipData)
+        setLocation(world, entity, LocationEquipped, equipData)
         owner.AddComponent(world.Components.StatsChanged, &amp;gc.StatsChanged{})
         owner.AddComponent(world.Components.InventoryChanged, &amp;gc.InventoryChanged{})
 }</span>
 
-// MoveToField はアイテムをフィールドに移動する
-func MoveToField(world w.World, item ecs.Entity, owner ecs.Entity) <span class="cov0" title="0">{
-        setItemLocation(world, item, ItemLocationOnField, nil)
+// MoveToField はエンティティをフィールドに移動する
+func MoveToField(world w.World, entity ecs.Entity, owner ecs.Entity) <span class="cov0" title="0">{
+        setLocation(world, entity, LocationOnField, nil)
         owner.AddComponent(world.Components.InventoryChanged, &amp;gc.InventoryChanged{})
 }</span>
 
-// setItemLocation はアイテムの位置を設定（排他制御を保証）
-// 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する
-// data は ItemLocationEquipped の場合に *gc.LocationEquipped を渡す
-// 内部用関数なので直接呼び出さず、MoveToBackpack, DropToField等を使用すること
-func setItemLocation(world w.World, item ecs.Entity, locType ItemLocationType, data interface{}) <span class="cov8" title="1">{
+// setLocation はエンティティの位置を設定する。排他制御を保証する。
+// 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する。
+// 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること
+func setLocation(world w.World, entity ecs.Entity, locType LocationType, data interface{}) <span class="cov8" title="1">{
         // すべての位置コンポーネントを削除（排他制御）
-        item.RemoveComponent(world.Components.ItemLocationInPlayerBackpack)
-        item.RemoveComponent(world.Components.ItemLocationEquipped)
-        item.RemoveComponent(world.Components.ItemLocationOnField)
+        entity.RemoveComponent(world.Components.LocationInBackpack)
+        entity.RemoveComponent(world.Components.LocationEquipped)
+        entity.RemoveComponent(world.Components.LocationOnField)
 
         // 指定された位置コンポーネントを追加
         switch locType </span>{
-        case ItemLocationInPlayerBackpack:<span class="cov8" title="1">
-                item.AddComponent(world.Components.ItemLocationInPlayerBackpack, &amp;gc.LocationInPlayerBackpack{})</span>
+        case LocationInBackpack:<span class="cov8" title="1">
+                entity.AddComponent(world.Components.LocationInBackpack, data.(*gc.LocationInBackpack))</span>
 
-        case ItemLocationEquipped:<span class="cov8" title="1">
-                equipData := data.(*gc.LocationEquipped)
-                item.AddComponent(world.Components.ItemLocationEquipped, equipData)</span>
+        case LocationEquipped:<span class="cov8" title="1">
+                entity.AddComponent(world.Components.LocationEquipped, data.(*gc.LocationEquipped))</span>
 
-        case ItemLocationOnField:<span class="cov0" title="0">
-                item.AddComponent(world.Components.ItemLocationOnField, &amp;gc.LocationOnField{})</span>
+        case LocationOnField:<span class="cov0" title="0">
+                entity.AddComponent(world.Components.LocationOnField, &amp;gc.LocationOnField{})</span>
         }
 }
 </pre>
@@ -45105,14 +45117,14 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 
         // 初期アイテムをバックパックに付与
         for _, profItem := range prof.Items </span><span class="cov8" title="1">{
-                if _, err := SpawnItem(world, profItem.Name, int(profItem.Count), gc.ItemLocationInPlayerBackpack); err != nil </span><span class="cov0" title="0">{
+                if _, err := SpawnItem(world, profItem.Name, int(profItem.Count), gc.LocationTypeInBackpack); err != nil </span><span class="cov0" title="0">{
                         return fmt.Errorf("職業の初期アイテム生成に失敗: %s: %w", profItem.Name, err)
                 }</span>
         }
 
         // 初期装備を付与して装備する
         <span class="cov8" title="1">for _, equip := range prof.Equips </span><span class="cov8" title="1">{
-                item, err := SpawnItem(world, equip.Name, 1, gc.ItemLocationInPlayerBackpack)
+                item, err := SpawnItem(world, equip.Name, 1, gc.LocationTypeInBackpack)
                 if err != nil </span><span class="cov0" title="0">{
                         return fmt.Errorf("職業の初期装備生成に失敗: %s: %w", equip.Name, err)
                 }</span>
@@ -45231,11 +45243,10 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error <spa
                 wallet.Currency += total
         }</span>
 
-        // バックパック内アイテムを全て削除する
+        // バックパック内エンティティを全て削除する
         <span class="cov8" title="1">var toDelete []ecs.Entity
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 toDelete = append(toDelete, entity)
         }</span>))
@@ -45254,10 +45265,9 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error <spa
 func unequipAll(world w.World, playerEntity ecs.Entity) <span class="cov8" title="1">{
         var equipped []ecs.Entity
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationEquipped,
+                world.Components.LocationEquipped,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
-                loc := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+                loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
                 if loc.Owner == playerEntity </span><span class="cov8" title="1">{
                         equipped = append(equipped, entity)
                 }</span>
@@ -45280,8 +45290,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
         <span class="cov8" title="1">var items []SoldItem
         total := 0
         world.Manager.Join(
-                world.Components.Item,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 name := ""
                 if entity.HasComponent(world.Components.Name) </span><span class="cov8" title="1">{
@@ -45290,7 +45299,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
                 <span class="cov8" title="1">price := 0
                 if entity.HasComponent(world.Components.Value) </span><span class="cov8" title="1">{
-                        count := world.Components.Item.Get(entity).(*gc.Item).Count
+                        count := GetEntityCount(world, entity)
                         baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
                         price = CalculateSellPrice(baseValue) * count * sellPriceMod / 100
                 }</span>
@@ -45401,7 +45410,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error <spa
                 }
         } else<span class="cov8" title="1"> {
                 // 通常アイテムは新規作成
-                _, err := SpawnItem(world, itemName, 1, gc.ItemLocationInPlayerBackpack)
+                _, err := SpawnItem(world, itemName, 1, gc.LocationTypeInBackpack)
                 if err != nil </span><span class="cov0" title="0">{
                         // 購入失敗時は通貨を返金
                         if refundErr := addCurrency(world, playerEntity, price); refundErr != nil </span><span class="cov0" title="0">{
@@ -46009,7 +46018,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 // ================
 
 // SpawnItem はアイテムを生成する
-func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocationType) (ecs.Entity, error) <span class="cov8" title="1">{
+func SpawnItem(world w.World, name string, count int, locationType gc.LocationType) (ecs.Entity, error) <span class="cov8" title="1">{
         if count &lt;= 0 </span><span class="cov8" title="1">{
                 return 0, fmt.Errorf("count must be positive: %d", count)
         }</span>
@@ -46033,9 +46042,12 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
         if err != nil </span><span class="cov0" title="0">{
                 return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
         }</span>
-        <span class="cov8" title="1">entitySpec.ItemLocationType = &amp;locationType
-        entitySpec.Item.Count = count
-        componentList.Entities = append(componentList.Entities, entitySpec)
+        <span class="cov8" title="1">entitySpec.LocationType = &amp;locationType
+        // Stackableアイテムの場合はcountを設定する
+        if entitySpec.Stackable != nil </span><span class="cov8" title="1">{
+                entitySpec.Stackable.Count = count
+        }</span>
+        <span class="cov8" title="1">componentList.Entities = append(componentList.Entities, entitySpec)
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
                 return ecs.Entity(0), err
@@ -46046,13 +46058,15 @@ func SpawnItem(world w.World, name string, count int, locationType gc.ItemLocati
 
         <span class="cov8" title="1">entity := entitiesSlice[len(entitiesSlice)-1]
 
-        // バックパックに追加した場合はインベントリ重量を再計算する
-        if locationType == gc.ItemLocationInPlayerBackpack </span><span class="cov8" title="1">{
+        // バックパックに追加した場合はOwnerを設定し、インベントリ重量を再計算する
+        if locationType == gc.LocationTypeInBackpack </span><span class="cov8" title="1">{
                 var playerEntity ecs.Entity
                 world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) </span><span class="cov8" title="1">{
                         playerEntity = e
                 }</span>))
                 <span class="cov8" title="1">if playerEntity != 0 </span><span class="cov8" title="1">{
+                        loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+                        loc.Owner = playerEntity
                         UpdateCarryingWeight(world, playerEntity)
                 }</span>
         }
@@ -46125,7 +46139,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error <span class="cov8" titl
 
 // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) <span class="cov8" title="1">{
-        item, err := SpawnItem(world, itemName, count, gc.ItemLocationOnField)
+        item, err := SpawnItem(world, itemName, count, gc.LocationTypeOnField)
         if err != nil </span><span class="cov0" title="0">{
                 return ecs.Entity(0), err
         }</span>
@@ -46196,8 +46210,8 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 
         // 位置情報を設定
         <span class="cov0" title="0">entitySpec.GridElement = &amp;gc.GridElement{X: x, Y: y}
-        loc := gc.ItemLocationOnField
-        entitySpec.ItemLocationType = &amp;loc
+        loc := gc.LocationTypeOnField
+        entitySpec.LocationType = &amp;loc
 
         // エンティティを生成
         componentList := entities.ComponentList[gc.EntitySpec]{}
@@ -46381,7 +46395,7 @@ func MergeInventoryItem(world w.World, itemName string) error <span class="cov8"
         var stackableItems []ecs.Entity
         world.Manager.Join(
                 world.Components.Stackable,
-                world.Components.ItemLocationInPlayerBackpack,
+                world.Components.LocationInBackpack,
                 world.Components.Name,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 name := world.Components.Name.Get(entity).(*gc.Name)
@@ -46399,9 +46413,9 @@ func MergeInventoryItem(world w.World, itemName string) error <span class="cov8"
         <span class="cov8" title="1">targetEntity := stackableItems[0]
         for i := 1; i &lt; len(stackableItems); i++ </span><span class="cov8" title="1">{
                 itemToMerge := stackableItems[i]
-                itemComp := world.Components.Item.Get(itemToMerge).(*gc.Item)
+                mergeCount := GetEntityCount(world, itemToMerge)
 
-                if err := ChangeItemCount(world, targetEntity, itemComp.Count); err != nil </span><span class="cov0" title="0">{
+                if err := ChangeItemCount(world, targetEntity, mergeCount); err != nil </span><span class="cov0" title="0">{
                         return fmt.Errorf("数量統合エラー: %w", err)
                 }</span>
 
@@ -46432,7 +46446,7 @@ func ChangeStackableCount(world w.World, name string, amount int) error <span cl
         }</span>
 
         // 増やす操作で存在しない場合は新規作成する
-        <span class="cov0" title="0">_, err := SpawnItem(world, name, amount, gc.ItemLocationInPlayerBackpack)
+        <span class="cov0" title="0">_, err := SpawnItem(world, name, amount, gc.LocationTypeInBackpack)
         return err</span>
 }
 </pre>
@@ -46626,22 +46640,21 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 <span class="co
 func calculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 <span class="cov8" title="1">{
         var totalWeight float64
 
-        // 全アイテムを走査
+        // 全エンティティを走査
         world.Manager.Join(
-                world.Components.Item,
                 world.Components.Weight,
         ).Visit(ecs.Visit(func(itemEntity ecs.Entity) </span><span class="cov8" title="1">{
                 weight := world.Components.Weight.Get(itemEntity).(*gc.Weight)
 
-                // バックパック内のアイテム
-                if itemEntity.HasComponent(world.Components.ItemLocationInPlayerBackpack) </span><span class="cov8" title="1">{
-                        item := world.Components.Item.Get(itemEntity).(*gc.Item)
-                        totalWeight += weight.Kg * float64(item.Count)
+                // バックパック内のエンティティ
+                if itemEntity.HasComponent(world.Components.LocationInBackpack) </span><span class="cov8" title="1">{
+                        count := GetEntityCount(world, itemEntity)
+                        totalWeight += weight.Kg * float64(count)
                 }</span>
 
                 // 装備中のアイテム
-                <span class="cov8" title="1">if itemEntity.HasComponent(world.Components.ItemLocationEquipped) </span><span class="cov8" title="1">{
-                        equipped := world.Components.ItemLocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
+                <span class="cov8" title="1">if itemEntity.HasComponent(world.Components.LocationEquipped) </span><span class="cov8" title="1">{
+                        equipped := world.Components.LocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
                         // このエンティティが装備しているアイテムのみ
                         if equipped.Owner == entity </span><span class="cov8" title="1">{
                                 totalWeight += weight.Kg

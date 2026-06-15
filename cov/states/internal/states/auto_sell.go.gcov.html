@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -265,8 +265,8 @@
 <span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 countStr := &quot;&quot;</span></span>
 <span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 entity := entry.Item.Entity</span></span>
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           2 :                 if entity.HasComponent(world.Components.Stackable) {</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         count := world.Components.Item.Get(entity).(*gc.Item).Count</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                         countStr = fmt.Sprintf(&quot;%d&quot;, count)</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                         stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                         countStr = fmt.Sprintf(&quot;%d&quot;, stackable.Count)</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 styled.NewTableRow(table, columnWidths, []string{&quot;&quot;, entry.Item.Name, countStr, worldhelper.FormatCurrency(entry.Item.Price)}, aligns, &amp;isSelected, res)</span></span>
 <span id="L210"><span class="lineNum">     210</span>              :         }</span>

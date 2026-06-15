@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 smithQualityPct = mods.SmithQuality</span></span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 :         resultEntity, err := SpawnItem(world, name, 1, gc.ItemLocationInPlayerBackpack)</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC tlaBgGNC">           1 :         resultEntity, err := SpawnItem(world, name, 1, gc.LocationTypeInBackpack)</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;アイテム生成に失敗: %w&quot;, err)</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -120,8 +120,8 @@
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :                 if !found {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         return false, nil</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 item := world.Components.Item.Get(entity).(*gc.Item)</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                 if item.Count &lt; recipeInput.Amount {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 count := GetEntityCount(world, entity)</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           2 :                 if count &lt; recipeInput.Amount {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                         return false, nil</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L65"><span class="lineNum">      65</span>              :         }</span>

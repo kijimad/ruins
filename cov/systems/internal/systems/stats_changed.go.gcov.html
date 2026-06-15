@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -111,10 +111,10 @@
 <span id="L49"><span class="lineNum">      49</span>              : </span>
 <span id="L50"><span class="lineNum">      50</span>              :                 // 装備効果を加算</span>
 <span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 world.Manager.Join(</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         world.Components.ItemLocationEquipped,</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         world.Components.LocationEquipped,</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         world.Components.Wearable,</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           2 :                 ).Visit(ecs.Visit(func(item ecs.Entity) {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                         equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         // このエンティティの装備のみ処理</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         if equipped.Owner != entity {</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -241,8 +241,8 @@
 <span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :                 // プレイヤーエンティティ、バックパック内アイテム、装備中アイテムは次のフロアでも必要なので削除しない</span></span>
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :                 if !entity.HasComponent(world.Components.Player) &amp;&amp;</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                         !entity.HasComponent(world.Components.ItemLocationInPlayerBackpack) &amp;&amp;</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                         !entity.HasComponent(world.Components.ItemLocationEquipped) {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :                         !entity.HasComponent(world.Components.LocationInBackpack) &amp;&amp;</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :                         !entity.HasComponent(world.Components.LocationEquipped) {</span></span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :                         world.Manager.DeleteEntity(entity)</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L186"><span class="lineNum">     186</span>              :         }))</span>

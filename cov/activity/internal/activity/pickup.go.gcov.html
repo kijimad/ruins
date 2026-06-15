@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">83.4&nbsp;%</td>
-            <td class="headerCovTableEntry">145</td>
-            <td class="headerCovTableEntry">121</td>
+            <td class="headerCovTableEntryMed">83.1&nbsp;%</td>
+            <td class="headerCovTableEntry">142</td>
+            <td class="headerCovTableEntry">118</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -175,7 +175,7 @@
 <span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :                 if !worldhelper.IsPickable(entity, world) {</span></span>
 <span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         return</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :                 if entity.HasComponent(world.Components.Item) &amp;&amp; entity.HasComponent(world.Components.ItemLocationOnField) {</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           2 :                 if entity.HasComponent(world.Components.Item) &amp;&amp; entity.HasComponent(world.Components.LocationOnField) {</span></span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :                         itemsToCollect = append(itemsToCollect, entity)</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           2 :                 } else {</span></span>
 <span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                         propsToCollect = append(propsToCollect, entity)</span></span>
@@ -226,47 +226,43 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) {</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         formattedName := worldhelper.GetEntityName(propEntity, world)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         // Item化してバックパックに移動する</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :         if !propEntity.HasComponent(world.Components.Item) {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 propEntity.AddComponent(world.Components.Item, &amp;gc.Item{Count: 1})</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :         worldhelper.MoveToBackpack(world, propEntity, actor)</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         // フィールドから消す</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         propEntity.RemoveComponent(world.Components.GridElement)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 Append(&quot; を拾った。&quot;).</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L180"><span class="lineNum">     180</span>              : }</span>
-<span id="L181"><span class="lineNum">     181</span>              : </span>
-<span id="L182"><span class="lineNum">     182</span>              : // collectFieldItem はフィールドアイテムを収集してバックパックに移動する</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, itemEntity ecs.Entity) error {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         itemName := worldhelper.GetEntityName(itemEntity, world)</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         formattedName := worldhelper.FormatItemName(world, itemEntity)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :         // フィールドからバックパックに移動</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         worldhelper.MoveToBackpack(world, itemEntity, actor)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         // グリッド表示コンポーネントを削除（フィールドから消す）</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           2 :         if itemEntity.HasComponent(world.Components.GridElement) {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 itemEntity.RemoveComponent(world.Components.GridElement)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L195"><span class="lineNum">     195</span>              : </span>
-<span id="L196"><span class="lineNum">     196</span>              :         // 既存のバックパック内の同名Stackableアイテムを統合する処理</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :         if err := worldhelper.MergeInventoryItem(world, itemName); err != nil {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;インベントリ統合エラー: %w&quot;, err)</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L200"><span class="lineNum">     200</span>              : </span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                 Append(&quot; を入手した。&quot;).</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L207"><span class="lineNum">     207</span>              : }</span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         worldhelper.MoveToBackpack(world, propEntity, actor)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         // フィールドから消す</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         propEntity.RemoveComponent(world.Components.GridElement)</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 Append(&quot; を拾った。&quot;).</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L177"><span class="lineNum">     177</span>              : </span>
+<span id="L178"><span class="lineNum">     178</span>              : // collectFieldItem はフィールドアイテムを収集してバックパックに移動する</span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, itemEntity ecs.Entity) error {</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         itemName := worldhelper.GetEntityName(itemEntity, world)</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         formattedName := worldhelper.FormatItemName(world, itemEntity)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         // フィールドからバックパックに移動</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         worldhelper.MoveToBackpack(world, itemEntity, actor)</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         // グリッド表示コンポーネントを削除（フィールドから消す）</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           2 :         if itemEntity.HasComponent(world.Components.GridElement) {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 itemEntity.RemoveComponent(world.Components.GridElement)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L191"><span class="lineNum">     191</span>              : </span>
+<span id="L192"><span class="lineNum">     192</span>              :         // 既存のバックパック内の同名Stackableアイテムを統合する処理</span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         if err := worldhelper.MergeInventoryItem(world, itemName); err != nil {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;インベントリ統合エラー: %w&quot;, err)</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : </span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                 Append(&quot; を入手した。&quot;).</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L203"><span class="lineNum">     203</span>              : }</span>
         </pre>
               </td>
             </tr>

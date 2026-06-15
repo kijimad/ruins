@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -169,11 +169,11 @@
 <span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC tlaBgUNC">           0 :                         Cancel(comp, &quot;弾薬がなくなった&quot;)</span></span>
 <span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                         return nil</span></span>
 <span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC tlaBgGNC">           1 :                 ammoItem := world.Components.Item.Get(ammoEntity).(*gc.Item)</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC tlaBgGNC">           1 :                 ammoCount := worldhelper.GetEntityCount(world, ammoEntity)</span></span>
 <span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                 loaded := needed</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :                 if ammoItem.Count &lt; loaded {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         loaded = ammoItem.Count</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           2 :                 if ammoCount &lt; loaded {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                         loaded = ammoCount</span></span>
 <span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : </span>
 <span id="L117"><span class="lineNum">     117</span>              :                 // 装填した弾薬の修正値を記録する</span>

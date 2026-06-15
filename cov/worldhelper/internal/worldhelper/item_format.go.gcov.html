@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">15</td>
-            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">12</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -80,17 +80,13 @@
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :                 name = n.Name</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         count := 1</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           2 :         if itemComp := world.Components.Item.Get(itemEntity); itemComp != nil {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 item := itemComp.(*gc.Item)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 count = item.Count</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         count := GetEntityCount(world, itemEntity)</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           2 :         if count &lt;= 1 {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :                 return name</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L26"><span class="lineNum">      26</span>              : </span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           2 :         if count &lt;= 1 {</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 return name</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;%s(%d個)&quot;, name, count)</span></span>
-<span id="L31"><span class="lineNum">      31</span>              : }</span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;%s(%d個)&quot;, name, count)</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : }</span>
         </pre>
               </td>
             </tr>

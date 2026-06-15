@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">41.7&nbsp;%</td>
-            <td class="headerCovTableEntry">211</td>
-            <td class="headerCovTableEntry">88</td>
+            <td class="headerCovTableEntryLo">41.4&nbsp;%</td>
+            <td class="headerCovTableEntry">210</td>
+            <td class="headerCovTableEntry">87</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-14 10:39:56</td>
+            <td class="headerValue">2026-06-15 00:06:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -242,152 +242,151 @@
 <span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         return st.ConsumeTransition(), nil</span></span>
 <span id="L181"><span class="lineNum">     181</span>              : }</span>
 <span id="L182"><span class="lineNum">     182</span>              : </span>
-<span id="L183"><span class="lineNum">     183</span>              : // refreshBackpackItems はバックパック内の全アイテムを取得する</span>
+<span id="L183"><span class="lineNum">     183</span>              : // refreshBackpackItems はバックパック内の全エンティティを取得する</span>
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) refreshBackpackItems(world w.World) {</span></span>
 <span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         st.backpackItems = nil</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 world.Components.Item,</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :                 world.Components.ItemLocationInPlayerBackpack,</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 st.backpackItems = append(st.backpackItems, entity)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }))</span></span>
-<span id="L193"><span class="lineNum">     193</span>              : </span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :         if st.selectedIndex &gt;= len(st.backpackItems) {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 st.selectedIndex = 0</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L197"><span class="lineNum">     197</span>              : }</span>
-<span id="L198"><span class="lineNum">     198</span>              : </span>
-<span id="L199"><span class="lineNum">     199</span>              : // executeDrop は置くアクションを実行する</span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *PlaceState) executeDrop(world w.World) error {</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                 return err</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L205"><span class="lineNum">     205</span>              : </span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         item := st.backpackItems[st.selectedIndex]</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :         params := activity.ActionParams{</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 Actor:       playerEntity,</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 Target:      &amp;item,</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                 Destination: &amp;destination,</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :         return err</span></span>
-<span id="L215"><span class="lineNum">     215</span>              : }</span>
-<span id="L216"><span class="lineNum">     216</span>              : </span>
-<span id="L217"><span class="lineNum">     217</span>              : // Draw はステートの描画処理</span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         if st.phase == placePhaseSelectTile {</span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 st.drawTargetCursor(world, screen)</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L222"><span class="lineNum">     222</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.drawPlacePanel(world, screen)</span></span>
-<span id="L223"><span class="lineNum">     223</span>              : }</span>
-<span id="L224"><span class="lineNum">     224</span>              : </span>
-<span id="L225"><span class="lineNum">     225</span>              : // placeCursorCache はカーソル画像のキャッシュ</span>
-<span id="L226"><span class="lineNum">     226</span>              : var placeCursorCache *ebiten.Image</span>
-<span id="L227"><span class="lineNum">     227</span>              : </span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         tileSize := int(consts.TileSize)</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         cursorPixelX := float64(int(st.cursor.X) * tileSize)</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         cursorPixelY := float64(int(st.cursor.Y) * tileSize)</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         if placeCursorCache == nil {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 placeCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 cursorColor := theme.CursorPlace</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 for i := 0; i &lt; 3; i++ {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(x, i, cursorColor)</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(x, tileSize-1-i, cursorColor)</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                         for y := 0; y &lt; tileSize; y++ {</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(i, y, cursorColor)</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(tileSize-1-i, y, cursorColor)</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L245"><span class="lineNum">     245</span>              :                 }</span>
-<span id="L246"><span class="lineNum">     246</span>              :         }</span>
-<span id="L247"><span class="lineNum">     247</span>              : </span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(cursorPixelX, cursorPixelY)</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :         gs.SetTranslate(world, op)</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :         if !world.Config.DisableAnimation {</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                 op.ColorScale.ScaleAlpha(float32(alpha))</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L256"><span class="lineNum">     256</span>              : </span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaUNC">           0 :         screen.DrawImage(placeCursorCache, op)</span></span>
-<span id="L258"><span class="lineNum">     258</span>              : }</span>
-<span id="L259"><span class="lineNum">     259</span>              : </span>
-<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error {</span></span>
-<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
-<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :         const (</span></span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 panelWidth  = 300</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 panelHeight = 200</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 marginX     = 10</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 marginY     = 10</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :                 lineHeight  = 20</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :         )</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         panelX := screen.Bounds().Dx() - panelWidth - marginX</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         panelY := marginY</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :         styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         textX := float64(panelX + 12)</span></span>
-<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 :         y := panelY + 12</span></span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           2 :         drawColorText := func(str string, c color.RGBA) {</span></span>
-<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
-<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(textX, float64(y))</span></span>
-<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(c)</span></span>
-<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
-<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :                 y += lineHeight</span></span>
-<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L285"><span class="lineNum">     285</span> <span class="tlaGNC">           2 :         drawText := func(str string) { drawColorText(str, theme.TextPrimary) }</span></span>
-<span id="L286"><span class="lineNum">     286</span>              : </span>
-<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         switch st.phase {</span></span>
-<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :         case placePhaseSelectItem:</span></span>
-<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 drawColorText(&quot;置くモード: アイテム選択&quot;, theme.TextPrimary)</span></span>
-<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 :                 y += 5</span></span>
-<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L292"><span class="lineNum">     292</span> <span class="tlaGNC">           1 :                 if len(st.backpackItems) == 0 {</span></span>
-<span id="L293"><span class="lineNum">     293</span> <span class="tlaUNC tlaBgUNC">           0 :                         drawColorText(&quot;置けるアイテムがありません&quot;, theme.TextSecondary)</span></span>
-<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else {</span></span>
-<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           2 :                         for i, entity := range st.backpackItems {</span></span>
-<span id="L296"><span class="lineNum">     296</span> <span class="tlaGNC">           1 :                                 if i &gt;= 7 {</span></span>
-<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC tlaBgUNC">           0 :                                         drawColorText(&quot;...&quot;, theme.TextSecondary)</span></span>
-<span id="L298"><span class="lineNum">     298</span> <span class="tlaUNC">           0 :                                         break</span></span>
-<span id="L299"><span class="lineNum">     299</span>              :                                 }</span>
-<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC tlaBgGNC">           1 :                                 name := worldhelper.GetEntityName(entity, world)</span></span>
-<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           1 :                                 prefix := &quot;  &quot;</span></span>
-<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           2 :                                 if i == st.selectedIndex {</span></span>
-<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                         prefix = &quot;&gt; &quot;</span></span>
-<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                 }</span></span>
-<span id="L305"><span class="lineNum">     305</span> <span class="tlaGNC">           1 :                                 drawText(fmt.Sprintf(&quot;%s%s&quot;, prefix, name))</span></span>
-<span id="L306"><span class="lineNum">     306</span>              :                         }</span>
-<span id="L307"><span class="lineNum">     307</span>              :                 }</span>
-<span id="L308"><span class="lineNum">     308</span>              : </span>
-<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 y = panelY + panelHeight - 30</span></span>
-<span id="L310"><span class="lineNum">     310</span> <span class="tlaGNC">           1 :                 drawColorText(&quot;↑↓:選択 Enter:決定 Esc:戻る&quot;, theme.TextSecondary)</span></span>
-<span id="L311"><span class="lineNum">     311</span>              : </span>
-<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC tlaBgUNC">           0 :         case placePhaseSelectTile:</span></span>
-<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 drawColorText(&quot;置くモード: 配置先選択&quot;, theme.TextPrimary)</span></span>
-<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 :                 y += 5</span></span>
-<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 item := st.backpackItems[st.selectedIndex]</span></span>
-<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 name := worldhelper.GetEntityName(item, world)</span></span>
-<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 :                 drawText(fmt.Sprintf(&quot;アイテム: %s&quot;, name))</span></span>
-<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))</span></span>
-<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 :                 drawText(fmt.Sprintf(&quot;方向: %s&quot;, dirLabel))</span></span>
-<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 y = panelY + panelHeight - 30</span></span>
-<span id="L324"><span class="lineNum">     324</span> <span class="tlaUNC">           0 :                 drawColorText(&quot;WASD/矢印:移動 Enter:置く Esc:戻る&quot;, theme.TextSecondary)</span></span>
-<span id="L325"><span class="lineNum">     325</span>              :         }</span>
-<span id="L326"><span class="lineNum">     326</span>              : </span>
-<span id="L327"><span class="lineNum">     327</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
-<span id="L328"><span class="lineNum">     328</span>              : }</span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                 world.Components.LocationInBackpack,</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 st.backpackItems = append(st.backpackItems, entity)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }))</span></span>
+<span id="L192"><span class="lineNum">     192</span>              : </span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           2 :         if st.selectedIndex &gt;= len(st.backpackItems) {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 st.selectedIndex = 0</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L196"><span class="lineNum">     196</span>              : }</span>
+<span id="L197"><span class="lineNum">     197</span>              : </span>
+<span id="L198"><span class="lineNum">     198</span>              : // executeDrop は置くアクションを実行する</span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *PlaceState) executeDrop(world w.World) error {</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :         playerEntity, err := worldhelper.GetPlayerEntity(world)</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                 return err</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L204"><span class="lineNum">     204</span>              : </span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :         item := st.backpackItems[st.selectedIndex]</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :         destination := gc.GridElement{X: st.cursor.X, Y: st.cursor.Y}</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :         params := activity.ActionParams{</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                 Actor:       playerEntity,</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 Target:      &amp;item,</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 Destination: &amp;destination,</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :         _, err = activity.Execute(&amp;activity.DropActivity{}, params, world)</span></span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :         return err</span></span>
+<span id="L214"><span class="lineNum">     214</span>              : }</span>
+<span id="L215"><span class="lineNum">     215</span>              : </span>
+<span id="L216"><span class="lineNum">     216</span>              : // Draw はステートの描画処理</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) Draw(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         if st.phase == placePhaseSelectTile {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                 st.drawTargetCursor(world, screen)</span></span>
+<span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC tlaBgGNC">           1 :         return st.drawPlacePanel(world, screen)</span></span>
+<span id="L222"><span class="lineNum">     222</span>              : }</span>
+<span id="L223"><span class="lineNum">     223</span>              : </span>
+<span id="L224"><span class="lineNum">     224</span>              : // placeCursorCache はカーソル画像のキャッシュ</span>
+<span id="L225"><span class="lineNum">     225</span>              : var placeCursorCache *ebiten.Image</span>
+<span id="L226"><span class="lineNum">     226</span>              : </span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC tlaBgUNC">           0 : func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaUNC">           0 :         tileSize := int(consts.TileSize)</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaUNC">           0 :         cursorPixelX := float64(int(st.cursor.X) * tileSize)</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC">           0 :         cursorPixelY := float64(int(st.cursor.Y) * tileSize)</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         if placeCursorCache == nil {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :                 placeCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 cursorColor := theme.CursorPlace</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 for i := 0; i &lt; 3; i++ {</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(x, i, cursorColor)</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(x, tileSize-1-i, cursorColor)</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                         for y := 0; y &lt; tileSize; y++ {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(i, y, cursorColor)</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                                 placeCursorCache.Set(tileSize-1-i, y, cursorColor)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L244"><span class="lineNum">     244</span>              :                 }</span>
+<span id="L245"><span class="lineNum">     245</span>              :         }</span>
+<span id="L246"><span class="lineNum">     246</span>              : </span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(cursorPixelX, cursorPixelY)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         gs.SetTranslate(world, op)</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :         if !world.Config.DisableAnimation {</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                 alpha := 0.6 + 0.4*math.Sin(float64(st.blinkCounter)*0.15)</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                 op.ColorScale.ScaleAlpha(float32(alpha))</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L255"><span class="lineNum">     255</span>              : </span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         screen.DrawImage(placeCursorCache, op)</span></span>
+<span id="L257"><span class="lineNum">     257</span>              : }</span>
+<span id="L258"><span class="lineNum">     258</span>              : </span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error {</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :         face := world.Resources.UIResources.Text.BodyFace</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaGNC">           1 :         const (</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC">           1 :                 panelWidth  = 300</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 panelHeight = 200</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 marginX     = 10</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 marginY     = 10</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 lineHeight  = 20</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         )</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         panelX := screen.Bounds().Dx() - panelWidth - marginX</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         panelY := marginY</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         styled.DrawFramedBackground(screen, panelX, panelY, panelWidth, panelHeight, styled.PanelStyle())</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         textX := float64(panelX + 12)</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :         y := panelY + 12</span></span>
+<span id="L276"><span class="lineNum">     276</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           2 :         drawColorText := func(str string, c color.RGBA) {</span></span>
+<span id="L278"><span class="lineNum">     278</span> <span class="tlaGNC">           1 :                 op := &amp;text.DrawOptions{}</span></span>
+<span id="L279"><span class="lineNum">     279</span> <span class="tlaGNC">           1 :                 op.GeoM.Translate(textX, float64(y))</span></span>
+<span id="L280"><span class="lineNum">     280</span> <span class="tlaGNC">           1 :                 op.ColorScale.ScaleWithColor(c)</span></span>
+<span id="L281"><span class="lineNum">     281</span> <span class="tlaGNC">           1 :                 text.Draw(screen, str, face, op)</span></span>
+<span id="L282"><span class="lineNum">     282</span> <span class="tlaGNC">           1 :                 y += lineHeight</span></span>
+<span id="L283"><span class="lineNum">     283</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L284"><span class="lineNum">     284</span> <span class="tlaGNC">           2 :         drawText := func(str string) { drawColorText(str, theme.TextPrimary) }</span></span>
+<span id="L285"><span class="lineNum">     285</span>              : </span>
+<span id="L286"><span class="lineNum">     286</span> <span class="tlaGNC">           1 :         switch st.phase {</span></span>
+<span id="L287"><span class="lineNum">     287</span> <span class="tlaGNC">           1 :         case placePhaseSelectItem:</span></span>
+<span id="L288"><span class="lineNum">     288</span> <span class="tlaGNC">           1 :                 drawColorText(&quot;置くモード: アイテム選択&quot;, theme.TextPrimary)</span></span>
+<span id="L289"><span class="lineNum">     289</span> <span class="tlaGNC">           1 :                 y += 5</span></span>
+<span id="L290"><span class="lineNum">     290</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L291"><span class="lineNum">     291</span> <span class="tlaGNC">           1 :                 if len(st.backpackItems) == 0 {</span></span>
+<span id="L292"><span class="lineNum">     292</span> <span class="tlaUNC tlaBgUNC">           0 :                         drawColorText(&quot;置けるアイテムがありません&quot;, theme.TextSecondary)</span></span>
+<span id="L293"><span class="lineNum">     293</span> <span class="tlaGNC tlaBgGNC">           1 :                 } else {</span></span>
+<span id="L294"><span class="lineNum">     294</span> <span class="tlaGNC">           2 :                         for i, entity := range st.backpackItems {</span></span>
+<span id="L295"><span class="lineNum">     295</span> <span class="tlaGNC">           1 :                                 if i &gt;= 7 {</span></span>
+<span id="L296"><span class="lineNum">     296</span> <span class="tlaUNC tlaBgUNC">           0 :                                         drawColorText(&quot;...&quot;, theme.TextSecondary)</span></span>
+<span id="L297"><span class="lineNum">     297</span> <span class="tlaUNC">           0 :                                         break</span></span>
+<span id="L298"><span class="lineNum">     298</span>              :                                 }</span>
+<span id="L299"><span class="lineNum">     299</span> <span class="tlaGNC tlaBgGNC">           1 :                                 name := worldhelper.GetEntityName(entity, world)</span></span>
+<span id="L300"><span class="lineNum">     300</span> <span class="tlaGNC">           1 :                                 prefix := &quot;  &quot;</span></span>
+<span id="L301"><span class="lineNum">     301</span> <span class="tlaGNC">           2 :                                 if i == st.selectedIndex {</span></span>
+<span id="L302"><span class="lineNum">     302</span> <span class="tlaGNC">           1 :                                         prefix = &quot;&gt; &quot;</span></span>
+<span id="L303"><span class="lineNum">     303</span> <span class="tlaGNC">           1 :                                 }</span></span>
+<span id="L304"><span class="lineNum">     304</span> <span class="tlaGNC">           1 :                                 drawText(fmt.Sprintf(&quot;%s%s&quot;, prefix, name))</span></span>
+<span id="L305"><span class="lineNum">     305</span>              :                         }</span>
+<span id="L306"><span class="lineNum">     306</span>              :                 }</span>
+<span id="L307"><span class="lineNum">     307</span>              : </span>
+<span id="L308"><span class="lineNum">     308</span> <span class="tlaGNC">           1 :                 y = panelY + panelHeight - 30</span></span>
+<span id="L309"><span class="lineNum">     309</span> <span class="tlaGNC">           1 :                 drawColorText(&quot;↑↓:選択 Enter:決定 Esc:戻る&quot;, theme.TextSecondary)</span></span>
+<span id="L310"><span class="lineNum">     310</span>              : </span>
+<span id="L311"><span class="lineNum">     311</span> <span class="tlaUNC tlaBgUNC">           0 :         case placePhaseSelectTile:</span></span>
+<span id="L312"><span class="lineNum">     312</span> <span class="tlaUNC">           0 :                 drawColorText(&quot;置くモード: 配置先選択&quot;, theme.TextPrimary)</span></span>
+<span id="L313"><span class="lineNum">     313</span> <span class="tlaUNC">           0 :                 y += 5</span></span>
+<span id="L314"><span class="lineNum">     314</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L315"><span class="lineNum">     315</span> <span class="tlaUNC">           0 :                 item := st.backpackItems[st.selectedIndex]</span></span>
+<span id="L316"><span class="lineNum">     316</span> <span class="tlaUNC">           0 :                 name := worldhelper.GetEntityName(item, world)</span></span>
+<span id="L317"><span class="lineNum">     317</span> <span class="tlaUNC">           0 :                 drawText(fmt.Sprintf(&quot;アイテム: %s&quot;, name))</span></span>
+<span id="L318"><span class="lineNum">     318</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L319"><span class="lineNum">     319</span> <span class="tlaUNC">           0 :                 dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))</span></span>
+<span id="L320"><span class="lineNum">     320</span> <span class="tlaUNC">           0 :                 drawText(fmt.Sprintf(&quot;方向: %s&quot;, dirLabel))</span></span>
+<span id="L321"><span class="lineNum">     321</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L322"><span class="lineNum">     322</span> <span class="tlaUNC">           0 :                 y = panelY + panelHeight - 30</span></span>
+<span id="L323"><span class="lineNum">     323</span> <span class="tlaUNC">           0 :                 drawColorText(&quot;WASD/矢印:移動 Enter:置く Esc:戻る&quot;, theme.TextSecondary)</span></span>
+<span id="L324"><span class="lineNum">     324</span>              :         }</span>
+<span id="L325"><span class="lineNum">     325</span>              : </span>
+<span id="L326"><span class="lineNum">     326</span> <span class="tlaGNC tlaBgGNC">           1 :         return nil</span></span>
+<span id="L327"><span class="lineNum">     327</span>              : }</span>
         </pre>
               </td>
             </tr>
