@@ -62,8 +62,6 @@ func TestDropActivity_Validate(t *testing.T) {
 
 		// バックパック外のアイテムを手動で作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Value, &gc.Value{})
-
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,

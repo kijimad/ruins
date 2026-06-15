@@ -125,7 +125,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 
 	// DeadCleanupSystem実行前のアイテムエンティティ数をカウント
 	itemCountBefore := 0
-	world.Manager.Join(world.Components.Item).Visit(ecs.Visit(func(_ ecs.Entity) {
+	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountBefore++
 	}))
 
@@ -138,7 +138,7 @@ func TestDeadCleanupSystem_WithDropTable(t *testing.T) {
 
 	// ドロップアイテムが生成されているべき（"鉄くず"がドロップテーブルに定義されている）
 	itemCountAfter := 0
-	world.Manager.Join(world.Components.Item).Visit(ecs.Visit(func(_ ecs.Entity) {
+	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountAfter++
 	}))
 
@@ -164,7 +164,7 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
-	world.Manager.Join(world.Components.Item).Visit(ecs.Visit(func(_ ecs.Entity) {
+	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountBefore++
 	}))
 
@@ -174,7 +174,7 @@ func TestDeadCleanupSystem_WithDropTableDrops(t *testing.T) {
 
 	// 実行後のアイテム数
 	itemCountAfter := 0
-	world.Manager.Join(world.Components.Item).Visit(ecs.Visit(func(_ ecs.Entity) {
+	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountAfter++
 	}))
 
@@ -195,7 +195,7 @@ func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 
 	// 実行前のアイテム数
 	itemCountBefore := 0
-	world.Manager.Join(world.Components.Item).Visit(ecs.Visit(func(_ ecs.Entity) {
+	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountBefore++
 	}))
 
@@ -205,7 +205,7 @@ func TestDeadCleanupSystem_WithoutDropTable(t *testing.T) {
 
 	// 実行後のアイテム数
 	itemCountAfter := 0
-	world.Manager.Join(world.Components.Item).Visit(ecs.Visit(func(_ ecs.Entity) {
+	world.Manager.Join(world.Components.LocationOnField).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountAfter++
 	}))
 

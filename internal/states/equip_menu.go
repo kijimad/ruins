@@ -369,8 +369,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 		world.Manager.Join(
 			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
-			// TODO: 武器は定数を使う
-			if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != "武器" {
+			if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != gc.CategoryWeapon {
 				return
 			}
 			items = append(items, entity)

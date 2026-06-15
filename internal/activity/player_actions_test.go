@@ -181,7 +181,6 @@ func TestExecuteEnterAction(t *testing.T) {
 			Data: gc.ItemInteraction{},
 		})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
-		item.AddComponent(world.Components.Value, &gc.Value{})
 
 		// LocationOnFieldがないので拾えるアイテムがない
 		err := ExecuteEnterAction(world)

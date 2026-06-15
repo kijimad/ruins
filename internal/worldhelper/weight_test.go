@@ -68,7 +68,6 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// 1kgのアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 1.0})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
@@ -83,12 +82,10 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// 1kgと2kgのアイテムを作成
 		item1 := world.Manager.NewEntity()
-		item1.AddComponent(world.Components.Item, &gc.Item{})
 		item1.AddComponent(world.Components.Weight, &gc.Weight{Kg: 1.0})
 		item1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		item2 := world.Manager.NewEntity()
-		item2.AddComponent(world.Components.Item, &gc.Item{})
 		item2.AddComponent(world.Components.Weight, &gc.Weight{Kg: 2.0})
 		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
@@ -103,7 +100,6 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// 0.5kg × 5個のスタックアイテム
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 0.5})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 5})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
@@ -119,7 +115,6 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// 3kgの装備アイテム
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 3.0})
 		item.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
 			Owner:         player,
@@ -137,13 +132,11 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// バックパック内: 1kg
 		item1 := world.Manager.NewEntity()
-		item1.AddComponent(world.Components.Item, &gc.Item{})
 		item1.AddComponent(world.Components.Weight, &gc.Weight{Kg: 1.0})
 		item1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// 装備中: 3kg
 		item2 := world.Manager.NewEntity()
-		item2.AddComponent(world.Components.Item, &gc.Item{})
 		item2.AddComponent(world.Components.Weight, &gc.Weight{Kg: 3.0})
 		item2.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
 			Owner:         player,
@@ -162,7 +155,6 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// player2が装備している3kgのアイテム
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 3.0})
 		item.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
 			Owner:         player2,
@@ -181,7 +173,6 @@ func TestCalculateCurrentCarryingWeight(t *testing.T) {
 
 		// フィールド上の5kgのアイテム
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 5.0})
 		item.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 
@@ -203,7 +194,6 @@ func TestUpdateCarryingWeight(t *testing.T) {
 
 		// 2kgのアイテムを追加
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Weight, &gc.Weight{Kg: 2.0})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 

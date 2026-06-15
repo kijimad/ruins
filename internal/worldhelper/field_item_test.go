@@ -76,7 +76,6 @@ func TestSpawnMultipleFieldItems(t *testing.T) {
 	// フィールド上のアイテム数を確認
 	fieldItemCount := 0
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationOnField,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {

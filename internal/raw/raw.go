@@ -579,6 +579,8 @@ func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *i
 		entitySpec.BlockView = &gc.BlockView{}
 	}
 
+	entitySpec.Tile = &gc.Tile{}
+
 	// タイル種別によらないので、ここでは初期化するだけ
 	entitySpec.TileTemperature = &gc.TileTemperature{}
 

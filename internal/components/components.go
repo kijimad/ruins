@@ -34,6 +34,7 @@ type EntitySpec struct {
 	LocationType *LocationType
 
 	// field ================
+	Tile            *Tile
 	AIMoveFSM       *AIMoveFSM
 	AIRoaming       *AIRoaming
 	AIVision        *AIVision
@@ -111,6 +112,7 @@ type Components struct {
 	LocationOnField    *ecs.NullComponent
 
 	// field ================
+	Tile            *ecs.NullComponent
 	AIMoveFSM       *ecs.SliceComponent
 	AIRoaming       *ecs.SliceComponent
 	AIVision        *ecs.SliceComponent

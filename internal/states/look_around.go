@@ -280,8 +280,6 @@ func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, draw
 		typeStr = "[敵]"
 	case entity.HasComponent(world.Components.FactionAlly) && !entity.HasComponent(world.Components.Player):
 		typeStr = "[NPC]"
-	case entity.HasComponent(world.Components.Item):
-		typeStr = "[物]"
 	case entity.HasComponent(world.Components.Prop):
 		typeStr = "[置物]"
 	default:

@@ -16,7 +16,7 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 	world.Manager.Join(
 		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != "武器" {
+		if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != gc.CategoryWeapon {
 			return
 		}
 		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)

@@ -100,7 +100,7 @@ func (sys *RenderSpriteSystem) Draw(world w.World, screen *ebiten.Image) error {
 	}
 	sys.renderDarkness(world, screen, tileRenderMap)
 	sys.renderShadows(world, screen, tileRenderMap)
-	if err := sys.renderSprites(world, screen, tileRenderMap); err != nil {
+	if err := sys.renderObjectLayer(world, screen, tileRenderMap); err != nil {
 		return err
 	}
 
@@ -134,9 +134,7 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	world.Manager.Join(
 		world.Components.SpriteRender,
 		world.Components.GridElement,
-		world.Components.Prop.Not(),
-		world.Components.TurnBased.Not(),
-		world.Components.Item.Not(),
+		world.Components.Tile,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		entities[iSprite] = entity
 		iSprite++
@@ -176,33 +174,15 @@ func (sys *RenderSpriteSystem) renderFloorLayer(world w.World, screen *ebiten.Im
 	return nil
 }
 
-// renderSprites はスプライトを描画する
-func (sys *RenderSpriteSystem) renderSprites(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
+// renderObjectLayer はタイル以外のオブジェクトレイヤーを描画する
+func (sys *RenderSpriteSystem) renderObjectLayer(world w.World, screen *ebiten.Image, tileRenderMap map[gc.GridElement]TileRenderInfo) error {
 	var entities []ecs.Entity
 
-	// Props を収集
+	// タイル以外のスプライトを収集する。フィールド上のオブジェクトとMoversを含む
 	world.Manager.Join(
 		world.Components.SpriteRender,
 		world.Components.GridElement,
-		world.Components.Prop,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		entities = append(entities, entity)
-	}))
-
-	// Items を収集
-	world.Manager.Join(
-		world.Components.SpriteRender,
-		world.Components.GridElement,
-		world.Components.Item,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		entities = append(entities, entity)
-	}))
-
-	// Movers を収集
-	world.Manager.Join(
-		world.Components.SpriteRender,
-		world.Components.GridElement,
-		world.Components.TurnBased,
+		world.Components.Tile.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		entities = append(entities, entity)
 	}))

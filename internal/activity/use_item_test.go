@@ -160,7 +160,6 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
-		item.AddComponent(world.Components.Value, &gc.Value{})
 		item.AddComponent(world.Components.ProvidesNutrition, &gc.ProvidesNutrition{Amount: 100})
 		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
@@ -220,7 +219,6 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Value, &gc.Value{})
 		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
 		item.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
 
@@ -280,7 +278,6 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		actor.AddComponent(world.Components.HP, &gc.HP{})
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Value, &gc.Value{})
 		item.AddComponent(world.Components.Material, &gc.Material{})
 
 		comp := &gc.Activity{
@@ -302,7 +299,6 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		// HPなし
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Value, &gc.Value{})
 		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
 		item.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
 

@@ -14,7 +14,6 @@ func TestEquipDisarm(t *testing.T) {
 
 	// アイテムエンティティを作成
 	item := world.Manager.NewEntity()
-	item.AddComponent(world.Components.Item, &gc.Item{})
 	item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 	// オーナーエンティティを作成

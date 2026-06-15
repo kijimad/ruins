@@ -5,6 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/stretchr/testify/assert"
@@ -713,4 +714,25 @@ func TestOverweightPenalty(t *testing.T) {
 		// 最大-75
 		assert.Equal(t, -75, penalty)
 	})
+}
+
+func TestAllItemsBelongToInventoryCategory(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	items := raw.PtrSlice(world.Resources.RawMaster.Items)
+	require.NotEmpty(t, items, "rawデータにアイテムが存在する")
+
+	var uncategorized []string
+	for _, item := range items {
+		entity, err := SpawnItem(world, item.Name, 1, gc.LocationTypeInBackpack)
+		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Name)
+
+		cat := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)
+		if cat == "" {
+			uncategorized = append(uncategorized, item.Name)
+		}
+	}
+	assert.Empty(t, uncategorized, "InventoryCategoryに属していないアイテム: %v", uncategorized)
 }
