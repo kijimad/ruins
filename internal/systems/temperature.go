@@ -113,10 +113,10 @@ func CalculateEquippedInsulation(world w.World, owner ecs.Entity) Insulation {
 	var total Insulation
 
 	world.Manager.Join(
-		world.Components.ItemLocationEquipped,
+		world.Components.LocationEquipped,
 		world.Components.Wearable,
 	).Visit(ecs.Visit(func(item ecs.Entity) {
-		equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+		equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
 		if equipped.Owner != owner {
 			return
 		}

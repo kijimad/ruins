@@ -113,7 +113,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		if !worldhelper.IsPickable(entity, world) {
 			return
 		}
-		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.ItemLocationOnField) {
+		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.LocationOnField) {
 			itemsToCollect = append(itemsToCollect, entity)
 		} else {
 			propsToCollect = append(propsToCollect, entity)
@@ -164,10 +164,6 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) {
 	formattedName := worldhelper.GetEntityName(propEntity, world)
 
-	// Item化してバックパックに移動する
-	if !propEntity.HasComponent(world.Components.Item) {
-		propEntity.AddComponent(world.Components.Item, &gc.Item{Count: 1})
-	}
 	worldhelper.MoveToBackpack(world, propEntity, actor)
 
 	// フィールドから消す

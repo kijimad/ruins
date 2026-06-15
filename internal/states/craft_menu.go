@@ -538,8 +538,7 @@ func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Conta
 	for _, input := range recipe.Inputs {
 		var currentAmount int
 		if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found {
-			item := world.Components.Item.Get(stackableEntity).(*gc.Item)
-			currentAmount = item.Count
+			currentAmount = worldhelper.GetEntityCount(world, stackableEntity)
 		}
 		str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
 		var textColor color.RGBA

@@ -77,7 +77,7 @@ func BuyItem(world w.World, playerEntity ecs.Entity, itemName string) error {
 		}
 	} else {
 		// 通常アイテムは新規作成
-		_, err := SpawnItem(world, itemName, 1, gc.ItemLocationInPlayerBackpack)
+		_, err := SpawnItem(world, itemName, 1, gc.LocationTypeInBackpack)
 		if err != nil {
 			// 購入失敗時は通貨を返金
 			if refundErr := addCurrency(world, playerEntity, price); refundErr != nil {

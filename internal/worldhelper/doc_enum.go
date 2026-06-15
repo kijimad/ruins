@@ -6,32 +6,32 @@
 // 必ずこのパッケージのhelper関数を使用してください。
 // 直接Component操作すると排他制御が保証されません。
 //
-// # ItemLocation の使用例
+// # Location の使用例
 //
-// アイテムの位置を管理する際は、以下のhelper関数を使用します：
+// エンティティの位置を管理する際は、以下のhelper関数を使用します：
 //
 //	// ✅ 推奨: 具体的なHelper関数を使用（排他制御あり）
-//	worldhelper.MoveToBackpack(world, item, owner)            // バックパックに移動（StatsChanged, InventoryChangedフラグ付き）
-//	worldhelper.MoveToEquip(world, item, owner, slot)         // 装備（StatsChanged, InventoryChangedフラグ付き）
-//	worldhelper.MoveToField(world, item, owner)               // フィールドにドロップ（InventoryChangedフラグ付き）
+//	worldhelper.MoveToBackpack(world, entity, owner)            // バックパックに移動（StatsChanged, InventoryChangedフラグ付き）
+//	worldhelper.MoveToEquip(world, entity, owner, slot)         // 装備（StatsChanged, InventoryChangedフラグ付き）
+//	worldhelper.MoveToField(world, entity, owner)               // フィールドにドロップ（InventoryChangedフラグ付き）
 //
 //	// ❌ 非推奨: 直接操作（排他制御なし）
-//	item.AddComponent(world.Components.ItemLocationInPlayerBackpack)
+//	entity.AddComponent(world.Components.LocationInBackpack)
 //
 // 位置の判定は型取得してswitch分岐、またはHasComponentで判定します：
 //
 //	// ✅ HasComponentで直接判定
-//	if item.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+//	if entity.HasComponent(world.Components.LocationInBackpack) {
 //	    // バックパック内処理
 //	}
 //
 //	// ✅ 複数の可能性を判定する場合はHasComponentで分岐
-//	if item.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+//	if entity.HasComponent(world.Components.LocationInBackpack) {
 //	    // バックパック処理
-//	} else if item.HasComponent(world.Components.ItemLocationEquipped) {
-//	    equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+//	} else if entity.HasComponent(world.Components.LocationEquipped) {
+//	    equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 //	    // 装備処理（equipped.Owner, equipped.EquipmentSlotにアクセス可能）
-//	} else if item.HasComponent(world.Components.ItemLocationOnField) {
+//	} else if entity.HasComponent(world.Components.LocationOnField) {
 //	    // フィールド処理
 //	}
 //

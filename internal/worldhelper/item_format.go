@@ -18,11 +18,7 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string {
 		name = n.Name
 	}
 
-	count := 1
-	if itemComp := world.Components.Item.Get(itemEntity); itemComp != nil {
-		item := itemComp.(*gc.Item)
-		count = item.Count
-	}
+	count := GetEntityCount(world, itemEntity)
 
 	if count <= 1 {
 		return name

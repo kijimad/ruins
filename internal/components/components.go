@@ -18,21 +18,21 @@ type EntitySpec struct {
 	Description *Description
 
 	// item ================
-	HP               *HP
-	Item             *Item
-	Consumable       *Consumable
-	CarryWeight      *CarryWeight
-	Melee            *Melee
-	Fire             *Fire
-	Value            *Value
-	Weight           *Weight
-	Recipe           *Recipe
-	Wearable         *Wearable
-	Abilities        *Abilities
-	Weapon           *Weapon
-	Ammo             *Ammo
-	Stackable        *Stackable
-	ItemLocationType *ItemLocationType
+	HP           *HP
+	Item         *Item
+	Consumable   *Consumable
+	CarryWeight  *CarryWeight
+	Melee        *Melee
+	Fire         *Fire
+	Value        *Value
+	Weight       *Weight
+	Recipe       *Recipe
+	Wearable     *Wearable
+	Abilities    *Abilities
+	Weapon       *Weapon
+	Ammo         *Ammo
+	Stackable    *Stackable
+	LocationType *LocationType
 
 	// field ================
 	AIMoveFSM       *AIMoveFSM
@@ -94,23 +94,23 @@ type Components struct {
 	Description *ecs.SliceComponent `save:"true"`
 
 	// item ================
-	HP                           *ecs.SliceComponent `save:"true"`
-	Item                         *ecs.SliceComponent `save:"true"`
-	Consumable                   *ecs.SliceComponent `save:"true"`
-	CarryWeight                  *ecs.SliceComponent `save:"true"`
-	Melee                        *ecs.SliceComponent `save:"true"`
-	Fire                         *ecs.SliceComponent `save:"true"`
-	Value                        *ecs.SliceComponent `save:"true"`
-	Weight                       *ecs.SliceComponent `save:"true"`
-	Recipe                       *ecs.SliceComponent `save:"true"`
-	Wearable                     *ecs.SliceComponent `save:"true"`
-	Abilities                    *ecs.SliceComponent `save:"true"`
-	Weapon                       *ecs.SliceComponent `save:"true"`
-	Ammo                         *ecs.SliceComponent `save:"true"`
-	Stackable                    *ecs.SliceComponent `save:"true"`
-	ItemLocationInPlayerBackpack *ecs.NullComponent  `save:"true"`
-	ItemLocationEquipped         *ecs.SliceComponent `save:"true"`
-	ItemLocationOnField          *ecs.NullComponent
+	HP                 *ecs.SliceComponent `save:"true"`
+	Item               *ecs.NullComponent  `save:"true"`
+	Consumable         *ecs.SliceComponent `save:"true"`
+	CarryWeight        *ecs.SliceComponent `save:"true"`
+	Melee              *ecs.SliceComponent `save:"true"`
+	Fire               *ecs.SliceComponent `save:"true"`
+	Value              *ecs.SliceComponent `save:"true"`
+	Weight             *ecs.SliceComponent `save:"true"`
+	Recipe             *ecs.SliceComponent `save:"true"`
+	Wearable           *ecs.SliceComponent `save:"true"`
+	Abilities          *ecs.SliceComponent `save:"true"`
+	Weapon             *ecs.SliceComponent `save:"true"`
+	Ammo               *ecs.SliceComponent `save:"true"`
+	Stackable          *ecs.SliceComponent `save:"true"`
+	LocationInBackpack *ecs.SliceComponent `save:"true"`
+	LocationEquipped   *ecs.SliceComponent `save:"true"`
+	LocationOnField    *ecs.NullComponent
 
 	// field ================
 	AIMoveFSM       *ecs.SliceComponent
@@ -223,14 +223,9 @@ type Camera struct {
 	TargetY float64
 }
 
-// Item はキャラクターが保持できるもの
+// Item はキャラクターが保持できるアイテムを示すマーカーコンポーネント
 // 装備品、武器、回復アイテム、売却アイテム、素材など
-type Item struct {
-	Count int // 所持数。非スタックは常に1になる
-	// TODO(kijima): ここにStackableフィールドをもたせるべきか検討する
-	// 所持上限と所持個数は密接に関連しておりコンポーネントとして分離させる意味があまりない
-	// また、読み取り上すべてcountを持っていたほうが処理がシンプルになる。読み取りの箇所すべてでスタック可能/スタック不可を区別するのはややこしい。書き込みは限られた箇所にしか登場しないが、読み取りは多くの場所で登場する
-}
+type Item struct{}
 
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
@@ -304,9 +299,11 @@ type InflictsDamage struct {
 	Amount int
 }
 
-// Stackable はスタック可能なアイテムを示すマーカーコンポーネント
-// 実際の所持数は Item.Count フィールドを使用する
-type Stackable struct{}
+// Stackable はスタック可能なエンティティを示すコンポーネント
+// 所持数を管理する。非Stackableエンティティの個数は常に1として扱う
+type Stackable struct {
+	Count int // 所持数
+}
 
 // Value はアイテムの基本価値
 // 売買時の基準となる。実際の売値・買値は店や状況に応じて倍率が適用される
@@ -476,23 +473,25 @@ func (c FactionNeutralData) String() string {
 	return "FactionNeutral"
 }
 
-// ItemLocationType はアイテムの場所
-type ItemLocationType fmt.Stringer
+// LocationType はエンティティの場所
+type LocationType fmt.Stringer
 
 var (
-	// ItemLocationInPlayerBackpack はプレイヤーのバックパック内
-	ItemLocationInPlayerBackpack ItemLocationType = LocationInPlayerBackpack{}
-	// ItemLocationEquipped は味方が装備中
-	ItemLocationEquipped ItemLocationType = LocationEquipped{}
-	// ItemLocationOnField はフィールド上
-	ItemLocationOnField ItemLocationType = LocationOnField{}
+	// LocationTypeInBackpack はバックパック内
+	LocationTypeInBackpack LocationType = LocationInBackpack{}
+	// LocationTypeEquipped は装備中
+	LocationTypeEquipped LocationType = LocationEquipped{}
+	// LocationTypeOnField はフィールド上
+	LocationTypeOnField LocationType = LocationOnField{}
 )
 
-// LocationInPlayerBackpack はプレイヤーのバックパック内位置
-type LocationInPlayerBackpack struct{}
+// LocationInBackpack はバックパック内位置
+type LocationInBackpack struct {
+	Owner ecs.Entity // バックパックの所有者
+}
 
-func (c LocationInPlayerBackpack) String() string {
-	return "ItemLocationInPlayerBackpack"
+func (c LocationInBackpack) String() string {
+	return "LocationInBackpack"
 }
 
 // LocationEquipped は装備中位置
@@ -502,14 +501,14 @@ type LocationEquipped struct {
 }
 
 func (c LocationEquipped) String() string {
-	return "ItemLocationEquipped"
+	return "LocationEquipped"
 }
 
 // LocationOnField はフィールド上位置
 type LocationOnField struct{}
 
 func (c LocationOnField) String() string {
-	return "ItemLocationOnField"
+	return "LocationOnField"
 }
 
 // Prop は置物を表すマーカーコンポーネント

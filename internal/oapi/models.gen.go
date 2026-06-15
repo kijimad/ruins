@@ -1420,8 +1420,8 @@ type SaveDataComponentsMap struct {
 	// LocationEquipped 装備位置。エンティティ参照を含む
 	LocationEquipped *SaveDataLocationEquippedComponent `json:"LocationEquipped,omitempty"`
 
-	// LocationInPlayerBackpack プレイヤーバックパック内の位置マーカー
-	LocationInPlayerBackpack *SaveDataMarkerComponent `json:"LocationInPlayerBackpack,omitempty"`
+	// LocationInBackpack バックパック内の位置。所有者エンティティ参照を含む
+	LocationInBackpack *SaveDataLocationInBackpackComponent `json:"LocationInBackpack,omitempty"`
 
 	// Melee 近接攻撃設定
 	Melee *SaveDataMeleeComponent `json:"Melee,omitempty"`
@@ -1671,6 +1671,13 @@ type SaveDataLocationEquippedComponent struct {
 	EquipmentSlot SaveDataEquipmentSlotNumber `json:"EquipmentSlot"`
 
 	// OwnerRef 装備者のStableID
+	OwnerRef SaveDataStableID `json:"OwnerRef"`
+}
+
+// SaveDataLocationInBackpackComponent バックパック位置コンポーネント。
+// Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+type SaveDataLocationInBackpackComponent struct {
+	// OwnerRef 所有者のStableID
 	OwnerRef SaveDataStableID `json:"OwnerRef"`
 }
 

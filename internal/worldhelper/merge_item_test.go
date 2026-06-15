@@ -16,11 +16,11 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
-	_, err := SpawnItem(world, "鉄くず", 5, gc.ItemLocationInPlayerBackpack)
+	_, err := SpawnItem(world, "鉄くず", 5, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
 
 	// 新しいmaterialを作成（数量3）
-	_, err = SpawnItem(world, "鉄くず", 3, gc.ItemLocationInPlayerBackpack)
+	_, err = SpawnItem(world, "鉄くず", 3, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
 
 	// MergeInventoryItemを実行
@@ -32,14 +32,14 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	var totalCount int
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
 		if name.Name == "鉄くず" {
 			ironCount++
-			item := world.Components.Item.Get(entity).(*gc.Item)
-			totalCount += item.Count
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			totalCount += stackable.Count
 		}
 	}))
 
@@ -52,14 +52,14 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 新しいmaterialを作成（既存のものはなし）
-	_, err := SpawnItem(world, "緑ハーブ", 2, gc.ItemLocationInPlayerBackpack)
+	_, err := SpawnItem(world, "緑ハーブ", 2, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合前）
 	materialCountBefore := 0
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		materialCountBefore++
 	}))
@@ -72,7 +72,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	materialCountAfter := 0
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		materialCountAfter++
 	}))
@@ -87,18 +87,18 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
-	_, err := SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInPlayerBackpack)
+	_, err := SpawnItem(world, "西洋鎧", 1, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
 
 	// 新しい同じアイテムを作成
-	_, err = SpawnItem(world, "西洋鎧", 1, gc.ItemLocationInPlayerBackpack)
+	_, err = SpawnItem(world, "西洋鎧", 1, gc.LocationTypeInBackpack)
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合前）
 	itemCountBefore := 0
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountBefore++
 	}))
@@ -111,7 +111,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	itemCountAfter := 0
 	world.Manager.Join(
 		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountAfter++
 	}))

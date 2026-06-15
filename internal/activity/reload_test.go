@@ -57,7 +57,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
+		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -81,7 +81,7 @@ func TestReloadActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnItem(world, "木刀", 1, gc.ItemLocationInPlayerBackpack)
+		we, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -154,7 +154,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.ItemLocationInPlayerBackpack)
+		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -163,7 +163,7 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		fire.Magazine = 0
 
 		// 弾薬を2発だけ持たせる
-		_, err = worldhelper.SpawnItem(world, "9mm FMJ", 2, gc.ItemLocationInPlayerBackpack)
+		_, err = worldhelper.SpawnItem(world, "9mm FMJ", 2, gc.LocationTypeInBackpack)
 		require.NoError(t, err)
 
 		ra := &ReloadActivity{}

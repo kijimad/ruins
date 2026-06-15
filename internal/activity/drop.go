@@ -39,7 +39,7 @@ func (da *DropActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World)
 	target := *comp.Target
 
 	// Targetがバックパック内にあることを確認する
-	if !target.HasComponent(world.Components.ItemLocationInPlayerBackpack) {
+	if !target.HasComponent(world.Components.LocationInBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 

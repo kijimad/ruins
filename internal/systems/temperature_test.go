@@ -289,7 +289,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 			InsulationCold:    10,
 			InsulationHeat:    5,
 		})
-		armor.AddComponent(world.Components.ItemLocationEquipped, &gc.LocationEquipped{
+		armor.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
 			Owner: player,
 		})
 
@@ -300,7 +300,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 			InsulationCold:    3,
 			InsulationHeat:    2,
 		})
-		helmet.AddComponent(world.Components.ItemLocationEquipped, &gc.LocationEquipped{
+		helmet.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
 			Owner: player,
 		})
 

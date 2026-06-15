@@ -180,13 +180,12 @@ func (st *PlaceState) doActionSelectTile(world w.World, action inputmapper.Actio
 	return st.ConsumeTransition(), nil
 }
 
-// refreshBackpackItems はバックパック内の全アイテムを取得する
+// refreshBackpackItems はバックパック内の全エンティティを取得する
 func (st *PlaceState) refreshBackpackItems(world w.World) {
 	st.backpackItems = nil
 
 	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		st.backpackItems = append(st.backpackItems, entity)
 	}))

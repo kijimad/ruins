@@ -41,11 +41,10 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 		wallet.Currency += total
 	}
 
-	// バックパック内アイテムを全て削除する
+	// バックパック内エンティティを全て削除する
 	var toDelete []ecs.Entity
 	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		toDelete = append(toDelete, entity)
 	}))
@@ -64,10 +63,9 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 func unequipAll(world w.World, playerEntity ecs.Entity) {
 	var equipped []ecs.Entity
 	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationEquipped,
+		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.ItemLocationEquipped.Get(entity).(*gc.LocationEquipped)
+		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 		if loc.Owner == playerEntity {
 			equipped = append(equipped, entity)
 		}
@@ -90,8 +88,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 	var items []SoldItem
 	total := 0
 	world.Manager.Join(
-		world.Components.Item,
-		world.Components.ItemLocationInPlayerBackpack,
+		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := ""
 		if entity.HasComponent(world.Components.Name) {
@@ -100,7 +97,7 @@ func collectBackpackItems(world w.World, playerEntity ecs.Entity) AutoSellResult
 
 		price := 0
 		if entity.HasComponent(world.Components.Value) {
-			count := world.Components.Item.Get(entity).(*gc.Item).Count
+			count := GetEntityCount(world, entity)
 			baseValue := world.Components.Value.Get(entity).(*gc.Value).Value
 			price = CalculateSellPrice(baseValue) * count * sellPriceMod / 100
 		}

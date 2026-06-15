@@ -49,10 +49,10 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// 装備効果を加算
 		world.Manager.Join(
-			world.Components.ItemLocationEquipped,
+			world.Components.LocationEquipped,
 			world.Components.Wearable,
 		).Visit(ecs.Visit(func(item ecs.Entity) {
-			equipped := world.Components.ItemLocationEquipped.Get(item).(*gc.LocationEquipped)
+			equipped := world.Components.LocationEquipped.Get(item).(*gc.LocationEquipped)
 
 			// このエンティティの装備のみ処理
 			if equipped.Owner != entity {
