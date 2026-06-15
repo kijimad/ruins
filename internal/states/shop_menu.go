@@ -239,7 +239,6 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 
 	worldhelper.QueryPlayer(world, func(_ ecs.Entity) {
 		world.Manager.Join(
-			world.Components.Item,
 			world.Components.Name,
 			world.Components.LocationInBackpack,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {

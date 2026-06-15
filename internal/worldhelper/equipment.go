@@ -15,8 +15,10 @@ func GetWeapons(world w.World, owner ecs.Entity) []*ecs.Entity {
 
 	world.Manager.Join(
 		world.Components.LocationEquipped,
-		world.Components.Weapon,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != "武器" {
+			return
+		}
 		equipped := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
 		if owner == equipped.Owner {
 			// 武器スロットの場合は配列インデックスに変換（SlotWeapon1=4 -> index 0）

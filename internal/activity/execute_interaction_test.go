@@ -196,7 +196,6 @@ func TestExecuteInteraction_Item(t *testing.T) {
 		Data: gc.ItemInteraction{},
 	})
 	itemEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
-	itemEntity.AddComponent(world.Components.Item, &gc.Item{})
 	itemEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
 	// ExecuteInteractionを実行（拾えるアイテムが見つからないためエラー）

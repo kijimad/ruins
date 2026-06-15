@@ -85,10 +85,10 @@ func GetVisibleItems(world w.World) ([]ecs.Entity, error) {
 
 	var items []ecs.Entity
 
-	// 視界内のアイテムを収集
+	// 視界内のフィールド上エンティティを収集
 	world.Manager.Join(
 		world.Components.GridElement,
-		world.Components.Item,
+		world.Components.LocationOnField,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		itemX := int(gridElement.X)

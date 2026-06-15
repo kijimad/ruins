@@ -368,8 +368,11 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 	if gc.SlotWeapon1 <= slotNumber && slotNumber <= gc.SlotWeapon5 {
 		world.Manager.Join(
 			world.Components.LocationInBackpack,
-			world.Components.Weapon,
 		).Visit(ecs.Visit(func(entity ecs.Entity) {
+			// TODO: 武器は定数を使う
+			if world.Components.CategoryOf(gc.InventoryCategoryKey, entity) != "武器" {
+				return
+			}
 			items = append(items, entity)
 		}))
 	} else {

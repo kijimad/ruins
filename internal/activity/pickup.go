@@ -100,9 +100,8 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		return err
 	}
 
-	// 対象タイルのフィールドアイテムと拾えるPropを検索
-	var itemsToCollect []ecs.Entity
-	var propsToCollect []ecs.Entity
+	// 対象タイルの拾得可能なエンティティを検索
+	var toCollect []ecs.Entity
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -110,32 +109,22 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
-		if !worldhelper.IsPickable(entity, world) {
-			return
-		}
-		if entity.HasComponent(world.Components.Item) && entity.HasComponent(world.Components.LocationOnField) {
-			itemsToCollect = append(itemsToCollect, entity)
-		} else {
-			propsToCollect = append(propsToCollect, entity)
+		if worldhelper.IsPickable(entity, world) {
+			toCollect = append(toCollect, entity)
 		}
 	}))
 
-	if len(itemsToCollect) == 0 && len(propsToCollect) == 0 {
+	if len(toCollect) == 0 {
 		return fmt.Errorf("拾えるものがありません")
 	}
 
-	// 収集されたアイテムを処理
 	collectedCount := 0
 	var errs []error
-	for _, itemEntity := range itemsToCollect {
-		if err := pa.collectFieldItem(actor, world, itemEntity); err != nil {
+	for _, entity := range toCollect {
+		if err := pa.collect(actor, world, entity); err != nil {
 			errs = append(errs, err)
 			continue
 		}
-		collectedCount++
-	}
-	for _, propEntity := range propsToCollect {
-		pa.collectProp(actor, world, propEntity)
 		collectedCount++
 	}
 
@@ -145,7 +134,6 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 	log.Debug("拾得完了", "count", collectedCount)
 
-	// プレイヤーの場合のみ複数収集時の総括メッセージを表示
 	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
 		gamelog.New(worldhelper.GetGameLog(world)).
 			Append(fmt.Sprintf("%d個を入手した", collectedCount)).
@@ -159,39 +147,19 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 	return nil
 }
 
-// collectProp はPropをバックパックに移動する。
-// Prop系コンポーネントは保持したまま、座標だけ消してバックパックに入れる
-func (pa *PickupActivity) collectProp(actor ecs.Entity, world w.World, propEntity ecs.Entity) {
-	formattedName := worldhelper.GetEntityName(propEntity, world)
+// collect はフィールド上のエンティティをバックパックに移動する
+func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {
+	name := worldhelper.GetEntityName(entity, world)
+	formattedName := worldhelper.FormatItemName(world, entity)
 
-	worldhelper.MoveToBackpack(world, propEntity, actor)
+	worldhelper.MoveToBackpack(world, entity, actor)
+	entity.RemoveComponent(world.Components.GridElement)
 
-	// フィールドから消す
-	propEntity.RemoveComponent(world.Components.GridElement)
-
-	gamelog.New(worldhelper.GetGameLog(world)).
-		ItemName(formattedName).
-		Append(" を拾った。").
-		Log()
-}
-
-// collectFieldItem はフィールドアイテムを収集してバックパックに移動する
-func (pa *PickupActivity) collectFieldItem(actor ecs.Entity, world w.World, itemEntity ecs.Entity) error {
-	itemName := worldhelper.GetEntityName(itemEntity, world)
-
-	formattedName := worldhelper.FormatItemName(world, itemEntity)
-
-	// フィールドからバックパックに移動
-	worldhelper.MoveToBackpack(world, itemEntity, actor)
-
-	// グリッド表示コンポーネントを削除（フィールドから消す）
-	if itemEntity.HasComponent(world.Components.GridElement) {
-		itemEntity.RemoveComponent(world.Components.GridElement)
-	}
-
-	// 既存のバックパック内の同名Stackableアイテムを統合する処理
-	if err := worldhelper.MergeInventoryItem(world, itemName); err != nil {
-		return fmt.Errorf("インベントリ統合エラー: %w", err)
+	// Stackableなら同名アイテムを統合する
+	if entity.HasComponent(world.Components.Stackable) {
+		if err := worldhelper.MergeInventoryItem(world, name); err != nil {
+			return fmt.Errorf("インベントリ統合エラー: %w", err)
+		}
 	}
 
 	gamelog.New(worldhelper.GetGameLog(world)).

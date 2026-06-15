@@ -18,7 +18,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=1のアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 
@@ -27,7 +27,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
-		assert.False(t, item.HasComponent(world.Components.Item), "アイテムが削除されているべき")
+		assert.False(t, item.HasComponent(world.Components.Name), "アイテムが削除されているべき")
 	})
 
 	t.Run("Stackableアイテムの一部を消費", func(t *testing.T) {
@@ -36,7 +36,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=5のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 5})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
@@ -48,7 +48,7 @@ func TestChangeItemCount(t *testing.T) {
 		// 残り3個であることを確認
 		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
 		assert.Equal(t, 3, stackableComp.Count)
-		assert.True(t, item.HasComponent(world.Components.Item), "アイテムは残っているべき")
+		assert.True(t, item.HasComponent(world.Components.Name), "アイテムは残っているべき")
 	})
 
 	t.Run("Stackableアイテムを全て消費すると削除される", func(t *testing.T) {
@@ -57,7 +57,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=3のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
@@ -67,7 +67,7 @@ func TestChangeItemCount(t *testing.T) {
 		require.NoError(t, err)
 
 		// エンティティが削除されていることを確認
-		assert.False(t, item.HasComponent(world.Components.Item), "アイテムが削除されているべき")
+		assert.False(t, item.HasComponent(world.Components.Name), "アイテムが削除されているべき")
 	})
 
 	t.Run("所持数を超えて消費しようとするとエラー", func(t *testing.T) {
@@ -76,7 +76,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=2のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 2})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
@@ -87,7 +87,7 @@ func TestChangeItemCount(t *testing.T) {
 		assert.Contains(t, err.Error(), "アイテム数が不足しています")
 
 		// エンティティは削除されていない
-		assert.True(t, item.HasComponent(world.Components.Item), "アイテムは残っているべき")
+		assert.True(t, item.HasComponent(world.Components.Name), "アイテムは残っているべき")
 		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
 		assert.Equal(t, 2, stackableComp.Count, "個数は変更されていないべき")
 	})
@@ -98,7 +98,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// Count=3のStackableアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
@@ -116,24 +116,9 @@ func TestChangeItemCount(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
-
 		err := ChangeItemCount(world, item, 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "must not be zero")
-	})
-
-	t.Run("Itemコンポーネントがない場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// Itemコンポーネントのないエンティティ
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Name, &gc.Name{Name: "無効なエンティティ"})
-
-		err := ChangeItemCount(world, item, -1)
-		require.Error(t, err)
-		assert.Contains(t, err.Error(), "does not have Item component")
 	})
 
 	t.Run("プレイヤーがいる場合はInventoryChangedフラグが立つ", func(t *testing.T) {
@@ -150,7 +135,7 @@ func TestChangeItemCount(t *testing.T) {
 
 		// アイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// 1個消費

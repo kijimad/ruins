@@ -209,7 +209,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	entitySpec := gc.EntitySpec{}
-	entitySpec.Item = &gc.Item{}
 	entitySpec.Name = &gc.Name{Name: item.Name}
 	entitySpec.Description = &gc.Description{Description: item.Description}
 
@@ -249,8 +248,6 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if item.InflictsDamage != nil {
 		entitySpec.InflictsDamage = &gc.InflictsDamage{Amount: int(*item.InflictsDamage)}
 	}
-
-	applyWeaponSpec(item, &entitySpec)
 
 	if item.Ammo != nil {
 		var ammoAmmoTag string
@@ -319,17 +316,14 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Book = book
 	}
 
+	if item.Material != nil && *item.Material {
+		entitySpec.Material = &gc.Material{}
+	}
+
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
 	entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
 
 	return entitySpec, nil
-}
-
-// applyWeaponSpec はItemのWeaponマーカーをEntitySpecに適用する
-func applyWeaponSpec(item oapi.Item, spec *gc.EntitySpec) {
-	if item.Weapon != nil {
-		spec.Weapon = &gc.Weapon{}
-	}
 }
 
 // NewRecipeSpec は指定された名前のレシピのEntitySpecを生成する
@@ -352,9 +346,6 @@ func NewRecipeSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		return gc.EntitySpec{}, fmt.Errorf("%s: %w", "failed to generate item for recipe", err)
 	}
 	entitySpec.Description = &gc.Description{Description: itemSpec.Description.Description}
-	if itemSpec.Weapon != nil {
-		entitySpec.Weapon = itemSpec.Weapon
-	}
 	if itemSpec.Melee != nil {
 		entitySpec.Melee = itemSpec.Melee
 	}
@@ -389,9 +380,9 @@ func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		return gc.EntitySpec{}, fmt.Errorf("failed to generate weapon spec: %w", err)
 	}
 
-	// Weaponコンポーネントがない場合はエラー
-	if itemSpec.Weapon == nil {
-		return gc.EntitySpec{}, fmt.Errorf("%s is not a weapon (Weapon component missing)", name)
+	// Melee/Fire のいずれも持たない場合は武器ではない
+	if itemSpec.Melee == nil && itemSpec.Fire == nil {
+		return gc.EntitySpec{}, fmt.Errorf("%s is not a weapon (Melee/Fire component missing)", name)
 	}
 
 	return itemSpec, nil

@@ -43,7 +43,6 @@ var (
 	ErrNoItemsToPickup  = errors.New("拾えるアイテムがありません")
 	ErrItemPickupFailed = errors.New("アイテムの拾得に失敗しました")
 	ErrItemNotSet       = errors.New("アイテムが指定されていません")
-	ErrInvalidItem      = errors.New("無効なアイテムです")
 	ErrItemNoEffect     = errors.New("このアイテムには効果がありません")
 	ErrActorNoHP        = errors.New("アクターにHPコンポーネントがありません")
 

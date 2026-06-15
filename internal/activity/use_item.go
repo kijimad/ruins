@@ -39,11 +39,6 @@ func (u *UseItemActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.
 
 	item := *comp.Target
 
-	// アイテムエンティティにItemコンポーネントがあるかチェック
-	if !item.HasComponent(world.Components.Item) {
-		return ErrInvalidItem
-	}
-
 	// 何らかの効果があるかチェック
 	hasEffect := item.HasComponent(world.Components.ProvidesHealing) ||
 		item.HasComponent(world.Components.ProvidesNutrition) ||

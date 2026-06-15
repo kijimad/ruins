@@ -18,19 +18,16 @@ func TestEquipMenuWearSortIntegration(t *testing.T) {
 	// テスト用防具エンティティを作成（名前順ではない順序で作成）
 	wearable1 := world.Manager.NewEntity()
 	wearable1.AddComponent(world.Components.Name, &gc.Name{Name: "Shield"})
-	wearable1.AddComponent(world.Components.Item, &gc.Item{})
 	wearable1.AddComponent(world.Components.LocationInBackpack, gc.LocationInBackpack{})
 	wearable1.AddComponent(world.Components.Wearable, &gc.Wearable{EquipmentCategory: gc.EquipmentHead})
 
 	wearable2 := world.Manager.NewEntity()
 	wearable2.AddComponent(world.Components.Name, &gc.Name{Name: "Armor"})
-	wearable2.AddComponent(world.Components.Item, &gc.Item{})
 	wearable2.AddComponent(world.Components.LocationInBackpack, gc.LocationInBackpack{})
 	wearable2.AddComponent(world.Components.Wearable, &gc.Wearable{EquipmentCategory: gc.EquipmentHead})
 
 	wearable3 := world.Manager.NewEntity()
 	wearable3.AddComponent(world.Components.Name, &gc.Name{Name: "Helmet"})
-	wearable3.AddComponent(world.Components.Item, &gc.Item{})
 	wearable3.AddComponent(world.Components.LocationInBackpack, gc.LocationInBackpack{})
 	wearable3.AddComponent(world.Components.Wearable, &gc.Wearable{EquipmentCategory: gc.EquipmentHead})
 
@@ -62,23 +59,17 @@ func TestEquipMenuWeaponSortIntegration(t *testing.T) {
 	// テスト用武器エンティティを作成（名前順ではない順序で作成）
 	weapon1 := world.Manager.NewEntity()
 	weapon1.AddComponent(world.Components.Name, &gc.Name{Name: "Thunder Weapon"})
-	weapon1.AddComponent(world.Components.Item, &gc.Item{})
 	weapon1.AddComponent(world.Components.LocationInBackpack, gc.LocationInBackpack{})
-	weapon1.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon1.AddComponent(world.Components.Melee, &gc.Melee{AttackCategory: gc.AttackSword})
 
 	weapon2 := world.Manager.NewEntity()
 	weapon2.AddComponent(world.Components.Name, &gc.Name{Name: "Fire Weapon"})
-	weapon2.AddComponent(world.Components.Item, &gc.Item{})
 	weapon2.AddComponent(world.Components.LocationInBackpack, gc.LocationInBackpack{})
-	weapon2.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon2.AddComponent(world.Components.Melee, &gc.Melee{AttackCategory: gc.AttackSpear})
 
 	weapon3 := world.Manager.NewEntity()
 	weapon3.AddComponent(world.Components.Name, &gc.Name{Name: "Ice Weapon"})
-	weapon3.AddComponent(world.Components.Item, &gc.Item{})
 	weapon3.AddComponent(world.Components.LocationInBackpack, gc.LocationInBackpack{})
-	weapon3.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	weapon3.AddComponent(world.Components.Melee, &gc.Melee{AttackCategory: gc.AttackFist})
 
 	// queryEquipableItemsForSlotのテスト（武器スロット1）

@@ -1962,8 +1962,6 @@ components:
           $ref: '#/components/schemas/Wearable'
         equipBonus:
           $ref: '#/components/schemas/EquipBonus'
-        weapon:
-          $ref: '#/components/schemas/Weapon'
         ammo:
           $ref: '#/components/schemas/Ammo'
         melee:
@@ -1972,6 +1970,9 @@ components:
           $ref: '#/components/schemas/Fire'
         book:
           $ref: '#/components/schemas/Book'
+        material:
+          type: boolean
+          description: 素材アイテムかどうか
       description: アイテム
     ItemCount:
       type: integer
@@ -2763,10 +2764,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.MarkerComponent'
           description: 味方派閥マーカー
-        Item:
-          allOf:
-            - $ref: '#/components/schemas/SaveData.MarkerComponent'
-          description: アイテムマーカー
         LocationInBackpack:
           allOf:
             - $ref: '#/components/schemas/SaveData.LocationInBackpackComponent'
@@ -2775,10 +2772,6 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.MarkerComponent'
           description: ステータス変更フラグ
-        Weapon:
-          allOf:
-            - $ref: '#/components/schemas/SaveData.MarkerComponent'
-          description: 武器マーカー
         Stackable:
           allOf:
             - $ref: '#/components/schemas/SaveData.MarkerComponent'
@@ -3662,9 +3655,6 @@ components:
         - -5
         - -10
       description: 水タイプ
-    Weapon:
-      type: object
-      description: 武器マーカー
     Wearable:
       type: object
       required:

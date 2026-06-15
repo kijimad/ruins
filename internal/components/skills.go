@@ -21,6 +21,7 @@ const (
 	SkillCrafting    SkillID = "crafting"    // 合成
 	SkillSmithing    SkillID = "smithing"    // 調合
 	SkillNegotiation SkillID = "negotiation" // 交渉
+	SkillMechanic    SkillID = "mechanic"    // 機械
 
 	SkillSprinting   SkillID = "sprinting"    // 走破
 	SkillStealth     SkillID = "stealth"      // 隠密
@@ -55,6 +56,7 @@ var skillAbility = map[SkillID]AbilityID{
 	SkillCrafting:    AblDEX,
 	SkillSmithing:    AblDEX,
 	SkillNegotiation: AblDEX,
+	SkillMechanic:    AblDEX,
 
 	SkillSprinting:   AblAGI,
 	SkillStealth:     AblAGI,
@@ -95,6 +97,7 @@ var skillName = map[SkillID]string{
 	SkillCrafting:      "合成",
 	SkillSmithing:      "調合",
 	SkillNegotiation:   "交渉",
+	SkillMechanic:      "機械",
 	SkillSprinting:     "走破",
 	SkillStealth:       "隠密",
 	SkillNightVision:   "暗視",
@@ -145,6 +148,7 @@ var skillDescription = map[SkillID]SkillInfo{
 	SkillCrafting:      {Summary: "素材からアイテムを作る技術", GainedBy: "アイテムを合成すると上がる", Effect: "合成時の素材消費が減少する"},
 	SkillSmithing:      {Summary: "素材を精製・調合する技術", GainedBy: "素材を調合すると上がる", Effect: "調合時の品質が上昇する"},
 	SkillNegotiation:   {Summary: "有利な取引をする話術", GainedBy: "取引を行うと上がる", Effect: "売買の価格が有利になる"},
+	SkillMechanic:      {Summary: "機械を理解し修理する技術", GainedBy: "機械関連の本を読むと上がる", Effect: "機械系アイテムの合成効率が上昇する"},
 	SkillSprinting:     {Summary: "長距離を素早く移動する能力", GainedBy: "装備や本で上がる", Effect: "移動時のAPコストが減少する"},
 	SkillStealth:       {Summary: "敵に気づかれずに行動する技術", GainedBy: "装備や本で上がる", Effect: "敵に発見される距離が短くなる"},
 	SkillNightVision:   {Summary: "暗所での視認能力", GainedBy: "装備や本で上がる", Effect: "暗所での視界が広がる"},
@@ -179,7 +183,7 @@ type SkillCategory struct {
 var SkillCategories = []SkillCategory{
 	{Name: "近接", IDs: []SkillID{SkillSword, SkillSpear, SkillFist}},
 	{Name: "射撃", IDs: []SkillID{SkillBow, SkillHandgun, SkillRifle, SkillCannon}},
-	{Name: "技巧", IDs: []SkillID{SkillCrafting, SkillSmithing, SkillNegotiation}},
+	{Name: "技巧", IDs: []SkillID{SkillCrafting, SkillSmithing, SkillNegotiation, SkillMechanic}},
 	{Name: "機動", IDs: []SkillID{SkillSprinting, SkillStealth, SkillNightVision, SkillWeightBearing}},
 	{Name: "生存", IDs: []SkillID{SkillColdResist, SkillHeatResist, SkillHungerResist, SkillHealing, SkillExploration}},
 	{Name: "防御", IDs: []SkillID{SkillHeavyArmor, SkillFireResist, SkillThunderResist, SkillChillResist, SkillPhotonResist}},

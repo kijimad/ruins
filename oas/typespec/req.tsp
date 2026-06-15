@@ -33,9 +33,6 @@ model EquipBonus {
   agility: Agility;
 }
 
-/** 武器マーカー */
-model Weapon {}
-
 /** 弾薬設定 */
 model Ammo {
   ammoTag?: AmmoTag;
@@ -99,7 +96,6 @@ model Item {
   providesHealing?: ProvidesHealing;
   wearable?: Wearable;
   equipBonus?: EquipBonus;
-  weapon?: Weapon;
   ammo?: Ammo;
   melee?: Melee;
   fire?: Fire;

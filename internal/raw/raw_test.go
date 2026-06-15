@@ -43,7 +43,6 @@ SpriteKey = "repair_item"
 	loc := gc.LocationTypeInBackpack
 	entitySpec.LocationType = &loc
 	assert.NotNil(t, entitySpec.Name)
-	assert.NotNil(t, entitySpec.Item)
 	assert.NotNil(t, entitySpec.Description)
 	assert.NotNil(t, entitySpec.SpriteRender)
 }

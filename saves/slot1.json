@@ -1,6 +1,6 @@
 {
-  "checksum": "ffb0cfb2530b832a6c4343259c625d41f50151f81dbc9a7bed91b8e7c2f1f63b",
-  "timestamp": "2026-06-09T00:20:08.500754996+09:00",
+  "checksum": "f168b1f882231fc77648b71398b220a5c6e6bf3b6e2dbabb50b41c4319058dfc",
+  "timestamp": "2026-06-15T22:38:19.89425166+09:00",
   "version": "1.0.0",
   "world": {
     "entities": [
@@ -46,10 +46,18 @@
             "X": 784,
             "Y": 336
           },
+          "CarryWeight": {
+            "Current": 2.4000000000000004,
+            "Max": 21
+          },
           "FactionAllyData": {},
           "GridElement": {
             "X": 24,
             "Y": 10
+          },
+          "HP": {
+            "Current": 80,
+            "Max": 80
           },
           "LightSource": {
             "Color": {
@@ -65,24 +73,6 @@
             "Name": "Ash"
           },
           "Player": {},
-          "Pools": {
-            "EP": {
-              "Current": 70,
-              "Max": 70
-            },
-            "HP": {
-              "Current": 80,
-              "Max": 80
-            },
-            "SP": {
-              "Current": 20,
-              "Max": 20
-            },
-            "Weight": {
-              "Current": 2.4000000000000004,
-              "Max": 21
-            }
-          },
           "SpriteRender": {
             "AnimKeys": [
               "player_0",
@@ -120,10 +110,12 @@
           "Description": {
             "Description": "焼きたてのパン。空腹を満たす"
           },
-          "Item": {
-            "Count": 3
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
           },
-          "LocationInPlayerBackpack": {},
           "Name": {
             "Name": "パン"
           },
@@ -135,7 +127,9 @@
             "SpriteKey": "food_item",
             "SpriteSheetName": "field"
           },
-          "Stackable": {},
+          "Stackable": {
+            "Count": 3
+          },
           "Value": {
             "Value": 30
           }
@@ -157,10 +151,12 @@
           "Description": {
             "Description": "固いビスケット。保存食として優秀"
           },
-          "Item": {
-            "Count": 2
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
           },
-          "LocationInPlayerBackpack": {},
           "Name": {
             "Name": "ビスケット"
           },
@@ -172,7 +168,9 @@
             "SpriteKey": "biscuit",
             "SpriteSheetName": "field"
           },
-          "Stackable": {},
+          "Stackable": {
+            "Count": 2
+          },
           "Value": {
             "Value": 25
           }
@@ -194,10 +192,12 @@
           "Description": {
             "Description": "体力を半分程度回復する"
           },
-          "Item": {
-            "Count": 1
+          "LocationInBackpack": {
+            "OwnerRef": {
+              "generation": 0,
+              "index": 1
+            }
           },
-          "LocationInPlayerBackpack": {},
           "Name": {
             "Name": "回復薬"
           },
@@ -212,7 +212,9 @@
             "SpriteKey": "healing_potion",
             "SpriteSheetName": "field"
           },
-          "Stackable": {},
+          "Stackable": {
+            "Count": 1
+          },
           "Value": {
             "Value": 100
           }
@@ -226,9 +228,6 @@
         "components": {
           "Description": {
             "Description": "ありふれた布の帽子"
-          },
-          "Item": {
-            "Count": 1
           },
           "LocationEquipped": {
             "EquipmentSlot": 0,
@@ -272,9 +271,6 @@
           "Description": {
             "Description": "普段着のシャツ。防御力は期待できない"
           },
-          "Item": {
-            "Count": 1
-          },
           "LocationEquipped": {
             "EquipmentSlot": 1,
             "OwnerRef": {
@@ -316,9 +312,6 @@
         "components": {
           "Description": {
             "Description": "薄い布地の袖カバー"
-          },
-          "Item": {
-            "Count": 1
           },
           "LocationEquipped": {
             "EquipmentSlot": 2,
@@ -362,9 +355,6 @@
           "Description": {
             "Description": "薄手の布手袋"
           },
-          "Item": {
-            "Count": 1
-          },
           "LocationEquipped": {
             "EquipmentSlot": 3,
             "OwnerRef": {
@@ -407,9 +397,6 @@
           "Description": {
             "Description": "ごく普通のズボン"
           },
-          "Item": {
-            "Count": 1
-          },
           "LocationEquipped": {
             "EquipmentSlot": 4,
             "OwnerRef": {
@@ -451,9 +438,6 @@
         "components": {
           "Description": {
             "Description": "底の薄い布靴"
-          },
-          "Item": {
-            "Count": 1
           },
           "LocationEquipped": {
             "EquipmentSlot": 5,

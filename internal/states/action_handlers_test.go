@@ -166,7 +166,7 @@ func TestExecuteEnterAction(t *testing.T) {
 
 		// 同じ位置にアイテムを作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Value, &gc.Value{})
 		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		item.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
