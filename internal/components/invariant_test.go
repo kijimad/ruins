@@ -1,8 +1,10 @@
 package components
 
 import (
+	"encoding/json"
 	"testing"
 
+	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -171,6 +173,52 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "", cat)
 	})
 
+	t.Run("アイテム種別: 素材", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Material, nil)
+		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "素材", cat)
+	})
+
+	t.Run("アイテム種別: 近接武器", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Melee, &Melee{})
+		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "近接武器", cat)
+	})
+
+	t.Run("アイテム種別: 射撃武器", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Fire, &Fire{})
+		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "射撃武器", cat)
+	})
+
+	t.Run("アイテム種別: Fire+Meleeは射撃武器になる", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Fire, &Fire{})
+		entity.AddComponent(c.Melee, &Melee{})
+		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "射撃武器", cat)
+	})
+
+	t.Run("アイテム種別: 防具", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Wearable, &Wearable{})
+		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "防具", cat)
+	})
+
 	t.Run("CategoryはPredとして使える", func(t *testing.T) {
 		t.Parallel()
 		cats := c.Categories()
@@ -180,4 +228,77 @@ func TestCategory(t *testing.T) {
 		assert.True(t, weapon.Eval(entity))
 		assert.Equal(t, "武器", weapon.String())
 	})
+}
+
+func TestCategoryOfSpec(t *testing.T) {
+	t.Parallel()
+	_, c := setupComponents(t)
+
+	tests := []struct {
+		name string
+		spec EntitySpec
+		want string
+	}{
+		{"素材", EntitySpec{Material: &Material{}}, CategoryMaterial},
+		{"弾薬", EntitySpec{Ammo: &Ammo{}}, CategoryAmmo},
+		{"本", EntitySpec{Book: &Book{}}, CategoryBook},
+		{"置物", EntitySpec{Prop: &Prop{}}, CategoryProp},
+		{"消耗品", EntitySpec{Consumable: &Consumable{}}, CategoryConsumable},
+		{"射撃武器", EntitySpec{Fire: &Fire{}}, CategoryFire},
+		{"近接武器", EntitySpec{Melee: &Melee{}}, CategoryMelee},
+		{"防具", EntitySpec{Wearable: &Wearable{}}, CategoryArmor},
+		{"Fire+Meleeは射撃武器", EntitySpec{Fire: &Fire{}, Melee: &Melee{}}, CategoryFire},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cat, ok := c.CategoryOfSpec(ItemTypeCategoryKey, &tt.spec)
+			assert.True(t, ok)
+			assert.Equal(t, tt.want, cat)
+		})
+	}
+
+	t.Run("該当なし", func(t *testing.T) {
+		t.Parallel()
+		spec := EntitySpec{Name: &Name{Name: "何か"}}
+		cat, ok := c.CategoryOfSpec(ItemTypeCategoryKey, &spec)
+		assert.False(t, ok)
+		assert.Equal(t, "", cat)
+	})
+}
+
+// categoryEntry はゴールデンテスト用のJSON構造体
+type categoryEntry struct {
+	Name string `json:"name"`
+	Pred string `json:"pred"`
+}
+
+// categoriesToJSON はカテゴリ定義をJSON化する
+func categoriesToJSON(cats map[CategoryGroupKey][]Category) ([]byte, error) {
+	m := make(map[CategoryGroupKey][]categoryEntry, len(cats))
+	for key, categories := range cats {
+		entries := make([]categoryEntry, len(categories))
+		for i, cat := range categories {
+			entries[i] = categoryEntry{Name: cat.Name, Pred: cat.Pred.String()}
+		}
+		m[key] = entries
+	}
+	return json.MarshalIndent(m, "", "  ")
+}
+
+func TestCategoriesGolden(t *testing.T) {
+	t.Parallel()
+	_, c := setupComponents(t)
+
+	got, err := categoriesToJSON(c.Categories())
+	require.NoError(t, err)
+
+	g := goldie.New(
+		t,
+		goldie.WithFixtureDir("testdata"),
+		goldie.WithNameSuffix(".golden.json"),
+		goldie.WithDiffEngine(goldie.ColoredDiff),
+	)
+	g.Assert(t, "categories", got)
 }

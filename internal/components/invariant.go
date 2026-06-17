@@ -1,6 +1,7 @@
 package components
 
 import (
+	"reflect"
 	"strings"
 
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -106,6 +107,8 @@ type CategoryGroupKey string
 const (
 	// InventoryCategoryKey はインベントリのタブに対応する分類
 	InventoryCategoryKey CategoryGroupKey = "inventory"
+	// ItemTypeCategoryKey はアイテム欄に表示する細分類
+	ItemTypeCategoryKey CategoryGroupKey = "item_type"
 )
 
 // インベントリカテゴリ名の定数
@@ -115,13 +118,48 @@ const (
 	CategoryArmor  = "防具"
 )
 
+// アイテム種別カテゴリ名の定数
+const (
+	CategoryMaterial   = "素材"
+	CategoryAmmo       = "弾薬"
+	CategoryBook       = "本"
+	CategoryProp       = "置物"
+	CategoryConsumable = "消耗品"
+	CategoryMelee      = "近接武器"
+	CategoryFire       = "射撃武器"
+)
+
+// has は Components のフィールド名を自動解決して Has を生成する。
+// Label の手書きが不要になり、フィールド名との不整合を防ぐ
+func (c *Components) has(comp ecs.DataComponent) Has {
+	val := reflect.ValueOf(c).Elem()
+	typ := val.Type()
+	for i := range val.NumField() {
+		if val.Field(i).Interface() == comp {
+			return Has{Label: typ.Field(i).Name, Comp: comp}
+		}
+	}
+	panic("component not found in Components")
+}
+
 // Categories は観点ごとにグループ化されたカテゴリ定義を返す
 func (c *Components) Categories() map[CategoryGroupKey][]Category {
 	return map[CategoryGroupKey][]Category{
 		InventoryCategoryKey: {
-			{Name: CategoryGoods, Pred: Or{Has{"Material", c.Material}, Has{"Ammo", c.Ammo}, Has{"Book", c.Book}, Has{"Prop", c.Prop}, Has{"Consumable", c.Consumable}}},
-			{Name: CategoryWeapon, Pred: Or{Has{"Melee", c.Melee}, Has{"Fire", c.Fire}}},
-			{Name: CategoryArmor, Pred: Has{"Wearable", c.Wearable}},
+			{Name: CategoryGoods, Pred: Or{c.has(c.Material), c.has(c.Ammo), c.has(c.Book), c.has(c.Prop), c.has(c.Consumable)}},
+			{Name: CategoryWeapon, Pred: Or{c.has(c.Melee), c.has(c.Fire)}},
+			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
+		},
+		ItemTypeCategoryKey: {
+			{Name: CategoryMaterial, Pred: c.has(c.Material)},
+			{Name: CategoryAmmo, Pred: c.has(c.Ammo)},
+			{Name: CategoryBook, Pred: c.has(c.Book)},
+			{Name: CategoryProp, Pred: c.has(c.Prop)},
+			{Name: CategoryConsumable, Pred: c.has(c.Consumable)},
+			// Fire は Melee より先に判定する。射撃武器は殴打性能として Melee も持つため
+			{Name: CategoryFire, Pred: c.has(c.Fire)},
+			{Name: CategoryMelee, Pred: c.has(c.Melee)},
+			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
 		},
 	}
 }
@@ -135,4 +173,53 @@ func (c *Components) CategoryOf(key CategoryGroupKey, entity ecs.Entity) (string
 		}
 	}
 	return "", false
+}
+
+// CategoryOfSpec は EntitySpec に対して CategoryOf と同等の判定を行う。
+// Has.Label が EntitySpec のフィールド名と一致する規約を利用し、
+// リフレクションでフィールドの nil 判定を行う
+func (c *Components) CategoryOfSpec(key CategoryGroupKey, spec *EntitySpec) (string, bool) {
+	specVal := reflect.ValueOf(spec).Elem()
+	for _, cat := range c.Categories()[key] {
+		if evalPredSpec(cat.Pred, specVal) {
+			return cat.Name, true
+		}
+	}
+	return "", false
+}
+
+// evalPredSpec は Pred を EntitySpec のリフレクション値に対して評価する
+func evalPredSpec(pred Pred, specVal reflect.Value) bool {
+	switch p := pred.(type) {
+	case Has:
+		field := specVal.FieldByName(p.Label)
+		if !field.IsValid() {
+			return false
+		}
+		// ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす
+		if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
+			return !field.IsNil()
+		}
+		return true
+	case And:
+		for _, sub := range p {
+			if !evalPredSpec(sub, specVal) {
+				return false
+			}
+		}
+		return true
+	case Or:
+		for _, sub := range p {
+			if evalPredSpec(sub, specVal) {
+				return true
+			}
+		}
+		return false
+	case Not:
+		return !evalPredSpec(p.Pred, specVal)
+	case Category:
+		return evalPredSpec(p.Pred, specVal)
+	default:
+		return false
+	}
 }
