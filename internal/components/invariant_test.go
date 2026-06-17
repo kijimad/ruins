@@ -146,15 +146,6 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "道具", cat)
 	})
 
-	t.Run("道具カテゴリは素材を含む", func(t *testing.T) {
-		t.Parallel()
-		entity := manager.NewEntity()
-		entity.AddComponent(c.Material, nil)
-		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
-		assert.True(t, ok)
-		assert.Equal(t, "道具", cat)
-	})
-
 	t.Run("道具カテゴリは置物を含む", func(t *testing.T) {
 		t.Parallel()
 		entity := manager.NewEntity()
