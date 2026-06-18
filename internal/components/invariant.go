@@ -109,6 +109,8 @@ const (
 	InventoryCategoryKey CategoryGroupKey = "inventory"
 	// ItemTypeCategoryKey はアイテム欄に表示する細分類
 	ItemTypeCategoryKey CategoryGroupKey = "item_type"
+	// FieldLookCategoryKey はフィールド上の観察で表示する分類
+	FieldLookCategoryKey CategoryGroupKey = "field_look"
 )
 
 // インベントリカテゴリ名の定数
@@ -127,6 +129,14 @@ const (
 	CategoryConsumable = "消耗品"
 	CategoryMelee      = "近接武器"
 	CategoryFire       = "射撃武器"
+)
+
+// フィールド観察カテゴリ名の定数
+const (
+	CategoryPlayer = "自分"
+	CategoryEnemy  = "敵"
+	CategoryNPC    = "NPC"
+	CategoryTile   = "タイル"
 )
 
 // has は Components のフィールド名を自動解決して Has を生成する。
@@ -160,6 +170,14 @@ func (c *Components) Categories() map[CategoryGroupKey][]Category {
 			{Name: CategoryFire, Pred: c.has(c.Fire)},
 			{Name: CategoryMelee, Pred: c.has(c.Melee)},
 			{Name: CategoryArmor, Pred: c.has(c.Wearable)},
+		},
+		FieldLookCategoryKey: {
+			// Player を先に判定する。Player は FactionAlly も持つため
+			{Name: CategoryPlayer, Pred: c.has(c.Player)},
+			{Name: CategoryEnemy, Pred: c.has(c.FactionEnemy)},
+			{Name: CategoryNPC, Pred: Or{c.has(c.FactionAlly), c.has(c.FactionNeutral)}},
+			{Name: CategoryProp, Pred: c.has(c.Prop)},
+			{Name: CategoryTile, Pred: c.has(c.Tile)},
 		},
 	}
 }

@@ -271,25 +271,16 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, drawText func(string)) {
 	name := worldhelper.GetEntityName(entity, world)
 
-	// エンティティの種類を判定
-	var typeStr string
-	switch {
-	case entity.HasComponent(world.Components.Player):
-		typeStr = "[自分]"
-	case entity.HasComponent(world.Components.FactionEnemy):
-		typeStr = "[敵]"
-	case entity.HasComponent(world.Components.FactionAlly) && !entity.HasComponent(world.Components.Player):
-		typeStr = "[NPC]"
-	case entity.HasComponent(world.Components.Prop):
-		typeStr = "[置物]"
-	default:
-		// 床・壁などは名前だけ表示する
+	cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)
+	if !ok {
+		// 壁などは名前だけ表示する
 		if name != "" {
 			drawText(name)
 		}
 		return
 	}
 
+	typeStr := fmt.Sprintf("[%s]", cat)
 	if name != "" {
 		drawText(fmt.Sprintf("%s %s", typeStr, name))
 	} else {

@@ -1,4 +1,26 @@
 {
+  "field_look": [
+    {
+      "name": "自分",
+      "pred": "Player"
+    },
+    {
+      "name": "敵",
+      "pred": "FactionEnemy"
+    },
+    {
+      "name": "NPC",
+      "pred": "(FactionAlly OR FactionNeutral)"
+    },
+    {
+      "name": "置物",
+      "pred": "Prop"
+    },
+    {
+      "name": "タイル",
+      "pred": "Tile"
+    }
+  ],
   "inventory": [
     {
       "name": "道具",

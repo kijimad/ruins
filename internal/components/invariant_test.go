@@ -210,6 +210,71 @@ func TestCategory(t *testing.T) {
 		assert.Equal(t, "防具", cat)
 	})
 
+	t.Run("フィールド観察: 自分", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Player, nil)
+		entity.AddComponent(c.FactionAlly, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "自分", cat)
+	})
+
+	t.Run("フィールド観察: 敵", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.FactionEnemy, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "敵", cat)
+	})
+
+	t.Run("フィールド観察: NPC(味方)", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.FactionAlly, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "NPC", cat)
+	})
+
+	t.Run("フィールド観察: NPC(中立)", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.FactionNeutral, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "NPC", cat)
+	})
+
+	t.Run("フィールド観察: 置物", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Prop, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "置物", cat)
+	})
+
+	t.Run("フィールド観察: タイル", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Tile, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "タイル", cat)
+	})
+
+	t.Run("フィールド観察: Player+FactionAllyは自分になる", func(t *testing.T) {
+		t.Parallel()
+		entity := manager.NewEntity()
+		entity.AddComponent(c.Player, nil)
+		entity.AddComponent(c.FactionAlly, nil)
+		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
+		assert.True(t, ok)
+		assert.Equal(t, "自分", cat)
+	})
+
 	t.Run("CategoryはPredとして使える", func(t *testing.T) {
 		t.Parallel()
 		cats := c.Categories()
