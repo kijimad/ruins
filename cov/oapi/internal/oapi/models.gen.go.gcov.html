@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-18 00:08:24</td>
+            <td class="headerValue">2026-06-19 16:31:02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -876,32 +876,32 @@
 <span id="L814"><span class="lineNum">     814</span>              :         // InflictsDamage 基本ダメージ</span>
 <span id="L815"><span class="lineNum">     815</span>              :         InflictsDamage *BaseDamage `json:&quot;inflictsDamage,omitempty&quot;`</span>
 <span id="L816"><span class="lineNum">     816</span>              : </span>
-<span id="L817"><span class="lineNum">     817</span>              :         // Melee 近接攻撃設定</span>
-<span id="L818"><span class="lineNum">     818</span>              :         Melee *Melee `json:&quot;melee,omitempty&quot;`</span>
+<span id="L817"><span class="lineNum">     817</span>              :         // Material 素材アイテムかどうか</span>
+<span id="L818"><span class="lineNum">     818</span>              :         Material *bool `json:&quot;material,omitempty&quot;`</span>
 <span id="L819"><span class="lineNum">     819</span>              : </span>
-<span id="L820"><span class="lineNum">     820</span>              :         // Name エンティティ名</span>
-<span id="L821"><span class="lineNum">     821</span>              :         Name EntityName `json:&quot;name&quot;`</span>
+<span id="L820"><span class="lineNum">     820</span>              :         // Melee 近接攻撃設定</span>
+<span id="L821"><span class="lineNum">     821</span>              :         Melee *Melee `json:&quot;melee,omitempty&quot;`</span>
 <span id="L822"><span class="lineNum">     822</span>              : </span>
-<span id="L823"><span class="lineNum">     823</span>              :         // ProvidesHealing 回復効果</span>
-<span id="L824"><span class="lineNum">     824</span>              :         ProvidesHealing *ProvidesHealing `json:&quot;providesHealing,omitempty&quot;`</span>
+<span id="L823"><span class="lineNum">     823</span>              :         // Name エンティティ名</span>
+<span id="L824"><span class="lineNum">     824</span>              :         Name EntityName `json:&quot;name&quot;`</span>
 <span id="L825"><span class="lineNum">     825</span>              : </span>
-<span id="L826"><span class="lineNum">     826</span>              :         // ProvidesNutrition 栄養価</span>
-<span id="L827"><span class="lineNum">     827</span>              :         ProvidesNutrition *NutritionAmount `json:&quot;providesNutrition,omitempty&quot;`</span>
+<span id="L826"><span class="lineNum">     826</span>              :         // ProvidesHealing 回復効果</span>
+<span id="L827"><span class="lineNum">     827</span>              :         ProvidesHealing *ProvidesHealing `json:&quot;providesHealing,omitempty&quot;`</span>
 <span id="L828"><span class="lineNum">     828</span>              : </span>
-<span id="L829"><span class="lineNum">     829</span>              :         // SpriteKey スプライトキー</span>
-<span id="L830"><span class="lineNum">     830</span>              :         SpriteKey SpriteKey `json:&quot;spriteKey&quot;`</span>
+<span id="L829"><span class="lineNum">     829</span>              :         // ProvidesNutrition 栄養価</span>
+<span id="L830"><span class="lineNum">     830</span>              :         ProvidesNutrition *NutritionAmount `json:&quot;providesNutrition,omitempty&quot;`</span>
 <span id="L831"><span class="lineNum">     831</span>              : </span>
-<span id="L832"><span class="lineNum">     832</span>              :         // SpriteSheetName スプライトシート名</span>
-<span id="L833"><span class="lineNum">     833</span>              :         SpriteSheetName SpriteSheetName `json:&quot;spriteSheetName&quot;`</span>
+<span id="L832"><span class="lineNum">     832</span>              :         // SpriteKey スプライトキー</span>
+<span id="L833"><span class="lineNum">     833</span>              :         SpriteKey SpriteKey `json:&quot;spriteKey&quot;`</span>
 <span id="L834"><span class="lineNum">     834</span>              : </span>
-<span id="L835"><span class="lineNum">     835</span>              :         // Stackable スタック可能かどうか</span>
-<span id="L836"><span class="lineNum">     836</span>              :         Stackable *Stackable `json:&quot;stackable,omitempty&quot;`</span>
+<span id="L835"><span class="lineNum">     835</span>              :         // SpriteSheetName スプライトシート名</span>
+<span id="L836"><span class="lineNum">     836</span>              :         SpriteSheetName SpriteSheetName `json:&quot;spriteSheetName&quot;`</span>
 <span id="L837"><span class="lineNum">     837</span>              : </span>
-<span id="L838"><span class="lineNum">     838</span>              :         // Value 売買価格</span>
-<span id="L839"><span class="lineNum">     839</span>              :         Value ItemValue `json:&quot;value&quot;`</span>
+<span id="L838"><span class="lineNum">     838</span>              :         // Stackable スタック可能かどうか</span>
+<span id="L839"><span class="lineNum">     839</span>              :         Stackable *Stackable `json:&quot;stackable,omitempty&quot;`</span>
 <span id="L840"><span class="lineNum">     840</span>              : </span>
-<span id="L841"><span class="lineNum">     841</span>              :         // Weapon 武器マーカー</span>
-<span id="L842"><span class="lineNum">     842</span>              :         Weapon *Weapon `json:&quot;weapon,omitempty&quot;`</span>
+<span id="L841"><span class="lineNum">     841</span>              :         // Value 売買価格</span>
+<span id="L842"><span class="lineNum">     842</span>              :         Value ItemValue `json:&quot;value&quot;`</span>
 <span id="L843"><span class="lineNum">     843</span>              : </span>
 <span id="L844"><span class="lineNum">     844</span>              :         // Wearable 装備可能設定</span>
 <span id="L845"><span class="lineNum">     845</span>              :         Wearable *Wearable `json:&quot;wearable,omitempty&quot;`</span>
@@ -1473,702 +1473,693 @@
 <span id="L1411"><span class="lineNum">    1411</span>              :         // InflictsDamage ダメージ効果</span>
 <span id="L1412"><span class="lineNum">    1412</span>              :         InflictsDamage *SaveDataInflictsDamageComponent `json:&quot;InflictsDamage,omitempty&quot;`</span>
 <span id="L1413"><span class="lineNum">    1413</span>              : </span>
-<span id="L1414"><span class="lineNum">    1414</span>              :         // Item アイテムマーカー</span>
-<span id="L1415"><span class="lineNum">    1415</span>              :         Item *SaveDataMarkerComponent `json:&quot;Item,omitempty&quot;`</span>
+<span id="L1414"><span class="lineNum">    1414</span>              :         // LightSource 光源設定</span>
+<span id="L1415"><span class="lineNum">    1415</span>              :         LightSource *SaveDataLightSourceComponent `json:&quot;LightSource,omitempty&quot;`</span>
 <span id="L1416"><span class="lineNum">    1416</span>              : </span>
-<span id="L1417"><span class="lineNum">    1417</span>              :         // LightSource 光源設定</span>
-<span id="L1418"><span class="lineNum">    1418</span>              :         LightSource *SaveDataLightSourceComponent `json:&quot;LightSource,omitempty&quot;`</span>
+<span id="L1417"><span class="lineNum">    1417</span>              :         // LocationEquipped 装備位置。エンティティ参照を含む</span>
+<span id="L1418"><span class="lineNum">    1418</span>              :         LocationEquipped *SaveDataLocationEquippedComponent `json:&quot;LocationEquipped,omitempty&quot;`</span>
 <span id="L1419"><span class="lineNum">    1419</span>              : </span>
-<span id="L1420"><span class="lineNum">    1420</span>              :         // LocationEquipped 装備位置。エンティティ参照を含む</span>
-<span id="L1421"><span class="lineNum">    1421</span>              :         LocationEquipped *SaveDataLocationEquippedComponent `json:&quot;LocationEquipped,omitempty&quot;`</span>
+<span id="L1420"><span class="lineNum">    1420</span>              :         // LocationInBackpack バックパック内の位置。所有者エンティティ参照を含む</span>
+<span id="L1421"><span class="lineNum">    1421</span>              :         LocationInBackpack *SaveDataLocationInBackpackComponent `json:&quot;LocationInBackpack,omitempty&quot;`</span>
 <span id="L1422"><span class="lineNum">    1422</span>              : </span>
-<span id="L1423"><span class="lineNum">    1423</span>              :         // LocationInBackpack バックパック内の位置。所有者エンティティ参照を含む</span>
-<span id="L1424"><span class="lineNum">    1424</span>              :         LocationInBackpack *SaveDataLocationInBackpackComponent `json:&quot;LocationInBackpack,omitempty&quot;`</span>
+<span id="L1423"><span class="lineNum">    1423</span>              :         // Melee 近接攻撃設定</span>
+<span id="L1424"><span class="lineNum">    1424</span>              :         Melee *SaveDataMeleeComponent `json:&quot;Melee,omitempty&quot;`</span>
 <span id="L1425"><span class="lineNum">    1425</span>              : </span>
-<span id="L1426"><span class="lineNum">    1426</span>              :         // Melee 近接攻撃設定</span>
-<span id="L1427"><span class="lineNum">    1427</span>              :         Melee *SaveDataMeleeComponent `json:&quot;Melee,omitempty&quot;`</span>
+<span id="L1426"><span class="lineNum">    1426</span>              :         // Name エンティティ名</span>
+<span id="L1427"><span class="lineNum">    1427</span>              :         Name *SaveDataNameComponent `json:&quot;Name,omitempty&quot;`</span>
 <span id="L1428"><span class="lineNum">    1428</span>              : </span>
-<span id="L1429"><span class="lineNum">    1429</span>              :         // Name エンティティ名</span>
-<span id="L1430"><span class="lineNum">    1430</span>              :         Name *SaveDataNameComponent `json:&quot;Name,omitempty&quot;`</span>
+<span id="L1429"><span class="lineNum">    1429</span>              :         // Player プレイヤーマーカー</span>
+<span id="L1430"><span class="lineNum">    1430</span>              :         Player *SaveDataMarkerComponent `json:&quot;Player,omitempty&quot;`</span>
 <span id="L1431"><span class="lineNum">    1431</span>              : </span>
-<span id="L1432"><span class="lineNum">    1432</span>              :         // Player プレイヤーマーカー</span>
-<span id="L1433"><span class="lineNum">    1433</span>              :         Player *SaveDataMarkerComponent `json:&quot;Player,omitempty&quot;`</span>
+<span id="L1432"><span class="lineNum">    1432</span>              :         // ProvidesHealing 回復効果</span>
+<span id="L1433"><span class="lineNum">    1433</span>              :         ProvidesHealing *SaveDataProvidesHealingComponent `json:&quot;ProvidesHealing,omitempty&quot;`</span>
 <span id="L1434"><span class="lineNum">    1434</span>              : </span>
-<span id="L1435"><span class="lineNum">    1435</span>              :         // ProvidesHealing 回復効果</span>
-<span id="L1436"><span class="lineNum">    1436</span>              :         ProvidesHealing *SaveDataProvidesHealingComponent `json:&quot;ProvidesHealing,omitempty&quot;`</span>
+<span id="L1435"><span class="lineNum">    1435</span>              :         // ProvidesNutrition 栄養補給効果</span>
+<span id="L1436"><span class="lineNum">    1436</span>              :         ProvidesNutrition *SaveDataProvidesNutritionComponent `json:&quot;ProvidesNutrition,omitempty&quot;`</span>
 <span id="L1437"><span class="lineNum">    1437</span>              : </span>
-<span id="L1438"><span class="lineNum">    1438</span>              :         // ProvidesNutrition 栄養補給効果</span>
-<span id="L1439"><span class="lineNum">    1439</span>              :         ProvidesNutrition *SaveDataProvidesNutritionComponent `json:&quot;ProvidesNutrition,omitempty&quot;`</span>
+<span id="L1438"><span class="lineNum">    1438</span>              :         // Recipe レシピ設定</span>
+<span id="L1439"><span class="lineNum">    1439</span>              :         Recipe *SaveDataRecipeComponent `json:&quot;Recipe,omitempty&quot;`</span>
 <span id="L1440"><span class="lineNum">    1440</span>              : </span>
-<span id="L1441"><span class="lineNum">    1441</span>              :         // Recipe レシピ設定</span>
-<span id="L1442"><span class="lineNum">    1442</span>              :         Recipe *SaveDataRecipeComponent `json:&quot;Recipe,omitempty&quot;`</span>
+<span id="L1441"><span class="lineNum">    1441</span>              :         // SpriteRender スプライト描画設定</span>
+<span id="L1442"><span class="lineNum">    1442</span>              :         SpriteRender *SaveDataSpriteRenderComponent `json:&quot;SpriteRender,omitempty&quot;`</span>
 <span id="L1443"><span class="lineNum">    1443</span>              : </span>
-<span id="L1444"><span class="lineNum">    1444</span>              :         // SpriteRender スプライト描画設定</span>
-<span id="L1445"><span class="lineNum">    1445</span>              :         SpriteRender *SaveDataSpriteRenderComponent `json:&quot;SpriteRender,omitempty&quot;`</span>
+<span id="L1444"><span class="lineNum">    1444</span>              :         // Stackable スタック可能マーカー</span>
+<span id="L1445"><span class="lineNum">    1445</span>              :         Stackable *SaveDataMarkerComponent `json:&quot;Stackable,omitempty&quot;`</span>
 <span id="L1446"><span class="lineNum">    1446</span>              : </span>
-<span id="L1447"><span class="lineNum">    1447</span>              :         // Stackable スタック可能マーカー</span>
-<span id="L1448"><span class="lineNum">    1448</span>              :         Stackable *SaveDataMarkerComponent `json:&quot;Stackable,omitempty&quot;`</span>
+<span id="L1447"><span class="lineNum">    1447</span>              :         // StatsChanged ステータス変更フラグ</span>
+<span id="L1448"><span class="lineNum">    1448</span>              :         StatsChanged *SaveDataMarkerComponent `json:&quot;StatsChanged,omitempty&quot;`</span>
 <span id="L1449"><span class="lineNum">    1449</span>              : </span>
-<span id="L1450"><span class="lineNum">    1450</span>              :         // StatsChanged ステータス変更フラグ</span>
-<span id="L1451"><span class="lineNum">    1451</span>              :         StatsChanged *SaveDataMarkerComponent `json:&quot;StatsChanged,omitempty&quot;`</span>
+<span id="L1450"><span class="lineNum">    1450</span>              :         // TurnBased アクションポイントと速度</span>
+<span id="L1451"><span class="lineNum">    1451</span>              :         TurnBased *SaveDataTurnBasedComponent `json:&quot;TurnBased,omitempty&quot;`</span>
 <span id="L1452"><span class="lineNum">    1452</span>              : </span>
-<span id="L1453"><span class="lineNum">    1453</span>              :         // TurnBased アクションポイントと速度</span>
-<span id="L1454"><span class="lineNum">    1454</span>              :         TurnBased *SaveDataTurnBasedComponent `json:&quot;TurnBased,omitempty&quot;`</span>
+<span id="L1453"><span class="lineNum">    1453</span>              :         // Value 売買価格</span>
+<span id="L1454"><span class="lineNum">    1454</span>              :         Value *SaveDataValueComponent `json:&quot;Value,omitempty&quot;`</span>
 <span id="L1455"><span class="lineNum">    1455</span>              : </span>
-<span id="L1456"><span class="lineNum">    1456</span>              :         // Value 売買価格</span>
-<span id="L1457"><span class="lineNum">    1457</span>              :         Value *SaveDataValueComponent `json:&quot;Value,omitempty&quot;`</span>
+<span id="L1456"><span class="lineNum">    1456</span>              :         // Wallet 所持金</span>
+<span id="L1457"><span class="lineNum">    1457</span>              :         Wallet *SaveDataWalletComponent `json:&quot;Wallet,omitempty&quot;`</span>
 <span id="L1458"><span class="lineNum">    1458</span>              : </span>
-<span id="L1459"><span class="lineNum">    1459</span>              :         // Wallet 所持金</span>
-<span id="L1460"><span class="lineNum">    1460</span>              :         Wallet *SaveDataWalletComponent `json:&quot;Wallet,omitempty&quot;`</span>
-<span id="L1461"><span class="lineNum">    1461</span>              : </span>
-<span id="L1462"><span class="lineNum">    1462</span>              :         // Weapon 武器マーカー</span>
-<span id="L1463"><span class="lineNum">    1463</span>              :         Weapon *SaveDataMarkerComponent `json:&quot;Weapon,omitempty&quot;`</span>
-<span id="L1464"><span class="lineNum">    1464</span>              : </span>
-<span id="L1465"><span class="lineNum">    1465</span>              :         // Wearable 防具設定</span>
-<span id="L1466"><span class="lineNum">    1466</span>              :         Wearable *SaveDataWearableComponent `json:&quot;Wearable,omitempty&quot;`</span>
-<span id="L1467"><span class="lineNum">    1467</span>              : }</span>
-<span id="L1468"><span class="lineNum">    1468</span>              : </span>
-<span id="L1469"><span class="lineNum">    1469</span>              : // SaveDataConsumableComponent 消費可能アイテム設定</span>
-<span id="L1470"><span class="lineNum">    1470</span>              : type SaveDataConsumableComponent struct {</span>
-<span id="L1471"><span class="lineNum">    1471</span>              :         // TargetType 対象指定</span>
-<span id="L1472"><span class="lineNum">    1472</span>              :         TargetType SaveDataTargetTypeData `json:&quot;TargetType&quot;`</span>
-<span id="L1473"><span class="lineNum">    1473</span>              : </span>
-<span id="L1474"><span class="lineNum">    1474</span>              :         // UsableScene 使用可能シーン</span>
-<span id="L1475"><span class="lineNum">    1475</span>              :         UsableScene UsableScene `json:&quot;UsableScene&quot;`</span>
-<span id="L1476"><span class="lineNum">    1476</span>              : }</span>
+<span id="L1459"><span class="lineNum">    1459</span>              :         // Wearable 防具設定</span>
+<span id="L1460"><span class="lineNum">    1460</span>              :         Wearable *SaveDataWearableComponent `json:&quot;Wearable,omitempty&quot;`</span>
+<span id="L1461"><span class="lineNum">    1461</span>              : }</span>
+<span id="L1462"><span class="lineNum">    1462</span>              : </span>
+<span id="L1463"><span class="lineNum">    1463</span>              : // SaveDataConsumableComponent 消費可能アイテム設定</span>
+<span id="L1464"><span class="lineNum">    1464</span>              : type SaveDataConsumableComponent struct {</span>
+<span id="L1465"><span class="lineNum">    1465</span>              :         // TargetType 対象指定</span>
+<span id="L1466"><span class="lineNum">    1466</span>              :         TargetType SaveDataTargetTypeData `json:&quot;TargetType&quot;`</span>
+<span id="L1467"><span class="lineNum">    1467</span>              : </span>
+<span id="L1468"><span class="lineNum">    1468</span>              :         // UsableScene 使用可能シーン</span>
+<span id="L1469"><span class="lineNum">    1469</span>              :         UsableScene UsableScene `json:&quot;UsableScene&quot;`</span>
+<span id="L1470"><span class="lineNum">    1470</span>              : }</span>
+<span id="L1471"><span class="lineNum">    1471</span>              : </span>
+<span id="L1472"><span class="lineNum">    1472</span>              : // SaveDataCurrency 所持金</span>
+<span id="L1473"><span class="lineNum">    1473</span>              : type SaveDataCurrency = int32</span>
+<span id="L1474"><span class="lineNum">    1474</span>              : </span>
+<span id="L1475"><span class="lineNum">    1475</span>              : // SaveDataDamageAmount ダメージ量</span>
+<span id="L1476"><span class="lineNum">    1476</span>              : type SaveDataDamageAmount = int32</span>
 <span id="L1477"><span class="lineNum">    1477</span>              : </span>
-<span id="L1478"><span class="lineNum">    1478</span>              : // SaveDataCurrency 所持金</span>
-<span id="L1479"><span class="lineNum">    1479</span>              : type SaveDataCurrency = int32</span>
-<span id="L1480"><span class="lineNum">    1480</span>              : </span>
-<span id="L1481"><span class="lineNum">    1481</span>              : // SaveDataDamageAmount ダメージ量</span>
-<span id="L1482"><span class="lineNum">    1482</span>              : type SaveDataDamageAmount = int32</span>
+<span id="L1478"><span class="lineNum">    1478</span>              : // SaveDataDescriptionComponent 説明文</span>
+<span id="L1479"><span class="lineNum">    1479</span>              : type SaveDataDescriptionComponent struct {</span>
+<span id="L1480"><span class="lineNum">    1480</span>              :         // Description 説明文。セーブデータでは空文字を許容する</span>
+<span id="L1481"><span class="lineNum">    1481</span>              :         Description SaveDataEntityDescription `json:&quot;Description&quot;`</span>
+<span id="L1482"><span class="lineNum">    1482</span>              : }</span>
 <span id="L1483"><span class="lineNum">    1483</span>              : </span>
-<span id="L1484"><span class="lineNum">    1484</span>              : // SaveDataDescriptionComponent 説明文</span>
-<span id="L1485"><span class="lineNum">    1485</span>              : type SaveDataDescriptionComponent struct {</span>
-<span id="L1486"><span class="lineNum">    1486</span>              :         // Description 説明文。セーブデータでは空文字を許容する</span>
-<span id="L1487"><span class="lineNum">    1487</span>              :         Description SaveDataEntityDescription `json:&quot;Description&quot;`</span>
-<span id="L1488"><span class="lineNum">    1488</span>              : }</span>
+<span id="L1484"><span class="lineNum">    1484</span>              : // SaveDataEntityDescription 説明文。セーブデータでは空文字を許容する</span>
+<span id="L1485"><span class="lineNum">    1485</span>              : type SaveDataEntityDescription = string</span>
+<span id="L1486"><span class="lineNum">    1486</span>              : </span>
+<span id="L1487"><span class="lineNum">    1487</span>              : // SaveDataEntityGeneration エンティティ世代番号</span>
+<span id="L1488"><span class="lineNum">    1488</span>              : type SaveDataEntityGeneration = uint32</span>
 <span id="L1489"><span class="lineNum">    1489</span>              : </span>
-<span id="L1490"><span class="lineNum">    1490</span>              : // SaveDataEntityDescription 説明文。セーブデータでは空文字を許容する</span>
-<span id="L1491"><span class="lineNum">    1491</span>              : type SaveDataEntityDescription = string</span>
+<span id="L1490"><span class="lineNum">    1490</span>              : // SaveDataEntityIndex エンティティインデックス</span>
+<span id="L1491"><span class="lineNum">    1491</span>              : type SaveDataEntityIndex = uint32</span>
 <span id="L1492"><span class="lineNum">    1492</span>              : </span>
-<span id="L1493"><span class="lineNum">    1493</span>              : // SaveDataEntityGeneration エンティティ世代番号</span>
-<span id="L1494"><span class="lineNum">    1494</span>              : type SaveDataEntityGeneration = uint32</span>
+<span id="L1493"><span class="lineNum">    1493</span>              : // SaveDataEntityName エンティティ名。セーブデータでは空文字を許容する</span>
+<span id="L1494"><span class="lineNum">    1494</span>              : type SaveDataEntityName = string</span>
 <span id="L1495"><span class="lineNum">    1495</span>              : </span>
-<span id="L1496"><span class="lineNum">    1496</span>              : // SaveDataEntityIndex エンティティインデックス</span>
-<span id="L1497"><span class="lineNum">    1497</span>              : type SaveDataEntityIndex = uint32</span>
-<span id="L1498"><span class="lineNum">    1498</span>              : </span>
-<span id="L1499"><span class="lineNum">    1499</span>              : // SaveDataEntityName エンティティ名。セーブデータでは空文字を許容する</span>
-<span id="L1500"><span class="lineNum">    1500</span>              : type SaveDataEntityName = string</span>
-<span id="L1501"><span class="lineNum">    1501</span>              : </span>
-<span id="L1502"><span class="lineNum">    1502</span>              : // SaveDataEntitySaveData 単一エンティティのセーブデータ</span>
-<span id="L1503"><span class="lineNum">    1503</span>              : type SaveDataEntitySaveData struct {</span>
-<span id="L1504"><span class="lineNum">    1504</span>              :         // Components コンポーネントのマップ。キーはコンポーネント型名で、値は型ごとに異なる</span>
-<span id="L1505"><span class="lineNum">    1505</span>              :         Components SaveDataComponentsMap `json:&quot;components&quot;`</span>
-<span id="L1506"><span class="lineNum">    1506</span>              : </span>
-<span id="L1507"><span class="lineNum">    1507</span>              :         // StableId エンティティの安定ID</span>
-<span id="L1508"><span class="lineNum">    1508</span>              :         StableId SaveDataStableID `json:&quot;stable_id&quot;`</span>
-<span id="L1509"><span class="lineNum">    1509</span>              : }</span>
-<span id="L1510"><span class="lineNum">    1510</span>              : </span>
-<span id="L1511"><span class="lineNum">    1511</span>              : // SaveDataEquipBonusData 装備ボーナス</span>
-<span id="L1512"><span class="lineNum">    1512</span>              : type SaveDataEquipBonusData struct {</span>
-<span id="L1513"><span class="lineNum">    1513</span>              :         // Agility 能力値ボーナス</span>
-<span id="L1514"><span class="lineNum">    1514</span>              :         Agility SaveDataAbilityBonus `json:&quot;Agility&quot;`</span>
+<span id="L1496"><span class="lineNum">    1496</span>              : // SaveDataEntitySaveData 単一エンティティのセーブデータ</span>
+<span id="L1497"><span class="lineNum">    1497</span>              : type SaveDataEntitySaveData struct {</span>
+<span id="L1498"><span class="lineNum">    1498</span>              :         // Components コンポーネントのマップ。キーはコンポーネント型名で、値は型ごとに異なる</span>
+<span id="L1499"><span class="lineNum">    1499</span>              :         Components SaveDataComponentsMap `json:&quot;components&quot;`</span>
+<span id="L1500"><span class="lineNum">    1500</span>              : </span>
+<span id="L1501"><span class="lineNum">    1501</span>              :         // StableId エンティティの安定ID</span>
+<span id="L1502"><span class="lineNum">    1502</span>              :         StableId SaveDataStableID `json:&quot;stable_id&quot;`</span>
+<span id="L1503"><span class="lineNum">    1503</span>              : }</span>
+<span id="L1504"><span class="lineNum">    1504</span>              : </span>
+<span id="L1505"><span class="lineNum">    1505</span>              : // SaveDataEquipBonusData 装備ボーナス</span>
+<span id="L1506"><span class="lineNum">    1506</span>              : type SaveDataEquipBonusData struct {</span>
+<span id="L1507"><span class="lineNum">    1507</span>              :         // Agility 能力値ボーナス</span>
+<span id="L1508"><span class="lineNum">    1508</span>              :         Agility SaveDataAbilityBonus `json:&quot;Agility&quot;`</span>
+<span id="L1509"><span class="lineNum">    1509</span>              : </span>
+<span id="L1510"><span class="lineNum">    1510</span>              :         // Dexterity 能力値ボーナス</span>
+<span id="L1511"><span class="lineNum">    1511</span>              :         Dexterity SaveDataAbilityBonus `json:&quot;Dexterity&quot;`</span>
+<span id="L1512"><span class="lineNum">    1512</span>              : </span>
+<span id="L1513"><span class="lineNum">    1513</span>              :         // Sensation 能力値ボーナス</span>
+<span id="L1514"><span class="lineNum">    1514</span>              :         Sensation SaveDataAbilityBonus `json:&quot;Sensation&quot;`</span>
 <span id="L1515"><span class="lineNum">    1515</span>              : </span>
-<span id="L1516"><span class="lineNum">    1516</span>              :         // Dexterity 能力値ボーナス</span>
-<span id="L1517"><span class="lineNum">    1517</span>              :         Dexterity SaveDataAbilityBonus `json:&quot;Dexterity&quot;`</span>
+<span id="L1516"><span class="lineNum">    1516</span>              :         // Strength 能力値ボーナス</span>
+<span id="L1517"><span class="lineNum">    1517</span>              :         Strength SaveDataAbilityBonus `json:&quot;Strength&quot;`</span>
 <span id="L1518"><span class="lineNum">    1518</span>              : </span>
-<span id="L1519"><span class="lineNum">    1519</span>              :         // Sensation 能力値ボーナス</span>
-<span id="L1520"><span class="lineNum">    1520</span>              :         Sensation SaveDataAbilityBonus `json:&quot;Sensation&quot;`</span>
-<span id="L1521"><span class="lineNum">    1521</span>              : </span>
-<span id="L1522"><span class="lineNum">    1522</span>              :         // Strength 能力値ボーナス</span>
-<span id="L1523"><span class="lineNum">    1523</span>              :         Strength SaveDataAbilityBonus `json:&quot;Strength&quot;`</span>
-<span id="L1524"><span class="lineNum">    1524</span>              : </span>
-<span id="L1525"><span class="lineNum">    1525</span>              :         // Vitality 能力値ボーナス</span>
-<span id="L1526"><span class="lineNum">    1526</span>              :         Vitality SaveDataAbilityBonus `json:&quot;Vitality&quot;`</span>
-<span id="L1527"><span class="lineNum">    1527</span>              : }</span>
-<span id="L1528"><span class="lineNum">    1528</span>              : </span>
-<span id="L1529"><span class="lineNum">    1529</span>              : // SaveDataEquipmentSlotNumber 装備スロット番号</span>
-<span id="L1530"><span class="lineNum">    1530</span>              : type SaveDataEquipmentSlotNumber = int32</span>
-<span id="L1531"><span class="lineNum">    1531</span>              : </span>
-<span id="L1532"><span class="lineNum">    1532</span>              : // SaveDataEventState イベントの状態</span>
-<span id="L1533"><span class="lineNum">    1533</span>              : type SaveDataEventState struct {</span>
-<span id="L1534"><span class="lineNum">    1534</span>              :         // Active イベントがアクティブかどうか</span>
-<span id="L1535"><span class="lineNum">    1535</span>              :         Active bool `json:&quot;active&quot;`</span>
-<span id="L1536"><span class="lineNum">    1536</span>              : </span>
-<span id="L1537"><span class="lineNum">    1537</span>              :         // Seen イベントが表示済みかどうか</span>
-<span id="L1538"><span class="lineNum">    1538</span>              :         Seen bool `json:&quot;seen&quot;`</span>
-<span id="L1539"><span class="lineNum">    1539</span>              : }</span>
-<span id="L1540"><span class="lineNum">    1540</span>              : </span>
-<span id="L1541"><span class="lineNum">    1541</span>              : // SaveDataFireComponent 遠距離攻撃設定</span>
-<span id="L1542"><span class="lineNum">    1542</span>              : type SaveDataFireComponent struct {</span>
-<span id="L1543"><span class="lineNum">    1543</span>              :         // Accuracy 命中率。0で必中なし、100で必中</span>
-<span id="L1544"><span class="lineNum">    1544</span>              :         Accuracy Accuracy `json:&quot;Accuracy&quot;`</span>
+<span id="L1519"><span class="lineNum">    1519</span>              :         // Vitality 能力値ボーナス</span>
+<span id="L1520"><span class="lineNum">    1520</span>              :         Vitality SaveDataAbilityBonus `json:&quot;Vitality&quot;`</span>
+<span id="L1521"><span class="lineNum">    1521</span>              : }</span>
+<span id="L1522"><span class="lineNum">    1522</span>              : </span>
+<span id="L1523"><span class="lineNum">    1523</span>              : // SaveDataEquipmentSlotNumber 装備スロット番号</span>
+<span id="L1524"><span class="lineNum">    1524</span>              : type SaveDataEquipmentSlotNumber = int32</span>
+<span id="L1525"><span class="lineNum">    1525</span>              : </span>
+<span id="L1526"><span class="lineNum">    1526</span>              : // SaveDataEventState イベントの状態</span>
+<span id="L1527"><span class="lineNum">    1527</span>              : type SaveDataEventState struct {</span>
+<span id="L1528"><span class="lineNum">    1528</span>              :         // Active イベントがアクティブかどうか</span>
+<span id="L1529"><span class="lineNum">    1529</span>              :         Active bool `json:&quot;active&quot;`</span>
+<span id="L1530"><span class="lineNum">    1530</span>              : </span>
+<span id="L1531"><span class="lineNum">    1531</span>              :         // Seen イベントが表示済みかどうか</span>
+<span id="L1532"><span class="lineNum">    1532</span>              :         Seen bool `json:&quot;seen&quot;`</span>
+<span id="L1533"><span class="lineNum">    1533</span>              : }</span>
+<span id="L1534"><span class="lineNum">    1534</span>              : </span>
+<span id="L1535"><span class="lineNum">    1535</span>              : // SaveDataFireComponent 遠距離攻撃設定</span>
+<span id="L1536"><span class="lineNum">    1536</span>              : type SaveDataFireComponent struct {</span>
+<span id="L1537"><span class="lineNum">    1537</span>              :         // Accuracy 命中率。0で必中なし、100で必中</span>
+<span id="L1538"><span class="lineNum">    1538</span>              :         Accuracy Accuracy `json:&quot;Accuracy&quot;`</span>
+<span id="L1539"><span class="lineNum">    1539</span>              : </span>
+<span id="L1540"><span class="lineNum">    1540</span>              :         // AmmoTag 使用する弾薬の口径タグ</span>
+<span id="L1541"><span class="lineNum">    1541</span>              :         AmmoTag SaveDataAmmoTag `json:&quot;AmmoTag&quot;`</span>
+<span id="L1542"><span class="lineNum">    1542</span>              : </span>
+<span id="L1543"><span class="lineNum">    1543</span>              :         // AttackCategory 攻撃種別</span>
+<span id="L1544"><span class="lineNum">    1544</span>              :         AttackCategory SaveDataAttackCategoryData `json:&quot;AttackCategory&quot;`</span>
 <span id="L1545"><span class="lineNum">    1545</span>              : </span>
-<span id="L1546"><span class="lineNum">    1546</span>              :         // AmmoTag 使用する弾薬の口径タグ</span>
-<span id="L1547"><span class="lineNum">    1547</span>              :         AmmoTag SaveDataAmmoTag `json:&quot;AmmoTag&quot;`</span>
+<span id="L1546"><span class="lineNum">    1546</span>              :         // AttackCount 1ターンあたりの攻撃回数</span>
+<span id="L1547"><span class="lineNum">    1547</span>              :         AttackCount AttackCount `json:&quot;AttackCount&quot;`</span>
 <span id="L1548"><span class="lineNum">    1548</span>              : </span>
-<span id="L1549"><span class="lineNum">    1549</span>              :         // AttackCategory 攻撃種別</span>
-<span id="L1550"><span class="lineNum">    1550</span>              :         AttackCategory SaveDataAttackCategoryData `json:&quot;AttackCategory&quot;`</span>
+<span id="L1549"><span class="lineNum">    1549</span>              :         // Cost 行動コスト</span>
+<span id="L1550"><span class="lineNum">    1550</span>              :         Cost ActionCost `json:&quot;Cost&quot;`</span>
 <span id="L1551"><span class="lineNum">    1551</span>              : </span>
-<span id="L1552"><span class="lineNum">    1552</span>              :         // AttackCount 1ターンあたりの攻撃回数</span>
-<span id="L1553"><span class="lineNum">    1553</span>              :         AttackCount AttackCount `json:&quot;AttackCount&quot;`</span>
+<span id="L1552"><span class="lineNum">    1552</span>              :         // Damage 基本ダメージ</span>
+<span id="L1553"><span class="lineNum">    1553</span>              :         Damage BaseDamage `json:&quot;Damage&quot;`</span>
 <span id="L1554"><span class="lineNum">    1554</span>              : </span>
-<span id="L1555"><span class="lineNum">    1555</span>              :         // Cost 行動コスト</span>
-<span id="L1556"><span class="lineNum">    1556</span>              :         Cost ActionCost `json:&quot;Cost&quot;`</span>
+<span id="L1555"><span class="lineNum">    1555</span>              :         // Element 攻撃属性</span>
+<span id="L1556"><span class="lineNum">    1556</span>              :         Element Element `json:&quot;Element&quot;`</span>
 <span id="L1557"><span class="lineNum">    1557</span>              : </span>
-<span id="L1558"><span class="lineNum">    1558</span>              :         // Damage 基本ダメージ</span>
-<span id="L1559"><span class="lineNum">    1559</span>              :         Damage BaseDamage `json:&quot;Damage&quot;`</span>
+<span id="L1558"><span class="lineNum">    1558</span>              :         // LoadedAccuracyBonus 装填中の弾薬による命中修正値</span>
+<span id="L1559"><span class="lineNum">    1559</span>              :         LoadedAccuracyBonus AccuracyBonus `json:&quot;LoadedAccuracyBonus&quot;`</span>
 <span id="L1560"><span class="lineNum">    1560</span>              : </span>
-<span id="L1561"><span class="lineNum">    1561</span>              :         // Element 攻撃属性</span>
-<span id="L1562"><span class="lineNum">    1562</span>              :         Element Element `json:&quot;Element&quot;`</span>
+<span id="L1561"><span class="lineNum">    1561</span>              :         // LoadedDamageBonus 装填中の弾薬によるダメージ修正値</span>
+<span id="L1562"><span class="lineNum">    1562</span>              :         LoadedDamageBonus DamageBonus `json:&quot;LoadedDamageBonus&quot;`</span>
 <span id="L1563"><span class="lineNum">    1563</span>              : </span>
-<span id="L1564"><span class="lineNum">    1564</span>              :         // LoadedAccuracyBonus 装填中の弾薬による命中修正値</span>
-<span id="L1565"><span class="lineNum">    1565</span>              :         LoadedAccuracyBonus AccuracyBonus `json:&quot;LoadedAccuracyBonus&quot;`</span>
+<span id="L1564"><span class="lineNum">    1564</span>              :         // Magazine 現在の装弾数</span>
+<span id="L1565"><span class="lineNum">    1565</span>              :         Magazine SaveDataMagazine `json:&quot;Magazine&quot;`</span>
 <span id="L1566"><span class="lineNum">    1566</span>              : </span>
-<span id="L1567"><span class="lineNum">    1567</span>              :         // LoadedDamageBonus 装填中の弾薬によるダメージ修正値</span>
-<span id="L1568"><span class="lineNum">    1568</span>              :         LoadedDamageBonus DamageBonus `json:&quot;LoadedDamageBonus&quot;`</span>
+<span id="L1567"><span class="lineNum">    1567</span>              :         // MagazineSize 最大装弾数</span>
+<span id="L1568"><span class="lineNum">    1568</span>              :         MagazineSize MagazineSize `json:&quot;MagazineSize&quot;`</span>
 <span id="L1569"><span class="lineNum">    1569</span>              : </span>
-<span id="L1570"><span class="lineNum">    1570</span>              :         // Magazine 現在の装弾数</span>
-<span id="L1571"><span class="lineNum">    1571</span>              :         Magazine SaveDataMagazine `json:&quot;Magazine&quot;`</span>
+<span id="L1570"><span class="lineNum">    1570</span>              :         // ReloadEffort リロード完了に必要な総工数</span>
+<span id="L1571"><span class="lineNum">    1571</span>              :         ReloadEffort ReloadEffort `json:&quot;ReloadEffort&quot;`</span>
 <span id="L1572"><span class="lineNum">    1572</span>              : </span>
-<span id="L1573"><span class="lineNum">    1573</span>              :         // MagazineSize 最大装弾数</span>
-<span id="L1574"><span class="lineNum">    1574</span>              :         MagazineSize MagazineSize `json:&quot;MagazineSize&quot;`</span>
-<span id="L1575"><span class="lineNum">    1575</span>              : </span>
-<span id="L1576"><span class="lineNum">    1576</span>              :         // ReloadEffort リロード完了に必要な総工数</span>
-<span id="L1577"><span class="lineNum">    1577</span>              :         ReloadEffort ReloadEffort `json:&quot;ReloadEffort&quot;`</span>
-<span id="L1578"><span class="lineNum">    1578</span>              : </span>
-<span id="L1579"><span class="lineNum">    1579</span>              :         // TargetType 対象指定</span>
-<span id="L1580"><span class="lineNum">    1580</span>              :         TargetType SaveDataTargetTypeData `json:&quot;TargetType&quot;`</span>
-<span id="L1581"><span class="lineNum">    1581</span>              : }</span>
-<span id="L1582"><span class="lineNum">    1582</span>              : </span>
-<span id="L1583"><span class="lineNum">    1583</span>              : // SaveDataFloatPool 浮動小数点プール。最大値と現在値を持つ</span>
-<span id="L1584"><span class="lineNum">    1584</span>              : type SaveDataFloatPool struct {</span>
-<span id="L1585"><span class="lineNum">    1585</span>              :         // Current プール現在値 (浮動小数点)</span>
-<span id="L1586"><span class="lineNum">    1586</span>              :         Current SaveDataPoolFloatCurrent `json:&quot;Current&quot;`</span>
-<span id="L1587"><span class="lineNum">    1587</span>              : </span>
-<span id="L1588"><span class="lineNum">    1588</span>              :         // Max プール最大値 (浮動小数点)</span>
-<span id="L1589"><span class="lineNum">    1589</span>              :         Max SaveDataPoolFloatMax `json:&quot;Max&quot;`</span>
-<span id="L1590"><span class="lineNum">    1590</span>              : }</span>
-<span id="L1591"><span class="lineNum">    1591</span>              : </span>
-<span id="L1592"><span class="lineNum">    1592</span>              : // SaveDataGameProgress ゲーム進行状態</span>
-<span id="L1593"><span class="lineNum">    1593</span>              : type SaveDataGameProgress struct {</span>
-<span id="L1594"><span class="lineNum">    1594</span>              :         // ClearedDungeons クリア済みダンジョンのマップ。キーはダンジョン名</span>
-<span id="L1595"><span class="lineNum">    1595</span>              :         ClearedDungeons map[string]bool `json:&quot;cleared_dungeons&quot;`</span>
-<span id="L1596"><span class="lineNum">    1596</span>              : </span>
-<span id="L1597"><span class="lineNum">    1597</span>              :         // Events イベント状態のマップ。キーはイベント名</span>
-<span id="L1598"><span class="lineNum">    1598</span>              :         Events map[string]SaveDataEventState `json:&quot;events&quot;`</span>
-<span id="L1599"><span class="lineNum">    1599</span>              : }</span>
-<span id="L1600"><span class="lineNum">    1600</span>              : </span>
-<span id="L1601"><span class="lineNum">    1601</span>              : // SaveDataGridElementComponent グリッド上の位置 (タイル座標)</span>
-<span id="L1602"><span class="lineNum">    1602</span>              : type SaveDataGridElementComponent struct {</span>
-<span id="L1603"><span class="lineNum">    1603</span>              :         // X タイル座標</span>
-<span id="L1604"><span class="lineNum">    1604</span>              :         X SaveDataTileCoord `json:&quot;X&quot;`</span>
-<span id="L1605"><span class="lineNum">    1605</span>              : </span>
-<span id="L1606"><span class="lineNum">    1606</span>              :         // Y タイル座標</span>
-<span id="L1607"><span class="lineNum">    1607</span>              :         Y SaveDataTileCoord `json:&quot;Y&quot;`</span>
-<span id="L1608"><span class="lineNum">    1608</span>              : }</span>
-<span id="L1609"><span class="lineNum">    1609</span>              : </span>
-<span id="L1610"><span class="lineNum">    1610</span>              : // SaveDataHPComponent 生命力。最大値と現在値を持つ</span>
-<span id="L1611"><span class="lineNum">    1611</span>              : type SaveDataHPComponent struct {</span>
-<span id="L1612"><span class="lineNum">    1612</span>              :         // Current プール現在値 (整数)</span>
-<span id="L1613"><span class="lineNum">    1613</span>              :         Current SaveDataPoolCurrent `json:&quot;Current&quot;`</span>
-<span id="L1614"><span class="lineNum">    1614</span>              : </span>
-<span id="L1615"><span class="lineNum">    1615</span>              :         // Max プール最大値 (整数)</span>
-<span id="L1616"><span class="lineNum">    1616</span>              :         Max SaveDataPoolMax `json:&quot;Max&quot;`</span>
-<span id="L1617"><span class="lineNum">    1617</span>              : }</span>
-<span id="L1618"><span class="lineNum">    1618</span>              : </span>
-<span id="L1619"><span class="lineNum">    1619</span>              : // SaveDataHealNumeral 固定回復量</span>
-<span id="L1620"><span class="lineNum">    1620</span>              : type SaveDataHealNumeral = int32</span>
-<span id="L1621"><span class="lineNum">    1621</span>              : </span>
-<span id="L1622"><span class="lineNum">    1622</span>              : // SaveDataHealingAmountData 回復量データ。typeフィールドで計算方式を判別する</span>
-<span id="L1623"><span class="lineNum">    1623</span>              : type SaveDataHealingAmountData struct {</span>
-<span id="L1624"><span class="lineNum">    1624</span>              :         // Numeral 固定回復量。typeが&quot;numeral&quot;の場合に使用する</span>
-<span id="L1625"><span class="lineNum">    1625</span>              :         Numeral *SaveDataHealNumeral `json:&quot;numeral,omitempty&quot;`</span>
-<span id="L1626"><span class="lineNum">    1626</span>              : </span>
-<span id="L1627"><span class="lineNum">    1627</span>              :         // Ratio 最大HPに対する回復割合 (0.0-1.0)。typeが&quot;ratio&quot;の場合に使用する</span>
-<span id="L1628"><span class="lineNum">    1628</span>              :         Ratio *HealRatio `json:&quot;ratio,omitempty&quot;`</span>
-<span id="L1629"><span class="lineNum">    1629</span>              : </span>
-<span id="L1630"><span class="lineNum">    1630</span>              :         // Type 回復量の計算方式</span>
-<span id="L1631"><span class="lineNum">    1631</span>              :         Type SaveDataHealingAmountType `json:&quot;type&quot;`</span>
-<span id="L1632"><span class="lineNum">    1632</span>              : }</span>
-<span id="L1633"><span class="lineNum">    1633</span>              : </span>
-<span id="L1634"><span class="lineNum">    1634</span>              : // SaveDataHealingAmountType 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する</span>
-<span id="L1635"><span class="lineNum">    1635</span>              : type SaveDataHealingAmountType string</span>
+<span id="L1573"><span class="lineNum">    1573</span>              :         // TargetType 対象指定</span>
+<span id="L1574"><span class="lineNum">    1574</span>              :         TargetType SaveDataTargetTypeData `json:&quot;TargetType&quot;`</span>
+<span id="L1575"><span class="lineNum">    1575</span>              : }</span>
+<span id="L1576"><span class="lineNum">    1576</span>              : </span>
+<span id="L1577"><span class="lineNum">    1577</span>              : // SaveDataFloatPool 浮動小数点プール。最大値と現在値を持つ</span>
+<span id="L1578"><span class="lineNum">    1578</span>              : type SaveDataFloatPool struct {</span>
+<span id="L1579"><span class="lineNum">    1579</span>              :         // Current プール現在値 (浮動小数点)</span>
+<span id="L1580"><span class="lineNum">    1580</span>              :         Current SaveDataPoolFloatCurrent `json:&quot;Current&quot;`</span>
+<span id="L1581"><span class="lineNum">    1581</span>              : </span>
+<span id="L1582"><span class="lineNum">    1582</span>              :         // Max プール最大値 (浮動小数点)</span>
+<span id="L1583"><span class="lineNum">    1583</span>              :         Max SaveDataPoolFloatMax `json:&quot;Max&quot;`</span>
+<span id="L1584"><span class="lineNum">    1584</span>              : }</span>
+<span id="L1585"><span class="lineNum">    1585</span>              : </span>
+<span id="L1586"><span class="lineNum">    1586</span>              : // SaveDataGameProgress ゲーム進行状態</span>
+<span id="L1587"><span class="lineNum">    1587</span>              : type SaveDataGameProgress struct {</span>
+<span id="L1588"><span class="lineNum">    1588</span>              :         // ClearedDungeons クリア済みダンジョンのマップ。キーはダンジョン名</span>
+<span id="L1589"><span class="lineNum">    1589</span>              :         ClearedDungeons map[string]bool `json:&quot;cleared_dungeons&quot;`</span>
+<span id="L1590"><span class="lineNum">    1590</span>              : </span>
+<span id="L1591"><span class="lineNum">    1591</span>              :         // Events イベント状態のマップ。キーはイベント名</span>
+<span id="L1592"><span class="lineNum">    1592</span>              :         Events map[string]SaveDataEventState `json:&quot;events&quot;`</span>
+<span id="L1593"><span class="lineNum">    1593</span>              : }</span>
+<span id="L1594"><span class="lineNum">    1594</span>              : </span>
+<span id="L1595"><span class="lineNum">    1595</span>              : // SaveDataGridElementComponent グリッド上の位置 (タイル座標)</span>
+<span id="L1596"><span class="lineNum">    1596</span>              : type SaveDataGridElementComponent struct {</span>
+<span id="L1597"><span class="lineNum">    1597</span>              :         // X タイル座標</span>
+<span id="L1598"><span class="lineNum">    1598</span>              :         X SaveDataTileCoord `json:&quot;X&quot;`</span>
+<span id="L1599"><span class="lineNum">    1599</span>              : </span>
+<span id="L1600"><span class="lineNum">    1600</span>              :         // Y タイル座標</span>
+<span id="L1601"><span class="lineNum">    1601</span>              :         Y SaveDataTileCoord `json:&quot;Y&quot;`</span>
+<span id="L1602"><span class="lineNum">    1602</span>              : }</span>
+<span id="L1603"><span class="lineNum">    1603</span>              : </span>
+<span id="L1604"><span class="lineNum">    1604</span>              : // SaveDataHPComponent 生命力。最大値と現在値を持つ</span>
+<span id="L1605"><span class="lineNum">    1605</span>              : type SaveDataHPComponent struct {</span>
+<span id="L1606"><span class="lineNum">    1606</span>              :         // Current プール現在値 (整数)</span>
+<span id="L1607"><span class="lineNum">    1607</span>              :         Current SaveDataPoolCurrent `json:&quot;Current&quot;`</span>
+<span id="L1608"><span class="lineNum">    1608</span>              : </span>
+<span id="L1609"><span class="lineNum">    1609</span>              :         // Max プール最大値 (整数)</span>
+<span id="L1610"><span class="lineNum">    1610</span>              :         Max SaveDataPoolMax `json:&quot;Max&quot;`</span>
+<span id="L1611"><span class="lineNum">    1611</span>              : }</span>
+<span id="L1612"><span class="lineNum">    1612</span>              : </span>
+<span id="L1613"><span class="lineNum">    1613</span>              : // SaveDataHealNumeral 固定回復量</span>
+<span id="L1614"><span class="lineNum">    1614</span>              : type SaveDataHealNumeral = int32</span>
+<span id="L1615"><span class="lineNum">    1615</span>              : </span>
+<span id="L1616"><span class="lineNum">    1616</span>              : // SaveDataHealingAmountData 回復量データ。typeフィールドで計算方式を判別する</span>
+<span id="L1617"><span class="lineNum">    1617</span>              : type SaveDataHealingAmountData struct {</span>
+<span id="L1618"><span class="lineNum">    1618</span>              :         // Numeral 固定回復量。typeが&quot;numeral&quot;の場合に使用する</span>
+<span id="L1619"><span class="lineNum">    1619</span>              :         Numeral *SaveDataHealNumeral `json:&quot;numeral,omitempty&quot;`</span>
+<span id="L1620"><span class="lineNum">    1620</span>              : </span>
+<span id="L1621"><span class="lineNum">    1621</span>              :         // Ratio 最大HPに対する回復割合 (0.0-1.0)。typeが&quot;ratio&quot;の場合に使用する</span>
+<span id="L1622"><span class="lineNum">    1622</span>              :         Ratio *HealRatio `json:&quot;ratio,omitempty&quot;`</span>
+<span id="L1623"><span class="lineNum">    1623</span>              : </span>
+<span id="L1624"><span class="lineNum">    1624</span>              :         // Type 回復量の計算方式</span>
+<span id="L1625"><span class="lineNum">    1625</span>              :         Type SaveDataHealingAmountType `json:&quot;type&quot;`</span>
+<span id="L1626"><span class="lineNum">    1626</span>              : }</span>
+<span id="L1627"><span class="lineNum">    1627</span>              : </span>
+<span id="L1628"><span class="lineNum">    1628</span>              : // SaveDataHealingAmountType 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する</span>
+<span id="L1629"><span class="lineNum">    1629</span>              : type SaveDataHealingAmountType string</span>
+<span id="L1630"><span class="lineNum">    1630</span>              : </span>
+<span id="L1631"><span class="lineNum">    1631</span>              : // SaveDataInflictsDamageComponent ダメージ効果</span>
+<span id="L1632"><span class="lineNum">    1632</span>              : type SaveDataInflictsDamageComponent struct {</span>
+<span id="L1633"><span class="lineNum">    1633</span>              :         // Amount ダメージ量</span>
+<span id="L1634"><span class="lineNum">    1634</span>              :         Amount SaveDataDamageAmount `json:&quot;Amount&quot;`</span>
+<span id="L1635"><span class="lineNum">    1635</span>              : }</span>
 <span id="L1636"><span class="lineNum">    1636</span>              : </span>
-<span id="L1637"><span class="lineNum">    1637</span>              : // SaveDataInflictsDamageComponent ダメージ効果</span>
-<span id="L1638"><span class="lineNum">    1638</span>              : type SaveDataInflictsDamageComponent struct {</span>
-<span id="L1639"><span class="lineNum">    1639</span>              :         // Amount ダメージ量</span>
-<span id="L1640"><span class="lineNum">    1640</span>              :         Amount SaveDataDamageAmount `json:&quot;Amount&quot;`</span>
-<span id="L1641"><span class="lineNum">    1641</span>              : }</span>
-<span id="L1642"><span class="lineNum">    1642</span>              : </span>
-<span id="L1643"><span class="lineNum">    1643</span>              : // SaveDataIntPool 整数プール。最大値と現在値を持つ</span>
-<span id="L1644"><span class="lineNum">    1644</span>              : type SaveDataIntPool struct {</span>
-<span id="L1645"><span class="lineNum">    1645</span>              :         // Current プール現在値 (整数)</span>
-<span id="L1646"><span class="lineNum">    1646</span>              :         Current SaveDataPoolCurrent `json:&quot;Current&quot;`</span>
-<span id="L1647"><span class="lineNum">    1647</span>              : </span>
-<span id="L1648"><span class="lineNum">    1648</span>              :         // Max プール最大値 (整数)</span>
-<span id="L1649"><span class="lineNum">    1649</span>              :         Max SaveDataPoolMax `json:&quot;Max&quot;`</span>
-<span id="L1650"><span class="lineNum">    1650</span>              : }</span>
-<span id="L1651"><span class="lineNum">    1651</span>              : </span>
-<span id="L1652"><span class="lineNum">    1652</span>              : // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する</span>
-<span id="L1653"><span class="lineNum">    1653</span>              : type SaveDataLightRadius = int32</span>
-<span id="L1654"><span class="lineNum">    1654</span>              : </span>
-<span id="L1655"><span class="lineNum">    1655</span>              : // SaveDataLightSourceComponent 光源設定</span>
-<span id="L1656"><span class="lineNum">    1656</span>              : type SaveDataLightSourceComponent struct {</span>
-<span id="L1657"><span class="lineNum">    1657</span>              :         // Color RGBA色</span>
-<span id="L1658"><span class="lineNum">    1658</span>              :         Color SaveDataRGBAColor `json:&quot;Color&quot;`</span>
-<span id="L1659"><span class="lineNum">    1659</span>              : </span>
-<span id="L1660"><span class="lineNum">    1660</span>              :         // Enabled 有効/無効</span>
-<span id="L1661"><span class="lineNum">    1661</span>              :         Enabled LightEnabled `json:&quot;Enabled&quot;`</span>
-<span id="L1662"><span class="lineNum">    1662</span>              : </span>
-<span id="L1663"><span class="lineNum">    1663</span>              :         // Radius 光の到達半径 (タイル単位)</span>
-<span id="L1664"><span class="lineNum">    1664</span>              :         Radius SaveDataLightRadius `json:&quot;Radius&quot;`</span>
-<span id="L1665"><span class="lineNum">    1665</span>              : }</span>
+<span id="L1637"><span class="lineNum">    1637</span>              : // SaveDataIntPool 整数プール。最大値と現在値を持つ</span>
+<span id="L1638"><span class="lineNum">    1638</span>              : type SaveDataIntPool struct {</span>
+<span id="L1639"><span class="lineNum">    1639</span>              :         // Current プール現在値 (整数)</span>
+<span id="L1640"><span class="lineNum">    1640</span>              :         Current SaveDataPoolCurrent `json:&quot;Current&quot;`</span>
+<span id="L1641"><span class="lineNum">    1641</span>              : </span>
+<span id="L1642"><span class="lineNum">    1642</span>              :         // Max プール最大値 (整数)</span>
+<span id="L1643"><span class="lineNum">    1643</span>              :         Max SaveDataPoolMax `json:&quot;Max&quot;`</span>
+<span id="L1644"><span class="lineNum">    1644</span>              : }</span>
+<span id="L1645"><span class="lineNum">    1645</span>              : </span>
+<span id="L1646"><span class="lineNum">    1646</span>              : // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する</span>
+<span id="L1647"><span class="lineNum">    1647</span>              : type SaveDataLightRadius = int32</span>
+<span id="L1648"><span class="lineNum">    1648</span>              : </span>
+<span id="L1649"><span class="lineNum">    1649</span>              : // SaveDataLightSourceComponent 光源設定</span>
+<span id="L1650"><span class="lineNum">    1650</span>              : type SaveDataLightSourceComponent struct {</span>
+<span id="L1651"><span class="lineNum">    1651</span>              :         // Color RGBA色</span>
+<span id="L1652"><span class="lineNum">    1652</span>              :         Color SaveDataRGBAColor `json:&quot;Color&quot;`</span>
+<span id="L1653"><span class="lineNum">    1653</span>              : </span>
+<span id="L1654"><span class="lineNum">    1654</span>              :         // Enabled 有効/無効</span>
+<span id="L1655"><span class="lineNum">    1655</span>              :         Enabled LightEnabled `json:&quot;Enabled&quot;`</span>
+<span id="L1656"><span class="lineNum">    1656</span>              : </span>
+<span id="L1657"><span class="lineNum">    1657</span>              :         // Radius 光の到達半径 (タイル単位)</span>
+<span id="L1658"><span class="lineNum">    1658</span>              :         Radius SaveDataLightRadius `json:&quot;Radius&quot;`</span>
+<span id="L1659"><span class="lineNum">    1659</span>              : }</span>
+<span id="L1660"><span class="lineNum">    1660</span>              : </span>
+<span id="L1661"><span class="lineNum">    1661</span>              : // SaveDataLocationEquippedComponent 装備位置コンポーネント。</span>
+<span id="L1662"><span class="lineNum">    1662</span>              : // Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする</span>
+<span id="L1663"><span class="lineNum">    1663</span>              : type SaveDataLocationEquippedComponent struct {</span>
+<span id="L1664"><span class="lineNum">    1664</span>              :         // EquipmentSlot 装備スロット番号</span>
+<span id="L1665"><span class="lineNum">    1665</span>              :         EquipmentSlot SaveDataEquipmentSlotNumber `json:&quot;EquipmentSlot&quot;`</span>
 <span id="L1666"><span class="lineNum">    1666</span>              : </span>
-<span id="L1667"><span class="lineNum">    1667</span>              : // SaveDataLocationEquippedComponent 装備位置コンポーネント。</span>
-<span id="L1668"><span class="lineNum">    1668</span>              : // Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする</span>
-<span id="L1669"><span class="lineNum">    1669</span>              : type SaveDataLocationEquippedComponent struct {</span>
-<span id="L1670"><span class="lineNum">    1670</span>              :         // EquipmentSlot 装備スロット番号</span>
-<span id="L1671"><span class="lineNum">    1671</span>              :         EquipmentSlot SaveDataEquipmentSlotNumber `json:&quot;EquipmentSlot&quot;`</span>
-<span id="L1672"><span class="lineNum">    1672</span>              : </span>
-<span id="L1673"><span class="lineNum">    1673</span>              :         // OwnerRef 装備者のStableID</span>
-<span id="L1674"><span class="lineNum">    1674</span>              :         OwnerRef SaveDataStableID `json:&quot;OwnerRef&quot;`</span>
-<span id="L1675"><span class="lineNum">    1675</span>              : }</span>
-<span id="L1676"><span class="lineNum">    1676</span>              : </span>
-<span id="L1677"><span class="lineNum">    1677</span>              : // SaveDataLocationInBackpackComponent バックパック位置コンポーネント。</span>
-<span id="L1678"><span class="lineNum">    1678</span>              : // Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする</span>
-<span id="L1679"><span class="lineNum">    1679</span>              : type SaveDataLocationInBackpackComponent struct {</span>
-<span id="L1680"><span class="lineNum">    1680</span>              :         // OwnerRef 所有者のStableID</span>
-<span id="L1681"><span class="lineNum">    1681</span>              :         OwnerRef SaveDataStableID `json:&quot;OwnerRef&quot;`</span>
-<span id="L1682"><span class="lineNum">    1682</span>              : }</span>
+<span id="L1667"><span class="lineNum">    1667</span>              :         // OwnerRef 装備者のStableID</span>
+<span id="L1668"><span class="lineNum">    1668</span>              :         OwnerRef SaveDataStableID `json:&quot;OwnerRef&quot;`</span>
+<span id="L1669"><span class="lineNum">    1669</span>              : }</span>
+<span id="L1670"><span class="lineNum">    1670</span>              : </span>
+<span id="L1671"><span class="lineNum">    1671</span>              : // SaveDataLocationInBackpackComponent バックパック位置コンポーネント。</span>
+<span id="L1672"><span class="lineNum">    1672</span>              : // Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする</span>
+<span id="L1673"><span class="lineNum">    1673</span>              : type SaveDataLocationInBackpackComponent struct {</span>
+<span id="L1674"><span class="lineNum">    1674</span>              :         // OwnerRef 所有者のStableID</span>
+<span id="L1675"><span class="lineNum">    1675</span>              :         OwnerRef SaveDataStableID `json:&quot;OwnerRef&quot;`</span>
+<span id="L1676"><span class="lineNum">    1676</span>              : }</span>
+<span id="L1677"><span class="lineNum">    1677</span>              : </span>
+<span id="L1678"><span class="lineNum">    1678</span>              : // SaveDataMagazine 現在の装弾数</span>
+<span id="L1679"><span class="lineNum">    1679</span>              : type SaveDataMagazine = int32</span>
+<span id="L1680"><span class="lineNum">    1680</span>              : </span>
+<span id="L1681"><span class="lineNum">    1681</span>              : // SaveDataMarkerComponent マーカーコンポーネント。データを持たず、存在の有無だけが意味を持つ</span>
+<span id="L1682"><span class="lineNum">    1682</span>              : type SaveDataMarkerComponent = map[string]interface{}</span>
 <span id="L1683"><span class="lineNum">    1683</span>              : </span>
-<span id="L1684"><span class="lineNum">    1684</span>              : // SaveDataMagazine 現在の装弾数</span>
-<span id="L1685"><span class="lineNum">    1685</span>              : type SaveDataMagazine = int32</span>
+<span id="L1684"><span class="lineNum">    1684</span>              : // SaveDataMaterialName レシピ素材名</span>
+<span id="L1685"><span class="lineNum">    1685</span>              : type SaveDataMaterialName = string</span>
 <span id="L1686"><span class="lineNum">    1686</span>              : </span>
-<span id="L1687"><span class="lineNum">    1687</span>              : // SaveDataMarkerComponent マーカーコンポーネント。データを持たず、存在の有無だけが意味を持つ</span>
-<span id="L1688"><span class="lineNum">    1688</span>              : type SaveDataMarkerComponent = map[string]interface{}</span>
-<span id="L1689"><span class="lineNum">    1689</span>              : </span>
-<span id="L1690"><span class="lineNum">    1690</span>              : // SaveDataMaterialName レシピ素材名</span>
-<span id="L1691"><span class="lineNum">    1691</span>              : type SaveDataMaterialName = string</span>
-<span id="L1692"><span class="lineNum">    1692</span>              : </span>
-<span id="L1693"><span class="lineNum">    1693</span>              : // SaveDataMeleeComponent 近接攻撃設定</span>
-<span id="L1694"><span class="lineNum">    1694</span>              : type SaveDataMeleeComponent struct {</span>
-<span id="L1695"><span class="lineNum">    1695</span>              :         // Accuracy 命中率。0で必中なし、100で必中</span>
-<span id="L1696"><span class="lineNum">    1696</span>              :         Accuracy Accuracy `json:&quot;Accuracy&quot;`</span>
+<span id="L1687"><span class="lineNum">    1687</span>              : // SaveDataMeleeComponent 近接攻撃設定</span>
+<span id="L1688"><span class="lineNum">    1688</span>              : type SaveDataMeleeComponent struct {</span>
+<span id="L1689"><span class="lineNum">    1689</span>              :         // Accuracy 命中率。0で必中なし、100で必中</span>
+<span id="L1690"><span class="lineNum">    1690</span>              :         Accuracy Accuracy `json:&quot;Accuracy&quot;`</span>
+<span id="L1691"><span class="lineNum">    1691</span>              : </span>
+<span id="L1692"><span class="lineNum">    1692</span>              :         // AttackCategory 攻撃種別</span>
+<span id="L1693"><span class="lineNum">    1693</span>              :         AttackCategory SaveDataAttackCategoryData `json:&quot;AttackCategory&quot;`</span>
+<span id="L1694"><span class="lineNum">    1694</span>              : </span>
+<span id="L1695"><span class="lineNum">    1695</span>              :         // AttackCount 1ターンあたりの攻撃回数</span>
+<span id="L1696"><span class="lineNum">    1696</span>              :         AttackCount AttackCount `json:&quot;AttackCount&quot;`</span>
 <span id="L1697"><span class="lineNum">    1697</span>              : </span>
-<span id="L1698"><span class="lineNum">    1698</span>              :         // AttackCategory 攻撃種別</span>
-<span id="L1699"><span class="lineNum">    1699</span>              :         AttackCategory SaveDataAttackCategoryData `json:&quot;AttackCategory&quot;`</span>
+<span id="L1698"><span class="lineNum">    1698</span>              :         // Cost 行動コスト</span>
+<span id="L1699"><span class="lineNum">    1699</span>              :         Cost ActionCost `json:&quot;Cost&quot;`</span>
 <span id="L1700"><span class="lineNum">    1700</span>              : </span>
-<span id="L1701"><span class="lineNum">    1701</span>              :         // AttackCount 1ターンあたりの攻撃回数</span>
-<span id="L1702"><span class="lineNum">    1702</span>              :         AttackCount AttackCount `json:&quot;AttackCount&quot;`</span>
+<span id="L1701"><span class="lineNum">    1701</span>              :         // Damage 基本ダメージ</span>
+<span id="L1702"><span class="lineNum">    1702</span>              :         Damage BaseDamage `json:&quot;Damage&quot;`</span>
 <span id="L1703"><span class="lineNum">    1703</span>              : </span>
-<span id="L1704"><span class="lineNum">    1704</span>              :         // Cost 行動コスト</span>
-<span id="L1705"><span class="lineNum">    1705</span>              :         Cost ActionCost `json:&quot;Cost&quot;`</span>
+<span id="L1704"><span class="lineNum">    1704</span>              :         // Element 攻撃属性</span>
+<span id="L1705"><span class="lineNum">    1705</span>              :         Element Element `json:&quot;Element&quot;`</span>
 <span id="L1706"><span class="lineNum">    1706</span>              : </span>
-<span id="L1707"><span class="lineNum">    1707</span>              :         // Damage 基本ダメージ</span>
-<span id="L1708"><span class="lineNum">    1708</span>              :         Damage BaseDamage `json:&quot;Damage&quot;`</span>
-<span id="L1709"><span class="lineNum">    1709</span>              : </span>
-<span id="L1710"><span class="lineNum">    1710</span>              :         // Element 攻撃属性</span>
-<span id="L1711"><span class="lineNum">    1711</span>              :         Element Element `json:&quot;Element&quot;`</span>
-<span id="L1712"><span class="lineNum">    1712</span>              : </span>
-<span id="L1713"><span class="lineNum">    1713</span>              :         // TargetType 対象指定</span>
-<span id="L1714"><span class="lineNum">    1714</span>              :         TargetType SaveDataTargetTypeData `json:&quot;TargetType&quot;`</span>
+<span id="L1707"><span class="lineNum">    1707</span>              :         // TargetType 対象指定</span>
+<span id="L1708"><span class="lineNum">    1708</span>              :         TargetType SaveDataTargetTypeData `json:&quot;TargetType&quot;`</span>
+<span id="L1709"><span class="lineNum">    1709</span>              : }</span>
+<span id="L1710"><span class="lineNum">    1710</span>              : </span>
+<span id="L1711"><span class="lineNum">    1711</span>              : // SaveDataNameComponent エンティティ名</span>
+<span id="L1712"><span class="lineNum">    1712</span>              : type SaveDataNameComponent struct {</span>
+<span id="L1713"><span class="lineNum">    1713</span>              :         // Name エンティティ名。セーブデータでは空文字を許容する</span>
+<span id="L1714"><span class="lineNum">    1714</span>              :         Name SaveDataEntityName `json:&quot;Name&quot;`</span>
 <span id="L1715"><span class="lineNum">    1715</span>              : }</span>
 <span id="L1716"><span class="lineNum">    1716</span>              : </span>
-<span id="L1717"><span class="lineNum">    1717</span>              : // SaveDataNameComponent エンティティ名</span>
-<span id="L1718"><span class="lineNum">    1718</span>              : type SaveDataNameComponent struct {</span>
-<span id="L1719"><span class="lineNum">    1719</span>              :         // Name エンティティ名。セーブデータでは空文字を許容する</span>
-<span id="L1720"><span class="lineNum">    1720</span>              :         Name SaveDataEntityName `json:&quot;Name&quot;`</span>
-<span id="L1721"><span class="lineNum">    1721</span>              : }</span>
+<span id="L1717"><span class="lineNum">    1717</span>              : // SaveDataPoolCurrent プール現在値 (整数)</span>
+<span id="L1718"><span class="lineNum">    1718</span>              : type SaveDataPoolCurrent = int32</span>
+<span id="L1719"><span class="lineNum">    1719</span>              : </span>
+<span id="L1720"><span class="lineNum">    1720</span>              : // SaveDataPoolFloatCurrent プール現在値 (浮動小数点)</span>
+<span id="L1721"><span class="lineNum">    1721</span>              : type SaveDataPoolFloatCurrent = float64</span>
 <span id="L1722"><span class="lineNum">    1722</span>              : </span>
-<span id="L1723"><span class="lineNum">    1723</span>              : // SaveDataPoolCurrent プール現在値 (整数)</span>
-<span id="L1724"><span class="lineNum">    1724</span>              : type SaveDataPoolCurrent = int32</span>
+<span id="L1723"><span class="lineNum">    1723</span>              : // SaveDataPoolFloatMax プール最大値 (浮動小数点)</span>
+<span id="L1724"><span class="lineNum">    1724</span>              : type SaveDataPoolFloatMax = float64</span>
 <span id="L1725"><span class="lineNum">    1725</span>              : </span>
-<span id="L1726"><span class="lineNum">    1726</span>              : // SaveDataPoolFloatCurrent プール現在値 (浮動小数点)</span>
-<span id="L1727"><span class="lineNum">    1727</span>              : type SaveDataPoolFloatCurrent = float64</span>
+<span id="L1726"><span class="lineNum">    1726</span>              : // SaveDataPoolMax プール最大値 (整数)</span>
+<span id="L1727"><span class="lineNum">    1727</span>              : type SaveDataPoolMax = int32</span>
 <span id="L1728"><span class="lineNum">    1728</span>              : </span>
-<span id="L1729"><span class="lineNum">    1729</span>              : // SaveDataPoolFloatMax プール最大値 (浮動小数点)</span>
-<span id="L1730"><span class="lineNum">    1730</span>              : type SaveDataPoolFloatMax = float64</span>
-<span id="L1731"><span class="lineNum">    1731</span>              : </span>
-<span id="L1732"><span class="lineNum">    1732</span>              : // SaveDataPoolMax プール最大値 (整数)</span>
-<span id="L1733"><span class="lineNum">    1733</span>              : type SaveDataPoolMax = int32</span>
+<span id="L1729"><span class="lineNum">    1729</span>              : // SaveDataProvidesHealingComponent 回復効果。Amounterインターフェースを具体型に分解してシリアライズする</span>
+<span id="L1730"><span class="lineNum">    1730</span>              : type SaveDataProvidesHealingComponent struct {</span>
+<span id="L1731"><span class="lineNum">    1731</span>              :         // Amount 回復量データ。typeフィールドで計算方式を判別する</span>
+<span id="L1732"><span class="lineNum">    1732</span>              :         Amount SaveDataHealingAmountData `json:&quot;amount&quot;`</span>
+<span id="L1733"><span class="lineNum">    1733</span>              : }</span>
 <span id="L1734"><span class="lineNum">    1734</span>              : </span>
-<span id="L1735"><span class="lineNum">    1735</span>              : // SaveDataProvidesHealingComponent 回復効果。Amounterインターフェースを具体型に分解してシリアライズする</span>
-<span id="L1736"><span class="lineNum">    1736</span>              : type SaveDataProvidesHealingComponent struct {</span>
-<span id="L1737"><span class="lineNum">    1737</span>              :         // Amount 回復量データ。typeフィールドで計算方式を判別する</span>
-<span id="L1738"><span class="lineNum">    1738</span>              :         Amount SaveDataHealingAmountData `json:&quot;amount&quot;`</span>
+<span id="L1735"><span class="lineNum">    1735</span>              : // SaveDataProvidesNutritionComponent 栄養補給効果</span>
+<span id="L1736"><span class="lineNum">    1736</span>              : type SaveDataProvidesNutritionComponent struct {</span>
+<span id="L1737"><span class="lineNum">    1737</span>              :         // Amount 栄養価</span>
+<span id="L1738"><span class="lineNum">    1738</span>              :         Amount NutritionAmount `json:&quot;Amount&quot;`</span>
 <span id="L1739"><span class="lineNum">    1739</span>              : }</span>
 <span id="L1740"><span class="lineNum">    1740</span>              : </span>
-<span id="L1741"><span class="lineNum">    1741</span>              : // SaveDataProvidesNutritionComponent 栄養補給効果</span>
-<span id="L1742"><span class="lineNum">    1742</span>              : type SaveDataProvidesNutritionComponent struct {</span>
-<span id="L1743"><span class="lineNum">    1743</span>              :         // Amount 栄養価</span>
-<span id="L1744"><span class="lineNum">    1744</span>              :         Amount NutritionAmount `json:&quot;Amount&quot;`</span>
-<span id="L1745"><span class="lineNum">    1745</span>              : }</span>
-<span id="L1746"><span class="lineNum">    1746</span>              : </span>
-<span id="L1747"><span class="lineNum">    1747</span>              : // SaveDataRGBAColor RGBA色。各チャネル0-255</span>
-<span id="L1748"><span class="lineNum">    1748</span>              : type SaveDataRGBAColor struct {</span>
-<span id="L1749"><span class="lineNum">    1749</span>              :         // A RGBA色チャネル値 (0-255)</span>
-<span id="L1750"><span class="lineNum">    1750</span>              :         A ColorChannel `json:&quot;A&quot;`</span>
+<span id="L1741"><span class="lineNum">    1741</span>              : // SaveDataRGBAColor RGBA色。各チャネル0-255</span>
+<span id="L1742"><span class="lineNum">    1742</span>              : type SaveDataRGBAColor struct {</span>
+<span id="L1743"><span class="lineNum">    1743</span>              :         // A RGBA色チャネル値 (0-255)</span>
+<span id="L1744"><span class="lineNum">    1744</span>              :         A ColorChannel `json:&quot;A&quot;`</span>
+<span id="L1745"><span class="lineNum">    1745</span>              : </span>
+<span id="L1746"><span class="lineNum">    1746</span>              :         // B RGBA色チャネル値 (0-255)</span>
+<span id="L1747"><span class="lineNum">    1747</span>              :         B ColorChannel `json:&quot;B&quot;`</span>
+<span id="L1748"><span class="lineNum">    1748</span>              : </span>
+<span id="L1749"><span class="lineNum">    1749</span>              :         // G RGBA色チャネル値 (0-255)</span>
+<span id="L1750"><span class="lineNum">    1750</span>              :         G ColorChannel `json:&quot;G&quot;`</span>
 <span id="L1751"><span class="lineNum">    1751</span>              : </span>
-<span id="L1752"><span class="lineNum">    1752</span>              :         // B RGBA色チャネル値 (0-255)</span>
-<span id="L1753"><span class="lineNum">    1753</span>              :         B ColorChannel `json:&quot;B&quot;`</span>
-<span id="L1754"><span class="lineNum">    1754</span>              : </span>
-<span id="L1755"><span class="lineNum">    1755</span>              :         // G RGBA色チャネル値 (0-255)</span>
-<span id="L1756"><span class="lineNum">    1756</span>              :         G ColorChannel `json:&quot;G&quot;`</span>
-<span id="L1757"><span class="lineNum">    1757</span>              : </span>
-<span id="L1758"><span class="lineNum">    1758</span>              :         // R RGBA色チャネル値 (0-255)</span>
-<span id="L1759"><span class="lineNum">    1759</span>              :         R ColorChannel `json:&quot;R&quot;`</span>
-<span id="L1760"><span class="lineNum">    1760</span>              : }</span>
-<span id="L1761"><span class="lineNum">    1761</span>              : </span>
-<span id="L1762"><span class="lineNum">    1762</span>              : // SaveDataRecipeComponent レシピ設定</span>
-<span id="L1763"><span class="lineNum">    1763</span>              : type SaveDataRecipeComponent struct {</span>
-<span id="L1764"><span class="lineNum">    1764</span>              :         Inputs []SaveDataRecipeInputData `json:&quot;Inputs&quot;`</span>
-<span id="L1765"><span class="lineNum">    1765</span>              : }</span>
-<span id="L1766"><span class="lineNum">    1766</span>              : </span>
-<span id="L1767"><span class="lineNum">    1767</span>              : // SaveDataRecipeInputData レシピ素材</span>
-<span id="L1768"><span class="lineNum">    1768</span>              : type SaveDataRecipeInputData struct {</span>
-<span id="L1769"><span class="lineNum">    1769</span>              :         // Amount 素材必要数</span>
-<span id="L1770"><span class="lineNum">    1770</span>              :         Amount MaterialAmount `json:&quot;Amount&quot;`</span>
-<span id="L1771"><span class="lineNum">    1771</span>              : </span>
-<span id="L1772"><span class="lineNum">    1772</span>              :         // Name レシピ素材名</span>
-<span id="L1773"><span class="lineNum">    1773</span>              :         Name SaveDataMaterialName `json:&quot;Name&quot;`</span>
-<span id="L1774"><span class="lineNum">    1774</span>              : }</span>
-<span id="L1775"><span class="lineNum">    1775</span>              : </span>
-<span id="L1776"><span class="lineNum">    1776</span>              : // SaveDataSaveData セーブデータの最上位構造。ファイルに保存されるJSON全体を表す</span>
-<span id="L1777"><span class="lineNum">    1777</span>              : type SaveDataSaveData struct {</span>
-<span id="L1778"><span class="lineNum">    1778</span>              :         // Checksum データ改ざん検知用SHA-256ハッシュ値</span>
-<span id="L1779"><span class="lineNum">    1779</span>              :         Checksum SaveDataChecksum `json:&quot;checksum&quot;`</span>
+<span id="L1752"><span class="lineNum">    1752</span>              :         // R RGBA色チャネル値 (0-255)</span>
+<span id="L1753"><span class="lineNum">    1753</span>              :         R ColorChannel `json:&quot;R&quot;`</span>
+<span id="L1754"><span class="lineNum">    1754</span>              : }</span>
+<span id="L1755"><span class="lineNum">    1755</span>              : </span>
+<span id="L1756"><span class="lineNum">    1756</span>              : // SaveDataRecipeComponent レシピ設定</span>
+<span id="L1757"><span class="lineNum">    1757</span>              : type SaveDataRecipeComponent struct {</span>
+<span id="L1758"><span class="lineNum">    1758</span>              :         Inputs []SaveDataRecipeInputData `json:&quot;Inputs&quot;`</span>
+<span id="L1759"><span class="lineNum">    1759</span>              : }</span>
+<span id="L1760"><span class="lineNum">    1760</span>              : </span>
+<span id="L1761"><span class="lineNum">    1761</span>              : // SaveDataRecipeInputData レシピ素材</span>
+<span id="L1762"><span class="lineNum">    1762</span>              : type SaveDataRecipeInputData struct {</span>
+<span id="L1763"><span class="lineNum">    1763</span>              :         // Amount 素材必要数</span>
+<span id="L1764"><span class="lineNum">    1764</span>              :         Amount MaterialAmount `json:&quot;Amount&quot;`</span>
+<span id="L1765"><span class="lineNum">    1765</span>              : </span>
+<span id="L1766"><span class="lineNum">    1766</span>              :         // Name レシピ素材名</span>
+<span id="L1767"><span class="lineNum">    1767</span>              :         Name SaveDataMaterialName `json:&quot;Name&quot;`</span>
+<span id="L1768"><span class="lineNum">    1768</span>              : }</span>
+<span id="L1769"><span class="lineNum">    1769</span>              : </span>
+<span id="L1770"><span class="lineNum">    1770</span>              : // SaveDataSaveData セーブデータの最上位構造。ファイルに保存されるJSON全体を表す</span>
+<span id="L1771"><span class="lineNum">    1771</span>              : type SaveDataSaveData struct {</span>
+<span id="L1772"><span class="lineNum">    1772</span>              :         // Checksum データ改ざん検知用SHA-256ハッシュ値</span>
+<span id="L1773"><span class="lineNum">    1773</span>              :         Checksum SaveDataChecksum `json:&quot;checksum&quot;`</span>
+<span id="L1774"><span class="lineNum">    1774</span>              : </span>
+<span id="L1775"><span class="lineNum">    1775</span>              :         // Timestamp 保存日時 (RFC3339形式)</span>
+<span id="L1776"><span class="lineNum">    1776</span>              :         Timestamp time.Time `json:&quot;timestamp&quot;`</span>
+<span id="L1777"><span class="lineNum">    1777</span>              : </span>
+<span id="L1778"><span class="lineNum">    1778</span>              :         // Version セーブデータのバージョン。現在は &quot;1.0.0&quot; のみ</span>
+<span id="L1779"><span class="lineNum">    1779</span>              :         Version SaveDataSaveDataVersion `json:&quot;version&quot;`</span>
 <span id="L1780"><span class="lineNum">    1780</span>              : </span>
-<span id="L1781"><span class="lineNum">    1781</span>              :         // Timestamp 保存日時 (RFC3339形式)</span>
-<span id="L1782"><span class="lineNum">    1782</span>              :         Timestamp time.Time `json:&quot;timestamp&quot;`</span>
-<span id="L1783"><span class="lineNum">    1783</span>              : </span>
-<span id="L1784"><span class="lineNum">    1784</span>              :         // Version セーブデータのバージョン。現在は &quot;1.0.0&quot; のみ</span>
-<span id="L1785"><span class="lineNum">    1785</span>              :         Version SaveDataSaveDataVersion `json:&quot;version&quot;`</span>
-<span id="L1786"><span class="lineNum">    1786</span>              : </span>
-<span id="L1787"><span class="lineNum">    1787</span>              :         // World ワールドデータ</span>
-<span id="L1788"><span class="lineNum">    1788</span>              :         World SaveDataWorldSaveData `json:&quot;world&quot;`</span>
-<span id="L1789"><span class="lineNum">    1789</span>              : }</span>
+<span id="L1781"><span class="lineNum">    1781</span>              :         // World ワールドデータ</span>
+<span id="L1782"><span class="lineNum">    1782</span>              :         World SaveDataWorldSaveData `json:&quot;world&quot;`</span>
+<span id="L1783"><span class="lineNum">    1783</span>              : }</span>
+<span id="L1784"><span class="lineNum">    1784</span>              : </span>
+<span id="L1785"><span class="lineNum">    1785</span>              : // SaveDataSaveDataVersion セーブデータのバージョン。現在は &quot;1.0.0&quot; のみ</span>
+<span id="L1786"><span class="lineNum">    1786</span>              : type SaveDataSaveDataVersion string</span>
+<span id="L1787"><span class="lineNum">    1787</span>              : </span>
+<span id="L1788"><span class="lineNum">    1788</span>              : // SaveDataSpeed APの毎ターン回復量</span>
+<span id="L1789"><span class="lineNum">    1789</span>              : type SaveDataSpeed = int32</span>
 <span id="L1790"><span class="lineNum">    1790</span>              : </span>
-<span id="L1791"><span class="lineNum">    1791</span>              : // SaveDataSaveDataVersion セーブデータのバージョン。現在は &quot;1.0.0&quot; のみ</span>
-<span id="L1792"><span class="lineNum">    1792</span>              : type SaveDataSaveDataVersion string</span>
+<span id="L1791"><span class="lineNum">    1791</span>              : // SaveDataSpriteDepth スプライト描画深度</span>
+<span id="L1792"><span class="lineNum">    1792</span>              : type SaveDataSpriteDepth = int32</span>
 <span id="L1793"><span class="lineNum">    1793</span>              : </span>
-<span id="L1794"><span class="lineNum">    1794</span>              : // SaveDataSpeed APの毎ターン回復量</span>
-<span id="L1795"><span class="lineNum">    1795</span>              : type SaveDataSpeed = int32</span>
+<span id="L1794"><span class="lineNum">    1794</span>              : // SaveDataSpriteKey スプライトキー。セーブデータではパターン制約を適用しない</span>
+<span id="L1795"><span class="lineNum">    1795</span>              : type SaveDataSpriteKey = string</span>
 <span id="L1796"><span class="lineNum">    1796</span>              : </span>
-<span id="L1797"><span class="lineNum">    1797</span>              : // SaveDataSpriteDepth スプライト描画深度</span>
-<span id="L1798"><span class="lineNum">    1798</span>              : type SaveDataSpriteDepth = int32</span>
-<span id="L1799"><span class="lineNum">    1799</span>              : </span>
-<span id="L1800"><span class="lineNum">    1800</span>              : // SaveDataSpriteKey スプライトキー。セーブデータではパターン制約を適用しない</span>
-<span id="L1801"><span class="lineNum">    1801</span>              : type SaveDataSpriteKey = string</span>
-<span id="L1802"><span class="lineNum">    1802</span>              : </span>
-<span id="L1803"><span class="lineNum">    1803</span>              : // SaveDataSpriteRenderComponent スプライト描画設定</span>
-<span id="L1804"><span class="lineNum">    1804</span>              : type SaveDataSpriteRenderComponent struct {</span>
-<span id="L1805"><span class="lineNum">    1805</span>              :         AnimKeys *[]SaveDataSpriteKey `json:&quot;AnimKeys,omitempty&quot;`</span>
+<span id="L1797"><span class="lineNum">    1797</span>              : // SaveDataSpriteRenderComponent スプライト描画設定</span>
+<span id="L1798"><span class="lineNum">    1798</span>              : type SaveDataSpriteRenderComponent struct {</span>
+<span id="L1799"><span class="lineNum">    1799</span>              :         AnimKeys *[]SaveDataSpriteKey `json:&quot;AnimKeys,omitempty&quot;`</span>
+<span id="L1800"><span class="lineNum">    1800</span>              : </span>
+<span id="L1801"><span class="lineNum">    1801</span>              :         // Depth スプライト描画深度</span>
+<span id="L1802"><span class="lineNum">    1802</span>              :         Depth SaveDataSpriteDepth `json:&quot;Depth&quot;`</span>
+<span id="L1803"><span class="lineNum">    1803</span>              : </span>
+<span id="L1804"><span class="lineNum">    1804</span>              :         // Options Ebitengine DrawImageOptions。レンダラ内部状態</span>
+<span id="L1805"><span class="lineNum">    1805</span>              :         Options *map[string]interface{} `json:&quot;Options,omitempty&quot;`</span>
 <span id="L1806"><span class="lineNum">    1806</span>              : </span>
-<span id="L1807"><span class="lineNum">    1807</span>              :         // Depth スプライト描画深度</span>
-<span id="L1808"><span class="lineNum">    1808</span>              :         Depth SaveDataSpriteDepth `json:&quot;Depth&quot;`</span>
+<span id="L1807"><span class="lineNum">    1807</span>              :         // SpriteKey スプライトキー。セーブデータではパターン制約を適用しない</span>
+<span id="L1808"><span class="lineNum">    1808</span>              :         SpriteKey SaveDataSpriteKey `json:&quot;SpriteKey&quot;`</span>
 <span id="L1809"><span class="lineNum">    1809</span>              : </span>
-<span id="L1810"><span class="lineNum">    1810</span>              :         // Options Ebitengine DrawImageOptions。レンダラ内部状態</span>
-<span id="L1811"><span class="lineNum">    1811</span>              :         Options *map[string]interface{} `json:&quot;Options,omitempty&quot;`</span>
-<span id="L1812"><span class="lineNum">    1812</span>              : </span>
-<span id="L1813"><span class="lineNum">    1813</span>              :         // SpriteKey スプライトキー。セーブデータではパターン制約を適用しない</span>
-<span id="L1814"><span class="lineNum">    1814</span>              :         SpriteKey SaveDataSpriteKey `json:&quot;SpriteKey&quot;`</span>
-<span id="L1815"><span class="lineNum">    1815</span>              : </span>
-<span id="L1816"><span class="lineNum">    1816</span>              :         // SpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない</span>
-<span id="L1817"><span class="lineNum">    1817</span>              :         SpriteSheetName SaveDataSpriteSheetName `json:&quot;SpriteSheetName&quot;`</span>
-<span id="L1818"><span class="lineNum">    1818</span>              : }</span>
-<span id="L1819"><span class="lineNum">    1819</span>              : </span>
-<span id="L1820"><span class="lineNum">    1820</span>              : // SaveDataSpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない</span>
-<span id="L1821"><span class="lineNum">    1821</span>              : type SaveDataSpriteSheetName = string</span>
-<span id="L1822"><span class="lineNum">    1822</span>              : </span>
-<span id="L1823"><span class="lineNum">    1823</span>              : // SaveDataStableID エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する</span>
-<span id="L1824"><span class="lineNum">    1824</span>              : type SaveDataStableID struct {</span>
-<span id="L1825"><span class="lineNum">    1825</span>              :         // Generation 世代番号。同一インデックスの再利用を区別する</span>
-<span id="L1826"><span class="lineNum">    1826</span>              :         Generation SaveDataEntityGeneration `json:&quot;generation&quot;`</span>
-<span id="L1827"><span class="lineNum">    1827</span>              : </span>
-<span id="L1828"><span class="lineNum">    1828</span>              :         // Index エンティティインデックス</span>
-<span id="L1829"><span class="lineNum">    1829</span>              :         Index SaveDataEntityIndex `json:&quot;index&quot;`</span>
-<span id="L1830"><span class="lineNum">    1830</span>              : }</span>
-<span id="L1831"><span class="lineNum">    1831</span>              : </span>
-<span id="L1832"><span class="lineNum">    1832</span>              : // SaveDataTargetTypeData 対象指定</span>
-<span id="L1833"><span class="lineNum">    1833</span>              : type SaveDataTargetTypeData struct {</span>
-<span id="L1834"><span class="lineNum">    1834</span>              :         // TargetGroup ターゲットグループ</span>
-<span id="L1835"><span class="lineNum">    1835</span>              :         TargetGroup TargetGroup `json:&quot;TargetGroup&quot;`</span>
-<span id="L1836"><span class="lineNum">    1836</span>              : </span>
-<span id="L1837"><span class="lineNum">    1837</span>              :         // TargetNum ターゲット数</span>
-<span id="L1838"><span class="lineNum">    1838</span>              :         TargetNum TargetNum `json:&quot;TargetNum&quot;`</span>
-<span id="L1839"><span class="lineNum">    1839</span>              : }</span>
-<span id="L1840"><span class="lineNum">    1840</span>              : </span>
-<span id="L1841"><span class="lineNum">    1841</span>              : // SaveDataTileCoord タイル座標</span>
-<span id="L1842"><span class="lineNum">    1842</span>              : type SaveDataTileCoord = int32</span>
-<span id="L1843"><span class="lineNum">    1843</span>              : </span>
-<span id="L1844"><span class="lineNum">    1844</span>              : // SaveDataTurnBasedComponent アクションポイントと速度</span>
-<span id="L1845"><span class="lineNum">    1845</span>              : type SaveDataTurnBasedComponent struct {</span>
-<span id="L1846"><span class="lineNum">    1846</span>              :         // AP アクションポイント</span>
-<span id="L1847"><span class="lineNum">    1847</span>              :         AP SaveDataIntPool `json:&quot;AP&quot;`</span>
-<span id="L1848"><span class="lineNum">    1848</span>              : </span>
-<span id="L1849"><span class="lineNum">    1849</span>              :         // Speed APの毎ターン回復量</span>
-<span id="L1850"><span class="lineNum">    1850</span>              :         Speed SaveDataSpeed `json:&quot;Speed&quot;`</span>
+<span id="L1810"><span class="lineNum">    1810</span>              :         // SpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない</span>
+<span id="L1811"><span class="lineNum">    1811</span>              :         SpriteSheetName SaveDataSpriteSheetName `json:&quot;SpriteSheetName&quot;`</span>
+<span id="L1812"><span class="lineNum">    1812</span>              : }</span>
+<span id="L1813"><span class="lineNum">    1813</span>              : </span>
+<span id="L1814"><span class="lineNum">    1814</span>              : // SaveDataSpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない</span>
+<span id="L1815"><span class="lineNum">    1815</span>              : type SaveDataSpriteSheetName = string</span>
+<span id="L1816"><span class="lineNum">    1816</span>              : </span>
+<span id="L1817"><span class="lineNum">    1817</span>              : // SaveDataStableID エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する</span>
+<span id="L1818"><span class="lineNum">    1818</span>              : type SaveDataStableID struct {</span>
+<span id="L1819"><span class="lineNum">    1819</span>              :         // Generation 世代番号。同一インデックスの再利用を区別する</span>
+<span id="L1820"><span class="lineNum">    1820</span>              :         Generation SaveDataEntityGeneration `json:&quot;generation&quot;`</span>
+<span id="L1821"><span class="lineNum">    1821</span>              : </span>
+<span id="L1822"><span class="lineNum">    1822</span>              :         // Index エンティティインデックス</span>
+<span id="L1823"><span class="lineNum">    1823</span>              :         Index SaveDataEntityIndex `json:&quot;index&quot;`</span>
+<span id="L1824"><span class="lineNum">    1824</span>              : }</span>
+<span id="L1825"><span class="lineNum">    1825</span>              : </span>
+<span id="L1826"><span class="lineNum">    1826</span>              : // SaveDataTargetTypeData 対象指定</span>
+<span id="L1827"><span class="lineNum">    1827</span>              : type SaveDataTargetTypeData struct {</span>
+<span id="L1828"><span class="lineNum">    1828</span>              :         // TargetGroup ターゲットグループ</span>
+<span id="L1829"><span class="lineNum">    1829</span>              :         TargetGroup TargetGroup `json:&quot;TargetGroup&quot;`</span>
+<span id="L1830"><span class="lineNum">    1830</span>              : </span>
+<span id="L1831"><span class="lineNum">    1831</span>              :         // TargetNum ターゲット数</span>
+<span id="L1832"><span class="lineNum">    1832</span>              :         TargetNum TargetNum `json:&quot;TargetNum&quot;`</span>
+<span id="L1833"><span class="lineNum">    1833</span>              : }</span>
+<span id="L1834"><span class="lineNum">    1834</span>              : </span>
+<span id="L1835"><span class="lineNum">    1835</span>              : // SaveDataTileCoord タイル座標</span>
+<span id="L1836"><span class="lineNum">    1836</span>              : type SaveDataTileCoord = int32</span>
+<span id="L1837"><span class="lineNum">    1837</span>              : </span>
+<span id="L1838"><span class="lineNum">    1838</span>              : // SaveDataTurnBasedComponent アクションポイントと速度</span>
+<span id="L1839"><span class="lineNum">    1839</span>              : type SaveDataTurnBasedComponent struct {</span>
+<span id="L1840"><span class="lineNum">    1840</span>              :         // AP アクションポイント</span>
+<span id="L1841"><span class="lineNum">    1841</span>              :         AP SaveDataIntPool `json:&quot;AP&quot;`</span>
+<span id="L1842"><span class="lineNum">    1842</span>              : </span>
+<span id="L1843"><span class="lineNum">    1843</span>              :         // Speed APの毎ターン回復量</span>
+<span id="L1844"><span class="lineNum">    1844</span>              :         Speed SaveDataSpeed `json:&quot;Speed&quot;`</span>
+<span id="L1845"><span class="lineNum">    1845</span>              : }</span>
+<span id="L1846"><span class="lineNum">    1846</span>              : </span>
+<span id="L1847"><span class="lineNum">    1847</span>              : // SaveDataValueComponent 売買価格</span>
+<span id="L1848"><span class="lineNum">    1848</span>              : type SaveDataValueComponent struct {</span>
+<span id="L1849"><span class="lineNum">    1849</span>              :         // Value 売買価格</span>
+<span id="L1850"><span class="lineNum">    1850</span>              :         Value ItemValue `json:&quot;Value&quot;`</span>
 <span id="L1851"><span class="lineNum">    1851</span>              : }</span>
 <span id="L1852"><span class="lineNum">    1852</span>              : </span>
-<span id="L1853"><span class="lineNum">    1853</span>              : // SaveDataValueComponent 売買価格</span>
-<span id="L1854"><span class="lineNum">    1854</span>              : type SaveDataValueComponent struct {</span>
-<span id="L1855"><span class="lineNum">    1855</span>              :         // Value 売買価格</span>
-<span id="L1856"><span class="lineNum">    1856</span>              :         Value ItemValue `json:&quot;Value&quot;`</span>
+<span id="L1853"><span class="lineNum">    1853</span>              : // SaveDataWalletComponent 所持金</span>
+<span id="L1854"><span class="lineNum">    1854</span>              : type SaveDataWalletComponent struct {</span>
+<span id="L1855"><span class="lineNum">    1855</span>              :         // Currency 所持金</span>
+<span id="L1856"><span class="lineNum">    1856</span>              :         Currency SaveDataCurrency `json:&quot;Currency&quot;`</span>
 <span id="L1857"><span class="lineNum">    1857</span>              : }</span>
 <span id="L1858"><span class="lineNum">    1858</span>              : </span>
-<span id="L1859"><span class="lineNum">    1859</span>              : // SaveDataWalletComponent 所持金</span>
-<span id="L1860"><span class="lineNum">    1860</span>              : type SaveDataWalletComponent struct {</span>
-<span id="L1861"><span class="lineNum">    1861</span>              :         // Currency 所持金</span>
-<span id="L1862"><span class="lineNum">    1862</span>              :         Currency SaveDataCurrency `json:&quot;Currency&quot;`</span>
-<span id="L1863"><span class="lineNum">    1863</span>              : }</span>
-<span id="L1864"><span class="lineNum">    1864</span>              : </span>
-<span id="L1865"><span class="lineNum">    1865</span>              : // SaveDataWearableComponent 防具設定</span>
-<span id="L1866"><span class="lineNum">    1866</span>              : type SaveDataWearableComponent struct {</span>
-<span id="L1867"><span class="lineNum">    1867</span>              :         // Defense 防御力</span>
-<span id="L1868"><span class="lineNum">    1868</span>              :         Defense ArmorDefense `json:&quot;Defense&quot;`</span>
+<span id="L1859"><span class="lineNum">    1859</span>              : // SaveDataWearableComponent 防具設定</span>
+<span id="L1860"><span class="lineNum">    1860</span>              : type SaveDataWearableComponent struct {</span>
+<span id="L1861"><span class="lineNum">    1861</span>              :         // Defense 防御力</span>
+<span id="L1862"><span class="lineNum">    1862</span>              :         Defense ArmorDefense `json:&quot;Defense&quot;`</span>
+<span id="L1863"><span class="lineNum">    1863</span>              : </span>
+<span id="L1864"><span class="lineNum">    1864</span>              :         // EquipBonus 装備ボーナス</span>
+<span id="L1865"><span class="lineNum">    1865</span>              :         EquipBonus SaveDataEquipBonusData `json:&quot;EquipBonus&quot;`</span>
+<span id="L1866"><span class="lineNum">    1866</span>              : </span>
+<span id="L1867"><span class="lineNum">    1867</span>              :         // EquipmentCategory 装備部位</span>
+<span id="L1868"><span class="lineNum">    1868</span>              :         EquipmentCategory EquipmentCategory `json:&quot;EquipmentCategory&quot;`</span>
 <span id="L1869"><span class="lineNum">    1869</span>              : </span>
-<span id="L1870"><span class="lineNum">    1870</span>              :         // EquipBonus 装備ボーナス</span>
-<span id="L1871"><span class="lineNum">    1871</span>              :         EquipBonus SaveDataEquipBonusData `json:&quot;EquipBonus&quot;`</span>
+<span id="L1870"><span class="lineNum">    1870</span>              :         // InsulationCold 耐寒性能</span>
+<span id="L1871"><span class="lineNum">    1871</span>              :         InsulationCold InsulationCold `json:&quot;InsulationCold&quot;`</span>
 <span id="L1872"><span class="lineNum">    1872</span>              : </span>
-<span id="L1873"><span class="lineNum">    1873</span>              :         // EquipmentCategory 装備部位</span>
-<span id="L1874"><span class="lineNum">    1874</span>              :         EquipmentCategory EquipmentCategory `json:&quot;EquipmentCategory&quot;`</span>
-<span id="L1875"><span class="lineNum">    1875</span>              : </span>
-<span id="L1876"><span class="lineNum">    1876</span>              :         // InsulationCold 耐寒性能</span>
-<span id="L1877"><span class="lineNum">    1877</span>              :         InsulationCold InsulationCold `json:&quot;InsulationCold&quot;`</span>
-<span id="L1878"><span class="lineNum">    1878</span>              : </span>
-<span id="L1879"><span class="lineNum">    1879</span>              :         // InsulationHeat 耐暑性能</span>
-<span id="L1880"><span class="lineNum">    1880</span>              :         InsulationHeat InsulationHeat `json:&quot;InsulationHeat&quot;`</span>
-<span id="L1881"><span class="lineNum">    1881</span>              : }</span>
-<span id="L1882"><span class="lineNum">    1882</span>              : </span>
-<span id="L1883"><span class="lineNum">    1883</span>              : // SaveDataWorldSaveData ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する</span>
-<span id="L1884"><span class="lineNum">    1884</span>              : type SaveDataWorldSaveData struct {</span>
-<span id="L1885"><span class="lineNum">    1885</span>              :         // Entities エンティティの配列。StableIDでソートされる</span>
-<span id="L1886"><span class="lineNum">    1886</span>              :         Entities []SaveDataEntitySaveData `json:&quot;entities&quot;`</span>
-<span id="L1887"><span class="lineNum">    1887</span>              : </span>
-<span id="L1888"><span class="lineNum">    1888</span>              :         // GameProgress ゲーム進行状態</span>
-<span id="L1889"><span class="lineNum">    1889</span>              :         GameProgress *SaveDataGameProgress `json:&quot;game_progress,omitempty&quot;`</span>
-<span id="L1890"><span class="lineNum">    1890</span>              : }</span>
+<span id="L1873"><span class="lineNum">    1873</span>              :         // InsulationHeat 耐暑性能</span>
+<span id="L1874"><span class="lineNum">    1874</span>              :         InsulationHeat InsulationHeat `json:&quot;InsulationHeat&quot;`</span>
+<span id="L1875"><span class="lineNum">    1875</span>              : }</span>
+<span id="L1876"><span class="lineNum">    1876</span>              : </span>
+<span id="L1877"><span class="lineNum">    1877</span>              : // SaveDataWorldSaveData ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する</span>
+<span id="L1878"><span class="lineNum">    1878</span>              : type SaveDataWorldSaveData struct {</span>
+<span id="L1879"><span class="lineNum">    1879</span>              :         // Entities エンティティの配列。StableIDでソートされる</span>
+<span id="L1880"><span class="lineNum">    1880</span>              :         Entities []SaveDataEntitySaveData `json:&quot;entities&quot;`</span>
+<span id="L1881"><span class="lineNum">    1881</span>              : </span>
+<span id="L1882"><span class="lineNum">    1882</span>              :         // GameProgress ゲーム進行状態</span>
+<span id="L1883"><span class="lineNum">    1883</span>              :         GameProgress *SaveDataGameProgress `json:&quot;game_progress,omitempty&quot;`</span>
+<span id="L1884"><span class="lineNum">    1884</span>              : }</span>
+<span id="L1885"><span class="lineNum">    1885</span>              : </span>
+<span id="L1886"><span class="lineNum">    1886</span>              : // Sensation 感覚。命中率と回避率に影響する</span>
+<span id="L1887"><span class="lineNum">    1887</span>              : type Sensation = int32</span>
+<span id="L1888"><span class="lineNum">    1888</span>              : </span>
+<span id="L1889"><span class="lineNum">    1889</span>              : // ShelterType 遮蔽タイプ</span>
+<span id="L1890"><span class="lineNum">    1890</span>              : type ShelterType float32</span>
 <span id="L1891"><span class="lineNum">    1891</span>              : </span>
-<span id="L1892"><span class="lineNum">    1892</span>              : // Sensation 感覚。命中率と回避率に影響する</span>
-<span id="L1893"><span class="lineNum">    1893</span>              : type Sensation = int32</span>
-<span id="L1894"><span class="lineNum">    1894</span>              : </span>
-<span id="L1895"><span class="lineNum">    1895</span>              : // ShelterType 遮蔽タイプ</span>
-<span id="L1896"><span class="lineNum">    1896</span>              : type ShelterType float32</span>
-<span id="L1897"><span class="lineNum">    1897</span>              : </span>
-<span id="L1898"><span class="lineNum">    1898</span>              : // SkillBook スキル本設定</span>
-<span id="L1899"><span class="lineNum">    1899</span>              : type SkillBook struct {</span>
-<span id="L1900"><span class="lineNum">    1900</span>              :         // MaxLevel スキルレベル</span>
-<span id="L1901"><span class="lineNum">    1901</span>              :         MaxLevel SkillLevel `json:&quot;maxLevel&quot;`</span>
-<span id="L1902"><span class="lineNum">    1902</span>              : </span>
-<span id="L1903"><span class="lineNum">    1903</span>              :         // RequiredLevel スキルレベル</span>
-<span id="L1904"><span class="lineNum">    1904</span>              :         RequiredLevel SkillLevel `json:&quot;requiredLevel&quot;`</span>
-<span id="L1905"><span class="lineNum">    1905</span>              : </span>
-<span id="L1906"><span class="lineNum">    1906</span>              :         // TargetSkill スキルID</span>
-<span id="L1907"><span class="lineNum">    1907</span>              :         TargetSkill SkillId `json:&quot;targetSkill&quot;`</span>
-<span id="L1908"><span class="lineNum">    1908</span>              : }</span>
+<span id="L1892"><span class="lineNum">    1892</span>              : // SkillBook スキル本設定</span>
+<span id="L1893"><span class="lineNum">    1893</span>              : type SkillBook struct {</span>
+<span id="L1894"><span class="lineNum">    1894</span>              :         // MaxLevel スキルレベル</span>
+<span id="L1895"><span class="lineNum">    1895</span>              :         MaxLevel SkillLevel `json:&quot;maxLevel&quot;`</span>
+<span id="L1896"><span class="lineNum">    1896</span>              : </span>
+<span id="L1897"><span class="lineNum">    1897</span>              :         // RequiredLevel スキルレベル</span>
+<span id="L1898"><span class="lineNum">    1898</span>              :         RequiredLevel SkillLevel `json:&quot;requiredLevel&quot;`</span>
+<span id="L1899"><span class="lineNum">    1899</span>              : </span>
+<span id="L1900"><span class="lineNum">    1900</span>              :         // TargetSkill スキルID</span>
+<span id="L1901"><span class="lineNum">    1901</span>              :         TargetSkill SkillId `json:&quot;targetSkill&quot;`</span>
+<span id="L1902"><span class="lineNum">    1902</span>              : }</span>
+<span id="L1903"><span class="lineNum">    1903</span>              : </span>
+<span id="L1904"><span class="lineNum">    1904</span>              : // SkillId スキルID</span>
+<span id="L1905"><span class="lineNum">    1905</span>              : type SkillId = string</span>
+<span id="L1906"><span class="lineNum">    1906</span>              : </span>
+<span id="L1907"><span class="lineNum">    1907</span>              : // SkillLevel スキルレベル</span>
+<span id="L1908"><span class="lineNum">    1908</span>              : type SkillLevel = int32</span>
 <span id="L1909"><span class="lineNum">    1909</span>              : </span>
-<span id="L1910"><span class="lineNum">    1910</span>              : // SkillId スキルID</span>
-<span id="L1911"><span class="lineNum">    1911</span>              : type SkillId = string</span>
+<span id="L1910"><span class="lineNum">    1910</span>              : // SpriteDepth スプライト描画深度</span>
+<span id="L1911"><span class="lineNum">    1911</span>              : type SpriteDepth float32</span>
 <span id="L1912"><span class="lineNum">    1912</span>              : </span>
-<span id="L1913"><span class="lineNum">    1913</span>              : // SkillLevel スキルレベル</span>
-<span id="L1914"><span class="lineNum">    1914</span>              : type SkillLevel = int32</span>
+<span id="L1913"><span class="lineNum">    1913</span>              : // SpriteKey スプライトキー</span>
+<span id="L1914"><span class="lineNum">    1914</span>              : type SpriteKey = string</span>
 <span id="L1915"><span class="lineNum">    1915</span>              : </span>
-<span id="L1916"><span class="lineNum">    1916</span>              : // SpriteDepth スプライト描画深度</span>
-<span id="L1917"><span class="lineNum">    1917</span>              : type SpriteDepth float32</span>
-<span id="L1918"><span class="lineNum">    1918</span>              : </span>
-<span id="L1919"><span class="lineNum">    1919</span>              : // SpriteKey スプライトキー</span>
-<span id="L1920"><span class="lineNum">    1920</span>              : type SpriteKey = string</span>
-<span id="L1921"><span class="lineNum">    1921</span>              : </span>
-<span id="L1922"><span class="lineNum">    1922</span>              : // SpriteRender スプライトレンダー設定</span>
-<span id="L1923"><span class="lineNum">    1923</span>              : type SpriteRender struct {</span>
-<span id="L1924"><span class="lineNum">    1924</span>              :         // Depth スプライト描画深度</span>
-<span id="L1925"><span class="lineNum">    1925</span>              :         Depth SpriteDepth `json:&quot;depth&quot;`</span>
-<span id="L1926"><span class="lineNum">    1926</span>              : </span>
-<span id="L1927"><span class="lineNum">    1927</span>              :         // SpriteKey スプライトキー</span>
-<span id="L1928"><span class="lineNum">    1928</span>              :         SpriteKey SpriteKey `json:&quot;spriteKey&quot;`</span>
-<span id="L1929"><span class="lineNum">    1929</span>              : </span>
-<span id="L1930"><span class="lineNum">    1930</span>              :         // SpriteSheetName スプライトシート名</span>
-<span id="L1931"><span class="lineNum">    1931</span>              :         SpriteSheetName SpriteSheetName `json:&quot;spriteSheetName&quot;`</span>
-<span id="L1932"><span class="lineNum">    1932</span>              : }</span>
-<span id="L1933"><span class="lineNum">    1933</span>              : </span>
-<span id="L1934"><span class="lineNum">    1934</span>              : // SpriteSheet スプライトシート</span>
-<span id="L1935"><span class="lineNum">    1935</span>              : type SpriteSheet struct {</span>
-<span id="L1936"><span class="lineNum">    1936</span>              :         // Name エンティティ名</span>
-<span id="L1937"><span class="lineNum">    1937</span>              :         Name EntityName `json:&quot;name&quot;`</span>
-<span id="L1938"><span class="lineNum">    1938</span>              : </span>
-<span id="L1939"><span class="lineNum">    1939</span>              :         // Path 画像ファイルパス</span>
-<span id="L1940"><span class="lineNum">    1940</span>              :         Path ImagePath `json:&quot;path&quot;`</span>
+<span id="L1916"><span class="lineNum">    1916</span>              : // SpriteRender スプライトレンダー設定</span>
+<span id="L1917"><span class="lineNum">    1917</span>              : type SpriteRender struct {</span>
+<span id="L1918"><span class="lineNum">    1918</span>              :         // Depth スプライト描画深度</span>
+<span id="L1919"><span class="lineNum">    1919</span>              :         Depth SpriteDepth `json:&quot;depth&quot;`</span>
+<span id="L1920"><span class="lineNum">    1920</span>              : </span>
+<span id="L1921"><span class="lineNum">    1921</span>              :         // SpriteKey スプライトキー</span>
+<span id="L1922"><span class="lineNum">    1922</span>              :         SpriteKey SpriteKey `json:&quot;spriteKey&quot;`</span>
+<span id="L1923"><span class="lineNum">    1923</span>              : </span>
+<span id="L1924"><span class="lineNum">    1924</span>              :         // SpriteSheetName スプライトシート名</span>
+<span id="L1925"><span class="lineNum">    1925</span>              :         SpriteSheetName SpriteSheetName `json:&quot;spriteSheetName&quot;`</span>
+<span id="L1926"><span class="lineNum">    1926</span>              : }</span>
+<span id="L1927"><span class="lineNum">    1927</span>              : </span>
+<span id="L1928"><span class="lineNum">    1928</span>              : // SpriteSheet スプライトシート</span>
+<span id="L1929"><span class="lineNum">    1929</span>              : type SpriteSheet struct {</span>
+<span id="L1930"><span class="lineNum">    1930</span>              :         // Name エンティティ名</span>
+<span id="L1931"><span class="lineNum">    1931</span>              :         Name EntityName `json:&quot;name&quot;`</span>
+<span id="L1932"><span class="lineNum">    1932</span>              : </span>
+<span id="L1933"><span class="lineNum">    1933</span>              :         // Path 画像ファイルパス</span>
+<span id="L1934"><span class="lineNum">    1934</span>              :         Path ImagePath `json:&quot;path&quot;`</span>
+<span id="L1935"><span class="lineNum">    1935</span>              : }</span>
+<span id="L1936"><span class="lineNum">    1936</span>              : </span>
+<span id="L1937"><span class="lineNum">    1937</span>              : // SpriteSheetList スプライトシート一覧</span>
+<span id="L1938"><span class="lineNum">    1938</span>              : type SpriteSheetList struct {</span>
+<span id="L1939"><span class="lineNum">    1939</span>              :         Data       []SpriteSheet `json:&quot;data&quot;`</span>
+<span id="L1940"><span class="lineNum">    1940</span>              :         TotalCount int32         `json:&quot;totalCount&quot;`</span>
 <span id="L1941"><span class="lineNum">    1941</span>              : }</span>
 <span id="L1942"><span class="lineNum">    1942</span>              : </span>
-<span id="L1943"><span class="lineNum">    1943</span>              : // SpriteSheetList スプライトシート一覧</span>
-<span id="L1944"><span class="lineNum">    1944</span>              : type SpriteSheetList struct {</span>
-<span id="L1945"><span class="lineNum">    1945</span>              :         Data       []SpriteSheet `json:&quot;data&quot;`</span>
-<span id="L1946"><span class="lineNum">    1946</span>              :         TotalCount int32         `json:&quot;totalCount&quot;`</span>
-<span id="L1947"><span class="lineNum">    1947</span>              : }</span>
+<span id="L1943"><span class="lineNum">    1943</span>              : // SpriteSheetName スプライトシート名</span>
+<span id="L1944"><span class="lineNum">    1944</span>              : type SpriteSheetName = string</span>
+<span id="L1945"><span class="lineNum">    1945</span>              : </span>
+<span id="L1946"><span class="lineNum">    1946</span>              : // Stackable スタック可能かどうか</span>
+<span id="L1947"><span class="lineNum">    1947</span>              : type Stackable = bool</span>
 <span id="L1948"><span class="lineNum">    1948</span>              : </span>
-<span id="L1949"><span class="lineNum">    1949</span>              : // SpriteSheetName スプライトシート名</span>
-<span id="L1950"><span class="lineNum">    1950</span>              : type SpriteSheetName = string</span>
+<span id="L1949"><span class="lineNum">    1949</span>              : // Strength 筋力。物理ダメージに影響する</span>
+<span id="L1950"><span class="lineNum">    1950</span>              : type Strength = int32</span>
 <span id="L1951"><span class="lineNum">    1951</span>              : </span>
-<span id="L1952"><span class="lineNum">    1952</span>              : // Stackable スタック可能かどうか</span>
-<span id="L1953"><span class="lineNum">    1953</span>              : type Stackable = bool</span>
+<span id="L1952"><span class="lineNum">    1952</span>              : // TargetGroup ターゲットグループ</span>
+<span id="L1953"><span class="lineNum">    1953</span>              : type TargetGroup string</span>
 <span id="L1954"><span class="lineNum">    1954</span>              : </span>
-<span id="L1955"><span class="lineNum">    1955</span>              : // Strength 筋力。物理ダメージに影響する</span>
-<span id="L1956"><span class="lineNum">    1956</span>              : type Strength = int32</span>
+<span id="L1955"><span class="lineNum">    1955</span>              : // TargetNum ターゲット数</span>
+<span id="L1956"><span class="lineNum">    1956</span>              : type TargetNum string</span>
 <span id="L1957"><span class="lineNum">    1957</span>              : </span>
-<span id="L1958"><span class="lineNum">    1958</span>              : // TargetGroup ターゲットグループ</span>
-<span id="L1959"><span class="lineNum">    1959</span>              : type TargetGroup string</span>
-<span id="L1960"><span class="lineNum">    1960</span>              : </span>
-<span id="L1961"><span class="lineNum">    1961</span>              : // TargetNum ターゲット数</span>
-<span id="L1962"><span class="lineNum">    1962</span>              : type TargetNum string</span>
-<span id="L1963"><span class="lineNum">    1963</span>              : </span>
-<span id="L1964"><span class="lineNum">    1964</span>              : // Tile タイル</span>
-<span id="L1965"><span class="lineNum">    1965</span>              : type Tile struct {</span>
-<span id="L1966"><span class="lineNum">    1966</span>              :         // BlockPass 通行を妨げるかどうか</span>
-<span id="L1967"><span class="lineNum">    1967</span>              :         BlockPass BlocksPassage `json:&quot;blockPass&quot;`</span>
+<span id="L1958"><span class="lineNum">    1958</span>              : // Tile タイル</span>
+<span id="L1959"><span class="lineNum">    1959</span>              : type Tile struct {</span>
+<span id="L1960"><span class="lineNum">    1960</span>              :         // BlockPass 通行を妨げるかどうか</span>
+<span id="L1961"><span class="lineNum">    1961</span>              :         BlockPass BlocksPassage `json:&quot;blockPass&quot;`</span>
+<span id="L1962"><span class="lineNum">    1962</span>              : </span>
+<span id="L1963"><span class="lineNum">    1963</span>              :         // BlockView 視線を遮るかどうか</span>
+<span id="L1964"><span class="lineNum">    1964</span>              :         BlockView BlocksView `json:&quot;blockView&quot;`</span>
+<span id="L1965"><span class="lineNum">    1965</span>              : </span>
+<span id="L1966"><span class="lineNum">    1966</span>              :         // Description 説明文</span>
+<span id="L1967"><span class="lineNum">    1967</span>              :         Description EntityDescription `json:&quot;description&quot;`</span>
 <span id="L1968"><span class="lineNum">    1968</span>              : </span>
-<span id="L1969"><span class="lineNum">    1969</span>              :         // BlockView 視線を遮るかどうか</span>
-<span id="L1970"><span class="lineNum">    1970</span>              :         BlockView BlocksView `json:&quot;blockView&quot;`</span>
+<span id="L1969"><span class="lineNum">    1969</span>              :         // Foliage 植生タイプ</span>
+<span id="L1970"><span class="lineNum">    1970</span>              :         Foliage FoliageType `json:&quot;foliage&quot;`</span>
 <span id="L1971"><span class="lineNum">    1971</span>              : </span>
-<span id="L1972"><span class="lineNum">    1972</span>              :         // Description 説明文</span>
-<span id="L1973"><span class="lineNum">    1973</span>              :         Description EntityDescription `json:&quot;description&quot;`</span>
+<span id="L1972"><span class="lineNum">    1972</span>              :         // Name エンティティ名</span>
+<span id="L1973"><span class="lineNum">    1973</span>              :         Name EntityName `json:&quot;name&quot;`</span>
 <span id="L1974"><span class="lineNum">    1974</span>              : </span>
-<span id="L1975"><span class="lineNum">    1975</span>              :         // Foliage 植生タイプ</span>
-<span id="L1976"><span class="lineNum">    1976</span>              :         Foliage FoliageType `json:&quot;foliage&quot;`</span>
+<span id="L1975"><span class="lineNum">    1975</span>              :         // Shelter 遮蔽タイプ</span>
+<span id="L1976"><span class="lineNum">    1976</span>              :         Shelter ShelterType `json:&quot;shelter&quot;`</span>
 <span id="L1977"><span class="lineNum">    1977</span>              : </span>
-<span id="L1978"><span class="lineNum">    1978</span>              :         // Name エンティティ名</span>
-<span id="L1979"><span class="lineNum">    1979</span>              :         Name EntityName `json:&quot;name&quot;`</span>
+<span id="L1978"><span class="lineNum">    1978</span>              :         // SpriteRender スプライトレンダー設定</span>
+<span id="L1979"><span class="lineNum">    1979</span>              :         SpriteRender SpriteRender `json:&quot;spriteRender&quot;`</span>
 <span id="L1980"><span class="lineNum">    1980</span>              : </span>
-<span id="L1981"><span class="lineNum">    1981</span>              :         // Shelter 遮蔽タイプ</span>
-<span id="L1982"><span class="lineNum">    1982</span>              :         Shelter ShelterType `json:&quot;shelter&quot;`</span>
-<span id="L1983"><span class="lineNum">    1983</span>              : </span>
-<span id="L1984"><span class="lineNum">    1984</span>              :         // SpriteRender スプライトレンダー設定</span>
-<span id="L1985"><span class="lineNum">    1985</span>              :         SpriteRender SpriteRender `json:&quot;spriteRender&quot;`</span>
-<span id="L1986"><span class="lineNum">    1986</span>              : </span>
-<span id="L1987"><span class="lineNum">    1987</span>              :         // Water 水タイプ</span>
-<span id="L1988"><span class="lineNum">    1988</span>              :         Water WaterType `json:&quot;water&quot;`</span>
+<span id="L1981"><span class="lineNum">    1981</span>              :         // Water 水タイプ</span>
+<span id="L1982"><span class="lineNum">    1982</span>              :         Water WaterType `json:&quot;water&quot;`</span>
+<span id="L1983"><span class="lineNum">    1983</span>              : }</span>
+<span id="L1984"><span class="lineNum">    1984</span>              : </span>
+<span id="L1985"><span class="lineNum">    1985</span>              : // TileList タイル一覧</span>
+<span id="L1986"><span class="lineNum">    1986</span>              : type TileList struct {</span>
+<span id="L1987"><span class="lineNum">    1987</span>              :         Data       []Tile `json:&quot;data&quot;`</span>
+<span id="L1988"><span class="lineNum">    1988</span>              :         TotalCount int32  `json:&quot;totalCount&quot;`</span>
 <span id="L1989"><span class="lineNum">    1989</span>              : }</span>
 <span id="L1990"><span class="lineNum">    1990</span>              : </span>
-<span id="L1991"><span class="lineNum">    1991</span>              : // TileList タイル一覧</span>
-<span id="L1992"><span class="lineNum">    1992</span>              : type TileList struct {</span>
-<span id="L1993"><span class="lineNum">    1993</span>              :         Data       []Tile `json:&quot;data&quot;`</span>
-<span id="L1994"><span class="lineNum">    1994</span>              :         TotalCount int32  `json:&quot;totalCount&quot;`</span>
-<span id="L1995"><span class="lineNum">    1995</span>              : }</span>
+<span id="L1991"><span class="lineNum">    1991</span>              : // UsableScene 使用可能シーン</span>
+<span id="L1992"><span class="lineNum">    1992</span>              : type UsableScene string</span>
+<span id="L1993"><span class="lineNum">    1993</span>              : </span>
+<span id="L1994"><span class="lineNum">    1994</span>              : // ViewDistance AI視界距離（タイル単位）</span>
+<span id="L1995"><span class="lineNum">    1995</span>              : type ViewDistance = int32</span>
 <span id="L1996"><span class="lineNum">    1996</span>              : </span>
-<span id="L1997"><span class="lineNum">    1997</span>              : // UsableScene 使用可能シーン</span>
-<span id="L1998"><span class="lineNum">    1998</span>              : type UsableScene string</span>
+<span id="L1997"><span class="lineNum">    1997</span>              : // Vitality 体力。HPに影響する</span>
+<span id="L1998"><span class="lineNum">    1998</span>              : type Vitality = int32</span>
 <span id="L1999"><span class="lineNum">    1999</span>              : </span>
-<span id="L2000"><span class="lineNum">    2000</span>              : // ViewDistance AI視界距離（タイル単位）</span>
-<span id="L2001"><span class="lineNum">    2001</span>              : type ViewDistance = int32</span>
+<span id="L2000"><span class="lineNum">    2000</span>              : // WarpEscapeTriggerRaw 脱出ワープトリガー</span>
+<span id="L2001"><span class="lineNum">    2001</span>              : type WarpEscapeTriggerRaw = map[string]interface{}</span>
 <span id="L2002"><span class="lineNum">    2002</span>              : </span>
-<span id="L2003"><span class="lineNum">    2003</span>              : // Vitality 体力。HPに影響する</span>
-<span id="L2004"><span class="lineNum">    2004</span>              : type Vitality = int32</span>
+<span id="L2003"><span class="lineNum">    2003</span>              : // WarpNextTriggerRaw 次階層ワープトリガー</span>
+<span id="L2004"><span class="lineNum">    2004</span>              : type WarpNextTriggerRaw = map[string]interface{}</span>
 <span id="L2005"><span class="lineNum">    2005</span>              : </span>
-<span id="L2006"><span class="lineNum">    2006</span>              : // WarpEscapeTriggerRaw 脱出ワープトリガー</span>
-<span id="L2007"><span class="lineNum">    2007</span>              : type WarpEscapeTriggerRaw = map[string]interface{}</span>
+<span id="L2006"><span class="lineNum">    2006</span>              : // WaterType 水タイプ</span>
+<span id="L2007"><span class="lineNum">    2007</span>              : type WaterType float32</span>
 <span id="L2008"><span class="lineNum">    2008</span>              : </span>
-<span id="L2009"><span class="lineNum">    2009</span>              : // WarpNextTriggerRaw 次階層ワープトリガー</span>
-<span id="L2010"><span class="lineNum">    2010</span>              : type WarpNextTriggerRaw = map[string]interface{}</span>
-<span id="L2011"><span class="lineNum">    2011</span>              : </span>
-<span id="L2012"><span class="lineNum">    2012</span>              : // WaterType 水タイプ</span>
-<span id="L2013"><span class="lineNum">    2013</span>              : type WaterType float32</span>
-<span id="L2014"><span class="lineNum">    2014</span>              : </span>
-<span id="L2015"><span class="lineNum">    2015</span>              : // Weapon 武器マーカー</span>
-<span id="L2016"><span class="lineNum">    2016</span>              : type Weapon = map[string]interface{}</span>
-<span id="L2017"><span class="lineNum">    2017</span>              : </span>
-<span id="L2018"><span class="lineNum">    2018</span>              : // Wearable 装備可能設定</span>
-<span id="L2019"><span class="lineNum">    2019</span>              : type Wearable struct {</span>
-<span id="L2020"><span class="lineNum">    2020</span>              :         // Defense 防具の防御力</span>
-<span id="L2021"><span class="lineNum">    2021</span>              :         Defense ArmorDefense `json:&quot;defense&quot;`</span>
-<span id="L2022"><span class="lineNum">    2022</span>              : </span>
-<span id="L2023"><span class="lineNum">    2023</span>              :         // EquipmentCategory 装備部位</span>
-<span id="L2024"><span class="lineNum">    2024</span>              :         EquipmentCategory EquipmentCategory `json:&quot;equipmentCategory&quot;`</span>
-<span id="L2025"><span class="lineNum">    2025</span>              : </span>
-<span id="L2026"><span class="lineNum">    2026</span>              :         // InsulationCold 耐寒性能</span>
-<span id="L2027"><span class="lineNum">    2027</span>              :         InsulationCold InsulationCold `json:&quot;insulationCold&quot;`</span>
-<span id="L2028"><span class="lineNum">    2028</span>              : </span>
-<span id="L2029"><span class="lineNum">    2029</span>              :         // InsulationHeat 耐暑性能</span>
-<span id="L2030"><span class="lineNum">    2030</span>              :         InsulationHeat InsulationHeat `json:&quot;insulationHeat&quot;`</span>
-<span id="L2031"><span class="lineNum">    2031</span>              : }</span>
+<span id="L2009"><span class="lineNum">    2009</span>              : // Wearable 装備可能設定</span>
+<span id="L2010"><span class="lineNum">    2010</span>              : type Wearable struct {</span>
+<span id="L2011"><span class="lineNum">    2011</span>              :         // Defense 防具の防御力</span>
+<span id="L2012"><span class="lineNum">    2012</span>              :         Defense ArmorDefense `json:&quot;defense&quot;`</span>
+<span id="L2013"><span class="lineNum">    2013</span>              : </span>
+<span id="L2014"><span class="lineNum">    2014</span>              :         // EquipmentCategory 装備部位</span>
+<span id="L2015"><span class="lineNum">    2015</span>              :         EquipmentCategory EquipmentCategory `json:&quot;equipmentCategory&quot;`</span>
+<span id="L2016"><span class="lineNum">    2016</span>              : </span>
+<span id="L2017"><span class="lineNum">    2017</span>              :         // InsulationCold 耐寒性能</span>
+<span id="L2018"><span class="lineNum">    2018</span>              :         InsulationCold InsulationCold `json:&quot;insulationCold&quot;`</span>
+<span id="L2019"><span class="lineNum">    2019</span>              : </span>
+<span id="L2020"><span class="lineNum">    2020</span>              :         // InsulationHeat 耐暑性能</span>
+<span id="L2021"><span class="lineNum">    2021</span>              :         InsulationHeat InsulationHeat `json:&quot;insulationHeat&quot;`</span>
+<span id="L2022"><span class="lineNum">    2022</span>              : }</span>
+<span id="L2023"><span class="lineNum">    2023</span>              : </span>
+<span id="L2024"><span class="lineNum">    2024</span>              : // CommandTablesCreateJSONRequestBody defines body for CommandTablesCreate for application/json ContentType.</span>
+<span id="L2025"><span class="lineNum">    2025</span>              : type CommandTablesCreateJSONRequestBody = CommandTable</span>
+<span id="L2026"><span class="lineNum">    2026</span>              : </span>
+<span id="L2027"><span class="lineNum">    2027</span>              : // CommandTablesUpdateJSONRequestBody defines body for CommandTablesUpdate for application/json ContentType.</span>
+<span id="L2028"><span class="lineNum">    2028</span>              : type CommandTablesUpdateJSONRequestBody = CommandTable</span>
+<span id="L2029"><span class="lineNum">    2029</span>              : </span>
+<span id="L2030"><span class="lineNum">    2030</span>              : // DropTablesCreateJSONRequestBody defines body for DropTablesCreate for application/json ContentType.</span>
+<span id="L2031"><span class="lineNum">    2031</span>              : type DropTablesCreateJSONRequestBody = DropTable</span>
 <span id="L2032"><span class="lineNum">    2032</span>              : </span>
-<span id="L2033"><span class="lineNum">    2033</span>              : // CommandTablesCreateJSONRequestBody defines body for CommandTablesCreate for application/json ContentType.</span>
-<span id="L2034"><span class="lineNum">    2034</span>              : type CommandTablesCreateJSONRequestBody = CommandTable</span>
+<span id="L2033"><span class="lineNum">    2033</span>              : // DropTablesUpdateJSONRequestBody defines body for DropTablesUpdate for application/json ContentType.</span>
+<span id="L2034"><span class="lineNum">    2034</span>              : type DropTablesUpdateJSONRequestBody = DropTable</span>
 <span id="L2035"><span class="lineNum">    2035</span>              : </span>
-<span id="L2036"><span class="lineNum">    2036</span>              : // CommandTablesUpdateJSONRequestBody defines body for CommandTablesUpdate for application/json ContentType.</span>
-<span id="L2037"><span class="lineNum">    2037</span>              : type CommandTablesUpdateJSONRequestBody = CommandTable</span>
+<span id="L2036"><span class="lineNum">    2036</span>              : // EnemyTablesCreateJSONRequestBody defines body for EnemyTablesCreate for application/json ContentType.</span>
+<span id="L2037"><span class="lineNum">    2037</span>              : type EnemyTablesCreateJSONRequestBody = EnemyTable</span>
 <span id="L2038"><span class="lineNum">    2038</span>              : </span>
-<span id="L2039"><span class="lineNum">    2039</span>              : // DropTablesCreateJSONRequestBody defines body for DropTablesCreate for application/json ContentType.</span>
-<span id="L2040"><span class="lineNum">    2040</span>              : type DropTablesCreateJSONRequestBody = DropTable</span>
+<span id="L2039"><span class="lineNum">    2039</span>              : // EnemyTablesUpdateJSONRequestBody defines body for EnemyTablesUpdate for application/json ContentType.</span>
+<span id="L2040"><span class="lineNum">    2040</span>              : type EnemyTablesUpdateJSONRequestBody = EnemyTable</span>
 <span id="L2041"><span class="lineNum">    2041</span>              : </span>
-<span id="L2042"><span class="lineNum">    2042</span>              : // DropTablesUpdateJSONRequestBody defines body for DropTablesUpdate for application/json ContentType.</span>
-<span id="L2043"><span class="lineNum">    2043</span>              : type DropTablesUpdateJSONRequestBody = DropTable</span>
+<span id="L2042"><span class="lineNum">    2042</span>              : // ItemGroupsCreateJSONRequestBody defines body for ItemGroupsCreate for application/json ContentType.</span>
+<span id="L2043"><span class="lineNum">    2043</span>              : type ItemGroupsCreateJSONRequestBody = ItemGroup</span>
 <span id="L2044"><span class="lineNum">    2044</span>              : </span>
-<span id="L2045"><span class="lineNum">    2045</span>              : // EnemyTablesCreateJSONRequestBody defines body for EnemyTablesCreate for application/json ContentType.</span>
-<span id="L2046"><span class="lineNum">    2046</span>              : type EnemyTablesCreateJSONRequestBody = EnemyTable</span>
+<span id="L2045"><span class="lineNum">    2045</span>              : // ItemGroupsUpdateJSONRequestBody defines body for ItemGroupsUpdate for application/json ContentType.</span>
+<span id="L2046"><span class="lineNum">    2046</span>              : type ItemGroupsUpdateJSONRequestBody = ItemGroup</span>
 <span id="L2047"><span class="lineNum">    2047</span>              : </span>
-<span id="L2048"><span class="lineNum">    2048</span>              : // EnemyTablesUpdateJSONRequestBody defines body for EnemyTablesUpdate for application/json ContentType.</span>
-<span id="L2049"><span class="lineNum">    2049</span>              : type EnemyTablesUpdateJSONRequestBody = EnemyTable</span>
+<span id="L2048"><span class="lineNum">    2048</span>              : // ItemTablesCreateJSONRequestBody defines body for ItemTablesCreate for application/json ContentType.</span>
+<span id="L2049"><span class="lineNum">    2049</span>              : type ItemTablesCreateJSONRequestBody = ItemTable</span>
 <span id="L2050"><span class="lineNum">    2050</span>              : </span>
-<span id="L2051"><span class="lineNum">    2051</span>              : // ItemGroupsCreateJSONRequestBody defines body for ItemGroupsCreate for application/json ContentType.</span>
-<span id="L2052"><span class="lineNum">    2052</span>              : type ItemGroupsCreateJSONRequestBody = ItemGroup</span>
+<span id="L2051"><span class="lineNum">    2051</span>              : // ItemTablesUpdateJSONRequestBody defines body for ItemTablesUpdate for application/json ContentType.</span>
+<span id="L2052"><span class="lineNum">    2052</span>              : type ItemTablesUpdateJSONRequestBody = ItemTable</span>
 <span id="L2053"><span class="lineNum">    2053</span>              : </span>
-<span id="L2054"><span class="lineNum">    2054</span>              : // ItemGroupsUpdateJSONRequestBody defines body for ItemGroupsUpdate for application/json ContentType.</span>
-<span id="L2055"><span class="lineNum">    2055</span>              : type ItemGroupsUpdateJSONRequestBody = ItemGroup</span>
+<span id="L2054"><span class="lineNum">    2054</span>              : // ItemsCreateJSONRequestBody defines body for ItemsCreate for application/json ContentType.</span>
+<span id="L2055"><span class="lineNum">    2055</span>              : type ItemsCreateJSONRequestBody = Item</span>
 <span id="L2056"><span class="lineNum">    2056</span>              : </span>
-<span id="L2057"><span class="lineNum">    2057</span>              : // ItemTablesCreateJSONRequestBody defines body for ItemTablesCreate for application/json ContentType.</span>
-<span id="L2058"><span class="lineNum">    2058</span>              : type ItemTablesCreateJSONRequestBody = ItemTable</span>
+<span id="L2057"><span class="lineNum">    2057</span>              : // ItemsUpdateJSONRequestBody defines body for ItemsUpdate for application/json ContentType.</span>
+<span id="L2058"><span class="lineNum">    2058</span>              : type ItemsUpdateJSONRequestBody = Item</span>
 <span id="L2059"><span class="lineNum">    2059</span>              : </span>
-<span id="L2060"><span class="lineNum">    2060</span>              : // ItemTablesUpdateJSONRequestBody defines body for ItemTablesUpdate for application/json ContentType.</span>
-<span id="L2061"><span class="lineNum">    2061</span>              : type ItemTablesUpdateJSONRequestBody = ItemTable</span>
+<span id="L2060"><span class="lineNum">    2060</span>              : // MembersCreateJSONRequestBody defines body for MembersCreate for application/json ContentType.</span>
+<span id="L2061"><span class="lineNum">    2061</span>              : type MembersCreateJSONRequestBody = Member</span>
 <span id="L2062"><span class="lineNum">    2062</span>              : </span>
-<span id="L2063"><span class="lineNum">    2063</span>              : // ItemsCreateJSONRequestBody defines body for ItemsCreate for application/json ContentType.</span>
-<span id="L2064"><span class="lineNum">    2064</span>              : type ItemsCreateJSONRequestBody = Item</span>
+<span id="L2063"><span class="lineNum">    2063</span>              : // MembersUpdateJSONRequestBody defines body for MembersUpdate for application/json ContentType.</span>
+<span id="L2064"><span class="lineNum">    2064</span>              : type MembersUpdateJSONRequestBody = Member</span>
 <span id="L2065"><span class="lineNum">    2065</span>              : </span>
-<span id="L2066"><span class="lineNum">    2066</span>              : // ItemsUpdateJSONRequestBody defines body for ItemsUpdate for application/json ContentType.</span>
-<span id="L2067"><span class="lineNum">    2067</span>              : type ItemsUpdateJSONRequestBody = Item</span>
+<span id="L2066"><span class="lineNum">    2066</span>              : // PalettesCreateJSONRequestBody defines body for PalettesCreate for application/json ContentType.</span>
+<span id="L2067"><span class="lineNum">    2067</span>              : type PalettesCreateJSONRequestBody = Palette</span>
 <span id="L2068"><span class="lineNum">    2068</span>              : </span>
-<span id="L2069"><span class="lineNum">    2069</span>              : // MembersCreateJSONRequestBody defines body for MembersCreate for application/json ContentType.</span>
-<span id="L2070"><span class="lineNum">    2070</span>              : type MembersCreateJSONRequestBody = Member</span>
+<span id="L2069"><span class="lineNum">    2069</span>              : // PalettesUpdateJSONRequestBody defines body for PalettesUpdate for application/json ContentType.</span>
+<span id="L2070"><span class="lineNum">    2070</span>              : type PalettesUpdateJSONRequestBody = Palette</span>
 <span id="L2071"><span class="lineNum">    2071</span>              : </span>
-<span id="L2072"><span class="lineNum">    2072</span>              : // MembersUpdateJSONRequestBody defines body for MembersUpdate for application/json ContentType.</span>
-<span id="L2073"><span class="lineNum">    2073</span>              : type MembersUpdateJSONRequestBody = Member</span>
+<span id="L2072"><span class="lineNum">    2072</span>              : // ProfessionsCreateJSONRequestBody defines body for ProfessionsCreate for application/json ContentType.</span>
+<span id="L2073"><span class="lineNum">    2073</span>              : type ProfessionsCreateJSONRequestBody = Profession</span>
 <span id="L2074"><span class="lineNum">    2074</span>              : </span>
-<span id="L2075"><span class="lineNum">    2075</span>              : // PalettesCreateJSONRequestBody defines body for PalettesCreate for application/json ContentType.</span>
-<span id="L2076"><span class="lineNum">    2076</span>              : type PalettesCreateJSONRequestBody = Palette</span>
+<span id="L2075"><span class="lineNum">    2075</span>              : // ProfessionsUpdateJSONRequestBody defines body for ProfessionsUpdate for application/json ContentType.</span>
+<span id="L2076"><span class="lineNum">    2076</span>              : type ProfessionsUpdateJSONRequestBody = Profession</span>
 <span id="L2077"><span class="lineNum">    2077</span>              : </span>
-<span id="L2078"><span class="lineNum">    2078</span>              : // PalettesUpdateJSONRequestBody defines body for PalettesUpdate for application/json ContentType.</span>
-<span id="L2079"><span class="lineNum">    2079</span>              : type PalettesUpdateJSONRequestBody = Palette</span>
+<span id="L2078"><span class="lineNum">    2078</span>              : // PropsCreateJSONRequestBody defines body for PropsCreate for application/json ContentType.</span>
+<span id="L2079"><span class="lineNum">    2079</span>              : type PropsCreateJSONRequestBody = Prop</span>
 <span id="L2080"><span class="lineNum">    2080</span>              : </span>
-<span id="L2081"><span class="lineNum">    2081</span>              : // ProfessionsCreateJSONRequestBody defines body for ProfessionsCreate for application/json ContentType.</span>
-<span id="L2082"><span class="lineNum">    2082</span>              : type ProfessionsCreateJSONRequestBody = Profession</span>
+<span id="L2081"><span class="lineNum">    2081</span>              : // PropsUpdateJSONRequestBody defines body for PropsUpdate for application/json ContentType.</span>
+<span id="L2082"><span class="lineNum">    2082</span>              : type PropsUpdateJSONRequestBody = Prop</span>
 <span id="L2083"><span class="lineNum">    2083</span>              : </span>
-<span id="L2084"><span class="lineNum">    2084</span>              : // ProfessionsUpdateJSONRequestBody defines body for ProfessionsUpdate for application/json ContentType.</span>
-<span id="L2085"><span class="lineNum">    2085</span>              : type ProfessionsUpdateJSONRequestBody = Profession</span>
+<span id="L2084"><span class="lineNum">    2084</span>              : // RecipesCreateJSONRequestBody defines body for RecipesCreate for application/json ContentType.</span>
+<span id="L2085"><span class="lineNum">    2085</span>              : type RecipesCreateJSONRequestBody = Recipe</span>
 <span id="L2086"><span class="lineNum">    2086</span>              : </span>
-<span id="L2087"><span class="lineNum">    2087</span>              : // PropsCreateJSONRequestBody defines body for PropsCreate for application/json ContentType.</span>
-<span id="L2088"><span class="lineNum">    2088</span>              : type PropsCreateJSONRequestBody = Prop</span>
+<span id="L2087"><span class="lineNum">    2087</span>              : // RecipesUpdateJSONRequestBody defines body for RecipesUpdate for application/json ContentType.</span>
+<span id="L2088"><span class="lineNum">    2088</span>              : type RecipesUpdateJSONRequestBody = Recipe</span>
 <span id="L2089"><span class="lineNum">    2089</span>              : </span>
-<span id="L2090"><span class="lineNum">    2090</span>              : // PropsUpdateJSONRequestBody defines body for PropsUpdate for application/json ContentType.</span>
-<span id="L2091"><span class="lineNum">    2091</span>              : type PropsUpdateJSONRequestBody = Prop</span>
+<span id="L2090"><span class="lineNum">    2090</span>              : // SpriteSheetsCreateJSONRequestBody defines body for SpriteSheetsCreate for application/json ContentType.</span>
+<span id="L2091"><span class="lineNum">    2091</span>              : type SpriteSheetsCreateJSONRequestBody = SpriteSheet</span>
 <span id="L2092"><span class="lineNum">    2092</span>              : </span>
-<span id="L2093"><span class="lineNum">    2093</span>              : // RecipesCreateJSONRequestBody defines body for RecipesCreate for application/json ContentType.</span>
-<span id="L2094"><span class="lineNum">    2094</span>              : type RecipesCreateJSONRequestBody = Recipe</span>
+<span id="L2093"><span class="lineNum">    2093</span>              : // SpriteSheetsUpdateJSONRequestBody defines body for SpriteSheetsUpdate for application/json ContentType.</span>
+<span id="L2094"><span class="lineNum">    2094</span>              : type SpriteSheetsUpdateJSONRequestBody = SpriteSheet</span>
 <span id="L2095"><span class="lineNum">    2095</span>              : </span>
-<span id="L2096"><span class="lineNum">    2096</span>              : // RecipesUpdateJSONRequestBody defines body for RecipesUpdate for application/json ContentType.</span>
-<span id="L2097"><span class="lineNum">    2097</span>              : type RecipesUpdateJSONRequestBody = Recipe</span>
+<span id="L2096"><span class="lineNum">    2096</span>              : // TilesCreateJSONRequestBody defines body for TilesCreate for application/json ContentType.</span>
+<span id="L2097"><span class="lineNum">    2097</span>              : type TilesCreateJSONRequestBody = Tile</span>
 <span id="L2098"><span class="lineNum">    2098</span>              : </span>
-<span id="L2099"><span class="lineNum">    2099</span>              : // SpriteSheetsCreateJSONRequestBody defines body for SpriteSheetsCreate for application/json ContentType.</span>
-<span id="L2100"><span class="lineNum">    2100</span>              : type SpriteSheetsCreateJSONRequestBody = SpriteSheet</span>
-<span id="L2101"><span class="lineNum">    2101</span>              : </span>
-<span id="L2102"><span class="lineNum">    2102</span>              : // SpriteSheetsUpdateJSONRequestBody defines body for SpriteSheetsUpdate for application/json ContentType.</span>
-<span id="L2103"><span class="lineNum">    2103</span>              : type SpriteSheetsUpdateJSONRequestBody = SpriteSheet</span>
-<span id="L2104"><span class="lineNum">    2104</span>              : </span>
-<span id="L2105"><span class="lineNum">    2105</span>              : // TilesCreateJSONRequestBody defines body for TilesCreate for application/json ContentType.</span>
-<span id="L2106"><span class="lineNum">    2106</span>              : type TilesCreateJSONRequestBody = Tile</span>
-<span id="L2107"><span class="lineNum">    2107</span>              : </span>
-<span id="L2108"><span class="lineNum">    2108</span>              : // TilesUpdateJSONRequestBody defines body for TilesUpdate for application/json ContentType.</span>
-<span id="L2109"><span class="lineNum">    2109</span>              : type TilesUpdateJSONRequestBody = Tile</span>
+<span id="L2099"><span class="lineNum">    2099</span>              : // TilesUpdateJSONRequestBody defines body for TilesUpdate for application/json ContentType.</span>
+<span id="L2100"><span class="lineNum">    2100</span>              : type TilesUpdateJSONRequestBody = Tile</span>
         </pre>
               </td>
             </tr>
