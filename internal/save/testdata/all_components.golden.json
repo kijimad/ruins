@@ -104,7 +104,6 @@
           "Description": {
             "Description": "炎属性の剣"
           },
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -132,8 +131,7 @@
           },
           "Value": {
             "Value": 500
-          },
-          "Weapon": {}
+          }
         },
         "stable_id": {
           "generation": 0,
@@ -164,7 +162,6 @@
               "TargetNum": "SINGLE"
             }
           },
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -173,8 +170,7 @@
           },
           "Name": {
             "Name": "ハンドガン"
-          },
-          "Weapon": {}
+          }
         },
         "stable_id": {
           "generation": 0,
@@ -188,7 +184,6 @@
             "AmmoTag": "9mm",
             "DamageBonus": 5
           },
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -216,7 +211,6 @@
             },
             "UsableScene": "ANY"
           },
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -243,7 +237,6 @@
       },
       {
         "components": {
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -261,6 +254,9 @@
           },
           "Stackable": {
             "Count": 0
+          },
+          "Value": {
+            "Value": 0
           }
         },
         "stable_id": {
@@ -270,7 +266,6 @@
       },
       {
         "components": {
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -285,6 +280,9 @@
           },
           "Stackable": {
             "Count": 0
+          },
+          "Value": {
+            "Value": 0
           }
         },
         "stable_id": {
@@ -304,7 +302,6 @@
           "InflictsDamage": {
             "Amount": 40
           },
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -322,7 +319,6 @@
       },
       {
         "components": {
-          "Item": {},
           "LocationInBackpack": {
             "OwnerRef": {
               "generation": 0,
@@ -343,6 +339,9 @@
                 "Name": "木材"
               }
             ]
+          },
+          "Value": {
+            "Value": 0
           }
         },
         "stable_id": {
@@ -352,7 +351,6 @@
       },
       {
         "components": {
-          "Item": {},
           "LocationEquipped": {
             "EquipmentSlot": 1,
             "OwnerRef": {

@@ -45,6 +45,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 	}
 
 	// EntitySpecを構築
+	loc := gc.LocationTypeOnField
 	entitySpec := gc.EntitySpec{
 		Name:        &gc.Name{Name: "扉"},
 		Description: &gc.Description{Description: "開閉できる扉"},
@@ -54,8 +55,9 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumTaller,
 		},
-		BlockPass: &gc.BlockPass{}, // 閉じているので通行不可
-		BlockView: &gc.BlockView{}, // 閉じているので視線を遮る
+		BlockPass:    &gc.BlockPass{}, // 閉じているので通行不可
+		BlockView:    &gc.BlockView{}, // 閉じているので視線を遮る
+		LocationType: &loc,
 		Door: &gc.Door{
 			IsOpen:      false,
 			Orientation: orientation,

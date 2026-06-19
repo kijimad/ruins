@@ -19,7 +19,6 @@ type EntitySpec struct {
 
 	// item ================
 	HP           *HP
-	Item         *Item
 	Consumable   *Consumable
 	CarryWeight  *CarryWeight
 	Melee        *Melee
@@ -29,12 +28,13 @@ type EntitySpec struct {
 	Recipe       *Recipe
 	Wearable     *Wearable
 	Abilities    *Abilities
-	Weapon       *Weapon
 	Ammo         *Ammo
 	Stackable    *Stackable
+	Material     *Material
 	LocationType *LocationType
 
 	// field ================
+	Tile            *Tile
 	AIMoveFSM       *AIMoveFSM
 	AIRoaming       *AIRoaming
 	AIVision        *AIVision
@@ -95,7 +95,6 @@ type Components struct {
 
 	// item ================
 	HP                 *ecs.SliceComponent `save:"true"`
-	Item               *ecs.NullComponent  `save:"true"`
 	Consumable         *ecs.SliceComponent `save:"true"`
 	CarryWeight        *ecs.SliceComponent `save:"true"`
 	Melee              *ecs.SliceComponent `save:"true"`
@@ -105,14 +104,15 @@ type Components struct {
 	Recipe             *ecs.SliceComponent `save:"true"`
 	Wearable           *ecs.SliceComponent `save:"true"`
 	Abilities          *ecs.SliceComponent `save:"true"`
-	Weapon             *ecs.SliceComponent `save:"true"`
 	Ammo               *ecs.SliceComponent `save:"true"`
 	Stackable          *ecs.SliceComponent `save:"true"`
+	Material           *ecs.NullComponent  `save:"true"`
 	LocationInBackpack *ecs.SliceComponent `save:"true"`
 	LocationEquipped   *ecs.SliceComponent `save:"true"`
 	LocationOnField    *ecs.NullComponent
 
 	// field ================
+	Tile            *ecs.NullComponent
 	AIMoveFSM       *ecs.SliceComponent
 	AIRoaming       *ecs.SliceComponent
 	AIVision        *ecs.SliceComponent
@@ -223,10 +223,6 @@ type Camera struct {
 	TargetY float64
 }
 
-// Item はキャラクターが保持できるアイテムを示すマーカーコンポーネント
-// 装備品、武器、回復アイテム、売却アイテム、素材など
-type Item struct{}
-
 // Consumable は消耗品。一度使うとなくなる
 type Consumable struct {
 	UsableScene UsableSceneType
@@ -329,9 +325,6 @@ type StatsChanged struct{}
 // InventoryChanged はインベントリ変動が行われたことを示すダーティーフラグ
 // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
 type InventoryChanged struct{}
-
-// Weapon は武器マーカー。武器スロットへの装備やインベントリでの武器判定に使用する
-type Weapon struct{}
 
 // Ammo は弾薬アイテムの性能を定義する
 type Ammo struct {
@@ -510,6 +503,10 @@ type LocationOnField struct{}
 func (c LocationOnField) String() string {
 	return "LocationOnField"
 }
+
+// Material は素材を表すマーカーコンポーネント。
+// 合成や売却の材料となるアイテムに付与される
+type Material struct{}
 
 // Prop は置物を表すマーカーコンポーネント
 type Prop struct{}

@@ -95,11 +95,9 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 近接武器（バックパック内） ===
 	sword := world.Manager.NewEntity()
-	sword.AddComponent(world.Components.Item, &gc.Item{})
 	sword.AddComponent(world.Components.Name, &gc.Name{Name: "炎の剣"})
 	sword.AddComponent(world.Components.Description, &gc.Description{Description: "炎属性の剣"})
 	sword.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	sword.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	sword.AddComponent(world.Components.Value, &gc.Value{Value: 500})
 	sword.AddComponent(world.Components.Melee, &gc.Melee{
 		Accuracy:    90,
@@ -120,10 +118,8 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 射撃武器（バックパック内） ===
 	gun := world.Manager.NewEntity()
-	gun.AddComponent(world.Components.Item, &gc.Item{})
 	gun.AddComponent(world.Components.Name, &gc.Name{Name: "ハンドガン"})
 	gun.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
-	gun.AddComponent(world.Components.Weapon, &gc.Weapon{})
 	gun.AddComponent(world.Components.Fire, &gc.Fire{
 		Accuracy:    80,
 		Damage:      15,
@@ -149,7 +145,6 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 弾薬（バックパック内、スタック可能） ===
 	ammo := world.Manager.NewEntity()
-	ammo.AddComponent(world.Components.Item, &gc.Item{})
 	ammo.AddComponent(world.Components.Name, &gc.Name{Name: "9mm弾"})
 	ammo.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
 	ammo.AddComponent(world.Components.Stackable, &gc.Stackable{})
@@ -161,7 +156,6 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 防具（装備中） ===
 	armor := world.Manager.NewEntity()
-	armor.AddComponent(world.Components.Item, &gc.Item{})
 	armor.AddComponent(world.Components.Name, &gc.Name{Name: "鋼の鎧"})
 	armor.AddComponent(world.Components.LocationEquipped, &gc.LocationEquipped{
 		Owner:         player,
@@ -180,7 +174,6 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 回復アイテム: RatioAmount（バックパック内） ===
 	potion := world.Manager.NewEntity()
-	potion.AddComponent(world.Components.Item, &gc.Item{})
 	potion.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
 	potion.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
 	potion.AddComponent(world.Components.Stackable, &gc.Stackable{})
@@ -197,7 +190,7 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 回復アイテム: NumeralAmount（バックパック内） ===
 	herb := world.Manager.NewEntity()
-	herb.AddComponent(world.Components.Item, &gc.Item{})
+	herb.AddComponent(world.Components.Value, &gc.Value{})
 	herb.AddComponent(world.Components.Name, &gc.Name{Name: "薬草"})
 	herb.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
 	herb.AddComponent(world.Components.Stackable, &gc.Stackable{})
@@ -207,7 +200,7 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === 食料（バックパック内） ===
 	food := world.Manager.NewEntity()
-	food.AddComponent(world.Components.Item, &gc.Item{})
+	food.AddComponent(world.Components.Value, &gc.Value{})
 	food.AddComponent(world.Components.Name, &gc.Name{Name: "携帯食料"})
 	food.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
 	food.AddComponent(world.Components.Stackable, &gc.Stackable{})
@@ -215,7 +208,6 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === ダメージアイテム（バックパック内） ===
 	grenade := world.Manager.NewEntity()
-	grenade.AddComponent(world.Components.Item, &gc.Item{})
 	grenade.AddComponent(world.Components.Name, &gc.Name{Name: "手榴弾"})
 	grenade.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
 	grenade.AddComponent(world.Components.Consumable, &gc.Consumable{
@@ -229,7 +221,7 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 
 	// === レシピ付きアイテム（バックパック内） ===
 	craftable := world.Manager.NewEntity()
-	craftable.AddComponent(world.Components.Item, &gc.Item{})
+	craftable.AddComponent(world.Components.Value, &gc.Value{})
 	craftable.AddComponent(world.Components.Name, &gc.Name{Name: "合成武器"})
 	craftable.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: player})
 	craftable.AddComponent(world.Components.Recipe, &gc.Recipe{

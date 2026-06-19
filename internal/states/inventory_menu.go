@@ -226,12 +226,17 @@ type windowProps struct {
 }
 
 func (st *InventoryMenuState) fetchProps(world w.World) inventoryProps {
+	categories := world.Components.Categories()[gc.InventoryCategoryKey]
+	tabs := make([]inventoryTabData, len(categories))
+	for i, cat := range categories {
+		tabs[i] = inventoryTabData{
+			ID:    cat.Name,
+			Label: cat.Name,
+			Items: st.createItemData(world, st.queryByCategory(world, cat)),
+		}
+	}
 	return inventoryProps{
-		Tabs: []inventoryTabData{
-			{ID: "items", Label: "道具", Items: st.createItemData(world, st.queryMenuItem(world))},
-			{ID: "weapons", Label: "武器", Items: st.createItemData(world, st.queryMenuWeapon(world))},
-			{ID: "wearables", Label: "防具", Items: st.createItemData(world, st.queryMenuWearable(world))},
-		},
+		Tabs: tabs,
 	}
 }
 
@@ -264,44 +269,18 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 	return items
 }
 
-func (st *InventoryMenuState) queryMenuItem(world w.World) []ecs.Entity {
-	var items []ecs.Entity
+func (st *InventoryMenuState) queryByCategory(world w.World, cat gc.Category) []ecs.Entity {
+	var result []ecs.Entity
 
 	world.Manager.Join(
 		world.Components.LocationInBackpack,
-		world.Components.Wearable.Not(),
-		world.Components.Weapon.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		items = append(items, entity)
+		if cat.Eval(entity) {
+			result = append(result, entity)
+		}
 	}))
 
-	return worldhelper.SortEntities(world, items)
-}
-
-func (st *InventoryMenuState) queryMenuWeapon(world w.World) []ecs.Entity {
-	var items []ecs.Entity
-
-	world.Manager.Join(
-		world.Components.Weapon,
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		items = append(items, entity)
-	}))
-
-	return worldhelper.SortEntities(world, items)
-}
-
-func (st *InventoryMenuState) queryMenuWearable(world w.World) []ecs.Entity {
-	var items []ecs.Entity
-
-	world.Manager.Join(
-		world.Components.Wearable,
-		world.Components.LocationInBackpack,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		items = append(items, entity)
-	}))
-
-	return worldhelper.SortEntities(world, items)
+	return worldhelper.SortEntities(world, result)
 }
 
 // ================

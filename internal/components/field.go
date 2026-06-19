@@ -41,6 +41,9 @@ func (r *Rect) Center() (consts.Tile, consts.Tile) {
 	return x, y
 }
 
+// Tile はタイルエンティティであることを示すタグコンポーネント
+type Tile struct{}
+
 // BlockPass はフィールド上で通過できない
 // TODO: 能動態のほうがわかりやすそう
 type BlockPass struct{}

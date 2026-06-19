@@ -180,17 +180,11 @@ model ComponentsMap {
   /** 味方派閥マーカー */
   FactionAllyData?: MarkerComponent;
 
-  /** アイテムマーカー */
-  Item?: MarkerComponent;
-
   /** バックパック内の位置。所有者エンティティ参照を含む */
   LocationInBackpack?: LocationInBackpackComponent;
 
   /** ステータス変更フラグ */
   StatsChanged?: MarkerComponent;
-
-  /** 武器マーカー */
-  Weapon?: MarkerComponent;
 
   /** スタック可能マーカー */
   Stackable?: MarkerComponent;

@@ -71,10 +71,6 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 		return fmt.Errorf("delta must not be zero")
 	}
 
-	if !entity.HasComponent(world.Components.Item) {
-		return fmt.Errorf("entity does not have Item component")
-	}
-
 	currentCount := GetEntityCount(world, entity)
 	newCount := currentCount + delta
 

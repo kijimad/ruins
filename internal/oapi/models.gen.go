@@ -814,6 +814,9 @@ type Item struct {
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
 
+	// Material 素材アイテムかどうか
+	Material *bool `json:"material,omitempty"`
+
 	// Melee 近接攻撃設定
 	Melee *Melee `json:"melee,omitempty"`
 
@@ -837,9 +840,6 @@ type Item struct {
 
 	// Value 売買価格
 	Value ItemValue `json:"value"`
-
-	// Weapon 武器マーカー
-	Weapon *Weapon `json:"weapon,omitempty"`
 
 	// Wearable 装備可能設定
 	Wearable *Wearable `json:"wearable,omitempty"`
@@ -1411,9 +1411,6 @@ type SaveDataComponentsMap struct {
 	// InflictsDamage ダメージ効果
 	InflictsDamage *SaveDataInflictsDamageComponent `json:"InflictsDamage,omitempty"`
 
-	// Item アイテムマーカー
-	Item *SaveDataMarkerComponent `json:"Item,omitempty"`
-
 	// LightSource 光源設定
 	LightSource *SaveDataLightSourceComponent `json:"LightSource,omitempty"`
 
@@ -1458,9 +1455,6 @@ type SaveDataComponentsMap struct {
 
 	// Wallet 所持金
 	Wallet *SaveDataWalletComponent `json:"Wallet,omitempty"`
-
-	// Weapon 武器マーカー
-	Weapon *SaveDataMarkerComponent `json:"Weapon,omitempty"`
 
 	// Wearable 防具設定
 	Wearable *SaveDataWearableComponent `json:"Wearable,omitempty"`
@@ -2011,9 +2005,6 @@ type WarpNextTriggerRaw = map[string]interface{}
 
 // WaterType 水タイプ
 type WaterType float32
-
-// Weapon 武器マーカー
-type Weapon = map[string]interface{}
 
 // Wearable 装備可能設定
 type Wearable struct {

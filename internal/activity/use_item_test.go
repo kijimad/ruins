@@ -159,7 +159,6 @@ func TestUseItemActivity_DoTurn(t *testing.T) {
 		actor.AddComponent(world.Components.Hunger, hunger)
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item.AddComponent(world.Components.ProvidesNutrition, &gc.ProvidesNutrition{Amount: 100})
 		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
@@ -220,7 +219,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		actor.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
 		item.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
 
 		comp := &gc.Activity{
@@ -251,7 +250,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		assert.Equal(t, ErrItemNotSet, err)
 	})
 
-	t.Run("Itemコンポーネントがない場合はエラー", func(t *testing.T) {
+	t.Run("効果コンポーネントがない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -259,7 +258,6 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		actor.AddComponent(world.Components.HP, &gc.HP{})
 
 		item := world.Manager.NewEntity()
-		// Itemコンポーネントなし
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -269,7 +267,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		ua := &UseItemActivity{}
 		err := ua.Validate(comp, actor, world)
 		assert.Error(t, err)
-		assert.Equal(t, ErrInvalidItem, err)
+		assert.Equal(t, ErrItemNoEffect, err)
 	})
 
 	t.Run("効果がないアイテムの場合はエラー", func(t *testing.T) {
@@ -280,8 +278,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		actor.AddComponent(world.Components.HP, &gc.HP{})
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
-		// 効果コンポーネントなし
+		item.AddComponent(world.Components.Material, &gc.Material{})
 
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorUseItem,
@@ -302,7 +299,7 @@ func TestUseItemActivity_Validate(t *testing.T) {
 		// HPなし
 
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
+		item.AddComponent(world.Components.Consumable, &gc.Consumable{})
 		item.AddComponent(world.Components.ProvidesHealing, &gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: 50}})
 
 		comp := &gc.Activity{

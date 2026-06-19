@@ -62,8 +62,6 @@ func TestDropActivity_Validate(t *testing.T) {
 
 		// バックパック外のアイテムを手動で作成
 		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.Item, &gc.Item{})
-
 		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorDrop,
@@ -306,7 +304,6 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		prop.AddComponent(world.Components.Item, &gc.Item{})
 		worldhelper.MoveToBackpack(world, prop, player)
 
 		// ドロップ実行

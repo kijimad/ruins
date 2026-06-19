@@ -443,10 +443,6 @@ export interface Item {
     'providesHealing'?: ProvidesHealing;
     'wearable'?: Wearable;
     'equipBonus'?: EquipBonus;
-    /**
-     * 武器マーカー
-     */
-    'weapon'?: object;
     'ammo'?: Ammo;
     'melee'?: Melee;
     'fire'?: Fire;
@@ -794,6 +790,14 @@ export interface Prop {
      * 視線を遮るかどうか
      */
     'blockView': boolean;
+    /**
+     * 通行コスト加算値。0で変化なし、50でベースコスト+50
+     */
+    'passCost'?: number;
+    /**
+     * 耐久値。設定すると破壊可能になる
+     */
+    'hp'?: number;
     'lightSource'?: LightSource;
     /**
      * 扉ローデータ
@@ -906,6 +910,733 @@ export interface RecipeInput {
 export interface RecipeList {
     'data': Array<Recipe>;
     'totalCount': number;
+}
+/**
+ * 能力値
+ */
+export interface SaveDataAbilitiesComponent {
+    'Vitality': SaveDataAbilityValue;
+    'Strength': SaveDataAbilityValue;
+    'Sensation': SaveDataAbilityValue;
+    'Dexterity': SaveDataAbilityValue;
+    'Agility': SaveDataAbilityValue;
+    'Defense': SaveDataAbilityValue;
+}
+/**
+ * 単一能力値。基本値・修正値・合計値を持つ
+ */
+export interface SaveDataAbilityValue {
+    /**
+     * 固有の基本値
+     */
+    'Base': number;
+    /**
+     * 装備や状態変化による修正値
+     */
+    'Modifier': number;
+    /**
+     * 算出された現在値
+     */
+    'Total': number;
+}
+/**
+ * 弾薬設定
+ */
+export interface SaveDataAmmoComponent {
+    /**
+     * 弾薬の口径タグ。セーブデータでは任意文字列を許容する
+     */
+    'AmmoTag': string;
+    /**
+     * ダメージ補正値
+     */
+    'DamageBonus': number;
+    /**
+     * 命中率補正値
+     */
+    'AccuracyBonus': number;
+}
+/**
+ * 攻撃種別
+ */
+export interface SaveDataAttackCategoryData {
+    /**
+     * 武器種別の識別子
+     */
+    'Type': string;
+    /**
+     * 近接/遠距離の区分
+     */
+    'Range': SaveDataAttackRangeType;
+    /**
+     * 表示用ラベル
+     */
+    'Label': string;
+}
+
+
+/**
+ * 攻撃射程。types.tspに対応するenumがないためセーブ固有で定義する
+ */
+
+export const SaveDataAttackRangeType = {
+    Melee: 'MELEE',
+    Ranged: 'RANGED',
+} as const;
+
+export type SaveDataAttackRangeType = typeof SaveDataAttackRangeType[keyof typeof SaveDataAttackRangeType];
+
+
+/**
+ * カメラ状態
+ */
+export interface SaveDataCameraComponent {
+    /**
+     * カメラのスケール値
+     */
+    'Scale': number;
+    /**
+     * カメラのスケール値
+     */
+    'ScaleTo': number;
+    /**
+     * カメラ座標
+     */
+    'X': number;
+    /**
+     * カメラ座標
+     */
+    'Y': number;
+    /**
+     * カメラ座標
+     */
+    'TargetX': number;
+    /**
+     * カメラ座標
+     */
+    'TargetY': number;
+}
+/**
+ * 所持重量。最大値と現在値を持つ
+ */
+export interface SaveDataCarryWeightComponent {
+    /**
+     * プール最大値 (浮動小数点)
+     */
+    'Max': number;
+    /**
+     * プール現在値 (浮動小数点)
+     */
+    'Current': number;
+}
+/**
+ * エンティティが持つコンポーネントのマップ。 存在するコンポーネントのみがキーとして含まれる。 保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
+ */
+export interface SaveDataComponentsMap {
+    /**
+     * プレイヤーマーカー
+     */
+    'Player'?: object;
+    /**
+     * 味方派閥マーカー
+     */
+    'FactionAllyData'?: object;
+    /**
+     * バックパック内の位置。所有者エンティティ参照を含む
+     */
+    'LocationInBackpack'?: SaveDataLocationInBackpackComponent;
+    /**
+     * ステータス変更フラグ
+     */
+    'StatsChanged'?: object;
+    /**
+     * スタック可能マーカー
+     */
+    'Stackable'?: object;
+    /**
+     * 装備位置。エンティティ参照を含む
+     */
+    'LocationEquipped'?: SaveDataLocationEquippedComponent;
+    /**
+     * エンティティ名
+     */
+    'Name'?: SaveDataNameComponent;
+    /**
+     * 説明文
+     */
+    'Description'?: SaveDataDescriptionComponent;
+    /**
+     * 生命力
+     */
+    'HP'?: SaveDataHPComponent;
+    /**
+     * 所持重量
+     */
+    'CarryWeight'?: SaveDataCarryWeightComponent;
+    /**
+     * アクションポイントと速度
+     */
+    'TurnBased'?: SaveDataTurnBasedComponent;
+    /**
+     * 能力値
+     */
+    'Abilities'?: SaveDataAbilitiesComponent;
+    /**
+     * カメラ状態
+     */
+    'Camera'?: SaveDataCameraComponent;
+    /**
+     * グリッド上の位置
+     */
+    'GridElement'?: SaveDataGridElementComponent;
+    /**
+     * スプライト描画設定
+     */
+    'SpriteRender'?: SaveDataSpriteRenderComponent;
+    /**
+     * 光源設定
+     */
+    'LightSource'?: SaveDataLightSourceComponent;
+    /**
+     * 防具設定
+     */
+    'Wearable'?: SaveDataWearableComponent;
+    /**
+     * 売買価格
+     */
+    'Value'?: SaveDataValueComponent;
+    /**
+     * 近接攻撃設定
+     */
+    'Melee'?: SaveDataMeleeComponent;
+    /**
+     * 遠距離攻撃設定
+     */
+    'Fire'?: SaveDataFireComponent;
+    /**
+     * レシピ設定
+     */
+    'Recipe'?: SaveDataRecipeComponent;
+    /**
+     * 弾薬設定
+     */
+    'Ammo'?: SaveDataAmmoComponent;
+    /**
+     * 消費可能アイテム設定
+     */
+    'Consumable'?: SaveDataConsumableComponent;
+    /**
+     * 回復効果
+     */
+    'ProvidesHealing'?: SaveDataProvidesHealingComponent;
+    /**
+     * 栄養補給効果
+     */
+    'ProvidesNutrition'?: SaveDataProvidesNutritionComponent;
+    /**
+     * ダメージ効果
+     */
+    'InflictsDamage'?: SaveDataInflictsDamageComponent;
+    /**
+     * 所持金
+     */
+    'Wallet'?: SaveDataWalletComponent;
+}
+/**
+ * 消費可能アイテム設定
+ */
+export interface SaveDataConsumableComponent {
+    'UsableScene': UsableScene;
+    'TargetType': SaveDataTargetTypeData;
+}
+
+
+/**
+ * 説明文
+ */
+export interface SaveDataDescriptionComponent {
+    /**
+     * 説明文。セーブデータでは空文字を許容する
+     */
+    'Description': string;
+}
+/**
+ * 単一エンティティのセーブデータ
+ */
+export interface SaveDataEntitySaveData {
+    /**
+     * エンティティの安定ID
+     */
+    'stable_id': SaveDataStableID;
+    /**
+     * コンポーネントのマップ。キーはコンポーネント型名で、値は型ごとに異なる
+     */
+    'components': SaveDataComponentsMap;
+}
+/**
+ * 装備ボーナス
+ */
+export interface SaveDataEquipBonusData {
+    /**
+     * 能力値ボーナス
+     */
+    'Vitality': number;
+    /**
+     * 能力値ボーナス
+     */
+    'Strength': number;
+    /**
+     * 能力値ボーナス
+     */
+    'Sensation': number;
+    /**
+     * 能力値ボーナス
+     */
+    'Dexterity': number;
+    /**
+     * 能力値ボーナス
+     */
+    'Agility': number;
+}
+/**
+ * イベントの状態
+ */
+export interface SaveDataEventState {
+    /**
+     * イベントがアクティブかどうか
+     */
+    'active': boolean;
+    /**
+     * イベントが表示済みかどうか
+     */
+    'seen': boolean;
+}
+/**
+ * 遠距離攻撃設定
+ */
+export interface SaveDataFireComponent {
+    /**
+     * 命中率。0で必中なし、100で必中
+     */
+    'Accuracy': number;
+    /**
+     * 基本ダメージ
+     */
+    'Damage': number;
+    /**
+     * 1ターンあたりの攻撃回数
+     */
+    'AttackCount': number;
+    'Element': Element;
+    'AttackCategory': SaveDataAttackCategoryData;
+    /**
+     * 行動コスト
+     */
+    'Cost': number;
+    'TargetType': SaveDataTargetTypeData;
+    /**
+     * 現在の装弾数
+     */
+    'Magazine': number;
+    /**
+     * 最大装弾数
+     */
+    'MagazineSize': number;
+    /**
+     * リロード完了に必要な総工数
+     */
+    'ReloadEffort': number;
+    /**
+     * 使用する弾薬の口径タグ
+     */
+    'AmmoTag': string;
+    /**
+     * 装填中の弾薬によるダメージ修正値
+     */
+    'LoadedDamageBonus': number;
+    /**
+     * 装填中の弾薬による命中修正値
+     */
+    'LoadedAccuracyBonus': number;
+}
+
+
+/**
+ * 浮動小数点プール。最大値と現在値を持つ
+ */
+export interface SaveDataFloatPool {
+    /**
+     * プール最大値 (浮動小数点)
+     */
+    'Max': number;
+    /**
+     * プール現在値 (浮動小数点)
+     */
+    'Current': number;
+}
+/**
+ * ゲーム進行状態
+ */
+export interface SaveDataGameProgress {
+    /**
+     * クリア済みダンジョンのマップ。キーはダンジョン名
+     */
+    'cleared_dungeons': { [key: string]: boolean; };
+    /**
+     * イベント状態のマップ。キーはイベント名
+     */
+    'events': { [key: string]: SaveDataEventState; };
+}
+/**
+ * グリッド上の位置 (タイル座標)
+ */
+export interface SaveDataGridElementComponent {
+    /**
+     * タイル座標
+     */
+    'X': number;
+    /**
+     * タイル座標
+     */
+    'Y': number;
+}
+/**
+ * 生命力。最大値と現在値を持つ
+ */
+export interface SaveDataHPComponent {
+    /**
+     * プール最大値 (整数)
+     */
+    'Max': number;
+    /**
+     * プール現在値 (整数)
+     */
+    'Current': number;
+}
+/**
+ * 回復量データ。typeフィールドで計算方式を判別する
+ */
+export interface SaveDataHealingAmountData {
+    /**
+     * 回復量の計算方式
+     */
+    'type': SaveDataHealingAmountType;
+    /**
+     * 最大HPに対する回復割合 (0.0-1.0)。typeが\"ratio\"の場合に使用する
+     */
+    'ratio'?: number;
+    /**
+     * 固定回復量。typeが\"numeral\"の場合に使用する
+     */
+    'numeral'?: number;
+}
+
+
+/**
+ * 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する
+ */
+
+export const SaveDataHealingAmountType = {
+    Ratio: 'ratio',
+    Numeral: 'numeral',
+} as const;
+
+export type SaveDataHealingAmountType = typeof SaveDataHealingAmountType[keyof typeof SaveDataHealingAmountType];
+
+
+/**
+ * ダメージ効果
+ */
+export interface SaveDataInflictsDamageComponent {
+    /**
+     * ダメージ量
+     */
+    'Amount': number;
+}
+/**
+ * 整数プール。最大値と現在値を持つ
+ */
+export interface SaveDataIntPool {
+    /**
+     * プール最大値 (整数)
+     */
+    'Max': number;
+    /**
+     * プール現在値 (整数)
+     */
+    'Current': number;
+}
+/**
+ * 光源設定
+ */
+export interface SaveDataLightSourceComponent {
+    /**
+     * 光の到達半径 (タイル単位)
+     */
+    'Radius': number;
+    /**
+     * RGBA色
+     */
+    'Color': SaveDataRGBAColor;
+    /**
+     * 有効/無効
+     */
+    'Enabled': boolean;
+}
+/**
+ * 装備位置コンポーネント。 Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+ */
+export interface SaveDataLocationEquippedComponent {
+    /**
+     * 装備者のStableID
+     */
+    'OwnerRef': SaveDataStableID;
+    /**
+     * 装備スロット番号
+     */
+    'EquipmentSlot': number;
+}
+/**
+ * バックパック位置コンポーネント。 Ownerフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+ */
+export interface SaveDataLocationInBackpackComponent {
+    /**
+     * 所有者のStableID
+     */
+    'OwnerRef': SaveDataStableID;
+}
+/**
+ * 近接攻撃設定
+ */
+export interface SaveDataMeleeComponent {
+    /**
+     * 命中率。0で必中なし、100で必中
+     */
+    'Accuracy': number;
+    /**
+     * 基本ダメージ
+     */
+    'Damage': number;
+    /**
+     * 1ターンあたりの攻撃回数
+     */
+    'AttackCount': number;
+    'Element': Element;
+    'AttackCategory': SaveDataAttackCategoryData;
+    /**
+     * 行動コスト
+     */
+    'Cost': number;
+    'TargetType': SaveDataTargetTypeData;
+}
+
+
+/**
+ * エンティティ名
+ */
+export interface SaveDataNameComponent {
+    /**
+     * エンティティ名。セーブデータでは空文字を許容する
+     */
+    'Name': string;
+}
+/**
+ * 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
+ */
+export interface SaveDataProvidesHealingComponent {
+    'amount': SaveDataHealingAmountData;
+}
+/**
+ * 栄養補給効果
+ */
+export interface SaveDataProvidesNutritionComponent {
+    /**
+     * 栄養価
+     */
+    'Amount': number;
+}
+/**
+ * RGBA色。各チャネル0-255
+ */
+export interface SaveDataRGBAColor {
+    /**
+     * RGBA色チャネル値 (0-255)
+     */
+    'R': number;
+    /**
+     * RGBA色チャネル値 (0-255)
+     */
+    'G': number;
+    /**
+     * RGBA色チャネル値 (0-255)
+     */
+    'B': number;
+    /**
+     * RGBA色チャネル値 (0-255)
+     */
+    'A': number;
+}
+/**
+ * レシピ設定
+ */
+export interface SaveDataRecipeComponent {
+    'Inputs': Array<SaveDataRecipeInputData>;
+}
+/**
+ * レシピ素材
+ */
+export interface SaveDataRecipeInputData {
+    /**
+     * レシピ素材名
+     */
+    'Name': string;
+    /**
+     * 素材必要数
+     */
+    'Amount': number;
+}
+/**
+ * セーブデータの最上位構造。ファイルに保存されるJSON全体を表す
+ */
+export interface SaveDataSaveData {
+    /**
+     * セーブデータのバージョン。現在は \"1.0.0\" のみ
+     */
+    'version': SaveDataSaveDataVersionEnum;
+    /**
+     * 保存日時 (RFC3339形式)
+     */
+    'timestamp': string;
+    /**
+     * ワールドデータ
+     */
+    'world': SaveDataWorldSaveData;
+    /**
+     * データ改ざん検知用SHA-256ハッシュ値
+     */
+    'checksum': string;
+}
+
+export const SaveDataSaveDataVersionEnum = {
+    _100: '1.0.0',
+} as const;
+
+export type SaveDataSaveDataVersionEnum = typeof SaveDataSaveDataVersionEnum[keyof typeof SaveDataSaveDataVersionEnum];
+
+/**
+ * スプライト描画設定
+ */
+export interface SaveDataSpriteRenderComponent {
+    /**
+     * スプライトシート名。セーブデータではパターン制約を適用しない
+     */
+    'SpriteSheetName': string;
+    /**
+     * スプライトキー。セーブデータではパターン制約を適用しない
+     */
+    'SpriteKey': string;
+    'AnimKeys'?: Array<string> | null;
+    /**
+     * スプライト描画深度
+     */
+    'Depth': number;
+    /**
+     * Ebitengine DrawImageOptions。レンダラ内部状態
+     */
+    'Options'?: { [key: string]: any; };
+}
+/**
+ * エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
+ */
+export interface SaveDataStableID {
+    /**
+     * エンティティインデックス
+     */
+    'index': number;
+    /**
+     * 世代番号。同一インデックスの再利用を区別する
+     */
+    'generation': number;
+}
+/**
+ * 対象指定
+ */
+export interface SaveDataTargetTypeData {
+    'TargetGroup': TargetGroup;
+    'TargetNum': TargetNum;
+}
+
+
+/**
+ * アクションポイントと速度
+ */
+export interface SaveDataTurnBasedComponent {
+    /**
+     * アクションポイント
+     */
+    'AP': SaveDataIntPool;
+    /**
+     * APの毎ターン回復量
+     */
+    'Speed': number;
+}
+/**
+ * 売買価格
+ */
+export interface SaveDataValueComponent {
+    /**
+     * 売買価格
+     */
+    'Value': number;
+}
+/**
+ * 所持金
+ */
+export interface SaveDataWalletComponent {
+    /**
+     * 所持金
+     */
+    'Currency': number;
+}
+/**
+ * 防具設定
+ */
+export interface SaveDataWearableComponent {
+    /**
+     * 防御力
+     */
+    'Defense': number;
+    /**
+     * 装備部位
+     */
+    'EquipmentCategory': EquipmentCategory;
+    /**
+     * 装備ボーナス
+     */
+    'EquipBonus': SaveDataEquipBonusData;
+    /**
+     * 耐寒性能
+     */
+    'InsulationCold': number;
+    /**
+     * 耐暑性能
+     */
+    'InsulationHeat': number;
+}
+
+
+/**
+ * ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する
+ */
+export interface SaveDataWorldSaveData {
+    /**
+     * エンティティの配列。StableIDでソートされる
+     */
+    'entities': Array<SaveDataEntitySaveData>;
+    /**
+     * ゲーム進行状態
+     */
+    'game_progress'?: SaveDataGameProgress;
 }
 /**
  * 遮蔽タイプ

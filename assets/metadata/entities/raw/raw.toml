@@ -6,7 +6,6 @@ spriteSheetName = "field"
 value = 15
 weight = 0.5
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -25,7 +24,6 @@ spriteSheetName = "field"
 value = 10
 weight = 0.5
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SPEAR"
@@ -44,7 +42,6 @@ spriteSheetName = "field"
 value = 320
 weight = 3.5
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -63,7 +60,6 @@ spriteSheetName = "field"
 value = 30
 weight = 0.1
 
-[items.weapon]
 [items.melee]
 accuracy = 95
 attackCategory = "SWORD"
@@ -82,7 +78,6 @@ spriteSheetName = "field"
 value = 350
 weight = 5
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "SWORD"
@@ -101,7 +96,6 @@ spriteSheetName = "field"
 value = 50
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -120,7 +114,6 @@ spriteSheetName = "field"
 value = 60
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -139,7 +132,6 @@ spriteSheetName = "field"
 value = 15
 weight = 0.1
 
-[items.weapon]
 [items.melee]
 accuracy = 95
 attackCategory = "FIST"
@@ -158,7 +150,6 @@ spriteSheetName = "field"
 value = 100
 weight = 0.8
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -177,7 +168,6 @@ spriteSheetName = "field"
 value = 400
 weight = 4.5
 
-[items.weapon]
 [items.melee]
 accuracy = 70
 attackCategory = "SPEAR"
@@ -196,7 +186,6 @@ spriteSheetName = "field"
 value = 160
 weight = 4
 
-[items.weapon]
 [items.melee]
 accuracy = 70
 attackCategory = "FIST"
@@ -215,7 +204,6 @@ spriteSheetName = "field"
 value = 450
 weight = 6
 
-[items.weapon]
 [items.melee]
 accuracy = 65
 attackCategory = "SWORD"
@@ -234,7 +222,6 @@ spriteSheetName = "field"
 value = 5
 weight = 0.05
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -253,7 +240,6 @@ spriteSheetName = "field"
 value = 220
 weight = 5
 
-[items.weapon]
 [items.melee]
 accuracy = 65
 attackCategory = "FIST"
@@ -272,7 +258,6 @@ spriteSheetName = "field"
 value = 30
 weight = 0.3
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -291,7 +276,6 @@ spriteSheetName = "field"
 value = 70
 weight = 1.5
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -310,7 +294,6 @@ spriteSheetName = "field"
 value = 300
 weight = 3
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "SPEAR"
@@ -329,7 +312,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 100
 attackCategory = "FIST"
@@ -348,7 +330,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -367,7 +348,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -386,7 +366,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "FIST"
@@ -405,7 +384,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -424,7 +402,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -443,7 +420,6 @@ spriteSheetName = "field"
 value = 130
 weight = 3
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "SPEAR"
@@ -462,7 +438,6 @@ spriteSheetName = "field"
 value = 500
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "SWORD"
@@ -481,7 +456,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -500,7 +474,6 @@ spriteSheetName = "field"
 value = 120
 weight = 3
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "SWORD"
@@ -519,7 +492,6 @@ spriteSheetName = "field"
 value = 300
 weight = 3
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -539,7 +511,6 @@ stackable = true
 value = 10
 weight = 0.3
 
-[items.weapon]
 [items.melee]
 accuracy = 100
 attackCategory = "FIST"
@@ -558,7 +529,6 @@ spriteSheetName = "field"
 value = 80
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 100
 attackCategory = "SWORD"
@@ -577,7 +547,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "FIST"
@@ -596,7 +565,6 @@ spriteSheetName = "field"
 value = 260
 weight = 1.8
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "SWORD"
@@ -615,7 +583,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -634,7 +601,6 @@ spriteSheetName = "field"
 value = 240
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -653,7 +619,6 @@ spriteSheetName = "field"
 value = 250
 weight = 1.8
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "SPEAR"
@@ -672,7 +637,6 @@ spriteSheetName = "field"
 value = 40
 weight = 5
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "FIST"
@@ -691,7 +655,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -710,7 +673,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -729,7 +691,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -748,7 +709,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 100
 attackCategory = "FIST"
@@ -767,7 +727,6 @@ spriteSheetName = "field"
 value = 320
 weight = 1.8
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -786,7 +745,6 @@ spriteSheetName = "field"
 value = 280
 weight = 3
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -805,7 +763,6 @@ spriteSheetName = "field"
 value = 180
 weight = 1
 
-[items.weapon]
 [items.melee]
 accuracy = 95
 attackCategory = "SWORD"
@@ -824,7 +781,6 @@ spriteSheetName = "field"
 value = 25
 weight = 0.3
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -843,7 +799,6 @@ spriteSheetName = "field"
 value = 280
 weight = 1.5
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "SWORD"
@@ -862,7 +817,6 @@ spriteSheetName = "field"
 value = 15
 weight = 0.1
 
-[items.weapon]
 [items.melee]
 accuracy = 95
 attackCategory = "FIST"
@@ -881,7 +835,6 @@ spriteSheetName = "field"
 value = 380
 weight = 5
 
-[items.weapon]
 [items.melee]
 accuracy = 70
 attackCategory = "SWORD"
@@ -900,7 +853,6 @@ spriteSheetName = "field"
 value = 40
 weight = 1.5
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -919,7 +871,6 @@ spriteSheetName = "field"
 value = 20
 weight = 0.05
 
-[items.weapon]
 [items.melee]
 accuracy = 95
 attackCategory = "FIST"
@@ -938,7 +889,6 @@ spriteSheetName = "field"
 value = 90
 weight = 1
 
-[items.weapon]
 [items.melee]
 accuracy = 100
 attackCategory = "SWORD"
@@ -957,7 +907,6 @@ spriteSheetName = "field"
 value = 200
 weight = 2.5
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "SWORD"
@@ -976,7 +925,6 @@ spriteSheetName = "field"
 value = 200
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -995,7 +943,6 @@ spriteSheetName = "field"
 value = 180
 weight = 2.5
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "SWORD"
@@ -1014,7 +961,6 @@ spriteSheetName = "field"
 value = 50
 weight = 0.8
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -1033,7 +979,6 @@ spriteSheetName = "field"
 value = 160
 weight = 3
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -1052,7 +997,6 @@ spriteSheetName = "field"
 value = 60
 weight = 0.5
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -1071,7 +1015,6 @@ spriteSheetName = "field"
 value = 0
 weight = 0
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -1090,7 +1033,6 @@ spriteSheetName = "field"
 value = 420
 weight = 5.5
 
-[items.weapon]
 [items.melee]
 accuracy = 65
 attackCategory = "SWORD"
@@ -1109,7 +1051,6 @@ spriteSheetName = "field"
 value = 480
 weight = 6
 
-[items.weapon]
 [items.melee]
 accuracy = 65
 attackCategory = "SWORD"
@@ -1128,7 +1069,6 @@ spriteSheetName = "field"
 value = 350
 weight = 1.5
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "SWORD"
@@ -1147,7 +1087,6 @@ spriteSheetName = "field"
 value = 480
 weight = 120
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "FIST"
@@ -1179,7 +1118,6 @@ spriteSheetName = "field"
 value = 420
 weight = 140
 
-[items.weapon]
 [items.melee]
 accuracy = 75
 attackCategory = "FIST"
@@ -1211,7 +1149,6 @@ spriteSheetName = "field"
 value = 480
 weight = 20
 
-[items.weapon]
 [items.melee]
 accuracy = 80
 attackCategory = "FIST"
@@ -1243,7 +1180,6 @@ spriteSheetName = "field"
 value = 150
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -1275,7 +1211,6 @@ spriteSheetName = "field"
 value = 280
 weight = 2
 
-[items.weapon]
 [items.melee]
 accuracy = 90
 attackCategory = "FIST"
@@ -1307,7 +1242,6 @@ spriteSheetName = "field"
 value = 340
 weight = 10
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -1339,7 +1273,6 @@ spriteSheetName = "field"
 value = 150
 weight = 1
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -1371,7 +1304,6 @@ spriteSheetName = "field"
 value = 380
 weight = 4
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -1403,7 +1335,6 @@ spriteSheetName = "field"
 value = 350
 weight = 10
 
-[items.weapon]
 [items.melee]
 accuracy = 85
 attackCategory = "FIST"
@@ -1435,7 +1366,6 @@ spriteSheetName = "field"
 value = 90
 weight = 0.5
 
-[items.weapon]
 [items.fire]
 accuracy = 80
 attackCategory = "BOW"
@@ -1456,7 +1386,6 @@ spriteSheetName = "field"
 value = 60
 weight = 0.1
 
-[items.weapon]
 [items.fire]
 accuracy = 90
 attackCategory = "BOW"
@@ -1477,7 +1406,6 @@ spriteSheetName = "field"
 value = 360
 weight = 1.5
 
-[items.weapon]
 [items.fire]
 accuracy = 90
 attackCategory = "BOW"
@@ -1498,7 +1426,6 @@ spriteSheetName = "field"
 value = 180
 weight = 1.5
 
-[items.weapon]
 [items.fire]
 accuracy = 85
 attackCategory = "BOW"
@@ -1519,7 +1446,6 @@ spriteSheetName = "field"
 value = 280
 weight = 3
 
-[items.weapon]
 [items.fire]
 accuracy = 80
 attackCategory = "BOW"
@@ -1540,7 +1466,6 @@ spriteSheetName = "field"
 value = 140
 weight = 0.5
 
-[items.weapon]
 [items.fire]
 accuracy = 85
 attackCategory = "BOW"
@@ -6863,6 +6788,7 @@ spriteKey = "weight_measure"
 spriteSheetName = "field"
 value = 50
 weight = 1
+material = true
 
 [[items]]
 description = "甘い蜂蜜。傷口に塗ると治癒を促進する"
@@ -6872,6 +6798,7 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = 0.2
+material = true
 
 [[items]]
 description = "お湯を沸かすための金属製の容器"
@@ -6880,6 +6807,7 @@ spriteKey = "kettle"
 spriteSheetName = "field"
 value = 20
 weight = 0.5
+material = true
 
 [[items]]
 description = "わかめの形をした化石。珍しい標本"
@@ -6889,6 +6817,7 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = 0.15
+material = true
 
 [[items]]
 description = "微量の放射性物質を含む動力核"
@@ -6898,6 +6827,7 @@ spriteSheetName = "field"
 stackable = true
 value = 400
 weight = 0.2
+material = true
 
 [[items]]
 description = "軽量で加工しやすい金属素材"
@@ -6907,6 +6837,7 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = 0.3
+material = true
 
 [[items]]
 description = "深い緑色に輝く希少な宝石"
@@ -6916,6 +6847,7 @@ spriteSheetName = "field"
 stackable = true
 value = 2000
 weight = 0.03
+material = true
 
 [[items]]
 description = "Ω型の金属部品。用途は不明"
@@ -6925,6 +6857,7 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = 0.1
+material = true
 
 [[items]]
 description = "キノコから抽出した液体が入った瓶"
@@ -6934,6 +6867,7 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = 0.2
+material = true
 
 [[items]]
 description = "ケーブルを束ねたもの。電気工事に使える"
@@ -6943,6 +6877,7 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = 2
+material = true
 
 [[items]]
 description = "方角を示す携帯器具。探索の助けになる"
@@ -6951,6 +6886,7 @@ spriteKey = "compass"
 spriteSheetName = "field"
 value = 80
 weight = 0.1
+material = true
 
 [[items]]
 description = "絡まったケーブルの束。素材として使える"
@@ -6960,6 +6896,7 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = 0.2
+material = true
 
 [[items]]
 description = "香ばしい匂いのコーヒー豆。焙煎すると飲み物になる"
@@ -6969,6 +6906,7 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = 0.1
+material = true
 
 [[items]]
 description = "清潔なタオル。素材として使える"
@@ -6978,6 +6916,7 @@ spriteSheetName = "field"
 stackable = true
 value = 8
 weight = 0.15
+material = true
 
 [[items]]
 description = "バッテリーを充電する小型装置"
@@ -6987,6 +6926,7 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = 0.15
+material = true
 
 [[items]]
 description = "紅茶を淹れるための急須"
@@ -6995,6 +6935,7 @@ spriteKey = "teapot"
 spriteSheetName = "field"
 value = 25
 weight = 0.4
+material = true
 
 [[items]]
 description = "傷だらけのクマのぬいぐるみ。誰かが大切にしていたようだ"
@@ -7003,6 +6944,7 @@ spriteKey = "teddy_bear"
 spriteSheetName = "field"
 value = 15
 weight = 0.2
+material = true
 
 [[items]]
 description = "廃墟でよく見つかる。交易に使える"
@@ -7012,6 +6954,7 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = 0.1
+material = true
 
 [[items]]
 description = "透明感のある黄金色の宝石"
@@ -7021,6 +6964,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1500
 weight = 0.03
+material = true
 
 [[items]]
 description = "食パンを焼く小型の電気機器"
@@ -7029,6 +6973,7 @@ spriteKey = "toaster"
 spriteSheetName = "field"
 value = 30
 weight = 1
+material = true
 
 [[items]]
 description = "小さな赤い心臓の形をしたお守り"
@@ -7038,6 +6983,7 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = 0.05
+material = true
 
 [[items]]
 description = "日除けに使う携帯用の傘"
@@ -7046,6 +6992,7 @@ spriteKey = "parasol"
 spriteSheetName = "field"
 value = 40
 weight = 0.8
+material = true
 
 [[items]]
 description = "フェライト製の磁性体"
@@ -7055,6 +7002,7 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = 0.5
+material = true
 
 [[items]]
 description = "磁力で淡く光る石。照明や動力源に使われる"
@@ -7064,6 +7012,7 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = 0.15
+material = true
 
 [[items]]
 description = "裁縫に使う足踏み式のミシン"
@@ -7072,6 +7021,7 @@ spriteKey = "sewing_machine"
 spriteSheetName = "field"
 value = 80
 weight = 10
+material = true
 
 [[items]]
 description = "リング型のエネルギー電池"
@@ -7081,6 +7031,7 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = 0.05
+material = true
 
 [[items]]
 description = "赤く光る鉱物。高価な装飾用に加工される"
@@ -7090,6 +7041,7 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = 0.05
+material = true
 
 [[items]]
 description = "古い蓄音機用のレコード盤。音楽が入っている"
@@ -7098,6 +7050,7 @@ spriteKey = "record"
 spriteSheetName = "field"
 value = 30
 weight = 0.2
+material = true
 
 [[items]]
 description = "赤い絶縁被覆の電線を切る工具"
@@ -7106,6 +7059,7 @@ spriteKey = "red_wire_cutter"
 spriteSheetName = "field"
 value = 25
 weight = 0.3
+material = true
 
 [[items]]
 description = "三色に輝く不思議な杖。複数の属性を操る"
@@ -7115,6 +7069,7 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = 0.8
+material = true
 
 [[items]]
 description = "交換可能な小型エネルギーセル"
@@ -7124,6 +7079,7 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = 0.05
+material = true
 
 [[items]]
 description = "色褪せた写真。誰かの思い出の品"
@@ -7133,6 +7089,7 @@ spriteSheetName = "field"
 stackable = true
 value = 10
 weight = 0.01
+material = true
 
 [[items]]
 description = "実験用の耐熱ガラス容器。化学反応に使う"
@@ -7142,6 +7099,7 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = 0.3
+material = true
 
 [[items]]
 description = "古びた地球儀。かつての世界の姿を映している"
@@ -7150,6 +7108,7 @@ spriteKey = "old_earth"
 spriteSheetName = "field"
 value = 80
 weight = 2
+material = true
 
 [[items]]
 description = "錆びついた真鍮の歯車。精巧な工芸技術で作られている"
@@ -7159,6 +7118,7 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = 0.3
+material = true
 
 [[items]]
 description = "精巧な装飾が施された陶製の壺。骨董品として価値が高い"
@@ -7168,6 +7128,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1800
 weight = 2.5
+material = true
 
 [[items]]
 description = "長い年月を経た動物の骨。異様に硬く軽い"
@@ -7177,6 +7138,7 @@ spriteSheetName = "field"
 stackable = true
 value = 4
 weight = 0.2
+material = true
 
 [[items]]
 description = "失われた文明の通貨"
@@ -7186,6 +7148,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1500
 weight = 0.01
+material = true
 
 [[items]]
 description = "天体の周回を計測する精密機器"
@@ -7195,6 +7158,7 @@ spriteSheetName = "field"
 stackable = true
 value = 250
 weight = 0.3
+material = true
 
 [[items]]
 description = "大きな虹色の水晶。強い魔力を感じる"
@@ -7204,6 +7168,7 @@ spriteSheetName = "field"
 stackable = true
 value = 2500
 weight = 0.5
+material = true
 
 [[items]]
 description = "純白に輝く美しい羽根"
@@ -7213,6 +7178,7 @@ spriteSheetName = "field"
 stackable = true
 value = 3200
 weight = 0.005
+material = true
 
 [[items]]
 description = "宇宙由来の角張った鉱石"
@@ -7222,6 +7188,7 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = 0.1
+material = true
 
 [[items]]
 description = "各種実験に使う丈夫なガラス容器"
@@ -7231,6 +7198,7 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = 0.3
+material = true
 
 [[items]]
 description = "尖った石。投げつければ武器にもなる"
@@ -7240,6 +7208,7 @@ spriteSheetName = "field"
 stackable = true
 value = 2
 weight = 0.3
+material = true
 
 [[items]]
 description = "乾燥した草。燃料や家畜の餌に使える"
@@ -7249,6 +7218,7 @@ spriteSheetName = "field"
 stackable = true
 value = 2
 weight = 0.5
+material = true
 
 [[items]]
 description = "まだ拍動している不思議な心臓"
@@ -7258,6 +7228,7 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = 0.3
+material = true
 
 [[items]]
 description = "小型の戦車の模型。精巧に作られている"
@@ -7266,6 +7237,7 @@ spriteKey = "light_tank"
 spriteSheetName = "field"
 value = 200
 weight = 1
+material = true
 
 [[items]]
 description = "扇子。仰げば涼しい風が起きる"
@@ -7274,6 +7246,7 @@ spriteKey = "folding_fan"
 spriteSheetName = "field"
 value = 15
 weight = 0.1
+material = true
 
 [[items]]
 description = "紙を折って作った芸術作品。小さいが精巧"
@@ -7283,6 +7256,7 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = 0.01
+material = true
 
 [[items]]
 description = "斜めに結晶化した珍しい水晶"
@@ -7292,6 +7266,7 @@ spriteSheetName = "field"
 stackable = true
 value = 350
 weight = 0.2
+material = true
 
 [[items]]
 description = "鮮やかな緑色に光る石"
@@ -7301,6 +7276,7 @@ spriteSheetName = "field"
 stackable = true
 value = 180
 weight = 0.3
+material = true
 
 [[items]]
 description = "夜空から落ちた神秘的な鉱石"
@@ -7310,6 +7286,7 @@ spriteSheetName = "field"
 stackable = true
 value = 2000
 weight = 0.02
+material = true
 
 [[items]]
 description = "星の輝きを宿す結晶。装飾品として高い価値がある"
@@ -7319,6 +7296,7 @@ spriteSheetName = "field"
 stackable = true
 value = 2500
 weight = 0.05
+material = true
 
 [[items]]
 description = "隕石から取れる特殊な金属。普通の鉄より遥かに硬い"
@@ -7328,6 +7306,7 @@ spriteSheetName = "field"
 stackable = true
 value = 400
 weight = 1.5
+material = true
 
 [[items]]
 description = "積み上げられた木材。建築資材として使える"
@@ -7337,6 +7316,7 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = 10
+material = true
 
 [[items]]
 description = "柔らかい枕。快適な睡眠に欠かせない"
@@ -7345,6 +7325,7 @@ spriteKey = "pillow"
 spriteSheetName = "field"
 value = 10
 weight = 0.5
+material = true
 
 [[items]]
 description = "布や革を染めるための色素。さまざまな色がある"
@@ -7354,6 +7335,7 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = 0.1
+material = true
 
 [[items]]
 description = "固まった樹脂。琥珀に近い質感がある"
@@ -7363,6 +7345,7 @@ spriteSheetName = "field"
 stackable = true
 value = 60
 weight = 0.2
+material = true
 
 [[items]]
 description = "樹脂で作られた精巧な工芸品"
@@ -7372,6 +7355,7 @@ spriteSheetName = "field"
 stackable = true
 value = 180
 weight = 0.1
+material = true
 
 [[items]]
 description = "橙色に光る珍しい鉱石"
@@ -7381,6 +7365,7 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = 0.5
+material = true
 
 [[items]]
 description = "機械装置の中核となる部品"
@@ -7390,6 +7375,7 @@ spriteSheetName = "field"
 stackable = true
 value = 180
 weight = 0.2
+material = true
 
 [[items]]
 description = "透明な結晶を砕いた粉末。微かに光を放っている"
@@ -7399,6 +7385,7 @@ spriteSheetName = "field"
 stackable = true
 value = 6
 weight = 0.1
+material = true
 
 [[items]]
 description = "水平を測る道具。精密な建築に必要"
@@ -7407,6 +7394,7 @@ spriteKey = "spirit_level"
 spriteSheetName = "field"
 value = 35
 weight = 0.5
+material = true
 
 [[items]]
 description = "冷たく青い石。触れると手が凍りつきそうになる"
@@ -7416,6 +7404,7 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = 0.5
+material = true
 
 [[items]]
 description = "わずかに浮力を持つ不思議な石"
@@ -7425,6 +7414,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.05
+material = true
 
 [[items]]
 description = "海底から引き上げられた立方体の結晶"
@@ -7434,6 +7424,7 @@ spriteSheetName = "field"
 stackable = true
 value = 600
 weight = 0.3
+material = true
 
 [[items]]
 description = "渦巻き模様の入った鉱石"
@@ -7443,6 +7434,7 @@ spriteSheetName = "field"
 stackable = true
 value = 70
 weight = 0.2
+material = true
 
 [[items]]
 description = "何かが燃え尽きた後の灰"
@@ -7452,6 +7444,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1
 weight = 0.05
+material = true
 
 [[items]]
 description = "獣から剥いだ毛皮。丈夫で防水性に優れる"
@@ -7461,6 +7454,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 1
+material = true
 
 [[items]]
 description = "太古の樹液が化石化した宝石。中に小さな虫が閉じ込められている"
@@ -7470,6 +7464,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.1
+material = true
 
 [[items]]
 description = "重ねられた皿の山。割れ物注意"
@@ -7478,6 +7473,7 @@ spriteKey = "stacked_dishs"
 spriteSheetName = "field"
 value = 10
 weight = 3
+material = true
 
 [[items]]
 description = "ありふれた石。特に価値はないが投げれば武器になる"
@@ -7487,6 +7483,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1
 weight = 1
+material = true
 
 [[items]]
 description = "石で作られた器具。何かを固定するために使う"
@@ -7496,6 +7493,7 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = 2
+material = true
 
 [[items]]
 description = "古代文字が刻まれた石の板"
@@ -7505,6 +7503,7 @@ spriteSheetName = "field"
 stackable = true
 value = 40
 weight = 0.8
+material = true
 
 [[items]]
 description = "黒く光る石炭。燃料として使える"
@@ -7514,6 +7513,7 @@ spriteSheetName = "field"
 stackable = true
 value = 10
 weight = 1
+material = true
 
 [[items]]
 description = "細かい砂が詰められた瓶。時計の素材になる"
@@ -7523,6 +7523,7 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = 0.3
+material = true
 
 [[items]]
 description = "重くて頑丈な木材。建築資材として優秀"
@@ -7532,6 +7533,7 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = 3
+material = true
 
 [[items]]
 description = "植物由来のエネルギー核"
@@ -7541,6 +7543,7 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = 0.1
+material = true
 
 [[items]]
 description = "巨大な竜の頭骨。装飾品として非常に価値がある"
@@ -7550,6 +7553,7 @@ spriteSheetName = "field"
 stackable = true
 value = 5000
 weight = 2
+material = true
 
 [[items]]
 description = "研磨されていない茶色い水晶の原石"
@@ -7559,6 +7563,7 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = 0.5
+material = true
 
 [[items]]
 description = "湿った粘土。陶器の原料になる"
@@ -7568,6 +7573,7 @@ spriteSheetName = "field"
 stackable = true
 value = 3
 weight = 1
+material = true
 
 [[items]]
 description = "透き通った美しい結晶。魔力を増幅させる性質がある"
@@ -7577,6 +7583,7 @@ spriteSheetName = "field"
 stackable = true
 value = 600
 weight = 0.3
+material = true
 
 [[items]]
 description = "高貴な紫色に輝く宝石"
@@ -7586,6 +7593,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1200
 weight = 0.03
+material = true
 
 [[items]]
 description = "紫色に光るエネルギー核"
@@ -7595,6 +7603,7 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = 0.15
+material = true
 
 [[items]]
 description = "紫色に輝く星形の鉱石"
@@ -7604,6 +7613,7 @@ spriteSheetName = "field"
 stackable = true
 value = 350
 weight = 0.05
+material = true
 
 [[items]]
 description = "美しい紫色の水晶"
@@ -7613,6 +7623,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.4
+material = true
 
 [[items]]
 description = "深い紫色の鉱石。魔力の源とされる"
@@ -7622,6 +7633,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.3
+material = true
 
 [[items]]
 description = "淡い緑色をした小さな石"
@@ -7631,6 +7643,7 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = 0.3
+material = true
 
 [[items]]
 description = "緑色の格子状の結晶体"
@@ -7640,6 +7653,7 @@ spriteSheetName = "field"
 stackable = true
 value = 50
 weight = 0.15
+material = true
 
 [[items]]
 description = "森のような緑色の水晶"
@@ -7649,6 +7663,7 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = 0.2
+material = true
 
 [[items]]
 description = "緑の水晶が含まれた原石"
@@ -7658,6 +7673,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.4
+material = true
 
 [[items]]
 description = "柔らかい鳥の羽根。工芸素材として使われる"
@@ -7667,6 +7683,7 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = 0.01
+material = true
 
 [[items]]
 description = "キノコの胞子が入った密封瓶"
@@ -7676,6 +7693,7 @@ spriteSheetName = "field"
 stackable = true
 value = 80
 weight = 0.2
+material = true
 
 [[items]]
 description = "透明度が高く美しい琥珀。装飾品に適している"
@@ -7685,6 +7703,7 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = 0.05
+material = true
 
 [[items]]
 description = "苔に覆われた古い石。魔力を帯びている"
@@ -7694,6 +7713,7 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = 0.4
+material = true
 
 [[items]]
 description = "煙のような茶色い水晶。スモーキークォーツとも呼ばれる"
@@ -7703,6 +7723,7 @@ spriteSheetName = "field"
 stackable = true
 value = 250
 weight = 0.2
+material = true
 
 [[items]]
 description = "錆びた茶色の歯車。まだ使えそうだ"
@@ -7712,6 +7733,7 @@ spriteSheetName = "field"
 stackable = true
 value = 40
 weight = 0.3
+material = true
 
 [[items]]
 description = "茶色い液体が入った薬瓶"
@@ -7721,6 +7743,7 @@ spriteSheetName = "field"
 stackable = true
 value = 30
 weight = 0.2
+material = true
 
 [[items]]
 description = "精製された純粋な水が入った瓶"
@@ -7730,6 +7753,7 @@ spriteSheetName = "field"
 stackable = true
 value = 15
 weight = 0.3
+material = true
 
 [[items]]
 description = "深い藍色をした不思議な石"
@@ -7739,6 +7763,7 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = 0.3
+material = true
 
 [[items]]
 description = "虚無のエネルギーを宿す漆黒の石"
@@ -7748,6 +7773,7 @@ spriteSheetName = "field"
 stackable = true
 value = 500
 weight = 0.2
+material = true
 
 [[items]]
 description = "七色に光る美しい水晶"
@@ -7757,6 +7783,7 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = 0.2
+material = true
 
 [[items]]
 description = "光の角度で虹色に変わる不思議な石"
@@ -7766,6 +7793,7 @@ spriteSheetName = "field"
 stackable = true
 value = 400
 weight = 0.3
+material = true
 
 [[items]]
 description = "蛇の毒液が入った危険な瓶。武器に塗ることができる"
@@ -7775,6 +7803,7 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = 0.2
+material = true
 
 [[items]]
 description = "蛇のような模様がある石。解毒作用があると信じられている"
@@ -7784,6 +7813,7 @@ spriteSheetName = "field"
 stackable = true
 value = 120
 weight = 0.3
+material = true
 
 [[items]]
 description = "何者かの血が封じられた小瓶。禍々しい"
@@ -7793,6 +7823,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.2
+material = true
 
 [[items]]
 description = "特に美しい輝きをもつ宝石。高額で取引される"
@@ -7802,6 +7833,7 @@ spriteSheetName = "field"
 stackable = true
 value = 3000
 weight = 0.03
+material = true
 
 [[items]]
 description = "赤く染まった液体。何かの血のようだ"
@@ -7811,6 +7843,7 @@ spriteSheetName = "field"
 stackable = true
 value = 5
 weight = 0.2
+material = true
 
 [[items]]
 description = "深紅に染まった鉱石。触れると温かい"
@@ -7820,6 +7853,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.8
+material = true
 
 [[items]]
 description = "枯れかけた観葉植物。まだ少し緑が残っている"
@@ -7828,6 +7862,7 @@ spriteKey = "houseplants"
 spriteSheetName = "field"
 value = 15
 weight = 2
+material = true
 
 [[items]]
 description = "実験用のガラス管。少量の液体を扱うのに便利"
@@ -7837,6 +7872,7 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = 0.05
+material = true
 
 [[items]]
 description = "豆から抽出したエキスが入った小瓶"
@@ -7846,6 +7882,7 @@ spriteSheetName = "field"
 stackable = true
 value = 40
 weight = 0.2
+material = true
 
 [[items]]
 description = "血のような赤色をした石。温かみがある"
@@ -7855,6 +7892,7 @@ spriteSheetName = "field"
 stackable = true
 value = 100
 weight = 0.3
+material = true
 
 [[items]]
 description = "赤い石が組み込まれた歯車。魔力で動く"
@@ -7864,6 +7902,7 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = 0.3
+material = true
 
 [[items]]
 description = "火山岩に含まれる鉱物。暗い緑色をしている"
@@ -7873,6 +7912,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.3
+material = true
 
 [[items]]
 description = "純金で作られた精密な歯車。非常に高価"
@@ -7882,6 +7922,7 @@ spriteSheetName = "field"
 stackable = true
 value = 1000
 weight = 0.2
+material = true
 
 [[items]]
 description = "加工しやすく産業の中核をなす金属"
@@ -7891,6 +7932,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 2
+material = true
 
 [[items]]
 description = "鉄を多く含む金属の塊"
@@ -7900,6 +7942,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 1
+material = true
 
 [[items]]
 description = "未加工の鉄鉱石。製錬すれば鉄になる"
@@ -7909,6 +7952,7 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = 3
+material = true
 
 [[items]]
 description = "淡く光る銀色の金属片。不浄なものを退ける力があるとされる"
@@ -7918,6 +7962,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.2
+material = true
 
 [[items]]
 description = "古い鎖の一部。何かを繋ぎ止めていた痕跡がある"
@@ -7927,6 +7972,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 1.2
+material = true
 
 [[items]]
 description = "隕石から採掘された希少な鉱石"
@@ -7936,6 +7982,7 @@ spriteSheetName = "field"
 stackable = true
 value = 800
 weight = 2
+material = true
 
 [[items]]
 description = "雷に打たれて生まれた石。微かに電気を帯びている"
@@ -7945,6 +7992,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.6
+material = true
 
 [[items]]
 description = "銅色の電線。導電性に優れる"
@@ -7954,6 +8002,7 @@ spriteSheetName = "field"
 stackable = true
 value = 8
 weight = 0.3
+material = true
 
 [[items]]
 description = "霧が結晶化したような不思議な物質。触れると冷たい"
@@ -7963,6 +8012,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.3
+material = true
 
 [[items]]
 description = "澄んだ青色の水晶。冷気を感じる"
@@ -7972,6 +8022,7 @@ spriteSheetName = "field"
 stackable = true
 value = 300
 weight = 0.2
+material = true
 
 [[items]]
 description = "青い水晶が埋まった原石"
@@ -7981,6 +8032,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.4
+material = true
 
 [[items]]
 description = "骨で作られた不気味な歯車"
@@ -7990,6 +8042,7 @@ spriteSheetName = "field"
 stackable = true
 value = 150
 weight = 0.3
+material = true
 
 [[items]]
 description = "黄色い弾力のある球体。何に使えるか不明"
@@ -7999,6 +8052,7 @@ spriteSheetName = "field"
 stackable = true
 value = 20
 weight = 0.1
+material = true
 
 [[items]]
 description = "黄色い被覆の電線"
@@ -8008,6 +8062,7 @@ spriteSheetName = "field"
 stackable = true
 value = 8
 weight = 0.3
+material = true
 
 [[items]]
 description = "黒く輝く動力核。高い出力を持つ"
@@ -8017,6 +8072,7 @@ spriteSheetName = "field"
 stackable = true
 value = 450
 weight = 0.2
+material = true
 
 [[items]]
 description = "漆黒に輝く火山ガラス。鋭い刃を作るのに適している"
@@ -8026,6 +8082,7 @@ spriteSheetName = "field"
 stackable = true
 value = 0
 weight = 0.5
+material = true
 
 [[items]]
 description = "深海から取れる漆黒の真珠。極めて稀少"
@@ -8035,6 +8092,7 @@ spriteSheetName = "field"
 stackable = true
 value = 3500
 weight = 0.02
+material = true
 
 [[items]]
 description = "爆発物の原料になる危険な粉末"
@@ -8044,6 +8102,7 @@ spriteSheetName = "field"
 stackable = true
 value = 200
 weight = 0.2
+material = true
 
 [[recipes]]
 name = "レイガン"

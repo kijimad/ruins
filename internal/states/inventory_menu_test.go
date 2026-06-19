@@ -33,9 +33,9 @@ func TestInventoryMenuState_FetchProps(t *testing.T) {
 	props := state.fetchProps(world)
 
 	assert.Equal(t, 3, len(props.Tabs), "タブは3つ（道具、武器、防具）")
-	assert.Equal(t, "items", props.Tabs[0].ID)
-	assert.Equal(t, "weapons", props.Tabs[1].ID)
-	assert.Equal(t, "wearables", props.Tabs[2].ID)
+	assert.Equal(t, "道具", props.Tabs[0].ID)
+	assert.Equal(t, "武器", props.Tabs[1].ID)
+	assert.Equal(t, "防具", props.Tabs[2].ID)
 }
 
 func TestInventoryMenuState_TabNavigation(t *testing.T) {

@@ -49,7 +49,6 @@ func TestFormatItemName(t *testing.T) {
 			itemEntity.AddComponent(world.Components.Name, &gc.Name{
 				Name: tt.itemName,
 			})
-			itemEntity.AddComponent(world.Components.Item, &gc.Item{})
 			if tt.itemCount > 1 {
 				itemEntity.AddComponent(world.Components.Stackable, &gc.Stackable{Count: tt.itemCount})
 			}
@@ -66,7 +65,6 @@ func TestFormatItemName(t *testing.T) {
 
 		// Nameコンポーネントなしのエンティティ
 		itemEntity := world.Manager.NewEntity()
-		itemEntity.AddComponent(world.Components.Item, &gc.Item{})
 		itemEntity.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 5})
 
 		got := worldhelper.FormatItemName(world, itemEntity)

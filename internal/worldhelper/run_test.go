@@ -42,8 +42,8 @@ func TestPreviewEndRun(t *testing.T) {
 	assert.GreaterOrEqual(t, healingCount, 2, "追加した回復薬が個別に含まれている")
 
 	// プレビュー段階ではエンティティが残っていることを確認する
-	assert.True(t, item1.HasComponent(world.Components.Item), "プレビュー段階ではアイテム1が残っている")
-	assert.True(t, item2.HasComponent(world.Components.Item), "プレビュー段階ではアイテム2が残っている")
+	assert.True(t, item1.HasComponent(world.Components.Name), "プレビュー段階ではアイテム1が残っている")
+	assert.True(t, item2.HasComponent(world.Components.Name), "プレビュー段階ではアイテム2が残っている")
 }
 
 func TestExecuteEndRun(t *testing.T) {
@@ -71,7 +71,6 @@ func TestExecuteEndRun(t *testing.T) {
 	// 職業が再適用されていることを確認する
 	hasEquipped := false
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationEquipped,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		hasEquipped = true

@@ -97,7 +97,6 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	// バックパック内のアイテム数をカウント（統合前）
 	itemCountBefore := 0
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountBefore++
@@ -110,7 +109,6 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	// バックパック内のアイテム数をカウント（統合後）
 	itemCountAfter := 0
 	world.Manager.Join(
-		world.Components.Item,
 		world.Components.LocationInBackpack,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		itemCountAfter++

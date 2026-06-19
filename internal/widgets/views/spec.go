@@ -18,6 +18,11 @@ import (
 func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Entity) {
 	targetContainer.RemoveChildren()
 
+	// アイテム種別カテゴリを表示する
+	if cat, ok := world.Components.CategoryOf(gc.ItemTypeCategoryKey, entity); ok {
+		addCategoryInfo(targetContainer, cat, world)
+	}
+
 	// 各コンポーネントの情報を追加
 	if entity.HasComponent(world.Components.Melee) {
 		melee := world.Components.Melee.Get(entity).(*gc.Melee)
@@ -59,6 +64,10 @@ func UpdateSpec(world w.World, targetContainer *widget.Container, entity ecs.Ent
 func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec gc.EntitySpec) {
 	targetContainer.RemoveChildren()
 
+	if cat, ok := world.Components.CategoryOfSpec(gc.ItemTypeCategoryKey, &spec); ok {
+		addCategoryInfo(targetContainer, cat, world)
+	}
+
 	if spec.Melee != nil {
 		addAttackerInfo(targetContainer, spec.Melee, world)
 	}
@@ -84,6 +93,16 @@ func UpdateSpecFromSpec(world w.World, targetContainer *widget.Container, spec g
 	if spec.Weight != nil {
 		addWeightInfo(targetContainer, spec.Weight, world)
 	}
+}
+
+// addCategoryInfo はアイテム種別カテゴリのラベルを追加する
+func addCategoryInfo(targetContainer *widget.Container, cat string, world w.World) {
+	res := world.Resources.UIResources
+	columnWidths := []int{70, 80}
+
+	table := styled.NewTableContainer(columnWidths, res)
+	styled.NewTableRow(table, columnWidths, []string{"種別", cat}, specTableAligns, nil, res)
+	targetContainer.AddChild(table)
 }
 
 // specTableAligns はspec表示テーブルの揃え方向（ラベル左、値右）

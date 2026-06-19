@@ -264,7 +264,8 @@ func (st *CraftMenuState) queryMenuWeapon(world w.World) []string {
 		if err != nil {
 			continue
 		}
-		if spec.Weapon != nil {
+		// TODO: カテゴリ定義で判定したい
+		if spec.Melee != nil || spec.Fire != nil {
 			items = append(items, recipe.Name)
 		}
 	}

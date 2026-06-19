@@ -191,7 +191,6 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// 素早さを上げる装備を作成
 		equipment := world.Manager.NewEntity()
-		equipment.AddComponent(world.Components.Item, &gc.Item{})
 		equipment.AddComponent(world.Components.Name, &gc.Name{Name: "素早さの指輪"})
 		equipment.AddComponent(world.Components.Wearable, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentJewelry,
@@ -261,7 +260,6 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// 体力を上げる装備を作成
 		equipment := world.Manager.NewEntity()
-		equipment.AddComponent(world.Components.Item, &gc.Item{})
 		equipment.AddComponent(world.Components.Name, &gc.Name{Name: "体力の鎧"})
 		equipment.AddComponent(world.Components.Wearable, &gc.Wearable{
 			EquipmentCategory: gc.EquipmentTorso,

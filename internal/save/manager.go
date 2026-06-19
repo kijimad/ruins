@@ -146,20 +146,14 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 	}
 }
 
-// extractEntity はエンティティのコンポーネントをSaveData型に変換する
-func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) oapi.SaveDataEntitySaveData {
-	stableID := sm.stableIDManager.GetStableID(entity)
-	c := world.Components
-	comp := oapi.SaveDataComponentsMap{}
-
-	// マーカーコンポーネント (NullComponent)
+// extractMarkers はマーカーコンポーネントとStackableを抽出する
+func (sm *SerializationManager) extractMarkers(entity ecs.Entity, c *gc.Components, comp *oapi.SaveDataComponentsMap) {
 	if entity.HasComponent(c.Player) {
 		comp.Player = emptyMarker()
 	}
 	if entity.HasComponent(c.FactionAlly) {
 		comp.FactionAllyData = emptyMarker()
 	}
-	// LocationInBackpack（エンティティ参照を含む）
 	if entity.HasComponent(c.LocationInBackpack) {
 		backpack := c.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
 		ownerStableID := sm.stableIDManager.GetStableID(backpack.Owner)
@@ -170,22 +164,20 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.StatsChanged) {
 		comp.StatsChanged = emptyMarker()
 	}
-
-	// マーカーコンポーネント (SliceComponent, 空struct)
-	if entity.HasComponent(c.Weapon) {
-		comp.Weapon = emptyMarker()
-	}
-	// Item (NullComponent, マーカー)
-	if entity.HasComponent(c.Item) {
-		comp.Item = emptyMarker()
-	}
-
-	// Stackable (SliceComponent, Countフィールドあり)
 	if entity.HasComponent(c.Stackable) {
 		stackable := c.Stackable.Get(entity).(*gc.Stackable)
 		m := oapi.SaveDataMarkerComponent{"Count": stackable.Count}
 		comp.Stackable = &m
 	}
+}
+
+// extractEntity はエンティティのコンポーネントをSaveData型に変換する
+func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) oapi.SaveDataEntitySaveData {
+	stableID := sm.stableIDManager.GetStableID(entity)
+	c := world.Components
+	comp := oapi.SaveDataComponentsMap{}
+
+	sm.extractMarkers(entity, c, &comp)
 
 	// データコンポーネント
 	if entity.HasComponent(c.Name) {
@@ -383,15 +375,6 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	}
 	if comp.StatsChanged != nil {
 		entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
-	}
-
-	// マーカーコンポーネント (SliceComponent, 空struct)
-	if comp.Weapon != nil {
-		entity.AddComponent(c.Weapon, &gc.Weapon{})
-	}
-	// Item (NullComponent, マーカー)
-	if comp.Item != nil {
-		entity.AddComponent(c.Item, &gc.Item{})
 	}
 
 	// Stackable (Countフィールドあり)
