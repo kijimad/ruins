@@ -139,8 +139,7 @@ const (
 	CategoryTile   = "タイル"
 )
 
-// has は Components のフィールド名を自動解決して Has を生成する。
-// Label の手書きが不要になり、フィールド名との不整合を防ぐ
+// has は Components のフィールド名を自動解決して Has を生成する
 func (c *Components) has(comp ecs.DataComponent) Has {
 	val := reflect.ValueOf(c).Elem()
 	typ := val.Type()
