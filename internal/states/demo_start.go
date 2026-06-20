@@ -23,10 +23,6 @@ func (st DemoStartState) String() string {
 
 // OnStart はステート開始時にデフォルトプレイヤーを生成し、TownStateへの遷移を設定する
 func (st *DemoStartState) OnStart(world w.World) error {
-	if existing, err := worldhelper.GetPlayerEntity(world); err == nil {
-		world.Manager.DeleteEntity(existing)
-	}
-
 	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 	if err != nil {
 		return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
