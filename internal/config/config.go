@@ -46,8 +46,8 @@ type Config struct {
 	// エンカウントを無効化するかどうか
 	NoEncounter bool `env:"RUINS_NO_ENCOUNTER"`
 
-	// キャラクター作成をスキップして拠点から開始するかどうか
-	DemoStart bool `env:"RUINS_DEMO_START"`
+	// オープニング演出をスキップするかどうか
+	SkipOpening bool `env:"RUINS_SKIP_OPENING"`
 	// アニメーション演出を無効化するかどうか
 	DisableAnimation bool `env:"RUINS_DISABLE_ANIMATION"`
 
@@ -123,8 +123,8 @@ func (c *Config) applyProductionDefaults() {
 	}
 
 	// ゲーム設定
-	if os.Getenv("RUINS_DEMO_START") == "" {
-		c.DemoStart = false
+	if os.Getenv("RUINS_SKIP_OPENING") == "" {
+		c.SkipOpening = false
 	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false
@@ -192,8 +192,8 @@ func (c *Config) applyDevelopmentDefaults() {
 	}
 
 	// ゲーム設定
-	if os.Getenv("RUINS_DEMO_START") == "" {
-		c.DemoStart = true
+	if os.Getenv("RUINS_SKIP_OPENING") == "" {
+		c.SkipOpening = true
 	}
 	if os.Getenv("RUINS_DISABLE_ANIMATION") == "" {
 		c.DisableAnimation = false

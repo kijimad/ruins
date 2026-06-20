@@ -132,7 +132,7 @@ type mainMenuItem struct {
 
 func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 	var startFuncs []es.StateFactory[w.World]
-	if world.Config.DemoStart {
+	if world.Config.SkipOpening {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState}
 	} else {
 		startFuncs = []es.StateFactory[w.World]{NewCharacterNamingState, NewOpeningState}
