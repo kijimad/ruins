@@ -21,6 +21,7 @@ func (st DemoStartState) String() string {
 	return "DemoStart"
 }
 
+// OnStart はステート開始時にデフォルトプレイヤーを生成し、TownStateへの遷移を設定する
 func (st *DemoStartState) OnStart(world w.World) error {
 	// 既存プレイヤーがいれば削除する
 	if existing, err := worldhelper.GetPlayerEntity(world); err == nil {
@@ -47,14 +48,21 @@ func (st *DemoStartState) OnStart(world w.World) error {
 	return nil
 }
 
-func (st *DemoStartState) OnStop(_ w.World) error   { return nil }
-func (st *DemoStartState) OnPause(_ w.World) error  { return nil }
+// OnStop はステートが停止される際に呼ばれる
+func (st *DemoStartState) OnStop(_ w.World) error { return nil }
+
+// OnPause はステートが一時停止される際に呼ばれる
+func (st *DemoStartState) OnPause(_ w.World) error { return nil }
+
+// OnResume はステートが再開される際に呼ばれる
 func (st *DemoStartState) OnResume(_ w.World) error { return nil }
 
+// Update はOnStartで設定された遷移を消費してTownStateに遷移する
 func (st *DemoStartState) Update(_ w.World) (es.Transition[w.World], error) {
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はスクリーンに描画する
 func (st *DemoStartState) Draw(_ w.World, screen *ebiten.Image) error {
 	screen.Fill(theme.ScreenBackground)
 	return nil
