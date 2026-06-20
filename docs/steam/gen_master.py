@@ -20,7 +20,7 @@ def pixelate(image, scale):
 def darken(image, factor):
     return ImageEnhance.Brightness(image).enhance(factor)
 
-img = Image.open("docs/steam/parts/dungeon.jpg").convert("RGB")
+img = Image.open("docs/steam/source/dungeon.jpg").convert("RGB")
 
 prompt = "dark ancient stone dungeon, tall stone archway in the center leading to another dark room beyond, endless corridors receding into darkness, massive bright blue glowing crystal formations covering the walls and ceiling, large ice crystal clusters everywhere, frozen crystalline surfaces, frost and ice on stone, warm orange torch light from above contrasting with blue crystals, symmetrical composition, cold dark atmosphere, fantasy dungeon, dramatic depth, detailed, high quality"
 neg = "blurry, text, watermark, person, character, bright, overexposed, dead end, outdoor, empty walls, plain walls"
@@ -39,5 +39,5 @@ result = pipe(
 # ピクセルアート化と暗化は crop_assets.sh で各アセットサイズに応じて行う
 master = result.resize((3840, 2560), Image.LANCZOS)
 
-master.save("docs/steam/parts/master_3840x2560.png")
+master.save("docs/steam/generated/master_3840x2560.png")
 print(f"Master saved: {master.size}")

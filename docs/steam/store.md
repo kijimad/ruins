@@ -113,15 +113,29 @@ A turn-based roguelike about risk and retreat. Descend into frozen ruins as a sc
 早期アクセスの詳細については、公式の早期アクセスFAQをご覧ください。
 ```
 
-### このゲームをアーリーアクセスにする理由は？
+### このゲームをアーリーアクセスにする理由は？ / Why Early Access?
+
+#### 日本語
 
 ゲームの核となるダンジョン探索・戦闘・撤退判断のループは完成しており、十分に遊べる状態です。しかし、コンテンツの拡充やバランス調整にはプレイヤーからのフィードバックが欠かせません。アーリーアクセスを通じて実際のプレイデータや意見を反映しながら、より良いゲームに仕上げていきます。
 
-### アーリーアクセスはおよそどのくらいの期間ですか？
+#### 英語
+
+The core gameplay loop — dungeon exploration, combat, and the decision of when to retreat — is complete and fully playable. However, expanding content and fine-tuning game balance requires real player feedback. Through Early Access, we will incorporate player data and opinions to shape the game into its best version.
+
+### アーリーアクセスはおよそどのくらいの期間ですか？ / Approximately how long will this game be in Early Access?
+
+#### 日本語
 
 約6〜12ヶ月を予定しています。コンテンツの追加状況とフィードバックの反映度合いに応じて調整します。
 
-### 正式リリース版はアーリーアクセス版とどう違う予定ですか？
+#### 英語
+
+Approximately 6 to 12 months. The timeline may be adjusted based on the pace of content additions and community feedback.
+
+### 正式リリース版はアーリーアクセス版とどう違う予定ですか？ / How is the full version planned to differ from the Early Access version?
+
+#### 日本語
 
 正式リリース版では以下の追加・改善を予定しています:
 - ダンジョンの種類とフロア数の追加
@@ -132,7 +146,20 @@ A turn-based roguelike about risk and retreat. Descend into frozen ruins as a sc
 - UIの改善
 - サウンドとBGMの追加
 
-### アーリーアクセス版の現在の状態は？
+#### 英語
+
+The full version is planned to include:
+- More dungeon types and additional floors
+- More enemy types and bosses
+- More classes and skills
+- More items and equipment
+- Refined game balance
+- UI improvements
+- Additional sound effects and music
+
+### アーリーアクセス版の現在の状態は？ / What is the current state of the Early Access version?
+
+#### 日本語
 
 以下の機能が実装済みで、一通りのゲームループをプレイできます:
 - 自動生成される複数階層のダンジョン探索
@@ -142,10 +169,32 @@ A turn-based roguelike about risk and retreat. Descend into frozen ruins as a sc
 - 街での売買と装備の準備
 - 任意のタイミングでの帰還
 
-### アーリーアクセス期間中と終了後で価格は変わりますか？
+#### 英語
+
+The following features are implemented and the full gameplay loop is playable:
+- Procedurally generated multi-floor dungeon exploration
+- Turn-based combat with weapon switching
+- Survival strategy through body temperature and weight management
+- Class selection and use-based skill progression
+- Buying and selling at the town hub
+- Voluntary retreat at any time
+
+### アーリーアクセス期間中と終了後で価格は変わりますか？ / Will the game be priced differently during and after Early Access?
+
+#### 日本語
 
 正式リリース時にコンテンツ量に応じて価格を見直す可能性がありますが、アーリーアクセス中に購入された方は追加費用なく正式版をプレイできます。
 
-### 開発にコミュニティをどう参加させる予定ですか？
+#### 英語
+
+The price may be adjusted at full release depending on the amount of content added. Players who purchase during Early Access will receive the full version at no additional cost.
+
+### 開発にコミュニティをどう参加させる予定ですか？ / How are you planning on involving the Community in your development process?
+
+#### 日本語
 
 Steam コミュニティの掲示板やディスカッションを通じてフィードバックを受け付けます。バグ報告、バランスに関する意見、機能リクエストを参考にアップデートの優先順位を決定します。
+
+#### 英語
+
+We will gather feedback through Steam Community discussions and forums. Bug reports, balance suggestions, and feature requests will help us prioritize updates.

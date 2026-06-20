@@ -66,6 +66,7 @@ $ make help
 
 - http://jikasei.me/font/jf-dotfont/
 - https://github.com/googlefonts/morisawa-biz-ud-gothic
+- https://font.download/font/augustus
 
 画像。
 

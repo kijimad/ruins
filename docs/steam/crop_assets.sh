@@ -4,6 +4,11 @@
 #
 # 使い方: bash docs/steam/crop_assets.sh
 #
+# 依存:
+#   - ImageMagick (magick)
+#   - Augustus フォント (assets/file/fonts/augustus/AUGUSTUS.TTF) — logo.svg のレンダリングに必要
+#     未インストールの場合: cp assets/file/fonts/augustus/AUGUSTUS.TTF ~/.fonts/ && fc-cache -f
+#
 # マスター画像の再生成:
 #   export LD_LIBRARY_PATH="/nix/store/chqq8mpmpyfi9kgsngya71akv5xicn03-gcc-15.2.0-lib/lib:/tmp/nvidia_libs"
 #   source /tmp/sd_venv/bin/activate
@@ -11,14 +16,14 @@
 
 set -euo pipefail
 
-MASTER="docs/steam/parts/master_3840x2560.png"
-OUT="docs/steam/final"
-LOGO_SVG="docs/steam/parts/logo.svg"
+MASTER="docs/steam/generated/master_3840x2560.png"
+OUT="docs/steam/generated"
+LOGO_SVG="docs/steam/source/logo.svg"
 
 mkdir -p "$OUT"
 
 # SVG ロゴを一度だけ大きな透過 PNG にレンダリングする
-LOGO_PNG="docs/steam/parts/logo.png"
+LOGO_PNG="docs/steam/generated/logo.png"
 magick -background none "$LOGO_SVG" \
   -fuzz 100% -fill white -opaque black \
   "$LOGO_PNG"
