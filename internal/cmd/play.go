@@ -106,7 +106,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 
 	// 開始ステートの決定
 	var initialState es.State[w.World]
-	if cfg.QuickStart {
+	if cfg.DemoStart {
 		initialState = gs.NewDemoStartState()
 	} else {
 		initialState = &gs.MainMenuState{}
