@@ -8,15 +8,11 @@
 #   - ImageMagick (magick)
 #   - Augustus フォント (assets/file/fonts/augustus/AUGUSTUS.TTF) — logo.svg のレンダリングに必要
 #     未インストールの場合: cp assets/file/fonts/augustus/AUGUSTUS.TTF ~/.fonts/ && fc-cache -f
-#
-# マスター画像の再生成:
-#   export LD_LIBRARY_PATH="/nix/store/chqq8mpmpyfi9kgsngya71akv5xicn03-gcc-15.2.0-lib/lib:/tmp/nvidia_libs"
-#   source /tmp/sd_venv/bin/activate
-#   python docs/steam/gen_master.py
 
 set -euo pipefail
 
 MASTER="docs/steam/generated/master_3840x2560.png"
+MASTER_VERT="docs/steam/generated/master_vert_2560x3840.png"
 OUT="docs/steam/generated"
 LOGO_SVG="docs/steam/source/logo.svg"
 
@@ -81,8 +77,9 @@ render_logo() {
 generate_capsule() {
   local w=$1 h=$2 fname=$3
   local crop_w=$4 crop_h=$5 scale=$6 logo_gravity=$7
+  local master_src=${8:-$MASTER}
 
-  magick "$MASTER" -gravity center -crop "${crop_w}x${crop_h}+0+0" +repage \
+  magick "$master_src" -gravity center -crop "${crop_w}x${crop_h}+0+0" +repage \
     -resize "${w}x${h}!" /tmp/steam_crop.png
   pixelate /tmp/steam_crop.png "$w" "$h" "$scale" /tmp/steam_crop.png
   # 暗すぎると端が黒枠に見えて Steam にリジェクトされるため、控えめに暗化する
@@ -115,14 +112,15 @@ generate_capsule() {
   echo "$fname (${w}x${h})"
 }
 
-# 各カプセルのクロップサイズはマスター 3840x2560 からアスペクト比に合わせて計算
-#                                       w    h    filename              crop_w crop_h scale gravity
+# 各カプセルのクロップサイズはマスターからアスペクト比に合わせて計算
+# 横長はマスター (3840x2560)、縦長は縦長マスター (2560x3840) を使用する
+#                                       w    h    filename              crop_w crop_h scale gravity  master
 generate_capsule                        462  174  small_capsule.png     3840   1446   2    center
 generate_capsule                        920  430  header_capsule.png    3840   1794   3    center
 generate_capsule                        920  430  library_header.png    3840   1794   3    center
 generate_capsule                       1232  706  main_capsule.png      3840   2200   3    center
-generate_capsule                        748  896  vertical_capsule.png  2138   2560   3    north
-generate_capsule                        600  900  library_capsule.png   1707   2560   3    north
+generate_capsule                        748  896  vertical_capsule.png  2560   3066   2    north   "$MASTER_VERT"
+generate_capsule                        600  900  library_capsule.png   2560   3840   2    north   "$MASTER_VERT"
 
 # --- ゲームタイトル用画像 960x720 ---
 # 比率 960:720 = 4:3 → 3840x2880 だがマスターは 2560 高なので 3413x2560 からクロップ
