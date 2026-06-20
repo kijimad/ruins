@@ -468,6 +468,12 @@ func NewDungeonState(depth int, opts ...DungeonStateOption) es.StateFactory[w.Wo
 	}
 }
 
+// NewDemoStartState はデモ用の初期化ステートを作成するファクトリー関数
+// キャラクター作成をスキップしてデフォルトのプレイヤーを生成し、TownStateに遷移する
+func NewDemoStartState() es.State[w.World] {
+	return &DemoStartState{}
+}
+
 // NewTownState は街のステートを作成するファクトリー関数
 func NewTownState(opts ...DungeonStateOption) es.StateFactory[w.World] {
 	allOpts := make([]DungeonStateOption, 0, 2+len(opts))
