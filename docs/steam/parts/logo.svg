@@ -1,53 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-
 <svg
    width="3600mm"
    height="1000mm"
    viewBox="0 0 3600 1000"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
-   sodipodi:docname="drawing.svg"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview1"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm"
-     inkscape:zoom="0.063858969"
-     inkscape:cx="4830.958"
-     inkscape:cy="2795.2221"
-     inkscape:window-width="1910"
-     inkscape:window-height="1013"
-     inkscape:window-x="5"
-     inkscape:window-y="19"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="layer1" />
-  <defs
-     id="defs1" />
-  <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+   xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs1" />
+  <g id="layer1">
+    <!-- タイトル文字 -->
     <text
        xml:space="preserve"
-       style="font-size:1058.33px;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-width:0.264583"
+       style="font-size:1058.33px;fill:#000000;stroke-width:0.264583"
        x="3.6627867"
        y="890.44653"
        id="text1"><tspan
-         sodipodi:role="line"
          id="tspan1"
          style="font-style:normal;font-variant:normal;font-weight:100;font-stretch:normal;font-size:1058.33px;font-family:Augustus;-inkscape-font-specification:'Augustus Thin';stroke-width:0.264583"
          x="3.6627867"
          y="890.44653">Ruins</tspan></text>
+    <!-- 装飾ライン: 文字下に左右に伸びる細線 + 中央ダイヤモンド -->
+    <g id="ornament" transform="translate(1800, 950)">
+      <!-- 中央のダイヤモンド -->
+      <polygon points="0,-30 25,0 0,30 -25,0" fill="#000000" />
+      <!-- 左ライン -->
+      <line x1="-40" y1="0" x2="-800" y2="0" stroke="#000000" stroke-width="4" />
+      <line x1="-780" y1="-10" x2="-780" y2="10" stroke="#000000" stroke-width="4" />
+      <!-- 右ライン -->
+      <line x1="40" y1="0" x2="800" y2="0" stroke="#000000" stroke-width="4" />
+      <line x1="780" y1="-10" x2="780" y2="10" stroke="#000000" stroke-width="4" />
+    </g>
   </g>
 </svg>
