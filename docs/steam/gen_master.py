@@ -16,7 +16,7 @@
 
 import torch
 from diffusers import AutoPipelineForImage2Image
-from PIL import Image, ImageEnhance
+from PIL import Image
 
 pipe = AutoPipelineForImage2Image.from_pretrained(
     "stabilityai/sd-turbo",
@@ -31,9 +31,6 @@ def pixelate(image, scale):
     w, h = image.size
     small = image.resize((w // scale, h // scale), Image.LANCZOS)
     return small.resize((w, h), Image.NEAREST)
-
-def darken(image, factor):
-    return ImageEnhance.Brightness(image).enhance(factor)
 
 img = Image.open("docs/steam/source/dungeon.jpg").convert("RGB")
 
