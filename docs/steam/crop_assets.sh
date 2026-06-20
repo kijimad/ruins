@@ -14,7 +14,6 @@ set -euo pipefail
 MASTER="docs/steam/parts/master_3840x2560.png"
 OUT="docs/steam/final"
 LOGO_SVG="docs/steam/parts/logo.svg"
-FONT="$HOME/.fonts/AUGUSTUS.TTF"
 
 mkdir -p "$OUT"
 
@@ -24,9 +23,6 @@ magick -background none "$LOGO_SVG" \
   -fuzz 100% -fill white -opaque black \
   "$LOGO_PNG"
 
-# 各アセットサイズに応じたピクセルアート化を行う
-# LANCZOS で縮小 → Point (NEAREST) で拡大し、ピクセルブロック感を出す
-# 各アセットサイズに応じたピクセルアート化を ImageMagick で行う
 # LANCZOS で縮小 → Point (NEAREST) で拡大し、ピクセルブロック感を出す
 pixelate() {
   local input=$1 w=$2 h=$3 scale=$4 output=$5
@@ -53,8 +49,7 @@ magick /tmp/steam_crop.png -modulate 60 "$OUT/page_background.png"
 echo "page_background.png (1438x810)"
 
 # --- ロゴ描画関数 ---
-# 光彩 + アウトライン + グラデーション塗りでロゴを生成する
-# 引数: 幅 高さ pointsize gravity y_offset 出力ファイル
+# ロゴ PNG をリサイズし、影付きで背景に合成する
 render_logo() {
   local w=$1 h=$2 logo_h=$3 gravity=$4 y_off=$5 output=$6
 
