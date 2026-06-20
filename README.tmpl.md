@@ -1,5 +1,7 @@
 ![coverage](https://kijimad.github.io/ruins/cov/coverage.svg)
 
+![Ruins](docs/steam/generated/library_header.png)
+
 ローグライク。
 
 - [play](https://kijimad.github.io/ruins/)
@@ -66,6 +68,7 @@ $ make help
 
 - http://jikasei.me/font/jf-dotfont/
 - https://github.com/googlefonts/morisawa-biz-ud-gothic
+- https://font.download/font/augustus
 
 画像。
 
