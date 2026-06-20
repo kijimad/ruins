@@ -141,6 +141,7 @@ func (st *MainMenuState) fetchProps(world w.World) mainMenuProps {
 	return mainMenuProps{
 		Items: []mainMenuItem{
 			{Label: "開始", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: startFuncs}},
+			{Label: "デモ", Transition: es.Transition[w.World]{Type: es.TransReplace, NewStateFuncs: []es.StateFactory[w.World]{NewDemoStartState}}},
 			{Label: "読込", Transition: es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewLoadMenuState}}},
 			{Label: "終了", Transition: es.Transition[w.World]{Type: es.TransQuit}},
 		},

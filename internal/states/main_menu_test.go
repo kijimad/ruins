@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -31,10 +32,11 @@ func TestMainMenuState_FetchProps(t *testing.T) {
 
 	props := state.fetchProps(world)
 
-	assert.Equal(t, 3, len(props.Items), "メニュー項目は3つ")
+	assert.Equal(t, 4, len(props.Items), "メニュー項目は4つ")
 	assert.Equal(t, "開始", props.Items[0].Label)
-	assert.Equal(t, "読込", props.Items[1].Label)
-	assert.Equal(t, "終了", props.Items[2].Label)
+	assert.Equal(t, "デモ", props.Items[1].Label)
+	assert.Equal(t, "読込", props.Items[2].Label)
+	assert.Equal(t, "終了", props.Items[3].Label)
 }
 
 func TestMainMenuState_Navigation(t *testing.T) {
@@ -89,7 +91,7 @@ func TestMainMenuState_CircularNavigation(t *testing.T) {
 	state.menuMount.Dispatch(inputmapper.ActionMenuUp)
 	state.menuMount.Update()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](state.menuMount, "menu")
-	assert.Equal(t, 2, menuState.ItemIndex, "循環して最後の項目に移動")
+	assert.Equal(t, 3, menuState.ItemIndex, "循環して最後の項目に移動")
 
 	// 最後の項目から下に移動すると最初の項目に
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
@@ -166,6 +168,30 @@ func TestMainMenuState_Selection_Start(t *testing.T) {
 	assert.Equal(t, es.TransReplace, transition.Type, "開始でTransReplace")
 }
 
+func TestMainMenuState_Selection_Demo(t *testing.T) {
+	t.Parallel()
+
+	state := &MainMenuState{}
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	props := state.fetchProps(world)
+	state.menuMount.SetProps(props)
+	hooks.UseTabMenu(state.menuMount.Store(), "menu", hooks.TabMenuConfig{
+		TabCount:   1,
+		ItemCounts: []int{len(props.Items)},
+	})
+	state.menuMount.Update()
+
+	// 「デモ」に移動して選択（インデックス1）
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
+	state.menuMount.Update()
+
+	transition, err := state.DoAction(world, inputmapper.ActionMenuSelect)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransReplace, transition.Type, "デモでTransReplace")
+}
+
 func TestMainMenuState_Selection_Load(t *testing.T) {
 	t.Parallel()
 
@@ -181,7 +207,8 @@ func TestMainMenuState_Selection_Load(t *testing.T) {
 	})
 	state.menuMount.Update()
 
-	// 「読込」に移動して選択（インデックス1）
+	// 「読込」に移動して選択（インデックス2）
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
 
@@ -205,7 +232,8 @@ func TestMainMenuState_Selection_Exit(t *testing.T) {
 	})
 	state.menuMount.Update()
 
-	// 「終了」に移動して選択（インデックス2）
+	// 「終了」に移動して選択（インデックス3）
+	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Dispatch(inputmapper.ActionMenuDown)
 	state.menuMount.Update()
@@ -224,6 +252,32 @@ func TestNewMainMenuState(t *testing.T) {
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*MainMenuState)
 	assert.True(t, ok, "MainMenuState型である")
+}
+
+func TestDemoStartState_OnStart(t *testing.T) {
+	t.Parallel()
+
+	state := NewDemoStartState()
+	world := testutil.InitTestWorld(t)
+
+	err := state.OnStart(world)
+	require.NoError(t, err)
+
+	// プレイヤーが生成されていることを確認
+	_, err = worldhelper.GetPlayerEntity(world)
+	assert.NoError(t, err, "プレイヤーが生成されている")
+}
+
+func TestDemoStartState_Update(t *testing.T) {
+	t.Parallel()
+
+	state := NewDemoStartState()
+	world := testutil.InitTestWorld(t)
+	require.NoError(t, state.OnStart(world))
+
+	transition, err := state.Update(world)
+	require.NoError(t, err)
+	assert.Equal(t, es.TransReplace, transition.Type, "TownStateへTransReplace")
 }
 
 func TestMainMenuState_HandleInput(t *testing.T) {

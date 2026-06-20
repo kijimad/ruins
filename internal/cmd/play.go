@@ -18,10 +18,8 @@ import (
 	_ "net/http/pprof" // pprofのHTTPエンドポイントを登録するためのインポート
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
-	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/states"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // CmdPlay はゲームをプレイするコマンド
@@ -109,19 +107,7 @@ func runPlay(_ context.Context, _ *cli.Command) error {
 	// 開始ステートの決定
 	var initialState es.State[w.World]
 	if cfg.QuickStart {
-		// キャラクター作成をスキップして拠点から開始する
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
-		if err != nil {
-			return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
-		}
-		professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
-		if len(professions) > 0 {
-			if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil {
-				return fmt.Errorf("職業の適用に失敗: %w", err)
-			}
-		}
-		stateFactory := gs.NewTownState()
-		initialState = stateFactory()
+		initialState = gs.NewDemoStartState()
 	} else {
 		initialState = &gs.MainMenuState{}
 	}
