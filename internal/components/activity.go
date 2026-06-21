@@ -52,6 +52,7 @@ const (
 	BehaviorPortal      BehaviorName = "Portal"
 	BehaviorDungeonGate BehaviorName = "DungeonGate"
 	BehaviorDoorLock    BehaviorName = "DoorLock"
+	BehaviorStorage     BehaviorName = "Storage"
 	BehaviorRead        BehaviorName = "Read"
 	BehaviorShoot       BehaviorName = "Shoot"
 	BehaviorReload      BehaviorName = "Reload"

@@ -623,6 +623,60 @@ Depth = 1
 	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
 }
 
+func TestPropWithStorage(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "木箱"
+Description = "古びた木箱"
+BlockPass = true
+BlockView = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "wooden_chest"
+Depth = 2
+
+[Props.Storage]
+MaxWeight = 20.0
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "木箱")
+	assert.NoError(t, err)
+
+	assert.NotNil(t, entitySpec.Storage, "Storage付きPropにはStorageコンポーネントが設定されるべき")
+	assert.Equal(t, 20.0, entitySpec.Storage.MaxWeight)
+
+	require.NotNil(t, entitySpec.Interactable, "Storage付きPropにはInteractableが設定されるべき")
+	_, ok := entitySpec.Interactable.Data.(gc.StorageInteraction)
+	assert.True(t, ok, "Storage付きPropにはStorageInteractionが設定されるべき")
+}
+
+func TestPropWithoutStorage(t *testing.T) {
+	t.Parallel()
+	str := `
+[[Props]]
+Name = "テーブル"
+Description = "普通のテーブル"
+BlockPass = true
+BlockView = false
+
+[Props.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "table"
+Depth = 1
+`
+	raws, err := DecodeRaws(str)
+	assert.NoError(t, err)
+
+	entitySpec, err := NewPropSpec(raws, "テーブル")
+	assert.NoError(t, err)
+
+	assert.Nil(t, entitySpec.Storage, "Storage定義のないPropにはStorageコンポーネントが設定されないべき")
+}
+
 func TestMemberDisposition(t *testing.T) {
 	t.Parallel()
 

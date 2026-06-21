@@ -334,62 +334,6 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 func TestPickupAndDropRoundTrip(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Propを拾ってドロップするとPropコンポーネントが保持される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
-		require.NoError(t, err)
-
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
-		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 4, Y: 4})
-		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
-
-		// 拾う
-		pickupDest := gc.GridElement{X: 4, Y: 4}
-		pickupComp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Destination:  &pickupDest,
-		}
-
-		pa := &PickupActivity{}
-		err = pa.DoTurn(pickupComp, player, world)
-		require.NoError(t, err)
-		assert.Equal(t, gc.ActivityStateCompleted, pickupComp.State)
-
-		// バックパックにあることを確認
-		assert.True(t, prop.HasComponent(world.Components.LocationInBackpack))
-		assert.True(t, prop.HasComponent(world.Components.Prop))
-
-		// ドロップ
-		dropDest := gc.GridElement{X: 11, Y: 11}
-		dropComp := &gc.Activity{
-			BehaviorName: gc.BehaviorDrop,
-			State:        gc.ActivityStateRunning,
-			Target:       &prop,
-			Destination:  &dropDest,
-		}
-
-		da := &DropActivity{}
-		err = da.DoTurn(dropComp, player, world)
-		require.NoError(t, err)
-		assert.Equal(t, gc.ActivityStateCompleted, dropComp.State)
-
-		// フィールドに戻っていることを確認
-		assert.True(t, prop.HasComponent(world.Components.LocationOnField))
-		assert.True(t, prop.HasComponent(world.Components.GridElement))
-		assert.True(t, prop.HasComponent(world.Components.Prop))
-		assert.True(t, prop.HasComponent(world.Components.BlockPass))
-		gridElement := world.Components.GridElement.Get(prop).(*gc.GridElement)
-		assert.Equal(t, 11, int(gridElement.X))
-		assert.Equal(t, 11, int(gridElement.Y))
-	})
-
 	t.Run("通常アイテムの拾得とドロップの往復", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -404,6 +405,9 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("Propスポーン:construction_sign(通行不可)", func(world w.World) error {
 			return spawnPropNearPlayer(world, "construction_sign")
 		}).
+		WithChoice("Propスポーン:木箱(収納・アイテム入り)", func(world w.World) error {
+			return spawnStorageWithItems(world)
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -423,6 +427,37 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
 	_, err = worldhelper.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
+}
+
+// spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする
+func spawnStorageWithItems(world w.World) error {
+	player, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	storageEntity, err := worldhelper.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
+	if err != nil {
+		return err
+	}
+
+	// アイテムを収納に格納する
+	items := []struct {
+		name  string
+		count int
+	}{
+		{"回復薬", 3},
+		{"手榴弾", 1},
+		{"たいまつ", 1},
+	}
+	for _, item := range items {
+		entity, err := worldhelper.SpawnItem(world, item.name, item.count, gc.LocationTypeOnField)
+		if err != nil {
+			return fmt.Errorf("収納アイテムのスポーンに失敗: %w", err)
+		}
+		worldhelper.MoveToStorage(world, entity, storageEntity)
+	}
+	return nil
 }
 
 // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする
@@ -643,6 +678,11 @@ func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] {
 // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数
 func NewShopMenuState() es.State[w.World] {
 	return &ShopMenuState{}
+}
+
+// NewStorageMenuState は収納メニューStateを作成する
+func NewStorageMenuState(storageEntity ecs.Entity) es.State[w.World] {
+	return &StorageMenuState{storageEntity: storageEntity}
 }
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する

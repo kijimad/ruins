@@ -537,6 +537,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.OpenDungeonSelectEvent:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
+	case gc.OpenStorageEvent:
+		// 収納メニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return NewStorageMenuState(e.StorageEntity) },
+		}}, nil
 	}
 
 	return es.Transition[w.World]{}, fmt.Errorf("未知のStateChangeRequest: %T", req)

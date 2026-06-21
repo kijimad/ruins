@@ -99,6 +99,17 @@ func (t ItemInteraction) Config() InteractionConfig {
 	}
 }
 
+// StorageInteraction は収納の相互作用
+type StorageInteraction struct{}
+
+// Config は相互作用設定を返す
+func (s StorageInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeAdjacent,
+		ActivationWay:   ActivationWayManual,
+	}
+}
+
 // MeleeInteraction は近接攻撃の相互作用
 type MeleeInteraction struct{}
 

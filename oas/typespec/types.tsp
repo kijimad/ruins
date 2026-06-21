@@ -132,6 +132,11 @@ scalar ItemValue extends int32;
 @maxValue(1000)
 scalar ItemWeight extends float64;
 
+/** 収納の最大格納重量（kg） */
+@minValue(0)
+@maxValue(1000)
+scalar StorageMaxWeight extends float64;
+
 /** 光源が有効かどうか */
 scalar LightEnabled extends boolean;
 

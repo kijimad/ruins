@@ -39,6 +39,8 @@ func ExecuteInteraction(actor ecs.Entity, interactable ecs.Entity, world w.World
 		return executeTalk(actor, interactable, world)
 	case gc.ItemInteraction:
 		return executeItem(actor, world)
+	case gc.StorageInteraction:
+		return executeStorage(interactable, world)
 	case gc.MeleeInteraction:
 		return executeMelee(actor, interactable, world)
 	default:
@@ -125,6 +127,13 @@ func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
 		Destination: &destination,
 	}
 	return Execute(&PickupActivity{}, params, world)
+}
+
+func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
+	if err := worldhelper.RequestStateChange(world, gc.OpenStorageEvent{StorageEntity: storageEntity}); err != nil {
+		return nil, fmt.Errorf("収納メニュー状態変更要求エラー: %w", err)
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: "収納を開いた"}, nil
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {

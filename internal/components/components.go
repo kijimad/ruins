@@ -52,6 +52,7 @@ type EntitySpec struct {
 	Prop            *Prop
 	LightSource     *LightSource
 	Door            *Door
+	Storage         *Storage
 	Interactable    *Interactable
 	VisualEffect    *VisualEffects
 	TileTemperature *TileTemperature
@@ -110,6 +111,7 @@ type Components struct {
 	LocationInBackpack *ecs.SliceComponent `save:"true"`
 	LocationEquipped   *ecs.SliceComponent `save:"true"`
 	LocationOnField    *ecs.NullComponent
+	LocationInStorage  *ecs.SliceComponent
 
 	// field ================
 	Tile            *ecs.NullComponent
@@ -127,6 +129,7 @@ type Components struct {
 	BlockPass       *ecs.NullComponent
 	PassCost        *ecs.SliceComponent
 	Door            *ecs.SliceComponent
+	Storage         *ecs.SliceComponent
 	Prop            *ecs.NullComponent
 	LightSource     *ecs.SliceComponent `save:"true"`
 	Interactable    *ecs.SliceComponent
@@ -476,6 +479,8 @@ var (
 	LocationTypeEquipped LocationType = LocationEquipped{}
 	// LocationTypeOnField はフィールド上
 	LocationTypeOnField LocationType = LocationOnField{}
+	// LocationTypeInStorage は収納内
+	LocationTypeInStorage LocationType = LocationInStorage{}
 )
 
 // LocationInBackpack はバックパック内位置
@@ -504,12 +509,29 @@ func (c LocationOnField) String() string {
 	return "LocationOnField"
 }
 
+// LocationInStorage は収納内位置
+type LocationInStorage struct {
+	Owner ecs.Entity // 収納Propのエンティティ
+}
+
+func (c LocationInStorage) String() string {
+	return "LocationInStorage"
+}
+
 // Material は素材を表すマーカーコンポーネント。
 // 合成や売却の材料となるアイテムに付与される
 type Material struct{}
 
 // Prop は置物を表すマーカーコンポーネント
 type Prop struct{}
+
+// Storage は収納機能を持つPropに付与するコンポーネント。
+// 格納アイテムはLocationInStorageで参照する。
+// 容量はCarryWeightと同じくkg単位の重量で制限する
+type Storage struct {
+	// TODO: kgを専用の型で示す
+	MaxWeight float64 // 最大格納重量（kg）
+}
 
 // LightSource は光源コンポーネント
 type LightSource struct {

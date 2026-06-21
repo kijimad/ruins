@@ -671,6 +671,16 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
+	// 収納
+	if propRaw.Storage != nil {
+		entitySpec.Storage = &gc.Storage{
+			MaxWeight: propRaw.Storage.MaxWeight,
+		}
+		entitySpec.Interactable = &gc.Interactable{
+			Data: gc.StorageInteraction{},
+		}
+	}
+
 	return entitySpec, nil
 }
 

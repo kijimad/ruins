@@ -4,11 +4,15 @@ import (
 	"os"
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/worldhelper"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMain(m *testing.M) {
@@ -150,4 +154,21 @@ func TestGolden_PersistentMessage(t *testing.T) {
 		"テスト",
 	)
 	vrt.AssertStateGolden(t, gs.NewTownState()(), gs.NewPersistentMessageState(messageData))
+}
+
+func TestGolden_StorageMenu(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGoldenWithSetup(t, func(world w.World) []es.State[w.World] {
+		storageEntity, err := worldhelper.SpawnProp(world, "木箱", 3, 3)
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.LocationTypeOnField)
+		require.NoError(t, err)
+		worldhelper.MoveToStorage(world, item, storageEntity)
+
+		return []es.State[w.World]{
+			gs.NewTownState()(),
+			gs.NewStorageMenuState(storageEntity),
+		}
+	})
 }

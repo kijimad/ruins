@@ -174,7 +174,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 func TestPickupActivity_Validate_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("HPを持たないPropは拾えない", func(t *testing.T) {
+	t.Run("Propは拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -199,7 +199,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
-	t.Run("HPを持つPropは拾える", func(t *testing.T) {
+	t.Run("HP付きPropも拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -217,7 +217,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 
 		pa := &PickupActivity{}
 		err = pa.Validate(comp, ecs.Entity(0), world)
-		assert.NoError(t, err)
+		assert.Error(t, err, "Propは設置物なので拾えない")
 	})
 
 	t.Run("アイテムとPropが同じタイルにある場合も拾える", func(t *testing.T) {
@@ -251,45 +251,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Propを拾うとPropコンポーネントが保持される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player, err := worldhelper.SpawnPlayer(world, 3, 4, "Ash")
-		require.NoError(t, err)
-
-		prop := world.Manager.NewEntity()
-		prop.AddComponent(world.Components.Prop, nil)
-		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
-		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
-		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 3, Y: 4})
-		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
-
-		destination := gc.GridElement{X: 3, Y: 4}
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			State:        gc.ActivityStateRunning,
-			Destination:  &destination,
-		}
-
-		pa := &PickupActivity{}
-		err = pa.DoTurn(comp, player, world)
-
-		require.NoError(t, err)
-		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
-
-		// Propコンポーネントが保持されていることを確認
-		assert.True(t, prop.HasComponent(world.Components.Prop))
-		// BlockPassも保持されていることを確認
-		assert.True(t, prop.HasComponent(world.Components.BlockPass))
-		// バックパックに移動していることを確認
-		assert.True(t, prop.HasComponent(world.Components.LocationInBackpack))
-		// フィールドから消えていることを確認
-		assert.False(t, prop.HasComponent(world.Components.GridElement))
-	})
-
-	t.Run("HPを持たないPropのみのタイルでは拾得に失敗する", func(t *testing.T) {
+	t.Run("Propのみのタイルでは拾得に失敗する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -299,6 +261,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		prop := world.Manager.NewEntity()
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 8, Y: 6})
 		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 
@@ -312,7 +275,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		pa := &PickupActivity{}
 		err = pa.DoTurn(comp, player, world)
 
-		assert.Error(t, err)
+		assert.Error(t, err, "Propは設置物なので拾えない")
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
 }
