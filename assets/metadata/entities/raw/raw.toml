@@ -13579,6 +13579,7 @@ spriteSheetName = "field"
 blockPass = true
 blockView = false
 description = "古びた木箱。何か入っているかもしれない"
+hp = 20
 name = "木箱"
 
 [props.spriteRender]
@@ -13596,6 +13597,7 @@ lootCountMax = 3
 blockPass = true
 blockView = false
 description = "金属製のロッカー"
+hp = 40
 name = "ロッカー"
 
 [props.spriteRender]
