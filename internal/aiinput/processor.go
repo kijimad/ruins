@@ -164,7 +164,7 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 	// AIVisionコンポーネント確認
 	aiVision := world.Components.AIVision.Get(entity)
 	if aiVision == nil {
-		return nil, &AIError{Type: "component_missing", Message: "AIVisionコンポーネントなし", Entity: entity}
+		return nil, &AIError{Type: "component_missing", Message: "AIVisionコンポーネントなし", Entity: &entity}
 	}
 	vision := aiVision.(*gc.AIVision)
 	p.logger.Debug("AIVision設定", "entity", entity, "viewDistance", vision.ViewDistance)
@@ -172,7 +172,7 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 	// AIRoamingコンポーネント確認
 	aiRoaming := world.Components.AIRoaming.Get(entity)
 	if aiRoaming == nil {
-		return nil, &AIError{Type: "component_missing", Message: "AIRoamingコンポーネントなし", Entity: entity}
+		return nil, &AIError{Type: "component_missing", Message: "AIRoamingコンポーネントなし", Entity: &entity}
 	}
 	roaming := aiRoaming.(*gc.AIRoaming)
 

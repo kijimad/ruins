@@ -10,10 +10,11 @@ import (
 func TestAIError_WithEntity(t *testing.T) {
 	t.Parallel()
 
+	entity := ecs.Entity(42)
 	err := &AIError{
 		Type:    "planning",
 		Message: "行動計画に失敗した",
-		Entity:  ecs.Entity(42),
+		Entity:  &entity,
 	}
 
 	assert.Contains(t, err.Error(), "planning")
@@ -21,13 +22,28 @@ func TestAIError_WithEntity(t *testing.T) {
 	assert.Contains(t, err.Error(), "行動計画に失敗した")
 }
 
+func TestAIError_WithEntity_Zero(t *testing.T) {
+	t.Parallel()
+
+	// Entity(0) は有効なIDなので、ポインタが設定されていればEntity情報を出力する
+	entity := ecs.Entity(0)
+	err := &AIError{
+		Type:    "planning",
+		Message: "エラー",
+		Entity:  &entity,
+	}
+
+	assert.Contains(t, err.Error(), "Entity=0")
+}
+
 func TestAIError_WithoutEntity(t *testing.T) {
 	t.Parallel()
 
+	// Entity=nil は「エンティティ未設定」を表す
 	err := &AIError{
 		Type:    "vision",
 		Message: "視界計算に失敗した",
-		Entity:  0,
+		Entity:  nil,
 	}
 
 	assert.Contains(t, err.Error(), "vision")
