@@ -59,8 +59,20 @@ func (n *tabMenuNav) firstSelectable(tabIdx int) int {
 	return n.skipNext(tabIdx, 0, 1)
 }
 
+// clamp はアイテム数変化に対してインデックスを安全な範囲に収める
+func (n *tabMenuNav) clamp(s TabMenuState) TabMenuState {
+	count := n.itemCountForTab(s.TabIndex)
+	if count == 0 {
+		s.ItemIndex = 0
+	} else if s.ItemIndex >= count {
+		s.ItemIndex = count - 1
+	}
+	return s
+}
+
 // reduce はアクションに応じて状態を更新する
 func (n *tabMenuNav) reduce(s TabMenuState, a inputmapper.ActionID) TabMenuState {
+	s = n.clamp(s)
 	tabIdx := s.TabIndex
 	itemIdx := s.ItemIndex
 	count := n.itemCountForTab(tabIdx)
@@ -119,7 +131,9 @@ func UseTabMenu(store *Store, keyPrefix string, config TabMenuConfig) TabMenuSta
 	// 単一のreducerでタブ切り替えとアイテム移動を原子的に処理するため、
 	// タブ切り替え時に新タブのitemsで正しくfirstSelectableを計算できる
 	init := TabMenuState{ItemIndex: nav.firstSelectable(0)}
-	state := UseState(store, keyPrefix, init, nav.reduce)
+	state := nav.clamp(UseState(store, keyPrefix, init, nav.reduce))
+	// クランプ後の値をstoreに反映して、UI側が参照する値と一致させる
+	store.states[keyPrefix] = state
 
 	// ページはitemIndexから派生する値として計算
 	itemCount := nav.itemCountForTab(state.TabIndex)

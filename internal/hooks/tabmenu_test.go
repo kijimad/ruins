@@ -16,15 +16,15 @@ type testTabData struct {
 	Items []string
 }
 
-// setupTabMenuState はタブメニュー用のUseTabMenuを登録する
-func setupTabMenuState(t *testing.T, store *Store, p tabMenuTestProps) {
+// setupTabMenuState はタブメニュー用のUseTabMenuを登録し、状態を返す
+func setupTabMenuState(t *testing.T, store *Store, p tabMenuTestProps) TabMenuState {
 	t.Helper()
 	itemCounts := make([]int, len(p.Tabs))
 	for i, tab := range p.Tabs {
 		itemCounts[i] = len(tab.Items)
 	}
 
-	UseTabMenu(store, "menu", TabMenuConfig{
+	return UseTabMenu(store, "menu", TabMenuConfig{
 		TabCount:   len(p.Tabs),
 		ItemCounts: itemCounts,
 	})
@@ -411,6 +411,102 @@ func TestUseTabMenu_Skip(t *testing.T) {
 		s, _ := GetState[TabMenuState](mount, "menu")
 		assert.Equal(t, 1, s.ItemIndex, "スキップ対象でない最初のアイテムに移動する")
 	})
+}
+
+func TestUseTabMenu_ClampOnItemCountDecrease(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuState(t, mount.Store(), props)
+	mount.Update()
+
+	// 最後のアイテムまで移動
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 1
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 2
+	result := setupTabMenuState(t, mount.Store(), props)
+	mount.Update()
+	assert.Equal(t, 2, result.ItemIndex)
+
+	// アイテム数が2に減る（index 2は範囲外になる）
+	reducedProps := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b"}},
+		},
+	}
+	mount.SetProps(reducedProps)
+	result = setupTabMenuState(t, mount.Store(), reducedProps)
+	mount.Update()
+	assert.Equal(t, 1, result.ItemIndex, "アイテム数が減った場合にインデックスがクランプされる")
+}
+
+func TestUseTabMenu_ClampOnItemCountDecreaseToZero(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuState(t, mount.Store(), props)
+	mount.Update()
+
+	mount.Dispatch(inputmapper.ActionMenuDown) // index 1
+	result := setupTabMenuState(t, mount.Store(), props)
+	mount.Update()
+	assert.Equal(t, 1, result.ItemIndex)
+
+	// アイテムが全てなくなる
+	emptyProps := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{}},
+		},
+	}
+	mount.SetProps(emptyProps)
+	result = setupTabMenuState(t, mount.Store(), emptyProps)
+	mount.Update()
+	assert.Equal(t, 0, result.ItemIndex, "アイテムが空になった場合にインデックスが0になる")
+}
+
+func TestUseTabMenu_ClampThenDispatch(t *testing.T) {
+	t.Parallel()
+	mount := NewMount[tabMenuTestProps]()
+	props := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b", "c", "d"}},
+		},
+	}
+	mount.SetProps(props)
+	setupTabMenuState(t, mount.Store(), props)
+	mount.Update()
+
+	// index 3まで移動
+	mount.Dispatch(inputmapper.ActionMenuDown) // 1
+	mount.Dispatch(inputmapper.ActionMenuDown) // 2
+	mount.Dispatch(inputmapper.ActionMenuDown) // 3
+	result := setupTabMenuState(t, mount.Store(), props)
+	mount.Update()
+	assert.Equal(t, 3, result.ItemIndex)
+
+	// アイテム数を2に減らす（store内のindex 3は範囲外）
+	reducedProps := tabMenuTestProps{
+		Tabs: []testTabData{
+			{ID: "tab1", Items: []string{"a", "b"}},
+		},
+	}
+	mount.SetProps(reducedProps)
+
+	// Dispatch時は古いreducerで処理され、その後UseTabMenuのclampで安全な範囲に収まる
+	mount.Dispatch(inputmapper.ActionMenuUp)
+	result = setupTabMenuState(t, mount.Store(), reducedProps)
+	mount.Update()
+	assert.True(t, result.ItemIndex >= 0 && result.ItemIndex < 2,
+		"clampにより安全な範囲に収まる: got %d", result.ItemIndex)
 }
 
 // ペジネーション用のセットアップ
