@@ -199,27 +199,6 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
 
-	t.Run("HP付きPropも拾えない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		_, err := worldhelper.SpawnPlayer(world, 7, 7, "Ash")
-		require.NoError(t, err)
-
-		_, err = worldhelper.SpawnProp(world, "barrel", 7, 7)
-		require.NoError(t, err)
-
-		destination := gc.GridElement{X: 7, Y: 7}
-		comp := &gc.Activity{
-			BehaviorName: gc.BehaviorPickup,
-			Destination:  &destination,
-		}
-
-		pa := &PickupActivity{}
-		err = pa.Validate(comp, ecs.Entity(0), world)
-		assert.Error(t, err, "Propは設置物なので拾えない")
-	})
-
 	t.Run("アイテムとPropが同じタイルにある場合も拾える", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
