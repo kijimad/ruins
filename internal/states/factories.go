@@ -685,21 +685,23 @@ func NewStorageMenuState(storageEntity ecs.Entity) es.State[w.World] {
 
 // NewInteractionMenuState はインタラクションメニューStateを作成する
 func NewInteractionMenuState(world w.World) es.State[w.World] {
-	messageState := &MessageState{}
-
-	// プレイヤー周辺の実行可能なアクションを取得
 	interactionActions := GetInteractionActions(world)
 
 	if len(interactionActions) == 0 {
-		// アクションがない場合
+		messageState := &MessageState{}
 		messageState.messageData = messagedata.NewSystemMessage("実行可能なアクションがありません。")
 		return messageState
 	}
 
-	// アクションメニューを構築
+	return newActionChoiceMenu(interactionActions)
+}
+
+// newActionChoiceMenu はInteractionActionのリストから選択メニューを作成する
+func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
+	messageState := &MessageState{}
 	messageState.messageData = messagedata.NewSystemMessage("")
 
-	for _, action := range interactionActions {
+	for _, action := range actions {
 		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
 			playerEntity, err := worldhelper.GetPlayerEntity(world)
 			if err != nil {
@@ -715,7 +717,6 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 		})
 	}
 
-	// キャンセル用の「閉じる」選択肢を追加
 	messageState.messageData = messageState.messageData.WithChoice("キャンセル", func(_ w.World) error {
 		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		return nil

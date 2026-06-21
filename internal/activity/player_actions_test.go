@@ -148,69 +148,6 @@ func TestExecuteWaitAction(t *testing.T) {
 	})
 }
 
-func TestExecuteEnterAction(t *testing.T) {
-	t.Parallel()
-
-	t.Run("何もない場所でEnter", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-		assert.NoError(t, ExecuteEnterAction(world))
-
-		// 何も実行されないのでLastActivityはnil
-		result := GetLastResult(player, world)
-		assert.Nil(t, result)
-	})
-
-	t.Run("アイテムがある場合", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-		// アイテムを作成（同タイル、手動発動）
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		item.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
-		})
-		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
-
-		// LocationOnFieldがないので拾えるアイテムがない
-		err := ExecuteEnterAction(world)
-		assert.Error(t, err)
-
-		// Pickupが試行され、検証失敗でエラー
-		result := GetLastResult(player, world)
-		require.NotNil(t, result)
-		assert.Equal(t, gc.BehaviorPickup, result.BehaviorName)
-		assert.False(t, result.Success)
-	})
-
-	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		assert.Error(t, ExecuteEnterAction(world))
-	})
-
-	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-
-		assert.Error(t, ExecuteEnterAction(world))
-	})
-}
-
 func TestGetInteractableAtSameTile(t *testing.T) {
 	t.Parallel()
 

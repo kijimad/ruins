@@ -95,34 +95,6 @@ func ExecuteWaitAction(world w.World) error {
 	return err
 }
 
-// ExecuteEnterAction は直上タイルの相互作用を実行する
-func ExecuteEnterAction(world w.World) error {
-	entity, err := worldhelper.GetPlayerEntity(world)
-	if err != nil {
-		return err
-	}
-
-	if !entity.HasComponent(world.Components.GridElement) {
-		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
-	}
-
-	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-	interactable, interactableEntity := getInteractableAtSameTile(world, gridElement)
-	if interactable != nil {
-		for _, interaction := range interactable.Interactions {
-			config := interaction.Config()
-			// 手動発動（Enterキー）かつ同タイルのみ実行
-			if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
-				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
 // getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
 // 複数ある場合は最初に見つかったものを返す
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {

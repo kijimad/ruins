@@ -50,6 +50,45 @@ func GetInteractionActions(world w.World) []InteractionAction {
 	return interactionActions
 }
 
+// GetSameTileManualActions はプレイヤー直上のManual発動アクションを全て取得する
+func GetSameTileManualActions(world w.World) []InteractionAction {
+	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return nil
+	}
+	if !playerEntity.HasComponent(world.Components.GridElement) {
+		return nil
+	}
+	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
+
+	var actions []InteractionAction
+	world.Manager.Join(
+		world.Components.GridElement,
+		world.Components.Interactable,
+		world.Components.Dead.Not(),
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		if ge.X != playerGrid.X || ge.Y != playerGrid.Y {
+			return
+		}
+		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		// Manual+SameTileのインタラクションのみフィルタする
+		var filtered []gc.InteractionData
+		for _, interaction := range interactable.Interactions {
+			config := interaction.Config()
+			if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
+				filtered = append(filtered, interaction)
+			}
+		}
+		if len(filtered) > 0 {
+			filteredInteractable := &gc.Interactable{Interactions: filtered}
+			entityActions := getInteractionActions(world, filteredInteractable, entity, "直上")
+			actions = append(actions, entityActions...)
+		}
+	}))
+	return actions
+}
+
 // getInteractionActions はInteractableに対応するアクションを取得する
 func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {
 	var result []InteractionAction
