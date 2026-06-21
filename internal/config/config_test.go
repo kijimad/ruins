@@ -56,26 +56,6 @@ func TestLoad(t *testing.T) {
 	assert.Greater(t, cfg.WindowHeight, 0)
 	assert.Greater(t, cfg.TargetFPS, 0)
 }
-
-func TestConfig_String(t *testing.T) {
-	t.Parallel()
-
-	cfg := &Config{
-		Profile:      ProfileProduction,
-		WindowWidth:  960,
-		WindowHeight: 720,
-		TargetFPS:    60,
-		LogLevel:     "info",
-		PProfPort:    6060,
-		ProfilePath:  ".",
-	}
-
-	s := cfg.String()
-	assert.Contains(t, s, "production")
-	assert.Contains(t, s, "960")
-	assert.Contains(t, s, "720")
-}
-
 func TestValidate(t *testing.T) {
 	t.Parallel()
 

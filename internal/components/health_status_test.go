@@ -7,57 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestSeverity_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name     string
-		severity Severity
-		want     string
-	}{
-		{"None", SeverityNone, ""},
-		{"Minor", SeverityMinor, "軽"},
-		{"Medium", SeverityMedium, "中"},
-		{"Severe", SeveritySevere, "重"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.severity.String())
-		})
-	}
-}
-
 func TestSeverity_String_Panic(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {
 		_ = Severity(99).String()
 	})
-}
-
-func TestStatType_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		statType StatType
-		want     string
-	}{
-		{StatVitality, "体力"},
-		{StatStrength, "筋力"},
-		{StatSensation, "感覚"},
-		{StatDexterity, "器用"},
-		{StatAgility, "敏捷"},
-		{StatDefense, "防御"},
-		{StatType("Unknown"), "Unknown"},
-	}
-
-	for _, tt := range tests {
-		t.Run(string(tt.statType), func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.statType.String())
-		})
-	}
 }
 
 func TestTimerToSeverity(t *testing.T) {

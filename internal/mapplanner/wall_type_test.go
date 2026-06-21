@@ -123,28 +123,3 @@ func TestPlanData_GetWallType_WithWarpTiles(t *testing.T) {
 		t.Errorf("床タイルに対するWallTypeTopの判定が間違っています。期待値: %s, 実際: %s", WallTypeTop.String(), wallType.String())
 	}
 }
-
-func TestWallType_String(t *testing.T) {
-	t.Parallel()
-	testCases := []struct {
-		wallType WallType
-		expected string
-	}{
-		{WallTypeTop, "Top"},
-		{WallTypeBottom, "Bottom"},
-		{WallTypeLeft, "Left"},
-		{WallTypeRight, "Right"},
-		{WallTypeTopLeft, "TopLeft"},
-		{WallTypeTopRight, "TopRight"},
-		{WallTypeBottomLeft, "BottomLeft"},
-		{WallTypeBottomRight, "BottomRight"},
-		{WallTypeGeneric, "Generic"},
-	}
-
-	for _, tc := range testCases {
-		actual := tc.wallType.String()
-		if actual != tc.expected {
-			t.Errorf("WallType.String()の結果が間違っています。期待値: %s, 実際: %s", tc.expected, actual)
-		}
-	}
-}

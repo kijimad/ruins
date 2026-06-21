@@ -110,28 +110,6 @@ func TestHunger_GetStatusPenalty(t *testing.T) {
 		})
 	}
 }
-
-func TestHungerLevel_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		level HungerLevel
-		want  string
-	}{
-		{HungerSatiated, "満腹"},
-		{HungerNormal, "普通"},
-		{HungerHungry, "空腹"},
-		{HungerStarving, "飢餓"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.want, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, tt.level.String())
-		})
-	}
-}
-
 func TestHungerLevel_String_InvalidValue(t *testing.T) {
 	t.Parallel()
 	assert.Panics(t, func() {

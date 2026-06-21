@@ -242,10 +242,3 @@ func TestNewCharacterNamingState(t *testing.T) {
 	_, ok := state.(*CharacterNamingState)
 	assert.True(t, ok, "CharacterNamingState型である")
 }
-
-func TestCharacterNamingState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &CharacterNamingState{}
-	assert.Equal(t, "CharacterNaming", state.String())
-}

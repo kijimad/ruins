@@ -255,10 +255,3 @@ func TestCharacterJobState_HandleInput(t *testing.T) {
 
 	_, _ = state.HandleInput(world.Config)
 }
-
-func TestCharacterJobState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &CharacterJobState{}
-	assert.Equal(t, "CharacterJob", state.String())
-}

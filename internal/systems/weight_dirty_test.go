@@ -106,4 +106,3 @@ func TestWeightDirtySystem(t *testing.T) {
 		assert.Equal(t, 99.0, wc.Current, "マーカーがないので再計算されない")
 	})
 }
-

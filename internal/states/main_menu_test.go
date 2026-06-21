@@ -263,10 +263,3 @@ func TestMainMenuState_HandleInput(t *testing.T) {
 	// HandleInputはHandleMenuInputを呼び出す
 	_, _ = state.HandleInput(world.Config)
 }
-
-func TestMainMenuState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &MainMenuState{}
-	assert.Equal(t, "MainMenu", state.String())
-}

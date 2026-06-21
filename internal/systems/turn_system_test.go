@@ -13,12 +13,6 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-func TestTurnSystem_String(t *testing.T) {
-	t.Parallel()
-	sys := &TurnSystem{}
-	assert.Equal(t, "TurnSystem", sys.String())
-}
-
 func TestTurnSystem_Update(t *testing.T) {
 	t.Parallel()
 

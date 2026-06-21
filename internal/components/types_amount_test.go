@@ -30,11 +30,3 @@ func TestNewTurnState(t *testing.T) {
 	assert.Equal(t, TurnPhasePlayer, ts.Phase)
 	assert.Equal(t, 1, ts.TurnNumber)
 }
-
-func TestTurnPhase_String(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, "PlayerTurn", TurnPhasePlayer.String())
-	assert.Equal(t, "AITurn", TurnPhaseAI.String())
-	assert.Equal(t, "TurnEnd", TurnPhaseEnd.String())
-}

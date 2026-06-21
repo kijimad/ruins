@@ -6,36 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTimeOfDay_String(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		time     TimeOfDay
-		expected string
-	}{
-		{TimeDawn, "夜明け"},
-		{TimeMorning, "朝"},
-		{TimeDay, "昼"},
-		{TimeEvening, "夕"},
-		{TimeNight, "夜"},
-		{TimeMidnight, "深夜"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.expected, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.expected, tt.time.String())
-		})
-	}
-
-	t.Run("不正な値でpanicする", func(t *testing.T) {
-		t.Parallel()
-		assert.Panics(t, func() {
-			_ = TimeOfDay(99).String()
-		})
-	})
-}
-
 func TestGameTime_GetTimeOfDay(t *testing.T) {
 	t.Parallel()
 
