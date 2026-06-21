@@ -150,7 +150,7 @@ func TestAttackUnification(t *testing.T) {
 	assert.Equal(t, 1, playerAttack.GetDamage())
 	assert.Equal(t, gc.ElementTypeNone, playerAttack.GetElement())
 
-	// 両方ともAttackerインターフェースを満たす
-	assert.NotNil(t, enemyAttack.GetElement())
-	assert.NotNil(t, playerAttack.GetElement())
+	// 両方ともAttackerインターフェースを満たすことを検証する
+	assert.Implements(t, (*gc.Attacker)(nil), enemyAttack)
+	assert.Implements(t, (*gc.Attacker)(nil), playerAttack)
 }

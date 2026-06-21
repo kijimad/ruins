@@ -74,7 +74,7 @@ func TestSelectByWeightFunc_WeightedDistribution(t *testing.T) {
 		counts[result]++
 	}
 
-	// 重み100:1なので、heavyが大多数を占めるはず
+	// 重み100:1なので期待値は約990回。シード固定の決定論的テストのため閾値900は十分な余裕がある
 	assert.Greater(t, counts["heavy"], 900, "重みの大きい要素が多く選ばれる")
 }
 

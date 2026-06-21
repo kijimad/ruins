@@ -166,9 +166,9 @@ func TestRunStats_FloorDamagePercentile(t *testing.T) {
 
 	// 深度1: playerMaxHP=100から開始
 	// ラン1: 100-60=40ダメージ、ラン2: 100-50=50ダメージ
-	// 中央値は40か50のどちらか
+	// ソート後 [40,50]、Percentile(p=0.5) は idx=int(1*0.5)=0 で 40 を返す
 	result := s.MedianDamagePerFloor(1, 100)
-	assert.Greater(t, result, 0)
+	assert.Equal(t, 40, result)
 }
 
 func TestRunStats_FloorHealingPercentile(t *testing.T) {

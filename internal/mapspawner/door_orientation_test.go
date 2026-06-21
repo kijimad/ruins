@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// newTestMetaPlan はテスト用のMetaPlanデータを生成する。純粋なデータ生成のみ行う
 func newTestMetaPlan(width, height int, tiles []oapi.Tile) *mapplanner.MetaPlan {
 	return &mapplanner.MetaPlan{
 		Level: gc.Level{

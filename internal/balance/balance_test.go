@@ -94,7 +94,7 @@ func TestRunSimulation_Basic(t *testing.T) {
 	rng := rand.New(rand.NewPCG(42, 0))
 	result := SimulateRun(master, "廃墟", player, playerWeapon, 5, rng)
 
-	// 5階層分は少なくとも到達できる可能性が高い
+	// シード固定のため結果は決定論的。素手でも最低1階層には到達する
 	assert.GreaterOrEqual(t, result.ReachedDepth, 1)
 	assert.NotEmpty(t, result.HPByDepth)
 }

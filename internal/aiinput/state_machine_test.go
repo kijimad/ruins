@@ -251,6 +251,8 @@ func TestUpdateState_FleeingToDriving(t *testing.T) {
 	assert.Equal(t, gc.DispositionCowardly, disposition.Current)
 }
 
+// disposition=nil は Hostile として扱われる。
+// 追跡タイムアウトが経過するとプレイヤーが見えていても Waiting に戻る
 func TestUpdateState_ChasingTimeout(t *testing.T) {
 	t.Parallel()
 

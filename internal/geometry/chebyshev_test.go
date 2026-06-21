@@ -32,9 +32,11 @@ func TestChebyshevDistance(t *testing.T) {
 	}
 }
 
+// BresenhamLine は始点・終点を除く中間点のみを返す
 func TestBresenhamLine_Vertical(t *testing.T) {
 	t.Parallel()
 
+	// (0,0)→(0,3): 中間点は (0,1) と (0,2) の2点
 	points := BresenhamLine(0, 0, 0, 3)
 	assert.Len(t, points, 2)
 	assert.Equal(t, 0, points[0].X)
@@ -46,6 +48,7 @@ func TestBresenhamLine_Vertical(t *testing.T) {
 func TestBresenhamLine_Diagonal(t *testing.T) {
 	t.Parallel()
 
+	// (0,0)→(3,3): 中間点は (1,1) と (2,2) の2点
 	points := BresenhamLine(0, 0, 3, 3)
 	assert.Len(t, points, 2)
 	assert.Equal(t, 1, points[0].X)
@@ -57,6 +60,7 @@ func TestBresenhamLine_Diagonal(t *testing.T) {
 func TestBresenhamLine_Reverse(t *testing.T) {
 	t.Parallel()
 
+	// (3,0)→(0,0): 中間点は (2,0) と (1,0) の2点
 	points := BresenhamLine(3, 0, 0, 0)
 	assert.Len(t, points, 2)
 	assert.Equal(t, 2, points[0].X)
