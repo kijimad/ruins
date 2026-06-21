@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.2&nbsp;%</td>
-            <td class="headerCovTableEntry">171</td>
-            <td class="headerCovTableEntry">132</td>
+            <td class="headerCovTableEntryMed">77.1&nbsp;%</td>
+            <td class="headerCovTableEntry">170</td>
+            <td class="headerCovTableEntry">131</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 13:51:57</td>
+            <td class="headerValue">2026-06-21 23:20:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -285,38 +285,36 @@
 <span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L224"><span class="lineNum">     224</span>              : </span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC tlaBgGNC">           1 :         item := props.Items[itemIndex]</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           2 :         if item.Entity != 0 {</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :                 views.UpdateSpec(world, container, item.Entity)</span></span>
-<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L229"><span class="lineNum">     229</span>              : </span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :         return container</span></span>
-<span id="L231"><span class="lineNum">     231</span>              : }</span>
-<span id="L232"><span class="lineNum">     232</span>              : </span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 : func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources.UIResources) *widget.Container {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         container := styled.NewVerticalContainer()</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         totalText := fmt.Sprintf(&quot;合計  %s&quot;, worldhelper.FormatCurrency(props.Total))</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         container.AddChild(widget.NewText(</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(totalText, &amp;res.Text.BodyFace, theme.TextPrimary),</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                                 Position: widget.RowLayoutPositionEnd,</span></span>
-<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :                         }),</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :                 ),</span></span>
-<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         ))</span></span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :         hintText := consts.IconArrowUp + consts.IconArrowDown + &quot; 選択 / &quot; + consts.IconKeyEnter + &quot; 決定&quot;</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         container.AddChild(widget.NewText(</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(hintText, &amp;res.Text.SmallFace, theme.TextAccent),</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
-<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
-<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :                         }),</span></span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :                 ),</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         ))</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         return container</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 :         views.UpdateSpec(world, container, item.Entity)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :         return container</span></span>
+<span id="L229"><span class="lineNum">     229</span>              : }</span>
+<span id="L230"><span class="lineNum">     230</span>              : </span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 : func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources.UIResources) *widget.Container {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         container := styled.NewVerticalContainer()</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :         totalText := fmt.Sprintf(&quot;合計  %s&quot;, worldhelper.FormatCurrency(props.Total))</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :         container.AddChild(widget.NewText(</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(totalText, &amp;res.Text.BodyFace, theme.TextPrimary),</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                                 Position: widget.RowLayoutPositionEnd,</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                         }),</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaGNC">           1 :                 ),</span></span>
+<span id="L242"><span class="lineNum">     242</span> <span class="tlaGNC">           1 :         ))</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         hintText := consts.IconArrowUp + consts.IconArrowDown + &quot; 選択 / &quot; + consts.IconKeyEnter + &quot; 決定&quot;</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         container.AddChild(widget.NewText(</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 widget.TextOpts.Text(hintText, &amp;res.Text.SmallFace, theme.TextAccent),</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 widget.TextOpts.WidgetOpts(</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                         widget.WidgetOpts.LayoutData(widget.RowLayoutData{</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :                                 Position: widget.RowLayoutPositionCenter,</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :                         }),</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :                 ),</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         ))</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         return container</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

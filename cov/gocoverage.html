@@ -77,7 +77,7 @@
 				
 				<option value="file10">github.com/kijimaD/ruins/internal/activity/read.go (65.9%)</option>
 				
-				<option value="file11">github.com/kijimaD/ruins/internal/activity/reload.go (82.1%)</option>
+				<option value="file11">github.com/kijimaD/ruins/internal/activity/reload.go (81.8%)</option>
 				
 				<option value="file12">github.com/kijimaD/ruins/internal/activity/rest.go (91.5%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (93.4%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (94.0%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
@@ -319,7 +319,7 @@
 				
 				<option value="file131">github.com/kijimaD/ruins/internal/states/action_handlers.go (71.0%)</option>
 				
-				<option value="file132">github.com/kijimaD/ruins/internal/states/auto_sell.go (75.6%)</option>
+				<option value="file132">github.com/kijimaD/ruins/internal/states/auto_sell.go (75.3%)</option>
 				
 				<option value="file133">github.com/kijimaD/ruins/internal/states/character_job.go (62.0%)</option>
 				
@@ -487,7 +487,7 @@
 				
 				<option value="file215">github.com/kijimaD/ruins/internal/worldhelper/sort.go (100.0%)</option>
 				
-				<option value="file216">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (74.6%)</option>
+				<option value="file216">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (74.8%)</option>
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/worldhelper/spawn_prop.go (91.6%)</option>
 				
@@ -2510,27 +2510,28 @@ func ExecuteWaitAction(world w.World) error <span class="cov8" title="1">{
         return err</span>
 }
 
-// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
-// 複数ある場合は最初に見つかったものを返す
+// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する。
+// 複数ある場合は最初に見つかったものを返す。
+// 見つからない場合は interactable が nil になる。interactable != nil のときのみ entity は有効値。
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) <span class="cov8" title="1">{
-        var interactable *gc.Interactable
-        var interactableEntity ecs.Entity
+        var found *gc.Interactable
+        var foundEntity ecs.Entity
         world.Manager.Join(
                 world.Components.GridElement,
                 world.Components.Interactable,
                 world.Components.Dead.Not(),
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
-                if interactable != nil </span><span class="cov0" title="0">{
+                if found != nil </span><span class="cov0" title="0">{
                         return // 既に見つかっている
                 }</span>
                 <span class="cov8" title="1">ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
                 // 直上タイルのみ
                 if ge.X == targetGrid.X &amp;&amp; ge.Y == targetGrid.Y </span><span class="cov8" title="1">{
-                        interactable = world.Components.Interactable.Get(entity).(*gc.Interactable)
-                        interactableEntity = entity
+                        found = world.Components.Interactable.Get(entity).(*gc.Interactable)
+                        foundEntity = entity
                 }</span>
         }))
-        <span class="cov8" title="1">return interactable, interactableEntity</span>
+        <span class="cov8" title="1">return found, foundEntity</span>
 }
 
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する
@@ -2907,8 +2908,7 @@ func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
         }</span>
 
         // 弾薬の在庫チェック
-        <span class="cov8" title="1">_, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag)
-        if !found </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if _, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag); !found </span><span class="cov8" title="1">{
                 return ErrReloadNoAmmo
         }</span>
 
@@ -4145,7 +4145,7 @@ func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Ent
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         // 30%の確率で待機
-        if rand.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
+        if rand.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -16070,7 +16070,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
                         index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
                         return worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &amp;index)</span>
                 default:<span class="cov0" title="0">
-                        return 0, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))</span>
+                        return consts.InvalidEntity, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))</span>
                 }
         }
 
@@ -16081,7 +16081,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
         case "void":<span class="cov0" title="0">
                 return worldhelper.SpawnTile(world, "void", tileX, tileY, nil)</span>
         default:<span class="cov0" title="0">
-                return 0, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))</span>
+                return consts.InvalidEntity, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))</span>
         }
 }
 
@@ -29172,11 +29172,9 @@ func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, 
         }</span>
 
         <span class="cov8" title="1">item := props.Items[itemIndex]
-        if item.Entity != 0 </span><span class="cov8" title="1">{
-                views.UpdateSpec(world, container, item.Entity)
-        }</span>
+        views.UpdateSpec(world, container, item.Entity)
 
-        <span class="cov8" title="1">return container</span>
+        return container</span>
 }
 
 func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources.UIResources) *widget.Container <span class="cov8" title="1">{
@@ -30206,7 +30204,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error <span class="co
                 <span class="cov0" title="0">st.subState = craftSubStateResult
                 st.resultMount = hooks.NewMount[craftResultProps]()
                 st.resultMount.SetProps(craftResultProps{
-                        ResultEntity: *resultEntity,
+                        ResultEntity: resultEntity,
                 })</span>
         case TextClose:<span class="cov0" title="0">
                 st.subState = craftSubStateMenu</span>
@@ -30363,8 +30361,8 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) <span class="cov8" title="1">{
         for _, input := range recipe.Inputs </span><span class="cov8" title="1">{
                 var currentAmount int
-                if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found </span><span class="cov0" title="0">{
-                        currentAmount = worldhelper.GetEntityCount(world, stackableEntity)
+                if entity, found := worldhelper.FindStackableInInventory(world, input.Name); found </span><span class="cov0" title="0">{
+                        currentAmount = worldhelper.GetEntityCount(world, entity)
                 }</span>
                 <span class="cov8" title="1">str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
                 var textColor color.RGBA
@@ -45136,20 +45134,21 @@ import (
         ecs "github.com/x-hgg-x/goecs/v2"
 
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         "github.com/kijimaD/ruins/internal/raw"
         w "github.com/kijimaD/ruins/internal/world"
 )
 
 // Craft はアイテムをクラフトする
-func Craft(world w.World, name string) (*ecs.Entity, error) <span class="cov8" title="1">{
+func Craft(world w.World, name string) (ecs.Entity, error) <span class="cov8" title="1">{
         canCraft, err := CanCraft(world, name)
         if err != nil </span><span class="cov8" title="1">{
                 // レシピが存在しない場合
-                return nil, err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov8" title="1">if !canCraft </span><span class="cov8" title="1">{
                 // 素材不足の場合
-                return nil, fmt.Errorf("必要素材が足りません")
+                return consts.InvalidEntity, fmt.Errorf("必要素材が足りません")
         }</span>
 
         // プレイヤーのCharModifiersを取得する
@@ -45163,14 +45162,14 @@ func Craft(world w.World, name string) (*ecs.Entity, error) <span class="cov8" t
 
         <span class="cov8" title="1">resultEntity, err := SpawnBackpackItem(world, name, 1)
         if err != nil </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
+                return consts.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
         }</span>
         <span class="cov8" title="1">randomize(world, resultEntity, smithQualityPct)
         if err := consumeMaterials(world, name, craftCostPct); err != nil </span><span class="cov0" title="0">{
-                return nil, fmt.Errorf("素材消費に失敗: %w", err)
+                return consts.InvalidEntity, fmt.Errorf("素材消費に失敗: %w", err)
         }</span>
 
-        <span class="cov8" title="1">return &amp;resultEntity, nil</span>
+        <span class="cov8" title="1">return resultEntity, nil</span>
 }
 
 // CanCraft は所持数と必要数を比較してクラフト可能か判定する
@@ -46019,10 +46018,10 @@ func GetPlayerEntity(world w.World) (ecs.Entity, error) <span class="cov8" title
         }</span>))
 
         <span class="cov8" title="1">if len(entities) == 0 </span><span class="cov8" title="1">{
-                return 0, fmt.Errorf("プレイヤーエンティティが存在しません")
+                return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティが存在しません")
         }</span>
         <span class="cov8" title="1">if len(entities) &gt; 1 </span><span class="cov8" title="1">{
-                return 0, fmt.Errorf("プレイヤーエンティティが複数存在します: %d個", len(entities))
+                return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティが複数存在します: %d個", len(entities))
         }</span>
 
         <span class="cov8" title="1">return entities[0], nil</span>
@@ -46671,7 +46670,7 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
         rawMaster := world.Resources.RawMaster
         entitySpec, err := raw.NewTileSpec(rawMaster, tileName, x, y, autoTileIndex)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
 
         <span class="cov0" title="0">componentList := entities.ComponentList[gc.EntitySpec]{}
@@ -46679,10 +46678,10 @@ func SpawnTile(world w.World, tileName string, x consts.Tile, y consts.Tile, aut
 
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov0" title="0">if len(entitiesSlice) == 0 </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("エンティティの生成に失敗しました")
+                return consts.InvalidEntity, fmt.Errorf("エンティティの生成に失敗しました")
         }</span>
         <span class="cov0" title="0">return entitiesSlice[0], nil</span>
 }
@@ -46696,7 +46695,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
         componentList := entities.ComponentList[gc.EntitySpec]{}
         entitySpec, err := raw.NewPlayerSpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
         }</span>
 
         <span class="cov8" title="1">skills := gc.NewSkills()
@@ -46721,15 +46720,15 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
         componentList.Entities = append(componentList.Entities, entitySpec)
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov8" title="1">if len(entitiesSlice) != 1 </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("プレイヤーエンティティの生成に失敗しました: 予期しないエンティティ数=%d", len(entitiesSlice))
+                return consts.InvalidEntity, fmt.Errorf("プレイヤーエンティティの生成に失敗しました: 予期しないエンティティ数=%d", len(entitiesSlice))
         }</span>
         <span class="cov8" title="1">playerEntity := entitiesSlice[0]
 
         if err := FullRecover(world, playerEntity); err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
+                return consts.InvalidEntity, fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
         }</span>
         <span class="cov8" title="1">playerEntity.AddComponent(world.Components.WeightDirty, &amp;gc.WeightDirty{})
 
@@ -46742,15 +46741,15 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
         // NewMemberSpecでEntitySpecを生成
         entitySpec, err := raw.NewMemberSpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("中立NPC生成エラー: %w", err)
+                return consts.InvalidEntity, fmt.Errorf("中立NPC生成エラー: %w", err)
         }</span>
 
         // 中立派閥とDialog設定を確認
         <span class="cov0" title="0">if entitySpec.FactionType == nil || *entitySpec.FactionType != gc.FactionNeutral </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("'%s' は中立NPCではありません", name)
+                return consts.InvalidEntity, fmt.Errorf("'%s' は中立NPCではありません", name)
         }</span>
         <span class="cov0" title="0">if entitySpec.Dialog == nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("'%s' には会話データがありません", name)
+                return consts.InvalidEntity, fmt.Errorf("'%s' には会話データがありません", name)
         }</span>
 
         // フィールド用のコンポーネントを設定
@@ -46776,16 +46775,16 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
         <span class="cov0" title="0">componentList.Entities = append(componentList.Entities, entitySpec)
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov0" title="0">if len(entitiesSlice) == 0 </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("NPCエンティティの生成に失敗しました")
+                return consts.InvalidEntity, fmt.Errorf("NPCエンティティの生成に失敗しました")
         }</span>
 
         // 全回復
         <span class="cov0" title="0">npcEntity := entitiesSlice[len(entitiesSlice)-1]
         if err := FullRecover(world, npcEntity); err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("NPCの回復処理エラー: %w", err)
+                return consts.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
         }</span>
 
         <span class="cov0" title="0">return npcEntity, nil</span>
@@ -46807,7 +46806,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
         // 敵データを取得
         entitySpec, err := raw.NewEnemySpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("%w: %v", ErrEnemyGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrEnemyGeneration, err)
         }</span>
 
         // フィールド用のコンポーネントを設定
@@ -46829,25 +46828,25 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
                 Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
         }
         if entitySpec.Disposition == nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
+                return consts.InvalidEntity, fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
         }</span>
         <span class="cov8" title="1">if entitySpec.MovementPattern == nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("敵エンティティに移動パターン(movementPattern)が指定されていません: %s", entitySpec.Name)
+                return consts.InvalidEntity, fmt.Errorf("敵エンティティに移動パターン(movementPattern)が指定されていません: %s", entitySpec.Name)
         }</span>
 
         <span class="cov8" title="1">componentList.Entities = append(componentList.Entities, entitySpec)
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov8" title="1">if len(entitiesSlice) == 0 </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("敵エンティティの生成に失敗しました")
+                return consts.InvalidEntity, fmt.Errorf("敵エンティティの生成に失敗しました")
         }</span>
 
         // 全回復
         <span class="cov8" title="1">npcEntity := entitiesSlice[len(entitiesSlice)-1]
         if err := FullRecover(world, npcEntity); err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("敵の回復処理エラー: %w", err)
+                return consts.InvalidEntity, fmt.Errorf("敵の回復処理エラー: %w", err)
         }</span>
 
         // ActionPointsを初期化
@@ -46855,7 +46854,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
                 actionPoints := world.Components.TurnBased.Get(npcEntity).(*gc.TurnBased)
                 maxAP, err := CalculateMaxActionPoints(world, npcEntity)
                 if err != nil </span><span class="cov0" title="0">{
-                        return ecs.Entity(0), fmt.Errorf("AP計算エラー: %w", err)
+                        return consts.InvalidEntity, fmt.Errorf("AP計算エラー: %w", err)
                 }</span>
                 <span class="cov8" title="1">actionPoints.AP.Current = maxAP
                 actionPoints.AP.Max = maxAP</span>
@@ -46877,14 +46876,16 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) <span class="cov8" title="1">{
         item, err := spawnItemBase(world, name, count)
         if err != nil </span><span class="cov8" title="1">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
 
         <span class="cov8" title="1">var playerEntity ecs.Entity
+        var found bool
         world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) </span><span class="cov8" title="1">{
                 playerEntity = e
+                found = true
         }</span>))
-        <span class="cov8" title="1">if playerEntity == 0 </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">if !found </span><span class="cov8" title="1">{
                 // Playerが存在しない場合はOwnerなしでバックパックに配置する
                 item.AddComponent(world.Components.LocationInBackpack, &amp;gc.LocationInBackpack{})
                 return item, nil
@@ -46897,27 +46898,27 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 // spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数
 func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) <span class="cov8" title="1">{
         if count &lt;= 0 </span><span class="cov8" title="1">{
-                return 0, fmt.Errorf("count must be positive: %d", count)
+                return consts.InvalidEntity, fmt.Errorf("count must be positive: %d", count)
         }</span>
 
         <span class="cov8" title="1">{
                 // アイテム定義を取得してStackable対応かチェック
                 itemDef, err := raw.FindItem(world.Resources.RawMaster, name)
                 if err != nil </span><span class="cov8" title="1">{
-                        return 0, fmt.Errorf("item not found: %s", name)
+                        return consts.InvalidEntity, fmt.Errorf("item not found: %s", name)
                 }</span>
                 <span class="cov8" title="1">isStackable := itemDef.Stackable != nil &amp;&amp; *itemDef.Stackable
 
                 // Stackableでないアイテムにcount &gt; 1を指定した場合はエラー
                 if !isStackable &amp;&amp; count &gt; 1 </span><span class="cov8" title="1">{
-                        return 0, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
+                        return consts.InvalidEntity, fmt.Errorf("item %s is not stackable, count must be 1 (got %d)", name, count)
                 }</span>
         }
 
         <span class="cov8" title="1">componentList := entities.ComponentList[gc.EntitySpec]{}
         entitySpec, err := raw.NewItemSpec(world.Resources.RawMaster, name)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
+                return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrItemGeneration, err)
         }</span>
         // Stackableアイテムの場合はcountを設定する
         <span class="cov8" title="1">if entitySpec.Stackable != nil </span><span class="cov8" title="1">{
@@ -46926,10 +46927,10 @@ func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) <s
         <span class="cov8" title="1">componentList.Entities = append(componentList.Entities, entitySpec)
         entitiesSlice, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov8" title="1">if len(entitiesSlice) == 0 </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("アイテムエンティティの生成に失敗しました")
+                return consts.InvalidEntity, fmt.Errorf("アイテムエンティティの生成に失敗しました")
         }</span>
 
         <span class="cov8" title="1">return entitiesSlice[len(entitiesSlice)-1], nil</span>
@@ -47002,7 +47003,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error <span class="cov8" titl
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) <span class="cov0" title="0">{
         item, err := spawnItemBase(world, itemName, count)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
 
         <span class="cov0" title="0">MoveToStorage(world, item, storage)
@@ -47014,7 +47015,7 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) <span class="cov8" title="1">{
         item, err := spawnItemBase(world, itemName, count)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
 
         <span class="cov8" title="1">MoveToField(world, item, nil)
@@ -47078,7 +47079,7 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
         // 置物の設定を生成
         entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
 
         // 位置情報を設定
@@ -47091,7 +47092,7 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
         componentList.Entities = append(componentList.Entities, entitySpec)
         entities, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov8" title="1">return entities[len(entities)-1], nil</span>
 }
@@ -47132,10 +47133,10 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
         componentList.Entities = append(componentList.Entities, entitySpec)
         ents, err := entities.AddEntities(world, componentList)
         if err != nil </span><span class="cov0" title="0">{
-                return ecs.Entity(0), err
+                return consts.InvalidEntity, err
         }</span>
         <span class="cov8" title="1">if len(ents) == 0 </span><span class="cov0" title="0">{
-                return ecs.Entity(0), fmt.Errorf("エンティティが生成されませんでした")
+                return consts.InvalidEntity, fmt.Errorf("エンティティが生成されませんでした")
         }</span>
         <span class="cov8" title="1">return ents[len(ents)-1], nil</span>
 }

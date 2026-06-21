@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 13:51:57</td>
+            <td class="headerValue">2026-06-21 23:20:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -443,7 +443,7 @@
 <span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                 st.subState = craftSubStateResult</span></span>
 <span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                 st.resultMount = hooks.NewMount[craftResultProps]()</span></span>
 <span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                 st.resultMount.SetProps(craftResultProps{</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         ResultEntity: *resultEntity,</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         ResultEntity: resultEntity,</span></span>
 <span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                 })</span></span>
 <span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         case TextClose:</span></span>
 <span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                 st.subState = craftSubStateMenu</span></span>
@@ -600,8 +600,8 @@
 <span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 : func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) {</span></span>
 <span id="L539"><span class="lineNum">     539</span> <span class="tlaGNC">           2 :         for _, input := range recipe.Inputs {</span></span>
 <span id="L540"><span class="lineNum">     540</span> <span class="tlaGNC">           1 :                 var currentAmount int</span></span>
-<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                 if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found {</span></span>
-<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC tlaBgUNC">           0 :                         currentAmount = worldhelper.GetEntityCount(world, stackableEntity)</span></span>
+<span id="L541"><span class="lineNum">     541</span> <span class="tlaGNC">           1 :                 if entity, found := worldhelper.FindStackableInInventory(world, input.Name); found {</span></span>
+<span id="L542"><span class="lineNum">     542</span> <span class="tlaUNC tlaBgUNC">           0 :                         currentAmount = worldhelper.GetEntityCount(world, entity)</span></span>
 <span id="L543"><span class="lineNum">     543</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC tlaBgGNC">           1 :                 str := fmt.Sprintf(&quot;%s %d pcs\n    所持: %d pcs&quot;, input.Name, input.Amount, currentAmount)</span></span>
 <span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           1 :                 var textColor color.RGBA</span></span>
