@@ -28,7 +28,7 @@ func InitializeSystems(world w.World) (map[string]w.Updater, map[string]w.Render
 	statsChangedSystem := &StatsChangedSystem{}
 	updaters[statsChangedSystem.String()] = statsChangedSystem
 
-	inventoryChangedSystem := &InventoryChangedSystem{}
+	inventoryChangedSystem := &WeightDirtySystem{}
 	updaters[inventoryChangedSystem.String()] = inventoryChangedSystem
 
 	temperatureSystem := &TemperatureSystem{}

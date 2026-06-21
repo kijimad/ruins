@@ -43,48 +43,51 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
 		interactableGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		if !worldhelper.IsInActivationRange(playerGrid, interactableGrid, interactable.Data.Config().ActivationRange) {
-			return
+		// いずれかのインタラクションが範囲内にあれば候補に追加する
+		for _, interaction := range interactable.Interactions {
+			if worldhelper.IsInActivationRange(playerGrid, interactableGrid, interaction.Config().ActivationRange) {
+				logger.New(logger.CategoryAction).Debug("Found interactable in range",
+					"entity", entity,
+					"playerPos", playerGrid,
+					"interactablePos", interactableGrid,
+					"range", interaction.Config().ActivationRange)
+				interactablesToProcess = append(interactablesToProcess, entity)
+				return
+			}
 		}
-
-		logger.New(logger.CategoryAction).Debug("Found interactable in range",
-			"entity", entity,
-			"playerPos", playerGrid,
-			"interactablePos", interactableGrid,
-			"range", interactable.Data.Config().ActivationRange)
-
-		interactablesToProcess = append(interactablesToProcess, entity)
 	}))
 
 	// 検索した自動実行相互作用を処理する
 	for _, interactableEntity := range interactablesToProcess {
 		interactable := world.Components.Interactable.Get(interactableEntity).(*gc.Interactable)
-		config := interactable.Data.Config()
 
-		// 相互作用の設定が有効かチェック
-		if err := config.ActivationRange.Valid(); err != nil {
-			logger.New(logger.CategoryAction).Warn("無効なActivationRangeを持つ相互作用をスキップ",
-				"entity", interactableEntity,
-				"range", config.ActivationRange,
-				"error", err)
-			continue
-		}
-		if err := config.ActivationWay.Valid(); err != nil {
-			logger.New(logger.CategoryAction).Warn("無効なActivationWayを持つ相互作用をスキップ",
-				"entity", interactableEntity,
-				"way", config.ActivationWay,
-				"error", err)
-			continue
-		}
+		for _, interaction := range interactable.Interactions {
+			config := interaction.Config()
 
-		if config.ActivationWay != gc.ActivationWayAuto {
-			continue
-		}
+			if err := config.ActivationRange.Valid(); err != nil {
+				logger.New(logger.CategoryAction).Warn("無効なActivationRangeを持つ相互作用をスキップ",
+					"entity", interactableEntity,
+					"range", config.ActivationRange,
+					"error", err)
+				continue
+			}
+			if err := config.ActivationWay.Valid(); err != nil {
+				logger.New(logger.CategoryAction).Warn("無効なActivationWayを持つ相互作用をスキップ",
+					"entity", interactableEntity,
+					"way", config.ActivationWay,
+					"error", err)
+				continue
+			}
 
-		// 自動実行の相互作用を実行する
-		_, err := activity.ExecuteInteraction(playerEntity, interactableEntity, world)
-		if err != nil {
-			return err
+			if config.ActivationWay != gc.ActivationWayAuto {
+				continue
+			}
+
+			// 自動実行の相互作用を実行する
+			_, err := activity.ExecuteInteraction(playerEntity, interactableEntity, interaction, world)
+			if err != nil {
+				return err
+			}
 		}
 	}
 

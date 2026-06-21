@@ -13,33 +13,31 @@ const (
 	strengthWeightMultiplier = 2.0
 )
 
-// UpdateCarryingWeight はエンティティの所持重量プールを更新する
-// 現在の所持重量と所持可能重量を再計算してCarryWeightコンポーネントに反映する
-func UpdateCarryingWeight(world w.World, entity ecs.Entity) {
-	if !entity.HasComponent(world.Components.CarryWeight) {
+// UpdateWeightCapacity はエンティティのWeightCapacityを更新する。
+// PlayerはAbilitiesからMaxを計算し、Backpack+Equippedの重量をCurrentに設定する。
+// StorageはMaxを変更せず、LocationInStorageの重量をCurrentに設定する
+func UpdateWeightCapacity(world w.World, entity ecs.Entity) {
+	if !entity.HasComponent(world.Components.WeightCapacity) {
 		return
 	}
-	if !entity.HasComponent(world.Components.Abilities) {
-		return
+
+	wc := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
+
+	// Abilitiesを持つエンティティはMaxを再計算する（Player用）
+	if entity.HasComponent(world.Components.Abilities) {
+		abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)
+		maxWeight := calculateMaxCarryingWeight(abilities)
+
+		if entity.HasComponent(world.Components.CharModifiers) {
+			mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
+			maxWeight = maxWeight * float64(mods.MaxWeight) / 100
+		}
+
+		wc.Max = maxWeight
 	}
 
-	cw := world.Components.CarryWeight.Get(entity).(*gc.CarryWeight)
-	abilities := world.Components.Abilities.Get(entity).(*gc.Abilities)
-
-	// 所持可能重量を計算
-	maxWeight := calculateMaxCarryingWeight(abilities)
-
-	// 倍率を適用する
-	if entity.HasComponent(world.Components.CharModifiers) {
-		mods := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
-		maxWeight = maxWeight * float64(mods.MaxWeight) / 100
-	}
-
-	cw.Max = maxWeight
-
-	// 現在の所持重量を計算
-	currentWeight := calculateCurrentCarryingWeight(world, entity)
-	cw.Current = currentWeight
+	// Currentを再計算する
+	wc.Current = calculateOwnedWeight(world, entity)
 }
 
 // calculateMaxCarryingWeight は筋力ステータスから所持可能重量を計算する
@@ -52,29 +50,35 @@ func calculateMaxCarryingWeight(abilities *gc.Abilities) float64 {
 	return baseCarryingWeight + float64(strength)*strengthWeightMultiplier
 }
 
-// calculateCurrentCarryingWeight は所持アイテムの総重量を計算する
-// バックパック内と装備中のアイテムの重量を合算する
-func calculateCurrentCarryingWeight(world w.World, entity ecs.Entity) float64 {
+// calculateOwnedWeight はエンティティが所有するアイテムの総重量を計算する。
+// Backpack内、装備中、Storage内のアイテムをOwnerで判定して合算する
+func calculateOwnedWeight(world w.World, entity ecs.Entity) float64 {
 	var totalWeight float64
 
-	// 全エンティティを走査
 	world.Manager.Join(
 		world.Components.Weight,
 	).Visit(ecs.Visit(func(itemEntity ecs.Entity) {
-		weight := world.Components.Weight.Get(itemEntity).(*gc.Weight)
-
 		// バックパック内のエンティティ
 		if itemEntity.HasComponent(world.Components.LocationInBackpack) {
-			count := GetEntityCount(world, itemEntity)
-			totalWeight += weight.Kg * float64(count)
+			loc := world.Components.LocationInBackpack.Get(itemEntity).(*gc.LocationInBackpack)
+			if loc.Owner == entity {
+				totalWeight += GetEntityWeight(world, itemEntity)
+			}
 		}
 
 		// 装備中のアイテム
 		if itemEntity.HasComponent(world.Components.LocationEquipped) {
-			equipped := world.Components.LocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
-			// このエンティティが装備しているアイテムのみ
-			if equipped.Owner == entity {
-				totalWeight += weight.Kg
+			loc := world.Components.LocationEquipped.Get(itemEntity).(*gc.LocationEquipped)
+			if loc.Owner == entity {
+				totalWeight += GetEntityWeight(world, itemEntity)
+			}
+		}
+
+		// 収納内のアイテム
+		if itemEntity.HasComponent(world.Components.LocationInStorage) {
+			loc := world.Components.LocationInStorage.Get(itemEntity).(*gc.LocationInStorage)
+			if loc.Owner == entity {
+				totalWeight += GetEntityWeight(world, itemEntity)
 			}
 		}
 	}))

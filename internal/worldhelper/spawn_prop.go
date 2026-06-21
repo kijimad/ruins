@@ -62,7 +62,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 			IsOpen:      false,
 			Orientation: orientation,
 		},
-		Interactable: &gc.Interactable{Data: gc.DoorInteraction{}},
+		Interactable: &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}},
 	}
 
 	// エンティティを生成
@@ -134,8 +134,11 @@ func DeleteDoorLockTriggers(world w.World) {
 	var toDelete []ecs.Entity
 	world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(triggerEntity ecs.Entity) {
 		interactable := world.Components.Interactable.Get(triggerEntity).(*gc.Interactable)
-		if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
-			toDelete = append(toDelete, triggerEntity)
+		for _, interaction := range interactable.Interactions {
+			if _, ok := interaction.(gc.DoorLockInteraction); ok {
+				toDelete = append(toDelete, triggerEntity)
+				return
+			}
 		}
 	}))
 	for _, entity := range toDelete {

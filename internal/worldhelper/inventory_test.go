@@ -121,14 +121,14 @@ func TestChangeItemCount(t *testing.T) {
 		assert.Contains(t, err.Error(), "must not be zero")
 	})
 
-	t.Run("プレイヤーがいる場合はInventoryChangedフラグが立つ", func(t *testing.T) {
+	t.Run("プレイヤーがいる場合はWeightDirtyフラグが立つ", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
 		player := world.Manager.NewEntity()
 		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
+		player.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
 		player.AddComponent(world.Components.Abilities, &gc.Abilities{
 			Strength: gc.Ability{Base: 10},
 		})
@@ -142,7 +142,7 @@ func TestChangeItemCount(t *testing.T) {
 		err := ChangeItemCount(world, item, -1)
 		require.NoError(t, err)
 
-		// InventoryChangedフラグが立っていることを確認
-		assert.True(t, player.HasComponent(world.Components.InventoryChanged), "InventoryChangedフラグが立つべき")
+		// WeightDirtyフラグが立っていることを確認
+		assert.True(t, player.HasComponent(world.Components.WeightDirty), "WeightDirtyフラグが立つべき")
 	})
 }

@@ -40,14 +40,14 @@ func ApplyProfession(world w.World, player ecs.Entity, prof oapi.Profession) err
 
 	// 初期アイテムをバックパックに付与
 	for _, profItem := range prof.Items {
-		if _, err := SpawnItem(world, profItem.Name, int(profItem.Count), gc.LocationTypeInBackpack); err != nil {
+		if _, err := SpawnBackpackItem(world, profItem.Name, int(profItem.Count)); err != nil {
 			return fmt.Errorf("職業の初期アイテム生成に失敗: %s: %w", profItem.Name, err)
 		}
 	}
 
 	// 初期装備を付与して装備する
 	for _, equip := range prof.Equips {
-		item, err := SpawnItem(world, equip.Name, 1, gc.LocationTypeInBackpack)
+		item, err := SpawnBackpackItem(world, equip.Name, 1)
 		if err != nil {
 			return fmt.Errorf("職業の初期装備生成に失敗: %s: %w", equip.Name, err)
 		}

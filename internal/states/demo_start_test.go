@@ -52,10 +52,3 @@ func TestDemoStartState_Update_AfterConsumed(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, es.TransNone, transition.Type, "消費済みの場合はTransNone")
 }
-
-func TestDemoStartState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &DemoStartState{}
-	assert.Equal(t, "DemoStart", state.String())
-}

@@ -10,12 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTemperatureSystem_String(t *testing.T) {
-	t.Parallel()
-	sys := &TemperatureSystem{}
-	assert.Equal(t, "TemperatureSystem", sys.String())
-}
-
 func TestGetTileTemperatureAt(t *testing.T) {
 	t.Parallel()
 

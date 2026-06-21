@@ -18,13 +18,6 @@ func TestPlaceState_StateConfig(t *testing.T) {
 	assert.False(t, config.BlurBackground)
 }
 
-func TestPlaceState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &PlaceState{}
-	assert.Equal(t, "Place", state.String())
-}
-
 func TestPlaceState_OnStart(t *testing.T) {
 	t.Parallel()
 

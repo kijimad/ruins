@@ -230,7 +230,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
 		&gs.StatsChangedSystem{},
-		&gs.InventoryChangedSystem{},
+		&gs.WeightDirtySystem{},
 		&gs.VisualEffectSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
@@ -449,8 +449,22 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 
 	// 相互作用系アクション
 	case inputmapper.ActionInteract:
-		if err := activity.ExecuteEnterAction(world); err != nil {
-			return es.Transition[w.World]{Type: es.TransNone}, err
+		actions := GetSameTileManualActions(world)
+		switch len(actions) {
+		case 0:
+			// 何もしない
+		case 1:
+			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			if err != nil {
+				return es.Transition[w.World]{Type: es.TransNone}, err
+			}
+			if _, err := activity.ExecuteInteraction(playerEntity, actions[0].Target, actions[0].Interaction, world); err != nil {
+				return es.Transition[w.World]{Type: es.TransNone}, err
+			}
+		default:
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+				func() es.State[w.World] { return newActionChoiceMenu(actions) },
+			}}, nil
 		}
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 
@@ -537,6 +551,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 	case gc.OpenDungeonSelectEvent:
 		// ダンジョン選択画面を開く
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{NewDungeonSelectState}}, nil
+	case gc.OpenStorageEvent:
+		// 収納メニューを開く
+		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+			func() es.State[w.World] { return NewStorageMenuState(e.StorageEntity) },
+		}}, nil
 	}
 
 	return es.Transition[w.World]{}, fmt.Errorf("未知のStateChangeRequest: %T", req)

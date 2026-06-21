@@ -108,19 +108,7 @@ func TestIsPickable(t *testing.T) {
 		assert.False(t, IsPickable(entity, world))
 	})
 
-	t.Run("PropでHPを持つなら拾える", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
-		entity.AddComponent(world.Components.Prop, nil)
-		entity.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
-
-		assert.True(t, IsPickable(entity, world))
-	})
-
-	t.Run("PropでHPを持たないなら拾えない", func(t *testing.T) {
+	t.Run("Propは拾えない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -128,7 +116,7 @@ func TestIsPickable(t *testing.T) {
 		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
 		entity.AddComponent(world.Components.Prop, nil)
 
-		assert.False(t, IsPickable(entity, world))
+		assert.False(t, IsPickable(entity, world), "Propは設置物なので拾えない")
 	})
 }
 

@@ -37,3 +37,10 @@ func (ShowDialogEvent) stateChangeRequest() {}
 type OpenDungeonSelectEvent struct{}
 
 func (OpenDungeonSelectEvent) stateChangeRequest() {}
+
+// OpenStorageEvent は収納メニューを開くことを表す
+type OpenStorageEvent struct {
+	StorageEntity ecs.Entity // 収納Propのエンティティ
+}
+
+func (OpenStorageEvent) stateChangeRequest() {}

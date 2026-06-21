@@ -16,11 +16,11 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存のmaterialをバックパックに配置（初期数量5）
-	_, err := SpawnItem(world, "鉄くず", 5, gc.LocationTypeInBackpack)
+	_, err := SpawnBackpackItem(world, "鉄くず", 5)
 	require.NoError(t, err)
 
 	// 新しいmaterialを作成（数量3）
-	_, err = SpawnItem(world, "鉄くず", 3, gc.LocationTypeInBackpack)
+	_, err = SpawnBackpackItem(world, "鉄くず", 3)
 	require.NoError(t, err)
 
 	// MergeInventoryItemを実行
@@ -52,7 +52,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 新しいmaterialを作成（既存のものはなし）
-	_, err := SpawnItem(world, "緑ハーブ", 2, gc.LocationTypeInBackpack)
+	_, err := SpawnBackpackItem(world, "緑ハーブ", 2)
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合前）
@@ -87,11 +87,11 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 既存のアイテム（Stackableを持たない）をバックパックに配置
-	_, err := SpawnItem(world, "西洋鎧", 1, gc.LocationTypeInBackpack)
+	_, err := SpawnBackpackItem(world, "西洋鎧", 1)
 	require.NoError(t, err)
 
 	// 新しい同じアイテムを作成
-	_, err = SpawnItem(world, "西洋鎧", 1, gc.LocationTypeInBackpack)
+	_, err = SpawnBackpackItem(world, "西洋鎧", 1)
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合前）

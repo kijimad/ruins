@@ -10,14 +10,10 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する
-func ExecuteInteraction(actor ecs.Entity, interactable ecs.Entity, world w.World) (*ActionResult, error) {
-	if !interactable.HasComponent(world.Components.Interactable) {
-		return nil, fmt.Errorf("指定されたエンティティはInteractableを持っていません")
-	}
-
-	comp := world.Components.Interactable.Get(interactable).(*gc.Interactable)
-	config := comp.Data.Config()
+// ExecuteInteraction は相互作用の種類に応じたアクティビティを実行する。
+// interactionには実行すべき具体的なInteractionDataを渡す
+func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.InteractionData, world w.World) (*ActionResult, error) {
+	config := interaction.Config()
 
 	if err := config.ActivationRange.Valid(); err != nil {
 		return nil, fmt.Errorf("無効なActivationRange: %w", err)
@@ -26,23 +22,25 @@ func ExecuteInteraction(actor ecs.Entity, interactable ecs.Entity, world w.World
 		return nil, fmt.Errorf("無効なActivationWay: %w", err)
 	}
 
-	switch content := comp.Data.(type) {
+	switch content := interaction.(type) {
 	case gc.PortalInteraction:
 		return executePortal(world, content)
 	case gc.DungeonGateInteraction:
 		return executeDungeonGate(world)
 	case gc.DoorInteraction:
-		return executeDoor(actor, interactable, world)
+		return executeDoor(actor, target, world)
 	case gc.DoorLockInteraction:
 		return executeDoorLock(world)
 	case gc.TalkInteraction:
-		return executeTalk(actor, interactable, world)
+		return executeTalk(actor, target, world)
 	case gc.ItemInteraction:
 		return executeItem(actor, world)
+	case gc.StorageInteraction:
+		return executeStorage(target, world)
 	case gc.MeleeInteraction:
-		return executeMelee(actor, interactable, world)
+		return executeMelee(actor, target, world)
 	default:
-		return nil, fmt.Errorf("未知の相互作用タイプ: %T", comp.Data)
+		return nil, fmt.Errorf("未知の相互作用タイプ: %T", interaction)
 	}
 }
 
@@ -125,6 +123,13 @@ func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
 		Destination: &destination,
 	}
 	return Execute(&PickupActivity{}, params, world)
+}
+
+func executeStorage(storageEntity ecs.Entity, world w.World) (*ActionResult, error) {
+	if err := worldhelper.RequestStateChange(world, gc.OpenStorageEvent{StorageEntity: storageEntity}); err != nil {
+		return nil, fmt.Errorf("収納メニュー状態変更要求エラー: %w", err)
+	}
+	return &ActionResult{Success: true, ActivityName: gc.BehaviorStorage, Message: "収納を開いた"}, nil
 }
 
 func executeMelee(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {

@@ -34,32 +34,34 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 	targetGrid := &gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 	interactable, interactableEntity := getInteractableAtSameTile(world, targetGrid)
 
-	if interactable != nil && interactable.Data.Config().ActivationWay == gc.ActivationWayOnCollision {
-		// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
-		if _, isDoorInteraction := interactable.Data.(gc.DoorInteraction); isDoorInteraction {
-			if interactableEntity.HasComponent(world.Components.Door) {
-				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
-				if !door.IsOpen {
-					// ロックされた扉は開けない
-					if door.Locked {
-						gamelog.New(worldhelper.GetGameLog(world)).Append("扉はロックされている。").Log()
-						return nil
+	if interactable != nil {
+		for _, interaction := range interactable.Interactions {
+			if interaction.Config().ActivationWay != gc.ActivationWayOnCollision {
+				continue
+			}
+			switch interaction.(type) {
+			case gc.DoorInteraction:
+				// DoorInteractionの場合は、閉じている場合のみ実行（開いている場合は通過）
+				if interactableEntity.HasComponent(world.Components.Door) {
+					door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+					if !door.IsOpen {
+						if door.Locked {
+							gamelog.New(worldhelper.GetGameLog(world)).Append("扉はロックされている。").Log()
+							return nil
+						}
+						_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
+						return err
 					}
-					// 閉じている扉は開く相互作用を実行
-					_, err := ExecuteInteraction(entity, interactableEntity, world)
+				}
+			case gc.MeleeInteraction:
+				if isHostileEntity(interactableEntity, world) {
+					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
-				// 開いている扉は通過可能なので、相互作用を実行せずに下の移動処理に進む
-			}
-		} else if _, isMelee := interactable.Data.(gc.MeleeInteraction); isMelee {
-			// MeleeInteractionは敵対エンティティのみ自動攻撃する
-			if isHostileEntity(interactableEntity, world) {
-				_, err := ExecuteInteraction(entity, interactableEntity, world)
+			case gc.TalkInteraction:
+				_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 				return err
 			}
-		} else if _, isTalk := interactable.Data.(gc.TalkInteraction); isTalk {
-			_, err := ExecuteInteraction(entity, interactableEntity, world)
-			return err
 		}
 	}
 
@@ -93,32 +95,6 @@ func ExecuteWaitAction(world w.World) error {
 	return err
 }
 
-// ExecuteEnterAction は直上タイルの相互作用を実行する
-func ExecuteEnterAction(world w.World) error {
-	entity, err := worldhelper.GetPlayerEntity(world)
-	if err != nil {
-		return err
-	}
-
-	if !entity.HasComponent(world.Components.GridElement) {
-		return fmt.Errorf("プレイヤーにGridElementコンポーネントがありません")
-	}
-
-	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-	interactable, interactableEntity := getInteractableAtSameTile(world, gridElement)
-	if interactable != nil {
-		config := interactable.Data.Config()
-		// 手動発動（Enterキー）かつ同タイルのみ実行
-		if config.ActivationRange == gc.ActivationRangeSameTile && config.ActivationWay == gc.ActivationWayManual {
-			_, err := ExecuteInteraction(entity, interactableEntity, world)
-			return err
-		}
-	}
-
-	return nil
-}
-
 // getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
 // 複数ある場合は最初に見つかったものを返す
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
@@ -142,31 +118,6 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 	return interactable, interactableEntity
 }
 
-// getInteractableInRange は範囲内のInteractableとエンティティを取得する
-// 複数ある場合は最初に見つかったものを返す
-func getInteractableInRange(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
-	var interactable *gc.Interactable
-	var interactableEntity ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if interactable != nil {
-			return // 既に見つかっている
-		}
-		i := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-		// ActivationRangeに応じた範囲チェック
-		if worldhelper.IsInActivationRange(targetGrid, ge, i.Data.Config().ActivationRange) {
-			interactable = i
-			interactableEntity = entity
-		}
-	}))
-	return interactable, interactableEntity
-}
-
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する
 // Manual と OnCollision 方式のInteractableが対象
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
@@ -179,11 +130,13 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-		way := interactable.Data.Config().ActivationWay
-		// ManualまたはOnCollision方式で、範囲内にあるものを取得
-		if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &&
-			worldhelper.IsInActivationRange(targetGrid, gridElement, interactable.Data.Config().ActivationRange) {
-			results = append(results, entity)
+		for _, interaction := range interactable.Interactions {
+			way := interaction.Config().ActivationWay
+			if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &&
+				worldhelper.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {
+				results = append(results, entity)
+				return // 同じエンティティを重複追加しない
+			}
 		}
 	}))
 
@@ -231,38 +184,38 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 	return "右"
 }
 
-// showTileInteractionMessage は手動相互作用のメッセージを表示する
+// showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
-	interactable, interactableEntity := getInteractableInRange(world, playerGrid)
-	if interactable == nil {
-		return
-	}
-
-	if interactable.Data.Config().ActivationWay != gc.ActivationWayManual {
-		return
-	}
-
-	switch data := interactable.Data.(type) {
-	case gc.ItemInteraction:
-		formattedName := worldhelper.FormatItemName(world, interactableEntity)
-		gamelog.New(worldhelper.GetGameLog(world)).
-			ItemName(formattedName).
-			Append(" がある。").
-			Log()
-	case gc.PortalInteraction:
-		switch data.PortalType {
-		case gc.PortalTypeNext:
-			gamelog.New(worldhelper.GetGameLog(world)).
-				Append("転移ゲートがある。Enterキーで移動。").
-				Log()
-		case gc.PortalTypeTown:
-			gamelog.New(worldhelper.GetGameLog(world)).
-				Append("帰還ゲートがある。Enterキーで脱出。").
-				Log()
+	entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
+	for _, entity := range entities {
+		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		for _, interaction := range interactable.Interactions {
+			if interaction.Config().ActivationWay != gc.ActivationWayManual {
+				continue
+			}
+			switch data := interaction.(type) {
+			case gc.ItemInteraction:
+				formattedName := worldhelper.FormatItemName(world, entity)
+				gamelog.New(worldhelper.GetGameLog(world)).
+					ItemName(formattedName).
+					Append(" がある。").
+					Log()
+			case gc.PortalInteraction:
+				switch data.PortalType {
+				case gc.PortalTypeNext:
+					gamelog.New(worldhelper.GetGameLog(world)).
+						Append("転移ゲートがある。Enterキーで移動。").
+						Log()
+				case gc.PortalTypeTown:
+					gamelog.New(worldhelper.GetGameLog(world)).
+						Append("帰還ゲートがある。Enterキーで脱出。").
+						Log()
+				}
+			case gc.DungeonGateInteraction:
+				gamelog.New(worldhelper.GetGameLog(world)).
+					Append("ダンジョンへの門がある。Enterキーで選択。").
+					Log()
+			}
 		}
-	case gc.DungeonGateInteraction:
-		gamelog.New(worldhelper.GetGameLog(world)).
-			Append("ダンジョンへの門がある。Enterキーで選択。").
-			Log()
 	}
 }

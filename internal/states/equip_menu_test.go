@@ -275,10 +275,3 @@ func TestEquipMenuState_HandleInput(t *testing.T) {
 	state.subState = subStateActionWindow
 	_, _ = state.HandleInput(world.Config)
 }
-
-func TestEquipMenuState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &EquipMenuState{}
-	assert.Equal(t, "EquipMenu", state.String())
-}

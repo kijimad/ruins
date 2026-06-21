@@ -4,9 +4,10 @@ import (
 	"fmt"
 )
 
-// Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー
+// Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー。
+// 1つのエンティティが複数のインタラクションを持てる（例: 攻撃可能かつ収納を開ける木箱）
 type Interactable struct {
-	Data InteractionData
+	Interactions []InteractionData
 }
 
 // InteractionConfig は相互作用の設定
@@ -95,6 +96,17 @@ type ItemInteraction struct{}
 func (t ItemInteraction) Config() InteractionConfig {
 	return InteractionConfig{
 		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayManual,
+	}
+}
+
+// StorageInteraction は収納の相互作用
+type StorageInteraction struct{}
+
+// Config は相互作用設定を返す
+func (s StorageInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeAdjacent,
 		ActivationWay:   ActivationWayManual,
 	}
 }

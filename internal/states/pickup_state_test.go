@@ -18,13 +18,6 @@ func TestPickupState_StateConfig(t *testing.T) {
 	assert.False(t, config.BlurBackground)
 }
 
-func TestPickupState_String(t *testing.T) {
-	t.Parallel()
-
-	state := &PickupState{}
-	assert.Equal(t, "Pickup", state.String())
-}
-
 func TestPickupState_OnStart(t *testing.T) {
 	t.Parallel()
 

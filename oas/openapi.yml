@@ -1972,7 +1972,6 @@ components:
           $ref: '#/components/schemas/Book'
         material:
           type: boolean
-          description: 素材アイテムかどうか
       description: アイテム
     ItemCount:
       type: integer
@@ -2452,6 +2451,8 @@ components:
           $ref: '#/components/schemas/WarpEscapeTriggerRaw'
         dungeonGateTrigger:
           $ref: '#/components/schemas/DungeonGateTriggerRaw'
+        storage:
+          $ref: '#/components/schemas/StorageRaw'
       description: 置物
     PropList:
       type: object
@@ -3560,6 +3561,32 @@ components:
     Stackable:
       type: boolean
       description: スタック可能かどうか
+    StorageMaxWeight:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1000
+      description: 収納の最大格納重量（kg）
+    StorageRaw:
+      type: object
+      required:
+        - maxWeight
+      properties:
+        maxWeight:
+          $ref: '#/components/schemas/StorageMaxWeight'
+        lootTableName:
+          allOf:
+            - $ref: '#/components/schemas/EntityName'
+          description: 初期アイテムの抽選に使うItemTable名
+        lootCountMin:
+          type: integer
+          format: int32
+          description: 初期アイテムの最小数
+        lootCountMax:
+          type: integer
+          format: int32
+          description: 初期アイテムの最大数
+      description: 収納ローデータ
     Strength:
       type: integer
       format: int32

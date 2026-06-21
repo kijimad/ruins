@@ -211,8 +211,8 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 			statusItemData{Label: "HP", Value: fmt.Sprintf("%d", hp.Max), Description: "体力。0になると死亡する"},
 		)
 	}
-	if playerEntity.HasComponent(world.Components.CarryWeight) {
-		cw := world.Components.CarryWeight.Get(playerEntity).(*gc.CarryWeight)
+	if playerEntity.HasComponent(world.Components.WeightCapacity) {
+		cw := world.Components.WeightCapacity.Get(playerEntity).(*gc.WeightCapacity)
 		items = append(items,
 			statusItemData{Label: "最大重量", Value: fmt.Sprintf("%.1f%s", cw.Max, consts.IconKg), Description: "所持可能な最大重量"},
 		)

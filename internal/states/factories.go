@@ -12,6 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // 各ステートのファクトリー関数を集約したファイル
@@ -87,7 +88,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 	messageState.messageData = messagedata.NewSystemMessage("").
 		WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.LocationTypeInBackpack)
+			_, err := worldhelper.SpawnBackpackItem(world, "回復薬", 1)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -95,7 +96,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("レイガンスポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnItem(world, "レイガン", 1, gc.LocationTypeInBackpack)
+			_, err := worldhelper.SpawnBackpackItem(world, "レイガン", 1)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -404,6 +405,9 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("Propスポーン:construction_sign(通行不可)", func(world w.World) error {
 			return spawnPropNearPlayer(world, "construction_sign")
 		}).
+		WithChoice("Propスポーン:木箱(収納・アイテム入り)", func(world w.World) error {
+			return spawnStorageWithItems(world)
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
@@ -423,6 +427,35 @@ func spawnPropNearPlayer(world w.World, name string) error {
 	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
 	_, err = worldhelper.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
+}
+
+// spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする
+func spawnStorageWithItems(world w.World) error {
+	player, err := worldhelper.GetPlayerEntity(world)
+	if err != nil {
+		return err
+	}
+	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	storageEntity, err := worldhelper.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
+	if err != nil {
+		return err
+	}
+
+	// アイテムを収納に格納する
+	items := []struct {
+		name  string
+		count int
+	}{
+		{"回復薬", 3},
+		{"手榴弾", 1},
+		{"たいまつ", 1},
+	}
+	for _, item := range items {
+		if _, err := worldhelper.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {
+			return fmt.Errorf("収納アイテムのスポーンに失敗: %w", err)
+		}
+	}
+	return nil
 }
 
 // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする
@@ -645,30 +678,37 @@ func NewShopMenuState() es.State[w.World] {
 	return &ShopMenuState{}
 }
 
+// NewStorageMenuState は収納メニューStateを作成する
+func NewStorageMenuState(storageEntity ecs.Entity) es.State[w.World] {
+	return &StorageMenuState{storageEntity: storageEntity}
+}
+
 // NewInteractionMenuState はインタラクションメニューStateを作成する
 func NewInteractionMenuState(world w.World) es.State[w.World] {
-	messageState := &MessageState{}
-
-	// プレイヤー周辺の実行可能なアクションを取得
 	interactionActions := GetInteractionActions(world)
 
 	if len(interactionActions) == 0 {
-		// アクションがない場合
+		messageState := &MessageState{}
 		messageState.messageData = messagedata.NewSystemMessage("実行可能なアクションがありません。")
 		return messageState
 	}
 
-	// アクションメニューを構築
+	return newActionChoiceMenu(interactionActions)
+}
+
+// newActionChoiceMenu はInteractionActionのリストから選択メニューを作成する
+func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
+	messageState := &MessageState{}
 	messageState.messageData = messagedata.NewSystemMessage("")
 
-	for _, action := range interactionActions {
+	for _, action := range actions {
 		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
 			playerEntity, err := worldhelper.GetPlayerEntity(world)
 			if err != nil {
 				return fmt.Errorf("failed to get player entity: %w", err)
 			}
 
-			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, world); err != nil {
+			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 
@@ -677,7 +717,6 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 		})
 	}
 
-	// キャンセル用の「閉じる」選択肢を追加
 	messageState.messageData = messageState.messageData.WithChoice("キャンセル", func(_ w.World) error {
 		messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 		return nil

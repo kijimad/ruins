@@ -813,9 +813,7 @@ type Item struct {
 
 	// InflictsDamage 基本ダメージ
 	InflictsDamage *BaseDamage `json:"inflictsDamage,omitempty"`
-
-	// Material 素材アイテムかどうか
-	Material *bool `json:"material,omitempty"`
+	Material       *bool       `json:"material,omitempty"`
 
 	// Melee 近接攻撃設定
 	Melee *Melee `json:"melee,omitempty"`
@@ -1169,6 +1167,9 @@ type Prop struct {
 	// SpriteRender スプライトレンダー設定
 	SpriteRender SpriteRender `json:"spriteRender"`
 
+	// Storage 収納ローデータ
+	Storage *StorageRaw `json:"storage,omitempty"`
+
 	// WarpEscapeTrigger 脱出ワープトリガー
 	WarpEscapeTrigger *WarpEscapeTriggerRaw `json:"warpEscapeTrigger,omitempty"`
 
@@ -1362,8 +1363,8 @@ type SaveDataCameraPosition = float64
 // SaveDataCameraScale カメラのスケール値
 type SaveDataCameraScale = float64
 
-// SaveDataCarryWeightComponent 所持重量。最大値と現在値を持つ
-type SaveDataCarryWeightComponent struct {
+// SaveDataWeightCapacityComponent 重量容量。最大値と現在値を持つ
+type SaveDataWeightCapacityComponent struct {
 	// Current プール現在値 (浮動小数点)
 	Current SaveDataPoolFloatCurrent `json:"Current"`
 
@@ -1387,8 +1388,8 @@ type SaveDataComponentsMap struct {
 	// Camera カメラ状態
 	Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
 
-	// CarryWeight 所持重量
-	CarryWeight *SaveDataCarryWeightComponent `json:"CarryWeight,omitempty"`
+	// WeightCapacity 重量容量
+	WeightCapacity *SaveDataWeightCapacityComponent `json:"WeightCapacity,omitempty"`
 
 	// Consumable 消費可能アイテム設定
 	Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`
@@ -1945,6 +1946,24 @@ type SpriteSheetName = string
 
 // Stackable スタック可能かどうか
 type Stackable = bool
+
+// StorageMaxWeight 収納の最大格納重量（kg）
+type StorageMaxWeight = float64
+
+// StorageRaw 収納ローデータ
+type StorageRaw struct {
+	// LootCountMax 初期アイテムの最大数
+	LootCountMax *int32 `json:"lootCountMax,omitempty"`
+
+	// LootCountMin 初期アイテムの最小数
+	LootCountMin *int32 `json:"lootCountMin,omitempty"`
+
+	// LootTableName 初期アイテムの抽選に使うItemTable名
+	LootTableName *EntityName `json:"lootTableName,omitempty"`
+
+	// MaxWeight 収納の最大格納重量（kg）
+	MaxWeight StorageMaxWeight `json:"maxWeight"`
+}
 
 // Strength 筋力。物理ダメージに影響する
 type Strength = int32

@@ -151,85 +151,6 @@ func TestExecuteWaitAction(t *testing.T) {
 	})
 }
 
-func TestExecuteEnterAction(t *testing.T) {
-	t.Parallel()
-
-	t.Run("アイテムがある場合", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-
-		// 同じ位置にアイテムを作成
-		item := world.Manager.NewEntity()
-		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		item.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
-		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
-
-		// Enterアクションを実行
-		assert.NoError(t, activity.ExecuteEnterAction(world))
-
-		// Enterアクションが実行されることを確認（パニックしない）
-		assert.True(t, player.HasComponent(world.Components.Player), "プレイヤーが存在するべき")
-	})
-
-	t.Run("ワープホールがある場合", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-
-		// Enterアクションを実行（処理が呼ばれることを期待）
-		assert.NoError(t, activity.ExecuteEnterAction(world))
-
-		// パニックしないことを確認
-	})
-
-	t.Run("プレイヤーが存在しない場合", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーなしでEnterを試みる（エラーが返ることを確認）
-		assert.Error(t, activity.ExecuteEnterAction(world))
-	})
-
-	t.Run("GridElementがない場合はエラー", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// GridElementなしのプレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-
-		assert.Error(t, activity.ExecuteEnterAction(world))
-	})
-
-	t.Run("何もない場所でEnter", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// プレイヤーを作成
-		player := world.Manager.NewEntity()
-		player.AddComponent(world.Components.Player, &gc.Player{})
-		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-		player.AddComponent(world.Components.TurnBased, &gc.TurnBased{})
-
-		// Enterアクションを実行
-		assert.NoError(t, activity.ExecuteEnterAction(world))
-
-		// 何も起きないことを確認（パニックしない）
-		assert.True(t, player.HasComponent(world.Components.Player), "プレイヤーが存在するべき")
-	})
-}
-
 func TestExecuteMoveActionWithEnemy(t *testing.T) {
 	t.Parallel()
 
@@ -404,7 +325,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		actions := GetInteractionActions(world)
@@ -428,7 +349,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 			Current: gc.DispositionHostile,
 		})
 		enemy.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		actions := GetInteractionActions(world)
@@ -452,7 +373,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		// 上に移動しようとする
@@ -465,5 +386,105 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		assert.Equal(t, 10, int(grid.Y))
 		hp := world.Components.HP.Get(prop).(*gc.HP)
 		assert.Equal(t, 30, hp.Current, "Propに自動攻撃しないのでHPは減らない")
+	})
+}
+
+func TestGetSameTileManualActions(t *testing.T) {
+	t.Parallel()
+
+	t.Run("同タイルのManualインタラクションを取得する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		// SameTile+Manualのアイテムを配置
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		item.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		})
+		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
+
+		actions := GetSameTileManualActions(world)
+		assert.Len(t, actions, 1)
+		assert.Contains(t, actions[0].Label, "テストアイテム")
+	})
+
+	t.Run("複数のManualインタラクションを全て取得する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		// アイテム
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		item.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		})
+		item.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
+
+		// ポータル
+		portal := world.Manager.NewEntity()
+		portal.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		portal.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalTypeNext}},
+		})
+
+		actions := GetSameTileManualActions(world)
+		assert.Len(t, actions, 2, "アイテムとポータルの2つが取得される")
+	})
+
+	t.Run("別タイルのインタラクションは含まない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		// 隣接タイルのアイテム
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
+		item.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		})
+		item.AddComponent(world.Components.Name, &gc.Name{Name: "遠いアイテム"})
+
+		actions := GetSameTileManualActions(world)
+		assert.Empty(t, actions)
+	})
+
+	t.Run("OnCollisionインタラクションは含まない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		// OnCollisionの扉（SameTileではなくAdjacentだが念のため）
+		door := world.Manager.NewEntity()
+		door.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		door.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
+		})
+		door.AddComponent(world.Components.Door, &gc.Door{})
+
+		actions := GetSameTileManualActions(world)
+		assert.Empty(t, actions, "OnCollisionのインタラクションは含まれない")
+	})
+
+	t.Run("プレイヤーが存在しない場合はnil", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		actions := GetSameTileManualActions(world)
+		assert.Nil(t, actions)
 	})
 }

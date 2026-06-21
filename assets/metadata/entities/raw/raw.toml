@@ -13575,6 +13575,42 @@ depth = 2
 spriteKey = "vase_black"
 spriteSheetName = "field"
 
+[[props]]
+blockPass = true
+blockView = false
+description = "古びた木箱。何か入っているかもしれない"
+hp = 20
+name = "木箱"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "wooden_crate"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = 20.0
+lootTableName = "廃墟"
+lootCountMin = 1
+lootCountMax = 3
+
+[[props]]
+blockPass = true
+blockView = false
+description = "金属製のロッカー"
+hp = 40
+name = "ロッカー"
+
+[props.spriteRender]
+depth = 2
+spriteKey = "electric_locker"
+spriteSheetName = "field"
+
+[props.storage]
+maxWeight = 50.0
+lootTableName = "廃墟"
+lootCountMin = 2
+lootCountMax = 5
+
 [[professions]]
 description = "逃げてきた一般人"
 id = "evacuee"

@@ -321,7 +321,7 @@ func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	// すべてのアイテムにInteractableを追加（所持状態に関わらず）
-	entitySpec.Interactable = &gc.Interactable{Data: gc.ItemInteraction{}}
+	entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionData{gc.ItemInteraction{}}}
 
 	return entitySpec, nil
 }
@@ -413,7 +413,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
 	}
 	entitySpec.HP = &gc.HP{}
-	entitySpec.CarryWeight = &gc.CarryWeight{}
+	entitySpec.WeightCapacity = &gc.WeightCapacity{}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}
@@ -464,7 +464,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		entitySpec.Dialog = &gc.Dialog{
 			MessageKey: member.Dialog.MessageKey,
 		}
-		entitySpec.Interactable = &gc.Interactable{Data: gc.TalkInteraction{}}
+		entitySpec.Interactable = &gc.Interactable{Interactions: []gc.InteractionData{gc.TalkInteraction{}}}
 	}
 
 	return entitySpec, nil
@@ -627,48 +627,51 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	if propRaw.PassCost != nil {
 		entitySpec.PassCost = &gc.PassCost{Value: int(*propRaw.PassCost)}
 	}
+	// 各条件に対応するインタラクションを蓄積する。
+	// 1つのPropが複数のインタラクションを持てる
+	var interactions []gc.InteractionData
+
 	if propRaw.Hp != nil {
 		hp := int(*propRaw.Hp)
 		entitySpec.HP = &gc.HP{Max: hp, Current: hp}
-		entitySpec.Interactable = &gc.Interactable{Data: gc.MeleeInteraction{}}
+		interactions = append(interactions, gc.MeleeInteraction{})
 	}
 
 	entitySpec.LightSource = toGCLightSource(propRaw.LightSource)
 
 	if propRaw.Door != nil {
-		// Door componentを追加（向きは初期値、spawn時に設定される）
 		entitySpec.Door = &gc.Door{
 			IsOpen:      false,
 			Orientation: gc.DoorOrientationHorizontal,
 		}
-		// 扉は相互作用可能
-		entitySpec.Interactable = &gc.Interactable{Data: gc.DoorInteraction{}}
+		interactions = append(interactions, gc.DoorInteraction{})
 	}
 
-	// 扉ロックトリガー
 	if propRaw.DoorLockTrigger != nil {
-		entitySpec.Interactable = &gc.Interactable{Data: gc.DoorLockInteraction{}}
+		interactions = append(interactions, gc.DoorLockInteraction{})
 	}
 
-	// 次階層ワープトリガー
 	if propRaw.WarpNextTrigger != nil {
-		entitySpec.Interactable = &gc.Interactable{
-			Data: gc.PortalInteraction{PortalType: gc.PortalTypeNext},
-		}
+		interactions = append(interactions, gc.PortalInteraction{PortalType: gc.PortalTypeNext})
 	}
 
-	// 脱出ワープトリガー
 	if propRaw.WarpEscapeTrigger != nil {
-		entitySpec.Interactable = &gc.Interactable{
-			Data: gc.PortalInteraction{PortalType: gc.PortalTypeTown},
-		}
+		interactions = append(interactions, gc.PortalInteraction{PortalType: gc.PortalTypeTown})
 	}
 
-	// ダンジョン選択ゲートトリガー
 	if propRaw.DungeonGateTrigger != nil {
-		entitySpec.Interactable = &gc.Interactable{
-			Data: gc.DungeonGateInteraction{},
+		interactions = append(interactions, gc.DungeonGateInteraction{})
+	}
+
+	if propRaw.Storage != nil {
+		entitySpec.WeightCapacity = &gc.WeightCapacity{
+			Max: propRaw.Storage.MaxWeight,
 		}
+		interactions = append(interactions, gc.StorageInteraction{})
+	}
+
+	if len(interactions) > 0 {
+		entitySpec.Interactable = &gc.Interactable{Interactions: interactions}
 	}
 
 	return entitySpec, nil

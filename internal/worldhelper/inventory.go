@@ -86,7 +86,7 @@ func ChangeItemCount(world w.World, entity ecs.Entity, delta int) error {
 
 	// インベントリ変動フラグを立てる
 	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(playerEntity ecs.Entity) {
-		playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+		playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 	}))
 
 	return nil

@@ -100,6 +100,7 @@ model Item {
   melee?: Melee;
   fire?: Fire;
   book?: Book;
+  material?: boolean;
 }
 
 // ================== メンバー ==================
@@ -291,6 +292,17 @@ model WarpEscapeTriggerRaw {}
 /** ダンジョン選択ゲートトリガー */
 model DungeonGateTriggerRaw {}
 
+/** 収納ローデータ */
+model StorageRaw {
+  maxWeight: StorageMaxWeight;
+  /** 初期アイテムの抽選に使うItemTable名 */
+  lootTableName?: EntityName;
+  /** 初期アイテムの最小数 */
+  lootCountMin?: int32;
+  /** 初期アイテムの最大数 */
+  lootCountMax?: int32;
+}
+
 /** 置物 */
 model Prop {
   name: EntityName;
@@ -307,6 +319,7 @@ model Prop {
   warpNextTrigger?: WarpNextTriggerRaw;
   warpEscapeTrigger?: WarpEscapeTriggerRaw;
   dungeonGateTrigger?: DungeonGateTriggerRaw;
+  storage?: StorageRaw;
 }
 
 // ================== 職業 ==================

@@ -15,6 +15,7 @@ func TestStateChangeRequest_Implementations(t *testing.T) {
 	var _ StateChangeRequest = GameClearEvent{}
 	var _ StateChangeRequest = ShowDialogEvent{}
 	var _ StateChangeRequest = OpenDungeonSelectEvent{}
+	var _ StateChangeRequest = OpenStorageEvent{}
 
 	// 型アサーションが機能することを確認
 	events := []StateChangeRequest{
@@ -23,6 +24,7 @@ func TestStateChangeRequest_Implementations(t *testing.T) {
 		GameClearEvent{},
 		ShowDialogEvent{MessageKey: "test"},
 		OpenDungeonSelectEvent{},
+		OpenStorageEvent{},
 	}
-	assert.Len(t, events, 5)
+	assert.Len(t, events, 6)
 }

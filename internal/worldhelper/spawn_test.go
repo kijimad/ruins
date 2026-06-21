@@ -73,7 +73,7 @@ func TestSetMaxStats(t *testing.T) {
 			})
 
 			entity.AddComponent(world.Components.HP, &gc.HP{Current: 0, Max: 0})
-			entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
+			entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
 
 			err := setMaxStats(world, entity)
 			require.NoError(t, err)
@@ -123,7 +123,7 @@ func TestFullRecover(t *testing.T) {
 		Defense:   gc.Ability{Base: 5, Total: 0},
 	})
 	entity.AddComponent(world.Components.HP, &gc.HP{Current: 0, Max: 0})
-	entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{})
+	entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{})
 
 	err := FullRecover(world, entity)
 	require.NoError(t, err, "FullRecoverがエラーを返すべきではない")
@@ -262,7 +262,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "回復薬", 5, gc.LocationTypeInBackpack)
+		item, err := SpawnBackpackItem(world, "回復薬", 5)
 		require.NoError(t, err)
 
 		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
@@ -273,7 +273,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		assert.Equal(t, 1, GetEntityCount(world, item))
@@ -283,7 +283,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 2, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "木刀", 2)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "is not stackable")
 		assert.Contains(t, err.Error(), "count must be 1")
@@ -293,7 +293,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 0, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "木刀", 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -302,7 +302,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", -1, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "木刀", -1)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -311,7 +311,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "存在しないアイテム", 1)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "item not found")
 	})
@@ -476,13 +476,13 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 
 		// DoorLockTriggerを2つ作成
 		trigger1 := world.Manager.NewEntity()
-		trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorLockInteraction{}})
+		trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
 		trigger2 := world.Manager.NewEntity()
-		trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorLockInteraction{}})
+		trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
 
 		// 他のInteractableも作成
 		other := world.Manager.NewEntity()
-		other.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorInteraction{}})
+		other.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}})
 
 		DeleteDoorLockTriggers(world)
 
@@ -490,8 +490,10 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 		count := 0
 		world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(entity ecs.Entity) {
 			interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-			if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
-				count++
+			for _, interaction := range interactable.Interactions {
+				if _, ok := interaction.(gc.DoorLockInteraction); ok {
+					count++
+				}
 			}
 		}))
 		assert.Equal(t, 0, count, "DoorLockTriggerは全削除されるべき")
@@ -606,7 +608,7 @@ func TestCalculateSpeed(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 150}) // 50%超過
+		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 150}) // 50%超過
 
 		speed := CalculateSpeed(world, entity)
 		// 基本100 - 超過ペナルティ(50*25/100=12) = 88
@@ -644,8 +646,8 @@ func TestCalculateSpeed(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Current: 5, Max: 100})             // 餓死寸前(-75)
-		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 400}) // 大幅超過（最大-75）
+		entity.AddComponent(world.Components.Hunger, &gc.Hunger{Current: 5, Max: 100})                   // 餓死寸前(-75)
+		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 400}) // 大幅超過（最大-75）
 
 		speed := CalculateSpeed(world, entity)
 		// ペナルティが大きくても最小値25を下回らない
@@ -685,7 +687,7 @@ func TestOverweightPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 80})
+		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 80})
 
 		penalty := calculateOverweightPenalty(world, entity)
 		assert.Equal(t, 0, penalty)
@@ -696,7 +698,7 @@ func TestOverweightPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 150})
+		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 150})
 
 		penalty := calculateOverweightPenalty(world, entity)
 		// 50 * 25 / 100 = 12.5 -> -12
@@ -708,7 +710,7 @@ func TestOverweightPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.CarryWeight, &gc.CarryWeight{Max: 100, Current: 500}) // 400%超過
+		entity.AddComponent(world.Components.WeightCapacity, &gc.WeightCapacity{Max: 100, Current: 500}) // 400%超過
 
 		penalty := calculateOverweightPenalty(world, entity)
 		// 最大-75
@@ -726,7 +728,7 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 
 	var uncategorized []string
 	for _, item := range items {
-		entity, err := SpawnItem(world, item.Name, 1, gc.LocationTypeInBackpack)
+		entity, err := SpawnBackpackItem(world, item.Name, 1)
 		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Name)
 
 		_, ok := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)

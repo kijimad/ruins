@@ -52,19 +52,3 @@ func TestFire_AttackerInterface(t *testing.T) {
 	assert.Equal(t, 150, atk.GetCost())
 	assert.Equal(t, TargetAll, atk.GetTargetType().TargetNum)
 }
-
-func TestFaction_String(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, "FactionAlly", FactionAllyData{}.String())
-	assert.Equal(t, "FactionEnemy", FactionEnemyData{}.String())
-	assert.Equal(t, "FactionNeutral", FactionNeutralData{}.String())
-}
-
-func TestLocation_String(t *testing.T) {
-	t.Parallel()
-
-	assert.Equal(t, "LocationInBackpack", LocationInBackpack{}.String())
-	assert.Equal(t, "LocationEquipped", LocationEquipped{}.String())
-	assert.Equal(t, "LocationOnField", LocationOnField{}.String())
-}

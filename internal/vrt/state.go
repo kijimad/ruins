@@ -17,26 +17,34 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// States はステートのスライスをビルダー関数に変換するアダプタ
+func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
+	return func(_ w.World) []es.State[w.World] { return states }
+}
+
 // AssertStateGolden はステートの描画結果をゴールデン画像と比較する。
+// buildStatesはworld初期化後に呼ばれ、セットアップとステート構築を行う。
+// セットアップが不要な場合はStatesアダプタを使う。
 // GOLDIE_UPDATE=1 で実行するとゴールデン画像を更新する。
 // ただし既存ゴールデンとのピクセル差分がトレランス内なら更新をスキップして、
 // ebitenui の時間依存ノイズによる不要な差分を防ぐ
-func AssertStateGolden(t *testing.T, states ...es.State[w.World]) {
+func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
 
-	rendered := renderState(t, states...)
+	rendered := renderState(t, buildStates)
 	pngData := encodePNG(t, rendered)
 	assertPNGGolden(t, pngData)
 }
 
 // renderState はステートを描画してimage.NRGBAとして返す。
 // RunTestMain 内で呼ぶ必要がある（ebitenコンテキストが必要）
-func renderState(t *testing.T, states ...es.State[w.World]) *image.NRGBA {
+func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {
 	t.Helper()
-	require.NotEmpty(t, states, "ステートが1つ以上必要")
 
 	// World初期化はebitenui非依存なのでmutex外で並列実行できる
 	world := InitVRTWorld(t)
+	states := buildStates(world)
+	require.NotEmpty(t, states, "ステートが1つ以上必要")
 
 	// ebitenui内部の入力ハンドラが並行アクセス安全でないため直列化する。
 	// ステート初期化もここで行うことで、mutex待機中にebitenui内部の
@@ -94,7 +102,7 @@ func InitVRTWorld(t *testing.T) w.World {
 
 	for _, updater := range []w.Updater{
 		&gs.StatsChangedSystem{},
-		&gs.InventoryChangedSystem{},
+		&gs.WeightDirtySystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			require.NoError(t, sys.Update(world))
