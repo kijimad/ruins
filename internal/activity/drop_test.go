@@ -20,7 +20,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -82,7 +82,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -125,7 +125,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -162,7 +162,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -187,7 +187,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -212,7 +212,7 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -239,7 +239,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		// プレイヤーの右隣にドロップ
@@ -268,7 +268,7 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		// 右下斜めにドロップ

@@ -381,8 +381,29 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 // Items
 // ================
 
-// SpawnItem はアイテムを生成する
-func SpawnItem(world w.World, name string, count int, locationType gc.LocationType) (ecs.Entity, error) {
+// SpawnBackpackItem はバックパック内にアイテムを生成する
+func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
+	item, err := spawnItemBase(world, name, count)
+	if err != nil {
+		return ecs.Entity(0), err
+	}
+
+	var playerEntity ecs.Entity
+	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
+		playerEntity = e
+	}))
+	if playerEntity == 0 {
+		// Playerが存在しない場合はOwnerなしでバックパックに配置する
+		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		return item, nil
+	}
+	MoveToBackpack(world, item, playerEntity)
+
+	return item, nil
+}
+
+// spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数
+func spawnItemBase(world w.World, name string, count int) (ecs.Entity, error) {
 	if count <= 0 {
 		return 0, fmt.Errorf("count must be positive: %d", count)
 	}
@@ -406,7 +427,6 @@ func SpawnItem(world w.World, name string, count int, locationType gc.LocationTy
 	if err != nil {
 		return ecs.Entity(0), fmt.Errorf("%w: %v", ErrItemGeneration, err)
 	}
-	entitySpec.LocationType = &locationType
 	// Stackableアイテムの場合はcountを設定する
 	if entitySpec.Stackable != nil {
 		entitySpec.Stackable.Count = count
@@ -420,22 +440,7 @@ func SpawnItem(world w.World, name string, count int, locationType gc.LocationTy
 		return ecs.Entity(0), fmt.Errorf("アイテムエンティティの生成に失敗しました")
 	}
 
-	entity := entitiesSlice[len(entitiesSlice)-1]
-
-	// バックパックに追加した場合はOwnerを設定し、インベントリ重量を再計算する
-	if locationType == gc.LocationTypeInBackpack {
-		var playerEntity ecs.Entity
-		world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
-			playerEntity = e
-		}))
-		if playerEntity != 0 {
-			loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
-			loc.Owner = playerEntity
-			UpdateCarryingWeight(world, playerEntity)
-		}
-	}
-
-	return entity, nil
+	return entitiesSlice[len(entitiesSlice)-1], nil
 }
 
 // FullRecover はエンティティのHP/APを全回復する
@@ -503,7 +508,7 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 
 // SpawnStorageItem は収納内にアイテムを生成する
 func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
-	item, err := SpawnItem(world, itemName, count, gc.LocationTypeOnField)
+	item, err := spawnItemBase(world, itemName, count)
 	if err != nil {
 		return ecs.Entity(0), err
 	}
@@ -515,12 +520,12 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 
 // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する
 func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile, count int) (ecs.Entity, error) {
-	item, err := SpawnItem(world, itemName, count, gc.LocationTypeOnField)
+	item, err := spawnItemBase(world, itemName, count)
 	if err != nil {
 		return ecs.Entity(0), err
 	}
 
-	// フィールド表示用のコンポーネントを追加
+	MoveToField(world, item, ecs.Entity(0))
 	item.AddComponent(world.Components.GridElement, &gc.GridElement{X: x, Y: y})
 
 	return item, nil

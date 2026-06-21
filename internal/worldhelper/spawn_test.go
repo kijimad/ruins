@@ -262,7 +262,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "回復薬", 5, gc.LocationTypeInBackpack)
+		item, err := SpawnBackpackItem(world, "回復薬", 5)
 		require.NoError(t, err)
 
 		stackableComp := world.Components.Stackable.Get(item).(*gc.Stackable)
@@ -273,7 +273,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		item, err := SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		item, err := SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		assert.Equal(t, 1, GetEntityCount(world, item))
@@ -283,7 +283,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 2, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "木刀", 2)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "is not stackable")
 		assert.Contains(t, err.Error(), "count must be 1")
@@ -293,7 +293,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", 0, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "木刀", 0)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -302,7 +302,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "木刀", -1, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "木刀", -1)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "count must be positive")
 	})
@@ -311,7 +311,7 @@ func TestSpawnItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := SpawnItem(world, "存在しないアイテム", 1, gc.LocationTypeInBackpack)
+		_, err := SpawnBackpackItem(world, "存在しないアイテム", 1)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "item not found")
 	})
@@ -728,7 +728,7 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 
 	var uncategorized []string
 	for _, item := range items {
-		entity, err := SpawnItem(world, item.Name, 1, gc.LocationTypeInBackpack)
+		entity, err := SpawnBackpackItem(world, item.Name, 1)
 		require.NoError(t, err, "アイテム '%s' のスポーンに失敗", item.Name)
 
 		_, ok := world.Components.CategoryOf(gc.InventoryCategoryKey, entity)

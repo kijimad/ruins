@@ -65,6 +65,6 @@ func ChangeStackableCount(world w.World, name string, amount int) error {
 	}
 
 	// 増やす操作で存在しない場合は新規作成する
-	_, err := SpawnItem(world, name, amount, gc.LocationTypeInBackpack)
+	_, err := SpawnBackpackItem(world, name, amount)
 	return err
 }

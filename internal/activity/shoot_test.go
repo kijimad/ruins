@@ -25,13 +25,13 @@ func setupShootingWorld(t *testing.T) (world iw.World, player, enemy, weaponEnti
 	require.NoError(t, err)
 
 	// ハンドガンを生成して装備
-	we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.LocationTypeInBackpack)
+	we, err := worldhelper.SpawnBackpackItem(world, "ハンドガン", 1)
 	require.NoError(t, err)
 	worldhelper.MoveToEquip(world, we, p, gc.SlotWeapon1)
 	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
 	// 弾薬を持たせる
-	_, err = worldhelper.SpawnItem(world, "9mm FMJ", 30, gc.LocationTypeInBackpack)
+	_, err = worldhelper.SpawnBackpackItem(world, "9mm FMJ", 30)
 	require.NoError(t, err)
 
 	// 敵を生成（射程内）
@@ -107,7 +107,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.LocationTypeInBackpack)
+		we, err := worldhelper.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -133,7 +133,7 @@ func TestShootActivity_Validate(t *testing.T) {
 		require.NoError(t, err)
 
 		// 近接武器（木刀）を装備
-		we, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		we, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -259,7 +259,7 @@ func TestExecuteShootAction(t *testing.T) {
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnItem(world, "木刀", 1, gc.LocationTypeInBackpack)
+		we, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
@@ -293,7 +293,7 @@ func TestCanShootTarget(t *testing.T) {
 
 		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
-		we, err := worldhelper.SpawnItem(world, "ハンドガン", 1, gc.LocationTypeInBackpack)
+		we, err := worldhelper.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
 		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1

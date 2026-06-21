@@ -20,9 +20,9 @@ func TestPreviewEndRun(t *testing.T) {
 	require.NoError(t, ApplyProfession(world, player, prof))
 
 	// バックパックにアイテムを追加する
-	item1, err := SpawnItem(world, "回復薬", 1, gc.LocationTypeInBackpack)
+	item1, err := SpawnBackpackItem(world, "回復薬", 1)
 	require.NoError(t, err)
-	item2, err := SpawnItem(world, "回復薬", 1, gc.LocationTypeInBackpack)
+	item2, err := SpawnBackpackItem(world, "回復薬", 1)
 	require.NoError(t, err)
 
 	// プレビューを生成する
