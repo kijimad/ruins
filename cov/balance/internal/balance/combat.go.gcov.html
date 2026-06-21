@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.6&nbsp;%</td>
+            <td class="headerCovTableEntryHi">91.3&nbsp;%</td>
             <td class="headerCovTableEntry">104</td>
-            <td class="headerCovTableEntry">89</td>
+            <td class="headerCovTableEntry">95</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -155,10 +155,10 @@
 <span id="L93"><span class="lineNum">      93</span>              : // LoadCombatantFromMember はraw.Masterのメンバー定義からCombatantStatsを生成する</span>
 <span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 : func LoadCombatantFromMember(master oapi.Raws, name string) (CombatantStats, error) {</span></span>
 <span id="L95"><span class="lineNum">      95</span> <span class="tlaGNC">           1 :         spec, err := raw.NewMemberSpec(master, name)</span></span>
-<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC tlaBgUNC">           0 :                 return CombatantStats{}, fmt.Errorf(&quot;メンバー %q のロードに失敗: %w&quot;, name, err)</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC tlaBgGNC">           1 :         if spec.Abilities == nil {</span></span>
+<span id="L96"><span class="lineNum">      96</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                 return CombatantStats{}, fmt.Errorf(&quot;メンバー %q のロードに失敗: %w&quot;, name, err)</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L99"><span class="lineNum">      99</span> <span class="tlaGNC">           1 :         if spec.Abilities == nil {</span></span>
 <span id="L100"><span class="lineNum">     100</span> <span class="tlaUNC tlaBgUNC">           0 :                 return CombatantStats{}, fmt.Errorf(&quot;メンバー %q にAbilitiesがありません&quot;, name)</span></span>
 <span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L102"><span class="lineNum">     102</span>              : </span>
@@ -178,12 +178,12 @@
 <span id="L116"><span class="lineNum">     116</span>              : // LoadWeaponFromItem はraw.MasterのアイテムからWeaponStatsを生成する</span>
 <span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 : func LoadWeaponFromItem(master oapi.Raws, name string) (WeaponStats, error) {</span></span>
 <span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :         spec, err := raw.NewItemSpec(master, name)</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC tlaBgUNC">           0 :                 return WeaponStats{}, fmt.Errorf(&quot;武器 %q のロードに失敗: %w&quot;, name, err)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, fmt.Errorf(&quot;武器 %q のロードに失敗: %w&quot;, name, err)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              :         // Fireを先にチェックする。MeleeとFireの両方を持つ武器は遠距離として扱う</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC tlaBgGNC">           2 :         if spec.Fire != nil {</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           2 :         if spec.Fire != nil {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 return WeaponStats{</span></span>
 <span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                         Damage:   spec.Fire.Damage,</span></span>
 <span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                         Accuracy: spec.Fire.Accuracy,</span></span>
@@ -204,11 +204,11 @@
 <span id="L142"><span class="lineNum">     142</span>              : // LoadEnemyWeapon は敵のCommandTableから武器を取得しWeaponStatsを返す</span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : func LoadEnemyWeapon(master oapi.Raws, enemyName string) (WeaponStats, error) {</span></span>
 <span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         spec, err := raw.NewMemberSpec(master, enemyName)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC tlaBgUNC">           0 :                 return WeaponStats{}, err</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :                 return WeaponStats{}, err</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L148"><span class="lineNum">     148</span>              : </span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC tlaBgGNC">           1 :         if spec.CommandTable == nil {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         if spec.CommandTable == nil {</span></span>
 <span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC tlaBgUNC">           0 :                 // CommandTableがない場合は素手</span></span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return LoadWeaponFromItem(master, &quot;素手&quot;)</span></span>
 <span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>

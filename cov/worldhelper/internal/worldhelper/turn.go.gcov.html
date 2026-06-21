@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">47.5&nbsp;%</td>
+            <td class="headerCovTableEntryMed">88.5&nbsp;%</td>
             <td class="headerCovTableEntry">61</td>
-            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">54</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -113,39 +113,39 @@
 <span id="L51"><span class="lineNum">      51</span>              : }</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // RestoreAllActionPoints は全エンティティのAPを回復する</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC tlaBgUNC">           0 : func RestoreAllActionPoints(world w.World) error {</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :         log := logger.New(logger.CategoryTurn)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :         var err error</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :         world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                 tb := world.Components.TurnBased.Get(entity).(*gc.TurnBased)</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                 // MaxAPとSpeedを計算</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 maxAP, calcErr := CalculateMaxActionPoints(world, entity)</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 if calcErr != nil {</span></span>
-<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 :                         err = calcErr</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func RestoreAllActionPoints(world w.World) error {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         log := logger.New(logger.CategoryTurn)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         var err error</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         world.Manager.Join(world.Components.TurnBased).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 tb := world.Components.TurnBased.Get(entity).(*gc.TurnBased)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                 // MaxAPとSpeedを計算</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :                 maxAP, calcErr := CalculateMaxActionPoints(world, entity)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaGNC">           1 :                 if calcErr != nil {</span></span>
+<span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC tlaBgUNC">           0 :                         err = calcErr</span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :                         return</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L67"><span class="lineNum">      67</span>              : </span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                 speed := CalculateSpeed(world, entity)</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                 tb.Speed = speed</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                 tb.AP.Max = maxAP</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                 // 現在AP + Speed で上限まで回復</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaUNC">           0 :                 newAP := tb.AP.Current + speed</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaUNC">           0 :                 if newAP &gt; maxAP {</span></span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :                         newAP = maxAP</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC tlaBgGNC">           1 :                 speed := CalculateSpeed(world, entity)</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 tb.Speed = speed</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                 tb.AP.Max = maxAP</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 // 現在AP + Speed で上限まで回復</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           1 :                 newAP := tb.AP.Current + speed</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                 if newAP &gt; maxAP {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC tlaBgUNC">           0 :                         newAP = maxAP</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :                 tb.AP.Current = newAP</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 log.Debug(&quot;アクションポイント回復&quot;,</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                         &quot;entity&quot;, entity,</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                         &quot;speed&quot;, speed,</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaUNC">           0 :                         &quot;current&quot;, tb.AP.Current,</span></span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaUNC">           0 :                         &quot;max&quot;, maxAP)</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC tlaBgGNC">           1 :                 tb.AP.Current = newAP</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                 log.Debug(&quot;アクションポイント回復&quot;,</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                         &quot;entity&quot;, entity,</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :                         &quot;speed&quot;, speed,</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :                         &quot;current&quot;, tb.AP.Current,</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 :                         &quot;max&quot;, maxAP)</span></span>
 <span id="L84"><span class="lineNum">      84</span>              :         }))</span>
 <span id="L85"><span class="lineNum">      85</span>              : </span>
-<span id="L86"><span class="lineNum">      86</span> <span class="tlaUNC">           0 :         return err</span></span>
+<span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           1 :         return err</span></span>
 <span id="L87"><span class="lineNum">      87</span>              : }</span>
         </pre>
               </td>

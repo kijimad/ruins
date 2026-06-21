@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">43.4&nbsp;%</td>
+            <td class="headerCovTableEntryLo">68.3&nbsp;%</td>
             <td class="headerCovTableEntry">558</td>
-            <td class="headerCovTableEntry">242</td>
+            <td class="headerCovTableEntry">381</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -127,10 +127,10 @@
 <span id="L65"><span class="lineNum">      65</span>              : // FindItem は指定された名前のアイテム定義を検索する</span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 : func FindItem(raws oapi.Raws, name string) (oapi.Item, error) {</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           2 :         item, ok := findByKey(raws.Items, func(i oapi.Item) string { return i.Name }, name)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC tlaBgUNC">           0 :                 return oapi.Item{}, NewKeyNotFoundError(name, &quot;Items&quot;)</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC tlaBgGNC">           1 :         return item, nil</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return oapi.Item{}, NewKeyNotFoundError(name, &quot;Items&quot;)</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return item, nil</span></span>
 <span id="L72"><span class="lineNum">      72</span>              : }</span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span>              : // FindMember は指定された名前のメンバー定義を検索する</span>
@@ -165,106 +165,106 @@
 <span id="L103"><span class="lineNum">     103</span> <span class="tlaGNC">           2 :         if ls == nil {</span></span>
 <span id="L104"><span class="lineNum">     104</span> <span class="tlaGNC">           1 :                 return nil</span></span>
 <span id="L105"><span class="lineNum">     105</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L106"><span class="lineNum">     106</span> <span class="tlaUNC tlaBgUNC">           0 :         return &amp;gc.LightSource{</span></span>
-<span id="L107"><span class="lineNum">     107</span> <span class="tlaUNC">           0 :                 Radius:  consts.Tile(ls.Radius),</span></span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                 Enabled: ls.Enabled,</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                 Color: color.RGBA{</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :                         R: ls.Color.R,</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 :                         G: ls.Color.G,</span></span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                         B: ls.Color.B,</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                         A: ls.Color.A,</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 :         return &amp;gc.LightSource{</span></span>
+<span id="L107"><span class="lineNum">     107</span> <span class="tlaGNC">           1 :                 Radius:  consts.Tile(ls.Radius),</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                 Enabled: ls.Enabled,</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                 Color: color.RGBA{</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :                         R: ls.Color.R,</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 :                         G: ls.Color.G,</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                         B: ls.Color.B,</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                         A: ls.Color.A,</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L116"><span class="lineNum">     116</span>              : }</span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              : // parseTargetType はTargetGroup/TargetNumの文字列ペアをパースする</span>
 <span id="L119"><span class="lineNum">     119</span>              : // enum値の妥当性はOpenAPIスキーマで検証済み</span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 : func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         if targetGroup == &quot;&quot; {</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 :                 return gc.TargetType{}</span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         return gc.TargetType{</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 TargetGroup: gc.TargetGroupType(string(targetGroup)),</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :                 TargetNum:   gc.TargetNumType(string(targetNum)),</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 : func parseTargetType(targetGroup oapi.TargetGroup, targetNum oapi.TargetNum) gc.TargetType {</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           2 :         if targetGroup == &quot;&quot; {</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 :                 return gc.TargetType{}</span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :         return gc.TargetType{</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 TargetGroup: gc.TargetGroupType(string(targetGroup)),</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :                 TargetNum:   gc.TargetNumType(string(targetNum)),</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L128"><span class="lineNum">     128</span>              : }</span>
 <span id="L129"><span class="lineNum">     129</span>              : </span>
 <span id="L130"><span class="lineNum">     130</span>              : // parseMelee はoapi.Meleeからgc.Meleeを生成する</span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 : func parseMelee(m *oapi.Melee) (*gc.Melee, error) {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :         attackType, err := gc.ParseAttackType(string(m.AttackCategory))</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :         return &amp;gc.Melee{</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                 Accuracy:       int(m.Accuracy),</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 :                 Damage:         int(m.Damage),</span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :                 AttackCount:    int(m.AttackCount),</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 Element:        gc.ElementType(string(m.Element)),</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 AttackCategory: attackType,</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 Cost:           int(m.Cost),</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :                 TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           1 : func parseMelee(m *oapi.Melee) (*gc.Melee, error) {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :         attackType, err := gc.ParseAttackType(string(m.AttackCategory))</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :         return &amp;gc.Melee{</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 Accuracy:       int(m.Accuracy),</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 Damage:         int(m.Damage),</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :                 AttackCount:    int(m.AttackCount),</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 Element:        gc.ElementType(string(m.Element)),</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 AttackCategory: attackType,</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 Cost:           int(m.Cost),</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                 TargetType:     parseTargetType(m.TargetGroup, m.TargetNum),</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L145"><span class="lineNum">     145</span>              : }</span>
 <span id="L146"><span class="lineNum">     146</span>              : </span>
 <span id="L147"><span class="lineNum">     147</span>              : // parseFire はoapi.Fireからgc.Fireを生成する</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 : func parseFire(f *oapi.Fire) (*gc.Fire, error) {</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :         attackType, err := gc.ParseAttackType(string(f.AttackCategory))</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 :                 return nil, err</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         var ammoTag string</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaUNC">           0 :         if f.AmmoTag != nil {</span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaUNC">           0 :                 ammoTag = string(*f.AmmoTag)</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         return &amp;gc.Fire{</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 :                 Accuracy:       int(f.Accuracy),</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaUNC">           0 :                 Damage:         int(f.Damage),</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC">           0 :                 AttackCount:    int(f.AttackCount),</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                 Element:        gc.ElementType(string(f.Element)),</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 AttackCategory: attackType,</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                 Cost:           int(f.Cost),</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :                 TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                 Magazine:       int(f.MagazineSize),</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                 MagazineSize:   int(f.MagazineSize),</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 ReloadEffort:   int(f.ReloadEffort),</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 AmmoTag:        ammoTag,</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 : func parseFire(f *oapi.Fire) (*gc.Fire, error) {</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :         attackType, err := gc.ParseAttackType(string(f.AttackCategory))</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 return nil, err</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         var ammoTag string</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           2 :         if f.AmmoTag != nil {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 ammoTag = string(*f.AmmoTag)</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return &amp;gc.Fire{</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :                 Accuracy:       int(f.Accuracy),</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 Damage:         int(f.Damage),</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 AttackCount:    int(f.AttackCount),</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 Element:        gc.ElementType(string(f.Element)),</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :                 AttackCategory: attackType,</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                 Cost:           int(f.Cost),</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 TargetType:     parseTargetType(f.TargetGroup, f.TargetNum),</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 Magazine:       int(f.MagazineSize),</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 MagazineSize:   int(f.MagazineSize),</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 ReloadEffort:   int(f.ReloadEffort),</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 AmmoTag:        ammoTag,</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L170"><span class="lineNum">     170</span>              : }</span>
 <span id="L171"><span class="lineNum">     171</span>              : </span>
 <span id="L172"><span class="lineNum">     172</span>              : // newProvidesHealingFromAPI はoapi.ProvidesHealingからProvidesHealingコンポーネントを生成する</span>
 <span id="L173"><span class="lineNum">     173</span>              : // enum値の妥当性はOpenAPIスキーマで検証済み</span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 : func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         switch h.ValueType {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         case oapi.PERCENTAGE:</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :                 return &amp;gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         default:</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :                 return &amp;gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : func newProvidesHealingFromAPI(h *oapi.ProvidesHealing) *gc.ProvidesHealing {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         switch h.ValueType {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         case oapi.PERCENTAGE:</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 return &amp;gc.ProvidesHealing{Amount: gc.RatioAmount{Ratio: h.Ratio}}</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 return &amp;gc.ProvidesHealing{Amount: gc.NumeralAmount{Numeral: int(h.Amount)}}</span></span>
 <span id="L180"><span class="lineNum">     180</span>              :         }</span>
 <span id="L181"><span class="lineNum">     181</span>              : }</span>
 <span id="L182"><span class="lineNum">     182</span>              : </span>
 <span id="L183"><span class="lineNum">     183</span>              : // newBookFromAPI はoapi.Bookからgc.Bookを生成する</span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 : func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :         if b.Skill == nil {</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;BookにSkillの指定が必要です&quot;)</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 : func newBookFromAPI(b *oapi.Book) (*gc.Book, error) {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :         if b.Skill == nil {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;BookにSkillの指定が必要です&quot;)</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         skillID := gc.SkillID(b.Skill.TargetSkill)</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :         if !gc.HasSkillName(skillID) {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                 return nil, fmt.Errorf(&quot;未定義のスキルID: %q&quot;, b.Skill.TargetSkill)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         skillID := gc.SkillID(b.Skill.TargetSkill)</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           2 :         if !gc.HasSkillName(skillID) {</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                 return nil, fmt.Errorf(&quot;未定義のスキルID: %q&quot;, b.Skill.TargetSkill)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L193"><span class="lineNum">     193</span>              : </span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         return &amp;gc.Book{</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                 Effort: gc.IntPool{Max: int(b.TotalEffort)},</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                 Skill: &amp;gc.SkillBookEffect{</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                         TargetSkill:   skillID,</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                         MaxLevel:      int(b.Skill.MaxLevel),</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         RequiredLevel: int(b.Skill.RequiredLevel),</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                 },</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :         }, nil</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         return &amp;gc.Book{</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 Effort: gc.IntPool{Max: int(b.TotalEffort)},</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 Skill: &amp;gc.SkillBookEffect{</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                         TargetSkill:   skillID,</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                         MaxLevel:      int(b.Skill.MaxLevel),</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                         RequiredLevel: int(b.Skill.RequiredLevel),</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 },</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :         }, nil</span></span>
 <span id="L202"><span class="lineNum">     202</span>              : }</span>
 <span id="L203"><span class="lineNum">     203</span>              : </span>
 <span id="L204"><span class="lineNum">     204</span>              : // NewItemSpec は指定された名前のアイテムのEntitySpecを生成する</span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC tlaBgGNC">           1 : func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 : func NewItemSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         item, err := FindItem(raws, name)</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
@@ -323,14 +323,14 @@
 <span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L262"><span class="lineNum">     262</span>              :         }</span>
 <span id="L263"><span class="lineNum">     263</span>              : </span>
-<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC tlaBgGNC">           1 :         if item.Melee != nil {</span></span>
-<span id="L265"><span class="lineNum">     265</span> <span class="tlaUNC tlaBgUNC">           0 :                 melee, err := parseMelee(item.Melee)</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                         return gc.EntitySpec{}, err</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC tlaBgGNC">           2 :         if item.Melee != nil {</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 melee, err := parseMelee(item.Melee)</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC tlaBgUNC">           0 :                         return gc.EntitySpec{}, err</span></span>
 <span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 entitySpec.Melee = melee</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC tlaBgGNC">           1 :                 entitySpec.Melee = melee</span></span>
 <span id="L270"><span class="lineNum">     270</span>              :         }</span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC tlaBgGNC">           1 :         if item.Fire != nil {</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :         if item.Fire != nil {</span></span>
 <span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC tlaBgUNC">           0 :                 fire, err := parseFire(item.Fire)</span></span>
 <span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 if err != nil {</span></span>
 <span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :                         return gc.EntitySpec{}, err</span></span>
@@ -431,27 +431,27 @@
 <span id="L369"><span class="lineNum">     369</span>              : }</span>
 <span id="L370"><span class="lineNum">     370</span>              : </span>
 <span id="L371"><span class="lineNum">     371</span>              : // NewWeaponSpec は指定された名前の武器のEntitySpecを生成する</span>
-<span id="L372"><span class="lineNum">     372</span> <span class="tlaUNC">           0 : func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
-<span id="L373"><span class="lineNum">     373</span> <span class="tlaUNC">           0 :         // 武器はアイテムの一種なので、Itemsから検索して存在確認</span></span>
-<span id="L374"><span class="lineNum">     374</span> <span class="tlaUNC">           0 :         if _, err := FindItem(raws, name); err != nil {</span></span>
-<span id="L375"><span class="lineNum">     375</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
-<span id="L376"><span class="lineNum">     376</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L372"><span class="lineNum">     372</span> <span class="tlaGNC tlaBgGNC">           1 : func NewWeaponSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
+<span id="L373"><span class="lineNum">     373</span> <span class="tlaGNC">           1 :         // 武器はアイテムの一種なので、Itemsから検索して存在確認</span></span>
+<span id="L374"><span class="lineNum">     374</span> <span class="tlaGNC">           2 :         if _, err := FindItem(raws, name); err != nil {</span></span>
+<span id="L375"><span class="lineNum">     375</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, err</span></span>
+<span id="L376"><span class="lineNum">     376</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L377"><span class="lineNum">     377</span>              : </span>
-<span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :         itemSpec, err := NewItemSpec(raws, name)</span></span>
-<span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;failed to generate weapon spec: %w&quot;, err)</span></span>
+<span id="L378"><span class="lineNum">     378</span> <span class="tlaGNC">           1 :         itemSpec, err := NewItemSpec(raws, name)</span></span>
+<span id="L379"><span class="lineNum">     379</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;failed to generate weapon spec: %w&quot;, err)</span></span>
 <span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L382"><span class="lineNum">     382</span>              : </span>
 <span id="L383"><span class="lineNum">     383</span>              :         // Melee/Fire のいずれも持たない場合は武器ではない</span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :         if itemSpec.Melee == nil &amp;&amp; itemSpec.Fire == nil {</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;%s is not a weapon (Melee/Fire component missing)&quot;, name)</span></span>
-<span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaGNC tlaBgGNC">           2 :         if itemSpec.Melee == nil &amp;&amp; itemSpec.Fire == nil {</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaGNC">           1 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;%s is not a weapon (Melee/Fire component missing)&quot;, name)</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L387"><span class="lineNum">     387</span>              : </span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaUNC">           0 :         return itemSpec, nil</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         return itemSpec, nil</span></span>
 <span id="L389"><span class="lineNum">     389</span>              : }</span>
 <span id="L390"><span class="lineNum">     390</span>              : </span>
 <span id="L391"><span class="lineNum">     391</span>              : // NewMemberSpec は指定された名前のメンバーのEntitySpecを生成する</span>
-<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC tlaBgGNC">           1 : func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 : func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
 <span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           2 :         member, ok := findByKey(raws.Members, func(m oapi.Member) string { return m.Name }, name)</span></span>
 <span id="L394"><span class="lineNum">     394</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L395"><span class="lineNum">     395</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.EntitySpec{}, fmt.Errorf(&quot;キーが存在しない: %s&quot;, name)</span></span>
@@ -545,18 +545,18 @@
 <span id="L483"><span class="lineNum">     483</span>              : }</span>
 <span id="L484"><span class="lineNum">     484</span>              : </span>
 <span id="L485"><span class="lineNum">     485</span>              : // NewEnemySpec は指定された名前の敵のEntitySpecを生成する</span>
-<span id="L486"><span class="lineNum">     486</span> <span class="tlaUNC tlaBgUNC">           0 : func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
-<span id="L487"><span class="lineNum">     487</span> <span class="tlaUNC">           0 :         entitySpec, err := NewMemberSpec(raws, name)</span></span>
-<span id="L488"><span class="lineNum">     488</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
+<span id="L486"><span class="lineNum">     486</span> <span class="tlaGNC">           1 : func NewEnemySpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {</span></span>
+<span id="L487"><span class="lineNum">     487</span> <span class="tlaGNC">           1 :         entitySpec, err := NewMemberSpec(raws, name)</span></span>
+<span id="L488"><span class="lineNum">     488</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L489"><span class="lineNum">     489</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
 <span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         entitySpec.FactionType = &amp;gc.FactionEnemy</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :         return entitySpec, nil</span></span>
+<span id="L491"><span class="lineNum">     491</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec.FactionType = &amp;gc.FactionEnemy</span></span>
+<span id="L492"><span class="lineNum">     492</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
 <span id="L494"><span class="lineNum">     494</span>              : }</span>
 <span id="L495"><span class="lineNum">     495</span>              : </span>
 <span id="L496"><span class="lineNum">     496</span>              : // GetCommandTable は指定された名前のコマンドテーブルを取得する</span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC tlaBgGNC">           1 : func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaGNC">           1 : func GetCommandTable(raws oapi.Raws, name string) (oapi.CommandTable, error) {</span></span>
 <span id="L498"><span class="lineNum">     498</span> <span class="tlaGNC">           2 :         ct, ok := findByKey(raws.CommandTables, func(c oapi.CommandTable) string { return c.Name }, name)</span></span>
 <span id="L499"><span class="lineNum">     499</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
 <span id="L500"><span class="lineNum">     500</span> <span class="tlaGNC">           1 :                 return oapi.CommandTable{}, fmt.Errorf(&quot;キーが存在しない: %s&quot;, name)</span></span>
@@ -583,26 +583,26 @@
 <span id="L521"><span class="lineNum">     521</span>              : }</span>
 <span id="L522"><span class="lineNum">     522</span>              : </span>
 <span id="L523"><span class="lineNum">     523</span>              : // GetItemTable は指定された名前のアイテムテーブルを取得する</span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC tlaBgUNC">           0 : func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {</span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Name }, name)</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :                 return oapi.ItemTable{}, fmt.Errorf(&quot;キーが存在しない: %s&quot;, name)</span></span>
-<span id="L528"><span class="lineNum">     528</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L529"><span class="lineNum">     529</span> <span class="tlaUNC">           0 :         return it, nil</span></span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaGNC">           1 : func GetItemTable(raws oapi.Raws, name string) (oapi.ItemTable, error) {</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaGNC">           2 :         it, ok := findByKey(raws.ItemTables, func(t oapi.ItemTable) string { return t.Name }, name)</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaGNC">           1 :                 return oapi.ItemTable{}, fmt.Errorf(&quot;キーが存在しない: %s&quot;, name)</span></span>
+<span id="L528"><span class="lineNum">     528</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L529"><span class="lineNum">     529</span> <span class="tlaGNC">           1 :         return it, nil</span></span>
 <span id="L530"><span class="lineNum">     530</span>              : }</span>
 <span id="L531"><span class="lineNum">     531</span>              : </span>
 <span id="L532"><span class="lineNum">     532</span>              : // GetEnemyTable は指定された名前の敵テーブルを取得する</span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 : func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {</span></span>
-<span id="L534"><span class="lineNum">     534</span> <span class="tlaUNC">           0 :         et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Name }, name)</span></span>
-<span id="L535"><span class="lineNum">     535</span> <span class="tlaUNC">           0 :         if !ok {</span></span>
-<span id="L536"><span class="lineNum">     536</span> <span class="tlaUNC">           0 :                 return oapi.EnemyTable{}, fmt.Errorf(&quot;キーが存在しない: %s&quot;, name)</span></span>
-<span id="L537"><span class="lineNum">     537</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L538"><span class="lineNum">     538</span> <span class="tlaUNC">           0 :         return et, nil</span></span>
+<span id="L533"><span class="lineNum">     533</span> <span class="tlaGNC">           1 : func GetEnemyTable(raws oapi.Raws, name string) (oapi.EnemyTable, error) {</span></span>
+<span id="L534"><span class="lineNum">     534</span> <span class="tlaGNC">           2 :         et, ok := findByKey(raws.EnemyTables, func(t oapi.EnemyTable) string { return t.Name }, name)</span></span>
+<span id="L535"><span class="lineNum">     535</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L536"><span class="lineNum">     536</span> <span class="tlaGNC">           1 :                 return oapi.EnemyTable{}, fmt.Errorf(&quot;キーが存在しない: %s&quot;, name)</span></span>
+<span id="L537"><span class="lineNum">     537</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L538"><span class="lineNum">     538</span> <span class="tlaGNC">           1 :         return et, nil</span></span>
 <span id="L539"><span class="lineNum">     539</span>              : }</span>
 <span id="L540"><span class="lineNum">     540</span>              : </span>
 <span id="L541"><span class="lineNum">     541</span>              : // GetTile は指定された名前のタイルを取得する</span>
 <span id="L542"><span class="lineNum">     542</span>              : // 計画段階でタイルの性質（Walkableなど）を参照する場合に使用する</span>
-<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC tlaBgGNC">           1 : func GetTile(raws oapi.Raws, name string) (oapi.Tile, error) {</span></span>
+<span id="L543"><span class="lineNum">     543</span> <span class="tlaGNC">           1 : func GetTile(raws oapi.Raws, name string) (oapi.Tile, error) {</span></span>
 <span id="L544"><span class="lineNum">     544</span> <span class="tlaGNC">           2 :         tile, ok := findByKey(raws.Tiles, func(t oapi.Tile) string { return t.Name }, name)</span></span>
 <span id="L545"><span class="lineNum">     545</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
 <span id="L546"><span class="lineNum">     546</span> <span class="tlaGNC">           1 :                 return oapi.Tile{}, NewKeyNotFoundError(name, &quot;Tiles&quot;)</span></span>
@@ -612,45 +612,45 @@
 <span id="L550"><span class="lineNum">     550</span>              : </span>
 <span id="L551"><span class="lineNum">     551</span>              : // NewTileSpec は指定された名前のタイルのEntitySpecを生成する</span>
 <span id="L552"><span class="lineNum">     552</span>              : // 実際にエンティティを生成する際に使用する</span>
-<span id="L553"><span class="lineNum">     553</span> <span class="tlaUNC tlaBgUNC">           0 : func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {</span></span>
-<span id="L554"><span class="lineNum">     554</span> <span class="tlaUNC">           0 :         tileRaw, err := GetTile(raws, name)</span></span>
-<span id="L555"><span class="lineNum">     555</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
-<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
+<span id="L553"><span class="lineNum">     553</span> <span class="tlaGNC">           1 : func NewTileSpec(raws oapi.Raws, name string, x, y consts.Tile, autoTileIndex *int) (gc.EntitySpec, error) {</span></span>
+<span id="L554"><span class="lineNum">     554</span> <span class="tlaGNC">           1 :         tileRaw, err := GetTile(raws, name)</span></span>
+<span id="L555"><span class="lineNum">     555</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
+<span id="L556"><span class="lineNum">     556</span> <span class="tlaUNC tlaBgUNC">           0 :                 return gc.EntitySpec{}, err</span></span>
 <span id="L557"><span class="lineNum">     557</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L558"><span class="lineNum">     558</span>              : </span>
-<span id="L559"><span class="lineNum">     559</span> <span class="tlaUNC">           0 :         entitySpec := gc.EntitySpec{}</span></span>
-<span id="L560"><span class="lineNum">     560</span> <span class="tlaUNC">           0 :         entitySpec.Name = &amp;gc.Name{Name: tileRaw.Name}</span></span>
-<span id="L561"><span class="lineNum">     561</span> <span class="tlaUNC">           0 :         entitySpec.Description = &amp;gc.Description{Description: tileRaw.Description}</span></span>
-<span id="L562"><span class="lineNum">     562</span> <span class="tlaUNC">           0 :         entitySpec.GridElement = &amp;gc.GridElement{X: x, Y: y}</span></span>
-<span id="L563"><span class="lineNum">     563</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L564"><span class="lineNum">     564</span> <span class="tlaUNC">           0 :         // SpriteRenderを設定</span></span>
-<span id="L565"><span class="lineNum">     565</span> <span class="tlaUNC">           0 :         sprite := toGCSpriteRender(tileRaw.SpriteRender)</span></span>
-<span id="L566"><span class="lineNum">     566</span> <span class="tlaUNC">           0 :         // オートタイルインデックスが指定されている場合はspriteKeyを動的に生成</span></span>
-<span id="L567"><span class="lineNum">     567</span> <span class="tlaUNC">           0 :         if autoTileIndex != nil {</span></span>
-<span id="L568"><span class="lineNum">     568</span> <span class="tlaUNC">           0 :                 sprite.SpriteKey = fmt.Sprintf(&quot;%s_%d&quot;, tileRaw.SpriteRender.SpriteKey, *autoTileIndex)</span></span>
-<span id="L569"><span class="lineNum">     569</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L570"><span class="lineNum">     570</span> <span class="tlaUNC">           0 :         entitySpec.SpriteRender = &amp;sprite</span></span>
-<span id="L571"><span class="lineNum">     571</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L572"><span class="lineNum">     572</span> <span class="tlaUNC">           0 :         // BlockPassがtrueの場合は通行を遮断</span></span>
-<span id="L573"><span class="lineNum">     573</span> <span class="tlaUNC">           0 :         if tileRaw.BlockPass {</span></span>
-<span id="L574"><span class="lineNum">     574</span> <span class="tlaUNC">           0 :                 entitySpec.BlockPass = &amp;gc.BlockPass{}</span></span>
-<span id="L575"><span class="lineNum">     575</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L559"><span class="lineNum">     559</span> <span class="tlaGNC tlaBgGNC">           1 :         entitySpec := gc.EntitySpec{}</span></span>
+<span id="L560"><span class="lineNum">     560</span> <span class="tlaGNC">           1 :         entitySpec.Name = &amp;gc.Name{Name: tileRaw.Name}</span></span>
+<span id="L561"><span class="lineNum">     561</span> <span class="tlaGNC">           1 :         entitySpec.Description = &amp;gc.Description{Description: tileRaw.Description}</span></span>
+<span id="L562"><span class="lineNum">     562</span> <span class="tlaGNC">           1 :         entitySpec.GridElement = &amp;gc.GridElement{X: x, Y: y}</span></span>
+<span id="L563"><span class="lineNum">     563</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L564"><span class="lineNum">     564</span> <span class="tlaGNC">           1 :         // SpriteRenderを設定</span></span>
+<span id="L565"><span class="lineNum">     565</span> <span class="tlaGNC">           1 :         sprite := toGCSpriteRender(tileRaw.SpriteRender)</span></span>
+<span id="L566"><span class="lineNum">     566</span> <span class="tlaGNC">           1 :         // オートタイルインデックスが指定されている場合はspriteKeyを動的に生成</span></span>
+<span id="L567"><span class="lineNum">     567</span> <span class="tlaGNC">           2 :         if autoTileIndex != nil {</span></span>
+<span id="L568"><span class="lineNum">     568</span> <span class="tlaGNC">           1 :                 sprite.SpriteKey = fmt.Sprintf(&quot;%s_%d&quot;, tileRaw.SpriteRender.SpriteKey, *autoTileIndex)</span></span>
+<span id="L569"><span class="lineNum">     569</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L570"><span class="lineNum">     570</span> <span class="tlaGNC">           1 :         entitySpec.SpriteRender = &amp;sprite</span></span>
+<span id="L571"><span class="lineNum">     571</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L572"><span class="lineNum">     572</span> <span class="tlaGNC">           1 :         // BlockPassがtrueの場合は通行を遮断</span></span>
+<span id="L573"><span class="lineNum">     573</span> <span class="tlaGNC">           2 :         if tileRaw.BlockPass {</span></span>
+<span id="L574"><span class="lineNum">     574</span> <span class="tlaGNC">           1 :                 entitySpec.BlockPass = &amp;gc.BlockPass{}</span></span>
+<span id="L575"><span class="lineNum">     575</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L576"><span class="lineNum">     576</span>              : </span>
 <span id="L577"><span class="lineNum">     577</span>              :         // BlockViewがtrueの場合は視界を遮断</span>
-<span id="L578"><span class="lineNum">     578</span> <span class="tlaUNC">           0 :         if tileRaw.BlockView {</span></span>
-<span id="L579"><span class="lineNum">     579</span> <span class="tlaUNC">           0 :                 entitySpec.BlockView = &amp;gc.BlockView{}</span></span>
-<span id="L580"><span class="lineNum">     580</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L578"><span class="lineNum">     578</span> <span class="tlaGNC">           2 :         if tileRaw.BlockView {</span></span>
+<span id="L579"><span class="lineNum">     579</span> <span class="tlaGNC">           1 :                 entitySpec.BlockView = &amp;gc.BlockView{}</span></span>
+<span id="L580"><span class="lineNum">     580</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L581"><span class="lineNum">     581</span>              : </span>
-<span id="L582"><span class="lineNum">     582</span> <span class="tlaUNC">           0 :         entitySpec.Tile = &amp;gc.Tile{}</span></span>
-<span id="L583"><span class="lineNum">     583</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L584"><span class="lineNum">     584</span> <span class="tlaUNC">           0 :         // タイル種別によらないので、ここでは初期化するだけ</span></span>
-<span id="L585"><span class="lineNum">     585</span> <span class="tlaUNC">           0 :         entitySpec.TileTemperature = &amp;gc.TileTemperature{}</span></span>
-<span id="L586"><span class="lineNum">     586</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L587"><span class="lineNum">     587</span> <span class="tlaUNC">           0 :         return entitySpec, nil</span></span>
+<span id="L582"><span class="lineNum">     582</span> <span class="tlaGNC">           1 :         entitySpec.Tile = &amp;gc.Tile{}</span></span>
+<span id="L583"><span class="lineNum">     583</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L584"><span class="lineNum">     584</span> <span class="tlaGNC">           1 :         // タイル種別によらないので、ここでは初期化するだけ</span></span>
+<span id="L585"><span class="lineNum">     585</span> <span class="tlaGNC">           1 :         entitySpec.TileTemperature = &amp;gc.TileTemperature{}</span></span>
+<span id="L586"><span class="lineNum">     586</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L587"><span class="lineNum">     587</span> <span class="tlaGNC">           1 :         return entitySpec, nil</span></span>
 <span id="L588"><span class="lineNum">     588</span>              : }</span>
 <span id="L589"><span class="lineNum">     589</span>              : </span>
 <span id="L590"><span class="lineNum">     590</span>              : // GetProp は指定された名前の置物の設定を取得する</span>
-<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC tlaBgGNC">           1 : func GetProp(raws oapi.Raws, name string) (oapi.Prop, error) {</span></span>
+<span id="L591"><span class="lineNum">     591</span> <span class="tlaGNC">           1 : func GetProp(raws oapi.Raws, name string) (oapi.Prop, error) {</span></span>
 <span id="L592"><span class="lineNum">     592</span> <span class="tlaGNC">           2 :         prop, ok := findByKey(raws.Props, func(p oapi.Prop) string { return p.Name }, name)</span></span>
 <span id="L593"><span class="lineNum">     593</span> <span class="tlaGNC">           1 :         if !ok {</span></span>
 <span id="L594"><span class="lineNum">     594</span> <span class="tlaUNC tlaBgUNC">           0 :                 return oapi.Prop{}, NewKeyNotFoundError(name, &quot;Props&quot;)</span></span>

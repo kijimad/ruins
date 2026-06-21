@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">51.7&nbsp;%</td>
+            <td class="headerCovTableEntryLo">62.1&nbsp;%</td>
             <td class="headerCovTableEntry">29</td>
-            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">18</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,12 +79,12 @@
 <span id="L17"><span class="lineNum">      17</span>              :         es.BaseState[w.World]</span>
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC tlaBgUNC">           0 : func (st DemoStartState) String() string {</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         return &quot;DemoStart&quot;</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC tlaBgGNC">           1 : func (st DemoStartState) String() string {</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         return &quot;DemoStart&quot;</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L23"><span class="lineNum">      23</span>              : </span>
 <span id="L24"><span class="lineNum">      24</span>              : // OnStart はステート開始時にデフォルトプレイヤーを生成し、TownStateへの遷移を設定する</span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *DemoStartState) OnStart(world w.World) error {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 : func (st *DemoStartState) OnStart(world w.World) error {</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         player, err := worldhelper.SpawnPlayer(world, 5, 5, &quot;Ash&quot;)</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;プレイヤーの生成に失敗: %w&quot;, err)</span></span>

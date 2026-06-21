@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -226,7 +226,7 @@
 <span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         // AIVisionコンポーネント確認</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :         aiVision := world.Components.AIVision.Get(entity)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         if aiVision == nil {</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIVisionコンポーネントなし&quot;, Entity: entity}</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIVisionコンポーネントなし&quot;, Entity: &amp;entity}</span></span>
 <span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :         vision := aiVision.(*gc.AIVision)</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         p.logger.Debug(&quot;AIVision設定&quot;, &quot;entity&quot;, entity, &quot;viewDistance&quot;, vision.ViewDistance)</span></span>
@@ -234,7 +234,7 @@
 <span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         // AIRoamingコンポーネント確認</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         aiRoaming := world.Components.AIRoaming.Get(entity)</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         if aiRoaming == nil {</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIRoamingコンポーネントなし&quot;, Entity: entity}</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :                 return nil, &amp;AIError{Type: &quot;component_missing&quot;, Message: &quot;AIRoamingコンポーネントなし&quot;, Entity: &amp;entity}</span></span>
 <span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         roaming := aiRoaming.(*gc.AIRoaming)</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : </span></span>

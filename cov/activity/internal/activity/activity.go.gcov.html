@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">90.4&nbsp;%</td>
+            <td class="headerCovTableEntryHi">93.6&nbsp;%</td>
             <td class="headerCovTableEntry">125</td>
-            <td class="headerCovTableEntry">113</td>
+            <td class="headerCovTableEntry">117</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -138,10 +138,10 @@
 <span id="L76"><span class="lineNum">      76</span>              : </span>
 <span id="L77"><span class="lineNum">      77</span>              : // CalculateRequiredTurns はキャラクターのAP量に基づいて必要ターン数を計算する</span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : func CalculateRequiredTurns(behavior Behavior, characterAP int) int {</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :         if behavior.Info().TotalRequiredAP &gt; 0 &amp;&amp; characterAP &gt; 0 {</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC tlaBgUNC">           0 :                 return (behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP</span></span>
-<span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC tlaBgGNC">           1 :         return 1</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           2 :         if behavior.Info().TotalRequiredAP &gt; 0 &amp;&amp; characterAP &gt; 0 {</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                 return (behavior.Info().TotalRequiredAP + characterAP - 1) / characterAP</span></span>
+<span id="L81"><span class="lineNum">      81</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L82"><span class="lineNum">      82</span> <span class="tlaGNC">           1 :         return 1</span></span>
 <span id="L83"><span class="lineNum">      83</span>              : }</span>
 <span id="L84"><span class="lineNum">      84</span>              : </span>
 <span id="L85"><span class="lineNum">      85</span>              : // CanInterrupt はアクティビティが中断可能かを返す</span>
@@ -185,10 +185,10 @@
 <span id="L123"><span class="lineNum">     123</span>              : // GetDisplayName は表示用の名前を返す</span>
 <span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 : func GetDisplayName(comp *gc.Activity) string {</span></span>
 <span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :         behavior, err := GetBehavior(comp.BehaviorName)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC tlaBgUNC">           0 :                 return string(comp.BehaviorName)</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC tlaBgGNC">           1 :         return behavior.Info().Name</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         if err != nil {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 return string(comp.BehaviorName)</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         return behavior.Info().Name</span></span>
 <span id="L130"><span class="lineNum">     130</span>              : }</span>
 <span id="L131"><span class="lineNum">     131</span>              : </span>
 <span id="L132"><span class="lineNum">     132</span>              : // IsActive はアクティビティがアクティブかを返す</span>

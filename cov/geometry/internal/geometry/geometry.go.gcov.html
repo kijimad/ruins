@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">75.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">96.4&nbsp;%</td>
             <td class="headerCovTableEntry">56</td>
-            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntry">54</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -92,10 +92,10 @@
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         dx := Abs(x1 - x0)</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         dy := Abs(y1 - y0)</span></span>
 <span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         sx := 1</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         if x0 &gt; x1 {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC tlaBgUNC">           0 :                 sx = -1</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC tlaBgGNC">           1 :         sy := 1</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         if x0 &gt; x1 {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 sx = -1</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :         sy := 1</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         if y0 &gt; y1 {</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC tlaBgUNC">           0 :                 sy = -1</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         }</span></span>
@@ -114,27 +114,27 @@
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                         err -= dy</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :                         x += sx</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                 if e2 &lt; dx {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC tlaBgUNC">           0 :                         err += dx</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                         y += sy</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :                 if e2 &lt; dx {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                         err += dx</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         y += sy</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L59"><span class="lineNum">      59</span>              :         }</span>
 <span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC tlaBgGNC">           1 :         return points</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         return points</span></span>
 <span id="L62"><span class="lineNum">      62</span>              : }</span>
 <span id="L63"><span class="lineNum">      63</span>              : </span>
 <span id="L64"><span class="lineNum">      64</span>              : // ChebyshevDistance は2点間のチェビシェフ距離を返す</span>
-<span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC tlaBgUNC">           0 : func ChebyshevDistance(x0, y0, x1, y1 int) int {</span></span>
-<span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         dx := Abs(x0 - x1)</span></span>
-<span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :         dy := Abs(y0 - y1)</span></span>
-<span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :         if dx &gt; dy {</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                 return dx</span></span>
-<span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :         return dy</span></span>
+<span id="L65"><span class="lineNum">      65</span> <span class="tlaGNC">           1 : func ChebyshevDistance(x0, y0, x1, y1 int) int {</span></span>
+<span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :         dx := Abs(x0 - x1)</span></span>
+<span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :         dy := Abs(y0 - y1)</span></span>
+<span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           2 :         if dx &gt; dy {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           1 :                 return dx</span></span>
+<span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :         return dy</span></span>
 <span id="L72"><span class="lineNum">      72</span>              : }</span>
 <span id="L73"><span class="lineNum">      73</span>              : </span>
 <span id="L74"><span class="lineNum">      74</span>              : // Abs は整数の絶対値を返す</span>
-<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC tlaBgGNC">           1 : func Abs(x int) int {</span></span>
+<span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 : func Abs(x int) int {</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :         if x &lt; 0 {</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 :                 return -x</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 :         }</span></span>

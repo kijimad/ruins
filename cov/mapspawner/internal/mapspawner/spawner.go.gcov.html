@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">29.5&nbsp;%</td>
+            <td class="headerCovTableEntryLo">48.2&nbsp;%</td>
             <td class="headerCovTableEntry">139</td>
-            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntry">67</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,39 +221,39 @@
 <span id="L159"><span class="lineNum">     159</span>              : </span>
 <span id="L160"><span class="lineNum">     160</span>              : // detectDoorOrientation は隣接タイルから扉の向きを判定する</span>
 <span id="L161"><span class="lineNum">     161</span>              : // 左右が壁の場合は縦向き、上下が壁の場合は横向き</span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC tlaBgUNC">           0 : func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :         width := int(metaPlan.Level.TileWidth)</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         height := int(metaPlan.Level.TileHeight)</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :         // 範囲外チェック</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         if x &lt;= 0 || x &gt;= width-1 || y &lt;= 0 || y &gt;= height-1 {</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                 // デフォルトは横向き</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationHorizontal</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 : func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         width := int(metaPlan.Level.TileWidth)</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :         height := int(metaPlan.Level.TileHeight)</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :         // 範囲外チェック</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :         if x &lt;= 0 || x &gt;= width-1 || y &lt;= 0 || y &gt;= height-1 {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 // デフォルトは横向き</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                 return gc.DoorOrientationHorizontal</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L171"><span class="lineNum">     171</span>              : </span>
 <span id="L172"><span class="lineNum">     172</span>              :         // 隣接タイルを取得</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :         leftIdx := y*width + (x - 1)</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :         rightIdx := y*width + (x + 1)</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaUNC">           0 :         topIdx := (y-1)*width + x</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 :         bottomIdx := (y+1)*width + x</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 :         leftTile := metaPlan.Tiles[leftIdx]</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaUNC">           0 :         rightTile := metaPlan.Tiles[rightIdx]</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaUNC">           0 :         topTile := metaPlan.Tiles[topIdx]</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 :         bottomTile := metaPlan.Tiles[bottomIdx]</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 :         // 左右が壁（通行不可）の場合は縦向き</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC">           0 :         if leftTile.BlockPass &amp;&amp; rightTile.BlockPass {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationVertical</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         leftIdx := y*width + (x - 1)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         rightIdx := y*width + (x + 1)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :         topIdx := (y-1)*width + x</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         bottomIdx := (y+1)*width + x</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :         leftTile := metaPlan.Tiles[leftIdx]</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :         rightTile := metaPlan.Tiles[rightIdx]</span></span>
+<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :         topTile := metaPlan.Tiles[topIdx]</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :         bottomTile := metaPlan.Tiles[bottomIdx]</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         // 左右が壁（通行不可）の場合は縦向き</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :         if leftTile.BlockPass &amp;&amp; rightTile.BlockPass {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :                 return gc.DoorOrientationVertical</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L187"><span class="lineNum">     187</span>              : </span>
 <span id="L188"><span class="lineNum">     188</span>              :         // 上下が壁（通行不可）の場合は横向き</span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :         if topTile.BlockPass &amp;&amp; bottomTile.BlockPass {</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                 return gc.DoorOrientationHorizontal</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :         if topTile.BlockPass &amp;&amp; bottomTile.BlockPass {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                 return gc.DoorOrientationHorizontal</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L192"><span class="lineNum">     192</span>              : </span>
 <span id="L193"><span class="lineNum">     193</span>              :         // どちらでもない場合はデフォルト（横向き）</span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :         return gc.DoorOrientationHorizontal</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC tlaBgUNC">           0 :         return gc.DoorOrientationHorizontal</span></span>
 <span id="L195"><span class="lineNum">     195</span>              : }</span>
         </pre>
               </td>

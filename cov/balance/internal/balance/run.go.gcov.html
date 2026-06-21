@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">89.2&nbsp;%</td>
+            <td class="headerCovTableEntryHi">93.0&nbsp;%</td>
             <td class="headerCovTableEntry">158</td>
-            <td class="headerCovTableEntry">141</td>
+            <td class="headerCovTableEntry">147</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -267,13 +267,13 @@
 <span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 return a.Calc()</span></span>
 <span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :         case gc.RatioAmount:</span></span>
 <span id="L207"><span class="lineNum">     207</span> <span class="tlaGNC">           1 :                 return a.Calc(playerMaxHP)</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC tlaBgUNC">           0 :         default:</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 return 0</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :                 return 0</span></span>
 <span id="L210"><span class="lineNum">     210</span>              :         }</span>
 <span id="L211"><span class="lineNum">     211</span>              : }</span>
 <span id="L212"><span class="lineNum">     212</span>              : </span>
 <span id="L213"><span class="lineNum">     213</span>              : // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す</span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC tlaBgGNC">           1 : func RunBattles(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, n int, rng *rand.Rand) []BattleResult {</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : func RunBattles(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, n int, rng *rand.Rand) []BattleResult {</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         results := make([]BattleResult, n)</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; n; i++ {</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 results[i] = SimulateBattle(player, enemy, playerWeapon, enemyWeapon, rng)</span></span>
@@ -288,18 +288,18 @@
 <span id="L226"><span class="lineNum">     226</span>              : </span>
 <span id="L227"><span class="lineNum">     227</span>              : // DPS は1ターンあたりのプレイヤーの平均与ダメージを返す</span>
 <span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 : func (bs BattleStats) DPS() float64 {</span></span>
-<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :         if len(bs.Results) == 0 {</span></span>
-<span id="L230"><span class="lineNum">     230</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC tlaBgGNC">           1 :         var totalDamage, totalTurns int</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           2 :         if len(bs.Results) == 0 {</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         var totalDamage, totalTurns int</span></span>
 <span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :         for _, r := range bs.Results {</span></span>
 <span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 totalDamage += r.DamageDealt</span></span>
 <span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 totalTurns += r.Turns</span></span>
 <span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           1 :         if totalTurns == 0 {</span></span>
-<span id="L238"><span class="lineNum">     238</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC tlaBgGNC">           1 :         return float64(totalDamage) / float64(totalTurns)</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaGNC">           2 :         if totalTurns == 0 {</span></span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         return float64(totalDamage) / float64(totalTurns)</span></span>
 <span id="L241"><span class="lineNum">     241</span>              : }</span>
 <span id="L242"><span class="lineNum">     242</span>              : </span>
 <span id="L243"><span class="lineNum">     243</span>              : // RunSimulations はN回のランシミュレーションを実行する</span>

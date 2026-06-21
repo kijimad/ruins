@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,20 +68,21 @@
 <span id="L6"><span class="lineNum">       6</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L7"><span class="lineNum">       7</span>              : )</span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span>              : // AIError はAI処理に関するエラーを表す</span>
-<span id="L10"><span class="lineNum">      10</span>              : type AIError struct {</span>
-<span id="L11"><span class="lineNum">      11</span>              :         Type    string     // エラーの種類</span>
-<span id="L12"><span class="lineNum">      12</span>              :         Message string     // エラーメッセージ</span>
-<span id="L13"><span class="lineNum">      13</span>              :         Entity  ecs.Entity // 関連するエンティティ</span>
-<span id="L14"><span class="lineNum">      14</span>              : }</span>
-<span id="L15"><span class="lineNum">      15</span>              : </span>
-<span id="L16"><span class="lineNum">      16</span>              : // Error はerrorインターフェースを実装する</span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC tlaBgUNC">           0 : func (e *AIError) Error() string {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         if e.Entity != 0 {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 return fmt.Sprintf(&quot;AI Error [%s] Entity=%d: %s&quot;, e.Type, e.Entity, e.Message)</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :         return fmt.Sprintf(&quot;AI Error [%s]: %s&quot;, e.Type, e.Message)</span></span>
-<span id="L22"><span class="lineNum">      22</span>              : }</span>
+<span id="L9"><span class="lineNum">       9</span>              : // AIError はAI処理に関するエラーを表す。</span>
+<span id="L10"><span class="lineNum">      10</span>              : // Entity はnilで「エンティティ未設定」を表す。</span>
+<span id="L11"><span class="lineNum">      11</span>              : type AIError struct {</span>
+<span id="L12"><span class="lineNum">      12</span>              :         Type    string      // エラーの種類</span>
+<span id="L13"><span class="lineNum">      13</span>              :         Message string      // エラーメッセージ</span>
+<span id="L14"><span class="lineNum">      14</span>              :         Entity  *ecs.Entity // 関連するエンティティ。nilは未設定を表す</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // Error はerrorインターフェースを実装する</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func (e *AIError) Error() string {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           2 :         if e.Entity != nil {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :                 return fmt.Sprintf(&quot;AI Error [%s] Entity=%d: %s&quot;, e.Type, *e.Entity, e.Message)</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         return fmt.Sprintf(&quot;AI Error [%s]: %s&quot;, e.Type, e.Message)</span></span>
+<span id="L23"><span class="lineNum">      23</span>              : }</span>
         </pre>
               </td>
             </tr>

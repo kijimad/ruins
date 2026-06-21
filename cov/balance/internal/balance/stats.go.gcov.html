@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">37.4&nbsp;%</td>
+            <td class="headerCovTableEntryMed">89.7&nbsp;%</td>
             <td class="headerCovTableEntry">174</td>
-            <td class="headerCovTableEntry">65</td>
+            <td class="headerCovTableEntry">156</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -136,13 +136,13 @@
 <span id="L74"><span class="lineNum">      74</span>              : }</span>
 <span id="L75"><span class="lineNum">      75</span>              : </span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 : func postHealHP(r RunResult) map[int]int      { return r.HPByDepth }</span></span>
-<span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC tlaBgUNC">           0 : func preHealHP(r RunResult) map[int]int       { return r.HPBeforeHealByDepth }</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 : func hungerMap(r RunResult) map[int]int       { return r.HungerByDepth }</span></span>
-<span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 : func weaponDamageMap(r RunResult) map[int]int { return r.WeaponDamageByDepth }</span></span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 : func killTurnsMap(r RunResult) map[int]int    { return r.AvgKillTurnsByDepth }</span></span>
+<span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           1 : func preHealHP(r RunResult) map[int]int       { return r.HPBeforeHealByDepth }</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           1 : func hungerMap(r RunResult) map[int]int       { return r.HungerByDepth }</span></span>
+<span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 : func weaponDamageMap(r RunResult) map[int]int { return r.WeaponDamageByDepth }</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 : func killTurnsMap(r RunResult) map[int]int    { return r.AvgKillTurnsByDepth }</span></span>
 <span id="L81"><span class="lineNum">      81</span>              : </span>
 <span id="L82"><span class="lineNum">      82</span>              : // HPAtDepth は指定深度での残HPスライスを返す</span>
-<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC tlaBgGNC">           1 : func (s RunStats) HPAtDepth(depth int) []int {</span></span>
+<span id="L83"><span class="lineNum">      83</span> <span class="tlaGNC">           1 : func (s RunStats) HPAtDepth(depth int) []int {</span></span>
 <span id="L84"><span class="lineNum">      84</span> <span class="tlaGNC">           1 :         var hps []int</span></span>
 <span id="L85"><span class="lineNum">      85</span> <span class="tlaGNC">           2 :         for _, r := range s.Results {</span></span>
 <span id="L86"><span class="lineNum">      86</span> <span class="tlaGNC">           2 :                 if hp, ok := r.HPByDepth[depth]; ok {</span></span>
@@ -168,155 +168,155 @@
 <span id="L106"><span class="lineNum">     106</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L107"><span class="lineNum">     107</span>              : </span>
 <span id="L108"><span class="lineNum">     108</span>              : // MedianHPBeforeHeal は指定深度での回復前HPの中央値を返す</span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC tlaBgUNC">           0 : func (s RunStats) MedianHPBeforeHeal(depth int) int {</span></span>
-<span id="L110"><span class="lineNum">     110</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, preHealHP, 0.5)</span></span>
-<span id="L111"><span class="lineNum">     111</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 : func (s RunStats) MedianHPBeforeHeal(depth int) int {</span></span>
+<span id="L110"><span class="lineNum">     110</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, preHealHP, 0.5)</span></span>
+<span id="L111"><span class="lineNum">     111</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L112"><span class="lineNum">     112</span>              : </span>
 <span id="L113"><span class="lineNum">     113</span>              : // P5HPBeforeHeal は指定深度での回復前HP下位5%を返す</span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 : func (s RunStats) P5HPBeforeHeal(depth int) int {</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, preHealHP, 0.05)</span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 : func (s RunStats) P5HPBeforeHeal(depth int) int {</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, preHealHP, 0.05)</span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L117"><span class="lineNum">     117</span>              : </span>
 <span id="L118"><span class="lineNum">     118</span>              : // P95HPBeforeHeal は指定深度での回復前HP上位95%を返す</span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 : func (s RunStats) P95HPBeforeHeal(depth int) int {</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, preHealHP, 0.95)</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 : func (s RunStats) P95HPBeforeHeal(depth int) int {</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, preHealHP, 0.95)</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L122"><span class="lineNum">     122</span>              : </span>
 <span id="L123"><span class="lineNum">     123</span>              : // SuddenDeathRate は指定深度での突然死率を返す。</span>
 <span id="L124"><span class="lineNum">     124</span>              : // この深度に到達したランのうち、この深度で死亡した割合</span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 : func (s RunStats) SuddenDeathRate(depth int) float64 {</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         if depth &lt; 1 {</span></span>
-<span id="L127"><span class="lineNum">     127</span> <span class="tlaUNC">           0 :                 depth = 1</span></span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :         survived := 0</span></span>
-<span id="L130"><span class="lineNum">     130</span> <span class="tlaUNC">           0 :         diedHere := 0</span></span>
-<span id="L131"><span class="lineNum">     131</span> <span class="tlaUNC">           0 :         for _, r := range s.Results {</span></span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                 if r.ReachedDepth &gt;= depth {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                         survived++</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                         if r.Died &amp;&amp; r.ReachedDepth == depth {</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :                                 diedHere++</span></span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                         }</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 : func (s RunStats) SuddenDeathRate(depth int) float64 {</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           2 :         if depth &lt; 1 {</span></span>
+<span id="L127"><span class="lineNum">     127</span> <span class="tlaGNC">           1 :                 depth = 1</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :         survived := 0</span></span>
+<span id="L130"><span class="lineNum">     130</span> <span class="tlaGNC">           1 :         diedHere := 0</span></span>
+<span id="L131"><span class="lineNum">     131</span> <span class="tlaGNC">           2 :         for _, r := range s.Results {</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           2 :                 if r.ReachedDepth &gt;= depth {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                         survived++</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           2 :                         if r.Died &amp;&amp; r.ReachedDepth == depth {</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :                                 diedHere++</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L137"><span class="lineNum">     137</span>              :                 }</span>
 <span id="L138"><span class="lineNum">     138</span>              :         }</span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         if survived == 0 {</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :         return float64(diedHere) / float64(survived)</span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           2 :         if survived == 0 {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         return float64(diedHere) / float64(survived)</span></span>
 <span id="L143"><span class="lineNum">     143</span>              : }</span>
 <span id="L144"><span class="lineNum">     144</span>              : </span>
 <span id="L145"><span class="lineNum">     145</span>              : // MedianWeaponDamage は指定深度での武器ダメージの中央値を返す</span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 : func (s RunStats) MedianWeaponDamage(depth int) int {</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, weaponDamageMap, 0.5)</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 : func (s RunStats) MedianWeaponDamage(depth int) int {</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, weaponDamageMap, 0.5)</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L149"><span class="lineNum">     149</span>              : </span>
 <span id="L150"><span class="lineNum">     150</span>              : // P5WeaponDamage は指定深度での武器ダメージの下位5%を返す</span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaUNC">           0 : func (s RunStats) P5WeaponDamage(depth int) int {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, weaponDamageMap, 0.05)</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 : func (s RunStats) P5WeaponDamage(depth int) int {</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, weaponDamageMap, 0.05)</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L154"><span class="lineNum">     154</span>              : </span>
 <span id="L155"><span class="lineNum">     155</span>              : // P95WeaponDamage は指定深度での武器ダメージの上位95%を返す</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 : func (s RunStats) P95WeaponDamage(depth int) int {</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, weaponDamageMap, 0.95)</span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 : func (s RunStats) P95WeaponDamage(depth int) int {</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, weaponDamageMap, 0.95)</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L159"><span class="lineNum">     159</span>              : </span>
 <span id="L160"><span class="lineNum">     160</span>              : // MedianKillTurns は指定深度での1戦あたり平均キルターンの中央値を返す</span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 : func (s RunStats) MedianKillTurns(depth int) int {</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, killTurnsMap, 0.5)</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : func (s RunStats) MedianKillTurns(depth int) int {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, killTurnsMap, 0.5)</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L164"><span class="lineNum">     164</span>              : </span>
 <span id="L165"><span class="lineNum">     165</span>              : // P5KillTurns は指定深度でのキルターンの下位5%を返す</span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 : func (s RunStats) P5KillTurns(depth int) int {</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, killTurnsMap, 0.05)</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 : func (s RunStats) P5KillTurns(depth int) int {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, killTurnsMap, 0.05)</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L169"><span class="lineNum">     169</span>              : </span>
 <span id="L170"><span class="lineNum">     170</span>              : // P95KillTurns は指定深度でのキルターンの上位95%を返す</span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 : func (s RunStats) P95KillTurns(depth int) int {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, killTurnsMap, 0.95)</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : func (s RunStats) P95KillTurns(depth int) int {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, killTurnsMap, 0.95)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L174"><span class="lineNum">     174</span>              : </span>
 <span id="L175"><span class="lineNum">     175</span>              : // MedianHunger は指定深度での空腹度の中央値を返す</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaUNC">           0 : func (s RunStats) MedianHunger(depth int) int {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, hungerMap, 0.5)</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 : func (s RunStats) MedianHunger(depth int) int {</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, hungerMap, 0.5)</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              : </span>
 <span id="L180"><span class="lineNum">     180</span>              : // P5Hunger は指定深度での空腹度の下位5%を返す</span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaUNC">           0 : func (s RunStats) P5Hunger(depth int) int {</span></span>
-<span id="L182"><span class="lineNum">     182</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, hungerMap, 0.05)</span></span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : func (s RunStats) P5Hunger(depth int) int {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, hungerMap, 0.05)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L184"><span class="lineNum">     184</span>              : </span>
 <span id="L185"><span class="lineNum">     185</span>              : // P95Hunger は指定深度での空腹度の上位95%を返す</span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 : func (s RunStats) P95Hunger(depth int) int {</span></span>
-<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :         return s.hpPercentile(depth, hungerMap, 0.95)</span></span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 : func (s RunStats) P95Hunger(depth int) int {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :         return s.hpPercentile(depth, hungerMap, 0.95)</span></span>
+<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L189"><span class="lineNum">     189</span>              : </span>
 <span id="L190"><span class="lineNum">     190</span>              : // MedianDamagePerFloor は指定深度でのフロアあたり被ダメージの中央値を返す。</span>
 <span id="L191"><span class="lineNum">     191</span>              : // playerMaxHP は深度1の開始HPとして使う</span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 : func (s RunStats) MedianDamagePerFloor(depth, playerMaxHP int) int {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :         return s.floorDamagePercentile(depth, playerMaxHP, 0.5)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 : func (s RunStats) MedianDamagePerFloor(depth, playerMaxHP int) int {</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :         return s.floorDamagePercentile(depth, playerMaxHP, 0.5)</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L195"><span class="lineNum">     195</span>              : </span>
 <span id="L196"><span class="lineNum">     196</span>              : // MedianHealingPerFloor は指定深度でのフロアあたり回復量の中央値を返す</span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 : func (s RunStats) MedianHealingPerFloor(depth int) int {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :         return s.floorHealingPercentile(depth, 0.5)</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 : func (s RunStats) MedianHealingPerFloor(depth int) int {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         return s.floorHealingPercentile(depth, 0.5)</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L200"><span class="lineNum">     200</span>              : </span>
 <span id="L201"><span class="lineNum">     201</span>              : // floorDamagePercentile は指定深度でのフロアあたり被ダメージのパーセンタイルを返す</span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 : func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int {</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :         var damages []int</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :         for _, r := range s.Results {</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                 hpBefore, ok := r.HPBeforeHealByDepth[depth]</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                 if !ok {</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC">           1 : func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :         var damages []int</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           2 :         for _, r := range s.Results {</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :                 hpBefore, ok := r.HPBeforeHealByDepth[depth]</span></span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC">           1 :                 if !ok {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L208"><span class="lineNum">     208</span>              :                 }</span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                 entering := playerMaxHP</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                 if depth &gt; 1 {</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                         if hp, ok := r.HPByDepth[depth-1]; ok {</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           1 :                 entering := playerMaxHP</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                 if depth &gt; 1 {</span></span>
+<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC tlaBgUNC">           0 :                         if hp, ok := r.HPByDepth[depth-1]; ok {</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                                 entering = hp</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                         } else {</span></span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                                 continue</span></span>
 <span id="L215"><span class="lineNum">     215</span>              :                         }</span>
 <span id="L216"><span class="lineNum">     216</span>              :                 }</span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                 dmg := entering - hpBefore</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                 if dmg &lt; 0 {</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                         dmg = 0</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           1 :                 dmg := entering - hpBefore</span></span>
+<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 if dmg &lt; 0 {</span></span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :                         dmg = 0</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L221"><span class="lineNum">     221</span> <span class="tlaUNC">           0 :                 damages = append(damages, dmg)</span></span>
+<span id="L221"><span class="lineNum">     221</span> <span class="tlaGNC tlaBgGNC">           1 :                 damages = append(damages, dmg)</span></span>
 <span id="L222"><span class="lineNum">     222</span>              :         }</span>
-<span id="L223"><span class="lineNum">     223</span> <span class="tlaUNC">           0 :         if len(damages) == 0 {</span></span>
-<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC">           0 :                 return 0</span></span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC">           1 :         if len(damages) == 0 {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
 <span id="L225"><span class="lineNum">     225</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L226"><span class="lineNum">     226</span> <span class="tlaUNC">           0 :         sort.Ints(damages)</span></span>
-<span id="L227"><span class="lineNum">     227</span> <span class="tlaUNC">           0 :         return Percentile(damages, p)</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC tlaBgGNC">           1 :         sort.Ints(damages)</span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         return Percentile(damages, p)</span></span>
 <span id="L228"><span class="lineNum">     228</span>              : }</span>
 <span id="L229"><span class="lineNum">     229</span>              : </span>
 <span id="L230"><span class="lineNum">     230</span>              : // floorHealingPercentile は指定深度でのフロアあたり回復量のパーセンタイルを返す</span>
-<span id="L231"><span class="lineNum">     231</span> <span class="tlaUNC">           0 : func (s RunStats) floorHealingPercentile(depth int, p float64) int {</span></span>
-<span id="L232"><span class="lineNum">     232</span> <span class="tlaUNC">           0 :         var heals []int</span></span>
-<span id="L233"><span class="lineNum">     233</span> <span class="tlaUNC">           0 :         for _, r := range s.Results {</span></span>
-<span id="L234"><span class="lineNum">     234</span> <span class="tlaUNC">           0 :                 hpBefore, ok1 := r.HPBeforeHealByDepth[depth]</span></span>
-<span id="L235"><span class="lineNum">     235</span> <span class="tlaUNC">           0 :                 hpAfter, ok2 := r.HPByDepth[depth]</span></span>
-<span id="L236"><span class="lineNum">     236</span> <span class="tlaUNC">           0 :                 if !ok1 || !ok2 {</span></span>
-<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC">           0 :                         continue</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 : func (s RunStats) floorHealingPercentile(depth int, p float64) int {</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           1 :         var heals []int</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :         for _, r := range s.Results {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                 hpBefore, ok1 := r.HPBeforeHealByDepth[depth]</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                 hpAfter, ok2 := r.HPByDepth[depth]</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 if !ok1 || !ok2 {</span></span>
+<span id="L237"><span class="lineNum">     237</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
 <span id="L238"><span class="lineNum">     238</span>              :                 }</span>
-<span id="L239"><span class="lineNum">     239</span> <span class="tlaUNC">           0 :                 heal := hpAfter - hpBefore</span></span>
-<span id="L240"><span class="lineNum">     240</span> <span class="tlaUNC">           0 :                 if heal &lt; 0 {</span></span>
-<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC">           0 :                         heal = 0</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC tlaBgGNC">           1 :                 heal := hpAfter - hpBefore</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :                 if heal &lt; 0 {</span></span>
+<span id="L241"><span class="lineNum">     241</span> <span class="tlaUNC tlaBgUNC">           0 :                         heal = 0</span></span>
 <span id="L242"><span class="lineNum">     242</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :                 heals = append(heals, heal)</span></span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC tlaBgGNC">           1 :                 heals = append(heals, heal)</span></span>
 <span id="L244"><span class="lineNum">     244</span>              :         }</span>
-<span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :         if len(heals) == 0 {</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                 return 0</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :         sort.Ints(heals)</span></span>
-<span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :         return Percentile(heals, p)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           2 :         if len(heals) == 0 {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         sort.Ints(heals)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         return Percentile(heals, p)</span></span>
 <span id="L250"><span class="lineNum">     250</span>              : }</span>
 <span id="L251"><span class="lineNum">     251</span>              : </span>
 <span id="L252"><span class="lineNum">     252</span>              : // DeathRate は全体の死亡率を返す</span>
-<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC tlaBgGNC">           1 : func (s RunStats) DeathRate() float64 {</span></span>
-<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 :         if len(s.Results) == 0 {</span></span>
-<span id="L255"><span class="lineNum">     255</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0</span></span>
-<span id="L256"><span class="lineNum">     256</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC tlaBgGNC">           1 :         died := 0</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 : func (s RunStats) DeathRate() float64 {</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           2 :         if len(s.Results) == 0 {</span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :                 return 0</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           1 :         died := 0</span></span>
 <span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           2 :         for _, r := range s.Results {</span></span>
 <span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           2 :                 if r.Died {</span></span>
 <span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                         died++</span></span>

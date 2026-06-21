@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">66.7&nbsp;%</td>
+            <td class="headerCovTableEntryHi">96.9&nbsp;%</td>
             <td class="headerCovTableEntry">96</td>
-            <td class="headerCovTableEntry">64</td>
+            <td class="headerCovTableEntry">93</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -172,40 +172,40 @@
 <span id="L110"><span class="lineNum">     110</span>              : // ApplyHealing は共通の回復処理を実行する</span>
 <span id="L111"><span class="lineNum">     111</span>              : // target に amount 分のHPを回復させる</span>
 <span id="L112"><span class="lineNum">     112</span>              : // 実際の回復量を返す</span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC tlaBgUNC">           0 : func ApplyHealing(world w.World, target ecs.Entity, amount int) int {</span></span>
-<span id="L114"><span class="lineNum">     114</span> <span class="tlaUNC">           0 :         hp := world.Components.HP.Get(target).(*gc.HP)</span></span>
-<span id="L115"><span class="lineNum">     115</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L116"><span class="lineNum">     116</span> <span class="tlaUNC">           0 :         beforeHP := hp.Current</span></span>
-<span id="L117"><span class="lineNum">     117</span> <span class="tlaUNC">           0 :         hp.Current += amount</span></span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :         if hp.Current &gt; hp.Max {</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                 hp.Current = hp.Max</span></span>
-<span id="L120"><span class="lineNum">     120</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :         actualHealing := hp.Current - beforeHP</span></span>
-<span id="L122"><span class="lineNum">     122</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L123"><span class="lineNum">     123</span> <span class="tlaUNC">           0 :         // 回復エフェクトを生成</span></span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :         if actualHealing &gt; 0 {</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                 SpawnVisualEffect(target, gc.NewHealEffect(actualHealing), world)</span></span>
-<span id="L126"><span class="lineNum">     126</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 : func ApplyHealing(world w.World, target ecs.Entity, amount int) int {</span></span>
+<span id="L114"><span class="lineNum">     114</span> <span class="tlaGNC">           1 :         hp := world.Components.HP.Get(target).(*gc.HP)</span></span>
+<span id="L115"><span class="lineNum">     115</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L116"><span class="lineNum">     116</span> <span class="tlaGNC">           1 :         beforeHP := hp.Current</span></span>
+<span id="L117"><span class="lineNum">     117</span> <span class="tlaGNC">           1 :         hp.Current += amount</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           2 :         if hp.Current &gt; hp.Max {</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                 hp.Current = hp.Max</span></span>
+<span id="L120"><span class="lineNum">     120</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :         actualHealing := hp.Current - beforeHP</span></span>
+<span id="L122"><span class="lineNum">     122</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L123"><span class="lineNum">     123</span> <span class="tlaGNC">           1 :         // 回復エフェクトを生成</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           2 :         if actualHealing &gt; 0 {</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                 SpawnVisualEffect(target, gc.NewHealEffect(actualHealing), world)</span></span>
+<span id="L126"><span class="lineNum">     126</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L127"><span class="lineNum">     127</span>              : </span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :         return actualHealing</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :         return actualHealing</span></span>
 <span id="L129"><span class="lineNum">     129</span>              : }</span>
 <span id="L130"><span class="lineNum">     130</span>              : </span>
 <span id="L131"><span class="lineNum">     131</span>              : // SpawnVisualEffect はエンティティの位置にエフェクト専用エンティティを生成する</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 : func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :         if !target.HasComponent(world.Components.GridElement) {</span></span>
-<span id="L134"><span class="lineNum">     134</span> <span class="tlaUNC">           0 :                 return</span></span>
-<span id="L135"><span class="lineNum">     135</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 : func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World) {</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           2 :         if !target.HasComponent(world.Components.GridElement) {</span></span>
+<span id="L134"><span class="lineNum">     134</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L135"><span class="lineNum">     135</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L136"><span class="lineNum">     136</span>              : </span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :         gridElement := world.Components.GridElement.Get(target).(*gc.GridElement)</span></span>
-<span id="L138"><span class="lineNum">     138</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L139"><span class="lineNum">     139</span> <span class="tlaUNC">           0 :         effectEntity := world.Manager.NewEntity()</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :         effectEntity.AddComponent(world.Components.GridElement, &amp;gc.GridElement{</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                 X: gridElement.X,</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaUNC">           0 :                 Y: gridElement.Y,</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaUNC">           0 :         })</span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :         effectEntity.AddComponent(world.Components.VisualEffect, &amp;gc.VisualEffects{</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                 Effects: []gc.VisualEffect{effect},</span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaUNC">           0 :         })</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(target).(*gc.GridElement)</span></span>
+<span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         effectEntity := world.Manager.NewEntity()</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         effectEntity.AddComponent(world.Components.GridElement, &amp;gc.GridElement{</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                 X: gridElement.X,</span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                 Y: gridElement.Y,</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         })</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         effectEntity.AddComponent(world.Components.VisualEffect, &amp;gc.VisualEffects{</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                 Effects: []gc.VisualEffect{effect},</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         })</span></span>
 <span id="L147"><span class="lineNum">     147</span>              : }</span>
         </pre>
               </td>

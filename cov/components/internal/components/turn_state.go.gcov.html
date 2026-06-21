@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">25.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">16</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">16</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,13 +77,13 @@
 <span id="L15"><span class="lineNum">      15</span>              : // String はTurnPhaseの文字列表現を返す</span>
 <span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 : func (tp TurnPhase) String() string {</span></span>
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         switch tp {</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 :         case TurnPhasePlayer:</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 return &quot;PlayerTurn&quot;</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         case TurnPhaseAI:</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :                 return &quot;AITurn&quot;</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :         case TurnPhaseEnd:</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 :                 return &quot;TurnEnd&quot;</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         case TurnPhasePlayer:</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :                 return &quot;PlayerTurn&quot;</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         case TurnPhaseAI:</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 return &quot;AITurn&quot;</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         case TurnPhaseEnd:</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 return &quot;TurnEnd&quot;</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         default:</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :                 panic(&quot;不正なTurnPhase値&quot;)</span></span>
 <span id="L26"><span class="lineNum">      26</span>              :         }</span>
 <span id="L27"><span class="lineNum">      27</span>              : }</span>
@@ -95,12 +95,12 @@
 <span id="L33"><span class="lineNum">      33</span>              : }</span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // NewTurnState は初期化されたTurnStateを返す</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC tlaBgUNC">           0 : func NewTurnState() *TurnState {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         return &amp;TurnState{</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 Phase:      TurnPhasePlayer,</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 TurnNumber: 1,</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func NewTurnState() *TurnState {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         return &amp;TurnState{</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 Phase:      TurnPhasePlayer,</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 TurnNumber: 1,</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

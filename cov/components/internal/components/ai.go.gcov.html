@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
             <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-20 23:49:50</td>
+            <td class="headerValue">2026-06-21 05:09:25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,18 +90,18 @@
 <span id="L28"><span class="lineNum">      28</span>              : }</span>
 <span id="L29"><span class="lineNum">      29</span>              : </span>
 <span id="L30"><span class="lineNum">      30</span>              : // ResetToDefault は態度をデフォルトに復帰させる</span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 : func (d *Disposition) ResetToDefault() {</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         d.Current = d.Default</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC tlaBgGNC">           1 : func (d *Disposition) ResetToDefault() {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         d.Current = d.Default</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : }</span></span>
 <span id="L34"><span class="lineNum">      34</span>              : </span>
 <span id="L35"><span class="lineNum">      35</span>              : // ReactToHostile は敵対行動を受けた際の態度変化を適用する</span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 : func (d *Disposition) ReactToHostile() {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         switch d.Default {</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :         case DispositionNeutral:</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 d.Current = DispositionHostile</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         case DispositionCowardly:</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 d.Current = DispositionFleeing</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         case DispositionHostile, DispositionFleeing:</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 : func (d *Disposition) ReactToHostile() {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         switch d.Default {</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         case DispositionNeutral:</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                 d.Current = DispositionHostile</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         case DispositionCowardly:</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                 d.Current = DispositionFleeing</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :         case DispositionHostile, DispositionFleeing:</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :                 // 既に敵対的または逃亡中なので変化なし</span>
 <span id="L44"><span class="lineNum">      44</span>              :         }</span>
 <span id="L45"><span class="lineNum">      45</span>              : }</span>
