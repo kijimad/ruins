@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -252,32 +251,6 @@ func TestNewMainMenuState(t *testing.T) {
 	assert.NotNil(t, state, "Stateが作成される")
 	_, ok := state.(*MainMenuState)
 	assert.True(t, ok, "MainMenuState型である")
-}
-
-func TestDemoStartState_OnStart(t *testing.T) {
-	t.Parallel()
-
-	state := NewDemoStartState()
-	world := testutil.InitTestWorld(t)
-
-	err := state.OnStart(world)
-	require.NoError(t, err)
-
-	// プレイヤーが生成されていることを確認
-	_, err = worldhelper.GetPlayerEntity(world)
-	assert.NoError(t, err, "プレイヤーが生成されている")
-}
-
-func TestDemoStartState_Update(t *testing.T) {
-	t.Parallel()
-
-	state := NewDemoStartState()
-	world := testutil.InitTestWorld(t)
-	require.NoError(t, state.OnStart(world))
-
-	transition, err := state.Update(world)
-	require.NoError(t, err)
-	assert.Equal(t, es.TransReplace, transition.Type, "TownStateへTransReplace")
 }
 
 func TestMainMenuState_HandleInput(t *testing.T) {

@@ -107,3 +107,23 @@ func TestConsumeActionPoints(t *testing.T) {
 		assert.False(t, ok)
 	})
 }
+
+func TestRestoreAllActionPoints(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	player, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
+	initialMax := tb.AP.Max
+	tb.AP.Current = 0
+
+	err = RestoreAllActionPoints(world)
+	require.NoError(t, err)
+
+	tb = world.Components.TurnBased.Get(player).(*gc.TurnBased)
+	assert.Greater(t, tb.AP.Current, 0, "APが回復している")
+	assert.LessOrEqual(t, tb.AP.Current, initialMax, "APは最大値を超えない")
+}

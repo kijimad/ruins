@@ -9,51 +9,17 @@ import (
 )
 
 const (
-	// KeyRepeatInitialDelay はキーリピート開始までの遅延（ミリ秒）
+	// KeyRepeatInitialDelay はキーリピート開始までの遅延
 	KeyRepeatInitialDelay = 500 * time.Millisecond
 
-	// KeyRepeatInterval はキーリピートの間隔（ミリ秒）
+	// KeyRepeatInterval はキーリピートの間隔
 	KeyRepeatInterval = 50 * time.Millisecond
 )
-
-// GlobalKeyState はグローバルなキー状態を管理する
-var GlobalKeyState = &globalKeyState{
-	enterPressSession: false,
-	keyRepeatStates:   make(map[ebiten.Key]*keyRepeatState),
-}
 
 // keyRepeatState はキーリピート状態を管理する
 type keyRepeatState struct {
 	pressStartTime time.Time // キーが押され始めた時刻
 	lastRepeatTime time.Time // 最後にリピートした時刻
-}
-
-// globalKeyState はアプリケーション全体で共有されるキー状態
-type globalKeyState struct {
-	enterPressSession bool                           // Enterキーの押下セッション状態（押下中かどうか）
-	keyRepeatStates   map[ebiten.Key]*keyRepeatState // キーリピート状態
-	mutex             sync.RWMutex
-}
-
-// SetEnterPressSession はEnterキーの押下セッション状態を設定する
-func (g *globalKeyState) SetEnterPressSession(inSession bool) {
-	g.mutex.Lock()
-	defer g.mutex.Unlock()
-	g.enterPressSession = inSession
-}
-
-// IsInEnterPressSession はEnterキーが押下セッション中かどうかを取得する
-func (g *globalKeyState) IsInEnterPressSession() bool {
-	g.mutex.RLock()
-	defer g.mutex.RUnlock()
-	return g.enterPressSession
-}
-
-// ResetGlobalKeyStateForTest はテスト用にグローバルキー状態をリセットする
-func ResetGlobalKeyStateForTest() {
-	GlobalKeyState.mutex.Lock()
-	defer GlobalKeyState.mutex.Unlock()
-	GlobalKeyState.enterPressSession = false // Enterキーセッション状態をリセット
 }
 
 // KeyboardInput はキーボード入力を抽象化するインターフェース
@@ -64,11 +30,15 @@ type KeyboardInput interface {
 	IsKeyPressedWithRepeat(key ebiten.Key) bool // キーリピート機能付きの押下判定
 }
 
-// sharedKeyboardInput はシングルトンのキーボード入力実装
-type sharedKeyboardInput struct{}
+// sharedKeyboardInput はシングルトンのキーボード入力実装。
+// キー状態をインスタンスフィールドとして保持する
+type sharedKeyboardInput struct {
+	enterPressSession bool                           // Enterキーの押下セッション状態
+	keyRepeatStates   map[ebiten.Key]*keyRepeatState // キーリピート状態
+	mu                sync.Mutex
+}
 
 var (
-	// keyboardInstance は共有されるキーボード入力インスタンス
 	keyboardInstance KeyboardInput
 	once             sync.Once
 )
@@ -76,14 +46,11 @@ var (
 // GetSharedKeyboardInput は共有されるキーボード入力インスタンスを返す
 func GetSharedKeyboardInput() KeyboardInput {
 	once.Do(func() {
-		keyboardInstance = &sharedKeyboardInput{}
+		keyboardInstance = &sharedKeyboardInput{
+			keyRepeatStates: make(map[ebiten.Key]*keyRepeatState),
+		}
 	})
 	return keyboardInstance
-}
-
-// NewDefaultKeyboardInput は新しいデフォルトキーボード入力インスタンスを返す
-func NewDefaultKeyboardInput() KeyboardInput {
-	return &sharedKeyboardInput{}
 }
 
 func (s *sharedKeyboardInput) IsKeyJustPressed(key ebiten.Key) bool {
@@ -96,30 +63,27 @@ func (s *sharedKeyboardInput) IsKeyPressed(key ebiten.Key) bool {
 
 // IsEnterJustPressedOnce はEnterキーが押下-押上のワンセットで押されたかどうかを返す
 func (s *sharedKeyboardInput) IsEnterJustPressedOnce() bool {
-	// 現在のEnterキーの物理状態を取得
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
 	currentlyPressed := ebiten.IsKeyPressed(ebiten.KeyEnter)
-	wasInSession := GlobalKeyState.IsInEnterPressSession()
+	wasInSession := s.enterPressSession
 
-	// セッション状態を更新
-	GlobalKeyState.SetEnterPressSession(currentlyPressed)
+	s.enterPressSession = currentlyPressed
 
-	// セッション終了時（押下から押上への遷移）のみtrueを返す（1セット完了）
-	if wasInSession && !currentlyPressed {
-		return true
-	}
-
-	return false
+	// セッション終了時（押下から押上への遷移）のみtrueを返す
+	return wasInSession && !currentlyPressed
 }
 
 // IsKeyPressedWithRepeat はキーリピート機能付きの押下判定を行う
 func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool {
-	GlobalKeyState.mutex.Lock()
-	defer GlobalKeyState.mutex.Unlock()
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
 	// 初回押下
 	if inpututil.IsKeyJustPressed(key) {
 		now := time.Now()
-		GlobalKeyState.keyRepeatStates[key] = &keyRepeatState{
+		s.keyRepeatStates[key] = &keyRepeatState{
 			pressStartTime: now,
 			lastRepeatTime: now,
 		}
@@ -128,7 +92,7 @@ func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool {
 
 	// キーが押され続けている場合
 	if ebiten.IsKeyPressed(key) {
-		state, exists := GlobalKeyState.keyRepeatStates[key]
+		state, exists := s.keyRepeatStates[key]
 		if !exists {
 			return false
 		}
@@ -152,6 +116,6 @@ func (s *sharedKeyboardInput) IsKeyPressedWithRepeat(key ebiten.Key) bool {
 	}
 
 	// キーが離された場合、状態をクリア
-	delete(GlobalKeyState.keyRepeatStates, key)
+	delete(s.keyRepeatStates, key)
 	return false
 }

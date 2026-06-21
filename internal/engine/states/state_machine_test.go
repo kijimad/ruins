@@ -336,4 +336,89 @@ func TestStateMachineTransitions(t *testing.T) {
 		// 新しい状態のOnStartが呼ばれていることを確認
 		assert.True(t, newState.onStartCalled, "新しい状態のOnStartが呼ばれていない")
 	})
+
+	t.Run("Replace遷移のテスト", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		state1 := &TestState{name: "State1"}
+		sm, err := Init(state1, world)
+		assert.NoError(t, err)
+
+		// 2つ目をpush
+		state2 := &TestState{name: "State2"}
+		sm.lastTransition = Transition[TestWorld]{
+			Type:          TransPush,
+			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return state2 }},
+		}
+		err = sm.Update(world)
+		assert.NoError(t, err)
+		assert.Equal(t, 2, sm.GetStateCount())
+
+		// Replace遷移で全て置き換え
+		newState := &TestState{name: "Replaced"}
+		sm.lastTransition = Transition[TestWorld]{
+			Type:          TransReplace,
+			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return newState }},
+		}
+		err = sm.Update(world)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 1, sm.GetStateCount())
+		assert.Equal(t, "Replaced", sm.GetCurrentState().(*TestState).name)
+		assert.True(t, state1.onStopCalled)
+		assert.True(t, state2.onStopCalled)
+		assert.True(t, newState.onStartCalled)
+	})
+
+	t.Run("Quit遷移のテスト", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		state1 := &TestState{name: "State1"}
+		sm, err := Init(state1, world)
+		assert.NoError(t, err)
+
+		state2 := &TestState{name: "State2"}
+		sm.lastTransition = Transition[TestWorld]{
+			Type:          TransPush,
+			NewStateFuncs: []StateFactory[TestWorld]{func() State[TestWorld] { return state2 }},
+		}
+		err = sm.Update(world)
+		assert.NoError(t, err)
+
+		// Quit遷移で全状態を削除
+		sm.lastTransition = Transition[TestWorld]{Type: TransQuit}
+		err = sm.Update(world)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 0, sm.GetStateCount())
+		assert.Nil(t, sm.GetCurrentState())
+		assert.True(t, state1.onStopCalled)
+		assert.True(t, state2.onStopCalled)
+	})
+
+	t.Run("Replace遷移で複数ステートを挿入", func(t *testing.T) {
+		t.Parallel()
+		world := TestWorld{Name: "TestWorld"}
+		sm, err := Init(&TestState{name: "Old"}, world)
+		assert.NoError(t, err)
+
+		bottom := &TestState{name: "Bottom"}
+		top := &TestState{name: "Top"}
+		sm.lastTransition = Transition[TestWorld]{
+			Type: TransReplace,
+			NewStateFuncs: []StateFactory[TestWorld]{
+				func() State[TestWorld] { return bottom },
+				func() State[TestWorld] { return top },
+			},
+		}
+		err = sm.Update(world)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 2, sm.GetStateCount())
+		assert.Equal(t, "Top", sm.GetCurrentState().(*TestState).name)
+		assert.True(t, bottom.onStartCalled)
+		assert.True(t, bottom.onPauseCalled)
+		assert.True(t, top.onStartCalled)
+		assert.False(t, top.onPauseCalled)
+	})
 }

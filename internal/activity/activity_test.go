@@ -190,3 +190,78 @@ func TestGetProgressPercentEdgeCases(t *testing.T) {
 		assert.Equal(t, 100.0, GetProgressPercent(comp))
 	})
 }
+
+func TestCalculateRequiredTurns(t *testing.T) {
+	t.Parallel()
+
+	t.Run("APベースの計算", func(t *testing.T) {
+		t.Parallel()
+		behavior := &RestActivity{}
+		info := behavior.Info()
+		if info.TotalRequiredAP > 0 {
+			turns := CalculateRequiredTurns(behavior, 100)
+			assert.GreaterOrEqual(t, turns, 1)
+		}
+	})
+
+	t.Run("APとcharacterAPで正しく切り上げ除算する", func(t *testing.T) {
+		t.Parallel()
+		behavior := &WaitActivity{} // TotalRequiredAP=500
+		turns := CalculateRequiredTurns(behavior, 100)
+		assert.Equal(t, 5, turns) // 500 / 100 = 5
+	})
+
+	t.Run("characterAPが0の場合は1を返す", func(t *testing.T) {
+		t.Parallel()
+		behavior := &RestActivity{}
+		turns := CalculateRequiredTurns(behavior, 0)
+		assert.Equal(t, 1, turns)
+	})
+}
+
+func TestGetDisplayName(t *testing.T) {
+	t.Parallel()
+
+	t.Run("登録済みBehaviorの名前を返す", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{BehaviorName: gc.BehaviorWait}
+		name := GetDisplayName(comp)
+		assert.Equal(t, "待機", name)
+	})
+
+	t.Run("未登録BehaviorはBehaviorName文字列を返す", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{BehaviorName: gc.BehaviorName("Unknown")}
+		name := GetDisplayName(comp)
+		assert.Equal(t, "Unknown", name)
+	})
+}
+
+func TestIsActive(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Running状態はアクティブ", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{State: gc.ActivityStateRunning}
+		assert.True(t, IsActive(comp))
+	})
+
+	t.Run("Paused状態は非アクティブ", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{State: gc.ActivityStatePaused}
+		assert.False(t, IsActive(comp))
+	})
+
+	t.Run("Completed状態は非アクティブ", func(t *testing.T) {
+		t.Parallel()
+		comp := &gc.Activity{State: gc.ActivityStateCompleted}
+		assert.False(t, IsActive(comp))
+	})
+}
+
+func TestIsCompleted_TurnsLeftZero(t *testing.T) {
+	t.Parallel()
+
+	comp := &gc.Activity{State: gc.ActivityStateRunning, TurnsLeft: 0}
+	assert.True(t, IsCompleted(comp), "TurnsLeftが0ならCompletedとみなす")
+}

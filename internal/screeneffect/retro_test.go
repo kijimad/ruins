@@ -52,6 +52,35 @@ func TestPipeline_BeginEnd(t *testing.T) {
 	pipeline.End(screen)
 }
 
+func TestPipeline_NilReceiver(t *testing.T) {
+	t.Parallel()
+
+	// nilレシーバーでもパニックしないことを確認
+	var pipeline *Pipeline
+
+	offscreen := pipeline.Begin(100, 100)
+	assert.Nil(t, offscreen, "nilパイプラインのBeginはnilを返す")
+
+	screen := ebiten.NewImage(100, 100)
+	assert.NotPanics(t, func() {
+		pipeline.End(screen)
+	}, "nilパイプラインのEndはパニックしない")
+}
+
+func TestPipeline_NilFilter(t *testing.T) {
+	t.Parallel()
+
+	pipeline := NewPipeline(nil)
+	offscreen := pipeline.Begin(100, 100)
+	require.NotNil(t, offscreen)
+
+	// nilフィルタの場合はそのまま描画される
+	screen := ebiten.NewImage(100, 100)
+	assert.NotPanics(t, func() {
+		pipeline.End(screen)
+	})
+}
+
 func TestPipeline_ResizeBuffer(t *testing.T) {
 	t.Parallel()
 
