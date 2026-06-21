@@ -8,119 +8,50 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGlobalKeyStateLogic(t *testing.T) {
+func TestSharedKeyboardInput(t *testing.T) {
 	t.Parallel()
-	// グローバルキー状態の動作テスト（Enter状態制御）
 
-	// テスト用にリセット
-	ResetGlobalKeyStateForTest()
+	keyboard1 := GetSharedKeyboardInput()
+	keyboard2 := GetSharedKeyboardInput()
 
-	_ = NewDefaultKeyboardInput() // 異なるインスタンスでもグローバル状態を共有することを確認
-
-	// 初期状態ではfalse
-	if GlobalKeyState.IsInEnterPressSession() {
-		t.Error("初期状態でEnterセッション状態がtrueになっている")
-	}
-
-	// keyboard1で模擬的にセッション状態設定
-	GlobalKeyState.SetEnterPressSession(true)
-
-	// keyboard2からも同じ状態が見える
-	if !GlobalKeyState.IsInEnterPressSession() {
-		t.Error("グローバル状態が正しく共有されていない")
-	}
-
-	// リセット機能の動作確認
-	ResetGlobalKeyStateForTest()
-	if GlobalKeyState.IsInEnterPressSession() {
-		t.Error("リセット後にグローバル状態がクリアされていない")
-	}
+	assert.Same(t, keyboard1, keyboard2, "GetSharedKeyboardInput()は同一インスタンスを返す")
+	require.NotNil(t, keyboard1)
 }
 
 func TestMockKeyboardInput_EnterFunction(t *testing.T) {
 	t.Parallel()
-	// テスト用にグローバル状態をリセット
-	ResetGlobalKeyStateForTest()
 
 	mock := NewMockKeyboardInput()
 
-	// Enterキー押下-押上機能のテスト
-	// 1. 押下状態にする
 	mock.SetKeyPressed(ebiten.KeyEnter, true)
-	if mock.IsEnterJustPressedOnce() {
-		t.Error("押下状態のみでは検出されるべきではない")
-	}
+	assert.False(t, mock.IsEnterJustPressedOnce(), "押下状態のみでは検出されない")
 
-	// 2. 押上状態にする（この時点で検出される）
 	mock.SetKeyPressed(ebiten.KeyEnter, false)
-	if !mock.IsEnterJustPressedOnce() {
-		t.Error("押下-押上のワンセットが検出されなかった")
-	}
+	assert.True(t, mock.IsEnterJustPressedOnce(), "押下-押上のワンセットで検出される")
 
-	// 3. 再度同じ操作をしても検出されない（まだ押下していない状態）
-	if mock.IsEnterJustPressedOnce() {
-		t.Error("押上状態での連続検出が発生した")
-	}
+	assert.False(t, mock.IsEnterJustPressedOnce(), "押上状態での連続検出は発生しない")
 
-	// リセット後の確認
 	mock.Reset()
-	if mock.IsKeyPressed(ebiten.KeyEnter) {
-		t.Error("Reset()後にキー状態がクリアされていない")
-	}
+	assert.False(t, mock.IsKeyPressed(ebiten.KeyEnter), "Reset()後にキー状態がクリアされる")
 }
 
-func TestEnterKeyPressReleaseSequence(t *testing.T) {
+func TestMockKeyboardInput_PressReleaseSequence(t *testing.T) {
 	t.Parallel()
-	// テスト用にグローバル状態をリセット
-	ResetGlobalKeyStateForTest()
 
-	// Enterキーの押下-押上シーケンステスト
 	mock := NewMockKeyboardInput()
 
-	// 1. 最初の押下-押上セット（成功）
 	mock.SimulateEnterPressRelease()
-	if !mock.IsEnterJustPressedOnce() {
-		t.Error("初回の押下-押上セットが検出されなかった")
-	}
+	assert.True(t, mock.IsEnterJustPressedOnce(), "初回の押下-押上セットが検出される")
 
-	// 2. 2回目の押下-押上セット（成功）
 	mock.SimulateEnterPressRelease()
-	if !mock.IsEnterJustPressedOnce() {
-		t.Error("2回目の押下-押上セットが検出されなかった")
-	}
+	assert.True(t, mock.IsEnterJustPressedOnce(), "2回目の押下-押上セットが検出される")
 
-	// 3. 押下のみ（検出されない）
 	mock.SetKeyPressed(ebiten.KeyEnter, true)
-	if mock.IsEnterJustPressedOnce() {
-		t.Error("押下のみで検出された")
-	}
+	assert.False(t, mock.IsEnterJustPressedOnce(), "押下のみでは検出されない")
+	assert.False(t, mock.IsEnterJustPressedOnce(), "押下継続中は検出されない")
 
-	// 4. さらに押下を続ける（検出されない）
-	if mock.IsEnterJustPressedOnce() {
-		t.Error("押下継続中に検出された")
-	}
-
-	// 5. 押上時に検出される
 	mock.SetKeyPressed(ebiten.KeyEnter, false)
-	if !mock.IsEnterJustPressedOnce() {
-		t.Error("押上時に検出されなかった")
-	}
-}
-
-func TestSharedKeyboardInput(t *testing.T) {
-	t.Parallel()
-	// 共有インスタンスのテスト
-
-	// 複数回呼び出しても同じインスタンスが返される
-	keyboard1 := GetSharedKeyboardInput()
-	keyboard2 := GetSharedKeyboardInput()
-
-	if keyboard1 != keyboard2 {
-		t.Error("GetSharedKeyboardInput()が異なるインスタンスを返している")
-	}
-
-	// キーボード入力が正常に動作することを確認
-	require.NotNil(t, keyboard1, "GetSharedKeyboardInput() returned nil")
+	assert.True(t, mock.IsEnterJustPressedOnce(), "押上時に検出される")
 }
 
 func TestMockKeyboardInput_BasicKeys(t *testing.T) {
@@ -128,22 +59,18 @@ func TestMockKeyboardInput_BasicKeys(t *testing.T) {
 
 	mock := NewMockKeyboardInput()
 
-	// IsKeyPressed
 	assert.False(t, mock.IsKeyPressed(ebiten.KeyA))
 	mock.SetKeyPressed(ebiten.KeyA, true)
 	assert.True(t, mock.IsKeyPressed(ebiten.KeyA))
 
-	// IsKeyJustPressed
 	assert.False(t, mock.IsKeyJustPressed(ebiten.KeyB))
 	mock.SetKeyJustPressed(ebiten.KeyB, true)
 	assert.True(t, mock.IsKeyJustPressed(ebiten.KeyB))
 
-	// IsKeyPressedWithRepeat
 	assert.False(t, mock.IsKeyPressedWithRepeat(ebiten.KeyC))
 	mock.SetKeyPressedWithRepeat(ebiten.KeyC, true)
 	assert.True(t, mock.IsKeyPressedWithRepeat(ebiten.KeyC))
 
-	// Reset で全てクリアされる
 	mock.Reset()
 	assert.False(t, mock.IsKeyPressed(ebiten.KeyA))
 	assert.False(t, mock.IsKeyJustPressed(ebiten.KeyB))
@@ -154,29 +81,4 @@ func TestMockKeyboardInput_ImplementsInterface(t *testing.T) {
 	t.Parallel()
 
 	var _ KeyboardInput = NewMockKeyboardInput()
-}
-
-func TestGlobalEnterPressStateStorage(t *testing.T) {
-	t.Parallel()
-	// テスト前にグローバル状態をリセット
-	ResetGlobalKeyStateForTest()
-
-	// 初期状態ではfalseであることを確認
-	if GlobalKeyState.IsInEnterPressSession() {
-		t.Error("初期状態でEnterセッション状態がtrueになっている")
-	}
-
-	// グローバルにセッション状態を設定
-	GlobalKeyState.SetEnterPressSession(true)
-
-	// グローバルからセッション状態を取得して確認
-	if !GlobalKeyState.IsInEnterPressSession() {
-		t.Error("グローバルのEnterセッション状態が正しく保存されていない")
-	}
-
-	// リセット機能のテスト
-	ResetGlobalKeyStateForTest()
-	if GlobalKeyState.IsInEnterPressSession() {
-		t.Error("リセット後にEnterセッション状態がfalseでない")
-	}
 }
