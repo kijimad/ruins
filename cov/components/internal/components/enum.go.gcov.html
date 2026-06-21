@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">98.8&nbsp;%</td>
+            <td class="headerCovTableEntryLo">69.1&nbsp;%</td>
             <td class="headerCovTableEntry">81</td>
-            <td class="headerCovTableEntry">80</td>
+            <td class="headerCovTableEntry">56</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -90,21 +90,21 @@
 <span id="L28"><span class="lineNum">      28</span>              : // String は部位名を返す</span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC tlaBgGNC">           1 : func (bp BodyPart) String() string {</span></span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         switch bp {</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         case BodyPartHead:</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                 return &quot;頭&quot;</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :         case BodyPartTorso:</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return &quot;胴体&quot;</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         case BodyPartArms:</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                 return &quot;腕&quot;</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         case BodyPartHands:</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                 return &quot;手&quot;</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         case BodyPartLegs:</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                 return &quot;脚&quot;</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         case BodyPartFeet:</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 return &quot;足&quot;</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         case BodyPartWholeBody:</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 return &quot;全身&quot;</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         default:</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC tlaBgUNC">           0 :         case BodyPartHead:</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                 return &quot;頭&quot;</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         case BodyPartTorso:</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                 return &quot;胴体&quot;</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         case BodyPartArms:</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 return &quot;腕&quot;</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :         case BodyPartHands:</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 return &quot;手&quot;</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         case BodyPartLegs:</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return &quot;脚&quot;</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         case BodyPartFeet:</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 return &quot;足&quot;</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         case BodyPartWholeBody:</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 return &quot;全身&quot;</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC tlaBgGNC">           1 :         default:</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 panic(&quot;不正なBodyPart値&quot;)</span></span>
 <span id="L47"><span class="lineNum">      47</span>              :         }</span>
 <span id="L48"><span class="lineNum">      48</span>              : }</span>
@@ -325,18 +325,18 @@
 <span id="L263"><span class="lineNum">     263</span>              : </span>
 <span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 : func (enum ElementType) String() string {</span></span>
 <span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :         switch enum {</span></span>
-<span id="L266"><span class="lineNum">     266</span> <span class="tlaGNC">           1 :         case ElementTypeNone:</span></span>
-<span id="L267"><span class="lineNum">     267</span> <span class="tlaGNC">           1 :                 return &quot;無&quot;</span></span>
-<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         case ElementTypeFire:</span></span>
-<span id="L269"><span class="lineNum">     269</span> <span class="tlaGNC">           1 :                 return &quot;火&quot;</span></span>
-<span id="L270"><span class="lineNum">     270</span> <span class="tlaGNC">           1 :         case ElementTypeThunder:</span></span>
-<span id="L271"><span class="lineNum">     271</span> <span class="tlaGNC">           1 :                 return &quot;雷&quot;</span></span>
-<span id="L272"><span class="lineNum">     272</span> <span class="tlaGNC">           1 :         case ElementTypeChill:</span></span>
-<span id="L273"><span class="lineNum">     273</span> <span class="tlaGNC">           1 :                 return &quot;氷&quot;</span></span>
-<span id="L274"><span class="lineNum">     274</span> <span class="tlaGNC">           1 :         case ElementTypePhoton:</span></span>
-<span id="L275"><span class="lineNum">     275</span> <span class="tlaGNC">           1 :                 return &quot;光&quot;</span></span>
+<span id="L266"><span class="lineNum">     266</span> <span class="tlaUNC tlaBgUNC">           0 :         case ElementTypeNone:</span></span>
+<span id="L267"><span class="lineNum">     267</span> <span class="tlaUNC">           0 :                 return &quot;無&quot;</span></span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaUNC">           0 :         case ElementTypeFire:</span></span>
+<span id="L269"><span class="lineNum">     269</span> <span class="tlaUNC">           0 :                 return &quot;火&quot;</span></span>
+<span id="L270"><span class="lineNum">     270</span> <span class="tlaUNC">           0 :         case ElementTypeThunder:</span></span>
+<span id="L271"><span class="lineNum">     271</span> <span class="tlaUNC">           0 :                 return &quot;雷&quot;</span></span>
+<span id="L272"><span class="lineNum">     272</span> <span class="tlaUNC">           0 :         case ElementTypeChill:</span></span>
+<span id="L273"><span class="lineNum">     273</span> <span class="tlaUNC">           0 :                 return &quot;氷&quot;</span></span>
+<span id="L274"><span class="lineNum">     274</span> <span class="tlaUNC">           0 :         case ElementTypePhoton:</span></span>
+<span id="L275"><span class="lineNum">     275</span> <span class="tlaUNC">           0 :                 return &quot;光&quot;</span></span>
 <span id="L276"><span class="lineNum">     276</span>              :         }</span>
-<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC">           1 :         panic(fmt.Sprintf(&quot;不正なElementType値: %s&quot;, string(enum)))</span></span>
+<span id="L277"><span class="lineNum">     277</span> <span class="tlaGNC tlaBgGNC">           1 :         panic(fmt.Sprintf(&quot;不正なElementType値: %s&quot;, string(enum)))</span></span>
 <span id="L278"><span class="lineNum">     278</span>              : }</span>
         </pre>
               </td>

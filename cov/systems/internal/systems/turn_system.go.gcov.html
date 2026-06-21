@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">85.4&nbsp;%</td>
+            <td class="headerCovTableEntryMed">82.3&nbsp;%</td>
             <td class="headerCovTableEntry">96</td>
-            <td class="headerCovTableEntry">82</td>
+            <td class="headerCovTableEntry">79</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -77,13 +77,13 @@
 <span id="L15"><span class="lineNum">      15</span>              : </span>
 <span id="L16"><span class="lineNum">      16</span>              : // String はシステム名を返す</span>
 <span id="L17"><span class="lineNum">      17</span>              : // w.Updater interfaceを実装</span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys TurnSystem) String() string {</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         return &quot;TurnSystem&quot;</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 : func (sys TurnSystem) String() string {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         return &quot;TurnSystem&quot;</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L21"><span class="lineNum">      21</span>              : </span>
 <span id="L22"><span class="lineNum">      22</span>              : // Update はターン管理を行う</span>
 <span id="L23"><span class="lineNum">      23</span>              : // w.Updater interfaceを実装</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : func (sys *TurnSystem) Update(world w.World) error {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC tlaBgGNC">           1 : func (sys *TurnSystem) Update(world w.World) error {</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         turnState := worldhelper.GetTurnState(world)</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         switch turnState.Phase {</span></span>

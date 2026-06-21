@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -133,9 +133,9 @@
 <span id="L71"><span class="lineNum">      71</span>              : </span>
 <span id="L72"><span class="lineNum">      72</span>              : // Update はゲームステートの更新処理を行う</span>
 <span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC tlaBgGNC">           1 : func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], error) {</span></span>
-<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         // InventoryChangedSystemを実行して所持重量を更新</span></span>
+<span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :         // WeightDirtySystemを実行して所持重量を更新</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :         for _, updater := range []w.Updater{</span></span>
-<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 &amp;gs.InventoryChangedSystem{},</span></span>
+<span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           1 :                 &amp;gs.WeightDirtySystem{},</span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaGNC">           2 :         } {</span></span>
 <span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC">           2 :                 if sys, ok := world.Updaters[updater.String()]; ok {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaGNC">           1 :                         if err := sys.Update(world); err != nil {</span></span>

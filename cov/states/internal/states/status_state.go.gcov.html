@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -273,8 +273,8 @@
 <span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 :                         statusItemData{Label: &quot;HP&quot;, Value: fmt.Sprintf(&quot;%d&quot;, hp.Max), Description: &quot;体力。0になると死亡する&quot;},</span></span>
 <span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :                 )</span></span>
 <span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 :         if playerEntity.HasComponent(world.Components.CarryWeight) {</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 cw := world.Components.CarryWeight.Get(playerEntity).(*gc.CarryWeight)</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 :         if playerEntity.HasComponent(world.Components.WeightCapacity) {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                 cw := world.Components.WeightCapacity.Get(playerEntity).(*gc.WeightCapacity)</span></span>
 <span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :                 items = append(items,</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                         statusItemData{Label: &quot;最大重量&quot;, Value: fmt.Sprintf(&quot;%.1f%s&quot;, cw.Max, consts.IconKg), Description: &quot;所持可能な最大重量&quot;},</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                 )</span></span>

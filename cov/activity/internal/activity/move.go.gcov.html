@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,8 +115,8 @@
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L54"><span class="lineNum">      54</span>              : </span>
 <span id="L55"><span class="lineNum">      55</span>              :         // 所持重量が最大の1.5倍を超えていたら動けない</span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           2 :         if actor.HasComponent(world.Components.CarryWeight) {</span></span>
-<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 cw := world.Components.CarryWeight.Get(actor).(*gc.CarryWeight)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC tlaBgGNC">           2 :         if actor.HasComponent(world.Components.WeightCapacity) {</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                 cw := world.Components.WeightCapacity.Get(actor).(*gc.WeightCapacity)</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                 overweightLimit := cw.Max * 1.5</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 if cw.Current &gt; overweightLimit {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC tlaBgUNC">           0 :                         if actor.HasComponent(world.Components.Player) {</span></span>

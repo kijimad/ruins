@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -97,10 +97,10 @@
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :         world.Manager.Join(</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                 world.Components.Player,</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 world.Components.HP,</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 world.Components.CarryWeight,</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                 world.Components.WeightCapacity,</span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 hp := world.Components.HP.Get(entity).(*gc.HP)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 cw := world.Components.CarryWeight.Get(entity).(*gc.CarryWeight)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 cw := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 playerHP = hp.Current</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 playerMaxHP = hp.Max</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 :                 playerWeight = cw.Current</span></span>

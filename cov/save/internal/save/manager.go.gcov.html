@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 05:09:25</td>
+            <td class="headerValue">2026-06-21 13:51:57</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -254,9 +254,9 @@
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                 sd := hpToSaveData(*c.HP.Get(entity).(*gc.HP))</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 comp.HP = &amp;sd</span></span>
 <span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           2 :         if entity.HasComponent(c.CarryWeight) {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 sd := carryWeightToSaveData(*c.CarryWeight.Get(entity).(*gc.CarryWeight))</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 comp.CarryWeight = &amp;sd</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           2 :         if entity.HasComponent(c.WeightCapacity) {</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 sd := weightCapacityToSaveData(*c.WeightCapacity.Get(entity).(*gc.WeightCapacity))</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 comp.WeightCapacity = &amp;sd</span></span>
 <span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           2 :         if entity.HasComponent(c.TurnBased) {</span></span>
 <span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                 tb := c.TurnBased.Get(entity).(*gc.TurnBased)</span></span>
@@ -481,9 +481,9 @@
 <span id="L419"><span class="lineNum">     419</span> <span class="tlaGNC">           1 :                 hp := hpFromSaveData(*comp.HP)</span></span>
 <span id="L420"><span class="lineNum">     420</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.HP, &amp;hp)</span></span>
 <span id="L421"><span class="lineNum">     421</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           2 :         if comp.CarryWeight != nil {</span></span>
-<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 cw := carryWeightFromSaveData(*comp.CarryWeight)</span></span>
-<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.CarryWeight, &amp;cw)</span></span>
+<span id="L422"><span class="lineNum">     422</span> <span class="tlaGNC">           2 :         if comp.WeightCapacity != nil {</span></span>
+<span id="L423"><span class="lineNum">     423</span> <span class="tlaGNC">           1 :                 cw := weightCapacityFromSaveData(*comp.WeightCapacity)</span></span>
+<span id="L424"><span class="lineNum">     424</span> <span class="tlaGNC">           1 :                 entity.AddComponent(c.WeightCapacity, &amp;cw)</span></span>
 <span id="L425"><span class="lineNum">     425</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L426"><span class="lineNum">     426</span> <span class="tlaGNC">           2 :         if comp.TurnBased != nil {</span></span>
 <span id="L427"><span class="lineNum">     427</span> <span class="tlaGNC">           1 :                 tb := turnBasedFromSaveData(*comp.TurnBased)</span></span>
