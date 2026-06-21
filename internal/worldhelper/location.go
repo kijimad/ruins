@@ -68,12 +68,12 @@ func GetStorageCurrentWeight(world w.World, storage ecs.Entity) float64 {
 	var total float64
 	for _, item := range GetStorageItems(world, storage) {
 		if item.HasComponent(world.Components.Weight) {
-			w := world.Components.Weight.Get(item).(*gc.Weight)
+			weightComp := world.Components.Weight.Get(item).(*gc.Weight)
 			count := 1
 			if item.HasComponent(world.Components.Stackable) {
 				count = world.Components.Stackable.Get(item).(*gc.Stackable).Count
 			}
-			total += w.Kg * float64(count)
+			total += weightComp.Kg * float64(count)
 		}
 	}
 	return total
@@ -88,12 +88,12 @@ func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool {
 
 	var itemWeight float64
 	if item.HasComponent(world.Components.Weight) {
-		w := world.Components.Weight.Get(item).(*gc.Weight)
+		weightComp := world.Components.Weight.Get(item).(*gc.Weight)
 		count := 1
 		if item.HasComponent(world.Components.Stackable) {
 			count = world.Components.Stackable.Get(item).(*gc.Stackable).Count
 		}
-		itemWeight = w.Kg * float64(count)
+		itemWeight = weightComp.Kg * float64(count)
 	}
 
 	return GetStorageCurrentWeight(world, storage)+itemWeight <= storageComp.MaxWeight
