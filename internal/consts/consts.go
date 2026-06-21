@@ -9,7 +9,7 @@ import (
 // InvalidEntity はエラー時の戻り値として使うセンチネル値。
 // ecs.Entity(0) は有効なエンティティIDなので、エラー時に0を返すと意味があるように見えてしまう。
 // math.MaxInt を使うことで「無効な値」であることを明示する。
-var InvalidEntity = ecs.Entity(math.MaxInt)
+const InvalidEntity = ecs.Entity(math.MaxInt)
 
 // ========== 基本型 ==========
 
