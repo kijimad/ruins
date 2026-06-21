@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -120,6 +121,39 @@ func TestSharedKeyboardInput(t *testing.T) {
 
 	// キーボード入力が正常に動作することを確認
 	require.NotNil(t, keyboard1, "GetSharedKeyboardInput() returned nil")
+}
+
+func TestMockKeyboardInput_BasicKeys(t *testing.T) {
+	t.Parallel()
+
+	mock := NewMockKeyboardInput()
+
+	// IsKeyPressed
+	assert.False(t, mock.IsKeyPressed(ebiten.KeyA))
+	mock.SetKeyPressed(ebiten.KeyA, true)
+	assert.True(t, mock.IsKeyPressed(ebiten.KeyA))
+
+	// IsKeyJustPressed
+	assert.False(t, mock.IsKeyJustPressed(ebiten.KeyB))
+	mock.SetKeyJustPressed(ebiten.KeyB, true)
+	assert.True(t, mock.IsKeyJustPressed(ebiten.KeyB))
+
+	// IsKeyPressedWithRepeat
+	assert.False(t, mock.IsKeyPressedWithRepeat(ebiten.KeyC))
+	mock.SetKeyPressedWithRepeat(ebiten.KeyC, true)
+	assert.True(t, mock.IsKeyPressedWithRepeat(ebiten.KeyC))
+
+	// Reset で全てクリアされる
+	mock.Reset()
+	assert.False(t, mock.IsKeyPressed(ebiten.KeyA))
+	assert.False(t, mock.IsKeyJustPressed(ebiten.KeyB))
+	assert.False(t, mock.IsKeyPressedWithRepeat(ebiten.KeyC))
+}
+
+func TestMockKeyboardInput_ImplementsInterface(t *testing.T) {
+	t.Parallel()
+
+	var _ KeyboardInput = NewMockKeyboardInput()
 }
 
 func TestGlobalEnterPressStateStorage(t *testing.T) {

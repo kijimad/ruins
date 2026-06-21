@@ -22,3 +22,36 @@ func TestInitWorld(t *testing.T) {
 		assert.NotNil(t, world.Components)
 	})
 }
+
+func TestWorld_GetManager(t *testing.T) {
+	t.Parallel()
+	gameComponents := &gc.Components{}
+	w, err := InitWorld(gameComponents)
+	assert.NoError(t, err)
+
+	assert.Equal(t, w.Manager, w.GetManager())
+}
+
+func TestWorld_GetComponents(t *testing.T) {
+	t.Parallel()
+	gameComponents := &gc.Components{}
+	w, err := InitWorld(gameComponents)
+	assert.NoError(t, err)
+
+	assert.Equal(t, w.Components, w.GetComponents())
+}
+
+func TestInitWorld_SingletonEntity(t *testing.T) {
+	t.Parallel()
+	gameComponents := &gc.Components{}
+	w, err := InitWorld(gameComponents)
+	assert.NoError(t, err)
+
+	// SingletonEntityが設定されていることを確認
+	singleton := w.Resources.SingletonEntity
+	assert.True(t, singleton.HasComponent(w.Components.GameLog))
+	assert.True(t, singleton.HasComponent(w.Components.GameProgress))
+	assert.True(t, singleton.HasComponent(w.Components.DungeonState))
+	assert.True(t, singleton.HasComponent(w.Components.TurnState))
+	assert.True(t, singleton.HasComponent(w.Components.SpatialIndex))
+}

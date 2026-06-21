@@ -46,6 +46,77 @@ func TestGetAttackFromCommandTable_NoCommandTable(t *testing.T) {
 	assert.Contains(t, err.Error(), "has no CommandTable component")
 }
 
+func TestGetFireFromWeapon(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	weapon := world.Manager.NewEntity()
+	weapon.AddComponent(world.Components.Name, &gc.Name{Name: "火炎放射器"})
+	weapon.AddComponent(world.Components.Fire, &gc.Fire{
+		Damage:      5,
+		Accuracy:    80,
+		AttackCount: 1,
+		Element:     gc.ElementTypeFire,
+	})
+
+	fire, name, err := GetFireFromWeapon(world, weapon)
+	require.NoError(t, err)
+	assert.Equal(t, "火炎放射器", name)
+	assert.Equal(t, 5, fire.GetDamage())
+	assert.Equal(t, gc.ElementTypeFire, fire.GetElement())
+}
+
+func TestGetFireFromWeapon_NoFireComponent(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	weapon := world.Manager.NewEntity()
+	weapon.AddComponent(world.Components.Name, &gc.Name{Name: "近接武器"})
+
+	_, _, err := GetFireFromWeapon(world, weapon)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "has no Fire component")
+}
+
+func TestGetFireFromWeapon_NoName(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	weapon := world.Manager.NewEntity()
+
+	_, _, err := GetFireFromWeapon(world, weapon)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "has no Name component")
+}
+
+func TestGetMeleeFromWeapon_NoName(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	weapon := world.Manager.NewEntity()
+
+	_, _, err := GetMeleeFromWeapon(world, weapon)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "has no Name component")
+}
+
+func TestGetMeleeFromWeapon_NoMelee(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	weapon := world.Manager.NewEntity()
+	weapon.AddComponent(world.Components.Name, &gc.Name{Name: "防具"})
+
+	_, _, err := GetMeleeFromWeapon(world, weapon)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "has no Melee component")
+}
+
 // 統合テスト: 敵とプレイヤーの攻撃取得が共通のAttackerインターフェースを返す
 func TestAttackUnification(t *testing.T) {
 	t.Parallel()

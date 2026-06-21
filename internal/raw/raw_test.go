@@ -741,6 +741,185 @@ Defense = 2
 	}
 }
 
+func TestNewWeaponSpec(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "テスト剣"
+Description = "テスト用の武器"
+SpriteSheetName = "field"
+SpriteKey = "sword"
+
+[Items.Melee]
+Damage = 10
+Accuracy = 90
+AttackCount = 1
+Element = "none"
+AttackCategory = "SWORD"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewWeaponSpec(raws, "テスト剣")
+	require.NoError(t, err)
+	assert.NotNil(t, spec.Melee)
+	assert.Equal(t, 10, spec.Melee.Damage)
+}
+
+func TestNewWeaponSpec_NotAWeapon(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "回復薬"
+Description = "回復するアイテム"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewWeaponSpec(raws, "回復薬")
+	assert.Error(t, err, "Melee/Fireを持たないアイテムは武器ではない")
+}
+
+func TestNewWeaponSpec_NotFound(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Items]]
+Name = "何か"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	_, err = NewWeaponSpec(raws, "存在しない")
+	assert.Error(t, err)
+}
+
+func TestNewEnemySpec(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Members]]
+Name = "テスト敵"
+SpriteSheetName = "field"
+SpriteKey = "enemy"
+[Members.Abilities]
+Vitality = 10
+Strength = 5
+Sensation = 3
+Dexterity = 3
+Agility = 3
+Defense = 2
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewEnemySpec(raws, "テスト敵")
+	require.NoError(t, err)
+	assert.Equal(t, &gc.FactionEnemy, spec.FactionType, "敵は敵派閥に属する")
+	assert.Nil(t, spec.Player, "敵はPlayerではない")
+}
+
+func TestNewTileSpec(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Tiles]]
+Name = "test_floor"
+Description = "テスト床"
+BlockPass = false
+BlockView = false
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewTileSpec(raws, "test_floor", 5, 10, nil)
+	require.NoError(t, err)
+	assert.Equal(t, "test_floor", spec.Name.Name)
+	assert.NotNil(t, spec.GridElement)
+	assert.Nil(t, spec.BlockPass, "通行可能なタイルにはBlockPassがない")
+	assert.Nil(t, spec.BlockView, "視界を遮らないタイルにはBlockViewがない")
+}
+
+func TestNewTileSpec_WithBlockPass(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Tiles]]
+Name = "test_wall"
+Description = "テスト壁"
+BlockPass = true
+BlockView = true
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	spec, err := NewTileSpec(raws, "test_wall", 3, 7, nil)
+	require.NoError(t, err)
+	assert.NotNil(t, spec.BlockPass, "壁タイルにはBlockPassがある")
+	assert.NotNil(t, spec.BlockView, "壁タイルにはBlockViewがある")
+}
+
+func TestNewTileSpec_WithAutoTileIndex(t *testing.T) {
+	t.Parallel()
+
+	str := `
+[[Tiles]]
+Name = "auto_tile"
+Description = "オートタイル"
+
+[Tiles.SpriteRender]
+SpriteSheetName = "field"
+SpriteKey = "wall"
+`
+	raws, err := DecodeRaws(str)
+	require.NoError(t, err)
+
+	idx := 5
+	spec, err := NewTileSpec(raws, "auto_tile", 0, 0, &idx)
+	require.NoError(t, err)
+	assert.Equal(t, "wall_5", spec.SpriteRender.SpriteKey)
+}
+
+func TestGetItemTable(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	// ItemTablesが存在する場合のテスト
+	if len(PtrSlice(raws.ItemTables)) > 0 {
+		tableName := PtrSlice(raws.ItemTables)[0].Name
+		table, err := GetItemTable(raws, tableName)
+		require.NoError(t, err)
+		assert.Equal(t, tableName, table.Name)
+	}
+
+	// 存在しないテーブル
+	_, err = GetItemTable(raws, "存在しないテーブル")
+	assert.Error(t, err)
+}
+
+func TestGetEnemyTable(t *testing.T) {
+	t.Parallel()
+
+	raws, err := LoadFromFile("metadata/entities/raw/raw.toml")
+	require.NoError(t, err)
+
+	// EnemyTablesが存在する場合のテスト
+	if len(PtrSlice(raws.EnemyTables)) > 0 {
+		tableName := PtrSlice(raws.EnemyTables)[0].Name
+		table, err := GetEnemyTable(raws, tableName)
+		require.NoError(t, err)
+		assert.Equal(t, tableName, table.Name)
+	}
+
+	// 存在しないテーブル
+	_, err = GetEnemyTable(raws, "存在しないテーブル")
+	assert.Error(t, err)
+}
+
 func TestMemberMovementPatternUnset(t *testing.T) {
 	t.Parallel()
 

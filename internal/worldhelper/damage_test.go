@@ -6,7 +6,92 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
+
+func TestApplyHealing(t *testing.T) {
+	t.Parallel()
+
+	t.Run("HPが回復する", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.HP, &gc.HP{Max: 100, Current: 50})
+		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+
+		actual := ApplyHealing(world, entity, 30)
+		assert.Equal(t, 30, actual)
+
+		hp := world.Components.HP.Get(entity).(*gc.HP)
+		assert.Equal(t, 80, hp.Current)
+	})
+
+	t.Run("最大HPを超えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.HP, &gc.HP{Max: 100, Current: 90})
+		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+
+		actual := ApplyHealing(world, entity, 50)
+		assert.Equal(t, 10, actual, "実際の回復量は10のみ")
+
+		hp := world.Components.HP.Get(entity).(*gc.HP)
+		assert.Equal(t, 100, hp.Current)
+	})
+
+	t.Run("HP満タンなら回復量は0", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.HP, &gc.HP{Max: 100, Current: 100})
+		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+
+		actual := ApplyHealing(world, entity, 10)
+		assert.Equal(t, 0, actual)
+	})
+}
+
+func TestSpawnVisualEffect(t *testing.T) {
+	t.Parallel()
+
+	t.Run("GridElementを持つエンティティにエフェクトが生成される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+
+		effect := gc.NewHealEffect(10)
+		SpawnVisualEffect(entity, effect, world)
+
+		// エフェクトエンティティが生成されたことを確認
+		var foundEffect bool
+		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+			foundEffect = true
+		}))
+		assert.True(t, foundEffect)
+	})
+
+	t.Run("GridElementがないエンティティではエフェクトは生成されない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+
+		effect := gc.NewHealEffect(10)
+		SpawnVisualEffect(entity, effect, world)
+
+		var foundEffect bool
+		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+			foundEffect = true
+		}))
+		assert.False(t, foundEffect)
+	})
+}
 
 func TestReactToHostileAction(t *testing.T) {
 	t.Parallel()

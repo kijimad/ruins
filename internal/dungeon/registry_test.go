@@ -22,6 +22,18 @@ func TestGetAllDungeons(t *testing.T) {
 	}
 }
 
+func TestGetAllDungeonNames(t *testing.T) {
+	t.Parallel()
+
+	names := GetAllDungeonNames()
+	assert.NotEmpty(t, names)
+	assert.Equal(t, len(GetAllDungeons()), len(names))
+
+	for _, name := range names {
+		assert.NotEmpty(t, name)
+	}
+}
+
 func TestGetDungeonByName(t *testing.T) {
 	t.Parallel()
 

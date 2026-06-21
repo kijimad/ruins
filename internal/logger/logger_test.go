@@ -249,6 +249,53 @@ func TestParseLevel(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // modifies global config
+func TestLoadFromConfig(t *testing.T) {
+	defer ResetConfig()
+
+	t.Run("デフォルトレベルのみ", func(t *testing.T) {
+		LoadFromConfig("debug", "")
+		require.Equal(t, LevelDebug, globalConfig.DefaultLevel)
+		require.Empty(t, globalConfig.CategoryLevels)
+	})
+
+	t.Run("カテゴリ別設定あり", func(t *testing.T) {
+		LoadFromConfig("info", "battle=debug,render=warn")
+		require.Equal(t, LevelInfo, globalConfig.DefaultLevel)
+		require.Equal(t, LevelDebug, globalConfig.CategoryLevels[CategoryDebug])
+		require.Equal(t, LevelWarn, globalConfig.CategoryLevels[CategoryRender])
+	})
+
+	t.Run("不明なレベルはInfoになる", func(t *testing.T) {
+		LoadFromConfig("unknown", "")
+		require.Equal(t, LevelInfo, globalConfig.DefaultLevel)
+	})
+}
+
+func TestLevelString(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		level Level
+		want  string
+	}{
+		{LevelDebug, "DEBUG"},
+		{LevelInfo, "INFO"},
+		{LevelWarn, "WARN"},
+		{LevelError, "ERROR"},
+		{LevelFatal, "FATAL"},
+		{LevelIgnore, "IGNORE"},
+		{Level(99), "UNKNOWN"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			t.Parallel()
+			require.Equal(t, tt.want, tt.level.String())
+		})
+	}
+}
+
 func TestParseCategoryLevels(t *testing.T) {
 	t.Parallel() // parseCategoryLevels is a pure function, safe for parallel execution
 	input := "battle=debug,render=warn,invalid"

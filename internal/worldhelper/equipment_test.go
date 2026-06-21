@@ -6,7 +6,48 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestGetWeapons_Empty(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// 初期状態は全てnil
+	weapons := GetWeapons(world, player)
+	assert.Len(t, weapons, 5)
+	for _, w := range weapons {
+		assert.Nil(t, w)
+	}
+}
+
+func TestGetArmorEquipments(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	player, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// 初期状態は全てnil
+	armors := GetArmorEquipments(world, player)
+	assert.Len(t, armors, 7)
+
+	// 防具を装備する
+	armor := world.Manager.NewEntity()
+	armor.AddComponent(world.Components.Name, &gc.Name{Name: "テスト鎧"})
+	armor.AddComponent(world.Components.Wearable, &gc.Wearable{
+		EquipmentCategory: gc.EquipmentTorso,
+		Defense:           5,
+	})
+	MoveToEquip(world, armor, player, gc.SlotTorso)
+
+	armors = GetArmorEquipments(world, player)
+	assert.NotNil(t, armors[1], "SlotTorsoに装備が入っている")
+	assert.Nil(t, armors[0], "SlotHeadは空")
+}
 
 func TestEquipDisarm(t *testing.T) {
 	t.Parallel()

@@ -124,6 +124,84 @@ func TestRunSimulations_Stats(t *testing.T) {
 
 }
 
+func TestLoadWeaponFromItem(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	t.Run("近接武器を読み込める", func(t *testing.T) {
+		t.Parallel()
+		ws, err := LoadWeaponFromItem(master, "素手")
+		require.NoError(t, err)
+		assert.False(t, ws.IsRanged)
+	})
+
+	t.Run("存在しないアイテムはエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := LoadWeaponFromItem(master, "存在しない武器")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "ロードに失敗")
+	})
+}
+
+func TestLoadEnemyWeapon(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	t.Run("スライムの武器を読み込める", func(t *testing.T) {
+		t.Parallel()
+		ws, err := LoadEnemyWeapon(master, "スライム")
+		require.NoError(t, err)
+		assert.GreaterOrEqual(t, ws.Damage, 0)
+	})
+
+	t.Run("存在しない敵はエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := LoadEnemyWeapon(master, "存在しない敵")
+		require.Error(t, err)
+	})
+}
+
+func TestLoadCombatantFromMember_Errors(t *testing.T) {
+	t.Parallel()
+	master := loadTestMaster(t)
+
+	t.Run("存在しないメンバーはエラー", func(t *testing.T) {
+		t.Parallel()
+		_, err := LoadCombatantFromMember(master, "存在しないメンバー")
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "ロードに失敗")
+	})
+}
+
+func TestRollAttack(t *testing.T) {
+	t.Parallel()
+
+	attacker := CombatantStats{Strength: 10, Dexterity: 10}
+	defender := CombatantStats{Agility: 5, Defense: 3}
+	weapon := WeaponStats{Damage: 5, Accuracy: 80}
+
+	// 固定シードで複数回実行して、ダメージが非負であることを確認
+	rng := rand.New(rand.NewPCG(42, 0))
+	for range 100 {
+		dmg := rollAttack(attacker, defender, weapon, rng)
+		assert.GreaterOrEqual(t, dmg, 0)
+	}
+}
+
+func TestRollAttack_Ranged(t *testing.T) {
+	t.Parallel()
+
+	attacker := CombatantStats{Sensation: 15, Dexterity: 10}
+	defender := CombatantStats{Agility: 5, Defense: 3}
+	weapon := WeaponStats{Damage: 5, Accuracy: 80, IsRanged: true}
+
+	rng := rand.New(rand.NewPCG(42, 0))
+	for range 100 {
+		dmg := rollAttack(attacker, defender, weapon, rng)
+		assert.GreaterOrEqual(t, dmg, 0)
+	}
+}
+
 func TestPercentile(t *testing.T) {
 	t.Parallel()
 

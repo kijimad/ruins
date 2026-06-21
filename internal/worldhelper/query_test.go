@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -83,4 +84,69 @@ func TestGetPlayerEntity(t *testing.T) {
 		world.Manager.DeleteEntity(player1)
 		world.Manager.DeleteEntity(player2)
 	})
+}
+
+func TestIsPickable(t *testing.T) {
+	t.Parallel()
+
+	t.Run("LocationOnFieldを持つエンティティは拾える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+
+		assert.True(t, IsPickable(entity, world))
+	})
+
+	t.Run("LocationOnFieldがないエンティティは拾えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+
+		assert.False(t, IsPickable(entity, world))
+	})
+
+	t.Run("PropでHPを持つなら拾える", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+		entity.AddComponent(world.Components.Prop, nil)
+		entity.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
+
+		assert.True(t, IsPickable(entity, world))
+	})
+
+	t.Run("PropでHPを持たないなら拾えない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+		entity.AddComponent(world.Components.Prop, nil)
+
+		assert.False(t, IsPickable(entity, world))
+	})
+}
+
+func TestGetEntitiesAt(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+
+	e1 := world.Manager.NewEntity()
+	e1.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	e2 := world.Manager.NewEntity()
+	e2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+	e3 := world.Manager.NewEntity()
+	e3.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+	entities := GetEntitiesAt(world, consts.Tile(5), consts.Tile(5))
+	assert.Len(t, entities, 2)
+
+	empty := GetEntitiesAt(world, consts.Tile(99), consts.Tile(99))
+	assert.Empty(t, empty)
 }

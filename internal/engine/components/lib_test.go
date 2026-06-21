@@ -1,6 +1,7 @@
 package components
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -48,6 +49,24 @@ func TestInitComponents(t *testing.T) {
 		assert.IsType(t, &ecs.SliceComponent{}, components.Game.TestSlice)
 		assert.IsType(t, &ecs.NullComponent{}, components.Game.TestNull)
 	})
+}
+
+// FailingComponents は初期化に失敗するテスト用コンポーネント
+type FailingComponents struct{}
+
+func (f *FailingComponents) InitializeComponents(_ *ecs.Manager) error {
+	return errors.New("初期化エラー")
+}
+
+func TestInitComponents_Error(t *testing.T) {
+	t.Parallel()
+
+	manager := ecs.NewManager()
+	components, err := InitComponents(manager, &FailingComponents{})
+
+	assert.Error(t, err)
+	assert.Nil(t, components)
+	assert.Contains(t, err.Error(), "初期化エラー")
 }
 
 func TestComponentInitializer(t *testing.T) {

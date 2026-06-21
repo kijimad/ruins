@@ -28,6 +28,52 @@ func TestBook_IsCompleted(t *testing.T) {
 	}
 }
 
+func TestBook_CanRead(t *testing.T) {
+	t.Parallel()
+
+	t.Run("読了済みの本は読めない", func(t *testing.T) {
+		t.Parallel()
+		b := &Book{Effort: IntPool{Max: 10, Current: 10}}
+		assert.Error(t, b.CanRead(nil))
+	})
+
+	t.Run("スキル条件なしの本は誰でも読める", func(t *testing.T) {
+		t.Parallel()
+		b := &Book{Effort: IntPool{Max: 10, Current: 0}}
+		assert.NoError(t, b.CanRead(nil))
+	})
+
+	t.Run("RequiredLevel=0の本は誰でも読める", func(t *testing.T) {
+		t.Parallel()
+		b := &Book{
+			Effort: IntPool{Max: 10, Current: 0},
+			Skill:  &SkillBookEffect{TargetSkill: SkillSword, RequiredLevel: 0},
+		}
+		assert.NoError(t, b.CanRead(nil))
+	})
+
+	t.Run("スキルが足りないと読めない", func(t *testing.T) {
+		t.Parallel()
+		b := &Book{
+			Effort: IntPool{Max: 10, Current: 0},
+			Skill:  &SkillBookEffect{TargetSkill: SkillSword, RequiredLevel: 3},
+		}
+		skills := NewSkills()
+		assert.Error(t, b.CanRead(skills))
+	})
+
+	t.Run("スキルが足りていれば読める", func(t *testing.T) {
+		t.Parallel()
+		b := &Book{
+			Effort: IntPool{Max: 10, Current: 0},
+			Skill:  &SkillBookEffect{TargetSkill: SkillSword, RequiredLevel: 1},
+		}
+		skills := NewSkills()
+		skills.Get(SkillSword).Value = 5
+		assert.NoError(t, b.CanRead(skills))
+	})
+}
+
 func TestReadingEfficiency(t *testing.T) {
 	t.Parallel()
 
