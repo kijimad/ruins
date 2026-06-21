@@ -18,20 +18,20 @@ type EntitySpec struct {
 	Description *Description
 
 	// item ================
-	HP           *HP
-	Consumable   *Consumable
-	CarryWeight  *CarryWeight
-	Melee        *Melee
-	Fire         *Fire
-	Value        *Value
-	Weight       *Weight
-	Recipe       *Recipe
-	Wearable     *Wearable
-	Abilities    *Abilities
-	Ammo         *Ammo
-	Stackable    *Stackable
-	Material     *Material
-	LocationType *LocationType
+	HP             *HP
+	Consumable     *Consumable
+	WeightCapacity *WeightCapacity
+	Melee          *Melee
+	Fire           *Fire
+	Value          *Value
+	Weight         *Weight
+	Recipe         *Recipe
+	Wearable       *Wearable
+	Abilities      *Abilities
+	Ammo           *Ammo
+	Stackable      *Stackable
+	Material       *Material
+	LocationType   *LocationType
 
 	// field ================
 	Tile            *Tile
@@ -52,7 +52,6 @@ type EntitySpec struct {
 	Prop            *Prop
 	LightSource     *LightSource
 	Door            *Door
-	Storage         *Storage
 	Interactable    *Interactable
 	VisualEffect    *VisualEffects
 	TileTemperature *TileTemperature
@@ -97,7 +96,7 @@ type Components struct {
 	// item ================
 	HP                 *ecs.SliceComponent `save:"true"`
 	Consumable         *ecs.SliceComponent `save:"true"`
-	CarryWeight        *ecs.SliceComponent `save:"true"`
+	WeightCapacity     *ecs.SliceComponent `save:"true"`
 	Melee              *ecs.SliceComponent `save:"true"`
 	Fire               *ecs.SliceComponent `save:"true"`
 	Value              *ecs.SliceComponent `save:"true"`
@@ -129,7 +128,6 @@ type Components struct {
 	BlockPass       *ecs.NullComponent
 	PassCost        *ecs.SliceComponent
 	Door            *ecs.SliceComponent
-	Storage         *ecs.SliceComponent
 	Prop            *ecs.NullComponent
 	LightSource     *ecs.SliceComponent `save:"true"`
 	Interactable    *ecs.SliceComponent
@@ -155,7 +153,7 @@ type Components struct {
 	// event ================
 	StateChangeRequest *ecs.SliceComponent // ステート遷移リクエスト
 	StatsChanged       *ecs.NullComponent
-	InventoryChanged   *ecs.NullComponent
+	WeightDirty        *ecs.NullComponent
 	ProvidesHealing    *ecs.SliceComponent `save:"true"`
 	ProvidesNutrition  *ecs.SliceComponent `save:"true"`
 	InflictsDamage     *ecs.SliceComponent `save:"true"`
@@ -277,9 +275,10 @@ type Wallet struct {
 // なくなるとゲームオーバーになる。キャラクターとProp（破壊可能な置物）の両方が使う
 type HP Pool[int]
 
-// CarryWeight は所持重量を表すコンポーネント
-// 超過量に応じたペナルティが発生する
-type CarryWeight Pool[float64]
+// WeightCapacity は重量容量を表すコンポーネント。
+// Playerの所持重量とStorageの格納重量の両方に使用する。
+// Maxは最大容量、Currentは現在の重量を表す
+type WeightCapacity Pool[float64]
 
 // ProvidesHealing は回復する性質
 // 直接的な数値が作用し、ステータスなどは考慮されない
@@ -325,9 +324,9 @@ type Recipe struct {
 // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
 type StatsChanged struct{}
 
-// InventoryChanged はインベントリ変動が行われたことを示すダーティーフラグ
+// WeightDirty は重量の再計算が必要であることを示すダーティフラグ
 // フラグ系コンポーネントは、トリガーした順序に関わらず安定して実行させるために使う
-type InventoryChanged struct{}
+type WeightDirty struct{}
 
 // Ammo は弾薬アイテムの性能を定義する
 type Ammo struct {
@@ -524,16 +523,6 @@ type Material struct{}
 
 // Prop は置物を表すマーカーコンポーネント
 type Prop struct{}
-
-// Storage は収納機能を持つPropに付与するコンポーネント。
-// 格納アイテムはLocationInStorageで参照する。
-// 容量はCarryWeightと同じくkg単位の重量で制限する
-type Storage struct {
-	// TODO: kgを専用の型で示す
-	MaxWeight    float64 // 最大格納重量（kg）
-	CachedWeight float64 // キャッシュされた現在重量。weightDirtyがtrueの場合は無効
-	WeightDirty  bool    // trueの場合CachedWeightの再計算が必要
-}
 
 // LightSource は光源コンポーネント
 type LightSource struct {

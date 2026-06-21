@@ -105,9 +105,9 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 			hp.Max = maxHP(abils)
 			hp.Current = min(hp.Max, hp.Current)
 		}
-		if entity.HasComponent(world.Components.CarryWeight) {
+		if entity.HasComponent(world.Components.WeightCapacity) {
 			// 所持重量を再計算する。力が変化した場合に最大重量が変わるので
-			entity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+			entity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 		}
 
 		// APを再計算

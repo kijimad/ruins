@@ -413,7 +413,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		Defense:   gc.Ability{Base: int(member.Abilities.Defense)},
 	}
 	entitySpec.HP = &gc.HP{}
-	entitySpec.CarryWeight = &gc.CarryWeight{}
+	entitySpec.WeightCapacity = &gc.WeightCapacity{}
 	if member.Player != nil && *member.Player {
 		entitySpec.Player = &gc.Player{}
 	}
@@ -664,9 +664,8 @@ func NewPropSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	}
 
 	if propRaw.Storage != nil {
-		entitySpec.Storage = &gc.Storage{
-			MaxWeight:   propRaw.Storage.MaxWeight,
-			WeightDirty: true,
+		entitySpec.WeightCapacity = &gc.WeightCapacity{
+			Max: propRaw.Storage.MaxWeight,
 		}
 		interactions = append(interactions, gc.StorageInteraction{})
 	}

@@ -192,9 +192,9 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		sd := hpToSaveData(*c.HP.Get(entity).(*gc.HP))
 		comp.HP = &sd
 	}
-	if entity.HasComponent(c.CarryWeight) {
-		sd := carryWeightToSaveData(*c.CarryWeight.Get(entity).(*gc.CarryWeight))
-		comp.CarryWeight = &sd
+	if entity.HasComponent(c.WeightCapacity) {
+		sd := weightCapacityToSaveData(*c.WeightCapacity.Get(entity).(*gc.WeightCapacity))
+		comp.WeightCapacity = &sd
 	}
 	if entity.HasComponent(c.TurnBased) {
 		tb := c.TurnBased.Get(entity).(*gc.TurnBased)
@@ -419,9 +419,9 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 		hp := hpFromSaveData(*comp.HP)
 		entity.AddComponent(c.HP, &hp)
 	}
-	if comp.CarryWeight != nil {
-		cw := carryWeightFromSaveData(*comp.CarryWeight)
-		entity.AddComponent(c.CarryWeight, &cw)
+	if comp.WeightCapacity != nil {
+		cw := weightCapacityFromSaveData(*comp.WeightCapacity)
+		entity.AddComponent(c.WeightCapacity, &cw)
 	}
 	if comp.TurnBased != nil {
 		tb := turnBasedFromSaveData(*comp.TurnBased)

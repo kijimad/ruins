@@ -10,7 +10,7 @@ import (
 func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) {
 	setLocation(world, entity, &gc.LocationInBackpack{Owner: owner})
 	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
-	owner.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する
@@ -20,13 +20,13 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 		EquipmentSlot: slot,
 	})
 	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
-	owner.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 }
 
 // MoveToField はエンティティをフィールドに移動する
 func MoveToField(world w.World, entity ecs.Entity, owner ecs.Entity) {
 	setLocation(world, entity, &gc.LocationOnField{})
-	owner.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 }
 
 // MoveToStorage はエンティティを収納に移動する

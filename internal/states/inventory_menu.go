@@ -71,9 +71,9 @@ func (st *InventoryMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *InventoryMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// InventoryChangedSystemを実行して所持重量を更新
+	// WeightDirtySystemを実行して所持重量を更新
 	for _, updater := range []w.Updater{
-		&gs.InventoryChangedSystem{},
+		&gs.WeightDirtySystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {

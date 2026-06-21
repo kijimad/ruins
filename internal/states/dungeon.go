@@ -230,7 +230,7 @@ func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 		&gs.CameraSystem{},
 		&gs.HUDRenderingSystem{},
 		&gs.StatsChangedSystem{},
-		&gs.InventoryChangedSystem{},
+		&gs.WeightDirtySystem{},
 		&gs.VisualEffectSystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {

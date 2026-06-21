@@ -1363,8 +1363,8 @@ type SaveDataCameraPosition = float64
 // SaveDataCameraScale カメラのスケール値
 type SaveDataCameraScale = float64
 
-// SaveDataCarryWeightComponent 所持重量。最大値と現在値を持つ
-type SaveDataCarryWeightComponent struct {
+// SaveDataWeightCapacityComponent 重量容量。最大値と現在値を持つ
+type SaveDataWeightCapacityComponent struct {
 	// Current プール現在値 (浮動小数点)
 	Current SaveDataPoolFloatCurrent `json:"Current"`
 
@@ -1388,8 +1388,8 @@ type SaveDataComponentsMap struct {
 	// Camera カメラ状態
 	Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
 
-	// CarryWeight 所持重量
-	CarryWeight *SaveDataCarryWeightComponent `json:"CarryWeight,omitempty"`
+	// WeightCapacity 重量容量
+	WeightCapacity *SaveDataWeightCapacityComponent `json:"WeightCapacity,omitempty"`
 
 	// Consumable 消費可能アイテム設定
 	Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`

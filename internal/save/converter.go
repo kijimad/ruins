@@ -68,12 +68,12 @@ func hpFromSaveData(sd oapi.SaveDataHPComponent) gc.HP {
 	return gc.HP{Max: int(sd.Max), Current: int(sd.Current)}
 }
 
-func carryWeightToSaveData(cw gc.CarryWeight) oapi.SaveDataCarryWeightComponent {
-	return oapi.SaveDataCarryWeightComponent{Max: cw.Max, Current: cw.Current}
+func weightCapacityToSaveData(cw gc.WeightCapacity) oapi.SaveDataWeightCapacityComponent {
+	return oapi.SaveDataWeightCapacityComponent{Max: cw.Max, Current: cw.Current}
 }
 
-func carryWeightFromSaveData(sd oapi.SaveDataCarryWeightComponent) gc.CarryWeight {
-	return gc.CarryWeight{Max: sd.Max, Current: sd.Current}
+func weightCapacityFromSaveData(sd oapi.SaveDataWeightCapacityComponent) gc.WeightCapacity {
+	return gc.WeightCapacity{Max: sd.Max, Current: sd.Current}
 }
 
 func turnBasedToSaveData(tb gc.TurnBased) oapi.SaveDataTurnBasedComponent {

@@ -57,9 +57,9 @@ func (st *StorageMenuState) OnStop(_ w.World) error { return nil }
 
 // Update はゲームステートの更新処理を行う
 func (st *StorageMenuState) Update(world w.World) (es.Transition[w.World], error) {
-	// InventoryChangedSystemを実行して所持重量を更新
+	// WeightDirtySystemを実行して所持重量を更新
 	for _, updater := range []w.Updater{
-		&gs.InventoryChangedSystem{},
+		&gs.WeightDirtySystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			if err := sys.Update(world); err != nil {
@@ -154,20 +154,18 @@ type storageItemData struct {
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 	storageName := worldhelper.GetEntityName(st.storageEntity, world)
-	storageComp := world.Components.Storage.Get(st.storageEntity).(*gc.Storage)
-	currentWeight := worldhelper.GetStorageCurrentWeight(world, st.storageEntity)
-	weightText := fmt.Sprintf("%.1f / %.1f kg", currentWeight, storageComp.MaxWeight)
+	wc := world.Components.WeightCapacity.Get(st.storageEntity).(*gc.WeightCapacity)
+	weightText := fmt.Sprintf("%.1f / %.1f kg", wc.Current, wc.Max)
 
 	storeTabs := st.createBackpackItemData(world)
 
-	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する。
-	// currentWeight は計算済みなので再スキャンを避けてインラインで判定する
+	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する
 	weightOverflow := false
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
 	if ok && menuState.TabIndex == 1 && len(storeTabs) > 0 && menuState.ItemIndex < len(storeTabs) {
 		selectedItem := storeTabs[menuState.ItemIndex]
 		itemWeight := worldhelper.GetEntityWeight(world, selectedItem.Entity)
-		weightOverflow = currentWeight+itemWeight > storageComp.MaxWeight
+		weightOverflow = wc.Current+itemWeight > wc.Max
 	}
 
 	return storageProps{

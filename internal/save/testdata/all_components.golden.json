@@ -44,7 +44,7 @@
             "X": 100,
             "Y": 200
           },
-          "CarryWeight": {
+          "WeightCapacity": {
             "Current": 12.5,
             "Max": 50
           },

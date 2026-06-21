@@ -35,10 +35,10 @@ func extractGameInfo(world w.World) hud.GameInfoData {
 	world.Manager.Join(
 		world.Components.Player,
 		world.Components.HP,
-		world.Components.CarryWeight,
+		world.Components.WeightCapacity,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		hp := world.Components.HP.Get(entity).(*gc.HP)
-		cw := world.Components.CarryWeight.Get(entity).(*gc.CarryWeight)
+		cw := world.Components.WeightCapacity.Get(entity).(*gc.WeightCapacity)
 		playerHP = hp.Current
 		playerMaxHP = hp.Max
 		playerWeight = cw.Current

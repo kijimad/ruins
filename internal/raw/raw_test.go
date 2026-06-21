@@ -620,7 +620,7 @@ Depth = 1
 
 	entitySpec, err := NewPropSpec(raws, "壊れないProp")
 	assert.NoError(t, err)
-	assert.Nil(t, entitySpec.CarryWeight)
+	assert.Nil(t, entitySpec.WeightCapacity)
 	assert.Nil(t, entitySpec.Interactable, "HPを持たないPropにはInteractableが設定されないべき")
 }
 
@@ -647,8 +647,8 @@ MaxWeight = 20.0
 	entitySpec, err := NewPropSpec(raws, "木箱")
 	assert.NoError(t, err)
 
-	assert.NotNil(t, entitySpec.Storage, "Storage付きPropにはStorageコンポーネントが設定されるべき")
-	assert.Equal(t, 20.0, entitySpec.Storage.MaxWeight)
+	assert.NotNil(t, entitySpec.WeightCapacity, "Storage付きPropにはWeightCapacityコンポーネントが設定されるべき")
+	assert.Equal(t, 20.0, entitySpec.WeightCapacity.Max)
 
 	require.NotNil(t, entitySpec.Interactable, "Storage付きPropにはInteractableが設定されるべき")
 	assert.NotEmpty(t, entitySpec.Interactable.Interactions, "Storage付きPropにはInteractionsが設定されるべき")
@@ -676,7 +676,7 @@ Depth = 1
 	entitySpec, err := NewPropSpec(raws, "テーブル")
 	assert.NoError(t, err)
 
-	assert.Nil(t, entitySpec.Storage, "Storage定義のないPropにはStorageコンポーネントが設定されないべき")
+	assert.Nil(t, entitySpec.WeightCapacity, "Storage定義のないPropにはWeightCapacityコンポーネントが設定されないべき")
 }
 
 func TestMemberDisposition(t *testing.T) {

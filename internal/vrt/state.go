@@ -102,7 +102,7 @@ func InitVRTWorld(t *testing.T) w.World {
 
 	for _, updater := range []w.Updater{
 		&gs.StatsChangedSystem{},
-		&gs.InventoryChangedSystem{},
+		&gs.WeightDirtySystem{},
 	} {
 		if sys, ok := world.Updaters[updater.String()]; ok {
 			require.NoError(t, sys.Update(world))
