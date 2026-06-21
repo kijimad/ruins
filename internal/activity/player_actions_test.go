@@ -205,46 +205,6 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 	})
 }
 
-func TestGetInteractableInRange(t *testing.T) {
-	t.Parallel()
-
-	t.Run("範囲内のInteractableを取得できる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// 隣接範囲のInteractableを作成
-		interactableEntity := world.Manager.NewEntity()
-		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.MeleeInteraction{}}, // Adjacent範囲
-		})
-
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, entity := getInteractableInRange(world, targetGrid)
-
-		require.NotNil(t, interactable)
-		assert.Equal(t, interactableEntity, entity)
-	})
-
-	t.Run("死亡エンティティは範囲内でも除外される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		// 死亡したInteractableを作成
-		deadEntity := world.Manager.NewEntity()
-		deadEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
-		deadEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
-		})
-		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
-
-		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, _ := getInteractableInRange(world, targetGrid)
-
-		assert.Nil(t, interactable)
-	})
-}
-
 func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 	t.Parallel()
 

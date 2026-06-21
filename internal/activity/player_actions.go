@@ -118,33 +118,6 @@ func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.I
 	return interactable, interactableEntity
 }
 
-// getInteractableInRange は範囲内のInteractableとエンティティを取得する
-// 複数ある場合は最初に見つかったものを返す
-func getInteractableInRange(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
-	var interactable *gc.Interactable
-	var interactableEntity ecs.Entity
-	world.Manager.Join(
-		world.Components.GridElement,
-		world.Components.Interactable,
-		world.Components.Dead.Not(),
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if interactable != nil {
-			return // 既に見つかっている
-		}
-		i := world.Components.Interactable.Get(entity).(*gc.Interactable)
-		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-		for _, interaction := range i.Interactions {
-			if worldhelper.IsInActivationRange(targetGrid, ge, interaction.Config().ActivationRange) {
-				interactable = i
-				interactableEntity = entity
-				return
-			}
-		}
-	}))
-	return interactable, interactableEntity
-}
-
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する
 // Manual と OnCollision 方式のInteractableが対象
 func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridElement) []ecs.Entity {
@@ -211,41 +184,38 @@ func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {
 	return "右"
 }
 
-// showTileInteractionMessage は手動相互作用のメッセージを表示する
+// showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する
 func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
-	interactable, interactableEntity := getInteractableInRange(world, playerGrid)
-	if interactable == nil {
-		return
-	}
-
-	for _, interaction := range interactable.Interactions {
-		if interaction.Config().ActivationWay != gc.ActivationWayManual {
-			continue
-		}
-
-		switch data := interaction.(type) {
-		case gc.ItemInteraction:
-			formattedName := worldhelper.FormatItemName(world, interactableEntity)
-			gamelog.New(worldhelper.GetGameLog(world)).
-				ItemName(formattedName).
-				Append(" がある。").
-				Log()
-		case gc.PortalInteraction:
-			switch data.PortalType {
-			case gc.PortalTypeNext:
+	entities := GetAllInteractiveInteractablesInRange(world, playerGrid)
+	for _, entity := range entities {
+		interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
+		for _, interaction := range interactable.Interactions {
+			if interaction.Config().ActivationWay != gc.ActivationWayManual {
+				continue
+			}
+			switch data := interaction.(type) {
+			case gc.ItemInteraction:
+				formattedName := worldhelper.FormatItemName(world, entity)
 				gamelog.New(worldhelper.GetGameLog(world)).
-					Append("転移ゲートがある。Enterキーで移動。").
+					ItemName(formattedName).
+					Append(" がある。").
 					Log()
-			case gc.PortalTypeTown:
+			case gc.PortalInteraction:
+				switch data.PortalType {
+				case gc.PortalTypeNext:
+					gamelog.New(worldhelper.GetGameLog(world)).
+						Append("転移ゲートがある。Enterキーで移動。").
+						Log()
+				case gc.PortalTypeTown:
+					gamelog.New(worldhelper.GetGameLog(world)).
+						Append("帰還ゲートがある。Enterキーで脱出。").
+						Log()
+				}
+			case gc.DungeonGateInteraction:
 				gamelog.New(worldhelper.GetGameLog(world)).
-					Append("帰還ゲートがある。Enterキーで脱出。").
+					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
 			}
-		case gc.DungeonGateInteraction:
-			gamelog.New(worldhelper.GetGameLog(world)).
-				Append("ダンジョンへの門がある。Enterキーで選択。").
-				Log()
 		}
-		return // 最初の手動相互作用のメッセージのみ表示する
 	}
 }
