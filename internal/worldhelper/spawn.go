@@ -389,10 +389,12 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 	}
 
 	var playerEntity ecs.Entity
+	var found bool
 	world.Manager.Join(world.Components.Player).Visit(ecs.Visit(func(e ecs.Entity) {
 		playerEntity = e
+		found = true
 	}))
-	if playerEntity == 0 {
+	if !found {
 		// Playerが存在しない場合はOwnerなしでバックパックに配置する
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		return item, nil
