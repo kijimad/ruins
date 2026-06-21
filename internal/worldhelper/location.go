@@ -32,6 +32,7 @@ func MoveToField(world w.World, entity ecs.Entity, owner ecs.Entity) {
 // MoveToStorage はエンティティを収納に移動する
 func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) {
 	setLocation(world, entity, &gc.LocationInStorage{Owner: storage})
+	storage.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 }
 
 // GetStorageItems は収納内のアイテムを取得する
@@ -56,42 +57,40 @@ func GetEntityWeight(world w.World, entity ecs.Entity) float64 {
 	return weightComp.Kg * float64(count)
 }
 
-// GetStorageCurrentWeight は収納内アイテムの合計重量を返す。
-// Storageコンポーネントにキャッシュし、WeightDirtyフラグが立っている場合のみ再計算する
+// GetStorageCurrentWeight は収納の現在重量を返す
 func GetStorageCurrentWeight(world w.World, storage ecs.Entity) float64 {
-	storageComp := world.Components.Storage.Get(storage).(*gc.Storage)
-	if !storageComp.WeightDirty {
-		return storageComp.CachedWeight
+	if !storage.HasComponent(world.Components.WeightCapacity) {
+		return 0
 	}
-
-	var total float64
-	for _, item := range GetStorageItems(world, storage) {
-		total += GetEntityWeight(world, item)
-	}
-	storageComp.CachedWeight = total
-	storageComp.WeightDirty = false
-	return total
+	wc := world.Components.WeightCapacity.Get(storage).(*gc.WeightCapacity)
+	return wc.Current
 }
 
 // CanAddToStorage は収納にアイテムを追加できるか判定する
 func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool {
-	if !storage.HasComponent(world.Components.Storage) {
+	if !storage.HasComponent(world.Components.WeightCapacity) {
 		return false
 	}
-	storageComp := world.Components.Storage.Get(storage).(*gc.Storage)
-	return GetStorageCurrentWeight(world, storage)+GetEntityWeight(world, item) <= storageComp.MaxWeight
+	wc := world.Components.WeightCapacity.Get(storage).(*gc.WeightCapacity)
+	return wc.Current+GetEntityWeight(world, item) <= wc.Max
 }
 
 // setLocation はエンティティの位置を設定する。排他制御を保証する。
 // 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する。
 // 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること
 func setLocation(world w.World, entity ecs.Entity, data interface{}) {
-	// 収納から移動する場合、元のStorageの重量キャッシュを無効化する
+	// 移動元のOwnerにWeightDirtyマーカーを付与する
+	if entity.HasComponent(world.Components.LocationInBackpack) {
+		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	}
+	if entity.HasComponent(world.Components.LocationEquipped) {
+		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	}
 	if entity.HasComponent(world.Components.LocationInStorage) {
 		loc := world.Components.LocationInStorage.Get(entity).(*gc.LocationInStorage)
-		if loc.Owner.HasComponent(world.Components.Storage) {
-			world.Components.Storage.Get(loc.Owner).(*gc.Storage).WeightDirty = true
-		}
+		loc.Owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 	}
 
 	// すべての位置コンポーネントを削除（排他制御）
@@ -110,9 +109,5 @@ func setLocation(world w.World, entity ecs.Entity, data interface{}) {
 		entity.AddComponent(world.Components.LocationOnField, v)
 	case *gc.LocationInStorage:
 		entity.AddComponent(world.Components.LocationInStorage, v)
-		// 移動先のStorageの重量キャッシュを無効化する
-		if v.Owner.HasComponent(world.Components.Storage) {
-			world.Components.Storage.Get(v.Owner).(*gc.Storage).WeightDirty = true
-		}
 	}
 }

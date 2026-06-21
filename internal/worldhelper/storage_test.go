@@ -80,6 +80,9 @@ func TestGetStorageCurrentWeight(t *testing.T) {
 	require.NoError(t, err)
 	MoveToStorage(world, item, storageEntity)
 
+	// WeightDirtySystemが行う処理を手動で実行
+	UpdateWeightCapacity(world, storageEntity)
+
 	weight := GetStorageCurrentWeight(world, storageEntity)
 	assert.Greater(t, weight, 0.0, "アイテムの重量が反映されるべき")
 }
@@ -104,21 +107,104 @@ func TestCanAddToStorage_OverWeight(t *testing.T) {
 	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
 	require.NoError(t, err)
 
-	// Storageの最大重量を超えるまでアイテムを追加する
-	storageComp := world.Components.Storage.Get(storageEntity).(*gc.Storage)
-	maxWeight := storageComp.MaxWeight
+	// WeightCapacityの最大重量を超えるまでアイテムを追加する
+	wc := world.Components.WeightCapacity.Get(storageEntity).(*gc.WeightCapacity)
+	maxWeight := wc.Max
 
 	// 重量がmaxWeight+1kgのアイテムを作って追加不可を確認
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 
 	// アイテムの重量を超過させるためにmaxWeightを0にする
-	storageComp.MaxWeight = 0
+	wc.Max = 0
 	assert.False(t, CanAddToStorage(world, storageEntity, item), "重量超過時は追加不可")
 
 	// 元に戻す
-	storageComp.MaxWeight = maxWeight
+	wc.Max = maxWeight
 	assert.True(t, CanAddToStorage(world, storageEntity, item), "容量内なら追加可能")
+}
+
+func TestMoveToStorage_SetsWeightDirtyOnStorage(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	require.NoError(t, err)
+
+	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	require.NoError(t, err)
+
+	// マーカーを事前にクリア
+	storageEntity.RemoveComponent(world.Components.WeightDirty)
+	assert.False(t, storageEntity.HasComponent(world.Components.WeightDirty))
+
+	MoveToStorage(world, item, storageEntity)
+
+	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "MoveToStorageは収納エンティティにWeightDirtyを付与するべき")
+}
+
+func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	require.NoError(t, err)
+
+	playerEntity, err2 := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err2)
+	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	require.NoError(t, err)
+	MoveToBackpack(world, item, playerEntity)
+
+	// マーカーをクリア
+	playerEntity.RemoveComponent(world.Components.WeightDirty)
+
+	// バックパック→収納に移動すると、元のOwner（Player）にもWeightDirtyが付与される
+	MoveToStorage(world, item, storageEntity)
+
+	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "移動元のOwnerにWeightDirtyが付与されるべき")
+	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "移動先の収納にWeightDirtyが付与されるべき")
+}
+
+func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	require.NoError(t, err)
+
+	playerEntity, err2 := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err2)
+	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	require.NoError(t, err)
+	MoveToStorage(world, item, storageEntity)
+
+	// マーカーをクリア
+	storageEntity.RemoveComponent(world.Components.WeightDirty)
+
+	// 収納→バックパックに移動すると、元のOwner（Storage）にWeightDirtyが付与される
+	MoveToBackpack(world, item, playerEntity)
+
+	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "移動元の収納にWeightDirtyが付与されるべき")
+	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "移動先のPlayerにWeightDirtyが付与されるべき")
+}
+
+func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	playerEntity, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
+	require.NoError(t, err)
+	MoveToBackpack(world, item, playerEntity)
+
+	// マーカーをクリア
+	playerEntity.RemoveComponent(world.Components.WeightDirty)
+
+	MoveToField(world, item, playerEntity)
+
+	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "MoveToFieldは元のOwnerにWeightDirtyを付与するべき")
 }
 
 func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {

@@ -137,12 +137,12 @@ func hungerSpeedPenalty(current int) int {
 
 // calculateOverweightPenalty は過積載によるSpeedペナルティを計算する
 func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
-	cwComp := world.Components.CarryWeight.Get(entity)
+	cwComp := world.Components.WeightCapacity.Get(entity)
 	if cwComp == nil {
 		return 0
 	}
 
-	cw := cwComp.(*gc.CarryWeight)
+	cw := cwComp.(*gc.WeightCapacity)
 	if cw.Max == 0 {
 		return 0
 	}
@@ -239,7 +239,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	if err := FullRecover(world, playerEntity); err != nil {
 		return ecs.Entity(0), fmt.Errorf("プレイヤーの回復処理エラー: %w", err)
 	}
-	playerEntity.AddComponent(world.Components.InventoryChanged, &gc.InventoryChanged{})
+	playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
 	return playerEntity, nil
 }

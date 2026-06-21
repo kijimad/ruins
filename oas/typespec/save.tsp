@@ -202,7 +202,7 @@ model ComponentsMap {
   HP?: HPComponent;
 
   /** 所持重量 */
-  CarryWeight?: CarryWeightComponent;
+  WeightCapacity?: WeightCapacityComponent;
 
   /** アクションポイントと速度 */
   TurnBased?: TurnBasedComponent;
@@ -280,7 +280,7 @@ model HPComponent {
 }
 
 /** 所持重量。最大値と現在値を持つ */
-model CarryWeightComponent {
+model WeightCapacityComponent {
   Max: PoolFloatMax;
   Current: PoolFloatCurrent;
 }
