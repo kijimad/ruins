@@ -49,8 +49,7 @@ func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	// 弾薬の在庫チェック
-	_, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag)
-	if !found {
+	if _, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag); !found {
 		return ErrReloadNoAmmo
 	}
 

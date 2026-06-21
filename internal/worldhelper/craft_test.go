@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 )
@@ -43,20 +44,18 @@ func TestCraft(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	// 存在しないレシピでのクラフト試行
-	result, err := Craft(world, "存在しない武器")
-	assert.Nil(t, result, "存在しないレシピでは結果がnilであるべき")
+	_, err := Craft(world, "存在しない武器")
 	assert.Error(t, err, "存在しないレシピでエラーが返されるべき")
 	assert.Contains(t, err.Error(), "レシピが存在しません", "エラーメッセージにレシピ不存在の内容が含まれるべき")
 
 	// 素材不足でのクラフト試行（木刀は木の棒2個が必要）
-	result, err = Craft(world, "木刀")
-	assert.Nil(t, result, "素材不足では結果がnilであるべき")
+	_, err = Craft(world, "木刀")
 	assert.Error(t, err, "素材不足でエラーが返されるべき")
 	assert.Contains(t, err.Error(), "必要素材が足りません", "エラーメッセージに素材不足の内容が含まれるべき")
 
 	// 素材を用意してクラフト成功
 	_, _ = SpawnBackpackItem(world, "木の棒", 5)
-	result, err = Craft(world, "木刀")
-	assert.NotNil(t, result, "素材が十分ならば結果が返されるべき")
+	result, err := Craft(world, "木刀")
+	assert.NotEqual(t, consts.InvalidEntity, result, "素材が十分ならば有効なエンティティが返されるべき")
 	assert.NoError(t, err, "素材が十分ならばエラーは発生しないべき")
 }

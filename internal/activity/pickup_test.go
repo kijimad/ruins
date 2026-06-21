@@ -8,7 +8,6 @@ import (
 	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestPickupActivity_Validate(t *testing.T) {
@@ -178,7 +177,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		prop := world.Manager.NewEntity()
@@ -194,7 +193,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		}
 
 		pa := &PickupActivity{}
-		err = pa.Validate(comp, ecs.Entity(0), world)
+		err = pa.Validate(comp, player, world)
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "拾えるものがありません")
 	})
@@ -203,7 +202,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		_, err = worldhelper.SpawnFieldItem(world, "木刀", 5, 5, 1)
@@ -222,7 +221,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		}
 
 		pa := &PickupActivity{}
-		err = pa.Validate(comp, ecs.Entity(0), world)
+		err = pa.Validate(comp, player, world)
 		assert.NoError(t, err)
 	})
 }

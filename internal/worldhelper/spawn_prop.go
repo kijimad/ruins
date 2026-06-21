@@ -16,7 +16,7 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	// 置物の設定を生成
 	entitySpec, err := raw.NewPropSpec(world.Resources.RawMaster, propName)
 	if err != nil {
-		return ecs.Entity(0), err
+		return consts.InvalidEntity, err
 	}
 
 	// 位置情報を設定
@@ -29,7 +29,7 @@ func SpawnProp(world w.World, propName string, x consts.Tile, y consts.Tile) (ec
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entities, err := entities.AddEntities(world, componentList)
 	if err != nil {
-		return ecs.Entity(0), err
+		return consts.InvalidEntity, err
 	}
 	return entities[len(entities)-1], nil
 }
@@ -70,10 +70,10 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	ents, err := entities.AddEntities(world, componentList)
 	if err != nil {
-		return ecs.Entity(0), err
+		return consts.InvalidEntity, err
 	}
 	if len(ents) == 0 {
-		return ecs.Entity(0), fmt.Errorf("エンティティが生成されませんでした")
+		return consts.InvalidEntity, fmt.Errorf("エンティティが生成されませんでした")
 	}
 	return ents[len(ents)-1], nil
 }
