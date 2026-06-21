@@ -35,9 +35,10 @@ func TestAIError_WithoutEntity(t *testing.T) {
 	assert.NotContains(t, err.Error(), "Entity=")
 }
 
-func TestAIError_ImplementsError(t *testing.T) {
+func TestAIError_ErrorMessage(t *testing.T) {
 	t.Parallel()
 
-	var err error = &AIError{Type: "test", Message: "test"}
-	assert.NotNil(t, err)
+	err := &AIError{Type: "test", Message: "test message"}
+	assert.Contains(t, err.Error(), "test")
+	assert.Contains(t, err.Error(), "test message")
 }

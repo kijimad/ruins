@@ -150,6 +150,7 @@ func TestEmptyTabsEdgeCases(t *testing.T) {
 	item := tm.GetCurrentItem()
 	assert.Empty(t, item.ID)
 
+	// 空タブでも最低1ページとして扱う
 	assert.Equal(t, 1, tm.GetTotalPages())
 }
 
