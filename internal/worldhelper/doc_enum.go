@@ -13,7 +13,8 @@
 //	// ✅ 推奨: 具体的なHelper関数を使用（排他制御あり）
 //	worldhelper.MoveToBackpack(world, entity, owner)            // バックパックに移動（StatsChanged, WeightDirtyフラグ付き）
 //	worldhelper.MoveToEquip(world, entity, owner, slot)         // 装備（StatsChanged, WeightDirtyフラグ付き）
-//	worldhelper.MoveToField(world, entity, previousOwner)        // フィールドにドロップ（移動元にWeightDirtyフラグ付き）
+//	worldhelper.MoveToField(world, entity, &previousOwner)       // フィールドにドロップ（移動元にWeightDirtyフラグ付き）
+//	worldhelper.MoveToField(world, entity, nil)                  // フィールドに新規配置（前のOwnerなし）
 //
 //	// ❌ 非推奨: 直接操作（排他制御なし）
 //	entity.AddComponent(world.Components.LocationInBackpack)

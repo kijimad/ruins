@@ -525,7 +525,7 @@ func SpawnFieldItem(world w.World, itemName string, x consts.Tile, y consts.Tile
 		return ecs.Entity(0), err
 	}
 
-	MoveToField(world, item, ecs.Entity(0))
+	MoveToField(world, item, nil)
 	item.AddComponent(world.Components.GridElement, &gc.GridElement{X: x, Y: y})
 
 	return item, nil

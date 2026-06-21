@@ -24,10 +24,13 @@ func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.Equ
 }
 
 // MoveToField はエンティティをフィールドに移動する。
-// previousOwnerは移動元の所有者で、WeightDirtyマーカーを付与する対象
-func MoveToField(world w.World, entity ecs.Entity, previousOwner ecs.Entity) {
+// previousOwnerは移動元の所有者で、nilでなければWeightDirtyマーカーを付与する。
+// 新規生成時など前のOwnerが存在しない場合はnilを渡す
+func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	setLocation(world, entity, &gc.LocationOnField{})
-	previousOwner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	if previousOwner != nil {
+		previousOwner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+	}
 }
 
 // MoveToStorage はエンティティを収納に移動する

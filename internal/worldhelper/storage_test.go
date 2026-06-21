@@ -202,7 +202,7 @@ func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	// マーカーをクリア
 	playerEntity.RemoveComponent(world.Components.WeightDirty)
 
-	MoveToField(world, item, playerEntity)
+	MoveToField(world, item, &playerEntity)
 
 	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "MoveToFieldは元のOwnerにWeightDirtyを付与するべき")
 }
