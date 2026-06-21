@@ -334,7 +334,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		ViewDistance: aiVisionDistance,
 	}
 	entitySpec.Interactable = &gc.Interactable{
-		Data: gc.MeleeInteraction{},
+		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	}
 	if entitySpec.Disposition == nil {
 		return ecs.Entity(0), fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
@@ -499,6 +499,18 @@ func setMaxStats(world w.World, entity ecs.Entity) error {
 	hp.Current = hp.Max
 
 	return nil
+}
+
+// SpawnStorageItem は収納内にアイテムを生成する
+func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) {
+	item, err := SpawnItem(world, itemName, count, gc.LocationTypeOnField)
+	if err != nil {
+		return ecs.Entity(0), err
+	}
+
+	MoveToStorage(world, item, storage)
+
+	return item, nil
 }
 
 // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する

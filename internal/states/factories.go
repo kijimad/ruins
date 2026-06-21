@@ -451,11 +451,9 @@ func spawnStorageWithItems(world w.World) error {
 		{"たいまつ", 1},
 	}
 	for _, item := range items {
-		entity, err := worldhelper.SpawnItem(world, item.name, item.count, gc.LocationTypeOnField)
-		if err != nil {
+		if _, err := worldhelper.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {
 			return fmt.Errorf("収納アイテムのスポーンに失敗: %w", err)
 		}
-		worldhelper.MoveToStorage(world, entity, storageEntity)
 	}
 	return nil
 }
@@ -708,7 +706,7 @@ func NewInteractionMenuState(world w.World) es.State[w.World] {
 				return fmt.Errorf("failed to get player entity: %w", err)
 			}
 
-			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, world); err != nil {
+			if _, err := activity.ExecuteInteraction(playerEntity, action.Target, action.Interaction, world); err != nil {
 				return fmt.Errorf("アクション実行失敗: %w", err)
 			}
 

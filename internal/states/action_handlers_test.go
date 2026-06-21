@@ -404,7 +404,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		actions := GetInteractionActions(world)
@@ -428,7 +428,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 			Current: gc.DispositionHostile,
 		})
 		enemy.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		actions := GetInteractionActions(world)
@@ -452,7 +452,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		// 上に移動しようとする

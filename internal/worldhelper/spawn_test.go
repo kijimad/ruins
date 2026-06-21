@@ -476,13 +476,13 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 
 		// DoorLockTriggerを2つ作成
 		trigger1 := world.Manager.NewEntity()
-		trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorLockInteraction{}})
+		trigger1.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
 		trigger2 := world.Manager.NewEntity()
-		trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorLockInteraction{}})
+		trigger2.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorLockInteraction{}}})
 
 		// 他のInteractableも作成
 		other := world.Manager.NewEntity()
-		other.AddComponent(world.Components.Interactable, &gc.Interactable{Data: gc.DoorInteraction{}})
+		other.AddComponent(world.Components.Interactable, &gc.Interactable{Interactions: []gc.InteractionData{gc.DoorInteraction{}}})
 
 		DeleteDoorLockTriggers(world)
 
@@ -490,8 +490,10 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 		count := 0
 		world.Manager.Join(world.Components.Interactable).Visit(ecs.Visit(func(entity ecs.Entity) {
 			interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)
-			if _, ok := interactable.Data.(gc.DoorLockInteraction); ok {
-				count++
+			for _, interaction := range interactable.Interactions {
+				if _, ok := interaction.(gc.DoorLockInteraction); ok {
+					count++
+				}
 			}
 		}))
 		assert.Equal(t, 0, count, "DoorLockTriggerは全削除されるべき")

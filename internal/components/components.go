@@ -530,7 +530,9 @@ type Prop struct{}
 // 容量はCarryWeightと同じくkg単位の重量で制限する
 type Storage struct {
 	// TODO: kgを専用の型で示す
-	MaxWeight float64 // 最大格納重量（kg）
+	MaxWeight    float64 // 最大格納重量（kg）
+	CachedWeight float64 // キャッシュされた現在重量。weightDirtyがtrueの場合は無効
+	WeightDirty  bool    // trueの場合CachedWeightの再計算が必要
 }
 
 // LightSource は光源コンポーネント

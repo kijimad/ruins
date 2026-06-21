@@ -267,11 +267,9 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 			continue
 		}
 
-		item, err := worldhelper.SpawnItem(world, itemName, 1, gc.LocationTypeOnField)
-		if err != nil {
+		if _, err := worldhelper.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {
 			return fmt.Errorf("アイテム '%s' の生成に失敗: %w", itemName, err)
 		}
-		worldhelper.MoveToStorage(world, item, storageEntity)
 	}
 
 	return nil

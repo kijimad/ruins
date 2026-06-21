@@ -160,12 +160,14 @@ func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 
 	storeTabs := st.createBackpackItemData(world)
 
-	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する
+	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する。
+	// currentWeight は計算済みなので再スキャンを避けてインラインで判定する
 	weightOverflow := false
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
 	if ok && menuState.TabIndex == 1 && len(storeTabs) > 0 && menuState.ItemIndex < len(storeTabs) {
 		selectedItem := storeTabs[menuState.ItemIndex]
-		weightOverflow = !worldhelper.CanAddToStorage(world, st.storageEntity, selectedItem.Entity)
+		itemWeight := worldhelper.GetEntityWeight(world, selectedItem.Entity)
+		weightOverflow = currentWeight+itemWeight > storageComp.MaxWeight
 	}
 
 	return storageProps{
@@ -263,7 +265,10 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.menuMount.GetProps()
-	menuState, _ := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
+	if !ok {
+		return &ebitenui.UI{Container: widget.NewContainer()}
+	}
 	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
@@ -366,6 +371,7 @@ func (st *StorageMenuState) buildReferenceListContainer(props storageProps, tabI
 
 	container.AddChild(styled.NewPageIndicator(" ", res))
 
+	// 参照リストはスクロール非対応のため、先頭からstorageItemsPerPage件のみ表示する
 	table := styled.NewTableContainer(columnWidths, res)
 	for i, item := range refTab.Items {
 		if i >= storageItemsPerPage {

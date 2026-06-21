@@ -62,7 +62,7 @@ func TestAutoInteractionSystem_OutOfRange(t *testing.T) {
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.ItemInteraction{},
+		Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 	})
 	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
@@ -89,7 +89,7 @@ func TestAutoInteractionSystem_ManualWay(t *testing.T) {
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.ItemInteraction{}, // Manual 方式
+		Interactions: []gc.InteractionData{gc.ItemInteraction{}}, // Manual 方式
 	})
 	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
@@ -118,7 +118,7 @@ func TestAutoInteractionSystem_OnCollisionWay(t *testing.T) {
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.DoorInteraction{}, // OnCollision 方式
+		Interactions: []gc.InteractionData{gc.DoorInteraction{}}, // OnCollision 方式
 	})
 	triggerEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
 
@@ -145,7 +145,7 @@ func TestAutoInteractionSystem_InvalidRange(t *testing.T) {
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: InvalidAutoRangeTrigger{},
+		Interactions: []gc.InteractionData{InvalidAutoRangeTrigger{}},
 	})
 	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
@@ -174,7 +174,7 @@ func TestAutoInteractionSystem_InvalidWay(t *testing.T) {
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: InvalidAutoWayTrigger{},
+		Interactions: []gc.InteractionData{InvalidAutoWayTrigger{}},
 	})
 	triggerEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 

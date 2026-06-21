@@ -4,7 +4,6 @@ import (
 	"os"
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -162,9 +161,8 @@ func TestGolden_StorageMenu(t *testing.T) {
 		storageEntity, err := worldhelper.SpawnProp(world, "木箱", 3, 3)
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnItem(world, "回復薬", 1, gc.LocationTypeOnField)
+		_, err = worldhelper.SpawnStorageItem(world, "回復薬", 1, storageEntity)
 		require.NoError(t, err)
-		worldhelper.MoveToStorage(world, item, storageEntity)
 
 		return []es.State[w.World]{
 			gs.NewTownState()(),

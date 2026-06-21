@@ -178,7 +178,7 @@ func TestExecuteEnterAction(t *testing.T) {
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		item.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.ItemInteraction{},
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 		})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 
@@ -222,7 +222,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		interactableEntity := world.Manager.NewEntity()
 		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.ItemInteraction{},
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -240,7 +240,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		interactableEntity := world.Manager.NewEntity()
 		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
 		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.ItemInteraction{},
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -257,7 +257,7 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		deadEntity := world.Manager.NewEntity()
 		deadEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		deadEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.ItemInteraction{},
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 		})
 		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
 
@@ -279,7 +279,7 @@ func TestGetInteractableInRange(t *testing.T) {
 		interactableEntity := world.Manager.NewEntity()
 		interactableEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		interactableEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{}, // Adjacent範囲
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}}, // Adjacent範囲
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -297,7 +297,7 @@ func TestGetInteractableInRange(t *testing.T) {
 		deadEntity := world.Manager.NewEntity()
 		deadEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		deadEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 		deadEntity.AddComponent(world.Components.Dead, &gc.Dead{})
 
@@ -319,7 +319,7 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		manualEntity := world.Manager.NewEntity()
 		manualEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		manualEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.ItemInteraction{}, // Manual + SameTile
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}}, // Manual + SameTile
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
@@ -337,7 +337,7 @@ func TestGetAllInteractiveInteractablesInRange(t *testing.T) {
 		collisionEntity := world.Manager.NewEntity()
 		collisionEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		collisionEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{}, // OnCollision + Adjacent
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}}, // OnCollision + Adjacent
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}

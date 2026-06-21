@@ -31,20 +31,6 @@ func (t InvalidWayTrigger) Config() gc.InteractionConfig {
 	}
 }
 
-// TestExecuteInteraction_NoInteractable はInteractableコンポーネントがない場合のエラーを確認
-func TestExecuteInteraction_NoInteractable(t *testing.T) {
-	t.Parallel()
-
-	world := testutil.InitTestWorld(t)
-
-	player := world.Manager.NewEntity()
-	notInteractableEntity := world.Manager.NewEntity()
-
-	_, err := ExecuteInteraction(player, notInteractableEntity, world)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "Interactableを持っていません")
-}
-
 // TestExecuteInteraction_InvalidRange は無効なActivationRangeの検証エラーを確認
 func TestExecuteInteraction_InvalidRange(t *testing.T) {
 	t.Parallel()
@@ -54,10 +40,10 @@ func TestExecuteInteraction_InvalidRange(t *testing.T) {
 	player := world.Manager.NewEntity()
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: InvalidRangeTrigger{},
+		Interactions: []gc.InteractionData{InvalidRangeTrigger{}},
 	})
 
-	_, err := ExecuteInteraction(player, triggerEntity, world)
+	_, err := ExecuteInteraction(player, triggerEntity, InvalidRangeTrigger{}, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "無効なActivationRange")
 }
@@ -71,10 +57,10 @@ func TestExecuteInteraction_InvalidWay(t *testing.T) {
 	player := world.Manager.NewEntity()
 	triggerEntity := world.Manager.NewEntity()
 	triggerEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: InvalidWayTrigger{},
+		Interactions: []gc.InteractionData{InvalidWayTrigger{}},
 	})
 
-	_, err := ExecuteInteraction(player, triggerEntity, world)
+	_, err := ExecuteInteraction(player, triggerEntity, InvalidWayTrigger{}, world)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "無効なActivationWay")
 }
@@ -98,13 +84,13 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Orientation: gc.DoorOrientationHorizontal})
 		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.DoorInteraction{},
+			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 		})
 		doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
 		// ExecuteInteractionを実行
-		result, err := ExecuteInteraction(player, doorEntity, world)
+		result, err := ExecuteInteraction(player, doorEntity, gc.DoorInteraction{}, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -130,11 +116,11 @@ func TestExecuteInteraction_Door(t *testing.T) {
 		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: true, Orientation: gc.DoorOrientationHorizontal})
 		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.DoorInteraction{},
+			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 		})
 
 		// ExecuteInteractionを実行
-		result, err := ExecuteInteraction(player, doorEntity, world)
+		result, err := ExecuteInteraction(player, doorEntity, gc.DoorInteraction{}, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -162,7 +148,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	npcEntity := world.Manager.NewEntity()
 	npcEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 	npcEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.TalkInteraction{},
+		Interactions: []gc.InteractionData{gc.TalkInteraction{}},
 	})
 	npcEntity.AddComponent(world.Components.Dialog, &gc.Dialog{
 		MessageKey: "test_npc_greeting",
@@ -171,7 +157,7 @@ func TestExecuteInteraction_Talk(t *testing.T) {
 	npcEntity.AddComponent(world.Components.FactionNeutral, nil)
 
 	// ExecuteInteractionを実行
-	result, err := ExecuteInteraction(player, npcEntity, world)
+	result, err := ExecuteInteraction(player, npcEntity, gc.TalkInteraction{}, world)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -193,13 +179,13 @@ func TestExecuteInteraction_Item(t *testing.T) {
 	itemEntity := world.Manager.NewEntity()
 	itemEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 	itemEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.ItemInteraction{},
+		Interactions: []gc.InteractionData{gc.ItemInteraction{}},
 	})
 	itemEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
 	itemEntity.AddComponent(world.Components.Consumable, &gc.Consumable{})
 
 	// ExecuteInteractionを実行（拾えるアイテムが見つからないためエラー）
-	result, err := ExecuteInteraction(player, itemEntity, world)
+	result, err := ExecuteInteraction(player, itemEntity, gc.ItemInteraction{}, world)
 
 	// 検証に失敗するためエラーになる
 	require.Error(t, err)
@@ -222,12 +208,12 @@ func TestExecuteInteraction_Melee(t *testing.T) {
 	enemyEntity := world.Manager.NewEntity()
 	enemyEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 	enemyEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.MeleeInteraction{},
+		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	})
 	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
 
 	// ExecuteInteractionを実行（攻撃手段がないためエラー）
-	result, err := ExecuteInteraction(player, enemyEntity, world)
+	result, err := ExecuteInteraction(player, enemyEntity, gc.MeleeInteraction{}, world)
 
 	// 攻撃手段がないためエラーになる
 	require.Error(t, err)
@@ -258,7 +244,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	enemyEntity := world.Manager.NewEntity()
 	enemyEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 	enemyEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.MeleeInteraction{},
+		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	})
 	enemyEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
 	enemyEntity.AddComponent(world.Components.Abilities, &gc.Abilities{
@@ -272,7 +258,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	// 武器スロット1を選択
 	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
-	result, err := ExecuteInteraction(player, enemyEntity, world)
+	result, err := ExecuteInteraction(player, enemyEntity, gc.MeleeInteraction{}, world)
 	require.NoError(t, err)
 	require.NotNil(t, result)
 
@@ -293,10 +279,10 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 
 		portalEntity := world.Manager.NewEntity()
 		portalEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.PortalInteraction{PortalType: gc.PortalTypeNext},
+			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalTypeNext}},
 		})
 
-		result, err := ExecuteInteraction(player, portalEntity, world)
+		result, err := ExecuteInteraction(player, portalEntity, gc.PortalInteraction{PortalType: gc.PortalTypeNext}, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -313,10 +299,10 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 
 		portalEntity := world.Manager.NewEntity()
 		portalEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.PortalInteraction{PortalType: gc.PortalTypeTown},
+			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalTypeTown}},
 		})
 
-		result, err := ExecuteInteraction(player, portalEntity, world)
+		result, err := ExecuteInteraction(player, portalEntity, gc.PortalInteraction{PortalType: gc.PortalTypeTown}, world)
 
 		require.NoError(t, err)
 		require.NotNil(t, result)
@@ -333,10 +319,10 @@ func TestExecuteInteraction_Portal(t *testing.T) {
 
 		portalEntity := world.Manager.NewEntity()
 		portalEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.PortalInteraction{PortalType: gc.PortalType("UNKNOWN")},
+			Interactions: []gc.InteractionData{gc.PortalInteraction{PortalType: gc.PortalType("UNKNOWN")}},
 		})
 
-		_, err := ExecuteInteraction(player, portalEntity, world)
+		_, err := ExecuteInteraction(player, portalEntity, gc.PortalInteraction{PortalType: gc.PortalType("UNKNOWN")}, world)
 
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "未知のポータルタイプ")
@@ -354,10 +340,10 @@ func TestExecuteInteraction_DungeonGate(t *testing.T) {
 
 	gateEntity := world.Manager.NewEntity()
 	gateEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.DungeonGateInteraction{},
+		Interactions: []gc.InteractionData{gc.DungeonGateInteraction{}},
 	})
 
-	result, err := ExecuteInteraction(player, gateEntity, world)
+	result, err := ExecuteInteraction(player, gateEntity, gc.DungeonGateInteraction{}, world)
 
 	require.NoError(t, err)
 	require.NotNil(t, result)
@@ -387,10 +373,10 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 		trigger := world.Manager.NewEntity()
 		trigger.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
 		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.DoorLockInteraction{},
+			Interactions: []gc.InteractionData{gc.DoorLockInteraction{}},
 		})
 
-		result, err := ExecuteInteraction(player, trigger, world)
+		result, err := ExecuteInteraction(player, trigger, gc.DoorLockInteraction{}, world)
 		require.NoError(t, err)
 		assert.True(t, result.Success)
 
@@ -414,10 +400,10 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 
 		trigger := world.Manager.NewEntity()
 		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.DoorLockInteraction{},
+			Interactions: []gc.InteractionData{gc.DoorLockInteraction{}},
 		})
 
-		result, err := ExecuteInteraction(player, trigger, world)
+		result, err := ExecuteInteraction(player, trigger, gc.DoorLockInteraction{}, world)
 		require.NoError(t, err)
 		assert.True(t, result.Success)
 	})
@@ -436,10 +422,10 @@ func TestExecuteInteraction_DoorLock(t *testing.T) {
 
 		trigger := world.Manager.NewEntity()
 		trigger.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.DoorLockInteraction{},
+			Interactions: []gc.InteractionData{gc.DoorLockInteraction{}},
 		})
 
-		result, err := ExecuteInteraction(player, trigger, world)
+		result, err := ExecuteInteraction(player, trigger, gc.DoorLockInteraction{}, world)
 		require.NoError(t, err)
 		assert.True(t, result.Success)
 
@@ -466,12 +452,12 @@ func TestExecuteInteraction_Door_Locked(t *testing.T) {
 		doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		doorEntity.AddComponent(world.Components.Door, &gc.Door{IsOpen: false, Locked: true, Orientation: gc.DoorOrientationHorizontal})
 		doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.DoorInteraction{},
+			Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 		})
 		doorEntity.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 		doorEntity.AddComponent(world.Components.BlockView, &gc.BlockView{})
 
-		result, err := ExecuteInteraction(player, doorEntity, world)
+		result, err := ExecuteInteraction(player, doorEntity, gc.DoorInteraction{}, world)
 		require.NoError(t, err)
 		require.NotNil(t, result)
 
@@ -495,10 +481,10 @@ func TestExecuteInteraction_Door_NoDoorComponent(t *testing.T) {
 	doorEntity := world.Manager.NewEntity()
 	doorEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 	doorEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.DoorInteraction{},
+		Interactions: []gc.InteractionData{gc.DoorInteraction{}},
 	})
 
-	_, err := ExecuteInteraction(player, doorEntity, world)
+	_, err := ExecuteInteraction(player, doorEntity, gc.DoorInteraction{}, world)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "Doorコンポーネントがない")
@@ -518,11 +504,11 @@ func TestExecuteInteraction_Talk_NoDialogComponent(t *testing.T) {
 	npcEntity := world.Manager.NewEntity()
 	npcEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 	npcEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: gc.TalkInteraction{},
+		Interactions: []gc.InteractionData{gc.TalkInteraction{}},
 	})
 	npcEntity.AddComponent(world.Components.Name, &gc.Name{Name: "テストNPC"})
 
-	_, err := ExecuteInteraction(player, npcEntity, world)
+	_, err := ExecuteInteraction(player, npcEntity, gc.TalkInteraction{}, world)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "Dialogコンポーネントがありません")
@@ -552,12 +538,12 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 30})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
 		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
 
-		result, err := ExecuteInteraction(player, prop, world)
+		result, err := ExecuteInteraction(player, prop, gc.MeleeInteraction{}, world)
 		require.NoError(t, err)
 		require.NotNil(t, result)
 		assert.True(t, result.Success)
@@ -586,10 +572,10 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 		prop.AddComponent(world.Components.HP, &gc.HP{Max: 30, Current: 0})
 		prop.AddComponent(world.Components.Dead, &gc.Dead{})
 		prop.AddComponent(world.Components.Interactable, &gc.Interactable{
-			Data: gc.MeleeInteraction{},
+			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
-		result, err := ExecuteInteraction(player, prop, world)
+		result, err := ExecuteInteraction(player, prop, gc.MeleeInteraction{}, world)
 
 		require.Error(t, err)
 		require.NotNil(t, result)
@@ -618,10 +604,10 @@ func TestExecuteInteraction_UnknownType(t *testing.T) {
 
 	unknownEntity := world.Manager.NewEntity()
 	unknownEntity.AddComponent(world.Components.Interactable, &gc.Interactable{
-		Data: UnknownInteraction{},
+		Interactions: []gc.InteractionData{UnknownInteraction{}},
 	})
 
-	result, err := ExecuteInteraction(player, unknownEntity, world)
+	result, err := ExecuteInteraction(player, unknownEntity, UnknownInteraction{}, world)
 
 	require.Error(t, err)
 	assert.Nil(t, result)

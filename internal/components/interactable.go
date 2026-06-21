@@ -4,9 +4,10 @@ import (
 	"fmt"
 )
 
-// Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー
+// Interactable はプレイヤーと相互作用可能なエンティティを示すマーカー。
+// 1つのエンティティが複数のインタラクションを持てる（例: 攻撃可能かつ収納を開ける木箱）
 type Interactable struct {
-	Data InteractionData
+	Interactions []InteractionData
 }
 
 // InteractionConfig は相互作用の設定

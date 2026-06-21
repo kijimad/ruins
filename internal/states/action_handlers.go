@@ -10,8 +10,9 @@ import (
 
 // InteractionAction はインタラクション可能なアクション情報
 type InteractionAction struct {
-	Label  string     // 表示ラベル（例："開く(上)"）
-	Target ecs.Entity // ターゲットエンティティ
+	Label       string             // 表示ラベル（例："開く(上)"）
+	Target      ecs.Entity         // ターゲットエンティティ
+	Interaction gc.InteractionData // 実行するインタラクション
 }
 
 // GetInteractionActions はプレイヤー周辺の実行可能なアクションを取得する
@@ -53,74 +54,76 @@ func GetInteractionActions(world w.World) []InteractionAction {
 func getInteractionActions(world w.World, interactable *gc.Interactable, interactableEntity ecs.Entity, dirLabel string) []InteractionAction {
 	var result []InteractionAction
 
-	switch portalData := interactable.Data.(type) {
-	case gc.DoorInteraction:
-		// 扉の状態に応じたアクションを生成
-		if interactableEntity.HasComponent(world.Components.Door) {
-			door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+	for _, interaction := range interactable.Interactions {
+		switch data := interaction.(type) {
+		case gc.DoorInteraction:
+			if interactableEntity.HasComponent(world.Components.Door) {
+				door := world.Components.Door.Get(interactableEntity).(*gc.Door)
+				var label string
+				if door.IsOpen {
+					label = "閉じる(" + dirLabel + ")"
+				} else {
+					label = "開く(" + dirLabel + ")"
+				}
+				result = append(result, InteractionAction{
+					Label:       label,
+					Target:      interactableEntity,
+					Interaction: data,
+				})
+			}
+		case gc.TalkInteraction:
+			if interactableEntity.HasComponent(world.Components.Name) {
+				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+				result = append(result, InteractionAction{
+					Label:       "話しかける(" + name.Name + ")",
+					Target:      interactableEntity,
+					Interaction: data,
+				})
+			}
+		case gc.ItemInteraction:
+			formattedName := worldhelper.FormatItemName(world, interactableEntity)
+			result = append(result, InteractionAction{
+				Label:       "拾う(" + formattedName + ")",
+				Target:      interactableEntity,
+				Interaction: data,
+			})
+		case gc.PortalInteraction:
 			var label string
-			if door.IsOpen {
-				label = "閉じる(" + dirLabel + ")"
-			} else {
-				label = "開く(" + dirLabel + ")"
+			switch data.PortalType {
+			case gc.PortalTypeNext:
+				label = "転移する(次階)"
+			case gc.PortalTypeTown:
+				label = "転移する(帰還)"
 			}
 			result = append(result, InteractionAction{
-				Label:  label,
-				Target: interactableEntity,
+				Label:       label,
+				Target:      interactableEntity,
+				Interaction: data,
 			})
-		}
-	case gc.TalkInteraction:
-		// 会話アクションを生成
-		if interactableEntity.HasComponent(world.Components.Name) {
-			name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+		case gc.DungeonGateInteraction:
 			result = append(result, InteractionAction{
-				Label:  "話しかける(" + name.Name + ")",
-				Target: interactableEntity,
+				Label:       "ダンジョンを選ぶ",
+				Target:      interactableEntity,
+				Interaction: data,
 			})
-		}
-	case gc.ItemInteraction:
-		// アイテム拾得アクションを生成
-		formattedName := worldhelper.FormatItemName(world, interactableEntity)
-		result = append(result, InteractionAction{
-			Label:  "拾う(" + formattedName + ")",
-			Target: interactableEntity,
-		})
-	case gc.PortalInteraction:
-		// ポータル移動アクションを生成
-		var label string
-		switch portalData.PortalType {
-		case gc.PortalTypeNext:
-			label = "転移する(次階)"
-		case gc.PortalTypeTown:
-			label = "転移する(帰還)"
-		}
-		result = append(result, InteractionAction{
-			Label:  label,
-			Target: interactableEntity,
-		})
-	case gc.DungeonGateInteraction:
-		// ダンジョン選択アクションを生成
-		result = append(result, InteractionAction{
-			Label:  "ダンジョンを選ぶ",
-			Target: interactableEntity,
-		})
-	case gc.StorageInteraction:
-		// 収納アクションを生成
-		if interactableEntity.HasComponent(world.Components.Name) {
-			name := world.Components.Name.Get(interactableEntity).(*gc.Name)
-			result = append(result, InteractionAction{
-				Label:  "調べる(" + name.Name + ")",
-				Target: interactableEntity,
-			})
-		}
-	case gc.MeleeInteraction:
-		// 近接攻撃対象をメニューに表示する
-		if interactableEntity.HasComponent(world.Components.Name) {
-			name := world.Components.Name.Get(interactableEntity).(*gc.Name)
-			result = append(result, InteractionAction{
-				Label:  "攻撃する(" + name.Name + ")",
-				Target: interactableEntity,
-			})
+		case gc.StorageInteraction:
+			if interactableEntity.HasComponent(world.Components.Name) {
+				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+				result = append(result, InteractionAction{
+					Label:       "調べる(" + name.Name + ")",
+					Target:      interactableEntity,
+					Interaction: data,
+				})
+			}
+		case gc.MeleeInteraction:
+			if interactableEntity.HasComponent(world.Components.Name) {
+				name := world.Components.Name.Get(interactableEntity).(*gc.Name)
+				result = append(result, InteractionAction{
+					Label:       "攻撃する(" + name.Name + ")",
+					Target:      interactableEntity,
+					Interaction: data,
+				})
+			}
 		}
 	}
 
