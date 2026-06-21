@@ -134,9 +134,10 @@ func (st *StorageMenuState) DoAction(world w.World, action inputmapper.ActionID)
 // ================
 
 type storageProps struct {
-	Tabs        []storageTabData
-	StorageName string
-	WeightText  string
+	Tabs           []storageTabData
+	StorageName    string
+	WeightText     string
+	WeightOverflow bool
 }
 
 type storageTabData struct {
@@ -157,13 +158,24 @@ func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 	currentWeight := worldhelper.GetStorageCurrentWeight(world, st.storageEntity)
 	weightText := fmt.Sprintf("%.1f / %.1f kg", currentWeight, storageComp.MaxWeight)
 
+	storeTabs := st.createBackpackItemData(world)
+
+	// 「収納」タブで選択中のアイテムが重量超過かどうか判定する
+	weightOverflow := false
+	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
+	if ok && menuState.TabIndex == 1 && len(storeTabs) > 0 && menuState.ItemIndex < len(storeTabs) {
+		selectedItem := storeTabs[menuState.ItemIndex]
+		weightOverflow = !worldhelper.CanAddToStorage(world, st.storageEntity, selectedItem.Entity)
+	}
+
 	return storageProps{
 		Tabs: []storageTabData{
 			{ID: "retrieve", Label: "取得", Items: st.createStorageItemData(world)},
-			{ID: "store", Label: "収納", Items: st.createBackpackItemData(world)},
+			{ID: "store", Label: "収納", Items: storeTabs},
 		},
-		StorageName: storageName,
-		WeightText:  weightText,
+		StorageName:    storageName,
+		WeightText:     weightText,
+		WeightOverflow: weightOverflow,
 	}
 }
 
@@ -262,7 +274,7 @@ func (st *StorageMenuState) buildUI(world w.World) *ebitenui.UI {
 	// 1行目: タイトル、カテゴリ、重量
 	root.AddChild(styled.NewTitleText(props.StorageName, res))
 	root.AddChild(st.buildCategoryContainer(props.Tabs, tabIndex, res))
-	root.AddChild(st.buildWeightContainer(props.WeightText, res))
+	root.AddChild(st.buildWeightContainer(props.WeightText, props.WeightOverflow, res))
 
 	// 2行目: 操作対象リスト（左）、空、参照リスト（右）
 	root.AddChild(st.buildActiveListContainer(props, tabIndex, itemIndex, res))
@@ -290,9 +302,18 @@ func (st *StorageMenuState) buildCategoryContainer(tabs []storageTabData, tabInd
 	return container
 }
 
-func (st *StorageMenuState) buildWeightContainer(weightText string, res resources.UIResources) *widget.Container {
+func (st *StorageMenuState) buildWeightContainer(weightText string, overflow bool, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
-	container.AddChild(styled.NewMenuText(weightText, res))
+	textColor := theme.TextPrimary
+	if overflow {
+		textColor = theme.HUDWeightDanger
+	}
+	container.AddChild(widget.NewText(
+		widget.TextOpts.Text(weightText, &res.Text.BodyFace, textColor),
+		widget.TextOpts.WidgetOpts(
+			widget.WidgetOpts.LayoutData(widget.RowLayoutData{}),
+		),
+	))
 	return container
 }
 
