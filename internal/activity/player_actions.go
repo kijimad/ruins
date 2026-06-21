@@ -95,27 +95,28 @@ func ExecuteWaitAction(world w.World) error {
 	return err
 }
 
-// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する
-// 複数ある場合は最初に見つかったものを返す
+// getInteractableAtSameTile は指定タイルのInteractableとエンティティを取得する。
+// 複数ある場合は最初に見つかったものを返す。
+// 見つからない場合は interactable が nil になる。interactable != nil のときのみ entity は有効値。
 func getInteractableAtSameTile(world w.World, targetGrid *gc.GridElement) (*gc.Interactable, ecs.Entity) {
-	var interactable *gc.Interactable
-	var interactableEntity ecs.Entity
+	var found *gc.Interactable
+	var foundEntity ecs.Entity
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.Interactable,
 		world.Components.Dead.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if interactable != nil {
+		if found != nil {
 			return // 既に見つかっている
 		}
 		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		// 直上タイルのみ
 		if ge.X == targetGrid.X && ge.Y == targetGrid.Y {
-			interactable = world.Components.Interactable.Get(entity).(*gc.Interactable)
-			interactableEntity = entity
+			found = world.Components.Interactable.Get(entity).(*gc.Interactable)
+			foundEntity = entity
 		}
 	}))
-	return interactable, interactableEntity
+	return found, foundEntity
 }
 
 // GetAllInteractiveInteractablesInRange は範囲内の全てのインタラクティブなInteractableエンティティを取得する

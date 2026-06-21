@@ -7,20 +7,21 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // Craft はアイテムをクラフトする
-func Craft(world w.World, name string) (*ecs.Entity, error) {
+func Craft(world w.World, name string) (ecs.Entity, error) {
 	canCraft, err := CanCraft(world, name)
 	if err != nil {
 		// レシピが存在しない場合
-		return nil, err
+		return consts.InvalidEntity, err
 	}
 	if !canCraft {
 		// 素材不足の場合
-		return nil, fmt.Errorf("必要素材が足りません")
+		return consts.InvalidEntity, fmt.Errorf("必要素材が足りません")
 	}
 
 	// プレイヤーのCharModifiersを取得する
@@ -34,14 +35,14 @@ func Craft(world w.World, name string) (*ecs.Entity, error) {
 
 	resultEntity, err := SpawnBackpackItem(world, name, 1)
 	if err != nil {
-		return nil, fmt.Errorf("アイテム生成に失敗: %w", err)
+		return consts.InvalidEntity, fmt.Errorf("アイテム生成に失敗: %w", err)
 	}
 	randomize(world, resultEntity, smithQualityPct)
 	if err := consumeMaterials(world, name, craftCostPct); err != nil {
-		return nil, fmt.Errorf("素材消費に失敗: %w", err)
+		return consts.InvalidEntity, fmt.Errorf("素材消費に失敗: %w", err)
 	}
 
-	return &resultEntity, nil
+	return resultEntity, nil
 }
 
 // CanCraft は所持数と必要数を比較してクラフト可能か判定する

@@ -223,9 +223,7 @@ func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, 
 	}
 
 	item := props.Items[itemIndex]
-	if item.Entity != 0 {
-		views.UpdateSpec(world, container, item.Entity)
-	}
+	views.UpdateSpec(world, container, item.Entity)
 
 	return container
 }

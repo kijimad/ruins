@@ -77,7 +77,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 			index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
 			return worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
 		default:
-			return 0, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
+			return consts.InvalidEntity, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
 		}
 	}
 
@@ -88,7 +88,7 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 	case "void":
 		return worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
 	default:
-		return 0, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
+		return consts.InvalidEntity, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
 	}
 }
 

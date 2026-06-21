@@ -381,7 +381,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 		st.subState = craftSubStateResult
 		st.resultMount = hooks.NewMount[craftResultProps]()
 		st.resultMount.SetProps(craftResultProps{
-			ResultEntity: *resultEntity,
+			ResultEntity: resultEntity,
 		})
 	case TextClose:
 		st.subState = craftSubStateMenu
@@ -538,8 +538,8 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) {
 	for _, input := range recipe.Inputs {
 		var currentAmount int
-		if stackableEntity, found := worldhelper.FindStackableInInventory(world, input.Name); found {
-			currentAmount = worldhelper.GetEntityCount(world, stackableEntity)
+		if entity, found := worldhelper.FindStackableInInventory(world, input.Name); found {
+			currentAmount = worldhelper.GetEntityCount(world, entity)
 		}
 		str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
 		var textColor color.RGBA

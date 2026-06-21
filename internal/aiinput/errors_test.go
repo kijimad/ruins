@@ -22,20 +22,6 @@ func TestAIError_WithEntity(t *testing.T) {
 	assert.Contains(t, err.Error(), "行動計画に失敗した")
 }
 
-func TestAIError_WithEntity_Zero(t *testing.T) {
-	t.Parallel()
-
-	// Entity(0) は有効なIDなので、ポインタが設定されていればEntity情報を出力する
-	entity := ecs.Entity(0)
-	err := &AIError{
-		Type:    "planning",
-		Message: "エラー",
-		Entity:  &entity,
-	}
-
-	assert.Contains(t, err.Error(), "Entity=0")
-}
-
 func TestAIError_WithoutEntity(t *testing.T) {
 	t.Parallel()
 

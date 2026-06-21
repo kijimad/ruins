@@ -163,10 +163,10 @@ func TestGetInteractableAtSameTile(t *testing.T) {
 		})
 
 		targetGrid := &gc.GridElement{X: 10, Y: 10}
-		interactable, entity := getInteractableAtSameTile(world, targetGrid)
+		interactable, foundEntity := getInteractableAtSameTile(world, targetGrid)
 
 		require.NotNil(t, interactable)
-		assert.Equal(t, interactableEntity, entity)
+		assert.Equal(t, interactableEntity, foundEntity)
 	})
 
 	t.Run("異なるタイルのInteractableは取得されない", func(t *testing.T) {
