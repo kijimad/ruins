@@ -14,7 +14,6 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/consts"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -437,22 +436,16 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	startTileY := topEdge/int(consts.TileSize) - 1
 	endTileY := bottomEdge/int(consts.TileSize) + 1
 
-	level := worldhelper.GetDungeon(world).Level
-
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
 		for tileY := startTileY; tileY <= endTileY; tileY++ {
 			grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-
-			// マップ外はスキップして背景色を見せる
-			if !isInMapBounds(grid, level) {
-				continue
-			}
 
 			var darkness float64
 			var lightColor color.RGBA
 			info, exists := tileRenderMap[grid]
 			if !exists {
-				// マップ内の未探索タイルは完全に黒くする
+				// tileRenderMapにないタイルは完全に黒くする。
+				// マップ外・未探索タイルの両方が該当する
 				darkness = 1.0
 			} else {
 				switch v := info.(type) {

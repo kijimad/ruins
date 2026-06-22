@@ -107,28 +107,25 @@ func (sys *VisionSystem) Update(world w.World) error {
 		// 光源情報キャッシュをクリア（更新前）
 		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
 
-		// 視界内タイルの光源情報を計算し、探索済みマークを行う
-		for _, tileData := range visibilityData {
-			if tileData.Visible {
-				lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
-				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-
-				// 光源情報をキャッシュに保存
-				sys.lightSourceCache[gridElement] = lightInfo
-
-				worldhelper.GetDungeon(world).ExploredTiles[gridElement] = true
-			}
-		}
-
-		// 現在フレームで見えているタイルをリソースに反映する
+		// 視界内タイルの光源情報を計算し、探索済みマークを行う。
+		// マップ外座標はデータに含めない
+		dungeon := worldhelper.GetDungeon(world)
 		visibleTiles := make(map[gc.GridElement]bool)
 		for _, tileData := range visibilityData {
-			if tileData.Visible {
-				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-				visibleTiles[gridElement] = true
+			if !tileData.Visible {
+				continue
 			}
+			gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+			if !isInMapBounds(gridElement, dungeon.Level) {
+				continue
+			}
+
+			lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
+			sys.lightSourceCache[gridElement] = lightInfo
+			dungeon.ExploredTiles[gridElement] = true
+			visibleTiles[gridElement] = true
 		}
-		worldhelper.GetDungeon(world).VisibleTiles = visibleTiles
+		dungeon.VisibleTiles = visibleTiles
 
 		// キャッシュ更新
 		sys.lastPlayerX = playerPos.X
