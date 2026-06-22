@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (80.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.5%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -389,7 +389,7 @@
 				
 				<option value="file166">github.com/kijimaD/ruins/internal/systems/turn_system.go (85.7%)</option>
 				
-				<option value="file167">github.com/kijimaD/ruins/internal/systems/vision.go (30.1%)</option>
+				<option value="file167">github.com/kijimaD/ruins/internal/systems/vision.go (30.8%)</option>
 				
 				<option value="file168">github.com/kijimaD/ruins/internal/systems/visual_effect.go (15.7%)</option>
 				
@@ -1400,7 +1400,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov8" title="1">{
+        if !hit </span><span class="cov0" title="0">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -15006,7 +15006,7 @@ var (
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
-func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) <span class="cov8" title="1">{
+func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) <span class="cov8" title="1">{
         var lastErr error
 
         // 最大再試行回数まで繰り返す
@@ -15037,14 +15037,14 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
 }
 
 // attemptMetaPlan は単一回のメタプラン生成を試行する
-func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) <span class="cov8" title="1">{
+func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) <span class="cov8" title="1">{
         // PlannerChainを初期化
         var chain *PlannerChain
         var err error
         if plannerType.Name == PlannerTypeRandom.Name </span><span class="cov0" title="0">{
-                chain, err = NewRandomPlanner(consts.Tile(width), consts.Tile(height), seed)
+                chain, err = NewRandomPlanner(width, height, seed)
         }</span> else<span class="cov8" title="1"> {
-                chain, err = plannerType.PlannerFunc(consts.Tile(width), consts.Tile(height), seed)
+                chain, err = plannerType.PlannerFunc(width, height, seed)
         }</span>
         <span class="cov8" title="1">if err != nil </span><span class="cov0" title="0">{
                 return nil, err
@@ -38689,19 +38689,22 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
         for tileX := startTileX; tileX &lt;= endTileX; tileX++ </span><span class="cov0" title="0">{
                 for tileY := startTileY; tileY &lt;= endTileY; tileY++ </span><span class="cov0" title="0">{
                         grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
+
+                        var darkness float64
+                        var lightColor color.RGBA
                         info, exists := tileRenderMap[grid]
                         if !exists </span><span class="cov0" title="0">{
-                                continue</span>
-                        }
-
-                        <span class="cov0" title="0">var darkness float64
-                        var lightColor color.RGBA
-                        switch v := info.(type) </span>{
-                        case TileRenderVisible:<span class="cov0" title="0">
-                                darkness = float64(v.Darkness)
-                                lightColor = v.LightColor</span>
-                        case TileRenderRemembered:<span class="cov0" title="0">
-                                darkness = float64(v.Darkness)</span>
+                                // tileRenderMapにないタイルは完全に黒くする。
+                                // マップ外・未探索タイルの両方が該当する
+                                darkness = 1.0
+                        }</span> else<span class="cov0" title="0"> {
+                                switch v := info.(type) </span>{
+                                case TileRenderVisible:<span class="cov0" title="0">
+                                        darkness = float64(v.Darkness)
+                                        lightColor = v.LightColor</span>
+                                case TileRenderRemembered:<span class="cov0" title="0">
+                                        darkness = float64(v.Darkness)</span>
+                                }
                         }
 
                         <span class="cov0" title="0">worldX := float64(tileX * int(consts.TileSize))
@@ -39521,34 +39524,31 @@ func (sys *VisionSystem) Update(world w.World) error <span class="cov0" title="0
                 sys.blockViewIndex = buildBlockViewIndex(world)
 
                 // タイルの可視性マップを更新
-                visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
+                visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
                 visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, sys.blockViewIndex)
 
                 // 光源情報キャッシュをクリア（更新前）
                 sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
 
-                // 視界内タイルの光源情報を計算し、探索済みマークを行う
+                // 視界内タイルの光源情報を計算し、探索済みマークを行う。
+                // マップ外座標はデータに含めない
+                dungeon := worldhelper.GetDungeon(world)
+                visibleTiles := make(map[gc.GridElement]bool)
                 for _, tileData := range visibilityData </span><span class="cov0" title="0">{
-                        if tileData.Visible </span><span class="cov0" title="0">{
-                                lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
-                                gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+                        if !tileData.Visible </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
+                        <span class="cov0" title="0">gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+                        if !isInMapBounds(gridElement, dungeon.Level) </span><span class="cov0" title="0">{
+                                continue</span>
+                        }
 
-                                // 光源情報をキャッシュに保存
-                                sys.lightSourceCache[gridElement] = lightInfo
-
-                                worldhelper.GetDungeon(world).ExploredTiles[gridElement] = true
-                        }</span>
+                        <span class="cov0" title="0">lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
+                        sys.lightSourceCache[gridElement] = lightInfo
+                        dungeon.ExploredTiles[gridElement] = true
+                        visibleTiles[gridElement] = true</span>
                 }
-
-                // 現在フレームで見えているタイルをリソースに反映する
-                <span class="cov0" title="0">visibleTiles := make(map[gc.GridElement]bool)
-                for _, tileData := range visibilityData </span><span class="cov0" title="0">{
-                        if tileData.Visible </span><span class="cov0" title="0">{
-                                gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-                                visibleTiles[gridElement] = true
-                        }</span>
-                }
-                <span class="cov0" title="0">worldhelper.GetDungeon(world).VisibleTiles = visibleTiles
+                <span class="cov0" title="0">dungeon.VisibleTiles = visibleTiles
 
                 // キャッシュ更新
                 sys.lastPlayerX = playerPos.X
@@ -39599,9 +39599,10 @@ func (TileRenderRemembered) tileRenderInfo() {<span class="cov0" title="0">}</sp
 // 各描画関数が参照するだけで済む描画情報マップを返す
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) map[gc.GridElement]TileRenderInfo <span class="cov8" title="1">{
         result := make(map[gc.GridElement]TileRenderInfo)
+        dungeon := worldhelper.GetDungeon(world)
 
         // 現在見えているタイルを設定する
-        for grid := range worldhelper.GetDungeon(world).VisibleTiles </span><span class="cov8" title="1">{
+        for grid := range dungeon.VisibleTiles </span><span class="cov8" title="1">{
                 visible := TileRenderVisible{Darkness: DarknessVisible}
                 if li, ok := lights[grid]; ok &amp;&amp; li.Darkness &lt; 1.0 </span><span class="cov8" title="1">{
                         visible.LightColor = li.Color
@@ -39610,7 +39611,7 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
         }
 
         // 視界外だが記憶済みのタイルを設定する
-        <span class="cov8" title="1">for grid := range worldhelper.GetDungeon(world).ExploredTiles </span><span class="cov8" title="1">{
+        <span class="cov8" title="1">for grid := range dungeon.ExploredTiles </span><span class="cov8" title="1">{
                 if _, exists := result[grid]; !exists </span><span class="cov8" title="1">{
                         result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
                 }</span>
@@ -39618,6 +39619,11 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 
         <span class="cov8" title="1">return result</span>
 }
+
+// isInMapBounds は座標がマップの有効範囲内かを判定する
+func isInMapBounds(grid gc.GridElement, level gc.Level) bool <span class="cov8" title="1">{
+        return grid.X &gt;= 0 &amp;&amp; grid.X &lt; level.TileWidth &amp;&amp; grid.Y &gt;= 0 &amp;&amp; grid.Y &lt; level.TileHeight
+}</span>
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
 func calculateTileVisibilityWithDistance(playerX, playerY, radius consts.Pixel, rcCache map[raycastCacheKey]bool, blockIndex map[gc.GridElement]bool) map[string]TileVisibility <span class="cov0" title="0">{
@@ -45538,7 +45544,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) <span class="cov8" t
 func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool <span class="cov8" title="1">{
         // 距離チェック（視界範囲外は見えない）
         distanceInPixels := geometry.Distance(float64(playerX), float64(playerY), float64(targetX), float64(targetY)) * float64(consts.TileSize)
-        visionRadius := consts.VisionRadiusTiles * float64(consts.TileSize)
+        visionRadius := float64(consts.VisionRadiusTiles) * float64(consts.TileSize)
 
         if distanceInPixels &gt; visionRadius </span><span class="cov8" title="1">{
                 return false

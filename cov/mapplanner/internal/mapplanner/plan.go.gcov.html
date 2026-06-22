@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 23:20:50</td>
+            <td class="headerValue">2026-06-22 14:08:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span>              : )</span>
 <span id="L20"><span class="lineNum">      20</span>              : </span>
 <span id="L21"><span class="lineNum">      21</span>              : // Plan はPlannerChainを初期化してMetaPlanを返す</span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC tlaBgGNC">           1 : func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         var lastErr error</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         // 最大再試行回数まで繰り返す</span></span>
@@ -112,14 +112,14 @@
 <span id="L50"><span class="lineNum">      50</span>              : }</span>
 <span id="L51"><span class="lineNum">      51</span>              : </span>
 <span id="L52"><span class="lineNum">      52</span>              : // attemptMetaPlan は単一回のメタプラン生成を試行する</span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 : func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) {</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC tlaBgGNC">           1 : func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         // PlannerChainを初期化</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         var chain *PlannerChain</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         var err error</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :         if plannerType.Name == PlannerTypeRandom.Name {</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 chain, err = NewRandomPlanner(consts.Tile(width), consts.Tile(height), seed)</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC tlaBgUNC">           0 :                 chain, err = NewRandomPlanner(width, height, seed)</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC tlaBgGNC">           1 :         } else {</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 chain, err = plannerType.PlannerFunc(consts.Tile(width), consts.Tile(height), seed)</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                 chain, err = plannerType.PlannerFunc(width, height, seed)</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaGNC">           1 :         if err != nil {</span></span>
 <span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, err</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-21 23:20:50</td>
+            <td class="headerValue">2026-06-22 14:08:56</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -115,7 +115,7 @@
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 : func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 :         // 距離チェック（視界範囲外は見えない）</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         distanceInPixels := geometry.Distance(float64(playerX), float64(playerY), float64(targetX), float64(targetY)) * float64(consts.TileSize)</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         visionRadius := consts.VisionRadiusTiles * float64(consts.TileSize)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :         visionRadius := float64(consts.VisionRadiusTiles) * float64(consts.TileSize)</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :         if distanceInPixels &gt; visionRadius {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                 return false</span></span>
