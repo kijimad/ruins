@@ -101,7 +101,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 		sys.blockViewIndex = buildBlockViewIndex(world)
 
 		// タイルの可視性マップを更新
-		visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
+		visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
 		visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, sys.blockViewIndex)
 
 		// 光源情報キャッシュをクリア（更新前）

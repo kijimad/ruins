@@ -53,7 +53,7 @@ func GetVisibleEnemies(world w.World) ([]ecs.Entity, error) {
 func IsInVision(world w.World, playerX, playerY, targetX, targetY int) bool {
 	// 距離チェック（視界範囲外は見えない）
 	distanceInPixels := geometry.Distance(float64(playerX), float64(playerY), float64(targetX), float64(targetY)) * float64(consts.TileSize)
-	visionRadius := consts.VisionRadiusTiles * float64(consts.TileSize)
+	visionRadius := float64(consts.VisionRadiusTiles) * float64(consts.TileSize)
 
 	if distanceInPixels > visionRadius {
 		return false

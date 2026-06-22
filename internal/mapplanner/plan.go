@@ -19,7 +19,7 @@ var (
 )
 
 // Plan はPlannerChainを初期化してMetaPlanを返す
-func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
+func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
 	var lastErr error
 
 	// 最大再試行回数まで繰り返す
@@ -50,14 +50,14 @@ func Plan(world w.World, width, height int, seed uint64, plannerType PlannerType
 }
 
 // attemptMetaPlan は単一回のメタプラン生成を試行する
-func attemptMetaPlan(world w.World, width, height int, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
+func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
 	// PlannerChainを初期化
 	var chain *PlannerChain
 	var err error
 	if plannerType.Name == PlannerTypeRandom.Name {
-		chain, err = NewRandomPlanner(consts.Tile(width), consts.Tile(height), seed)
+		chain, err = NewRandomPlanner(width, height, seed)
 	} else {
-		chain, err = plannerType.PlannerFunc(consts.Tile(width), consts.Tile(height), seed)
+		chain, err = plannerType.PlannerFunc(width, height, seed)
 	}
 	if err != nil {
 		return nil, err

@@ -11,11 +11,11 @@ import (
 )
 
 // newTestMetaPlan はテスト用のMetaPlanデータを生成する。純粋なデータ生成のみ行う
-func newTestMetaPlan(width, height int, tiles []oapi.Tile) *mapplanner.MetaPlan {
+func newTestMetaPlan(width, height consts.Tile, tiles []oapi.Tile) *mapplanner.MetaPlan {
 	return &mapplanner.MetaPlan{
 		Level: gc.Level{
-			TileWidth:  consts.Tile(width),
-			TileHeight: consts.Tile(height),
+			TileWidth:  width,
+			TileHeight: height,
 		},
 		Tiles: tiles,
 	}
