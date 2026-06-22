@@ -118,13 +118,8 @@ func (st *ComponentDebugState) fetchProps(world w.World) componentDebugProps {
 		fieldName := typ.Field(i).Name
 
 		var count int
-		switch comp := field.Interface().(type) {
-		case *ecs.SliceComponent:
-			if comp != nil {
-				count = world.Manager.Join(comp).Size()
-			}
-		case *ecs.NullComponent:
-			if comp != nil {
+		if !field.IsNil() {
+			if comp, ok := field.Interface().(ecs.DataComponent); ok {
 				count = world.Manager.Join(comp).Size()
 			}
 		}
