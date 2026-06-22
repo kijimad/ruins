@@ -78,6 +78,11 @@ func TestGolden_DebugMenu(t *testing.T) {
 	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewDebugMenuState()))
 }
 
+func TestGolden_ComponentDebug(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewComponentDebugState()))
+}
+
 func TestGolden_DungeonSelect(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewDungeonSelectState()))

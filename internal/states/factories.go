@@ -408,6 +408,13 @@ func NewDebugMenuState() es.State[w.World] {
 		WithChoice("Propスポーン:木箱(収納・アイテム入り)", func(world w.World) error {
 			return spawnStorageWithItems(world)
 		}).
+		WithChoice("コンポーネント一覧", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewComponentDebugState},
+			})
+			return nil
+		}).
 		WithChoice("閉じる", func(_ w.World) error {
 			messageState.SetTransition(es.Transition[w.World]{
 				Type: es.TransPop,
