@@ -46,7 +46,8 @@ const (
 	// GameClearDepth はゲームクリアとなる深度
 	GameClearDepth = 100
 	// VisionRadiusTiles は視界半径（タイル単位）
-	VisionRadiusTiles = 16
+	// 視界の境界が画面内に見えないようにする
+	VisionRadiusTiles = 24
 )
 
 // ========== タイル名 ==========
