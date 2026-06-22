@@ -8,8 +8,8 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// mergeStackableItems は指定ロケーション内の同名Stackableアイテムを1つに統合する
-func mergeStackableItems(world w.World, itemName string, locationComp ecs.DataComponent) error {
+// mergeStackableItems は指定ロケーション内の同一Owner配下にある同名Stackableアイテムを1つに統合する
+func mergeStackableItems(world w.World, itemName string, locationComp ecs.DataComponent, owner ecs.Entity) error {
 	var stackableItems []ecs.Entity
 	world.Manager.Join(
 		world.Components.Stackable,
@@ -17,9 +17,21 @@ func mergeStackableItems(world w.World, itemName string, locationComp ecs.DataCo
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
-		if name.Name == itemName {
-			stackableItems = append(stackableItems, entity)
+		if name.Name != itemName {
+			return
 		}
+		// Ownerが一致するもののみ統合対象にする
+		switch loc := locationComp.Get(entity).(type) {
+		case *gc.LocationInBackpack:
+			if loc.Owner != owner {
+				return
+			}
+		case *gc.LocationInStorage:
+			if loc.Owner != owner {
+				return
+			}
+		}
+		stackableItems = append(stackableItems, entity)
 	}))
 
 	// 0個または1個の場合は統合不要

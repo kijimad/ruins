@@ -332,3 +332,51 @@ func TestMoveToStorage_MergesStackable(t *testing.T) {
 	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
 	assert.Equal(t, 4, totalCount, "合計個数は4個")
 }
+
+func TestMoveToStorage_DoesNotMergeAcrossStorages(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	const potion = "回復薬"
+
+	storageA, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	require.NoError(t, err)
+	storageB, err := SpawnProp(world, "木箱", consts.Tile(1), consts.Tile(0))
+	require.NoError(t, err)
+
+	_, err = SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// 木箱Aに回復薬 x3、木箱Bに回復薬 x2
+	_, err = SpawnStorageItem(world, potion, 3, storageA)
+	require.NoError(t, err)
+	_, err = SpawnStorageItem(world, potion, 2, storageB)
+	require.NoError(t, err)
+
+	// バックパックに回復薬 x1 を配置し、木箱Aに移動する
+	backpackItem, err := SpawnBackpackItem(world, potion, 1)
+	require.NoError(t, err)
+	require.NoError(t, MoveToStorage(world, backpackItem, storageA))
+
+	// 木箱Aの回復薬は統合されて4個
+	var countA int
+	for _, entity := range GetStorageItems(world, storageA) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == potion {
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			countA += stackable.Count
+		}
+	}
+	assert.Equal(t, 4, countA, "木箱Aの回復薬は4個")
+
+	// 木箱Bの回復薬は影響を受けず2個のまま
+	var countB int
+	for _, entity := range GetStorageItems(world, storageB) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == potion {
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			countB += stackable.Count
+		}
+	}
+	assert.Equal(t, 2, countB, "木箱Bの回復薬は影響を受けない")
+}
