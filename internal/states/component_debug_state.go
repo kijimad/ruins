@@ -33,15 +33,22 @@ func (st ComponentDebugState) String() string {
 
 var _ es.State[w.World] = &ComponentDebugState{}
 
-func (st *ComponentDebugState) OnPause(_ w.World) error  { return nil }
-func (st *ComponentDebugState) OnResume(_ w.World) error { return nil }
-func (st *ComponentDebugState) OnStop(_ w.World) error   { return nil }
+// OnPause はステートが一時停止される際に呼ばれる
+func (st *ComponentDebugState) OnPause(_ w.World) error { return nil }
 
+// OnResume はステートが再開される際に呼ばれる
+func (st *ComponentDebugState) OnResume(_ w.World) error { return nil }
+
+// OnStop はステートが停止される際に呼ばれる
+func (st *ComponentDebugState) OnStop(_ w.World) error { return nil }
+
+// OnStart はステートが開始される際に呼ばれる
 func (st *ComponentDebugState) OnStart(_ w.World) error {
 	st.mount = hooks.NewMount[componentDebugProps]()
 	return nil
 }
 
+// Update はゲームステートの更新処理を行う
 func (st *ComponentDebugState) Update(world w.World) (es.Transition[w.World], error) {
 	action, ok := HandleMenuInput()
 	if ok {
@@ -70,11 +77,13 @@ func (st *ComponentDebugState) Update(world w.World) (es.Transition[w.World], er
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はゲームステートの描画処理を行う
 func (st *ComponentDebugState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.widget.Draw(screen)
 	return nil
 }
 
+// DoAction はActionを実行する
 func (st *ComponentDebugState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
