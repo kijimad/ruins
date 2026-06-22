@@ -39,14 +39,21 @@ const (
 const (
 	// TileSize はタイルの寸法
 	TileSize Pixel = 32
+)
+
+const (
 	// MapTileWidth はマップの横タイル数
-	MapTileWidth = 50
+	MapTileWidth Tile = 50
 	// MapTileHeight はマップの縦タイル数
-	MapTileHeight = 50
+	MapTileHeight Tile = 50
+	// VisionRadiusTiles は視界半径（タイル単位）
+	// 視界の境界が画面内に見えないようにする
+	VisionRadiusTiles Tile = 24
+)
+
+const (
 	// GameClearDepth はゲームクリアとなる深度
 	GameClearDepth = 100
-	// VisionRadiusTiles は視界半径（タイル単位）
-	VisionRadiusTiles = 16
 )
 
 // ========== タイル名 ==========

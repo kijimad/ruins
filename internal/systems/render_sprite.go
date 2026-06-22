@@ -439,19 +439,22 @@ func (sys *RenderSpriteSystem) renderDarkness(world w.World, screen *ebiten.Imag
 	for tileX := startTileX; tileX <= endTileX; tileX++ {
 		for tileY := startTileY; tileY <= endTileY; tileY++ {
 			grid := gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-			info, exists := tileRenderMap[grid]
-			if !exists {
-				continue
-			}
 
 			var darkness float64
 			var lightColor color.RGBA
-			switch v := info.(type) {
-			case TileRenderVisible:
-				darkness = float64(v.Darkness)
-				lightColor = v.LightColor
-			case TileRenderRemembered:
-				darkness = float64(v.Darkness)
+			info, exists := tileRenderMap[grid]
+			if !exists {
+				// tileRenderMapにないタイルは完全に黒くする。
+				// マップ外・未探索タイルの両方が該当する
+				darkness = 1.0
+			} else {
+				switch v := info.(type) {
+				case TileRenderVisible:
+					darkness = float64(v.Darkness)
+					lightColor = v.LightColor
+				case TileRenderRemembered:
+					darkness = float64(v.Darkness)
+				}
 			}
 
 			worldX := float64(tileX * int(consts.TileSize))

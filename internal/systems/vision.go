@@ -101,34 +101,31 @@ func (sys *VisionSystem) Update(world w.World) error {
 		sys.blockViewIndex = buildBlockViewIndex(world)
 
 		// タイルの可視性マップを更新
-		visionRadius := consts.Pixel(consts.VisionRadiusTiles * consts.TileSize)
+		visionRadius := consts.Pixel(consts.VisionRadiusTiles) * consts.TileSize
 		visibilityData := calculateTileVisibilityWithDistance(playerPos.X, playerPos.Y, visionRadius, sys.raycastCache, sys.blockViewIndex)
 
 		// 光源情報キャッシュをクリア（更新前）
 		sys.lightSourceCache = make(map[gc.GridElement]LightInfo)
 
-		// 視界内タイルの光源情報を計算し、探索済みマークを行う
-		for _, tileData := range visibilityData {
-			if tileData.Visible {
-				lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
-				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-
-				// 光源情報をキャッシュに保存
-				sys.lightSourceCache[gridElement] = lightInfo
-
-				worldhelper.GetDungeon(world).ExploredTiles[gridElement] = true
-			}
-		}
-
-		// 現在フレームで見えているタイルをリソースに反映する
+		// 視界内タイルの光源情報を計算し、探索済みマークを行う。
+		// マップ外座標はデータに含めない
+		dungeon := worldhelper.GetDungeon(world)
 		visibleTiles := make(map[gc.GridElement]bool)
 		for _, tileData := range visibilityData {
-			if tileData.Visible {
-				gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
-				visibleTiles[gridElement] = true
+			if !tileData.Visible {
+				continue
 			}
+			gridElement := gc.GridElement{X: consts.Tile(tileData.Col), Y: consts.Tile(tileData.Row)}
+			if !isInMapBounds(gridElement, dungeon.Level) {
+				continue
+			}
+
+			lightInfo := calculateLightSourceDarkness(world, tileData.Col, tileData.Row)
+			sys.lightSourceCache[gridElement] = lightInfo
+			dungeon.ExploredTiles[gridElement] = true
+			visibleTiles[gridElement] = true
 		}
-		worldhelper.GetDungeon(world).VisibleTiles = visibleTiles
+		dungeon.VisibleTiles = visibleTiles
 
 		// キャッシュ更新
 		sys.lastPlayerX = playerPos.X
@@ -179,9 +176,10 @@ func (TileRenderRemembered) tileRenderInfo() {}
 // 各描画関数が参照するだけで済む描画情報マップを返す
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
+	dungeon := worldhelper.GetDungeon(world)
 
 	// 現在見えているタイルを設定する
-	for grid := range worldhelper.GetDungeon(world).VisibleTiles {
+	for grid := range dungeon.VisibleTiles {
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
 			visible.LightColor = li.Color
@@ -190,13 +188,18 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 	}
 
 	// 視界外だが記憶済みのタイルを設定する
-	for grid := range worldhelper.GetDungeon(world).ExploredTiles {
+	for grid := range dungeon.ExploredTiles {
 		if _, exists := result[grid]; !exists {
 			result[grid] = TileRenderRemembered{Darkness: DarknessRemembered}
 		}
 	}
 
 	return result
+}
+
+// isInMapBounds は座標がマップの有効範囲内かを判定する
+func isInMapBounds(grid gc.GridElement, level gc.Level) bool {
+	return grid.X >= 0 && grid.X < level.TileWidth && grid.Y >= 0 && grid.Y < level.TileHeight
 }
 
 // calculateTileVisibilityWithDistance はレイキャストでタイルごとの可視性と距離を計算する
