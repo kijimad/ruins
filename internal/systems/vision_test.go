@@ -192,6 +192,41 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	assert.NotContains(t, result, unknown)
 }
 
+func TestComputeTileRenderMap_OutOfBoundsExcluded(t *testing.T) {
+	t.Parallel()
+
+	world := testutil.InitTestWorld(t)
+	// テストWorldのマップは50x50
+	insideGrid := gc.GridElement{X: 1, Y: 1}
+	outsideGrid := gc.GridElement{X: 99, Y: 99}
+
+	worldhelper.GetDungeon(world).VisibleTiles = map[gc.GridElement]bool{
+		insideGrid:  true,
+		outsideGrid: true,
+	}
+
+	result := computeTileRenderMap(world, nil)
+
+	// マップ範囲内の座標は含まれる
+	assert.Contains(t, result, insideGrid)
+	assert.IsType(t, TileRenderVisible{}, result[insideGrid])
+
+	// マップ範囲外の座標は除外される
+	assert.NotContains(t, result, outsideGrid)
+}
+
+func TestIsInMapBounds(t *testing.T) {
+	t.Parallel()
+
+	level := gc.Level{TileWidth: 10, TileHeight: 5}
+
+	assert.True(t, isInMapBounds(gc.GridElement{X: 0, Y: 0}, level))
+	assert.True(t, isInMapBounds(gc.GridElement{X: 9, Y: 4}, level))
+	assert.False(t, isInMapBounds(gc.GridElement{X: 10, Y: 0}, level))
+	assert.False(t, isInMapBounds(gc.GridElement{X: 0, Y: 5}, level))
+	assert.False(t, isInMapBounds(gc.GridElement{X: -1, Y: 0}, level))
+}
+
 func TestBuildBlockViewIndex(t *testing.T) {
 	t.Parallel()
 
