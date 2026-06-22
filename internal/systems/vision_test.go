@@ -192,11 +192,12 @@ func TestComputeTileRenderMap_MixedTileStates(t *testing.T) {
 	assert.NotContains(t, result, unknown)
 }
 
-func TestComputeTileRenderMap_OutOfBoundsExcluded(t *testing.T) {
+func TestComputeTileRenderMap_OutOfBoundsIncluded(t *testing.T) {
 	t.Parallel()
 
+	// computeTileRenderMapは境界チェックを行わない。
+	// マップ外座標の除外はrenderDarkness側で行う
 	world := testutil.InitTestWorld(t)
-	// テストWorldのマップは50x50
 	insideGrid := gc.GridElement{X: 1, Y: 1}
 	outsideGrid := gc.GridElement{X: 99, Y: 99}
 
@@ -207,12 +208,10 @@ func TestComputeTileRenderMap_OutOfBoundsExcluded(t *testing.T) {
 
 	result := computeTileRenderMap(world, nil)
 
-	// マップ範囲内の座標は含まれる
 	assert.Contains(t, result, insideGrid)
 	assert.IsType(t, TileRenderVisible{}, result[insideGrid])
-
-	// マップ範囲外の座標は除外される
-	assert.NotContains(t, result, outsideGrid)
+	assert.Contains(t, result, outsideGrid)
+	assert.IsType(t, TileRenderVisible{}, result[outsideGrid])
 }
 
 func TestIsInMapBounds(t *testing.T) {

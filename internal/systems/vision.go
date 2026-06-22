@@ -181,13 +181,8 @@ func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) ma
 	result := make(map[gc.GridElement]TileRenderInfo)
 	dungeon := worldhelper.GetDungeon(world)
 
-	// 現在見えているタイルを設定する。
-	// マップ外の座標がVisibleTilesに含まれた場合は除外する。
-	// 暗闇オーバーレイだけが描画されて背景色が見えてしまうのを防ぐ
+	// 現在見えているタイルを設定する
 	for grid := range dungeon.VisibleTiles {
-		if !isInMapBounds(grid, dungeon.Level) {
-			continue
-		}
 		visible := TileRenderVisible{Darkness: DarknessVisible}
 		if li, ok := lights[grid]; ok && li.Darkness < 1.0 {
 			visible.LightColor = li.Color
