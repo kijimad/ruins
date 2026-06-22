@@ -149,19 +149,12 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 // collect はフィールド上のエンティティをバックパックに移動する
 func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {
-	name := worldhelper.GetEntityName(entity, world)
+	// MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する
 	formattedName := worldhelper.FormatItemName(world, entity)
 
-	worldhelper.MoveToBackpack(world, entity, actor)
-	entity.RemoveComponent(world.Components.GridElement)
-
-	// Stackableなら同名アイテムを統合する
-	if entity.HasComponent(world.Components.Stackable) {
-		if err := worldhelper.MergeInventoryItem(world, name); err != nil {
-			return fmt.Errorf("インベントリ統合エラー: %w", err)
-		}
+	if err := worldhelper.MoveToBackpack(world, entity, actor); err != nil {
+		return fmt.Errorf("バックパックへの移動に失敗: %w", err)
 	}
-
 	gamelog.New(worldhelper.GetGameLog(world)).
 		ItemName(formattedName).
 		Append(" を入手した。").

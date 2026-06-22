@@ -80,7 +80,7 @@ func TestPlusMinusAmount(t *testing.T) {
 	assert.Equal(t, 1012, stackable.Count, "個数は変更されていないべき")
 }
 
-func TestMergeInventoryItem(t *testing.T) {
+func TestMergeStackableItems(t *testing.T) {
 	t.Parallel()
 	t.Run("バックパック内の同名Stackableアイテムを統合する", func(t *testing.T) {
 		t.Parallel()
@@ -101,7 +101,7 @@ func TestMergeInventoryItem(t *testing.T) {
 		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := MergeInventoryItem(world, "パン")
+		err := mergeStackableItems(world, "パン", world.Components.LocationInBackpack)
 		require.NoError(t, err)
 
 		// バックパック内のパンは1つだけになっている
@@ -136,7 +136,7 @@ func TestMergeInventoryItem(t *testing.T) {
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := MergeInventoryItem(world, "パン")
+		err := mergeStackableItems(world, "パン", world.Components.LocationInBackpack)
 		require.NoError(t, err)
 
 		// アイテムがそのまま残っている
@@ -161,7 +161,7 @@ func TestMergeInventoryItem(t *testing.T) {
 		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := MergeInventoryItem(world, "剣")
+		err := mergeStackableItems(world, "剣", world.Components.LocationInBackpack)
 		require.NoError(t, err)
 
 		// 両方のアイテムがそのまま残っている

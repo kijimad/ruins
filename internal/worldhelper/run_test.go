@@ -19,10 +19,11 @@ func TestPreviewEndRun(t *testing.T) {
 	require.NoError(t, err)
 	require.NoError(t, ApplyProfession(world, player, prof))
 
-	// バックパックにアイテムを追加する
-	item1, err := SpawnBackpackItem(world, "回復薬", 1)
+	// バックパックにStackableアイテムを追加する
+	const healingPotion = "回復薬"
+	_, err = SpawnBackpackItem(world, healingPotion, 1)
 	require.NoError(t, err)
-	item2, err := SpawnBackpackItem(world, "回復薬", 1)
+	_, err = SpawnBackpackItem(world, healingPotion, 1)
 	require.NoError(t, err)
 
 	// プレビューを生成する
@@ -31,19 +32,15 @@ func TestPreviewEndRun(t *testing.T) {
 
 	assert.Greater(t, result.Total, 0, "売却合計が0より大きい")
 
-	// 追加した回復薬が個別エンティティとして含まれていることを確認する
+	// 回復薬はStackable統合により1エンティティになっている
 	healingCount := 0
 	for _, item := range result.Items {
-		if item.Name == "回復薬" {
+		if item.Name == healingPotion {
 			healingCount++
 			assert.NotZero(t, item.Entity, "エンティティが設定されている")
 		}
 	}
-	assert.GreaterOrEqual(t, healingCount, 2, "追加した回復薬が個別に含まれている")
-
-	// プレビュー段階ではエンティティが残っていることを確認する
-	assert.True(t, item1.HasComponent(world.Components.Name), "プレビュー段階ではアイテム1が残っている")
-	assert.True(t, item2.HasComponent(world.Components.Name), "プレビュー段階ではアイテム2が残っている")
+	assert.Equal(t, 1, healingCount, "回復薬は統合されて1エンティティ")
 }
 
 func TestExecuteEndRun(t *testing.T) {

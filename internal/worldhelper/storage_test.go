@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestMoveToStorage(t *testing.T) {
@@ -23,14 +24,14 @@ func TestMoveToStorage(t *testing.T) {
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
-	MoveToBackpack(world, item, playerEntity)
+	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	// バックパック内にあることを確認
 	assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
 	assert.False(t, item.HasComponent(world.Components.LocationInStorage))
 
 	// 収納に移動
-	MoveToStorage(world, item, storageEntity)
+	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	// 収納内にあることを確認（排他制御）
 	assert.True(t, item.HasComponent(world.Components.LocationInStorage))
@@ -58,8 +59,8 @@ func TestGetStorageItems(t *testing.T) {
 	item2, err := SpawnFieldItem(world, "手榴弾", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
 
-	MoveToStorage(world, item1, storageEntity)
-	MoveToStorage(world, item2, storageEntity)
+	require.NoError(t, MoveToStorage(world, item1, storageEntity))
+	require.NoError(t, MoveToStorage(world, item2, storageEntity))
 
 	items = GetStorageItems(world, storageEntity)
 	assert.Len(t, items, 2)
@@ -78,7 +79,7 @@ func TestGetStorageCurrentWeight(t *testing.T) {
 	// 重さを持つアイテムを収納に入れる
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
-	MoveToStorage(world, item, storageEntity)
+	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	// WeightDirtySystemが行う処理を手動で実行
 	UpdateWeightCapacity(world, storageEntity)
@@ -138,7 +139,7 @@ func TestMoveToStorage_SetsWeightDirtyOnStorage(t *testing.T) {
 	storageEntity.RemoveComponent(world.Components.WeightDirty)
 	assert.False(t, storageEntity.HasComponent(world.Components.WeightDirty))
 
-	MoveToStorage(world, item, storageEntity)
+	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "MoveToStorageは収納エンティティにWeightDirtyを付与するべき")
 }
@@ -154,13 +155,13 @@ func TestMoveToStorage_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
-	MoveToBackpack(world, item, playerEntity)
+	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	// マーカーをクリア
 	playerEntity.RemoveComponent(world.Components.WeightDirty)
 
 	// バックパック→収納に移動すると、元のOwner（Player）にもWeightDirtyが付与される
-	MoveToStorage(world, item, storageEntity)
+	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "移動元のOwnerにWeightDirtyが付与されるべき")
 	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "移動先の収納にWeightDirtyが付与されるべき")
@@ -177,13 +178,13 @@ func TestMoveToBackpack_SetsWeightDirtyOnPreviousStorage(t *testing.T) {
 	require.NoError(t, err2)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
-	MoveToStorage(world, item, storageEntity)
+	require.NoError(t, MoveToStorage(world, item, storageEntity))
 
 	// マーカーをクリア
 	storageEntity.RemoveComponent(world.Components.WeightDirty)
 
 	// 収納→バックパックに移動すると、元のOwner（Storage）にWeightDirtyが付与される
-	MoveToBackpack(world, item, playerEntity)
+	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	assert.True(t, storageEntity.HasComponent(world.Components.WeightDirty), "移動元の収納にWeightDirtyが付与されるべき")
 	assert.True(t, playerEntity.HasComponent(world.Components.WeightDirty), "移動先のPlayerにWeightDirtyが付与されるべき")
@@ -197,7 +198,7 @@ func TestMoveToField_SetsWeightDirtyOnPreviousOwner(t *testing.T) {
 	require.NoError(t, err)
 	item, err := SpawnFieldItem(world, "回復薬", consts.Tile(0), consts.Tile(0), 1)
 	require.NoError(t, err)
-	MoveToBackpack(world, item, playerEntity)
+	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 
 	// マーカーをクリア
 	playerEntity.RemoveComponent(world.Components.WeightDirty)
@@ -220,10 +221,114 @@ func TestMoveToStorage_ThenBackToBackpack(t *testing.T) {
 	require.NoError(t, err)
 
 	// 収納に入れて、バックパックに戻す
-	MoveToStorage(world, item, storageEntity)
+	require.NoError(t, MoveToStorage(world, item, storageEntity))
 	assert.True(t, item.HasComponent(world.Components.LocationInStorage))
 
-	MoveToBackpack(world, item, playerEntity)
+	require.NoError(t, MoveToBackpack(world, item, playerEntity))
 	assert.True(t, item.HasComponent(world.Components.LocationInBackpack))
 	assert.False(t, item.HasComponent(world.Components.LocationInStorage))
+}
+
+func TestMoveToBackpack_MergesStackableFromStorage(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	require.NoError(t, err)
+
+	playerEntity, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// バックパックに回復薬 x3 を配置
+	_, err = SpawnBackpackItem(world, "回復薬", 3)
+	require.NoError(t, err)
+
+	// 収納に回復薬 x2 を配置
+	storageItem, err := SpawnStorageItem(world, "回復薬", 2, storageEntity)
+	require.NoError(t, err)
+
+	// 収納からバックパックへ移動（統合されるべき）
+	require.NoError(t, MoveToBackpack(world, storageItem, playerEntity))
+
+	// バックパック内の回復薬エンティティは1つだけになっている
+	var entityCount int
+	var totalCount int
+	world.Manager.Join(
+		world.Components.Stackable,
+		world.Components.LocationInBackpack,
+		world.Components.Name,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == "回復薬" {
+			entityCount++
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			totalCount += stackable.Count
+		}
+	}))
+
+	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
+	assert.Equal(t, 5, totalCount, "合計個数は5個")
+}
+
+func TestMoveToBackpack_NoMergeForNonStackable(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	_, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// 非Stackableアイテムを2つバックパックに配置
+	_, err = SpawnBackpackItem(world, "西洋鎧", 1)
+	require.NoError(t, err)
+	_, err = SpawnBackpackItem(world, "西洋鎧", 1)
+	require.NoError(t, err)
+
+	// 非Stackableアイテムは統合されず2つ存在する
+	var entityCount int
+	world.Manager.Join(
+		world.Components.LocationInBackpack,
+		world.Components.Name,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == "西洋鎧" {
+			entityCount++
+		}
+	}))
+
+	assert.Equal(t, 2, entityCount, "非Stackableアイテムは統合されない")
+}
+
+func TestMoveToStorage_MergesStackable(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	storageEntity, err := SpawnProp(world, "木箱", consts.Tile(0), consts.Tile(0))
+	require.NoError(t, err)
+
+	_, err = SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	// 収納に回復薬 x3 を配置
+	_, err = SpawnStorageItem(world, "回復薬", 3, storageEntity)
+	require.NoError(t, err)
+
+	// バックパックに回復薬 x1 を配置し、収納に移動する
+	backpackItem, err := SpawnBackpackItem(world, "回復薬", 1)
+	require.NoError(t, err)
+	require.NoError(t, MoveToStorage(world, backpackItem, storageEntity))
+
+	// 収納内の回復薬エンティティは1つに統合されている
+	var entityCount int
+	var totalCount int
+	for _, entity := range GetStorageItems(world, storageEntity) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if name.Name == "回復薬" {
+			entityCount++
+			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
+			totalCount += stackable.Count
+		}
+	}
+
+	assert.Equal(t, 1, entityCount, "回復薬は1つのエンティティに統合されるべき")
+	assert.Equal(t, 4, totalCount, "合計個数は4個")
 }

@@ -8,13 +8,12 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MergeInventoryItem はバックパック内の指定された名前のStackableアイテムをすべて1つに統合する
-func MergeInventoryItem(world w.World, itemName string) error {
-	// 同名のStackableアイテムをすべて取得
+// mergeStackableItems は指定ロケーション内の同名Stackableアイテムを1つに統合する
+func mergeStackableItems(world w.World, itemName string, locationComp ecs.DataComponent) error {
 	var stackableItems []ecs.Entity
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.LocationInBackpack,
+		locationComp,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := world.Components.Name.Get(entity).(*gc.Name)

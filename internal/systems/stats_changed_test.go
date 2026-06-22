@@ -212,7 +212,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		assert.Greater(t, turnBased.AP.Max, initialAP, "装備追加でAP.Maxが増加するべき")
 
 		// 装備を外す（StatsChangedフラグが再度立つ）
-		worldhelper.MoveToBackpack(world, equipment, player)
+		require.NoError(t, worldhelper.MoveToBackpack(world, equipment, player))
 
 		// StatsChangedフラグが立っているか確認
 		require.True(t, player.HasComponent(world.Components.StatsChanged), "装備を外した後、StatsChangedフラグが立っているべき")
