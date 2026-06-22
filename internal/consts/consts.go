@@ -42,6 +42,7 @@ const (
 )
 
 const (
+	// MapTileWidth はマップの横タイル数
 	MapTileWidth Tile = 50
 	// MapTileHeight はマップの縦タイル数
 	MapTileHeight Tile = 50
@@ -51,7 +52,6 @@ const (
 )
 
 const (
-	// MapTileWidth はマップの横タイル数
 	// GameClearDepth はゲームクリアとなる深度
 	GameClearDepth = 100
 )
