@@ -101,7 +101,7 @@ func TestMergeStackableItems(t *testing.T) {
 		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := mergeStackableItems(world, "パン", world.Components.LocationInBackpack, ecs.Entity(0))
+		err := mergeStackableItems(world, "パン", mergeInBackpack, ecs.Entity(0))
 		require.NoError(t, err)
 
 		// バックパック内のパンは1つだけになっている
@@ -136,7 +136,7 @@ func TestMergeStackableItems(t *testing.T) {
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := mergeStackableItems(world, "パン", world.Components.LocationInBackpack, ecs.Entity(0))
+		err := mergeStackableItems(world, "パン", mergeInBackpack, ecs.Entity(0))
 		require.NoError(t, err)
 
 		// アイテムがそのまま残っている
@@ -161,7 +161,7 @@ func TestMergeStackableItems(t *testing.T) {
 		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 
 		// マージ実行
-		err := mergeStackableItems(world, "剣", world.Components.LocationInBackpack, ecs.Entity(0))
+		err := mergeStackableItems(world, "剣", mergeInBackpack, ecs.Entity(0))
 		require.NoError(t, err)
 
 		// 両方のアイテムがそのまま残っている

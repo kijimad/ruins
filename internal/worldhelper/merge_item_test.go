@@ -24,7 +24,7 @@ func TestMergeMaterialIntoInventoryWithMaterial(t *testing.T) {
 	require.NoError(t, err)
 
 	// mergeStackableItemsを実行
-	err = mergeStackableItems(world, "鉄くず", world.Components.LocationInBackpack, ecs.Entity(0))
+	err = mergeStackableItems(world, "鉄くず", mergeInBackpack, ecs.Entity(0))
 	require.NoError(t, err)
 
 	// バックパック内の鉄くずは1つだけになっている
@@ -65,7 +65,7 @@ func TestMergeMaterialIntoInventoryWithNewMaterial(t *testing.T) {
 	}))
 
 	// mergeStackableItemsを実行（1個しかないので統合されない）
-	err = mergeStackableItems(world, "緑ハーブ", world.Components.LocationInBackpack, ecs.Entity(0))
+	err = mergeStackableItems(world, "緑ハーブ", mergeInBackpack, ecs.Entity(0))
 	require.NoError(t, err)
 
 	// バックパック内のmaterial数をカウント（統合後）
@@ -103,7 +103,7 @@ func TestMergeMaterialIntoInventoryWithNonMaterial(t *testing.T) {
 	}))
 
 	// mergeStackableItemsを実行（Stackableを持たないので統合されない）
-	err = mergeStackableItems(world, "西洋鎧", world.Components.LocationInBackpack, ecs.Entity(0))
+	err = mergeStackableItems(world, "西洋鎧", mergeInBackpack, ecs.Entity(0))
 	require.NoError(t, err)
 
 	// バックパック内のアイテム数をカウント（統合後）
@@ -132,6 +132,6 @@ func TestMergeMaterialIntoInventoryWithoutItemOrMaterialComponent(t *testing.T) 
 	require.NoError(t, err)
 
 	// mergeStackableItemsを実行しても何もしない（エラーなし）
-	err = mergeStackableItems(world, "テスト", world.Components.LocationInBackpack, ecs.Entity(0))
+	err = mergeStackableItems(world, "テスト", mergeInBackpack, ecs.Entity(0))
 	require.NoError(t, err, "Stackableコンポーネントを持たないエンティティは個別アイテムとして扱われ、マージ不要")
 }

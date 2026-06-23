@@ -17,7 +17,7 @@ func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 
 	if entity.HasComponent(world.Components.Stackable) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
-		if err := mergeStackableItems(world, name.Name, world.Components.LocationInBackpack, owner); err != nil {
+		if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil {
 			return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
 		}
 	}
@@ -52,7 +52,7 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 
 	if entity.HasComponent(world.Components.Stackable) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
-		if err := mergeStackableItems(world, name.Name, world.Components.LocationInStorage, storage); err != nil {
+		if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil {
 			return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
 		}
 	}
