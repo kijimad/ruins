@@ -482,14 +482,19 @@ var (
 	LocationTypeInStorage LocationType = LocationInStorage{}
 )
 
+// Location はエンティティの位置を表すインターフェース。
+// setLocationの引数を型安全にするためのマーカー
+type Location interface {
+	isLocation()
+}
+
 // LocationInBackpack はバックパック内位置
 type LocationInBackpack struct {
 	Owner ecs.Entity // バックパックの所有者
 }
 
-func (c LocationInBackpack) String() string {
-	return "LocationInBackpack"
-}
+func (c LocationInBackpack) String() string { return "LocationInBackpack" }
+func (c LocationInBackpack) isLocation()    {}
 
 // LocationEquipped は装備中位置
 type LocationEquipped struct {
@@ -497,25 +502,22 @@ type LocationEquipped struct {
 	EquipmentSlot EquipmentSlotNumber
 }
 
-func (c LocationEquipped) String() string {
-	return "LocationEquipped"
-}
+func (c LocationEquipped) String() string { return "LocationEquipped" }
+func (c LocationEquipped) isLocation()    {}
 
 // LocationOnField はフィールド上位置
 type LocationOnField struct{}
 
-func (c LocationOnField) String() string {
-	return "LocationOnField"
-}
+func (c LocationOnField) String() string { return "LocationOnField" }
+func (c LocationOnField) isLocation()    {}
 
 // LocationInStorage は収納内位置
 type LocationInStorage struct {
 	Owner ecs.Entity // 収納Propのエンティティ
 }
 
-func (c LocationInStorage) String() string {
-	return "LocationInStorage"
-}
+func (c LocationInStorage) String() string { return "LocationInStorage" }
+func (c LocationInStorage) isLocation()    {}
 
 // Material は素材を表すマーカーコンポーネント。
 // 合成や売却の材料となるアイテムに付与される

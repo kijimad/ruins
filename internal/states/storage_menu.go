@@ -244,13 +244,17 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 		if err != nil {
 			return err
 		}
-		worldhelper.MoveToBackpack(world, item.Entity, playerEntity)
+		if err := worldhelper.MoveToBackpack(world, item.Entity, playerEntity); err != nil {
+			return err
+		}
 	case "store":
 		// バックパックから収納へ移動
 		if !worldhelper.CanAddToStorage(world, st.storageEntity, item.Entity) {
 			return nil // 重量超過の場合は何もしない
 		}
-		worldhelper.MoveToStorage(world, item.Entity, st.storageEntity)
+		if err := worldhelper.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {
+			return err
+		}
 	}
 
 	return nil

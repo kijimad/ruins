@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestActivityCreation(t *testing.T) {
@@ -123,12 +122,11 @@ func TestActivityProgressCalculation(t *testing.T) {
 func TestActivityDoTurn(t *testing.T) {
 	t.Parallel()
 
-	actor := ecs.Entity(1)
+	world := testutil.InitTestWorld(t)
+	actor := world.Manager.NewEntity()
 	behavior := &WaitActivity{}
 	comp, err := NewActivity(behavior, 3)
 	require.NoError(t, err)
-
-	world := testutil.InitTestWorld(t)
 
 	// 1ターン目
 	err = behavior.DoTurn(comp, actor, world)

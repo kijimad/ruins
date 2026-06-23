@@ -399,7 +399,9 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
 		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
 		return item, nil
 	}
-	MoveToBackpack(world, item, playerEntity)
+	if err := MoveToBackpack(world, item, playerEntity); err != nil {
+		return item, fmt.Errorf("バックパックへの移動に失敗: %w", err)
+	}
 
 	return item, nil
 }
@@ -515,7 +517,9 @@ func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Ent
 		return consts.InvalidEntity, err
 	}
 
-	MoveToStorage(world, item, storage)
+	if err := MoveToStorage(world, item, storage); err != nil {
+		return item, fmt.Errorf("収納への移動に失敗: %w", err)
+	}
 
 	return item, nil
 }

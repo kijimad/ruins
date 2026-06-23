@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -60,7 +61,7 @@ func TestStartActivity(t *testing.T) {
 	assert.True(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return true")
 
 	// 存在しないエンティティのテスト
-	nonExistentActor := ecs.Entity(999)
+	nonExistentActor := consts.InvalidEntity
 	assert.False(t, worldhelper.HasActivity(world, nonExistentActor), "Expected HasActivity to return false for non-existent entity")
 }
 
@@ -157,7 +158,7 @@ func TestInterruptAndResume(t *testing.T) {
 	assert.True(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return true for resumed activity")
 
 	// 存在しないアクティビティの中断・再開テスト
-	nonExistentActor := ecs.Entity(999)
+	nonExistentActor := consts.InvalidEntity
 	err = InterruptActivity(nonExistentActor, "テスト", world)
 	assert.Error(t, err, "Expected error when interrupting non-existent activity")
 
@@ -187,7 +188,7 @@ func TestCancelActivity(t *testing.T) {
 	assert.Nil(t, currentActivity, "Expected no current activity after cancel")
 
 	// 存在しないアクティビティのキャンセル（エラーにならない）
-	nonExistentActor := ecs.Entity(999)
+	nonExistentActor := consts.InvalidEntity
 	CancelActivity(nonExistentActor, "テスト", world) // パニックしないことを確認
 }
 
@@ -426,7 +427,7 @@ func TestLastActivity(t *testing.T) {
 		require.NoError(t, err)
 
 		// 存在しないターゲットへの攻撃（失敗する）
-		nonExistentEntity := ecs.Entity(9999)
+		nonExistentEntity := consts.InvalidEntity
 		params := ActionParams{Actor: player, Target: &nonExistentEntity}
 		_, _ = Execute(&AttackActivity{}, params, world)
 

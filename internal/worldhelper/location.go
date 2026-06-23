@@ -1,16 +1,27 @@
 package worldhelper
 
 import (
+	"fmt"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MoveToBackpack はエンティティをバックパックに移動する
-func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) {
+// MoveToBackpack はエンティティをバックパックに移動する。
+// Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
+func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error {
 	setLocation(world, entity, &gc.LocationInBackpack{Owner: owner})
 	owner.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 	owner.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+
+	if entity.HasComponent(world.Components.Stackable) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil {
+			return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
+		}
+	}
+	return nil
 }
 
 // MoveToEquip はエンティティを指定スロットに装備する
@@ -33,10 +44,19 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) {
 	}
 }
 
-// MoveToStorage はエンティティを収納に移動する
-func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) {
+// MoveToStorage はエンティティを収納に移動する。
+// Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
+func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	setLocation(world, entity, &gc.LocationInStorage{Owner: storage})
 	storage.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
+
+	if entity.HasComponent(world.Components.Stackable) {
+		name := world.Components.Name.Get(entity).(*gc.Name)
+		if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil {
+			return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
+		}
+	}
+	return nil
 }
 
 // GetStorageItems は収納内のアイテムを取得する
@@ -82,7 +102,7 @@ func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool {
 // setLocation はエンティティの位置を設定する。排他制御を保証する。
 // 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する。
 // 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること
-func setLocation(world w.World, entity ecs.Entity, data interface{}) {
+func setLocation(world w.World, entity ecs.Entity, data gc.Location) {
 	// 移動元のOwnerにWeightDirtyマーカーを付与する
 	if entity.HasComponent(world.Components.LocationInBackpack) {
 		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
@@ -113,5 +133,10 @@ func setLocation(world w.World, entity ecs.Entity, data interface{}) {
 		entity.AddComponent(world.Components.LocationOnField, v)
 	case *gc.LocationInStorage:
 		entity.AddComponent(world.Components.LocationInStorage, v)
+	}
+
+	// フィールド以外に移動する場合はグリッド座標を除去する
+	if _, ok := data.(*gc.LocationOnField); !ok {
+		entity.RemoveComponent(world.Components.GridElement)
 	}
 }

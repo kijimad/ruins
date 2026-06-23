@@ -8,18 +8,45 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MergeInventoryItem はバックパック内の指定された名前のStackableアイテムをすべて1つに統合する
-func MergeInventoryItem(world w.World, itemName string) error {
-	// 同名のStackableアイテムをすべて取得
+type mergeLocation int
+
+const (
+	mergeInBackpack mergeLocation = iota
+	mergeInStorage
+)
+
+// mergeStackableItems は指定ロケーション内の同一Owner配下にある同名Stackableアイテムを1つに統合する
+func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owner ecs.Entity) error {
+	var locationComp ecs.DataComponent
+	switch loc {
+	case mergeInBackpack:
+		locationComp = world.Components.LocationInBackpack
+	case mergeInStorage:
+		locationComp = world.Components.LocationInStorage
+	default:
+		return fmt.Errorf("未対応のmergeLocation: %d", loc)
+	}
+
 	var stackableItems []ecs.Entity
 	world.Manager.Join(
 		world.Components.Stackable,
-		world.Components.LocationInBackpack,
+		locationComp,
 		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		name := world.Components.Name.Get(entity).(*gc.Name)
-		if name.Name == itemName {
-			stackableItems = append(stackableItems, entity)
+		if name.Name != itemName {
+			return
+		}
+		// Ownerが一致するもののみ統合対象にする
+		switch l := locationComp.Get(entity).(type) {
+		case *gc.LocationInBackpack:
+			if l.Owner == owner {
+				stackableItems = append(stackableItems, entity)
+			}
+		case *gc.LocationInStorage:
+			if l.Owner == owner {
+				stackableItems = append(stackableItems, entity)
+			}
 		}
 	}))
 

@@ -27,7 +27,9 @@ type AutoSellResult struct {
 // 全装備をバックパックに移動し、売却候補と合計金額を返す。
 // エンティティは削除されず、スペック表示に使える状態で残る。
 func PreviewEndRun(world w.World, playerEntity ecs.Entity) (AutoSellResult, error) {
-	unequipAll(world, playerEntity)
+	if err := unequipAll(world, playerEntity); err != nil {
+		return AutoSellResult{}, fmt.Errorf("装備解除に失敗: %w", err)
+	}
 	result := collectBackpackItems(world, playerEntity)
 	return result, nil
 }
@@ -60,7 +62,7 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 }
 
 // unequipAll はプレイヤーの装備中アイテムを全てバックパックに移動する
-func unequipAll(world w.World, playerEntity ecs.Entity) {
+func unequipAll(world w.World, playerEntity ecs.Entity) error {
 	var equipped []ecs.Entity
 	world.Manager.Join(
 		world.Components.LocationEquipped,
@@ -72,8 +74,11 @@ func unequipAll(world w.World, playerEntity ecs.Entity) {
 	}))
 
 	for _, item := range equipped {
-		MoveToBackpack(world, item, playerEntity)
+		if err := MoveToBackpack(world, item, playerEntity); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // collectBackpackItems はバックパック内の全アイテムを収集して返す。

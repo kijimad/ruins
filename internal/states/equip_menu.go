@@ -509,7 +509,9 @@ func (st *EquipMenuState) executeActionItem(world w.World) error {
 		})
 	case "外す":
 		if slotData.Entity != nil {
-			worldhelper.MoveToBackpack(world, *slotData.Entity, slotData.Member)
+			if err := worldhelper.MoveToBackpack(world, *slotData.Entity, slotData.Member); err != nil {
+				return err
+			}
 		}
 		st.subState = subStateSlotSelect
 	case TextClose:
@@ -533,7 +535,9 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World) error {
 
 	// 前の装備を外す
 	if props.PreviousEquipment != nil {
-		worldhelper.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember)
+		if err := worldhelper.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil {
+			return err
+		}
 	}
 
 	// 新しい装備を装着

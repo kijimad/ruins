@@ -23,30 +23,14 @@ func TestPred_Has(t *testing.T) {
 	manager, c := setupComponents(t)
 
 	entity := manager.NewEntity()
-	entity.AddComponent(c.Value, &Value{Value: 100})
+	entity.AddComponent(c.Melee, &Melee{})
 
-	has := Has{"Value", c.Value}
+	has := Has{"Melee", c.Melee}
 	assert.True(t, has.Eval(entity))
-	assert.Equal(t, "Value", has.String())
+	assert.Equal(t, "Melee", has.String())
 
-	notHas := Has{"Melee", c.Melee}
-	assert.False(t, notHas.Eval(entity))
-}
-
-func TestPred_And(t *testing.T) {
-	t.Parallel()
-	manager, c := setupComponents(t)
-
-	entity := manager.NewEntity()
-	entity.AddComponent(c.Value, &Value{Value: 100})
-	entity.AddComponent(c.Name, &Name{Name: "test"})
-
-	and := And{Has{"Value", c.Value}, Has{"Name", c.Name}}
-	assert.True(t, and.Eval(entity))
-	assert.Equal(t, "(Value AND Name)", and.String())
-
-	andFail := And{Has{"Value", c.Value}, Has{"Melee", c.Melee}}
-	assert.False(t, andFail.Eval(entity))
+	hasFail := Has{"Wearable", c.Wearable}
+	assert.False(t, hasFail.Eval(entity))
 }
 
 func TestPred_Or(t *testing.T) {
@@ -60,8 +44,24 @@ func TestPred_Or(t *testing.T) {
 	assert.True(t, or.Eval(entity))
 	assert.Equal(t, "(Melee OR Fire)", or.String())
 
-	orFail := Or{Has{"Value", c.Value}, Has{"Fire", c.Fire}}
+	orFail := Or{Has{"Wearable", c.Wearable}, Has{"Fire", c.Fire}}
 	assert.False(t, orFail.Eval(entity))
+}
+
+func TestPred_And(t *testing.T) {
+	t.Parallel()
+	manager, c := setupComponents(t)
+
+	entity := manager.NewEntity()
+	entity.AddComponent(c.Melee, &Melee{})
+	entity.AddComponent(c.Fire, &Fire{})
+
+	and := And{Has{"Melee", c.Melee}, Has{"Fire", c.Fire}}
+	assert.True(t, and.Eval(entity))
+	assert.Equal(t, "(Melee AND Fire)", and.String())
+
+	andFail := And{Has{"Melee", c.Melee}, Has{"Wearable", c.Wearable}}
+	assert.False(t, andFail.Eval(entity))
 }
 
 func TestPred_Not(t *testing.T) {
@@ -81,10 +81,10 @@ func TestPred_Not(t *testing.T) {
 
 func TestCategory(t *testing.T) {
 	t.Parallel()
-	manager, c := setupComponents(t)
 
 	t.Run("武器カテゴリ", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Melee, &Melee{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -94,6 +94,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("防具カテゴリ", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Wearable, &Wearable{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -103,6 +104,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("射撃武器カテゴリ", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Fire, &Fire{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -112,6 +114,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("道具カテゴリは本を含む", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Book, &Book{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -121,6 +124,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("道具カテゴリは消耗品を含む", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Consumable, &Consumable{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -130,6 +134,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("道具カテゴリは素材を含む", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Material, &Material{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -139,6 +144,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("道具カテゴリは弾薬を含む", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Ammo, &Ammo{})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -148,6 +154,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("道具カテゴリは置物を含む", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Prop, nil)
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -157,6 +164,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("どのカテゴリにも属さない", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Name, &Name{Name: "何か"})
 		cat, ok := c.CategoryOf(InventoryCategoryKey, entity)
@@ -166,6 +174,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("アイテム種別: 素材", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Material, nil)
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
@@ -175,6 +184,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("アイテム種別: 近接武器", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Melee, &Melee{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
@@ -184,6 +194,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("アイテム種別: 射撃武器", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Fire, &Fire{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
@@ -193,6 +204,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("アイテム種別: Fire+Meleeは射撃武器になる", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Fire, &Fire{})
 		entity.AddComponent(c.Melee, &Melee{})
@@ -203,6 +215,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("アイテム種別: 防具", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Wearable, &Wearable{})
 		cat, ok := c.CategoryOf(ItemTypeCategoryKey, entity)
@@ -212,6 +225,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: 自分", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Player, nil)
 		entity.AddComponent(c.FactionAlly, nil)
@@ -222,6 +236,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: 敵", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.FactionEnemy, nil)
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
@@ -231,6 +246,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: NPC(味方)", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.FactionAlly, nil)
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
@@ -240,6 +256,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: NPC(中立)", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.FactionNeutral, nil)
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
@@ -249,6 +266,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: 置物", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Prop, nil)
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
@@ -258,6 +276,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: タイル", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Tile, nil)
 		cat, ok := c.CategoryOf(FieldLookCategoryKey, entity)
@@ -267,6 +286,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("フィールド観察: Player+FactionAllyは自分になる", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		entity := manager.NewEntity()
 		entity.AddComponent(c.Player, nil)
 		entity.AddComponent(c.FactionAlly, nil)
@@ -277,6 +297,7 @@ func TestCategory(t *testing.T) {
 
 	t.Run("CategoryはPredとして使える", func(t *testing.T) {
 		t.Parallel()
+		manager, c := setupComponents(t)
 		cats := c.Categories()
 		weapon := cats[InventoryCategoryKey][1]
 		entity := manager.NewEntity()

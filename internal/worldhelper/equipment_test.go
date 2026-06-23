@@ -73,7 +73,7 @@ func TestEquipDisarm(t *testing.T) {
 	assert.Equal(t, gc.EquipmentSlotNumber(0), equipped.EquipmentSlot, "スロット番号が正しく設定されていない")
 
 	// 装備を外す
-	MoveToBackpack(world, item, owner)
+	require.NoError(t, MoveToBackpack(world, item, owner))
 
 	// 装備が外されたことを確認
 	assert.False(t, item.HasComponent(world.Components.LocationEquipped), "アイテムがまだ装備されている")

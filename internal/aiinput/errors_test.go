@@ -1,16 +1,18 @@
 package aiinput
 
 import (
+	"fmt"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/stretchr/testify/assert"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestAIError_WithEntity(t *testing.T) {
 	t.Parallel()
 
-	entity := ecs.Entity(42)
+	world := testutil.InitTestWorld(t)
+	entity := world.Manager.NewEntity()
 	err := &AIError{
 		Type:    "planning",
 		Message: "行動計画に失敗した",
@@ -18,7 +20,7 @@ func TestAIError_WithEntity(t *testing.T) {
 	}
 
 	assert.Contains(t, err.Error(), "planning")
-	assert.Contains(t, err.Error(), "Entity=42")
+	assert.Contains(t, err.Error(), fmt.Sprintf("Entity=%d", entity))
 	assert.Contains(t, err.Error(), "行動計画に失敗した")
 }
 
