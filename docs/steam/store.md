@@ -172,11 +172,11 @@ The following features are implemented and the full gameplay loop is playable:
 
 #### 日本語
 
-はい、変わる予定です。アーリーアクセス期間中もコンテンツや機能の追加に合わせて段階的に価格を引き上げていく予定で、正式リリース時にはさらに引き上げる可能性があります。アーリーアクセス中に購入された方は、追加費用なく正式版をプレイできます。
+はい、変わる予定です。コンテンツや機能の追加に合わせて段階的に価格を引き上げていく予定です。
 
 #### 英語
 
-Yes. We plan to gradually raise the price during Early Access as we ship new content and features, and it may increase further at full release. Players who purchase during Early Access will receive the full version at no additional cost.
+Yes. We plan to gradually raise the price as we ship new content and features.
 
 ### 開発にコミュニティをどう参加させる予定ですか？ / How are you planning on involving the Community in your development process?
 
