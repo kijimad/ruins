@@ -86,22 +86,24 @@ func TestMergeStackableItems(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		owner := world.Manager.NewEntity()
+
 		// バックパック内にパンを3個追加
 		item1 := world.Manager.NewEntity()
 		item1.AddComponent(world.Components.Material, &gc.Material{})
 		item1.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item1.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 3})
-		item1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		item1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: owner})
 
 		// バックパック内にパンを2個追加
 		item2 := world.Manager.NewEntity()
 		item2.AddComponent(world.Components.Material, &gc.Material{})
 		item2.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item2.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 2})
-		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err := mergeStackableItems(world, "パン", mergeInBackpack, ecs.Entity(0))
+		err := mergeStackableItems(world, "パン", mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// バックパック内のパンは1つだけになっている
@@ -128,15 +130,17 @@ func TestMergeStackableItems(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		owner := world.Manager.NewEntity()
+
 		// バックパック内にパンを1個だけ追加
 		item := world.Manager.NewEntity()
 		item.AddComponent(world.Components.Material, &gc.Material{})
 		item.AddComponent(world.Components.Name, &gc.Name{Name: "パン"})
 		item.AddComponent(world.Components.Stackable, &gc.Stackable{Count: 2})
-		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		item.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err := mergeStackableItems(world, "パン", mergeInBackpack, ecs.Entity(0))
+		err := mergeStackableItems(world, "パン", mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// アイテムがそのまま残っている
@@ -149,19 +153,21 @@ func TestMergeStackableItems(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
+		owner := world.Manager.NewEntity()
+
 		// バックパック内に剣を2つ追加（Stackableなし）
 		item1 := world.Manager.NewEntity()
 		item1.AddComponent(world.Components.Melee, &gc.Melee{})
 		item1.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-		item1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		item1.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: owner})
 
 		item2 := world.Manager.NewEntity()
 		item2.AddComponent(world.Components.Melee, &gc.Melee{})
 		item2.AddComponent(world.Components.Name, &gc.Name{Name: "剣"})
-		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{})
+		item2.AddComponent(world.Components.LocationInBackpack, &gc.LocationInBackpack{Owner: owner})
 
 		// マージ実行
-		err := mergeStackableItems(world, "剣", mergeInBackpack, ecs.Entity(0))
+		err := mergeStackableItems(world, "剣", mergeInBackpack, owner)
 		require.NoError(t, err)
 
 		// 両方のアイテムがそのまま残っている
