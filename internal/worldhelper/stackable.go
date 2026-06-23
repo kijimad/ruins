@@ -23,6 +23,8 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 		locationComp = world.Components.LocationInBackpack
 	case mergeInStorage:
 		locationComp = world.Components.LocationInStorage
+	default:
+		return fmt.Errorf("未対応のmergeLocation: %d", loc)
 	}
 
 	var stackableItems []ecs.Entity
