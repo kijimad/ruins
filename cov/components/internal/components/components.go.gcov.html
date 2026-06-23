@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">55.9&nbsp;%</td>
-            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntryLo">60.0&nbsp;%</td>
+            <td class="headerCovTableEntry">55</td>
             <td class="headerCovTableEntry">33</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-23 11:45:49</td>
+            <td class="headerValue">2026-06-23 14:33:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -544,71 +544,73 @@
 <span id="L482"><span class="lineNum">     482</span>              :         LocationTypeInStorage LocationType = LocationInStorage{}</span>
 <span id="L483"><span class="lineNum">     483</span>              : )</span>
 <span id="L484"><span class="lineNum">     484</span>              : </span>
-<span id="L485"><span class="lineNum">     485</span>              : // LocationInBackpack はバックパック内位置</span>
-<span id="L486"><span class="lineNum">     486</span>              : type LocationInBackpack struct {</span>
-<span id="L487"><span class="lineNum">     487</span>              :         Owner ecs.Entity // バックパックの所有者</span>
-<span id="L488"><span class="lineNum">     488</span>              : }</span>
-<span id="L489"><span class="lineNum">     489</span>              : </span>
-<span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 : func (c LocationInBackpack) String() string {</span></span>
-<span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         return &quot;LocationInBackpack&quot;</span></span>
-<span id="L492"><span class="lineNum">     492</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L493"><span class="lineNum">     493</span>              : </span>
-<span id="L494"><span class="lineNum">     494</span>              : // LocationEquipped は装備中位置</span>
-<span id="L495"><span class="lineNum">     495</span>              : type LocationEquipped struct {</span>
-<span id="L496"><span class="lineNum">     496</span>              :         Owner         ecs.Entity</span>
-<span id="L497"><span class="lineNum">     497</span>              :         EquipmentSlot EquipmentSlotNumber</span>
-<span id="L498"><span class="lineNum">     498</span>              : }</span>
-<span id="L499"><span class="lineNum">     499</span>              : </span>
-<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 : func (c LocationEquipped) String() string {</span></span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :         return &quot;LocationEquipped&quot;</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L503"><span class="lineNum">     503</span>              : </span>
-<span id="L504"><span class="lineNum">     504</span>              : // LocationOnField はフィールド上位置</span>
-<span id="L505"><span class="lineNum">     505</span>              : type LocationOnField struct{}</span>
-<span id="L506"><span class="lineNum">     506</span>              : </span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 : func (c LocationOnField) String() string {</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         return &quot;LocationOnField&quot;</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L485"><span class="lineNum">     485</span>              : // Location はエンティティの位置を表すインターフェース。</span>
+<span id="L486"><span class="lineNum">     486</span>              : // setLocationの引数を型安全にするためのマーカー</span>
+<span id="L487"><span class="lineNum">     487</span>              : type Location interface {</span>
+<span id="L488"><span class="lineNum">     488</span>              :         isLocation()</span>
+<span id="L489"><span class="lineNum">     489</span>              : }</span>
+<span id="L490"><span class="lineNum">     490</span>              : </span>
+<span id="L491"><span class="lineNum">     491</span>              : // LocationInBackpack はバックパック内位置</span>
+<span id="L492"><span class="lineNum">     492</span>              : type LocationInBackpack struct {</span>
+<span id="L493"><span class="lineNum">     493</span>              :         Owner ecs.Entity // バックパックの所有者</span>
+<span id="L494"><span class="lineNum">     494</span>              : }</span>
+<span id="L495"><span class="lineNum">     495</span>              : </span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 : func (c LocationInBackpack) String() string { return &quot;LocationInBackpack&quot; }</span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 : func (c LocationInBackpack) isLocation()    {}</span></span>
+<span id="L498"><span class="lineNum">     498</span>              : </span>
+<span id="L499"><span class="lineNum">     499</span>              : // LocationEquipped は装備中位置</span>
+<span id="L500"><span class="lineNum">     500</span>              : type LocationEquipped struct {</span>
+<span id="L501"><span class="lineNum">     501</span>              :         Owner         ecs.Entity</span>
+<span id="L502"><span class="lineNum">     502</span>              :         EquipmentSlot EquipmentSlotNumber</span>
+<span id="L503"><span class="lineNum">     503</span>              : }</span>
+<span id="L504"><span class="lineNum">     504</span>              : </span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 : func (c LocationEquipped) String() string { return &quot;LocationEquipped&quot; }</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 : func (c LocationEquipped) isLocation()    {}</span></span>
+<span id="L507"><span class="lineNum">     507</span>              : </span>
+<span id="L508"><span class="lineNum">     508</span>              : // LocationOnField はフィールド上位置</span>
+<span id="L509"><span class="lineNum">     509</span>              : type LocationOnField struct{}</span>
 <span id="L510"><span class="lineNum">     510</span>              : </span>
-<span id="L511"><span class="lineNum">     511</span>              : // LocationInStorage は収納内位置</span>
-<span id="L512"><span class="lineNum">     512</span>              : type LocationInStorage struct {</span>
-<span id="L513"><span class="lineNum">     513</span>              :         Owner ecs.Entity // 収納Propのエンティティ</span>
-<span id="L514"><span class="lineNum">     514</span>              : }</span>
-<span id="L515"><span class="lineNum">     515</span>              : </span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 : func (c LocationInStorage) String() string {</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :         return &quot;LocationInStorage&quot;</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 : }</span></span>
-<span id="L519"><span class="lineNum">     519</span>              : </span>
-<span id="L520"><span class="lineNum">     520</span>              : // Material は素材を表すマーカーコンポーネント。</span>
-<span id="L521"><span class="lineNum">     521</span>              : // 合成や売却の材料となるアイテムに付与される</span>
-<span id="L522"><span class="lineNum">     522</span>              : type Material struct{}</span>
-<span id="L523"><span class="lineNum">     523</span>              : </span>
-<span id="L524"><span class="lineNum">     524</span>              : // Prop は置物を表すマーカーコンポーネント</span>
-<span id="L525"><span class="lineNum">     525</span>              : type Prop struct{}</span>
-<span id="L526"><span class="lineNum">     526</span>              : </span>
-<span id="L527"><span class="lineNum">     527</span>              : // LightSource は光源コンポーネント</span>
-<span id="L528"><span class="lineNum">     528</span>              : type LightSource struct {</span>
-<span id="L529"><span class="lineNum">     529</span>              :         Radius  consts.Tile // 照明範囲</span>
-<span id="L530"><span class="lineNum">     530</span>              :         Color   color.RGBA  // 光の色</span>
-<span id="L531"><span class="lineNum">     531</span>              :         Enabled bool        // 有効/無効</span>
-<span id="L532"><span class="lineNum">     532</span>              : }</span>
-<span id="L533"><span class="lineNum">     533</span>              : </span>
-<span id="L534"><span class="lineNum">     534</span>              : // Door は開閉可能な扉コンポーネント</span>
-<span id="L535"><span class="lineNum">     535</span>              : type Door struct {</span>
-<span id="L536"><span class="lineNum">     536</span>              :         IsOpen      bool            // 開いているかどうか</span>
-<span id="L537"><span class="lineNum">     537</span>              :         Orientation DoorOrientation // 扉の向き</span>
-<span id="L538"><span class="lineNum">     538</span>              :         Locked      bool            // ロック中は開閉不可</span>
-<span id="L539"><span class="lineNum">     539</span>              : }</span>
-<span id="L540"><span class="lineNum">     540</span>              : </span>
-<span id="L541"><span class="lineNum">     541</span>              : // DoorOrientation は扉の向き</span>
-<span id="L542"><span class="lineNum">     542</span>              : type DoorOrientation int</span>
-<span id="L543"><span class="lineNum">     543</span>              : </span>
-<span id="L544"><span class="lineNum">     544</span>              : const (</span>
-<span id="L545"><span class="lineNum">     545</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
-<span id="L546"><span class="lineNum">     546</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
-<span id="L547"><span class="lineNum">     547</span>              :         // DoorOrientationVertical は縦向きの扉</span>
-<span id="L548"><span class="lineNum">     548</span>              :         DoorOrientationVertical</span>
-<span id="L549"><span class="lineNum">     549</span>              : )</span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 : func (c LocationOnField) String() string { return &quot;LocationOnField&quot; }</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 : func (c LocationOnField) isLocation()    {}</span></span>
+<span id="L513"><span class="lineNum">     513</span>              : </span>
+<span id="L514"><span class="lineNum">     514</span>              : // LocationInStorage は収納内位置</span>
+<span id="L515"><span class="lineNum">     515</span>              : type LocationInStorage struct {</span>
+<span id="L516"><span class="lineNum">     516</span>              :         Owner ecs.Entity // 収納Propのエンティティ</span>
+<span id="L517"><span class="lineNum">     517</span>              : }</span>
+<span id="L518"><span class="lineNum">     518</span>              : </span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 : func (c LocationInStorage) String() string { return &quot;LocationInStorage&quot; }</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 : func (c LocationInStorage) isLocation()    {}</span></span>
+<span id="L521"><span class="lineNum">     521</span>              : </span>
+<span id="L522"><span class="lineNum">     522</span>              : // Material は素材を表すマーカーコンポーネント。</span>
+<span id="L523"><span class="lineNum">     523</span>              : // 合成や売却の材料となるアイテムに付与される</span>
+<span id="L524"><span class="lineNum">     524</span>              : type Material struct{}</span>
+<span id="L525"><span class="lineNum">     525</span>              : </span>
+<span id="L526"><span class="lineNum">     526</span>              : // Prop は置物を表すマーカーコンポーネント</span>
+<span id="L527"><span class="lineNum">     527</span>              : type Prop struct{}</span>
+<span id="L528"><span class="lineNum">     528</span>              : </span>
+<span id="L529"><span class="lineNum">     529</span>              : // LightSource は光源コンポーネント</span>
+<span id="L530"><span class="lineNum">     530</span>              : type LightSource struct {</span>
+<span id="L531"><span class="lineNum">     531</span>              :         Radius  consts.Tile // 照明範囲</span>
+<span id="L532"><span class="lineNum">     532</span>              :         Color   color.RGBA  // 光の色</span>
+<span id="L533"><span class="lineNum">     533</span>              :         Enabled bool        // 有効/無効</span>
+<span id="L534"><span class="lineNum">     534</span>              : }</span>
+<span id="L535"><span class="lineNum">     535</span>              : </span>
+<span id="L536"><span class="lineNum">     536</span>              : // Door は開閉可能な扉コンポーネント</span>
+<span id="L537"><span class="lineNum">     537</span>              : type Door struct {</span>
+<span id="L538"><span class="lineNum">     538</span>              :         IsOpen      bool            // 開いているかどうか</span>
+<span id="L539"><span class="lineNum">     539</span>              :         Orientation DoorOrientation // 扉の向き</span>
+<span id="L540"><span class="lineNum">     540</span>              :         Locked      bool            // ロック中は開閉不可</span>
+<span id="L541"><span class="lineNum">     541</span>              : }</span>
+<span id="L542"><span class="lineNum">     542</span>              : </span>
+<span id="L543"><span class="lineNum">     543</span>              : // DoorOrientation は扉の向き</span>
+<span id="L544"><span class="lineNum">     544</span>              : type DoorOrientation int</span>
+<span id="L545"><span class="lineNum">     545</span>              : </span>
+<span id="L546"><span class="lineNum">     546</span>              : const (</span>
+<span id="L547"><span class="lineNum">     547</span>              :         // DoorOrientationHorizontal は横向きの扉</span>
+<span id="L548"><span class="lineNum">     548</span>              :         DoorOrientationHorizontal DoorOrientation = iota</span>
+<span id="L549"><span class="lineNum">     549</span>              :         // DoorOrientationVertical は縦向きの扉</span>
+<span id="L550"><span class="lineNum">     550</span>              :         DoorOrientationVertical</span>
+<span id="L551"><span class="lineNum">     551</span>              : )</span>
         </pre>
               </td>
             </tr>

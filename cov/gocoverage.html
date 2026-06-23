@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (80.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (79.5%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -71,7 +71,7 @@
 				
 				<option value="file7">github.com/kijimaD/ruins/internal/activity/movement.go (90.9%)</option>
 				
-				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (79.7%)</option>
+				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (80.0%)</option>
 				
 				<option value="file9">github.com/kijimaD/ruins/internal/activity/player_actions.go (75.0%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (92.8%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (93.4%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
@@ -335,7 +335,7 @@
 				
 				<option value="file139">github.com/kijimaD/ruins/internal/states/dungeon_select.go (68.7%)</option>
 				
-				<option value="file140">github.com/kijimaD/ruins/internal/states/equip_menu.go (48.6%)</option>
+				<option value="file140">github.com/kijimaD/ruins/internal/states/equip_menu.go (48.3%)</option>
 				
 				<option value="file141">github.com/kijimaD/ruins/internal/states/factories.go (22.9%)</option>
 				
@@ -363,7 +363,7 @@
 				
 				<option value="file153">github.com/kijimaD/ruins/internal/states/status_state.go (77.5%)</option>
 				
-				<option value="file154">github.com/kijimaD/ruins/internal/states/storage_menu.go (69.8%)</option>
+				<option value="file154">github.com/kijimaD/ruins/internal/states/storage_menu.go (68.9%)</option>
 				
 				<option value="file155">github.com/kijimaD/ruins/internal/states/window.go (53.6%)</option>
 				
@@ -475,13 +475,13 @@
 				
 				<option value="file209">github.com/kijimaD/ruins/internal/worldhelper/item_format.go (100.0%)</option>
 				
-				<option value="file210">github.com/kijimaD/ruins/internal/worldhelper/location.go (95.8%)</option>
+				<option value="file210">github.com/kijimaD/ruins/internal/worldhelper/location.go (93.3%)</option>
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/worldhelper/profession.go (82.1%)</option>
 				
 				<option value="file212">github.com/kijimaD/ruins/internal/worldhelper/query.go (100.0%)</option>
 				
-				<option value="file213">github.com/kijimaD/ruins/internal/worldhelper/run.go (93.8%)</option>
+				<option value="file213">github.com/kijimaD/ruins/internal/worldhelper/run.go (90.2%)</option>
 				
 				<option value="file214">github.com/kijimaD/ruins/internal/worldhelper/shop.go (59.1%)</option>
 				
@@ -489,11 +489,11 @@
 				
 				<option value="file216">github.com/kijimaD/ruins/internal/worldhelper/sort.go (100.0%)</option>
 				
-				<option value="file217">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (74.8%)</option>
+				<option value="file217">github.com/kijimaD/ruins/internal/worldhelper/spawn.go (75.8%)</option>
 				
 				<option value="file218">github.com/kijimaD/ruins/internal/worldhelper/spawn_prop.go (91.6%)</option>
 				
-				<option value="file219">github.com/kijimaD/ruins/internal/worldhelper/stackable.go (75.0%)</option>
+				<option value="file219">github.com/kijimaD/ruins/internal/worldhelper/stackable.go (79.4%)</option>
 				
 				<option value="file220">github.com/kijimaD/ruins/internal/worldhelper/state_event.go (100.0%)</option>
 				
@@ -1402,7 +1402,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
         }</span>
 
         <span class="cov8" title="1">hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
-        if !hit </span><span class="cov0" title="0">{
+        if !hit </span><span class="cov8" title="1">{
                 logAttackResult(actor, target, world, false, false, 0, attackMethodName)
                 worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
                 return nil
@@ -2393,19 +2393,12 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 
 // collect はフィールド上のエンティティをバックパックに移動する
 func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error <span class="cov8" title="1">{
-        name := worldhelper.GetEntityName(entity, world)
+        // MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する
         formattedName := worldhelper.FormatItemName(world, entity)
 
-        worldhelper.MoveToBackpack(world, entity, actor)
-        entity.RemoveComponent(world.Components.GridElement)
-
-        // Stackableなら同名アイテムを統合する
-        if entity.HasComponent(world.Components.Stackable) </span><span class="cov0" title="0">{
-                if err := worldhelper.MergeInventoryItem(world, name); err != nil </span><span class="cov0" title="0">{
-                        return fmt.Errorf("インベントリ統合エラー: %w", err)
-                }</span>
-        }
-
+        if err := worldhelper.MoveToBackpack(world, entity, actor); err != nil </span><span class="cov0" title="0">{
+                return fmt.Errorf("バックパックへの移動に失敗: %w", err)
+        }</span>
         <span class="cov8" title="1">gamelog.New(worldhelper.GetGameLog(world)).
                 ItemName(formattedName).
                 Append(" を入手した。").
@@ -4138,7 +4131,7 @@ func (ap *DefaultActionPlanner) planDrivingAction(world w.World, aiEntity ecs.En
 // planWanderAction は低頻度でランダム移動するアクションを計画する。街のNPC向け
 func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         // 80%の確率で待機する
-        if rand.Float64() &lt; 0.8 </span><span class="cov0" title="0">{
+        if rand.Float64() &lt; 0.8 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI徘徊待機")
         }</span>
         <span class="cov8" title="1">return ap.planRandomMoveAction(world, aiEntity, aiGrid)</span>
@@ -6902,14 +6895,19 @@ var (
         LocationTypeInStorage LocationType = LocationInStorage{}
 )
 
+// Location はエンティティの位置を表すインターフェース。
+// setLocationの引数を型安全にするためのマーカー
+type Location interface {
+        isLocation()
+}
+
 // LocationInBackpack はバックパック内位置
 type LocationInBackpack struct {
         Owner ecs.Entity // バックパックの所有者
 }
 
-func (c LocationInBackpack) String() string <span class="cov0" title="0">{
-        return "LocationInBackpack"
-}</span>
+func (c LocationInBackpack) String() string <span class="cov0" title="0">{ return "LocationInBackpack" }</span>
+func (c LocationInBackpack) isLocation()    {<span class="cov0" title="0">}</span>
 
 // LocationEquipped は装備中位置
 type LocationEquipped struct {
@@ -6917,25 +6915,22 @@ type LocationEquipped struct {
         EquipmentSlot EquipmentSlotNumber
 }
 
-func (c LocationEquipped) String() string <span class="cov0" title="0">{
-        return "LocationEquipped"
-}</span>
+func (c LocationEquipped) String() string <span class="cov0" title="0">{ return "LocationEquipped" }</span>
+func (c LocationEquipped) isLocation()    {<span class="cov0" title="0">}</span>
 
 // LocationOnField はフィールド上位置
 type LocationOnField struct{}
 
-func (c LocationOnField) String() string <span class="cov0" title="0">{
-        return "LocationOnField"
-}</span>
+func (c LocationOnField) String() string <span class="cov0" title="0">{ return "LocationOnField" }</span>
+func (c LocationOnField) isLocation()    {<span class="cov0" title="0">}</span>
 
 // LocationInStorage は収納内位置
 type LocationInStorage struct {
         Owner ecs.Entity // 収納Propのエンティティ
 }
 
-func (c LocationInStorage) String() string <span class="cov0" title="0">{
-        return "LocationInStorage"
-}</span>
+func (c LocationInStorage) String() string <span class="cov0" title="0">{ return "LocationInStorage" }</span>
+func (c LocationInStorage) isLocation()    {<span class="cov0" title="0">}</span>
 
 // Material は素材を表すマーカーコンポーネント。
 // 合成や売却の材料となるアイテムに付与される
@@ -32192,8 +32187,10 @@ func (st *EquipMenuState) executeActionItem(world w.World) error <span class="co
                 })</span>
         case "外す":<span class="cov0" title="0">
                 if slotData.Entity != nil </span><span class="cov0" title="0">{
-                        worldhelper.MoveToBackpack(world, *slotData.Entity, slotData.Member)
-                }</span>
+                        if err := worldhelper.MoveToBackpack(world, *slotData.Entity, slotData.Member); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
                 <span class="cov0" title="0">st.subState = subStateSlotSelect</span>
         case TextClose:<span class="cov0" title="0">
                 st.subState = subStateSlotSelect</span>
@@ -32216,8 +32213,10 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World) error <span cl
 
         // 前の装備を外す
         if props.PreviousEquipment != nil </span><span class="cov0" title="0">{
-                worldhelper.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember)
-        }</span>
+                if err := worldhelper.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
 
         // 新しい装備を装着
         <span class="cov0" title="0">worldhelper.MoveToEquip(world, item.EquipEntity, props.TargetMember, props.SlotNumber)
@@ -37255,13 +37254,17 @@ func (st *StorageMenuState) executeTransfer(world w.World) error <span class="co
                 if err != nil </span><span class="cov0" title="0">{
                         return err
                 }</span>
-                <span class="cov0" title="0">worldhelper.MoveToBackpack(world, item.Entity, playerEntity)</span>
+                <span class="cov0" title="0">if err := worldhelper.MoveToBackpack(world, item.Entity, playerEntity); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
         case "store":<span class="cov0" title="0">
                 // バックパックから収納へ移動
                 if !worldhelper.CanAddToStorage(world, st.storageEntity, item.Entity) </span><span class="cov0" title="0">{
                         return nil // 重量超過の場合は何もしない
                 }</span>
-                <span class="cov0" title="0">worldhelper.MoveToStorage(world, item.Entity, st.storageEntity)</span>
+                <span class="cov0" title="0">if err := worldhelper.MoveToStorage(world, item.Entity, st.storageEntity); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
         }
 
         <span class="cov0" title="0">return nil</span>
@@ -46033,17 +46036,28 @@ func FormatItemName(world w.World, itemEntity ecs.Entity) string <span class="co
 		<pre class="file" id="file210" style="display: none">package worldhelper
 
 import (
+        "fmt"
+
         gc "github.com/kijimaD/ruins/internal/components"
         w "github.com/kijimaD/ruins/internal/world"
         ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MoveToBackpack はエンティティをバックパックに移動する
-func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) <span class="cov8" title="1">{
+// MoveToBackpack はエンティティをバックパックに移動する。
+// Stackableアイテムの場合、バックパック内の同名アイテムと自動的に統合する
+func MoveToBackpack(world w.World, entity ecs.Entity, owner ecs.Entity) error <span class="cov8" title="1">{
         setLocation(world, entity, &amp;gc.LocationInBackpack{Owner: owner})
         owner.AddComponent(world.Components.StatsChanged, &amp;gc.StatsChanged{})
         owner.AddComponent(world.Components.WeightDirty, &amp;gc.WeightDirty{})
-}</span>
+
+        if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
+                name := world.Components.Name.Get(entity).(*gc.Name)
+                if err := mergeStackableItems(world, name.Name, mergeInBackpack, owner); err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("バックパック内のアイテム統合に失敗: %w", err)
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
 
 // MoveToEquip はエンティティを指定スロットに装備する
 func MoveToEquip(world w.World, entity ecs.Entity, owner ecs.Entity, slot gc.EquipmentSlotNumber) <span class="cov8" title="1">{
@@ -46065,11 +46079,20 @@ func MoveToField(world w.World, entity ecs.Entity, previousOwner *ecs.Entity) <s
         }</span>
 }
 
-// MoveToStorage はエンティティを収納に移動する
-func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) <span class="cov8" title="1">{
+// MoveToStorage はエンティティを収納に移動する。
+// Stackableアイテムの場合、収納内の同名アイテムと自動的に統合する
+func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error <span class="cov8" title="1">{
         setLocation(world, entity, &amp;gc.LocationInStorage{Owner: storage})
         storage.AddComponent(world.Components.WeightDirty, &amp;gc.WeightDirty{})
-}</span>
+
+        if entity.HasComponent(world.Components.Stackable) </span><span class="cov8" title="1">{
+                name := world.Components.Name.Get(entity).(*gc.Name)
+                if err := mergeStackableItems(world, name.Name, mergeInStorage, storage); err != nil </span><span class="cov0" title="0">{
+                        return fmt.Errorf("収納内のアイテム統合に失敗: %w", err)
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
 
 // GetStorageItems は収納内のアイテムを取得する
 func GetStorageItems(world w.World, storage ecs.Entity) []ecs.Entity <span class="cov8" title="1">{
@@ -46114,7 +46137,7 @@ func CanAddToStorage(world w.World, storage ecs.Entity, item ecs.Entity) bool <s
 // setLocation はエンティティの位置を設定する。排他制御を保証する。
 // 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する。
 // 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること
-func setLocation(world w.World, entity ecs.Entity, data interface{}) <span class="cov8" title="1">{
+func setLocation(world w.World, entity ecs.Entity, data gc.Location) <span class="cov8" title="1">{
         // 移動元のOwnerにWeightDirtyマーカーを付与する
         if entity.HasComponent(world.Components.LocationInBackpack) </span><span class="cov8" title="1">{
                 loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
@@ -46146,6 +46169,11 @@ func setLocation(world w.World, entity ecs.Entity, data interface{}) <span class
         case *gc.LocationInStorage:<span class="cov8" title="1">
                 entity.AddComponent(world.Components.LocationInStorage, v)</span>
         }
+
+        // フィールド以外に移動する場合はグリッド座標を除去する
+        <span class="cov8" title="1">if _, ok := data.(*gc.LocationOnField); !ok </span><span class="cov8" title="1">{
+                entity.RemoveComponent(world.Components.GridElement)
+        }</span>
 }
 </pre>
 		
@@ -46307,10 +46335,12 @@ type AutoSellResult struct {
 // 全装備をバックパックに移動し、売却候補と合計金額を返す。
 // エンティティは削除されず、スペック表示に使える状態で残る。
 func PreviewEndRun(world w.World, playerEntity ecs.Entity) (AutoSellResult, error) <span class="cov8" title="1">{
-        unequipAll(world, playerEntity)
-        result := collectBackpackItems(world, playerEntity)
-        return result, nil
-}</span>
+        if err := unequipAll(world, playerEntity); err != nil </span><span class="cov0" title="0">{
+                return AutoSellResult{}, fmt.Errorf("装備解除に失敗: %w", err)
+        }</span>
+        <span class="cov8" title="1">result := collectBackpackItems(world, playerEntity)
+        return result, nil</span>
+}
 
 // ExecuteEndRun は精算を実行する。
 // 通貨を加算し、バックパック内アイテムを全て削除し、職業を再適用する。
@@ -46340,7 +46370,7 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error <spa
 }
 
 // unequipAll はプレイヤーの装備中アイテムを全てバックパックに移動する
-func unequipAll(world w.World, playerEntity ecs.Entity) <span class="cov8" title="1">{
+func unequipAll(world w.World, playerEntity ecs.Entity) error <span class="cov8" title="1">{
         var equipped []ecs.Entity
         world.Manager.Join(
                 world.Components.LocationEquipped,
@@ -46352,8 +46382,11 @@ func unequipAll(world w.World, playerEntity ecs.Entity) <span class="cov8" title
         }))
 
         <span class="cov8" title="1">for _, item := range equipped </span><span class="cov8" title="1">{
-                MoveToBackpack(world, item, playerEntity)
-        }</span>
+                if err := MoveToBackpack(world, item, playerEntity); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
 }
 
 // collectBackpackItems はバックパック内の全アイテムを収集して返す。
@@ -47113,9 +47146,11 @@ func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error
                 item.AddComponent(world.Components.LocationInBackpack, &amp;gc.LocationInBackpack{})
                 return item, nil
         }</span>
-        <span class="cov8" title="1">MoveToBackpack(world, item, playerEntity)
+        <span class="cov8" title="1">if err := MoveToBackpack(world, item, playerEntity); err != nil </span><span class="cov0" title="0">{
+                return item, fmt.Errorf("バックパックへの移動に失敗: %w", err)
+        }</span>
 
-        return item, nil</span>
+        <span class="cov8" title="1">return item, nil</span>
 }
 
 // spawnItemBase はLocationなしでアイテムエンティティを生成する内部関数
@@ -47223,15 +47258,17 @@ func setMaxStats(world w.World, entity ecs.Entity) error <span class="cov8" titl
 }
 
 // SpawnStorageItem は収納内にアイテムを生成する
-func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) <span class="cov0" title="0">{
+func SpawnStorageItem(world w.World, itemName string, count int, storage ecs.Entity) (ecs.Entity, error) <span class="cov8" title="1">{
         item, err := spawnItemBase(world, itemName, count)
         if err != nil </span><span class="cov0" title="0">{
                 return consts.InvalidEntity, err
         }</span>
 
-        <span class="cov0" title="0">MoveToStorage(world, item, storage)
+        <span class="cov8" title="1">if err := MoveToStorage(world, item, storage); err != nil </span><span class="cov0" title="0">{
+                return item, fmt.Errorf("収納への移動に失敗: %w", err)
+        }</span>
 
-        return item, nil</span>
+        <span class="cov8" title="1">return item, nil</span>
 }
 
 // SpawnFieldItem はフィールド上にアイテムを生成する。countで個数を指定する
@@ -47491,19 +47528,46 @@ import (
         ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MergeInventoryItem はバックパック内の指定された名前のStackableアイテムをすべて1つに統合する
-func MergeInventoryItem(world w.World, itemName string) error <span class="cov8" title="1">{
-        // 同名のStackableアイテムをすべて取得
-        var stackableItems []ecs.Entity
+type mergeLocation int
+
+const (
+        mergeInBackpack mergeLocation = iota
+        mergeInStorage
+)
+
+// mergeStackableItems は指定ロケーション内の同一Owner配下にある同名Stackableアイテムを1つに統合する
+func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owner ecs.Entity) error <span class="cov8" title="1">{
+        var locationComp ecs.DataComponent
+        switch loc </span>{
+        case mergeInBackpack:<span class="cov8" title="1">
+                locationComp = world.Components.LocationInBackpack</span>
+        case mergeInStorage:<span class="cov8" title="1">
+                locationComp = world.Components.LocationInStorage</span>
+        default:<span class="cov0" title="0">
+                return fmt.Errorf("未対応のmergeLocation: %d", loc)</span>
+        }
+
+        <span class="cov8" title="1">var stackableItems []ecs.Entity
         world.Manager.Join(
                 world.Components.Stackable,
-                world.Components.LocationInBackpack,
+                locationComp,
                 world.Components.Name,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov8" title="1">{
                 name := world.Components.Name.Get(entity).(*gc.Name)
-                if name.Name == itemName </span><span class="cov8" title="1">{
-                        stackableItems = append(stackableItems, entity)
+                if name.Name != itemName </span><span class="cov8" title="1">{
+                        return
                 }</span>
+                // Ownerが一致するもののみ統合対象にする
+                <span class="cov8" title="1">switch l := locationComp.Get(entity).(type) </span>{
+                case *gc.LocationInBackpack:<span class="cov8" title="1">
+                        if l.Owner == owner </span><span class="cov8" title="1">{
+                                stackableItems = append(stackableItems, entity)
+                        }</span>
+                case *gc.LocationInStorage:<span class="cov8" title="1">
+                        if l.Owner == owner </span><span class="cov8" title="1">{
+                                stackableItems = append(stackableItems, entity)
+                        }</span>
+                }
         }))
 
         // 0個または1個の場合は統合不要

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">78.3&nbsp;%</td>
-            <td class="headerCovTableEntry">115</td>
-            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntryMed">78.2&nbsp;%</td>
+            <td class="headerCovTableEntry">110</td>
+            <td class="headerCovTableEntry">86</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-23 11:45:49</td>
+            <td class="headerValue">2026-06-23 14:33:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -211,26 +211,19 @@
 <span id="L149"><span class="lineNum">     149</span>              : </span>
 <span id="L150"><span class="lineNum">     150</span>              : // collect はフィールド上のエンティティをバックパックに移動する</span>
 <span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 : func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         name := worldhelper.GetEntityName(entity, world)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :         // MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する</span></span>
 <span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         formattedName := worldhelper.FormatItemName(world, entity)</span></span>
 <span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         worldhelper.MoveToBackpack(world, entity, actor)</span></span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         entity.RemoveComponent(world.Components.GridElement)</span></span>
-<span id="L157"><span class="lineNum">     157</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 :         // Stackableなら同名アイテムを統合する</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         if entity.HasComponent(world.Components.Stackable) {</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaUNC tlaBgUNC">           0 :                 if err := worldhelper.MergeInventoryItem(world, name); err != nil {</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaUNC">           0 :                         return fmt.Errorf(&quot;インベントリ統合エラー: %w&quot;, err)</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L163"><span class="lineNum">     163</span>              :         }</span>
-<span id="L164"><span class="lineNum">     164</span>              : </span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 Append(&quot; を入手した。&quot;).</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                 Log()</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L171"><span class="lineNum">     171</span>              : }</span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         if err := worldhelper.MoveToBackpack(world, entity, actor); err != nil {</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;バックパックへの移動に失敗: %w&quot;, err)</span></span>
+<span id="L157"><span class="lineNum">     157</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC tlaBgGNC">           1 :         gamelog.New(worldhelper.GetGameLog(world)).</span></span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 ItemName(formattedName).</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 Append(&quot; を入手した。&quot;).</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 Log()</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L164"><span class="lineNum">     164</span>              : }</span>
         </pre>
               </td>
             </tr>
