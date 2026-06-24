@@ -186,12 +186,10 @@ func TestPickupActivity_DoTurn_Target(t *testing.T) {
 		item2, err := worldhelper.SpawnFieldItem(world, "回復薬", 10, 10, 1)
 		require.NoError(t, err)
 
-		destination := gc.GridElement{X: 10, Y: 10}
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorPickup,
 			State:        gc.ActivityStateRunning,
 			Target:       &item1,
-			Destination:  &destination,
 		}
 
 		pa := &PickupActivity{}

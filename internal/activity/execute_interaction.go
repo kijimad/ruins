@@ -120,7 +120,6 @@ func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionRes
 	destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
 	params := ActionParams{
 		Actor:       actor,
-		Target:      &target,
 		Destination: &destination,
 	}
 	return Execute(&PickupActivity{}, params, world)
