@@ -170,6 +170,94 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 	})
 }
 
+func TestPickupActivity_DoTurn_Target(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Targetが指定されている場合はそのアイテムだけを拾う", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item1, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		require.NoError(t, err)
+
+		item2, err := worldhelper.SpawnFieldItem(world, "回復薬", 10, 10, 1)
+		require.NoError(t, err)
+
+		destination := gc.GridElement{X: 10, Y: 10}
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			State:        gc.ActivityStateRunning,
+			Target:       &item1,
+			Destination:  &destination,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.DoTurn(comp, player, world)
+
+		require.NoError(t, err)
+		assert.Equal(t, gc.ActivityStateCompleted, comp.State)
+
+		// 指定したアイテムだけがバックパックに移動する
+		assert.True(t, item1.HasComponent(world.Components.LocationInBackpack))
+		assert.False(t, item1.HasComponent(world.Components.GridElement))
+
+		// 指定していないアイテムはフィールドに残る
+		assert.False(t, item2.HasComponent(world.Components.LocationInBackpack))
+		assert.True(t, item2.HasComponent(world.Components.GridElement))
+	})
+}
+
+func TestPickupActivity_Validate_Target(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Targetが拾得可能なら成功", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		require.NoError(t, err)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			Target:       &item,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.Validate(comp, player, world)
+		assert.NoError(t, err)
+	})
+
+	t.Run("TargetがPropの場合はエラー", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		prop := world.Manager.NewEntity()
+		prop.AddComponent(world.Components.Prop, nil)
+		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
+		prop.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		prop.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorPickup,
+			Target:       &prop,
+		}
+
+		pa := &PickupActivity{}
+		err = pa.Validate(comp, player, world)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "拾えるものがありません")
+	})
+}
+
 func TestPickupActivity_Validate_Prop(t *testing.T) {
 	t.Parallel()
 
