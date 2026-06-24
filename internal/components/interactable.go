@@ -100,6 +100,17 @@ func (t ItemInteraction) Config() InteractionConfig {
 	}
 }
 
+// ItemAllInteraction は同一タイル上の全アイテム拾得の相互作用
+type ItemAllInteraction struct{}
+
+// Config は相互作用設定を返す
+func (t ItemAllInteraction) Config() InteractionConfig {
+	return InteractionConfig{
+		ActivationRange: ActivationRangeSameTile,
+		ActivationWay:   ActivationWayManual,
+	}
+}
+
 // StorageInteraction は収納の相互作用
 type StorageInteraction struct{}
 

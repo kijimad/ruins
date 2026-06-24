@@ -160,6 +160,7 @@ func TestTriggerInterfaceImplementation(t *testing.T) {
 	var _ InteractionData = DoorInteraction{}
 	var _ InteractionData = TalkInteraction{}
 	var _ InteractionData = ItemInteraction{}
+	var _ InteractionData = ItemAllInteraction{}
 	var _ InteractionData = MeleeInteraction{}
 }
 
@@ -175,6 +176,7 @@ func TestTriggerConfigConsistency(t *testing.T) {
 		{"Door", DoorInteraction{}},
 		{"Talk", TalkInteraction{}},
 		{"Item", ItemInteraction{}},
+		{"ItemAll", ItemAllInteraction{}},
 		{"Melee", MeleeInteraction{}},
 	}
 
@@ -203,6 +205,7 @@ func TestTriggerDesignConstraints(t *testing.T) {
 		// 仕様: 直上タイルトリガー（Item）は手動発動
 		sameTileTriggers := []InteractionData{
 			ItemInteraction{},
+			ItemAllInteraction{},
 		}
 
 		for _, trigger := range sameTileTriggers {

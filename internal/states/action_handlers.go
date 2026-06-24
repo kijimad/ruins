@@ -86,6 +86,22 @@ func GetSameTileManualActions(world w.World) []InteractionAction {
 			actions = append(actions, entityActions...)
 		}
 	}))
+
+	// アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
+	itemCount := 0
+	for _, action := range actions {
+		if _, ok := action.Interaction.(gc.ItemInteraction); ok {
+			itemCount++
+		}
+	}
+	if itemCount >= 2 {
+		pickupAll := InteractionAction{
+			Label:       "すべて拾う",
+			Interaction: gc.ItemAllInteraction{},
+		}
+		actions = append([]InteractionAction{pickupAll}, actions...)
+	}
+
 	return actions
 }
 
