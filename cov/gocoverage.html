@@ -59,19 +59,19 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (80.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
 				<option value="file4">github.com/kijimaD/ruins/internal/activity/drop.go (80.0%)</option>
 				
-				<option value="file5">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (83.3%)</option>
+				<option value="file5">github.com/kijimaD/ruins/internal/activity/execute_interaction.go (71.9%)</option>
 				
 				<option value="file6">github.com/kijimaD/ruins/internal/activity/move.go (78.6%)</option>
 				
 				<option value="file7">github.com/kijimaD/ruins/internal/activity/movement.go (90.9%)</option>
 				
-				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (80.0%)</option>
+				<option value="file8">github.com/kijimaD/ruins/internal/activity/pickup.go (80.9%)</option>
 				
 				<option value="file9">github.com/kijimaD/ruins/internal/activity/player_actions.go (75.0%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (93.4%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (94.0%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
@@ -141,7 +141,7 @@
 				
 				<option value="file42">github.com/kijimaD/ruins/internal/components/hunger.go (85.7%)</option>
 				
-				<option value="file43">github.com/kijimaD/ruins/internal/components/interactable.go (71.4%)</option>
+				<option value="file43">github.com/kijimaD/ruins/internal/components/interactable.go (73.3%)</option>
 				
 				<option value="file44">github.com/kijimaD/ruins/internal/components/invariant.go (75.0%)</option>
 				
@@ -317,7 +317,7 @@
 				
 				<option value="file130">github.com/kijimaD/ruins/internal/skill/growth.go (100.0%)</option>
 				
-				<option value="file131">github.com/kijimaD/ruins/internal/states/action_handlers.go (71.0%)</option>
+				<option value="file131">github.com/kijimaD/ruins/internal/states/action_handlers.go (73.7%)</option>
 				
 				<option value="file132">github.com/kijimaD/ruins/internal/states/auto_sell.go (75.3%)</option>
 				
@@ -1487,7 +1487,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -1917,7 +1917,9 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
         case gc.TalkInteraction:<span class="cov8" title="1">
                 return executeTalk(actor, target, world)</span>
         case gc.ItemInteraction:<span class="cov8" title="1">
-                return executeItem(actor, world)</span>
+                return executeItem(actor, target, world)</span>
+        case gc.ItemAllInteraction:<span class="cov0" title="0">
+                return executeItemAll(actor, world)</span>
         case gc.StorageInteraction:<span class="cov0" title="0">
                 return executeStorage(target, world)</span>
         case gc.MeleeInteraction:<span class="cov8" title="1">
@@ -1994,12 +1996,20 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
         <span class="cov8" title="1">return result, nil</span>
 }
 
-func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
+func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) <span class="cov8" title="1">{
+        params := ActionParams{
+                Actor:  actor,
+                Target: &amp;target,
+        }
+        return Execute(&amp;PickupActivity{}, params, world)
+}</span>
+
+func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) <span class="cov0" title="0">{
         gridElement := world.Components.GridElement.Get(actor)
         if gridElement == nil </span><span class="cov0" title="0">{
                 return nil, fmt.Errorf("位置情報が見つかりません")
         }</span>
-        <span class="cov8" title="1">playerGrid := gridElement.(*gc.GridElement)
+        <span class="cov0" title="0">playerGrid := gridElement.(*gc.GridElement)
         destination := gc.GridElement{X: playerGrid.X, Y: playerGrid.Y}
         params := ActionParams{
                 Actor:       actor,
@@ -2277,7 +2287,15 @@ func (pa *PickupActivity) Name() gc.BehaviorName <span class="cov8" title="1">{
 
 // Validate はアイテム拾得アクティビティの検証を行う
 func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        target, err := requireDestination(comp)
+        // Targetが指定されている場合は、そのエンティティが拾得可能かだけを確認する
+        if comp.Target != nil </span><span class="cov8" title="1">{
+                if !worldhelper.IsPickable(*comp.Target, world) </span><span class="cov8" title="1">{
+                        return fmt.Errorf("拾えるものがありません")
+                }</span>
+                <span class="cov8" title="1">return nil</span>
+        }
+
+        <span class="cov8" title="1">target, err := requireDestination(comp)
         if err != nil </span><span class="cov8" title="1">{
                 return err
         }</span>
@@ -2337,9 +2355,19 @@ func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
         return nil
 }</span>
 
-// performPickupActivity は実際のアイテム拾得処理を実行する
+// performPickupActivity は実際のアイテム拾得処理を実行する。
+// Targetが指定されている場合はそのエンティティだけを拾い、
+// 未指定の場合はDestinationタイル上の全拾得可能エンティティを拾う
 func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error <span class="cov8" title="1">{
-        target, err := requireDestination(comp)
+        // Targetが指定されている場合は、そのエンティティだけを拾う
+        if comp.Target != nil </span><span class="cov8" title="1">{
+                if !worldhelper.IsPickable(*comp.Target, world) </span><span class="cov0" title="0">{
+                        return fmt.Errorf("拾えるものがありません")
+                }</span>
+                <span class="cov8" title="1">return pa.collect(actor, world, *comp.Target)</span>
+        }
+
+        <span class="cov8" title="1">target, err := requireDestination(comp)
         if err != nil </span><span class="cov8" title="1">{
                 return err
         }</span>
@@ -4140,7 +4168,7 @@ func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Ent
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         // 30%の確率で待機
-        if rand.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
+        if rand.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -8088,6 +8116,17 @@ type ItemInteraction struct{}
 
 // Config は相互作用設定を返す
 func (t ItemInteraction) Config() InteractionConfig <span class="cov8" title="1">{
+        return InteractionConfig{
+                ActivationRange: ActivationRangeSameTile,
+                ActivationWay:   ActivationWayManual,
+        }
+}</span>
+
+// ItemAllInteraction は同一タイル上の全アイテム拾得の相互作用
+type ItemAllInteraction struct{}
+
+// Config は相互作用設定を返す
+func (t ItemAllInteraction) Config() InteractionConfig <span class="cov8" title="1">{
         return InteractionConfig{
                 ActivationRange: ActivationRangeSameTile,
                 ActivationWay:   ActivationWayManual,
@@ -28860,6 +28899,22 @@ func GetSameTileManualActions(world w.World) []InteractionAction <span class="co
                         actions = append(actions, entityActions...)
                 }</span>
         }))
+
+        // アイテム拾得アクションが2個以上ある場合、「すべて拾う」を先頭に追加する
+        <span class="cov8" title="1">itemCount := 0
+        for _, action := range actions </span><span class="cov8" title="1">{
+                if _, ok := action.Interaction.(gc.ItemInteraction); ok </span><span class="cov8" title="1">{
+                        itemCount++
+                }</span>
+        }
+        <span class="cov8" title="1">if itemCount &gt;= 2 </span><span class="cov8" title="1">{
+                pickupAll := InteractionAction{
+                        Label:       "すべて拾う",
+                        Interaction: gc.ItemAllInteraction{},
+                }
+                actions = append([]InteractionAction{pickupAll}, actions...)
+        }</span>
+
         <span class="cov8" title="1">return actions</span>
 }
 
