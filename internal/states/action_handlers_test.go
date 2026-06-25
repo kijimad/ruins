@@ -480,6 +480,55 @@ func TestGetSameTileManualActions(t *testing.T) {
 		assert.Empty(t, actions, "OnCollisionのインタラクションは含まれない")
 	})
 
+	t.Run("アイテムが2個以上あるとすべて拾うが先頭に追加される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		item1 := world.Manager.NewEntity()
+		item1.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		item1.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		})
+		item1.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
+
+		item2 := world.Manager.NewEntity()
+		item2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		item2.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		})
+		item2.AddComponent(world.Components.Name, &gc.Name{Name: "回復薬"})
+
+		actions := GetSameTileManualActions(world)
+		require.Len(t, actions, 3, "すべて拾う + 個別2つ")
+		assert.Equal(t, "すべて拾う", actions[0].Label)
+		_, ok := actions[0].Interaction.(gc.ItemAllInteraction)
+		assert.True(t, ok)
+	})
+
+	t.Run("アイテムが1個の場合はすべて拾うが追加されない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+
+		item := world.Manager.NewEntity()
+		item.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
+		item.AddComponent(world.Components.Interactable, &gc.Interactable{
+			Interactions: []gc.InteractionData{gc.ItemInteraction{}},
+		})
+		item.AddComponent(world.Components.Name, &gc.Name{Name: "木刀"})
+
+		actions := GetSameTileManualActions(world)
+		require.Len(t, actions, 1)
+		assert.Contains(t, actions[0].Label, "木刀")
+	})
+
 	t.Run("プレイヤーが存在しない場合はnil", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)

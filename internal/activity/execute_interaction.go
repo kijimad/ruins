@@ -34,7 +34,9 @@ func ExecuteInteraction(actor ecs.Entity, target ecs.Entity, interaction gc.Inte
 	case gc.TalkInteraction:
 		return executeTalk(actor, target, world)
 	case gc.ItemInteraction:
-		return executeItem(actor, world)
+		return executeItem(actor, target, world)
+	case gc.ItemAllInteraction:
+		return executeItemAll(actor, world)
 	case gc.StorageInteraction:
 		return executeStorage(target, world)
 	case gc.MeleeInteraction:
@@ -111,7 +113,15 @@ func executeTalk(actor ecs.Entity, npcEntity ecs.Entity, world w.World) (*Action
 	return result, nil
 }
 
-func executeItem(actor ecs.Entity, world w.World) (*ActionResult, error) {
+func executeItem(actor ecs.Entity, target ecs.Entity, world w.World) (*ActionResult, error) {
+	params := ActionParams{
+		Actor:  actor,
+		Target: &target,
+	}
+	return Execute(&PickupActivity{}, params, world)
+}
+
+func executeItemAll(actor ecs.Entity, world w.World) (*ActionResult, error) {
 	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return nil, fmt.Errorf("位置情報が見つかりません")

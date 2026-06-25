@@ -33,6 +33,14 @@ func (pa *PickupActivity) Name() gc.BehaviorName {
 
 // Validate はアイテム拾得アクティビティの検証を行う
 func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
+	// Targetが指定されている場合は、そのエンティティが拾得可能かだけを確認する
+	if comp.Target != nil {
+		if !worldhelper.IsPickable(*comp.Target, world) {
+			return fmt.Errorf("拾えるものがありません")
+		}
+		return nil
+	}
+
 	target, err := requireDestination(comp)
 	if err != nil {
 		return err
@@ -93,8 +101,18 @@ func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 	return nil
 }
 
-// performPickupActivity は実際のアイテム拾得処理を実行する
+// performPickupActivity は実際のアイテム拾得処理を実行する。
+// Targetが指定されている場合はそのエンティティだけを拾い、
+// 未指定の場合はDestinationタイル上の全拾得可能エンティティを拾う
 func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+	// Targetが指定されている場合は、そのエンティティだけを拾う
+	if comp.Target != nil {
+		if !worldhelper.IsPickable(*comp.Target, world) {
+			return fmt.Errorf("拾えるものがありません")
+		}
+		return pa.collect(actor, world, *comp.Target)
+	}
+
 	target, err := requireDestination(comp)
 	if err != nil {
 		return err
