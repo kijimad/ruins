@@ -33,6 +33,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 	if err := spawnProps(world, metaPlan); err != nil {
 		return gc.Level{}, err
 	}
+	if err := spawnDoors(world, metaPlan); err != nil {
+		return gc.Level{}, err
+	}
 	if err := spawnPortals(world, metaPlan); err != nil {
 		return gc.Level{}, err
 	}
@@ -151,9 +154,8 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 
 		// Door componentがあれば向きを設定して閉じた状態で初期化
 		if propRaw.Door != nil {
-			orientation := detectDoorOrientation(metaPlan, prop.X, prop.Y)
 			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
-			doorComp.Orientation = orientation
+			doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)
 			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
 				return fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
@@ -164,6 +166,18 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 			if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {
 				return fmt.Errorf("収納アイテム生成エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
+		}
+	}
+	return nil
+}
+
+// spawnDoors はドアを生成する
+func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan) error {
+	for _, door := range metaPlan.Doors {
+		tileX, tileY := consts.Tile(door.X), consts.Tile(door.Y)
+		_, err := worldhelper.SpawnDoor(world, tileX, tileY, door.Orientation)
+		if err != nil {
+			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
 		}
 	}
 	return nil
@@ -189,40 +203,21 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan) error {
 	return nil
 }
 
-// detectDoorOrientation は隣接タイルから扉の向きを判定する
-// 左右が壁の場合は縦向き、上下が壁の場合は横向き
-func detectDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {
+// detectPropDoorOrientation はpropsの扉の向きを隣接タイルから判定する。
+// DoorSpecを持たないprops扉専用で、左右が壁なら縦向き、それ以外は横向きを返す
+func detectPropDoorOrientation(metaPlan *mapplanner.MetaPlan, x, y int) gc.DoorOrientation {
 	width := int(metaPlan.Level.TileWidth)
 	height := int(metaPlan.Level.TileHeight)
 
-	// 範囲外チェック
 	if x <= 0 || x >= width-1 || y <= 0 || y >= height-1 {
-		// デフォルトは横向き
 		return gc.DoorOrientationHorizontal
 	}
 
-	// 隣接タイルを取得
-	leftIdx := y*width + (x - 1)
-	rightIdx := y*width + (x + 1)
-	topIdx := (y-1)*width + x
-	bottomIdx := (y+1)*width + x
-
-	leftTile := metaPlan.Tiles[leftIdx]
-	rightTile := metaPlan.Tiles[rightIdx]
-	topTile := metaPlan.Tiles[topIdx]
-	bottomTile := metaPlan.Tiles[bottomIdx]
-
-	// 左右が壁（通行不可）の場合は縦向き
-	if leftTile.BlockPass && rightTile.BlockPass {
+	idx := y*width + x
+	if metaPlan.Tiles[idx-1].BlockPass && metaPlan.Tiles[idx+1].BlockPass {
 		return gc.DoorOrientationVertical
 	}
 
-	// 上下が壁（通行不可）の場合は横向き
-	if topTile.BlockPass && bottomTile.BlockPass {
-		return gc.DoorOrientationHorizontal
-	}
-
-	// どちらでもない場合はデフォルト（横向き）
 	return gc.DoorOrientationHorizontal
 }
 

@@ -21,7 +21,7 @@ func newTestMetaPlan(width, height consts.Tile, tiles []oapi.Tile) *mapplanner.M
 	}
 }
 
-func TestDetectDoorOrientation_VerticalDoor(t *testing.T) {
+func TestDetectPropDoorOrientation_VerticalDoor(t *testing.T) {
 	t.Parallel()
 
 	// 3x3マップ: 左右が壁 → 縦向き
@@ -35,11 +35,11 @@ func TestDetectDoorOrientation_VerticalDoor(t *testing.T) {
 	tiles[4] = oapi.Tile{BlockPass: false} // 中央がドア
 
 	plan := newTestMetaPlan(3, 3, tiles)
-	result := detectDoorOrientation(plan, 1, 1)
+	result := detectPropDoorOrientation(plan, 1, 1)
 	assert.Equal(t, gc.DoorOrientationVertical, result, "左右が壁なら縦向き")
 }
 
-func TestDetectDoorOrientation_HorizontalDoor(t *testing.T) {
+func TestDetectPropDoorOrientation_HorizontalDoor(t *testing.T) {
 	t.Parallel()
 
 	// 3x3マップ: 上下が壁 → 横向き
@@ -51,19 +51,19 @@ func TestDetectDoorOrientation_HorizontalDoor(t *testing.T) {
 	tiles[7] = oapi.Tile{BlockPass: true} // 下
 
 	plan := newTestMetaPlan(3, 3, tiles)
-	result := detectDoorOrientation(plan, 1, 1)
+	result := detectPropDoorOrientation(plan, 1, 1)
 	assert.Equal(t, gc.DoorOrientationHorizontal, result, "上下が壁なら横向き")
 }
 
-func TestDetectDoorOrientation_EdgePosition(t *testing.T) {
+func TestDetectPropDoorOrientation_EdgePosition(t *testing.T) {
 	t.Parallel()
 
 	tiles := make([]oapi.Tile, 9)
 	plan := newTestMetaPlan(3, 3, tiles)
 
 	// 端の座標はデフォルト（横向き）
-	assert.Equal(t, gc.DoorOrientationHorizontal, detectDoorOrientation(plan, 0, 1))
-	assert.Equal(t, gc.DoorOrientationHorizontal, detectDoorOrientation(plan, 2, 1))
-	assert.Equal(t, gc.DoorOrientationHorizontal, detectDoorOrientation(plan, 1, 0))
-	assert.Equal(t, gc.DoorOrientationHorizontal, detectDoorOrientation(plan, 1, 2))
+	assert.Equal(t, gc.DoorOrientationHorizontal, detectPropDoorOrientation(plan, 0, 1))
+	assert.Equal(t, gc.DoorOrientationHorizontal, detectPropDoorOrientation(plan, 2, 1))
+	assert.Equal(t, gc.DoorOrientationHorizontal, detectPropDoorOrientation(plan, 1, 0))
+	assert.Equal(t, gc.DoorOrientationHorizontal, detectPropDoorOrientation(plan, 1, 2))
 }
