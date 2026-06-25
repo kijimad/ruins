@@ -21,6 +21,11 @@ type PropsSpec struct {
 	Name string // Prop名
 }
 
+// DoorSpec はドア配置仕様を表す
+type DoorSpec struct {
+	consts.Coord[int]
+}
+
 // MetaPlan は階層のタイルを作る元になる概念の集合体
 type MetaPlan struct {
 	// 階層情報
@@ -46,6 +51,8 @@ type MetaPlan struct {
 	Items []ItemSpec
 	// Props は配置予定のPropsリスト
 	Props []PropsSpec
+	// Doors は配置予定のドアリスト
+	Doors []DoorSpec
 	// SpawnPoints はプレイヤーのスポーン地点リスト
 	SpawnPoints []maptemplate.SpawnPoint
 	// RawMaster はタイル生成に使用するマスターデータ
@@ -100,6 +107,13 @@ func (bm MetaPlan) existPlannedEntityOnTile(x, y int) bool {
 	// Propsをチェック
 	for _, prop := range bm.Props {
 		if prop.X == x && prop.Y == y {
+			return true
+		}
+	}
+
+	// ドアをチェック
+	for _, door := range bm.Doors {
+		if door.X == x && door.Y == y {
 			return true
 		}
 	}
@@ -297,6 +311,7 @@ func NewPlannerChain(width consts.Tile, height consts.Tile, seed uint64) *Planne
 			NPCs:          []NPCSpec{},
 			Items:         []ItemSpec{},
 			Props:         []PropsSpec{},
+			Doors:         []DoorSpec{},
 		},
 	}
 }
@@ -346,6 +361,7 @@ func NewSmallRoomPlanner(width consts.Tile, height consts.Tile, seed uint64) (*P
 	chain.With(NewFillAll(consts.TileNameWall)) // 全体を壁で埋める
 	chain.With(RoomDraw{})                      // 部屋を描画
 	chain.With(LineCorridorPlanner{})           // 廊下を作成
+	chain.With(DoorPlanner{DoorChance: 0.8})    // 入口にランダムにドアを配置
 	chain.With(ConvertIsolatedWalls{            // 床に隣接しない壁をvoidに変換
 		ReplacementTile: consts.TileNameVoid,
 	})

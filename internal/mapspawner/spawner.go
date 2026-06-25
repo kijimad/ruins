@@ -33,6 +33,9 @@ func Spawn(world w.World, metaPlan *mapplanner.MetaPlan) (gc.Level, error) {
 	if err := spawnProps(world, metaPlan); err != nil {
 		return gc.Level{}, err
 	}
+	if err := spawnDoors(world, metaPlan); err != nil {
+		return gc.Level{}, err
+	}
 	if err := spawnPortals(world, metaPlan); err != nil {
 		return gc.Level{}, err
 	}
@@ -164,6 +167,19 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 			if err := populateStorageLoot(world, metaPlan, propEntity, propRaw); err != nil {
 				return fmt.Errorf("収納アイテム生成エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
+		}
+	}
+	return nil
+}
+
+// spawnDoors はドアを生成する
+func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan) error {
+	for _, door := range metaPlan.Doors {
+		tileX, tileY := consts.Tile(door.X), consts.Tile(door.Y)
+		orientation := detectDoorOrientation(metaPlan, door.X, door.Y)
+		_, err := worldhelper.SpawnDoor(world, tileX, tileY, orientation)
+		if err != nil {
+			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
 		}
 	}
 	return nil

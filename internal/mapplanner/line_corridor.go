@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/geometry"
 )
 
-// LineCorridorPlanner は直線廊下を生成するビルダー
+// LineCorridorPlanner は直線廊下を生成するビルダー。
+// 廊下は3タイル幅で生成され、部屋との接続部は1タイル幅に狭まる
 type LineCorridorPlanner struct{}
 
 // PlanMeta はメタデータをビルドする
@@ -45,73 +46,102 @@ func (b LineCorridorPlanner) BuildCorridors(planData *MetaPlan) {
 			}
 			destCenterX, destCenterY := planData.Rooms[closestIdx].Center()
 
-			points := []point{}
-			corridorWidth := 3
-			// 中心から上下左右にoffsetして複数のL字型廊下を生成
+			// 中心線のL字型廊下を生成する
+			centerStart := consts.Coord[consts.Tile]{X: centerX, Y: centerY}
+			centerEnd := consts.Coord[consts.Tile]{X: destCenterX, Y: destCenterY}
+			centerPoints := createLShapedCorridor(centerStart, centerEnd)
+
+			// サイドのL字型廊下を生成する
+			const corridorWidth = 3
+			var sidePoints []consts.Coord[consts.Tile]
 			for offsetX := -(corridorWidth / 2); offsetX <= corridorWidth/2; offsetX++ {
 				for offsetY := -(corridorWidth / 2); offsetY <= corridorWidth/2; offsetY++ {
-					startPoint := point{x: centerX + consts.Tile(offsetX), y: centerY + consts.Tile(offsetY)}
-					endPoint := point{x: destCenterX + consts.Tile(offsetX), y: destCenterY + consts.Tile(offsetY)}
-					corridorPoints := createLShapedCorridor(startPoint, endPoint)
-					points = append(points, corridorPoints...)
+					if offsetX == 0 && offsetY == 0 {
+						continue
+					}
+					start := consts.Coord[consts.Tile]{X: centerX + consts.Tile(offsetX), Y: centerY + consts.Tile(offsetY)}
+					end := consts.Coord[consts.Tile]{X: destCenterX + consts.Tile(offsetX), Y: destCenterY + consts.Tile(offsetY)}
+					sidePoints = append(sidePoints, createLShapedCorridor(start, end)...)
 				}
 			}
-			corridor := make([]gc.TileIdx, 0, len(points))
-			for _, p := range points {
-				idx := planData.Level.XYTileIndex(p.x, p.y)
-				if 0 < int(idx) && int(idx) < int(planData.Level.TileWidth)*int(planData.Level.TileHeight)-1 && planData.Tiles[idx].Name == "wall" {
-					planData.Tiles[idx] = planData.GetTile("floor")
+
+			corridor := make([]gc.TileIdx, 0, len(centerPoints)+len(sidePoints))
+
+			// 中心線は無条件に床に変換する
+			for _, p := range centerPoints {
+				idx := planData.Level.XYTileIndex(p.X, p.Y)
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Name == consts.TileNameWall {
+					planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
 				}
 				corridor = append(corridor, idx)
 			}
+
+			// サイドは部屋に隣接するタイルをスキップして、接続部を1タイル幅に狭める
+			for _, p := range sidePoints {
+				idx := planData.Level.XYTileIndex(p.X, p.Y)
+				if isValidTileIdx(planData, idx) && planData.Tiles[idx].Name == consts.TileNameWall {
+					if isAdjacentToRoom(planData.Rooms, int(p.X), int(p.Y)) {
+						continue
+					}
+					planData.Tiles[idx] = planData.GetTile(consts.TileNameFloor)
+				}
+				corridor = append(corridor, idx)
+			}
+
 			planData.Corridors = append(planData.Corridors, corridor)
 		}
 		connected[i] = true
 	}
 }
 
-type point struct {
-	x consts.Tile
-	y consts.Tile
+func isValidTileIdx(planData *MetaPlan, idx gc.TileIdx) bool {
+	return int(idx) >= 0 && int(idx) < int(planData.Level.TileWidth)*int(planData.Level.TileHeight)
+}
+
+// isAdjacentToRoom はタイルが部屋内または部屋に隣接しているかを判定する。
+// 部屋の矩形を上下左右に1タイル膨張させた範囲に含まれるかで判定する
+func isAdjacentToRoom(rooms []gc.Rect, x, y int) bool {
+	for _, room := range rooms {
+		if x >= int(room.X1)-1 && x <= int(room.X2)+1 && y >= int(room.Y1)-1 && y <= int(room.Y2)+1 {
+			return true
+		}
+	}
+	return false
 }
 
 // createLShapedCorridor は横と縦のみのL字型廊下を生成する
-func createLShapedCorridor(start, end point) []point {
-	var points []point
+func createLShapedCorridor(start, end consts.Coord[consts.Tile]) []consts.Coord[consts.Tile] {
+	var points []consts.Coord[consts.Tile]
 
 	// 開始点から水平に移動
 	current := start
-	if start.x < end.x {
-		// 右に移動
-		for current.x <= end.x {
+	if start.X < end.X {
+		for current.X <= end.X {
 			points = append(points, current)
-			if current.x == end.x {
+			if current.X == end.X {
 				break
 			}
-			current.x++
+			current.X++
 		}
 	} else {
-		// 左に移動
-		for current.x >= end.x {
+		for current.X >= end.X {
 			points = append(points, current)
-			if current.x == end.x {
+			if current.X == end.X {
 				break
 			}
-			current.x--
+			current.X--
 		}
 	}
 
 	// 水平移動後の位置から垂直に移動
-	if start.y < end.y {
-		// 下に移動
-		for current.y < end.y {
-			current.y++
+	if start.Y < end.Y {
+		for current.Y < end.Y {
+			current.Y++
 			points = append(points, current)
 		}
-	} else if start.y > end.y {
-		// 上に移動
-		for current.y > end.y {
-			current.y--
+	} else if start.Y > end.Y {
+		for current.Y > end.Y {
+			current.Y--
 			points = append(points, current)
 		}
 	}

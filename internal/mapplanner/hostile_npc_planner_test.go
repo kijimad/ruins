@@ -226,7 +226,7 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 			},
 		}
 
-		chain, err := NewSmallRoomPlanner(40, 40, 99999)
+		chain, err := NewSmallRoomPlanner(40, 40, 100)
 		require.NoError(t, err)
 		chain.PlanData.RawMaster = CreateTestRawMaster()
 		err = chain.Plan()
