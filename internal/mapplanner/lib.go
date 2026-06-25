@@ -24,6 +24,7 @@ type PropsSpec struct {
 // DoorSpec はドア配置仕様を表す
 type DoorSpec struct {
 	consts.Coord[int]
+	Orientation gc.DoorOrientation
 }
 
 // MetaPlan は階層のタイルを作る元になる概念の集合体

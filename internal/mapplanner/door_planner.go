@@ -1,6 +1,7 @@
 package mapplanner
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 )
 
@@ -31,7 +32,8 @@ func (p DoorPlanner) PlanMeta(mp *MetaPlan) error {
 			}
 
 			mp.Doors = append(mp.Doors, DoorSpec{
-				Coord: consts.Coord[int]{X: x, Y: y},
+				Coord:       consts.Coord[int]{X: x, Y: y},
+				Orientation: doorOrientation(mp, x, y, width),
 			})
 		}
 	}
@@ -57,4 +59,13 @@ func isDoorPattern(mp *MetaPlan, x, y, width int) bool {
 	}
 
 	return false
+}
+
+// doorOrientation はドア位置の隣接タイルから向きを判定する
+func doorOrientation(mp *MetaPlan, x, y, width int) gc.DoorOrientation {
+	idx := y*width + x
+	if mp.Tiles[idx-1].BlockPass && mp.Tiles[idx+1].BlockPass {
+		return gc.DoorOrientationVertical
+	}
+	return gc.DoorOrientationHorizontal
 }
