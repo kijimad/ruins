@@ -99,7 +99,8 @@ func isValidTileIdx(planData *MetaPlan, idx gc.TileIdx) bool {
 }
 
 // isAdjacentToRoom はタイルが部屋内または部屋に隣接しているかを判定する。
-// 部屋の矩形を上下左右に1タイル膨張させた範囲に含まれるかで判定する
+// 部屋の矩形を上下左右に1タイル膨張させた範囲に含まれるかで判定する。
+// 対角方向も含めることで、部屋の角付近でサイドタイルが部屋壁を上書きするのを防ぐ
 func isAdjacentToRoom(rooms []gc.Rect, x, y int) bool {
 	for _, room := range rooms {
 		if x >= int(room.X1)-1 && x <= int(room.X2)+1 && y >= int(room.Y1)-1 && y <= int(room.Y2)+1 {

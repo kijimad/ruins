@@ -129,7 +129,7 @@ func TestDoorPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, chain.Plan())
 
 		if len(chain.PlanData.Rooms) >= 2 {
-			t.Logf("部屋数: %d, ドア数: %d", len(chain.PlanData.Rooms), len(chain.PlanData.Doors))
+			assert.NotEmpty(t, chain.PlanData.Doors, "部屋が2つ以上ある場合、廊下入口にドアが生成されるべき")
 		}
 	})
 }
