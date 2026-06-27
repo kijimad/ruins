@@ -65,6 +65,11 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
 	}
 
+	// attemptMetaPlanと同じNPC/Item/Portalプランナーを追加する
+	chain.With(mapplanner.NewHostileNPCPlanner(world, st.PlannerType))
+	chain.With(mapplanner.NewItemPlanner(world, st.PlannerType))
+	chain.With(mapplanner.NewPortalPlanner(world, st.PlannerType))
+
 	if err := chain.Plan(); err != nil {
 		return fmt.Errorf("plan実行失敗: %w", err)
 	}

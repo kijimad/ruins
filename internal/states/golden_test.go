@@ -199,6 +199,9 @@ func TestMapGenImages(t *testing.T) {
 		require.NoError(t, err)
 		chain.Recording = true
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
+		chain.With(mapplanner.NewHostileNPCPlanner(world, pt))
+		chain.With(mapplanner.NewItemPlanner(world, pt))
+		chain.With(mapplanner.NewPortalPlanner(world, pt))
 		require.NoError(t, chain.Plan())
 
 		for i, snap := range chain.Snapshots {
