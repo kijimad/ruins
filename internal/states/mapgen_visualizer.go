@@ -10,6 +10,7 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
+	"github.com/kijimaD/ruins/internal/oapi"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
@@ -152,13 +153,23 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 	snap := st.snapshots[st.currentIdx]
 
-	// SnapshotからMetaPlanを再構築する
+	// SnapshotからMetaPlanを再構築する。
+	// 未初期化タイル（Name が空）は void として扱う
+	tiles := make([]oapi.Tile, len(snap.Tiles))
+	copy(tiles, snap.Tiles)
+	for i := range tiles {
+		if tiles[i].Name == "" {
+			tiles[i].Name = "void"
+			tiles[i].BlockPass = true
+		}
+	}
+
 	plan := &mapplanner.MetaPlan{
 		Level: gc.Level{
 			TileWidth:  st.mapWidth,
 			TileHeight: st.mapHeight,
 		},
-		Tiles:         snap.Tiles,
+		Tiles:         tiles,
 		Rooms:         snap.Rooms,
 		Corridors:     snap.Corridors,
 		Doors:         snap.Doors,

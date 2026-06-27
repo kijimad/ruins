@@ -1,9 +1,11 @@
 package states_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -174,4 +176,39 @@ func TestGolden_StorageMenu(t *testing.T) {
 			gs.NewStorageMenuState(storageEntity),
 		}
 	})
+}
+
+func TestGolden_MapGen(t *testing.T) {
+	t.Parallel()
+
+	plannerTypes := []mapplanner.PlannerType{
+		mapplanner.PlannerTypeSmallRoom,
+		mapplanner.PlannerTypeBigRoom,
+		mapplanner.PlannerTypeCave,
+		mapplanner.PlannerTypeRuins,
+		mapplanner.PlannerTypeForest,
+	}
+	seed := uint64(12345)
+
+	// フェーズ数を取得するためにRawMasterが必要
+	world := vrt.InitVRTWorld(t)
+
+	for _, pt := range plannerTypes {
+		chain, err := pt.PlannerFunc(consts.MapTileWidth, consts.MapTileHeight, seed)
+		require.NoError(t, err)
+		chain.Recording = true
+		chain.PlanData.RawMaster = &world.Resources.RawMaster
+		require.NoError(t, chain.Plan())
+
+		for i, snap := range chain.Snapshots {
+			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
+				t.Parallel()
+				vrt.AssertStateGolden(t, vrt.States(&gs.MapGenVisualizerState{
+					PlannerType: pt,
+					Seed:        seed,
+					PhaseIndex:  i,
+				}))
+			})
+		}
+	}
 }
