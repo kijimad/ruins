@@ -179,6 +179,9 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		Tiles:         tiles,
 		Rooms:         snap.Rooms,
 		Corridors:     snap.Corridors,
+		NPCs:          snap.NPCs,
+		Items:         snap.Items,
+		Props:         snap.Props,
 		Doors:         snap.Doors,
 		NextPortals:   snap.NextPortals,
 		EscapePortals: snap.EscapePortals,
@@ -188,15 +191,15 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 		plan.RawMaster = &world.Resources.RawMaster
 	}
 
-	// タイルのみスポーンする。NPCやアイテムはRawMasterのルックアップが必要で、
-	// スナップショット時点で名前がマスターデータと一致しない可能性があるため、
-	// ドアとポータルのみ追加でスポーンする
 	if _, err := mapspawner.Spawn(world, plan); err != nil {
 		return fmt.Errorf("スナップショット%dのスポーン失敗: %w", st.currentIdx, err)
 	}
 
 	// 全タイルを可視にする
 	st.revealAllTiles(world)
+
+	// プレイヤーを画面外に移動して非表示にする
+	st.hidePlayer(world)
 
 	return nil
 }
@@ -210,6 +213,18 @@ func (st *MapGenVisualizerState) revealAllTiles(world w.World) {
 			d.VisibleTiles[gc.GridElement{X: x, Y: y}] = true
 		}
 	}
+}
+
+// hidePlayer はプレイヤーを画面外に移動して描画されないようにする
+func (st *MapGenVisualizerState) hidePlayer(world w.World) {
+	world.Manager.Join(
+		world.Components.Player,
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		ge := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		ge.X = -100
+		ge.Y = -100
+	}))
 }
 
 // clearEntities はスポーンしたエンティティを削除する
