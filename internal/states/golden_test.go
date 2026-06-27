@@ -277,9 +277,9 @@ func TestMapGenImages(t *testing.T) {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
 				pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
-					PlannerType: pt,
-					Seed:        mapGenSeed,
-					PhaseIndex:  i,
+					PlannerType:   pt,
+					Seed:          mapGenSeed,
+					SnapshotIndex: i,
 				}))
 
 				dir := filepath.Join("testdata", "MapGenImages", pt.Name)

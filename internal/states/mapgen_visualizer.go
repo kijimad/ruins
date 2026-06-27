@@ -17,17 +17,16 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// MapGenVisualizerState はマップ生成過程を可視化するデバッグ用ステート
+// MapGenVisualizerState はマップ生成過程を可視化するVRT専用ステート
 type MapGenVisualizerState struct {
 	es.BaseState[w.World]
-	snapshots  []mapplanner.Snapshot
-	currentIdx int
+	snapshots []mapplanner.Snapshot
 	// PlannerType は使用するプランナータイプ
 	PlannerType mapplanner.PlannerType
 	// Seed は乱数シード
 	Seed uint64
-	// PhaseIndex はゴールデンテストで特定フェーズを表示する際に使う
-	PhaseIndex int
+	// SnapshotIndex は表示するスナップショットのインデックス
+	SnapshotIndex int
 
 	mapWidth  consts.Tile
 	mapHeight consts.Tile
@@ -67,19 +66,13 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	st.mapHeight = chain.PlanData.Level.TileHeight
 
 	st.snapshots = chain.Snapshots
-	if len(st.snapshots) == 0 {
-		return fmt.Errorf("スナップショットが記録されていません")
-	}
-
-	// PhaseIndexが指定されていればそのフェーズを表示する
-	if st.PhaseIndex >= 0 && st.PhaseIndex < len(st.snapshots) {
-		st.currentIdx = st.PhaseIndex
+	if st.SnapshotIndex < 0 || st.SnapshotIndex >= len(st.snapshots) {
+		return fmt.Errorf("SnapshotIndex %d が範囲外です（スナップショット数: %d）", st.SnapshotIndex, len(st.snapshots))
 	}
 
 	// カメラをマップ全体が見えるように設定する
 	st.setupCamera(world)
 
-	// 最初のスナップショットをスポーンする
 	return st.spawnSnapshot(world)
 }
 
@@ -104,9 +97,9 @@ func (st *MapGenVisualizerState) Draw(world w.World, screen *ebiten.Image) error
 	}
 
 	// HUD: フェーズ情報を表示する
-	if st.currentIdx < len(st.snapshots) {
-		snap := st.snapshots[st.currentIdx]
-		info := fmt.Sprintf("Phase %d/%d: %s", st.currentIdx+1, len(st.snapshots), snap.Label)
+	if st.SnapshotIndex < len(st.snapshots) {
+		snap := st.snapshots[st.SnapshotIndex]
+		info := fmt.Sprintf("Phase %d/%d: %s", st.SnapshotIndex+1, len(st.snapshots), snap.Label)
 		ebitenutil.DebugPrint(screen, info)
 	}
 
@@ -150,7 +143,7 @@ func (st *MapGenVisualizerState) setupCamera(world w.World) {
 
 // spawnSnapshot は現在のスナップショットからエンティティを生成する
 func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
-	snap := st.snapshots[st.currentIdx]
+	snap := st.snapshots[st.SnapshotIndex]
 
 	// SnapshotからMetaPlanを再構築する。
 	// 未初期化タイル（Name が空）は void として扱う
@@ -184,7 +177,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 	}
 
 	if _, err := mapspawner.Spawn(world, plan); err != nil {
-		return fmt.Errorf("スナップショット%dのスポーン失敗: %w", st.currentIdx, err)
+		return fmt.Errorf("スナップショット%dのスポーン失敗: %w", st.SnapshotIndex, err)
 	}
 
 	// 全タイルを可視にする
