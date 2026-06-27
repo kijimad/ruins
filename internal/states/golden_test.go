@@ -1,6 +1,7 @@
 package states_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -268,7 +269,7 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 }
 
 // TestMapGenImages は全PlannerTypeの各フェーズのVRT画像を生成する。
-// 対応するスナップショットJSONのゴールデンファイルが画像より新しい場合のみ再生成する。
+// 対応するスナップショットJSONの内容が変わった場合のみ画像を再生成する。
 // ピクセル比較は行わず、目視確認用の参照画像として保存する
 func TestMapGenImages(t *testing.T) {
 	t.Parallel()
@@ -279,12 +280,15 @@ func TestMapGenImages(t *testing.T) {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
 
+				currentJSON, err := json.MarshalIndent(snap, "", "  ")
+				require.NoError(t, err)
+
 				g := goldie.New(t, goldie.WithNameSuffix(".png"))
 				imgPath := g.GoldenFileName(t, t.Name())
 				subName := strings.TrimPrefix(t.Name(), "TestMapGenImages/")
 				jsonPath := filepath.Join("testdata", "TestGolden_MapGenSnapshot", subName+".json")
 
-				if !imgNeedsUpdate(imgPath, jsonPath) {
+				if !imgNeedsUpdate(imgPath, jsonPath, currentJSON) {
 					return
 				}
 
@@ -295,22 +299,20 @@ func TestMapGenImages(t *testing.T) {
 				}))
 				require.NoError(t, g.Update(t, t.Name(), pngData))
 				t.Logf("画像を更新: %s", imgPath)
-
-				_ = snap
 			})
 		}
 	}
 }
 
-// imgNeedsUpdate はJSONゴールデンが画像より新しいか画像が存在しない場合にtrueを返す
-func imgNeedsUpdate(imgPath, jsonPath string) bool {
-	imgInfo, err := os.Stat(imgPath)
+// imgNeedsUpdate は画像が存在しないかJSONの内容が変わった場合にtrueを返す。
+// goldie はJSONの末尾に改行を付加するためTrimSpaceで比較する
+func imgNeedsUpdate(imgPath, jsonPath string, currentJSON []byte) bool {
+	if _, err := os.Stat(imgPath); err != nil {
+		return true
+	}
+	goldenJSON, err := os.ReadFile(jsonPath)
 	if err != nil {
 		return true
 	}
-	jsonInfo, err := os.Stat(jsonPath)
-	if err != nil {
-		return true
-	}
-	return jsonInfo.ModTime().After(imgInfo.ModTime())
+	return !bytes.Equal(bytes.TrimSpace(currentJSON), bytes.TrimSpace(goldenJSON))
 }

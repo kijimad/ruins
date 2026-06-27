@@ -30,10 +30,7 @@ func States(states ...es.State[w.World]) func(w.World) []es.State[w.World] {
 // ebitenui の時間依存ノイズによる不要な差分を防ぐ
 func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.World]) {
 	t.Helper()
-
-	rendered := renderState(t, buildStates)
-	pngData := encodePNG(t, rendered)
-	assertPNGGolden(t, pngData)
+	assertPNGGolden(t, RenderStatePNG(t, buildStates))
 }
 
 // RenderStatePNG はステートを描画してPNGバイト列として返す。
