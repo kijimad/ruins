@@ -222,8 +222,9 @@ func collectPlannerTypes() []mapplanner.PlannerType {
 // 実装と同じチェーン構築ロジックを共有する。
 // 接続性エラー時は本番と同様にシードを変えてリトライする。
 // アセット未作成などでチェーン構築に失敗した場合はスキップしてnilを返す
-func buildMapGenChain(t *testing.T, world w.World, pt mapplanner.PlannerType) *mapplanner.PlannerChain {
+func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapplanner.PlannerChain {
 	t.Helper()
+	world := vrt.InitVRTWorld(t)
 	for attempt := 0; attempt < mapplanner.MaxPlanRetries; attempt++ {
 		currentSeed := mapGenSeed + uint64(attempt*1000)
 		chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, currentSeed, pt)
@@ -250,9 +251,8 @@ func buildMapGenChain(t *testing.T, world w.World, pt mapplanner.PlannerType) *m
 func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
-	world := vrt.InitVRTWorld(t)
 	for _, pt := range collectPlannerTypes() {
-		chain := buildMapGenChain(t, world, pt)
+		chain := buildMapGenChain(t, pt)
 		for i, snap := range chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
@@ -271,9 +271,8 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 func TestMapGenImages(t *testing.T) {
 	t.Parallel()
 
-	world := vrt.InitVRTWorld(t)
 	for _, pt := range collectPlannerTypes() {
-		chain := buildMapGenChain(t, world, pt)
+		chain := buildMapGenChain(t, pt)
 		for i, snap := range chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
