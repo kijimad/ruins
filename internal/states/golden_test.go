@@ -220,11 +220,17 @@ func collectPlannerTypes() []mapplanner.PlannerType {
 	return result
 }
 
+// mapGenResult はbuildMapGenChainの結果を保持する
+type mapGenResult struct {
+	chain *mapplanner.PlannerChain
+	seed  uint64
+}
+
 // buildMapGenChain はBuildChainを使ってRecording付きチェーンを構築する。
 // 実装と同じチェーン構築ロジックを共有する。
 // 接続性エラー時は本番と同様にシードを変えてリトライする。
 // アセット未作成などでチェーン構築に失敗した場合はスキップしてnilを返す
-func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapplanner.PlannerChain {
+func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 	t.Helper()
 	world := vrt.InitVRTWorld(t)
 	for attempt := 0; attempt < mapplanner.MaxPlanRetries; attempt++ {
@@ -242,7 +248,7 @@ func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapplanner.Plann
 			t.Skipf("PlannerType %s のプラン生成をスキップ: %v", pt.Name, err)
 			return nil
 		}
-		return chain
+		return &mapGenResult{chain: chain, seed: currentSeed}
 	}
 	t.Skipf("PlannerType %s のプラン生成が%d回失敗しました", pt.Name, mapplanner.MaxPlanRetries)
 	return nil
@@ -254,8 +260,11 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 	t.Parallel()
 
 	for _, pt := range collectPlannerTypes() {
-		chain := buildMapGenChain(t, pt)
-		for i, snap := range chain.Snapshots {
+		result := buildMapGenChain(t, pt)
+		if result == nil {
+			continue
+		}
+		for i, snap := range result.chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
 				data, err := json.MarshalIndent(snap, "", "  ")
@@ -275,8 +284,11 @@ func TestMapGenImages(t *testing.T) {
 	t.Parallel()
 
 	for _, pt := range collectPlannerTypes() {
-		chain := buildMapGenChain(t, pt)
-		for i, snap := range chain.Snapshots {
+		result := buildMapGenChain(t, pt)
+		if result == nil {
+			continue
+		}
+		for i, snap := range result.chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
 
@@ -294,7 +306,7 @@ func TestMapGenImages(t *testing.T) {
 
 				pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
 					PlannerType:   pt,
-					Seed:          mapGenSeed,
+					Seed:          result.seed,
 					SnapshotIndex: i,
 				}))
 				require.NoError(t, g.Update(t, t.Name(), pngData))
