@@ -88,7 +88,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	for _, entity := range toDelete {
 		if entity.HasComponent(world.Components.Boss) {
 			// 全扉をアンロックして開く
-			if query.UnlockAllDoors(world) > 0 {
+			if lifecycle.UnlockAllDoors(world) > 0 {
 				gamelog.New(query.GetGameLog(world)).
 					Append("どこかで扉が開いたようだ。").
 					Log()

@@ -12,7 +12,7 @@ import (
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -283,7 +283,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
 	growWeaponSkill(actor, world, attack)
 	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
-	action.ApplyDamage(world, target, damage, actor)
+	gameaction.ApplyDamage(world, target, damage, actor)
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
 	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {

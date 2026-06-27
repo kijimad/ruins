@@ -9,7 +9,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
@@ -32,7 +32,7 @@ func (st *DemoStartState) OnStart(world w.World) error {
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	if len(professions) > 0 {
-		if err := action.ApplyProfession(world, player, professions[0]); err != nil {
+		if err := gameaction.ApplyProfession(world, player, professions[0]); err != nil {
 			return fmt.Errorf("職業の適用に失敗: %w", err)
 		}
 	}

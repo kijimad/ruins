@@ -19,7 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -218,7 +218,7 @@ func (st *ShopMenuState) createTabs(world w.World, currency, buyPriceMod, sellPr
 }
 
 func (st *ShopMenuState) createBuyItems(world w.World, currency, buyPriceMod int) []shopItemData {
-	shopInventory := waction.GetShopInventory()
+	shopInventory := gameaction.GetShopInventory()
 	items := make([]shopItemData, 0, len(shopInventory))
 
 	for _, itemName := range shopInventory {
@@ -371,7 +371,7 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 	switch selectedAction {
 	case "購入する":
 		query.Player(world, func(playerEntity ecs.Entity) {
-			actionErr = waction.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
+			actionErr = gameaction.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
 		})
 		if actionErr != nil {
 			return fmt.Errorf("購入に失敗: %w", actionErr)
@@ -379,7 +379,7 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 		st.subState = shopSubStateMenu
 	case "売却する":
 		query.Player(world, func(playerEntity ecs.Entity) {
-			actionErr = waction.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
+			actionErr = gameaction.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
 		})
 		if actionErr != nil {
 			return fmt.Errorf("売却に失敗: %w", actionErr)

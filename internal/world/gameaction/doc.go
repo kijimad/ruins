@@ -1,4 +1,4 @@
-// Package action は query と lifecycle を組み合わせた複合的なゲームロジックを提供する。
+// Package gameaction は query と lifecycle を組み合わせた複合的なゲームロジックを提供する。
 //
 // query パッケージと lifecycle パッケージの両方に依存する。
 //
@@ -8,4 +8,4 @@
 // ゲームルールを実現する複合操作である。
 //
 // 例: ダメージ処理（HP変更 + Dead付与 + ログ出力）、購入処理（通貨消費 + アイテム生成）
-package action
+package gameaction

@@ -1,4 +1,4 @@
-package action
+package gameaction
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ type AutoSellResult struct {
 // 全装備をバックパックに移動し、売却候補と合計金額を返す。
 // エンティティは削除されず、スペック表示に使える状態で残る。
 func PreviewEndRun(world w.World, playerEntity ecs.Entity) (AutoSellResult, error) {
-	if err := unequipAll(world, playerEntity); err != nil {
+	if err := lifecycle.UnequipAll(world, playerEntity); err != nil {
 		return AutoSellResult{}, fmt.Errorf("装備解除に失敗: %w", err)
 	}
 	result := collectBackpackItems(world, playerEntity)
@@ -56,26 +56,6 @@ func ExecuteEndRun(world w.World, playerEntity ecs.Entity, total int) error {
 
 	if err := reapplyProfession(world, playerEntity); err != nil {
 		return fmt.Errorf("職業の再適用に失敗: %w", err)
-	}
-	return nil
-}
-
-// unequipAll はプレイヤーの装備中アイテムを全てバックパックに移動する
-func unequipAll(world w.World, playerEntity ecs.Entity) error {
-	var equipped []ecs.Entity
-	world.Manager.Join(
-		world.Components.LocationEquipped,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
-		if loc.Owner == playerEntity {
-			equipped = append(equipped, entity)
-		}
-	}))
-
-	for _, item := range equipped {
-		if err := lifecycle.MoveToBackpack(world, item, playerEntity); err != nil {
-			return err
-		}
 	}
 	return nil
 }

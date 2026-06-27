@@ -60,6 +60,26 @@ func MoveToStorage(world w.World, entity ecs.Entity, storage ecs.Entity) error {
 	return nil
 }
 
+// UnequipAll はプレイヤーの装備中アイテムを全てバックパックに移動する
+func UnequipAll(world w.World, playerEntity ecs.Entity) error {
+	var equipped []ecs.Entity
+	world.Manager.Join(
+		world.Components.LocationEquipped,
+	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		loc := world.Components.LocationEquipped.Get(entity).(*gc.LocationEquipped)
+		if loc.Owner == playerEntity {
+			equipped = append(equipped, entity)
+		}
+	}))
+
+	for _, item := range equipped {
+		if err := MoveToBackpack(world, item, playerEntity); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // setLocation はエンティティの位置を設定する。排他制御を保証する。
 // 既存の位置コンポーネントをすべて削除してから、新しい位置を設定する。
 // 内部用関数なので直接呼び出さず、MoveToBackpack, MoveToField等を使用すること

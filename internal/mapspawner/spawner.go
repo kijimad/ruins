@@ -158,7 +158,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 		if propRaw.Door != nil {
 			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
 			doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)
-			if err := query.CloseDoor(world, propEntity); err != nil {
+			if err := lifecycle.CloseDoor(world, propEntity); err != nil {
 				return fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}

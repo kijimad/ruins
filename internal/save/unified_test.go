@@ -11,7 +11,7 @@ import (
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -168,7 +168,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			require.NoError(t, err)
 			professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 			if len(professions) > 0 {
-				require.NoError(t, action.ApplyProfession(world, player, professions[0]))
+				require.NoError(t, gameaction.ApplyProfession(world, player, professions[0]))
 			}
 
 			sm := createTestSerializationManager(t)

@@ -20,7 +20,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
@@ -168,7 +168,7 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	if err != nil {
 		return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 	}
-	if err := waction.ApplyProfession(world, player, prof); err != nil {
+	if err := gameaction.ApplyProfession(world, player, prof); err != nil {
 		return es.Transition[w.World]{}, fmt.Errorf("職業の適用に失敗: %w", err)
 	}
 

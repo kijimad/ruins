@@ -8,6 +8,7 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -74,7 +75,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 
 	// 扉を開く
 	if !doorComp.IsOpen {
-		if err := query.OpenDoor(world, targetEntity); err != nil {
+		if err := lifecycle.OpenDoor(world, targetEntity); err != nil {
 			Cancel(comp, fmt.Sprintf("扉を開けません: %v", err))
 			return err
 		}
@@ -168,7 +169,7 @@ func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
 	// 扉を閉じる
 	if doorComp.IsOpen {
-		if err := query.CloseDoor(world, targetEntity); err != nil {
+		if err := lifecycle.CloseDoor(world, targetEntity); err != nil {
 			Cancel(comp, fmt.Sprintf("扉を閉じられません: %v", err))
 			return err
 		}

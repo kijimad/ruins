@@ -1,4 +1,4 @@
-package query_test
+package lifecycle_test
 
 import (
 	"testing"
@@ -6,7 +6,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
-	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +22,7 @@ func TestLockAllDoors(t *testing.T) {
 		door2, err := lifecycle.SpawnDoor(world, 6, 6, gc.DoorOrientationVertical)
 		require.NoError(t, err)
 
-		locked := query.LockAllDoors(world)
+		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 2, locked)
 		assert.True(t, world.Components.Door.Get(door1).(*gc.Door).Locked)
@@ -36,12 +35,12 @@ func TestLockAllDoors(t *testing.T) {
 
 		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		require.NoError(t, query.OpenDoor(world, door))
+		require.NoError(t, lifecycle.OpenDoor(world, door))
 
 		doorComp := world.Components.Door.Get(door).(*gc.Door)
 		assert.True(t, doorComp.IsOpen)
 
-		locked := query.LockAllDoors(world)
+		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 1, locked)
 		assert.False(t, doorComp.IsOpen, "扉が閉じられるべき")
@@ -56,7 +55,7 @@ func TestLockAllDoors(t *testing.T) {
 		require.NoError(t, err)
 		world.Components.Door.Get(door).(*gc.Door).Locked = true
 
-		locked := query.LockAllDoors(world)
+		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 0, locked)
 	})
@@ -65,7 +64,7 @@ func TestLockAllDoors(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		locked := query.LockAllDoors(world)
+		locked := lifecycle.LockAllDoors(world)
 
 		assert.Equal(t, 0, locked)
 	})
@@ -87,7 +86,7 @@ func TestUnlockAllDoors(t *testing.T) {
 		world.Components.Door.Get(door1).(*gc.Door).Locked = true
 		world.Components.Door.Get(door2).(*gc.Door).Locked = true
 
-		opened := query.UnlockAllDoors(world)
+		opened := lifecycle.UnlockAllDoors(world)
 
 		assert.Equal(t, 2, opened)
 		doorComp1 := world.Components.Door.Get(door1).(*gc.Door)
@@ -104,10 +103,10 @@ func TestUnlockAllDoors(t *testing.T) {
 
 		door, err := lifecycle.SpawnDoor(world, 5, 5, gc.DoorOrientationHorizontal)
 		require.NoError(t, err)
-		require.NoError(t, query.OpenDoor(world, door))
+		require.NoError(t, lifecycle.OpenDoor(world, door))
 		world.Components.Door.Get(door).(*gc.Door).Locked = true
 
-		opened := query.UnlockAllDoors(world)
+		opened := lifecycle.UnlockAllDoors(world)
 
 		assert.Equal(t, 0, opened)
 		doorComp := world.Components.Door.Get(door).(*gc.Door)

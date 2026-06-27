@@ -19,7 +19,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 )
 
@@ -31,11 +31,11 @@ type AutoSellState struct {
 	es.BaseState[w.World]
 	mount   *hooks.Mount[autoSellProps]
 	widget  *ebitenui.UI
-	preview waction.AutoSellResult
+	preview gameaction.AutoSellResult
 }
 
 type autoSellProps struct {
-	Items []waction.SoldItem
+	Items []gameaction.SoldItem
 	Total int
 }
 
@@ -68,7 +68,7 @@ func (st *AutoSellState) OnStart(world w.World) error {
 		return fmt.Errorf("プレイヤーの取得に失敗: %w", err)
 	}
 
-	result, err := waction.PreviewEndRun(world, playerEntity)
+	result, err := gameaction.PreviewEndRun(world, playerEntity)
 	if err != nil {
 		return fmt.Errorf("プレビュー生成に失敗: %w", err)
 	}
@@ -133,7 +133,7 @@ func (st *AutoSellState) DoAction(world w.World, action inputmapper.ActionID) (e
 		if err != nil {
 			return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの取得に失敗: %w", err)
 		}
-		if err := waction.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil {
+		if err := gameaction.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil {
 			return es.Transition[w.World]{}, fmt.Errorf("売却実行に失敗: %w", err)
 		}
 		return es.Transition[w.World]{

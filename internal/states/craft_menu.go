@@ -21,7 +21,7 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/gameaction"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -231,7 +231,7 @@ func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) [
 	items := make([]craftItemData, len(recipeNames))
 
 	for i, recipeName := range recipeNames {
-		canCraft, _ := waction.CanCraft(world, recipeName)
+		canCraft, _ := gameaction.CanCraft(world, recipeName)
 		items[i] = craftItemData{
 			RecipeName: recipeName,
 			CanCraft:   canCraft,
@@ -326,7 +326,7 @@ func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []str
 
 	actionItems := []string{}
 
-	if canCraft, _ := waction.CanCraft(world, recipeName); canCraft {
+	if canCraft, _ := gameaction.CanCraft(world, recipeName); canCraft {
 		actionItems = append(actionItems, "合成する")
 	}
 	actionItems = append(actionItems, TextClose)
@@ -376,7 +376,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 
 	switch selectedAction {
 	case "合成する":
-		resultEntity, err := waction.Craft(world, windowProps.RecipeName)
+		resultEntity, err := gameaction.Craft(world, windowProps.RecipeName)
 		if err != nil {
 			return err
 		}
