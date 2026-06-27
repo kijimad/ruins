@@ -1,11 +1,9 @@
 package query
 
 import (
-	"errors"
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
-	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -207,40 +205,4 @@ func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
 	}
 
 	return 0
-}
-
-// MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
-func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
-	var playerEntity ecs.Entity
-	var found bool
-
-	world.Manager.Join(
-		world.Components.Player,
-		world.Components.GridElement,
-		world.Components.SpriteRender,
-		world.Components.Camera,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if !found {
-			playerEntity = entity
-			found = true
-		}
-	}))
-	if !found {
-		return errors.New("必須コンポーネントを持つプレイヤーエンティティが見つかりません")
-	}
-
-	// プレイヤーの位置を更新する
-	gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
-	gridElement.X = consts.Tile(tileX)
-	gridElement.Y = consts.Tile(tileY)
-
-	// カメラ位置も同期する
-	camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)
-	tileSize := float64(consts.TileSize)
-	camera.X = float64(tileX)*tileSize + tileSize/2
-	camera.Y = float64(tileY)*tileSize + tileSize/2
-	camera.TargetX = camera.X
-	camera.TargetY = camera.Y
-
-	return nil
 }
