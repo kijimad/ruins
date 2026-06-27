@@ -11,3 +11,5 @@ oas/redoc/
 
 wasm/game.wasm
 balance.json
+
+.claude-task-state
