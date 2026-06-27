@@ -407,6 +407,44 @@ func TestDeleteDoorLockTriggers(t *testing.T) {
 	})
 }
 
+func TestSpawnVisualEffect(t *testing.T) {
+	t.Parallel()
+
+	t.Run("GridElementを持つエンティティにエフェクトが生成される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
+
+		effect := gc.NewHealEffect(10)
+		SpawnVisualEffect(entity, effect, world)
+
+		// エフェクトエンティティが生成されたことを確認
+		var foundEffect bool
+		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+			foundEffect = true
+		}))
+		assert.True(t, foundEffect)
+	})
+
+	t.Run("GridElementがないエンティティではエフェクトは生成されない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+
+		effect := gc.NewHealEffect(10)
+		SpawnVisualEffect(entity, effect, world)
+
+		var foundEffect bool
+		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
+			foundEffect = true
+		}))
+		assert.False(t, foundEffect)
+	})
+}
+
 func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 	t.Parallel()
 

@@ -5,9 +5,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func TestApplyHealing(t *testing.T) {
@@ -53,44 +51,6 @@ func TestApplyHealing(t *testing.T) {
 
 		actual := ApplyHealing(world, entity, 10)
 		assert.Equal(t, 0, actual)
-	})
-}
-
-func TestSpawnVisualEffect(t *testing.T) {
-	t.Parallel()
-
-	t.Run("GridElementを持つエンティティにエフェクトが生成される", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		entity := world.Manager.NewEntity()
-		entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
-
-		effect := gc.NewHealEffect(10)
-		lifecycle.SpawnVisualEffect(entity, effect, world)
-
-		// エフェクトエンティティが生成されたことを確認
-		var foundEffect bool
-		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
-			foundEffect = true
-		}))
-		assert.True(t, foundEffect)
-	})
-
-	t.Run("GridElementがないエンティティではエフェクトは生成されない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		entity := world.Manager.NewEntity()
-
-		effect := gc.NewHealEffect(10)
-		lifecycle.SpawnVisualEffect(entity, effect, world)
-
-		var foundEffect bool
-		world.Manager.Join(world.Components.VisualEffect).Visit(ecs.Visit(func(_ ecs.Entity) {
-			foundEffect = true
-		}))
-		assert.False(t, foundEffect)
 	})
 }
 
