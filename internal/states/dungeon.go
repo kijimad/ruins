@@ -38,6 +38,12 @@ type DungeonState struct {
 	BuilderType mapplanner.PlannerType
 	// DefinitionName はダンジョン定義名。設定されていればOnStartでリソースに反映する
 	DefinitionName string
+
+	// デバッグ用: マップ生成可視化ステートに遷移するための情報
+	resolvedPlannerType mapplanner.PlannerType
+	stageSeed           uint64
+	plan                *mapplanner.MetaPlan
+	needsVisualizer     bool
 }
 
 func (st DungeonState) String() string {
@@ -52,8 +58,48 @@ var _ es.ActionHandler[w.World] = &DungeonState{}
 // OnPause はステートが一時停止される際に呼ばれる
 func (st *DungeonState) OnPause(_ w.World) error { return nil }
 
-// OnResume はステートが再開される際に呼ばれる
-func (st *DungeonState) OnResume(_ w.World) error { return nil }
+// OnResume はステートが再開される際に呼ばれる。
+// MapGenVisualizerStateからの復帰時にエンティティが削除されているため再スポーンする
+func (st *DungeonState) OnResume(world w.World) error {
+	if st.plan == nil {
+		return nil
+	}
+
+	// ダンジョンのタイルが存在するか確認する
+	hasTiles := false
+	world.Manager.Join(
+		world.Components.Tile,
+	).Visit(ecs.Visit(func(_ ecs.Entity) {
+		hasTiles = true
+	}))
+	if hasTiles {
+		return nil
+	}
+
+	// タイルが消えている場合は再スポーンする
+	level, err := mapspawner.Spawn(world, st.plan)
+	if err != nil {
+		return err
+	}
+	worldhelper.GetDungeon(world).Level = level
+	worldhelper.InvalidateSpatialIndex(world)
+
+	// プレイヤー位置を復元する
+	playerPos, err := st.plan.GetPlayerStartPosition()
+	if err != nil {
+		return err
+	}
+	if err := worldhelper.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
+		return err
+	}
+
+	// 視界キャッシュをクリアする
+	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
+		vs.(*gs.VisionSystem).ClearCaches()
+	}
+
+	return nil
+}
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *DungeonState) OnStart(world w.World) error {
@@ -118,6 +164,15 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
+
+	// デバッグ用情報を保存する
+	st.resolvedPlannerType = builderType
+	st.stageSeed = stageSeed
+	st.plan = plan
+	if world.Config.Debug {
+		st.needsVisualizer = true
+	}
+
 	// スポーンする
 	level, err := mapspawner.Spawn(world, plan)
 	if err != nil {
@@ -205,6 +260,22 @@ func (st *DungeonState) OnStop(world w.World) error {
 
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
+	// デバッグモード: マップ生成可視化ステートを表示する
+	if st.needsVisualizer {
+		st.needsVisualizer = false
+		return es.Transition[w.World]{
+			Type: es.TransPush,
+			NewStateFuncs: []es.StateFactory[w.World]{
+				func() es.State[w.World] {
+					return &MapGenVisualizerState{
+						PlannerType: st.resolvedPlannerType,
+						Seed:        st.stageSeed,
+					}
+				},
+			},
+		}, nil
+	}
+
 	// 全クリアイベントの表示
 	if worldhelper.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
 		worldhelper.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
