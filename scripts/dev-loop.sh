@@ -7,8 +7,7 @@ DESIGN_DIR="$PROJECT_DIR/docs/design"
 
 # 未完了タスクがある設計ドキュメントを探す
 find_next_design_doc() {
-  for doc in "$DESIGN_DIR"/*.md; do
-    [ -f "$doc" ] || continue
+  for doc in $(ls "$DESIGN_DIR"/*.md 2>/dev/null | sort); do
     if grep -q '^\- \[ \]' "$doc"; then
       echo "$doc"
       return
@@ -39,10 +38,11 @@ while true; do
 
       echo "running" > "$STATE_FILE"
       cd "$PROJECT_DIR"
-      claude -p "$PROMPT" --dangerously-skip-permissions || true
+      claude -p "$PROMPT" --dangerously-skip-permissions || echo "警告: Claudeが異常終了した (終了コード: $?)" >&2
 
       # Claudeが状態を更新せず終了した場合はpendingに戻す
       [ "$(cat "$STATE_FILE")" = "running" ] && echo "pending" > "$STATE_FILE"
+      sleep 60
       ;;
     done)
       # 現在のドキュメントが完了。次のドキュメントを探す
@@ -58,6 +58,4 @@ while true; do
       echo "pending" > "$STATE_FILE"
       ;;
   esac
-
-  sleep 60
 done
