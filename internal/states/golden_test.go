@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
@@ -267,7 +268,8 @@ func TestGolden_MapGenSnapshot(t *testing.T) {
 }
 
 // TestMapGenImages は全PlannerTypeの各フェーズのVRT画像を生成する。
-// 一致率の検証は行わず、目視確認用の参照画像として保存する
+// 対応するスナップショットJSONのゴールデンファイルが画像より新しい場合のみ再生成する。
+// ピクセル比較は行わず、目視確認用の参照画像として保存する
 func TestMapGenImages(t *testing.T) {
 	t.Parallel()
 
@@ -276,17 +278,39 @@ func TestMapGenImages(t *testing.T) {
 		for i, snap := range chain.Snapshots {
 			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
 				t.Parallel()
+
+				g := goldie.New(t, goldie.WithNameSuffix(".png"))
+				imgPath := g.GoldenFileName(t, t.Name())
+				subName := strings.TrimPrefix(t.Name(), "TestMapGenImages/")
+				jsonPath := filepath.Join("testdata", "TestGolden_MapGenSnapshot", subName+".json")
+
+				if !imgNeedsUpdate(imgPath, jsonPath) {
+					return
+				}
+
 				pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
 					PlannerType:   pt,
 					Seed:          mapGenSeed,
 					SnapshotIndex: i,
 				}))
+				require.NoError(t, g.Update(t, t.Name(), pngData))
+				t.Logf("画像を更新: %s", imgPath)
 
-				dir := filepath.Join("testdata", "MapGenImages", pt.Name)
-				require.NoError(t, os.MkdirAll(dir, 0o755))
-				path := filepath.Join(dir, fmt.Sprintf("Phase%d_%s.png", i, snap.Label))
-				require.NoError(t, os.WriteFile(path, pngData, 0o644))
+				_ = snap
 			})
 		}
 	}
+}
+
+// imgNeedsUpdate はJSONゴールデンが画像より新しいか画像が存在しない場合にtrueを返す
+func imgNeedsUpdate(imgPath, jsonPath string) bool {
+	imgInfo, err := os.Stat(imgPath)
+	if err != nil {
+		return true
+	}
+	jsonInfo, err := os.Stat(jsonPath)
+	if err != nil {
+		return true
+	}
+	return jsonInfo.ModTime().After(imgInfo.ModTime())
 }
