@@ -47,15 +47,12 @@ func (st *MapGenVisualizerState) OnResume(_ w.World) error { return nil }
 
 // OnStart はスナップショットを生成してエンティティをスポーンする
 func (st *MapGenVisualizerState) OnStart(world w.World) error {
-	st.mapWidth = consts.MapTileWidth
-	st.mapHeight = consts.MapTileHeight
-
 	seed := st.Seed
 	if seed == 0 {
 		seed = world.Config.RNG.Uint64()
 	}
 
-	chain, err := mapplanner.BuildChain(world, st.mapWidth, st.mapHeight, seed, st.PlannerType)
+	chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, seed, st.PlannerType)
 	if err != nil {
 		return fmt.Errorf("PlannerChain作成失敗: %w", err)
 	}
@@ -64,6 +61,10 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	if err := chain.Plan(); err != nil {
 		return fmt.Errorf("plan実行失敗: %w", err)
 	}
+
+	// チェーン実行後の実際のマップサイズを使用する。テンプレートベースのPlannerは引数のwidth/heightを無視するため
+	st.mapWidth = chain.PlanData.Level.TileWidth
+	st.mapHeight = chain.PlanData.Level.TileHeight
 
 	st.snapshots = chain.Snapshots
 	if len(st.snapshots) == 0 {

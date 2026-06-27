@@ -537,7 +537,8 @@ var (
 
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
-		Name: "事務所ビル",
+		Name:              "事務所ビル",
+		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
 		},
@@ -545,7 +546,8 @@ var (
 
 	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
 	PlannerTypeSmallTown = PlannerType{
-		Name: "小さな町",
+		Name:              "小さな町",
+		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
 		},
@@ -567,6 +569,21 @@ var (
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
 		},
+	}
+
+	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
+	// ランダム選択用のPlannerTypeRandomは含まない
+	AllPlannerTypes = []PlannerType{
+		PlannerTypeSmallRoom,
+		PlannerTypeBigRoom,
+		PlannerTypeCave,
+		PlannerTypeRuins,
+		PlannerTypeForest,
+		PlannerTypeTown,
+		PlannerTypeOfficeBuilding,
+		PlannerTypeSmallTown,
+		PlannerTypeTownPlaza,
+		PlannerTypeBossFloor,
 	}
 )
 

@@ -49,7 +49,7 @@ func NewPlannerChainByTemplateType(templateType TemplateType, seed uint64) (*Pla
 	case TemplateTypeSmallRoom:
 		templateName = "10x10_small_room"
 	case TemplateTypeOfficeBuilding:
-		templateName = "15x12_office_building"
+		templateName = "15x10_office_building"
 	case TemplateTypeSmallTown:
 		templateName = "50x50_small_town"
 	case TemplateTypeTownPlaza:
