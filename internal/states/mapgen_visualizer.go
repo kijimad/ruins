@@ -89,13 +89,8 @@ func (st *MapGenVisualizerState) OnStop(world w.World) error {
 	return nil
 }
 
-// Update はキー入力を処理する
+// Update はVRT専用のため何もしない
 func (st *MapGenVisualizerState) Update(_ w.World) (es.Transition[w.World], error) {
-	// Escapeで閉じる
-	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
-		return es.Transition[w.World]{Type: es.TransPop}, nil
-	}
-
 	return st.ConsumeTransition(), nil
 }
 
