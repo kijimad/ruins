@@ -36,6 +36,14 @@ func AssertStateGolden(t *testing.T, buildStates func(w.World) []es.State[w.Worl
 	assertPNGGolden(t, pngData)
 }
 
+// RenderStatePNG はステートを描画してPNGバイト列として返す。
+// アサーションは行わず、画像の保存用途で使用する
+func RenderStatePNG(t *testing.T, buildStates func(w.World) []es.State[w.World]) []byte {
+	t.Helper()
+	rendered := renderState(t, buildStates)
+	return encodePNG(t, rendered)
+}
+
 // renderState はステートを描画してimage.NRGBAとして返す。
 // RunTestMain 内で呼ぶ必要がある（ebitenコンテキストが必要）
 func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *image.NRGBA {

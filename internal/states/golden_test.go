@@ -1,9 +1,12 @@
 package states_test
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
+	"github.com/kijimaD/ruins/internal/consts"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -174,4 +177,44 @@ func TestGolden_StorageMenu(t *testing.T) {
 			gs.NewStorageMenuState(storageEntity),
 		}
 	})
+}
+
+// TestMapGenImages は各プランナータイプの各フェーズのVRT画像を生成する。
+// 一致率の検証は行わず、目視確認用の参照画像として保存する
+func TestMapGenImages(t *testing.T) {
+	t.Parallel()
+
+	plannerTypes := []mapplanner.PlannerType{
+		mapplanner.PlannerTypeSmallRoom,
+		mapplanner.PlannerTypeBigRoom,
+		mapplanner.PlannerTypeCave,
+		mapplanner.PlannerTypeRuins,
+		mapplanner.PlannerTypeForest,
+	}
+	seed := uint64(12345)
+
+	world := vrt.InitVRTWorld(t)
+	for _, pt := range plannerTypes {
+		chain, err := pt.PlannerFunc(consts.MapTileWidth, consts.MapTileHeight, seed)
+		require.NoError(t, err)
+		chain.Recording = true
+		chain.PlanData.RawMaster = &world.Resources.RawMaster
+		require.NoError(t, chain.Plan())
+
+		for i, snap := range chain.Snapshots {
+			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
+				t.Parallel()
+				pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
+					PlannerType: pt,
+					Seed:        seed,
+					PhaseIndex:  i,
+				}))
+
+				dir := filepath.Join("testdata", "MapGenImages", pt.Name)
+				require.NoError(t, os.MkdirAll(dir, 0o755))
+				path := filepath.Join(dir, fmt.Sprintf("Phase%d_%s.png", i, snap.Label))
+				require.NoError(t, os.WriteFile(path, pngData, 0o644))
+			})
+		}
+	}
 }
