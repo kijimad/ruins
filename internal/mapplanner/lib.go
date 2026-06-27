@@ -5,8 +5,6 @@ package mapplanner
 import (
 	"fmt"
 	"math/rand/v2"
-	"reflect"
-	"slices"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -279,28 +277,11 @@ func (bm MetaPlan) isFloorOrWarp(tile oapi.Tile) bool {
 	return !tile.BlockPass
 }
 
-// Snapshot はマップ生成の各フェーズ完了時点でのMetaPlanの状態を保存する
-type Snapshot struct {
-	Label         string
-	Tiles         []oapi.Tile
-	Rooms         []gc.Rect
-	Corridors     [][]gc.TileIdx
-	NPCs          []NPCSpec
-	Items         []ItemSpec
-	Props         []PropsSpec
-	Doors         []DoorSpec
-	NextPortals   []consts.Coord[int]
-	EscapePortals []consts.Coord[int]
-	SpawnPoints   []maptemplate.SpawnPoint
-}
-
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体
 type PlannerChain struct {
-	Starter   *InitialMapPlanner
-	Planners  []MetaMapPlanner
-	PlanData  MetaPlan
-	Snapshots []Snapshot // フェーズごとのスナップショット
-	Recording bool       // trueの場合、各フェーズ完了時にスナップショットを記録する
+	Starter  *InitialMapPlanner
+	Planners []MetaMapPlanner
+	PlanData MetaPlan
 }
 
 // NewPlannerChain はシード値を指定してプランナーチェーンを作成する
@@ -354,45 +335,13 @@ func (b *PlannerChain) Plan() error {
 	if err := (*b.Starter).PlanInitial(&b.PlanData); err != nil {
 		return fmt.Errorf("PlanInitial failed: %w", err)
 	}
-	b.takeSnapshot("Initial")
 
 	for _, meta := range b.Planners {
 		if err := meta.PlanMeta(&b.PlanData); err != nil {
 			return fmt.Errorf("PlanMeta failed: %w", err)
 		}
-		b.takeSnapshot(plannerName(meta))
 	}
 	return nil
-}
-
-// plannerName はMetaMapPlannerの型名を返す
-func plannerName(p MetaMapPlanner) string {
-	t := reflect.TypeOf(p)
-	if t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
-	return t.Name()
-}
-
-// takeSnapshot はRecordingが有効な場合にMetaPlanの現在の状態をスナップショットとして保存する
-func (b *PlannerChain) takeSnapshot(label string) {
-	if !b.Recording {
-		return
-	}
-	d := &b.PlanData
-	b.Snapshots = append(b.Snapshots, Snapshot{
-		Label:         label,
-		Tiles:         slices.Clone(d.Tiles),
-		Rooms:         slices.Clone(d.Rooms),
-		Corridors:     slices.Clone(d.Corridors),
-		NPCs:          slices.Clone(d.NPCs),
-		Items:         slices.Clone(d.Items),
-		Props:         slices.Clone(d.Props),
-		Doors:         slices.Clone(d.Doors),
-		NextPortals:   slices.Clone(d.NextPortals),
-		EscapePortals: slices.Clone(d.EscapePortals),
-		SpawnPoints:   slices.Clone(d.SpawnPoints),
-	})
 }
 
 // InitialMapPlanner は初期マップをプランするインターフェース
