@@ -7,7 +7,6 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 )
 
 // アイテム配置用の定数
@@ -45,7 +44,11 @@ func NewItemPlanner(world w.World, plannerType PlannerType) *ItemPlanner {
 
 // PlanMeta はアイテム配置情報をMetaPlanに追加する
 func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
-	if len(i.plannerType.ItemSources) == 0 {
+	sources, err := resolveItemSources(planData.RawMaster, i.plannerType.ItemTableName, i.plannerType.Depth)
+	if err != nil {
+		return err
+	}
+	if len(sources) == 0 {
 		return nil
 	}
 
@@ -53,10 +56,8 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.Items = []ItemSpec{}
 	}
 
-	depth := worldhelper.GetDungeon(i.world).Depth
-
 	total := baseItemCount + planData.RNG.IntN(randomItemCount)
-	if depth > itemIncreaseDepth {
+	if i.plannerType.Depth > itemIncreaseDepth {
 		total++
 	}
 
@@ -65,7 +66,7 @@ func (i *ItemPlanner) PlanMeta(planData *MetaPlan) error {
 	for placed < total && failCount <= maxItemPlacementAttempts {
 		// ソースを重みで選択
 		source, err := raw.SelectByWeightFunc(
-			i.plannerType.ItemSources,
+			sources,
 			func(s ItemSource) float64 { return s.Weight },
 			func(s ItemSource) ItemSource { return s },
 			planData.RNG,

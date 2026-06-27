@@ -47,7 +47,11 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 		planData.NPCs = []NPCSpec{}
 	}
 
-	if len(n.plannerType.EnemyEntries) == 0 {
+	entries, err := resolveEnemyEntries(planData.RawMaster, n.plannerType.EnemyTableName, n.plannerType.Depth)
+	if err != nil {
+		return err
+	}
+	if len(entries) == 0 {
 		return nil
 	}
 
@@ -55,16 +59,16 @@ func (n *HostileNPCPlanner) PlanMeta(planData *MetaPlan) error {
 
 	// 部屋がある場合は部屋ベースでクラスタ配置
 	if len(planData.Rooms) > 0 {
-		return n.planWithRoomCluster(planData, total)
+		return n.planWithRoomCluster(planData, entries, total)
 	}
 
 	// 部屋がない場合はフォールバック
-	return n.planWithRandomPosition(planData, total)
+	return n.planWithRandomPosition(planData, entries, total)
 }
 
 // planWithRoomCluster は部屋を選び、同種の敵をクラスタとしてまとめて配置する
 // パックサイズはSpawnEntryのPackMin/PackMaxで制御する
-func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, total int) error {
+func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, entries []SpawnEntry, total int) error {
 	placed := 0
 	failCount := 0
 	// 部屋ごとに割り当てられた敵種を記録する
@@ -76,7 +80,7 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, total int) e
 		entry, decided := roomSpecies[roomIdx]
 		if !decided {
 			var err error
-			entry, err = selectSpawnEntry(n.plannerType.EnemyEntries, planData.RNG)
+			entry, err = selectSpawnEntry(entries, planData.RNG)
 			if err != nil {
 				return err
 			}
@@ -130,12 +134,12 @@ func (n *HostileNPCPlanner) planWithRoomCluster(planData *MetaPlan, total int) e
 }
 
 // planWithRandomPosition は部屋がない場合のフォールバック。マップ全体からランダムに配置する
-func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, total int) error {
+func (n *HostileNPCPlanner) planWithRandomPosition(planData *MetaPlan, entries []SpawnEntry, total int) error {
 	selector := onMapSelector(maxHostileNPCFailCount)
 	placed := 0
 
 	for placed < total {
-		entry, err := selectSpawnEntry(n.plannerType.EnemyEntries, planData.RNG)
+		entry, err := selectSpawnEntry(entries, planData.RNG)
 		if err != nil {
 			return err
 		}

@@ -5,6 +5,7 @@ package mapplanner
 import (
 	"fmt"
 	"math/rand/v2"
+	"reflect"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -279,9 +280,11 @@ func (bm MetaPlan) isFloorOrWarp(tile oapi.Tile) bool {
 
 // PlannerChain は階層データMetaPlanに対して適用する生成ロジックを保持する構造体
 type PlannerChain struct {
-	Starter  *InitialMapPlanner
-	Planners []MetaMapPlanner
-	PlanData MetaPlan
+	Starter   *InitialMapPlanner
+	Planners  []MetaMapPlanner
+	PlanData  MetaPlan
+	Snapshots []Snapshot // フェーズごとのスナップショット
+	Recording bool       // trueの場合、各フェーズ完了時にスナップショットを記録する
 }
 
 // NewPlannerChain はシード値を指定してプランナーチェーンを作成する
@@ -335,13 +338,24 @@ func (b *PlannerChain) Plan() error {
 	if err := (*b.Starter).PlanInitial(&b.PlanData); err != nil {
 		return fmt.Errorf("PlanInitial failed: %w", err)
 	}
+	b.takeSnapshot("Initial")
 
 	for _, meta := range b.Planners {
 		if err := meta.PlanMeta(&b.PlanData); err != nil {
 			return fmt.Errorf("PlanMeta failed: %w", err)
 		}
+		b.takeSnapshot(plannerName(meta))
 	}
 	return nil
+}
+
+// plannerName はMetaMapPlannerの型名を返す
+func plannerName(p MetaMapPlanner) string {
+	t := reflect.TypeOf(p)
+	if t.Kind() == reflect.Ptr {
+		t = t.Elem()
+	}
+	return t.Name()
 }
 
 // InitialMapPlanner は初期マップをプランするインターフェース
@@ -429,10 +443,12 @@ type PlannerType struct {
 	Name string
 	// ポータル位置を固定するか
 	UseFixedPortalPos bool
-	// スポーンするアイテムソース（階層でフィルタリング済み）
-	ItemSources []ItemSource
-	// スポーンする敵のエントリ（階層でフィルタリング済み）
-	EnemyEntries []SpawnEntry
+	// 敵テーブル名。RawMasterから敵エントリを解決する際に使用する
+	EnemyTableName string
+	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
+	ItemTableName string
+	// 階層の深度。敵やアイテムのフィルタリングに使用する
+	Depth int
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }
@@ -484,7 +500,8 @@ var (
 
 	// PlannerTypeOfficeBuilding は事務所ビルのプランナータイプ
 	PlannerTypeOfficeBuilding = PlannerType{
-		Name: "事務所ビル",
+		Name:              "事務所ビル",
+		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeOfficeBuilding, seed)
 		},
@@ -492,7 +509,8 @@ var (
 
 	// PlannerTypeSmallTown は小さな町（複数の建物を配置）
 	PlannerTypeSmallTown = PlannerType{
-		Name: "小さな町",
+		Name:              "小さな町",
+		UseFixedPortalPos: true,
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeSmallTown, seed)
 		},
@@ -514,6 +532,21 @@ var (
 		PlannerFunc: func(_ consts.Tile, _ consts.Tile, seed uint64) (*PlannerChain, error) {
 			return NewPlannerChainByTemplateType(TemplateTypeBossFloor, seed)
 		},
+	}
+
+	// AllPlannerTypes はPlannerFuncを持つ全PlannerTypeの一覧。
+	// ランダム選択用のPlannerTypeRandomは含まない
+	AllPlannerTypes = []PlannerType{
+		PlannerTypeSmallRoom,
+		PlannerTypeBigRoom,
+		PlannerTypeCave,
+		PlannerTypeRuins,
+		PlannerTypeForest,
+		PlannerTypeTown,
+		PlannerTypeOfficeBuilding,
+		PlannerTypeSmallTown,
+		PlannerTypeTownPlaza,
+		PlannerTypeBossFloor,
 	}
 )
 
