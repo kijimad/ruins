@@ -175,4 +175,3 @@ func TestGolden_StorageMenu(t *testing.T) {
 		}
 	})
 }
-
