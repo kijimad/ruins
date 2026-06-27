@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">98.0&nbsp;%</td>
+            <td class="headerCovTableEntryMed">78.4&nbsp;%</td>
             <td class="headerCovTableEntry">51</td>
-            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">40</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-27 05:24:19</td>
+            <td class="headerValue">2026-06-27 12:01:24</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -93,27 +93,27 @@
 <span id="L31"><span class="lineNum">      31</span>              : </span>
 <span id="L32"><span class="lineNum">      32</span>              : // onMapSelector はマップ全体からランダムに配置位置を選択する</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func onMapSelector(maxAttempts int) positionSelector {</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           2 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; maxAttempts; i++ {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           2 :                         if planData.IsSpawnableTile(world, x, y) {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :                                 return x, y, true</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :                         }</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 for i := 0; i &lt; maxAttempts; i++ {</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                         if planData.IsSpawnableTile(world, x, y) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                                 return x, y, true</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L41"><span class="lineNum">      41</span>              :                 }</span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC tlaBgUNC">           0 :                 return 0, 0, false</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 return 0, 0, false</span></span>
 <span id="L43"><span class="lineNum">      43</span>              :         }</span>
 <span id="L44"><span class="lineNum">      44</span>              : }</span>
 <span id="L45"><span class="lineNum">      45</span>              : </span>
 <span id="L46"><span class="lineNum">      46</span>              : // nearSelector は指定座標の周辺かつ部屋内から配置位置を選択する</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC tlaBgGNC">           1 : func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAttempts int) positionSelector {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           2 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                 return planData.randomPositionNear(centerX, centerY, radius, room, world, maxAttempts)</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAttempts int) positionSelector {</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 return planData.randomPositionNear(centerX, centerY, radius, room, world, maxAttempts)</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L51"><span class="lineNum">      51</span>              : }</span>
 <span id="L52"><span class="lineNum">      52</span>              : </span>
 <span id="L53"><span class="lineNum">      53</span>              : // reachableSelector はマップ全体からランダムに選び、部屋内かつプレイヤーから到達可能な位置を返す</span>
-<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC">           1 : func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector {</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">           1 : func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
 <span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; maxAttempts; i++ {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
