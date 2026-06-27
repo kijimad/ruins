@@ -17,8 +17,6 @@ import (
 	mapplanner "github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/mapspawner"
 	"github.com/kijimaD/ruins/internal/messagedata"
-	"github.com/kijimaD/ruins/internal/oapi"
-	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -94,24 +92,10 @@ func (st *DungeonState) OnStart(world w.World) error {
 		builderType = st.BuilderType
 	}
 
-	// スポーンエントリを設定する
-	if def.ItemTableName != "" {
-		itemTable, err := raw.GetItemTable(world.Resources.RawMaster, def.ItemTableName)
-		if err != nil {
-			return fmt.Errorf("アイテムテーブルが見つかりません: %s: %w", def.ItemTableName, err)
-		}
-		builderType.ItemSources, err = resolveItemSources(world.Resources.RawMaster, itemTable.Entries, st.Depth)
-		if err != nil {
-			return err
-		}
-	}
-	if def.EnemyTableName != "" {
-		enemyTable, err := raw.GetEnemyTable(world.Resources.RawMaster, def.EnemyTableName)
-		if err != nil {
-			return fmt.Errorf("敵テーブルが見つかりません: %s: %w", def.EnemyTableName, err)
-		}
-		builderType.EnemyEntries = filterEnemyEntries(enemyTable.Entries, st.Depth)
-	}
+	// テーブル名と階層をプランナーに渡す。エントリの解決はプランナーが行う
+	builderType.EnemyTableName = def.EnemyTableName
+	builderType.ItemTableName = def.ItemTableName
+	builderType.Depth = st.Depth
 
 	// 計画作成する
 	plan, err := mapplanner.Plan(world, consts.MapTileWidth, consts.MapTileHeight, stageSeed, builderType)
@@ -584,36 +568,6 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 	})
 }
 
-// resolveItemSources はアイテムテーブルエントリを階層フィルタしてItemSourceに変換する
-func resolveItemSources(rawMaster oapi.Raws, entries []oapi.ItemTableEntry, depth int) ([]mapplanner.ItemSource, error) {
-	result := make([]mapplanner.ItemSource, 0, len(entries))
-	for _, entry := range entries {
-		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
-			continue
-		}
-
-		group, err := raw.GetItemGroup(rawMaster, entry.GroupName)
-		if err != nil {
-			return nil, fmt.Errorf("アイテムグループが見つかりません: %s: %w", entry.GroupName, err)
-		}
-		spawnEntries := make([]mapplanner.SpawnEntry, len(group.Entries))
-		for i, ge := range group.Entries {
-			spawnEntries[i] = mapplanner.SpawnEntry{
-				Name:    ge.ItemName,
-				Weight:  ge.Weight,
-				PackMin: int(ge.PackMin),
-				PackMax: int(ge.PackMax),
-			}
-		}
-		result = append(result, mapplanner.ItemSource{
-			Weight:  entry.Weight,
-			Subtype: mapplanner.ItemGroupSubtype(group.Subtype),
-			Entries: spawnEntries,
-		})
-	}
-	return result, nil
-}
-
 // handleMoveInput は8方向移動のキー入力を処理する
 func handleMoveInput(keyboardInput input.KeyboardInput) (inputmapper.ActionID, bool) {
 	// Shift押下中は斜め移動モード。2キー同時押しの斜め移動のみ受け付ける。
@@ -665,21 +619,4 @@ func handleShiftDiagonalInput(keyboardInput input.KeyboardInput) (inputmapper.Ac
 		return inputmapper.ActionMoveSouthEast, true
 	}
 	return "", false
-}
-
-// filterEnemyEntries は敵テーブルエントリを階層でフィルタリングしてSpawnEntryに変換する
-func filterEnemyEntries(entries []oapi.EnemyTableEntry, depth int) []mapplanner.SpawnEntry {
-	result := make([]mapplanner.SpawnEntry, 0, len(entries))
-	for _, entry := range entries {
-		if int32(depth) < entry.MinDepth || int32(depth) > entry.MaxDepth {
-			continue
-		}
-		result = append(result, mapplanner.SpawnEntry{
-			Name:    entry.EnemyName,
-			Weight:  entry.Weight,
-			PackMin: int(entry.PackMin),
-			PackMax: int(entry.PackMax),
-		})
-	}
-	return result
 }

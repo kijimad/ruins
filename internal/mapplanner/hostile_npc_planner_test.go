@@ -3,10 +3,8 @@ package mapplanner
 import (
 	"testing"
 
-	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,10 +14,9 @@ func TestNewHostileNPCPlanner(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	plannerType := PlannerType{
-		Name: "test",
-		EnemyEntries: []SpawnEntry{
-			{Name: "スライム", Weight: 1.0},
-		},
+		Name:           "test",
+		EnemyTableName: "通常",
+		Depth:          1,
 	}
 	planner := NewHostileNPCPlanner(world, plannerType)
 
@@ -30,14 +27,13 @@ func TestNewHostileNPCPlanner(t *testing.T) {
 func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Parallel()
 
-	t.Run("EnemyEntriesが空の場合は何もしない", func(t *testing.T) {
+	t.Run("EnemyTableNameが空の場合は何もしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
-			Name:         "test_empty",
-			EnemyEntries: []SpawnEntry{},
+			Name:  "test_empty",
+			Depth: 1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -53,16 +49,14 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 		assert.Empty(t, chain.PlanData.NPCs)
 	})
 
-	t.Run("EnemyEntriesがある場合はNPCが配置される", func(t *testing.T) {
+	t.Run("EnemyTableNameがある場合はNPCが配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
-			Name: "test_with_enemies",
-			EnemyEntries: []SpawnEntry{
-				{Name: "スライム", Weight: 1.0},
-			},
+			Name:           "test_with_enemies",
+			EnemyTableName: "通常",
+			Depth:          1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -81,13 +75,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("配置されたNPCは歩行可能なタイルにある", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
-			Name: "test_valid_position",
-			EnemyEntries: []SpawnEntry{
-				{Name: "スライム", Weight: 1.0},
-			},
+			Name:           "test_valid_position",
+			EnemyTableName: "通常",
+			Depth:          1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -110,14 +102,12 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("複数の敵タイプが重みに応じて選択される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
+		// 「通常」テーブルにはスライム・火の玉・軽戦車が含まれる
 		plannerType := PlannerType{
-			Name: "test_multiple_enemies",
-			EnemyEntries: []SpawnEntry{
-				{Name: "スライム", Weight: 10.0},
-				{Name: "ゴブリン", Weight: 1.0},
-			},
+			Name:           "test_multiple_enemies",
+			EnemyTableName: "通常",
+			Depth:          1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -136,13 +126,11 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("部屋がある場合はNPCが部屋内に配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
 		plannerType := PlannerType{
-			Name: "test_room_based",
-			EnemyEntries: []SpawnEntry{
-				{Name: "スライム", Weight: 1.0},
-			},
+			Name:           "test_room_based",
+			EnemyTableName: "通常",
+			Depth:          1,
 		}
 
 		chain, err := NewSmallRoomPlanner(30, 30, 12345)
@@ -173,13 +161,12 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("大部屋でもクラスタメンバーが密集して配置される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
+		// 「廃墟」テーブルを使用。PackMin/PackMaxはテーブルに依存するが、クラスタ動作の確認が目的
 		plannerType := PlannerType{
-			Name: "test_big_room_cluster",
-			EnemyEntries: []SpawnEntry{
-				{Name: "スライム", Weight: 1.0, PackMin: 1, PackMax: 3},
-			},
+			Name:           "test_big_room_cluster",
+			EnemyTableName: "通常",
+			Depth:          1,
 		}
 
 		chain, err := NewBigRoomPlanner(40, 40, 12345)
@@ -215,15 +202,12 @@ func TestHostileNPCPlanner_PlanMeta(t *testing.T) {
 	t.Run("部屋内は同種クラスタになる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 1})
 
+		// 「通常」テーブルには複数の敵種が含まれる
 		plannerType := PlannerType{
-			Name: "test_same_species",
-			EnemyEntries: []SpawnEntry{
-				{Name: "スライム", Weight: 1.0},
-				{Name: "ゴブリン", Weight: 1.0},
-				{Name: "コボルト", Weight: 1.0},
-			},
+			Name:           "test_same_species",
+			EnemyTableName: "通常",
+			Depth:          1,
 		}
 
 		chain, err := NewSmallRoomPlanner(40, 40, 100)

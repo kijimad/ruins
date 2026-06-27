@@ -480,10 +480,12 @@ type PlannerType struct {
 	Name string
 	// ポータル位置を固定するか
 	UseFixedPortalPos bool
-	// スポーンするアイテムソース（階層でフィルタリング済み）
-	ItemSources []ItemSource
-	// スポーンする敵のエントリ（階層でフィルタリング済み）
-	EnemyEntries []SpawnEntry
+	// 敵テーブル名。RawMasterから敵エントリを解決する際に使用する
+	EnemyTableName string
+	// アイテムテーブル名。RawMasterからアイテムエントリを解決する際に使用する
+	ItemTableName string
+	// 階層の深度。敵やアイテムのフィルタリングに使用する
+	Depth int
 	// プランナー関数
 	PlannerFunc func(width consts.Tile, height consts.Tile, seed uint64) (*PlannerChain, error)
 }

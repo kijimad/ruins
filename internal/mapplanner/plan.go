@@ -49,9 +49,9 @@ func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType Pla
 		MaxPlanRetries, plannerType.Name, seed, lastErr)
 }
 
-// attemptMetaPlan は単一回のメタプラン生成を試行する
-func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
-	// PlannerChainを初期化
+// BuildChain はPlannerChainを構築して返す。
+// チェーンの構築ロジックを共有するために公開している
+func BuildChain(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*PlannerChain, error) {
 	var chain *PlannerChain
 	var err error
 	if plannerType.Name == PlannerTypeRandom.Name {
@@ -68,19 +68,20 @@ func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plan
 		chain.PlanData.RawMaster = &world.Resources.RawMaster
 	}
 
-	// 敵NPCプランナーを追加
-	hostileNPCPlanner := NewHostileNPCPlanner(world, plannerType)
-	chain.With(hostileNPCPlanner)
+	chain.With(NewHostileNPCPlanner(world, plannerType))
+	chain.With(NewItemPlanner(world, plannerType))
+	chain.With(NewPortalPlanner(world, plannerType))
 
-	// アイテムプランナーを追加
-	itemPlanner := NewItemPlanner(world, plannerType)
-	chain.With(itemPlanner)
+	return chain, nil
+}
 
-	// ポータルプランナーを追加
-	portalPlanner := NewPortalPlanner(world, plannerType)
-	chain.With(portalPlanner)
+// attemptMetaPlan は単一回のメタプラン生成を試行する
+func attemptMetaPlan(world w.World, width, height consts.Tile, seed uint64, plannerType PlannerType) (*MetaPlan, error) {
+	chain, err := BuildChain(world, width, height, seed, plannerType)
+	if err != nil {
+		return nil, err
+	}
 
-	// プランナーチェーンを実行
 	if err := chain.Plan(); err != nil {
 		return nil, err
 	}

@@ -1,12 +1,14 @@
 package states_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/consts"
+	"github.com/kijimaD/ruins/internal/dungeon"
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/mapplanner"
 	"github.com/kijimaD/ruins/internal/messagedata"
@@ -14,6 +16,7 @@ import (
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/worldhelper"
+	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
 
@@ -179,45 +182,75 @@ func TestGolden_StorageMenu(t *testing.T) {
 	})
 }
 
-// TestMapGenImages は各プランナータイプの各フェーズのVRT画像を生成する。
+const mapGenSeed = uint64(12345)
+
+// buildMapGenChain はBuildChainを使ってRecording付きチェーンを構築する。
+// 実装と同じチェーン構築ロジックを共有する
+func buildMapGenChain(t *testing.T, world w.World, pt mapplanner.PlannerType) *mapplanner.PlannerChain {
+	t.Helper()
+	chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, mapGenSeed, pt)
+	require.NoError(t, err)
+	chain.Recording = true
+	require.NoError(t, chain.Plan())
+	return chain
+}
+
+// TestGolden_MapGenSnapshot はダンジョン定義ごとに各プランナータイプの全フェーズのスナップショットをJSONで検証する
+func TestGolden_MapGenSnapshot(t *testing.T) {
+	t.Parallel()
+
+	world := vrt.InitVRTWorld(t)
+	for _, def := range dungeon.GetAllDungeons() {
+		for _, pw := range def.PlannerPool {
+			pt := pw.PlannerType
+			pt.EnemyTableName = def.EnemyTableName
+			pt.ItemTableName = def.ItemTableName
+			pt.Depth = 1
+
+			chain := buildMapGenChain(t, world, pt)
+			for i, snap := range chain.Snapshots {
+				t.Run(fmt.Sprintf("%s/%s/Phase%d_%s", def.Name, pt.Name, i, snap.Label), func(t *testing.T) {
+					t.Parallel()
+					data, err := json.MarshalIndent(snap, "", "  ")
+					require.NoError(t, err)
+
+					g := goldie.New(t, goldie.WithNameSuffix(".json"))
+					g.Assert(t, t.Name(), data)
+				})
+			}
+		}
+	}
+}
+
+// TestMapGenImages はダンジョン定義ごとに各プランナータイプの各フェーズのVRT画像を生成する。
 // 一致率の検証は行わず、目視確認用の参照画像として保存する
 func TestMapGenImages(t *testing.T) {
 	t.Parallel()
 
-	plannerTypes := []mapplanner.PlannerType{
-		mapplanner.PlannerTypeSmallRoom,
-		mapplanner.PlannerTypeBigRoom,
-		mapplanner.PlannerTypeCave,
-		mapplanner.PlannerTypeRuins,
-		mapplanner.PlannerTypeForest,
-	}
-	seed := uint64(12345)
-
 	world := vrt.InitVRTWorld(t)
-	for _, pt := range plannerTypes {
-		chain, err := pt.PlannerFunc(consts.MapTileWidth, consts.MapTileHeight, seed)
-		require.NoError(t, err)
-		chain.Recording = true
-		chain.PlanData.RawMaster = &world.Resources.RawMaster
-		chain.With(mapplanner.NewHostileNPCPlanner(world, pt))
-		chain.With(mapplanner.NewItemPlanner(world, pt))
-		chain.With(mapplanner.NewPortalPlanner(world, pt))
-		require.NoError(t, chain.Plan())
+	for _, def := range dungeon.GetAllDungeons() {
+		for _, pw := range def.PlannerPool {
+			pt := pw.PlannerType
+			pt.EnemyTableName = def.EnemyTableName
+			pt.ItemTableName = def.ItemTableName
+			pt.Depth = 1
 
-		for i, snap := range chain.Snapshots {
-			t.Run(fmt.Sprintf("%s/Phase%d_%s", pt.Name, i, snap.Label), func(t *testing.T) {
-				t.Parallel()
-				pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
-					PlannerType: pt,
-					Seed:        seed,
-					PhaseIndex:  i,
-				}))
+			chain := buildMapGenChain(t, world, pt)
+			for i, snap := range chain.Snapshots {
+				t.Run(fmt.Sprintf("%s/%s/Phase%d_%s", def.Name, pt.Name, i, snap.Label), func(t *testing.T) {
+					t.Parallel()
+					pngData := vrt.RenderStatePNG(t, vrt.States(&gs.MapGenVisualizerState{
+						PlannerType: pt,
+						Seed:        mapGenSeed,
+						PhaseIndex:  i,
+					}))
 
-				dir := filepath.Join("testdata", "MapGenImages", pt.Name)
-				require.NoError(t, os.MkdirAll(dir, 0o755))
-				path := filepath.Join(dir, fmt.Sprintf("Phase%d_%s.png", i, snap.Label))
-				require.NoError(t, os.WriteFile(path, pngData, 0o644))
-			})
+					dir := filepath.Join("testdata", "MapGenImages", def.Name, pt.Name)
+					require.NoError(t, os.MkdirAll(dir, 0o755))
+					path := filepath.Join(dir, fmt.Sprintf("Phase%d_%s.png", i, snap.Label))
+					require.NoError(t, os.WriteFile(path, pngData, 0o644))
+				})
+			}
 		}
 	}
 }
