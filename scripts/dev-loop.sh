@@ -17,6 +17,8 @@ find_next_design_doc() {
   echo ""
 }
 
+# 起動時は常にpendingにリセットする。blocked/doneは前回セッションの終了状態であり、
+# スクリプトを再起動する時点で人間が状況を確認済みと判断する
 echo "pending" > "$STATE_FILE"
 
 while true; do
@@ -51,6 +53,8 @@ while true; do
       exit 1
       ;;
     running)
+      # 前回セッションがクラッシュした可能性がある
+      echo "前回セッションが異常終了。再開する"
       echo "pending" > "$STATE_FILE"
       ;;
   esac
