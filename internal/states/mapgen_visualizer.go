@@ -39,9 +39,13 @@ func (st MapGenVisualizerState) String() string {
 
 var _ es.State[w.World] = &MapGenVisualizerState{}
 
-func (st *MapGenVisualizerState) OnPause(_ w.World) error  { return nil }
+// OnPause は一時停止時の処理
+func (st *MapGenVisualizerState) OnPause(_ w.World) error { return nil }
+
+// OnResume は再開時の処理
 func (st *MapGenVisualizerState) OnResume(_ w.World) error { return nil }
 
+// OnStart はスナップショットを生成してエンティティをスポーンする
 func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	st.mapWidth = consts.MapTileWidth
 	st.mapHeight = consts.MapTileHeight
@@ -62,7 +66,7 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	}
 
 	if err := chain.Plan(); err != nil {
-		return fmt.Errorf("Plan実行失敗: %w", err)
+		return fmt.Errorf("plan実行失敗: %w", err)
 	}
 
 	st.snapshots = chain.Snapshots
@@ -82,12 +86,14 @@ func (st *MapGenVisualizerState) OnStart(world w.World) error {
 	return st.spawnSnapshot(world)
 }
 
+// OnStop はエンティティを削除する
 func (st *MapGenVisualizerState) OnStop(world w.World) error {
 	st.clearEntities(world)
 	return nil
 }
 
-func (st *MapGenVisualizerState) Update(world w.World) (es.Transition[w.World], error) {
+// Update はキー入力を処理する
+func (st *MapGenVisualizerState) Update(_ w.World) (es.Transition[w.World], error) {
 	// Escapeで閉じる
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
 		return es.Transition[w.World]{Type: es.TransPop}, nil
@@ -96,6 +102,7 @@ func (st *MapGenVisualizerState) Update(world w.World) (es.Transition[w.World], 
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はスプライトとHUDを描画する
 func (st *MapGenVisualizerState) Draw(world w.World, screen *ebiten.Image) error {
 	// RenderSpriteSystemで描画する
 	if sys, ok := world.Renderers[(&gs.RenderSpriteSystem{}).String()]; ok {
