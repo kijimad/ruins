@@ -13,7 +13,9 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/require"
 )
 
@@ -97,12 +99,12 @@ func InitVRTWorld(t *testing.T) w.World {
 	world, err := maingame.InitWorld(cfg)
 	require.NoError(t, err)
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	if len(professions) > 0 {
-		require.NoError(t, worldhelper.ApplyProfession(world, player, professions[0]))
+		require.NoError(t, action.ApplyProfession(world, player, professions[0]))
 	}
 
 	for _, updater := range []w.Updater{

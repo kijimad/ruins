@@ -9,7 +9,8 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -136,19 +137,19 @@ func (sa *ShootActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.World
 
 // getEquippedFire はプレイヤーの装備中の遠距離武器のFireと武器名を取得する
 func getEquippedFire(actor ecs.Entity, world w.World) (*gc.Fire, string, error) {
-	selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
+	selectedSlot := query.GetDungeon(world).SelectedWeaponSlot
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= 5 {
 		return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
 	}
 
-	weapons := worldhelper.GetWeapons(world, actor)
+	weapons := query.GetWeapons(world, actor)
 	weaponEntity := weapons[weaponIndex]
 	if weaponEntity == nil {
 		return nil, "", ErrShootNoFireWeapon
 	}
 
-	fire, name, err := worldhelper.GetFireFromWeapon(world, *weaponEntity)
+	fire, name, err := query.GetFireFromWeapon(world, *weaponEntity)
 	if err != nil {
 		return nil, "", ErrShootNoFireWeapon
 	}
@@ -194,7 +195,7 @@ func checkLineOfSight(actor, target ecs.Entity, world w.World) (blocked bool, co
 
 	points := geometry.BresenhamLine(int(aPos.X), int(aPos.Y), int(tPos.X), int(tPos.Y))
 	for _, p := range points {
-		entities := worldhelper.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
+		entities := query.GetEntitiesAt(world, consts.Tile(p.X), consts.Tile(p.Y))
 		for _, e := range entities {
 			if e.HasComponent(world.Components.BlockView) {
 				return true, coverCount
@@ -240,7 +241,7 @@ func ExecuteShootAction(actor ecs.Entity, target ecs.Entity, world w.World) erro
 	}
 	_, err := Execute(&ShootActivity{}, params, world)
 	if err != nil {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(err.Error()).
 			Log()
 		return nil

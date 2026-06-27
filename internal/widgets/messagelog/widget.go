@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // Insets はパディング設定を表す
@@ -77,7 +78,7 @@ func (widget *Widget) Draw(screen *ebiten.Image, x, y, width, height int) {
 
 // initUI は初期UIを作成する
 func (widget *Widget) initUI() {
-	store := worldhelper.GetGameLog(widget.world)
+	store := query.GetGameLog(widget.world)
 	if store == nil {
 		return
 	}
@@ -97,7 +98,7 @@ func (widget *Widget) initUI() {
 
 // updateUI はログメッセージが更新された場合にUIを再構築する
 func (widget *Widget) updateUI() {
-	store := worldhelper.GetGameLog(widget.world)
+	store := query.GetGameLog(widget.world)
 	if store == nil {
 		return
 	}

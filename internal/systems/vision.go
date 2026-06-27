@@ -9,7 +9,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -91,9 +92,9 @@ func (sys *VisionSystem) Update(world w.World) error {
 		geometry.Abs(int(playerPos.Y-sys.lastPlayerY)) >= updateThreshold
 
 	// 外部から設定された視界更新フラグをチェックする(扉開閉時など)
-	if worldhelper.GetDungeon(world) != nil && worldhelper.GetDungeon(world).NeedsForceUpdate {
+	if query.GetDungeon(world) != nil && query.GetDungeon(world).NeedsForceUpdate {
 		needsUpdate = true
-		worldhelper.GetDungeon(world).NeedsForceUpdate = false
+		query.GetDungeon(world).NeedsForceUpdate = false
 	}
 
 	if needsUpdate {
@@ -109,7 +110,7 @@ func (sys *VisionSystem) Update(world w.World) error {
 
 		// 視界内タイルの光源情報を計算し、探索済みマークを行う。
 		// マップ外座標はデータに含めない
-		dungeon := worldhelper.GetDungeon(world)
+		dungeon := query.GetDungeon(world)
 		visibleTiles := make(map[gc.GridElement]bool)
 		for _, tileData := range visibilityData {
 			if !tileData.Visible {
@@ -176,7 +177,7 @@ func (TileRenderRemembered) tileRenderInfo() {}
 // 各描画関数が参照するだけで済む描画情報マップを返す
 func computeTileRenderMap(world w.World, lights map[gc.GridElement]LightInfo) map[gc.GridElement]TileRenderInfo {
 	result := make(map[gc.GridElement]TileRenderInfo)
-	dungeon := worldhelper.GetDungeon(world)
+	dungeon := query.GetDungeon(world)
 
 	// 現在見えているタイルを設定する
 	for grid := range dungeon.VisibleTiles {

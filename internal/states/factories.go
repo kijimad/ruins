@@ -11,7 +11,9 @@ import (
 	"github.com/kijimaD/ruins/internal/messagedata"
 	"github.com/kijimaD/ruins/internal/save"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -88,7 +90,7 @@ func NewDebugMenuState() es.State[w.World] {
 
 	messageState.messageData = messagedata.NewSystemMessage("").
 		WithChoice("回復薬スポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnBackpackItem(world, "回復薬", 1)
+			_, err := lifecycle.SpawnBackpackItem(world, "回復薬", 1)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -96,7 +98,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("レイガンスポーン(インベントリ)", func(world w.World) error {
-			_, err := worldhelper.SpawnBackpackItem(world, "レイガン", 1)
+			_, err := lifecycle.SpawnBackpackItem(world, "レイガン", 1)
 			if err != nil {
 				return fmt.Errorf("error spawning item: %w", err)
 			}
@@ -119,7 +121,7 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("全ダンジョン踏破", func(world w.World) error {
 			for _, name := range dungeon.GetAllDungeonNames() {
-				worldhelper.GetGameProgress(world).MarkDungeonCleared(name)
+				query.GetGameProgress(world).MarkDungeonCleared(name)
 			}
 			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
 			return nil
@@ -197,13 +199,13 @@ func NewDebugMenuState() es.State[w.World] {
 		}).
 		WithChoice("アイテム入手イベント", func(world w.World) error {
 			// アイテムを実際にインベントリに追加
-			if err := worldhelper.ChangeStackableCount(world, "鉄", 1); err != nil {
+			if err := lifecycle.ChangeStackableCount(world, "鉄", 1); err != nil {
 				return fmt.Errorf("アイテム追加に失敗: %w", err)
 			}
-			if err := worldhelper.ChangeStackableCount(world, "木の棒", 1); err != nil {
+			if err := lifecycle.ChangeStackableCount(world, "木の棒", 1); err != nil {
 				return fmt.Errorf("アイテム追加に失敗: %w", err)
 			}
-			if err := worldhelper.ChangeStackableCount(world, "フェライトコア", 2); err != nil {
+			if err := lifecycle.ChangeStackableCount(world, "フェライトコア", 2); err != nil {
 				return fmt.Errorf("アイテム追加に失敗: %w", err)
 			}
 
@@ -334,7 +336,7 @@ func NewDebugMenuState() es.State[w.World] {
 			return nil
 		}).
 		WithChoice("次の階層に進む", func(world w.World) error {
-			currentDepth := worldhelper.GetDungeon(world).Depth
+			currentDepth := query.GetDungeon(world).Depth
 
 			// 次の階層に遷移
 			messageState.SetTransition(es.Transition[w.World]{
@@ -427,23 +429,23 @@ func NewDebugMenuState() es.State[w.World] {
 
 // spawnPropNearPlayer はプレイヤーの隣にPropをスポーンする
 func spawnPropNearPlayer(world w.World, name string) error {
-	player, err := worldhelper.GetPlayerEntity(world)
+	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
-	_, err = worldhelper.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
+	_, err = lifecycle.SpawnProp(world, name, playerGrid.X+2, playerGrid.Y)
 	return err
 }
 
 // spawnStorageWithItems はプレイヤーの隣にアイテム入り木箱をスポーンする
 func spawnStorageWithItems(world w.World) error {
-	player, err := worldhelper.GetPlayerEntity(world)
+	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
-	storageEntity, err := worldhelper.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
+	storageEntity, err := lifecycle.SpawnProp(world, "木箱", playerGrid.X+2, playerGrid.Y)
 	if err != nil {
 		return err
 	}
@@ -458,7 +460,7 @@ func spawnStorageWithItems(world w.World) error {
 		{"たいまつ", 1},
 	}
 	for _, item := range items {
-		if _, err := worldhelper.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {
+		if _, err := lifecycle.SpawnStorageItem(world, item.name, item.count, storageEntity); err != nil {
 			return fmt.Errorf("収納アイテムのスポーンに失敗: %w", err)
 		}
 	}
@@ -467,12 +469,12 @@ func spawnStorageWithItems(world w.World) error {
 
 // spawnEnemyNearPlayer はプレイヤーから少し離れた位置に敵をスポーンする
 func spawnEnemyNearPlayer(world w.World, name string) error {
-	player, err := worldhelper.GetPlayerEntity(world)
+	player, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
-	_, err = worldhelper.SpawnEnemy(world, int(playerGrid.X)+8, int(playerGrid.Y), name)
+	_, err = lifecycle.SpawnEnemy(world, int(playerGrid.X)+8, int(playerGrid.Y), name)
 	return err
 }
 
@@ -710,7 +712,7 @@ func newActionChoiceMenu(actions []InteractionAction) es.State[w.World] {
 
 	for _, action := range actions {
 		messageState.messageData = messageState.messageData.WithChoice(action.Label, func(world w.World) error {
-			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			playerEntity, err := query.GetPlayerEntity(world)
 			if err != nil {
 				return fmt.Errorf("failed to get player entity: %w", err)
 			}

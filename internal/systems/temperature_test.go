@@ -5,7 +5,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -185,7 +187,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("ダンジョンが設定されていない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.SetDungeon(world, nil)
+		query.SetDungeon(world, nil)
 
 		sys := &TemperatureSystem{}
 		err := sys.Update(world)
@@ -196,9 +198,9 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("HealthStatusを持つエンティティの状態が更新される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.GetDungeon(world).DefinitionName = "亡者の森" // 基本気温0度
+		query.GetDungeon(world).DefinitionName = "亡者の森" // 基本気温0度
 
-		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
 
 		sys := &TemperatureSystem{}
@@ -215,7 +217,7 @@ func TestTemperatureSystem_Update(t *testing.T) {
 	t.Run("存在しないダンジョン名の場合はエラーなし", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		worldhelper.GetDungeon(world).DefinitionName = "存在しないダンジョン"
+		query.GetDungeon(world).DefinitionName = "存在しないダンジョン"
 
 		sys := &TemperatureSystem{}
 		err := sys.Update(world)
@@ -262,7 +264,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備なしの場合は全て0", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
 
 		insulation := CalculateEquippedInsulation(world, player)
@@ -273,7 +275,7 @@ func TestCalculateEquippedInsulation(t *testing.T) {
 	t.Run("装備の断熱値が合算される", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
-		player, err := worldhelper.SpawnPlayer(world, 0, 0, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 0, 0, "Ash")
 		require.NoError(t, err)
 
 		// 胴体装備（耐寒10, 耐熱5）

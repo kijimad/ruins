@@ -18,7 +18,9 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 const autoSellItemsPerPage = 20
@@ -29,11 +31,11 @@ type AutoSellState struct {
 	es.BaseState[w.World]
 	mount   *hooks.Mount[autoSellProps]
 	widget  *ebitenui.UI
-	preview worldhelper.AutoSellResult
+	preview waction.AutoSellResult
 }
 
 type autoSellProps struct {
-	Items []worldhelper.SoldItem
+	Items []waction.SoldItem
 	Total int
 }
 
@@ -61,12 +63,12 @@ func (st *AutoSellState) OnResume(_ w.World) error { return nil }
 
 // OnStart はプレビューを生成する。売却はまだ実行しない。
 func (st *AutoSellState) OnStart(world w.World) error {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return fmt.Errorf("プレイヤーの取得に失敗: %w", err)
 	}
 
-	result, err := worldhelper.PreviewEndRun(world, playerEntity)
+	result, err := waction.PreviewEndRun(world, playerEntity)
 	if err != nil {
 		return fmt.Errorf("プレビュー生成に失敗: %w", err)
 	}
@@ -127,11 +129,11 @@ func (st *AutoSellState) DoAction(world w.World, action inputmapper.ActionID) (e
 	switch action {
 	case inputmapper.ActionMenuSelect, inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		// 売却を実行してから町に遷移する
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの取得に失敗: %w", err)
 		}
-		if err := worldhelper.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil {
+		if err := waction.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil {
 			return es.Transition[w.World]{}, fmt.Errorf("売却実行に失敗: %w", err)
 		}
 		return es.Transition[w.World]{
@@ -206,7 +208,7 @@ func (st *AutoSellState) buildItemContainer(world w.World, props autoSellProps, 
 			stackable := world.Components.Stackable.Get(entity).(*gc.Stackable)
 			countStr = fmt.Sprintf("%d", stackable.Count)
 		}
-		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, countStr, worldhelper.FormatCurrency(entry.Item.Price)}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Name, countStr, query.FormatCurrency(entry.Item.Price)}, aligns, &isSelected, res)
 	}
 	container.AddChild(table)
 
@@ -231,7 +233,7 @@ func (st *AutoSellState) buildSpecContainer(world w.World, props autoSellProps, 
 func (st *AutoSellState) buildFooterContainer(props autoSellProps, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
-	totalText := fmt.Sprintf("合計  %s", worldhelper.FormatCurrency(props.Total))
+	totalText := fmt.Sprintf("合計  %s", query.FormatCurrency(props.Total))
 	container.AddChild(widget.NewText(
 		widget.TextOpts.Text(totalText, &res.Text.BodyFace, theme.TextPrimary),
 		widget.TextOpts.WidgetOpts(

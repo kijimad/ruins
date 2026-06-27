@@ -7,7 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // TurnSystem はターン管理を行うシステム
@@ -22,7 +23,7 @@ func (sys TurnSystem) String() string {
 // Update はターン管理を行う
 // w.Updater interfaceを実装
 func (sys *TurnSystem) Update(world w.World) error {
-	turnState := worldhelper.GetTurnState(world)
+	turnState := query.GetTurnState(world)
 
 	switch turnState.Phase {
 	case gc.TurnPhasePlayer:
@@ -43,7 +44,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 			return err
 		}
 		// AIターン完了後に視界を再計算させる
-		worldhelper.GetDungeon(world).NeedsForceUpdate = true
+		query.GetDungeon(world).NeedsForceUpdate = true
 		turnState.Phase = gc.TurnPhaseEnd
 	case gc.TurnPhaseEnd:
 		// ターン終了処理
@@ -51,7 +52,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 			return err
 		}
 		// 空間インデックスを無効化する。次ターンで再構築される
-		worldhelper.InvalidateSpatialIndex(world)
+		query.InvalidateSpatialIndex(world)
 		turnState.TurnNumber++
 		turnState.Phase = gc.TurnPhasePlayer
 	}
@@ -61,7 +62,7 @@ func (sys *TurnSystem) Update(world w.World) error {
 // shouldAutoEndTurn はプレイヤーのAPがマイナスの場合にtrueを返す
 // APがマイナスの間は自動でターンを経過させる
 func shouldAutoEndTurn(world w.World) bool {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return false
 	}
@@ -93,12 +94,12 @@ func processAITurn(world w.World) error {
 // processTurnEnd はターン終了処理を行う
 func processTurnEnd(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
-	turnState := worldhelper.GetTurnState(world)
+	turnState := query.GetTurnState(world)
 
 	log.Debug("ターン終了処理", "turn", turnState.TurnNumber)
 
 	// 全エンティティのアクションポイントを回復
-	if err := worldhelper.RestoreAllActionPoints(world); err != nil {
+	if err := query.RestoreAllActionPoints(world); err != nil {
 		return err
 	}
 
@@ -125,13 +126,13 @@ func runTurnEndSystems(world w.World) error {
 // 継続アクションが進行中の場合は true を返し、ターンを進める
 func processPlayerContinuousActivity(world w.World) bool {
 	// プレイヤーエンティティを取得
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return false
 	}
 
 	// プレイヤーの継続アクションをチェック
-	if !worldhelper.HasActivity(world, playerEntity) {
+	if !query.HasActivity(world, playerEntity) {
 		return false
 	}
 
@@ -141,11 +142,11 @@ func processPlayerContinuousActivity(world w.World) bool {
 	// 継続アクションの1ターン分を処理
 	activity.ProcessTurn(world)
 
-	if !worldhelper.HasActivity(world, playerEntity) {
+	if !query.HasActivity(world, playerEntity) {
 		log.Debug("プレイヤー継続アクション完了")
 	}
 
 	// 継続中でも完了でもターンコストを消費する
-	worldhelper.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)
+	query.ConsumeActionPoints(world, playerEntity, consts.StandardActionCost)
 	return true
 }

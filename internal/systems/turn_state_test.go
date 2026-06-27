@@ -5,7 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +18,7 @@ func TestGetTurnState(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state := worldhelper.GetTurnState(world)
+		state := query.GetTurnState(world)
 		require.NotNil(t, state, "TurnStateが存在する")
 		assert.Equal(t, gc.TurnPhasePlayer, state.Phase, "初期フェーズはPlayerTurn")
 		assert.Equal(t, 1, state.TurnNumber, "初期ターン番号は1")
@@ -31,7 +32,7 @@ func TestTurnStateDirectManipulation(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state := worldhelper.GetTurnState(world)
+		state := query.GetTurnState(world)
 		require.NotNil(t, state)
 
 		// PlayerTurn -> AITurn
@@ -51,7 +52,7 @@ func TestTurnStateDirectManipulation(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state := worldhelper.GetTurnState(world)
+		state := query.GetTurnState(world)
 		require.NotNil(t, state)
 
 		assert.Equal(t, 1, state.TurnNumber)
@@ -71,7 +72,7 @@ func TestTurnCycle(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		state := worldhelper.GetTurnState(world)
+		state := query.GetTurnState(world)
 		require.NotNil(t, state)
 
 		// 初期状態

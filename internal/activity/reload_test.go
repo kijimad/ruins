@@ -5,7 +5,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -54,13 +56,13 @@ func TestReloadActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnBackpackItem(world, "ハンドガン", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
-		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
+		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		// マガジンを空にする（弾薬アイテムは持っていない）
 		fire := world.Components.Fire.Get(we).(*gc.Fire)
@@ -78,13 +80,13 @@ func TestReloadActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
-		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
+		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		ra := &ReloadActivity{}
 		comp, err := NewActivity(ra, 1)
@@ -151,19 +153,19 @@ func TestReloadActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		we, err := worldhelper.SpawnBackpackItem(world, "ハンドガン", 1)
+		we, err := lifecycle.SpawnBackpackItem(world, "ハンドガン", 1)
 		require.NoError(t, err)
-		worldhelper.MoveToEquip(world, we, player, gc.SlotWeapon1)
-		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+		lifecycle.MoveToEquip(world, we, player, gc.SlotWeapon1)
+		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		fire := world.Components.Fire.Get(we).(*gc.Fire)
 		fire.Magazine = 0
 
 		// 弾薬を2発だけ持たせる
-		_, err = worldhelper.SpawnBackpackItem(world, "9mm FMJ", 2)
+		_, err = lifecycle.SpawnBackpackItem(world, "9mm FMJ", 2)
 		require.NoError(t, err)
 
 		ra := &ReloadActivity{}

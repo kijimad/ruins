@@ -5,7 +5,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -29,7 +30,7 @@ func NewProcessor() *Processor {
 
 // ProcessAllEntities は全てのAIエンティティを処理する
 func (p *Processor) ProcessAllEntities(world w.World) error {
-	turnNumber := worldhelper.GetTurnState(world).TurnNumber
+	turnNumber := query.GetTurnState(world).TurnNumber
 	p.logger.Debug("AI処理開始", "turn", turnNumber)
 
 	entityCount := 0
@@ -50,7 +51,7 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 
 // ProcessEntity は個別のAIエンティティを処理する
 func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
-	turnNumber := worldhelper.GetTurnState(world).TurnNumber
+	turnNumber := query.GetTurnState(world).TurnNumber
 	p.logger.Debug("AIエンティティ処理開始", "entity", entity)
 
 	// 死亡しているエンティティは処理しない
@@ -199,7 +200,7 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 
 // findPlayer はプレイヤーエンティティを探す
 func (p *Processor) findPlayer(world w.World) *ecs.Entity {
-	si := worldhelper.GetSpatialIndex(world)
+	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return nil
 	}

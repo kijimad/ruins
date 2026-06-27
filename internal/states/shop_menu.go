@@ -18,7 +18,9 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -193,8 +195,8 @@ type shopWindowProps struct {
 func (st *ShopMenuState) fetchProps(world w.World) shopProps {
 	var currency int
 	buyPriceMod, sellPriceMod := 100, 100
-	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-		currency = worldhelper.GetCurrency(world, playerEntity)
+	query.Player(world, func(playerEntity ecs.Entity) {
+		currency = query.GetCurrency(world, playerEntity)
 		if playerEntity.HasComponent(world.Components.CharModifiers) {
 			mods := world.Components.CharModifiers.Get(playerEntity).(*gc.CharModifiers)
 			buyPriceMod = mods.BuyPrice
@@ -216,7 +218,7 @@ func (st *ShopMenuState) createTabs(world w.World, currency, buyPriceMod, sellPr
 }
 
 func (st *ShopMenuState) createBuyItems(world w.World, currency, buyPriceMod int) []shopItemData {
-	shopInventory := worldhelper.GetShopInventory()
+	shopInventory := waction.GetShopInventory()
 	items := make([]shopItemData, 0, len(shopInventory))
 
 	for _, itemName := range shopInventory {
@@ -237,7 +239,7 @@ func (st *ShopMenuState) createBuyItems(world w.World, currency, buyPriceMod int
 func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shopItemData {
 	var items []shopItemData
 
-	worldhelper.QueryPlayer(world, func(_ ecs.Entity) {
+	query.Player(world, func(_ ecs.Entity) {
 		world.Manager.Join(
 			world.Components.Name,
 			world.Components.LocationInBackpack,
@@ -245,10 +247,10 @@ func (st *ShopMenuState) createSellItems(world w.World, sellPriceMod int) []shop
 			nameComp := world.Components.Name.Get(entity).(*gc.Name)
 			itemName := nameComp.Name
 
-			baseValue := worldhelper.GetItemValue(world, entity)
-			price := worldhelper.CalculateSellPrice(baseValue) * sellPriceMod / 100
+			baseValue := query.GetItemValue(world, entity)
+			price := query.CalculateSellPrice(baseValue) * sellPriceMod / 100
 
-			count := worldhelper.GetEntityCount(world, entity)
+			count := query.GetEntityCount(world, entity)
 
 			items = append(items, shopItemData{
 				Label:  itemName,
@@ -270,9 +272,9 @@ func (st *ShopMenuState) getItemPrice(world w.World, itemName string, isBuy bool
 	}
 	baseValue := int(itemDef.Value)
 	if isBuy {
-		return worldhelper.CalculateBuyPrice(baseValue)
+		return query.CalculateBuyPrice(baseValue)
 	}
-	return worldhelper.CalculateSellPrice(baseValue)
+	return query.CalculateSellPrice(baseValue)
 }
 
 // ================
@@ -310,8 +312,8 @@ func (st *ShopMenuState) getActionItems(world w.World, item shopItemData) []stri
 
 	if item.IsBuy {
 		var canAfford bool
-		worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-			currency := worldhelper.GetCurrency(world, playerEntity)
+		query.Player(world, func(playerEntity ecs.Entity) {
+			currency := query.GetCurrency(world, playerEntity)
 			canAfford = currency >= item.Price
 		})
 		if canAfford {
@@ -368,16 +370,16 @@ func (st *ShopMenuState) executeActionItem(world w.World) error {
 	var actionErr error
 	switch selectedAction {
 	case "購入する":
-		worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-			actionErr = worldhelper.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
+		query.Player(world, func(playerEntity ecs.Entity) {
+			actionErr = waction.BuyItem(world, playerEntity, windowProps.SelectedItem.Label)
 		})
 		if actionErr != nil {
 			return fmt.Errorf("購入に失敗: %w", actionErr)
 		}
 		st.subState = shopSubStateMenu
 	case "売却する":
-		worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-			actionErr = worldhelper.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
+		query.Player(world, func(playerEntity ecs.Entity) {
+			actionErr = waction.SellItem(world, playerEntity, windowProps.SelectedItem.Entity)
 		})
 		if actionErr != nil {
 			return fmt.Errorf("売却に失敗: %w", actionErr)
@@ -445,7 +447,7 @@ func (st *ShopMenuState) buildCategoryContainer(tabs []shopTabData, tabIndex int
 
 func (st *ShopMenuState) buildCurrencyContainer(currency int, res resources.UIResources) *widget.Container {
 	container := styled.NewRowContainer()
-	container.AddChild(styled.NewMenuText(worldhelper.FormatCurrency(currency), res))
+	container.AddChild(styled.NewMenuText(query.FormatCurrency(currency), res))
 	return container
 }
 
@@ -474,7 +476,7 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 		table := styled.NewTableContainer(columnWidths, res)
 		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
 			isSelected := pg.IsSelectedInPage(entry.Index)
-			priceStr := worldhelper.FormatCurrency(entry.Item.Price)
+			priceStr := query.FormatCurrency(entry.Item.Price)
 			styled.NewTableRow(table, columnWidths, []string{"", entry.Item.Label, priceStr}, aligns, &isSelected, res)
 		}
 		container.AddChild(table)
@@ -485,7 +487,7 @@ func (st *ShopMenuState) buildItemContainer(tabs []shopTabData, tabIndex, itemIn
 		table := styled.NewTableContainer(columnWidths, res)
 		for _, entry := range pagination.VisibleEntries(currentTab.Items, pg) {
 			isSelected := pg.IsSelectedInPage(entry.Index)
-			priceStr := worldhelper.FormatCurrency(entry.Item.Price)
+			priceStr := query.FormatCurrency(entry.Item.Price)
 			countStr := ""
 			if entry.Item.Count > 1 {
 				countStr = fmt.Sprintf("x%d", entry.Item.Count)

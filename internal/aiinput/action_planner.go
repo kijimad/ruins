@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -199,7 +200,7 @@ func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.En
 		return waitAction(aiEntity, "AI壁沿い待機")
 	}
 
-	si := worldhelper.GetSpatialIndex(world)
+	si := query.GetSpatialIndex(world)
 
 	// 移動可能な方向を壁隣接スコアでソートする
 	type scoredDir struct {

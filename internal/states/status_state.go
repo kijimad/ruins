@@ -18,7 +18,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -148,7 +149,7 @@ type statusDetailRow struct {
 
 func (st *StatusState) fetchProps(world w.World) statusProps {
 	var playerEntity ecs.Entity
-	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
+	query.Player(world, func(entity ecs.Entity) {
 		playerEntity = entity
 	})
 
@@ -227,7 +228,7 @@ func (st *StatusState) createBasicItems(world w.World, playerEntity ecs.Entity, 
 
 	items = append(items,
 		statusItemData{Label: "環境気温", Value: fmt.Sprintf("%d%s", envTemp, consts.IconDegree), Description: "現在地の気温"},
-		statusItemData{Label: "時間帯", Value: worldhelper.GetDungeon(world).GameTime.GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
+		statusItemData{Label: "時間帯", Value: query.GetDungeon(world).GameTime.GetTimeOfDay().String(), Description: "現在の時間帯。屋外では気温に影響する"},
 	)
 
 	return items
@@ -608,7 +609,7 @@ func (st *StatusState) buildEffectDetail(container *widget.Container, item statu
 
 func (st *StatusState) buildHealthDetail(container *widget.Container, world w.World, res resources.UIResources) {
 	var playerEntity ecs.Entity
-	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
+	query.Player(world, func(entity ecs.Entity) {
 		playerEntity = entity
 	})
 	insulation := systems.CalculateEquippedInsulation(world, playerEntity)

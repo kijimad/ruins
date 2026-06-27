@@ -6,7 +6,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -25,7 +27,7 @@ func TestLookAroundState_OnStart(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	playerEntity, err := worldhelper.SpawnPlayer(world, 5, 7, "Ash")
+	playerEntity, err := lifecycle.SpawnPlayer(world, 5, 7, "Ash")
 	require.NoError(t, err)
 
 	state := &LookAroundState{}
@@ -155,8 +157,8 @@ func TestLookAroundState_CursorMovement(t *testing.T) {
 			t.Parallel()
 
 			world := testutil.InitTestWorld(t)
-			worldhelper.GetDungeon(world).Level.TileWidth = consts.Tile(tt.mapWidth)
-			worldhelper.GetDungeon(world).Level.TileHeight = consts.Tile(tt.mapHeight)
+			query.GetDungeon(world).Level.TileWidth = consts.Tile(tt.mapWidth)
+			query.GetDungeon(world).Level.TileHeight = consts.Tile(tt.mapHeight)
 
 			state := &LookAroundState{
 				cursor: consts.Coord[consts.Tile]{X: consts.Tile(tt.startX), Y: consts.Tile(tt.startY)},

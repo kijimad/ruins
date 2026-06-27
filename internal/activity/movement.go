@@ -1,7 +1,7 @@
 package activity
 
 import (
-	"github.com/kijimaD/ruins/internal/worldhelper"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 
 	w "github.com/kijimaD/ruins/internal/world"
@@ -40,7 +40,7 @@ import (
 // CanMoveTo は指定位置に移動可能かチェックする。
 // fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する
 func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {
-	si := worldhelper.GetSpatialIndex(world)
+	si := query.GetSpatialIndex(world)
 
 	if tileX < 0 || tileY < 0 || tileX >= si.MapWidth || tileY >= si.MapHeight {
 		return false

@@ -20,7 +20,9 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -62,16 +64,16 @@ func (st *DungeonState) OnStart(world w.World) error {
 		baseImage.Fill(theme.ScreenBackground)
 	}
 
-	worldhelper.GetDungeon(world).Depth = st.Depth
+	query.GetDungeon(world).Depth = st.Depth
 
 	// 設定されていればリソースに反映する
 	if st.DefinitionName != "" {
-		worldhelper.GetDungeon(world).DefinitionName = st.DefinitionName
+		query.GetDungeon(world).DefinitionName = st.DefinitionName
 	}
 	// ダンジョン定義を取得する
-	def, found := dungeon.GetDungeon(worldhelper.GetDungeon(world).DefinitionName)
+	def, found := dungeon.GetDungeon(query.GetDungeon(world).DefinitionName)
 	if !found {
-		return fmt.Errorf("ダンジョン定義が見つかりません: %s", worldhelper.GetDungeon(world).DefinitionName)
+		return fmt.Errorf("ダンジョン定義が見つかりません: %s", query.GetDungeon(world).DefinitionName)
 	}
 	// ステージ用シードを生成する
 	stageSeed := world.Config.RNG.Uint64()
@@ -107,24 +109,24 @@ func (st *DungeonState) OnStart(world w.World) error {
 	if err != nil {
 		return err
 	}
-	worldhelper.GetDungeon(world).Level = level
+	query.GetDungeon(world).Level = level
 
 	// 前フロアのSpatialIndexが残っている可能性があるため無効化する
 	// SpatialIndexはTurnPhaseEndでのみ無効化されるが、フロア遷移はTurnPhasePlayer中に
 	// 発生するため、古いフロアのデータが残り移動不能になることがある
-	worldhelper.InvalidateSpatialIndex(world)
+	query.InvalidateSpatialIndex(world)
 
 	// プレイヤーを配置する
 	playerPos, err := plan.GetPlayerStartPosition()
 	if err != nil {
 		return err
 	}
-	if err := worldhelper.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
+	if err := query.MovePlayerToPosition(world, playerPos.X, playerPos.Y); err != nil {
 		return err
 	}
 
 	// フロア移動時に探索済みマップをリセット
-	worldhelper.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
+	query.GetDungeon(world).ExploredTiles = make(map[gc.GridElement]bool)
 
 	// 新しい階のために視界キャッシュをクリアする
 	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
@@ -146,7 +148,7 @@ func (st *DungeonState) OnStart(world w.World) error {
 
 	// 街に帰還した際の全クリア判定
 	if def.Name == dungeon.DungeonTown.Name {
-		gp := worldhelper.GetGameProgress(world)
+		gp := query.GetGameProgress(world)
 		dungeonNames := dungeon.GetAllDungeonNames()
 		if gp.IsAllCleared(dungeonNames) {
 			gp.SetEventActive(gc.EventAllCleared)
@@ -178,7 +180,7 @@ func (st *DungeonState) OnStop(world w.World) error {
 	}))
 
 	// 未消費のステート遷移リクエストを破棄
-	worldhelper.ConsumeStateChange(world)
+	lifecycle.ConsumeStateChange(world)
 
 	// 視界キャッシュをクリア
 	if vs, ok := world.Updaters[(&gs.VisionSystem{}).String()]; ok {
@@ -190,8 +192,8 @@ func (st *DungeonState) OnStop(world w.World) error {
 // Update はゲームステートの更新処理を行う
 func (st *DungeonState) Update(world w.World) (es.Transition[w.World], error) {
 	// 全クリアイベントの表示
-	if worldhelper.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
-		worldhelper.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
+	if query.GetGameProgress(world).IsEventUnseen(gc.EventAllCleared) {
+		query.GetGameProgress(world).MarkEventSeen(gc.EventAllCleared)
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			func() es.State[w.World] { return NewAllClearEventState() },
 		}}, nil
@@ -346,11 +348,11 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		// UI系はターンチェック不要
 	default:
 		// ゲーム内アクション（移動、攻撃など）はターンチェックが必要
-		if !worldhelper.CanPlayerAct(world) {
+		if !query.CanPlayerAct(world) {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 		// プレイヤーが継続アクション中は新しいアクションを受け付けない
-		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil && worldhelper.HasActivity(world, playerEntity) {
+		if playerEntity, err := query.GetPlayerEntity(world); err == nil && query.HasActivity(world, playerEntity) {
 			return es.Transition[w.World]{Type: es.TransNone}, nil
 		}
 	}
@@ -438,7 +440,7 @@ func (st *DungeonState) DoAction(world w.World, action inputmapper.ActionID) (es
 		case 0:
 			// 何もしない
 		case 1:
-			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			playerEntity, err := query.GetPlayerEntity(world)
 			if err != nil {
 				return es.Transition[w.World]{Type: es.TransNone}, err
 			}
@@ -490,7 +492,7 @@ func (st *DungeonState) checkPlayerDeath(world w.World) bool {
 
 // handleStateChangeRequest はステート遷移リクエストを消費し、対応する遷移を返す
 func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w.World], error) {
-	req := worldhelper.ConsumeStateChange(world)
+	req := lifecycle.ConsumeStateChange(world)
 	if req == nil {
 		return es.Transition[w.World]{Type: es.TransNone}, nil
 	}
@@ -523,7 +525,7 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		}
 	case gc.WarpNextEvent:
 		// 次のフロアへ遷移する
-		nextDepth := worldhelper.GetDungeon(world).Depth + 1
+		nextDepth := query.GetDungeon(world).Depth + 1
 		return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 			NewFadeoutAnimationState(NewDungeonState(nextDepth)),
 		}}, nil
@@ -547,11 +549,11 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 
 // switchWeaponSlot は指定されたスロット番号（1-5）に武器を切り替える
 func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
-	worldhelper.GetDungeon(world).SelectedWeaponSlot = slotNumber
+	query.GetDungeon(world).SelectedWeaponSlot = slotNumber
 
 	// プレイヤーの武器スロット情報を取得してログメッセージを出力
-	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-		weapons := worldhelper.GetWeapons(world, playerEntity)
+	query.Player(world, func(playerEntity ecs.Entity) {
+		weapons := query.GetWeapons(world, playerEntity)
 		weaponIndex := slotNumber - 1 // 1-based to 0-based
 		weapon := weapons[weaponIndex]
 
@@ -559,7 +561,7 @@ func (st *DungeonState) switchWeaponSlot(world w.World, slotNumber int) {
 			// 武器が装備されている場合は武器名を表示
 			if nameComp := world.Components.Name.Get(*weapon); nameComp != nil {
 				weaponName := nameComp.(*gc.Name).Name
-				gamelog.New(worldhelper.GetGameLog(world)).
+				gamelog.New(query.GetGameLog(world)).
 					ItemName(weaponName).
 					Append("を構えた").
 					Log()

@@ -8,7 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 )
 
 // DemoStartState はデモ開始時のプレイヤー初期化を行うステート。
@@ -23,14 +25,14 @@ func (st DemoStartState) String() string {
 
 // OnStart はステート開始時にデフォルトプレイヤーを生成し、TownStateへの遷移を設定する
 func (st *DemoStartState) OnStart(world w.World) error {
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	if err != nil {
 		return fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 	}
 
 	professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 	if len(professions) > 0 {
-		if err := worldhelper.ApplyProfession(world, player, professions[0]); err != nil {
+		if err := action.ApplyProfession(world, player, professions[0]); err != nil {
 			return fmt.Errorf("職業の適用に失敗: %w", err)
 		}
 	}

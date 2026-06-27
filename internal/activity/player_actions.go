@@ -7,13 +7,14 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // ExecuteMoveAction は移動アクションを実行する
 func ExecuteMoveAction(world w.World, direction gc.Direction) error {
-	entity, err := worldhelper.GetPlayerEntity(world)
+	entity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -46,7 +47,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					door := world.Components.Door.Get(interactableEntity).(*gc.Door)
 					if !door.IsOpen {
 						if door.Locked {
-							gamelog.New(worldhelper.GetGameLog(world)).Append("扉はロックされている。").Log()
+							gamelog.New(query.GetGameLog(world)).Append("扉はロックされている。").Log()
 							return nil
 						}
 						_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
@@ -81,7 +82,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 
 // ExecuteWaitAction は待機アクションを実行する
 func ExecuteWaitAction(world w.World) error {
-	entity, err := worldhelper.GetPlayerEntity(world)
+	entity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -134,7 +135,7 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 		for _, interaction := range interactable.Interactions {
 			way := interaction.Config().ActivationWay
 			if (way == gc.ActivationWayManual || way == gc.ActivationWayOnCollision) &&
-				worldhelper.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {
+				query.IsInActivationRange(targetGrid, gridElement, interaction.Config().ActivationRange) {
 				results = append(results, entity)
 				return // 同じエンティティを重複追加しない
 			}
@@ -196,24 +197,24 @@ func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {
 			}
 			switch data := interaction.(type) {
 			case gc.ItemInteraction:
-				formattedName := worldhelper.FormatItemName(world, entity)
-				gamelog.New(worldhelper.GetGameLog(world)).
+				formattedName := query.FormatItemName(world, entity)
+				gamelog.New(query.GetGameLog(world)).
 					ItemName(formattedName).
 					Append(" がある。").
 					Log()
 			case gc.PortalInteraction:
 				switch data.PortalType {
 				case gc.PortalTypeNext:
-					gamelog.New(worldhelper.GetGameLog(world)).
+					gamelog.New(query.GetGameLog(world)).
 						Append("転移ゲートがある。Enterキーで移動。").
 						Log()
 				case gc.PortalTypeTown:
-					gamelog.New(worldhelper.GetGameLog(world)).
+					gamelog.New(query.GetGameLog(world)).
 						Append("帰還ゲートがある。Enterキーで脱出。").
 						Log()
 				}
 			case gc.DungeonGateInteraction:
-				gamelog.New(worldhelper.GetGameLog(world)).
+				gamelog.New(query.GetGameLog(world)).
 					Append("ダンジョンへの門がある。Enterキーで選択。").
 					Log()
 			}

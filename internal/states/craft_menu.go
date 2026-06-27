@@ -20,7 +20,9 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	waction "github.com/kijimaD/ruins/internal/world/action"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -229,7 +231,7 @@ func (st *CraftMenuState) createMenuItems(world w.World, recipeNames []string) [
 	items := make([]craftItemData, len(recipeNames))
 
 	for i, recipeName := range recipeNames {
-		canCraft, _ := worldhelper.CanCraft(world, recipeName)
+		canCraft, _ := waction.CanCraft(world, recipeName)
 		items[i] = craftItemData{
 			RecipeName: recipeName,
 			CanCraft:   canCraft,
@@ -324,7 +326,7 @@ func (st *CraftMenuState) getActionItems(world w.World, recipeName string) []str
 
 	actionItems := []string{}
 
-	if canCraft, _ := worldhelper.CanCraft(world, recipeName); canCraft {
+	if canCraft, _ := waction.CanCraft(world, recipeName); canCraft {
 		actionItems = append(actionItems, "合成する")
 	}
 	actionItems = append(actionItems, TextClose)
@@ -374,7 +376,7 @@ func (st *CraftMenuState) executeActionItem(world w.World) error {
 
 	switch selectedAction {
 	case "合成する":
-		resultEntity, err := worldhelper.Craft(world, windowProps.RecipeName)
+		resultEntity, err := waction.Craft(world, windowProps.RecipeName)
 		if err != nil {
 			return err
 		}
@@ -538,8 +540,8 @@ func (st *CraftMenuState) buildDetailContainer(world w.World, props craftProps, 
 func (st *CraftMenuState) buildRecipeList(world w.World, container *widget.Container, recipe *gc.Recipe, res resources.UIResources) {
 	for _, input := range recipe.Inputs {
 		var currentAmount int
-		if entity, found := worldhelper.FindStackableInInventory(world, input.Name); found {
-			currentAmount = worldhelper.GetEntityCount(world, entity)
+		if entity, found := query.FindStackableInInventory(world, input.Name); found {
+			currentAmount = query.GetEntityCount(world, entity)
 		}
 		str := fmt.Sprintf("%s %d pcs\n    所持: %d pcs", input.Name, input.Amount, currentAmount)
 		var textColor color.RGBA

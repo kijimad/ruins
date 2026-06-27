@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/dungeon"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -43,7 +44,7 @@ func ComfortableRange(insulation Insulation) (lower, upper int) {
 // CalculateEnvTemperature は指定位置の環境気温を計算する
 // 基本気温 + タイル修正 + 時間帯修正
 func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
-	dungeonRes := worldhelper.GetDungeon(world)
+	dungeonRes := query.GetDungeon(world)
 	if dungeonRes == nil {
 		return 0, errors.New("ダンジョンリソースが設定されていない")
 	}
@@ -55,7 +56,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 	baseTemp := def.BaseTemperature
 
-	timeModifier := worldhelper.GetDungeon(world).GameTime.GetTemperatureModifier()
+	timeModifier := query.GetDungeon(world).GameTime.GetTemperatureModifier()
 
 	tileModifier := getTileTemperatureAt(world, x, y)
 
@@ -64,7 +65,7 @@ func CalculateEnvTemperature(world w.World, x, y consts.Tile) (int, error) {
 
 // Update は健康状態のタイマーを更新する
 func (sys *TemperatureSystem) Update(world w.World) error {
-	if worldhelper.GetDungeon(world) == nil {
+	if query.GetDungeon(world) == nil {
 		return errors.New("ダンジョンリソースが設定されていない")
 	}
 
@@ -234,7 +235,7 @@ func logTemperatureChange(world w.World, condType gc.ConditionType, current, pre
 	}
 
 	if msg != "" {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Warning(msg).
 			Log()
 	}

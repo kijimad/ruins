@@ -20,7 +20,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -280,7 +281,7 @@ func (st *InventoryMenuState) queryByCategory(world w.World, cat gc.Category) []
 		}
 	}))
 
-	return worldhelper.SortEntities(world, result)
+	return query.SortEntities(world, result)
 }
 
 // ================
@@ -462,7 +463,7 @@ func (st *InventoryMenuState) getActionItems(world w.World, entity ecs.Entity) [
 		book := world.Components.Book.Get(entity).(*gc.Book)
 
 		var skills *gc.Skills
-		if playerEntity, err := worldhelper.GetPlayerEntity(world); err == nil {
+		if playerEntity, err := query.GetPlayerEntity(world); err == nil {
 			if skillsComp := world.Components.Skills.Get(playerEntity); skillsComp != nil {
 				skills = skillsComp.(*gc.Skills)
 			}
@@ -524,7 +525,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 	switch selected.Kind {
 	case actionUse:
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -542,7 +543,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		st.subState = invSubStateMenu
 	case actionRead:
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err
@@ -567,7 +568,7 @@ func (st *InventoryMenuState) executeActionItem(world w.World) error {
 
 		st.subState = invSubStateMenu
 	case actionDrop:
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			st.subState = invSubStateMenu
 			return err

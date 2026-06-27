@@ -7,7 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -64,7 +65,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 	}
 
 	if doorComp.Locked {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append("扉はロックされている。").
 			Log()
 		Cancel(comp, "扉はロックされている")
@@ -73,7 +74,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 
 	// 扉を開く
 	if !doorComp.IsOpen {
-		if err := worldhelper.OpenDoor(world, targetEntity); err != nil {
+		if err := query.OpenDoor(world, targetEntity); err != nil {
 			Cancel(comp, fmt.Sprintf("扉を開けません: %v", err))
 			return err
 		}
@@ -81,7 +82,7 @@ func (oda *OpenDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wor
 		log.Debug("扉を開きました", "door", targetEntity)
 
 		// 視界の更新が必要
-		worldhelper.GetDungeon(world).NeedsForceUpdate = true
+		query.GetDungeon(world).NeedsForceUpdate = true
 	}
 
 	Complete(comp)
@@ -94,7 +95,7 @@ func (oda *OpenDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.Wo
 
 	// プレイヤーの場合のみメッセージを表示
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append("扉を開いた。").
 			Log()
 	}
@@ -167,7 +168,7 @@ func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 
 	// 扉を閉じる
 	if doorComp.IsOpen {
-		if err := worldhelper.CloseDoor(world, targetEntity); err != nil {
+		if err := query.CloseDoor(world, targetEntity); err != nil {
 			Cancel(comp, fmt.Sprintf("扉を閉じられません: %v", err))
 			return err
 		}
@@ -175,7 +176,7 @@ func (cda *CloseDoorActivity) DoTurn(comp *gc.Activity, _ ecs.Entity, world w.Wo
 		log.Debug("扉を閉じました", "door", targetEntity)
 
 		// 視界の更新が必要であることをマーク（BlockViewが変更されたため）
-		worldhelper.GetDungeon(world).NeedsForceUpdate = true
+		query.GetDungeon(world).NeedsForceUpdate = true
 	}
 
 	Complete(comp)
@@ -188,7 +189,7 @@ func (cda *CloseDoorActivity) Finish(_ *gc.Activity, actor ecs.Entity, world w.W
 
 	// プレイヤーの場合のみメッセージを表示
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append("扉を閉じた。").
 			Log()
 	}

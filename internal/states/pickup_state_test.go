@@ -5,7 +5,8 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -22,7 +23,7 @@ func TestPickupState_OnStart(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 7, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 7, "Ash")
 	require.NoError(t, err)
 
 	state := &PickupState{}

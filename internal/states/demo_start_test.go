@@ -5,7 +5,8 @@ import (
 
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +21,7 @@ func TestDemoStartState_OnStart(t *testing.T) {
 	require.NoError(t, err)
 
 	// プレイヤーが生成されていることを確認
-	_, err = worldhelper.GetPlayerEntity(world)
+	_, err = query.GetPlayerEntity(world)
 	assert.NoError(t, err, "プレイヤーが生成されている")
 }
 

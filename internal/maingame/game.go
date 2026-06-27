@@ -19,7 +19,8 @@ import (
 	"github.com/kijimaD/ruins/internal/states"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // MainGame はebiten.Game interfaceを満たす
@@ -194,7 +195,7 @@ func InitWorld(cfg *config.Config) (w.World, error) {
 	}
 	world.Resources.UIResources = uir
 
-	worldhelper.GetDungeon(world).DefinitionName = dungeon.DungeonDebug.Name
+	query.GetDungeon(world).DefinitionName = dungeon.DungeonDebug.Name
 
 	// initialize systems
 	world.Updaters, world.Renderers = gs.InitializeSystems(world)

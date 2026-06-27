@@ -7,7 +7,9 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -53,16 +55,16 @@ func TestStartActivity(t *testing.T) {
 	assert.NoError(t, err)
 
 	// アクティビティが登録されているかチェック
-	currentActivity := worldhelper.GetActivity(world, actor)
+	currentActivity := query.GetActivity(world, actor)
 	assert.NotNil(t, currentActivity, "Expected activity to be registered")
 	assert.Equal(t, comp, currentActivity, "Expected registered activity to match started activity")
 
 	// HasActivity のテスト
-	assert.True(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return true")
+	assert.True(t, query.HasActivity(world, actor), "Expected HasActivity to return true")
 
 	// 存在しないエンティティのテスト
 	nonExistentActor := consts.InvalidEntity
-	assert.False(t, worldhelper.HasActivity(world, nonExistentActor), "Expected HasActivity to return false for non-existent entity")
+	assert.False(t, query.HasActivity(world, nonExistentActor), "Expected HasActivity to return false for non-existent entity")
 }
 
 func TestMultipleActivities(t *testing.T) {
@@ -87,14 +89,14 @@ func TestMultipleActivities(t *testing.T) {
 	assert.NoError(t, err)
 
 	// 両方のアクティビティが登録されているかチェック
-	assert.True(t, worldhelper.HasActivity(world, actor1), "Expected actor1 to have activity")
-	assert.True(t, worldhelper.HasActivity(world, actor2), "Expected actor2 to have activity")
+	assert.True(t, query.HasActivity(world, actor1), "Expected actor1 to have activity")
+	assert.True(t, query.HasActivity(world, actor2), "Expected actor2 to have activity")
 
 	// 正しいアクティビティが取得できるかチェック
-	retrievedActivity1 := worldhelper.GetActivity(world, actor1)
+	retrievedActivity1 := query.GetActivity(world, actor1)
 	assert.NotNil(t, retrievedActivity1, "Expected actor1 to have activity")
 
-	retrievedActivity2 := worldhelper.GetActivity(world, actor2)
+	retrievedActivity2 := query.GetActivity(world, actor2)
 	assert.NotNil(t, retrievedActivity2, "Expected actor2 to have activity")
 }
 
@@ -123,7 +125,7 @@ func TestReplaceActivity(t *testing.T) {
 	assert.Equal(t, gc.ActivityStatePaused, comp1.State, "Expected first activity to be paused after replacement")
 
 	// 新しいアクティビティが現在のアクティビティになっているかチェック
-	currentActivity := worldhelper.GetActivity(world, actor)
+	currentActivity := query.GetActivity(world, actor)
 	assert.Equal(t, comp2, currentActivity, "Expected current activity to be the second activity")
 }
 
@@ -146,7 +148,7 @@ func TestInterruptAndResume(t *testing.T) {
 	assert.Equal(t, gc.ActivityStatePaused, comp.State, "Expected activity to be paused after interrupt")
 
 	// 中断されたアクティビティはアクティブではない
-	assert.False(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return false for paused activity")
+	assert.False(t, query.HasActivity(world, actor), "Expected HasActivity to return false for paused activity")
 
 	// アクティビティを再開
 	err = ResumeActivity(actor, world)
@@ -155,7 +157,7 @@ func TestInterruptAndResume(t *testing.T) {
 	assert.Equal(t, gc.ActivityStateRunning, comp.State, "Expected activity to be running after resume")
 
 	// 再開されたアクティビティはアクティブ
-	assert.True(t, worldhelper.HasActivity(world, actor), "Expected HasActivity to return true for resumed activity")
+	assert.True(t, query.HasActivity(world, actor), "Expected HasActivity to return true for resumed activity")
 
 	// 存在しないアクティビティの中断・再開テスト
 	nonExistentActor := consts.InvalidEntity
@@ -184,7 +186,7 @@ func TestCancelActivity(t *testing.T) {
 	assert.Equal(t, gc.ActivityStateCanceled, comp.State, "Expected activity to be canceled")
 
 	// キャンセルされたアクティビティは管理対象から削除される
-	currentActivity := worldhelper.GetActivity(world, actor)
+	currentActivity := query.GetActivity(world, actor)
 	assert.Nil(t, currentActivity, "Expected no current activity after cancel")
 
 	// 存在しないアクティビティのキャンセル（エラーにならない）
@@ -232,8 +234,8 @@ func TestProcessTurn(t *testing.T) {
 	assert.Equal(t, 3, longComp.TurnsLeft, "Expected long activity to have 3 turns left")
 
 	// 完了したアクティビティは管理対象から削除される
-	assert.Nil(t, worldhelper.GetActivity(world, actor1), "Expected completed activity to be removed")
-	assert.NotNil(t, worldhelper.GetActivity(world, actor2), "Expected long activity to still be present")
+	assert.Nil(t, query.GetActivity(world, actor1), "Expected completed activity to be removed")
+	assert.NotNil(t, query.GetActivity(world, actor2), "Expected long activity to still be present")
 
 	// サマリーの確認
 	summary = getActivitySummary(t, world)
@@ -324,7 +326,7 @@ func TestConsumePassCostWithPassCost(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 通常移動のAP消費を記録する
@@ -362,7 +364,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		params := ActionParams{
@@ -387,7 +389,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 待機
@@ -423,7 +425,7 @@ func TestLastActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 存在しないターゲットへの攻撃（失敗する）

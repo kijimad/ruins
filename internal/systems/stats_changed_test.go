@@ -5,7 +5,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +20,7 @@ func TestStatsChangedSystem_HealthPenalty(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 初期Strengthを取得
@@ -58,7 +60,7 @@ func TestStatsChangedSystem_APClamp(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを作成
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 現在APを非常に高い値に設定（通常ではありえない値）
@@ -180,7 +182,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 
 		// 初期APを計算
 		// AP = 100 + (素早さ * 3) + (器用さ * 1) = 100 + (5*3) + 5 = 120
-		initialAP, err := worldhelper.CalculateMaxActionPoints(world, player)
+		initialAP, err := query.CalculateMaxActionPoints(world, player)
 		require.NoError(t, err)
 
 		player.AddComponent(world.Components.HP, &gc.HP{Current: 100, Max: 100})
@@ -200,7 +202,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		})
 
 		// 装備を装着（StatsChangedフラグが立つ）
-		worldhelper.MoveToEquip(world, equipment, player, gc.SlotJewelry)
+		lifecycle.MoveToEquip(world, equipment, player, gc.SlotJewelry)
 
 		// StatsChangedSystemを実行
 		sys := &StatsChangedSystem{}
@@ -212,7 +214,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		assert.Greater(t, turnBased.AP.Max, initialAP, "装備追加でAP.Maxが増加するべき")
 
 		// 装備を外す（StatsChangedフラグが再度立つ）
-		require.NoError(t, worldhelper.MoveToBackpack(world, equipment, player))
+		require.NoError(t, lifecycle.MoveToBackpack(world, equipment, player))
 
 		// StatsChangedフラグが立っているか確認
 		require.True(t, player.HasComponent(world.Components.StatsChanged), "装備を外した後、StatsChangedフラグが立っているべき")
@@ -269,7 +271,7 @@ func TestStatsChangedAPRecalculation(t *testing.T) {
 		})
 
 		// 装備を装着
-		worldhelper.MoveToEquip(world, equipment, player, gc.SlotTorso)
+		lifecycle.MoveToEquip(world, equipment, player, gc.SlotTorso)
 
 		// StatsChangedSystemを実行
 		sys := &StatsChangedSystem{}

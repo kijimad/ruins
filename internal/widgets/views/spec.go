@@ -10,7 +10,8 @@ import (
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -175,7 +176,7 @@ func addValueInfo(targetContainer *widget.Container, value *gc.Value, world w.Wo
 	columnWidths := []int{70, 80}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableRow(table, columnWidths, []string{"価値", worldhelper.FormatCurrency(value.Value)}, specTableAligns, nil, res)
+	styled.NewTableRow(table, columnWidths, []string{"価値", query.FormatCurrency(value.Value)}, specTableAligns, nil, res)
 	targetContainer.AddChild(table)
 }
 

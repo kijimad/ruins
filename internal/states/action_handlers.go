@@ -4,7 +4,8 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -17,7 +18,7 @@ type InteractionAction struct {
 
 // GetInteractionActions はプレイヤー周辺の実行可能なアクションを取得する
 func GetInteractionActions(world w.World) []InteractionAction {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return nil
 	}
@@ -52,7 +53,7 @@ func GetInteractionActions(world w.World) []InteractionAction {
 
 // GetSameTileManualActions はプレイヤー直上のManual発動アクションを全て取得する
 func GetSameTileManualActions(world w.World) []InteractionAction {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return nil
 	}
@@ -136,7 +137,7 @@ func getInteractionActions(world w.World, interactable *gc.Interactable, interac
 				})
 			}
 		case gc.ItemInteraction:
-			formattedName := worldhelper.FormatItemName(world, interactableEntity)
+			formattedName := query.FormatItemName(world, interactableEntity)
 			result = append(result, InteractionAction{
 				Label:       "拾う(" + formattedName + ")",
 				Target:      interactableEntity,

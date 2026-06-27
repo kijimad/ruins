@@ -18,7 +18,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -52,7 +53,7 @@ func (st *PickupState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *PickupState) OnStart(world w.World) error {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -140,8 +141,8 @@ func (st *PickupState) doAction(world w.World, action inputmapper.ActionID) (es.
 // refreshItems はカーソル位置のタイル上の拾得可能エンティティを更新する
 func (st *PickupState) refreshItems(world w.World) {
 	st.itemsAtTarget = nil
-	for _, entity := range worldhelper.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {
-		if worldhelper.IsPickable(entity, world) {
+	for _, entity := range query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y) {
+		if query.IsPickable(entity, world) {
 			st.itemsAtTarget = append(st.itemsAtTarget, entity)
 		}
 	}
@@ -149,7 +150,7 @@ func (st *PickupState) refreshItems(world w.World) {
 
 // executePickup は拾得アクションを実行する
 func (st *PickupState) executePickup(world w.World) error {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -247,7 +248,7 @@ func (st *PickupState) drawPickupPanel(world w.World, screen *ebiten.Image) erro
 				drawColorText("...", theme.TextSecondary)
 				break
 			}
-			name := worldhelper.GetEntityName(entity, world)
+			name := query.GetEntityName(entity, world)
 			drawText(fmt.Sprintf("  - %s", name))
 		}
 	}

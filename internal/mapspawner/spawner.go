@@ -9,7 +9,9 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -72,13 +74,13 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 		switch tile.Name {
 		case "dirt":
 			index := int(metaPlan.CalculateAutoTileIndex(i, "dirt"))
-			return worldhelper.SpawnTile(world, "dirt", tileX, tileY, &index)
+			return lifecycle.SpawnTile(world, "dirt", tileX, tileY, &index)
 		case "floor":
 			index := int(metaPlan.CalculateAutoTileIndex(i, "floor"))
-			return worldhelper.SpawnTile(world, "floor", tileX, tileY, &index)
+			return lifecycle.SpawnTile(world, "floor", tileX, tileY, &index)
 		case "bridge_a", "bridge_b", "bridge_c", "bridge_d":
 			index := int(metaPlan.CalculateAutoTileIndex(i, tile.Name))
-			return worldhelper.SpawnTile(world, tile.Name, tileX, tileY, &index)
+			return lifecycle.SpawnTile(world, tile.Name, tileX, tileY, &index)
 		default:
 			return consts.InvalidEntity, fmt.Errorf("未対応の歩行可能タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
 		}
@@ -87,9 +89,9 @@ func spawnTile(world w.World, metaPlan *mapplanner.MetaPlan, tile oapi.Tile, i g
 	switch tile.Name {
 	case "wall":
 		index := int(metaPlan.CalculateAutoTileIndex(i, "wall"))
-		return worldhelper.SpawnTile(world, "dwall", tileX, tileY, &index)
+		return lifecycle.SpawnTile(world, "dwall", tileX, tileY, &index)
 	case "void":
-		return worldhelper.SpawnTile(world, "void", tileX, tileY, nil)
+		return lifecycle.SpawnTile(world, "void", tileX, tileY, nil)
 	default:
 		return consts.InvalidEntity, fmt.Errorf("未対応の通行不可タイル名: %s (%d, %d)", tile.Name, int(tileX), int(tileY))
 	}
@@ -104,16 +106,16 @@ func spawnNPCs(world w.World, metaPlan *mapplanner.MetaPlan) error {
 		}
 
 		if member.FactionType != nil && string(*member.FactionType) == gc.FactionNeutral.String() {
-			_, err := worldhelper.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
+			_, err := lifecycle.SpawnNeutralNPC(world, npc.X, npc.Y, npc.Name)
 			if err != nil {
 				return fmt.Errorf("中立NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
 		} else {
-			var opts []worldhelper.SpawnEnemyOption
+			var opts []lifecycle.SpawnEnemyOption
 			if member.IsBoss {
-				opts = append(opts, worldhelper.WithBoss())
+				opts = append(opts, lifecycle.WithBoss())
 			}
-			_, err := worldhelper.SpawnEnemy(world, npc.X, npc.Y, npc.Name, opts...)
+			_, err := lifecycle.SpawnEnemy(world, npc.X, npc.Y, npc.Name, opts...)
 			if err != nil {
 				return fmt.Errorf("敵NPC生成エラー (%d, %d): %w", npc.X, npc.Y, err)
 			}
@@ -129,7 +131,7 @@ func spawnItems(world w.World, metaPlan *mapplanner.MetaPlan) error {
 		if item.Count <= 0 {
 			return fmt.Errorf("アイテムの個数が不正です (%d, %d): count=%d", item.X, item.Y, item.Count)
 		}
-		_, err := worldhelper.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
+		_, err := lifecycle.SpawnFieldItem(world, item.Name, tileX, tileY, item.Count)
 		if err != nil {
 			return fmt.Errorf("アイテム生成エラー (%d, %d): %w", item.X, item.Y, err)
 		}
@@ -147,7 +149,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 			return fmt.Errorf("props取得エラー (%s): %w", prop.Name, err)
 		}
 
-		propEntity, err := worldhelper.SpawnProp(world, prop.Name, tileX, tileY)
+		propEntity, err := lifecycle.SpawnProp(world, prop.Name, tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("props生成エラー (%d, %d): %w", prop.X, prop.Y, err)
 		}
@@ -156,7 +158,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 		if propRaw.Door != nil {
 			doorComp := world.Components.Door.Get(propEntity).(*gc.Door)
 			doorComp.Orientation = detectPropDoorOrientation(metaPlan, prop.X, prop.Y)
-			if err := worldhelper.CloseDoor(world, propEntity); err != nil {
+			if err := query.CloseDoor(world, propEntity); err != nil {
 				return fmt.Errorf("扉初期化エラー (%d, %d): %w", prop.X, prop.Y, err)
 			}
 		}
@@ -175,7 +177,7 @@ func spawnProps(world w.World, metaPlan *mapplanner.MetaPlan) error {
 func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan) error {
 	for _, door := range metaPlan.Doors {
 		tileX, tileY := consts.Tile(door.X), consts.Tile(door.Y)
-		_, err := worldhelper.SpawnDoor(world, tileX, tileY, door.Orientation)
+		_, err := lifecycle.SpawnDoor(world, tileX, tileY, door.Orientation)
 		if err != nil {
 			return fmt.Errorf("ドア生成エラー (%d, %d): %w", door.X, door.Y, err)
 		}
@@ -187,7 +189,7 @@ func spawnDoors(world w.World, metaPlan *mapplanner.MetaPlan) error {
 func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan) error {
 	for _, portal := range metaPlan.NextPortals {
 		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
-		_, err := worldhelper.SpawnProp(world, "warp_next", tileX, tileY)
+		_, err := lifecycle.SpawnProp(world, "warp_next", tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("NextPortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
@@ -195,7 +197,7 @@ func spawnPortals(world w.World, metaPlan *mapplanner.MetaPlan) error {
 
 	for _, portal := range metaPlan.EscapePortals {
 		tileX, tileY := consts.Tile(portal.X), consts.Tile(portal.Y)
-		_, err := worldhelper.SpawnProp(world, "warp_escape", tileX, tileY)
+		_, err := lifecycle.SpawnProp(world, "warp_escape", tileX, tileY)
 		if err != nil {
 			return fmt.Errorf("EscapePortal生成エラー (%d, %d): %w", portal.X, portal.Y, err)
 		}
@@ -249,7 +251,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 
 	// ダンジョン深度を取得する。未設定の場合は深度1として扱う
 	depth := 1
-	if d := worldhelper.GetDungeon(world); d != nil {
+	if d := query.GetDungeon(world); d != nil {
 		depth = d.Depth
 	}
 
@@ -262,7 +264,7 @@ func populateStorageLoot(world w.World, metaPlan *mapplanner.MetaPlan, storageEn
 			continue
 		}
 
-		if _, err := worldhelper.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {
+		if _, err := lifecycle.SpawnStorageItem(world, itemName, 1, storageEntity); err != nil {
 			return fmt.Errorf("アイテム '%s' の生成に失敗: %w", itemName, err)
 		}
 	}

@@ -7,7 +7,9 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -49,7 +51,7 @@ func (ra *ReloadActivity) Validate(_ *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	// 弾薬の在庫チェック
-	if _, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag); !found {
+	if _, found := query.FindAmmoInInventory(world, fire.AmmoTag); !found {
 		return ErrReloadNoAmmo
 	}
 
@@ -73,7 +75,7 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 
 	ra.effortAccum = 0
 
-	gamelog.New(worldhelper.GetGameLog(world)).
+	gamelog.New(query.GetGameLog(world)).
 		Append("装填を開始した").
 		Log()
 
@@ -101,12 +103,12 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if ra.effortAccum >= fire.ReloadEffort {
 		// 装填数を計算（マガジン容量と弾薬在庫の小さい方）
 		needed := fire.MagazineSize - fire.Magazine
-		ammoEntity, found := worldhelper.FindAmmoInInventory(world, fire.AmmoTag)
+		ammoEntity, found := query.FindAmmoInInventory(world, fire.AmmoTag)
 		if !found {
 			Cancel(comp, "弾薬がなくなった")
 			return nil
 		}
-		ammoCount := worldhelper.GetEntityCount(world, ammoEntity)
+		ammoCount := query.GetEntityCount(world, ammoEntity)
 
 		loaded := needed
 		if ammoCount < loaded {
@@ -119,11 +121,11 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		fire.LoadedAccuracyBonus = ammoComp.AccuracyBonus
 
 		fire.Magazine += loaded
-		if err := worldhelper.ChangeItemCount(world, ammoEntity, -loaded); err != nil {
+		if err := lifecycle.ChangeItemCount(world, ammoEntity, -loaded); err != nil {
 			return fmt.Errorf("弾薬の消費に失敗: %w", err)
 		}
 
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("装填完了（%d/%d）", fire.Magazine, fire.MagazineSize)).
 			Log()
 
@@ -146,7 +148,7 @@ func (ra *ReloadActivity) Finish(_ *gc.Activity, actor ecs.Entity, _ w.World) er
 
 // Canceled はリロードキャンセル時の処理
 func (ra *ReloadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	gamelog.New(worldhelper.GetGameLog(world)).
+	gamelog.New(query.GetGameLog(world)).
 		Append("装填を中断した").
 		Log()
 	log.Debug("リロードキャンセル", "actor", actor, "reason", comp.CancelReason)
@@ -186,7 +188,7 @@ func ExecuteReloadAction(actor ecs.Entity, world w.World) error {
 	}
 
 	if err := behavior.Validate(activity, actor, world); err != nil {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(err.Error()).
 			Log()
 		return nil

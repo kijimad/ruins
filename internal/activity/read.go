@@ -8,7 +8,9 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -64,8 +66,8 @@ func (ra *ReadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.World
 		return fmt.Errorf("Bookコンポーネントが見つかりません")
 	}
 
-	name := worldhelper.GetEntityName(*comp.Target, world)
-	gamelog.New(worldhelper.GetGameLog(world)).
+	name := query.GetEntityName(*comp.Target, world)
+	gamelog.New(query.GetGameLog(world)).
 		Append(fmt.Sprintf("「%s」を読み始めた", name)).
 		Log()
 
@@ -118,15 +120,15 @@ func (ra *ReadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 // Finish は読書完了時の処理を実行する
 func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	book := ra.getBook(*comp.Target, world)
-	name := worldhelper.GetEntityName(*comp.Target, world)
+	name := query.GetEntityName(*comp.Target, world)
 
 	if book != nil && book.IsCompleted() {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("「%s」を読了した", name)).
 			Log()
 
 		// 読了した本を消費する
-		if err := worldhelper.ChangeItemCount(world, *comp.Target, -1); err != nil {
+		if err := lifecycle.ChangeItemCount(world, *comp.Target, -1); err != nil {
 			return fmt.Errorf("本の消費に失敗: %w", err)
 		}
 	}
@@ -137,10 +139,10 @@ func (ra *ReadActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 // Canceled は読書キャンセル時の処理を実行する
 func (ra *ReadActivity) Canceled(comp *gc.Activity, actor ecs.Entity, world w.World) error {
-	name := worldhelper.GetEntityName(*comp.Target, world)
+	name := query.GetEntityName(*comp.Target, world)
 
 	if actor.HasComponent(world.Components.Player) {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("「%s」の読書を中断した", name)).
 			Log()
 	}
@@ -178,7 +180,7 @@ func (ra *ReadActivity) applyPerTurnEffect(book *gc.Book, actor ecs.Entity, worl
 		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
 		name := gc.SkillName(effect.TargetSkill)
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("%sスキルが %d に上がった", name, s.Value)).
 			Log()
 	}

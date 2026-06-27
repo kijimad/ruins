@@ -6,7 +6,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -256,7 +257,7 @@ func TestExecuteInteraction_Melee_BareHands(t *testing.T) {
 	enemyEntity.AddComponent(world.Components.HP, &gc.HP{Max: 10, Current: 10})
 
 	// 武器スロット1を選択
-	worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+	query.GetDungeon(world).SelectedWeaponSlot = 1
 
 	result, err := ExecuteInteraction(player, enemyEntity, gc.MeleeInteraction{}, world)
 	require.NoError(t, err)
@@ -541,7 +542,7 @@ func TestExecuteInteraction_Prop(t *testing.T) {
 			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 		})
 
-		worldhelper.GetDungeon(world).SelectedWeaponSlot = 1
+		query.GetDungeon(world).SelectedWeaponSlot = 1
 
 		result, err := ExecuteInteraction(player, prop, gc.MeleeInteraction{}, world)
 		require.NoError(t, err)
