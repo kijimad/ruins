@@ -728,6 +728,11 @@ func NewSquadMenuState() es.State[w.World] {
 	return &SquadMenuState{}
 }
 
+// NewMemberStatusState は隊員ステータス詳細画面のStateを作成するファクトリー関数
+func NewMemberStatusState(member ecs.Entity) es.State[w.World] {
+	return &MemberStatusState{member: member}
+}
+
 // NewFormationMenuState は隊編成画面のStateを作成するファクトリー関数
 func NewFormationMenuState() es.State[w.World] {
 	return &FormationMenuState{}
