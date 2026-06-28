@@ -217,5 +217,12 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	camera.TargetX = camera.X
 	camera.TargetY = camera.Y
 
+	// Active隊員をプレイヤーと同じ位置に配置する
+	for _, member := range query.SquadMembers(world, playerEntity) {
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberGrid.X = consts.Tile(tileX)
+		memberGrid.Y = consts.Tile(tileY)
+	}
+
 	return nil
 }

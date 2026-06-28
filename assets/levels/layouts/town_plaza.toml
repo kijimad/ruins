@@ -1,24 +1,24 @@
 [[chunk]]
   map = """
-#...........rrr........rrr........rrr............#
-#rrr........rrr........rrr........rrr.........rrr#
-#rrr........rrr........rrr........rrr.........rrr#
-#rrL........rrr........rrr........rrr.........Lrr#
-#...........rrr........rrr........rrr............#
-#..$........rrrrr.....rrrrr.....rrrrr............#
-#..........rrrrrrr...rrrrrrr...rrrrrrr...........#
-#.........rrrrrrrrr.rrrrrrrrr.rrrrrrrrr..........#
+#...........rrr...................rrr............#
+#...........rrr...................rrr............#
+#...........rrr...................rrr............#
+#...L.......rrr....3....L.........rrr......L.....#
+#...........rrr...................rrr............#
+#..$........rrrrr...............rrrrr............#
+#..........rrrrrrr.............rrrrrrr...........#
+#.........rrrrrrrrr...........rrrrrrrrr..........#
 #rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
 #rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
 #rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr#
 #.........rrrrrrrrrrrrrrrrrrrrrrrrrrrrr..........#
 #..........rrrrrrr.............rrrrrrr...........#
 #...1.......rrrrr...............rrrrr............#
-#...........rrr...2..............rrr.............#
-#...........rrr......I.....I.....rrr.............#
-#rrL........rrr...................rrr.........Lrr#
-#rrr........rrr......I.rrr.I......rrr.........rrr#
-#rrr........rrr........rGr........rrr.........rrr#
+#...........rrr...2...............rrr............#
+#...L.......rrr......I.....I......rrr......L.....#
+#...........rrr...................rrr............#
+#...........rrr......I.rrr.I......rrr............#
+#...........rrr........rGr........rrr............#
 #...........rrr......I.rrr.I......rrr............#
 """
   name = '50x20_town_plaza'

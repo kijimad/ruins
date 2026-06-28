@@ -35,11 +35,14 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 
 	entityCount := 0
 
-	// AIMoveFSMコンポーネントを持つ全エンティティを処理
+	// AIMoveFSMコンポーネントを持つ全エンティティを処理する。隊員は専用のSquadProcessorで処理するため除外する
 	world.Manager.Join(
 		world.Components.AIMoveFSM,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if entity.HasComponent(world.Components.SquadMember) {
+			return
+		}
 		entityCount++
 		p.logger.Debug("AIエンティティを処理中", "entity", entity, "count", entityCount)
 		p.ProcessEntity(world, entity)

@@ -84,7 +84,7 @@ func (st *SquadMenuState) Update(world w.World) (es.Transition[w.World], error) 
 
 	hooks.UseTabMenu(st.menuMount.Store(), "squad", hooks.TabMenuConfig{
 		TabCount:   1,
-		ItemCounts: []int{len(props.Members)},
+		ItemCounts: []int{len(props.BatchCommands) + len(props.Members)},
 	})
 
 	st.setupWindowState(world)
@@ -153,7 +153,9 @@ func (st *SquadMenuState) DoAction(world w.World, action inputmapper.ActionID) (
 // ================
 
 type squadProps struct {
-	Members []squadMemberData
+	// BatchCommands は一括操作コマンド。隊員一覧の前に表示される
+	BatchCommands []string
+	Members       []squadMemberData
 }
 
 type squadMemberData struct {
@@ -167,6 +169,8 @@ type squadMemberData struct {
 type squadWindowProps struct {
 	Member squadMemberData
 }
+
+var batchCommands = []string{"集合", "全員待機"}
 
 func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	var members []squadMemberData
@@ -190,7 +194,7 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 		})
 	}
 
-	return squadProps{Members: members}
+	return squadProps{BatchCommands: batchCommands, Members: members}
 }
 
 // ================
@@ -227,29 +231,56 @@ func (st *SquadMenuState) getActionItems() []string {
 		"詳細",
 		fmt.Sprintf("位置: %s", windowProps.Member.Position),
 		fmt.Sprintf("戦闘: %s", windowProps.Member.Combat),
-		"集合",
-		"全員待機",
 		"解雇",
 		TextClose,
 	}
 }
 
-func (st *SquadMenuState) handleMemberSelection(_ w.World) {
+func (st *SquadMenuState) handleMemberSelection(world w.World) {
 	props := st.menuMount.GetProps()
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "squad")
 	if !ok {
 		return
 	}
 	itemIndex := menuState.ItemIndex
-	if itemIndex >= len(props.Members) {
+	batchCount := len(props.BatchCommands)
+
+	// 一括操作コマンドの処理
+	if itemIndex < batchCount {
+		st.executeBatchCommand(world, props.BatchCommands[itemIndex])
+		return
+	}
+
+	// 隊員の個別選択
+	memberIndex := itemIndex - batchCount
+	if memberIndex >= len(props.Members) {
 		return
 	}
 
 	st.subState = squadSubStateWindow
 	st.windowMount = hooks.NewMount[squadWindowProps]()
 	st.windowMount.SetProps(squadWindowProps{
-		Member: props.Members[itemIndex],
+		Member: props.Members[memberIndex],
 	})
+}
+
+func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
+	playerEntity, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return
+	}
+	members := query.SquadMembers(world, playerEntity)
+
+	switch command {
+	case "集合":
+		for _, m := range members {
+			_ = lifecycle.SetPositionPolicy(world, m, gc.PolicyEscort)
+		}
+	case "全員待機":
+		for _, m := range members {
+			_ = lifecycle.SetPositionPolicy(world, m, gc.PolicyHold)
+		}
+	}
 }
 
 func (st *SquadMenuState) executeWindowAction(world w.World) error {
@@ -296,32 +327,6 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 		}
 		st.refreshWindowProps(world, member)
 
-	case selectedAction == "集合":
-		// 全隊員の位置ポリシーを護衛に変更する
-		playerEntity, err := query.GetPlayerEntity(world)
-		if err != nil {
-			return err
-		}
-		for _, m := range query.SquadMembers(world, playerEntity) {
-			if err := lifecycle.SetPositionPolicy(world, m, gc.PolicyEscort); err != nil {
-				return err
-			}
-		}
-		st.refreshWindowProps(world, member)
-
-	case selectedAction == "全員待機":
-		// 全隊員の位置ポリシーを待機に変更する
-		playerEntity, err := query.GetPlayerEntity(world)
-		if err != nil {
-			return err
-		}
-		for _, m := range query.SquadMembers(world, playerEntity) {
-			if err := lifecycle.SetPositionPolicy(world, m, gc.PolicyHold); err != nil {
-				return err
-			}
-		}
-		st.refreshWindowProps(world, member)
-
 	case selectedAction == "解雇":
 		if err := lifecycle.DismissSquadMember(world, member); err != nil {
 			return err
@@ -365,8 +370,9 @@ func (st *SquadMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText("隊員", res))
-	root.AddChild(st.buildMemberTable(props.Members, itemIndex, res))
+	root.AddChild(styled.NewTitleText("命令", res))
+	root.AddChild(st.buildBatchCommands(props.BatchCommands, itemIndex, res))
+	root.AddChild(st.buildMemberTable(props.Members, len(props.BatchCommands), itemIndex, res))
 
 	eui := &ebitenui.UI{Container: root}
 
@@ -378,7 +384,16 @@ func (st *SquadMenuState) buildUI(world w.World) *ebitenui.UI {
 	return eui
 }
 
-func (st *SquadMenuState) buildMemberTable(members []squadMemberData, selectedIndex int, res resources.UIResources) *widget.Container {
+func (st *SquadMenuState) buildBatchCommands(commands []string, selectedIndex int, res resources.UIResources) *widget.Container {
+	container := styled.NewVerticalContainer()
+	for i, cmd := range commands {
+		isSelected := i == selectedIndex
+		container.AddChild(styled.NewListItemText(cmd, theme.TextSecondary, isSelected, res))
+	}
+	return container
+}
+
+func (st *SquadMenuState) buildMemberTable(members []squadMemberData, batchCount int, selectedIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
 
 	if len(members) == 0 {
@@ -394,7 +409,7 @@ func (st *SquadMenuState) buildMemberTable(members []squadMemberData, selectedIn
 	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "HP", "位置", "戦闘"}, res)
 
 	for i, m := range members {
-		isSelected := i == selectedIndex
+		isSelected := (i + batchCount) == selectedIndex
 		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP, m.Position, m.Combat}, aligns, &isSelected, res)
 	}
 

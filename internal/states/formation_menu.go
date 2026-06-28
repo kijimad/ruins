@@ -181,7 +181,7 @@ func (st *FormationMenuState) buildUI(world w.World) *ebitenui.UI {
 		widget.ContainerOpts.BackgroundImage(res.Panel.ImageTrans),
 	)
 
-	root.AddChild(styled.NewTitleText("編成", res))
+	root.AddChild(styled.NewTitleText("部隊", res))
 	root.AddChild(st.buildMemberTable(props.Members, itemIndex, res))
 
 	return &ebitenui.UI{Container: root}

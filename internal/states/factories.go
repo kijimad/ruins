@@ -45,14 +45,14 @@ func NewDungeonMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
-		WithChoice("隊員", func(_ w.World) error {
+		WithChoice("命令", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{NewSquadMenuState},
 			})
 			return nil
 		}).
-		WithChoice("編成", func(_ w.World) error {
+		WithChoice("部隊", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{NewFormationMenuState},
@@ -382,13 +382,6 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
-		WithChoice("酒場(隊員雇用)", func(_ w.World) error {
-			messageState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
-			})
-			return nil
-		}).
 		WithChoice("隊員スポーン", func(world w.World) error {
 			player, err := query.GetPlayerEntity(world)
 			if err != nil {
@@ -402,7 +395,7 @@ func NewDebugMenuState() es.State[w.World] {
 				Agility:   gc.Ability{Base: 9},
 				Defense:   gc.Ability{Base: 5},
 			}
-			_, err = lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+			_, err = lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "blue_human")
 			if err != nil {
 				return fmt.Errorf("隊員スポーンに失敗: %w", err)
 			}
@@ -807,6 +800,29 @@ func NewMerchantDialogState(speakerName string) es.State[w.World] {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
 				NewStateFuncs: []es.StateFactory[w.World]{NewShopMenuState},
+			})
+			return nil
+		}).
+		WithChoice("用は無い", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return nil
+		})
+
+	return persistentState
+}
+
+// NewTavernKeeperDialogState は酒場の主人との会話ステートを作成
+func NewTavernKeeperDialogState(speakerName string) es.State[w.World] {
+	persistentState := NewPersistentMessageState(nil)
+
+	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
+		AddText(`うちには腕の立つ連中が集まってるよ。
+
+隊員を雇うかい?`).
+		WithChoice("雇う", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
 			})
 			return nil
 		}).
