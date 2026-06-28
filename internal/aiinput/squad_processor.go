@@ -444,38 +444,41 @@ func (sp *SquadProcessor) findNearestEnemy(world w.World, entity ecs.Entity, ctx
 	return nearestEntity, nearestGrid, nearestDist
 }
 
-// tryMoveCloser はターゲットに近づく移動を試みる。
-// 移動先の距離が現在の距離以上なら移動を諦める
-func (sp *SquadProcessor) tryMoveCloser(world w.World, entity ecs.Entity, from, target *gc.GridElement, currentDist int) (activity.Behavior, activity.ActionParams, bool) {
-	dx := int(target.X) - int(from.X)
-	dy := int(target.Y) - int(from.Y)
+// tryMoveCloser はBFSで壁を迂回した最短経路を求め、次の1歩を返す。
+// 経路が見つからない場合はfalseを返す
+func (sp *SquadProcessor) tryMoveCloser(world w.World, entity ecs.Entity, from, target *gc.GridElement, _ int) (activity.Behavior, activity.ActionParams, bool) {
 	fromX, fromY := int(from.X), int(from.Y)
+	goalX, goalY := int(target.X), int(target.Y)
 
-	candidates := calculateMoveCandidates(dx, dy)
-	for _, candidate := range candidates {
-		destX := fromX + candidate.x
-		destY := fromY + candidate.y
-		if !activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
-			continue
-		}
-		destGrid := &gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
-		newDist := chebyshevDistance(destGrid, target)
-		if newDist >= currentDist {
-			continue
-		}
-		b, p := moveAction(entity, destX, destY)
-		return b, p, true
+	nextX, nextY, ok := activity.FindNextStep(world, fromX, fromY, goalX, goalY)
+	if !ok {
+		return nil, activity.ActionParams{}, false
 	}
-	return nil, activity.ActionParams{}, false
+
+	if !activity.CanMoveTo(world, nextX, nextY, fromX, fromY, entity) {
+		return nil, activity.ActionParams{}, false
+	}
+
+	b, p := moveAction(entity, nextX, nextY)
+	return b, p, true
 }
 
-// tryMoveToward はターゲットに向かう移動を試みる
+// tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
 func (sp *SquadProcessor) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, activity.ActionParams, bool) {
-	dx := int(target.X) - int(from.X)
-	dy := int(target.Y) - int(from.Y)
+	fromX, fromY := int(from.X), int(from.Y)
+	goalX, goalY := int(target.X), int(target.Y)
 
-	candidates := calculateMoveCandidates(dx, dy)
-	return tryMoveCandidates(world, entity, from, candidates)
+	nextX, nextY, ok := activity.FindNextStep(world, fromX, fromY, goalX, goalY)
+	if !ok {
+		return nil, activity.ActionParams{}, false
+	}
+
+	if !activity.CanMoveTo(world, nextX, nextY, fromX, fromY, entity) {
+		return nil, activity.ActionParams{}, false
+	}
+
+	b, p := moveAction(entity, nextX, nextY)
+	return b, p, true
 }
 
 // tryMoveAway はターゲットから離れる移動を試みる
