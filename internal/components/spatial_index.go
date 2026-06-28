@@ -12,8 +12,10 @@ type SpatialIndex struct {
 	MapWidth, MapHeight int
 	// 壁位置のインデックス。BlockPassコンポーネントを持つエンティティの位置
 	BlockPass map[GridElement]bool
-	// キャラクター位置のインデックス。PlayerまたはAIMoveFSMを持つエンティティの位置
+	// キャラクター位置のインデックス。PlayerまたはAIMoveFSMを持つエンティティの位置。隊員は含まない
 	Characters map[GridElement]ecs.Entity
+	// 隊員位置のインデックス。SquadMemberを持つエンティティの位置
+	SquadMembers map[GridElement]ecs.Entity
 	// プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil
 	PlayerEntity *ecs.Entity
 	// 構築済みフラグ。falseの場合は初回アクセス時に構築する
@@ -48,5 +50,6 @@ func (si *SpatialIndex) Invalidate() {
 	si.Built = false
 	si.BlockPass = nil
 	si.Characters = nil
+	si.SquadMembers = nil
 	si.PlayerEntity = nil
 }

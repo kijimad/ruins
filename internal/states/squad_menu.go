@@ -273,11 +273,15 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 	switch command {
 	case "集合":
 		for _, m := range members {
-			_ = lifecycle.SetPositionPolicy(world, m, gc.PolicyEscort)
+			p := query.SquadPolicy(world, m)
+			p.Position = gc.PolicyEscort
+			_ = lifecycle.SetSquadPolicy(world, m, p)
 		}
 	case "全員待機":
 		for _, m := range members {
-			_ = lifecycle.SetPositionPolicy(world, m, gc.PolicyHold)
+			p := query.SquadPolicy(world, m)
+			p.Position = gc.PolicyHold
+			_ = lifecycle.SetSquadPolicy(world, m, p)
 		}
 	}
 }
@@ -301,8 +305,8 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 		// 位置ポリシーを次の値に切り替える
 		policy := query.SquadPolicy(world, member)
 		allPos := gc.AllPositionPolicies()
-		nextIdx := (int(policy.Position) + 1) % len(allPos)
-		if err := lifecycle.SetPositionPolicy(world, member, allPos[nextIdx]); err != nil {
+		policy.Position = allPos[(int(policy.Position)+1)%len(allPos)]
+		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
 			return err
 		}
 		st.refreshWindowProps(world, member)
@@ -311,8 +315,8 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 		// 戦闘ポリシーを次の値に切り替える
 		policy := query.SquadPolicy(world, member)
 		allCombat := gc.AllCombatPolicies()
-		nextIdx := (int(policy.Combat) + 1) % len(allCombat)
-		if err := lifecycle.SetCombatPolicy(world, member, allCombat[nextIdx]); err != nil {
+		policy.Combat = allCombat[(int(policy.Combat)+1)%len(allCombat)]
+		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
 			return err
 		}
 		st.refreshWindowProps(world, member)

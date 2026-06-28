@@ -26,23 +26,3 @@ func SetSquadPolicy(world w.World, member ecs.Entity, policy gc.SquadPolicy) err
 	*current = policy
 	return nil
 }
-
-// SetPositionPolicy は隊員の位置ポリシーを変更する
-func SetPositionPolicy(world w.World, member ecs.Entity, policy gc.PositionPolicy) error {
-	if !member.HasComponent(world.Components.SquadPolicy) {
-		return fmt.Errorf("エンティティにSquadPolicyがありません")
-	}
-	current := world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
-	current.Position = policy
-	return nil
-}
-
-// SetCombatPolicy は隊員の戦闘ポリシーを変更する
-func SetCombatPolicy(world w.World, member ecs.Entity, policy gc.CombatPolicy) error {
-	if !member.HasComponent(world.Components.SquadPolicy) {
-		return fmt.Errorf("エンティティにSquadPolicyがありません")
-	}
-	current := world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
-	current.Combat = policy
-	return nil
-}

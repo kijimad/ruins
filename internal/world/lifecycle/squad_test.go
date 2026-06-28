@@ -169,7 +169,7 @@ func TestSetSquadPolicy(t *testing.T) {
 	assert.Equal(t, gc.PolicyDistribute, current.ItemHandling)
 }
 
-func TestSetPositionPolicy(t *testing.T) {
+func TestSetSquadPolicy_位置だけ変更しても他のポリシーは変わらない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -179,28 +179,12 @@ func TestSetPositionPolicy(t *testing.T) {
 	member, err := SpawnSquadMember(world, leader, "隊員E", testAbilities(), "player")
 	require.NoError(t, err)
 
-	err = SetPositionPolicy(world, member, gc.PolicyPatrol)
+	policy := *world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
+	policy.Position = gc.PolicyPatrol
+	err = SetSquadPolicy(world, member, policy)
 	require.NoError(t, err)
 
 	current := world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
 	assert.Equal(t, gc.PolicyPatrol, current.Position, "位置ポリシーが変更された")
 	assert.Equal(t, gc.PolicyAttack, current.Combat, "戦闘ポリシーは変わらない")
-}
-
-func TestSetCombatPolicy(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	leader, err := SpawnPlayer(world, 5, 5, "Ash")
-	require.NoError(t, err)
-
-	member, err := SpawnSquadMember(world, leader, "隊員F", testAbilities(), "player")
-	require.NoError(t, err)
-
-	err = SetCombatPolicy(world, member, gc.PolicyEvade)
-	require.NoError(t, err)
-
-	current := world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
-	assert.Equal(t, gc.PolicyEscort, current.Position, "位置ポリシーは変わらない")
-	assert.Equal(t, gc.PolicyEvade, current.Combat, "戦闘ポリシーが変更された")
 }

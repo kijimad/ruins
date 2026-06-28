@@ -46,7 +46,8 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 	}
 
 	// プレイヤーが自分の隊員のいるタイルに移動する場合は位置入れ替えで許可する。
-	// 隊員はBlockPassを持つため、他のチェックより先に判定する
+	// 隊員はBlockPassを持つため、IsBlockPassより先に判定する。
+	// SpatialIndex.Charactersには隊員は含まれないが、BlockPassマップには含まれる
 	if movingEntity.HasComponent(world.Components.Player) {
 		if _, ok := query.SquadMemberAt(world, movingEntity, tileX, tileY); ok {
 			return true

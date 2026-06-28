@@ -77,6 +77,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.MapHeight = int(dungeon.Level.TileHeight)
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
+	si.SquadMembers = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
 	// 壁位置のインデックス構築
@@ -91,7 +92,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		si.BlockPass[*grid] = true
 	}))
 
-	// キャラクター位置のインデックス構築
+	// キャラクター位置のインデックス構築。隊員は別マップに分離する
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -104,7 +105,11 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 			return
 		}
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		si.Characters[*grid] = entity
+		if entity.HasComponent(world.Components.SquadMember) {
+			si.SquadMembers[*grid] = entity
+		} else {
+			si.Characters[*grid] = entity
+		}
 		if isPlayer {
 			e := entity
 			si.PlayerEntity = &e
