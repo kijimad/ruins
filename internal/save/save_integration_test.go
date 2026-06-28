@@ -7,6 +7,7 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
@@ -219,5 +220,98 @@ func TestSaveLoadGameProgress(t *testing.T) {
 
 		assert.Empty(t, query.GetGameProgress(newWorld).ClearedDungeons)
 		assert.Empty(t, query.GetGameProgress(newWorld).Events)
+	})
+}
+
+// TestSaveLoadSquadMember は隊員のセーブ/ロード往復で必要なコンポーネントが復元されることを検証する
+func TestSaveLoadSquadMember(t *testing.T) {
+	t.Parallel()
+
+	abilities := gc.Abilities{
+		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+	}
+
+	t.Run("隊員のランタイムコンポーネントが復元される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		_, err = lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")
+		require.NoError(t, err)
+
+		sm := createTestSerializationManager(t)
+		jsonStr, err := sm.GenerateWorldJSON(world)
+		require.NoError(t, err)
+
+		newWorld := testutil.InitTestWorld(t)
+		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
+		require.NoError(t, err)
+
+		// 復元後の隊員を検索する
+		var memberEntity ecs.Entity
+		var found bool
+		newWorld.Manager.Join(newWorld.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
+			memberEntity = entity
+			found = true
+		}))
+		require.True(t, found, "隊員エンティティが復元されている")
+
+		// AI処理に必要なコンポーネント（SquadProcessor.ProcessAllSquadMembersのJoin条件）
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIMoveFSM), "AIMoveFSMが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.GridElement), "GridElementが復元される")
+
+		// 戦闘・視界に必要なコンポーネント
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIVision), "AIVisionが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.BlockPass), "BlockPassが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.Disposition), "Dispositionが復元される")
+
+		// ステータス関連コンポーネント
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.HealthStatus), "HealthStatusが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.Skills), "Skillsが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.CharModifiers), "CharModifiersが復元される")
+
+		// Dispositionの値が正しいことを確認
+		disp := newWorld.Components.Disposition.Get(memberEntity).(*gc.Disposition)
+		assert.Equal(t, gc.DispositionAlly, disp.Default)
+		assert.Equal(t, gc.DispositionAlly, disp.Current)
+	})
+
+	t.Run("隊員のリーダー参照が復元される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		_, err = lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")
+		require.NoError(t, err)
+
+		sm := createTestSerializationManager(t)
+		jsonStr, err := sm.GenerateWorldJSON(world)
+		require.NoError(t, err)
+
+		newWorld := testutil.InitTestWorld(t)
+		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
+		require.NoError(t, err)
+
+		// リーダー（プレイヤー）を取得
+		var newPlayer ecs.Entity
+		newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
+			newPlayer = entity
+		}))
+
+		// 隊員のリーダー参照がプレイヤーを指していること
+		var memberEntity ecs.Entity
+		newWorld.Manager.Join(newWorld.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
+			memberEntity = entity
+		}))
+
+		sqm := newWorld.Components.SquadMember.Get(memberEntity).(*gc.SquadMember)
+		assert.Equal(t, newPlayer, sqm.Leader, "リーダー参照がプレイヤーを指す")
+		assert.True(t, sqm.Active, "Active状態が保持される")
 	})
 }

@@ -18,6 +18,9 @@ import (
 
 const saveDataVersion = "1.0.0"
 
+// 隊員復元時のAI視界距離。lifecycle.aiVisionDistanceと同じ値
+const squadAIVisionDistance = 5
+
 // SerializationManager は安定ID + 静的型ベースのシリアライゼーションを管理する
 type SerializationManager struct {
 	saveDirectory   string
@@ -439,6 +442,25 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	// 隊員コンポーネント（Leaderは第3段階で解決）
 	if comp.SquadMember != nil {
 		entity.AddComponent(c.SquadMember, &gc.SquadMember{Active: comp.SquadMember.Active})
+
+		// 隊員のランタイムコンポーネントを再付与する。
+		// これらはセーブ対象外だが、AI処理・衝突判定に必要
+		entity.AddComponent(c.AIMoveFSM, &gc.AIMoveFSM{})
+		entity.AddComponent(c.AIVision, &gc.AIVision{ViewDistance: squadAIVisionDistance})
+		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
+		entity.AddComponent(c.Disposition, &gc.Disposition{
+			Default: gc.DispositionAlly,
+			Current: gc.DispositionAlly,
+		})
+		entity.AddComponent(c.HealthStatus, &gc.HealthStatus{})
+		skills := gc.NewSkills()
+		entity.AddComponent(c.Skills, skills)
+		if comp.Abilities != nil {
+			ab := abilitiesFromSaveData(*comp.Abilities)
+			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, &ab, nil))
+		} else {
+			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, nil, nil))
+		}
 	}
 	if comp.SquadPolicy != nil {
 		sp := squadPolicyFromSaveData(*comp.SquadPolicy)
