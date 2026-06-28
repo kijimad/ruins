@@ -99,7 +99,7 @@ func (ta *TransferActivity) performTransfer(comp *gc.Activity, actor ecs.Entity,
 	logger := gamelog.New(query.GetGameLog(world))
 	query.AppendNameWithColor(logger, actor, actorName, world)
 	logger.
-		Append(" が ").
+		Append(" は ").
 		ItemName(formattedName).
 		Append(" を ").
 		Append(recipientName).

@@ -179,7 +179,7 @@ func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.En
 	logger := gamelog.New(query.GetGameLog(world))
 	query.AppendNameWithColor(logger, actor, actorName, world)
 	logger.
-		Append(" が ").
+		Append(" は ").
 		ItemName(formattedName).
 		Append(" を入手した。").
 		Log()
