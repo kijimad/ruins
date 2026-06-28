@@ -375,6 +375,13 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("酒場(隊員雇用)", func(_ w.World) error {
+			messageState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
+			})
+			return nil
+		}).
 		WithChoice("隊員スポーン", func(world w.World) error {
 			player, err := query.GetPlayerEntity(world)
 			if err != nil {
@@ -712,6 +719,32 @@ func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] {
 // NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
 func NewSquadMenuState() es.State[w.World] {
 	return &SquadMenuState{}
+}
+
+// NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数
+func NewTavernMenuState() es.State[w.World] {
+	return &TavernMenuState{}
+}
+
+// NewTavernKeeperDialogState は酒場の主人との会話Stateを作成する
+func NewTavernKeeperDialogState(speakerName string) es.State[w.World] {
+	persistentState := NewPersistentMessageState(nil)
+
+	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
+		AddText("うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?").
+		WithChoice("雇いたい", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
+			})
+			return nil
+		}).
+		WithChoice("用は無い", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return nil
+		})
+
+	return persistentState
 }
 
 // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数

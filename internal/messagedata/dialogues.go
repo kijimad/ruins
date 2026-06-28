@@ -2,6 +2,10 @@ package messagedata
 
 // DialogueTable は会話データのテーブル
 var DialogueTable = map[string]func(speakerName string) *MessageData{
+	"tavern_keeper_greeting": func(speakerName string) *MessageData {
+		return NewDialogMessage("", speakerName).
+			AddText("うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?")
+	},
 	"old_soldier_greeting": func(speakerName string) *MessageData {
 		// 1ページ目
 		msg1 := NewDialogMessage("", speakerName).
