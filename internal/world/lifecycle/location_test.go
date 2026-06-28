@@ -60,6 +60,62 @@ func TestMovePlayerToPosition(t *testing.T) {
 	})
 }
 
+func TestMovePlayerToPosition_隊員も隣接位置に再配置される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	member, err := SpawnSquadMember(world, player, "隊員A", testAbilities(), "player")
+	require.NoError(t, err)
+
+	err = MovePlayerToPosition(world, 20, 20)
+	require.NoError(t, err)
+
+	// プレイヤーが移動している
+	playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+	assert.Equal(t, consts.Tile(20), playerGrid.X)
+	assert.Equal(t, consts.Tile(20), playerGrid.Y)
+
+	// 隊員がプレイヤーの隣接タイルに配置されている
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	dx := int(memberGrid.X) - int(playerGrid.X)
+	dy := int(memberGrid.Y) - int(playerGrid.Y)
+	if dx < 0 {
+		dx = -dx
+	}
+	if dy < 0 {
+		dy = -dy
+	}
+	assert.True(t, dx <= 1 && dy <= 1 && (dx+dy) > 0,
+		"隊員はプレイヤーの隣接タイルに配置される: member=(%d,%d) player=(%d,%d)",
+		memberGrid.X, memberGrid.Y, playerGrid.X, playerGrid.Y)
+}
+
+func TestMovePlayerToPosition_複数隊員が重複しない位置に配置される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	member1, err := SpawnSquadMember(world, player, "隊員A", testAbilities(), "player")
+	require.NoError(t, err)
+	member2, err := SpawnSquadMember(world, player, "隊員B", testAbilities(), "player")
+	require.NoError(t, err)
+
+	err = MovePlayerToPosition(world, 20, 20)
+	require.NoError(t, err)
+
+	m1Grid := world.Components.GridElement.Get(member1).(*gc.GridElement)
+	m2Grid := world.Components.GridElement.Get(member2).(*gc.GridElement)
+
+	// 2人の隊員が異なる位置に配置されている
+	assert.False(t, m1Grid.X == m2Grid.X && m1Grid.Y == m2Grid.Y,
+		"隊員同士は重複しない位置に配置される")
+}
+
 func TestUnequipAll(t *testing.T) {
 	t.Parallel()
 

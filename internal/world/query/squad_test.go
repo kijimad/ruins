@@ -96,6 +96,127 @@ func TestSquadMembers(t *testing.T) {
 	})
 }
 
+func TestAllSquadMembers(t *testing.T) {
+	t.Parallel()
+
+	t.Run("待機中の隊員も含めて全員返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		active, err := lifecycle.SpawnSquadMember(world, leader, "同行隊員", testAbilities(), "player")
+		require.NoError(t, err)
+
+		inactive, err := lifecycle.SpawnSquadMember(world, leader, "待機隊員", testAbilities(), "player")
+		require.NoError(t, err)
+		// 待機状態にする
+		sm := world.Components.SquadMember.Get(inactive).(*gc.SquadMember)
+		sm.Active = false
+
+		// SquadMembersは同行中のみ返す
+		activeMembers := query.SquadMembers(world, leader)
+		assert.Len(t, activeMembers, 1)
+		assert.Contains(t, activeMembers, active)
+
+		// AllSquadMembersは待機中も含む
+		allMembers := query.AllSquadMembers(world, leader)
+		assert.Len(t, allMembers, 2)
+		assert.Contains(t, allMembers, active)
+		assert.Contains(t, allMembers, inactive)
+	})
+
+	t.Run("死亡した隊員は除外される", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		_, err = lifecycle.SpawnSquadMember(world, leader, "生存者", testAbilities(), "player")
+		require.NoError(t, err)
+		dead, err := lifecycle.SpawnSquadMember(world, leader, "死亡者", testAbilities(), "player")
+		require.NoError(t, err)
+		dead.AddComponent(world.Components.Dead, &gc.Dead{})
+
+		allMembers := query.AllSquadMembers(world, leader)
+		assert.Len(t, allMembers, 1)
+		assert.NotContains(t, allMembers, dead)
+	})
+}
+
+func TestSquadMemberAt(t *testing.T) {
+	t.Parallel()
+
+	t.Run("指定座標にいる隊員を返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
+		require.NoError(t, err)
+
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		found, ok := query.SquadMemberAt(world, leader, int(memberGrid.X), int(memberGrid.Y))
+		assert.True(t, ok)
+		assert.Equal(t, member, found)
+	})
+
+	t.Run("指定座標に隊員がいない場合はfalseを返す", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		_, err = lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
+		require.NoError(t, err)
+
+		_, ok := query.SquadMemberAt(world, leader, 99, 99)
+		assert.False(t, ok)
+	})
+
+	t.Run("別リーダーの隊員は見つからない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader1, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		leader2 := world.Manager.NewEntity()
+		leader2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
+
+		member2, err := lifecycle.SpawnSquadMember(world, leader2, "他隊員", testAbilities(), "player")
+		require.NoError(t, err)
+
+		memberGrid := world.Components.GridElement.Get(member2).(*gc.GridElement)
+		_, ok := query.SquadMemberAt(world, leader1, int(memberGrid.X), int(memberGrid.Y))
+		assert.False(t, ok, "別リーダーの隊員は見つからない")
+	})
+
+	t.Run("待機中の隊員は見つからない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		require.NoError(t, err)
+
+		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
+		require.NoError(t, err)
+
+		// 待機状態にする
+		sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
+		sm.Active = false
+
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		_, ok := query.SquadMemberAt(world, leader, int(memberGrid.X), int(memberGrid.Y))
+		assert.False(t, ok, "待機中の隊員はSquadMemberAtで見つからない")
+	})
+}
+
 func TestSquadMemberCount(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
