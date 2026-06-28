@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-27 12:01:24</td>
+            <td class="headerValue">2026-06-28 01:42:31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -63,7 +63,7 @@
 <span id="L1"><span class="lineNum">       1</span>              : package activity</span>
 <span id="L2"><span class="lineNum">       2</span>              : </span>
 <span id="L3"><span class="lineNum">       3</span>              : import (</span>
-<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/worldhelper&quot;</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;github.com/kijimaD/ruins/internal/world/query&quot;</span>
 <span id="L5"><span class="lineNum">       5</span>              :         ecs &quot;github.com/x-hgg-x/goecs/v2&quot;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
 <span id="L7"><span class="lineNum">       7</span>              :         w &quot;github.com/kijimaD/ruins/internal/world&quot;</span>
@@ -102,7 +102,7 @@
 <span id="L40"><span class="lineNum">      40</span>              : // CanMoveTo は指定位置に移動可能かチェックする。</span>
 <span id="L41"><span class="lineNum">      41</span>              : // fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する</span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC tlaBgGNC">           1 : func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         si := worldhelper.GetSpatialIndex(world)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         si := query.GetSpatialIndex(world)</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :         if tileX &lt; 0 || tileY &lt; 0 || tileX &gt;= si.MapWidth || tileY &gt;= si.MapHeight {</span></span>
 <span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false</span></span>
