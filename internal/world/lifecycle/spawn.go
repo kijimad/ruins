@@ -255,7 +255,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		GridElement: &gc.GridElement{X: leaderGrid.X, Y: leaderGrid.Y},
 		BlockPass:   &gc.BlockPass{},
 		SpriteRender: &gc.SpriteRender{
-			SpriteSheetName: "character",
+			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},
