@@ -48,8 +48,8 @@ var _ es.State[w.World] = &TavernMenuState{}
 var _ es.ActionHandler[w.World] = &TavernMenuState{}
 
 func (st *TavernMenuState) OnPause(_ w.World) error  { return nil }
-func (st *TavernMenuState) OnResume(_ w.World) error  { return nil }
-func (st *TavernMenuState) OnStop(_ w.World) error    { return nil }
+func (st *TavernMenuState) OnResume(_ w.World) error { return nil }
+func (st *TavernMenuState) OnStop(_ w.World) error   { return nil }
 func (st *TavernMenuState) OnStart(_ w.World) error {
 	st.subState = tavernSubStateMenu
 	st.menuMount = hooks.NewMount[tavernProps]()

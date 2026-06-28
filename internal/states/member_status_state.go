@@ -34,8 +34,8 @@ func (st MemberStatusState) String() string {
 var _ es.State[w.World] = &MemberStatusState{}
 
 func (st *MemberStatusState) OnPause(_ w.World) error  { return nil }
-func (st *MemberStatusState) OnResume(_ w.World) error  { return nil }
-func (st *MemberStatusState) OnStop(_ w.World) error    { return nil }
+func (st *MemberStatusState) OnResume(_ w.World) error { return nil }
+func (st *MemberStatusState) OnStop(_ w.World) error   { return nil }
 func (st *MemberStatusState) OnStart(_ w.World) error {
 	st.mount = hooks.NewMount[memberStatusProps]()
 	return nil

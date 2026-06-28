@@ -35,8 +35,8 @@ var _ es.State[w.World] = &FormationMenuState{}
 var _ es.ActionHandler[w.World] = &FormationMenuState{}
 
 func (st *FormationMenuState) OnPause(_ w.World) error  { return nil }
-func (st *FormationMenuState) OnResume(_ w.World) error  { return nil }
-func (st *FormationMenuState) OnStop(_ w.World) error    { return nil }
+func (st *FormationMenuState) OnResume(_ w.World) error { return nil }
+func (st *FormationMenuState) OnStop(_ w.World) error   { return nil }
 func (st *FormationMenuState) OnStart(_ w.World) error {
 	st.menuMount = hooks.NewMount[formationProps]()
 	return nil
