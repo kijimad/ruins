@@ -184,6 +184,42 @@ func mergeStackableItems(world w.World, itemName string, loc mergeLocation, owne
 	return nil
 }
 
+// findAdjacentEmptyTile はcenterの隣接タイルから空きタイルを探す。
+// excludeは追加で除外する座標セット。空きがなければエラーを返す
+func findAdjacentEmptyTile(world w.World, centerX, centerY int, exclude map[gc.GridElement]bool) (int, int, error) {
+	si := query.GetSpatialIndex(world)
+	// 上下左右を優先し、次に斜めを探す
+	offsets := [][2]int{
+		{0, -1}, {0, 1}, {-1, 0}, {1, 0},
+		{-1, -1}, {1, -1}, {-1, 1}, {1, 1},
+	}
+	for _, off := range offsets {
+		x, y := centerX+off[0], centerY+off[1]
+		if x < 0 || y < 0 {
+			continue
+		}
+		// SpatialIndex構築済みかつマップが存在する場合のみ範囲と衝突をチェックする。
+		// マップ生成前のスポーン時はチェックをスキップし、座標の妥当性だけを確認する
+		if si.Built && si.MapWidth > 0 && si.MapHeight > 0 {
+			if x >= si.MapWidth || y >= si.MapHeight {
+				continue
+			}
+			if si.IsBlockPass(x, y) {
+				continue
+			}
+			if si.IsCharacterAt(x, y, ecs.Entity(0)) {
+				continue
+			}
+		}
+		pos := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}
+		if exclude[pos] {
+			continue
+		}
+		return x, y, nil
+	}
+	return 0, 0, fmt.Errorf("(%d,%d)の隣接に空きタイルがありません", centerX, centerY)
+}
+
 // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる
 func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	var playerEntity ecs.Entity
@@ -217,11 +253,17 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 	camera.TargetX = camera.X
 	camera.TargetY = camera.Y
 
-	// Active隊員をプレイヤーと同じ位置に配置する
+	// Active隊員をプレイヤーの隣接タイルに配置する
+	exclude := map[gc.GridElement]bool{}
 	for _, member := range query.SquadMembers(world, playerEntity) {
 		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-		memberGrid.X = consts.Tile(tileX)
-		memberGrid.Y = consts.Tile(tileY)
+		x, y, err := findAdjacentEmptyTile(world, tileX, tileY, exclude)
+		if err != nil {
+			return fmt.Errorf("隊員の配置に失敗: %w", err)
+		}
+		memberGrid.X = consts.Tile(x)
+		memberGrid.Y = consts.Tile(y)
+		exclude[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
 	}
 
 	return nil

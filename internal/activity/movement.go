@@ -1,10 +1,10 @@
 package activity
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
-
-	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // CanMoveTo は指定位置に移動可能かチェックする
@@ -44,6 +44,17 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 
 	if tileX < 0 || tileY < 0 || tileX >= si.MapWidth || tileY >= si.MapHeight {
 		return false
+	}
+
+	// プレイヤーが自分の隊員のいるタイルに移動する場合は位置入れ替えで許可する。
+	// 隊員はBlockPassを持つため、他のチェックより先に判定する
+	if movingEntity.HasComponent(world.Components.Player) {
+		for _, member := range query.SquadMembers(world, movingEntity) {
+			memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+			if int(memberGrid.X) == tileX && int(memberGrid.Y) == tileY {
+				return true
+			}
+		}
 	}
 
 	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可

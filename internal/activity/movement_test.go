@@ -3,9 +3,11 @@ package activity
 import (
 	"testing"
 
+	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -111,6 +113,60 @@ func TestCanMoveTo(t *testing.T) {
 		// 右上(11,9)への斜め移動は不可（右と上の両方が壁）
 		canMove := CanMoveTo(world, 11, 9, 10, 10, player)
 		assert.False(t, canMove, "隣接2方向が両方壁なら斜め移動は不可")
+	})
+
+	t.Run("プレイヤーは自分の隊員がいるタイルに移動できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		abilities := gc.Abilities{
+			Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+			Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+			Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+		}
+		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+		require.NoError(t, err)
+
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
+
+		canMove := CanMoveTo(world, memberX, memberY, 10, 10, player)
+		assert.True(t, canMove, "プレイヤーは自分の隊員のタイルに移動できる")
+	})
+
+	t.Run("AIは隊員がいるタイルに移動できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		abilities := gc.Abilities{
+			Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+			Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+			Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+		}
+		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+		require.NoError(t, err)
+
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		memberX, memberY := int(memberGrid.X), int(memberGrid.Y)
+
+		// AIエンティティを手動で作成する
+		aiEntity := world.Manager.NewEntity()
+		aiEntity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+		aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{
+			X: consts.Tile(memberX + 1), Y: consts.Tile(memberY),
+		})
+
+		// エンティティ追加後にSpatialIndexを再構築させる
+		query.InvalidateSpatialIndex(world)
+
+		canMove := CanMoveTo(world, memberX, memberY, memberX+1, memberY, aiEntity)
+		assert.False(t, canMove, "AI側からは隊員のタイルに移動できない")
 	})
 
 	t.Run("斜め移動で隣接1方向のみ壁なら移動可能", func(t *testing.T) {

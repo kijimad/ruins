@@ -15,7 +15,6 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
@@ -89,12 +88,12 @@ func (st *FormationMenuState) HandleInput(_ *config.Config) (inputmapper.ActionI
 }
 
 // DoAction はアクションを実行してステート遷移を返す
-func (st *FormationMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *FormationMenuState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
-		st.toggleMemberActive(world)
+		st.showMemberDetail()
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown, inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight, inputmapper.ActionMenuTabNext, inputmapper.ActionMenuTabPrev:
 		// Dispatchで処理
 	default:
@@ -115,8 +114,6 @@ type formationMemberData struct {
 	Entity ecs.Entity
 	Name   string
 	HP     string
-	Status string // "同行" or "待機"
-	Active bool
 }
 
 func (st *FormationMenuState) fetchProps(world w.World) formationProps {
@@ -129,19 +126,11 @@ func (st *FormationMenuState) fetchProps(world w.World) formationProps {
 	for _, member := range query.AllSquadMembers(world, playerEntity) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
-		sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
-
-		status := "待機"
-		if sm.Active {
-			status = "同行"
-		}
 
 		members = append(members, formationMemberData{
 			Entity: member,
 			Name:   name,
 			HP:     fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Status: status,
-			Active: sm.Active,
 		})
 	}
 
@@ -152,7 +141,7 @@ func (st *FormationMenuState) fetchProps(world w.World) formationProps {
 // Actions
 // ================
 
-func (st *FormationMenuState) toggleMemberActive(world w.World) {
+func (st *FormationMenuState) showMemberDetail() {
 	props := st.menuMount.GetProps()
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "formation")
 	if !ok {
@@ -164,7 +153,10 @@ func (st *FormationMenuState) toggleMemberActive(world w.World) {
 	}
 
 	member := props.Members[itemIndex]
-	_ = lifecycle.SetSquadMemberActive(world, member.Entity, !member.Active)
+	st.SetTransition(es.Transition[w.World]{
+		Type:          es.TransPush,
+		NewStateFuncs: []es.StateFactory[w.World]{func() es.State[w.World] { return NewMemberStatusState(member.Entity) }},
+	})
 }
 
 // ================
@@ -195,15 +187,15 @@ func (st *FormationMenuState) buildMemberTable(members []formationMemberData, se
 		return container
 	}
 
-	columnWidths := []int{20, 120, 80, 60}
-	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight, styled.AlignLeft}
+	columnWidths := []int{20, 120, 80}
+	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignLeft, styled.AlignRight}
 
 	table := styled.NewTableContainer(columnWidths, res)
-	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "HP", "状態"}, res)
+	styled.NewTableHeaderRow(table, columnWidths, []string{"", "名前", "HP"}, res)
 
 	for i, m := range members {
 		isSelected := i == selectedIndex
-		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP, m.Status}, aligns, &isSelected, res)
+		styled.NewTableRow(table, columnWidths, []string{"", m.Name, m.HP}, aligns, &isSelected, res)
 	}
 
 	container.AddChild(table)

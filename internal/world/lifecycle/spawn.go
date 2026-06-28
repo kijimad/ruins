@@ -227,12 +227,18 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 }
 
 // SpawnSquadMember は隊員エンティティを生成する。
-// リーダーの位置に配置され、ポリシーに基づいて自律行動する
+// リーダーの隣接空きタイルに配置され、ポリシーに基づいて自律行動する
 func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
 	if !leader.HasComponent(world.Components.GridElement) {
 		return consts.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
 	}
 	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+
+	// リーダーの隣接空きタイルを探す
+	spawnX, spawnY, err := findAdjacentEmptyTile(world, int(leaderGrid.X), int(leaderGrid.Y), nil)
+	if err != nil {
+		return consts.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
+	}
 
 	skills := gc.NewSkills()
 	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
@@ -252,7 +258,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			Default: gc.DispositionAlly,
 			Current: gc.DispositionAlly,
 		},
-		GridElement: &gc.GridElement{X: leaderGrid.X, Y: leaderGrid.Y},
+		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
 		BlockPass:   &gc.BlockPass{},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
@@ -284,6 +290,19 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 	}
 
 	return memberEntity, nil
+}
+
+// SpawnDefaultSquadMember はゲーム開始時のデフォルト隊員を生成する
+func SpawnDefaultSquadMember(world w.World, leader ecs.Entity) (ecs.Entity, error) {
+	abilities := gc.Abilities{
+		Vitality:  gc.Ability{Base: 8},
+		Strength:  gc.Ability{Base: 7},
+		Sensation: gc.Ability{Base: 6},
+		Dexterity: gc.Ability{Base: 6},
+		Agility:   gc.Ability{Base: 7},
+		Defense:   gc.Ability{Base: 5},
+	}
+	return SpawnSquadMember(world, leader, "Jim", abilities, "general")
 }
 
 // SpawnBackpackItem はバックパック内にアイテムを生成する

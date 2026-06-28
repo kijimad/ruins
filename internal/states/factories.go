@@ -395,7 +395,7 @@ func NewDebugMenuState() es.State[w.World] {
 				Agility:   gc.Ability{Base: 9},
 				Defense:   gc.Ability{Base: 5},
 			}
-			_, err = lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "blue_human")
+			_, err = lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "general")
 			if err != nil {
 				return fmt.Errorf("隊員スポーンに失敗: %w", err)
 			}

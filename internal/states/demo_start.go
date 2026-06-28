@@ -37,6 +37,10 @@ func (st *DemoStartState) OnStart(world w.World) error {
 		}
 	}
 
+	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
+		return fmt.Errorf("初期隊員の生成に失敗: %w", err)
+	}
+
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,
 		NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},

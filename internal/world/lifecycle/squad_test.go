@@ -86,6 +86,25 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.Equal(t, hp.Max, hp.Current, "HPが全回復している")
 }
 
+func TestSpawnSquadMember_リーダーと異なる位置に配置される(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	leader, err := SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	member, err := SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
+	require.NoError(t, err)
+
+	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+
+	// 隊員はリーダーと同じ位置に配置されない
+	assert.False(t,
+		leaderGrid.X == memberGrid.X && leaderGrid.Y == memberGrid.Y,
+		"隊員はリーダーと異なる位置に配置される")
+}
+
 func TestSpawnSquadMember_リーダーにGridElementがないとエラー(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)

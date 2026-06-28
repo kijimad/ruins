@@ -172,6 +172,10 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 		return es.Transition[w.World]{}, fmt.Errorf("職業の適用に失敗: %w", err)
 	}
 
+	if _, err := lifecycle.SpawnDefaultSquadMember(world, player); err != nil {
+		return es.Transition[w.World]{}, fmt.Errorf("初期隊員の生成に失敗: %w", err)
+	}
+
 	// プレイヤー名を上書き
 	name := world.Components.Name.Get(player).(*gc.Name)
 	name.Name = st.playerName

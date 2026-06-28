@@ -170,7 +170,7 @@ var candidateNamePool = []string{
 
 // candidateSpritePool は候補スプライトのプール
 var candidateSpritePool = []string{
-	"blue_human", "blue_human",
+	"general",
 }
 
 // generateCandidates はランダムな雇用候補を生成する

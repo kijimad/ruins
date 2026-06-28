@@ -137,6 +137,12 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 
 	grid := gridElement.(*gc.GridElement)
 	oldX, oldY := int(grid.X), int(grid.Y)
+	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
+
+	// プレイヤーが隊員のいるタイルに移動する場合、位置を入れ替える
+	if actor.HasComponent(world.Components.Player) {
+		swapSquadMemberIfNeeded(world, actor, oldX, oldY, destX, destY)
+	}
 
 	grid.X = comp.Destination.X
 	grid.Y = comp.Destination.Y
@@ -146,7 +152,24 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	log.Debug("移動完了",
 		"actor", actor,
 		"from", fmt.Sprintf("(%d,%d)", oldX, oldY),
-		"to", fmt.Sprintf("(%d,%d)", comp.Destination.X, comp.Destination.Y))
+		"to", fmt.Sprintf("(%d,%d)", destX, destY))
 
 	return nil
+}
+
+// swapSquadMemberIfNeeded は移動先に自分の隊員がいた場合、隊員を移動元の位置に入れ替える
+func swapSquadMemberIfNeeded(world w.World, player ecs.Entity, fromX, fromY, toX, toY int) {
+	for _, member := range query.SquadMembers(world, player) {
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		if int(memberGrid.X) == toX && int(memberGrid.Y) == toY {
+			memberGrid.X = consts.Tile(fromX)
+			memberGrid.Y = consts.Tile(fromY)
+
+			log.Debug("隊員と位置入れ替え",
+				"member", member,
+				"from", fmt.Sprintf("(%d,%d)", toX, toY),
+				"to", fmt.Sprintf("(%d,%d)", fromX, fromY))
+			return
+		}
+	}
 }

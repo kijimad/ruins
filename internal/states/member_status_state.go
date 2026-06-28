@@ -121,21 +121,6 @@ func (st *MemberStatusState) fetchProps(world w.World) memberStatusProps {
 		)
 	}
 
-	policy := query.SquadPolicy(world, member)
-	items = append(items,
-		memberStatusItem{Label: "位置", Value: policy.Position.String()},
-		memberStatusItem{Label: "戦闘", Value: policy.Combat.String()},
-	)
-
-	if member.HasComponent(world.Components.SquadMember) {
-		sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
-		status := "待機"
-		if sm.Active {
-			status = "同行"
-		}
-		items = append(items, memberStatusItem{Label: "状態", Value: status})
-	}
-
 	return memberStatusProps{Name: name, Items: items}
 }
 

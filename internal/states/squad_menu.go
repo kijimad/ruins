@@ -228,7 +228,6 @@ func (st *SquadMenuState) getActionItems() []string {
 		return []string{TextClose}
 	}
 	return []string{
-		"詳細",
 		fmt.Sprintf("位置: %s", windowProps.Member.Position),
 		fmt.Sprintf("戦闘: %s", windowProps.Member.Combat),
 		"解雇",
@@ -298,15 +297,6 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	selectedAction := actionItems[actionIndex]
 
 	switch {
-	case selectedAction == "詳細":
-		st.SetTransition(es.Transition[w.World]{
-			Type: es.TransPush,
-			NewStateFuncs: []es.StateFactory[w.World]{
-				func() es.State[w.World] { return NewMemberStatusState(member) },
-			},
-		})
-		st.subState = squadSubStateMenu
-
 	case strings.HasPrefix(selectedAction, "位置"):
 		// 位置ポリシーを次の値に切り替える
 		policy := query.SquadPolicy(world, member)
