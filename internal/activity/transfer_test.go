@@ -13,7 +13,7 @@ import (
 func TestTransferActivity_Validate(t *testing.T) {
 	t.Parallel()
 
-	t.Run("隊員がバックパック内のアイテムを転送できる", func(t *testing.T) {
+	t.Run("アイテムと受取人が指定されていれば検証を通過する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -23,7 +23,6 @@ func TestTransferActivity_Validate(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		// 隊員のバックパックにアイテムを入れる
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
@@ -32,6 +31,7 @@ func TestTransferActivity_Validate(t *testing.T) {
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTransfer,
 			Target:       &item,
+			Recipient:    &leader,
 		}
 
 		ta := &TransferActivity{}
@@ -46,19 +46,17 @@ func TestTransferActivity_Validate(t *testing.T) {
 		leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
-
 		comp := &gc.Activity{
 			BehaviorName: gc.BehaviorTransfer,
+			Recipient:    &leader,
 		}
 
 		ta := &TransferActivity{}
-		err = ta.Validate(comp, member, world)
+		err = ta.Validate(comp, leader, world)
 		assert.Error(t, err)
 	})
 
-	t.Run("隊員でないエンティティはエラー", func(t *testing.T) {
+	t.Run("Recipientが指定されていない場合はエラー", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -84,7 +82,7 @@ func TestTransferActivity_Validate(t *testing.T) {
 func TestTransferActivity_DoTurn(t *testing.T) {
 	t.Parallel()
 
-	t.Run("アイテムがリーダーのバックパックに移動する", func(t *testing.T) {
+	t.Run("アイテムが受取人のバックパックに移動する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -94,13 +92,11 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		// 隊員のバックパックにアイテムを入れる
 		item, err := lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		err = lifecycle.MoveToBackpack(world, item, member)
 		require.NoError(t, err)
 
-		// 隊員のバックパックにあることを確認
 		loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
 		assert.Equal(t, member, loc.Owner)
 
@@ -108,6 +104,7 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 			BehaviorName: gc.BehaviorTransfer,
 			State:        gc.ActivityStateRunning,
 			Target:       &item,
+			Recipient:    &leader,
 			TurnsTotal:   1,
 			TurnsLeft:    1,
 		}
@@ -116,7 +113,6 @@ func TestTransferActivity_DoTurn(t *testing.T) {
 		err = ta.DoTurn(comp, member, world)
 		require.NoError(t, err)
 
-		// リーダーのバックパックに移動したことを確認
 		loc = world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
 		assert.Equal(t, leader, loc.Owner)
 	})

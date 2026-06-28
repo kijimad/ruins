@@ -14,6 +14,7 @@ import (
 type ActionParams struct {
 	Actor       ecs.Entity      // アクションを実行するエンティティ
 	Target      *ecs.Entity     // 対象エンティティ（攻撃等で使用）
+	Recipient   *ecs.Entity     // 受取人エンティティ（アイテム転送等で使用）
 	Destination *gc.GridElement // 移動先のグリッド座標（移動等で使用）
 	Duration    int             // 継続時間（休息、待機等で使用）
 	Reason      string          // 理由（待機等で使用）
@@ -329,6 +330,9 @@ func buildActivity(behavior Behavior, params ActionParams, world w.World) (*gc.A
 	}
 	if params.Target != nil {
 		comp.Target = params.Target
+	}
+	if params.Recipient != nil {
+		comp.Recipient = params.Recipient
 	}
 
 	return comp, nil

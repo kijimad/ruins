@@ -407,9 +407,11 @@ func (sp *SquadProcessor) planItemHandlingAction(world w.World, entity ecs.Entit
 	}
 
 	sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
+	leader := ctx.LeaderEntity
 	return &activity.TransferActivity{}, activity.ActionParams{
-		Actor:  entity,
-		Target: itemToTransfer,
+		Actor:     entity,
+		Target:    itemToTransfer,
+		Recipient: &leader,
 	}, true
 }
 

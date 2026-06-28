@@ -12,14 +12,15 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// TransferActivity は隊員がバックパック内のアイテムをリーダーに転送するBehavior実装
+// TransferActivity はエンティティ間でアイテムを転送するBehavior実装。
+// Targetに転送するアイテム、Recipientに受取人を指定する
 type TransferActivity struct{}
 
 // Info はBehaviorの実装
 func (ta *TransferActivity) Info() Info {
 	return Info{
 		Name:            "転送",
-		Description:     "アイテムをリーダーに渡す",
+		Description:     "アイテムを他のエンティティに渡す",
 		Interruptible:   false,
 		Resumable:       false,
 		ActionPointCost: 50,
@@ -33,18 +34,17 @@ func (ta *TransferActivity) Name() gc.BehaviorName {
 }
 
 // Validate はアイテム転送アクティビティの検証を行う
-func (ta *TransferActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.World) error {
+func (ta *TransferActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	if comp.Target == nil {
 		return fmt.Errorf("転送対象が指定されていません")
+	}
+	if comp.Recipient == nil {
+		return fmt.Errorf("受取人が指定されていません")
 	}
 
 	target := *comp.Target
 	if !target.HasComponent(world.Components.LocationInBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
-	}
-
-	if !actor.HasComponent(world.Components.SquadMember) {
-		return fmt.Errorf("隊員のみアイテム転送を実行できます")
 	}
 
 	return nil
@@ -79,30 +79,31 @@ func (ta *TransferActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Wo
 	return nil
 }
 
-// performTransfer はアイテムをリーダーのバックパックに移動する
+// performTransfer はアイテムを受取人のバックパックに移動する
 func (ta *TransferActivity) performTransfer(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	item := *comp.Target
+	recipient := *comp.Recipient
+
 	if !item.HasComponent(world.Components.LocationInBackpack) {
 		return fmt.Errorf("アイテムがバックパック内にありません")
 	}
 
-	sm := world.Components.SquadMember.Get(actor).(*gc.SquadMember)
-	leader := sm.Leader
-
 	formattedName := query.FormatItemName(world, item)
+	actorName := query.GetEntityName(actor, world)
+	recipientName := query.GetEntityName(recipient, world)
 
-	if err := lifecycle.MoveToBackpack(world, item, leader); err != nil {
-		return fmt.Errorf("リーダーへの転送に失敗: %w", err)
+	if err := lifecycle.MoveToBackpack(world, item, recipient); err != nil {
+		return fmt.Errorf("アイテム転送に失敗: %w", err)
 	}
 
-	actorName := ""
-	if actor.HasComponent(world.Components.Name) {
-		actorName = world.Components.Name.Get(actor).(*gc.Name).Name
-	}
-	gamelog.New(query.GetGameLog(world)).
-		Append(actorName + " が ").
+	logger := gamelog.New(query.GetGameLog(world))
+	query.AppendNameWithColor(logger, actor, actorName, world)
+	logger.
+		Append(" が ").
 		ItemName(formattedName).
-		Append(" を渡した。").
+		Append(" を ").
+		Append(recipientName).
+		Append(" に渡した。").
 		Log()
 
 	return nil

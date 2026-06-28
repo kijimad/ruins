@@ -45,6 +45,10 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 		return false
 	}
 
+	// TODO: BlockPassは壁やProp専用にして、キャラクターからは外す。
+	// キャラクターは条件によって通行を許可する場合があり、BlockPassでの一律ブロックが合わない。
+	// 隊員・敵の通行判定はIsCharacterAt/IsSquadMemberAtに統合する
+	//
 	// プレイヤーが自分の隊員のいるタイルに移動する場合は位置入れ替えで許可する。
 	// 隊員はBlockPassを持つため、IsBlockPassより先に判定する。
 	// SpatialIndex.Charactersには隊員は含まれないが、BlockPassマップには含まれる
