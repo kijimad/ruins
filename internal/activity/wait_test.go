@@ -5,7 +5,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,7 +19,7 @@ func TestWaitActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -34,7 +36,7 @@ func TestWaitActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -56,7 +58,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -77,7 +79,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -98,7 +100,7 @@ func TestWaitActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -124,7 +126,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -136,7 +138,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 		err = wa.Finish(comp, player, world)
 		assert.NoError(t, err)
 
-		store := worldhelper.GetGameLog(world)
+		store := query.GetGameLog(world)
 		assert.Equal(t, 0, store.Count())
 	})
 
@@ -144,7 +146,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -156,7 +158,7 @@ func TestWaitActivity_Finish(t *testing.T) {
 		err = wa.Finish(comp, player, world)
 		assert.NoError(t, err)
 
-		store := worldhelper.GetGameLog(world)
+		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "待機を終了した")

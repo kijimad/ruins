@@ -7,7 +7,10 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/gameaction"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -93,12 +96,12 @@ func (u *UseItemActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	if damage := world.Components.InflictsDamage.Get(item); damage != nil {
 		damageComponent := damage.(*gc.InflictsDamage)
 		// 共通のダメージ処理を使用
-		worldhelper.ApplyDamage(world, actor, damageComponent.Amount, actor)
+		gameaction.ApplyDamage(world, actor, damageComponent.Amount, actor)
 	}
 
 	// 消費可能アイテムの場合は削除または個数を減らす
 	if item.HasComponent(world.Components.Consumable) {
-		if err := worldhelper.ChangeItemCount(world, item, -1); err != nil {
+		if err := lifecycle.ChangeItemCount(world, item, -1); err != nil {
 			return fmt.Errorf("アイテムの消費に失敗: %w", err)
 		}
 	}
@@ -143,7 +146,7 @@ func (u *UseItemActivity) applyHealing(_ *gc.Activity, actor ecs.Entity, world w
 		amount = 1
 	}
 
-	actualHealing := worldhelper.ApplyHealing(world, actor, amount)
+	actualHealing := gameaction.ApplyHealing(world, actor, amount)
 
 	u.logItemUse(actor, world, item, actualHealing, true)
 
@@ -178,11 +181,11 @@ func (u *UseItemActivity) logItemUse(actor ecs.Entity, world w.World, item ecs.E
 	}
 
 	itemName := u.getItemName(item, world)
-	actorName := worldhelper.GetEntityName(actor, world)
+	actorName := query.GetEntityName(actor, world)
 
-	logger := gamelog.New(worldhelper.GetGameLog(world))
+	logger := gamelog.New(query.GetGameLog(world))
 	logger.Build(func(l *gamelog.Logger) {
-		worldhelper.AppendNameWithColor(l, actor, actorName, world)
+		query.AppendNameWithColor(l, actor, actorName, world)
 	}).Append(" は ").ItemName(itemName).Append(" を使った。")
 
 	if isHealing {
@@ -202,11 +205,11 @@ func (u *UseItemActivity) logNutritionUse(actor ecs.Entity, world w.World, item 
 	}
 
 	itemName := u.getItemName(item, world)
-	actorName := worldhelper.GetEntityName(actor, world)
+	actorName := query.GetEntityName(actor, world)
 
-	logger := gamelog.New(worldhelper.GetGameLog(world))
+	logger := gamelog.New(query.GetGameLog(world))
 	logger.Build(func(l *gamelog.Logger) {
-		worldhelper.AppendNameWithColor(l, actor, actorName, world)
+		query.AppendNameWithColor(l, actor, actorName, world)
 	}).Append(" は ").ItemName(itemName).Append(" を食べた。")
 
 	if isSatiated {

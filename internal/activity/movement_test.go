@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,15 +17,15 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 11, 10, nil)
 		require.NoError(t, err)
 
 		// プレイヤーの上側(10, 9)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
 		// 左側(9, 10)への移動は可能なはず
@@ -40,15 +41,15 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// プレイヤーの右側(11, 10)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 11, 10, nil)
 		require.NoError(t, err)
 
 		// プレイヤーの上側(10, 9)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
 		// 右側(11, 10)への移動は壁によってブロックされるはず
@@ -64,17 +65,17 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 全方向に壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil) // 右
+		_, err = lifecycle.SpawnTile(world, "wall", 11, 10, nil) // 右
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil) // 上
+		_, err = lifecycle.SpawnTile(world, "wall", 10, 9, nil) // 上
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "wall", 9, 10, nil) // 左
+		_, err = lifecycle.SpawnTile(world, "wall", 9, 10, nil) // 左
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "wall", 10, 11, nil) // 下
+		_, err = lifecycle.SpawnTile(world, "wall", 10, 11, nil) // 下
 		require.NoError(t, err)
 
 		// 全方向への移動が不可能になるはず
@@ -98,13 +99,13 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 右(11,10)と上(10,9)に壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 11, 10, nil)
 		require.NoError(t, err)
-		_, err = worldhelper.SpawnTile(world, "wall", 10, 9, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 10, 9, nil)
 		require.NoError(t, err)
 
 		// 右上(11,9)への斜め移動は不可（右と上の両方が壁）
@@ -116,11 +117,11 @@ func TestCanMoveTo(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 右(11,10)にだけ壁を配置
-		_, err = worldhelper.SpawnTile(world, "wall", 11, 10, nil)
+		_, err = lifecycle.SpawnTile(world, "wall", 11, 10, nil)
 		require.NoError(t, err)
 
 		// 右上(11,9)への斜め移動は可能（上方向は空いている）

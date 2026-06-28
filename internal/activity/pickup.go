@@ -7,7 +7,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -35,7 +37,7 @@ func (pa *PickupActivity) Name() gc.BehaviorName {
 func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.World) error {
 	// Targetが指定されている場合は、そのエンティティが拾得可能かだけを確認する
 	if comp.Target != nil {
-		if !worldhelper.IsPickable(*comp.Target, world) {
+		if !query.IsPickable(*comp.Target, world) {
 			return fmt.Errorf("拾えるものがありません")
 		}
 		return nil
@@ -57,7 +59,7 @@ func (pa *PickupActivity) Validate(comp *gc.Activity, _ ecs.Entity, world w.Worl
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
-		if worldhelper.IsPickable(entity, world) {
+		if query.IsPickable(entity, world) {
 			hasPickable = true
 		}
 	}))
@@ -107,7 +109,7 @@ func (pa *PickupActivity) Canceled(comp *gc.Activity, actor ecs.Entity, _ w.Worl
 func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	// Targetが指定されている場合は、そのエンティティだけを拾う
 	if comp.Target != nil {
-		if !worldhelper.IsPickable(*comp.Target, world) {
+		if !query.IsPickable(*comp.Target, world) {
 			return fmt.Errorf("拾えるものがありません")
 		}
 		return pa.collect(actor, world, *comp.Target)
@@ -127,7 +129,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 		if grid.X != target.X || grid.Y != target.Y {
 			return
 		}
-		if worldhelper.IsPickable(entity, world) {
+		if query.IsPickable(entity, world) {
 			toCollect = append(toCollect, entity)
 		}
 	}))
@@ -153,7 +155,7 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 	log.Debug("拾得完了", "count", collectedCount)
 
 	if collectedCount > 1 && actor.HasComponent(world.Components.Player) {
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("%d個を入手した", collectedCount)).
 			Log()
 	}
@@ -168,12 +170,12 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 // collect はフィールド上のエンティティをバックパックに移動する
 func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {
 	// MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する
-	formattedName := worldhelper.FormatItemName(world, entity)
+	formattedName := query.FormatItemName(world, entity)
 
-	if err := worldhelper.MoveToBackpack(world, entity, actor); err != nil {
+	if err := lifecycle.MoveToBackpack(world, entity, actor); err != nil {
 		return fmt.Errorf("バックパックへの移動に失敗: %w", err)
 	}
-	gamelog.New(worldhelper.GetGameLog(world)).
+	gamelog.New(query.GetGameLog(world)).
 		ItemName(formattedName).
 		Append(" を入手した。").
 		Log()

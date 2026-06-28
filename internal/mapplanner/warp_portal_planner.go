@@ -5,7 +5,8 @@ import (
 
 	"github.com/kijimaD/ruins/internal/consts"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // ポータル配置用の定数
@@ -56,11 +57,11 @@ func (p *PortalPlanner) PlanMeta(planData *MetaPlan) error {
 	nextPortalPos := consts.Coord[int]{X: int(x), Y: int(y)}
 	planData.NextPortals = append(planData.NextPortals, nextPortalPos)
 
-	if worldhelper.GetDungeon(p.world) == nil {
+	if query.GetDungeon(p.world) == nil {
 		return fmt.Errorf("Dungeonが初期化されていません")
 	}
 	// 間隔ごとに帰還ポータルを配置する
-	if worldhelper.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
+	if query.GetDungeon(p.world).Depth%escapePortalInterval == 0 {
 		// プレイヤー位置とNextPortal位置の両方から最低距離を確保する
 		escRefs := []consts.Coord[int]{playerPos, nextPortalPos}
 		escDistSelector := minDistanceReachableSelector(pathFinder, escRefs, minPortalDistance, maxPortalPlacementAttempts)

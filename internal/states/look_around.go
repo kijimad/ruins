@@ -14,7 +14,8 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -47,7 +48,7 @@ func (st *LookAroundState) OnResume(_ w.World) error { return nil }
 // OnStart はステートが開始される際に呼ばれる
 func (st *LookAroundState) OnStart(world w.World) error {
 	// プレイヤー位置からカーソルを開始
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -125,7 +126,7 @@ func (st *LookAroundState) moveCursor(world w.World, dx, dy int) {
 	newX := int(st.cursor.X) + dx
 	newY := int(st.cursor.Y) + dy
 
-	level := worldhelper.GetDungeon(world).Level
+	level := query.GetDungeon(world).Level
 	if newX >= 0 && newX < int(level.TileWidth) && newY >= 0 && newY < int(level.TileHeight) {
 		st.cursor.X = consts.Tile(newX)
 		st.cursor.Y = consts.Tile(newY)
@@ -231,12 +232,12 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	y += 5
 
 	// 視界内かどうかをチェック
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
 	playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
-	inVision := worldhelper.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
+	inVision := query.IsInVision(world, int(playerGrid.X), int(playerGrid.Y), int(st.cursor.X), int(st.cursor.Y))
 
 	if !inVision {
 		drawText("暗闇")
@@ -244,7 +245,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 	}
 
 	// タイル上のエンティティを取得
-	entities := worldhelper.GetEntitiesAt(world, st.cursor.X, st.cursor.Y)
+	entities := query.GetEntitiesAt(world, st.cursor.X, st.cursor.Y)
 
 	if len(entities) == 0 {
 		drawText("何もありません")
@@ -269,7 +270,7 @@ func (st *LookAroundState) drawInfoPanel(world w.World, screen *ebiten.Image) er
 
 // drawEntityInfo はエンティティ情報を描画する
 func (st *LookAroundState) drawEntityInfo(world w.World, entity ecs.Entity, drawText func(string)) {
-	name := worldhelper.GetEntityName(entity, world)
+	name := query.GetEntityName(entity, world)
 
 	cat, ok := world.Components.CategoryOf(gc.FieldLookCategoryKey, entity)
 	if !ok {

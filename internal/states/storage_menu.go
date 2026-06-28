@@ -17,7 +17,9 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -153,7 +155,7 @@ type storageItemData struct {
 }
 
 func (st *StorageMenuState) fetchProps(world w.World) storageProps {
-	storageName := worldhelper.GetEntityName(st.storageEntity, world)
+	storageName := query.GetEntityName(st.storageEntity, world)
 	wc := world.Components.WeightCapacity.Get(st.storageEntity).(*gc.WeightCapacity)
 	weightText := fmt.Sprintf("%.1f / %.1f kg", wc.Current, wc.Max)
 
@@ -164,7 +166,7 @@ func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 	menuState, ok := hooks.GetState[hooks.TabMenuState](st.menuMount, "storage")
 	if ok && menuState.TabIndex == 1 && len(storeTabs) > 0 && menuState.ItemIndex < len(storeTabs) {
 		selectedItem := storeTabs[menuState.ItemIndex]
-		itemWeight := worldhelper.GetEntityWeight(world, selectedItem.Entity)
+		itemWeight := query.GetEntityWeight(world, selectedItem.Entity)
 		weightOverflow = wc.Current+itemWeight > wc.Max
 	}
 
@@ -180,8 +182,8 @@ func (st *StorageMenuState) fetchProps(world w.World) storageProps {
 }
 
 func (st *StorageMenuState) createStorageItemData(world w.World) []storageItemData {
-	items := worldhelper.GetStorageItems(world, st.storageEntity)
-	sorted := worldhelper.SortEntities(world, items)
+	items := query.GetStorageItems(world, st.storageEntity)
+	sorted := query.SortEntities(world, items)
 	return st.toStorageItemData(world, sorted)
 }
 
@@ -193,14 +195,14 @@ func (st *StorageMenuState) createBackpackItemData(world w.World) []storageItemD
 		entities = append(entities, entity)
 	}))
 
-	sorted := worldhelper.SortEntities(world, entities)
+	sorted := query.SortEntities(world, entities)
 	return st.toStorageItemData(world, sorted)
 }
 
 func (st *StorageMenuState) toStorageItemData(world w.World, entities []ecs.Entity) []storageItemData {
 	items := make([]storageItemData, len(entities))
 	for i, entity := range entities {
-		name := worldhelper.GetEntityName(entity, world)
+		name := query.GetEntityName(entity, world)
 		item := storageItemData{
 			Entity: entity,
 			Name:   name,
@@ -240,19 +242,19 @@ func (st *StorageMenuState) executeTransfer(world w.World) error {
 	switch tab.ID {
 	case "retrieve":
 		// 収納からバックパックへ移動
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return err
 		}
-		if err := worldhelper.MoveToBackpack(world, item.Entity, playerEntity); err != nil {
+		if err := lifecycle.MoveToBackpack(world, item.Entity, playerEntity); err != nil {
 			return err
 		}
 	case "store":
 		// バックパックから収納へ移動
-		if !worldhelper.CanAddToStorage(world, st.storageEntity, item.Entity) {
+		if !query.CanAddToStorage(world, st.storageEntity, item.Entity) {
 			return nil // 重量超過の場合は何もしない
 		}
-		if err := worldhelper.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {
+		if err := lifecycle.MoveToStorage(world, item.Entity, st.storageEntity); err != nil {
 			return err
 		}
 	}

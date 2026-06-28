@@ -11,7 +11,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -142,7 +143,7 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 
 	return oapi.SaveDataWorldSaveData{
 		Entities:     entities,
-		GameProgress: gameProgressToSaveData(worldhelper.GetGameProgress(world)),
+		GameProgress: gameProgressToSaveData(query.GetGameProgress(world)),
 	}
 }
 
@@ -354,7 +355,7 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 
 	// GameProgressを復元
 	if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil {
-		*worldhelper.GetGameProgress(world) = *gp
+		*query.GetGameProgress(world) = *gp
 	}
 
 	return nil

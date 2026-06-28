@@ -19,7 +19,9 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	"github.com/kijimaD/ruins/internal/widgets/views"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -263,7 +265,7 @@ type equipScreenProps struct {
 func (st *EquipMenuState) fetchSlotProps(world w.World) slotScreenProps {
 	var player ecs.Entity
 	var playerFound bool
-	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
+	query.Player(world, func(entity ecs.Entity) {
 		player = entity
 		playerFound = true
 	})
@@ -320,7 +322,7 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) [
 	items := make([]equipItemData, 0, 12)
 
 	// 武器スロット
-	weapons := worldhelper.GetWeapons(world, member)
+	weapons := query.GetWeapons(world, member)
 	weaponLabels := []string{"武器1", "武器2", "武器3", "武器4", "武器5"}
 	weaponSlotNumbers := []gc.EquipmentSlotNumber{
 		gc.SlotWeapon1, gc.SlotWeapon2, gc.SlotWeapon3, gc.SlotWeapon4, gc.SlotWeapon5,
@@ -340,7 +342,7 @@ func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) [
 	}
 
 	// 防具スロット
-	armorSlots := worldhelper.GetArmorEquipments(world, member)
+	armorSlots := query.GetArmorEquipments(world, member)
 	armorLabels := []string{"防具(頭)", "防具(胴)", "防具(腕)", "防具(手)", "防具(脚)", "防具(足)", "防具(装飾)"}
 	armorSlotNumbers := []gc.EquipmentSlotNumber{
 		gc.SlotHead, gc.SlotTorso, gc.SlotArms, gc.SlotHands, gc.SlotLegs, gc.SlotFeet, gc.SlotJewelry,
@@ -393,7 +395,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 		case gc.SlotJewelry:
 			targetCategory = gc.EquipmentJewelry
 		default:
-			return worldhelper.SortEntities(world, items)
+			return query.SortEntities(world, items)
 		}
 
 		world.Manager.Join(
@@ -407,7 +409,7 @@ func (st *EquipMenuState) queryEquipableItemsForSlot(world w.World, slotNumber g
 		}))
 	}
 
-	return worldhelper.SortEntities(world, items)
+	return query.SortEntities(world, items)
 }
 
 // ================
@@ -509,7 +511,7 @@ func (st *EquipMenuState) executeActionItem(world w.World) error {
 		})
 	case "外す":
 		if slotData.Entity != nil {
-			if err := worldhelper.MoveToBackpack(world, *slotData.Entity, slotData.Member); err != nil {
+			if err := lifecycle.MoveToBackpack(world, *slotData.Entity, slotData.Member); err != nil {
 				return err
 			}
 		}
@@ -535,13 +537,13 @@ func (st *EquipMenuState) handleEquipItemSelection(world w.World) error {
 
 	// 前の装備を外す
 	if props.PreviousEquipment != nil {
-		if err := worldhelper.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil {
+		if err := lifecycle.MoveToBackpack(world, *props.PreviousEquipment, props.TargetMember); err != nil {
 			return err
 		}
 	}
 
 	// 新しい装備を装着
-	worldhelper.MoveToEquip(world, item.EquipEntity, props.TargetMember, props.SlotNumber)
+	lifecycle.MoveToEquip(world, item.EquipEntity, props.TargetMember, props.SlotNumber)
 
 	st.subState = subStateSlotSelect
 	return nil

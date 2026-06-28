@@ -5,7 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,10 +18,10 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -38,11 +39,11 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// アイテムは別のタイルにある
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -61,7 +62,7 @@ func TestPickupActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -100,10 +101,10 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -129,11 +130,11 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 別のタイルにアイテムがある
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 20, 20, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", 20, 20, 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -154,7 +155,7 @@ func TestPickupActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -177,13 +178,13 @@ func TestPickupActivity_DoTurn_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item1, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item1, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
-		item2, err := worldhelper.SpawnFieldItem(world, "回復薬", 10, 10, 1)
+		item2, err := lifecycle.SpawnFieldItem(world, "回復薬", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -215,10 +216,10 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -235,7 +236,7 @@ func TestPickupActivity_Validate_Target(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		prop := world.Manager.NewEntity()
@@ -263,7 +264,7 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		prop := world.Manager.NewEntity()
@@ -288,10 +289,10 @@ func TestPickupActivity_Validate_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		_, err = worldhelper.SpawnFieldItem(world, "木刀", 5, 5, 1)
+		_, err = lifecycle.SpawnFieldItem(world, "木刀", 5, 5, 1)
 		require.NoError(t, err)
 		// Interactableを持つPropも同じタイルにある
 		prop := world.Manager.NewEntity()
@@ -319,7 +320,7 @@ func TestPickupActivity_DoTurn_Prop(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 8, 6, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 8, 6, "Ash")
 		require.NoError(t, err)
 
 		prop := world.Manager.NewEntity()

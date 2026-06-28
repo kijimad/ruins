@@ -19,7 +19,10 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/gameaction"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // CharacterJobState はキャラクター職業選択画面のステート
@@ -157,15 +160,15 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	prof := props.Items[itemIndex].Profession
 
 	// 既存プレイヤーがいれば削除する
-	if existing, err := worldhelper.GetPlayerEntity(world); err == nil {
+	if existing, err := query.GetPlayerEntity(world); err == nil {
 		world.Manager.DeleteEntity(existing)
 	}
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	if err != nil {
 		return es.Transition[w.World]{}, fmt.Errorf("プレイヤーの生成に失敗: %w", err)
 	}
-	if err := worldhelper.ApplyProfession(world, player, prof); err != nil {
+	if err := gameaction.ApplyProfession(world, player, prof); err != nil {
 		return es.Transition[w.World]{}, fmt.Errorf("職業の適用に失敗: %w", err)
 	}
 
@@ -174,9 +177,9 @@ func (st *CharacterJobState) handleSelection(world w.World) (es.Transition[w.Wor
 	name.Name = st.playerName
 
 	// 操作ガイドを表示する
-	gamelog.New(worldhelper.GetGameLog(world)).System("WASD: 移動する。").Log()
-	gamelog.New(worldhelper.GetGameLog(world)).System("Mキー: 拠点メニューを開く。").Log()
-	gamelog.New(worldhelper.GetGameLog(world)).System("Spaceキー: アクションメニューを開く。").Log()
+	gamelog.New(query.GetGameLog(world)).System("WASD: 移動する。").Log()
+	gamelog.New(query.GetGameLog(world)).System("Mキー: 拠点メニューを開く。").Log()
+	gamelog.New(query.GetGameLog(world)).System("Spaceキー: アクションメニューを開く。").Log()
 
 	st.SetTransition(es.Transition[w.World]{
 		Type:          es.TransReplace,

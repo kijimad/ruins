@@ -16,7 +16,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // DungeonSelectState はダンジョン選択画面のステート
@@ -164,7 +165,7 @@ type dungeonSelectItem struct {
 }
 
 func (st *DungeonSelectState) fetchProps(world w.World) dungeonSelectProps {
-	gp := worldhelper.GetGameProgress(world)
+	gp := query.GetGameProgress(world)
 	allDungeons := dungeon.GetAllDungeons()
 	items := make([]dungeonSelectItem, 0, len(allDungeons)+1)
 

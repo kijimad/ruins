@@ -10,7 +10,9 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/gameaction"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -162,11 +164,11 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 
 			// プレイヤーを生成してリアルなゲームデータを作成
-			player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+			player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 			require.NoError(t, err)
 			professions := raw.PtrSlice(world.Resources.RawMaster.Professions)
 			if len(professions) > 0 {
-				require.NoError(t, worldhelper.ApplyProfession(world, player, professions[0]))
+				require.NoError(t, gameaction.ApplyProfession(world, player, professions[0]))
 			}
 
 			sm := createTestSerializationManager(t)

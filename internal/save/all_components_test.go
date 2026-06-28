@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -232,7 +233,7 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 	})
 
 	// === GameProgress リソース ===
-	gp := worldhelper.GetGameProgress(world)
+	gp := query.GetGameProgress(world)
 	gp.MarkDungeonCleared("遺跡")
 	gp.MarkDungeonCleared("洞窟")
 	gp.SetEventActive("boss_defeated")

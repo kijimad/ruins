@@ -5,7 +5,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	theme "github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 // CurrencyDisplay は地髄表示ウィジェット
@@ -43,7 +44,7 @@ func (c *CurrencyDisplay) Draw(screen *ebiten.Image, data CurrencyData) {
 	screenHeight := data.ScreenDimensions.Height
 
 	// 通貨テキスト
-	currencyText := worldhelper.FormatCurrency(data.Currency)
+	currencyText := query.FormatCurrency(data.Currency)
 
 	// テキストのサイズを計算
 	textWidth, textHeight := text.Measure(currencyText, c.face, 0)

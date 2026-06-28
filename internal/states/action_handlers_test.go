@@ -7,7 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -159,9 +160,9 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
-		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
 		initialEnemyHP := enemyHP.Current
@@ -186,7 +187,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -197,7 +198,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		// APが0以上なら行動可能であることを確認
 		tb := world.Components.TurnBased.Get(player).(*gc.TurnBased)
@@ -221,7 +222,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -232,7 +233,7 @@ func TestExecuteMoveActionWithEnemy(t *testing.T) {
 			Timer:    90,
 		})
 
-		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		initialAP := turnBased.AP.Current
@@ -261,9 +262,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
-		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		enemy.AddComponent(world.Components.Dead, &gc.Dead{})
 
@@ -283,9 +284,9 @@ func TestDeadEnemyInteraction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Config.RNG = rand.New(rand.NewPCG(42, 0))
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
-		enemy, err := worldhelper.SpawnEnemy(world, 10, 9, "火の玉")
+		enemy, err := lifecycle.SpawnEnemy(world, 10, 9, "火の玉")
 		require.NoError(t, err)
 		enemyHP := world.Components.HP.Get(enemy).(*gc.HP)
 		enemyHP.Current = 1

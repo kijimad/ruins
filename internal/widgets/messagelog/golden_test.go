@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/vrt"
 	"github.com/kijimaD/ruins/internal/widgets/messagelog"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 func TestMain(m *testing.M) {
@@ -30,7 +31,7 @@ func TestGolden_EmptyLog(t *testing.T) {
 func TestGolden_SingleEntry(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	store := worldhelper.GetGameLog(world)
+	store := query.GetGameLog(world)
 	store.Push("テストメッセージ")
 	vrt.AssertScreenGolden(t, func() func(*ebiten.Image) {
 		w := messagelog.NewWidget(defaultConfig(), world)
@@ -44,7 +45,7 @@ func TestGolden_SingleEntry(t *testing.T) {
 func TestGolden_MultipleEntries(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	store := worldhelper.GetGameLog(world)
+	store := query.GetGameLog(world)
 	store.Push("1行目のメッセージ")
 	store.Push("2行目のメッセージ")
 	store.Push("3行目のメッセージ")
@@ -60,7 +61,7 @@ func TestGolden_MultipleEntries(t *testing.T) {
 func TestGolden_MaxLinesExceeded(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	store := worldhelper.GetGameLog(world)
+	store := query.GetGameLog(world)
 	for i := 0; i < 10; i++ {
 		store.Push("メッセージ行")
 	}
@@ -81,7 +82,7 @@ func TestGolden_MaxLinesExceeded(t *testing.T) {
 func TestGolden_ColoredEntries(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
-	store := worldhelper.GetGameLog(world)
+	store := query.GetGameLog(world)
 	gamelog.New(store).Error("ダメージ").Log()
 	gamelog.New(store).Success("回復").Log()
 	gamelog.New(store).Append("通常").Warning("と").System("混合").Log()

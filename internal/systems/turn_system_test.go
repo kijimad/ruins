@@ -7,7 +7,9 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -20,11 +22,11 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhasePlayer
 
@@ -43,11 +45,11 @@ func TestTurnSystem_Update(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// ターン状態を設定
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhasePlayer
 
@@ -67,7 +69,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// ターン状態を設定
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhaseAI
 
@@ -84,7 +86,7 @@ func TestTurnSystem_Update(t *testing.T) {
 		world.Updaters = make(map[string]w.Updater)
 
 		// ターン状態を設定
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhaseEnd
 		initialTurnNumber := turnState.TurnNumber
@@ -117,13 +119,13 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		turnBased.AP.Current = 200
 
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhasePlayer
 
@@ -145,13 +147,13 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		turnBased := world.Components.TurnBased.Get(player).(*gc.TurnBased)
 		turnBased.AP.Current = 300
 
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		turnState.Phase = gc.TurnPhasePlayer
 
@@ -160,7 +162,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		enemy1.AddComponent(world.Components.Name, &gc.Name{Name: "スライム1"})
 		enemy1.AddComponent(world.Components.Dead, &gc.Dead{})
 
-		worldhelper.ConsumeActionPoints(world, player, 100) // AP: 300 -> 200
+		query.ConsumeActionPoints(world, player, 100) // AP: 300 -> 200
 
 		err = runFrame(world)
 		require.NoError(t, err)
@@ -175,7 +177,7 @@ func TestDeadCleanupBeforeTurnSystem(t *testing.T) {
 		enemy2.AddComponent(world.Components.Name, &gc.Name{Name: "スライム2"})
 		enemy2.AddComponent(world.Components.Dead, &gc.Dead{})
 
-		worldhelper.ConsumeActionPoints(world, player, 100) // AP: 200 -> 100
+		query.ConsumeActionPoints(world, player, 100) // AP: 200 -> 100
 
 		err = runFrame(world)
 		require.NoError(t, err)
@@ -195,7 +197,7 @@ func TestProcessTurnEnd(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 		world.Updaters = make(map[string]w.Updater)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// APをマイナスに設定
@@ -263,7 +265,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		result := processPlayerContinuousActivity(world)
@@ -275,7 +277,7 @@ func TestProcessPlayerContinuousActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 継続アクションを設定
@@ -301,7 +303,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 
 	// canEntityAct はエンティティが行動可能かを判定するヘルパー関数
 	canEntityAct := func(world w.World, entity ecs.Entity, _ int) bool {
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		if turnState == nil || turnState.Phase != gc.TurnPhasePlayer {
 			return false
 		}
@@ -318,7 +320,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// TurnBasedコンポーネントの存在確認
@@ -329,7 +331,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		t.Logf("TurnBased AP: Current=%d, Max=%d", tb.AP.Current, tb.AP.Max)
 
 		// 行動可能かを確認
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		canAct := canEntityAct(world, playerEntity, 100)
 		t.Logf("canEntityAct result: %v (TurnPhase=%v)", canAct, turnState.Phase)
 
@@ -341,7 +343,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -353,7 +355,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		})
 
 		// Speedを再計算（低体温ペナルティ適用）
-		speed := worldhelper.CalculateSpeed(world, playerEntity)
+		speed := query.CalculateSpeed(world, playerEntity)
 		t.Logf("低体温時のSpeed: %d", speed)
 
 		// TurnBasedのAPを確認
@@ -370,7 +372,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// APをマイナスに設定
@@ -387,7 +389,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// APを0に設定
@@ -404,7 +406,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 初期APを確認
@@ -413,7 +415,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		t.Logf("初期AP: %d", initialAP)
 
 		// アクションポイントを消費
-		success := worldhelper.ConsumeActionPoints(world, playerEntity, 100)
+		success := query.ConsumeActionPoints(world, playerEntity, 100)
 		assert.True(t, success, "APの消費が成功するべき")
 
 		// APが正しく減少していることを確認
@@ -426,11 +428,11 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 通常時のSpeedを計算
-		normalSpeed := worldhelper.CalculateSpeed(world, playerEntity)
+		normalSpeed := query.CalculateSpeed(world, playerEntity)
 		t.Logf("通常時のSpeed: %d", normalSpeed)
 
 		// 重度の低体温を設定
@@ -448,7 +450,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		playerEntity.AddComponent(world.Components.CharModifiers, effects)
 
 		// 低体温時のSpeedを計算
-		coldSpeed := worldhelper.CalculateSpeed(world, playerEntity)
+		coldSpeed := query.CalculateSpeed(world, playerEntity)
 		t.Logf("低体温時のSpeed: %d", coldSpeed)
 
 		// ペナルティが適用されていることを確認
@@ -460,7 +462,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -472,7 +474,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		})
 
 		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		// 1. プレイヤーターンで行動可能
 		t.Logf("初期状態: TurnPhase=%v, AP=%d", turnState.Phase, turnBased.AP.Current)
@@ -480,7 +482,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		assert.True(t, canAct, "初期状態で行動可能")
 
 		// 2. 攻撃を実行（APを消費）
-		worldhelper.ConsumeActionPoints(world, playerEntity, 100)
+		query.ConsumeActionPoints(world, playerEntity, 100)
 		t.Logf("攻撃後: AP=%d", turnBased.AP.Current)
 
 		// 3. APがマイナスでなければまだ行動可能
@@ -497,16 +499,16 @@ func TestColdPlayerCanAct(t *testing.T) {
 		assert.True(t, shouldEnd, "APがマイナスならターン自動終了")
 
 		// 5. ターン終了処理（AP回復）
-		speed := worldhelper.CalculateSpeed(world, playerEntity)
+		speed := query.CalculateSpeed(world, playerEntity)
 		t.Logf("Speed (低体温ペナルティ込み): %d", speed)
 
-		err = worldhelper.RestoreAllActionPoints(world)
+		err = query.RestoreAllActionPoints(world)
 		require.NoError(t, err)
 		t.Logf("ターン終了後AP: %d", turnBased.AP.Current)
 
 		// 6. 十分なターン経過でAPが0以上に回復
 		for turnBased.AP.Current < 0 {
-			err = worldhelper.RestoreAllActionPoints(world)
+			err = query.RestoreAllActionPoints(world)
 			require.NoError(t, err)
 			t.Logf("追加ターン終了後AP: %d", turnBased.AP.Current)
 		}
@@ -522,7 +524,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温 + 飢餓
@@ -537,7 +539,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		hunger := world.Components.Hunger.Get(playerEntity).(*gc.Hunger)
 		hunger.Current = 5 // 餓死寸前
 
-		speed := worldhelper.CalculateSpeed(world, playerEntity)
+		speed := query.CalculateSpeed(world, playerEntity)
 		t.Logf("極端ペナルティ時のSpeed: %d", speed)
 
 		// 最小Speedは25
@@ -549,7 +551,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		// プレイヤーを生成
-		playerEntity, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+		playerEntity, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
 		// 重度の低体温を設定
@@ -562,7 +564,7 @@ func TestColdPlayerCanAct(t *testing.T) {
 
 		// APを確認
 		turnBased := world.Components.TurnBased.Get(playerEntity).(*gc.TurnBased)
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		t.Logf("冷えた状態のAP: Current=%d, Max=%d", turnBased.AP.Current, turnBased.AP.Max)
 
 		// 行動可能であることを確認
@@ -585,7 +587,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	world.Updaters = make(map[string]w.Updater)
 
 	// プレイヤーを配置（AI処理で必要）
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	// AIエンティティを手動で作成（Driving状態で即座に移動するように設定）
@@ -619,7 +621,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = 200
 
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = turn + 1
 
@@ -644,11 +646,11 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	// SpawnEnemyで実際の敵を生成
-	enemy, err := worldhelper.SpawnEnemy(world, 20, 20, "苔亀")
+	enemy, err := lifecycle.SpawnEnemy(world, 20, 20, "苔亀")
 	require.NoError(t, err)
 
 	initialGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
@@ -670,7 +672,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = tb.AP.Max
 
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = turn + 1
 
@@ -696,10 +698,10 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	enemy, err := worldhelper.SpawnEnemy(world, 20, 20, "苔亀")
+	enemy, err := lifecycle.SpawnEnemy(world, 20, 20, "苔亀")
 	require.NoError(t, err)
 
 	// Waiting期間をスキップ
@@ -714,7 +716,7 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 
 	moved := false
 	for cycle := 0; cycle < 50; cycle++ {
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 
 		// PlayerTurn: APをマイナスにして自動でAIターンへ遷移させる
 		turnState.Phase = gc.TurnPhasePlayer
@@ -755,7 +757,7 @@ func TestPatrolMovement(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
-	_, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
 	// Patrol移動のAIエンティティを作成する。PatrolDirX=1で右に進む
@@ -791,7 +793,7 @@ func TestPatrolMovement(t *testing.T) {
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = 200
 
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = turn + 1
 
@@ -817,7 +819,7 @@ func TestTerritorialMovement(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 	world.Updaters = make(map[string]w.Updater)
 
-	_, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
 	// Territorial移動のAIエンティティを作成する
@@ -851,7 +853,7 @@ func TestTerritorialMovement(t *testing.T) {
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = 200
 
-		turnState := worldhelper.GetTurnState(world)
+		turnState := query.GetTurnState(world)
 		turnState.Phase = gc.TurnPhaseAI
 		turnState.TurnNumber = turn + 1
 

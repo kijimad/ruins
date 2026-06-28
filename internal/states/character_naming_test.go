@@ -9,7 +9,9 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -89,7 +91,7 @@ func TestCharacterNamingState_OnStart_WithExistingPlayer(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	state := &CharacterNamingState{}
@@ -103,7 +105,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -113,7 +115,7 @@ func TestConfirmName_ChangesPlayerName(t *testing.T) {
 	transition := st.confirmName(world)
 	assert.Equal(t, es.TransPop, transition.Type, "名前変更成功でTransPop")
 
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
 	assert.Equal(t, "NewName", nameComp.Name)
@@ -123,7 +125,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -133,7 +135,7 @@ func TestConfirmName_Japanese(t *testing.T) {
 	transition := st.confirmName(world)
 	assert.Equal(t, es.TransPop, transition.Type, "日本語名で成功")
 
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
 	assert.Equal(t, "太郎", nameComp.Name)
@@ -143,7 +145,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -158,7 +160,7 @@ func TestConfirmName_InvalidLength(t *testing.T) {
 	assert.NotEmpty(t, props.ErrorMessage, "エラーメッセージが設定される")
 
 	// 名前は変更されていない
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
 	assert.Equal(t, "Ash", nameComp.Name)
@@ -168,7 +170,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	st := &CharacterNamingState{}
@@ -183,7 +185,7 @@ func TestConfirmName_TooLong(t *testing.T) {
 	assert.NotEmpty(t, props.ErrorMessage, "エラーメッセージが設定される")
 
 	// 名前は変更されていない
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	require.NoError(t, err)
 	nameComp := world.Components.Name.Get(playerEntity).(*gc.Name)
 	assert.Equal(t, "Ash", nameComp.Name)
@@ -207,7 +209,7 @@ func TestCharacterNamingState_DoAction_Cancel(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	state := &CharacterNamingState{}

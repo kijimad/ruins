@@ -7,7 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -58,7 +59,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		overweightLimit := cw.Max * 1.5
 		if cw.Current > overweightLimit {
 			if actor.HasComponent(world.Components.Player) {
-				gamelog.New(worldhelper.GetGameLog(world)).
+				gamelog.New(query.GetGameLog(world)).
 					Warning("重すぎて動けない").
 					Log()
 			}
@@ -104,7 +105,7 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// 移動後に空間インデックスを無効化する
 	// 同一ターン内で後続のAIが移動先を正しく判定できるようにする
-	worldhelper.InvalidateSpatialIndex(world)
+	query.InvalidateSpatialIndex(world)
 
 	Complete(comp)
 	return nil

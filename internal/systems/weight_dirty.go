@@ -2,7 +2,8 @@ package systems
 
 import (
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -30,7 +31,7 @@ func (sys *WeightDirtySystem) Update(world w.World) error {
 
 	// 変動のあったエンティティの重量を再計算する
 	for _, entity := range changedEntities {
-		worldhelper.UpdateWeightCapacity(world, entity)
+		query.UpdateWeightCapacity(world, entity)
 	}
 
 	return nil

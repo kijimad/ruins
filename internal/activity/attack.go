@@ -11,7 +11,10 @@ import (
 	"github.com/kijimaD/ruins/internal/raw"
 	"github.com/kijimaD/ruins/internal/skill"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/gameaction"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -180,17 +183,17 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 	// プレイヤーの場合: 装備武器から攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.Player) {
 		// 選択中の武器スロット番号（1-5）から配列インデックスに変換
-		selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
+		selectedSlot := query.GetDungeon(world).SelectedWeaponSlot
 		weaponIndex := selectedSlot - 1 // 1-based to 0-based
 		if weaponIndex < 0 || weaponIndex >= 5 {
 			return nil, "", fmt.Errorf("無効な武器スロット番号: %d", selectedSlot)
 		}
 
-		weapons := worldhelper.GetWeapons(world, attacker)
+		weapons := query.GetWeapons(world, attacker)
 		weapon := weapons[weaponIndex]
 		if weapon != nil {
 			// 装備している武器から攻撃パラメータを取得
-			attack, weaponName, err := worldhelper.GetMeleeFromWeapon(world, *weapon)
+			attack, weaponName, err := query.GetMeleeFromWeapon(world, *weapon)
 			if err == nil && attack != nil {
 				return attack, weaponName, nil
 			}
@@ -202,7 +205,7 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 
 	// 敵の場合: CommandTableから攻撃パラメータを取得
 	if attacker.HasComponent(world.Components.CommandTable) {
-		attack, weaponName, err := worldhelper.GetAttackFromCommandTable(world, attacker)
+		attack, weaponName, err := query.GetAttackFromCommandTable(world, attacker)
 		if err == nil && attack != nil {
 			return attack, weaponName, nil
 		}
@@ -268,7 +271,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 	hit, criticalHit := rollHitCheckWithModifier(actor, target, world, attack, hitRateModifier)
 	if !hit {
 		logAttackResult(actor, target, world, false, false, 0, attackMethodName)
-		worldhelper.SpawnVisualEffect(target, gc.NewMissEffect(), world)
+		lifecycle.SpawnVisualEffect(target, gc.NewMissEffect(), world)
 		return nil
 	}
 
@@ -279,11 +282,11 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
 	growWeaponSkill(actor, world, attack)
-	worldhelper.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
-	worldhelper.ApplyDamage(world, target, damage, actor)
+	lifecycle.SpawnVisualEffect(target, gc.NewDamageEffect(damage), world)
+	gameaction.ApplyDamage(world, target, damage, actor)
 
 	// 被ダメージで中断可能なアクティビティをキャンセルする
-	if comp := worldhelper.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
+	if comp := query.GetActivity(world, target); comp != nil && CanInterrupt(comp) {
 		CancelActivity(target, "攻撃を受けた", world)
 	}
 
@@ -391,8 +394,8 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 	if skill.GainExp(s, abils.ValueOf(ablID)) {
 		actor.AddComponent(world.Components.StatsChanged, &gc.StatsChanged{})
 
-		actorName := worldhelper.GetEntityName(actor, world)
-		gamelog.New(worldhelper.GetGameLog(world)).
+		actorName := query.GetEntityName(actor, world)
+		gamelog.New(query.GetGameLog(world)).
 			Append(fmt.Sprintf("%s のスキルが上がった！（%s Lv%d）", actorName, string(skillID), s.Value)).
 			Log()
 	}
@@ -404,19 +407,19 @@ func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, criti
 		return
 	}
 
-	attackerName := worldhelper.GetEntityName(attacker, world)
-	targetName := worldhelper.GetEntityName(target, world)
+	attackerName := query.GetEntityName(attacker, world)
+	targetName := query.GetEntityName(target, world)
 
-	gamelog.New(worldhelper.GetGameLog(world)).
+	gamelog.New(query.GetGameLog(world)).
 		Build(func(l *gamelog.Logger) {
-			worldhelper.AppendNameWithColor(l, attacker, attackerName, world)
+			query.AppendNameWithColor(l, attacker, attackerName, world)
 		}).
 		Append(" は ").
 		Build(func(l *gamelog.Logger) {
 			if attackMethodName != "" {
 				l.Append(attackMethodName).Append(" で ")
 			}
-			worldhelper.AppendNameWithColor(l, target, targetName, world)
+			query.AppendNameWithColor(l, target, targetName, world)
 		}).
 		Build(func(l *gamelog.Logger) {
 			if !hit {

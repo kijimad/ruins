@@ -17,7 +17,8 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 )
 
 const (
@@ -59,7 +60,7 @@ func (st *CharacterNamingState) OnStart(world w.World) error {
 
 	// 既存プレイヤーの名前を初期値として設定
 	initialName := ""
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err == nil {
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
 			initialName = nameComp.(*gc.Name).Name
@@ -178,7 +179,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 		return es.Transition[w.World]{Type: es.TransNone}
 	}
 
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err == nil {
 		// 既存プレイヤーの名前を変更した
 		if nameComp := world.Components.Name.Get(playerEntity); nameComp != nil {
@@ -196,7 +197,7 @@ func (st *CharacterNamingState) confirmName(world w.World) es.Transition[w.World
 
 // cancel はキャンセルする
 func (st *CharacterNamingState) cancel(world w.World) es.Transition[w.World] {
-	_, err := worldhelper.GetPlayerEntity(world)
+	_, err := query.GetPlayerEntity(world)
 	if err == nil {
 		return es.Transition[w.World]{Type: es.TransPop}
 	}

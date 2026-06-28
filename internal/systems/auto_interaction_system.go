@@ -5,7 +5,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -22,7 +23,7 @@ func (sys AutoInteractionSystem) String() string {
 // w.Updater interfaceを実装
 func (sys *AutoInteractionSystem) Update(world w.World) error {
 	// プレイヤーエンティティを取得
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -45,7 +46,7 @@ func (sys *AutoInteractionSystem) Update(world w.World) error {
 
 		// いずれかのインタラクションが範囲内にあれば候補に追加する
 		for _, interaction := range interactable.Interactions {
-			if worldhelper.IsInActivationRange(playerGrid, interactableGrid, interaction.Config().ActivationRange) {
+			if query.IsInActivationRange(playerGrid, interactableGrid, interaction.Config().ActivationRange) {
 				logger.New(logger.CategoryAction).Debug("Found interactable in range",
 					"entity", entity,
 					"playerPos", playerGrid,

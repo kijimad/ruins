@@ -11,7 +11,9 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -107,7 +109,7 @@ func TestDoActionMovementActions(t *testing.T) {
 
 			initialX, initialY := 10, 10
 			world := testutil.InitTestWorld(t)
-			playerEntity, err := worldhelper.SpawnPlayer(world, initialX, initialY, "Ash")
+			playerEntity, err := lifecycle.SpawnPlayer(world, initialX, initialY, "Ash")
 			require.NoError(t, err)
 
 			state := &DungeonState{}
@@ -194,12 +196,12 @@ func TestDoActionTurnManagement(t *testing.T) {
 			var playerEntity ecs.Entity
 			if tt.isMoveAction {
 				var err error
-				playerEntity, err = worldhelper.SpawnPlayer(world, initialX, initialY, "Ash")
+				playerEntity, err = lifecycle.SpawnPlayer(world, initialX, initialY, "Ash")
 				require.NoError(t, err)
 			}
 
 			// ターン状態を設定
-			turnState := worldhelper.GetTurnState(world)
+			turnState := query.GetTurnState(world)
 			turnState.Phase = tt.turnPhase
 
 			state := &DungeonState{}
@@ -376,7 +378,7 @@ func TestDoActionUIActionsAlwaysWork(t *testing.T) {
 			world := testutil.InitTestWorld(t)
 
 			// ターン状態を設定
-			turnState := worldhelper.GetTurnState(world)
+			turnState := query.GetTurnState(world)
 			turnState.Phase = phase
 
 			state := &DungeonState{}

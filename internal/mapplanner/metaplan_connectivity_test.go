@@ -6,7 +6,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -39,7 +40,7 @@ func TestConnectivity_AllPlannerTypes(t *testing.T) {
 					t.Parallel()
 					world := testutil.InitTestWorld(t)
 					world.Resources.RawMaster = *CreateTestRawMaster()
-					worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 5}) // EscapePortalも生成される階層
+					query.SetDungeon(world, &gc.Dungeon{Depth: 5}) // EscapePortalも生成される階層
 
 					plan, err := Plan(world, 50, 50, seed, tc.plannerType)
 					require.NoError(t, err, "Plan失敗")
@@ -69,7 +70,7 @@ func TestConnectivity_TemplatePlanners(t *testing.T) {
 			t.Parallel()
 			world := testutil.InitTestWorld(t)
 			world.Resources.RawMaster = *CreateTestRawMaster()
-			worldhelper.SetDungeon(world, &gc.Dungeon{Depth: 5})
+			query.SetDungeon(world, &gc.Dungeon{Depth: 5})
 
 			plan, err := Plan(world, 50, 50, 12345, tc.plannerType)
 			require.NoError(t, err, "Plan失敗")

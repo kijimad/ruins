@@ -13,7 +13,8 @@ import (
 	"github.com/kijimaD/ruins/internal/oapi"
 	gs "github.com/kijimaD/ruins/internal/systems"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -191,7 +192,7 @@ func (st *MapGenVisualizerState) spawnSnapshot(world w.World) error {
 
 // revealAllTiles は全タイルを可視状態にする
 func (st *MapGenVisualizerState) revealAllTiles(world w.World) {
-	d := worldhelper.GetDungeon(world)
+	d := query.GetDungeon(world)
 	d.VisibleTiles = make(map[gc.GridElement]bool)
 	for y := consts.Tile(0); y < st.mapHeight; y++ {
 		for x := consts.Tile(0); x < st.mapWidth; x++ {
@@ -231,5 +232,5 @@ func (st *MapGenVisualizerState) clearEntities(world w.World) {
 		}
 	}))
 
-	worldhelper.InvalidateSpatialIndex(world)
+	query.InvalidateSpatialIndex(world)
 }

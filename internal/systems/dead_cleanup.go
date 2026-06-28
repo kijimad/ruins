@@ -7,7 +7,9 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/raw"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -37,7 +39,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 
 	// 死亡エンティティのアクティビティをキャンセルする
 	for _, entity := range toDelete {
-		if worldhelper.GetActivity(world, entity) != nil {
+		if query.GetActivity(world, entity) != nil {
 			activity.CancelActivity(entity, "死亡", world)
 		}
 	}
@@ -74,7 +76,7 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 
 		// フィールドにアイテムをスポーン
-		_, err = worldhelper.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y, 1)
+		_, err = lifecycle.SpawnFieldItem(world, materialName, gridElement.X, gridElement.Y, 1)
 		if err != nil {
 			logger.Debug("ドロップアイテム生成失敗", "error", err, "material", materialName)
 		} else {
@@ -86,18 +88,18 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 	for _, entity := range toDelete {
 		if entity.HasComponent(world.Components.Boss) {
 			// 全扉をアンロックして開く
-			if worldhelper.UnlockAllDoors(world) > 0 {
-				gamelog.New(worldhelper.GetGameLog(world)).
+			if lifecycle.UnlockAllDoors(world) > 0 {
+				gamelog.New(query.GetGameLog(world)).
 					Append("どこかで扉が開いたようだ。").
 					Log()
 			}
 
 			// DoorLockTriggerエンティティを削除する。ボス撃破後はトリガー不要
-			worldhelper.DeleteDoorLockTriggers(world)
+			lifecycle.DeleteDoorLockTriggers(world)
 
 			// ダンジョンクリアフラグを立てる
-			dungeonName := worldhelper.GetDungeon(world).DefinitionName
-			worldhelper.GetGameProgress(world).MarkDungeonCleared(dungeonName)
+			dungeonName := query.GetDungeon(world).DefinitionName
+			query.GetGameProgress(world).MarkDungeonCleared(dungeonName)
 
 			logger.Debug("ボス撃破: 扉アンロック+クリアフラグ", "dungeon", dungeonName)
 		}

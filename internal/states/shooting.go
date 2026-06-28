@@ -16,7 +16,8 @@ import (
 	gs "github.com/kijimaD/ruins/internal/systems"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -115,7 +116,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 
 	case inputmapper.ActionShoot:
 		if len(st.enemies) > 0 {
-			playerEntity, err := worldhelper.GetPlayerEntity(world)
+			playerEntity, err := query.GetPlayerEntity(world)
 			if err != nil {
 				return es.Transition[w.World]{}, err
 			}
@@ -127,7 +128,7 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 		}
 
 	case inputmapper.ActionReload:
-		playerEntity, err := worldhelper.GetPlayerEntity(world)
+		playerEntity, err := query.GetPlayerEntity(world)
 		if err != nil {
 			return es.Transition[w.World]{}, err
 		}
@@ -146,12 +147,12 @@ func (st *ShootingState) doAction(world w.World, action inputmapper.ActionID) (e
 // checkFireWeaponStatus は選択中の武器の射撃可否をチェックし、不可の場合は理由メッセージを返す。
 // 射撃可能な場合は空文字を返す
 func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return ""
 	}
-	selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
-	weapons := worldhelper.GetWeapons(world, playerEntity)
+	selectedSlot := query.GetDungeon(world).SelectedWeaponSlot
+	weapons := query.GetWeapons(world, playerEntity)
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= len(weapons) || weapons[weaponIndex] == nil {
 		return "射撃武器が装備されていません"
@@ -170,12 +171,12 @@ func (st *ShootingState) checkFireWeaponStatus(world w.World) string {
 // refreshEnemies は射撃可能な敵一覧を距離順で更新する。
 // 視界内の敵から死亡済み・射程外・射線遮断の敵を除外する
 func (st *ShootingState) refreshEnemies(world w.World) error {
-	enemies, err := worldhelper.GetVisibleEnemies(world)
+	enemies, err := query.GetVisibleEnemies(world)
 	if err != nil {
 		return err
 	}
 
-	playerEntity, playerErr := worldhelper.GetPlayerEntity(world)
+	playerEntity, playerErr := query.GetPlayerEntity(world)
 	if playerErr != nil {
 		return playerErr
 	}
@@ -207,7 +208,7 @@ func (st *ShootingState) updateTargetCache(world w.World) {
 	if len(st.enemies) == 0 {
 		return
 	}
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return
 	}
@@ -306,7 +307,7 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 	y += 5
 
 	// 武器・残弾情報
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		drawText("エラー: プレイヤーが見つかりません")
 		return err
@@ -334,8 +335,8 @@ func (st *ShootingState) drawShootingPanel(world w.World, screen *ebiten.Image) 
 
 // drawWeaponInfo は武器情報を描画する
 func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, drawText func(string)) {
-	selectedSlot := worldhelper.GetDungeon(world).SelectedWeaponSlot
-	weapons := worldhelper.GetWeapons(world, playerEntity)
+	selectedSlot := query.GetDungeon(world).SelectedWeaponSlot
+	weapons := query.GetWeapons(world, playerEntity)
 	weaponIndex := selectedSlot - 1
 	if weaponIndex < 0 || weaponIndex >= len(weapons) {
 		drawText("武器スロット: 無効")
@@ -349,7 +350,7 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 	}
 
 	// 武器名
-	weaponName := worldhelper.GetEntityName(*weaponEntity, world)
+	weaponName := query.GetEntityName(*weaponEntity, world)
 	drawText(fmt.Sprintf("武器: %s", weaponName))
 
 	// 残弾表示
@@ -365,7 +366,7 @@ func (st *ShootingState) drawWeaponInfo(world w.World, playerEntity ecs.Entity, 
 // drawTargetInfo はターゲット情報を描画する。キャッシュ済みの値を使用する
 func (st *ShootingState) drawTargetInfo(world w.World, target ecs.Entity, drawText func(string)) {
 	drawText(fmt.Sprintf("対象: %s (%d/%d)",
-		worldhelper.GetEntityName(target, world),
+		query.GetEntityName(target, world),
 		st.targetIndex+1, len(st.enemies)))
 
 	// HP

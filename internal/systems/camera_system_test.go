@@ -6,7 +6,8 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -16,7 +17,7 @@ func TestCameraSystem_SnapsToPlayerPosition(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	_, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 	require.NoError(t, err)
 
 	// カメラの初期位置は原点
@@ -68,7 +69,7 @@ func TestCameraSystem_FollowsPlayerMovement(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	cameraEntity := world.Manager.NewEntity()

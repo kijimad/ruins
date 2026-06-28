@@ -7,7 +7,8 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/testutil"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -38,7 +39,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
 	mp := gc.MovementRandom
@@ -66,7 +67,7 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	mp := gc.MovementRandom
@@ -94,7 +95,7 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	mp := gc.MovementRandom
@@ -122,7 +123,7 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	mp := gc.MovementRandom
@@ -151,7 +152,7 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
 	mp := gc.MovementRandom
@@ -180,7 +181,7 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	player, err := worldhelper.SpawnPlayer(world, 1, 1, "Ash")
+	player, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
 	mp := gc.MovementRandom

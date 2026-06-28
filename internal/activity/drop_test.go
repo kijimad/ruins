@@ -5,7 +5,9 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -17,10 +19,10 @@ func TestDropActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -39,7 +41,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -57,7 +59,7 @@ func TestDropActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// バックパック外のアイテムを手動で作成
@@ -79,10 +81,10 @@ func TestDropActivity_Validate(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -122,10 +124,10 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -149,7 +151,7 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		assert.True(t, item.HasComponent(world.Components.LocationOnField))
 
 		// ドロップログが出力されていることを確認する
-		store := worldhelper.GetGameLog(world)
+		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "を置いた")
@@ -159,10 +161,10 @@ func TestDropActivity_performDropActivity(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -184,10 +186,10 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		destination := gc.GridElement{X: 10, Y: 10}
@@ -209,10 +211,10 @@ func TestDropActivity_DoTurn(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		comp := &gc.Activity{
@@ -236,10 +238,10 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		// プレイヤーの右隣にドロップ
@@ -265,10 +267,10 @@ func TestDropActivity_performDropActivity_AdjacentTile(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnBackpackItem(world, "木刀", 1)
+		item, err := lifecycle.SpawnBackpackItem(world, "木刀", 1)
 		require.NoError(t, err)
 
 		// 右下斜めにドロップ
@@ -296,7 +298,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
 		// Propを拾った状態をシミュレート: Prop+Item+BlockPassがバックパックにある
@@ -304,7 +306,7 @@ func TestDropActivity_PropDerivedItem(t *testing.T) {
 		prop.AddComponent(world.Components.Prop, nil)
 		prop.AddComponent(world.Components.Name, &gc.Name{Name: "テストProp"})
 		prop.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
-		require.NoError(t, worldhelper.MoveToBackpack(world, prop, player))
+		require.NoError(t, lifecycle.MoveToBackpack(world, prop, player))
 
 		// ドロップ実行
 		destination := gc.GridElement{X: 11, Y: 10}
@@ -338,10 +340,10 @@ func TestPickupAndDropRoundTrip(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		player, err := worldhelper.SpawnPlayer(world, 10, 10, "Ash")
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
 		require.NoError(t, err)
 
-		item, err := worldhelper.SpawnFieldItem(world, "木刀", 10, 10, 1)
+		item, err := lifecycle.SpawnFieldItem(world, "木刀", 10, 10, 1)
 		require.NoError(t, err)
 
 		// 拾う

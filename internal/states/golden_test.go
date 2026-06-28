@@ -18,7 +18,8 @@ import (
 	gs "github.com/kijimaD/ruins/internal/states"
 	"github.com/kijimaD/ruins/internal/vrt"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
@@ -172,10 +173,10 @@ func TestGolden_PersistentMessage(t *testing.T) {
 func TestGolden_StorageMenu(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
-		storageEntity, err := worldhelper.SpawnProp(world, "木箱", 3, 3)
+		storageEntity, err := lifecycle.SpawnProp(world, "木箱", 3, 3)
 		require.NoError(t, err)
 
-		_, err = worldhelper.SpawnStorageItem(world, "回復薬", 1, storageEntity)
+		_, err = lifecycle.SpawnStorageItem(world, "回復薬", 1, storageEntity)
 		require.NoError(t, err)
 
 		return []es.State[w.World]{

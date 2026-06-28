@@ -7,7 +7,9 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -100,14 +102,14 @@ func (ta *TalkActivity) Finish(comp *gc.Activity, actor ecs.Entity, world w.Worl
 		}
 		nameComp := world.Components.Name.Get(targetEntity).(*gc.Name)
 
-		gamelog.New(worldhelper.GetGameLog(world)).
+		gamelog.New(query.GetGameLog(world)).
 			Append(nameComp.Name + "と話した。").
 			Log()
 
 		// 会話ダイアログを表示
 		if targetEntity.HasComponent(world.Components.Dialog) {
 			dialog := world.Components.Dialog.Get(targetEntity).(*gc.Dialog)
-			if err := worldhelper.RequestStateChange(world, gc.ShowDialogEvent{
+			if err := lifecycle.RequestStateChange(world, gc.ShowDialogEvent{
 				MessageKey:    dialog.MessageKey,
 				SpeakerEntity: targetEntity,
 			}); err != nil {

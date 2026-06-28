@@ -5,7 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -115,7 +116,7 @@ func TestOpenDoorActivity(t *testing.T) {
 		assert.True(t, doorComp.Locked)
 
 		// ロック済みログが出力されていることを確認する
-		store := worldhelper.GetGameLog(world)
+		store := query.GetGameLog(world)
 		recent := store.GetRecent(1)
 		require.Len(t, recent, 1)
 		assert.Contains(t, recent[0], "扉はロックされている")

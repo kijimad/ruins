@@ -3,7 +3,8 @@ package systems
 import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -112,7 +113,7 @@ func (sys *StatsChangedSystem) Update(world w.World) error {
 
 		// APを再計算
 		if entity.HasComponent(world.Components.TurnBased) {
-			maxAP, err := worldhelper.CalculateMaxActionPoints(world, entity)
+			maxAP, err := query.CalculateMaxActionPoints(world, entity)
 			if err != nil {
 				updateErr = err
 				return

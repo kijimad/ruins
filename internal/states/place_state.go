@@ -17,7 +17,8 @@ import (
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -64,7 +65,7 @@ func (st *PlaceState) OnResume(_ w.World) error { return nil }
 
 // OnStart はステートが開始される際に呼ばれる
 func (st *PlaceState) OnStart(world w.World) error {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -197,7 +198,7 @@ func (st *PlaceState) refreshBackpackItems(world w.World) {
 
 // executeDrop は置くアクションを実行する
 func (st *PlaceState) executeDrop(world w.World) error {
-	playerEntity, err := worldhelper.GetPlayerEntity(world)
+	playerEntity, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return err
 	}
@@ -296,7 +297,7 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 					drawColorText("...", theme.TextSecondary)
 					break
 				}
-				name := worldhelper.GetEntityName(entity, world)
+				name := query.GetEntityName(entity, world)
 				prefix := "  "
 				if i == st.selectedIndex {
 					prefix = "> "
@@ -313,7 +314,7 @@ func (st *PlaceState) drawPlacePanel(world w.World, screen *ebiten.Image) error 
 		y += 5
 
 		item := st.backpackItems[st.selectedIndex]
-		name := worldhelper.GetEntityName(item, world)
+		name := query.GetEntityName(item, world)
 		drawText(fmt.Sprintf("アイテム: %s", name))
 
 		dirLabel := offsetToLabel(int(st.cursor.X)-int(st.playerPos.X), int(st.cursor.Y)-int(st.playerPos.Y))

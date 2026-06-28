@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/gamelog"
 	"github.com/kijimaD/ruins/internal/widgets/hud"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -18,7 +19,7 @@ func ExtractHUDData(world w.World) hud.Data {
 		GameInfo:         extractGameInfo(world),
 		MinimapData:      extractMinimapData(world),
 		DebugOverlay:     extractDebugOverlay(world),
-		MessageData:      extractMessageData(world, worldhelper.GetGameLog(world)),
+		MessageData:      extractMessageData(world, query.GetGameLog(world)),
 		CurrencyData:     extractCurrencyData(world),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world),
@@ -27,7 +28,7 @@ func ExtractHUDData(world w.World) hud.Data {
 
 // extractGameInfo はゲーム基本情報を抽出する
 func extractGameInfo(world w.World) hud.GameInfoData {
-	floorNumber := worldhelper.GetDungeon(world).Depth
+	floorNumber := query.GetDungeon(world).Depth
 
 	// プレイヤー情報を抽出する
 	var playerHP, playerMaxHP int
@@ -96,12 +97,12 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	return hud.MinimapData{
 		PlayerTileX:   playerTileX,
 		PlayerTileY:   playerTileY,
-		ExploredTiles: worldhelper.GetDungeon(world).ExploredTiles,
+		ExploredTiles: query.GetDungeon(world).ExploredTiles,
 		TileColors:    tileColors,
 		MinimapConfig: hud.MinimapConfig{
-			Width:  worldhelper.GetDungeon(world).MinimapSettings.Width,
-			Height: worldhelper.GetDungeon(world).MinimapSettings.Height,
-			Scale:  worldhelper.GetDungeon(world).MinimapSettings.Scale,
+			Width:  query.GetDungeon(world).MinimapSettings.Width,
+			Height: query.GetDungeon(world).MinimapSettings.Height,
+			Scale:  query.GetDungeon(world).MinimapSettings.Scale,
 		},
 		ScreenDimensions: screenDimensions,
 	}
@@ -281,8 +282,8 @@ func extractCurrencyData(world w.World) hud.CurrencyData {
 
 	// プレイヤーの地髄を取得
 	currency := 0
-	worldhelper.QueryPlayer(world, func(entity ecs.Entity) {
-		currency = worldhelper.GetCurrency(world, entity)
+	query.Player(world, func(entity ecs.Entity) {
+		currency = query.GetCurrency(world, entity)
 	})
 
 	return hud.CurrencyData{
@@ -308,7 +309,7 @@ func buildTileColors(world w.World) map[gc.GridElement]TileColorInfo {
 
 	// 探索済みタイルの色情報を一括生成
 	tileColors := make(map[gc.GridElement]TileColorInfo)
-	for gridElement := range worldhelper.GetDungeon(world).ExploredTiles {
+	for gridElement := range query.GetDungeon(world).ExploredTiles {
 		var tileColor color.RGBA
 		if isWall, exists := tileTypeMap[gridElement]; exists {
 			if isWall {
@@ -342,8 +343,8 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 	var selectedSlot int
 
 	// プレイヤーの武器スロット情報を取得
-	worldhelper.QueryPlayer(world, func(playerEntity ecs.Entity) {
-		weapons := worldhelper.GetWeapons(world, playerEntity)
+	query.Player(world, func(playerEntity ecs.Entity) {
+		weapons := query.GetWeapons(world, playerEntity)
 
 		// 5つの武器スロット情報を作成
 		for i := 0; i < 5; i++ {
@@ -378,7 +379,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		}
 
 		// 現在選択中のスロット（1-5）を0ベース配列インデックスに変換
-		selectedSlot = worldhelper.GetDungeon(world).SelectedWeaponSlot - 1
+		selectedSlot = query.GetDungeon(world).SelectedWeaponSlot - 1
 	})
 
 	return hud.WeaponSlotsData{

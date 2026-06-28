@@ -8,7 +8,8 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/testutil"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -178,7 +179,7 @@ func TestStatusState_SkillsTab(t *testing.T) {
 	require.NoError(t, state.OnStart(world))
 
 	// プレイヤーを生成してスキルタブにデータがあることを確認
-	_, err := worldhelper.SpawnPlayer(world, 5, 5, "Ash")
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
 	props := state.fetchProps(world)

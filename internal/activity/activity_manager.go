@@ -5,7 +5,8 @@ import (
 
 	gc "github.com/kijimaD/ruins/internal/components"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -68,7 +69,7 @@ func Execute(behavior Behavior, params ActionParams, world w.World) (*ActionResu
 		consumePassCost(world, behavior, params.Actor, params.Destination)
 
 		// 結果を確認
-		currentActivity := worldhelper.GetActivity(world, params.Actor)
+		currentActivity := query.GetActivity(world, params.Actor)
 		if currentActivity == nil || IsCompleted(currentActivity) {
 			result := &ActionResult{
 				Success:      true,
@@ -137,7 +138,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	}
 
 	// 既存のアクティビティがある場合は中断
-	if currentActivity := worldhelper.GetActivity(world, actor); currentActivity != nil {
+	if currentActivity := query.GetActivity(world, actor); currentActivity != nil {
 		if err := InterruptActivity(actor, "新しいアクティビティを開始", world); err != nil {
 			log.Warn("既存アクティビティの中断に失敗", "entity", actor, "error", err.Error())
 		}
@@ -149,13 +150,13 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 	}
 
 	// アクティビティをコンポーネントとして登録
-	worldhelper.SetActivity(world, actor, comp)
+	query.SetActivity(world, actor, comp)
 	comp.State = gc.ActivityStateRunning
 
 	// BehaviorのStart処理を実行
 	if err := behavior.Start(comp, actor, world); err != nil {
 		// 開始に失敗した場合はクリーンアップ
-		worldhelper.RemoveActivity(world, actor)
+		query.RemoveActivity(world, actor)
 		return fmt.Errorf("アクティビティ開始失敗: %w", err)
 	}
 
@@ -169,7 +170,7 @@ func StartActivity(comp *gc.Activity, actor ecs.Entity, world w.World) error {
 
 // InterruptActivity は指定されたエンティティのアクティビティを中断する
 func InterruptActivity(entity ecs.Entity, reason string, world w.World) error {
-	comp := worldhelper.GetActivity(world, entity)
+	comp := query.GetActivity(world, entity)
 	if comp == nil {
 		return ErrActivityNotFound
 	}
@@ -179,7 +180,7 @@ func InterruptActivity(entity ecs.Entity, reason string, world w.World) error {
 
 // ResumeActivity は指定されたエンティティのアクティビティを再開する
 func ResumeActivity(entity ecs.Entity, world w.World) error {
-	comp := worldhelper.GetActivity(world, entity)
+	comp := query.GetActivity(world, entity)
 	if comp == nil {
 		return ErrActivityNotFound
 	}
@@ -193,7 +194,7 @@ func ResumeActivity(entity ecs.Entity, world w.World) error {
 
 // CancelActivity は指定されたエンティティのアクティビティをキャンセルする
 func CancelActivity(entity ecs.Entity, reason string, world w.World) {
-	comp := worldhelper.GetActivity(world, entity)
+	comp := query.GetActivity(world, entity)
 	if comp == nil {
 		return
 	}
@@ -201,7 +202,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 	behavior, err := GetBehavior(comp.BehaviorName)
 	if err != nil {
 		log.Warn("Behaviorの取得に失敗", "entity", entity, "error", err.Error())
-		worldhelper.RemoveActivity(world, entity)
+		query.RemoveActivity(world, entity)
 		return
 	}
 
@@ -224,7 +225,7 @@ func CancelActivity(entity ecs.Entity, reason string, world w.World) {
 	}
 	setLastResult(entity, result, world)
 
-	worldhelper.RemoveActivity(world, entity)
+	query.RemoveActivity(world, entity)
 
 	log.Debug("アクティビティキャンセル",
 		"entity", entity,
@@ -298,7 +299,7 @@ func ProcessTurn(world w.World) {
 
 	// 完了・キャンセルされたアクティビティを削除
 	for _, entity := range toRemove {
-		worldhelper.RemoveActivity(world, entity)
+		query.RemoveActivity(world, entity)
 	}
 
 	log.Debug("アクティビティターン処理完了", "removed", len(toRemove))

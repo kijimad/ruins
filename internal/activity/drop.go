@@ -6,7 +6,9 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/worldhelper"
+
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -90,15 +92,15 @@ func (da *DropActivity) performDropActivity(comp *gc.Activity, actor ecs.Entity,
 	}
 
 	target := *comp.Target
-	formattedName := worldhelper.FormatItemName(world, target)
+	formattedName := query.FormatItemName(world, target)
 
-	worldhelper.MoveToField(world, target, &actor)
+	lifecycle.MoveToField(world, target, &actor)
 	target.AddComponent(world.Components.GridElement, &gc.GridElement{
 		X: targetTile.X,
 		Y: targetTile.Y,
 	})
 
-	gamelog.New(worldhelper.GetGameLog(world)).
+	gamelog.New(query.GetGameLog(world)).
 		ItemName(formattedName).
 		Append(" を置いた。").
 		Log()
