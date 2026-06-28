@@ -10150,6 +10150,13 @@ weight = 2
 weapon = "噛みつき"
 weight = 2
 
+[[commandTables]]
+name = "素手"
+
+[[commandTables.entries]]
+weapon = "素手"
+weight = 1
+
 [[dropTables]]
 name = "コウモリ"
 

@@ -265,7 +265,8 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},
-		AIMoveFSM: &gc.AIMoveFSM{},
+		AIMoveFSM:    &gc.AIMoveFSM{},
+		CommandTable: &gc.CommandTable{Name: "素手"},
 		AIVision: &gc.AIVision{
 			ViewDistance: aiVisionDistance,
 		},
