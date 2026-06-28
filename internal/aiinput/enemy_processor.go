@@ -123,7 +123,7 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 		// APが足りるか確認する
 		actionCost := actorImpl.Info().ActionPointCost
 		tbComp := world.Components.TurnBased.Get(entity)
-		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < 0 {
+		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < actionCost {
 			p.logger.Debug("AP不足でアクション実行不可", "entity", entity, "activity", activityName, "cost", actionCost)
 			break
 		}

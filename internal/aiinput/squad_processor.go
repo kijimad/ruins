@@ -79,7 +79,7 @@ func (sp *SquadProcessor) processSquadMember(world w.World, entity ecs.Entity) {
 
 		actionCost := actorImpl.Info().ActionPointCost
 		tbComp := world.Components.TurnBased.Get(entity)
-		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < 0 {
+		if tbComp == nil || tbComp.(*gc.TurnBased).AP.Current < actionCost {
 			sp.logger.Debug("隊員AP不足", "entity", entity, "cost", actionCost)
 			break
 		}
