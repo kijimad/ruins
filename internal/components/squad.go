@@ -22,7 +22,7 @@ func DefaultSquadPolicy() SquadPolicy {
 		Position:     PolicyEscort,
 		Combat:       PolicyAttack,
 		ItemPickup:   PolicyPickup,
-		ItemHandling: PolicyKeep,
+		ItemHandling: PolicyDistribute,
 	}
 }
 
@@ -102,6 +102,23 @@ const (
 	PolicyIgnore
 )
 
+// String はポリシー名を返す
+func (p ItemPickupPolicy) String() string {
+	switch p {
+	case PolicyPickup:
+		return "回収"
+	case PolicyIgnore:
+		return "無視"
+	default:
+		return unknownLabel
+	}
+}
+
+// AllItemPickupPolicies は全アイテム回収ポリシーを返す
+func AllItemPickupPolicies() []ItemPickupPolicy {
+	return []ItemPickupPolicy{PolicyPickup, PolicyIgnore}
+}
+
 // ItemHandlingPolicy はアイテム処理ポリシーを表す
 type ItemHandlingPolicy int
 
@@ -110,9 +127,24 @@ const (
 	PolicyKeep ItemHandlingPolicy = iota
 	// PolicyDistribute は分配。運搬役に渡す
 	PolicyDistribute
-	// PolicyDismantle は分解。その場で分解して素材にする
-	PolicyDismantle
 )
+
+// String はポリシー名を返す
+func (p ItemHandlingPolicy) String() string {
+	switch p {
+	case PolicyKeep:
+		return "保持"
+	case PolicyDistribute:
+		return "分配"
+	default:
+		return unknownLabel
+	}
+}
+
+// AllItemHandlingPolicies は全アイテム処理ポリシーを返す
+func AllItemHandlingPolicies() []ItemHandlingPolicy {
+	return []ItemHandlingPolicy{PolicyKeep, PolicyDistribute}
+}
 
 // MemberAppearance は隊員の外見情報を保持する
 type MemberAppearance struct {

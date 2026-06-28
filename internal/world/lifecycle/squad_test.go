@@ -69,7 +69,7 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.Equal(t, gc.PolicyEscort, policy.Position, "デフォルト位置ポリシーは護衛")
 	assert.Equal(t, gc.PolicyAttack, policy.Combat, "デフォルト戦闘ポリシーは攻撃")
 	assert.Equal(t, gc.PolicyPickup, policy.ItemPickup, "デフォルトアイテムポリシーは回収")
-	assert.Equal(t, gc.PolicyKeep, policy.ItemHandling, "デフォルトアイテム処理ポリシーは保持")
+	assert.Equal(t, gc.PolicyDistribute, policy.ItemHandling, "デフォルトアイテム処理ポリシーは分配")
 
 	// Dispositionの確認
 	disp := world.Components.Disposition.Get(member).(*gc.Disposition)

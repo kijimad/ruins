@@ -141,7 +141,7 @@ func (sp *SquadProcessor) gatherSquadContext(world w.World, entity ecs.Entity) (
 }
 
 // planAction はポリシーと状況に基づいてアクションを決定する。
-// 優先順位: HP低下時後退 → エリア制限 → 戦闘 → 位置ポリシー
+// 優先順位: HP低下時後退 → エリア制限 → 戦闘 → アイテム転送 → アイテム拾得 → 位置ポリシー
 func (sp *SquadProcessor) planAction(world w.World, entity ecs.Entity, ctx *SquadContext) (activity.Behavior, activity.ActionParams) {
 	// HP低下時は後退する
 	if sp.shouldRetreatLowHP(world, entity) {
@@ -159,6 +159,16 @@ func (sp *SquadProcessor) planAction(world w.World, entity ecs.Entity, ctx *Squa
 
 	// 戦闘ポリシーを評価する
 	if b, p, ok := sp.planCombatAction(world, entity, ctx); ok {
+		return b, p
+	}
+
+	// アイテム処理ポリシーを評価する。拾得より先に評価して、持っているアイテムを先に渡す
+	if b, p, ok := sp.planItemHandlingAction(world, entity, ctx); ok {
+		return b, p
+	}
+
+	// アイテム拾得ポリシーを評価する
+	if b, p, ok := sp.planItemPickupAction(world, entity, ctx); ok {
 		return b, p
 	}
 
@@ -212,7 +222,8 @@ func (sp *SquadProcessor) planCombatAction(world w.World, entity ecs.Entity, ctx
 }
 
 // planAttackAction は攻撃ポリシーに基づくアクションを計画する。
-// 隣接する敵がいれば攻撃し、視界内の敵がいれば接近する
+// 隣接する敵がいれば攻撃し、視界内の敵がいれば接近する。
+// 移動しても敵に近づけない場合は諦めて次の優先度に進む
 func (sp *SquadProcessor) planAttackAction(world w.World, entity ecs.Entity, ctx *SquadContext) (activity.Behavior, activity.ActionParams, bool) {
 	nearestEnemy, nearestGrid, dist := sp.findNearestEnemy(world, entity, ctx)
 	if nearestEnemy == nil {
@@ -228,8 +239,8 @@ func (sp *SquadProcessor) planAttackAction(world w.World, entity ecs.Entity, ctx
 		}, true
 	}
 
-	// 視界内の敵に接近する
-	return sp.tryMoveToward(world, entity, ctx.Grid, nearestGrid)
+	// 視界内の敵に接近する。移動先が敵に近づかなければ諦める
+	return sp.tryMoveCloser(world, entity, ctx.Grid, nearestGrid, dist)
 }
 
 // planEvadeAction は回避ポリシーに基づくアクションを計画する。
@@ -305,6 +316,103 @@ func (sp *SquadProcessor) planPatrolAction(world w.World, entity ecs.Entity, ctx
 	return waitAction(entity, "隊員巡回移動失敗")
 }
 
+// planItemPickupAction は拾得可能アイテムを拾うアクションを計画する。
+// 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。
+// PolicyIgnoreの場合は何もしない
+func (sp *SquadProcessor) planItemPickupAction(world w.World, entity ecs.Entity, ctx *SquadContext) (activity.Behavior, activity.ActionParams, bool) {
+	if ctx.Policy.ItemPickup == gc.PolicyIgnore {
+		return nil, activity.ActionParams{}, false
+	}
+
+	// 足元のアイテムを探す。同時に視界内の最寄りアイテムも探す
+	hasPickableHere := false
+	var nearestItemGrid *gc.GridElement
+	nearestDist := -1
+
+	world.Manager.Join(
+		world.Components.GridElement,
+		world.Components.LocationOnField,
+	).Visit(ecs.Visit(func(item ecs.Entity) {
+		if !query.IsPickable(item, world) {
+			return
+		}
+		grid := world.Components.GridElement.Get(item).(*gc.GridElement)
+
+		// 足元チェック
+		if grid.X == ctx.Grid.X && grid.Y == ctx.Grid.Y {
+			hasPickableHere = true
+			return
+		}
+
+		// 視界内かチェック
+		dist := chebyshevDistance(ctx.Grid, grid)
+		if dist > int(ctx.Vision.ViewDistance) {
+			return
+		}
+		if nearestDist < 0 || dist < nearestDist {
+			nearestItemGrid = grid
+			nearestDist = dist
+		}
+	}))
+
+	// 足元にアイテムがあれば拾う
+	if hasPickableHere {
+		sp.logger.Debug("隊員アイテム拾得", "entity", entity, "x", ctx.Grid.X, "y", ctx.Grid.Y)
+		dest := *ctx.Grid
+		return &activity.PickupActivity{}, activity.ActionParams{
+			Actor:       entity,
+			Destination: &dest,
+		}, true
+	}
+
+	// 視界内にアイテムがあれば向かう。距離が縮まらない場合は壁越しと判断して諦める
+	if nearestItemGrid != nil {
+		sp.logger.Debug("隊員アイテムへ移動", "entity", entity, "dist", nearestDist)
+		return sp.tryMoveCloser(world, entity, ctx.Grid, nearestItemGrid, nearestDist)
+	}
+
+	return nil, activity.ActionParams{}, false
+}
+
+// planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。
+// PolicyDistributeの場合はリーダーにアイテムを転送する
+func (sp *SquadProcessor) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *SquadContext) (activity.Behavior, activity.ActionParams, bool) {
+	if ctx.Policy.ItemHandling != gc.PolicyDistribute {
+		return nil, activity.ActionParams{}, false
+	}
+
+	// リーダーと隣接しているときだけアイテムを渡す
+	dist := chebyshevDistance(ctx.Grid, ctx.LeaderGrid)
+	if dist > 1 {
+		return nil, activity.ActionParams{}, false
+	}
+
+	// バックパック内にアイテムがあるか確認する
+	var itemToTransfer *ecs.Entity
+	world.Manager.Join(
+		world.Components.LocationInBackpack,
+	).Visit(ecs.Visit(func(item ecs.Entity) {
+		if itemToTransfer != nil {
+			return
+		}
+		loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+		if loc.Owner == entity {
+			e := item
+			itemToTransfer = &e
+		}
+	}))
+
+	if itemToTransfer == nil {
+		return nil, activity.ActionParams{}, false
+	}
+
+	sp.logger.Debug("隊員アイテム転送", "entity", entity, "item", *itemToTransfer)
+	return &activity.TransferActivity{}, activity.ActionParams{
+		Actor:  entity,
+		Target: itemToTransfer,
+	}, true
+}
+
 // findNearestEnemy は視界内の最も近い敵を探す
 func (sp *SquadProcessor) findNearestEnemy(world w.World, entity ecs.Entity, ctx *SquadContext) (*ecs.Entity, *gc.GridElement, int) {
 	var nearestEntity *ecs.Entity
@@ -332,6 +440,31 @@ func (sp *SquadProcessor) findNearestEnemy(world w.World, entity ecs.Entity, ctx
 	}))
 
 	return nearestEntity, nearestGrid, nearestDist
+}
+
+// tryMoveCloser はターゲットに近づく移動を試みる。
+// 移動先の距離が現在の距離以上なら移動を諦める
+func (sp *SquadProcessor) tryMoveCloser(world w.World, entity ecs.Entity, from, target *gc.GridElement, currentDist int) (activity.Behavior, activity.ActionParams, bool) {
+	dx := int(target.X) - int(from.X)
+	dy := int(target.Y) - int(from.Y)
+	fromX, fromY := int(from.X), int(from.Y)
+
+	candidates := calculateMoveCandidates(dx, dy)
+	for _, candidate := range candidates {
+		destX := fromX + candidate.x
+		destY := fromY + candidate.y
+		if !activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
+			continue
+		}
+		destGrid := &gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+		newDist := chebyshevDistance(destGrid, target)
+		if newDist >= currentDist {
+			continue
+		}
+		b, p := moveAction(entity, destX, destY)
+		return b, p, true
+	}
+	return nil, activity.ActionParams{}, false
 }
 
 // tryMoveToward はターゲットに向かう移動を試みる

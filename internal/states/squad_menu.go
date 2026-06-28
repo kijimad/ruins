@@ -159,11 +159,13 @@ type squadProps struct {
 }
 
 type squadMemberData struct {
-	Entity   ecs.Entity
-	Name     string
-	HP       string
-	Position string
-	Combat   string
+	Entity       ecs.Entity
+	Name         string
+	HP           string
+	Position     string
+	Combat       string
+	ItemPickup   string
+	ItemHandling string
 }
 
 type squadWindowProps struct {
@@ -186,11 +188,13 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 		policy := query.SquadPolicy(world, member)
 
 		members = append(members, squadMemberData{
-			Entity:   member,
-			Name:     name,
-			HP:       fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position: policy.Position.String(),
-			Combat:   policy.Combat.String(),
+			Entity:       member,
+			Name:         name,
+			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
+			Position:     policy.Position.String(),
+			Combat:       policy.Combat.String(),
+			ItemPickup:   policy.ItemPickup.String(),
+			ItemHandling: policy.ItemHandling.String(),
 		})
 	}
 
@@ -230,6 +234,8 @@ func (st *SquadMenuState) getActionItems() []string {
 	return []string{
 		fmt.Sprintf("位置: %s", windowProps.Member.Position),
 		fmt.Sprintf("戦闘: %s", windowProps.Member.Combat),
+		fmt.Sprintf("回収: %s", windowProps.Member.ItemPickup),
+		fmt.Sprintf("処理: %s", windowProps.Member.ItemHandling),
 		"解雇",
 		TextClose,
 	}
@@ -321,6 +327,26 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 		}
 		st.refreshWindowProps(world, member)
 
+	case strings.HasPrefix(selectedAction, "回収"):
+		// アイテム回収ポリシーを次の値に切り替える
+		policy := query.SquadPolicy(world, member)
+		all := gc.AllItemPickupPolicies()
+		policy.ItemPickup = all[(int(policy.ItemPickup)+1)%len(all)]
+		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
+			return err
+		}
+		st.refreshWindowProps(world, member)
+
+	case strings.HasPrefix(selectedAction, "処理"):
+		// アイテム処理ポリシーを次の値に切り替える
+		policy := query.SquadPolicy(world, member)
+		all := gc.AllItemHandlingPolicies()
+		policy.ItemHandling = all[(int(policy.ItemHandling)+1)%len(all)]
+		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
+			return err
+		}
+		st.refreshWindowProps(world, member)
+
 	case selectedAction == "解雇":
 		if err := lifecycle.DismissSquadMember(world, member); err != nil {
 			return err
@@ -341,11 +367,13 @@ func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 
 	st.windowMount.SetProps(squadWindowProps{
 		Member: squadMemberData{
-			Entity:   member,
-			Name:     name,
-			HP:       fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position: policy.Position.String(),
-			Combat:   policy.Combat.String(),
+			Entity:       member,
+			Name:         name,
+			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
+			Position:     policy.Position.String(),
+			Combat:       policy.Combat.String(),
+			ItemPickup:   policy.ItemPickup.String(),
+			ItemHandling: policy.ItemHandling.String(),
 		},
 	})
 }
