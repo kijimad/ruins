@@ -43,15 +43,6 @@ func (si *SpatialIndex) IsCharacterAt(x, y int, excludeEntity ecs.Entity) bool {
 	return exists && entity != excludeEntity
 }
 
-// CharacterAt は指定座標のキャラクターエンティティを返す。存在しなければfalse
-func (si *SpatialIndex) CharacterAt(x, y int) (ecs.Entity, bool) {
-	if !si.Built {
-		return ecs.Entity(0), false
-	}
-	entity, exists := si.Characters[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]
-	return entity, exists
-}
-
 // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる
 func (si *SpatialIndex) Invalidate() {
 	si.Built = false

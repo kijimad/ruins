@@ -159,17 +159,16 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 
 // swapSquadMemberIfNeeded は移動先に自分の隊員がいた場合、隊員を移動元の位置に入れ替える
 func swapSquadMemberIfNeeded(world w.World, player ecs.Entity, fromX, fromY, toX, toY int) {
-	for _, member := range query.SquadMembers(world, player) {
-		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-		if int(memberGrid.X) == toX && int(memberGrid.Y) == toY {
-			memberGrid.X = consts.Tile(fromX)
-			memberGrid.Y = consts.Tile(fromY)
-
-			log.Debug("隊員と位置入れ替え",
-				"member", member,
-				"from", fmt.Sprintf("(%d,%d)", toX, toY),
-				"to", fmt.Sprintf("(%d,%d)", fromX, fromY))
-			return
-		}
+	member, ok := query.SquadMemberAt(world, player, toX, toY)
+	if !ok {
+		return
 	}
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid.X = consts.Tile(fromX)
+	memberGrid.Y = consts.Tile(fromY)
+
+	log.Debug("隊員と位置入れ替え",
+		"member", member,
+		"from", fmt.Sprintf("(%d,%d)", toX, toY),
+		"to", fmt.Sprintf("(%d,%d)", fromX, fromY))
 }

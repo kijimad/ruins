@@ -47,6 +47,18 @@ func SquadMemberCount(world w.World, leader ecs.Entity) int {
 	return len(SquadMembers(world, leader))
 }
 
+// SquadMemberAt は指定座標にいるリーダーの同行中隊員を返す。
+// 見つからなければ ok=false を返す
+func SquadMemberAt(world w.World, leader ecs.Entity, x, y int) (ecs.Entity, bool) {
+	for _, member := range SquadMembers(world, leader) {
+		grid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		if int(grid.X) == x && int(grid.Y) == y {
+			return member, true
+		}
+	}
+	return ecs.Entity(0), false
+}
+
 // SquadPolicy は隊員の現在のポリシーを返す。
 // 隊員でない場合はデフォルト値を返す
 func SquadPolicy(world w.World, member ecs.Entity) gc.SquadPolicy {
