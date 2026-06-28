@@ -56,6 +56,7 @@ const (
 	BehaviorRead        BehaviorName = "Read"
 	BehaviorShoot       BehaviorName = "Shoot"
 	BehaviorReload      BehaviorName = "Reload"
+	BehaviorTransfer    BehaviorName = "Transfer"
 )
 
 // Activity は実行中のアクティビティを保持するコンポーネント

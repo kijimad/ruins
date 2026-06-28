@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
+	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
@@ -66,8 +67,8 @@ func (st *MemberStatusState) Update(world w.World) (es.Transition[w.World], erro
 	st.mount.SetProps(props)
 
 	hooks.UseTabMenu(st.mount.Store(), "member_status", hooks.TabMenuConfig{
-		TabCount:   1,
-		ItemCounts: []int{len(props.Items)},
+		TabCount:   len(props.Tabs),
+		ItemCounts: props.itemCounts(),
 	})
 
 	if st.mount.Update() || st.widget == nil {
@@ -89,7 +90,12 @@ func (st *MemberStatusState) Draw(_ w.World, screen *ebiten.Image) error {
 // ================
 
 type memberStatusProps struct {
-	Name  string
+	Name string
+	Tabs []memberStatusTab
+}
+
+type memberStatusTab struct {
+	Label string
 	Items []memberStatusItem
 }
 
@@ -98,10 +104,27 @@ type memberStatusItem struct {
 	Value string
 }
 
+func (p memberStatusProps) itemCounts() []int {
+	counts := make([]int, len(p.Tabs))
+	for i, tab := range p.Tabs {
+		counts[i] = len(tab.Items)
+	}
+	return counts
+}
+
 func (st *MemberStatusState) fetchProps(world w.World) memberStatusProps {
 	member := st.member
 	name := query.GetEntityName(member, world)
 
+	return memberStatusProps{
+		Name: name,
+		Tabs: []memberStatusTab{
+			st.fetchStatusTab(world, member),
+		},
+	}
+}
+
+func (st *MemberStatusState) fetchStatusTab(world w.World, member ecs.Entity) memberStatusTab {
 	var items []memberStatusItem
 
 	if member.HasComponent(world.Components.HP) {
@@ -121,7 +144,15 @@ func (st *MemberStatusState) fetchProps(world w.World) memberStatusProps {
 		)
 	}
 
-	return memberStatusProps{Name: name, Items: items}
+	if member.HasComponent(world.Components.WeightCapacity) {
+		wc := world.Components.WeightCapacity.Get(member).(*gc.WeightCapacity)
+		items = append(items, memberStatusItem{Label: "重量", Value: fmt.Sprintf("%.1f / %.1f", wc.Current, wc.Max)})
+	}
+
+	return memberStatusTab{
+		Label: "ステータス",
+		Items: items,
+	}
 }
 
 // ================
@@ -132,6 +163,7 @@ func (st *MemberStatusState) buildUI(world w.World) *ebitenui.UI {
 	res := world.Resources.UIResources
 	props := st.mount.GetProps()
 	menuState, _ := hooks.GetState[hooks.TabMenuState](st.mount, "member_status")
+	tabIndex := menuState.TabIndex
 	itemIndex := menuState.ItemIndex
 
 	root := styled.NewVerticalContainer(
@@ -139,9 +171,26 @@ func (st *MemberStatusState) buildUI(world w.World) *ebitenui.UI {
 	)
 
 	root.AddChild(styled.NewTitleText(props.Name, res))
-	root.AddChild(st.buildItemTable(props.Items, itemIndex, res))
+	root.AddChild(st.buildTabBar(props.Tabs, tabIndex, res))
+
+	if tabIndex < len(props.Tabs) {
+		root.AddChild(st.buildItemTable(props.Tabs[tabIndex].Items, itemIndex, res))
+	}
 
 	return &ebitenui.UI{Container: root}
+}
+
+func (st *MemberStatusState) buildTabBar(tabs []memberStatusTab, tabIndex int, res resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	for i, tab := range tabs {
+		isSelected := i == tabIndex
+		color := theme.TextSecondary
+		if isSelected {
+			color = theme.TextPrimary
+		}
+		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
+	}
+	return container
 }
 
 func (st *MemberStatusState) buildItemTable(items []memberStatusItem, selectedIndex int, res resources.UIResources) *widget.Container {

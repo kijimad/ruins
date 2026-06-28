@@ -28,6 +28,7 @@ var behaviors = map[gc.BehaviorName]Behavior{
 	gc.BehaviorRead:      &ReadActivity{},
 	gc.BehaviorShoot:     &ShootActivity{},
 	gc.BehaviorReload:    &ReloadActivity{},
+	gc.BehaviorTransfer:  &TransferActivity{},
 }
 
 // GetBehavior は名前からBehavior実装を取得する

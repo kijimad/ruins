@@ -227,15 +227,30 @@ type windowProps struct {
 }
 
 func (st *InventoryMenuState) fetchProps(world w.World) inventoryProps {
-	categories := world.Components.Categories()[gc.InventoryCategoryKey]
-	tabs := make([]inventoryTabData, len(categories))
-	for i, cat := range categories {
-		tabs[i] = inventoryTabData{
-			ID:    cat.Name,
-			Label: cat.Name,
-			Items: st.createItemData(world, st.queryByCategory(world, cat)),
-		}
+	var player ecs.Entity
+	query.Player(world, func(entity ecs.Entity) {
+		player = entity
+	})
+
+	playerName := query.GetEntityName(player, world)
+	members := query.SquadMembers(world, player)
+	tabs := make([]inventoryTabData, 0, 1+len(members))
+	tabs = append(tabs, inventoryTabData{
+		ID:    "player",
+		Label: playerName,
+		Items: st.createItemData(world, st.queryByOwner(world, player)),
+	})
+
+	// 隊員のタブを追加
+	for _, member := range members {
+		memberName := query.GetEntityName(member, world)
+		tabs = append(tabs, inventoryTabData{
+			ID:    fmt.Sprintf("member_%d", member),
+			Label: memberName,
+			Items: st.createItemData(world, st.queryByOwner(world, member)),
+		})
 	}
+
 	return inventoryProps{
 		Tabs: tabs,
 	}
@@ -270,13 +285,15 @@ func (st *InventoryMenuState) createItemData(world w.World, entities []ecs.Entit
 	return items
 }
 
-func (st *InventoryMenuState) queryByCategory(world w.World, cat gc.Category) []ecs.Entity {
+func (st *InventoryMenuState) queryByOwner(world w.World, owner ecs.Entity) []ecs.Entity {
 	var result []ecs.Entity
 
 	world.Manager.Join(
 		world.Components.LocationInBackpack,
+		world.Components.Name,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if cat.Eval(entity) {
+		loc := world.Components.LocationInBackpack.Get(entity).(*gc.LocationInBackpack)
+		if loc.Owner == owner {
 			result = append(result, entity)
 		}
 	}))
