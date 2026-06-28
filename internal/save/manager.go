@@ -11,15 +11,13 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 const saveDataVersion = "1.0.0"
-
-// 隊員復元時のAI視界距離。lifecycle.aiVisionDistanceと同じ値
-const squadAIVisionDistance = 5
 
 // SerializationManager は安定ID + 静的型ベースのシリアライゼーションを管理する
 type SerializationManager struct {
@@ -446,7 +444,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		// 隊員のランタイムコンポーネントを再付与する。
 		// これらはセーブ対象外だが、AI処理・衝突判定に必要
 		entity.AddComponent(c.AIMoveFSM, &gc.AIMoveFSM{})
-		entity.AddComponent(c.AIVision, &gc.AIVision{ViewDistance: squadAIVisionDistance})
+		entity.AddComponent(c.AIVision, &gc.AIVision{ViewDistance: lifecycle.AIVisionDistance})
 		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
 		entity.AddComponent(c.Disposition, &gc.Disposition{
 			Default: gc.DispositionAlly,

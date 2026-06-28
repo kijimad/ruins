@@ -18,7 +18,8 @@ import (
 // 定数定義
 const (
 	cameraNormalScale = 0.6 // カメラの通常スケール
-	aiVisionDistance  = 5   // AIの視界距離（タイル単位）
+	// AIVisionDistance はAIエンティティの視界距離（タイル単位）
+	AIVisionDistance = 5
 )
 
 // エラー定義
@@ -132,7 +133,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 			PatrolDirX:            initialPatrolDir(),
 		}
 		entitySpec.AIVision = &gc.AIVision{
-			ViewDistance: aiVisionDistance,
+			ViewDistance: AIVisionDistance,
 		}
 	}
 
@@ -183,7 +184,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		PatrolDirX:            initialPatrolDir(),
 	}
 	entitySpec.AIVision = &gc.AIVision{
-		ViewDistance: aiVisionDistance,
+		ViewDistance: AIVisionDistance,
 	}
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
@@ -268,7 +269,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		AIMoveFSM:    &gc.AIMoveFSM{},
 		CommandTable: &gc.CommandTable{Name: "素手"},
 		AIVision: &gc.AIVision{
-			ViewDistance: aiVisionDistance,
+			ViewDistance: AIVisionDistance,
 		},
 		SquadMember:      &gc.SquadMember{Leader: leader, Active: true},
 		SquadPolicy:      &defaultPolicy,

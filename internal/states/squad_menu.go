@@ -306,46 +306,40 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	member := windowProps.Member.Entity
 	selectedAction := actionItems[actionIndex]
 
+	cyclePolicy := func(update func(policy *gc.SquadPolicy)) error {
+		policy := query.SquadPolicy(world, member)
+		update(&policy)
+		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
+			return err
+		}
+		st.refreshWindowProps(world, member)
+		return nil
+	}
+
 	switch {
 	case strings.HasPrefix(selectedAction, "位置"):
-		// 位置ポリシーを次の値に切り替える
-		policy := query.SquadPolicy(world, member)
 		allPos := gc.AllPositionPolicies()
-		policy.Position = allPos[(int(policy.Position)+1)%len(allPos)]
-		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
-			return err
-		}
-		st.refreshWindowProps(world, member)
+		return cyclePolicy(func(p *gc.SquadPolicy) {
+			p.Position = allPos[(int(p.Position)+1)%len(allPos)]
+		})
 
 	case strings.HasPrefix(selectedAction, "戦闘"):
-		// 戦闘ポリシーを次の値に切り替える
-		policy := query.SquadPolicy(world, member)
 		allCombat := gc.AllCombatPolicies()
-		policy.Combat = allCombat[(int(policy.Combat)+1)%len(allCombat)]
-		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
-			return err
-		}
-		st.refreshWindowProps(world, member)
+		return cyclePolicy(func(p *gc.SquadPolicy) {
+			p.Combat = allCombat[(int(p.Combat)+1)%len(allCombat)]
+		})
 
 	case strings.HasPrefix(selectedAction, "回収"):
-		// アイテム回収ポリシーを次の値に切り替える
-		policy := query.SquadPolicy(world, member)
 		all := gc.AllItemPickupPolicies()
-		policy.ItemPickup = all[(int(policy.ItemPickup)+1)%len(all)]
-		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
-			return err
-		}
-		st.refreshWindowProps(world, member)
+		return cyclePolicy(func(p *gc.SquadPolicy) {
+			p.ItemPickup = all[(int(p.ItemPickup)+1)%len(all)]
+		})
 
 	case strings.HasPrefix(selectedAction, "処理"):
-		// アイテム処理ポリシーを次の値に切り替える
-		policy := query.SquadPolicy(world, member)
 		all := gc.AllItemHandlingPolicies()
-		policy.ItemHandling = all[(int(policy.ItemHandling)+1)%len(all)]
-		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
-			return err
-		}
-		st.refreshWindowProps(world, member)
+		return cyclePolicy(func(p *gc.SquadPolicy) {
+			p.ItemHandling = all[(int(p.ItemHandling)+1)%len(all)]
+		})
 
 	case selectedAction == "解雇":
 		if err := lifecycle.DismissSquadMember(world, member); err != nil {
