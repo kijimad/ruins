@@ -13,7 +13,7 @@ import (
 // 隊員のいるタイルは通行可能として扱う
 func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool) {
 	si := query.GetSpatialIndex(world)
-	if !si.Built || si.MapWidth == 0 || si.MapHeight == 0 {
+	if si == nil {
 		return 0, 0, false
 	}
 

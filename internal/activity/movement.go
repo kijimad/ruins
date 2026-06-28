@@ -40,6 +40,9 @@ import (
 // fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する
 func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
+	if si == nil {
+		return false
+	}
 
 	if tileX < 0 || tileY < 0 || tileX >= si.MapWidth || tileY >= si.MapHeight {
 		return false

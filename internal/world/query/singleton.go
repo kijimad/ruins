@@ -56,6 +56,9 @@ func GetSpatialIndex(world w.World) *gc.SpatialIndex {
 	if !si.Built {
 		buildSpatialIndex(world, si)
 	}
+	if si.MapWidth == 0 || si.MapHeight == 0 {
+		return nil
+	}
 	return si
 }
 

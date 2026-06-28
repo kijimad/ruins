@@ -198,9 +198,8 @@ func findAdjacentEmptyTile(world w.World, centerX, centerY int, exclude map[gc.G
 		if x < 0 || y < 0 {
 			continue
 		}
-		// SpatialIndex構築済みかつマップが存在する場合のみ範囲と衝突をチェックする。
-		// マップ生成前のスポーン時はチェックをスキップし、座標の妥当性だけを確認する
-		if si.Built && si.MapWidth > 0 && si.MapHeight > 0 {
+		// SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする
+		if si != nil {
 			if x >= si.MapWidth || y >= si.MapHeight {
 				continue
 			}
