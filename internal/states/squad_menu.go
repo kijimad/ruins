@@ -215,6 +215,8 @@ func (st *SquadMenuState) getActionItems() []string {
 	return []string{
 		fmt.Sprintf("位置: %s", windowProps.Member.Position),
 		fmt.Sprintf("戦闘: %s", windowProps.Member.Combat),
+		"集合",
+		"全員待機",
 		"解雇",
 		TextClose,
 	}
@@ -270,6 +272,32 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 		nextIdx := (int(policy.Combat) + 1) % len(allCombat)
 		if err := lifecycle.SetCombatPolicy(world, member, allCombat[nextIdx]); err != nil {
 			return err
+		}
+		st.refreshWindowProps(world, member)
+
+	case selectedAction == "集合":
+		// 全隊員の位置ポリシーを護衛に変更する
+		playerEntity, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return err
+		}
+		for _, m := range query.SquadMembers(world, playerEntity) {
+			if err := lifecycle.SetPositionPolicy(world, m, gc.PolicyEscort); err != nil {
+				return err
+			}
+		}
+		st.refreshWindowProps(world, member)
+
+	case selectedAction == "全員待機":
+		// 全隊員の位置ポリシーを待機に変更する
+		playerEntity, err := query.GetPlayerEntity(world)
+		if err != nil {
+			return err
+		}
+		for _, m := range query.SquadMembers(world, playerEntity) {
+			if err := lifecycle.SetPositionPolicy(world, m, gc.PolicyHold); err != nil {
+				return err
+			}
 		}
 		st.refreshWindowProps(world, member)
 
