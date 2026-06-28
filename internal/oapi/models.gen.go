@@ -1499,9 +1499,6 @@ type SaveDataComponentsMap struct {
 	// Melee 近接攻撃設定
 	Melee *SaveDataMeleeComponent `json:"Melee,omitempty"`
 
-	// MemberAppearance 隊員の外見情報
-	MemberAppearance *SaveDataMemberAppearanceComponent `json:"MemberAppearance,omitempty"`
-
 	// Name エンティティ名
 	Name *SaveDataNameComponent `json:"Name,omitempty"`
 
@@ -1800,12 +1797,6 @@ type SaveDataMeleeComponent struct {
 
 	// TargetType 対象指定
 	TargetType SaveDataTargetTypeData `json:"TargetType"`
-}
-
-// SaveDataMemberAppearanceComponent 隊員の外見情報
-type SaveDataMemberAppearanceComponent struct {
-	// SpriteKey スプライトキー。セーブデータではパターン制約を適用しない
-	SpriteKey SaveDataSpriteKey `json:"SpriteKey"`
 }
 
 // SaveDataNameComponent エンティティ名

@@ -145,8 +145,3 @@ func (p ItemHandlingPolicy) String() string {
 func AllItemHandlingPolicies() []ItemHandlingPolicy {
 	return []ItemHandlingPolicy{PolicyKeep, PolicyDistribute}
 }
-
-// MemberAppearance は隊員の外見情報を保持する
-type MemberAppearance struct {
-	SpriteKey string
-}

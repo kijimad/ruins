@@ -46,7 +46,6 @@ func TestSpawnSquadMember(t *testing.T) {
 	// 隊員固有コンポーネントの確認
 	assert.True(t, member.HasComponent(world.Components.SquadMember), "SquadMemberを持つ")
 	assert.True(t, member.HasComponent(world.Components.SquadPolicy), "SquadPolicyを持つ")
-	assert.True(t, member.HasComponent(world.Components.MemberAppearance), "MemberAppearanceを持つ")
 
 	// AI系コンポーネントの確認
 	assert.True(t, member.HasComponent(world.Components.AIMoveFSM), "AIMoveFSMを持つ")

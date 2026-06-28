@@ -423,9 +423,6 @@
             "Current": 50,
             "Max": 60
           },
-          "MemberAppearance": {
-            "SpriteKey": "npc_soldier"
-          },
           "Name": {
             "Name": "テスト隊員"
           },

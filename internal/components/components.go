@@ -82,9 +82,8 @@ type EntitySpec struct {
 	DropTable    *DropTable
 
 	// squad ================
-	SquadMember      *SquadMember
-	SquadPolicy      *SquadPolicy
-	MemberAppearance *MemberAppearance
+	SquadMember *SquadMember
+	SquadPolicy *SquadPolicy
 
 	// singleton ================
 	GameLog *GameLog
@@ -171,9 +170,8 @@ type Components struct {
 	DropTable    *ecs.SliceComponent
 
 	// squad ================
-	SquadMember      *ecs.SliceComponent `save:"true"`
-	SquadPolicy      *ecs.SliceComponent `save:"true"`
-	MemberAppearance *ecs.SliceComponent `save:"true"`
+	SquadMember *ecs.SliceComponent `save:"true"`
+	SquadPolicy *ecs.SliceComponent `save:"true"`
 
 	// activity ================
 	Activity     *ecs.SliceComponent // 実行中のアクティビティ

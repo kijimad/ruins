@@ -271,9 +271,8 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		AIVision: &gc.AIVision{
 			ViewDistance: AIVisionDistance,
 		},
-		SquadMember:      &gc.SquadMember{Leader: leader, Active: true},
-		SquadPolicy:      &defaultPolicy,
-		MemberAppearance: &gc.MemberAppearance{SpriteKey: spriteKey},
+		SquadMember: &gc.SquadMember{Leader: leader, Active: true},
+		SquadPolicy: &defaultPolicy,
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}

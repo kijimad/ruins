@@ -251,7 +251,6 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		ItemPickup:   gc.PolicyPickup,
 		ItemHandling: gc.PolicyKeep,
 	})
-	member.AddComponent(world.Components.MemberAppearance, &gc.MemberAppearance{SpriteKey: "npc_soldier"})
 	member.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(6), Y: consts.Tile(11)})
 	member.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{
 		SpriteSheetName: "npc_sheet",
