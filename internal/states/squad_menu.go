@@ -46,9 +46,16 @@ func (st SquadMenuState) String() string {
 var _ es.State[w.World] = &SquadMenuState{}
 var _ es.ActionHandler[w.World] = &SquadMenuState{}
 
-func (st *SquadMenuState) OnPause(_ w.World) error  { return nil }
+// OnPause はステートが一時停止される際に呼ばれる
+func (st *SquadMenuState) OnPause(_ w.World) error { return nil }
+
+// OnResume はステートが再開される際に呼ばれる
 func (st *SquadMenuState) OnResume(_ w.World) error { return nil }
-func (st *SquadMenuState) OnStop(_ w.World) error   { return nil }
+
+// OnStop はステートが終了する際に呼ばれる
+func (st *SquadMenuState) OnStop(_ w.World) error { return nil }
+
+// OnStart はステートが開始する際に呼ばれる
 func (st *SquadMenuState) OnStart(_ w.World) error {
 	st.subState = squadSubStateMenu
 	st.menuMount = hooks.NewMount[squadProps]()
@@ -56,6 +63,7 @@ func (st *SquadMenuState) OnStart(_ w.World) error {
 	return nil
 }
 
+// Update はステートの更新処理を行う
 func (st *SquadMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -91,11 +99,13 @@ func (st *SquadMenuState) Update(world w.World) (es.Transition[w.World], error) 
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はステートの描画処理を行う
 func (st *SquadMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.widget.Draw(screen)
 	return nil
 }
 
+// HandleInput は入力を処理してアクションIDを返す
 func (st *SquadMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	switch st.subState {
 	case squadSubStateMenu:
@@ -106,6 +116,7 @@ func (st *SquadMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, b
 	return "", false
 }
 
+// DoAction はアクションを実行してステート遷移を返す
 func (st *SquadMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch st.subState {
 	case squadSubStateWindow:

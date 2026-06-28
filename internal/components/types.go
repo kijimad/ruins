@@ -1,5 +1,7 @@
 package components
 
+const unknownLabel = "不明"
+
 // Pool は最大値と現在値を持つようなパラメータ
 type Pool[T int | float64] struct {
 	Max     T // 最大値
@@ -93,7 +95,7 @@ func (s EquipmentSlotNumber) String() string {
 	case SlotWeapon5:
 		return "武器5"
 	}
-	return "不明"
+	return unknownLabel
 }
 
 // ParseEquipmentSlot は文字列から装備スロット番号を返す。

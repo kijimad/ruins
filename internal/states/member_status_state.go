@@ -33,14 +33,22 @@ func (st MemberStatusState) String() string {
 
 var _ es.State[w.World] = &MemberStatusState{}
 
-func (st *MemberStatusState) OnPause(_ w.World) error  { return nil }
+// OnPause はステートが一時停止される際に呼ばれる
+func (st *MemberStatusState) OnPause(_ w.World) error { return nil }
+
+// OnResume はステートが再開される際に呼ばれる
 func (st *MemberStatusState) OnResume(_ w.World) error { return nil }
-func (st *MemberStatusState) OnStop(_ w.World) error   { return nil }
+
+// OnStop はステートが終了する際に呼ばれる
+func (st *MemberStatusState) OnStop(_ w.World) error { return nil }
+
+// OnStart はステートが開始する際に呼ばれる
 func (st *MemberStatusState) OnStart(_ w.World) error {
 	st.mount = hooks.NewMount[memberStatusProps]()
 	return nil
 }
 
+// Update はステートの更新処理を行う
 func (st *MemberStatusState) Update(world w.World) (es.Transition[w.World], error) {
 	action, ok := HandleMenuInput()
 	if ok {
@@ -70,6 +78,7 @@ func (st *MemberStatusState) Update(world w.World) (es.Transition[w.World], erro
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はステートの描画処理を行う
 func (st *MemberStatusState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.widget.Draw(screen)
 	return nil

@@ -2,7 +2,7 @@ package states
 
 import (
 	"fmt"
-	"math/rand"
+	"math/rand/v2"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -47,9 +47,16 @@ func (st TavernMenuState) String() string {
 var _ es.State[w.World] = &TavernMenuState{}
 var _ es.ActionHandler[w.World] = &TavernMenuState{}
 
-func (st *TavernMenuState) OnPause(_ w.World) error  { return nil }
+// OnPause はステートが一時停止される際に呼ばれる
+func (st *TavernMenuState) OnPause(_ w.World) error { return nil }
+
+// OnResume はステートが再開される際に呼ばれる
 func (st *TavernMenuState) OnResume(_ w.World) error { return nil }
-func (st *TavernMenuState) OnStop(_ w.World) error   { return nil }
+
+// OnStop はステートが終了する際に呼ばれる
+func (st *TavernMenuState) OnStop(_ w.World) error { return nil }
+
+// OnStart はステートが開始する際に呼ばれる
 func (st *TavernMenuState) OnStart(_ w.World) error {
 	st.subState = tavernSubStateMenu
 	st.menuMount = hooks.NewMount[tavernProps]()
@@ -58,6 +65,7 @@ func (st *TavernMenuState) OnStart(_ w.World) error {
 	return nil
 }
 
+// Update はステートの更新処理を行う
 func (st *TavernMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -93,11 +101,13 @@ func (st *TavernMenuState) Update(world w.World) (es.Transition[w.World], error)
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はステートの描画処理を行う
 func (st *TavernMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.widget.Draw(screen)
 	return nil
 }
 
+// HandleInput は入力を処理してアクションIDを返す
 func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	switch st.subState {
 	case tavernSubStateMenu:
@@ -108,6 +118,7 @@ func (st *TavernMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, 
 	return "", false
 }
 
+// DoAction はアクションを実行してステート遷移を返す
 func (st *TavernMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch st.subState {
 	case tavernSubStateWindow:
@@ -164,7 +175,7 @@ var candidateSpritePool = []string{
 
 // generateCandidates はランダムな雇用候補を生成する
 func generateCandidates() []tavernCandidate {
-	count := 3 + rand.Intn(3) // 3〜5人
+	count := 3 + rand.IntN(3) // 3〜5人
 	used := make(map[string]bool)
 	var candidates []tavernCandidate
 
@@ -175,7 +186,7 @@ func generateCandidates() []tavernCandidate {
 		// 名前の重複を避ける
 		var name string
 		for {
-			name = candidateNamePool[rand.Intn(len(candidateNamePool))]
+			name = candidateNamePool[rand.IntN(len(candidateNamePool))]
 			if !used[name] {
 				used[name] = true
 				break
@@ -184,7 +195,7 @@ func generateCandidates() []tavernCandidate {
 
 		abilities := randomAbilities()
 		cost := calculateHiringCost(abilities)
-		spriteKey := candidateSpritePool[rand.Intn(len(candidateSpritePool))]
+		spriteKey := candidateSpritePool[rand.IntN(len(candidateSpritePool))]
 
 		candidates = append(candidates, tavernCandidate{
 			Name:      name,
@@ -199,7 +210,7 @@ func generateCandidates() []tavernCandidate {
 
 // randomAbilities はランダムな能力値を生成する
 func randomAbilities() gc.Abilities {
-	randStat := func() int { return 4 + rand.Intn(8) } // 4〜11
+	randStat := func() int { return 4 + rand.IntN(8) } // 4〜11
 	return gc.Abilities{
 		Vitality:  gc.Ability{Base: randStat()},
 		Strength:  gc.Ability{Base: randStat()},
@@ -244,7 +255,7 @@ func (st *TavernMenuState) fetchProps(world w.World) tavernProps {
 		currency = query.GetCurrency(world, playerEntity)
 	})
 
-	var candidates []tavernCandidateData
+	candidates := make([]tavernCandidateData, 0, len(st.candidates))
 	for i, c := range st.candidates {
 		candidates = append(candidates, tavernCandidateData{
 			Index:     i,

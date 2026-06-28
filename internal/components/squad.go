@@ -56,7 +56,7 @@ func (p PositionPolicy) String() string {
 	case PolicyRetreat:
 		return "撤退"
 	default:
-		return "不明"
+		return unknownLabel
 	}
 }
 
@@ -83,7 +83,7 @@ func (p CombatPolicy) String() string {
 	case PolicyEvade:
 		return "回避"
 	default:
-		return "不明"
+		return unknownLabel
 	}
 }
 

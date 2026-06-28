@@ -34,14 +34,22 @@ func (st FormationMenuState) String() string {
 var _ es.State[w.World] = &FormationMenuState{}
 var _ es.ActionHandler[w.World] = &FormationMenuState{}
 
-func (st *FormationMenuState) OnPause(_ w.World) error  { return nil }
+// OnPause はステートが一時停止される際に呼ばれる
+func (st *FormationMenuState) OnPause(_ w.World) error { return nil }
+
+// OnResume はステートが再開される際に呼ばれる
 func (st *FormationMenuState) OnResume(_ w.World) error { return nil }
-func (st *FormationMenuState) OnStop(_ w.World) error   { return nil }
+
+// OnStop はステートが終了する際に呼ばれる
+func (st *FormationMenuState) OnStop(_ w.World) error { return nil }
+
+// OnStart はステートが開始する際に呼ばれる
 func (st *FormationMenuState) OnStart(_ w.World) error {
 	st.menuMount = hooks.NewMount[formationProps]()
 	return nil
 }
 
+// Update はステートの更新処理を行う
 func (st *FormationMenuState) Update(world w.World) (es.Transition[w.World], error) {
 	if action, ok := st.HandleInput(world.Config); ok {
 		if transition, err := st.DoAction(world, action); err != nil {
@@ -69,15 +77,18 @@ func (st *FormationMenuState) Update(world w.World) (es.Transition[w.World], err
 	return st.ConsumeTransition(), nil
 }
 
+// Draw はステートの描画処理を行う
 func (st *FormationMenuState) Draw(_ w.World, screen *ebiten.Image) error {
 	st.widget.Draw(screen)
 	return nil
 }
 
+// HandleInput は入力を処理してアクションIDを返す
 func (st *FormationMenuState) HandleInput(_ *config.Config) (inputmapper.ActionID, bool) {
 	return HandleMenuInput()
 }
 
+// DoAction はアクションを実行してステート遷移を返す
 func (st *FormationMenuState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:

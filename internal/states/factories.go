@@ -743,27 +743,6 @@ func NewTavernMenuState() es.State[w.World] {
 	return &TavernMenuState{}
 }
 
-// NewTavernKeeperDialogState は酒場の主人との会話Stateを作成する
-func NewTavernKeeperDialogState(speakerName string) es.State[w.World] {
-	persistentState := NewPersistentMessageState(nil)
-
-	persistentState.messageData = messagedata.NewDialogMessage("", speakerName).
-		AddText("うちには腕の立つ連中が集まってるよ。\n\n隊員を雇うかい?").
-		WithChoice("雇いたい", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{
-				Type:          es.TransPush,
-				NewStateFuncs: []es.StateFactory[w.World]{NewTavernMenuState},
-			})
-			return nil
-		}).
-		WithChoice("用は無い", func(_ w.World) error {
-			persistentState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-			return nil
-		})
-
-	return persistentState
-}
-
 // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数
 func NewShopMenuState() es.State[w.World] {
 	return &ShopMenuState{}

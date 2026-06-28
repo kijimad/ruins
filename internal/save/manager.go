@@ -136,6 +136,12 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 	world.Manager.Join(world.Components.LocationInBackpack).Visit(ecs.Visit(collect))
 	// 3. 装備中アイテム
 	world.Manager.Join(world.Components.LocationEquipped).Visit(ecs.Visit(collect))
+	// 4. 隊員エンティティ（死亡していないもの）
+	world.Manager.Join(world.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if !entity.HasComponent(world.Components.Dead) {
+			collect(entity)
+		}
+	}))
 
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].StableId.Index < entities[j].StableId.Index
@@ -285,6 +291,27 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
 	}
 
+	// 隊員コンポーネント
+	if entity.HasComponent(c.SquadMember) {
+		sqm := c.SquadMember.Get(entity).(*gc.SquadMember)
+		leaderStableID := sm.stableIDManager.GetStableID(sqm.Leader)
+		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{
+			LeaderRef: stableIDToSaveData(leaderStableID),
+			Active:    sqm.Active,
+		}
+	}
+	if entity.HasComponent(c.SquadPolicy) {
+		sp := c.SquadPolicy.Get(entity).(*gc.SquadPolicy)
+		sd := squadPolicyToSaveData(*sp)
+		comp.SquadPolicy = &sd
+	}
+	if entity.HasComponent(c.MemberAppearance) {
+		ma := c.MemberAppearance.Get(entity).(*gc.MemberAppearance)
+		comp.MemberAppearance = &oapi.SaveDataMemberAppearanceComponent{
+			SpriteKey: ma.SpriteKey,
+		}
+	}
+
 	// エンティティ参照コンポーネント (LocationEquipped)
 	if entity.HasComponent(c.LocationEquipped) {
 		equipped := c.LocationEquipped.Get(entity).(*gc.LocationEquipped)
@@ -339,6 +366,17 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 			}
 			backpack := c.LocationInBackpack.Get(entry.entity).(*gc.LocationInBackpack)
 			backpack.Owner = ownerEntity
+		}
+
+		// SquadMember の Leader を解決
+		if comp.SquadMember != nil {
+			leaderStableID := stableIDFromSaveData(comp.SquadMember.LeaderRef)
+			leaderEntity, exists := sm.stableIDManager.GetEntity(leaderStableID)
+			if !exists {
+				return fmt.Errorf("required leader entity not found for stable ID: %v", leaderStableID)
+			}
+			sqm := c.SquadMember.Get(entry.entity).(*gc.SquadMember)
+			sqm.Leader = leaderEntity
 		}
 
 		// LocationEquipped の Owner を解決
@@ -397,6 +435,18 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 
 	// アイテム効果コンポーネント
 	restoreEffectComponents(entity, comp, c)
+
+	// 隊員コンポーネント（Leaderは第3段階で解決）
+	if comp.SquadMember != nil {
+		entity.AddComponent(c.SquadMember, &gc.SquadMember{Active: comp.SquadMember.Active})
+	}
+	if comp.SquadPolicy != nil {
+		sp := squadPolicyFromSaveData(*comp.SquadPolicy)
+		entity.AddComponent(c.SquadPolicy, &sp)
+	}
+	if comp.MemberAppearance != nil {
+		entity.AddComponent(c.MemberAppearance, &gc.MemberAppearance{SpriteKey: comp.MemberAppearance.SpriteKey})
+	}
 
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {

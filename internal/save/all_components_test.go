@@ -232,6 +232,37 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		},
 	})
 
+	// === 隊員エンティティ ===
+	member := world.Manager.NewEntity()
+	member.AddComponent(world.Components.Name, &gc.Name{Name: "テスト隊員"})
+	member.AddComponent(world.Components.HP, &gc.HP{Current: 50, Max: 60})
+	member.AddComponent(world.Components.Abilities, &gc.Abilities{
+		Vitality:  gc.Ability{Base: 8, Modifier: 0, Total: 8},
+		Strength:  gc.Ability{Base: 10, Modifier: 0, Total: 10},
+		Sensation: gc.Ability{Base: 6, Modifier: 0, Total: 6},
+		Dexterity: gc.Ability{Base: 7, Modifier: 0, Total: 7},
+		Agility:   gc.Ability{Base: 9, Modifier: 0, Total: 9},
+		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
+	})
+	member.AddComponent(world.Components.SquadMember, &gc.SquadMember{Leader: player, Active: true})
+	member.AddComponent(world.Components.SquadPolicy, &gc.SquadPolicy{
+		Position:     gc.PolicyEscort,
+		Combat:       gc.PolicyAttack,
+		ItemPickup:   gc.PolicyPickup,
+		ItemHandling: gc.PolicyKeep,
+	})
+	member.AddComponent(world.Components.MemberAppearance, &gc.MemberAppearance{SpriteKey: "npc_soldier"})
+	member.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(6), Y: consts.Tile(11)})
+	member.AddComponent(world.Components.SpriteRender, &gc.SpriteRender{
+		SpriteSheetName: "npc_sheet",
+		SpriteKey:       "idle",
+		Depth:           gc.DepthNum(10),
+	})
+	member.AddComponent(world.Components.TurnBased, &gc.TurnBased{
+		AP:    gc.IntPool{Current: 4, Max: 4},
+		Speed: 10,
+	})
+
 	// === GameProgress リソース ===
 	gp := query.GetGameProgress(world)
 	gp.MarkDungeonCleared("遺跡")

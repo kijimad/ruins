@@ -381,6 +381,26 @@ func providesHealingFromSaveData(sd oapi.SaveDataProvidesHealingComponent) gc.Pr
 	return gc.ProvidesHealing{Amount: amount}
 }
 
+// ================== 隊員コンポーネント変換 ==================
+
+func squadPolicyToSaveData(sp gc.SquadPolicy) oapi.SaveDataSquadPolicyComponent {
+	return oapi.SaveDataSquadPolicyComponent{
+		Position:     oapi.SaveDataPositionPolicyType(sp.Position),
+		Combat:       oapi.SaveDataCombatPolicyType(sp.Combat),
+		ItemPickup:   oapi.SaveDataItemPickupPolicyType(sp.ItemPickup),
+		ItemHandling: oapi.SaveDataItemHandlingPolicyType(sp.ItemHandling),
+	}
+}
+
+func squadPolicyFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.SquadPolicy {
+	return gc.SquadPolicy{
+		Position:     gc.PositionPolicy(sd.Position),
+		Combat:       gc.CombatPolicy(sd.Combat),
+		ItemPickup:   gc.ItemPickupPolicy(sd.ItemPickup),
+		ItemHandling: gc.ItemHandlingPolicy(sd.ItemHandling),
+	}
+}
+
 // ================== マーカーコンポーネント ==================
 
 // emptyMarker はマーカーコンポーネント用の空マップを返す
