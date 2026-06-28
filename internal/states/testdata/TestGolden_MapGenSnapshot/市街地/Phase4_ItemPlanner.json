@@ -718,2106 +718,6 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
       "description": "土",
       "foliage": 0,
       "name": "dirt",
@@ -3714,6 +1614,2106 @@
     {
       "blockPass": false,
       "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
       "description": "床",
       "foliage": 0,
       "name": "floor",
@@ -5583,706 +5583,6 @@
       "spriteRender": {
         "depth": 0,
         "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -7718,6 +7018,706 @@
     {
       "blockPass": false,
       "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
       "description": "土",
       "foliage": 0,
       "name": "dirt",
@@ -10560,13 +10560,13 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "土",
+      "description": "床",
       "foliage": 0,
-      "name": "dirt",
+      "name": "floor",
       "shelter": 0,
       "spriteRender": {
         "depth": 0,
-        "spriteKey": "dirt",
+        "spriteKey": "floor",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -10861,6 +10861,1406 @@
       "spriteRender": {
         "depth": 0,
         "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": true,
+      "blockView": true,
+      "description": "壁",
+      "foliage": 0,
+      "name": "wall",
+      "shelter": 10,
+      "spriteRender": {
+        "depth": 2,
+        "spriteKey": "wall",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "土",
+      "foliage": 0,
+      "name": "dirt",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "dirt",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
+        "spriteSheetName": "tile"
+      },
+      "water": 0
+    },
+    {
+      "blockPass": false,
+      "blockView": false,
+      "description": "床",
+      "foliage": 0,
+      "name": "floor",
+      "shelter": 0,
+      "spriteRender": {
+        "depth": 0,
+        "spriteKey": "floor",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -11218,1294 +12618,6 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "土",
-      "foliage": 0,
-      "name": "dirt",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
       "description": "土",
       "foliage": 0,
       "name": "dirt",
@@ -12541,118 +12653,6 @@
       "spriteRender": {
         "depth": 0,
         "spriteKey": "dirt",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": true,
-      "blockView": true,
-      "description": "壁",
-      "foliage": 0,
-      "name": "wall",
-      "shelter": 10,
-      "spriteRender": {
-        "depth": 2,
-        "spriteKey": "wall",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
-        "spriteSheetName": "tile"
-      },
-      "water": 0
-    },
-    {
-      "blockPass": false,
-      "blockView": false,
-      "description": "床",
-      "foliage": 0,
-      "name": "floor",
-      "shelter": 0,
-      "spriteRender": {
-        "depth": 0,
-        "spriteKey": "floor",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -13248,13 +13248,13 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "床",
+      "description": "土",
       "foliage": 0,
-      "name": "floor",
+      "name": "dirt",
       "shelter": 0,
       "spriteRender": {
         "depth": 0,
-        "spriteKey": "floor",
+        "spriteKey": "dirt",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -13262,13 +13262,13 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "床",
+      "description": "土",
       "foliage": 0,
-      "name": "floor",
+      "name": "dirt",
       "shelter": 0,
       "spriteRender": {
         "depth": 0,
-        "spriteKey": "floor",
+        "spriteKey": "dirt",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -13276,13 +13276,13 @@
     {
       "blockPass": false,
       "blockView": false,
-      "description": "床",
+      "description": "土",
       "foliage": 0,
-      "name": "floor",
+      "name": "dirt",
       "shelter": 0,
       "spriteRender": {
         "depth": 0,
-        "spriteKey": "floor",
+        "spriteKey": "dirt",
         "spriteSheetName": "tile"
       },
       "water": 0
@@ -14029,13 +14029,23 @@
   "Items": [],
   "Props": [
     {
-      "X": 3,
+      "X": 4,
       "Y": 3,
       "Name": "lantern"
     },
     {
-      "X": 46,
+      "X": 24,
       "Y": 3,
+      "Name": "lantern"
+    },
+    {
+      "X": 43,
+      "Y": 3,
+      "Name": "lantern"
+    },
+    {
+      "X": 4,
+      "Y": 15,
       "Name": "lantern"
     },
     {
@@ -14049,13 +14059,8 @@
       "Name": "stone_pillar"
     },
     {
-      "X": 3,
-      "Y": 16,
-      "Name": "lantern"
-    },
-    {
-      "X": 46,
-      "Y": 16,
+      "X": 43,
+      "Y": 15,
       "Name": "lantern"
     },
     {

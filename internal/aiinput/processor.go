@@ -39,10 +39,8 @@ func (p *Processor) ProcessAllEntities(world w.World) error {
 	world.Manager.Join(
 		world.Components.AIMoveFSM,
 		world.Components.GridElement,
+		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.SquadMember) {
-			return
-		}
 		entityCount++
 		p.logger.Debug("AIエンティティを処理中", "entity", entity, "count", entityCount)
 		p.ProcessEntity(world, entity)
