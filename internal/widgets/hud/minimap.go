@@ -88,6 +88,19 @@ func (minimap *Minimap) Draw(screen *ebiten.Image, data MinimapData) {
 		}
 	}
 
+	// 隊員の位置を青い点で表示
+	squadColor := color.RGBA{80, 140, 255, 255}
+	for _, pos := range data.SquadPositions {
+		relX := pos.TileX - data.PlayerTileX
+		relY := pos.TileY - data.PlayerTileY
+		mx := float32(centerX + relX*minimapScale)
+		my := float32(centerY + relY*minimapScale)
+		if mx >= float32(minimapX) && mx <= float32(minimapX+minimapWidth) &&
+			my >= float32(minimapY) && my <= float32(minimapY+minimapHeight) {
+			vector.FillCircle(screen, mx, my, 2, squadColor, false)
+		}
+	}
+
 	// プレイヤーの位置を赤い点で表示
 	playerMapX := float32(centerX)
 	playerMapY := float32(centerY)
