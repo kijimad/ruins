@@ -41,6 +41,29 @@ const (
 	PolicyRetreat
 )
 
+// String はポリシー名を返す
+func (p PositionPolicy) String() string {
+	switch p {
+	case PolicyEscort:
+		return "護衛"
+	case PolicyVanguard:
+		return "前衛"
+	case PolicyPatrol:
+		return "巡回"
+	case PolicyHold:
+		return "待機"
+	case PolicyRetreat:
+		return "撤退"
+	default:
+		return "不明"
+	}
+}
+
+// AllPositionPolicies は全位置ポリシーを返す
+func AllPositionPolicies() []PositionPolicy {
+	return []PositionPolicy{PolicyEscort, PolicyVanguard, PolicyPatrol, PolicyHold, PolicyRetreat}
+}
+
 // CombatPolicy は戦闘ポリシーを表す
 type CombatPolicy int
 
@@ -50,6 +73,23 @@ const (
 	// PolicyEvade は回避。戦闘を避けて逃げる
 	PolicyEvade
 )
+
+// String はポリシー名を返す
+func (p CombatPolicy) String() string {
+	switch p {
+	case PolicyAttack:
+		return "攻撃"
+	case PolicyEvade:
+		return "回避"
+	default:
+		return "不明"
+	}
+}
+
+// AllCombatPolicies は全戦闘ポリシーを返す
+func AllCombatPolicies() []CombatPolicy {
+	return []CombatPolicy{PolicyAttack, PolicyEvade}
+}
 
 // ItemPickupPolicy はアイテム回収ポリシーを表す
 type ItemPickupPolicy int

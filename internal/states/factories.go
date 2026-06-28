@@ -45,6 +45,13 @@ func NewDungeonMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("隊員", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewSquadMenuState},
+			})
+			return nil
+		}).
 		WithChoice("書込", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
@@ -368,6 +375,26 @@ func NewDebugMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("隊員スポーン", func(world w.World) error {
+			player, err := query.GetPlayerEntity(world)
+			if err != nil {
+				return err
+			}
+			abilities := gc.Abilities{
+				Vitality:  gc.Ability{Base: 10},
+				Strength:  gc.Ability{Base: 8},
+				Sensation: gc.Ability{Base: 7},
+				Dexterity: gc.Ability{Base: 6},
+				Agility:   gc.Ability{Base: 9},
+				Defense:   gc.Ability{Base: 5},
+			}
+			_, err = lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+			if err != nil {
+				return fmt.Errorf("隊員スポーンに失敗: %w", err)
+			}
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return nil
+		}).
 		WithChoice("敵スポーン:火の玉(hostile)", func(world w.World) error {
 			return spawnEnemyNearPlayer(world, "火の玉")
 		}).
@@ -680,6 +707,11 @@ func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] {
 	return &MessageState{
 		messageData: messageData,
 	}
+}
+
+// NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
+func NewSquadMenuState() es.State[w.World] {
+	return &SquadMenuState{}
 }
 
 // NewShopMenuState は新しいShopMenuStateインスタンスを作成するファクトリー関数
