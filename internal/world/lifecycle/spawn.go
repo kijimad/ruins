@@ -263,7 +263,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		AIVision: &gc.AIVision{
 			ViewDistance: aiVisionDistance,
 		},
-		SquadMember:      &gc.SquadMember{Leader: leader},
+		SquadMember:      &gc.SquadMember{Leader: leader, Active: true},
 		SquadPolicy:      &defaultPolicy,
 		MemberAppearance: &gc.MemberAppearance{SpriteKey: spriteKey},
 	}

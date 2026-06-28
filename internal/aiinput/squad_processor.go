@@ -54,6 +54,11 @@ func (sp *SquadProcessor) processSquadMember(world w.World, entity ecs.Entity) {
 		return
 	}
 
+	sm := world.Components.SquadMember.Get(entity).(*gc.SquadMember)
+	if !sm.Active {
+		return
+	}
+
 	ctx, ok := sp.gatherSquadContext(world, entity)
 	if !ok {
 		return

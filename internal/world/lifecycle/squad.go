@@ -37,6 +37,16 @@ func SetPositionPolicy(world w.World, member ecs.Entity, policy gc.PositionPolic
 	return nil
 }
 
+// SetSquadMemberActive は隊員の同行/待機状態を切り替える
+func SetSquadMemberActive(world w.World, member ecs.Entity, active bool) error {
+	if !member.HasComponent(world.Components.SquadMember) {
+		return fmt.Errorf("エンティティは隊員ではありません")
+	}
+	sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
+	sm.Active = active
+	return nil
+}
+
 // SetCombatPolicy は隊員の戦闘ポリシーを変更する
 func SetCombatPolicy(world w.World, member ecs.Entity, policy gc.CombatPolicy) error {
 	if !member.HasComponent(world.Components.SquadPolicy) {

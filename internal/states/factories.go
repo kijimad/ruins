@@ -52,6 +52,13 @@ func NewDungeonMenuState() es.State[w.World] {
 			})
 			return nil
 		}).
+		WithChoice("編成", func(_ w.World) error {
+			persistentState.SetTransition(es.Transition[w.World]{
+				Type:          es.TransPush,
+				NewStateFuncs: []es.StateFactory[w.World]{NewFormationMenuState},
+			})
+			return nil
+		}).
 		WithChoice("書込", func(_ w.World) error {
 			persistentState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransPush,
@@ -719,6 +726,11 @@ func NewMessageState(messageData *messagedata.MessageData) es.State[w.World] {
 // NewSquadMenuState は隊員管理画面のStateを作成するファクトリー関数
 func NewSquadMenuState() es.State[w.World] {
 	return &SquadMenuState{}
+}
+
+// NewFormationMenuState は隊編成画面のStateを作成するファクトリー関数
+func NewFormationMenuState() es.State[w.World] {
+	return &FormationMenuState{}
 }
 
 // NewTavernMenuState は酒場の雇用画面のStateを作成するファクトリー関数
