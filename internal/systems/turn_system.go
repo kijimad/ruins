@@ -83,7 +83,7 @@ func processAITurn(world w.World) error {
 	log.Debug("AIターン処理開始")
 
 	processor := aiinput.NewProcessor()
-	if err := processor.ProcessAllEntities(world); err != nil {
+	if err := processor.ProcessEnemies(world); err != nil {
 		return err
 	}
 
