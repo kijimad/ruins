@@ -1,7 +1,6 @@
 package hud
 
 import (
-	"fmt"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -30,7 +29,8 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 	barWidth := 60
 	barHeight := 6
 	padding := theme.Space2
-	startX := data.ScreenDimensions.Width - barWidth - padding*2 - 60
+	nameWidth := 50
+	startX := data.ScreenDimensions.Width - theme.Space4 - nameWidth - barWidth
 	startY := theme.Space4 + 160 // ミニマップの下
 
 	for i, member := range data.Members {
@@ -43,7 +43,7 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 		text.Draw(screen, member.Name, s.face, nameOp)
 
 		// HPバー
-		barX := float32(startX + 50)
+		barX := float32(startX + nameWidth)
 		barY := float32(y + 2)
 
 		// 背景バー
@@ -61,12 +61,5 @@ func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {
 			barColor = color.RGBA{200, 200, 50, 255}
 		}
 		vector.FillRect(screen, barX, barY, float32(barWidth)*hpRatio, float32(barHeight), barColor, false)
-
-		// HP数値
-		hpText := fmt.Sprintf("%d", member.CurrentHP)
-		hpOp := &text.DrawOptions{}
-		hpOp.GeoM.Translate(float64(barX)+float64(barWidth)+4, float64(y))
-		hpOp.ColorScale.ScaleWithColor(theme.TextSecondary)
-		text.Draw(screen, hpText, s.face, hpOp)
 	}
 }
