@@ -226,6 +226,66 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	return npcEntity, nil
 }
 
+// SpawnSquadMember は隊員エンティティを生成する。
+// リーダーの位置に配置され、ポリシーに基づいて自律行動する
+func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
+	if !leader.HasComponent(world.Components.GridElement) {
+		return consts.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
+	}
+	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+
+	skills := gc.NewSkills()
+	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
+	defaultPolicy := gc.DefaultSquadPolicy()
+
+	entitySpec := gc.EntitySpec{
+		Name:           &gc.Name{Name: name},
+		Abilities:      &abilities,
+		HP:             &gc.HP{},
+		TurnBased:      &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}},
+		Skills:         skills,
+		CharModifiers:  charMods,
+		WeightCapacity: &gc.WeightCapacity{},
+		HealthStatus:   &gc.HealthStatus{},
+		FactionType:    &gc.FactionAlly,
+		Disposition: &gc.Disposition{
+			Default: gc.DispositionAlly,
+			Current: gc.DispositionAlly,
+		},
+		GridElement: &gc.GridElement{X: leaderGrid.X, Y: leaderGrid.Y},
+		BlockPass:   &gc.BlockPass{},
+		SpriteRender: &gc.SpriteRender{
+			SpriteSheetName: "character",
+			SpriteKey:       spriteKey,
+			Depth:           gc.DepthNumPlayer,
+		},
+		AIMoveFSM: &gc.AIMoveFSM{},
+		AIVision: &gc.AIVision{
+			ViewDistance: aiVisionDistance,
+		},
+		SquadMember:      &gc.SquadMember{Leader: leader},
+		SquadPolicy:      &defaultPolicy,
+		MemberAppearance: &gc.MemberAppearance{SpriteKey: spriteKey},
+	}
+
+	componentList := entities.ComponentList[gc.EntitySpec]{}
+	componentList.Entities = append(componentList.Entities, entitySpec)
+	entitiesSlice, err := entities.AddEntities(world, componentList)
+	if err != nil {
+		return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+	}
+	if len(entitiesSlice) != 1 {
+		return consts.InvalidEntity, fmt.Errorf("隊員エンティティの生成に失敗しました: エンティティ数=%d", len(entitiesSlice))
+	}
+
+	memberEntity := entitiesSlice[0]
+	if err := FullRecover(world, memberEntity); err != nil {
+		return consts.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
+	}
+
+	return memberEntity, nil
+}
+
 // SpawnBackpackItem はバックパック内にアイテムを生成する
 func SpawnBackpackItem(world w.World, name string, count int) (ecs.Entity, error) {
 	item, err := spawnItemBase(world, name, count)

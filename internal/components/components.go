@@ -81,6 +81,11 @@ type EntitySpec struct {
 	CommandTable *CommandTable
 	DropTable    *DropTable
 
+	// squad ================
+	SquadMember      *SquadMember
+	SquadPolicy      *SquadPolicy
+	MemberAppearance *MemberAppearance
+
 	// singleton ================
 	GameLog *GameLog
 }
@@ -164,6 +169,11 @@ type Components struct {
 	// battle ================
 	CommandTable *ecs.SliceComponent
 	DropTable    *ecs.SliceComponent
+
+	// squad ================
+	SquadMember      *ecs.SliceComponent `save:"true"`
+	SquadPolicy      *ecs.SliceComponent `save:"true"`
+	MemberAppearance *ecs.SliceComponent `save:"true"`
 
 	// activity ================
 	Activity     *ecs.SliceComponent // 実行中のアクティビティ
