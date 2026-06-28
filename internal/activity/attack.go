@@ -214,7 +214,8 @@ func getAttackParams(attacker ecs.Entity, world w.World) (gc.Attacker, string, e
 		return getBareHandsAttack(world)
 	}
 
-	return nil, "", fmt.Errorf("攻撃パラメータを取得できません: 攻撃者にPlayerまたはCommandTableコンポーネントがありません")
+	// 隊員など、PlayerでもCommandTableでもないエンティティは素手で攻撃する
+	return getBareHandsAttack(world)
 }
 
 // getSkillMult は事前計算済みのスキル倍率(%)を返す。

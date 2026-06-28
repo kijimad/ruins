@@ -87,6 +87,12 @@ func processAITurn(world w.World) error {
 		return err
 	}
 
+	// 隊員AIを処理する。敵AIの後に実行することで、敵の移動結果を反映した判断ができる
+	squadProcessor := aiinput.NewSquadProcessor()
+	if err := squadProcessor.ProcessAllSquadMembers(world); err != nil {
+		return err
+	}
+
 	log.Debug("AIターン処理完了")
 	return nil
 }
