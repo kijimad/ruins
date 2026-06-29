@@ -298,7 +298,6 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		leaderStableID := sm.stableIDManager.GetStableID(sqm.Leader)
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{
 			LeaderRef: stableIDToSaveData(leaderStableID),
-			Active:    sqm.Active,
 		}
 	}
 	if entity.HasComponent(c.SquadPolicy) {
@@ -432,7 +431,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 
 	// 隊員コンポーネント（Leaderは第3段階で解決）
 	if comp.SquadMember != nil {
-		entity.AddComponent(c.SquadMember, &gc.SquadMember{Active: comp.SquadMember.Active})
+		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
 
 		// 隊員のランタイムコンポーネントを再付与する。
 		// これらはセーブ対象外だが、AI処理・衝突判定に必要

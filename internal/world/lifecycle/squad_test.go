@@ -210,7 +210,6 @@ func TestSpawnDefaultSquadMember(t *testing.T) {
 	// リーダー参照が正しい
 	sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
 	assert.Equal(t, leader, sm.Leader)
-	assert.True(t, sm.Active, "デフォルトで同行状態")
 }
 
 func TestSpawnDefaultSquadMember_リーダーにGridElementがないとエラー(t *testing.T) {

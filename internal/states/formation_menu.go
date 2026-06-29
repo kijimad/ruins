@@ -123,7 +123,7 @@ func (st *FormationMenuState) fetchProps(world w.World) formationProps {
 	}
 
 	var members []formationMemberData
-	for _, member := range query.AllSquadMembers(world, playerEntity) {
+	for _, member := range query.SquadMembers(world, playerEntity) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
 

@@ -3383,15 +3383,11 @@ components:
       type: object
       required:
         - LeaderRef
-        - Active
       properties:
         LeaderRef:
           allOf:
             - $ref: '#/components/schemas/SaveData.StableID'
           description: リーダーのStableID
-        Active:
-          type: boolean
-          description: 同行中かどうか
       description: |-
         隊員コンポーネント。
         Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする

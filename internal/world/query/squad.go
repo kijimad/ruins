@@ -6,26 +6,8 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// SquadMembers はリーダーに所属する同行中の生存隊員を返す
+// SquadMembers はリーダーに所属する生存隊員を返す
 func SquadMembers(world w.World, leader ecs.Entity) []ecs.Entity {
-	var members []ecs.Entity
-	world.Manager.Join(
-		world.Components.SquadMember,
-		world.Components.FactionAlly,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity.HasComponent(world.Components.Dead) {
-			return
-		}
-		sm := world.Components.SquadMember.Get(entity).(*gc.SquadMember)
-		if sm.Leader == leader && sm.Active {
-			members = append(members, entity)
-		}
-	}))
-	return members
-}
-
-// AllSquadMembers はリーダーに所属する全生存隊員を返す。待機中も含む
-func AllSquadMembers(world w.World, leader ecs.Entity) []ecs.Entity {
 	var members []ecs.Entity
 	world.Manager.Join(
 		world.Components.SquadMember,
@@ -47,7 +29,7 @@ func SquadMemberCount(world w.World, leader ecs.Entity) int {
 	return len(SquadMembers(world, leader))
 }
 
-// SquadMemberAt は指定座標にいるリーダーの同行中隊員を返す。
+// SquadMemberAt は指定座標にいるリーダーの隊員を返す。
 // 見つからなければ ok=false を返す
 func SquadMemberAt(world w.World, leader ecs.Entity, x, y int) (ecs.Entity, bool) {
 	for _, member := range SquadMembers(world, leader) {

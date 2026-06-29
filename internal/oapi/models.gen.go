@@ -1911,9 +1911,6 @@ type SaveDataSpriteSheetName = string
 // SaveDataSquadMemberComponent 隊員コンポーネント。
 // Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
 type SaveDataSquadMemberComponent struct {
-	// Active 同行中かどうか
-	Active bool `json:"Active"`
-
 	// LeaderRef リーダーのStableID
 	LeaderRef SaveDataStableID `json:"LeaderRef"`
 }

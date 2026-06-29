@@ -29,8 +29,8 @@ func NewSquadProcessor() *SquadProcessor {
 	}
 }
 
-// ProcessAllSquadMembers は全ての隊員エンティティを処理する
-func (sp *SquadProcessor) ProcessAllSquadMembers(world w.World) error {
+// ProcessSquadMembers は全ての隊員エンティティを処理する
+func (sp *SquadProcessor) ProcessSquadMembers(world w.World) error {
 	turnNumber := query.GetTurnState(world).TurnNumber
 	sp.logger.Debug("隊員AI処理開始", "turn", turnNumber)
 
@@ -51,11 +51,6 @@ func (sp *SquadProcessor) ProcessAllSquadMembers(world w.World) error {
 // processSquadMember は個別の隊員エンティティを処理する
 func (sp *SquadProcessor) processSquadMember(world w.World, entity ecs.Entity) {
 	if entity.HasComponent(world.Components.Dead) {
-		return
-	}
-
-	sm := world.Components.SquadMember.Get(entity).(*gc.SquadMember)
-	if !sm.Active {
 		return
 	}
 

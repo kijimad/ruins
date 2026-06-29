@@ -260,7 +260,7 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		}))
 		require.True(t, found, "隊員エンティティが復元されている")
 
-		// AI処理に必要なコンポーネント（SquadProcessor.ProcessAllSquadMembersのJoin条件）
+		// AI処理に必要なコンポーネント（SquadProcessor.ProcessSquadMembersのJoin条件）
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIMoveFSM), "AIMoveFSMが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.GridElement), "GridElementが復元される")
 
@@ -312,6 +312,5 @@ func TestSaveLoadSquadMember(t *testing.T) {
 
 		sqm := newWorld.Components.SquadMember.Get(memberEntity).(*gc.SquadMember)
 		assert.Equal(t, newPlayer, sqm.Leader, "リーダー参照がプレイヤーを指す")
-		assert.True(t, sqm.Active, "Active状態が保持される")
 	})
 }

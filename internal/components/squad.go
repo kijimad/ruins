@@ -5,7 +5,6 @@ import ecs "github.com/x-hgg-x/goecs/v2"
 // SquadMember は隊員であることを示し、所属するリーダーを参照する
 type SquadMember struct {
 	Leader ecs.Entity
-	Active bool // 同行中かどうか。falseの場合は待機状態でAI処理されない
 }
 
 // SquadPolicy は隊員の自律行動を制御するポリシーを保持する

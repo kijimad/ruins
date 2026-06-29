@@ -432,7 +432,6 @@
             "SpriteSheetName": "npc_sheet"
           },
           "SquadMember": {
-            "Active": true,
             "LeaderRef": {
               "generation": 0,
               "index": 1
