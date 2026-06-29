@@ -10,6 +10,7 @@ import (
 
 // FindNextStep はBFSで最短経路を求め、次の1歩の座標を返す。
 // 経路が見つからない場合はfalseを返す。
+// ゴールが通行不能でも到達を認識する。ゴールはキューに入れないので通り抜ける経路は生まれない。
 // 隊員のいるタイルは通行可能として扱う
 func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool) {
 	si := query.GetSpatialIndex(world)
@@ -26,7 +27,6 @@ func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool
 	type coord struct{ x, y int }
 
 	visited := make([]bool, width*height)
-	// 各セルの「1歩目の移動先」を記録する
 	firstStep := make([]coord, width*height)
 
 	idx := func(x, y int) int { return y*width + x }
@@ -46,7 +46,6 @@ func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool
 		}
 		key := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}
 		if si.BlockPass[key] {
-			// 隊員のタイルは通行可能にする
 			if _, ok := si.SquadMembers[key]; ok {
 				return true
 			}
@@ -62,7 +61,9 @@ func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool
 		for _, d := range dirs {
 			nx, ny := cur.x+d[0], cur.y+d[1]
 
-			if !isPassable(nx, ny) {
+			isGoal := nx == goalX && ny == goalY
+
+			if !isGoal && !isPassable(nx, ny) {
 				continue
 			}
 
@@ -85,7 +86,7 @@ func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool
 				firstStep[ni] = firstStep[idx(cur.x, cur.y)]
 			}
 
-			if nx == goalX && ny == goalY {
+			if isGoal {
 				step := firstStep[ni]
 				return step.x, step.y, true
 			}

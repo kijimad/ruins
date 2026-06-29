@@ -84,6 +84,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		TargetX: initialX,
 		TargetY: initialY,
 	}
+	entitySpec.BlockPass = &gc.BlockPass{}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
 	componentList.Entities = append(componentList.Entities, entitySpec)

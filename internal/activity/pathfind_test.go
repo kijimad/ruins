@@ -92,6 +92,29 @@ func TestFindNextStep(t *testing.T) {
 		assert.False(t, ok)
 	})
 
+	t.Run("プレイヤーを壁として迂回路を見つける", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		si := query.GetSpatialIndex(world)
+		si.Built = true
+		si.MapWidth = 10
+		si.MapHeight = 10
+		si.BlockPass = make(map[gc.GridElement]bool)
+		si.SquadMembers = make(map[gc.GridElement]ecs.Entity)
+
+		// プレイヤーを(1,0)に配置する
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+		player.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)})
+		si.BlockPass[gc.GridElement{X: consts.Tile(1), Y: consts.Tile(0)}] = true
+		si.PlayerEntity = &player
+
+		// (0,0) → (2,0) はプレイヤーが直線上にいるが、斜め迂回で到達できる
+		nextX, nextY, ok := FindNextStep(world, 0, 0, 2, 0)
+		require.True(t, ok, "プレイヤーを迂回する経路が見つかるべき")
+		assert.False(t, nextX == 1 && nextY == 0, "プレイヤーのタイルは踏まない")
+	})
+
 	t.Run("隊員のいるタイルを通過できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
@@ -113,5 +136,24 @@ func TestFindNextStep(t *testing.T) {
 		require.True(t, ok, "隊員のいるタイルを通過して経路が見つかるべき")
 		assert.Equal(t, 1, nextX)
 		assert.Equal(t, 0, nextY)
+	})
+
+	t.Run("BlockPassなゴールにも経路を見つける", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+		si := query.GetSpatialIndex(world)
+		si.Built = true
+		si.MapWidth = 10
+		si.MapHeight = 10
+		si.BlockPass = make(map[gc.GridElement]bool)
+		si.SquadMembers = make(map[gc.GridElement]ecs.Entity)
+
+		// (5,5)をBlockPassにする
+		si.BlockPass[gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)}] = true
+
+		// ゴールがBlockPassでも経路が見つかる
+		nextX, nextY, ok := FindNextStep(world, 0, 0, 5, 5)
+		require.True(t, ok, "BlockPassなゴールにも経路が見つかるべき")
+		assert.True(t, nextX >= 0 && nextY >= 0, "有効な座標が返る")
 	})
 }

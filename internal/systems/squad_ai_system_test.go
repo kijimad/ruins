@@ -40,10 +40,10 @@ func TestSquadProcessor_護衛ポリシーでリーダーに追従する(t *test
 	memberGrid.X = consts.Tile(20)
 	memberGrid.Y = consts.Tile(20)
 
-	// 探索済みタイルを設定する（移動先が探索済みである必要がある）
+	// 探索済みタイルを設定する
 	dungeon := query.GetDungeon(world)
-	for x := 0; x < 30; x++ {
-		for y := 0; y < 30; y++ {
+	for x := 0; x < 50; x++ {
+		for y := 0; y < 50; y++ {
 			dungeon.ExploredTiles[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
 		}
 	}
@@ -108,10 +108,10 @@ func TestSquadProcessor_待機ポリシーで移動しない(t *testing.T) {
 	memberGrid.X = consts.Tile(20)
 	memberGrid.Y = consts.Tile(20)
 
-	// 探索済みタイルを設定する（エリア制限で動かないように）
+	// 探索済みタイルを設定する
 	dungeon := query.GetDungeon(world)
-	for x := 0; x < 30; x++ {
-		for y := 0; y < 30; y++ {
+	for x := 0; x < 50; x++ {
+		for y := 0; y < 50; y++ {
 			dungeon.ExploredTiles[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
 		}
 	}
@@ -172,8 +172,8 @@ func TestSquadProcessor_攻撃ポリシーで隣接した敵を攻撃する(t *t
 
 	// 探索済みタイルを設定する
 	dungeon := query.GetDungeon(world)
-	for x := 0; x < 30; x++ {
-		for y := 0; y < 30; y++ {
+	for x := 0; x < 50; x++ {
+		for y := 0; y < 50; y++ {
 			dungeon.ExploredTiles[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
 		}
 	}
@@ -216,8 +216,8 @@ func TestSquadProcessor_回避ポリシーで敵から離れる(t *testing.T) {
 
 	// 探索済みタイルを設定する
 	dungeon := query.GetDungeon(world)
-	for x := 0; x < 30; x++ {
-		for y := 0; y < 30; y++ {
+	for x := 0; x < 50; x++ {
+		for y := 0; y < 50; y++ {
 			dungeon.ExploredTiles[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
 		}
 	}
@@ -230,6 +230,51 @@ func TestSquadProcessor_回避ポリシーで敵から離れる(t *testing.T) {
 	// 敵から離れているはず（X座標が小さくなる方向）
 	finalGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
 	assert.Less(t, int(finalGrid.X), initialX, "敵から離れているべき")
+}
+
+func TestSquadProcessor_プレイヤーを迂回してアイテムを拾いに行く(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	// レイアウト: アイテム(8,10) - プレイヤー(9,10) - 隊員(10,10)
+	leader, err := lifecycle.SpawnPlayer(world, 9, 10, "Ash")
+	require.NoError(t, err)
+
+	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員G", testAbilities(), "player")
+	require.NoError(t, err)
+
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid.X = consts.Tile(10)
+	memberGrid.Y = consts.Tile(10)
+
+	// アイテムをプレイヤーの向こう側に配置する
+	item := world.Manager.NewEntity()
+	item.AddComponent(world.Components.Name, &gc.Name{Name: "テストアイテム"})
+	item.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(8), Y: consts.Tile(10)})
+	item.AddComponent(world.Components.LocationOnField, &gc.LocationOnField{})
+
+	// 探索済みタイルを設定する
+	dungeon := query.GetDungeon(world)
+	for x := 0; x < 50; x++ {
+		for y := 0; y < 50; y++ {
+			dungeon.ExploredTiles[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true
+		}
+	}
+
+	initialX := int(memberGrid.X)
+	initialY := int(memberGrid.Y)
+
+	processor := aiinput.NewSquadProcessor()
+	require.NoError(t, processor.ProcessSquadMembers(world))
+
+	finalGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	finalX := int(finalGrid.X)
+	finalY := int(finalGrid.Y)
+
+	// 隊員がプレイヤーの位置(9,10)に突っ込まず、斜めに迂回して移動する
+	moved := finalX != initialX || finalY != initialY
+	assert.True(t, moved, "隊員がプレイヤーを迂回して移動すべき")
+	assert.False(t, finalX == 9 && finalY == 10, "プレイヤーの位置には移動しない")
 }
 
 func abs(x int) int {
