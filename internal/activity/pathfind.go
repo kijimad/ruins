@@ -6,13 +6,14 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/query"
+	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // FindNextStep はBFSで最短経路を求め、次の1歩の座標を返す。
 // 経路が見つからない場合はfalseを返す。
 // ゴールが通行不能でも到達を認識する。ゴールはキューに入れないので通り抜ける経路は生まれない。
-// 隊員のいるタイルは通行可能として扱う
-func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool) {
+// キャラクターの通行可否はmoverとの関係性で決まる
+func FindNextStep(world w.World, mover ecs.Entity, fromX, fromY, goalX, goalY int) (int, int, bool) {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
 		return 0, 0, false
@@ -46,10 +47,10 @@ func FindNextStep(world w.World, fromX, fromY, goalX, goalY int) (int, int, bool
 		}
 		key := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}
 		if si.BlockPass[key] {
-			if _, ok := si.SquadMembers[key]; ok {
-				return true
-			}
 			return false
+		}
+		if target, ok := si.Characters[key]; ok {
+			return CanPassThrough(world, mover, target)
 		}
 		return true
 	}

@@ -41,7 +41,7 @@ func TestSpawnSquadMember(t *testing.T) {
 	assert.True(t, member.HasComponent(world.Components.TurnBased), "TurnBasedを持つ")
 	assert.True(t, member.HasComponent(world.Components.HealthStatus), "HealthStatusを持つ")
 	assert.True(t, member.HasComponent(world.Components.GridElement), "GridElementを持つ")
-	assert.True(t, member.HasComponent(world.Components.BlockPass), "BlockPassを持つ")
+	assert.False(t, member.HasComponent(world.Components.BlockPass), "キャラクターはBlockPassを持たない")
 
 	// 隊員固有コンポーネントの確認
 	assert.True(t, member.HasComponent(world.Components.SquadMember), "SquadMemberを持つ")

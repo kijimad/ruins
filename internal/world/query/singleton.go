@@ -80,10 +80,9 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.MapHeight = int(dungeon.Level.TileHeight)
 	si.BlockPass = make(map[gc.GridElement]bool)
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
-	si.SquadMembers = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	// 壁位置のインデックス構築
+	// 静的障害物のインデックス構築
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.BlockPass,
@@ -95,25 +94,22 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		si.BlockPass[*grid] = true
 	}))
 
-	// キャラクター位置のインデックス構築。隊員は別マップに分離する
+	// キャラクター位置のインデックス構築
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}
-		isPlayer := entity.HasComponent(world.Components.Player)
-		isAI := entity.HasComponent(world.Components.AIMoveFSM)
-		if !isPlayer && !isAI {
+		isCharacter := entity.HasComponent(world.Components.Player) ||
+			entity.HasComponent(world.Components.AIMoveFSM) ||
+			entity.HasComponent(world.Components.SquadMember)
+		if !isCharacter {
 			return
 		}
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		if entity.HasComponent(world.Components.SquadMember) {
-			si.SquadMembers[*grid] = entity
-		} else {
-			si.Characters[*grid] = entity
-		}
-		if isPlayer {
+		si.Characters[*grid] = entity
+		if entity.HasComponent(world.Components.Player) {
 			e := entity
 			si.PlayerEntity = &e
 		}

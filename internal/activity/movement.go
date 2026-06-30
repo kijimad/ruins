@@ -25,7 +25,8 @@ import (
 //
 // ゲーム実行時に使用される動的な通行可否判定です。
 //
-//   - BlockPassコンポーネントを持つエンティティ: 通行不可
+//   - 静的障害物: BlockPassコンポーネントを持つProp（壁・ドア）は常に通行不可
+//   - キャラクター: 関係性で判定する。味方同士は位置交換可能、敵はブロック
 //   - activity.CanMoveTo() で判定
 //   - 用途: プレイヤー・AI移動時の衝突チェック
 //
@@ -48,19 +49,6 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 		return false
 	}
 
-	// TODO: BlockPassは壁やProp専用にして、キャラクターからは外す。
-	// キャラクターは条件によって通行を許可する場合があり、BlockPassでの一律ブロックが合わない。
-	// 隊員・敵の通行判定はIsCharacterAt/IsSquadMemberAtに統合する
-	//
-	// プレイヤーが自分の隊員のいるタイルに移動する場合は位置入れ替えで許可する。
-	// 隊員はBlockPassを持つため、IsBlockPassより先に判定する。
-	// SpatialIndex.Charactersには隊員は含まれないが、BlockPassマップには含まれる
-	if movingEntity.HasComponent(world.Components.Player) {
-		if _, ok := query.SquadMemberAt(world, movingEntity, tileX, tileY); ok {
-			return true
-		}
-	}
-
 	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
 	dx := tileX - fromX
 	dy := tileY - fromY
@@ -74,5 +62,27 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 		return false
 	}
 
-	return !si.IsCharacterAt(tileX, tileY, movingEntity)
+	// キャラクターがいる場合は関係性で判定する
+	if target, ok := si.CharacterAt(tileX, tileY); ok {
+		return CanPassThrough(world, movingEntity, target)
+	}
+
+	return true
+}
+
+// CanPassThrough はmoverがtargetのタイルを通過できるかを関係性で判定する。
+// 味方同士は位置交換可能。プレイヤーは隊員に押しのけられない
+func CanPassThrough(world w.World, mover, target ecs.Entity) bool {
+	if mover == target {
+		return true
+	}
+	// プレイヤーは隊員と位置交換できる
+	if mover.HasComponent(world.Components.Player) {
+		return target.HasComponent(world.Components.SquadMember)
+	}
+	// 隊員は他の隊員と位置交換できる。プレイヤーは押しのけられない
+	if mover.HasComponent(world.Components.SquadMember) {
+		return target.HasComponent(world.Components.SquadMember)
+	}
+	return false
 }

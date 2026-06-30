@@ -84,7 +84,6 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		TargetX: initialX,
 		TargetY: initialY,
 	}
-	entitySpec.BlockPass = &gc.BlockPass{}
 	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -102,6 +101,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	}
 	playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
+	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
 }
 
@@ -121,7 +121,6 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.BlockPass = &gc.BlockPass{}
 
 	if entitySpec.MovementPattern != nil {
 		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
@@ -152,6 +151,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		return consts.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
 	}
 
+	query.InvalidateSpatialIndex(world)
 	return npcEntity, nil
 }
 
@@ -174,7 +174,6 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.BlockPass = &gc.BlockPass{}
 	entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
 	entitySpec.AIRoaming = &gc.AIRoaming{
 		SubState:              gc.AIRoamingWaiting,
@@ -225,6 +224,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		opt(npcEntity, world)
 	}
 
+	query.InvalidateSpatialIndex(world)
 	return npcEntity, nil
 }
 
@@ -261,7 +261,6 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			Current: gc.DispositionAlly,
 		},
 		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
-		BlockPass:   &gc.BlockPass{},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,
@@ -291,6 +290,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		return consts.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
 	}
 
+	query.InvalidateSpatialIndex(world)
 	return memberEntity, nil
 }
 

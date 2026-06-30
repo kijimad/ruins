@@ -445,7 +445,7 @@ func (sp *SquadProcessor) tryMoveCloser(world w.World, entity ecs.Entity, from, 
 	fromX, fromY := int(from.X), int(from.Y)
 	goalX, goalY := int(target.X), int(target.Y)
 
-	nextX, nextY, ok := activity.FindNextStep(world, fromX, fromY, goalX, goalY)
+	nextX, nextY, ok := activity.FindNextStep(world, entity, fromX, fromY, goalX, goalY)
 	if !ok {
 		return nil, activity.ActionParams{}, false
 	}
@@ -463,7 +463,7 @@ func (sp *SquadProcessor) tryMoveToward(world w.World, entity ecs.Entity, from, 
 	fromX, fromY := int(from.X), int(from.Y)
 	goalX, goalY := int(target.X), int(target.Y)
 
-	nextX, nextY, ok := activity.FindNextStep(world, fromX, fromY, goalX, goalY)
+	nextX, nextY, ok := activity.FindNextStep(world, entity, fromX, fromY, goalX, goalY)
 	if !ok {
 		return nil, activity.ActionParams{}, false
 	}

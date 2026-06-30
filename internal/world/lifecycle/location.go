@@ -206,7 +206,7 @@ func findAdjacentEmptyTile(world w.World, centerX, centerY int, exclude map[gc.G
 			if si.IsBlockPass(x, y) {
 				continue
 			}
-			if si.IsCharacterAt(x, y, ecs.Entity(0)) {
+			if _, occupied := si.CharacterAt(x, y); occupied {
 				continue
 			}
 		}

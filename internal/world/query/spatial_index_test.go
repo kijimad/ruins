@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetSpatialIndex_隊員はCharactersに含まれない(t *testing.T) {
+func TestGetSpatialIndex_キャラクターはBlockPassに含まれない(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -21,7 +21,6 @@ func TestGetSpatialIndex_隊員はCharactersに含まれない(t *testing.T) {
 	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
 	require.NoError(t, err)
 
-	// SpatialIndexを再構築させる
 	query.InvalidateSpatialIndex(world)
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
@@ -29,20 +28,17 @@ func TestGetSpatialIndex_隊員はCharactersに含まれない(t *testing.T) {
 	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
 	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
 
-	// リーダーはCharactersに含まれる
+	assert.False(t, si.BlockPass[*leaderGrid], "プレイヤーはBlockPassに含まれない")
+	assert.False(t, si.BlockPass[*memberGrid], "隊員はBlockPassに含まれない")
+
 	_, leaderInChars := si.Characters[*leaderGrid]
-	assert.True(t, leaderInChars, "リーダーはCharactersに含まれる")
+	assert.True(t, leaderInChars, "プレイヤーはCharactersに含まれる")
 
-	// 隊員はCharactersに含まれない
 	_, memberInChars := si.Characters[*memberGrid]
-	assert.False(t, memberInChars, "隊員はCharactersに含まれない")
-
-	// 隊員はSquadMembersに含まれる
-	_, memberInSquad := si.SquadMembers[*memberGrid]
-	assert.True(t, memberInSquad, "隊員はSquadMembersに含まれる")
+	assert.True(t, memberInChars, "隊員はCharactersに含まれる")
 }
 
-func TestInvalidateSpatialIndex_SquadMembersもクリアされる(t *testing.T) {
+func TestInvalidateSpatialIndex_全マップがクリアされる(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
@@ -52,41 +48,16 @@ func TestInvalidateSpatialIndex_SquadMembersもクリアされる(t *testing.T) 
 	_, err = lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
 	require.NoError(t, err)
 
-	// 一度構築させる
 	si := query.GetSpatialIndex(world)
 	require.NotNil(t, si)
 	assert.True(t, si.Built)
-	assert.NotNil(t, si.SquadMembers)
+	assert.NotNil(t, si.Characters)
 
-	// 無効化する
 	query.InvalidateSpatialIndex(world)
 
-	// 無効化後はBuiltがfalse、各マップがnilになる
 	si2 := query.GetSingleton[gc.SpatialIndex](world, world.Components.SpatialIndex)
 	assert.False(t, si2.Built)
-	assert.Nil(t, si2.SquadMembers)
 	assert.Nil(t, si2.Characters)
 	assert.Nil(t, si2.BlockPass)
 	assert.Nil(t, si2.PlayerEntity)
-}
-
-func TestGetSpatialIndex_隊員のBlockPassはインデックスに登録される(t *testing.T) {
-	t.Parallel()
-	world := testutil.InitTestWorld(t)
-
-	leader, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
-	require.NoError(t, err)
-
-	member, err := lifecycle.SpawnSquadMember(world, leader, "隊員", testAbilities(), "player")
-	require.NoError(t, err)
-
-	query.InvalidateSpatialIndex(world)
-	si := query.GetSpatialIndex(world)
-	require.NotNil(t, si)
-
-	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-
-	// 隊員はBlockPassコンポーネントを持つので、BlockPassマップに含まれる
-	assert.True(t, si.IsBlockPass(int(memberGrid.X), int(memberGrid.Y)),
-		"隊員のBlockPassはインデックスに登録される")
 }
