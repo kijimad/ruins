@@ -1,6 +1,6 @@
 package components
 
-const unknownLabel = "不明"
+import "fmt"
 
 // Pool は最大値と現在値を持つようなパラメータ
 type Pool[T int | float64] struct {
@@ -94,8 +94,9 @@ func (s EquipmentSlotNumber) String() string {
 		return "武器4"
 	case SlotWeapon5:
 		return "武器5"
+	default:
+		panic(fmt.Sprintf("未知のEquipmentSlotNumber: %d", s))
 	}
-	return unknownLabel
 }
 
 // ParseEquipmentSlot は文字列から装備スロット番号を返す。

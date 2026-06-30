@@ -207,9 +207,9 @@ func TestEquipmentSlotNumber(t *testing.T) {
 		}
 	})
 
-	t.Run("未定義のスロット番号は不明を返す", func(t *testing.T) {
+	t.Run("未定義のスロット番号はパニックする", func(t *testing.T) {
 		t.Parallel()
-		assert.Equal(t, "不明", EquipmentSlotNumber(99).String())
+		assert.Panics(t, func() { _ = EquipmentSlotNumber(99).String() })
 	})
 }
 

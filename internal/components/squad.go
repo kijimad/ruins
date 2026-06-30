@@ -1,5 +1,7 @@
 package components
 
+import "fmt"
+
 // SquadMember は隊員であることを示すマーカー。リーダーはプレイヤーエンティティから取得する
 type SquadMember struct{}
 
@@ -49,7 +51,7 @@ func (p PositionPolicy) String() string {
 	case PolicyRetreat:
 		return "撤退"
 	default:
-		return unknownLabel
+		panic(fmt.Sprintf("未知のPositionPolicy: %d", p))
 	}
 }
 
@@ -76,7 +78,7 @@ func (p CombatPolicy) String() string {
 	case PolicyEvade:
 		return "回避"
 	default:
-		return unknownLabel
+		panic(fmt.Sprintf("未知のCombatPolicy: %d", p))
 	}
 }
 
@@ -103,7 +105,7 @@ func (p ItemPickupPolicy) String() string {
 	case PolicyIgnore:
 		return "無視"
 	default:
-		return unknownLabel
+		panic(fmt.Sprintf("未知のItemPickupPolicy: %d", p))
 	}
 }
 
@@ -130,7 +132,7 @@ func (p ItemHandlingPolicy) String() string {
 	case PolicyDistribute:
 		return "分配"
 	default:
-		return unknownLabel
+		panic(fmt.Sprintf("未知のItemHandlingPolicy: %d", p))
 	}
 }
 
