@@ -1908,12 +1908,8 @@ type SaveDataSpriteRenderComponent struct {
 // SaveDataSpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない
 type SaveDataSpriteSheetName = string
 
-// SaveDataSquadMemberComponent 隊員コンポーネント。
-// Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
-type SaveDataSquadMemberComponent struct {
-	// LeaderRef リーダーのStableID
-	LeaderRef SaveDataStableID `json:"LeaderRef"`
-}
+// SaveDataSquadMemberComponent 隊員であることを示すマーカーコンポーネント
+type SaveDataSquadMemberComponent = map[string]interface{}
 
 // SaveDataSquadPolicyComponent 隊員の自律行動ポリシー
 type SaveDataSquadPolicyComponent struct {

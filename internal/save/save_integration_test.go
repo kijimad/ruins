@@ -298,19 +298,18 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		err = sm.RestoreWorldFromJSON(newWorld, jsonStr)
 		require.NoError(t, err)
 
-		// リーダー（プレイヤー）を取得
-		var newPlayer ecs.Entity
-		newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(entity ecs.Entity) {
-			newPlayer = entity
+		// プレイヤーが復元されていること
+		var playerFound bool
+		newWorld.Manager.Join(newWorld.Components.Player).Visit(ecs.Visit(func(_ ecs.Entity) {
+			playerFound = true
 		}))
+		assert.True(t, playerFound, "プレイヤーが復元されている")
 
-		// 隊員のリーダー参照がプレイヤーを指していること
-		var memberEntity ecs.Entity
-		newWorld.Manager.Join(newWorld.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
-			memberEntity = entity
+		// 隊員マーカーが復元されていること
+		var memberFound bool
+		newWorld.Manager.Join(newWorld.Components.SquadMember).Visit(ecs.Visit(func(_ ecs.Entity) {
+			memberFound = true
 		}))
-
-		sqm := newWorld.Components.SquadMember.Get(memberEntity).(*gc.SquadMember)
-		assert.Equal(t, newPlayer, sqm.Leader, "リーダー参照がプレイヤーを指す")
+		assert.True(t, memberFound, "隊員マーカーが復元されている")
 	})
 }

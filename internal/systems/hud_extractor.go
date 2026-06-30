@@ -97,9 +97,9 @@ func extractMinimapData(world w.World) hud.MinimapData {
 
 	// 隊員位置を抽出する
 	var squadPositions []hud.MinimapMarker
-	playerEntity, err := query.GetPlayerEntity(world)
+	_, err := query.GetPlayerEntity(world)
 	if err == nil {
-		for _, member := range query.SquadMembers(world, playerEntity) {
+		for _, member := range query.SquadMembers(world) {
 			if member.HasComponent(world.Components.GridElement) {
 				grid := world.Components.GridElement.Get(member).(*gc.GridElement)
 				squadPositions = append(squadPositions, hud.MinimapMarker{
@@ -448,7 +448,7 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 func extractSquadHUDData(world w.World) hud.SquadHUDData {
 	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
 
-	playerEntity, err := query.GetPlayerEntity(world)
+	_, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return hud.SquadHUDData{
 			ScreenDimensions: hud.ScreenDimensions{Width: screenWidth, Height: screenHeight},
@@ -456,7 +456,7 @@ func extractSquadHUDData(world w.World) hud.SquadHUDData {
 	}
 
 	var members []hud.SquadHUDMember
-	for _, member := range query.SquadMembers(world, playerEntity) {
+	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
 		members = append(members, hud.SquadHUDMember{

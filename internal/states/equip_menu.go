@@ -274,7 +274,7 @@ func (st *EquipMenuState) fetchSlotProps(world w.World) slotScreenProps {
 	// タブに対応するエンティティ一覧を構築
 	members := []ecs.Entity{player}
 	if playerFound {
-		members = append(members, query.SquadMembers(world, player)...)
+		members = append(members, query.SquadMembers(world)...)
 	}
 
 	return slotScreenProps{
@@ -324,7 +324,7 @@ func (st *EquipMenuState) createSlotTabs(world w.World, player ecs.Entity, playe
 
 	// 隊員のタブを追加
 	if playerFound {
-		for _, member := range query.SquadMembers(world, player) {
+		for _, member := range query.SquadMembers(world) {
 			memberName := query.GetEntityName(member, world)
 			memberItems := st.createAllSlotItems(world, member)
 			tabs = append(tabs, equipTabData{

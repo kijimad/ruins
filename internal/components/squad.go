@@ -1,11 +1,7 @@
 package components
 
-import ecs "github.com/x-hgg-x/goecs/v2"
-
-// SquadMember は隊員であることを示し、所属するリーダーを参照する
-type SquadMember struct {
-	Leader ecs.Entity
-}
+// SquadMember は隊員であることを示すマーカー。リーダーはプレイヤーエンティティから取得する
+type SquadMember struct{}
 
 // SquadPolicy は隊員の自律行動を制御するポリシーを保持する
 type SquadPolicy struct {
@@ -15,14 +11,12 @@ type SquadPolicy struct {
 	ItemHandling ItemHandlingPolicy
 }
 
-// DefaultSquadPolicy はデフォルトのポリシーを返す
-func DefaultSquadPolicy() SquadPolicy {
-	return SquadPolicy{
-		Position:     PolicyEscort,
-		Combat:       PolicyAttack,
-		ItemPickup:   PolicyPickup,
-		ItemHandling: PolicyDistribute,
-	}
+// DefaultSquadPolicy はデフォルトのポリシー
+var DefaultSquadPolicy = SquadPolicy{
+	Position:     PolicyEscort,
+	Combat:       PolicyAttack,
+	ItemPickup:   PolicyPickup,
+	ItemHandling: PolicyDistribute,
 }
 
 // PositionPolicy は位置ポリシーを表す

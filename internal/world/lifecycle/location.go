@@ -254,7 +254,7 @@ func MovePlayerToPosition(world w.World, tileX int, tileY int) error {
 
 	// Active隊員をプレイヤーの隣接タイルに配置する
 	exclude := map[gc.GridElement]bool{}
-	for _, member := range query.SquadMembers(world, playerEntity) {
+	for _, member := range query.SquadMembers(world) {
 		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
 		x, y, err := findAdjacentEmptyTile(world, tileX, tileY, exclude)
 		if err != nil {

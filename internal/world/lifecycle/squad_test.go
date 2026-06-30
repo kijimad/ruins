@@ -59,10 +59,6 @@ func TestSpawnSquadMember(t *testing.T) {
 	// プレイヤーマーカーは持たない
 	assert.False(t, member.HasComponent(world.Components.Player), "Playerは持たない")
 
-	// リーダー参照の確認
-	sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
-	assert.Equal(t, leader, sm.Leader, "リーダーへの参照が正しい")
-
 	// デフォルトポリシーの確認
 	policy := world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
 	assert.Equal(t, gc.PolicyEscort, policy.Position, "デフォルト位置ポリシーは護衛")
@@ -207,9 +203,8 @@ func TestSpawnDefaultSquadMember(t *testing.T) {
 	name := world.Components.Name.Get(member).(*gc.Name)
 	assert.Equal(t, "Jim", name.Name)
 
-	// リーダー参照が正しい
-	sm := world.Components.SquadMember.Get(member).(*gc.SquadMember)
-	assert.Equal(t, leader, sm.Leader)
+	// 隊員マーカーがある
+	assert.True(t, member.HasComponent(world.Components.SquadMember))
 }
 
 func TestSpawnDefaultSquadMember_リーダーにGridElementがないとエラー(t *testing.T) {

@@ -117,13 +117,13 @@ type formationMemberData struct {
 }
 
 func (st *FormationMenuState) fetchProps(world w.World) formationProps {
-	playerEntity, err := query.GetPlayerEntity(world)
+	_, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return formationProps{}
 	}
 
 	var members []formationMemberData
-	for _, member := range query.SquadMembers(world, playerEntity) {
+	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
 

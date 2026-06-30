@@ -6,8 +6,8 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// SquadMembers はリーダーに所属する生存隊員を返す
-func SquadMembers(world w.World, leader ecs.Entity) []ecs.Entity {
+// SquadMembers は生存している全隊員を返す
+func SquadMembers(world w.World) []ecs.Entity {
 	var members []ecs.Entity
 	world.Manager.Join(
 		world.Components.SquadMember,
@@ -16,23 +16,20 @@ func SquadMembers(world w.World, leader ecs.Entity) []ecs.Entity {
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}
-		sm := world.Components.SquadMember.Get(entity).(*gc.SquadMember)
-		if sm.Leader == leader {
-			members = append(members, entity)
-		}
+		members = append(members, entity)
 	}))
 	return members
 }
 
-// SquadMemberCount はリーダーに所属する生存隊員数を返す
-func SquadMemberCount(world w.World, leader ecs.Entity) int {
-	return len(SquadMembers(world, leader))
+// SquadMemberCount は生存隊員数を返す
+func SquadMemberCount(world w.World) int {
+	return len(SquadMembers(world))
 }
 
-// SquadMemberAt は指定座標にいるリーダーの隊員を返す。
+// SquadMemberAt は指定座標にいる隊員を返す。
 // 見つからなければ ok=false を返す
-func SquadMemberAt(world w.World, leader ecs.Entity, x, y int) (ecs.Entity, bool) {
-	for _, member := range SquadMembers(world, leader) {
+func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
+	for _, member := range SquadMembers(world) {
 		grid := world.Components.GridElement.Get(member).(*gc.GridElement)
 		if int(grid.X) == x && int(grid.Y) == y {
 			return member, true
@@ -45,7 +42,7 @@ func SquadMemberAt(world w.World, leader ecs.Entity, x, y int) (ecs.Entity, bool
 // 隊員でない場合はデフォルト値を返す
 func SquadPolicy(world w.World, member ecs.Entity) gc.SquadPolicy {
 	if !member.HasComponent(world.Components.SquadPolicy) {
-		return gc.DefaultSquadPolicy()
+		return gc.DefaultSquadPolicy
 	}
 	return *world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
 }
@@ -53,13 +50,4 @@ func SquadPolicy(world w.World, member ecs.Entity) gc.SquadPolicy {
 // IsSquadMember はエンティティが隊員かどうかを返す
 func IsSquadMember(world w.World, entity ecs.Entity) bool {
 	return entity.HasComponent(world.Components.SquadMember)
-}
-
-// SquadLeader は隊員のリーダーを返す。
-// 隊員でない場合はゼロ値のEntityを返す
-func SquadLeader(world w.World, member ecs.Entity) ecs.Entity {
-	if !member.HasComponent(world.Components.SquadMember) {
-		return ecs.Entity(0)
-	}
-	return world.Components.SquadMember.Get(member).(*gc.SquadMember).Leader
 }

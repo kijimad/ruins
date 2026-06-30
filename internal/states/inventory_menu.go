@@ -233,7 +233,7 @@ func (st *InventoryMenuState) fetchProps(world w.World) inventoryProps {
 	})
 
 	playerName := query.GetEntityName(player, world)
-	members := query.SquadMembers(world, player)
+	members := query.SquadMembers(world)
 	tabs := make([]inventoryTabData, 0, 1+len(members))
 	tabs = append(tabs, inventoryTabData{
 		ID:    "player",

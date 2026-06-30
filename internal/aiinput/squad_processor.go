@@ -113,8 +113,12 @@ func (sp *SquadProcessor) gatherSquadContext(world w.World, entity ecs.Entity) (
 		return nil, false
 	}
 
-	sm := world.Components.SquadMember.Get(entity).(*gc.SquadMember)
-	leader := sm.Leader
+	si := query.GetSpatialIndex(world)
+	if si == nil || si.PlayerEntity == nil {
+		sp.logger.Warn("プレイヤーが見つからない", "entity", entity)
+		return nil, false
+	}
+	leader := *si.PlayerEntity
 
 	if !leader.HasComponent(world.Components.GridElement) {
 		sp.logger.Warn("リーダーにGridElementがない", "entity", entity)

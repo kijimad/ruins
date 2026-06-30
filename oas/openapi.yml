@@ -3381,16 +3381,7 @@ components:
       description: スプライトシート名。セーブデータではパターン制約を適用しない
     SaveData.SquadMemberComponent:
       type: object
-      required:
-        - LeaderRef
-      properties:
-        LeaderRef:
-          allOf:
-            - $ref: '#/components/schemas/SaveData.StableID'
-          description: リーダーのStableID
-      description: |-
-        隊員コンポーネント。
-        Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+      description: 隊員であることを示すマーカーコンポーネント
     SaveData.SquadPolicyComponent:
       type: object
       required:

@@ -177,12 +177,12 @@ var batchCommands = []string{"集合", "全員待機"}
 func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	var members []squadMemberData
 
-	playerEntity, err := query.GetPlayerEntity(world)
+	_, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return squadProps{}
 	}
 
-	for _, member := range query.SquadMembers(world, playerEntity) {
+	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
 		policy := query.SquadPolicy(world, member)
@@ -270,11 +270,11 @@ func (st *SquadMenuState) handleMemberSelection(world w.World) {
 }
 
 func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
-	playerEntity, err := query.GetPlayerEntity(world)
+	_, err := query.GetPlayerEntity(world)
 	if err != nil {
 		return
 	}
-	members := query.SquadMembers(world, playerEntity)
+	members := query.SquadMembers(world)
 
 	switch command {
 	case "集合":

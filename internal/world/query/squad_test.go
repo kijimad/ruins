@@ -9,7 +9,6 @@ import (
 	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 func testAbilities() gc.Abilities {
@@ -26,7 +25,7 @@ func testAbilities() gc.Abilities {
 func TestSquadMembers(t *testing.T) {
 	t.Parallel()
 
-	t.Run("リーダーの隊員一覧を取得できる", func(t *testing.T) {
+	t.Run("隊員一覧を取得できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -38,7 +37,7 @@ func TestSquadMembers(t *testing.T) {
 		m2, err := lifecycle.SpawnSquadMember(world, leader, "隊員B", testAbilities(), "player")
 		require.NoError(t, err)
 
-		members := query.SquadMembers(world, leader)
+		members := query.SquadMembers(world)
 		assert.Len(t, members, 2)
 		assert.Contains(t, members, m1)
 		assert.Contains(t, members, m2)
@@ -48,10 +47,10 @@ func TestSquadMembers(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
-		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+		_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 		require.NoError(t, err)
 
-		members := query.SquadMembers(world, leader)
+		members := query.SquadMembers(world)
 		assert.Empty(t, members)
 	})
 
@@ -69,30 +68,10 @@ func TestSquadMembers(t *testing.T) {
 
 		dead.AddComponent(world.Components.Dead, &gc.Dead{})
 
-		members := query.SquadMembers(world, leader)
+		members := query.SquadMembers(world)
 		assert.Len(t, members, 1)
 		assert.Contains(t, members, alive)
 		assert.NotContains(t, members, dead)
-	})
-
-	t.Run("別のリーダーの隊員は含まれない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		leader1, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
-		require.NoError(t, err)
-
-		// leader2はリーダー用のエンティティとして手動作成
-		leader2 := world.Manager.NewEntity()
-		leader2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 10, Y: 10})
-
-		_, err = lifecycle.SpawnSquadMember(world, leader1, "隊員1A", testAbilities(), "player")
-		require.NoError(t, err)
-		_, err = lifecycle.SpawnSquadMember(world, leader2, "隊員2A", testAbilities(), "player")
-		require.NoError(t, err)
-
-		members := query.SquadMembers(world, leader1)
-		assert.Len(t, members, 1)
 	})
 }
 
@@ -110,7 +89,7 @@ func TestSquadMemberAt(t *testing.T) {
 		require.NoError(t, err)
 
 		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
-		found, ok := query.SquadMemberAt(world, leader, int(memberGrid.X), int(memberGrid.Y))
+		found, ok := query.SquadMemberAt(world, int(memberGrid.X), int(memberGrid.Y))
 		assert.True(t, ok)
 		assert.Equal(t, member, found)
 	})
@@ -125,28 +104,9 @@ func TestSquadMemberAt(t *testing.T) {
 		_, err = lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		_, ok := query.SquadMemberAt(world, leader, 99, 99)
+		_, ok := query.SquadMemberAt(world, 99, 99)
 		assert.False(t, ok)
 	})
-
-	t.Run("別リーダーの隊員は見つからない", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		leader1, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
-		require.NoError(t, err)
-
-		leader2 := world.Manager.NewEntity()
-		leader2.AddComponent(world.Components.GridElement, &gc.GridElement{X: 15, Y: 15})
-
-		member2, err := lifecycle.SpawnSquadMember(world, leader2, "他隊員", testAbilities(), "player")
-		require.NoError(t, err)
-
-		memberGrid := world.Components.GridElement.Get(member2).(*gc.GridElement)
-		_, ok := query.SquadMemberAt(world, leader1, int(memberGrid.X), int(memberGrid.Y))
-		assert.False(t, ok, "別リーダーの隊員は見つからない")
-	})
-
 }
 
 func TestSquadMemberCount(t *testing.T) {
@@ -156,15 +116,15 @@ func TestSquadMemberCount(t *testing.T) {
 	leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	assert.Equal(t, 0, query.SquadMemberCount(world, leader))
+	assert.Equal(t, 0, query.SquadMemberCount(world))
 
 	_, err = lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 	require.NoError(t, err)
-	assert.Equal(t, 1, query.SquadMemberCount(world, leader))
+	assert.Equal(t, 1, query.SquadMemberCount(world))
 
 	_, err = lifecycle.SpawnSquadMember(world, leader, "隊員B", testAbilities(), "player")
 	require.NoError(t, err)
-	assert.Equal(t, 2, query.SquadMemberCount(world, leader))
+	assert.Equal(t, 2, query.SquadMemberCount(world))
 }
 
 func TestSquadPolicy(t *testing.T) {
@@ -191,7 +151,7 @@ func TestSquadPolicy(t *testing.T) {
 
 		nonMember := world.Manager.NewEntity()
 		policy := query.SquadPolicy(world, nonMember)
-		assert.Equal(t, gc.DefaultSquadPolicy(), policy)
+		assert.Equal(t, gc.DefaultSquadPolicy, policy)
 	})
 }
 
@@ -210,29 +170,4 @@ func TestIsSquadMember(t *testing.T) {
 
 	nonMember := world.Manager.NewEntity()
 	assert.False(t, query.IsSquadMember(world, nonMember))
-}
-
-func TestSquadLeader(t *testing.T) {
-	t.Parallel()
-
-	t.Run("隊員のリーダーを取得できる", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		leader, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
-		require.NoError(t, err)
-
-		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
-		require.NoError(t, err)
-
-		assert.Equal(t, leader, query.SquadLeader(world, member))
-	})
-
-	t.Run("隊員でない場合はゼロ値を返す", func(t *testing.T) {
-		t.Parallel()
-		world := testutil.InitTestWorld(t)
-
-		nonMember := world.Manager.NewEntity()
-		assert.Equal(t, ecs.Entity(0), query.SquadLeader(world, nonMember))
-	})
 }

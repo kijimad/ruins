@@ -244,7 +244,7 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		Agility:   gc.Ability{Base: 9, Modifier: 0, Total: 9},
 		Defense:   gc.Ability{Base: 5, Modifier: 0, Total: 5},
 	})
-	member.AddComponent(world.Components.SquadMember, &gc.SquadMember{Leader: player})
+	member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
 	member.AddComponent(world.Components.SquadPolicy, &gc.SquadPolicy{
 		Position:     gc.PolicyEscort,
 		Combat:       gc.PolicyAttack,

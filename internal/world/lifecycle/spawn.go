@@ -244,7 +244,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 
 	skills := gc.NewSkills()
 	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
-	defaultPolicy := gc.DefaultSquadPolicy()
+	defaultPolicy := gc.DefaultSquadPolicy
 
 	entitySpec := gc.EntitySpec{
 		Name:           &gc.Name{Name: name},
@@ -271,7 +271,7 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		AIVision: &gc.AIVision{
 			ViewDistance: AIVisionDistance,
 		},
-		SquadMember: &gc.SquadMember{Leader: leader},
+		SquadMember: &gc.SquadMember{},
 		SquadPolicy: &defaultPolicy,
 	}
 

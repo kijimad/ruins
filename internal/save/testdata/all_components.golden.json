@@ -431,12 +431,7 @@
             "SpriteKey": "idle",
             "SpriteSheetName": "npc_sheet"
           },
-          "SquadMember": {
-            "LeaderRef": {
-              "generation": 0,
-              "index": 1
-            }
-          },
+          "SquadMember": {},
           "SquadPolicy": {
             "Combat": 0,
             "ItemHandling": 0,
