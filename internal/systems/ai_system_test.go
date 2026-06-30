@@ -42,7 +42,7 @@ func TestAISystem(t *testing.T) {
 
 	// AIシステムを実行（aiinputパッケージを使用）
 	processor := aiinput.NewProcessor()
-	require.NoError(t, processor.ProcessEnemies(world))
+	require.NoError(t, processor.ProcessNonSquadAI(world))
 
 	// システム実行後の位置を記録
 	finalGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)

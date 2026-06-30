@@ -28,17 +28,19 @@ func NewProcessor() *Processor {
 	}
 }
 
-// ProcessEnemies は敵AIエンティティを処理する
-func (p *Processor) ProcessEnemies(world w.World) error {
+// ProcessNonSquadAI はAIMoveFSMを持つ非隊員エンティティを処理する。
+// 敵・中立NPC問わず、Dispositionと状態機械で行動を分岐する。
+// 隊員はSquadProcessorで処理するため除外する
+func (p *Processor) ProcessNonSquadAI(world w.World) error {
 	turnNumber := query.GetTurnState(world).TurnNumber
 	p.logger.Debug("AI処理開始", "turn", turnNumber)
 
 	entityCount := 0
 
 	world.Manager.Join(
-		world.Components.FactionEnemy,
 		world.Components.AIMoveFSM,
 		world.Components.GridElement,
+		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		entityCount++
 		p.logger.Debug("AIエンティティを処理中", "entity", entity, "count", entityCount)
