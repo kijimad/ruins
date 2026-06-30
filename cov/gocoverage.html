@@ -59,7 +59,7 @@
 				
 				<option value="file1">github.com/kijimaD/ruins/internal/activity/activity_manager.go (80.0%)</option>
 				
-				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (78.4%)</option>
+				<option value="file2">github.com/kijimaD/ruins/internal/activity/attack.go (77.9%)</option>
 				
 				<option value="file3">github.com/kijimaD/ruins/internal/activity/door.go (75.4%)</option>
 				
@@ -89,7 +89,7 @@
 				
 				<option value="file16">github.com/kijimaD/ruins/internal/activity/wait.go (100.0%)</option>
 				
-				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (93.4%)</option>
+				<option value="file17">github.com/kijimaD/ruins/internal/aiinput/action_planner.go (94.0%)</option>
 				
 				<option value="file18">github.com/kijimaD/ruins/internal/aiinput/errors.go (100.0%)</option>
 				
@@ -475,7 +475,7 @@
 				
 				<option value="file209">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (90.3%)</option>
 				
-				<option value="file210">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (69.4%)</option>
+				<option value="file210">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (68.8%)</option>
 				
 				<option value="file211">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.6%)</option>
 				
@@ -1499,7 +1499,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 
         baseDamage = baseDamage * getSkillMult(attacker, attack, world, true) / 100
 
-        if critical </span><span class="cov8" title="1">{
+        if critical </span><span class="cov0" title="0">{
                 baseDamage = formula.ApplyCritical(baseDamage)
         }</span>
 
@@ -4203,7 +4203,7 @@ func (ap *DefaultActionPlanner) planWanderAction(world w.World, aiEntity ecs.Ent
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (ap *DefaultActionPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         // 30%の確率で待機
-        if rand.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
+        if rand.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
 
@@ -46580,7 +46580,7 @@ func initialPatrolDir() int <span class="cov8" title="1">{
         if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
                 return 1
         }</span>
-        <span class="cov8" title="1">return -1</span>
+        <span class="cov0" title="0">return -1</span>
 }
 
 // SpawnTile はタイルを生成する
