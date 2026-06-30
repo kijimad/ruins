@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -23,7 +24,7 @@ func (ta *TransferActivity) Info() Info {
 		Description:     "アイテムを他のエンティティに渡す",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 50,
+		ActionPointCost: consts.MinorActionCost,
 		TotalRequiredAP: 0,
 	}
 }
