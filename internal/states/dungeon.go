@@ -162,23 +162,19 @@ func (st *DungeonState) OnStart(world w.World) error {
 func (st *DungeonState) OnStop(world w.World) error {
 	world.Manager.Join(
 		world.Components.SpriteRender,
+		world.Components.Player.Not(),
+		world.Components.SquadMember.Not(),
+		world.Components.LocationInBackpack.Not(),
+		world.Components.LocationEquipped.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// プレイヤー、隊員、バックパック内アイテム、装備中アイテムは次のフロアでも必要なので削除しない
-		if !entity.HasComponent(world.Components.Player) &&
-			!entity.HasComponent(world.Components.SquadMember) &&
-			!entity.HasComponent(world.Components.LocationInBackpack) &&
-			!entity.HasComponent(world.Components.LocationEquipped) {
-			world.Manager.DeleteEntity(entity)
-		}
+		world.Manager.DeleteEntity(entity)
 	}))
 	world.Manager.Join(
 		world.Components.GridElement,
+		world.Components.Player.Not(),
+		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// プレイヤーと隊員は次のフロアでも必要なので削除しない
-		if !entity.HasComponent(world.Components.Player) &&
-			!entity.HasComponent(world.Components.SquadMember) {
-			world.Manager.DeleteEntity(entity)
-		}
+		world.Manager.DeleteEntity(entity)
 	}))
 
 	// 未消費のステート遷移リクエストを破棄
