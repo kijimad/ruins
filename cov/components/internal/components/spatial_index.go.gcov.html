@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
-            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">18</td>
             <td class="headerCovTableEntry">0</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-30 13:32:59</td>
+            <td class="headerValue">2026-07-01 00:26:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -68,13 +68,13 @@
 <span id="L6"><span class="lineNum">       6</span>              : )</span>
 <span id="L7"><span class="lineNum">       7</span>              : </span>
 <span id="L8"><span class="lineNum">       8</span>              : // SpatialIndex はターン内で再利用可能な空間インデックスを保持する。</span>
-<span id="L9"><span class="lineNum">       9</span>              : // 壁・キャラクター・プレイヤーの位置をキャッシュし、O(1)で判定できるようにする。</span>
+<span id="L9"><span class="lineNum">       9</span>              : // 壁・キャラクターの位置をキャッシュし、O(1)で判定できるようにする。</span>
 <span id="L10"><span class="lineNum">      10</span>              : // すべてターン開始時に1回構築し、ターン終了時に無効化する</span>
 <span id="L11"><span class="lineNum">      11</span>              : type SpatialIndex struct {</span>
 <span id="L12"><span class="lineNum">      12</span>              :         MapWidth, MapHeight int</span>
-<span id="L13"><span class="lineNum">      13</span>              :         // 壁位置のインデックス。BlockPassコンポーネントを持つエンティティの位置</span>
+<span id="L13"><span class="lineNum">      13</span>              :         // 静的障害物の位置。壁やドアなどBlockPassコンポーネントを持つPropが対象</span>
 <span id="L14"><span class="lineNum">      14</span>              :         BlockPass map[GridElement]bool</span>
-<span id="L15"><span class="lineNum">      15</span>              :         // キャラクター位置のインデックス。PlayerまたはAIMoveFSMを持つエンティティの位置</span>
+<span id="L15"><span class="lineNum">      15</span>              :         // キャラクター位置のインデックス。プレイヤー・敵・隊員・中立NPCの位置</span>
 <span id="L16"><span class="lineNum">      16</span>              :         Characters map[GridElement]ecs.Entity</span>
 <span id="L17"><span class="lineNum">      17</span>              :         // プレイヤーエンティティのキャッシュ。プレイヤーが存在しない場合はnil</span>
 <span id="L18"><span class="lineNum">      18</span>              :         PlayerEntity *ecs.Entity</span>
@@ -87,7 +87,7 @@
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         return &amp;SpatialIndex{}</span></span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 : }</span></span>
 <span id="L27"><span class="lineNum">      27</span>              : </span>
-<span id="L28"><span class="lineNum">      28</span>              : // IsBlockPass は指定座標に通行不可エンティティがあるかをO(1)で判定する。</span>
+<span id="L28"><span class="lineNum">      28</span>              : // IsBlockPass は指定座標に静的障害物があるかをO(1)で判定する。</span>
 <span id="L29"><span class="lineNum">      29</span>              : // 未構築の場合はfalseを返す</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 : func (si *SpatialIndex) IsBlockPass(x, y int) bool {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         if !si.Built {</span></span>
@@ -96,22 +96,19 @@
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         return si.BlockPass[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]</span></span>
 <span id="L35"><span class="lineNum">      35</span>              : }</span>
 <span id="L36"><span class="lineNum">      36</span>              : </span>
-<span id="L37"><span class="lineNum">      37</span>              : // IsCharacterAt は指定座標に自分以外のキャラクターがいるかをO(1)で判定する</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func (si *SpatialIndex) IsCharacterAt(x, y int, excludeEntity ecs.Entity) bool {</span></span>
-<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         if !si.Built {</span></span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 return false</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :         entity, exists := si.Characters[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]</span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :         return exists &amp;&amp; entity != excludeEntity</span></span>
-<span id="L44"><span class="lineNum">      44</span>              : }</span>
-<span id="L45"><span class="lineNum">      45</span>              : </span>
-<span id="L46"><span class="lineNum">      46</span>              : // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる</span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 : func (si *SpatialIndex) Invalidate() {</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         si.Built = false</span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :         si.BlockPass = nil</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :         si.Characters = nil</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 :         si.PlayerEntity = nil</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L37"><span class="lineNum">      37</span>              : // CharacterAt は指定座標のキャラクターを返す</span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : func (si *SpatialIndex) CharacterAt(x, y int) (ecs.Entity, bool) {</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :         entity, ok := si.Characters[GridElement{X: consts.Tile(x), Y: consts.Tile(y)}]</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :         return entity, ok</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L42"><span class="lineNum">      42</span>              : </span>
+<span id="L43"><span class="lineNum">      43</span>              : // Invalidate はインデックスを無効化する。次回アクセス時に再構築させる</span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 : func (si *SpatialIndex) Invalidate() {</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :         si.Built = false</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :         si.BlockPass = nil</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :         si.Characters = nil</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 :         si.PlayerEntity = nil</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 : }</span></span>
         </pre>
               </td>
             </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-30 13:32:59</td>
+            <td class="headerValue">2026-07-01 00:26:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -118,27 +118,29 @@
 <span id="L56"><span class="lineNum">      56</span>              :         BehaviorRead        BehaviorName = &quot;Read&quot;</span>
 <span id="L57"><span class="lineNum">      57</span>              :         BehaviorShoot       BehaviorName = &quot;Shoot&quot;</span>
 <span id="L58"><span class="lineNum">      58</span>              :         BehaviorReload      BehaviorName = &quot;Reload&quot;</span>
-<span id="L59"><span class="lineNum">      59</span>              : )</span>
-<span id="L60"><span class="lineNum">      60</span>              : </span>
-<span id="L61"><span class="lineNum">      61</span>              : // Activity は実行中のアクティビティを保持するコンポーネント</span>
-<span id="L62"><span class="lineNum">      62</span>              : // 1エンティティにつき最大1つのアクティビティを持つ</span>
-<span id="L63"><span class="lineNum">      63</span>              : type Activity struct {</span>
-<span id="L64"><span class="lineNum">      64</span>              :         BehaviorName BehaviorName  // アクティビティの種類</span>
-<span id="L65"><span class="lineNum">      65</span>              :         State        ActivityState // 実行状態</span>
-<span id="L66"><span class="lineNum">      66</span>              :         TurnsTotal   int           // 総必要ターン数</span>
-<span id="L67"><span class="lineNum">      67</span>              :         TurnsLeft    int           // 残りターン数</span>
-<span id="L68"><span class="lineNum">      68</span>              :         Target       *ecs.Entity   // 操作対象のエンティティ</span>
-<span id="L69"><span class="lineNum">      69</span>              :         Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う</span>
-<span id="L70"><span class="lineNum">      70</span>              :         CancelReason string        // キャンセル理由</span>
-<span id="L71"><span class="lineNum">      71</span>              : }</span>
-<span id="L72"><span class="lineNum">      72</span>              : </span>
-<span id="L73"><span class="lineNum">      73</span>              : // LastActivity は直近のアクティビティ実行結果を保持するコンポーネント</span>
-<span id="L74"><span class="lineNum">      74</span>              : type LastActivity struct {</span>
-<span id="L75"><span class="lineNum">      75</span>              :         BehaviorName BehaviorName  // 実行されたアクティビティ名</span>
-<span id="L76"><span class="lineNum">      76</span>              :         State        ActivityState // アクティビティの終了状態</span>
-<span id="L77"><span class="lineNum">      77</span>              :         Success      bool          // 成功/失敗</span>
-<span id="L78"><span class="lineNum">      78</span>              :         Message      string        // 結果メッセージ</span>
-<span id="L79"><span class="lineNum">      79</span>              : }</span>
+<span id="L59"><span class="lineNum">      59</span>              :         BehaviorTransfer    BehaviorName = &quot;Transfer&quot;</span>
+<span id="L60"><span class="lineNum">      60</span>              : )</span>
+<span id="L61"><span class="lineNum">      61</span>              : </span>
+<span id="L62"><span class="lineNum">      62</span>              : // Activity は実行中のアクティビティを保持するコンポーネント</span>
+<span id="L63"><span class="lineNum">      63</span>              : // 1エンティティにつき最大1つのアクティビティを持つ</span>
+<span id="L64"><span class="lineNum">      64</span>              : type Activity struct {</span>
+<span id="L65"><span class="lineNum">      65</span>              :         BehaviorName BehaviorName  // アクティビティの種類</span>
+<span id="L66"><span class="lineNum">      66</span>              :         State        ActivityState // 実行状態</span>
+<span id="L67"><span class="lineNum">      67</span>              :         TurnsTotal   int           // 総必要ターン数</span>
+<span id="L68"><span class="lineNum">      68</span>              :         TurnsLeft    int           // 残りターン数</span>
+<span id="L69"><span class="lineNum">      69</span>              :         Target       *ecs.Entity   // 操作対象のエンティティ</span>
+<span id="L70"><span class="lineNum">      70</span>              :         Recipient    *ecs.Entity   // 受取人エンティティ。アイテム転送の転送先など</span>
+<span id="L71"><span class="lineNum">      71</span>              :         Destination  *GridElement  // 操作先のタイル座標。何もない位置に配置するなどに使う</span>
+<span id="L72"><span class="lineNum">      72</span>              :         CancelReason string        // キャンセル理由</span>
+<span id="L73"><span class="lineNum">      73</span>              : }</span>
+<span id="L74"><span class="lineNum">      74</span>              : </span>
+<span id="L75"><span class="lineNum">      75</span>              : // LastActivity は直近のアクティビティ実行結果を保持するコンポーネント</span>
+<span id="L76"><span class="lineNum">      76</span>              : type LastActivity struct {</span>
+<span id="L77"><span class="lineNum">      77</span>              :         BehaviorName BehaviorName  // 実行されたアクティビティ名</span>
+<span id="L78"><span class="lineNum">      78</span>              :         State        ActivityState // アクティビティの終了状態</span>
+<span id="L79"><span class="lineNum">      79</span>              :         Success      bool          // 成功/失敗</span>
+<span id="L80"><span class="lineNum">      80</span>              :         Message      string        // 結果メッセージ</span>
+<span id="L81"><span class="lineNum">      81</span>              : }</span>
         </pre>
               </td>
             </tr>

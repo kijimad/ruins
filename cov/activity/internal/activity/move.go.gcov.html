@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">77.6&nbsp;%</td>
-            <td class="headerCovTableEntry">98</td>
-            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryMed">78.7&nbsp;%</td>
+            <td class="headerCovTableEntry">122</td>
+            <td class="headerCovTableEntry">96</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-30 13:32:59</td>
+            <td class="headerValue">2026-07-01 00:26:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -199,19 +199,47 @@
 <span id="L137"><span class="lineNum">     137</span>              : </span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC tlaBgGNC">           1 :         grid := gridElement.(*gc.GridElement)</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 :         oldX, oldY := int(grid.X), int(grid.Y)</span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :         grid.X = comp.Destination.X</span></span>
-<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         grid.Y = comp.Destination.Y</span></span>
-<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :         progressHunger(actor, world)</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動完了&quot;,</span></span>
-<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, oldX, oldY),</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, comp.Destination.X, comp.Destination.Y))</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L152"><span class="lineNum">     152</span>              : }</span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :         destX, destY := int(comp.Destination.X), int(comp.Destination.Y)</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :         // 味方キャラクターのいるタイルに移動する場合、位置を入れ替える</span></span>
+<span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :         swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         grid.X = comp.Destination.X</span></span>
+<span id="L146"><span class="lineNum">     146</span> <span class="tlaGNC">           1 :         grid.Y = comp.Destination.Y</span></span>
+<span id="L147"><span class="lineNum">     147</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :         progressHunger(actor, world)</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         log.Debug(&quot;移動完了&quot;,</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :                 &quot;actor&quot;, actor,</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, oldX, oldY),</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, destX, destY))</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L156"><span class="lineNum">     156</span>              : }</span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              : // swapAllyIfNeeded は移動先に味方キャラクターがいた場合、位置を入れ替える。</span>
+<span id="L159"><span class="lineNum">     159</span>              : // プレイヤー→隊員、隊員→隊員の交換に対応する</span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 : func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :         si := query.GetSpatialIndex(world)</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         if si == nil {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC tlaBgGNC">           1 :         target, ok := si.CharacterAt(toX, toY)</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           2 :         if !ok {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                 return</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :         if !CanPassThrough(world, actor, target) {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC tlaBgUNC">           0 :                 return</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC tlaBgGNC">           1 :         targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :         targetGrid.X = consts.Tile(fromX)</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :         targetGrid.Y = consts.Tile(fromY)</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         log.Debug(&quot;味方と位置入れ替え&quot;,</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                 &quot;target&quot;, target,</span></span>
+<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                 &quot;from&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, toX, toY),</span></span>
+<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                 &quot;to&quot;, fmt.Sprintf(&quot;(%d,%d)&quot;, fromX, fromY))</span></span>
+<span id="L180"><span class="lineNum">     180</span>              : }</span>
         </pre>
               </td>
             </tr>

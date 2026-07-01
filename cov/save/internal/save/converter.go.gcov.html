@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryHi">97.4&nbsp;%</td>
-            <td class="headerCovTableEntry">311</td>
-            <td class="headerCovTableEntry">303</td>
+            <td class="headerCovTableEntryHi">97.6&nbsp;%</td>
+            <td class="headerCovTableEntry">327</td>
+            <td class="headerCovTableEntry">319</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-30 13:32:59</td>
+            <td class="headerValue">2026-07-01 00:26:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -443,13 +443,33 @@
 <span id="L381"><span class="lineNum">     381</span> <span class="tlaGNC tlaBgGNC">           1 :         return gc.ProvidesHealing{Amount: amount}</span></span>
 <span id="L382"><span class="lineNum">     382</span>              : }</span>
 <span id="L383"><span class="lineNum">     383</span>              : </span>
-<span id="L384"><span class="lineNum">     384</span>              : // ================== マーカーコンポーネント ==================</span>
+<span id="L384"><span class="lineNum">     384</span>              : // ================== 隊員コンポーネント変換 ==================</span>
 <span id="L385"><span class="lineNum">     385</span>              : </span>
-<span id="L386"><span class="lineNum">     386</span>              : // emptyMarker はマーカーコンポーネント用の空マップを返す</span>
-<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 : func emptyMarker() *oapi.SaveDataMarkerComponent {</span></span>
-<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :         m := oapi.SaveDataMarkerComponent{}</span></span>
-<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :         return &amp;m</span></span>
-<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L386"><span class="lineNum">     386</span> <span class="tlaGNC">           1 : func squadPolicyToSaveData(sp gc.SquadPolicy) oapi.SaveDataSquadPolicyComponent {</span></span>
+<span id="L387"><span class="lineNum">     387</span> <span class="tlaGNC">           1 :         return oapi.SaveDataSquadPolicyComponent{</span></span>
+<span id="L388"><span class="lineNum">     388</span> <span class="tlaGNC">           1 :                 Position:     oapi.SaveDataPositionPolicyType(sp.Position),</span></span>
+<span id="L389"><span class="lineNum">     389</span> <span class="tlaGNC">           1 :                 Combat:       oapi.SaveDataCombatPolicyType(sp.Combat),</span></span>
+<span id="L390"><span class="lineNum">     390</span> <span class="tlaGNC">           1 :                 ItemPickup:   oapi.SaveDataItemPickupPolicyType(sp.ItemPickup),</span></span>
+<span id="L391"><span class="lineNum">     391</span> <span class="tlaGNC">           1 :                 ItemHandling: oapi.SaveDataItemHandlingPolicyType(sp.ItemHandling),</span></span>
+<span id="L392"><span class="lineNum">     392</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L393"><span class="lineNum">     393</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L394"><span class="lineNum">     394</span>              : </span>
+<span id="L395"><span class="lineNum">     395</span> <span class="tlaGNC">           1 : func squadPolicyFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.SquadPolicy {</span></span>
+<span id="L396"><span class="lineNum">     396</span> <span class="tlaGNC">           1 :         return gc.SquadPolicy{</span></span>
+<span id="L397"><span class="lineNum">     397</span> <span class="tlaGNC">           1 :                 Position:     gc.PositionPolicy(sd.Position),</span></span>
+<span id="L398"><span class="lineNum">     398</span> <span class="tlaGNC">           1 :                 Combat:       gc.CombatPolicy(sd.Combat),</span></span>
+<span id="L399"><span class="lineNum">     399</span> <span class="tlaGNC">           1 :                 ItemPickup:   gc.ItemPickupPolicy(sd.ItemPickup),</span></span>
+<span id="L400"><span class="lineNum">     400</span> <span class="tlaGNC">           1 :                 ItemHandling: gc.ItemHandlingPolicy(sd.ItemHandling),</span></span>
+<span id="L401"><span class="lineNum">     401</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L402"><span class="lineNum">     402</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L403"><span class="lineNum">     403</span>              : </span>
+<span id="L404"><span class="lineNum">     404</span>              : // ================== マーカーコンポーネント ==================</span>
+<span id="L405"><span class="lineNum">     405</span>              : </span>
+<span id="L406"><span class="lineNum">     406</span>              : // emptyMarker はマーカーコンポーネント用の空マップを返す</span>
+<span id="L407"><span class="lineNum">     407</span> <span class="tlaGNC">           1 : func emptyMarker() *oapi.SaveDataMarkerComponent {</span></span>
+<span id="L408"><span class="lineNum">     408</span> <span class="tlaGNC">           1 :         m := oapi.SaveDataMarkerComponent{}</span></span>
+<span id="L409"><span class="lineNum">     409</span> <span class="tlaGNC">           1 :         return &amp;m</span></span>
+<span id="L410"><span class="lineNum">     410</span> <span class="tlaGNC">           1 : }</span></span>
         </pre>
               </td>
             </tr>

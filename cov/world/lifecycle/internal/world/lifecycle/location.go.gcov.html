@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">86.8&nbsp;%</td>
-            <td class="headerCovTableEntry">151</td>
-            <td class="headerCovTableEntry">131</td>
+            <td class="headerCovTableEntryMed">85.9&nbsp;%</td>
+            <td class="headerCovTableEntry">185</td>
+            <td class="headerCovTableEntry">159</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-06-30 13:32:59</td>
+            <td class="headerValue">2026-07-01 00:26:30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -246,41 +246,89 @@
 <span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L185"><span class="lineNum">     185</span>              : }</span>
 <span id="L186"><span class="lineNum">     186</span>              : </span>
-<span id="L187"><span class="lineNum">     187</span>              : // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる</span>
-<span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 : func MovePlayerToPosition(world w.World, tileX int, tileY int) error {</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         var found bool</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 world.Components.Player,</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                 world.Components.SpriteRender,</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                 world.Components.Camera,</span></span>
-<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           2 :                 if !found {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaGNC">           1 :                         playerEntity = entity</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaGNC">           1 :                         found = true</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L202"><span class="lineNum">     202</span>              :         }))</span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           2 :         if !found {</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;必須コンポーネントを持つプレイヤーエンティティが見つかりません&quot;)</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L206"><span class="lineNum">     206</span>              : </span>
-<span id="L207"><span class="lineNum">     207</span>              :         // プレイヤーの位置を更新する</span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC">           1 :         gridElement.X = consts.Tile(tileX)</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :         gridElement.Y = consts.Tile(tileY)</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaGNC">           1 :         // カメラ位置も同期する</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :         camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 :         tileSize := float64(consts.TileSize)</span></span>
-<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         camera.X = float64(tileX)*tileSize + tileSize/2</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           1 :         camera.Y = float64(tileY)*tileSize + tileSize/2</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :         camera.TargetX = camera.X</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         camera.TargetY = camera.Y</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L220"><span class="lineNum">     220</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L221"><span class="lineNum">     221</span>              : }</span>
+<span id="L187"><span class="lineNum">     187</span>              : // findAdjacentEmptyTile はcenterの隣接タイルから空きタイルを探す。</span>
+<span id="L188"><span class="lineNum">     188</span>              : // excludeは追加で除外する座標セット。空きがなければエラーを返す</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           1 : func findAdjacentEmptyTile(world w.World, centerX, centerY int, exclude map[gc.GridElement]bool) (int, int, error) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :         si := query.GetSpatialIndex(world)</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         // 上下左右を優先し、次に斜めを探す</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         offsets := [][2]int{</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           1 :                 {0, -1}, {0, 1}, {-1, 0}, {1, 0},</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           1 :                 {-1, -1}, {1, -1}, {-1, 1}, {1, 1},</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           2 :         for _, off := range offsets {</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaGNC">           1 :                 x, y := centerX+off[0], centerY+off[1]</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaGNC">           1 :                 if x &lt; 0 || y &lt; 0 {</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC tlaBgUNC">           0 :                         continue</span></span>
+<span id="L200"><span class="lineNum">     200</span>              :                 }</span>
+<span id="L201"><span class="lineNum">     201</span>              :                 // SpatialIndexが構築済みの場合のみ範囲と衝突をチェックする</span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaGNC tlaBgGNC">           2 :                 if si != nil {</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaGNC">           1 :                         if x &gt;= si.MapWidth || y &gt;= si.MapHeight {</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L205"><span class="lineNum">     205</span>              :                         }</span>
+<span id="L206"><span class="lineNum">     206</span> <span class="tlaGNC tlaBgGNC">           1 :                         if si.IsBlockPass(x, y) {</span></span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC tlaBgUNC">           0 :                                 continue</span></span>
+<span id="L208"><span class="lineNum">     208</span>              :                         }</span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaGNC tlaBgGNC">           2 :                         if _, occupied := si.CharacterAt(x, y); occupied {</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaGNC">           1 :                                 continue</span></span>
+<span id="L211"><span class="lineNum">     211</span>              :                         }</span>
+<span id="L212"><span class="lineNum">     212</span>              :                 }</span>
+<span id="L213"><span class="lineNum">     213</span> <span class="tlaGNC">           1 :                 pos := gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}</span></span>
+<span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           2 :                 if exclude[pos] {</span></span>
+<span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :                         continue</span></span>
+<span id="L216"><span class="lineNum">     216</span>              :                 }</span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 return x, y, nil</span></span>
+<span id="L218"><span class="lineNum">     218</span>              :         }</span>
+<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC tlaBgUNC">           0 :         return 0, 0, fmt.Errorf(&quot;(%d,%d)の隣接に空きタイルがありません&quot;, centerX, centerY)</span></span>
+<span id="L220"><span class="lineNum">     220</span>              : }</span>
+<span id="L221"><span class="lineNum">     221</span>              : </span>
+<span id="L222"><span class="lineNum">     222</span>              : // MovePlayerToPosition は既存のプレイヤーエンティティを指定位置に移動させる</span>
+<span id="L223"><span class="lineNum">     223</span> <span class="tlaGNC tlaBgGNC">           1 : func MovePlayerToPosition(world w.World, tileX int, tileY int) error {</span></span>
+<span id="L224"><span class="lineNum">     224</span> <span class="tlaGNC">           1 :         var playerEntity ecs.Entity</span></span>
+<span id="L225"><span class="lineNum">     225</span> <span class="tlaGNC">           1 :         var found bool</span></span>
+<span id="L226"><span class="lineNum">     226</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L227"><span class="lineNum">     227</span> <span class="tlaGNC">           1 :         world.Manager.Join(</span></span>
+<span id="L228"><span class="lineNum">     228</span> <span class="tlaGNC">           1 :                 world.Components.Player,</span></span>
+<span id="L229"><span class="lineNum">     229</span> <span class="tlaGNC">           1 :                 world.Components.GridElement,</span></span>
+<span id="L230"><span class="lineNum">     230</span> <span class="tlaGNC">           1 :                 world.Components.SpriteRender,</span></span>
+<span id="L231"><span class="lineNum">     231</span> <span class="tlaGNC">           1 :                 world.Components.Camera,</span></span>
+<span id="L232"><span class="lineNum">     232</span> <span class="tlaGNC">           2 :         ).Visit(ecs.Visit(func(entity ecs.Entity) {</span></span>
+<span id="L233"><span class="lineNum">     233</span> <span class="tlaGNC">           2 :                 if !found {</span></span>
+<span id="L234"><span class="lineNum">     234</span> <span class="tlaGNC">           1 :                         playerEntity = entity</span></span>
+<span id="L235"><span class="lineNum">     235</span> <span class="tlaGNC">           1 :                         found = true</span></span>
+<span id="L236"><span class="lineNum">     236</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L237"><span class="lineNum">     237</span>              :         }))</span>
+<span id="L238"><span class="lineNum">     238</span> <span class="tlaGNC">           2 :         if !found {</span></span>
+<span id="L239"><span class="lineNum">     239</span> <span class="tlaGNC">           1 :                 return errors.New(&quot;必須コンポーネントを持つプレイヤーエンティティが見つかりません&quot;)</span></span>
+<span id="L240"><span class="lineNum">     240</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L241"><span class="lineNum">     241</span>              : </span>
+<span id="L242"><span class="lineNum">     242</span>              :         // プレイヤーの位置を更新する</span>
+<span id="L243"><span class="lineNum">     243</span> <span class="tlaGNC">           1 :         gridElement := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)</span></span>
+<span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 :         gridElement.X = consts.Tile(tileX)</span></span>
+<span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         gridElement.Y = consts.Tile(tileY)</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :         // カメラ位置も同期する</span></span>
+<span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :         camera := world.Components.Camera.Get(playerEntity).(*gc.Camera)</span></span>
+<span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         tileSize := float64(consts.TileSize)</span></span>
+<span id="L250"><span class="lineNum">     250</span> <span class="tlaGNC">           1 :         camera.X = float64(tileX)*tileSize + tileSize/2</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaGNC">           1 :         camera.Y = float64(tileY)*tileSize + tileSize/2</span></span>
+<span id="L252"><span class="lineNum">     252</span> <span class="tlaGNC">           1 :         camera.TargetX = camera.X</span></span>
+<span id="L253"><span class="lineNum">     253</span> <span class="tlaGNC">           1 :         camera.TargetY = camera.Y</span></span>
+<span id="L254"><span class="lineNum">     254</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L255"><span class="lineNum">     255</span> <span class="tlaGNC">           1 :         // Active隊員をプレイヤーの隣接タイルに配置する</span></span>
+<span id="L256"><span class="lineNum">     256</span> <span class="tlaGNC">           1 :         exclude := map[gc.GridElement]bool{}</span></span>
+<span id="L257"><span class="lineNum">     257</span> <span class="tlaGNC">           2 :         for _, member := range query.SquadMembers(world) {</span></span>
+<span id="L258"><span class="lineNum">     258</span> <span class="tlaGNC">           1 :                 memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)</span></span>
+<span id="L259"><span class="lineNum">     259</span> <span class="tlaGNC">           1 :                 x, y, err := findAdjacentEmptyTile(world, tileX, tileY, exclude)</span></span>
+<span id="L260"><span class="lineNum">     260</span> <span class="tlaGNC">           1 :                 if err != nil {</span></span>
+<span id="L261"><span class="lineNum">     261</span> <span class="tlaUNC tlaBgUNC">           0 :                         return fmt.Errorf(&quot;隊員の配置に失敗: %w&quot;, err)</span></span>
+<span id="L262"><span class="lineNum">     262</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L263"><span class="lineNum">     263</span> <span class="tlaGNC tlaBgGNC">           1 :                 memberGrid.X = consts.Tile(x)</span></span>
+<span id="L264"><span class="lineNum">     264</span> <span class="tlaGNC">           1 :                 memberGrid.Y = consts.Tile(y)</span></span>
+<span id="L265"><span class="lineNum">     265</span> <span class="tlaGNC">           1 :                 exclude[gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)}] = true</span></span>
+<span id="L266"><span class="lineNum">     266</span>              :         }</span>
+<span id="L267"><span class="lineNum">     267</span>              : </span>
+<span id="L268"><span class="lineNum">     268</span> <span class="tlaGNC">           1 :         return nil</span></span>
+<span id="L269"><span class="lineNum">     269</span>              : }</span>
         </pre>
               </td>
             </tr>

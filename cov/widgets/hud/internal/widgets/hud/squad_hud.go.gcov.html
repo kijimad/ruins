@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.lcov - widgets/hud/internal/widgets/hud/squad_hud.go</title>
+  <link rel="stylesheet" type="text/css" href="../../../../../gcov.css">
+</head>
+
+<body>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="title">LCOV - code coverage report</td></tr>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+
+            <tr>
+              <td width="100%">
+                <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="10%" class="headerValue"><a href="../../../../../index.html">top level</a> - <a href="index.html">widgets/hud/internal/widgets/hud</a> - squad_hud.go<span style="font-size: 80%;"> (source / <a href="squad_hud.go.func-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="5%"></td>
+            <td width="5%" class="headerCovTableHead">Coverage</td>
+            <td width="5%" class="headerCovTableHead" title="Covered + Uncovered code">Total</td>
+            <td width="5%" class="headerCovTableHead" title="Exercised code only">Hit</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.lcov</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test Date:</td>
+            <td class="headerValue">2026-07-01 00:26:30</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+          </tr>
+                  <tr><td><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+                </table>
+              </td>
+            </tr>
+
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+          </table>
+
+          <table cellpadding=0 cellspacing=0 border=0>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td>
+<pre class="sourceHeading">            Line data    Source code</pre>
+<pre class="source">
+<span id="L1"><span class="lineNum">       1</span>              : package hud</span>
+<span id="L2"><span class="lineNum">       2</span>              : </span>
+<span id="L3"><span class="lineNum">       3</span>              : import (</span>
+<span id="L4"><span class="lineNum">       4</span>              :         &quot;image/color&quot;</span>
+<span id="L5"><span class="lineNum">       5</span>              : </span>
+<span id="L6"><span class="lineNum">       6</span>              :         &quot;github.com/hajimehoshi/ebiten/v2&quot;</span>
+<span id="L7"><span class="lineNum">       7</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/text/v2&quot;</span>
+<span id="L8"><span class="lineNum">       8</span>              :         &quot;github.com/hajimehoshi/ebiten/v2/vector&quot;</span>
+<span id="L9"><span class="lineNum">       9</span>              :         theme &quot;github.com/kijimaD/ruins/internal/widgets/theme&quot;</span>
+<span id="L10"><span class="lineNum">      10</span>              : )</span>
+<span id="L11"><span class="lineNum">      11</span>              : </span>
+<span id="L12"><span class="lineNum">      12</span>              : // SquadHUD は隊員HP一覧を表示するHUDウィジェット</span>
+<span id="L13"><span class="lineNum">      13</span>              : type SquadHUD struct {</span>
+<span id="L14"><span class="lineNum">      14</span>              :         face text.Face</span>
+<span id="L15"><span class="lineNum">      15</span>              : }</span>
+<span id="L16"><span class="lineNum">      16</span>              : </span>
+<span id="L17"><span class="lineNum">      17</span>              : // NewSquadHUD は新しいSquadHUDを作成する</span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC tlaBgUNC">           0 : func NewSquadHUD(face text.Face) *SquadHUD {</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         return &amp;SquadHUD{face: face}</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 : }</span></span>
+<span id="L21"><span class="lineNum">      21</span>              : </span>
+<span id="L22"><span class="lineNum">      22</span>              : // Draw は隊員HP一覧を描画する。ミニマップの下に配置する</span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC">           0 : func (s *SquadHUD) Draw(screen *ebiten.Image, data SquadHUDData) {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         if len(data.Members) == 0 {</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :                 return</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : </span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :         lineHeight := 14</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaUNC">           0 :         barWidth := 60</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :         barHeight := 6</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :         padding := theme.Space2</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :         nameWidth := 50</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :         startX := data.ScreenDimensions.Width - theme.Space4 - nameWidth - barWidth</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :         startY := theme.Space4 + 160 // ミニマップの下</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :         for i, member := range data.Members {</span></span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                 y := startY + i*(lineHeight+padding)</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaUNC">           0 :                 // 名前</span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaUNC">           0 :                 nameOp := &amp;text.DrawOptions{}</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                 nameOp.GeoM.Translate(float64(startX), float64(y))</span></span>
+<span id="L42"><span class="lineNum">      42</span> <span class="tlaUNC">           0 :                 nameOp.ColorScale.ScaleWithColor(theme.TextPrimary)</span></span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaUNC">           0 :                 text.Draw(screen, member.Name, s.face, nameOp)</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                 // HPバー</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                 barX := float32(startX + nameWidth)</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                 barY := float32(y + 2)</span></span>
+<span id="L48"><span class="lineNum">      48</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                 // 背景バー</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                 vector.FillRect(screen, barX, barY, float32(barWidth), float32(barHeight), color.RGBA{40, 40, 40, 200}, false)</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                 // HPバー</span></span>
+<span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :                 hpRatio := float32(0)</span></span>
+<span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :                 if member.MaxHP &gt; 0 {</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                         hpRatio = float32(member.CurrentHP) / float32(member.MaxHP)</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L57"><span class="lineNum">      57</span> <span class="tlaUNC">           0 :                 barColor := color.RGBA{80, 200, 80, 255}</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaUNC">           0 :                 if hpRatio &lt; 0.25 {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                         barColor = color.RGBA{200, 50, 50, 255}</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                 } else if hpRatio &lt; 0.5 {</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                         barColor = color.RGBA{200, 200, 50, 255}</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :                 vector.FillRect(screen, barX, barY, float32(barWidth)*hpRatio, float32(barHeight), barColor, false)</span></span>
+<span id="L64"><span class="lineNum">      64</span>              :         }</span>
+<span id="L65"><span class="lineNum">      65</span>              : }</span>
+        </pre>
+              </td>
+            </tr>
+          </table>
+          <br>
+
+          <table width="100%" border=0 cellspacing=0 cellpadding=0>
+            <tr><td class="ruler"><img src="../../../../../glass.png" width=3 height=3 alt=""></td></tr>
+            <tr><td class="versionInfo">Generated by: <a href="https://github.com//linux-test-project/lcov" target="_parent">LCOV version 2.0-1</a></td></tr>
+          </table>
+          <br>
+
+</body>
+</html>
