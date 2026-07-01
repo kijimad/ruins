@@ -594,6 +594,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	enemyX, enemyY := 20, 20
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
+	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
 	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
@@ -764,6 +765,7 @@ func TestPatrolMovement(t *testing.T) {
 	enemyX, enemyY := 20, 20
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "パトロール敵"})
+	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
 	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
@@ -826,6 +828,7 @@ func TestTerritorialMovement(t *testing.T) {
 	spawnX, spawnY := 20, 20
 	enemy := world.Manager.NewEntity()
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "縄張り敵"})
+	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
 	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{

@@ -137,6 +137,10 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 
 	grid := gridElement.(*gc.GridElement)
 	oldX, oldY := int(grid.X), int(grid.Y)
+	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
+
+	// 味方キャラクターのいるタイルに移動する場合、位置を入れ替える
+	swapAllyIfNeeded(world, actor, oldX, oldY, destX, destY)
 
 	grid.X = comp.Destination.X
 	grid.Y = comp.Destination.Y
@@ -146,7 +150,31 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	log.Debug("移動完了",
 		"actor", actor,
 		"from", fmt.Sprintf("(%d,%d)", oldX, oldY),
-		"to", fmt.Sprintf("(%d,%d)", comp.Destination.X, comp.Destination.Y))
+		"to", fmt.Sprintf("(%d,%d)", destX, destY))
 
 	return nil
+}
+
+// swapAllyIfNeeded は移動先に味方キャラクターがいた場合、位置を入れ替える。
+// プレイヤー→隊員、隊員→隊員の交換に対応する
+func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) {
+	si := query.GetSpatialIndex(world)
+	if si == nil {
+		return
+	}
+	target, ok := si.CharacterAt(toX, toY)
+	if !ok {
+		return
+	}
+	if !CanPassThrough(world, actor, target) {
+		return
+	}
+	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+	targetGrid.X = consts.Tile(fromX)
+	targetGrid.Y = consts.Tile(fromY)
+
+	log.Debug("味方と位置入れ替え",
+		"target", target,
+		"from", fmt.Sprintf("(%d,%d)", toX, toY),
+		"to", fmt.Sprintf("(%d,%d)", fromX, fromY))
 }

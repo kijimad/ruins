@@ -23,6 +23,7 @@ func ExtractHUDData(world w.World) hud.Data {
 		CurrencyData:     extractCurrencyData(world),
 		WeaponSlotsData:  extractWeaponSlotsData(world),
 		StatusBadgesData: extractStatusBadgesData(world),
+		SquadHUDData:     extractSquadHUDData(world),
 	}
 }
 
@@ -94,11 +95,27 @@ func extractMinimapData(world w.World) hud.MinimapData {
 	// タイル色情報を抽出
 	tileColors := buildTileColors(world)
 
+	// 隊員位置を抽出する
+	var squadPositions []hud.MinimapMarker
+	_, err := query.GetPlayerEntity(world)
+	if err == nil {
+		for _, member := range query.SquadMembers(world) {
+			if member.HasComponent(world.Components.GridElement) {
+				grid := world.Components.GridElement.Get(member).(*gc.GridElement)
+				squadPositions = append(squadPositions, hud.MinimapMarker{
+					TileX: int(grid.X),
+					TileY: int(grid.Y),
+				})
+			}
+		}
+	}
+
 	return hud.MinimapData{
-		PlayerTileX:   playerTileX,
-		PlayerTileY:   playerTileY,
-		ExploredTiles: query.GetDungeon(world).ExploredTiles,
-		TileColors:    tileColors,
+		PlayerTileX:    playerTileX,
+		PlayerTileY:    playerTileY,
+		ExploredTiles:  query.GetDungeon(world).ExploredTiles,
+		TileColors:     tileColors,
+		SquadPositions: squadPositions,
 		MinimapConfig: hud.MinimapConfig{
 			Width:  query.GetDungeon(world).MinimapSettings.Width,
 			Height: query.GetDungeon(world).MinimapSettings.Height,
@@ -420,6 +437,37 @@ func extractStatusBadgesData(world w.World) hud.StatusBadgesData {
 	return hud.StatusBadgesData{
 		Badges:            badges,
 		MessageAreaHeight: messageAreaHeight,
+		ScreenDimensions: hud.ScreenDimensions{
+			Width:  screenWidth,
+			Height: screenHeight,
+		},
+	}
+}
+
+// extractSquadHUDData は隊員HP一覧データを抽出する
+func extractSquadHUDData(world w.World) hud.SquadHUDData {
+	screenWidth, screenHeight := world.Resources.GetScreenDimensions()
+
+	_, err := query.GetPlayerEntity(world)
+	if err != nil {
+		return hud.SquadHUDData{
+			ScreenDimensions: hud.ScreenDimensions{Width: screenWidth, Height: screenHeight},
+		}
+	}
+
+	var members []hud.SquadHUDMember
+	for _, member := range query.SquadMembers(world) {
+		name := query.GetEntityName(member, world)
+		hp := world.Components.HP.Get(member).(*gc.HP)
+		members = append(members, hud.SquadHUDMember{
+			Name:      name,
+			CurrentHP: hp.Current,
+			MaxHP:     hp.Max,
+		})
+	}
+
+	return hud.SquadHUDData{
+		Members: members,
 		ScreenDimensions: hud.ScreenDimensions{
 			Width:  screenWidth,
 			Height: screenHeight,

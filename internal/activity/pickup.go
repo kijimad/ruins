@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -23,7 +24,7 @@ func (pa *PickupActivity) Info() Info {
 		Description:     "アイテムを拾得する",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 50,
+		ActionPointCost: consts.MinorActionCost,
 		TotalRequiredAP: 0,
 	}
 }
@@ -171,11 +172,15 @@ func (pa *PickupActivity) performPickupActivity(comp *gc.Activity, actor ecs.Ent
 func (pa *PickupActivity) collect(actor ecs.Entity, world w.World, entity ecs.Entity) error {
 	// MoveToBackpack内のmergeでentityが削除される可能性があるため、名前を先に取得する
 	formattedName := query.FormatItemName(world, entity)
+	actorName := query.GetEntityName(actor, world)
 
 	if err := lifecycle.MoveToBackpack(world, entity, actor); err != nil {
 		return fmt.Errorf("バックパックへの移動に失敗: %w", err)
 	}
-	gamelog.New(query.GetGameLog(world)).
+	logger := gamelog.New(query.GetGameLog(world))
+	query.AppendNameWithColor(logger, actor, actorName, world)
+	logger.
+		Append(" は ").
 		ItemName(formattedName).
 		Append(" を入手した。").
 		Log()

@@ -30,6 +30,8 @@ const (
 	MinActionThreshold = 0
 	// StandardActionCost は標準的なアクションのAPコスト
 	StandardActionCost = 100
+	// MinorActionCost は軽量アクションのAPコスト
+	MinorActionCost = 50
 	// DefaultPlayerMoves はプレイヤーの初期移動ポイント
 	DefaultPlayerMoves = 100
 )

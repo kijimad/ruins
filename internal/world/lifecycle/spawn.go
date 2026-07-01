@@ -18,7 +18,8 @@ import (
 // 定数定義
 const (
 	cameraNormalScale = 0.6 // カメラの通常スケール
-	aiVisionDistance  = 5   // AIの視界距離（タイル単位）
+	// AIVisionDistance はAIエンティティの視界距離（タイル単位）
+	AIVisionDistance = 5
 )
 
 // エラー定義
@@ -83,7 +84,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 		TargetX: initialX,
 		TargetY: initialY,
 	}
-	entitySpec.Wallet = &gc.Wallet{Currency: 1000}
+	entitySpec.Wallet = &gc.Wallet{Currency: 10000}
 	entitySpec.HealthStatus = &gc.HealthStatus{}
 	componentList.Entities = append(componentList.Entities, entitySpec)
 	entitiesSlice, err := entities.AddEntities(world, componentList)
@@ -100,6 +101,7 @@ func SpawnPlayer(world w.World, tileX int, tileY int, name string) (ecs.Entity, 
 	}
 	playerEntity.AddComponent(world.Components.WeightDirty, &gc.WeightDirty{})
 
+	query.InvalidateSpatialIndex(world)
 	return playerEntity, nil
 }
 
@@ -119,7 +121,6 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.BlockPass = &gc.BlockPass{}
 
 	if entitySpec.MovementPattern != nil {
 		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
@@ -132,7 +133,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 			PatrolDirX:            initialPatrolDir(),
 		}
 		entitySpec.AIVision = &gc.AIVision{
-			ViewDistance: aiVisionDistance,
+			ViewDistance: AIVisionDistance,
 		}
 	}
 
@@ -150,6 +151,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		return consts.InvalidEntity, fmt.Errorf("NPCの回復処理エラー: %w", err)
 	}
 
+	query.InvalidateSpatialIndex(world)
 	return npcEntity, nil
 }
 
@@ -172,7 +174,6 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.BlockPass = &gc.BlockPass{}
 	entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
 	entitySpec.AIRoaming = &gc.AIRoaming{
 		SubState:              gc.AIRoamingWaiting,
@@ -183,7 +184,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		PatrolDirX:            initialPatrolDir(),
 	}
 	entitySpec.AIVision = &gc.AIVision{
-		ViewDistance: aiVisionDistance,
+		ViewDistance: AIVisionDistance,
 	}
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
@@ -223,7 +224,87 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 		opt(npcEntity, world)
 	}
 
+	query.InvalidateSpatialIndex(world)
 	return npcEntity, nil
+}
+
+// SpawnSquadMember は隊員エンティティを生成する。
+// リーダーの隣接空きタイルに配置され、ポリシーに基づいて自律行動する
+func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities gc.Abilities, spriteKey string) (ecs.Entity, error) {
+	if !leader.HasComponent(world.Components.GridElement) {
+		return consts.InvalidEntity, fmt.Errorf("リーダーにGridElementがありません")
+	}
+	leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
+
+	// リーダーの隣接空きタイルを探す
+	spawnX, spawnY, err := findAdjacentEmptyTile(world, int(leaderGrid.X), int(leaderGrid.Y), nil)
+	if err != nil {
+		return consts.InvalidEntity, fmt.Errorf("隊員のスポーン位置が見つかりません: %w", err)
+	}
+
+	skills := gc.NewSkills()
+	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
+	defaultPolicy := gc.DefaultSquadPolicy
+
+	entitySpec := gc.EntitySpec{
+		Name:           &gc.Name{Name: name},
+		Abilities:      &abilities,
+		HP:             &gc.HP{},
+		TurnBased:      &gc.TurnBased{AP: gc.IntPool{Current: 100, Max: 100}},
+		Skills:         skills,
+		CharModifiers:  charMods,
+		WeightCapacity: &gc.WeightCapacity{},
+		HealthStatus:   &gc.HealthStatus{},
+		FactionType:    &gc.FactionAlly,
+		Disposition: &gc.Disposition{
+			Default: gc.DispositionAlly,
+			Current: gc.DispositionAlly,
+		},
+		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
+		SpriteRender: &gc.SpriteRender{
+			SpriteSheetName: "field",
+			SpriteKey:       spriteKey,
+			Depth:           gc.DepthNumPlayer,
+		},
+		AIMoveFSM:    &gc.AIMoveFSM{},
+		CommandTable: &gc.CommandTable{Name: "素手"},
+		AIVision: &gc.AIVision{
+			ViewDistance: AIVisionDistance,
+		},
+		SquadMember: &gc.SquadMember{},
+		SquadPolicy: &defaultPolicy,
+	}
+
+	componentList := entities.ComponentList[gc.EntitySpec]{}
+	componentList.Entities = append(componentList.Entities, entitySpec)
+	entitiesSlice, err := entities.AddEntities(world, componentList)
+	if err != nil {
+		return consts.InvalidEntity, fmt.Errorf("%w: %v", ErrMemberGeneration, err)
+	}
+	if len(entitiesSlice) != 1 {
+		return consts.InvalidEntity, fmt.Errorf("隊員エンティティの生成に失敗しました: エンティティ数=%d", len(entitiesSlice))
+	}
+
+	memberEntity := entitiesSlice[0]
+	if err := FullRecover(world, memberEntity); err != nil {
+		return consts.InvalidEntity, fmt.Errorf("隊員の回復処理エラー: %w", err)
+	}
+
+	query.InvalidateSpatialIndex(world)
+	return memberEntity, nil
+}
+
+// SpawnDefaultSquadMember はゲーム開始時のデフォルト隊員を生成する
+func SpawnDefaultSquadMember(world w.World, leader ecs.Entity) (ecs.Entity, error) {
+	abilities := gc.Abilities{
+		Vitality:  gc.Ability{Base: 8},
+		Strength:  gc.Ability{Base: 7},
+		Sensation: gc.Ability{Base: 6},
+		Dexterity: gc.Ability{Base: 6},
+		Agility:   gc.Ability{Base: 7},
+		Defense:   gc.Ability{Base: 5},
+	}
+	return SpawnSquadMember(world, leader, "Jim", abilities, "general")
 }
 
 // SpawnBackpackItem はバックパック内にアイテムを生成する

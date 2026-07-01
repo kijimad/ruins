@@ -20,6 +20,7 @@ import (
 	w "github.com/kijimaD/ruins/internal/world"
 
 	"github.com/kijimaD/ruins/internal/world/lifecycle"
+	"github.com/kijimaD/ruins/internal/world/query"
 	"github.com/sebdah/goldie/v2"
 	"github.com/stretchr/testify/require"
 )
@@ -91,6 +92,38 @@ func TestGolden_DebugMenu(t *testing.T) {
 func TestGolden_ComponentDebug(t *testing.T) {
 	t.Parallel()
 	vrt.AssertStateGolden(t, vrt.States(gs.NewTownState()(), gs.NewComponentDebugState()))
+}
+
+func TestGolden_SquadMenu(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		playerEntity, err := query.GetPlayerEntity(world)
+		require.NoError(t, err)
+
+		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
+		require.NoError(t, err)
+
+		return []es.State[w.World]{
+			gs.NewTownState()(),
+			gs.NewSquadMenuState(),
+		}
+	})
+}
+
+func TestGolden_FormationMenu(t *testing.T) {
+	t.Parallel()
+	vrt.AssertStateGolden(t, func(world w.World) []es.State[w.World] {
+		playerEntity, err := query.GetPlayerEntity(world)
+		require.NoError(t, err)
+
+		_, err = lifecycle.SpawnDefaultSquadMember(world, playerEntity)
+		require.NoError(t, err)
+
+		return []es.State[w.World]{
+			gs.NewTownState()(),
+			gs.NewFormationMenuState(),
+		}
+	})
 }
 
 func TestGolden_DungeonSelect(t *testing.T) {

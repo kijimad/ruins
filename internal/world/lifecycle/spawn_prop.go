@@ -146,6 +146,7 @@ func SpawnDoor(world w.World, x consts.Tile, y consts.Tile, orientation gc.DoorO
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumTaller,
 		},
+		Prop:         &gc.Prop{},
 		BlockPass:    &gc.BlockPass{},
 		BlockView:    &gc.BlockView{},
 		LocationType: &loc,

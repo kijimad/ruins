@@ -155,4 +155,44 @@ func TestMoveActivity_DoTurn(t *testing.T) {
 		assert.Error(t, err)
 		assert.Equal(t, gc.ActivityStateCanceled, comp.State)
 	})
+
+	t.Run("プレイヤーが隊員のいるタイルに移動すると位置が入れ替わる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		playerX, playerY := 10, 10
+		player, err := lifecycle.SpawnPlayer(world, playerX, playerY, "Ash")
+		require.NoError(t, err)
+
+		abilities := gc.Abilities{
+			Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+			Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+			Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+		}
+		member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+		require.NoError(t, err)
+
+		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+		origMemberX, origMemberY := int(memberGrid.X), int(memberGrid.Y)
+
+		comp := &gc.Activity{
+			BehaviorName: gc.BehaviorMove,
+			State:        gc.ActivityStateRunning,
+			Destination:  &gc.GridElement{X: memberGrid.X, Y: memberGrid.Y},
+		}
+
+		ma := &MoveActivity{}
+		err = ma.DoTurn(comp, player, world)
+		require.NoError(t, err)
+
+		// プレイヤーが隊員の元位置に移動している
+		playerGrid := world.Components.GridElement.Get(player).(*gc.GridElement)
+		assert.Equal(t, origMemberX, int(playerGrid.X))
+		assert.Equal(t, origMemberY, int(playerGrid.Y))
+
+		// 隊員がプレイヤーの元位置に移動している
+		memberGrid = world.Components.GridElement.Get(member).(*gc.GridElement)
+		assert.Equal(t, playerX, int(memberGrid.X))
+		assert.Equal(t, playerY, int(memberGrid.Y))
+	})
 }

@@ -1,10 +1,9 @@
 package activity
 
 import (
+	w "github.com/kijimaD/ruins/internal/world"
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
-
-	w "github.com/kijimaD/ruins/internal/world"
 )
 
 // CanMoveTo は指定位置に移動可能かチェックする
@@ -26,7 +25,8 @@ import (
 //
 // ゲーム実行時に使用される動的な通行可否判定です。
 //
-//   - BlockPassコンポーネントを持つエンティティ: 通行不可
+//   - 静的障害物: BlockPassコンポーネントを持つProp（壁・ドア）は常に通行不可
+//   - キャラクター: 関係性で判定する。味方同士は位置交換可能、敵はブロック
 //   - activity.CanMoveTo() で判定
 //   - 用途: プレイヤー・AI移動時の衝突チェック
 //
@@ -41,6 +41,9 @@ import (
 // fromX, fromY は移動元の座標で、斜め移動時の壁すり抜け防止に使用する
 func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.Entity) bool {
 	si := query.GetSpatialIndex(world)
+	if si == nil {
+		return false
+	}
 
 	if tileX < 0 || tileY < 0 || tileX >= si.MapWidth || tileY >= si.MapHeight {
 		return false
@@ -59,5 +62,27 @@ func CanMoveTo(world w.World, tileX, tileY, fromX, fromY int, movingEntity ecs.E
 		return false
 	}
 
-	return !si.IsCharacterAt(tileX, tileY, movingEntity)
+	// キャラクターがいる場合は関係性で判定する
+	if target, ok := si.CharacterAt(tileX, tileY); ok {
+		return CanPassThrough(world, movingEntity, target)
+	}
+
+	return true
+}
+
+// CanPassThrough はmoverがtargetのタイルを通過できるかを関係性で判定する。
+// 味方同士は位置交換可能。プレイヤーは隊員に押しのけられない
+func CanPassThrough(world w.World, mover, target ecs.Entity) bool {
+	if mover == target {
+		return true
+	}
+	// プレイヤーは隊員と位置交換できる
+	if mover.HasComponent(world.Components.Player) {
+		return target.HasComponent(world.Components.SquadMember)
+	}
+	// 隊員は他の隊員と位置交換できる。プレイヤーは押しのけられない
+	if mover.HasComponent(world.Components.SquadMember) {
+		return target.HasComponent(world.Components.SquadMember)
+	}
+	return false
 }

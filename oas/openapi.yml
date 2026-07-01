@@ -2740,20 +2740,15 @@ components:
       type: number
       format: double
       description: カメラのスケール値
-    SaveData.CarryWeightComponent:
-      type: object
-      required:
-        - Max
-        - Current
-      properties:
-        Max:
-          $ref: '#/components/schemas/SaveData.PoolFloatMax'
-        Current:
-          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
-      description: 所持重量。最大値と現在値を持つ
     SaveData.Checksum:
       type: string
       description: SHA-256チェックサム
+    SaveData.CombatPolicyType:
+      type: number
+      enum:
+        - 0
+        - 1
+      description: 隊員の戦闘ポリシー
     SaveData.ComponentsMap:
       type: object
       properties:
@@ -2793,9 +2788,9 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.HPComponent'
           description: 生命力
-        CarryWeight:
+        WeightCapacity:
           allOf:
-            - $ref: '#/components/schemas/SaveData.CarryWeightComponent'
+            - $ref: '#/components/schemas/SaveData.WeightCapacityComponent'
           description: 所持重量
         TurnBased:
           allOf:
@@ -2865,6 +2860,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.WalletComponent'
           description: 所持金
+        SquadMember:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.SquadMemberComponent'
+          description: 隊員コンポーネント。リーダーへのエンティティ参照を含む
+        SquadPolicy:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.SquadPolicyComponent'
+          description: 隊員の自律行動ポリシー
       description: |-
         エンティティが持つコンポーネントのマップ。
         存在するコンポーネントのみがキーとして含まれる。
@@ -3121,6 +3124,19 @@ components:
         Current:
           $ref: '#/components/schemas/SaveData.PoolCurrent'
       description: 整数プール。最大値と現在値を持つ
+    SaveData.ItemHandlingPolicyType:
+      type: number
+      enum:
+        - 0
+        - 1
+        - 2
+      description: 隊員のアイテム処理ポリシー
+    SaveData.ItemPickupPolicyType:
+      type: number
+      enum:
+        - 0
+        - 1
+      description: 隊員のアイテム回収ポリシー
     SaveData.LightRadius:
       type: integer
       format: int32
@@ -3236,6 +3252,15 @@ components:
       type: integer
       format: int32
       description: プール最大値 (整数)
+    SaveData.PositionPolicyType:
+      type: number
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      description: 隊員の位置ポリシー
     SaveData.ProvidesHealingComponent:
       type: object
       required:
@@ -3354,6 +3379,26 @@ components:
     SaveData.SpriteSheetName:
       type: string
       description: スプライトシート名。セーブデータではパターン制約を適用しない
+    SaveData.SquadMemberComponent:
+      type: object
+      description: 隊員であることを示すマーカーコンポーネント
+    SaveData.SquadPolicyComponent:
+      type: object
+      required:
+        - Position
+        - Combat
+        - ItemPickup
+        - ItemHandling
+      properties:
+        Position:
+          $ref: '#/components/schemas/SaveData.PositionPolicyType'
+        Combat:
+          $ref: '#/components/schemas/SaveData.CombatPolicyType'
+        ItemPickup:
+          $ref: '#/components/schemas/SaveData.ItemPickupPolicyType'
+        ItemHandling:
+          $ref: '#/components/schemas/SaveData.ItemHandlingPolicyType'
+      description: 隊員の自律行動ポリシー
     SaveData.StableID:
       type: object
       required:
@@ -3445,6 +3490,17 @@ components:
             - $ref: '#/components/schemas/InsulationHeat'
           description: 耐暑性能
       description: 防具設定
+    SaveData.WeightCapacityComponent:
+      type: object
+      required:
+        - Max
+        - Current
+      properties:
+        Max:
+          $ref: '#/components/schemas/SaveData.PoolFloatMax'
+        Current:
+          $ref: '#/components/schemas/SaveData.PoolFloatCurrent'
+      description: 所持重量。最大値と現在値を持つ
     SaveData.WorldSaveData:
       type: object
       required:

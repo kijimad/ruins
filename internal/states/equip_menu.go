@@ -243,9 +243,8 @@ type equipItemData struct {
 
 // slotScreenProps はスロット選択画面のProps
 type slotScreenProps struct {
-	Tabs            []equipTabData
-	Player          ecs.Entity
-	PlayerAbilities gc.Abilities
+	Tabs    []equipTabData
+	Members []ecs.Entity // タブに対応するエンティティ一覧。インデックスはTabsと対応する
 }
 
 // windowScreenProps はアクションウィンドウのProps
@@ -272,15 +271,15 @@ func (st *EquipMenuState) fetchSlotProps(world w.World) slotScreenProps {
 
 	tabs := st.createSlotTabs(world, player, playerFound)
 
-	var abils gc.Abilities
-	if playerFound && player.HasComponent(world.Components.Abilities) {
-		abils = *world.Components.Abilities.Get(player).(*gc.Abilities)
+	// タブに対応するエンティティ一覧を構築
+	members := []ecs.Entity{player}
+	if playerFound {
+		members = append(members, query.SquadMembers(world)...)
 	}
 
 	return slotScreenProps{
-		Tabs:            tabs,
-		Player:          player,
-		PlayerAbilities: abils,
+		Tabs:    tabs,
+		Members: members,
 	}
 }
 
@@ -309,13 +308,34 @@ func (st *EquipMenuState) fetchEquipProps(world w.World) equipScreenProps {
 
 func (st *EquipMenuState) createSlotTabs(world w.World, player ecs.Entity, playerFound bool) []equipTabData {
 	// プレイヤーがいない場合でも空のタブを返す
-	items := []equipItemData{}
+	playerItems := []equipItemData{}
 	if playerFound {
-		items = st.createAllSlotItems(world, player)
+		playerItems = st.createAllSlotItems(world, player)
 	}
-	return []equipTabData{
-		{ID: "player_equipment", Label: "装備", Items: items},
+
+	playerName := "プレイヤー"
+	if playerFound {
+		playerName = query.GetEntityName(player, world)
 	}
+
+	tabs := []equipTabData{
+		{ID: "player_equipment", Label: playerName, Items: playerItems},
+	}
+
+	// 隊員のタブを追加
+	if playerFound {
+		for _, member := range query.SquadMembers(world) {
+			memberName := query.GetEntityName(member, world)
+			memberItems := st.createAllSlotItems(world, member)
+			tabs = append(tabs, equipTabData{
+				ID:    fmt.Sprintf("member_%d", member),
+				Label: memberName,
+				Items: memberItems,
+			})
+		}
+	}
+
+	return tabs
 }
 
 func (st *EquipMenuState) createAllSlotItems(world w.World, member ecs.Entity) []equipItemData {
@@ -565,6 +585,10 @@ func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
 	root.AddChild(widget.NewContainer())
 	root.AddChild(widget.NewContainer())
 
+	slotProps := st.slotMount.GetProps()
+	slotMenuState, _ := hooks.GetState[hooks.TabMenuState](st.slotMount, "slot")
+	tabIndex := slotMenuState.TabIndex
+
 	// サブステートに応じてUIを構築
 	switch st.subState {
 	case subStateEquipSelect:
@@ -576,9 +600,6 @@ func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
 		root.AddChild(st.buildEquipDetailContainer(world, props, itemIndex, res))
 		root.AddChild(st.buildEquipDescContainer(world, props.Items, itemIndex, res))
 	default: // screenSlotSelect, screenActionWindow
-		slotProps := st.slotMount.GetProps()
-		slotMenuState, _ := hooks.GetState[hooks.TabMenuState](st.slotMount, "slot")
-		tabIndex := slotMenuState.TabIndex
 		itemIndex := slotMenuState.ItemIndex
 		root.AddChild(st.buildSlotContainer(slotProps.Tabs, tabIndex, itemIndex, res))
 		root.AddChild(widget.NewContainer())
@@ -600,9 +621,26 @@ func (st *EquipMenuState) buildUI(world w.World) *ebitenui.UI {
 	return eui
 }
 
+func (st *EquipMenuState) buildMemberTabBar(tabs []equipTabData, tabIndex int, res resources.UIResources) *widget.Container {
+	container := styled.NewRowContainer()
+	for i, tab := range tabs {
+		isSelected := i == tabIndex
+		color := theme.TextSecondary
+		if isSelected {
+			color = theme.TextPrimary
+		}
+		container.AddChild(styled.NewListItemText(tab.Label, color, isSelected, res))
+	}
+	return container
+}
+
 // buildSlotContainer はスロット選択画面のアイテム一覧を構築する
 func (st *EquipMenuState) buildSlotContainer(tabs []equipTabData, tabIndex, itemIndex int, res resources.UIResources) *widget.Container {
 	container := styled.NewVerticalContainer()
+
+	// メンバータブバー
+	container.AddChild(st.buildMemberTabBar(tabs, tabIndex, res))
+
 	if tabIndex >= len(tabs) {
 		return container
 	}
@@ -677,7 +715,9 @@ func (st *EquipMenuState) buildSlotDetailContainer(world w.World, props slotScre
 	}
 
 	// 能力表示
-	st.buildAbilityDisplay(world, abilityContainer, props.Player, res)
+	if tabIndex < len(props.Members) {
+		st.buildAbilityDisplay(world, abilityContainer, props.Members[tabIndex], res)
+	}
 
 	return styled.NewWSplitContainer(specContainer, abilityContainer)
 }
@@ -697,26 +737,21 @@ func (st *EquipMenuState) buildEquipDetailContainer(world w.World, props equipSc
 		views.UpdateSpec(world, specContainer, item.EquipEntity)
 	}
 
-	// 能力表示(装備選択中もプレイヤー能力を表示)
-	slotProps := st.slotMount.GetProps()
-	st.buildAbilityDisplay(world, abilityContainer, slotProps.Player, res)
+	// 能力表示（装備選択中はターゲットメンバーの能力を表示）
+	st.buildAbilityDisplay(world, abilityContainer, props.TargetMember, res)
 
 	return styled.NewWSplitContainer(specContainer, abilityContainer)
 }
 
-func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.Container, player ecs.Entity, res resources.UIResources) {
-	if !player.HasComponent(world.Components.Player) {
-		return
-	}
-
-	if !player.HasComponent(world.Components.Abilities) {
+func (st *EquipMenuState) buildAbilityDisplay(world w.World, container *widget.Container, member ecs.Entity, res resources.UIResources) {
+	if !member.HasComponent(world.Components.Abilities) {
 		return
 	}
 
 	columnWidths := []int{50, 30, 40}
 	aligns := []styled.TextAlign{styled.AlignLeft, styled.AlignRight, styled.AlignRight}
 
-	abils := world.Components.Abilities.Get(player).(*gc.Abilities)
+	abils := world.Components.Abilities.Get(member).(*gc.Abilities)
 
 	table := styled.NewTableContainer(columnWidths, res)
 	styled.NewTableRow(table, columnWidths, []string{consts.VitalityLabel, fmt.Sprintf("%d", abils.Vitality.Total), fmt.Sprintf("(%+d)", abils.Vitality.Modifier)}, aligns, nil, res)

@@ -13,6 +13,7 @@ type Data struct {
 	CurrencyData     CurrencyData
 	WeaponSlotsData  WeaponSlotsData
 	StatusBadgesData StatusBadgesData
+	SquadHUDData     SquadHUDData
 }
 
 // GameInfoData はゲーム基本情報のデータ
@@ -32,8 +33,15 @@ type MinimapData struct {
 	PlayerTileY      int                              // プレイヤーのタイル座標Y
 	ExploredTiles    map[gc.GridElement]bool          // 探索済みタイル
 	TileColors       map[gc.GridElement]TileColorInfo // タイル色情報
+	SquadPositions   []MinimapMarker                  // 隊員の位置
 	MinimapConfig    MinimapConfig                    // ミニマップ設定
 	ScreenDimensions ScreenDimensions                 // 画面サイズ
+}
+
+// MinimapMarker はミニマップ上のマーカー
+type MinimapMarker struct {
+	TileX int
+	TileY int
 }
 
 // TileColorInfo はタイルの色情報
@@ -113,4 +121,17 @@ type WeaponSlotInfo struct {
 	WeaponName  string                 // 武器名（空文字列なら武器なし）
 	SpriteSheet string                 // スプライトシート名
 	SpriteName  string                 // スプライト名
+}
+
+// SquadHUDData は隊員HP一覧HUDのデータ
+type SquadHUDData struct {
+	Members          []SquadHUDMember
+	ScreenDimensions ScreenDimensions
+}
+
+// SquadHUDMember は隊員一人分のHUD表示データ
+type SquadHUDMember struct {
+	Name      string
+	CurrentHP int
+	MaxHP     int
 }

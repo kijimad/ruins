@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
 
@@ -22,7 +23,7 @@ func (da *DropActivity) Info() Info {
 		Description:     "アイテムを足元に置く",
 		Interruptible:   false,
 		Resumable:       false,
-		ActionPointCost: 50,
+		ActionPointCost: consts.MinorActionCost,
 		TotalRequiredAP: 0,
 	}
 }

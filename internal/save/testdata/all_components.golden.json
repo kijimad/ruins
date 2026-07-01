@@ -44,10 +44,6 @@
             "X": 100,
             "Y": 200
           },
-          "WeightCapacity": {
-            "Current": 12.5,
-            "Max": 50
-          },
           "Description": {
             "Description": "説明文"
           },
@@ -92,6 +88,10 @@
           },
           "Wallet": {
             "Currency": 9999
+          },
+          "WeightCapacity": {
+            "Current": 12.5,
+            "Max": 50
           }
         },
         "stable_id": {
@@ -379,6 +379,76 @@
         "stable_id": {
           "generation": 0,
           "index": 10
+        }
+      },
+      {
+        "components": {
+          "Abilities": {
+            "Agility": {
+              "Base": 9,
+              "Modifier": 0,
+              "Total": 9
+            },
+            "Defense": {
+              "Base": 5,
+              "Modifier": 0,
+              "Total": 5
+            },
+            "Dexterity": {
+              "Base": 7,
+              "Modifier": 0,
+              "Total": 7
+            },
+            "Sensation": {
+              "Base": 6,
+              "Modifier": 0,
+              "Total": 6
+            },
+            "Strength": {
+              "Base": 10,
+              "Modifier": 0,
+              "Total": 10
+            },
+            "Vitality": {
+              "Base": 8,
+              "Modifier": 0,
+              "Total": 8
+            }
+          },
+          "GridElement": {
+            "X": 6,
+            "Y": 11
+          },
+          "HP": {
+            "Current": 50,
+            "Max": 60
+          },
+          "Name": {
+            "Name": "テスト隊員"
+          },
+          "SpriteRender": {
+            "Depth": 10,
+            "SpriteKey": "idle",
+            "SpriteSheetName": "npc_sheet"
+          },
+          "SquadMember": {},
+          "SquadPolicy": {
+            "Combat": 0,
+            "ItemHandling": 0,
+            "ItemPickup": 0,
+            "Position": 0
+          },
+          "TurnBased": {
+            "AP": {
+              "Current": 4,
+              "Max": 4
+            },
+            "Speed": 10
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 11
         }
       }
     ],

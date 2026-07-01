@@ -17,6 +17,8 @@ const (
 	DispositionCowardly DispositionType = "cowardly"
 	// DispositionFleeing は逃亡中を示す。プレイヤーから距離を取る
 	DispositionFleeing DispositionType = "fleeing"
+	// DispositionAlly は味方態度を示す。隊員がこの態度を持つ
+	DispositionAlly DispositionType = "ally"
 )
 
 // Disposition はエンティティの動的な態度を管理するコンポーネント
@@ -41,6 +43,8 @@ func (d *Disposition) ReactToHostile() {
 		d.Current = DispositionFleeing
 	case DispositionHostile, DispositionFleeing:
 		// 既に敵対的または逃亡中なので変化なし
+	case DispositionAlly:
+		// 味方なので変化なし
 	}
 }
 

@@ -23,6 +23,7 @@ func TestAISystem(t *testing.T) {
 
 	// AIエンティティを作成
 	aiEntity := world.Manager.NewEntity()
+	aiEntity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	aiEntity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
 	aiEntity.AddComponent(world.Components.AIVision, &gc.AIVision{
@@ -41,7 +42,7 @@ func TestAISystem(t *testing.T) {
 
 	// AIシステムを実行（aiinputパッケージを使用）
 	processor := aiinput.NewProcessor()
-	require.NoError(t, processor.ProcessAllEntities(world))
+	require.NoError(t, processor.ProcessNonSquadAI(world))
 
 	// システム実行後の位置を記録
 	finalGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)

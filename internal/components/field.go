@@ -44,8 +44,8 @@ func (r *Rect) Center() (consts.Tile, consts.Tile) {
 // Tile はタイルエンティティであることを示すタグコンポーネント
 type Tile struct{}
 
-// BlockPass はフィールド上で通過できない
-// TODO: 能動態のほうがわかりやすそう
+// BlockPass は壁やドアなどの静的障害物に付与する。このコンポーネントを持つタイルは常に通行不可になる。
+// キャラクター（プレイヤー・敵・隊員）には付与しない。キャラクターの通行可否は関係性で判定する
 type BlockPass struct{}
 
 // BlockView はフィールド上で視界を遮る

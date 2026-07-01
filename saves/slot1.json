@@ -1,6 +1,6 @@
 {
-  "checksum": "f168b1f882231fc77648b71398b220a5c6e6bf3b6e2dbabb50b41c4319058dfc",
-  "timestamp": "2026-06-15T22:38:19.89425166+09:00",
+  "checksum": "3a41bc1d7e3051d41842dc7db9875140e3b1163ce5833e3df6deac6e4ec54f47",
+  "timestamp": "2026-06-28T19:56:04.40257254+09:00",
   "version": "1.0.0",
   "world": {
     "entities": [
@@ -41,19 +41,15 @@
           "Camera": {
             "Scale": 0.8,
             "ScaleTo": 0.8,
-            "TargetX": 784,
-            "TargetY": 336,
-            "X": 784,
-            "Y": 336
-          },
-          "CarryWeight": {
-            "Current": 2.4000000000000004,
-            "Max": 21
+            "TargetX": 816,
+            "TargetY": 432,
+            "X": 816,
+            "Y": 432
           },
           "FactionAllyData": {},
           "GridElement": {
-            "X": 24,
-            "Y": 10
+            "X": 25,
+            "Y": 13
           },
           "HP": {
             "Current": 80,
@@ -79,18 +75,22 @@
               "player_1"
             ],
             "Depth": 3,
-            "SpriteKey": "player_0",
+            "SpriteKey": "player_1",
             "SpriteSheetName": "field"
           },
           "TurnBased": {
             "AP": {
-              "Current": 120,
+              "Current": 83,
               "Max": 120
             },
-            "Speed": 0
+            "Speed": 121
           },
           "Wallet": {
-            "Currency": 1000
+            "Currency": 10000
+          },
+          "WeightCapacity": {
+            "Current": 2.4000000000000004,
+            "Max": 21
           }
         },
         "stable_id": {
@@ -474,6 +474,90 @@
         "stable_id": {
           "generation": 0,
           "index": 10
+        }
+      },
+      {
+        "components": {
+          "Abilities": {
+            "Agility": {
+              "Base": 7,
+              "Modifier": 0,
+              "Total": 7
+            },
+            "Defense": {
+              "Base": 5,
+              "Modifier": 0,
+              "Total": 5
+            },
+            "Dexterity": {
+              "Base": 6,
+              "Modifier": 0,
+              "Total": 6
+            },
+            "Sensation": {
+              "Base": 6,
+              "Modifier": 0,
+              "Total": 6
+            },
+            "Strength": {
+              "Base": 7,
+              "Modifier": 0,
+              "Total": 7
+            },
+            "Vitality": {
+              "Base": 8,
+              "Modifier": 0,
+              "Total": 8
+            }
+          },
+          "FactionAllyData": {},
+          "GridElement": {
+            "X": 24,
+            "Y": 11
+          },
+          "HP": {
+            "Current": 107,
+            "Max": 107
+          },
+          "MemberAppearance": {
+            "SpriteKey": "general"
+          },
+          "Name": {
+            "Name": "Jim"
+          },
+          "SpriteRender": {
+            "Depth": 3,
+            "SpriteKey": "general",
+            "SpriteSheetName": "field"
+          },
+          "SquadMember": {
+            "Active": true,
+            "LeaderRef": {
+              "generation": 0,
+              "index": 1
+            }
+          },
+          "SquadPolicy": {
+            "Combat": 0,
+            "ItemHandling": 0,
+            "ItemPickup": 0,
+            "Position": 0
+          },
+          "TurnBased": {
+            "AP": {
+              "Current": 87,
+              "Max": 127
+            },
+            "Speed": 120
+          },
+          "WeightCapacity": {
+            "Current": 0,
+            "Max": 0
+          }
+        },
+        "stable_id": {
+          "generation": 0,
+          "index": 11
         }
       }
     ],

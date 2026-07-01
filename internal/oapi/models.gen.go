@@ -316,6 +316,24 @@ func (e SaveDataAttackRangeType) Valid() bool {
 	}
 }
 
+// Defines values for SaveDataCombatPolicyType.
+const (
+	SaveDataCombatPolicyTypeN0 SaveDataCombatPolicyType = 0
+	SaveDataCombatPolicyTypeN1 SaveDataCombatPolicyType = 1
+)
+
+// Valid indicates whether the value is a known member of the SaveDataCombatPolicyType enum.
+func (e SaveDataCombatPolicyType) Valid() bool {
+	switch e {
+	case SaveDataCombatPolicyTypeN0:
+		return true
+	case SaveDataCombatPolicyTypeN1:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for SaveDataHealingAmountType.
 const (
 	Numeral SaveDataHealingAmountType = "numeral"
@@ -328,6 +346,72 @@ func (e SaveDataHealingAmountType) Valid() bool {
 	case Numeral:
 		return true
 	case Ratio:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SaveDataItemHandlingPolicyType.
+const (
+	SaveDataItemHandlingPolicyTypeN0 SaveDataItemHandlingPolicyType = 0
+	SaveDataItemHandlingPolicyTypeN1 SaveDataItemHandlingPolicyType = 1
+	SaveDataItemHandlingPolicyTypeN2 SaveDataItemHandlingPolicyType = 2
+)
+
+// Valid indicates whether the value is a known member of the SaveDataItemHandlingPolicyType enum.
+func (e SaveDataItemHandlingPolicyType) Valid() bool {
+	switch e {
+	case SaveDataItemHandlingPolicyTypeN0:
+		return true
+	case SaveDataItemHandlingPolicyTypeN1:
+		return true
+	case SaveDataItemHandlingPolicyTypeN2:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SaveDataItemPickupPolicyType.
+const (
+	SaveDataItemPickupPolicyTypeN0 SaveDataItemPickupPolicyType = 0
+	SaveDataItemPickupPolicyTypeN1 SaveDataItemPickupPolicyType = 1
+)
+
+// Valid indicates whether the value is a known member of the SaveDataItemPickupPolicyType enum.
+func (e SaveDataItemPickupPolicyType) Valid() bool {
+	switch e {
+	case SaveDataItemPickupPolicyTypeN0:
+		return true
+	case SaveDataItemPickupPolicyTypeN1:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SaveDataPositionPolicyType.
+const (
+	SaveDataPositionPolicyTypeN0 SaveDataPositionPolicyType = 0
+	SaveDataPositionPolicyTypeN1 SaveDataPositionPolicyType = 1
+	SaveDataPositionPolicyTypeN2 SaveDataPositionPolicyType = 2
+	SaveDataPositionPolicyTypeN3 SaveDataPositionPolicyType = 3
+	SaveDataPositionPolicyTypeN4 SaveDataPositionPolicyType = 4
+)
+
+// Valid indicates whether the value is a known member of the SaveDataPositionPolicyType enum.
+func (e SaveDataPositionPolicyType) Valid() bool {
+	switch e {
+	case SaveDataPositionPolicyTypeN0:
+		return true
+	case SaveDataPositionPolicyTypeN1:
+		return true
+	case SaveDataPositionPolicyTypeN2:
+		return true
+	case SaveDataPositionPolicyTypeN3:
+		return true
+	case SaveDataPositionPolicyTypeN4:
 		return true
 	default:
 		return false
@@ -1363,17 +1447,11 @@ type SaveDataCameraPosition = float64
 // SaveDataCameraScale カメラのスケール値
 type SaveDataCameraScale = float64
 
-// SaveDataWeightCapacityComponent 重量容量。最大値と現在値を持つ
-type SaveDataWeightCapacityComponent struct {
-	// Current プール現在値 (浮動小数点)
-	Current SaveDataPoolFloatCurrent `json:"Current"`
-
-	// Max プール最大値 (浮動小数点)
-	Max SaveDataPoolFloatMax `json:"Max"`
-}
-
 // SaveDataChecksum SHA-256チェックサム
 type SaveDataChecksum = string
+
+// SaveDataCombatPolicyType 隊員の戦闘ポリシー
+type SaveDataCombatPolicyType float32
 
 // SaveDataComponentsMap エンティティが持つコンポーネントのマップ。
 // 存在するコンポーネントのみがキーとして含まれる。
@@ -1387,9 +1465,6 @@ type SaveDataComponentsMap struct {
 
 	// Camera カメラ状態
 	Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
-
-	// WeightCapacity 重量容量
-	WeightCapacity *SaveDataWeightCapacityComponent `json:"WeightCapacity,omitempty"`
 
 	// Consumable 消費可能アイテム設定
 	Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`
@@ -1442,6 +1517,12 @@ type SaveDataComponentsMap struct {
 	// SpriteRender スプライト描画設定
 	SpriteRender *SaveDataSpriteRenderComponent `json:"SpriteRender,omitempty"`
 
+	// SquadMember 隊員コンポーネント。リーダーへのエンティティ参照を含む
+	SquadMember *SaveDataSquadMemberComponent `json:"SquadMember,omitempty"`
+
+	// SquadPolicy 隊員の自律行動ポリシー
+	SquadPolicy *SaveDataSquadPolicyComponent `json:"SquadPolicy,omitempty"`
+
 	// Stackable スタック可能マーカー
 	Stackable *SaveDataMarkerComponent `json:"Stackable,omitempty"`
 
@@ -1459,6 +1540,9 @@ type SaveDataComponentsMap struct {
 
 	// Wearable 防具設定
 	Wearable *SaveDataWearableComponent `json:"Wearable,omitempty"`
+
+	// WeightCapacity 所持重量
+	WeightCapacity *SaveDataWeightCapacityComponent `json:"WeightCapacity,omitempty"`
 }
 
 // SaveDataConsumableComponent 消費可能アイテム設定
@@ -1644,6 +1728,12 @@ type SaveDataIntPool struct {
 	Max SaveDataPoolMax `json:"Max"`
 }
 
+// SaveDataItemHandlingPolicyType 隊員のアイテム処理ポリシー
+type SaveDataItemHandlingPolicyType float32
+
+// SaveDataItemPickupPolicyType 隊員のアイテム回収ポリシー
+type SaveDataItemPickupPolicyType float32
+
 // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する
 type SaveDataLightRadius = int32
 
@@ -1726,6 +1816,9 @@ type SaveDataPoolFloatMax = float64
 
 // SaveDataPoolMax プール最大値 (整数)
 type SaveDataPoolMax = int32
+
+// SaveDataPositionPolicyType 隊員の位置ポリシー
+type SaveDataPositionPolicyType float32
 
 // SaveDataProvidesHealingComponent 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
 type SaveDataProvidesHealingComponent struct {
@@ -1815,6 +1908,24 @@ type SaveDataSpriteRenderComponent struct {
 // SaveDataSpriteSheetName スプライトシート名。セーブデータではパターン制約を適用しない
 type SaveDataSpriteSheetName = string
 
+// SaveDataSquadMemberComponent 隊員であることを示すマーカーコンポーネント
+type SaveDataSquadMemberComponent = map[string]interface{}
+
+// SaveDataSquadPolicyComponent 隊員の自律行動ポリシー
+type SaveDataSquadPolicyComponent struct {
+	// Combat 隊員の戦闘ポリシー
+	Combat SaveDataCombatPolicyType `json:"Combat"`
+
+	// ItemHandling 隊員のアイテム処理ポリシー
+	ItemHandling SaveDataItemHandlingPolicyType `json:"ItemHandling"`
+
+	// ItemPickup 隊員のアイテム回収ポリシー
+	ItemPickup SaveDataItemPickupPolicyType `json:"ItemPickup"`
+
+	// Position 隊員の位置ポリシー
+	Position SaveDataPositionPolicyType `json:"Position"`
+}
+
 // SaveDataStableID エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
 type SaveDataStableID struct {
 	// Generation 世代番号。同一インデックスの再利用を区別する
@@ -1873,6 +1984,15 @@ type SaveDataWearableComponent struct {
 
 	// InsulationHeat 耐暑性能
 	InsulationHeat InsulationHeat `json:"InsulationHeat"`
+}
+
+// SaveDataWeightCapacityComponent 所持重量。最大値と現在値を持つ
+type SaveDataWeightCapacityComponent struct {
+	// Current プール現在値 (浮動小数点)
+	Current SaveDataPoolFloatCurrent `json:"Current"`
+
+	// Max プール最大値 (浮動小数点)
+	Max SaveDataPoolFloatMax `json:"Max"`
 }
 
 // SaveDataWorldSaveData ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する

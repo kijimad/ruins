@@ -42,6 +42,7 @@
 ## テスト
 
 - 極力 github.com/stretchr/testify/assert のアサート (assert.Error や require.Error)を使ってテストする。t.Error() や t.Fatal() は使わない
+- make test を使う。Ebiten起動でウィンドウが出るのを防ぐため
 
 ## 設計ドキュメント
 

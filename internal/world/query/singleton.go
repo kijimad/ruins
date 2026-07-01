@@ -56,6 +56,9 @@ func GetSpatialIndex(world w.World) *gc.SpatialIndex {
 	if !si.Built {
 		buildSpatialIndex(world, si)
 	}
+	if si.MapWidth == 0 || si.MapHeight == 0 {
+		return nil
+	}
 	return si
 }
 
@@ -79,7 +82,7 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 	si.Characters = make(map[gc.GridElement]ecs.Entity)
 	si.PlayerEntity = nil
 
-	// 壁位置のインデックス構築
+	// 静的障害物のインデックス構築
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.BlockPass,
@@ -98,14 +101,15 @@ func buildSpatialIndex(world w.World, si *gc.SpatialIndex) {
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}
-		isPlayer := entity.HasComponent(world.Components.Player)
-		isAI := entity.HasComponent(world.Components.AIMoveFSM)
-		if !isPlayer && !isAI {
+		isCharacter := entity.HasComponent(world.Components.Player) ||
+			entity.HasComponent(world.Components.AIMoveFSM) ||
+			entity.HasComponent(world.Components.SquadMember)
+		if !isCharacter {
 			return
 		}
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		si.Characters[*grid] = entity
-		if isPlayer {
+		if entity.HasComponent(world.Components.Player) {
 			e := entity
 			si.PlayerEntity = &e
 		}

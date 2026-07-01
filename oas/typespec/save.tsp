@@ -254,6 +254,15 @@ model ComponentsMap {
 
   /** 所持金 */
   Wallet?: WalletComponent;
+
+  /** 隊員コンポーネント。リーダーへのエンティティ参照を含む */
+  SquadMember?: SquadMemberComponent;
+
+  /** 隊員の自律行動ポリシー */
+  SquadPolicy?: SquadPolicyComponent;
+
+  /** 隊員の外見情報 */
+  MemberAppearance?: MemberAppearanceComponent;
 }
 
 // ================== マーカーコンポーネント ==================
@@ -567,4 +576,59 @@ enum HealingAmountType {
 
   /** 固定値で回復する */
   numeral,
+}
+
+// ================== 隊員コンポーネント ==================
+
+/** 隊員の位置ポリシー */
+enum PositionPolicyType {
+  escort: 0,
+  vanguard: 1,
+  patrol: 2,
+  hold: 3,
+  retreat: 4,
+}
+
+/** 隊員の戦闘ポリシー */
+enum CombatPolicyType {
+  attack: 0,
+  evade: 1,
+}
+
+/** 隊員のアイテム回収ポリシー */
+enum ItemPickupPolicyType {
+  pickup: 0,
+  ignore: 1,
+}
+
+/** 隊員のアイテム処理ポリシー */
+enum ItemHandlingPolicyType {
+  keep: 0,
+  distribute: 1,
+  dismantle: 2,
+}
+
+/**
+ * 隊員コンポーネント。
+ * Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+ */
+model SquadMemberComponent {
+  /** リーダーのStableID */
+  LeaderRef: StableID;
+
+  /** 同行中かどうか */
+  Active: boolean;
+}
+
+/** 隊員の自律行動ポリシー */
+model SquadPolicyComponent {
+  Position: PositionPolicyType;
+  Combat: CombatPolicyType;
+  ItemPickup: ItemPickupPolicyType;
+  ItemHandling: ItemHandlingPolicyType;
+}
+
+/** 隊員の外見情報 */
+model MemberAppearanceComponent {
+  SpriteKey: SpriteKey;
 }

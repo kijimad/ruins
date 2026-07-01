@@ -9099,6 +9099,27 @@ vitality = 10
 messageKey = "old_soldier_greeting"
 
 [[members]]
+animKeys = [ "dark_doctor_0", "dark_doctor_1" ]
+factionType = "FactionNeutral"
+disposition = "neutral"
+movementPattern = "wander"
+isBoss = false
+name = "酒場の主人"
+spriteKey = "dark_doctor_0"
+spriteSheetName = "field"
+
+[members.abilities]
+agility = 5
+defense = 5
+dexterity = 5
+sensation = 5
+strength = 5
+vitality = 5
+
+[members.dialog]
+messageKey = "tavern_keeper_greeting"
+
+[[members]]
 animKeys = [ "dark_clab" ]
 commandTableName = "苔亀"
 dropTableName = "苔亀"
@@ -10128,6 +10149,13 @@ weight = 2
 [[commandTables.entries]]
 weapon = "噛みつき"
 weight = 2
+
+[[commandTables]]
+name = "素手"
+
+[[commandTables.entries]]
+weapon = "素手"
+weight = 1
 
 [[dropTables]]
 name = "コウモリ"

@@ -162,21 +162,19 @@ func (st *DungeonState) OnStart(world w.World) error {
 func (st *DungeonState) OnStop(world w.World) error {
 	world.Manager.Join(
 		world.Components.SpriteRender,
+		world.Components.Player.Not(),
+		world.Components.SquadMember.Not(),
+		world.Components.LocationInBackpack.Not(),
+		world.Components.LocationEquipped.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// プレイヤーエンティティ、バックパック内アイテム、装備中アイテムは次のフロアでも必要なので削除しない
-		if !entity.HasComponent(world.Components.Player) &&
-			!entity.HasComponent(world.Components.LocationInBackpack) &&
-			!entity.HasComponent(world.Components.LocationEquipped) {
-			world.Manager.DeleteEntity(entity)
-		}
+		world.Manager.DeleteEntity(entity)
 	}))
 	world.Manager.Join(
 		world.Components.GridElement,
+		world.Components.Player.Not(),
+		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// プレイヤーエンティティは次のフロアでも必要なので削除しない
-		if !entity.HasComponent(world.Components.Player) {
-			world.Manager.DeleteEntity(entity)
-		}
+		world.Manager.DeleteEntity(entity)
 	}))
 
 	// 未消費のステート遷移リクエストを破棄
@@ -515,6 +513,10 @@ func (st *DungeonState) handleStateChangeRequest(world w.World) (es.Transition[w
 		case "doctor_greeting":
 			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
 				func() es.State[w.World] { return NewDoctorDialogState(speakerName) },
+			}}, nil
+		case "tavern_keeper_greeting":
+			return es.Transition[w.World]{Type: es.TransPush, NewStateFuncs: []es.StateFactory[w.World]{
+				func() es.State[w.World] { return NewTavernKeeperDialogState(speakerName) },
 			}}, nil
 		default:
 			// 通常の会話はdialoguesから取得

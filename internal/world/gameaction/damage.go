@@ -22,8 +22,10 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 		hp.Current = 0
 	}
 
-	// ダメージログ出力（プレイヤー関連の場合のみ）
-	if isPlayerEntity(source, world) || isPlayerEntity(target, world) {
+	// ダメージログ出力（プレイヤーまたは隊員が関与する場合のみ）
+	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world) ||
+		source.HasComponent(world.Components.SquadMember) || target.HasComponent(world.Components.SquadMember)
+	if isRelevant {
 		logDamageDealt(world, source, target, damage)
 	}
 
@@ -62,9 +64,12 @@ func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage 
 }
 
 // logDeath は死亡・破壊ログを出力する。
-// Propは「壊れた」、それ以外は「倒れた」と表示する
+// Propは「壊れた」、それ以外は「倒れた」と表示する。
+// プレイヤーまたは隊員が関与する場合のみログを出力する
 func logDeath(world w.World, target ecs.Entity, source ecs.Entity) {
-	if !isPlayerEntity(source, world) && !isPlayerEntity(target, world) {
+	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world) ||
+		target.HasComponent(world.Components.SquadMember) || source.HasComponent(world.Components.SquadMember)
+	if !isRelevant {
 		return
 	}
 

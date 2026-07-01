@@ -23,3 +23,7 @@ tile = 'dirt'
 [palette.npcs.2]
 id = '怪しい科学者'
 tile = 'dirt'
+
+[palette.npcs.3]
+id = '酒場の主人'
+tile = 'dirt'

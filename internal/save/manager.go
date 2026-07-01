@@ -11,6 +11,7 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/lifecycle"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -136,6 +137,12 @@ func (sm *SerializationManager) extractWorldData(world w.World) oapi.SaveDataWor
 	world.Manager.Join(world.Components.LocationInBackpack).Visit(ecs.Visit(collect))
 	// 3. 装備中アイテム
 	world.Manager.Join(world.Components.LocationEquipped).Visit(ecs.Visit(collect))
+	// 4. 隊員エンティティ（死亡していないもの）
+	world.Manager.Join(world.Components.SquadMember).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if !entity.HasComponent(world.Components.Dead) {
+			collect(entity)
+		}
+	}))
 
 	sort.Slice(entities, func(i, j int) bool {
 		return entities[i].StableId.Index < entities[j].StableId.Index
@@ -285,6 +292,15 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
 	}
 
+	// 隊員コンポーネント
+	if entity.HasComponent(c.SquadMember) {
+		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
+	}
+	if entity.HasComponent(c.SquadPolicy) {
+		sp := c.SquadPolicy.Get(entity).(*gc.SquadPolicy)
+		sd := squadPolicyToSaveData(*sp)
+		comp.SquadPolicy = &sd
+	}
 	// エンティティ参照コンポーネント (LocationEquipped)
 	if entity.HasComponent(c.LocationEquipped) {
 		equipped := c.LocationEquipped.Get(entity).(*gc.LocationEquipped)
@@ -398,13 +414,43 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	// アイテム効果コンポーネント
 	restoreEffectComponents(entity, comp, c)
 
+	// 隊員コンポーネント（Leaderは第3段階で解決）
+	if comp.SquadMember != nil {
+		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
+
+		// 隊員のランタイムコンポーネントを再付与する。
+		// これらはセーブ対象外だが、AI処理・衝突判定に必要
+		entity.AddComponent(c.AIMoveFSM, &gc.AIMoveFSM{})
+		entity.AddComponent(c.AIVision, &gc.AIVision{ViewDistance: lifecycle.AIVisionDistance})
+		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
+		entity.AddComponent(c.Disposition, &gc.Disposition{
+			Default: gc.DispositionAlly,
+			Current: gc.DispositionAlly,
+		})
+		entity.AddComponent(c.HealthStatus, &gc.HealthStatus{})
+		skills := gc.NewSkills()
+		entity.AddComponent(c.Skills, skills)
+		if comp.Abilities != nil {
+			ab := abilitiesFromSaveData(*comp.Abilities)
+			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, &ab, nil))
+		} else {
+			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, nil, nil))
+		}
+	}
+	if comp.SquadPolicy != nil {
+		sp := squadPolicyFromSaveData(*comp.SquadPolicy)
+		entity.AddComponent(c.SquadPolicy, &sp)
+	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {
-		equipped := gc.LocationEquipped{
-			Owner:         0,
-			EquipmentSlot: gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot),
+		slot := gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot)
+		if slot >= gc.SlotHead && slot <= gc.SlotWeapon5 {
+			equipped := gc.LocationEquipped{
+				Owner:         0,
+				EquipmentSlot: slot,
+			}
+			entity.AddComponent(c.LocationEquipped, &equipped)
 		}
-		entity.AddComponent(c.LocationEquipped, &equipped)
 	}
 }
 
