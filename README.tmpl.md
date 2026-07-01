@@ -4,10 +4,11 @@
 
 ローグライク。
 
-- [play](https://kijimad.github.io/ruins/)
-- [report](https://kijimad.github.io/ruins/cov/)
-- [raw spec](https://kijimad.github.io/ruins/raw-spec/)
-- [godoc](https://pkg.go.dev/github.com/kijimaD/ruins)
+- [Steam](https://store.steampowered.com/app/4791810/Ruins/)
+- [Play](https://kijimad.github.io/ruins/)
+- [Test Report](https://kijimad.github.io/ruins/cov/)
+- [Raw Spec](https://kijimad.github.io/ruins/raw-spec/)
+- [Godoc](https://pkg.go.dev/github.com/kijimaD/ruins)
 
 ## Play Images
 
