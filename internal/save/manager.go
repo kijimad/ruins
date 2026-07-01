@@ -443,11 +443,14 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {
-		equipped := gc.LocationEquipped{
-			Owner:         0,
-			EquipmentSlot: gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot),
+		slot := gc.EquipmentSlotNumber(comp.LocationEquipped.EquipmentSlot)
+		if slot >= gc.SlotHead && slot <= gc.SlotWeapon5 {
+			equipped := gc.LocationEquipped{
+				Owner:         0,
+				EquipmentSlot: slot,
+			}
+			entity.AddComponent(c.LocationEquipped, &equipped)
 		}
-		entity.AddComponent(c.LocationEquipped, &equipped)
 	}
 }
 

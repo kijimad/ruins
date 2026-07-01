@@ -35,7 +35,7 @@ func TestChebyshevDistance(t *testing.T) {
 			t.Parallel()
 			a := &gc.GridElement{X: consts.Tile(tt.ax), Y: consts.Tile(tt.ay)}
 			b := &gc.GridElement{X: consts.Tile(tt.bx), Y: consts.Tile(tt.by)}
-			assert.Equal(t, tt.want, chebyshevDistance(a, b))
+			assert.Equal(t, tt.want, gridDistance(a, b))
 		})
 	}
 }
@@ -85,7 +85,7 @@ func TestTryMoveCloser(t *testing.T) {
 		t.Parallel()
 		from := &gc.GridElement{X: 5, Y: 5}
 		target := &gc.GridElement{X: 8, Y: 5}
-		currentDist := chebyshevDistance(from, target) // 3
+		currentDist := gridDistance(from, target) // 3
 
 		sp := NewSquadProcessor()
 		// tryMoveCloserはワールドの移動可否判定が必要なので、ロジックの単体テストで検証
@@ -101,7 +101,7 @@ func TestTryMoveCloser(t *testing.T) {
 			X: from.X + consts.Tile(bestCandidate.x),
 			Y: from.Y + consts.Tile(bestCandidate.y),
 		}
-		newDist := chebyshevDistance(newGrid, target)
+		newDist := gridDistance(newGrid, target)
 		assert.Less(t, newDist, currentDist, "最優先候補は距離を縮める")
 		_ = sp
 	})
@@ -110,11 +110,11 @@ func TestTryMoveCloser(t *testing.T) {
 		t.Parallel()
 		from := &gc.GridElement{X: 5, Y: 5}
 		target := &gc.GridElement{X: 8, Y: 5}
-		currentDist := chebyshevDistance(from, target) // 3
+		currentDist := gridDistance(from, target) // 3
 
 		// 上方向への移動は距離が縮まらない
 		sideGrid := &gc.GridElement{X: 5, Y: 4}
-		sideDist := chebyshevDistance(sideGrid, target)
+		sideDist := gridDistance(sideGrid, target)
 		assert.GreaterOrEqual(t, sideDist, currentDist, "横移動は距離を縮めない")
 	})
 }
@@ -147,7 +147,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemPickup: gc.PolicyPickup},
@@ -176,7 +176,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemPickup: gc.PolicyIgnore},
@@ -201,7 +201,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemPickup: gc.PolicyPickup},
@@ -230,7 +230,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		require.NoError(t, err)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemPickup: gc.PolicyPickup},
@@ -266,7 +266,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemHandling: gc.PolicyDistribute},
@@ -299,7 +299,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemHandling: gc.PolicyKeep},
@@ -334,7 +334,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemHandling: gc.PolicyDistribute},
@@ -360,7 +360,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		leaderGrid := world.Components.GridElement.Get(leader).(*gc.GridElement)
 
 		sp := NewSquadProcessor()
-		ctx := &SquadContext{
+		ctx := &squadContext{
 			Grid:         memberGrid,
 			Vision:       &gc.AIVision{ViewDistance: 5},
 			Policy:       &gc.SquadPolicy{ItemHandling: gc.PolicyDistribute},

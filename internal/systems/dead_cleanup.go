@@ -105,6 +105,25 @@ func (sys *DeadCleanupSystem) Update(world w.World) error {
 		}
 	}
 
+	// 死亡エンティティのバックパック内アイテムをフィールドにドロップする
+	for _, entity := range toDelete {
+		if !entity.HasComponent(world.Components.GridElement) {
+			continue
+		}
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		owner := entity
+		world.Manager.Join(
+			world.Components.LocationInBackpack,
+		).Visit(ecs.Visit(func(item ecs.Entity) {
+			loc := world.Components.LocationInBackpack.Get(item).(*gc.LocationInBackpack)
+			if loc.Owner != owner {
+				return
+			}
+			item.AddComponent(world.Components.GridElement, &gc.GridElement{X: grid.X, Y: grid.Y})
+			lifecycle.MoveToField(world, item, &owner)
+		}))
+	}
+
 	// エンティティを削除する
 	for _, entity := range toDelete {
 		// スプライトフェードアウトエフェクトを生成

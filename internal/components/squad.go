@@ -13,7 +13,7 @@ type SquadPolicy struct {
 	ItemHandling ItemHandlingPolicy
 }
 
-// DefaultSquadPolicy はデフォルトのポリシー
+// DefaultSquadPolicy はデフォルトのポリシーを定義する
 var DefaultSquadPolicy = SquadPolicy{
 	Position:     PolicyEscort,
 	Combat:       PolicyAttack,

@@ -85,10 +85,6 @@ func (ta *TransferActivity) performTransfer(comp *gc.Activity, actor ecs.Entity,
 	item := *comp.Target
 	recipient := *comp.Recipient
 
-	if !item.HasComponent(world.Components.LocationInBackpack) {
-		return fmt.Errorf("アイテムがバックパック内にありません")
-	}
-
 	formattedName := query.FormatItemName(world, item)
 	actorName := query.GetEntityName(actor, world)
 	recipientName := query.GetEntityName(recipient, world)
