@@ -1,8 +1,6 @@
 package gameaction
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -20,13 +18,6 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	hp.Current -= damage
 	if hp.Current < 0 {
 		hp.Current = 0
-	}
-
-	// ダメージログ出力（プレイヤーまたは隊員が関与する場合のみ）
-	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world) ||
-		source.HasComponent(world.Components.SquadMember) || target.HasComponent(world.Components.SquadMember)
-	if isRelevant {
-		logDamageDealt(world, source, target, damage)
 	}
 
 	// 被ダメージによる態度変化
@@ -48,19 +39,6 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 	}
 	policy := p.(*gc.AIPolicy)
 	policy.ReactToHostile()
-}
-
-// logDamageDealt はダメージログを出力する
-func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage int) {
-	sourceName := query.GetEntityName(source, world)
-	targetName := query.GetEntityName(target, world)
-
-	logger := gamelog.New(query.GetGameLog(world))
-	logger.Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, source, sourceName, world)
-	}).Append(" は ").Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, target, targetName, world)
-	}).Append(fmt.Sprintf(" に %d のダメージを与えた。", damage)).Log()
 }
 
 // logDeath は死亡・破壊ログを出力する。
