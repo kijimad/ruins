@@ -1,8 +1,11 @@
 package aiinput
 
 import (
+	"math/rand/v2"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -107,14 +110,101 @@ func gridDistance(a, b *gc.GridElement) int {
 	return geometry.ChebyshevDistance(int(a.X), int(a.Y), int(b.X), int(b.Y))
 }
 
-// calculateMoveCandidates はターゲットに向かう移動候補を計算する
-func calculateMoveCandidates(dx, dy int) []MoveCandidate {
-	ap := &DefaultActionPlanner{}
-	return ap.calculateMoveCandidates(dx, dy)
+// eightDirections は隣接8方向の座標差分
+var eightDirections = []struct{ x, y int }{
+	{-1, -1}, {0, -1}, {1, -1},
+	{-1, 0}, {1, 0},
+	{-1, 1}, {0, 1}, {1, 1},
 }
 
-// tryMoveCandidates は移動候補を順に試行する
+// MoveCandidate は移動候補を表す
+type MoveCandidate struct {
+	x, y int
+}
+
+// calculateMoveCandidates はターゲットに向かう移動候補を計算する
+func calculateMoveCandidates(dx, dy int) []MoveCandidate {
+	var candidates []MoveCandidate
+
+	if dx != 0 && dy != 0 {
+		moveX := 1
+		if dx < 0 {
+			moveX = -1
+		}
+		moveY := 1
+		if dy < 0 {
+			moveY = -1
+		}
+		candidates = append(candidates, MoveCandidate{moveX, moveY})
+
+		if geometry.Abs(dx) > geometry.Abs(dy) {
+			candidates = append(candidates, MoveCandidate{moveX, 0})
+			candidates = append(candidates, MoveCandidate{0, moveY})
+		} else {
+			candidates = append(candidates, MoveCandidate{0, moveY})
+			candidates = append(candidates, MoveCandidate{moveX, 0})
+		}
+	} else if dx != 0 {
+		moveX := 1
+		if dx < 0 {
+			moveX = -1
+		}
+		candidates = append(candidates, MoveCandidate{moveX, 0})
+		candidates = append(candidates, MoveCandidate{0, 1})
+		candidates = append(candidates, MoveCandidate{0, -1})
+	} else if dy != 0 {
+		moveY := 1
+		if dy < 0 {
+			moveY = -1
+		}
+		candidates = append(candidates, MoveCandidate{0, moveY})
+		candidates = append(candidates, MoveCandidate{1, 0})
+		candidates = append(candidates, MoveCandidate{-1, 0})
+	}
+
+	return candidates
+}
+
+// tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
 func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []MoveCandidate) (activity.Behavior, activity.ActionParams, bool) {
-	ap := &DefaultActionPlanner{}
-	return ap.tryMoveCandidates(world, entity, from, candidates)
+	fromX, fromY := int(from.X), int(from.Y)
+	for _, candidate := range candidates {
+		destX := fromX + candidate.x
+		destY := fromY + candidate.y
+		if activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
+			b, p := moveAction(entity, destX, destY)
+			return b, p, true
+		}
+	}
+	return nil, activity.ActionParams{}, false
+}
+
+// moveAction は指定座標への移動アクションを生成する
+func moveAction(aiEntity ecs.Entity, destX, destY int) (activity.Behavior, activity.ActionParams) {
+	dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+	return &activity.MoveActivity{}, activity.ActionParams{
+		Actor:       aiEntity,
+		Destination: &dest,
+	}
+}
+
+// waitAction は待機アクションを生成する
+func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity.ActionParams) {
+	return &activity.WaitActivity{}, activity.ActionParams{Actor: aiEntity, Duration: 1, Reason: reason}
+}
+
+// shuffledEightDirections は8方向をシャッフルして返す
+func shuffledEightDirections() []struct{ x, y int } {
+	shuffled := make([]struct{ x, y int }, len(eightDirections))
+	copy(shuffled, eightDirections)
+	for i := len(shuffled) - 1; i > 0; i-- {
+		j := rand.IntN(i + 1)
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	}
+	return shuffled
+}
+
+// isAdjacent は2つのタイルが隣接しているかを判定する
+func isAdjacent(a, b *gc.GridElement) bool {
+	return geometry.IsAdjacent(int(a.X), int(a.Y), int(b.X), int(b.Y))
 }

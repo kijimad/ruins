@@ -12,8 +12,6 @@ import (
 // roamingPlannerとsquadPlannerを使い分けて全AIエンティティを統一的に処理する
 type Processor struct {
 	logger         *logger.Logger
-	stateMachine   StateMachine
-	visionSystem   VisionSystem
 	roamingPlanner *roamingPlanner
 	squadPlanner   *squadPlanner
 }
@@ -22,8 +20,6 @@ type Processor struct {
 func NewProcessor() *Processor {
 	return &Processor{
 		logger:         logger.New(logger.CategoryTurn),
-		stateMachine:   NewStateMachine(),
-		visionSystem:   NewVisionSystem(),
 		roamingPlanner: newRoamingPlanner(),
 		squadPlanner:   newSquadPlanner(),
 	}
@@ -39,7 +35,7 @@ func (p *Processor) ProcessAll(world w.World) error {
 }
 
 // ProcessNonSquadAI はAIMoveFSMを持つ非隊員エンティティを処理する。
-// 敵・中立NPC問わず、AIPolicyと状態機械で行動を分岐する
+// 敵・中立NPC問わず、AIPolicyと状態遷移で行動を分岐する
 func (p *Processor) ProcessNonSquadAI(world w.World) error {
 	turnNumber := query.GetTurnState(world).TurnNumber
 	p.logger.Debug("AI処理開始", "turn", turnNumber)
@@ -55,8 +51,6 @@ func (p *Processor) ProcessNonSquadAI(world w.World) error {
 			p.logger.Debug("Deadエンティティのため処理スキップ", "entity", entity)
 			return
 		}
-
-		p.prepareRoamingEntity(world, entity, turnNumber)
 		runAPLoop(world, entity, p.roamingPlanner, p.logger)
 	}))
 
@@ -84,31 +78,4 @@ func (p *Processor) ProcessSquadAI(world w.World) error {
 
 	p.logger.Debug("隊員AI処理完了", "処理数", entityCount, "turn", turnNumber)
 	return nil
-}
-
-// prepareRoamingEntity はAPループ前に状態遷移を更新する。
-// 1エンティティにつき1ターンに1回だけ呼ばれる
-func (p *Processor) prepareRoamingEntity(world w.World, entity ecs.Entity, turnNumber int) {
-	context, err := gatherEntityContext(world, entity)
-	if err != nil {
-		p.logger.Warn("AIエンティティコンテキスト取得失敗", "entity", entity, "error", err.Error())
-		return
-	}
-
-	playerEntity := findPlayer(world)
-	if playerEntity == nil {
-		return
-	}
-	if !playerEntity.HasComponent(world.Components.GridElement) {
-		p.logger.Warn("プレイヤーエンティティが無効（GridElementなし）", "entity", entity)
-		return
-	}
-
-	canSeePlayer := p.visionSystem.CanSeeTarget(world, entity, *playerEntity, context.Vision)
-
-	oldState := context.State.SubState
-	p.stateMachine.UpdateState(context.State, context.Policy, canSeePlayer, turnNumber)
-	if oldState != context.State.SubState {
-		p.logger.Debug("AI状態変化", "entity", entity, "from", oldState, "to", context.State.SubState)
-	}
 }

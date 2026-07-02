@@ -54,21 +54,21 @@ func TestShouldFlee(t *testing.T) {
 func TestUpdateState_UnknownState(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	state := &gc.AIState{
 		SubState:              gc.AIStateSubState("INVALID"),
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, nil, false, 10)
+	rp.updateState(state, nil, false, 10)
 	assert.Equal(t, gc.AIStateWaiting, state.SubState, "不明な状態は待機に初期化される")
 }
 
 func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
 
 	state := &gc.AIState{
@@ -78,18 +78,18 @@ func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 	}
 
 	// プレイヤーを見失って3ターン未満は追跡継続
-	sm.UpdateState(state, policy, false, 3)
+	rp.updateState(state, policy, false, 3)
 	assert.Equal(t, gc.AIStateChasing, state.SubState, "3ターン未満は追跡継続")
 
 	// 3ターン以上見失うと移動状態へ
-	sm.UpdateState(state, policy, false, 5)
+	rp.updateState(state, policy, false, 5)
 	assert.Equal(t, gc.AIStateDriving, state.SubState, "3ターン以上見失うと移動状態へ")
 }
 
 func TestUpdateState_ChasingPlayerVisible_ResetsTurn(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
 
 	state := &gc.AIState{
@@ -98,8 +98,7 @@ func TestUpdateState_ChasingPlayerVisible_ResetsTurn(t *testing.T) {
 		DurationSubStateTurns: 10,
 	}
 
-	// プレイヤーが見えている間はターンリセット
-	sm.UpdateState(state, policy, true, 5)
+	rp.updateState(state, policy, true, 5)
 	assert.Equal(t, gc.AIStateChasing, state.SubState)
 	assert.Equal(t, 5, state.StartSubStateTurn, "プレイヤー視認中はターンリセット")
 }
@@ -107,45 +106,41 @@ func TestUpdateState_ChasingPlayerVisible_ResetsTurn(t *testing.T) {
 func TestUpdateState_WaitingToDriving(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	state := &gc.AIState{
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 3,
 	}
 
-	// 待機時間未満は待機のまま
-	sm.UpdateState(state, nil, false, 2)
+	rp.updateState(state, nil, false, 2)
 	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 
-	// 待機時間経過で移動へ
-	sm.UpdateState(state, nil, false, 3)
+	rp.updateState(state, nil, false, 3)
 	assert.Equal(t, gc.AIStateDriving, state.SubState)
 }
 
 func TestUpdateState_DrivingToWaiting(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	state := &gc.AIState{
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	// 移動時間未満は移動のまま
-	sm.UpdateState(state, nil, false, 4)
+	rp.updateState(state, nil, false, 4)
 	assert.Equal(t, gc.AIStateDriving, state.SubState)
 
-	// 移動時間経過で待機へ
-	sm.UpdateState(state, nil, false, 5)
+	rp.updateState(state, nil, false, 5)
 	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 }
 
 func TestUpdateState_WaitingToChasing(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
 	state := &gc.AIState{
 		SubState:              gc.AIStateWaiting,
@@ -153,14 +148,14 @@ func TestUpdateState_WaitingToChasing(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, true, 1)
+	rp.updateState(state, policy, true, 1)
 	assert.Equal(t, gc.AIStateChasing, state.SubState)
 }
 
 func TestUpdateState_WaitingToFleeing(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
 	state := &gc.AIState{
 		SubState:              gc.AIStateWaiting,
@@ -168,14 +163,14 @@ func TestUpdateState_WaitingToFleeing(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, true, 1)
+	rp.updateState(state, policy, true, 1)
 	assert.Equal(t, gc.AIStateFleeing, state.SubState)
 }
 
 func TestUpdateState_WaitingNeutralIgnoresPlayer(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
 	state := &gc.AIState{
 		SubState:              gc.AIStateWaiting,
@@ -183,14 +178,14 @@ func TestUpdateState_WaitingNeutralIgnoresPlayer(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, true, 1)
+	rp.updateState(state, policy, true, 1)
 	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 }
 
 func TestUpdateState_DrivingToChasing(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
 	state := &gc.AIState{
 		SubState:              gc.AIStateDriving,
@@ -198,14 +193,14 @@ func TestUpdateState_DrivingToChasing(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, true, 1)
+	rp.updateState(state, policy, true, 1)
 	assert.Equal(t, gc.AIStateChasing, state.SubState)
 }
 
 func TestUpdateState_DrivingToFleeing(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
 	state := &gc.AIState{
 		SubState:              gc.AIStateDriving,
@@ -213,14 +208,14 @@ func TestUpdateState_DrivingToFleeing(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, true, 1)
+	rp.updateState(state, policy, true, 1)
 	assert.Equal(t, gc.AIStateFleeing, state.SubState)
 }
 
 func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
 	state := &gc.AIState{
 		SubState:              gc.AIStateFleeing,
@@ -228,7 +223,7 @@ func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, true, 3)
+	rp.updateState(state, policy, true, 3)
 	assert.Equal(t, gc.AIStateFleeing, state.SubState)
 	assert.Equal(t, 3, state.StartSubStateTurn)
 }
@@ -236,7 +231,7 @@ func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 func TestUpdateState_FleeingToDriving(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
 	state := &gc.AIState{
 		SubState:              gc.AIStateFleeing,
@@ -244,23 +239,21 @@ func TestUpdateState_FleeingToDriving(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(state, policy, false, 5)
+	rp.updateState(state, policy, false, 5)
 	assert.Equal(t, gc.AIStateDriving, state.SubState)
 	assert.Equal(t, gc.CombatEvade, policy.CombatCurrent)
 }
 
-// policy=nil は CombatAttack として扱われる。
-// 追跡タイムアウトが経過するとプレイヤーが見えていても Waiting に戻る
 func TestUpdateState_ChasingTimeout(t *testing.T) {
 	t.Parallel()
 
-	sm := NewStateMachine()
+	rp := newRoamingPlanner()
 	state := &gc.AIState{
 		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 10,
 	}
 
-	sm.UpdateState(state, nil, true, 10)
+	rp.updateState(state, nil, true, 10)
 	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 }
