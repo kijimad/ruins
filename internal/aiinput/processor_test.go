@@ -141,12 +141,9 @@ func TestStateMachine_CowardlyToFleeing_StartFleeing(t *testing.T) {
 		DurationSubStateTurns: 5,
 	}
 
-	// CombatEvadeはプレイヤーを見ていなければ待機継続
-	// プレイヤーを見ていなくても逃亡状態へ遷移しない
 	sm.UpdateState(state, policy, false, 2)
 	assert.Equal(t, gc.AIStateWaiting, state.SubState, "プレイヤーが見えてなければまだ待機")
 
-	// プレイヤーが見える場合は逃亡開始
 	sm.UpdateState(state, policy, true, 3)
 	assert.Equal(t, gc.AIStateFleeing, state.SubState, "CombatEvadeはプレイヤー発見で逃亡開始")
 }
@@ -154,29 +151,22 @@ func TestStateMachine_CowardlyToFleeing_StartFleeing(t *testing.T) {
 func TestVisionSystem(t *testing.T) {
 	t.Parallel()
 
-	// VisionSystemのテストは統合テストなので、ここでは基本的な動作のみ
 	vs := NewVisionSystem()
 	assert.NotNil(t, vs, "VisionSystemが作成できること")
-
-	t.Logf("VisionSystemテスト完了")
 }
 
 func TestActionPlanner(t *testing.T) {
 	t.Parallel()
 
-	// ActionPlannerのテストも統合テストなので、ここでは基本的な動作のみ
 	ap := NewActionPlanner()
 	assert.NotNil(t, ap, "ActionPlannerが作成できること")
-
-	t.Logf("ActionPlannerテスト完了")
 }
 
 func TestProcessor(t *testing.T) {
 	t.Parallel()
 
-	// Processorの基本作成テスト
 	processor := NewProcessor()
 	assert.NotNil(t, processor, "Processorが作成できること")
-
-	t.Logf("Processorテスト完了")
+	assert.NotNil(t, processor.roamingPlanner)
+	assert.NotNil(t, processor.squadPlanner)
 }
