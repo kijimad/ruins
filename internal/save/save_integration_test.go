@@ -267,17 +267,17 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		// 戦闘・視界に必要なコンポーネント
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIVision), "AIVisionが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.BlockPass), "BlockPassが復元される")
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.Disposition), "Dispositionが復元される")
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIPolicy), "AIPolicyが復元される")
 
 		// ステータス関連コンポーネント
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.HealthStatus), "HealthStatusが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.Skills), "Skillsが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.CharModifiers), "CharModifiersが復元される")
 
-		// Dispositionの値が正しいことを確認
-		disp := newWorld.Components.Disposition.Get(memberEntity).(*gc.Disposition)
-		assert.Equal(t, gc.DispositionAlly, disp.Default)
-		assert.Equal(t, gc.DispositionAlly, disp.Current)
+		// AIPolicyの値が正しいことを確認
+		policy := newWorld.Components.AIPolicy.Get(memberEntity).(*gc.AIPolicy)
+		assert.Equal(t, gc.PlannerSquad, policy.Planner)
+		assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
 	})
 
 	t.Run("隊員のリーダー参照が復元される", func(t *testing.T) {

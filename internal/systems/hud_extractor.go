@@ -161,26 +161,24 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	world.Manager.Join(
 		world.Components.GridElement,
 		world.Components.AIMoveFSM,
-		world.Components.AIRoaming,
+		world.Components.AIState,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		roaming := world.Components.AIRoaming.Get(entity).(*gc.AIRoaming)
+		roaming := world.Components.AIState.Get(entity).(*gc.AIState)
 
 		// AIの現在の状態を判定
 		var stateText string
-		if entity.HasComponent(world.Components.AIChasing) {
+		switch roaming.SubState {
+		case gc.AIStateWaiting:
+			stateText = "WAITING"
+		case gc.AIStateDriving:
+			stateText = "ROAMING"
+		case gc.AIStateChasing:
 			stateText = "CHASING"
-		} else {
-			switch roaming.SubState {
-			case gc.AIRoamingWaiting:
-				stateText = "WAITING"
-			case gc.AIRoamingDriving:
-				stateText = "ROAMING"
-			case gc.AIRoamingChasing:
-				stateText = "CHASING"
-			default:
-				stateText = "UNKNOWN"
-			}
+		case gc.AIStateFleeing:
+			stateText = "FLEEING"
+		default:
+			stateText = "UNKNOWN"
 		}
 
 		// グリッド座標をピクセル座標に変換

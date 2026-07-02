@@ -685,12 +685,12 @@ func TestMemberDisposition(t *testing.T) {
 	tests := []struct {
 		name            string
 		disposition     string
-		expectedDefault gc.DispositionType
-		expectedCurrent gc.DispositionType
+		expectedDefault gc.CombatPolicy
+		expectedCurrent gc.CombatPolicy
 	}{
-		{"hostile", "hostile", gc.DispositionHostile, gc.DispositionHostile},
-		{"neutral", "neutral", gc.DispositionNeutral, gc.DispositionNeutral},
-		{"cowardly", "cowardly", gc.DispositionCowardly, gc.DispositionCowardly},
+		{"hostile", "hostile", gc.CombatAttack, gc.CombatAttack},
+		{"neutral", "neutral", gc.CombatIgnore, gc.CombatIgnore},
+		{"cowardly", "cowardly", gc.CombatEvade, gc.CombatEvade},
 	}
 
 	for _, tt := range tests {
@@ -718,9 +718,9 @@ Defense = 2
 
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.Disposition)
-			assert.Equal(t, tt.expectedDefault, entitySpec.Disposition.Default)
-			assert.Equal(t, tt.expectedCurrent, entitySpec.Disposition.Current)
+			require.NotNil(t, entitySpec.AIPolicy)
+			assert.Equal(t, tt.expectedDefault, entitySpec.AIPolicy.CombatDefault)
+			assert.Equal(t, tt.expectedCurrent, entitySpec.AIPolicy.CombatCurrent)
 		})
 	}
 }
@@ -749,7 +749,8 @@ Defense = 2
 
 	entitySpec, err := NewMemberSpec(raws, "態度なし")
 	require.NoError(t, err)
-	assert.Nil(t, entitySpec.Disposition)
+	require.NotNil(t, entitySpec.AIPolicy)
+	assert.Equal(t, gc.CombatAttack, entitySpec.AIPolicy.CombatDefault)
 }
 
 func TestMemberMovementPattern(t *testing.T) {
@@ -758,7 +759,7 @@ func TestMemberMovementPattern(t *testing.T) {
 	tests := []struct {
 		name     string
 		strategy string
-		expected gc.MovementPattern
+		expected gc.MovementPolicy
 	}{
 		{"random", "random", gc.MovementRandom},
 		{"stationary", "stationary", gc.MovementStationary},
@@ -791,8 +792,8 @@ Defense = 2
 
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.MovementPattern)
-			assert.Equal(t, tt.expected, *entitySpec.MovementPattern)
+			require.NotNil(t, entitySpec.AIPolicy)
+			assert.Equal(t, tt.expected, entitySpec.AIPolicy.Movement)
 		})
 	}
 }
@@ -1000,5 +1001,6 @@ Defense = 2
 
 	entitySpec, err := NewMemberSpec(raws, "パターンなし")
 	require.NoError(t, err)
-	assert.Nil(t, entitySpec.MovementPattern)
+	require.NotNil(t, entitySpec.AIPolicy)
+	assert.Empty(t, entitySpec.AIPolicy.Movement)
 }

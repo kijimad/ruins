@@ -55,7 +55,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					}
 				}
 			case gc.MeleeInteraction:
-				if isHostileEntity(interactableEntity, world) {
+				if interactableEntity.HasComponent(world.Components.FactionEnemy) {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
@@ -143,15 +143,6 @@ func GetAllInteractiveInteractablesInRange(world w.World, targetGrid *gc.GridEle
 	}))
 
 	return results
-}
-
-// isHostileEntity はエンティティがプレイヤーに敵対しているかを判定する
-func isHostileEntity(entity ecs.Entity, world w.World) bool {
-	d := world.Components.Disposition.Get(entity)
-	if d == nil {
-		return false
-	}
-	return d.(*gc.Disposition).Current == gc.DispositionHostile
 }
 
 // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する

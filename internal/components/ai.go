@@ -5,86 +5,23 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// DispositionType はエンティティの他者に対する態度を表す
-type DispositionType string
-
-const (
-	// DispositionHostile は敵対態度を示す。視界内のプレイヤーを攻撃する
-	DispositionHostile DispositionType = "hostile"
-	// DispositionNeutral は中立態度を示す。攻撃されると反撃する
-	DispositionNeutral DispositionType = "neutral"
-	// DispositionCowardly は臆病な態度を示す。攻撃されると逃亡する
-	DispositionCowardly DispositionType = "cowardly"
-	// DispositionFleeing は逃亡中を示す。プレイヤーから距離を取る
-	DispositionFleeing DispositionType = "fleeing"
-	// DispositionAlly は味方態度を示す。隊員がこの態度を持つ
-	DispositionAlly DispositionType = "ally"
-)
-
-// Disposition はエンティティの動的な態度を管理するコンポーネント
-type Disposition struct {
-	// Default は初期態度。逃亡後にこの値に復帰する
-	Default DispositionType
-	// Current は現在の態度。被ダメージなどで変化する
-	Current DispositionType
-}
-
-// ResetToDefault は態度をデフォルトに復帰させる
-func (d *Disposition) ResetToDefault() {
-	d.Current = d.Default
-}
-
-// ReactToHostile は敵対行動を受けた際の態度変化を適用する
-func (d *Disposition) ReactToHostile() {
-	switch d.Default {
-	case DispositionNeutral:
-		d.Current = DispositionHostile
-	case DispositionCowardly:
-		d.Current = DispositionFleeing
-	case DispositionHostile, DispositionFleeing:
-		// 既に敵対的または逃亡中なので変化なし
-	case DispositionAlly:
-		// 味方なので変化なし
-	}
-}
-
-// MovementPattern は非戦闘時の移動パターンを表す
-type MovementPattern string
-
-const (
-	// MovementRandom はランダム移動。既存の動作と同じ
-	MovementRandom MovementPattern = "random"
-	// MovementPatrol は定点巡回。指定経路を往復する
-	MovementPatrol MovementPattern = "patrol"
-	// MovementWallHug は壁沿い移動。壁に沿って移動する
-	MovementWallHug MovementPattern = "wallHug"
-	// MovementStationary は固定。移動しない番兵タイプ
-	MovementStationary MovementPattern = "stationary"
-	// MovementWander は徘徊。低頻度でスポーン地点周辺をランダム移動する
-	MovementWander MovementPattern = "wander"
-	// MovementTerritorial は縄張り。スポーン地点から一定範囲内で移動する
-	MovementTerritorial MovementPattern = "territorial"
-	// MovementSwarm は群れ。同種族の仲間に寄る
-	MovementSwarm MovementPattern = "swarm"
-)
-
 // AIMoveFSM はAI移動の有限状態マシン
 type AIMoveFSM struct {
 	// AIシステムによる制御を示すマーカーコンポーネント
 }
 
-// AIRoamingSubState はAI徘徊行動のサブ状態を表す
-type AIRoamingSubState string
+// AIStateSubState はAI行動のサブ状態を表す
+type AIStateSubState string
 
 const (
-	// AIRoamingWaiting はAI徘徊における待機状態
-	AIRoamingWaiting = AIRoamingSubState("WAIT")
-	// AIRoamingDriving はAI徘徊における移動状態
-	AIRoamingDriving = AIRoamingSubState("DRIVING")
-	// AIRoamingChasing はプレイヤーを追跡する状態
-	AIRoamingChasing = AIRoamingSubState("CHASING")
-	// AIRoamingFleeing はプレイヤーから逃亡する状態
-	AIRoamingFleeing = AIRoamingSubState("FLEEING")
+	// AIStateWaiting は待機状態
+	AIStateWaiting = AIStateSubState("WAIT")
+	// AIStateDriving は移動状態
+	AIStateDriving = AIStateSubState("DRIVING")
+	// AIStateChasing は追跡状態
+	AIStateChasing = AIStateSubState("CHASING")
+	// AIStateFleeing は逃亡状態
+	AIStateFleeing = AIStateSubState("FLEEING")
 )
 
 // AIVision はAIの視界システム
@@ -95,9 +32,9 @@ type AIVision struct {
 	TargetEntity *ecs.Entity
 }
 
-// AIRoaming はAI移動で歩き回り状態
-type AIRoaming struct {
-	SubState AIRoamingSubState
+// AIState はAIのランタイム状態を保持する
+type AIState struct {
+	SubState AIStateSubState
 	// サブステートの開始ターン
 	StartSubStateTurn int
 	// サブステートの持続ターン数
@@ -106,14 +43,4 @@ type AIRoaming struct {
 	SpawnX, SpawnY int
 	// 巡回方向。Patrol移動で現在の進行方向を保持する
 	PatrolDirX, PatrolDirY int
-}
-
-// AIChasing は追跡状態のコンポーネント
-type AIChasing struct {
-	// TargetX は追跡対象のX座標
-	TargetX float64
-	// TargetY は追跡対象のY座標
-	TargetY float64
-	// LastSeenTurn は最後に視認したターン
-	LastSeenTurn int
 }
