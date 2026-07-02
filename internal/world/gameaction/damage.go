@@ -39,15 +39,15 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	}
 }
 
-// reactToHostileAction は被ダメージ時にDispositionを変化させる。
-// Neutral は反撃のため Hostile に、Cowardly は逃亡のため Fleeing に遷移する
+// reactToHostileAction は被ダメージ時にAIPolicyの戦闘方針を変化させる。
+// CombatIgnore は反撃のため CombatAttack に遷移する
 func reactToHostileAction(world w.World, target ecs.Entity) {
-	d := world.Components.Disposition.Get(target)
-	if d == nil {
+	p := world.Components.AIPolicy.Get(target)
+	if p == nil {
 		return
 	}
-	disposition := d.(*gc.Disposition)
-	disposition.ReactToHostile()
+	policy := p.(*gc.AIPolicy)
+	policy.ReactToHostile()
 }
 
 // logDamageDealt はダメージログを出力する

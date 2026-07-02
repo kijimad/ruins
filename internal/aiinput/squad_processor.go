@@ -100,7 +100,7 @@ func (sp *SquadProcessor) processSquadMember(world w.World, entity ecs.Entity) {
 type squadContext struct {
 	Grid         *gc.GridElement
 	Vision       *gc.AIVision
-	Policy       *gc.SquadPolicy
+	Policy       *gc.AIPolicy
 	LeaderEntity ecs.Entity
 	LeaderGrid   *gc.GridElement
 }
@@ -127,9 +127,10 @@ func (sp *SquadProcessor) gathersquadContext(world w.World, entity ecs.Entity) (
 		return nil, false
 	}
 
-	policy := &gc.SquadPolicy{}
-	if entity.HasComponent(world.Components.SquadPolicy) {
-		policy = world.Components.SquadPolicy.Get(entity).(*gc.SquadPolicy)
+	defaultPolicy := gc.DefaultAIPolicy
+	policy := &defaultPolicy
+	if entity.HasComponent(world.Components.AIPolicy) {
+		policy = world.Components.AIPolicy.Get(entity).(*gc.AIPolicy)
 	}
 
 	return &squadContext{
@@ -213,11 +214,13 @@ func (sp *SquadProcessor) planReturnToExploredArea(world w.World, entity ecs.Ent
 
 // planCombatAction は戦闘ポリシーに基づくアクションを計画する
 func (sp *SquadProcessor) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	switch ctx.Policy.Combat {
-	case gc.PolicyAttack:
+	switch ctx.Policy.CombatCurrent {
+	case gc.CombatAttack:
 		return sp.planAttackAction(world, entity, ctx)
-	case gc.PolicyEvade:
+	case gc.CombatEvade:
 		return sp.planEvadeAction(world, entity, ctx)
+	case gc.CombatIgnore:
+		return nil, activity.ActionParams{}, false
 	}
 	return nil, activity.ActionParams{}, false
 }
@@ -258,16 +261,16 @@ func (sp *SquadProcessor) planEvadeAction(world w.World, entity ecs.Entity, ctx 
 
 // planPositionAction は位置ポリシーに基づくアクションを計画する
 func (sp *SquadProcessor) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) {
-	switch ctx.Policy.Position {
-	case gc.PolicyEscort:
+	switch ctx.Policy.Movement {
+	case gc.MovementEscort:
 		return sp.planEscortAction(world, entity, ctx)
-	case gc.PolicyVanguard:
+	case gc.MovementVanguard:
 		return sp.planVanguardAction(world, entity, ctx)
-	case gc.PolicyPatrol:
+	case gc.MovementPatrol:
 		return sp.planPatrolAction(world, entity, ctx)
-	case gc.PolicyHold:
+	case gc.MovementStationary:
 		return waitAction(entity, "隊員待機")
-	case gc.PolicyRetreat:
+	case gc.MovementRetreat:
 		return sp.planEscortAction(world, entity, ctx)
 	default:
 		return waitAction(entity, "隊員デフォルト待機")

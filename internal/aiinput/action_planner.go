@@ -35,14 +35,14 @@ func NewActionPlanner() ActionPlanner {
 
 // PlanAction は現在の状態に基づいてアクションを決定する
 func (ap *DefaultActionPlanner) PlanAction(world w.World, aiEntity, playerEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
-	switch context.Roaming.SubState {
-	case gc.AIRoamingChasing:
+	switch context.State.SubState {
+	case gc.AIStateChasing:
 		return ap.planChaseAction(world, aiEntity, playerEntity, context.GridElement)
-	case gc.AIRoamingFleeing:
+	case gc.AIStateFleeing:
 		return ap.planFleeAction(world, aiEntity, playerEntity, context.GridElement)
-	case gc.AIRoamingDriving:
+	case gc.AIStateDriving:
 		return ap.planDrivingAction(world, aiEntity, context)
-	case gc.AIRoamingWaiting:
+	case gc.AIStateWaiting:
 		return waitAction(aiEntity, "AI待機")
 	default:
 		return waitAction(aiEntity, "AIデフォルト待機")
@@ -164,9 +164,12 @@ func (ap *DefaultActionPlanner) calculateMoveCandidates(dx, dy int) []MoveCandid
 	return candidates
 }
 
-// planDrivingAction はMovementPatternに基づく移動アクションを計画する
+// planDrivingAction はMovementPolicyに基づく移動アクションを計画する
 func (ap *DefaultActionPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
-	switch context.MovementPattern {
+	if context.Policy == nil {
+		return ap.planRandomMoveAction(world, aiEntity, context.GridElement)
+	}
+	switch context.Policy.Movement {
 	case gc.MovementStationary:
 		return waitAction(aiEntity, "AI固定待機")
 	case gc.MovementWander:
@@ -298,23 +301,23 @@ const territorialRadius = 5
 // planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
 func (ap *DefaultActionPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
 	aiGrid := context.GridElement
-	roaming := context.Roaming
+	state := context.State
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
 
 	// 現在の巡回方向に移動を試みる
-	destX := fromX + roaming.PatrolDirX
-	destY := fromY + roaming.PatrolDirY
+	destX := fromX + state.PatrolDirX
+	destY := fromY + state.PatrolDirY
 	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 		return moveAction(aiEntity, destX, destY)
 	}
 
 	// 進めないので方向を反転する
-	roaming.PatrolDirX = -roaming.PatrolDirX
-	roaming.PatrolDirY = -roaming.PatrolDirY
+	state.PatrolDirX = -state.PatrolDirX
+	state.PatrolDirY = -state.PatrolDirY
 
 	// 反転方向に移動を試みる
-	destX = fromX + roaming.PatrolDirX
-	destY = fromY + roaming.PatrolDirY
+	destX = fromX + state.PatrolDirX
+	destY = fromY + state.PatrolDirY
 	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 		return moveAction(aiEntity, destX, destY)
 	}
@@ -325,7 +328,7 @@ func (ap *DefaultActionPlanner) planPatrolAction(world w.World, aiEntity ecs.Ent
 // planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
 func (ap *DefaultActionPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
 	aiGrid := context.GridElement
-	roaming := context.Roaming
+	state := context.State
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
 
 	for _, d := range shuffledEightDirections() {
@@ -333,8 +336,8 @@ func (ap *DefaultActionPlanner) planTerritorialAction(world w.World, aiEntity ec
 		destY := fromY + d.y
 
 		// スポーン地点からの距離をチェックする
-		dx := geometry.Abs(destX - roaming.SpawnX)
-		dy := geometry.Abs(destY - roaming.SpawnY)
+		dx := geometry.Abs(destX - state.SpawnX)
+		dy := geometry.Abs(destY - state.SpawnY)
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}

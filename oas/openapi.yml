@@ -2748,7 +2748,8 @@ components:
       enum:
         - 0
         - 1
-      description: 隊員の戦闘ポリシー
+        - 2
+      description: 戦闘ポリシー
     SaveData.ComponentsMap:
       type: object
       properties:
@@ -2868,6 +2869,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.SquadPolicyComponent'
           description: 隊員の自律行動ポリシー
+        MemberAppearance:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.MemberAppearanceComponent'
+          description: 隊員の外見情報
       description: |-
         エンティティが持つコンポーネントのマップ。
         存在するコンポーネントのみがキーとして含まれる。
@@ -3129,14 +3134,13 @@ components:
       enum:
         - 0
         - 1
-        - 2
-      description: 隊員のアイテム処理ポリシー
+      description: アイテム処理ポリシー
     SaveData.ItemPickupPolicyType:
       type: number
       enum:
         - 0
         - 1
-      description: 隊員のアイテム回収ポリシー
+      description: アイテム回収ポリシー
     SaveData.LightRadius:
       type: integer
       format: int32
@@ -3228,6 +3232,28 @@ components:
         TargetType:
           $ref: '#/components/schemas/SaveData.TargetTypeData'
       description: 近接攻撃設定
+    SaveData.MemberAppearanceComponent:
+      type: object
+      required:
+        - SpriteKey
+      properties:
+        SpriteKey:
+          $ref: '#/components/schemas/SaveData.SpriteKey'
+      description: 隊員の外見情報
+    SaveData.MovementPolicyType:
+      type: string
+      enum:
+        - random
+        - patrol
+        - wallHug
+        - stationary
+        - wander
+        - territorial
+        - swarm
+        - escort
+        - vanguard
+        - retreat
+      description: 移動ポリシー
     SaveData.NameComponent:
       type: object
       required:
@@ -3236,6 +3262,12 @@ components:
         Name:
           $ref: '#/components/schemas/SaveData.EntityName'
       description: エンティティ名
+    SaveData.PlannerType:
+      type: number
+      enum:
+        - 0
+        - 1
+      description: 行動計画の種別
     SaveData.PoolCurrent:
       type: integer
       format: int32
@@ -3252,15 +3284,6 @@ components:
       type: integer
       format: int32
       description: プール最大値 (整数)
-    SaveData.PositionPolicyType:
-      type: number
-      enum:
-        - 0
-        - 1
-        - 2
-        - 3
-        - 4
-      description: 隊員の位置ポリシー
     SaveData.ProvidesHealingComponent:
       type: object
       required:
@@ -3381,24 +3404,43 @@ components:
       description: スプライトシート名。セーブデータではパターン制約を適用しない
     SaveData.SquadMemberComponent:
       type: object
-      description: 隊員であることを示すマーカーコンポーネント
+      required:
+        - LeaderRef
+        - Active
+      properties:
+        LeaderRef:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.StableID'
+          description: リーダーのStableID
+        Active:
+          type: boolean
+          description: 同行中かどうか
+      description: |-
+        隊員コンポーネント。
+        Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
     SaveData.SquadPolicyComponent:
       type: object
       required:
-        - Position
-        - Combat
+        - Planner
+        - Movement
+        - CombatDefault
+        - CombatCurrent
         - ItemPickup
         - ItemHandling
       properties:
-        Position:
-          $ref: '#/components/schemas/SaveData.PositionPolicyType'
-        Combat:
+        Planner:
+          $ref: '#/components/schemas/SaveData.PlannerType'
+        Movement:
+          $ref: '#/components/schemas/SaveData.MovementPolicyType'
+        CombatDefault:
+          $ref: '#/components/schemas/SaveData.CombatPolicyType'
+        CombatCurrent:
           $ref: '#/components/schemas/SaveData.CombatPolicyType'
         ItemPickup:
           $ref: '#/components/schemas/SaveData.ItemPickupPolicyType'
         ItemHandling:
           $ref: '#/components/schemas/SaveData.ItemHandlingPolicyType'
-      description: 隊員の自律行動ポリシー
+      description: AIの行動ポリシー
     SaveData.StableID:
       type: object
       required:

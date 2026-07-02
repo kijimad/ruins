@@ -29,7 +29,7 @@ func NewProcessor() *Processor {
 }
 
 // ProcessNonSquadAI はAIMoveFSMを持つ非隊員エンティティを処理する。
-// 敵・中立NPC問わず、Dispositionと状態機械で行動を分岐する。
+// 敵・中立NPC問わず、AIPolicyと状態機械で行動を分岐する。
 // 隊員はSquadProcessorで処理するため除外する
 func (p *Processor) ProcessNonSquadAI(world w.World) error {
 	turnNumber := query.GetTurnState(world).TurnNumber
@@ -86,19 +86,19 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 	p.logger.Debug("プレイヤー視界チェック", "entity", entity, "canSee", canSeePlayer)
 
 	// 状態更新
-	oldState := context.Roaming.SubState
-	p.stateMachine.UpdateState(context.Roaming, context.Disposition, canSeePlayer, turnNumber)
-	if oldState != context.Roaming.SubState {
-		p.logger.Debug("AI状態変化", "entity", entity, "from", oldState, "to", context.Roaming.SubState)
+	oldState := context.State.SubState
+	p.stateMachine.UpdateState(context.State, context.Policy, canSeePlayer, turnNumber)
+	if oldState != context.State.SubState {
+		p.logger.Debug("AI状態変化", "entity", entity, "from", oldState, "to", context.State.SubState)
 	}
 
 	// 残りターン数を計算してログ出力
-	elapsedTurns := turnNumber - context.Roaming.StartSubStateTurn
-	remainingTurns := context.Roaming.DurationSubStateTurns - elapsedTurns
+	elapsedTurns := turnNumber - context.State.StartSubStateTurn
+	remainingTurns := context.State.DurationSubStateTurns - elapsedTurns
 	if remainingTurns < 0 {
 		remainingTurns = 0
 	}
-	p.logger.Debug("AIRoaming状態", "entity", entity, "subState", context.Roaming.SubState, "remainingTurns", remainingTurns)
+	p.logger.Debug("AIState状態", "entity", entity, "subState", context.State.SubState, "remainingTurns", remainingTurns)
 
 	// APが残っている限り連続してアクティビティを実行
 	activitiesExecuted := 0
@@ -120,7 +120,7 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 			break
 		}
 		activityName := actorImpl.Name()
-		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.Roaming.SubState, "count", activitiesExecuted)
+		p.logger.Debug("アクティビティ決定", "entity", entity, "activity", activityName, "state", context.State.SubState, "count", activitiesExecuted)
 
 		// APが足りるか確認する
 		actionCost := actorImpl.Info().ActionPointCost
@@ -136,7 +136,7 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 			break
 		}
 
-		p.logger.Debug("AIアクティビティ実行成功", "entity", entity, "activity", activityName, "success", result.Success, "state", context.Roaming.SubState, "message", result.Message)
+		p.logger.Debug("AIアクティビティ実行成功", "entity", entity, "activity", activityName, "success", result.Success, "state", context.State.SubState, "message", result.Message)
 		activitiesExecuted++
 
 		// アクション失敗時は停止
@@ -151,11 +151,10 @@ func (p *Processor) ProcessEntity(world w.World, entity ecs.Entity) {
 
 // EntityContext はAIエンティティの必要な情報をまとめる
 type EntityContext struct {
-	GridElement     *gc.GridElement
-	Vision          *gc.AIVision
-	Roaming         *gc.AIRoaming
-	Disposition     *gc.Disposition
-	MovementPattern gc.MovementPattern
+	GridElement *gc.GridElement
+	Vision      *gc.AIVision
+	State       *gc.AIState
+	Policy      *gc.AIPolicy
 }
 
 // gatherEntityContext はエンティティから必要なコンポーネントを収集する
@@ -172,31 +171,24 @@ func (p *Processor) gatherEntityContext(world w.World, entity ecs.Entity) (*Enti
 	vision := aiVision.(*gc.AIVision)
 	p.logger.Debug("AIVision設定", "entity", entity, "viewDistance", vision.ViewDistance)
 
-	// AIRoamingコンポーネント確認
-	aiRoaming := world.Components.AIRoaming.Get(entity)
-	if aiRoaming == nil {
-		return nil, &AIError{Type: "component_missing", Message: "AIRoamingコンポーネントなし", Entity: &entity}
+	// AIStateコンポーネント確認
+	aiState := world.Components.AIState.Get(entity)
+	if aiState == nil {
+		return nil, &AIError{Type: "component_missing", Message: "AIStateコンポーネントなし", Entity: &entity}
 	}
-	roaming := aiRoaming.(*gc.AIRoaming)
+	state := aiState.(*gc.AIState)
 
-	// Dispositionコンポーネント取得
-	var disposition *gc.Disposition
-	if d := world.Components.Disposition.Get(entity); d != nil {
-		disposition = d.(*gc.Disposition)
-	}
-
-	// MovementPatternコンポーネント取得
-	movementPattern := gc.MovementRandom
-	if mp := world.Components.MovementPattern.Get(entity); mp != nil {
-		movementPattern = *mp.(*gc.MovementPattern)
+	// AIPolicyコンポーネント取得
+	var policy *gc.AIPolicy
+	if p := world.Components.AIPolicy.Get(entity); p != nil {
+		policy = p.(*gc.AIPolicy)
 	}
 
 	return &EntityContext{
-		GridElement:     gridElement,
-		Vision:          vision,
-		Roaming:         roaming,
-		Disposition:     disposition,
-		MovementPattern: movementPattern,
+		GridElement: gridElement,
+		Vision:      vision,
+		State:       state,
+		Policy:      policy,
 	}, nil
 }
 

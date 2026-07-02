@@ -296,9 +296,9 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.SquadMember) {
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
 	}
-	if entity.HasComponent(c.SquadPolicy) {
-		sp := c.SquadPolicy.Get(entity).(*gc.SquadPolicy)
-		sd := squadPolicyToSaveData(*sp)
+	if entity.HasComponent(c.AIPolicy) {
+		ap := c.AIPolicy.Get(entity).(*gc.AIPolicy)
+		sd := aiPolicyToSaveData(*ap)
 		comp.SquadPolicy = &sd
 	}
 	// エンティティ参照コンポーネント (LocationEquipped)
@@ -423,9 +423,9 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		entity.AddComponent(c.AIMoveFSM, &gc.AIMoveFSM{})
 		entity.AddComponent(c.AIVision, &gc.AIVision{ViewDistance: lifecycle.AIVisionDistance})
 		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
-		entity.AddComponent(c.Disposition, &gc.Disposition{
-			Default: gc.DispositionAlly,
-			Current: gc.DispositionAlly,
+		entity.AddComponent(c.AIState, &gc.AIState{
+			SubState:              gc.AIStateWaiting,
+			DurationSubStateTurns: 2,
 		})
 		entity.AddComponent(c.HealthStatus, &gc.HealthStatus{})
 		skills := gc.NewSkills()
@@ -438,8 +438,8 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		}
 	}
 	if comp.SquadPolicy != nil {
-		sp := squadPolicyFromSaveData(*comp.SquadPolicy)
-		entity.AddComponent(c.SquadPolicy, &sp)
+		ap := aiPolicyFromSaveData(*comp.SquadPolicy)
+		entity.AddComponent(c.AIPolicy, &ap)
 	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {

@@ -6,34 +6,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDisposition_ResetToDefault(t *testing.T) {
+func TestAIPolicy_ResetCombat(t *testing.T) {
 	t.Parallel()
 
-	d := &Disposition{Default: DispositionNeutral, Current: DispositionHostile}
-	d.ResetToDefault()
-	assert.Equal(t, DispositionNeutral, d.Current)
+	p := &AIPolicy{CombatDefault: CombatIgnore, CombatCurrent: CombatAttack}
+	p.ResetCombat()
+	assert.Equal(t, CombatIgnore, p.CombatCurrent)
 }
 
-func TestDisposition_ReactToHostile(t *testing.T) {
+func TestAIPolicy_ReactToHostile(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name            string
-		defaultDisp     DispositionType
-		expectedCurrent DispositionType
+		defaultCombat   CombatPolicy
+		expectedCurrent CombatPolicy
 	}{
-		{"NeutralはHostileになる", DispositionNeutral, DispositionHostile},
-		{"CowardlyはFleeingになる", DispositionCowardly, DispositionFleeing},
-		{"Hostileはそのまま", DispositionHostile, DispositionHostile},
-		{"Fleeingはそのまま", DispositionFleeing, DispositionFleeing},
+		{"CombatIgnoreはCombatAttackになる", CombatIgnore, CombatAttack},
+		{"CombatAttackはそのまま", CombatAttack, CombatAttack},
+		{"CombatEvadeはそのまま", CombatEvade, CombatEvade},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			d := &Disposition{Default: tt.defaultDisp, Current: tt.defaultDisp}
-			d.ReactToHostile()
-			assert.Equal(t, tt.expectedCurrent, d.Current)
+			p := &AIPolicy{CombatDefault: tt.defaultCombat, CombatCurrent: tt.defaultCombat}
+			p.ReactToHostile()
+			assert.Equal(t, tt.expectedCurrent, p.CombatCurrent)
 		})
 	}
 }

@@ -122,10 +122,10 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
-	if entitySpec.MovementPattern != nil {
+	if entitySpec.AIPolicy != nil {
 		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
-		entitySpec.AIRoaming = &gc.AIRoaming{
-			SubState:              gc.AIRoamingWaiting,
+		entitySpec.AIState = &gc.AIState{
+			SubState:              gc.AIStateWaiting,
 			StartSubStateTurn:     1,
 			DurationSubStateTurns: 2 + rand.IntN(3),
 			SpawnX:                tileX,
@@ -175,8 +175,8 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 	entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
-	entitySpec.AIRoaming = &gc.AIRoaming{
-		SubState:              gc.AIRoamingWaiting,
+	entitySpec.AIState = &gc.AIState{
+		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 2 + rand.IntN(3),
 		SpawnX:                tileX,
@@ -189,11 +189,8 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	}
-	if entitySpec.Disposition == nil {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
-	}
-	if entitySpec.MovementPattern == nil {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティに移動パターン(movementPattern)が指定されていません: %s", entitySpec.Name)
+	if entitySpec.AIPolicy == nil {
+		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIPolicyが指定されていません: %s", entitySpec.Name)
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -244,7 +241,6 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 
 	skills := gc.NewSkills()
 	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
-	defaultPolicy := gc.DefaultSquadPolicy
 
 	entitySpec := gc.EntitySpec{
 		Name:           &gc.Name{Name: name},
@@ -256,9 +252,17 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
 		FactionType:    &gc.FactionAlly,
-		Disposition: &gc.Disposition{
-			Default: gc.DispositionAlly,
-			Current: gc.DispositionAlly,
+		AIPolicy: &gc.AIPolicy{
+			Planner:       gc.PlannerSquad,
+			CombatDefault: gc.CombatAttack,
+			CombatCurrent: gc.CombatAttack,
+			Movement:      gc.MovementEscort,
+			ItemPickup:    gc.PolicyPickup,
+			ItemHandling:  gc.PolicyDistribute,
+		},
+		AIState: &gc.AIState{
+			SubState:              gc.AIStateWaiting,
+			DurationSubStateTurns: 2,
 		},
 		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
 		SpriteRender: &gc.SpriteRender{
@@ -272,7 +276,6 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 			ViewDistance: AIVisionDistance,
 		},
 		SquadMember: &gc.SquadMember{},
-		SquadPolicy: &defaultPolicy,
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}

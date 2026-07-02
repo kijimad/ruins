@@ -11,21 +11,20 @@ func TestShouldChase(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name        string
-		disposition *gc.Disposition
-		want        bool
+		name   string
+		policy *gc.AIPolicy
+		want   bool
 	}{
-		{"Hostileは追跡する", &gc.Disposition{Current: gc.DispositionHostile}, true},
-		{"Neutralは追跡しない", &gc.Disposition{Current: gc.DispositionNeutral}, false},
-		{"Cowardlyは追跡しない", &gc.Disposition{Current: gc.DispositionCowardly}, false},
-		{"Fleeingは追跡しない", &gc.Disposition{Current: gc.DispositionFleeing}, false},
+		{"CombatAttackは追跡する", &gc.AIPolicy{CombatCurrent: gc.CombatAttack}, true},
+		{"CombatIgnoreは追跡しない", &gc.AIPolicy{CombatCurrent: gc.CombatIgnore}, false},
+		{"CombatEvadeは追跡しない", &gc.AIPolicy{CombatCurrent: gc.CombatEvade}, false},
 		{"nilは追跡する", nil, true},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, shouldChase(tt.disposition))
+			assert.Equal(t, tt.want, shouldChase(tt.policy))
 		})
 	}
 }
@@ -34,21 +33,20 @@ func TestShouldFlee(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name        string
-		disposition *gc.Disposition
-		want        bool
+		name   string
+		policy *gc.AIPolicy
+		want   bool
 	}{
-		{"Fleeingは逃亡する", &gc.Disposition{Current: gc.DispositionFleeing}, true},
-		{"Cowardlyは逃亡する", &gc.Disposition{Current: gc.DispositionCowardly}, true},
-		{"Hostileは逃亡しない", &gc.Disposition{Current: gc.DispositionHostile}, false},
-		{"Neutralは逃亡しない", &gc.Disposition{Current: gc.DispositionNeutral}, false},
+		{"CombatEvadeは逃亡する", &gc.AIPolicy{CombatCurrent: gc.CombatEvade}, true},
+		{"CombatAttackは逃亡しない", &gc.AIPolicy{CombatCurrent: gc.CombatAttack}, false},
+		{"CombatIgnoreは逃亡しない", &gc.AIPolicy{CombatCurrent: gc.CombatIgnore}, false},
 		{"nilは逃亡しない", nil, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tt.want, shouldFlee(tt.disposition))
+			assert.Equal(t, tt.want, shouldFlee(tt.policy))
 		})
 	}
 }
@@ -57,212 +55,212 @@ func TestUpdateState_UnknownState(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingSubState("INVALID"),
+	state := &gc.AIState{
+		SubState:              gc.AIStateSubState("INVALID"),
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, nil, false, 10)
-	assert.Equal(t, gc.AIRoamingWaiting, roaming.SubState, "不明な状態は待機に初期化される")
+	sm.UpdateState(state, nil, false, 10)
+	assert.Equal(t, gc.AIStateWaiting, state.SubState, "不明な状態は待機に初期化される")
 }
 
 func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionHostile, Current: gc.DispositionHostile}
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
 
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingChasing,
+	state := &gc.AIState{
+		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 10,
 	}
 
 	// プレイヤーを見失って3ターン未満は追跡継続
-	sm.UpdateState(roaming, disposition, false, 3)
-	assert.Equal(t, gc.AIRoamingChasing, roaming.SubState, "3ターン未満は追跡継続")
+	sm.UpdateState(state, policy, false, 3)
+	assert.Equal(t, gc.AIStateChasing, state.SubState, "3ターン未満は追跡継続")
 
 	// 3ターン以上見失うと移動状態へ
-	sm.UpdateState(roaming, disposition, false, 5)
-	assert.Equal(t, gc.AIRoamingDriving, roaming.SubState, "3ターン以上見失うと移動状態へ")
+	sm.UpdateState(state, policy, false, 5)
+	assert.Equal(t, gc.AIStateDriving, state.SubState, "3ターン以上見失うと移動状態へ")
 }
 
 func TestUpdateState_ChasingPlayerVisible_ResetsTurn(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionHostile, Current: gc.DispositionHostile}
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
 
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingChasing,
+	state := &gc.AIState{
+		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 10,
 	}
 
 	// プレイヤーが見えている間はターンリセット
-	sm.UpdateState(roaming, disposition, true, 5)
-	assert.Equal(t, gc.AIRoamingChasing, roaming.SubState)
-	assert.Equal(t, 5, roaming.StartSubStateTurn, "プレイヤー視認中はターンリセット")
+	sm.UpdateState(state, policy, true, 5)
+	assert.Equal(t, gc.AIStateChasing, state.SubState)
+	assert.Equal(t, 5, state.StartSubStateTurn, "プレイヤー視認中はターンリセット")
 }
 
 func TestUpdateState_WaitingToDriving(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingWaiting,
+	state := &gc.AIState{
+		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 3,
 	}
 
 	// 待機時間未満は待機のまま
-	sm.UpdateState(roaming, nil, false, 2)
-	assert.Equal(t, gc.AIRoamingWaiting, roaming.SubState)
+	sm.UpdateState(state, nil, false, 2)
+	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 
 	// 待機時間経過で移動へ
-	sm.UpdateState(roaming, nil, false, 3)
-	assert.Equal(t, gc.AIRoamingDriving, roaming.SubState)
+	sm.UpdateState(state, nil, false, 3)
+	assert.Equal(t, gc.AIStateDriving, state.SubState)
 }
 
 func TestUpdateState_DrivingToWaiting(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingDriving,
+	state := &gc.AIState{
+		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
 	// 移動時間未満は移動のまま
-	sm.UpdateState(roaming, nil, false, 4)
-	assert.Equal(t, gc.AIRoamingDriving, roaming.SubState)
+	sm.UpdateState(state, nil, false, 4)
+	assert.Equal(t, gc.AIStateDriving, state.SubState)
 
 	// 移動時間経過で待機へ
-	sm.UpdateState(roaming, nil, false, 5)
-	assert.Equal(t, gc.AIRoamingWaiting, roaming.SubState)
+	sm.UpdateState(state, nil, false, 5)
+	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 }
 
 func TestUpdateState_WaitingToChasing(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionHostile, Current: gc.DispositionHostile}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingWaiting,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
+	state := &gc.AIState{
+		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, true, 1)
-	assert.Equal(t, gc.AIRoamingChasing, roaming.SubState)
+	sm.UpdateState(state, policy, true, 1)
+	assert.Equal(t, gc.AIStateChasing, state.SubState)
 }
 
 func TestUpdateState_WaitingToFleeing(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionFleeing}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingWaiting,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+	state := &gc.AIState{
+		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, true, 1)
-	assert.Equal(t, gc.AIRoamingFleeing, roaming.SubState)
+	sm.UpdateState(state, policy, true, 1)
+	assert.Equal(t, gc.AIStateFleeing, state.SubState)
 }
 
 func TestUpdateState_WaitingNeutralIgnoresPlayer(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionNeutral, Current: gc.DispositionNeutral}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingWaiting,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
+	state := &gc.AIState{
+		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, true, 1)
-	assert.Equal(t, gc.AIRoamingWaiting, roaming.SubState)
+	sm.UpdateState(state, policy, true, 1)
+	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 }
 
 func TestUpdateState_DrivingToChasing(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionHostile, Current: gc.DispositionHostile}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingDriving,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
+	state := &gc.AIState{
+		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, true, 1)
-	assert.Equal(t, gc.AIRoamingChasing, roaming.SubState)
+	sm.UpdateState(state, policy, true, 1)
+	assert.Equal(t, gc.AIStateChasing, state.SubState)
 }
 
 func TestUpdateState_DrivingToFleeing(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionCowardly}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingDriving,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+	state := &gc.AIState{
+		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, true, 1)
-	assert.Equal(t, gc.AIRoamingFleeing, roaming.SubState)
+	sm.UpdateState(state, policy, true, 1)
+	assert.Equal(t, gc.AIStateFleeing, state.SubState)
 }
 
 func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionFleeing}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingFleeing,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+	state := &gc.AIState{
+		SubState:              gc.AIStateFleeing,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, true, 3)
-	assert.Equal(t, gc.AIRoamingFleeing, roaming.SubState)
-	assert.Equal(t, 3, roaming.StartSubStateTurn)
+	sm.UpdateState(state, policy, true, 3)
+	assert.Equal(t, gc.AIStateFleeing, state.SubState)
+	assert.Equal(t, 3, state.StartSubStateTurn)
 }
 
 func TestUpdateState_FleeingToDriving(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	disposition := &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionFleeing}
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingFleeing,
+	policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+	state := &gc.AIState{
+		SubState:              gc.AIStateFleeing,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 5,
 	}
 
-	sm.UpdateState(roaming, disposition, false, 5)
-	assert.Equal(t, gc.AIRoamingDriving, roaming.SubState)
-	assert.Equal(t, gc.DispositionCowardly, disposition.Current)
+	sm.UpdateState(state, policy, false, 5)
+	assert.Equal(t, gc.AIStateDriving, state.SubState)
+	assert.Equal(t, gc.CombatEvade, policy.CombatCurrent)
 }
 
-// disposition=nil は Hostile として扱われる。
+// policy=nil は CombatAttack として扱われる。
 // 追跡タイムアウトが経過するとプレイヤーが見えていても Waiting に戻る
 func TestUpdateState_ChasingTimeout(t *testing.T) {
 	t.Parallel()
 
 	sm := NewStateMachine()
-	roaming := &gc.AIRoaming{
-		SubState:              gc.AIRoamingChasing,
+	state := &gc.AIState{
+		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     0,
 		DurationSubStateTurns: 10,
 	}
 
-	sm.UpdateState(roaming, nil, true, 10)
-	assert.Equal(t, gc.AIRoamingWaiting, roaming.SubState)
+	sm.UpdateState(state, nil, true, 10)
+	assert.Equal(t, gc.AIStateWaiting, state.SubState)
 }

@@ -36,11 +36,9 @@ type EntitySpec struct {
 	// field ================
 	Tile            *Tile
 	AIMoveFSM       *AIMoveFSM
-	AIRoaming       *AIRoaming
 	AIVision        *AIVision
-	AIChasing       *AIChasing
-	Disposition     *Disposition
-	MovementPattern *MovementPattern
+	AIPolicy        *AIPolicy
+	AIState         *AIState
 	Camera          *Camera
 	Position        *Position
 	GridElement     *GridElement
@@ -83,7 +81,6 @@ type EntitySpec struct {
 
 	// squad ================
 	SquadMember *SquadMember
-	SquadPolicy *SquadPolicy
 
 	// singleton ================
 	GameLog *GameLog
@@ -119,11 +116,9 @@ type Components struct {
 	// field ================
 	Tile            *ecs.NullComponent
 	AIMoveFSM       *ecs.SliceComponent
-	AIRoaming       *ecs.SliceComponent
 	AIVision        *ecs.SliceComponent
-	AIChasing       *ecs.SliceComponent
-	Disposition     *ecs.SliceComponent
-	MovementPattern *ecs.SliceComponent
+	AIPolicy        *ecs.SliceComponent
+	AIState         *ecs.SliceComponent
 	Camera          *ecs.SliceComponent `save:"true"`
 	Position        *ecs.SliceComponent
 	GridElement     *ecs.SliceComponent `save:"true"`
@@ -171,7 +166,6 @@ type Components struct {
 
 	// squad ================
 	SquadMember *ecs.SliceComponent `save:"true"`
-	SquadPolicy *ecs.SliceComponent `save:"true"`
 
 	// activity ================
 	Activity     *ecs.SliceComponent // 実行中のアクティビティ

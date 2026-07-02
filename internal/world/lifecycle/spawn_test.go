@@ -234,7 +234,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
-func TestSpawnEnemy_Disposition(t *testing.T) {
+func TestSpawnEnemy_AIPolicy(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -249,10 +249,10 @@ func TestSpawnEnemy_Disposition(t *testing.T) {
 	enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
 	require.NoError(t, err)
 
-	assert.True(t, enemy.HasComponent(world.Components.Disposition))
-	disposition := world.Components.Disposition.Get(enemy).(*gc.Disposition)
-	assert.Equal(t, gc.DispositionHostile, disposition.Default)
-	assert.Equal(t, gc.DispositionHostile, disposition.Current)
+	assert.True(t, enemy.HasComponent(world.Components.AIPolicy))
+	policy := world.Components.AIPolicy.Get(enemy).(*gc.AIPolicy)
+	assert.Equal(t, gc.CombatAttack, policy.CombatDefault)
+	assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
 }
 
 func TestSpawnItem(t *testing.T) {

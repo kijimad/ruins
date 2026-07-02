@@ -8,7 +8,7 @@ import (
 
 // StateMachine はAIの状態遷移ロジックを管理する
 type StateMachine interface {
-	UpdateState(roaming *gc.AIRoaming, disposition *gc.Disposition, canSeePlayer bool, currentTurn int)
+	UpdateState(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, currentTurn int)
 }
 
 // DefaultStateMachine は標準的な状態遷移実装
@@ -20,137 +20,137 @@ func NewStateMachine() StateMachine {
 }
 
 // UpdateState はAIの状態を更新する有限状態機械
-func (sm *DefaultStateMachine) UpdateState(roaming *gc.AIRoaming, disposition *gc.Disposition, canSeePlayer bool, currentTurn int) {
-	elapsedTurns := currentTurn - roaming.StartSubStateTurn
+func (sm *DefaultStateMachine) UpdateState(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, currentTurn int) {
+	elapsedTurns := currentTurn - state.StartSubStateTurn
 
 	// 現在の状態によって遷移ロジックを決定
-	switch roaming.SubState {
-	case gc.AIRoamingWaiting:
-		sm.updateFromWaiting(roaming, disposition, canSeePlayer, elapsedTurns, currentTurn)
+	switch state.SubState {
+	case gc.AIStateWaiting:
+		sm.updateFromWaiting(state, policy, canSeePlayer, elapsedTurns, currentTurn)
 
-	case gc.AIRoamingDriving:
-		sm.updateFromDriving(roaming, disposition, canSeePlayer, elapsedTurns, currentTurn)
+	case gc.AIStateDriving:
+		sm.updateFromDriving(state, policy, canSeePlayer, elapsedTurns, currentTurn)
 
-	case gc.AIRoamingChasing:
-		sm.updateFromChasing(roaming, canSeePlayer, elapsedTurns, currentTurn)
+	case gc.AIStateChasing:
+		sm.updateFromChasing(state, canSeePlayer, elapsedTurns, currentTurn)
 
-	case gc.AIRoamingFleeing:
-		sm.updateFromFleeing(roaming, disposition, canSeePlayer, elapsedTurns, currentTurn)
+	case gc.AIStateFleeing:
+		sm.updateFromFleeing(state, policy, canSeePlayer, elapsedTurns, currentTurn)
 
 	default:
 		// 不明な状態：待機状態に初期化
-		sm.initializeToWaiting(roaming, currentTurn)
+		sm.initializeToWaiting(state, currentTurn)
 	}
 }
 
-// shouldChase はDispositionに基づいて追跡すべきかを判定する
-func shouldChase(disposition *gc.Disposition) bool {
-	if disposition == nil {
-		return true // Dispositionがない場合は既存動作を維持する
+// shouldChase はAIPolicyに基づいて追跡すべきかを判定する
+func shouldChase(policy *gc.AIPolicy) bool {
+	if policy == nil {
+		return true // AIPolicyがない場合は既存動作を維持する
 	}
-	return disposition.Current == gc.DispositionHostile
+	return policy.CombatCurrent == gc.CombatAttack
 }
 
-// shouldFlee はDispositionに基づいて逃亡すべきかを判定する
-func shouldFlee(disposition *gc.Disposition) bool {
-	if disposition == nil {
+// shouldFlee はAIPolicyに基づいて逃亡すべきかを判定する
+func shouldFlee(policy *gc.AIPolicy) bool {
+	if policy == nil {
 		return false
 	}
-	return disposition.Current == gc.DispositionFleeing || disposition.Current == gc.DispositionCowardly
+	return policy.CombatCurrent == gc.CombatEvade
 }
 
 // updateFromWaiting は待機状態からの遷移処理
-func (sm *DefaultStateMachine) updateFromWaiting(roaming *gc.AIRoaming, disposition *gc.Disposition, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (sm *DefaultStateMachine) updateFromWaiting(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if canSeePlayer {
-		if shouldFlee(disposition) {
-			sm.transitionToFleeing(roaming, currentTurn)
-		} else if shouldChase(disposition) {
-			sm.transitionToChasing(roaming, currentTurn)
+		if shouldFlee(policy) {
+			sm.transitionToFleeing(state, currentTurn)
+		} else if shouldChase(policy) {
+			sm.transitionToChasing(state, currentTurn)
 		}
 		// Neutral: プレイヤーを見ても何もしない
-	} else if elapsedTurns >= roaming.DurationSubStateTurns {
-		sm.transitionToDriving(roaming, currentTurn)
+	} else if elapsedTurns >= state.DurationSubStateTurns {
+		sm.transitionToDriving(state, currentTurn)
 	}
 }
 
 // updateFromDriving は移動状態からの遷移処理
-func (sm *DefaultStateMachine) updateFromDriving(roaming *gc.AIRoaming, disposition *gc.Disposition, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (sm *DefaultStateMachine) updateFromDriving(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if canSeePlayer {
-		if shouldFlee(disposition) {
-			sm.transitionToFleeing(roaming, currentTurn)
-		} else if shouldChase(disposition) {
-			sm.transitionToChasing(roaming, currentTurn)
+		if shouldFlee(policy) {
+			sm.transitionToFleeing(state, currentTurn)
+		} else if shouldChase(policy) {
+			sm.transitionToChasing(state, currentTurn)
 		}
-	} else if elapsedTurns >= roaming.DurationSubStateTurns {
-		sm.transitionToWaiting(roaming, currentTurn)
+	} else if elapsedTurns >= state.DurationSubStateTurns {
+		sm.transitionToWaiting(state, currentTurn)
 	}
 }
 
 // updateFromChasing は追跡状態からの遷移処理
-func (sm *DefaultStateMachine) updateFromChasing(roaming *gc.AIRoaming, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (sm *DefaultStateMachine) updateFromChasing(state *gc.AIState, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if !canSeePlayer {
 		// プレイヤーを見失った場合
 		if elapsedTurns >= 3 {
 			// 3ターン以上見失った → 移動状態へ
-			roaming.SubState = gc.AIRoamingDriving
-			roaming.StartSubStateTurn = currentTurn
-			roaming.DurationSubStateTurns = 5 + rand.IntN(5) // 5-9ターン移動
+			state.SubState = gc.AIStateDriving
+			state.StartSubStateTurn = currentTurn
+			state.DurationSubStateTurns = 5 + rand.IntN(5) // 5-9ターン移動
 		}
 		// 3ターン以内なら追跡継続
-	} else if elapsedTurns >= roaming.DurationSubStateTurns {
+	} else if elapsedTurns >= state.DurationSubStateTurns {
 		// 追跡ターン終了 → 待機状態へ
-		sm.transitionToWaiting(roaming, currentTurn)
+		sm.transitionToWaiting(state, currentTurn)
 	} else {
 		// プレイヤー視認中：追跡継続、ターンリセット
-		roaming.StartSubStateTurn = currentTurn
+		state.StartSubStateTurn = currentTurn
 	}
 }
 
 // updateFromFleeing は逃亡状態からの遷移処理
-func (sm *DefaultStateMachine) updateFromFleeing(roaming *gc.AIRoaming, disposition *gc.Disposition, canSeePlayer bool, elapsedTurns, currentTurn int) {
-	if !canSeePlayer && elapsedTurns >= roaming.DurationSubStateTurns {
+func (sm *DefaultStateMachine) updateFromFleeing(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, elapsedTurns, currentTurn int) {
+	if !canSeePlayer && elapsedTurns >= state.DurationSubStateTurns {
 		// プレイヤーを見失い、逃亡時間が終了 → デフォルト態度に復帰して移動へ
-		if disposition != nil {
-			disposition.ResetToDefault()
+		if policy != nil {
+			policy.ResetCombat()
 		}
-		sm.transitionToDriving(roaming, currentTurn)
+		sm.transitionToDriving(state, currentTurn)
 	} else if canSeePlayer {
 		// プレイヤーが見えている間は逃亡継続、ターンリセット
-		roaming.StartSubStateTurn = currentTurn
+		state.StartSubStateTurn = currentTurn
 	}
 }
 
 // transitionToWaiting は待機状態への遷移
-func (sm *DefaultStateMachine) transitionToWaiting(roaming *gc.AIRoaming, currentTurn int) {
-	roaming.SubState = gc.AIRoamingWaiting
-	roaming.StartSubStateTurn = currentTurn
-	roaming.DurationSubStateTurns = 2 + rand.IntN(4) // 2-5ターン待機
+func (sm *DefaultStateMachine) transitionToWaiting(state *gc.AIState, currentTurn int) {
+	state.SubState = gc.AIStateWaiting
+	state.StartSubStateTurn = currentTurn
+	state.DurationSubStateTurns = 2 + rand.IntN(4) // 2-5ターン待機
 }
 
 // transitionToDriving は移動状態への遷移
-func (sm *DefaultStateMachine) transitionToDriving(roaming *gc.AIRoaming, currentTurn int) {
-	roaming.SubState = gc.AIRoamingDriving
-	roaming.StartSubStateTurn = currentTurn
-	roaming.DurationSubStateTurns = 3 + rand.IntN(7) // 3-9ターン移動
+func (sm *DefaultStateMachine) transitionToDriving(state *gc.AIState, currentTurn int) {
+	state.SubState = gc.AIStateDriving
+	state.StartSubStateTurn = currentTurn
+	state.DurationSubStateTurns = 3 + rand.IntN(7) // 3-9ターン移動
 }
 
 // transitionToChasing は追跡状態への遷移
-func (sm *DefaultStateMachine) transitionToChasing(roaming *gc.AIRoaming, currentTurn int) {
-	roaming.SubState = gc.AIRoamingChasing
-	roaming.StartSubStateTurn = currentTurn
-	roaming.DurationSubStateTurns = 10 + rand.IntN(5) // 10-14ターン追跡
+func (sm *DefaultStateMachine) transitionToChasing(state *gc.AIState, currentTurn int) {
+	state.SubState = gc.AIStateChasing
+	state.StartSubStateTurn = currentTurn
+	state.DurationSubStateTurns = 10 + rand.IntN(5) // 10-14ターン追跡
 }
 
 // transitionToFleeing は逃亡状態への遷移
-func (sm *DefaultStateMachine) transitionToFleeing(roaming *gc.AIRoaming, currentTurn int) {
-	roaming.SubState = gc.AIRoamingFleeing
-	roaming.StartSubStateTurn = currentTurn
-	roaming.DurationSubStateTurns = 5 + rand.IntN(5) // 5-9ターン逃亡
+func (sm *DefaultStateMachine) transitionToFleeing(state *gc.AIState, currentTurn int) {
+	state.SubState = gc.AIStateFleeing
+	state.StartSubStateTurn = currentTurn
+	state.DurationSubStateTurns = 5 + rand.IntN(5) // 5-9ターン逃亡
 }
 
 // initializeToWaiting は待機状態への初期化
-func (sm *DefaultStateMachine) initializeToWaiting(roaming *gc.AIRoaming, currentTurn int) {
-	roaming.SubState = gc.AIRoamingWaiting
-	roaming.StartSubStateTurn = currentTurn
-	roaming.DurationSubStateTurns = 2 + rand.IntN(3) // 2-4ターン待機
+func (sm *DefaultStateMachine) initializeToWaiting(state *gc.AIState, currentTurn int) {
+	state.SubState = gc.AIStateWaiting
+	state.StartSubStateTurn = currentTurn
+	state.DurationSubStateTurns = 2 + rand.IntN(3) // 2-4ターン待機
 }

@@ -185,14 +185,14 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
-		policy := query.SquadPolicy(world, member)
+		policy := query.AIPolicy(world, member)
 
 		members = append(members, squadMemberData{
 			Entity:       member,
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     policy.Position.String(),
-			Combat:       policy.Combat.String(),
+			Position:     policy.Movement.String(),
+			Combat:       policy.CombatCurrent.String(),
 			ItemPickup:   policy.ItemPickup.String(),
 			ItemHandling: policy.ItemHandling.String(),
 		})
@@ -279,15 +279,15 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 	switch command {
 	case "集合":
 		for _, m := range members {
-			p := query.SquadPolicy(world, m)
-			p.Position = gc.PolicyEscort
-			_ = lifecycle.SetSquadPolicy(world, m, p)
+			p := query.AIPolicy(world, m)
+			p.Movement = gc.MovementEscort
+			_ = lifecycle.SetAIPolicy(world, m, p)
 		}
 	case "全員待機":
 		for _, m := range members {
-			p := query.SquadPolicy(world, m)
-			p.Position = gc.PolicyHold
-			_ = lifecycle.SetSquadPolicy(world, m, p)
+			p := query.AIPolicy(world, m)
+			p.Movement = gc.MovementStationary
+			_ = lifecycle.SetAIPolicy(world, m, p)
 		}
 	}
 }
@@ -306,10 +306,10 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	member := windowProps.Member.Entity
 	selectedAction := actionItems[actionIndex]
 
-	cyclePolicy := func(update func(policy *gc.SquadPolicy)) error {
-		policy := query.SquadPolicy(world, member)
+	cyclePolicy := func(update func(policy *gc.AIPolicy)) error {
+		policy := query.AIPolicy(world, member)
 		update(&policy)
-		if err := lifecycle.SetSquadPolicy(world, member, policy); err != nil {
+		if err := lifecycle.SetAIPolicy(world, member, policy); err != nil {
 			return err
 		}
 		st.refreshWindowProps(world, member)
@@ -318,26 +318,32 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 
 	switch {
 	case strings.HasPrefix(selectedAction, "位置"):
-		allPos := gc.AllPositionPolicies()
-		return cyclePolicy(func(p *gc.SquadPolicy) {
-			p.Position = allPos[(int(p.Position)+1)%len(allPos)]
+		allPos := gc.AllSquadMovementPolicies()
+		return cyclePolicy(func(p *gc.AIPolicy) {
+			for i, v := range allPos {
+				if v == p.Movement {
+					p.Movement = allPos[(i+1)%len(allPos)]
+					return
+				}
+			}
+			p.Movement = allPos[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "戦闘"):
-		allCombat := gc.AllCombatPolicies()
-		return cyclePolicy(func(p *gc.SquadPolicy) {
-			p.Combat = allCombat[(int(p.Combat)+1)%len(allCombat)]
+		allCombat := gc.AllSquadCombatPolicies()
+		return cyclePolicy(func(p *gc.AIPolicy) {
+			p.CombatCurrent = allCombat[(int(p.CombatCurrent)+1)%len(allCombat)]
 		})
 
 	case strings.HasPrefix(selectedAction, "回収"):
 		all := gc.AllItemPickupPolicies()
-		return cyclePolicy(func(p *gc.SquadPolicy) {
+		return cyclePolicy(func(p *gc.AIPolicy) {
 			p.ItemPickup = all[(int(p.ItemPickup)+1)%len(all)]
 		})
 
 	case strings.HasPrefix(selectedAction, "処理"):
 		all := gc.AllItemHandlingPolicies()
-		return cyclePolicy(func(p *gc.SquadPolicy) {
+		return cyclePolicy(func(p *gc.AIPolicy) {
 			p.ItemHandling = all[(int(p.ItemHandling)+1)%len(all)]
 		})
 
@@ -357,15 +363,15 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 	name := query.GetEntityName(member, world)
 	hp := world.Components.HP.Get(member).(*gc.HP)
-	policy := query.SquadPolicy(world, member)
+	policy := query.AIPolicy(world, member)
 
 	st.windowMount.SetProps(squadWindowProps{
 		Member: squadMemberData{
 			Entity:       member,
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     policy.Position.String(),
-			Combat:       policy.Combat.String(),
+			Position:     policy.Movement.String(),
+			Combat:       policy.CombatCurrent.String(),
 			ItemPickup:   policy.ItemPickup.String(),
 			ItemHandling: policy.ItemHandling.String(),
 		},
