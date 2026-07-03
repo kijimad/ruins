@@ -86,7 +86,7 @@ func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 	assert.Equal(t, gc.AIStateDriving, state.SubState, "3ターン以上見失うと移動状態へ")
 }
 
-func TestUpdateState_ChasingPlayerVisible_ResetsTurn(t *testing.T) {
+func TestUpdateState_ChasingPlayerVisible_ContinuesChase(t *testing.T) {
 	t.Parallel()
 
 	rp := newRoamingPlanner()
@@ -99,8 +99,8 @@ func TestUpdateState_ChasingPlayerVisible_ResetsTurn(t *testing.T) {
 	}
 
 	rp.updateState(state, policy, true, 5)
-	assert.Equal(t, gc.AIStateChasing, state.SubState)
-	assert.Equal(t, 5, state.StartSubStateTurn, "プレイヤー視認中はターンリセット")
+	assert.Equal(t, gc.AIStateChasing, state.SubState, "追跡継続")
+	assert.Equal(t, 1, state.StartSubStateTurn, "StartSubStateTurnは変化しない")
 }
 
 func TestUpdateState_WaitingToDriving(t *testing.T) {

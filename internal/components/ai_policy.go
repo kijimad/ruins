@@ -181,7 +181,7 @@ func AllItemHandlingPolicies() []ItemHandlingPolicy {
 // AIPolicy は全AIエンティティ共通の行動ポリシーを保持する。
 // 敵、中立NPC、隊員が同じ構造で方針を表現する
 type AIPolicy struct {
-	// Planner は適用する行動計画の種別。processor.go の plannerType が参照する
+	// Planner は適用する行動計画の種別。スポーン時のバリデーションとセーブに使用する
 	Planner PlannerType
 	// CombatDefault は初期方針を保持する。逃亡後にこの値へ復帰する
 	CombatDefault CombatPolicy

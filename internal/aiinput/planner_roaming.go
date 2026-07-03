@@ -129,14 +129,10 @@ func (rp *roamingPlanner) updateFromDriving(state *gc.AIState, policy *gc.AIPoli
 func (rp *roamingPlanner) updateFromChasing(state *gc.AIState, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if !canSeePlayer {
 		if elapsedTurns >= 3 {
-			state.SubState = gc.AIStateDriving
-			state.StartSubStateTurn = currentTurn
-			state.DurationSubStateTurns = 5 + rand.IntN(5)
+			rp.transitionToDriving(state, currentTurn)
 		}
 	} else if elapsedTurns >= state.DurationSubStateTurns {
 		rp.transitionToWaiting(state, currentTurn)
-	} else {
-		state.StartSubStateTurn = currentTurn
 	}
 }
 
