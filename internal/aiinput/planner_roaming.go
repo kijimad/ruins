@@ -13,12 +13,11 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// territorialRadius はTerritorial移動パターンのスポーン地点からの最大距離
+// territorialRadius はTerritorial移動パターンでスポーン地点から離れられる最大距離を定義する
 const territorialRadius = 5
 
 // roamingPlanner は敵・中立NPC用の行動計画を実装する。
-// AIStateの状態遷移とMovementPolicyによる移動を統合した
-// ポリシーチェーンで行動を決定する
+// AIStateの状態遷移とMovementPolicyによる移動を統合して行動を決定する
 type roamingPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
@@ -240,7 +239,7 @@ func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entit
 }
 
 // planDrivingAction はMovementPolicyに基づく移動アクションを計画する
-func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
+func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
 	if context.Policy == nil {
 		return rp.planRandomMoveAction(world, aiEntity, context.GridElement)
 	}
@@ -363,7 +362,7 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
 }
 
 // planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
-func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
+func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
 	aiGrid := context.GridElement
 	state := context.State
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
@@ -387,7 +386,7 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, c
 }
 
 // planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
-func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *EntityContext) (activity.Behavior, activity.ActionParams) {
+func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
 	aiGrid := context.GridElement
 	state := context.State
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)

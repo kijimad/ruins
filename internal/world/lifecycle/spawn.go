@@ -123,6 +123,9 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 	if entitySpec.AIPolicy != nil {
+		if err := validateAIPolicy(entitySpec.AIPolicy, entitySpec.SquadMember != nil); err != nil {
+			return consts.InvalidEntity, fmt.Errorf("AIPolicy検証エラー (%s): %w", name, err)
+		}
 		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
 		entitySpec.AIState = &gc.AIState{
 			SubState:              gc.AIStateWaiting,
@@ -191,6 +194,9 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 	if entitySpec.AIPolicy == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIPolicyが指定されていません: %s", entitySpec.Name)
+	}
+	if err := validateAIPolicy(entitySpec.AIPolicy, entitySpec.SquadMember != nil); err != nil {
+		return consts.InvalidEntity, fmt.Errorf("AIPolicy検証エラー (%s): %w", entitySpec.Name, err)
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -475,4 +481,41 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
+}
+
+// validateAIPolicy はAIPolicyのPlannerとMovementの組み合わせが有効かを検証する
+func validateAIPolicy(policy *gc.AIPolicy, hasSquadMember bool) error {
+	if policy.Planner == gc.PlannerSquad && !hasSquadMember {
+		return fmt.Errorf("PlannerSquad には SquadMember コンポーネントが必要です")
+	}
+	if policy.Planner != gc.PlannerSquad && hasSquadMember {
+		return fmt.Errorf("SquadMember には PlannerSquad が必要です")
+	}
+
+	switch policy.Planner {
+	case gc.PlannerRoaming:
+		switch policy.Movement {
+		case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
+			gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
+			gc.MovementSwarm:
+		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:
+			return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", policy.Movement)
+		default:
+			return fmt.Errorf("未知の MovementPolicy %q です", policy.Movement)
+		}
+	case gc.PlannerSquad:
+		switch policy.Movement {
+		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat,
+			gc.MovementPatrol, gc.MovementStationary:
+		case gc.MovementRandom, gc.MovementWallHug, gc.MovementWander,
+			gc.MovementTerritorial, gc.MovementSwarm:
+			return fmt.Errorf("PlannerSquad に敵用の MovementPolicy %q は使用できません", policy.Movement)
+		default:
+			return fmt.Errorf("未知の MovementPolicy %q です", policy.Movement)
+		}
+	default:
+		return fmt.Errorf("未知の PlannerType %d です", policy.Planner)
+	}
+
+	return nil
 }

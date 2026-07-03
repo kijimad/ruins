@@ -57,7 +57,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		Vision:      world.Components.AIVision.Get(entity).(*gc.AIVision),
 		State:       state,
@@ -196,7 +196,7 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -219,7 +219,7 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -243,7 +243,7 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -267,7 +267,7 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -293,7 +293,7 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -316,7 +316,7 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -344,7 +344,7 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -377,7 +377,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -412,7 +412,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, policy, state)
 
 	rp := newRoamingPlanner()
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
 		State:       state,
 		Policy:      policy,
@@ -440,7 +440,7 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		context := &EntityContext{
+		context := &entityContext{
 			GridElement: grid,
 			State:       state,
 			Policy:      policy,
@@ -481,7 +481,7 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-	context := &EntityContext{
+	context := &entityContext{
 		GridElement: grid,
 		State:       state,
 		Policy:      policy,

@@ -50,6 +50,20 @@ func (p CombatPolicy) String() string {
 	}
 }
 
+// Label はUI表示名を返す
+func (p CombatPolicy) Label() string {
+	switch p {
+	case CombatAttack:
+		return "攻撃"
+	case CombatEvade:
+		return "回避"
+	case CombatIgnore:
+		return "無関心"
+	default:
+		panic(fmt.Sprintf("未知のCombatPolicy: %d", p))
+	}
+}
+
 // AllSquadCombatPolicies は隊員UIで巡回可能な戦闘ポリシーを返す。
 // CombatIgnore は中立NPC用であり、隊員には選択させない
 func AllSquadCombatPolicies() []CombatPolicy {
@@ -167,7 +181,7 @@ func AllItemHandlingPolicies() []ItemHandlingPolicy {
 // AIPolicy は全AIエンティティ共通の行動ポリシーを保持する。
 // 敵、中立NPC、隊員が同じ構造で方針を表現する
 type AIPolicy struct {
-	// Planner は適用する行動計画の種別。resolvePlanner が参照する
+	// Planner は適用する行動計画の種別。processor.go の plannerType が参照する
 	Planner PlannerType
 	// CombatDefault は初期方針を保持する。逃亡後にこの値へ復帰する
 	CombatDefault CombatPolicy

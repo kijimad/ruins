@@ -23,8 +23,7 @@ type Planner interface {
 // maxActivitiesPerTurn は1ターン中に実行可能なアクティビティの上限を表す
 const maxActivitiesPerTurn = 10
 
-// runAPLoop はAPが残っている限りPlannerのアクションを連続実行する。
-// 全AIエンティティ共通のAPループ
+// runAPLoop はAPが残っている限りPlannerのアクションを連続実行する
 func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Logger) {
 	executed := 0
 
@@ -61,8 +60,8 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 	}
 }
 
-// EntityContext はAIエンティティの必要な情報をまとめる
-type EntityContext struct {
+// entityContext はAIエンティティの必要な情報をまとめて保持する
+type entityContext struct {
 	GridElement *gc.GridElement
 	Vision      *gc.AIVision
 	State       *gc.AIState
@@ -70,7 +69,7 @@ type EntityContext struct {
 }
 
 // gatherEntityContext はエンティティから必要なコンポーネントを収集する
-func gatherEntityContext(world w.World, entity ecs.Entity) (*EntityContext, error) {
+func gatherEntityContext(world w.World, entity ecs.Entity) (*entityContext, error) {
 	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	aiVision := world.Components.AIVision.Get(entity)
@@ -88,7 +87,7 @@ func gatherEntityContext(world w.World, entity ecs.Entity) (*EntityContext, erro
 		policy = p.(*gc.AIPolicy)
 	}
 
-	return &EntityContext{
+	return &entityContext{
 		GridElement: gridElement,
 		Vision:      aiVision.(*gc.AIVision),
 		State:       aiState.(*gc.AIState),
@@ -110,21 +109,21 @@ func gridDistance(a, b *gc.GridElement) int {
 	return geometry.ChebyshevDistance(int(a.X), int(a.Y), int(b.X), int(b.Y))
 }
 
-// eightDirections は隣接8方向の座標差分
+// eightDirections は隣接8方向の座標差分を定義する
 var eightDirections = []struct{ x, y int }{
 	{-1, -1}, {0, -1}, {1, -1},
 	{-1, 0}, {1, 0},
 	{-1, 1}, {0, 1}, {1, 1},
 }
 
-// MoveCandidate は移動候補を表す
-type MoveCandidate struct {
+// moveCandidate は移動先の座標候補を保持する
+type moveCandidate struct {
 	x, y int
 }
 
 // calculateMoveCandidates はターゲットに向かう移動候補を計算する
-func calculateMoveCandidates(dx, dy int) []MoveCandidate {
-	var candidates []MoveCandidate
+func calculateMoveCandidates(dx, dy int) []moveCandidate {
+	var candidates []moveCandidate
 
 	if dx != 0 && dy != 0 {
 		moveX := 1
@@ -135,38 +134,38 @@ func calculateMoveCandidates(dx, dy int) []MoveCandidate {
 		if dy < 0 {
 			moveY = -1
 		}
-		candidates = append(candidates, MoveCandidate{moveX, moveY})
+		candidates = append(candidates, moveCandidate{moveX, moveY})
 
 		if geometry.Abs(dx) > geometry.Abs(dy) {
-			candidates = append(candidates, MoveCandidate{moveX, 0})
-			candidates = append(candidates, MoveCandidate{0, moveY})
+			candidates = append(candidates, moveCandidate{moveX, 0})
+			candidates = append(candidates, moveCandidate{0, moveY})
 		} else {
-			candidates = append(candidates, MoveCandidate{0, moveY})
-			candidates = append(candidates, MoveCandidate{moveX, 0})
+			candidates = append(candidates, moveCandidate{0, moveY})
+			candidates = append(candidates, moveCandidate{moveX, 0})
 		}
 	} else if dx != 0 {
 		moveX := 1
 		if dx < 0 {
 			moveX = -1
 		}
-		candidates = append(candidates, MoveCandidate{moveX, 0})
-		candidates = append(candidates, MoveCandidate{0, 1})
-		candidates = append(candidates, MoveCandidate{0, -1})
+		candidates = append(candidates, moveCandidate{moveX, 0})
+		candidates = append(candidates, moveCandidate{0, 1})
+		candidates = append(candidates, moveCandidate{0, -1})
 	} else if dy != 0 {
 		moveY := 1
 		if dy < 0 {
 			moveY = -1
 		}
-		candidates = append(candidates, MoveCandidate{0, moveY})
-		candidates = append(candidates, MoveCandidate{1, 0})
-		candidates = append(candidates, MoveCandidate{-1, 0})
+		candidates = append(candidates, moveCandidate{0, moveY})
+		candidates = append(candidates, moveCandidate{1, 0})
+		candidates = append(candidates, moveCandidate{-1, 0})
 	}
 
 	return candidates
 }
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
-func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []MoveCandidate) (activity.Behavior, activity.ActionParams, bool) {
+func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []moveCandidate) (activity.Behavior, activity.ActionParams, bool) {
 	fromX, fromY := int(from.X), int(from.Y)
 	for _, candidate := range candidates {
 		destX := fromX + candidate.x
