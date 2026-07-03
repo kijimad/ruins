@@ -718,9 +718,9 @@ Defense = 2
 
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.AIPolicy)
-			assert.Equal(t, tt.expectedDefault, entitySpec.AIPolicy.CombatDefault)
-			assert.Equal(t, tt.expectedCurrent, entitySpec.AIPolicy.CombatCurrent)
+			require.NotNil(t, entitySpec.AI)
+			assert.Equal(t, tt.expectedDefault, entitySpec.AI.CombatDefault)
+			assert.Equal(t, tt.expectedCurrent, entitySpec.AI.CombatCurrent)
 		})
 	}
 }
@@ -749,8 +749,8 @@ Defense = 2
 
 	entitySpec, err := NewMemberSpec(raws, "態度なし")
 	require.NoError(t, err)
-	require.NotNil(t, entitySpec.AIPolicy)
-	assert.Equal(t, gc.CombatAttack, entitySpec.AIPolicy.CombatDefault)
+	require.NotNil(t, entitySpec.AI)
+	assert.Equal(t, gc.CombatAttack, entitySpec.AI.CombatDefault)
 }
 
 func TestMemberMovementPattern(t *testing.T) {
@@ -792,8 +792,8 @@ Defense = 2
 
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.AIPolicy)
-			assert.Equal(t, tt.expected, entitySpec.AIPolicy.Movement)
+			require.NotNil(t, entitySpec.AI)
+			assert.Equal(t, tt.expected, entitySpec.AI.Movement)
 		})
 	}
 }
@@ -1001,6 +1001,6 @@ Defense = 2
 
 	entitySpec, err := NewMemberSpec(raws, "パターンなし")
 	require.NoError(t, err)
-	require.NotNil(t, entitySpec.AIPolicy)
-	assert.Empty(t, entitySpec.AIPolicy.Movement)
+	require.NotNil(t, entitySpec.AI)
+	assert.Empty(t, entitySpec.AI.Movement)
 }

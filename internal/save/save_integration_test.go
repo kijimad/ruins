@@ -260,24 +260,22 @@ func TestSaveLoadSquadMember(t *testing.T) {
 		}))
 		require.True(t, found, "隊員エンティティが復元されている")
 
-		// AI処理に必要なコンポーネント（SquadProcessor.ProcessSquadMembersのJoin条件）
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIMoveFSM), "AIMoveFSMが復元される")
+		// AI処理に必要なコンポーネント
+		assert.True(t, memberEntity.HasComponent(newWorld.Components.AI), "AIが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.GridElement), "GridElementが復元される")
 
-		// 戦闘・視界に必要なコンポーネント
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIVision), "AIVisionが復元される")
+		// 通行・視界に必要なコンポーネント
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.BlockPass), "BlockPassが復元される")
-		assert.True(t, memberEntity.HasComponent(newWorld.Components.AIPolicy), "AIPolicyが復元される")
 
 		// ステータス関連コンポーネント
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.HealthStatus), "HealthStatusが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.Skills), "Skillsが復元される")
 		assert.True(t, memberEntity.HasComponent(newWorld.Components.CharModifiers), "CharModifiersが復元される")
 
-		// AIPolicyの値が正しいことを確認
-		policy := newWorld.Components.AIPolicy.Get(memberEntity).(*gc.AIPolicy)
-		assert.Equal(t, gc.PlannerSquad, policy.Planner)
-		assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
+		// AIの値が正しいことを確認
+		ai := newWorld.Components.AI.Get(memberEntity).(*gc.AI)
+		assert.Equal(t, gc.PlannerSquad, ai.Planner)
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})
 
 	t.Run("隊員のリーダー参照が復元される", func(t *testing.T) {

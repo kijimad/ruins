@@ -141,9 +141,9 @@ func TestFullRecover(t *testing.T) {
 	world.Manager.DeleteEntity(entity)
 }
 
-func TestSpawnNPCHasAIMoveFSM(t *testing.T) {
+func TestSpawnEnemyHasAI(t *testing.T) {
 	t.Parallel()
-	// NPCが敵として認識されるAIMoveFSMコンポーネントを持つことを確認
+	// 敵エンティティがAIコンポーネントを持つことを確認
 	world := testutil.InitTestWorld(t)
 
 	// SpriteSheetsを初期化
@@ -165,16 +165,16 @@ func TestSpawnNPCHasAIMoveFSM(t *testing.T) {
 	_, err := SpawnEnemy(world, 5, 5, "火の玉")
 	require.NoError(t, err)
 
-	// AIMoveFSMコンポーネントを持つエンティティが存在することを確認
+	// AIコンポーネントを持つエンティティが存在することを確認
 	enemyFound := false
 	world.Manager.Join(
 		world.Components.GridElement,
-		world.Components.AIMoveFSM,
+		world.Components.AI,
 	).Visit(ecs.Visit(func(_ ecs.Entity) {
 		enemyFound = true
 	}))
 
-	assert.True(t, enemyFound, "SpawnEnemyで生成されたエンティティはAIMoveFSMコンポーネントを持つべき")
+	assert.True(t, enemyFound, "SpawnEnemyで生成されたエンティティはAIコンポーネントを持つべき")
 }
 
 func TestSpawnEnemy_WithBoss(t *testing.T) {
@@ -234,7 +234,7 @@ func TestSpawnEnemy_WithDropTable(t *testing.T) {
 	assert.Equal(t, "火の玉", dropTable.Name, "DropTableの名前が正しくない")
 }
 
-func TestSpawnEnemy_AIPolicy(t *testing.T) {
+func TestSpawnEnemy_AI(t *testing.T) {
 	t.Parallel()
 
 	world := testutil.InitTestWorld(t)
@@ -249,10 +249,10 @@ func TestSpawnEnemy_AIPolicy(t *testing.T) {
 	enemy, err := SpawnEnemy(world, 5, 5, "火の玉")
 	require.NoError(t, err)
 
-	assert.True(t, enemy.HasComponent(world.Components.AIPolicy))
-	policy := world.Components.AIPolicy.Get(enemy).(*gc.AIPolicy)
-	assert.Equal(t, gc.CombatAttack, policy.CombatDefault)
-	assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
+	assert.True(t, enemy.HasComponent(world.Components.AI))
+	ai := world.Components.AI.Get(enemy).(*gc.AI)
+	assert.Equal(t, gc.CombatAttack, ai.CombatDefault)
+	assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 }
 
 func TestSpawnItem(t *testing.T) {
@@ -466,53 +466,53 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 	assert.Empty(t, uncategorized, "InventoryCategoryに属していないアイテム: %v", uncategorized)
 }
 
-func TestValidateAIPolicy(t *testing.T) {
+func TestValidateAI(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name           string
-		policy         *gc.AIPolicy
+		ai             *gc.AI
 		hasSquadMember bool
 		wantErr        bool
 	}{
 		{
 			"Roaming+Random は有効",
-			&gc.AIPolicy{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
+			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
 			false, false,
 		},
 		{
 			"Roaming+Patrol は有効",
-			&gc.AIPolicy{Planner: gc.PlannerRoaming, Movement: gc.MovementPatrol},
+			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementPatrol},
 			false, false,
 		},
 		{
 			"Roaming+Escort は無効",
-			&gc.AIPolicy{Planner: gc.PlannerRoaming, Movement: gc.MovementEscort},
+			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementEscort},
 			false, true,
 		},
 		{
 			"Squad+Escort は有効",
-			&gc.AIPolicy{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
+			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
 			true, false,
 		},
 		{
 			"Squad+Vanguard は有効",
-			&gc.AIPolicy{Planner: gc.PlannerSquad, Movement: gc.MovementVanguard},
+			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementVanguard},
 			true, false,
 		},
 		{
 			"Squad+Random は無効",
-			&gc.AIPolicy{Planner: gc.PlannerSquad, Movement: gc.MovementRandom},
+			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementRandom},
 			true, true,
 		},
 		{
 			"PlannerSquad に SquadMember なしは無効",
-			&gc.AIPolicy{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
+			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
 			false, true,
 		},
 		{
 			"PlannerRoaming に SquadMember ありは無効",
-			&gc.AIPolicy{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
+			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
 			true, true,
 		},
 	}
@@ -520,7 +520,7 @@ func TestValidateAIPolicy(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := validateAIPolicy(tt.policy, tt.hasSquadMember)
+			err := validateAI(tt.ai, tt.hasSquadMember)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

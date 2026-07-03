@@ -15,29 +15,27 @@ import (
 )
 
 // setupTestAI はテスト用のAIエンティティを作成する
-func setupTestAI(t *testing.T, world w.World, x, y int, policy *gc.AIPolicy, state *gc.AIState) ecs.Entity {
+func setupTestAI(t *testing.T, world w.World, x, y int, ai *gc.AI) ecs.Entity {
 	t.Helper()
 	entity := world.Manager.NewEntity()
 	entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストAI"})
 	entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
-	entity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
-	entity.AddComponent(world.Components.AIState, state)
-	entity.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
+	entity.AddComponent(world.Components.AI, ai)
 	entity.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
-	entity.AddComponent(world.Components.AIPolicy, policy)
 	return entity
 }
 
-// hostilePolicy はテスト用の敵対AIポリシーを生成するヘルパー
-func hostilePolicy(movement gc.MovementPolicy) *gc.AIPolicy {
-	return &gc.AIPolicy{
+// hostileAI はテスト用の敵対AIを生成するヘルパー
+func hostileAI(movement gc.MovementPolicy) *gc.AI {
+	return &gc.AI{
 		Planner:       gc.PlannerRoaming,
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
 		Movement:      movement,
+		ViewDistance:  5,
 	}
 }
 
@@ -48,22 +46,13 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateWaiting,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateWaiting
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		Vision:      world.Components.AIVision.Get(entity).(*gc.AIVision),
-		State:       state,
-		Policy:      policy,
-	}
-	_ = context
 
 	// Waiting状態では待機を返す（視界外のプレイヤーでは遷移しない）
 	// Plan()経由でテスト。状態遷移も含む
@@ -79,13 +68,11 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateChasing,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 6, 5, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateChasing
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 6, 5, ai)
 
 	rp := newRoamingPlanner()
 
@@ -101,13 +88,11 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateChasing,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 10, 10, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateChasing
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 10, 10, ai)
 
 	rp := newRoamingPlanner()
 
@@ -123,13 +108,11 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
 	require.NoError(t, err)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateFleeing,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 10, 10, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateFleeing
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 10, 10, ai)
 
 	rp := newRoamingPlanner()
 
@@ -146,13 +129,11 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 
@@ -169,13 +150,11 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	_, err := lifecycle.SpawnPlayer(world, 1, 1, "Ash")
 	require.NoError(t, err)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateSubState("UNKNOWN"),
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateSubState("UNKNOWN")
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 
@@ -187,19 +166,16 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementStationary)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementStationary)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planDrivingAction(world, entity, context)
@@ -210,19 +186,16 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementWander)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementWander)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planDrivingAction(world, entity, context)
@@ -234,19 +207,16 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementWallHug)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementWallHug)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planDrivingAction(world, entity, context)
@@ -258,19 +228,16 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementSwarm)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementSwarm)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planDrivingAction(world, entity, context)
@@ -282,21 +249,18 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementTerritorial)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-		SpawnX:                20,
-		SpawnY:                20,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementTerritorial)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	ai.SpawnX = 20
+	ai.SpawnY = 20
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planDrivingAction(world, entity, context)
@@ -307,19 +271,16 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementRandom)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planDrivingAction(world, entity, context)
@@ -331,23 +292,20 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementPatrol)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-		SpawnX:                20,
-		SpawnY:                20,
-		PatrolDirX:            1,
-		PatrolDirY:            0,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementPatrol)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	ai.SpawnX = 20
+	ai.SpawnY = 20
+	ai.PatrolDirX = 1
+	ai.PatrolDirY = 0
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, params := rp.planDrivingAction(world, entity, context)
@@ -364,29 +322,26 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	wall.AddComponent(world.Components.GridElement, &gc.GridElement{X: 21, Y: 20})
 	wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 
-	policy := hostilePolicy(gc.MovementPatrol)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-		SpawnX:                20,
-		SpawnY:                20,
-		PatrolDirX:            1,
-		PatrolDirY:            0,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementPatrol)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	ai.SpawnX = 20
+	ai.SpawnY = 20
+	ai.PatrolDirX = 1
+	ai.PatrolDirY = 0
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, params := rp.planPatrolAction(world, entity, context)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
 	assert.Equal(t, consts.Tile(19), params.Destination.X)
-	assert.Equal(t, -1, state.PatrolDirX)
+	assert.Equal(t, -1, ai.PatrolDirX)
 }
 
 func TestPlanPatrolAction_BothBlocked(t *testing.T) {
@@ -399,23 +354,20 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 		wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 	}
 
-	policy := hostilePolicy(gc.MovementPatrol)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-		SpawnX:                20,
-		SpawnY:                20,
-		PatrolDirX:            1,
-		PatrolDirY:            0,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementPatrol)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	ai.SpawnX = 20
+	ai.SpawnY = 20
+	ai.PatrolDirX = 1
+	ai.PatrolDirY = 0
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	context := &entityContext{
 		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	behavior, _ := rp.planPatrolAction(world, entity, context)
@@ -426,15 +378,13 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementTerritorial)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-		SpawnX:                20,
-		SpawnY:                20,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementTerritorial)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	ai.SpawnX = 20
+	ai.SpawnY = 20
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 
@@ -442,8 +392,7 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		context := &entityContext{
 			GridElement: grid,
-			State:       state,
-			Policy:      policy,
+			AI:          ai,
 		}
 
 		behavior, params := rp.planTerritorialAction(world, entity, context)
@@ -452,8 +401,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 			grid.Y = params.Destination.Y
 		}
 
-		dx := int(grid.X) - state.SpawnX
-		dy := int(grid.Y) - state.SpawnY
+		dx := int(grid.X) - ai.SpawnX
+		dy := int(grid.Y) - ai.SpawnY
 		if dx < 0 {
 			dx = -dx
 		}
@@ -469,29 +418,26 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementTerritorial)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-		SpawnX:                20,
-		SpawnY:                20,
-	}
-	entity := setupTestAI(t, world, 25, 25, policy, state)
+	ai := hostileAI(gc.MovementTerritorial)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	ai.SpawnX = 20
+	ai.SpawnY = 20
+	entity := setupTestAI(t, world, 25, 25, ai)
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 	context := &entityContext{
 		GridElement: grid,
-		State:       state,
-		Policy:      policy,
+		AI:          ai,
 	}
 
 	for i := 0; i < 50; i++ {
 		behavior, params := rp.planTerritorialAction(world, entity, context)
 		if behavior.Name() == gc.BehaviorMove && params.Destination != nil {
-			dx := int(params.Destination.X) - state.SpawnX
-			dy := int(params.Destination.Y) - state.SpawnY
+			dx := int(params.Destination.X) - ai.SpawnX
+			dy := int(params.Destination.Y) - ai.SpawnY
 			if dx < 0 {
 				dx = -dx
 			}
@@ -508,20 +454,19 @@ func TestPlanWanderAction(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	policy := hostilePolicy(gc.MovementWander)
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, policy, state)
+	ai := hostileAI(gc.MovementWander)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+	grid := &gc.GridElement{X: 20, Y: 20}
 
 	gotMove := false
 	gotWait := false
 	for i := 0; i < 50; i++ {
+		entity := setupTestAI(t, world, 20, 20, ai)
 		behavior, _ := rp.planWanderAction(world, entity, grid)
 		switch behavior.Name() { //nolint:exhaustive
 		case gc.BehaviorMove:
@@ -547,13 +492,11 @@ func TestPlanWallHugAction(t *testing.T) {
 		wall.AddComponent(world.Components.BlockPass, &gc.BlockPass{})
 	}
 
-	mp := gc.MovementWallHug
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, hostilePolicy(mp), state)
+	ai := hostileAI(gc.MovementWallHug)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -573,13 +516,11 @@ func TestPlanSwarmAction_NoAllies(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	mp := gc.MovementSwarm
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, hostilePolicy(mp), state)
+	ai := hostileAI(gc.MovementSwarm)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -594,17 +535,16 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	mp := gc.MovementSwarm
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, hostilePolicy(mp), state)
+	ai := hostileAI(gc.MovementSwarm)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
+	allyAI := hostileAI(gc.MovementSwarm)
 	ally := world.Manager.NewEntity()
 	ally.AddComponent(world.Components.GridElement, &gc.GridElement{X: 25, Y: 25})
-	ally.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+	ally.AddComponent(world.Components.AI, allyAI)
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
@@ -681,13 +621,11 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	mp := gc.MovementRandom
-	state := &gc.AIState{
-		SubState:              gc.AIStateDriving,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100,
-	}
-	entity := setupTestAI(t, world, 20, 20, hostilePolicy(mp), state)
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)

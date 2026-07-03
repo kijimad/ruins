@@ -17,12 +17,11 @@ func DismissSquadMember(world w.World, member ecs.Entity) error {
 	return nil
 }
 
-// SetAIPolicy は隊員のポリシーを変更する
-func SetAIPolicy(world w.World, member ecs.Entity, policy gc.AIPolicy) error {
-	if !member.HasComponent(world.Components.AIPolicy) {
-		return fmt.Errorf("エンティティにAIPolicyがありません")
+// GetAI は隊員のAIコンポーネントを返す。コンポーネントがない場合はエラーを返す
+func GetAI(world w.World, member ecs.Entity) (*gc.AI, error) {
+	comp := world.Components.AI.Get(member)
+	if comp == nil {
+		return nil, fmt.Errorf("エンティティにAIがありません")
 	}
-	current := world.Components.AIPolicy.Get(member).(*gc.AIPolicy)
-	*current = policy
-	return nil
+	return comp.(*gc.AI), nil
 }

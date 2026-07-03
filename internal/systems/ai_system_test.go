@@ -25,22 +25,17 @@ func TestAISystem(t *testing.T) {
 	// AIエンティティを作成
 	aiEntity := world.Manager.NewEntity()
 	aiEntity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
-	aiEntity.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
 	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
-	aiEntity.AddComponent(world.Components.AIVision, &gc.AIVision{
-		ViewDistance: 3, // 3タイルの視界
-		TargetEntity: &player,
-	})
-	aiEntity.AddComponent(world.Components.AIState, &gc.AIState{
+	aiEntity.AddComponent(world.Components.AI, &gc.AI{
+		Planner:               gc.PlannerRoaming,
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.MovementRandom,
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 2,
-	})
-	aiEntity.AddComponent(world.Components.AIPolicy, &gc.AIPolicy{
-		Planner:       gc.PlannerRoaming,
-		CombatDefault: gc.CombatAttack,
-		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		ViewDistance:          3,
+		TargetEntity:          &player,
 	})
 
 	// システム実行前の位置を記録
@@ -60,7 +55,7 @@ func TestAISystem(t *testing.T) {
 	t.Logf("AI移動: (%d,%d) -> (%d,%d), moved: %t", initialX, initialY, finalX, finalY, moved)
 
 	// 状態が適切に管理されているかチェック
-	aiState := world.Components.AIState.Get(aiEntity).(*gc.AIState)
+	aiState := world.Components.AI.Get(aiEntity).(*gc.AI)
 	validStates := []gc.AIStateSubState{gc.AIStateWaiting, gc.AIStateDriving, gc.AIStateChasing}
 	assert.Contains(t, validStates, aiState.SubState, "AI状態が無効: %v", aiState.SubState)
 }

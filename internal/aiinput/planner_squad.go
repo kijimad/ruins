@@ -37,8 +37,7 @@ func newSquadPlanner() *squadPlanner {
 // squadContext は隊員AIに必要な情報をまとめる
 type squadContext struct {
 	Grid         *gc.GridElement
-	Vision       *gc.AIVision
-	Policy       *gc.AIPolicy
+	AI           *gc.AI
 	LeaderEntity ecs.Entity
 	LeaderGrid   *gc.GridElement
 }
@@ -56,9 +55,9 @@ func (sp *squadPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavio
 func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*squadContext, bool) {
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	visionComp := world.Components.AIVision.Get(entity)
-	if visionComp == nil {
-		sp.logger.Warn("隊員にAIVisionがない", "entity", entity)
+	aiComp := world.Components.AI.Get(entity)
+	if aiComp == nil {
+		sp.logger.Warn("隊員にAIがない", "entity", entity)
 		return nil, false
 	}
 
@@ -74,16 +73,9 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 		return nil, false
 	}
 
-	defaultPolicy := gc.DefaultAIPolicy
-	policy := &defaultPolicy
-	if entity.HasComponent(world.Components.AIPolicy) {
-		policy = world.Components.AIPolicy.Get(entity).(*gc.AIPolicy)
-	}
-
 	return &squadContext{
 		Grid:         grid,
-		Vision:       visionComp.(*gc.AIVision),
-		Policy:       policy,
+		AI:           aiComp.(*gc.AI),
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 	}, true
@@ -155,7 +147,7 @@ func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entit
 
 // planCombatAction は戦闘ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	switch ctx.Policy.CombatCurrent {
+	switch ctx.AI.CombatCurrent {
 	case gc.CombatAttack:
 		return sp.planAttackAction(world, entity, ctx)
 	case gc.CombatEvade:
@@ -200,7 +192,7 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 
 // planPositionAction は位置ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) {
-	switch ctx.Policy.Movement {
+	switch ctx.AI.Movement {
 	case gc.MovementEscort:
 		return sp.planEscortAction(world, entity, ctx)
 	case gc.MovementVanguard:
@@ -256,7 +248,7 @@ func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, 
 // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。
 // PolicyIgnoreの場合は何もしない
 func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	if ctx.Policy.ItemPickup == gc.PolicyIgnore {
+	if ctx.AI.ItemPickup == gc.PolicyIgnore {
 		return nil, activity.ActionParams{}, false
 	}
 
@@ -279,7 +271,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 		}
 
 		dist := gridDistance(ctx.Grid, grid)
-		if dist > int(ctx.Vision.ViewDistance) {
+		if dist > int(ctx.AI.ViewDistance) {
 			return
 		}
 		if nearestDist < 0 || dist < nearestDist {
@@ -308,7 +300,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。
 // PolicyDistributeの場合はリーダーにアイテムを転送する
 func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	if ctx.Policy.ItemHandling != gc.PolicyDistribute {
+	if ctx.AI.ItemHandling != gc.PolicyDistribute {
 		return nil, activity.ActionParams{}, false
 	}
 
@@ -357,7 +349,7 @@ func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *
 		if enemy.HasComponent(world.Components.Dead) {
 			return
 		}
-		if !sp.visionSystem.CanSeeTarget(world, entity, enemy, ctx.Vision) {
+		if !sp.visionSystem.CanSeeTarget(world, entity, enemy, ctx.AI) {
 			return
 		}
 		enemyGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)

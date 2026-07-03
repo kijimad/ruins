@@ -122,22 +122,17 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
-	if entitySpec.AIPolicy != nil {
-		if err := validateAIPolicy(entitySpec.AIPolicy, entitySpec.SquadMember != nil); err != nil {
-			return consts.InvalidEntity, fmt.Errorf("AIPolicy検証エラー (%s): %w", name, err)
+	if entitySpec.AI != nil {
+		if err := validateAI(entitySpec.AI, entitySpec.SquadMember != nil); err != nil {
+			return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", name, err)
 		}
-		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
-		entitySpec.AIState = &gc.AIState{
-			SubState:              gc.AIStateWaiting,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 2 + rand.IntN(3),
-			SpawnX:                tileX,
-			SpawnY:                tileY,
-			PatrolDirX:            initialPatrolDir(),
-		}
-		entitySpec.AIVision = &gc.AIVision{
-			ViewDistance: AIVisionDistance,
-		}
+		entitySpec.AI.SubState = gc.AIStateWaiting
+		entitySpec.AI.StartSubStateTurn = 1
+		entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
+		entitySpec.AI.SpawnX = tileX
+		entitySpec.AI.SpawnY = tileY
+		entitySpec.AI.PatrolDirX = initialPatrolDir()
+		entitySpec.AI.ViewDistance = AIVisionDistance
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -177,26 +172,21 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
-	entitySpec.AIState = &gc.AIState{
-		SubState:              gc.AIStateWaiting,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 2 + rand.IntN(3),
-		SpawnX:                tileX,
-		SpawnY:                tileY,
-		PatrolDirX:            initialPatrolDir(),
+	if entitySpec.AI == nil {
+		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	entitySpec.AIVision = &gc.AIVision{
-		ViewDistance: AIVisionDistance,
+	if err := validateAI(entitySpec.AI, entitySpec.SquadMember != nil); err != nil {
+		return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", entitySpec.Name, err)
 	}
+	entitySpec.AI.SubState = gc.AIStateWaiting
+	entitySpec.AI.StartSubStateTurn = 1
+	entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
+	entitySpec.AI.SpawnX = tileX
+	entitySpec.AI.SpawnY = tileY
+	entitySpec.AI.PatrolDirX = initialPatrolDir()
+	entitySpec.AI.ViewDistance = AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
-	}
-	if entitySpec.AIPolicy == nil {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIPolicyが指定されていません: %s", entitySpec.Name)
-	}
-	if err := validateAIPolicy(entitySpec.AIPolicy, entitySpec.SquadMember != nil); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("AIPolicy検証エラー (%s): %w", entitySpec.Name, err)
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -258,30 +248,18 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
 		FactionType:    &gc.FactionAlly,
-		AIPolicy: &gc.AIPolicy{
-			Planner:       gc.PlannerSquad,
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
-			Movement:      gc.MovementEscort,
-			ItemPickup:    gc.PolicyPickup,
-			ItemHandling:  gc.PolicyDistribute,
-		},
-		AIState: &gc.AIState{
-			SubState:              gc.AIStateWaiting,
-			DurationSubStateTurns: 2,
-		},
+		AI: func() *gc.AI {
+			ai := gc.DefaultSquadAI()
+			return &ai
+		}(),
 		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},
-		AIMoveFSM:    &gc.AIMoveFSM{},
 		CommandTable: &gc.CommandTable{Name: "素手"},
-		AIVision: &gc.AIVision{
-			ViewDistance: AIVisionDistance,
-		},
-		SquadMember: &gc.SquadMember{},
+		SquadMember:  &gc.SquadMember{},
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
@@ -483,38 +461,38 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	})
 }
 
-// validateAIPolicy はAIPolicyのPlannerとMovementの組み合わせが有効かを検証する
-func validateAIPolicy(policy *gc.AIPolicy, hasSquadMember bool) error {
-	if policy.Planner == gc.PlannerSquad && !hasSquadMember {
+// validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
+func validateAI(ai *gc.AI, hasSquadMember bool) error {
+	if ai.Planner == gc.PlannerSquad && !hasSquadMember {
 		return fmt.Errorf("PlannerSquad には SquadMember コンポーネントが必要です")
 	}
-	if policy.Planner != gc.PlannerSquad && hasSquadMember {
+	if ai.Planner != gc.PlannerSquad && hasSquadMember {
 		return fmt.Errorf("SquadMember には PlannerSquad が必要です")
 	}
 
-	switch policy.Planner {
+	switch ai.Planner {
 	case gc.PlannerRoaming:
-		switch policy.Movement {
+		switch ai.Movement {
 		case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
 			gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
 			gc.MovementSwarm:
 		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:
-			return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", policy.Movement)
+			return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", ai.Movement)
 		default:
-			return fmt.Errorf("未知の MovementPolicy %q です", policy.Movement)
+			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
 		}
 	case gc.PlannerSquad:
-		switch policy.Movement {
+		switch ai.Movement {
 		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat,
 			gc.MovementPatrol, gc.MovementStationary:
 		case gc.MovementRandom, gc.MovementWallHug, gc.MovementWander,
 			gc.MovementTerritorial, gc.MovementSwarm:
-			return fmt.Errorf("PlannerSquad に敵用の MovementPolicy %q は使用できません", policy.Movement)
+			return fmt.Errorf("PlannerSquad に敵用の MovementPolicy %q は使用できません", ai.Movement)
 		default:
-			return fmt.Errorf("未知の MovementPolicy %q です", policy.Movement)
+			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
 		}
 	default:
-		return fmt.Errorf("未知の PlannerType %d です", policy.Planner)
+		return fmt.Errorf("未知の PlannerType %d です", ai.Planner)
 	}
 
 	return nil

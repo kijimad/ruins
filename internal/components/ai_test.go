@@ -6,15 +6,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestAIPolicy_ResetCombat(t *testing.T) {
+func TestAI_ResetCombat(t *testing.T) {
 	t.Parallel()
 
-	p := &AIPolicy{CombatDefault: CombatIgnore, CombatCurrent: CombatAttack}
-	p.ResetCombat()
-	assert.Equal(t, CombatIgnore, p.CombatCurrent)
+	ai := &AI{CombatDefault: CombatIgnore, CombatCurrent: CombatAttack}
+	ai.ResetCombat()
+	assert.Equal(t, CombatIgnore, ai.CombatCurrent)
 }
 
-func TestAIPolicy_ReactToHostile(t *testing.T) {
+func TestAI_ReactToHostile(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -30,9 +30,9 @@ func TestAIPolicy_ReactToHostile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			p := &AIPolicy{CombatDefault: tt.defaultCombat, CombatCurrent: tt.defaultCombat}
-			p.ReactToHostile()
-			assert.Equal(t, tt.expectedCurrent, p.CombatCurrent)
+			ai := &AI{CombatDefault: tt.defaultCombat, CombatCurrent: tt.defaultCombat}
+			ai.ReactToHostile()
+			assert.Equal(t, tt.expectedCurrent, ai.CombatCurrent)
 		})
 	}
 }

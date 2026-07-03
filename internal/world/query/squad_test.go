@@ -127,10 +127,10 @@ func TestSquadMemberCount(t *testing.T) {
 	assert.Equal(t, 2, query.SquadMemberCount(world))
 }
 
-func TestAIPolicy(t *testing.T) {
+func TestGetAI(t *testing.T) {
 	t.Parallel()
 
-	t.Run("隊員のポリシーを取得できる", func(t *testing.T) {
+	t.Run("隊員のAIを取得できる", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
@@ -140,18 +140,19 @@ func TestAIPolicy(t *testing.T) {
 		member, err := lifecycle.SpawnSquadMember(world, leader, "隊員A", testAbilities(), "player")
 		require.NoError(t, err)
 
-		policy := query.AIPolicy(world, member)
-		assert.Equal(t, gc.MovementEscort, policy.Movement)
-		assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
+		ai := query.GetAI(world, member)
+		require.NotNil(t, ai)
+		assert.Equal(t, gc.MovementEscort, ai.Movement)
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})
 
-	t.Run("隊員でない場合はデフォルト値を返す", func(t *testing.T) {
+	t.Run("AIがないエンティティではnilを返す", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		nonMember := world.Manager.NewEntity()
-		policy := query.AIPolicy(world, nonMember)
-		assert.Equal(t, gc.DefaultAIPolicy, policy)
+		ai := query.GetAI(world, nonMember)
+		assert.Nil(t, ai)
 	})
 }
 

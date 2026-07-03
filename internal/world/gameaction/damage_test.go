@@ -62,13 +62,13 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		policy := &gc.AIPolicy{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
-		entity.AddComponent(world.Components.AIPolicy, policy)
+		ai := &gc.AI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
+		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
-		assert.Equal(t, gc.CombatIgnore, policy.CombatDefault)
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+		assert.Equal(t, gc.CombatIgnore, ai.CombatDefault)
 	})
 
 	t.Run("CombatEvadeは変化しない", func(t *testing.T) {
@@ -76,13 +76,13 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		policy := &gc.AIPolicy{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
-		entity.AddComponent(world.Components.AIPolicy, policy)
+		ai := &gc.AI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.CombatEvade, policy.CombatCurrent)
-		assert.Equal(t, gc.CombatEvade, policy.CombatDefault)
+		assert.Equal(t, gc.CombatEvade, ai.CombatCurrent)
+		assert.Equal(t, gc.CombatEvade, ai.CombatDefault)
 	})
 
 	t.Run("CombatAttackは変化しない", func(t *testing.T) {
@@ -90,15 +90,15 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		policy := &gc.AIPolicy{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
-		entity.AddComponent(world.Components.AIPolicy, policy)
+		ai := &gc.AI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
+		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.CombatAttack, policy.CombatCurrent)
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})
 
-	t.Run("AIPolicyがないエンティティではpanicしない", func(t *testing.T) {
+	t.Run("AIがないエンティティではpanicしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

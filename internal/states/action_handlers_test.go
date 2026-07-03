@@ -345,7 +345,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		enemy := world.Manager.NewEntity()
 		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "ゴブリン"})
-		enemy.AddComponent(world.Components.AIPolicy, &gc.AIPolicy{
+		enemy.AddComponent(world.Components.AI, &gc.AI{
 			Planner:       gc.PlannerRoaming,
 			CombatDefault: gc.CombatAttack,
 			CombatCurrent: gc.CombatAttack,

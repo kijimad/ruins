@@ -383,26 +383,26 @@ func providesHealingFromSaveData(sd oapi.SaveDataProvidesHealingComponent) gc.Pr
 
 // ================== AIポリシー変換 ==================
 
-func aiPolicyToSaveData(ap gc.AIPolicy) oapi.SaveDataSquadPolicyComponent {
+func aiToSaveData(ai gc.AI) oapi.SaveDataSquadPolicyComponent {
 	return oapi.SaveDataSquadPolicyComponent{
-		Planner:       oapi.SaveDataPlannerType(ap.Planner),
-		Movement:      oapi.SaveDataMovementPolicyType(ap.Movement),
-		CombatDefault: oapi.SaveDataCombatPolicyType(ap.CombatDefault),
-		CombatCurrent: oapi.SaveDataCombatPolicyType(ap.CombatCurrent),
-		ItemPickup:    oapi.SaveDataItemPickupPolicyType(ap.ItemPickup),
-		ItemHandling:  oapi.SaveDataItemHandlingPolicyType(ap.ItemHandling),
+		Planner:       oapi.SaveDataPlannerType(ai.Planner),
+		Movement:      oapi.SaveDataMovementPolicyType(ai.Movement),
+		CombatDefault: oapi.SaveDataCombatPolicyType(ai.CombatDefault),
+		CombatCurrent: oapi.SaveDataCombatPolicyType(ai.CombatCurrent),
+		ItemPickup:    oapi.SaveDataItemPickupPolicyType(ai.ItemPickup),
+		ItemHandling:  oapi.SaveDataItemHandlingPolicyType(ai.ItemHandling),
 	}
 }
 
-func aiPolicyFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AIPolicy {
-	return gc.AIPolicy{
-		Planner:       gc.PlannerType(sd.Planner),
-		CombatDefault: gc.CombatPolicy(sd.CombatDefault),
-		CombatCurrent: gc.CombatPolicy(sd.CombatCurrent),
-		Movement:      gc.MovementPolicy(sd.Movement),
-		ItemPickup:    gc.ItemPickupPolicy(sd.ItemPickup),
-		ItemHandling:  gc.ItemHandlingPolicy(sd.ItemHandling),
-	}
+func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
+	ai := gc.DefaultSquadAI()
+	ai.Planner = gc.PlannerType(sd.Planner)
+	ai.CombatDefault = gc.CombatPolicy(sd.CombatDefault)
+	ai.CombatCurrent = gc.CombatPolicy(sd.CombatCurrent)
+	ai.Movement = gc.MovementPolicy(sd.Movement)
+	ai.ItemPickup = gc.ItemPickupPolicy(sd.ItemPickup)
+	ai.ItemHandling = gc.ItemHandlingPolicy(sd.ItemHandling)
+	return ai
 }
 
 // ================== マーカーコンポーネント ==================

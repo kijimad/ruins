@@ -185,16 +185,19 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 	for _, member := range query.SquadMembers(world) {
 		name := query.GetEntityName(member, world)
 		hp := world.Components.HP.Get(member).(*gc.HP)
-		policy := query.AIPolicy(world, member)
+		ai := query.GetAI(world, member)
+		if ai == nil {
+			continue
+		}
 
 		members = append(members, squadMemberData{
 			Entity:       member,
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     policy.Movement.String(),
-			Combat:       policy.CombatCurrent.Label(),
-			ItemPickup:   policy.ItemPickup.String(),
-			ItemHandling: policy.ItemHandling.String(),
+			Position:     ai.Movement.String(),
+			Combat:       ai.CombatCurrent.Label(),
+			ItemPickup:   ai.ItemPickup.String(),
+			ItemHandling: ai.ItemHandling.String(),
 		})
 	}
 
@@ -279,15 +282,15 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 	switch command {
 	case "集合":
 		for _, m := range members {
-			p := query.AIPolicy(world, m)
-			p.Movement = gc.MovementEscort
-			_ = lifecycle.SetAIPolicy(world, m, p)
+			if ai := query.GetAI(world, m); ai != nil {
+				ai.Movement = gc.MovementEscort
+			}
 		}
 	case "全員待機":
 		for _, m := range members {
-			p := query.AIPolicy(world, m)
-			p.Movement = gc.MovementStationary
-			_ = lifecycle.SetAIPolicy(world, m, p)
+			if ai := query.GetAI(world, m); ai != nil {
+				ai.Movement = gc.MovementStationary
+			}
 		}
 	}
 }
@@ -306,12 +309,13 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	member := windowProps.Member.Entity
 	selectedAction := actionItems[actionIndex]
 
-	cyclePolicy := func(update func(policy *gc.AIPolicy)) error {
-		policy := query.AIPolicy(world, member)
-		update(&policy)
-		if err := lifecycle.SetAIPolicy(world, member, policy); err != nil {
-			return err
-		}
+	ai := query.GetAI(world, member)
+	if ai == nil {
+		return nil
+	}
+
+	cycleAndRefresh := func(update func()) error {
+		update()
 		st.refreshWindowProps(world, member)
 		return nil
 	}
@@ -319,32 +323,32 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	switch {
 	case strings.HasPrefix(selectedAction, "位置"):
 		allPos := gc.AllSquadMovementPolicies()
-		return cyclePolicy(func(p *gc.AIPolicy) {
+		return cycleAndRefresh(func() {
 			for i, v := range allPos {
-				if v == p.Movement {
-					p.Movement = allPos[(i+1)%len(allPos)]
+				if v == ai.Movement {
+					ai.Movement = allPos[(i+1)%len(allPos)]
 					return
 				}
 			}
-			p.Movement = allPos[0]
+			ai.Movement = allPos[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "戦闘"):
 		allCombat := gc.AllSquadCombatPolicies()
-		return cyclePolicy(func(p *gc.AIPolicy) {
-			p.CombatCurrent = allCombat[(int(p.CombatCurrent)+1)%len(allCombat)]
+		return cycleAndRefresh(func() {
+			ai.CombatCurrent = allCombat[(int(ai.CombatCurrent)+1)%len(allCombat)]
 		})
 
 	case strings.HasPrefix(selectedAction, "回収"):
 		all := gc.AllItemPickupPolicies()
-		return cyclePolicy(func(p *gc.AIPolicy) {
-			p.ItemPickup = all[(int(p.ItemPickup)+1)%len(all)]
+		return cycleAndRefresh(func() {
+			ai.ItemPickup = all[(int(ai.ItemPickup)+1)%len(all)]
 		})
 
 	case strings.HasPrefix(selectedAction, "処理"):
 		all := gc.AllItemHandlingPolicies()
-		return cyclePolicy(func(p *gc.AIPolicy) {
-			p.ItemHandling = all[(int(p.ItemHandling)+1)%len(all)]
+		return cycleAndRefresh(func() {
+			ai.ItemHandling = all[(int(ai.ItemHandling)+1)%len(all)]
 		})
 
 	case selectedAction == "解雇":
@@ -363,17 +367,20 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 	name := query.GetEntityName(member, world)
 	hp := world.Components.HP.Get(member).(*gc.HP)
-	policy := query.AIPolicy(world, member)
+	ai := query.GetAI(world, member)
+	if ai == nil {
+		return
+	}
 
 	st.windowMount.SetProps(squadWindowProps{
 		Member: squadMemberData{
 			Entity:       member,
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     policy.Movement.String(),
-			Combat:       policy.CombatCurrent.Label(),
-			ItemPickup:   policy.ItemPickup.String(),
-			ItemHandling: policy.ItemHandling.String(),
+			Position:     ai.Movement.String(),
+			Combat:       ai.CombatCurrent.Label(),
+			ItemPickup:   ai.ItemPickup.String(),
+			ItemHandling: ai.ItemHandling.String(),
 		},
 	})
 }

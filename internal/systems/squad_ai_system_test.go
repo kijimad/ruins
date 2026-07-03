@@ -100,8 +100,8 @@ func TestSquadProcessor_待機ポリシーで移動しない(t *testing.T) {
 	require.NoError(t, err)
 
 	// 待機ポリシーに変更する
-	policy := world.Components.AIPolicy.Get(member).(*gc.AIPolicy)
-	policy.Movement = gc.MovementStationary
+	ai := world.Components.AI.Get(member).(*gc.AI)
+	ai.Movement = gc.MovementStationary
 
 	// リーダーから遠くに配置する
 	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
@@ -203,8 +203,8 @@ func TestSquadProcessor_回避ポリシーで敵から離れる(t *testing.T) {
 	require.NoError(t, err)
 
 	// 回避ポリシーに変更する
-	policy := world.Components.AIPolicy.Get(member).(*gc.AIPolicy)
-	policy.CombatCurrent = gc.CombatEvade
+	ai := world.Components.AI.Get(member).(*gc.AI)
+	ai.CombatCurrent = gc.CombatEvade
 
 	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
 	memberGrid.X = consts.Tile(12)

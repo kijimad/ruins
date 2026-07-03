@@ -47,12 +47,12 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 		return nil, activity.ActionParams{}
 	}
 
-	canSeePlayer := rp.visionSystem.CanSeeTarget(world, entity, *playerEntity, context.Vision)
+	canSeePlayer := rp.visionSystem.CanSeeTarget(world, entity, *playerEntity, context.AI)
 	turnNumber := query.GetTurnState(world).TurnNumber
 
-	rp.updateState(context.State, context.Policy, canSeePlayer, turnNumber)
+	rp.updateState(context.AI, canSeePlayer, turnNumber)
 
-	switch context.State.SubState {
+	switch context.AI.SubState {
 	case gc.AIStateChasing:
 		return rp.planChaseAction(world, entity, *playerEntity, context.GridElement)
 	case gc.AIStateFleeing:
@@ -69,112 +69,104 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 // ========== 状態遷移ロジック ==========
 
 // updateState はAIの状態を更新する。Plan()内で毎回呼ばれるが同一ターン内ではべき等
-func (rp *roamingPlanner) updateState(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, currentTurn int) {
-	elapsedTurns := currentTurn - state.StartSubStateTurn
+func (rp *roamingPlanner) updateState(ai *gc.AI, canSeePlayer bool, currentTurn int) {
+	elapsedTurns := currentTurn - ai.StartSubStateTurn
 
-	switch state.SubState {
+	switch ai.SubState {
 	case gc.AIStateWaiting:
-		rp.updateFromWaiting(state, policy, canSeePlayer, elapsedTurns, currentTurn)
+		rp.updateFromWaiting(ai, canSeePlayer, elapsedTurns, currentTurn)
 	case gc.AIStateDriving:
-		rp.updateFromDriving(state, policy, canSeePlayer, elapsedTurns, currentTurn)
+		rp.updateFromDriving(ai, canSeePlayer, elapsedTurns, currentTurn)
 	case gc.AIStateChasing:
-		rp.updateFromChasing(state, canSeePlayer, elapsedTurns, currentTurn)
+		rp.updateFromChasing(ai, canSeePlayer, elapsedTurns, currentTurn)
 	case gc.AIStateFleeing:
-		rp.updateFromFleeing(state, policy, canSeePlayer, elapsedTurns, currentTurn)
+		rp.updateFromFleeing(ai, canSeePlayer, elapsedTurns, currentTurn)
 	default:
-		rp.initializeToWaiting(state, currentTurn)
+		rp.initializeToWaiting(ai, currentTurn)
 	}
 }
 
-// shouldChase はAIPolicyに基づいて追跡すべきかを判定する
-func shouldChase(policy *gc.AIPolicy) bool {
-	if policy == nil {
-		return true
-	}
-	return policy.CombatCurrent == gc.CombatAttack
+// shouldChase はAIの方針に基づいて追跡すべきかを判定する
+func shouldChase(ai *gc.AI) bool {
+	return ai.CombatCurrent == gc.CombatAttack
 }
 
-// shouldFlee はAIPolicyに基づいて逃亡すべきかを判定する
-func shouldFlee(policy *gc.AIPolicy) bool {
-	if policy == nil {
-		return false
-	}
-	return policy.CombatCurrent == gc.CombatEvade
+// shouldFlee はAIの方針に基づいて逃亡すべきかを判定する
+func shouldFlee(ai *gc.AI) bool {
+	return ai.CombatCurrent == gc.CombatEvade
 }
 
-func (rp *roamingPlanner) updateFromWaiting(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *roamingPlanner) updateFromWaiting(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if canSeePlayer {
-		if shouldFlee(policy) {
-			rp.transitionToFleeing(state, currentTurn)
-		} else if shouldChase(policy) {
-			rp.transitionToChasing(state, currentTurn)
+		if shouldFlee(ai) {
+			rp.transitionToFleeing(ai, currentTurn)
+		} else if shouldChase(ai) {
+			rp.transitionToChasing(ai, currentTurn)
 		}
-	} else if elapsedTurns >= state.DurationSubStateTurns {
-		rp.transitionToDriving(state, currentTurn)
+	} else if elapsedTurns >= ai.DurationSubStateTurns {
+		rp.transitionToDriving(ai, currentTurn)
 	}
 }
 
-func (rp *roamingPlanner) updateFromDriving(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *roamingPlanner) updateFromDriving(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if canSeePlayer {
-		if shouldFlee(policy) {
-			rp.transitionToFleeing(state, currentTurn)
-		} else if shouldChase(policy) {
-			rp.transitionToChasing(state, currentTurn)
+		if shouldFlee(ai) {
+			rp.transitionToFleeing(ai, currentTurn)
+		} else if shouldChase(ai) {
+			rp.transitionToChasing(ai, currentTurn)
 		}
-	} else if elapsedTurns >= state.DurationSubStateTurns {
-		rp.transitionToWaiting(state, currentTurn)
+	} else if elapsedTurns >= ai.DurationSubStateTurns {
+		rp.transitionToWaiting(ai, currentTurn)
 	}
 }
 
-func (rp *roamingPlanner) updateFromChasing(state *gc.AIState, canSeePlayer bool, elapsedTurns, currentTurn int) {
+func (rp *roamingPlanner) updateFromChasing(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if !canSeePlayer {
 		if elapsedTurns >= 3 {
-			rp.transitionToDriving(state, currentTurn)
+			rp.transitionToDriving(ai, currentTurn)
 		}
-	} else if elapsedTurns >= state.DurationSubStateTurns {
-		rp.transitionToWaiting(state, currentTurn)
+	} else if elapsedTurns >= ai.DurationSubStateTurns {
+		rp.transitionToWaiting(ai, currentTurn)
 	}
 }
 
-func (rp *roamingPlanner) updateFromFleeing(state *gc.AIState, policy *gc.AIPolicy, canSeePlayer bool, elapsedTurns, currentTurn int) {
-	if !canSeePlayer && elapsedTurns >= state.DurationSubStateTurns {
-		if policy != nil {
-			policy.ResetCombat()
-		}
-		rp.transitionToDriving(state, currentTurn)
+func (rp *roamingPlanner) updateFromFleeing(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) {
+	if !canSeePlayer && elapsedTurns >= ai.DurationSubStateTurns {
+		ai.ResetCombat()
+		rp.transitionToDriving(ai, currentTurn)
 	} else if canSeePlayer {
-		state.StartSubStateTurn = currentTurn
+		ai.StartSubStateTurn = currentTurn
 	}
 }
 
-func (rp *roamingPlanner) transitionToWaiting(state *gc.AIState, currentTurn int) {
-	state.SubState = gc.AIStateWaiting
-	state.StartSubStateTurn = currentTurn
-	state.DurationSubStateTurns = 2 + rand.IntN(4)
+func (rp *roamingPlanner) transitionToWaiting(ai *gc.AI, currentTurn int) {
+	ai.SubState = gc.AIStateWaiting
+	ai.StartSubStateTurn = currentTurn
+	ai.DurationSubStateTurns = 2 + rand.IntN(4)
 }
 
-func (rp *roamingPlanner) transitionToDriving(state *gc.AIState, currentTurn int) {
-	state.SubState = gc.AIStateDriving
-	state.StartSubStateTurn = currentTurn
-	state.DurationSubStateTurns = 3 + rand.IntN(7)
+func (rp *roamingPlanner) transitionToDriving(ai *gc.AI, currentTurn int) {
+	ai.SubState = gc.AIStateDriving
+	ai.StartSubStateTurn = currentTurn
+	ai.DurationSubStateTurns = 3 + rand.IntN(7)
 }
 
-func (rp *roamingPlanner) transitionToChasing(state *gc.AIState, currentTurn int) {
-	state.SubState = gc.AIStateChasing
-	state.StartSubStateTurn = currentTurn
-	state.DurationSubStateTurns = 10 + rand.IntN(5)
+func (rp *roamingPlanner) transitionToChasing(ai *gc.AI, currentTurn int) {
+	ai.SubState = gc.AIStateChasing
+	ai.StartSubStateTurn = currentTurn
+	ai.DurationSubStateTurns = 10 + rand.IntN(5)
 }
 
-func (rp *roamingPlanner) transitionToFleeing(state *gc.AIState, currentTurn int) {
-	state.SubState = gc.AIStateFleeing
-	state.StartSubStateTurn = currentTurn
-	state.DurationSubStateTurns = 5 + rand.IntN(5)
+func (rp *roamingPlanner) transitionToFleeing(ai *gc.AI, currentTurn int) {
+	ai.SubState = gc.AIStateFleeing
+	ai.StartSubStateTurn = currentTurn
+	ai.DurationSubStateTurns = 5 + rand.IntN(5)
 }
 
-func (rp *roamingPlanner) initializeToWaiting(state *gc.AIState, currentTurn int) {
-	state.SubState = gc.AIStateWaiting
-	state.StartSubStateTurn = currentTurn
-	state.DurationSubStateTurns = 2 + rand.IntN(3)
+func (rp *roamingPlanner) initializeToWaiting(ai *gc.AI, currentTurn int) {
+	ai.SubState = gc.AIStateWaiting
+	ai.StartSubStateTurn = currentTurn
+	ai.DurationSubStateTurns = 2 + rand.IntN(3)
 }
 
 // ========== アクション計画ロジック ==========
@@ -236,10 +228,7 @@ func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entit
 
 // planDrivingAction はMovementPolicyに基づく移動アクションを計画する
 func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
-	if context.Policy == nil {
-		return rp.planRandomMoveAction(world, aiEntity, context.GridElement)
-	}
-	switch context.Policy.Movement {
+	switch context.AI.Movement {
 	case gc.MovementStationary:
 		return waitAction(aiEntity, "AI固定待機")
 	case gc.MovementWander:
@@ -324,7 +313,7 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
 	nearestDist := -1
 
 	world.Manager.Join(
-		world.Components.AIMoveFSM,
+		world.Components.AI,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		if entity == aiEntity {
@@ -360,20 +349,20 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
 // planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
 func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
 	aiGrid := context.GridElement
-	state := context.State
+	ai := context.AI
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
 
-	destX := fromX + state.PatrolDirX
-	destY := fromY + state.PatrolDirY
+	destX := fromX + ai.PatrolDirX
+	destY := fromY + ai.PatrolDirY
 	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 		return moveAction(aiEntity, destX, destY)
 	}
 
-	state.PatrolDirX = -state.PatrolDirX
-	state.PatrolDirY = -state.PatrolDirY
+	ai.PatrolDirX = -ai.PatrolDirX
+	ai.PatrolDirY = -ai.PatrolDirY
 
-	destX = fromX + state.PatrolDirX
-	destY = fromY + state.PatrolDirY
+	destX = fromX + ai.PatrolDirX
+	destY = fromY + ai.PatrolDirY
 	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 		return moveAction(aiEntity, destX, destY)
 	}
@@ -384,15 +373,15 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, c
 // planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
 func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
 	aiGrid := context.GridElement
-	state := context.State
+	ai := context.AI
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
 
 	for _, d := range shuffledEightDirections() {
 		destX := fromX + d.x
 		destY := fromY + d.y
 
-		dx := geometry.Abs(destX - state.SpawnX)
-		dy := geometry.Abs(destY - state.SpawnY)
+		dx := geometry.Abs(destX - ai.SpawnX)
+		dy := geometry.Abs(destY - ai.SpawnY)
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}

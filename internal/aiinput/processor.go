@@ -34,15 +34,15 @@ func (p *Processor) ProcessAll(world w.World) error {
 	return p.ProcessSquadAI(world)
 }
 
-// ProcessNonSquadAI はAIMoveFSMを持つ非隊員エンティティを処理する。
-// 敵・中立NPC問わず、AIPolicyと状態遷移で行動を分岐する
+// ProcessNonSquadAI はAIを持つ非隊員エンティティを処理する。
+// 敵・中立NPC問わず、AIの方針と状態遷移で行動を分岐する
 func (p *Processor) ProcessNonSquadAI(world w.World) error {
 	turnNumber := query.GetTurnState(world).TurnNumber
 	p.logger.Debug("AI処理開始", "turn", turnNumber)
 
 	entityCount := 0
 	world.Manager.Join(
-		world.Components.AIMoveFSM,
+		world.Components.AI,
 		world.Components.GridElement,
 		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
@@ -66,7 +66,7 @@ func (p *Processor) ProcessSquadAI(world w.World) error {
 	entityCount := 0
 	world.Manager.Join(
 		world.Components.SquadMember,
-		world.Components.AIMoveFSM,
+		world.Components.AI,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		entityCount++
