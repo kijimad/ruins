@@ -64,21 +64,21 @@ func (e AttackCategory) Valid() bool {
 	}
 }
 
-// Defines values for DispositionType.
+// Defines values for CombatPolicyType.
 const (
-	Cowardly DispositionType = "cowardly"
-	Hostile  DispositionType = "hostile"
-	Neutral  DispositionType = "neutral"
+	Attack CombatPolicyType = "attack"
+	Evade  CombatPolicyType = "evade"
+	Ignore CombatPolicyType = "ignore"
 )
 
-// Valid indicates whether the value is a known member of the DispositionType enum.
-func (e DispositionType) Valid() bool {
+// Valid indicates whether the value is a known member of the CombatPolicyType enum.
+func (e CombatPolicyType) Valid() bool {
 	switch e {
-	case Cowardly:
+	case Attack:
 		return true
-	case Hostile:
+	case Evade:
 		return true
-	case Neutral:
+	case Ignore:
 		return true
 	default:
 		return false
@@ -673,6 +673,9 @@ type Book struct {
 // ColorChannel RGBA色チャネル値 (0-255)
 type ColorChannel = uint8
 
+// CombatPolicyType 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
+type CombatPolicyType string
+
 // CommandTable コマンドテーブル
 type CommandTable struct {
 	Entries []CommandTableEntry `json:"entries"`
@@ -725,9 +728,6 @@ type Dialog struct {
 	// MessageKey メッセージリソースのキー
 	MessageKey MessageKey `json:"messageKey"`
 }
-
-// DispositionType 態度タイプ。エンティティの他者に対する初期態度を定義する
-type DispositionType string
 
 // DoorLockTriggerRaw 扉ロックトリガー
 type DoorLockTriggerRaw = map[string]interface{}
@@ -1099,14 +1099,14 @@ type Member struct {
 	Abilities Abilities    `json:"abilities"`
 	AnimKeys  *[]SpriteKey `json:"animKeys,omitempty"`
 
+	// CombatPolicy 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
+	CombatPolicy *CombatPolicyType `json:"combatPolicy,omitempty"`
+
 	// CommandTableName プレイヤーキャラクターでは省略可能
 	CommandTableName *EntityName `json:"commandTableName,omitempty"`
 
 	// Dialog 会話データ
 	Dialog *Dialog `json:"dialog,omitempty"`
-
-	// Disposition 態度タイプ。エンティティの他者に対する初期態度を定義する
-	Disposition *DispositionType `json:"disposition,omitempty"`
 
 	// DropTableName プレイヤーキャラクターでは省略可能
 	DropTableName *EntityName `json:"dropTableName,omitempty"`

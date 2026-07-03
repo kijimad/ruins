@@ -192,13 +192,26 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
 			Position:     policy.Movement.String(),
-			Combat:       policy.CombatCurrent.String(),
+			Combat:       combatLabel(policy.CombatCurrent),
 			ItemPickup:   policy.ItemPickup.String(),
 			ItemHandling: policy.ItemHandling.String(),
 		})
 	}
 
 	return squadProps{BatchCommands: batchCommands, Members: members}
+}
+
+func combatLabel(p gc.CombatPolicy) string {
+	switch p {
+	case gc.CombatAttack:
+		return "攻撃"
+	case gc.CombatEvade:
+		return "回避"
+	case gc.CombatIgnore:
+		return "無関心"
+	default:
+		return p.String()
+	}
 }
 
 // ================
@@ -371,7 +384,7 @@ func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
 			Position:     policy.Movement.String(),
-			Combat:       policy.CombatCurrent.String(),
+			Combat:       combatLabel(policy.CombatCurrent),
 			ItemPickup:   policy.ItemPickup.String(),
 			ItemHandling: policy.ItemHandling.String(),
 		},

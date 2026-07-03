@@ -36,15 +36,15 @@ const (
 	CombatIgnore
 )
 
-// String はCombatPolicy名を返す
+// String はデータ定義で使用するキー文字列を返す
 func (p CombatPolicy) String() string {
 	switch p {
 	case CombatAttack:
-		return "攻撃"
+		return "attack"
 	case CombatEvade:
-		return "回避"
+		return "evade"
 	case CombatIgnore:
-		return "無関心"
+		return "ignore"
 	default:
 		panic(fmt.Sprintf("未知のCombatPolicy: %d", p))
 	}

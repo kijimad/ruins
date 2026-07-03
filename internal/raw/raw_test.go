@@ -679,18 +679,18 @@ Depth = 1
 	assert.Nil(t, entitySpec.WeightCapacity, "Storage定義のないPropにはWeightCapacityコンポーネントが設定されないべき")
 }
 
-func TestMemberDisposition(t *testing.T) {
+func TestMemberCombatPolicy(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name            string
-		disposition     string
+		combatPolicy    string
 		expectedDefault gc.CombatPolicy
 		expectedCurrent gc.CombatPolicy
 	}{
-		{"hostile", "hostile", gc.CombatAttack, gc.CombatAttack},
-		{"neutral", "neutral", gc.CombatIgnore, gc.CombatIgnore},
-		{"cowardly", "cowardly", gc.CombatEvade, gc.CombatEvade},
+		{"attack", gc.CombatAttack.String(), gc.CombatAttack, gc.CombatAttack},
+		{"ignore", gc.CombatIgnore.String(), gc.CombatIgnore, gc.CombatIgnore},
+		{"evade", gc.CombatEvade.String(), gc.CombatEvade, gc.CombatEvade},
 	}
 
 	for _, tt := range tests {
@@ -704,7 +704,7 @@ SpriteKey = "enemy"
 AnimKeys = ["enemy_0", "enemy_1"]
 CommandTableName = ""
 DropTableName = ""
-Disposition = "` + tt.disposition + `"
+CombatPolicy = "` + tt.combatPolicy + `"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -725,7 +725,7 @@ Defense = 2
 	}
 }
 
-func TestMemberDispositionUnset(t *testing.T) {
+func TestMemberCombatPolicyUnset(t *testing.T) {
 	t.Parallel()
 
 	str := `

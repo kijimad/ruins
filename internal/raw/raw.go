@@ -455,19 +455,19 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 			CombatDefault: gc.CombatAttack,
 			CombatCurrent: gc.CombatAttack,
 		}
-		if member.Disposition != nil && string(*member.Disposition) != "" {
-			switch string(*member.Disposition) {
-			case "hostile":
+		if member.CombatPolicy != nil && string(*member.CombatPolicy) != "" {
+			switch string(*member.CombatPolicy) {
+			case gc.CombatAttack.String():
 				policy.CombatDefault = gc.CombatAttack
 				policy.CombatCurrent = gc.CombatAttack
-			case "neutral":
+			case gc.CombatIgnore.String():
 				policy.CombatDefault = gc.CombatIgnore
 				policy.CombatCurrent = gc.CombatIgnore
-			case "cowardly":
+			case gc.CombatEvade.String():
 				policy.CombatDefault = gc.CombatEvade
 				policy.CombatCurrent = gc.CombatEvade
 			default:
-				return gc.EntitySpec{}, fmt.Errorf("無効な態度タイプ '%s': %s", string(*member.Disposition), name)
+				return gc.EntitySpec{}, fmt.Errorf("無効な戦闘ポリシー '%s': %s", string(*member.CombatPolicy), name)
 			}
 		}
 		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {

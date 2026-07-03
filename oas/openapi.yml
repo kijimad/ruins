@@ -1557,6 +1557,13 @@ components:
       type: integer
       format: uint8
       description: RGBA色チャネル値 (0-255)
+    CombatPolicyType:
+      type: string
+      enum:
+        - attack
+        - evade
+        - ignore
+      description: 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
     CommandTable:
       type: object
       required:
@@ -1641,13 +1648,6 @@ components:
         messageKey:
           $ref: '#/components/schemas/MessageKey'
       description: 会話データ
-    DispositionType:
-      type: string
-      enum:
-        - hostile
-        - neutral
-        - cowardly
-      description: 態度タイプ。エンティティの他者に対する初期態度を定義する
     DoorLockTriggerRaw:
       type: object
       description: 扉ロックトリガー
@@ -2199,8 +2199,8 @@ components:
           $ref: '#/components/schemas/LightSource'
         factionType:
           $ref: '#/components/schemas/FactionMemberType'
-        disposition:
-          $ref: '#/components/schemas/DispositionType'
+        combatPolicy:
+          $ref: '#/components/schemas/CombatPolicyType'
         movementPattern:
           $ref: '#/components/schemas/MovementPatternType'
         viewDistance:

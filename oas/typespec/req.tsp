@@ -146,7 +146,7 @@ model Member {
   animKeys?: SpriteKey[];
   lightSource?: LightSource;
   factionType?: FactionMemberType;
-  disposition?: DispositionType;
+  combatPolicy?: CombatPolicyType;
   movementPattern?: MovementPatternType;
   viewDistance?: ViewDistance;
   dialog?: Dialog;
