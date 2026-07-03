@@ -470,57 +470,46 @@ func TestValidateAI(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name           string
-		ai             *gc.AI
-		hasSquadMember bool
-		wantErr        bool
+		name    string
+		ai      *gc.AI
+		wantErr bool
 	}{
 		{
 			"Roaming+Random は有効",
 			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
-			false, false,
+			false,
 		},
 		{
 			"Roaming+Patrol は有効",
 			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementPatrol},
-			false, false,
+			false,
 		},
 		{
 			"Roaming+Escort は無効",
 			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementEscort},
-			false, true,
+			true,
 		},
 		{
 			"Squad+Escort は有効",
 			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
-			true, false,
+			false,
 		},
 		{
 			"Squad+Vanguard は有効",
 			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementVanguard},
-			true, false,
+			false,
 		},
 		{
 			"Squad+Random は無効",
 			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementRandom},
-			true, true,
-		},
-		{
-			"PlannerSquad に SquadMember なしは無効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
-			false, true,
-		},
-		{
-			"PlannerRoaming に SquadMember ありは無効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
-			true, true,
+			true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			err := validateAI(tt.ai, tt.hasSquadMember)
+			err := validateAI(tt.ai)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {

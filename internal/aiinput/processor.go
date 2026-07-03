@@ -1,81 +1,57 @@
 package aiinput
 
 import (
+	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // Processor はAIエンティティの行動処理を管理する。
-// roamingPlannerとsquadPlannerを使い分けて全AIエンティティを統一的に処理する
+// AI.Plannerフィールドに基づいてroamingPlannerとsquadPlannerを使い分ける
 type Processor struct {
-	logger         *logger.Logger
-	roamingPlanner *roamingPlanner
-	squadPlanner   *squadPlanner
+	logger   *logger.Logger
+	planners map[gc.PlannerType]Planner
 }
 
 // NewProcessor は新しいProcessorを作成する
 func NewProcessor() *Processor {
 	return &Processor{
-		logger:         logger.New(logger.CategoryTurn),
-		roamingPlanner: newRoamingPlanner(),
-		squadPlanner:   newSquadPlanner(),
+		logger: logger.New(logger.CategoryTurn),
+		planners: map[gc.PlannerType]Planner{
+			gc.PlannerRoaming: newRoamingPlanner(),
+			gc.PlannerSquad:   newSquadPlanner(),
+		},
 	}
 }
 
 // ProcessAll は全AIエンティティを処理する。
-// 敵・中立NPCの後に隊員を処理し、敵の移動結果を反映した判断を可能にする
+// Roamingを先に処理し、敵の移動結果を反映したSquadの判断を可能にする
 func (p *Processor) ProcessAll(world w.World) error {
-	if err := p.ProcessNonSquadAI(world); err != nil {
+	if err := p.processByPlanner(world, gc.PlannerRoaming); err != nil {
 		return err
 	}
-	return p.ProcessSquadAI(world)
+	return p.processByPlanner(world, gc.PlannerSquad)
 }
 
-// ProcessNonSquadAI はAIを持つ非隊員エンティティを処理する。
-// 敵・中立NPC問わず、AIの方針と状態遷移で行動を分岐する
-func (p *Processor) ProcessNonSquadAI(world w.World) error {
-	turnNumber := query.GetTurnState(world).TurnNumber
-	p.logger.Debug("AI処理開始", "turn", turnNumber)
+// processByPlanner は指定されたPlannerTypeを持つAIエンティティを処理する
+func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) error {
+	planner := p.planners[plannerType]
 
-	entityCount := 0
 	world.Manager.Join(
 		world.Components.AI,
 		world.Components.GridElement,
-		world.Components.SquadMember.Not(),
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		entityCount++
-		if entity.HasComponent(world.Components.Dead) {
-			p.logger.Debug("Deadエンティティのため処理スキップ", "entity", entity)
+		ai := world.Components.AI.Get(entity).(*gc.AI)
+		if ai.Planner != plannerType {
 			return
 		}
-		runAPLoop(world, entity, p.roamingPlanner, p.logger)
-	}))
-
-	p.logger.Debug("AI処理完了", "処理されたエンティティ数", entityCount, "turn", turnNumber)
-	return nil
-}
-
-// ProcessSquadAI は全ての隊員エンティティを処理する
-func (p *Processor) ProcessSquadAI(world w.World) error {
-	turnNumber := query.GetTurnState(world).TurnNumber
-	p.logger.Debug("隊員AI処理開始", "turn", turnNumber)
-
-	entityCount := 0
-	world.Manager.Join(
-		world.Components.SquadMember,
-		world.Components.AI,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		entityCount++
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}
-		runAPLoop(world, entity, p.squadPlanner, p.logger)
+		runAPLoop(world, entity, planner, p.logger)
 	}))
 
-	p.logger.Debug("隊員AI処理完了", "処理数", entityCount, "turn", turnNumber)
 	return nil
 }

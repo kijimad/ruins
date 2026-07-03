@@ -123,7 +123,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 	if entitySpec.AI != nil {
-		if err := validateAI(entitySpec.AI, entitySpec.SquadMember != nil); err != nil {
+		if err := validateAI(entitySpec.AI); err != nil {
 			return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", name, err)
 		}
 		entitySpec.AI.SubState = gc.AIStateWaiting
@@ -175,7 +175,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	if entitySpec.AI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	if err := validateAI(entitySpec.AI, entitySpec.SquadMember != nil); err != nil {
+	if err := validateAI(entitySpec.AI); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", entitySpec.Name, err)
 	}
 	entitySpec.AI.SubState = gc.AIStateWaiting
@@ -462,14 +462,7 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 }
 
 // validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
-func validateAI(ai *gc.AI, hasSquadMember bool) error {
-	if ai.Planner == gc.PlannerSquad && !hasSquadMember {
-		return fmt.Errorf("PlannerSquad には SquadMember コンポーネントが必要です")
-	}
-	if ai.Planner != gc.PlannerSquad && hasSquadMember {
-		return fmt.Errorf("SquadMember には PlannerSquad が必要です")
-	}
-
+func validateAI(ai *gc.AI) error {
 	switch ai.Planner {
 	case gc.PlannerRoaming:
 		switch ai.Movement {

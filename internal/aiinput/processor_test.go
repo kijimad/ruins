@@ -150,6 +150,6 @@ func TestProcessor(t *testing.T) {
 
 	processor := NewProcessor()
 	assert.NotNil(t, processor, "Processorが作成できること")
-	assert.NotNil(t, processor.roamingPlanner)
-	assert.NotNil(t, processor.squadPlanner)
+	assert.NotNil(t, processor.planners[gc.PlannerRoaming])
+	assert.NotNil(t, processor.planners[gc.PlannerSquad])
 }
