@@ -173,12 +173,9 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planDrivingAction(world, entity, context)
+	behavior, _ := rp.planDrivingAction(world, entity, ai, grid)
 	assert.Equal(t, gc.BehaviorWait, behavior.Name())
 }
 
@@ -193,12 +190,9 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planDrivingAction(world, entity, context)
+	behavior, _ := rp.planDrivingAction(world, entity, ai, grid)
 	name := behavior.Name()
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
@@ -214,12 +208,9 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planDrivingAction(world, entity, context)
+	behavior, _ := rp.planDrivingAction(world, entity, ai, grid)
 	name := behavior.Name()
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
@@ -235,12 +226,9 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planDrivingAction(world, entity, context)
+	behavior, _ := rp.planDrivingAction(world, entity, ai, grid)
 	name := behavior.Name()
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
@@ -258,12 +246,9 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planDrivingAction(world, entity, context)
+	behavior, _ := rp.planDrivingAction(world, entity, ai, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
 }
 
@@ -278,12 +263,9 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planDrivingAction(world, entity, context)
+	behavior, _ := rp.planDrivingAction(world, entity, ai, grid)
 	name := behavior.Name()
 	assert.True(t, name == gc.BehaviorMove || name == gc.BehaviorWait)
 }
@@ -303,12 +285,9 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, params := rp.planDrivingAction(world, entity, context)
+	behavior, params := rp.planDrivingAction(world, entity, ai, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
 	assert.Equal(t, consts.Tile(21), params.Destination.X)
 	assert.Equal(t, consts.Tile(20), params.Destination.Y)
@@ -333,12 +312,9 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, params := rp.planPatrolAction(world, entity, context)
+	behavior, params := rp.planPatrolAction(world, entity, ai, grid)
 	assert.Equal(t, gc.BehaviorMove, behavior.Name())
 	assert.Equal(t, consts.Tile(19), params.Destination.X)
 	assert.Equal(t, -1, ai.PatrolDirX)
@@ -365,12 +341,9 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
-	context := &entityContext{
-		GridElement: world.Components.GridElement.Get(entity).(*gc.GridElement),
-		AI:          ai,
-	}
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	behavior, _ := rp.planPatrolAction(world, entity, context)
+	behavior, _ := rp.planPatrolAction(world, entity, ai, grid)
 	assert.Equal(t, gc.BehaviorWait, behavior.Name())
 }
 
@@ -390,12 +363,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 
 	for i := 0; i < 100; i++ {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		context := &entityContext{
-			GridElement: grid,
-			AI:          ai,
-		}
 
-		behavior, params := rp.planTerritorialAction(world, entity, context)
+		behavior, params := rp.planTerritorialAction(world, entity, ai, grid)
 		if behavior.Name() == gc.BehaviorMove && params.Destination != nil {
 			grid.X = params.Destination.X
 			grid.Y = params.Destination.Y
@@ -428,13 +397,9 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 
 	rp := newRoamingPlanner()
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-	context := &entityContext{
-		GridElement: grid,
-		AI:          ai,
-	}
 
 	for i := 0; i < 50; i++ {
-		behavior, params := rp.planTerritorialAction(world, entity, context)
+		behavior, params := rp.planTerritorialAction(world, entity, ai, grid)
 		if behavior.Name() == gc.BehaviorMove && params.Destination != nil {
 			dx := int(params.Destination.X) - ai.SpawnX
 			dy := int(params.Destination.Y) - ai.SpawnY

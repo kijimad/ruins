@@ -33,11 +33,13 @@ func newRoamingPlanner() *roamingPlanner {
 // Plan は状態遷移の評価とアクション決定を一体的に行う。
 // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等
 func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams) {
-	context, err := gatherEntityContext(world, entity)
-	if err != nil {
-		rp.logger.Warn("コンテキスト取得失敗", "entity", entity, "error", err.Error())
+	aiComp := world.Components.AI.Get(entity)
+	if aiComp == nil {
+		rp.logger.Warn("AIコンポーネントなし", "entity", entity)
 		return nil, activity.ActionParams{}
 	}
+	ai := aiComp.(*gc.AI)
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	playerEntity := findPlayer(world)
 	if playerEntity == nil {
@@ -47,18 +49,18 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 		return nil, activity.ActionParams{}
 	}
 
-	canSeePlayer := rp.visionSystem.CanSeeTarget(world, entity, *playerEntity, context.AI)
+	canSeePlayer := rp.visionSystem.CanSeeTarget(world, entity, *playerEntity, ai)
 	turnNumber := query.GetTurnState(world).TurnNumber
 
-	rp.updateState(context.AI, canSeePlayer, turnNumber)
+	rp.updateState(ai, canSeePlayer, turnNumber)
 
-	switch context.AI.SubState {
+	switch ai.SubState {
 	case gc.AIStateChasing:
-		return rp.planChaseAction(world, entity, *playerEntity, context.GridElement)
+		return rp.planChaseAction(world, entity, *playerEntity, grid)
 	case gc.AIStateFleeing:
-		return rp.planFleeAction(world, entity, *playerEntity, context.GridElement)
+		return rp.planFleeAction(world, entity, *playerEntity, grid)
 	case gc.AIStateDriving:
-		return rp.planDrivingAction(world, entity, context)
+		return rp.planDrivingAction(world, entity, ai, grid)
 	case gc.AIStateWaiting:
 		return waitAction(entity, "AI待機")
 	default:
@@ -227,22 +229,22 @@ func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entit
 }
 
 // planDrivingAction はMovementPolicyに基づく移動アクションを計画する
-func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
-	switch context.AI.Movement {
+func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	switch ai.Movement {
 	case gc.MovementStationary:
 		return waitAction(aiEntity, "AI固定待機")
 	case gc.MovementWander:
-		return rp.planWanderAction(world, aiEntity, context.GridElement)
+		return rp.planWanderAction(world, aiEntity, grid)
 	case gc.MovementWallHug:
-		return rp.planWallHugAction(world, aiEntity, context.GridElement)
+		return rp.planWallHugAction(world, aiEntity, grid)
 	case gc.MovementSwarm:
-		return rp.planSwarmAction(world, aiEntity, context.GridElement)
+		return rp.planSwarmAction(world, aiEntity, grid)
 	case gc.MovementPatrol:
-		return rp.planPatrolAction(world, aiEntity, context)
+		return rp.planPatrolAction(world, aiEntity, ai, grid)
 	case gc.MovementTerritorial:
-		return rp.planTerritorialAction(world, aiEntity, context)
+		return rp.planTerritorialAction(world, aiEntity, ai, grid)
 	default:
-		return rp.planRandomMoveAction(world, aiEntity, context.GridElement)
+		return rp.planRandomMoveAction(world, aiEntity, grid)
 	}
 }
 
@@ -347,10 +349,8 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
 }
 
 // planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
-func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
-	aiGrid := context.GridElement
-	ai := context.AI
-	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	fromX, fromY := int(grid.X), int(grid.Y)
 
 	destX := fromX + ai.PatrolDirX
 	destY := fromY + ai.PatrolDirY
@@ -371,10 +371,8 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, c
 }
 
 // planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
-func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, context *entityContext) (activity.Behavior, activity.ActionParams) {
-	aiGrid := context.GridElement
-	ai := context.AI
-	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
+	fromX, fromY := int(grid.X), int(grid.Y)
 
 	for _, d := range shuffledEightDirections() {
 		destX := fromX + d.x

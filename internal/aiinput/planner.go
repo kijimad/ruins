@@ -60,27 +60,6 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 	}
 }
 
-// entityContext はAIエンティティの必要な情報をまとめて保持する
-type entityContext struct {
-	GridElement *gc.GridElement
-	AI          *gc.AI
-}
-
-// gatherEntityContext はエンティティから必要なコンポーネントを収集する
-func gatherEntityContext(world w.World, entity ecs.Entity) (*entityContext, error) {
-	gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-	ai := world.Components.AI.Get(entity)
-	if ai == nil {
-		return nil, &AIError{Type: "component_missing", Message: "AIコンポーネントなし", Entity: &entity}
-	}
-
-	return &entityContext{
-		GridElement: gridElement,
-		AI:          ai.(*gc.AI),
-	}, nil
-}
-
 // findPlayer はプレイヤーエンティティを探す
 func findPlayer(world w.World) *ecs.Entity {
 	si := query.GetSpatialIndex(world)
