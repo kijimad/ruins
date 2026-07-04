@@ -188,7 +188,7 @@ func (rp *roamingPlanner) planChaseAction(world w.World, aiEntity, playerEntity 
 	dx := int(playerGrid.X) - int(aiGrid.X)
 	dy := int(playerGrid.Y) - int(aiGrid.Y)
 
-	candidates := calculateMoveCandidates(dx, dy)
+	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
 	if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
 		return b, p
 	}
@@ -203,7 +203,7 @@ func (rp *roamingPlanner) planFleeAction(world w.World, aiEntity, playerEntity e
 	dx := int(aiGrid.X) - int(playerGrid.X)
 	dy := int(aiGrid.Y) - int(playerGrid.Y)
 
-	candidates := calculateMoveCandidates(dx, dy)
+	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
 	if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
 		return b, p
 	}
@@ -341,7 +341,7 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
 	dx := int(nearestGrid.X) - int(aiGrid.X)
 	dy := int(nearestGrid.Y) - int(aiGrid.Y)
 
-	candidates := calculateMoveCandidates(dx, dy)
+	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
 	if b, p, ok := tryMoveCandidates(world, aiEntity, aiGrid, candidates); ok {
 		return b, p
 	}

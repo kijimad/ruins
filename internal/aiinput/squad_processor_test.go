@@ -86,7 +86,7 @@ func TestTryMoveCloser(t *testing.T) {
 
 		dx := int(target.X) - int(from.X)
 		dy := int(target.Y) - int(from.Y)
-		candidates := calculateMoveCandidates(dx, dy)
+		candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
 
 		assert.NotEmpty(t, candidates)
 		bestCandidate := candidates[0]

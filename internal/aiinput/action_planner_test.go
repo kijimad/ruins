@@ -532,7 +532,7 @@ func TestCalculateMoveCandidates(t *testing.T) {
 
 	t.Run("斜め方向", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(3, 2)
+		candidates := calculateMoveCandidates(consts.Coord[int]{X: 3, Y: 2})
 		require.NotEmpty(t, candidates)
 		assert.Equal(t, 1, candidates[0].X)
 		assert.Equal(t, 1, candidates[0].Y)
@@ -540,7 +540,7 @@ func TestCalculateMoveCandidates(t *testing.T) {
 
 	t.Run("水平方向のみ", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(-5, 0)
+		candidates := calculateMoveCandidates(consts.Coord[int]{X: -5, Y: 0})
 		require.NotEmpty(t, candidates)
 		assert.Equal(t, -1, candidates[0].X)
 		assert.Equal(t, 0, candidates[0].Y)
@@ -548,7 +548,7 @@ func TestCalculateMoveCandidates(t *testing.T) {
 
 	t.Run("垂直方向のみ", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(0, 4)
+		candidates := calculateMoveCandidates(consts.Coord[int]{X: 0, Y: 4})
 		require.NotEmpty(t, candidates)
 		assert.Equal(t, 0, candidates[0].X)
 		assert.Equal(t, 1, candidates[0].Y)
@@ -556,7 +556,7 @@ func TestCalculateMoveCandidates(t *testing.T) {
 
 	t.Run("差分なし", func(t *testing.T) {
 		t.Parallel()
-		candidates := calculateMoveCandidates(0, 0)
+		candidates := calculateMoveCandidates(consts.Coord[int]{X: 0, Y: 0})
 		assert.Empty(t, candidates)
 	})
 }

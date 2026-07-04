@@ -388,7 +388,7 @@ func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, thre
 	dx := int(from.X) - int(threat.X)
 	dy := int(from.Y) - int(threat.Y)
 
-	candidates := calculateMoveCandidates(dx, dy)
+	candidates := calculateMoveCandidates(consts.Coord[int]{X: dx, Y: dy})
 	return tryMoveCandidates(world, entity, from, candidates)
 }
 

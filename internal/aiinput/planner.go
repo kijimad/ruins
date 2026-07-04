@@ -82,8 +82,9 @@ var eightDirections = []consts.Coord[int]{
 }
 
 // calculateMoveCandidates はターゲットに向かう移動候補を計算する
-func calculateMoveCandidates(dx, dy int) []consts.Coord[int] {
+func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 	var candidates []consts.Coord[int]
+	dx, dy := delta.X, delta.Y
 
 	if dx != 0 && dy != 0 {
 		moveX := 1
