@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">72.4&nbsp;%</td>
-            <td class="headerCovTableEntry">163</td>
-            <td class="headerCovTableEntry">118</td>
+            <td class="headerCovTableEntryLo">72.6&nbsp;%</td>
+            <td class="headerCovTableEntry">157</td>
+            <td class="headerCovTableEntry">114</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-01 13:15:48</td>
+            <td class="headerValue">2026-07-04 02:25:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -117,7 +117,7 @@
 <span id="L55"><span class="lineNum">      55</span>              :                                         }</span>
 <span id="L56"><span class="lineNum">      56</span>              :                                 }</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :                         case gc.MeleeInteraction:</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :                                 if isHostileEntity(interactableEntity, world) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :                                 if interactableEntity.HasComponent(world.Components.FactionEnemy) {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                                         _, err := ExecuteInteraction(entity, interactableEntity, interaction, world)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                                         return err</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                                 }</span></span>
@@ -207,82 +207,73 @@
 <span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :         return results</span></span>
 <span id="L146"><span class="lineNum">     146</span>              : }</span>
 <span id="L147"><span class="lineNum">     147</span>              : </span>
-<span id="L148"><span class="lineNum">     148</span>              : // isHostileEntity はエンティティがプレイヤーに敵対しているかを判定する</span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 : func isHostileEntity(entity ecs.Entity, world w.World) bool {</span></span>
-<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         d := world.Components.Disposition.Get(entity)</span></span>
-<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         if d == nil {</span></span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC tlaBgUNC">           0 :                 return false</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC tlaBgGNC">           1 :         return d.(*gc.Disposition).Current == gc.DispositionHostile</span></span>
-<span id="L155"><span class="lineNum">     155</span>              : }</span>
-<span id="L156"><span class="lineNum">     156</span>              : </span>
-<span id="L157"><span class="lineNum">     157</span>              : // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する</span>
-<span id="L158"><span class="lineNum">     158</span> <span class="tlaGNC">           1 : func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {</span></span>
-<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :         dx := int(targetGrid.X) - int(playerGrid.X)</span></span>
-<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :         dy := int(targetGrid.Y) - int(playerGrid.Y)</span></span>
-<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           1 :         // 同じタイル</span></span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           2 :         if dx == 0 &amp;&amp; dy == 0 {</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 return &quot;直上&quot;</span></span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L166"><span class="lineNum">     166</span>              : </span>
-<span id="L167"><span class="lineNum">     167</span>              :         // 8方向を判定</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :         if dy &lt; 0 {</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           2 :                 if dx &lt; 0 {</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         return &quot;左上&quot;</span></span>
-<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           3 :                 } else if dx &gt; 0 {</span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                         return &quot;右上&quot;</span></span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                 return &quot;上&quot;</span></span>
-<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           2 :         } else if dy &gt; 0 {</span></span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :                 if dx &lt; 0 {</span></span>
-<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                         return &quot;左下&quot;</span></span>
-<span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           3 :                 } else if dx &gt; 0 {</span></span>
-<span id="L179"><span class="lineNum">     179</span> <span class="tlaGNC">           1 :                         return &quot;右下&quot;</span></span>
-<span id="L180"><span class="lineNum">     180</span> <span class="tlaGNC">           1 :                 }</span></span>
-<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 :                 return &quot;下&quot;</span></span>
-<span id="L182"><span class="lineNum">     182</span>              :         }</span>
-<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           2 :         if dx &lt; 0 {</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           1 :                 return &quot;左&quot;</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :         return &quot;右&quot;</span></span>
-<span id="L187"><span class="lineNum">     187</span>              : }</span>
-<span id="L188"><span class="lineNum">     188</span>              : </span>
-<span id="L189"><span class="lineNum">     189</span>              : // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する</span>
-<span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 : func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {</span></span>
-<span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :         entities := GetAllInteractiveInteractablesInRange(world, playerGrid)</span></span>
-<span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :         for _, entity := range entities {</span></span>
-<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                 for _, interaction := range interactable.Interactions {</span></span>
-<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                         if interaction.Config().ActivationWay != gc.ActivationWayManual {</span></span>
-<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                                 continue</span></span>
-<span id="L197"><span class="lineNum">     197</span>              :                         }</span>
-<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                         switch data := interaction.(type) {</span></span>
-<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                         case gc.ItemInteraction:</span></span>
-<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                                 formattedName := query.FormatItemName(world, entity)</span></span>
-<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                                         ItemName(formattedName).</span></span>
-<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                                         Append(&quot; がある。&quot;).</span></span>
-<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                         case gc.PortalInteraction:</span></span>
-<span id="L206"><span class="lineNum">     206</span> <span class="tlaUNC">           0 :                                 switch data.PortalType {</span></span>
-<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                                 case gc.PortalTypeNext:</span></span>
-<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                                         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                                                 Append(&quot;転移ゲートがある。Enterキーで移動。&quot;).</span></span>
-<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                                                 Log()</span></span>
-<span id="L211"><span class="lineNum">     211</span> <span class="tlaUNC">           0 :                                 case gc.PortalTypeTown:</span></span>
-<span id="L212"><span class="lineNum">     212</span> <span class="tlaUNC">           0 :                                         gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L213"><span class="lineNum">     213</span> <span class="tlaUNC">           0 :                                                 Append(&quot;帰還ゲートがある。Enterキーで脱出。&quot;).</span></span>
-<span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC">           0 :                                                 Log()</span></span>
-<span id="L215"><span class="lineNum">     215</span>              :                                 }</span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaUNC">           0 :                         case gc.DungeonGateInteraction:</span></span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
-<span id="L218"><span class="lineNum">     218</span> <span class="tlaUNC">           0 :                                         Append(&quot;ダンジョンへの門がある。Enterキーで選択。&quot;).</span></span>
-<span id="L219"><span class="lineNum">     219</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
-<span id="L220"><span class="lineNum">     220</span>              :                         }</span>
-<span id="L221"><span class="lineNum">     221</span>              :                 }</span>
-<span id="L222"><span class="lineNum">     222</span>              :         }</span>
-<span id="L223"><span class="lineNum">     223</span>              : }</span>
+<span id="L148"><span class="lineNum">     148</span>              : // GetDirectionLabel はプレイヤーからターゲットへの方向ラベルを取得する</span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 : func GetDirectionLabel(playerGrid, targetGrid *gc.GridElement) string {</span></span>
+<span id="L150"><span class="lineNum">     150</span> <span class="tlaGNC">           1 :         dx := int(targetGrid.X) - int(playerGrid.X)</span></span>
+<span id="L151"><span class="lineNum">     151</span> <span class="tlaGNC">           1 :         dy := int(targetGrid.Y) - int(playerGrid.Y)</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :         // 同じタイル</span></span>
+<span id="L154"><span class="lineNum">     154</span> <span class="tlaGNC">           2 :         if dx == 0 &amp;&amp; dy == 0 {</span></span>
+<span id="L155"><span class="lineNum">     155</span> <span class="tlaGNC">           1 :                 return &quot;直上&quot;</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L157"><span class="lineNum">     157</span>              : </span>
+<span id="L158"><span class="lineNum">     158</span>              :         // 8方向を判定</span>
+<span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           2 :         if dy &lt; 0 {</span></span>
+<span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           2 :                 if dx &lt; 0 {</span></span>
+<span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                         return &quot;左上&quot;</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           3 :                 } else if dx &gt; 0 {</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                         return &quot;右上&quot;</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                 return &quot;上&quot;</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           2 :         } else if dy &gt; 0 {</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           2 :                 if dx &lt; 0 {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                         return &quot;左下&quot;</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           3 :                 } else if dx &gt; 0 {</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         return &quot;右下&quot;</span></span>
+<span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 :                 }</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           1 :                 return &quot;下&quot;</span></span>
+<span id="L173"><span class="lineNum">     173</span>              :         }</span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           2 :         if dx &lt; 0 {</span></span>
+<span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 return &quot;左&quot;</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :         return &quot;右&quot;</span></span>
+<span id="L178"><span class="lineNum">     178</span>              : }</span>
+<span id="L179"><span class="lineNum">     179</span>              : </span>
+<span id="L180"><span class="lineNum">     180</span>              : // showTileInteractionMessage は範囲内の全Manual相互作用のメッセージを表示する</span>
+<span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           1 : func showTileInteractionMessage(world w.World, playerGrid *gc.GridElement) {</span></span>
+<span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :         entities := GetAllInteractiveInteractablesInRange(world, playerGrid)</span></span>
+<span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :         for _, entity := range entities {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaUNC tlaBgUNC">           0 :                 interactable := world.Components.Interactable.Get(entity).(*gc.Interactable)</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaUNC">           0 :                 for _, interaction := range interactable.Interactions {</span></span>
+<span id="L186"><span class="lineNum">     186</span> <span class="tlaUNC">           0 :                         if interaction.Config().ActivationWay != gc.ActivationWayManual {</span></span>
+<span id="L187"><span class="lineNum">     187</span> <span class="tlaUNC">           0 :                                 continue</span></span>
+<span id="L188"><span class="lineNum">     188</span>              :                         }</span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaUNC">           0 :                         switch data := interaction.(type) {</span></span>
+<span id="L190"><span class="lineNum">     190</span> <span class="tlaUNC">           0 :                         case gc.ItemInteraction:</span></span>
+<span id="L191"><span class="lineNum">     191</span> <span class="tlaUNC">           0 :                                 formattedName := query.FormatItemName(world, entity)</span></span>
+<span id="L192"><span class="lineNum">     192</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L193"><span class="lineNum">     193</span> <span class="tlaUNC">           0 :                                         ItemName(formattedName).</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaUNC">           0 :                                         Append(&quot; がある。&quot;).</span></span>
+<span id="L195"><span class="lineNum">     195</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L196"><span class="lineNum">     196</span> <span class="tlaUNC">           0 :                         case gc.PortalInteraction:</span></span>
+<span id="L197"><span class="lineNum">     197</span> <span class="tlaUNC">           0 :                                 switch data.PortalType {</span></span>
+<span id="L198"><span class="lineNum">     198</span> <span class="tlaUNC">           0 :                                 case gc.PortalTypeNext:</span></span>
+<span id="L199"><span class="lineNum">     199</span> <span class="tlaUNC">           0 :                                         gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L200"><span class="lineNum">     200</span> <span class="tlaUNC">           0 :                                                 Append(&quot;転移ゲートがある。Enterキーで移動。&quot;).</span></span>
+<span id="L201"><span class="lineNum">     201</span> <span class="tlaUNC">           0 :                                                 Log()</span></span>
+<span id="L202"><span class="lineNum">     202</span> <span class="tlaUNC">           0 :                                 case gc.PortalTypeTown:</span></span>
+<span id="L203"><span class="lineNum">     203</span> <span class="tlaUNC">           0 :                                         gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L204"><span class="lineNum">     204</span> <span class="tlaUNC">           0 :                                                 Append(&quot;帰還ゲートがある。Enterキーで脱出。&quot;).</span></span>
+<span id="L205"><span class="lineNum">     205</span> <span class="tlaUNC">           0 :                                                 Log()</span></span>
+<span id="L206"><span class="lineNum">     206</span>              :                                 }</span>
+<span id="L207"><span class="lineNum">     207</span> <span class="tlaUNC">           0 :                         case gc.DungeonGateInteraction:</span></span>
+<span id="L208"><span class="lineNum">     208</span> <span class="tlaUNC">           0 :                                 gamelog.New(query.GetGameLog(world)).</span></span>
+<span id="L209"><span class="lineNum">     209</span> <span class="tlaUNC">           0 :                                         Append(&quot;ダンジョンへの門がある。Enterキーで選択。&quot;).</span></span>
+<span id="L210"><span class="lineNum">     210</span> <span class="tlaUNC">           0 :                                         Log()</span></span>
+<span id="L211"><span class="lineNum">     211</span>              :                         }</span>
+<span id="L212"><span class="lineNum">     212</span>              :                 }</span>
+<span id="L213"><span class="lineNum">     213</span>              :         }</span>
+<span id="L214"><span class="lineNum">     214</span>              : }</span>
         </pre>
               </td>
             </tr>

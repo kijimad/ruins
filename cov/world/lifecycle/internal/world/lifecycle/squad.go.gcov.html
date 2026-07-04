@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryMed">84.6&nbsp;%</td>
-            <td class="headerCovTableEntry">13</td>
-            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">83.3&nbsp;%</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">10</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-01 13:15:48</td>
+            <td class="headerValue">2026-07-04 02:25:06</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,15 +79,14 @@
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         return nil</span></span>
 <span id="L18"><span class="lineNum">      18</span>              : }</span>
 <span id="L19"><span class="lineNum">      19</span>              : </span>
-<span id="L20"><span class="lineNum">      20</span>              : // SetSquadPolicy は隊員のポリシーを変更する</span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : func SetSquadPolicy(world w.World, member ecs.Entity, policy gc.SquadPolicy) error {</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         if !member.HasComponent(world.Components.SquadPolicy) {</span></span>
-<span id="L23"><span class="lineNum">      23</span> <span class="tlaUNC tlaBgUNC">           0 :                 return fmt.Errorf(&quot;エンティティにSquadPolicyがありません&quot;)</span></span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC tlaBgGNC">           1 :         current := world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 :         *current = policy</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         return nil</span></span>
-<span id="L28"><span class="lineNum">      28</span>              : }</span>
+<span id="L20"><span class="lineNum">      20</span>              : // GetAI は隊員のAIコンポーネントを返す。コンポーネントがない場合はエラーを返す</span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 : func GetAI(world w.World, member ecs.Entity) (*gc.AI, error) {</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         comp := world.Components.AI.Get(member)</span></span>
+<span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         if comp == nil {</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC tlaBgUNC">           0 :                 return nil, fmt.Errorf(&quot;エンティティにAIがありません&quot;)</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC tlaBgGNC">           1 :         return comp.(*gc.AI), nil</span></span>
+<span id="L27"><span class="lineNum">      27</span>              : }</span>
         </pre>
               </td>
             </tr>
