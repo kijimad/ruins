@@ -12,6 +12,83 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestCanPassThrough(t *testing.T) {
+	t.Parallel()
+
+	t.Run("プレイヤーは隊員を通過できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+
+		member := world.Manager.NewEntity()
+		member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+
+		assert.True(t, CanPassThrough(world, player, member))
+	})
+
+	t.Run("プレイヤーは敵を通過できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+
+		enemy := world.Manager.NewEntity()
+		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
+
+		assert.False(t, CanPassThrough(world, player, enemy))
+	})
+
+	t.Run("隊員は他の隊員を通過できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		member1 := world.Manager.NewEntity()
+		member1.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+
+		member2 := world.Manager.NewEntity()
+		member2.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+
+		assert.False(t, CanPassThrough(world, member1, member2))
+	})
+
+	t.Run("隊員はプレイヤーを通過できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		member := world.Manager.NewEntity()
+		member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+
+		player := world.Manager.NewEntity()
+		player.AddComponent(world.Components.Player, &gc.Player{})
+
+		assert.False(t, CanPassThrough(world, member, player))
+	})
+
+	t.Run("自分自身は通過できる", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		entity := world.Manager.NewEntity()
+		assert.True(t, CanPassThrough(world, entity, entity))
+	})
+
+	t.Run("敵は隊員を通過できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		enemy := world.Manager.NewEntity()
+		enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
+
+		member := world.Manager.NewEntity()
+		member.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
+
+		assert.False(t, CanPassThrough(world, enemy, member))
+	})
+}
+
 func TestCanMoveTo(t *testing.T) {
 	t.Parallel()
 
@@ -167,6 +244,36 @@ func TestCanMoveTo(t *testing.T) {
 
 		canMove := CanMoveTo(world, memberX, memberY, memberX+1, memberY, aiEntity)
 		assert.False(t, canMove, "AI側からは隊員のタイルに移動できない")
+	})
+
+	t.Run("隊員は他の隊員がいるタイルに移動できない", func(t *testing.T) {
+		t.Parallel()
+		world := testutil.InitTestWorld(t)
+
+		player, err := lifecycle.SpawnPlayer(world, 10, 10, "Ash")
+		require.NoError(t, err)
+
+		abilities := gc.Abilities{
+			Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+			Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+			Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+		}
+		member1, err := lifecycle.SpawnSquadMember(world, player, "隊員A", abilities, "player")
+		require.NoError(t, err)
+		member2, err := lifecycle.SpawnSquadMember(world, player, "隊員B", abilities, "player")
+		require.NoError(t, err)
+
+		member1Grid := world.Components.GridElement.Get(member1).(*gc.GridElement)
+		member1Grid.X = consts.Tile(11)
+		member1Grid.Y = consts.Tile(10)
+		member2Grid := world.Components.GridElement.Get(member2).(*gc.GridElement)
+		member2Grid.X = consts.Tile(12)
+		member2Grid.Y = consts.Tile(10)
+
+		query.InvalidateSpatialIndex(world)
+
+		canMove := CanMoveTo(world, 11, 10, 12, 10, member2)
+		assert.False(t, canMove, "隊員は他の隊員のタイルに移動できない")
 	})
 
 	t.Run("斜め移動で隣接1方向のみ壁なら移動可能", func(t *testing.T) {

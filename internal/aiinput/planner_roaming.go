@@ -42,24 +42,21 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 	ai := aiComp.(*gc.AI)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	playerEntity := findPlayer(world)
-	if playerEntity == nil {
-		return nil, activity.ActionParams{}
-	}
-	if !playerEntity.HasComponent(world.Components.GridElement) {
+	target := rp.findNearestHostile(world, entity)
+	if target == nil {
 		return nil, activity.ActionParams{}
 	}
 
-	canSeePlayer := rp.visionSystem.CanSeeTarget(world, entity, *playerEntity, ai)
+	canSee := rp.visionSystem.CanSeeTarget(world, entity, *target, ai)
 	turnNumber := query.GetTurnState(world).TurnNumber
 
-	rp.updateState(ai, canSeePlayer, turnNumber)
+	rp.updateState(ai, canSee, turnNumber)
 
 	switch ai.SubState {
 	case gc.AIStateChasing:
-		return rp.planChaseAction(world, entity, *playerEntity, grid)
+		return rp.planChaseAction(world, entity, *target, grid)
 	case gc.AIStateFleeing:
-		return rp.planFleeAction(world, entity, *playerEntity, grid)
+		return rp.planFleeAction(world, entity, *target, grid)
 	case gc.AIStateDriving:
 		return rp.planDrivingAction(world, entity, ai, grid)
 	case gc.AIStateWaiting:
@@ -67,6 +64,50 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 	default:
 		return waitAction(entity, "AIデフォルト待機")
 	}
+}
+
+// findNearestHostile は最寄りの敵対エンティティを探す。
+// プレイヤーとFactionAllyの両方を対象にする。
+// 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため
+func (rp *roamingPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity {
+	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+
+	var nearest *ecs.Entity
+	nearestDist := -1
+
+	check := func(target ecs.Entity) {
+		if !target.HasComponent(world.Components.GridElement) {
+			return
+		}
+		if target.HasComponent(world.Components.Dead) {
+			return
+		}
+		targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
+		dist := gridDistance(grid, targetGrid)
+		if nearestDist < 0 || dist < nearestDist {
+			nearestDist = dist
+			e := target
+			nearest = &e
+		}
+	}
+
+	// プレイヤー
+	if player := findPlayer(world); player != nil {
+		check(*player)
+	}
+
+	// 味方NPC（隊員）
+	world.Manager.Join(
+		world.Components.FactionAlly,
+		world.Components.GridElement,
+	).Visit(ecs.Visit(func(ally ecs.Entity) {
+		if ally.HasComponent(world.Components.Player) {
+			return
+		}
+		check(ally)
+	}))
+
+	return nearest
 }
 
 // ========== 状態遷移ロジック ==========

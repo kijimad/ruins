@@ -612,3 +612,119 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	assert.True(t, gotMove, "ランダム移動は移動を返すことがあるべき")
 	assert.True(t, gotWait, "ランダム移動は待機を返すことがあるべき")
 }
+
+func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	_, err := lifecycle.SpawnPlayer(world, 5, 5, "Ash")
+	require.NoError(t, err)
+
+	ai := hostileAI(gc.MovementRandom)
+	entity := setupTestAI(t, world, 6, 5, ai)
+
+	rp := newRoamingPlanner()
+	target := rp.findNearestHostile(world, entity)
+	require.NotNil(t, target, "プレイヤーが見つかるべき")
+	assert.True(t, target.HasComponent(world.Components.Player))
+}
+
+func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, 20, 20, "Ash")
+	require.NoError(t, err)
+
+	abilities := gc.Abilities{
+		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+	}
+	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+	require.NoError(t, err)
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid.X = consts.Tile(6)
+	memberGrid.Y = consts.Tile(5)
+
+	ai := hostileAI(gc.MovementRandom)
+	entity := setupTestAI(t, world, 5, 5, ai)
+
+	rp := newRoamingPlanner()
+	target := rp.findNearestHostile(world, entity)
+	require.NotNil(t, target, "隊員が見つかるべき")
+	assert.True(t, target.HasComponent(world.Components.SquadMember), "最寄りの隊員が選ばれるべき")
+}
+
+func TestFindNearestHostile_敵対対象がいない(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	ai := hostileAI(gc.MovementRandom)
+	entity := setupTestAI(t, world, 5, 5, ai)
+
+	rp := newRoamingPlanner()
+	target := rp.findNearestHostile(world, entity)
+	assert.Nil(t, target)
+}
+
+func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, 20, 20, "Ash")
+	require.NoError(t, err)
+
+	abilities := gc.Abilities{
+		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+	}
+	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+	require.NoError(t, err)
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid.X = consts.Tile(6)
+	memberGrid.Y = consts.Tile(5)
+
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateChasing
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 5, 5, ai)
+
+	rp := newRoamingPlanner()
+	behavior, params := rp.Plan(world, entity)
+	assert.Equal(t, gc.BehaviorAttack, behavior.Name(), "隣接する隊員を攻撃すべき")
+	assert.NotNil(t, params.Target)
+}
+
+func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	player, err := lifecycle.SpawnPlayer(world, 30, 30, "Ash")
+	require.NoError(t, err)
+
+	abilities := gc.Abilities{
+		Vitality: gc.Ability{Base: 10}, Strength: gc.Ability{Base: 8},
+		Sensation: gc.Ability{Base: 7}, Dexterity: gc.Ability{Base: 6},
+		Agility: gc.Ability{Base: 9}, Defense: gc.Ability{Base: 5},
+	}
+	member, err := lifecycle.SpawnSquadMember(world, player, "隊員", abilities, "player")
+	require.NoError(t, err)
+	memberGrid := world.Components.GridElement.Get(member).(*gc.GridElement)
+	memberGrid.X = consts.Tile(8)
+	memberGrid.Y = consts.Tile(5)
+
+	ai := hostileAI(gc.MovementRandom)
+	ai.SubState = gc.AIStateChasing
+	ai.StartSubStateTurn = 1
+	ai.DurationSubStateTurns = 100
+	entity := setupTestAI(t, world, 5, 5, ai)
+
+	rp := newRoamingPlanner()
+	behavior, params := rp.Plan(world, entity)
+	assert.Equal(t, gc.BehaviorMove, behavior.Name(), "離れた隊員に向かって移動すべき")
+	assert.NotNil(t, params.Destination)
+	assert.True(t, int(params.Destination.X) > 5, "隊員方向に移動すべき")
+}

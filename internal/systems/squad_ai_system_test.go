@@ -454,9 +454,12 @@ func TestSquadProcessor_CombatIgnoreで戦闘しない(t *testing.T) {
 	memberGrid.X = consts.Tile(11)
 	memberGrid.Y = consts.Tile(10)
 
-	// 隣接する敵を配置する
+	// 隣接する敵を配置する。敵からの攻撃を防ぐためCombatIgnoreにする
 	enemy, err := lifecycle.SpawnEnemy(world, 12, 10, "火の玉")
 	require.NoError(t, err)
+	enemyAI := world.Components.AI.Get(enemy).(*gc.AI)
+	enemyAI.CombatDefault = gc.CombatIgnore
+	enemyAI.CombatCurrent = gc.CombatIgnore
 
 	// 探索済みタイルを設定する
 	dungeon := query.GetDungeon(world)
