@@ -5,6 +5,7 @@ import (
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
+	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/geometry"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -218,10 +219,10 @@ func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entit
 
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
 	for _, d := range shuffledEightDirections() {
-		destX := fromX + d.x
-		destY := fromY + d.y
+		destX := fromX + d.X
+		destY := fromY + d.Y
 		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-			return moveAction(aiEntity, destX, destY)
+			return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
 		}
 	}
 
@@ -265,27 +266,27 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
 	si := query.GetSpatialIndex(world)
 
 	type scoredDir struct {
-		x, y  int
+		consts.Coord[int]
 		score int
 	}
 	var candidates []scoredDir
 
 	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
 	for _, d := range eightDirections {
-		destX := fromX + d.x
-		destY := fromY + d.y
+		destX := fromX + d.X
+		destY := fromY + d.Y
 
 		if !activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
 			continue
 		}
 
 		wallCount := 0
-		for _, adj := range []struct{ x, y int }{{0, -1}, {0, 1}, {-1, 0}, {1, 0}} {
-			if si.IsBlockPass(destX+adj.x, destY+adj.y) {
+		for _, adj := range []consts.Coord[int]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} {
+			if si.IsBlockPass(destX+adj.X, destY+adj.Y) {
 				wallCount++
 			}
 		}
-		candidates = append(candidates, scoredDir{d.x, d.y, wallCount})
+		candidates = append(candidates, scoredDir{consts.Coord[int]{X: d.X, Y: d.Y}, wallCount})
 	}
 
 	if len(candidates) == 0 {
@@ -306,7 +307,7 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
 	}
 	chosen := tied[rand.IntN(len(tied))]
 
-	return moveAction(aiEntity, fromX+chosen.x, fromY+chosen.y)
+	return moveAction(aiEntity, consts.Coord[int]{X: fromX + chosen.X, Y: fromY + chosen.Y})
 }
 
 // planSwarmAction は最寄りのAIエンティティに接近するアクションを計画する
@@ -355,7 +356,7 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, a
 	destX := fromX + ai.PatrolDirX
 	destY := fromY + ai.PatrolDirY
 	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-		return moveAction(aiEntity, destX, destY)
+		return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
 	}
 
 	ai.PatrolDirX = -ai.PatrolDirX
@@ -364,7 +365,7 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, a
 	destX = fromX + ai.PatrolDirX
 	destY = fromY + ai.PatrolDirY
 	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-		return moveAction(aiEntity, destX, destY)
+		return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
 	}
 
 	return waitAction(aiEntity, "AI巡回移動失敗")
@@ -375,8 +376,8 @@ func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Enti
 	fromX, fromY := int(grid.X), int(grid.Y)
 
 	for _, d := range shuffledEightDirections() {
-		destX := fromX + d.x
-		destY := fromY + d.y
+		destX := fromX + d.X
+		destY := fromY + d.Y
 
 		dx := geometry.Abs(destX - ai.SpawnX)
 		dy := geometry.Abs(destY - ai.SpawnY)
@@ -385,7 +386,7 @@ func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Enti
 		}
 
 		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-			return moveAction(aiEntity, destX, destY)
+			return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
 		}
 	}
 

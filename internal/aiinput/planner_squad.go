@@ -379,7 +379,7 @@ func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, ta
 		return nil, activity.ActionParams{}, false
 	}
 
-	b, p := moveAction(entity, nextX, nextY)
+	b, p := moveAction(entity, consts.Coord[int]{X: nextX, Y: nextY})
 	return b, p, true
 }
 
@@ -398,8 +398,8 @@ func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squ
 	fromX, fromY := int(ctx.Grid.X), int(ctx.Grid.Y)
 
 	for _, d := range shuffledEightDirections() {
-		destX := fromX + d.x
-		destY := fromY + d.y
+		destX := fromX + d.X
+		destY := fromY + d.Y
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {
 			destGrid := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
@@ -409,7 +409,7 @@ func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squ
 		}
 
 		if activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
-			b, p := moveAction(entity, destX, destY)
+			b, p := moveAction(entity, consts.Coord[int]{X: destX, Y: destY})
 			return b, p, true
 		}
 	}

@@ -534,24 +534,24 @@ func TestCalculateMoveCandidates(t *testing.T) {
 		t.Parallel()
 		candidates := calculateMoveCandidates(3, 2)
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, 1, candidates[0].x)
-		assert.Equal(t, 1, candidates[0].y)
+		assert.Equal(t, 1, candidates[0].X)
+		assert.Equal(t, 1, candidates[0].Y)
 	})
 
 	t.Run("水平方向のみ", func(t *testing.T) {
 		t.Parallel()
 		candidates := calculateMoveCandidates(-5, 0)
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, -1, candidates[0].x)
-		assert.Equal(t, 0, candidates[0].y)
+		assert.Equal(t, -1, candidates[0].X)
+		assert.Equal(t, 0, candidates[0].Y)
 	})
 
 	t.Run("垂直方向のみ", func(t *testing.T) {
 		t.Parallel()
 		candidates := calculateMoveCandidates(0, 4)
 		require.NotEmpty(t, candidates)
-		assert.Equal(t, 0, candidates[0].x)
-		assert.Equal(t, 1, candidates[0].y)
+		assert.Equal(t, 0, candidates[0].X)
+		assert.Equal(t, 1, candidates[0].Y)
 	})
 
 	t.Run("差分なし", func(t *testing.T) {

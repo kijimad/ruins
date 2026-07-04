@@ -91,8 +91,8 @@ func TestTryMoveCloser(t *testing.T) {
 		assert.NotEmpty(t, candidates)
 		bestCandidate := candidates[0]
 		newGrid := &gc.GridElement{
-			X: from.X + consts.Tile(bestCandidate.x),
-			Y: from.Y + consts.Tile(bestCandidate.y),
+			X: from.X + consts.Tile(bestCandidate.X),
+			Y: from.Y + consts.Tile(bestCandidate.Y),
 		}
 		newDist := gridDistance(newGrid, target)
 		assert.Less(t, newDist, currentDist, "最優先候補は距離を縮める")

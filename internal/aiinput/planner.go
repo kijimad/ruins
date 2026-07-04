@@ -75,20 +75,15 @@ func gridDistance(a, b *gc.GridElement) int {
 }
 
 // eightDirections は隣接8方向の座標差分を定義する
-var eightDirections = []struct{ x, y int }{
-	{-1, -1}, {0, -1}, {1, -1},
-	{-1, 0}, {1, 0},
-	{-1, 1}, {0, 1}, {1, 1},
-}
-
-// moveCandidate は移動先の座標候補を保持する
-type moveCandidate struct {
-	x, y int
+var eightDirections = []consts.Coord[int]{
+	{X: -1, Y: -1}, {X: 0, Y: -1}, {X: 1, Y: -1},
+	{X: -1, Y: 0}, {X: 1, Y: 0},
+	{X: -1, Y: 1}, {X: 0, Y: 1}, {X: 1, Y: 1},
 }
 
 // calculateMoveCandidates はターゲットに向かう移動候補を計算する
-func calculateMoveCandidates(dx, dy int) []moveCandidate {
-	var candidates []moveCandidate
+func calculateMoveCandidates(dx, dy int) []consts.Coord[int] {
+	var candidates []consts.Coord[int]
 
 	if dx != 0 && dy != 0 {
 		moveX := 1
@@ -99,44 +94,44 @@ func calculateMoveCandidates(dx, dy int) []moveCandidate {
 		if dy < 0 {
 			moveY = -1
 		}
-		candidates = append(candidates, moveCandidate{moveX, moveY})
+		candidates = append(candidates, consts.Coord[int]{X: moveX, Y: moveY})
 
 		if geometry.Abs(dx) > geometry.Abs(dy) {
-			candidates = append(candidates, moveCandidate{moveX, 0})
-			candidates = append(candidates, moveCandidate{0, moveY})
+			candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
+			candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
 		} else {
-			candidates = append(candidates, moveCandidate{0, moveY})
-			candidates = append(candidates, moveCandidate{moveX, 0})
+			candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
+			candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
 		}
 	} else if dx != 0 {
 		moveX := 1
 		if dx < 0 {
 			moveX = -1
 		}
-		candidates = append(candidates, moveCandidate{moveX, 0})
-		candidates = append(candidates, moveCandidate{0, 1})
-		candidates = append(candidates, moveCandidate{0, -1})
+		candidates = append(candidates, consts.Coord[int]{X: moveX, Y: 0})
+		candidates = append(candidates, consts.Coord[int]{X: 0, Y: 1})
+		candidates = append(candidates, consts.Coord[int]{X: 0, Y: -1})
 	} else if dy != 0 {
 		moveY := 1
 		if dy < 0 {
 			moveY = -1
 		}
-		candidates = append(candidates, moveCandidate{0, moveY})
-		candidates = append(candidates, moveCandidate{1, 0})
-		candidates = append(candidates, moveCandidate{-1, 0})
+		candidates = append(candidates, consts.Coord[int]{X: 0, Y: moveY})
+		candidates = append(candidates, consts.Coord[int]{X: 1, Y: 0})
+		candidates = append(candidates, consts.Coord[int]{X: -1, Y: 0})
 	}
 
 	return candidates
 }
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
-func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []moveCandidate) (activity.Behavior, activity.ActionParams, bool) {
+func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, activity.ActionParams, bool) {
 	fromX, fromY := int(from.X), int(from.Y)
-	for _, candidate := range candidates {
-		destX := fromX + candidate.x
-		destY := fromY + candidate.y
+	for _, c := range candidates {
+		destX := fromX + c.X
+		destY := fromY + c.Y
 		if activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
-			b, p := moveAction(entity, destX, destY)
+			b, p := moveAction(entity, consts.Coord[int]{X: destX, Y: destY})
 			return b, p, true
 		}
 	}
@@ -144,11 +139,11 @@ func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, c
 }
 
 // moveAction は指定座標への移動アクションを生成する
-func moveAction(aiEntity ecs.Entity, destX, destY int) (activity.Behavior, activity.ActionParams) {
-	dest := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+func moveAction(aiEntity ecs.Entity, dest consts.Coord[int]) (activity.Behavior, activity.ActionParams) {
+	gridDest := gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}
 	return &activity.MoveActivity{}, activity.ActionParams{
 		Actor:       aiEntity,
-		Destination: &dest,
+		Destination: &gridDest,
 	}
 }
 
@@ -158,8 +153,8 @@ func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す
-func shuffledEightDirections() []struct{ x, y int } {
-	shuffled := make([]struct{ x, y int }, len(eightDirections))
+func shuffledEightDirections() []consts.Coord[int] {
+	shuffled := make([]consts.Coord[int], len(eightDirections))
 	copy(shuffled, eightDirections)
 	for i := len(shuffled) - 1; i > 0; i-- {
 		j := rand.IntN(i + 1)
