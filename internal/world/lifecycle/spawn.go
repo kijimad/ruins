@@ -129,8 +129,8 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 		entitySpec.AI.SubState = gc.AIStateWaiting
 		entitySpec.AI.StartSubStateTurn = 1
 		entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
-		entitySpec.AI.SpawnX = tileX
-		entitySpec.AI.SpawnY = tileY
+		entitySpec.AI.OriginX = tileX
+		entitySpec.AI.OriginY = tileY
 		entitySpec.AI.PatrolDirX = initialPatrolDir()
 		entitySpec.AI.ViewDistance = AIVisionDistance
 	}
@@ -181,8 +181,8 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	entitySpec.AI.SubState = gc.AIStateWaiting
 	entitySpec.AI.StartSubStateTurn = 1
 	entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
-	entitySpec.AI.SpawnX = tileX
-	entitySpec.AI.SpawnY = tileY
+	entitySpec.AI.OriginX = tileX
+	entitySpec.AI.OriginY = tileY
 	entitySpec.AI.PatrolDirX = initialPatrolDir()
 	entitySpec.AI.ViewDistance = AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{

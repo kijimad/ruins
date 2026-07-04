@@ -379,8 +379,8 @@ func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Enti
 		destX := fromX + d.X
 		destY := fromY + d.Y
 
-		dx := geometry.Abs(destX - ai.SpawnX)
-		dy := geometry.Abs(destY - ai.SpawnY)
+		dx := geometry.Abs(destX - ai.OriginX)
+		dy := geometry.Abs(destY - ai.OriginY)
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}

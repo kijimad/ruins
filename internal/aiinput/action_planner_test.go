@@ -241,8 +241,8 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = 1
 	ai.DurationSubStateTurns = 100
-	ai.SpawnX = 20
-	ai.SpawnY = 20
+	ai.OriginX = 20
+	ai.OriginY = 20
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
@@ -278,8 +278,8 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = 1
 	ai.DurationSubStateTurns = 100
-	ai.SpawnX = 20
-	ai.SpawnY = 20
+	ai.OriginX = 20
+	ai.OriginY = 20
 	ai.PatrolDirX = 1
 	ai.PatrolDirY = 0
 	entity := setupTestAI(t, world, 20, 20, ai)
@@ -305,8 +305,8 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = 1
 	ai.DurationSubStateTurns = 100
-	ai.SpawnX = 20
-	ai.SpawnY = 20
+	ai.OriginX = 20
+	ai.OriginY = 20
 	ai.PatrolDirX = 1
 	ai.PatrolDirY = 0
 	entity := setupTestAI(t, world, 20, 20, ai)
@@ -334,8 +334,8 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = 1
 	ai.DurationSubStateTurns = 100
-	ai.SpawnX = 20
-	ai.SpawnY = 20
+	ai.OriginX = 20
+	ai.OriginY = 20
 	ai.PatrolDirX = 1
 	ai.PatrolDirY = 0
 	entity := setupTestAI(t, world, 20, 20, ai)
@@ -355,8 +355,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = 1
 	ai.DurationSubStateTurns = 100
-	ai.SpawnX = 20
-	ai.SpawnY = 20
+	ai.OriginX = 20
+	ai.OriginY = 20
 	entity := setupTestAI(t, world, 20, 20, ai)
 
 	rp := newRoamingPlanner()
@@ -370,8 +370,8 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 			grid.Y = params.Destination.Y
 		}
 
-		dx := int(grid.X) - ai.SpawnX
-		dy := int(grid.Y) - ai.SpawnY
+		dx := int(grid.X) - ai.OriginX
+		dy := int(grid.Y) - ai.OriginY
 		if dx < 0 {
 			dx = -dx
 		}
@@ -391,8 +391,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = 1
 	ai.DurationSubStateTurns = 100
-	ai.SpawnX = 20
-	ai.SpawnY = 20
+	ai.OriginX = 20
+	ai.OriginY = 20
 	entity := setupTestAI(t, world, 25, 25, ai)
 
 	rp := newRoamingPlanner()
@@ -401,8 +401,8 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	for i := 0; i < 50; i++ {
 		behavior, params := rp.planTerritorialAction(world, entity, ai, grid)
 		if behavior.Name() == gc.BehaviorMove && params.Destination != nil {
-			dx := int(params.Destination.X) - ai.SpawnX
-			dy := int(params.Destination.Y) - ai.SpawnY
+			dx := int(params.Destination.X) - ai.OriginX
+			dy := int(params.Destination.Y) - ai.OriginY
 			if dx < 0 {
 				dx = -dx
 			}

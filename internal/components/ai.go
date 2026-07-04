@@ -42,8 +42,8 @@ type AI struct {
 	StartSubStateTurn int
 	// DurationSubStateTurns はサブステートの持続ターン数を保持する
 	DurationSubStateTurns int
-	// SpawnX, SpawnY はスポーン地点。Territorial移動の範囲基準に使う
-	SpawnX, SpawnY int
+	// OriginX, OriginY はTerritorial移動の範囲基準となる座標。スポーン時に設定する
+	OriginX, OriginY int
 	// PatrolDirX, PatrolDirY は巡回方向。Patrol移動で現在の進行方向を保持する
 	PatrolDirX, PatrolDirY int
 
@@ -71,7 +71,7 @@ func (ai *AI) ResetCombat() {
 }
 
 // DefaultSquadAI は隊員のデフォルトAIを返す。
-// SpawnX/Y 等のランタイム値は呼び出し元で設定する
+// OriginX/Y 等のランタイム値は呼び出し元で設定する
 func DefaultSquadAI() AI {
 	return AI{
 		Planner:       PlannerSquad,
