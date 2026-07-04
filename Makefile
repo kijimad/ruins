@@ -43,6 +43,7 @@ build-steam: ## Steam向けビルドする
 .PHONY: fmt
 fmt: ## フォーマットする
 	goimports -w .
+	go fix ./...
 	npx @taplo/cli format
 
 .PHONY: lint

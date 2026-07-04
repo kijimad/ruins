@@ -367,7 +367,7 @@ func (st *StatusState) createEffectItems(world w.World, playerEntity ecs.Entity)
 }
 
 func (st *StatusState) createHealthItems(world w.World, playerEntity ecs.Entity) []statusItemData {
-	items := []statusItemData{}
+	items := make([]statusItemData, 0, int(gc.BodyPartCount))
 
 	var hs *gc.HealthStatus
 	if playerEntity.HasComponent(world.Components.HealthStatus) {

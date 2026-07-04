@@ -28,7 +28,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		world := createStandardTestWorld(t)
 		sm := createTestSerializationManager(t)
 
-		var jsonStrings []string
+		jsonStrings := make([]string, 0, 5)
 		for range 5 {
 			jsonStr, err := sm.GenerateWorldJSON(world)
 			require.NoError(t, err)
@@ -47,7 +47,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 	t.Run("異なるセッション間での安定性", func(t *testing.T) {
 		t.Parallel()
 		// 異なるワールドインスタンスで同じデータを作成
-		var jsonStrings []string
+		jsonStrings := make([]string, 0, 3)
 		for range 3 {
 			world := createStandardTestWorld(t)
 			sm := createTestSerializationManager(t)
@@ -68,7 +68,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 	t.Run("コンポーネント追加順序に依存しない", func(t *testing.T) {
 		t.Parallel()
 		// 異なる順序でコンポーネントを追加したワールドを作成
-		var jsonStrings []string
+		jsonStrings := make([]string, 0, 3)
 
 		for variant := range 3 {
 			world := testutil.InitTestWorld(t)
@@ -121,12 +121,12 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 	t.Run("エンティティ作成順序に依存しない", func(t *testing.T) {
 		t.Parallel()
 		// 異なる順序でエンティティを作成
-		var jsonStrings []string
+		jsonStrings := make([]string, 0, 2)
 
 		for variant := range 2 {
 			world := testutil.InitTestWorld(t)
 
-			var entities []ecs.Entity
+			entities := make([]ecs.Entity, 0, 3)
 			for range 3 {
 				entities = append(entities, world.Manager.NewEntity())
 			}
@@ -158,7 +158,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 
 	t.Run("プレイヤー生成の決定性確認", func(t *testing.T) {
 		t.Parallel()
-		var jsonStrings []string
+		jsonStrings := make([]string, 0, 3)
 
 		for range 3 {
 			world := testutil.InitTestWorld(t)
@@ -217,7 +217,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 	t.Run("複雑な実世界データの安定性", func(t *testing.T) {
 		t.Parallel()
 		// 決定的な複雑データを作成
-		var jsonStrings []string
+		jsonStrings := make([]string, 0, 3)
 
 		for range 3 {
 			world := createComplexDeterministicWorld(t)
@@ -320,7 +320,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		sm := NewSerializationManager(tempDir)
 		world := createStandardTestWorld(t)
 
-		var contents []string
+		contents := make([]string, 0, 3)
 
 		// 複数回のセーブ・ロードサイクル
 		for cycle := range 3 {

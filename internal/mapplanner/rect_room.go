@@ -19,7 +19,7 @@ func (b RectRoomPlanner) PlanInitial(planData *MetaPlan) error {
 func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 	width := int(planData.Level.TileWidth)
 	height := int(planData.Level.TileHeight)
-	rooms := []gc.Rect{}
+	rooms := make([]gc.Rect, 0, 16)
 
 	// 上端に必ず1つの部屋を配置（y=0から開始）
 	topRoom := b.createRoom(planData, width, height, 0)

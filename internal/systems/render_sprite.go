@@ -490,10 +490,7 @@ func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image
 		return
 	}
 
-	darknessLevel := min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels)
-	if darknessLevel < 1 {
-		darknessLevel = 1
-	}
+	darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)
 
 	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
 

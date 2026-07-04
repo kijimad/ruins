@@ -59,8 +59,8 @@ func (overlay *DebugOverlay) Draw(screen *ebiten.Image, data DebugOverlayData) {
 func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, centerY, radius float32) {
 	// 円周上の点数
 	circlePoints := 32
-	vertices := []ebiten.Vertex{}
-	indices := []uint16{}
+	vertices := make([]ebiten.Vertex, 0, 1+circlePoints)
+	indices := make([]uint16, 0, circlePoints*3)
 
 	// 中心点
 	vertices = append(vertices, ebiten.Vertex{
