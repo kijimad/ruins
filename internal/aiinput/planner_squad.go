@@ -171,7 +171,7 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *
 		return nil, activity.ActionParams{}, false
 	}
 
-	if dist <= 1 {
+	if dist == 1 {
 		target := *nearestEnemy
 		return &activity.AttackActivity{}, activity.ActionParams{
 			Actor:  entity,
