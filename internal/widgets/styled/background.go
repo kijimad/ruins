@@ -33,10 +33,7 @@ func DrawFramedBackground(screen *ebiten.Image, x, y, width, height int, style B
 	}
 
 	// 内側の背景を描画（枠線を避けるため少し小さくする）
-	borderOffset := int(style.BorderWidth)
-	if borderOffset < 1 {
-		borderOffset = 1
-	}
+	borderOffset := max(int(style.BorderWidth), 1)
 
 	vector.FillRect(screen,
 		float32(x+borderOffset),

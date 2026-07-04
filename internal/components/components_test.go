@@ -2,6 +2,7 @@ package components
 
 import (
 	"reflect"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -34,9 +35,9 @@ func TestInitializeComponents(t *testing.T) {
 			fieldName := fieldType.Name
 
 			switch field.Type() {
-			case reflect.TypeOf((*ecs.SliceComponent)(nil)):
+			case reflect.TypeFor[*ecs.SliceComponent]():
 				assert.NotNil(t, field.Interface(), "SliceComponent %s は初期化されている必要がある", fieldName)
-			case reflect.TypeOf((*ecs.NullComponent)(nil)):
+			case reflect.TypeFor[*ecs.NullComponent]():
 				assert.NotNil(t, field.Interface(), "NullComponent %s は初期化されている必要がある", fieldName)
 			}
 		}
@@ -104,9 +105,9 @@ func TestInitializeComponents(t *testing.T) {
 			}
 
 			switch field.Type() {
-			case reflect.TypeOf((*ecs.SliceComponent)(nil)):
+			case reflect.TypeFor[*ecs.SliceComponent]():
 				field.Set(reflect.ValueOf(manager.NewSliceComponent()))
-			case reflect.TypeOf((*ecs.NullComponent)(nil)):
+			case reflect.TypeFor[*ecs.NullComponent]():
 				field.Set(reflect.ValueOf(manager.NewNullComponent()))
 			default:
 				// 未対応の型が検出された
@@ -198,8 +199,8 @@ func TestComponentsStructure(t *testing.T) {
 		typ := val.Type()
 
 		supportedTypes := []reflect.Type{
-			reflect.TypeOf((*ecs.SliceComponent)(nil)),
-			reflect.TypeOf((*ecs.NullComponent)(nil)),
+			reflect.TypeFor[*ecs.SliceComponent](),
+			reflect.TypeFor[*ecs.NullComponent](),
 		}
 
 		for i := 0; i < val.NumField(); i++ {
@@ -207,13 +208,7 @@ func TestComponentsStructure(t *testing.T) {
 			fieldType := typ.Field(i)
 			fieldName := fieldType.Name
 
-			isSupported := false
-			for _, supportedType := range supportedTypes {
-				if field.Type() == supportedType {
-					isSupported = true
-					break
-				}
-			}
+			isSupported := slices.Contains(supportedTypes, field.Type())
 
 			assert.True(t, isSupported,
 				"フィールド %s の型 %v はサポートされている必要がある",

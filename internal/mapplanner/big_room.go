@@ -137,7 +137,7 @@ func (b BigRoomDraw) applyObstacles(planData *MetaPlan) {
 		roomHeight := int(room.Y2 - room.Y1)
 		obstacleCount := (roomWidth * roomHeight) / 30 // 面積の1/30程度
 
-		for i := 0; i < obstacleCount; i++ {
+		for range obstacleCount {
 			// 部屋内のランダムな位置に障害物を配置する
 			// IntNの引数が正であることを保証する
 			maxXRange := max(1, roomWidth-2)

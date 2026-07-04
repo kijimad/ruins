@@ -192,10 +192,10 @@ func (c *Components) InitializeComponents(manager *ecs.Manager) error {
 
 		// フィールドの型に基づいて適切なコンポーネントを作成
 		switch field.Type() {
-		case reflect.TypeOf((*ecs.SliceComponent)(nil)):
+		case reflect.TypeFor[*ecs.SliceComponent]():
 			// SliceComponent の初期化
 			field.Set(reflect.ValueOf(manager.NewSliceComponent()))
-		case reflect.TypeOf((*ecs.NullComponent)(nil)):
+		case reflect.TypeFor[*ecs.NullComponent]():
 			// NullComponent の初期化
 			field.Set(reflect.ValueOf(manager.NewNullComponent()))
 		default:

@@ -29,8 +29,8 @@ var globalConfig = Config{
 // parseCategoryLevels はカテゴリ別レベル設定を解析する
 func parseCategoryLevels(s string) map[Category]Level {
 	result := make(map[Category]Level)
-	pairs := strings.Split(s, ",")
-	for _, pair := range pairs {
+	pairs := strings.SplitSeq(s, ",")
+	for pair := range pairs {
 		parts := strings.Split(strings.TrimSpace(pair), "=")
 		if len(parts) == 2 {
 			category := Category(parts[0])

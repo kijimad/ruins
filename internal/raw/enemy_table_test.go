@@ -43,7 +43,7 @@ func TestEnemyTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	iterations := 10000
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 5)
 		require.NoError(t, err)
 		results[result]++
@@ -119,7 +119,7 @@ func TestEnemyTable_SelectByWeight_Reproducibility(t *testing.T) {
 	rng1 := rand.New(rand.NewPCG(seed, seed+1))
 	rng2 := rand.New(rand.NewPCG(seed, seed+1))
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		result1, err1 := SelectEnemyByWeight(enemyTable, rng1, 5)
 		result2, err2 := SelectEnemyByWeight(enemyTable, rng2, 5)
 		require.NoError(t, err1)
@@ -144,7 +144,7 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 
 	// 深度1: 弱い敵のみ選択可能
 	results := make(map[string]int)
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 1)
 		require.NoError(t, err)
 		if result != "" {
@@ -157,7 +157,7 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 
 	// 深度5: 弱い敵と中級の敵が選択可能
 	results = make(map[string]int)
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 5)
 		require.NoError(t, err)
 		if result != "" {
@@ -170,7 +170,7 @@ func TestEnemyTable_SelectByWeight_DepthFiltering_MinDepth(t *testing.T) {
 
 	// 深度15: 強い敵のみ選択可能
 	results = make(map[string]int)
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		result, err := SelectEnemyByWeight(enemyTable, rng, 15)
 		require.NoError(t, err)
 		if result != "" {

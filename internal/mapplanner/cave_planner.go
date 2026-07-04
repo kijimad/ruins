@@ -45,8 +45,8 @@ func (c CaveCellularAutomata) PlanMeta(planData *MetaPlan) error {
 	for iter := 0; iter < iterations; iter++ {
 		newTiles := make([]oapi.Tile, len(planData.Tiles))
 
-		for x := 0; x < width; x++ {
-			for y := 0; y < height; y++ {
+		for x := range width {
+			for y := range height {
 				idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 
 				// 左右端は壁にする
@@ -107,8 +107,8 @@ func (c CaveCellularAutomata) extractCaveRooms(planData *MetaPlan) {
 	visited := make([]bool, len(planData.Tiles))
 
 	// 連結している床領域を見つけて部屋として登録
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
+	for x := range width {
+		for y := range height {
 			idx := planData.Level.XYTileIndex(consts.Tile(x), consts.Tile(y))
 
 			if !planData.Tiles[idx].BlockPass && !visited[idx] {

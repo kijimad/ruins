@@ -3,6 +3,7 @@ package messagewindow
 import (
 	"fmt"
 	"image"
+	"strings"
 
 	"github.com/ebitenui/ebitenui"
 	eui_image "github.com/ebitenui/ebitenui/image"
@@ -275,11 +276,7 @@ func (w *Window) calculateWindowSize() WindowSize {
 		// 最大高さを画面高さの80%に制限
 		maxHeightWithChoices := int(float64(w.world.Resources.ScreenDimensions.Height) * 0.8)
 
-		if calculatedHeight > maxHeightWithChoices {
-			baseHeight = maxHeightWithChoices
-		} else {
-			baseHeight = calculatedHeight
-		}
+		baseHeight = min(calculatedHeight, maxHeightWithChoices)
 	}
 
 	return WindowSize{
@@ -669,13 +666,13 @@ func (w *Window) createSegmentedTextLines() *widget.Container {
 		// 空行かどうかを判定（全セグメントが空白文字のみ）
 		isEmptyLine := true
 		for _, seg := range lineSegments {
-			trimmed := ""
+			var trimmed strings.Builder
 			for _, r := range seg.Text {
 				if r != ' ' && r != '\t' && r != '\n' && r != '\r' {
-					trimmed += string(r)
+					trimmed.WriteString(string(r))
 				}
 			}
-			if trimmed != "" {
+			if trimmed.String() != "" {
 				isEmptyLine = false
 				break
 			}

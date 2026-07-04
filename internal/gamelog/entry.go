@@ -1,5 +1,7 @@
 package gamelog
 
+import "strings"
+
 // LogEntry は複数のフラグメントからなるログエントリ
 type LogEntry struct {
 	Fragments []LogFragment `json:"fragments"`
@@ -7,11 +9,11 @@ type LogEntry struct {
 
 // Text はエントリ全体のテキストを結合して返す
 func (e LogEntry) Text() string {
-	var result string
+	var result strings.Builder
 	for _, fragment := range e.Fragments {
-		result += fragment.Text
+		result.WriteString(fragment.Text)
 	}
-	return result
+	return result.String()
 }
 
 // IsEmpty はエントリが空かどうかを判定

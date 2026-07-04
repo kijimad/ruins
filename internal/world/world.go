@@ -79,6 +79,6 @@ func (world World) GetManager() *ecs.Manager {
 }
 
 // GetComponents は World interfaceを満たすためのメソッド
-func (world World) GetComponents() interface{} {
+func (world World) GetComponents() any {
 	return world.Components
 }

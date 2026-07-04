@@ -181,12 +181,12 @@ func (st *PickupState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	if pickupCursorCache == nil {
 		pickupCursorCache = ebiten.NewImage(tileSize, tileSize)
 		cursorColor := theme.CursorPickup
-		for i := 0; i < 3; i++ {
-			for x := 0; x < tileSize; x++ {
+		for i := range 3 {
+			for x := range tileSize {
 				pickupCursorCache.Set(x, i, cursorColor)
 				pickupCursorCache.Set(x, tileSize-1-i, cursorColor)
 			}
-			for y := 0; y < tileSize; y++ {
+			for y := range tileSize {
 				pickupCursorCache.Set(i, y, cursorColor)
 				pickupCursorCache.Set(tileSize-1-i, y, cursorColor)
 			}

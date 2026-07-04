@@ -74,11 +74,11 @@ func buildImageTableFrom(dir string) (string, error) {
 
 	// Markdownテーブルのヘッダー
 	sb.WriteString("|")
-	for i := 0; i < columns; i++ {
+	for range columns {
 		sb.WriteString(" |")
 	}
 	sb.WriteString("\n|")
-	for i := 0; i < columns; i++ {
+	for range columns {
 		sb.WriteString("---|")
 	}
 	sb.WriteString("\n")

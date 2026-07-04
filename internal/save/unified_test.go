@@ -29,7 +29,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		sm := createTestSerializationManager(t)
 
 		var jsonStrings []string
-		for i := 0; i < 5; i++ {
+		for range 5 {
 			jsonStr, err := sm.GenerateWorldJSON(world)
 			require.NoError(t, err)
 			jsonStrings = append(jsonStrings, jsonStr)
@@ -48,7 +48,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		t.Parallel()
 		// 異なるワールドインスタンスで同じデータを作成
 		var jsonStrings []string
-		for session := 0; session < 3; session++ {
+		for range 3 {
 			world := createStandardTestWorld(t)
 			sm := createTestSerializationManager(t)
 			jsonStr, err := sm.GenerateWorldJSON(world)
@@ -70,7 +70,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		// 異なる順序でコンポーネントを追加したワールドを作成
 		var jsonStrings []string
 
-		for variant := 0; variant < 3; variant++ {
+		for variant := range 3 {
 			world := testutil.InitTestWorld(t)
 
 			entity := world.Manager.NewEntity()
@@ -123,11 +123,11 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		// 異なる順序でエンティティを作成
 		var jsonStrings []string
 
-		for variant := 0; variant < 2; variant++ {
+		for variant := range 2 {
 			world := testutil.InitTestWorld(t)
 
 			var entities []ecs.Entity
-			for i := 0; i < 3; i++ {
+			for range 3 {
 				entities = append(entities, world.Manager.NewEntity())
 			}
 
@@ -160,7 +160,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		t.Parallel()
 		var jsonStrings []string
 
-		for session := 0; session < 3; session++ {
+		for range 3 {
 			world := testutil.InitTestWorld(t)
 
 			// プレイヤーを生成してリアルなゲームデータを作成
@@ -219,7 +219,7 @@ func TestJSONDeterministicBehavior(t *testing.T) {
 		// 決定的な複雑データを作成
 		var jsonStrings []string
 
-		for session := 0; session < 3; session++ {
+		for range 3 {
 			world := createComplexDeterministicWorld(t)
 
 			sm := createTestSerializationManager(t)
@@ -323,7 +323,7 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		var contents []string
 
 		// 複数回のセーブ・ロードサイクル
-		for cycle := 0; cycle < 3; cycle++ {
+		for cycle := range 3 {
 			filename := "cycle_" + string(rune('0'+cycle))
 			err := sm.SaveWorld(world, filename)
 			require.NoError(t, err)
@@ -498,7 +498,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 	_ = append(items, potion)
 
 	// 決定的なNPC作成
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		npc := world.Manager.NewEntity()
 		npc.AddComponent(world.Components.Name, &gc.Name{Name: "NPC" + string(rune('A'+i))})
 		npc.AddComponent(world.Components.GridElement, &gc.GridElement{
@@ -538,7 +538,7 @@ func createComplexDeterministicWorld(t *testing.T) w.World {
 // normalizeJSONForComparison 比較用にJSONを正規化
 func normalizeJSONForComparison(jsonStr string) string {
 	lines := make([]string, 0)
-	for _, line := range strings.Split(jsonStr, "\n") {
+	for line := range strings.SplitSeq(jsonStr, "\n") {
 		// timestampとchecksumを除外
 		if strings.Contains(line, "\"timestamp\"") || strings.Contains(line, "\"checksum\"") {
 			continue

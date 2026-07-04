@@ -38,7 +38,7 @@ func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {
 
 	// 残りの部屋はランダム配置
 	maxRooms := 4 + planData.RNG.IntN(10)
-	for i := 0; i < maxRooms; i++ {
+	for range maxRooms {
 		y := planData.RNG.IntN(height)
 		rooms = append(rooms, b.createRoom(planData, width, height, y))
 	}

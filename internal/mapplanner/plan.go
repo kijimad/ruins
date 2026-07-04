@@ -23,7 +23,7 @@ func Plan(world w.World, width, height consts.Tile, seed uint64, plannerType Pla
 	var lastErr error
 
 	// 最大再試行回数まで繰り返す
-	for attempt := 0; attempt < MaxPlanRetries; attempt++ {
+	for attempt := range MaxPlanRetries {
 		// 再試行時は異なるシードを使用
 		currentSeed := seed + uint64(attempt*1000)
 

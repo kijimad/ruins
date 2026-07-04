@@ -75,7 +75,7 @@ func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, cen
 	})
 
 	// 円周上の点
-	for i := 0; i < circlePoints; i++ {
+	for i := range circlePoints {
 		angle := 2 * math.Pi * float64(i) / float64(circlePoints)
 		x := centerX + radius*float32(math.Cos(angle))
 		y := centerY + radius*float32(math.Sin(angle))

@@ -17,7 +17,7 @@ type ComponentList[T any] struct {
 // 依存性逆転のためのメソッドを定義する
 type World interface {
 	GetManager() *ecs.Manager
-	GetComponents() interface{}
+	GetComponents() any
 }
 
 // AddEntities はComponentListからECSエンティティを作成する
@@ -48,7 +48,7 @@ func AddEntities[W World, C any](world W, entityComponentList ComponentList[C]) 
 
 // AddEntityComponents はエンティティにコンポーネントを追加する
 // EntitySpec の各フィールドを対応する ECS コンポーネントに変換して追加する
-func AddEntityComponents(entity ecs.Entity, ecsComponentList interface{}, components interface{}) error {
+func AddEntityComponents(entity ecs.Entity, ecsComponentList any, components any) error {
 	// 追加先のコンポーネントリスト。コンポーネントのスライス群
 	ecv := reflect.ValueOf(ecsComponentList).Elem()
 	// 追加するコンポーネント
@@ -66,7 +66,7 @@ func AddEntityComponents(entity ecs.Entity, ecsComponentList interface{}, compon
 				entity.AddComponent(ecsComponent, value.Interface())
 			case reflect.Interface:
 				// Stringer インターフェースだけ対応している。Componentsに対応するフィールド名が必須なため
-				if component.Type().Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {
+				if component.Type().Implements(reflect.TypeFor[fmt.Stringer]()) {
 					method := component.MethodByName("String")
 					if !method.IsValid() {
 						return fmt.Errorf("String() に失敗した")

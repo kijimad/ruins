@@ -66,7 +66,7 @@ func SimulateRun(master oapi.Raws, enemyTableName string, player CombatantStats,
 		floorTotalTurns := 0
 		floorBattleCount := 0
 
-		for i := 0; i < enemyCount; i++ {
+		for range enemyCount {
 			// 敵テーブルから敵を選択
 			enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, depth)
 			if err != nil || enemyName == "" {
@@ -169,7 +169,7 @@ func rollFloorLoot(master oapi.Raws, tableName string, depth int, playerMaxHP in
 	// mapplanner のアイテム配置ロジック: 15 + rand(0..8)
 	itemCount := 15 + rng.IntN(9)
 
-	for i := 0; i < itemCount; i++ {
+	for range itemCount {
 		itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)
 
 		if err != nil || itemName == "" {
@@ -213,7 +213,7 @@ func calcHealing(ph *gc.ProvidesHealing, playerMaxHP int) int {
 // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す
 func RunBattles(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, n int, rng *rand.Rand) []BattleResult {
 	results := make([]BattleResult, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		results[i] = SimulateBattle(player, enemy, playerWeapon, enemyWeapon, rng)
 	}
 	return results
@@ -243,7 +243,7 @@ func (bs BattleStats) DPS() float64 {
 // RunSimulations はN回のランシミュレーションを実行する
 func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {
 	results := make([]RunResult, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		rng := rand.New(rand.NewPCG(seed+uint64(i), 0))
 		results[i] = SimulateRun(master, enemyTableName, player, playerWeapon, maxDepth, rng)
 	}

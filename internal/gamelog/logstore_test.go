@@ -38,7 +38,7 @@ func TestSafeSliceMaxSize(t *testing.T) {
 		sl := NewSafeSlice(0)
 
 		// デフォルトサイズまで追加
-		for i := 0; i < DefaultMaxLogSize+10; i++ {
+		for i := range DefaultMaxLogSize + 10 {
 			sl.Push(fmt.Sprintf("message%d", i))
 		}
 
@@ -51,7 +51,7 @@ func TestSafeSliceMaxSize(t *testing.T) {
 		sl := NewSafeSlice(-5)
 
 		// 少し多めに追加してテスト
-		for i := 0; i < 20; i++ {
+		for i := range 20 {
 			sl.Push(fmt.Sprintf("message%d", i))
 		}
 
@@ -67,7 +67,7 @@ func TestSafeSliceMemoryLeak(t *testing.T) {
 		sl := NewSafeSlice(10)
 
 		// 大量の要素を追加
-		for i := 0; i < 1000; i++ {
+		for i := range 1000 {
 			sl.Push(fmt.Sprintf("message%d", i))
 		}
 
@@ -76,7 +76,7 @@ func TestSafeSliceMemoryLeak(t *testing.T) {
 		assert.Equal(t, 10, len(content))
 
 		// 最新の10個が保持されていることを確認
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			expected := fmt.Sprintf("message%d", 990+i)
 			assert.Equal(t, expected, content[i])
 		}
@@ -220,7 +220,7 @@ func TestSafeSliceVersion(t *testing.T) {
 		t.Parallel()
 		log := NewSafeSlice(3)
 
-		for i := 0; i < 10; i++ {
+		for i := range 10 {
 			log.Push(fmt.Sprintf("msg%d", i))
 		}
 

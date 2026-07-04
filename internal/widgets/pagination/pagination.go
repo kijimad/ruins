@@ -44,10 +44,7 @@ func (p Pagination) GetVisibleRange() (start, end int) {
 		return 0, p.ItemCount
 	}
 	start = p.Page * p.ItemsPerPage
-	end = start + p.ItemsPerPage
-	if end > p.ItemCount {
-		end = p.ItemCount
-	}
+	end = min(start+p.ItemsPerPage, p.ItemCount)
 	if start >= p.ItemCount {
 		return 0, 0
 	}

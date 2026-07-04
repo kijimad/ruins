@@ -52,10 +52,7 @@ func rollAttack(attacker, defender CombatantStats, weapon WeaponStats, rng *rand
 		baseDamage = formula.ApplyCritical(baseDamage)
 	}
 
-	finalDamage := baseDamage - defender.Defense
-	if finalDamage < formula.MinDamage {
-		finalDamage = formula.MinDamage
-	}
+	finalDamage := max(baseDamage-defender.Defense, formula.MinDamage)
 	return finalDamage
 }
 

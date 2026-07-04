@@ -30,7 +30,7 @@ func (l *Logger) ColorRGBA(c color.RGBA) *Logger {
 }
 
 // Append は現在の色でテキストを追加
-func (l *Logger) Append(text interface{}) *Logger {
+func (l *Logger) Append(text any) *Logger {
 	textStr := fmt.Sprintf("%v", text)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: l.currentColor,
@@ -45,7 +45,7 @@ func (l *Logger) Log() {
 }
 
 // NPCName はNPC名を黄色で追加
-func (l *Logger) NPCName(name interface{}) *Logger {
+func (l *Logger) NPCName(name any) *Logger {
 	nameStr := fmt.Sprintf("%v", name)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorYellow,
@@ -55,7 +55,7 @@ func (l *Logger) NPCName(name interface{}) *Logger {
 }
 
 // ItemName はアイテム名をシアン色で追加
-func (l *Logger) ItemName(item interface{}) *Logger {
+func (l *Logger) ItemName(item any) *Logger {
 	itemStr := fmt.Sprintf("%v", item)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorCyan,
@@ -74,7 +74,7 @@ func (l *Logger) Damage(damage int) *Logger {
 }
 
 // PlayerName はプレイヤー名を緑色で追加
-func (l *Logger) PlayerName(name interface{}) *Logger {
+func (l *Logger) PlayerName(name any) *Logger {
 	nameStr := fmt.Sprintf("%v", name)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorGreen,
@@ -86,7 +86,7 @@ func (l *Logger) PlayerName(name interface{}) *Logger {
 // === ゲーム固有プリセット関数群 ===
 
 // Success は成功メッセージを緑色で追加
-func (l *Logger) Success(text interface{}) *Logger {
+func (l *Logger) Success(text any) *Logger {
 	textStr := fmt.Sprintf("%v", text)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorGreen,
@@ -96,7 +96,7 @@ func (l *Logger) Success(text interface{}) *Logger {
 }
 
 // Warning は警告メッセージを黄色で追加
-func (l *Logger) Warning(text interface{}) *Logger {
+func (l *Logger) Warning(text any) *Logger {
 	textStr := fmt.Sprintf("%v", text)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorYellow,
@@ -106,7 +106,7 @@ func (l *Logger) Warning(text interface{}) *Logger {
 }
 
 // Error はエラーメッセージを赤色で追加
-func (l *Logger) Error(text interface{}) *Logger {
+func (l *Logger) Error(text any) *Logger {
 	textStr := fmt.Sprintf("%v", text)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorRed,
@@ -116,7 +116,7 @@ func (l *Logger) Error(text interface{}) *Logger {
 }
 
 // Location は場所名をオレンジ色で追加
-func (l *Logger) Location(location interface{}) *Logger {
+func (l *Logger) Location(location any) *Logger {
 	locationStr := fmt.Sprintf("%v", location)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorOrange,
@@ -126,7 +126,7 @@ func (l *Logger) Location(location interface{}) *Logger {
 }
 
 // Action はアクション名を紫色で追加
-func (l *Logger) Action(action interface{}) *Logger {
+func (l *Logger) Action(action any) *Logger {
 	actionStr := fmt.Sprintf("%v", action)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorPurple,
@@ -137,7 +137,7 @@ func (l *Logger) Action(action interface{}) *Logger {
 
 // Money は金額を黄色で追加
 // 呼び出し側でFormatCurrencyを使って文字列化してから渡すこと
-func (l *Logger) Money(amount interface{}) *Logger {
+func (l *Logger) Money(amount any) *Logger {
 	amountStr := fmt.Sprintf("%v", amount)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorYellow,
@@ -147,7 +147,7 @@ func (l *Logger) Money(amount interface{}) *Logger {
 }
 
 // System はシステムメッセージを水色で追加
-func (l *Logger) System(text interface{}) *Logger {
+func (l *Logger) System(text any) *Logger {
 	textStr := fmt.Sprintf("%v", text)
 	l.fragments = append(l.fragments, LogFragment{
 		Color: ColorCyan,

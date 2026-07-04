@@ -20,7 +20,7 @@ func (f ForestPlanner) PlanInitial(planData *MetaPlan) error {
 	// 森の中に小さな空き地（部屋）をいくつか作成
 	clearingCount := 3 + planData.RNG.IntN(4)
 
-	for i := 0; i < clearingCount; i++ {
+	for range clearingCount {
 		// 空き地のサイズとランダムな位置
 		clearingWidth := 4 + planData.RNG.IntN(6)
 		clearingHeight := 4 + planData.RNG.IntN(6)
@@ -193,22 +193,16 @@ func (f ForestPaths) PlanMeta(planData *MetaPlan) error {
 func (f ForestPaths) createGuaranteedVerticalPath(planData *MetaPlan, width, height int) {
 	// ランダムなX位置を選択（中央付近を優先）
 	centerX := width / 2
-	offsetRange := width / 4
-	if offsetRange < 1 {
-		offsetRange = 1
-	}
-	pathX := centerX + planData.RNG.IntN(offsetRange*2+1) - offsetRange
-
-	// 境界チェック
-	if pathX < 1 {
-		pathX = 1
-	}
+	offsetRange := max(width/4, 1)
+	pathX := max(
+		// 境界チェック
+		centerX+planData.RNG.IntN(offsetRange*2+1)-offsetRange, 1)
 	if pathX >= width-1 {
 		pathX = width - 2
 	}
 
 	// 上から下まで確実に通路を作る
-	for y := 0; y < height; y++ {
+	for y := range height {
 		// 通路とその左右1タイルを床にする（幅3の通路）
 		for dx := -1; dx <= 1; dx++ {
 			x := pathX + dx
@@ -303,7 +297,7 @@ func (f ForestWildlife) PlanMeta(planData *MetaPlan) error {
 	// 小さな動物の通り道や巣穴を作成
 	wildlifeSpotCount := 2 + planData.RNG.IntN(4)
 
-	for i := 0; i < wildlifeSpotCount; i++ {
+	for range wildlifeSpotCount {
 		// IntNの引数が正であることを保証
 		maxXRange := max(1, width-4)
 		maxYRange := max(1, height-4)

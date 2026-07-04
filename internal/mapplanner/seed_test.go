@@ -103,7 +103,7 @@ func TestRandomSourceDeterministic(t *testing.T) {
 	rs2 := rand.New(rand.NewPCG(seed, seed+1))
 
 	// 同じ順序で同じ値を生成することを確認
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		val1 := rs1.IntN(1000)
 		val2 := rs2.IntN(1000)
 		if val1 != val2 {
@@ -112,7 +112,7 @@ func TestRandomSourceDeterministic(t *testing.T) {
 	}
 
 	// Float64も確認
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		val1 := rs1.Float64()
 		val2 := rs2.Float64()
 		if val1 != val2 {

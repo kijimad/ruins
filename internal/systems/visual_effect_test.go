@@ -254,7 +254,7 @@ func TestVisualEffectSystem_DamageEffectCompletion(t *testing.T) {
 	})
 
 	sys := &VisualEffectSystem{}
-	for i := 0; i < 5; i++ {
+	for range 5 {
 		err := sys.Update(world)
 		require.NoError(t, err)
 	}
@@ -289,7 +289,7 @@ func TestVisualEffectSystem_EffectCompletion(t *testing.T) {
 	sys := &VisualEffectSystem{}
 
 	// 複数回更新してエフェクトを完了させる
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		err := sys.Update(world)
 		require.NoError(t, err)
 	}

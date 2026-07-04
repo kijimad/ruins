@@ -17,7 +17,7 @@ func (r RuinsPlanner) PlanInitial(planData *MetaPlan) error {
 	// まず大きな廃墟建物の基盤を作成（3-5個の大きな矩形）
 	ruinCount := 3 + planData.RNG.IntN(3)
 
-	for i := 0; i < ruinCount; i++ {
+	for range ruinCount {
 		// ランダムな位置とサイズで廃墟の基盤を作成
 		buildingWidth := 8 + planData.RNG.IntN(10)
 		buildingHeight := 6 + planData.RNG.IntN(8)

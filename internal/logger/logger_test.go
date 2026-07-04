@@ -54,7 +54,7 @@ func TestLoggerWithField(t *testing.T) {
 func TestLoggerWithFields(t *testing.T) {
 	t.Parallel()
 	logger := New(CategoryDebug)
-	fields := map[string]interface{}{
+	fields := map[string]any{
 		"key1": "value1",
 		"key2": 42,
 	}
@@ -140,7 +140,7 @@ func TestJSONOutput(t *testing.T) {
 	})
 
 	// JSON解析
-	var entry map[string]interface{}
+	var entry map[string]any
 	err := json.Unmarshal([]byte(output), &entry)
 	require.NoError(t, err, "JSON解析エラー")
 
@@ -326,7 +326,7 @@ func TestLoggerOutput(t *testing.T) {
 	// 各レベルのテスト
 	tests := []struct {
 		name     string
-		logFunc  func(string, ...interface{})
+		logFunc  func(string, ...any)
 		level    string
 		contains []string
 	}{
@@ -386,7 +386,7 @@ func TestIgnoreLevel(t *testing.T) {
 	// すべてのレベルのログが出力されない
 	levels := []struct {
 		name string
-		fn   func(string, ...interface{})
+		fn   func(string, ...any)
 	}{
 		{"Debug", logger.Debug},
 		{"Info", logger.Info},

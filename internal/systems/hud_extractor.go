@@ -341,7 +341,7 @@ func extractWeaponSlotsData(world w.World) hud.WeaponSlotsData {
 		weapons := query.GetWeapons(world, playerEntity)
 
 		// 5つの武器スロット情報を作成
-		for i := 0; i < 5; i++ {
+		for i := range 5 {
 			slotNumber := gc.EquipmentSlotNumber(int(gc.SlotWeapon1) + i)
 			weapon := weapons[i]
 

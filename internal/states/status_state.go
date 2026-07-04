@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -373,21 +374,21 @@ func (st *StatusState) createHealthItems(world w.World, playerEntity ecs.Entity)
 		hs = world.Components.HealthStatus.Get(playerEntity).(*gc.HealthStatus)
 	}
 
-	for i := 0; i < int(gc.BodyPartCount); i++ {
+	for i := range int(gc.BodyPartCount) {
 		part := gc.BodyPart(i)
 
-		conditionStr := ""
+		var conditionStr strings.Builder
 		if hs != nil {
 			conditions := hs.Parts[i].Conditions
 			for j, cond := range conditions {
 				if j > 0 {
-					conditionStr += ", "
+					conditionStr.WriteString(", ")
 				}
-				conditionStr += cond.DisplayName()
+				conditionStr.WriteString(cond.DisplayName())
 			}
 		}
 
-		value := conditionStr
+		value := conditionStr.String()
 		if value == "" {
 			value = "正常"
 		}

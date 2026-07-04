@@ -27,7 +27,7 @@ func TestDropTable_SelectByWeight_EmptyMaterial(t *testing.T) {
 	iterations := 1000
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		result, err := SelectDropByWeight(dropTable, rng)
 		require.NoError(t, err)
 		switch result {
@@ -122,7 +122,7 @@ func TestDropTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	iterations := 10000
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		result, err := SelectDropByWeight(dropTable, rng)
 		require.NoError(t, err)
 		results[result]++

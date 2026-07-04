@@ -121,7 +121,7 @@ func addSelectableRow(container *widget.Container, columnWidths []int, values []
 
 	row := newRowContainer(columnWidths, bgImage)
 
-	for i := 0; i < len(values); i++ {
+	for i := range values {
 		width := 80
 		if i < len(columnWidths) {
 			width = columnWidths[i]

@@ -68,7 +68,7 @@ func renderState(t *testing.T, buildStates func(w.World) []es.State[w.World]) *i
 	}
 
 	// レイアウト確定のためフレームを回す
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		if err := stateMachine.Update(world); err != nil {
 			break
 		}

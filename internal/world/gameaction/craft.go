@@ -68,10 +68,7 @@ func CanCraft(world w.World, name string) (bool, error) {
 // craftCostPctは素材消費量の倍率%で、100が基準。低いほど素材が節約できる。
 func consumeMaterials(world w.World, goal string, craftCostPct int) error {
 	for _, recipeInput := range requiredMaterials(world, goal) {
-		consumed := recipeInput.Amount * craftCostPct / 100
-		if consumed < 1 {
-			consumed = 1
-		}
+		consumed := max(recipeInput.Amount*craftCostPct/100, 1)
 		err := lifecycle.ChangeStackableCount(world, recipeInput.Name, -consumed)
 		if err != nil {
 			return err

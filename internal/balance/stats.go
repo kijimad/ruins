@@ -10,10 +10,7 @@ func Percentile(sorted []int, p float64) int {
 	if len(sorted) == 0 {
 		return 0
 	}
-	idx := int(float64(len(sorted)-1) * p)
-	if idx < 0 {
-		idx = 0
-	}
+	idx := max(int(float64(len(sorted)-1)*p), 0)
 	if idx >= len(sorted) {
 		idx = len(sorted) - 1
 	}
@@ -214,10 +211,7 @@ func (s RunStats) floorDamagePercentile(depth, playerMaxHP int, p float64) int {
 				continue
 			}
 		}
-		dmg := entering - hpBefore
-		if dmg < 0 {
-			dmg = 0
-		}
+		dmg := max(entering-hpBefore, 0)
 		damages = append(damages, dmg)
 	}
 	if len(damages) == 0 {
@@ -236,10 +230,7 @@ func (s RunStats) floorHealingPercentile(depth int, p float64) int {
 		if !ok1 || !ok2 {
 			continue
 		}
-		heal := hpAfter - hpBefore
-		if heal < 0 {
-			heal = 0
-		}
+		heal := max(hpAfter-hpBefore, 0)
 		heals = append(heals, heal)
 	}
 	if len(heals) == 0 {

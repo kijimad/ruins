@@ -254,10 +254,7 @@ func applyElementResist(damage int, target ecs.Entity, element gc.ElementType, w
 	if !ok {
 		return damage
 	}
-	reduced := damage * mult / 100
-	if reduced < formula.MinDamage {
-		reduced = formula.MinDamage
-	}
+	reduced := max(damage*mult/100, formula.MinDamage)
 	return reduced
 }
 
@@ -275,10 +272,7 @@ func applyAttackDamage(actor, target ecs.Entity, world w.World, attack gc.Attack
 		return nil
 	}
 
-	damage := calculateDamage(actor, target, world, attack, criticalHit, damageModifier)
-	if damage < 0 {
-		damage = 0
-	}
+	damage := max(calculateDamage(actor, target, world, attack, criticalHit, damageModifier), 0)
 
 	logAttackResult(actor, target, world, true, criticalHit, damage, attackMethodName)
 	growWeaponSkill(actor, world, attack)
@@ -362,10 +356,7 @@ func calculateDamage(attacker, target ecs.Entity, world w.World, attack gc.Attac
 		baseDamage = applyElementResist(baseDamage, target, attack.GetElement(), world)
 	}
 
-	finalDamage := baseDamage - targetDefense
-	if finalDamage < formula.MinDamage {
-		finalDamage = formula.MinDamage
-	}
+	finalDamage := max(baseDamage-targetDefense, formula.MinDamage)
 
 	return finalDamage
 }

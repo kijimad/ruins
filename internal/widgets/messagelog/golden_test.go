@@ -62,7 +62,7 @@ func TestGolden_MaxLinesExceeded(t *testing.T) {
 	t.Parallel()
 	world := vrt.InitVRTWorld(t)
 	store := query.GetGameLog(world)
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		store.Push("メッセージ行")
 	}
 	vrt.AssertScreenGolden(t, func() func(*ebiten.Image) {

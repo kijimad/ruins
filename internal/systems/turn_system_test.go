@@ -614,7 +614,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	// AIターンを複数回実行して移動を確認
 	// planRandomMoveActionは30%待機なので、十分な回数試行する
 	moved := false
-	for turn := 0; turn < 50; turn++ {
+	for turn := range 50 {
 		// AP回復
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = 200
@@ -665,7 +665,7 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	ai.DurationSubStateTurns = 100
 
 	moved := false
-	for turn := 0; turn < 50; turn++ {
+	for turn := range 50 {
 		// AP回復
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = tb.AP.Max
@@ -713,7 +713,7 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	sys := &TurnSystem{}
 
 	moved := false
-	for cycle := 0; cycle < 50; cycle++ {
+	for cycle := range 50 {
 		turnState := query.GetTurnState(world)
 
 		// PlayerTurn: APをマイナスにして自動でAIターンへ遷移させる
@@ -785,7 +785,7 @@ func TestPatrolMovement(t *testing.T) {
 
 	// 複数ターン実行して移動を確認する
 	moved := false
-	for turn := 0; turn < 10; turn++ {
+	for turn := range 10 {
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = 200
 
@@ -843,7 +843,7 @@ func TestTerritorialMovement(t *testing.T) {
 
 	// 多数のターンを実行して範囲内に留まることを検証する
 	territorialRadius := 5
-	for turn := 0; turn < 100; turn++ {
+	for turn := range 100 {
 		tb := world.Components.TurnBased.Get(enemy).(*gc.TurnBased)
 		tb.AP.Current = 200
 
