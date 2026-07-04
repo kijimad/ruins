@@ -22,12 +22,14 @@ const territorialRadius = 5
 type roamingPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
+	rng          *rand.Rand
 }
 
-func newRoamingPlanner() *roamingPlanner {
+func newRoamingPlanner(rng *rand.Rand) *roamingPlanner {
 	return &roamingPlanner{
 		visionSystem: NewVisionSystem(),
 		logger:       logger.New(logger.CategoryTurn),
+		rng:          rng,
 	}
 }
 
@@ -146,31 +148,31 @@ func (rp *roamingPlanner) updateFromFleeing(ai *gc.AI, canSeePlayer bool, elapse
 func (rp *roamingPlanner) transitionToWaiting(ai *gc.AI, currentTurn int) {
 	ai.SubState = gc.AIStateWaiting
 	ai.StartSubStateTurn = currentTurn
-	ai.DurationSubStateTurns = 2 + rand.IntN(4)
+	ai.DurationSubStateTurns = 2 + rp.rng.IntN(4)
 }
 
 func (rp *roamingPlanner) transitionToDriving(ai *gc.AI, currentTurn int) {
 	ai.SubState = gc.AIStateDriving
 	ai.StartSubStateTurn = currentTurn
-	ai.DurationSubStateTurns = 3 + rand.IntN(7)
+	ai.DurationSubStateTurns = 3 + rp.rng.IntN(7)
 }
 
 func (rp *roamingPlanner) transitionToChasing(ai *gc.AI, currentTurn int) {
 	ai.SubState = gc.AIStateChasing
 	ai.StartSubStateTurn = currentTurn
-	ai.DurationSubStateTurns = 10 + rand.IntN(5)
+	ai.DurationSubStateTurns = 10 + rp.rng.IntN(5)
 }
 
 func (rp *roamingPlanner) transitionToFleeing(ai *gc.AI, currentTurn int) {
 	ai.SubState = gc.AIStateFleeing
 	ai.StartSubStateTurn = currentTurn
-	ai.DurationSubStateTurns = 5 + rand.IntN(5)
+	ai.DurationSubStateTurns = 5 + rp.rng.IntN(5)
 }
 
 func (rp *roamingPlanner) initializeToWaiting(ai *gc.AI, currentTurn int) {
 	ai.SubState = gc.AIStateWaiting
 	ai.StartSubStateTurn = currentTurn
-	ai.DurationSubStateTurns = 2 + rand.IntN(3)
+	ai.DurationSubStateTurns = 2 + rp.rng.IntN(3)
 }
 
 // ========== アクション計画ロジック ==========
@@ -214,12 +216,12 @@ func (rp *roamingPlanner) planFleeAction(world w.World, aiEntity, playerEntity e
 
 // planRandomMoveAction はランダム移動アクションを計画する
 func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	if rand.Float64() < 0.3 {
+	if rp.rng.Float64() < 0.3 {
 		return waitAction(aiEntity, "AIランダム待機")
 	}
 
 	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
-	for _, d := range shuffledEightDirections() {
+	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 		if activity.CanMoveTo(world, dest, from, aiEntity) {
 			return moveAction(aiEntity, dest)
@@ -251,7 +253,7 @@ func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, 
 
 // planWanderAction は低頻度でランダム移動するアクションを計画する
 func (rp *roamingPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	if rand.Float64() < 0.8 {
+	if rp.rng.Float64() < 0.8 {
 		return waitAction(aiEntity, "AI徘徊待機")
 	}
 	return rp.planRandomMoveAction(world, aiEntity, aiGrid)
@@ -259,7 +261,7 @@ func (rp *roamingPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, a
 
 // planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
 func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	if rand.Float64() < 0.3 {
+	if rp.rng.Float64() < 0.3 {
 		return waitAction(aiEntity, "AI壁沿い待機")
 	}
 
@@ -304,7 +306,7 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
 			tied = append(tied, c)
 		}
 	}
-	chosen := tied[rand.IntN(len(tied))]
+	chosen := tied[rp.rng.IntN(len(tied))]
 
 	return moveAction(aiEntity, consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})
 }
@@ -354,7 +356,7 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, a
 func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
 	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
-	for _, d := range shuffledEightDirections() {
+	for _, d := range shuffledEightDirections(rp.rng) {
 		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
 		dx := geometry.Abs(dest.X - ai.OriginX)

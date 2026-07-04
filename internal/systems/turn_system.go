@@ -82,7 +82,7 @@ func processAITurn(world w.World) error {
 	log := logger.New(logger.CategoryTurn)
 	log.Debug("AIターン処理開始")
 
-	processor := aiinput.NewProcessor()
+	processor := aiinput.NewProcessor(world.Config.RNG)
 	if err := processor.ProcessAll(world); err != nil {
 		return err
 	}

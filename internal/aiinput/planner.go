@@ -143,11 +143,11 @@ func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す
-func shuffledEightDirections() []consts.Coord[int] {
+func shuffledEightDirections(rng *rand.Rand) []consts.Coord[int] {
 	shuffled := make([]consts.Coord[int], len(eightDirections))
 	copy(shuffled, eightDirections)
 	for i := len(shuffled) - 1; i > 0; i-- {
-		j := rand.IntN(i + 1)
+		j := rng.IntN(i + 1)
 		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
 	}
 	return shuffled

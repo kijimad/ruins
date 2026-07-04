@@ -10,7 +10,7 @@ import (
 func TestUpdateState_UnknownState(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		SubState:              gc.AIStateSubState("INVALID"),
 		StartSubStateTurn:     1,
@@ -24,7 +24,7 @@ func TestUpdateState_UnknownState(t *testing.T) {
 func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatAttack,
@@ -46,7 +46,7 @@ func TestUpdateState_ChasingLostPlayer(t *testing.T) {
 func TestUpdateState_ChasingPlayerVisible_ContinuesChase(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatAttack,
@@ -64,7 +64,7 @@ func TestUpdateState_ChasingPlayerVisible_ContinuesChase(t *testing.T) {
 func TestUpdateState_WaitingToDriving(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		SubState:              gc.AIStateWaiting,
 		StartSubStateTurn:     0,
@@ -81,7 +81,7 @@ func TestUpdateState_WaitingToDriving(t *testing.T) {
 func TestUpdateState_DrivingToWaiting(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     0,
@@ -98,7 +98,7 @@ func TestUpdateState_DrivingToWaiting(t *testing.T) {
 func TestUpdateState_WaitingToChasing(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
@@ -114,7 +114,7 @@ func TestUpdateState_WaitingToChasing(t *testing.T) {
 func TestUpdateState_WaitingToFleeing(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
 		CombatCurrent:         gc.CombatEvade,
@@ -130,7 +130,7 @@ func TestUpdateState_WaitingToFleeing(t *testing.T) {
 func TestUpdateState_WaitingNeutralIgnoresPlayer(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatIgnore,
 		CombatCurrent:         gc.CombatIgnore,
@@ -146,7 +146,7 @@ func TestUpdateState_WaitingNeutralIgnoresPlayer(t *testing.T) {
 func TestUpdateState_DrivingToChasing(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
@@ -162,7 +162,7 @@ func TestUpdateState_DrivingToChasing(t *testing.T) {
 func TestUpdateState_DrivingToFleeing(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
 		CombatCurrent:         gc.CombatEvade,
@@ -178,7 +178,7 @@ func TestUpdateState_DrivingToFleeing(t *testing.T) {
 func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
 		CombatCurrent:         gc.CombatEvade,
@@ -195,7 +195,7 @@ func TestUpdateState_FleeingPlayerVisible_ResetsTurn(t *testing.T) {
 func TestUpdateState_FleeingToDriving(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
 		CombatCurrent:         gc.CombatEvade,
@@ -214,7 +214,7 @@ func TestUpdateState_FleeingToDriving(t *testing.T) {
 func TestCombatIgnorePermanentHostile(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatIgnore,
 		CombatCurrent:         gc.CombatIgnore,
@@ -253,7 +253,7 @@ func TestCombatIgnorePermanentHostile(t *testing.T) {
 func TestUpdateState_ChasingTimeout(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner()
+	rp := newRoamingPlanner(testRNG)
 	ai := &gc.AI{
 		SubState:              gc.AIStateChasing,
 		StartSubStateTurn:     0,

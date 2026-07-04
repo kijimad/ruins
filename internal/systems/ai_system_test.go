@@ -43,7 +43,7 @@ func TestAISystem(t *testing.T) {
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
 
 	// AIシステムを実行（aiinputパッケージを使用）
-	processor := aiinput.NewProcessor()
+	processor := aiinput.NewProcessor(world.Config.RNG)
 	require.NoError(t, processor.ProcessAll(world))
 
 	// システム実行後の位置を記録

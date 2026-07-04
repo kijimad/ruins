@@ -1,6 +1,8 @@
 package aiinput
 
 import (
+	"math/rand/v2"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -25,12 +27,14 @@ const vanguardMaxDistance = 3
 type squadPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
+	rng          *rand.Rand
 }
 
-func newSquadPlanner() *squadPlanner {
+func newSquadPlanner(rng *rand.Rand) *squadPlanner {
 	return &squadPlanner{
 		visionSystem: NewVisionSystem(),
 		logger:       logger.New(logger.CategoryTurn),
+		rng:          rng,
 	}
 }
 
@@ -377,7 +381,7 @@ func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squ
 	dungeon := query.GetDungeon(world)
 	from := consts.Coord[int]{X: int(ctx.Grid.X), Y: int(ctx.Grid.Y)}
 
-	for _, d := range shuffledEightDirections() {
+	for _, d := range shuffledEightDirections(sp.rng) {
 		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {

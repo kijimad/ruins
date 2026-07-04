@@ -1,6 +1,8 @@
 package aiinput
 
 import (
+	"math/rand/v2"
+
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -15,13 +17,14 @@ type Processor struct {
 	planners map[gc.PlannerType]Planner
 }
 
-// NewProcessor は新しいProcessorを作成する
-func NewProcessor() *Processor {
+// NewProcessor は新しいProcessorを作成する。
+// rngはゲーム全体のseedから派生した乱数生成器を渡す
+func NewProcessor(rng *rand.Rand) *Processor {
 	return &Processor{
 		logger: logger.New(logger.CategoryTurn),
 		planners: map[gc.PlannerType]Planner{
-			gc.PlannerRoaming: newRoamingPlanner(),
-			gc.PlannerSquad:   newSquadPlanner(),
+			gc.PlannerRoaming: newRoamingPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
+			gc.PlannerSquad:   newSquadPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
 		},
 	}
 }
