@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -121,8 +121,8 @@
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 : func (overlay *DebugOverlay) drawVisionCircle(screen *ebiten.Image, centerX, centerY, radius float32) {</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :         // 円周上の点数</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :         circlePoints := 32</span></span>
-<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         vertices := []ebiten.Vertex{}</span></span>
-<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         indices := []uint16{}</span></span>
+<span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :         vertices := make([]ebiten.Vertex, 0, 1+circlePoints)</span></span>
+<span id="L63"><span class="lineNum">      63</span> <span class="tlaUNC">           0 :         indices := make([]uint16, 0, circlePoints*3)</span></span>
 <span id="L64"><span class="lineNum">      64</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L65"><span class="lineNum">      65</span> <span class="tlaUNC">           0 :         // 中心点</span></span>
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :         vertices = append(vertices, ebiten.Vertex{</span></span>
@@ -137,7 +137,7 @@
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaUNC">           0 :         })</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaUNC">           0 : </span></span>
 <span id="L77"><span class="lineNum">      77</span> <span class="tlaUNC">           0 :         // 円周上の点</span></span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         for i := 0; i &lt; circlePoints; i++ {</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :         for i := range circlePoints {</span></span>
 <span id="L79"><span class="lineNum">      79</span> <span class="tlaUNC">           0 :                 angle := 2 * math.Pi * float64(i) / float64(circlePoints)</span></span>
 <span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                 x := centerX + radius*float32(math.Cos(angle))</span></span>
 <span id="L81"><span class="lineNum">      81</span> <span class="tlaUNC">           0 :                 y := centerY + radius*float32(math.Sin(angle))</span></span>

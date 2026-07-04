@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -81,7 +81,7 @@
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 : func (b RectRoomPlanner) PlanRooms(planData *MetaPlan) {</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         width := int(planData.Level.TileWidth)</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :         height := int(planData.Level.TileHeight)</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         rooms := []gc.Rect{}</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :         rooms := make([]gc.Rect, 0, 16)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :         // 上端に必ず1つの部屋を配置（y=0から開始）</span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         topRoom := b.createRoom(planData, width, height, 0)</span></span>
@@ -100,7 +100,7 @@
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 :         // 残りの部屋はランダム配置</span></span>
 <span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         maxRooms := 4 + planData.RNG.IntN(10)</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; maxRooms; i++ {</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           2 :         for range maxRooms {</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 :                 y := planData.RNG.IntN(height)</span></span>
 <span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :                 rooms = append(rooms, b.createRoom(planData, width, height, y))</span></span>
 <span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :         }</span></span>

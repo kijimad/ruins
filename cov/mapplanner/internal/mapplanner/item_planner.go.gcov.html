@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -253,7 +253,7 @@
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           2 :                         if isStackableItem(planData, entry.Name) {</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                                 result = append(result, resolvedItem{Name: entry.Name, Count: packSize})</span></span>
 <span id="L193"><span class="lineNum">     193</span> <span class="tlaGNC">           2 :                         } else {</span></span>
-<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :                                 for j := 0; j &lt; packSize; j++ {</span></span>
+<span id="L194"><span class="lineNum">     194</span> <span class="tlaGNC">           2 :                                 for range packSize {</span></span>
 <span id="L195"><span class="lineNum">     195</span> <span class="tlaGNC">           1 :                                         result = append(result, resolvedItem{Name: entry.Name, Count: 1})</span></span>
 <span id="L196"><span class="lineNum">     196</span> <span class="tlaGNC">           1 :                                 }</span></span>
 <span id="L197"><span class="lineNum">     197</span>              :                         }</span>

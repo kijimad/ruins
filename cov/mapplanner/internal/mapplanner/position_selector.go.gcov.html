@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -94,7 +94,7 @@
 <span id="L32"><span class="lineNum">      32</span>              : // onMapSelector はマップ全体からランダムに配置位置を選択する</span>
 <span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 : func onMapSelector(maxAttempts int) positionSelector {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 for i := 0; i &lt; maxAttempts; i++ {</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC tlaBgUNC">           0 :                 for range maxAttempts {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
 <span id="L37"><span class="lineNum">      37</span> <span class="tlaUNC">           0 :                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
 <span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                         if planData.IsSpawnableTile(world, x, y) {</span></span>
@@ -115,7 +115,7 @@
 <span id="L53"><span class="lineNum">      53</span>              : // reachableSelector はマップ全体からランダムに選び、部屋内かつプレイヤーから到達可能な位置を返す</span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaGNC tlaBgGNC">           1 : func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector {</span></span>
 <span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           2 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; maxAttempts; i++ {</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           2 :                 for range maxAttempts {</span></span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC">           1 :                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
 <span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           1 :                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                         if planData.IsSpawnableTile(world, x, y) &amp;&amp;</span></span>
@@ -132,7 +132,7 @@
 <span id="L70"><span class="lineNum">      70</span>              : // 部屋内かつ全基準点から到達可能かつ最低歩数以上離れた位置を返す</span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 : func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[int], minDist int, maxAttempts int) positionSelector {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           2 :         return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {</span></span>
-<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; maxAttempts; i++ {</span></span>
+<span id="L73"><span class="lineNum">      73</span> <span class="tlaGNC">           2 :                 for range maxAttempts {</span></span>
 <span id="L74"><span class="lineNum">      74</span> <span class="tlaGNC">           1 :                         x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))</span></span>
 <span id="L75"><span class="lineNum">      75</span> <span class="tlaGNC">           1 :                         y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))</span></span>
 <span id="L76"><span class="lineNum">      76</span> <span class="tlaGNC">           2 :                         if !planData.IsSpawnableTile(world, x, y) || !planData.isInAnyRoom(x, y) {</span></span>

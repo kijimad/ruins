@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,7 +79,7 @@
 <span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :         // まず大きな廃墟建物の基盤を作成（3-5個の大きな矩形）</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :         ruinCount := 3 + planData.RNG.IntN(3)</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; ruinCount; i++ {</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           2 :         for range ruinCount {</span></span>
 <span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :                 // ランダムな位置とサイズで廃墟の基盤を作成</span></span>
 <span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :                 buildingWidth := 8 + planData.RNG.IntN(10)</span></span>
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :                 buildingHeight := 6 + planData.RNG.IntN(8)</span></span>

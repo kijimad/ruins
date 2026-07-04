@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -91,8 +91,8 @@
 <span id="L29"><span class="lineNum">      29</span>              : // parseCategoryLevels はカテゴリ別レベル設定を解析する</span>
 <span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC tlaBgGNC">           1 : func parseCategoryLevels(s string) map[Category]Level {</span></span>
 <span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         result := make(map[Category]Level)</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         pairs := strings.Split(s, &quot;,&quot;)</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         for _, pair := range pairs {</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :         pairs := strings.SplitSeq(s, &quot;,&quot;)</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         for pair := range pairs {</span></span>
 <span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 parts := strings.Split(strings.TrimSpace(pair), &quot;=&quot;)</span></span>
 <span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           2 :                 if len(parts) == 2 {</span></span>
 <span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         category := Category(parts[0])</span></span>

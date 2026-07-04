@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -79,7 +79,7 @@
 <span id="L17"><span class="lineNum">      17</span>              : // 依存性逆転のためのメソッドを定義する</span>
 <span id="L18"><span class="lineNum">      18</span>              : type World interface {</span>
 <span id="L19"><span class="lineNum">      19</span>              :         GetManager() *ecs.Manager</span>
-<span id="L20"><span class="lineNum">      20</span>              :         GetComponents() interface{}</span>
+<span id="L20"><span class="lineNum">      20</span>              :         GetComponents() any</span>
 <span id="L21"><span class="lineNum">      21</span>              : }</span>
 <span id="L22"><span class="lineNum">      22</span>              : </span>
 <span id="L23"><span class="lineNum">      23</span>              : // AddEntities はComponentListからECSエンティティを作成する</span>
@@ -110,7 +110,7 @@
 <span id="L48"><span class="lineNum">      48</span>              : </span>
 <span id="L49"><span class="lineNum">      49</span>              : // AddEntityComponents はエンティティにコンポーネントを追加する</span>
 <span id="L50"><span class="lineNum">      50</span>              : // EntitySpec の各フィールドを対応する ECS コンポーネントに変換して追加する</span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : func AddEntityComponents(entity ecs.Entity, ecsComponentList interface{}, components interface{}) error {</span></span>
+<span id="L51"><span class="lineNum">      51</span> <span class="tlaUNC">           0 : func AddEntityComponents(entity ecs.Entity, ecsComponentList any, components any) error {</span></span>
 <span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :         // 追加先のコンポーネントリスト。コンポーネントのスライス群</span></span>
 <span id="L53"><span class="lineNum">      53</span> <span class="tlaUNC">           0 :         ecv := reflect.ValueOf(ecsComponentList).Elem()</span></span>
 <span id="L54"><span class="lineNum">      54</span> <span class="tlaUNC">           0 :         // 追加するコンポーネント</span></span>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaUNC">           0 :                                 entity.AddComponent(ecsComponent, value.Interface())</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaUNC">           0 :                         case reflect.Interface:</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaUNC">           0 :                                 // Stringer インターフェースだけ対応している。Componentsに対応するフィールド名が必須なため</span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                                 if component.Type().Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem()) {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaUNC">           0 :                                 if component.Type().Implements(reflect.TypeFor[fmt.Stringer]()) {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaUNC">           0 :                                         method := component.MethodByName(&quot;String&quot;)</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaUNC">           0 :                                         if !method.IsValid() {</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaUNC">           0 :                                                 return fmt.Errorf(&quot;String() に失敗した&quot;)</span></span>

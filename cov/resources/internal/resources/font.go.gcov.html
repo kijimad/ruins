@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -75,8 +75,8 @@
 <span id="L13"><span class="lineNum">      13</span>              : }</span>
 <span id="L14"><span class="lineNum">      14</span>              : </span>
 <span id="L15"><span class="lineNum">      15</span>              : // UnmarshalTOML fills structure fields from TOML data</span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC tlaBgUNC">           0 : func (f *Font) UnmarshalTOML(i interface{}) error {</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         fontFile, err := assets.FS.Open(i.(map[string]interface{})[&quot;font&quot;].(string))</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC tlaBgUNC">           0 : func (f *Font) UnmarshalTOML(i any) error {</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :         fontFile, err := assets.FS.Open(i.(map[string]any)[&quot;font&quot;].(string))</span></span>
 <span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :         if err != nil {</span></span>
 <span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :                 return err</span></span>
 <span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         }</span></span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -243,12 +243,12 @@
 <span id="L181"><span class="lineNum">     181</span> <span class="tlaGNC">           2 :         if pickupCursorCache == nil {</span></span>
 <span id="L182"><span class="lineNum">     182</span> <span class="tlaGNC">           1 :                 pickupCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
 <span id="L183"><span class="lineNum">     183</span> <span class="tlaGNC">           1 :                 cursorColor := theme.CursorPickup</span></span>
-<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; 3; i++ {</span></span>
-<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
+<span id="L184"><span class="lineNum">     184</span> <span class="tlaGNC">           2 :                 for i := range 3 {</span></span>
+<span id="L185"><span class="lineNum">     185</span> <span class="tlaGNC">           2 :                         for x := range tileSize {</span></span>
 <span id="L186"><span class="lineNum">     186</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(x, i, cursorColor)</span></span>
 <span id="L187"><span class="lineNum">     187</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(x, tileSize-1-i, cursorColor)</span></span>
 <span id="L188"><span class="lineNum">     188</span> <span class="tlaGNC">           1 :                         }</span></span>
-<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :                         for y := 0; y &lt; tileSize; y++ {</span></span>
+<span id="L189"><span class="lineNum">     189</span> <span class="tlaGNC">           2 :                         for y := range tileSize {</span></span>
 <span id="L190"><span class="lineNum">     190</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(i, y, cursorColor)</span></span>
 <span id="L191"><span class="lineNum">     191</span> <span class="tlaGNC">           1 :                                 pickupCursorCache.Set(tileSize-1-i, y, cursorColor)</span></span>
 <span id="L192"><span class="lineNum">     192</span> <span class="tlaGNC">           1 :                         }</span></span>

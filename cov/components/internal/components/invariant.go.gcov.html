@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -276,7 +276,7 @@
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaUNC tlaBgUNC">           0 :                         return false</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaUNC">           0 :                 }</span></span>
 <span id="L216"><span class="lineNum">     216</span>              :                 // ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす</span>
-<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           2 :                 if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {</span></span>
+<span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC tlaBgGNC">           2 :                 if field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface {</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :                         return !field.IsNil()</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :                 }</span></span>
 <span id="L220"><span class="lineNum">     220</span> <span class="tlaUNC tlaBgUNC">           0 :                 return true</span></span>

@@ -32,12 +32,12 @@
             <td></td>
             <td class="headerItem">Lines:</td>
             <td class="headerCovTableEntryHi">100.0&nbsp;%</td>
-            <td class="headerCovTableEntry">28</td>
-            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">23</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -86,36 +86,30 @@
 <span id="L24"><span class="lineNum">      24</span>              : // GainExpScaled はBaseExpにefficiencyPct（0-100%）を適用してから経験値を加算する。</span>
 <span id="L25"><span class="lineNum">      25</span>              : // 読書など、状況に応じて獲得量を調整する場合に使う。</span>
 <span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           1 : func GainExpScaled(s *gc.Skill, abilityValue int, efficiencyPct int) bool {</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         baseExp := growthConfig.BaseExp * efficiencyPct / 100</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           2 :         if baseExp &lt; 1 {</span></span>
-<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 :                 baseExp = 1</span></span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :         return gainExp(s, abilityValue, baseExp)</span></span>
-<span id="L32"><span class="lineNum">      32</span>              : }</span>
-<span id="L33"><span class="lineNum">      33</span>              : </span>
-<span id="L34"><span class="lineNum">      34</span>              : // gainExp は共通の経験値加算処理</span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 : func gainExp(s *gc.Skill, abilityValue int, baseExp int) bool {</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           2 :         if growthConfig.MaxLevel &gt; 0 &amp;&amp; s.Value &gt;= growthConfig.MaxLevel {</span></span>
-<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :                 return false</span></span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L39"><span class="lineNum">      39</span>              : </span>
-<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         growthSpeed := 100 + abilityValue*growthConfig.AbilBonus</span></span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         decay := 100 + s.Value*growthConfig.DecayPerLevel</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :         baseExp := max(growthConfig.BaseExp*efficiencyPct/100, 1)</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :         return gainExp(s, abilityValue, baseExp)</span></span>
+<span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : }</span></span>
+<span id="L30"><span class="lineNum">      30</span>              : </span>
+<span id="L31"><span class="lineNum">      31</span>              : // gainExp は共通の経験値加算処理</span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 : func gainExp(s *gc.Skill, abilityValue int, baseExp int) bool {</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           2 :         if growthConfig.MaxLevel &gt; 0 &amp;&amp; s.Value &gt;= growthConfig.MaxLevel {</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                 return false</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L36"><span class="lineNum">      36</span>              : </span>
+<span id="L37"><span class="lineNum">      37</span> <span class="tlaGNC">           1 :         growthSpeed := 100 + abilityValue*growthConfig.AbilBonus</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :         decay := 100 + s.Value*growthConfig.DecayPerLevel</span></span>
+<span id="L39"><span class="lineNum">      39</span> <span class="tlaGNC">           1 : </span></span>
+<span id="L40"><span class="lineNum">      40</span> <span class="tlaGNC">           1 :         exp := max(baseExp*growthSpeed/100*100/decay, 1)</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :         s.Exp.Current += exp</span></span>
 <span id="L42"><span class="lineNum">      42</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           1 :         exp := baseExp * growthSpeed / 100 * 100 / decay</span></span>
-<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           2 :         if exp &lt; 1 {</span></span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 exp = 1</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         s.Exp.Current += exp</span></span>
-<span id="L48"><span class="lineNum">      48</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           2 :         if s.Exp.Current &gt;= s.Exp.Max {</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                 s.Exp.Current -= s.Exp.Max</span></span>
-<span id="L51"><span class="lineNum">      51</span> <span class="tlaGNC">           1 :                 s.Value++</span></span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                 return true</span></span>
-<span id="L53"><span class="lineNum">      53</span> <span class="tlaGNC">           1 :         }</span></span>
-<span id="L54"><span class="lineNum">      54</span>              : </span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :         return false</span></span>
-<span id="L56"><span class="lineNum">      56</span>              : }</span>
+<span id="L43"><span class="lineNum">      43</span> <span class="tlaGNC">           2 :         if s.Exp.Current &gt;= s.Exp.Max {</span></span>
+<span id="L44"><span class="lineNum">      44</span> <span class="tlaGNC">           1 :                 s.Exp.Current -= s.Exp.Max</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                 s.Value++</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                 return true</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :         }</span></span>
+<span id="L48"><span class="lineNum">      48</span>              : </span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :         return false</span></span>
+<span id="L50"><span class="lineNum">      50</span>              : }</span>
         </pre>
               </td>
             </tr>

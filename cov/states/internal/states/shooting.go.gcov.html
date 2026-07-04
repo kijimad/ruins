@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -305,12 +305,12 @@
 <span id="L243"><span class="lineNum">     243</span> <span class="tlaUNC">           0 :         if shootingCursorCache == nil {</span></span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaUNC">           0 :                 shootingCursorCache = ebiten.NewImage(tileSize, tileSize)</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaUNC">           0 :                 cursorColor := theme.CursorShoot</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                 for i := 0; i &lt; 3; i++ {</span></span>
-<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaUNC">           0 :                 for i := range 3 {</span></span>
+<span id="L247"><span class="lineNum">     247</span> <span class="tlaUNC">           0 :                         for x := range tileSize {</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaUNC">           0 :                                 shootingCursorCache.Set(x, i, cursorColor)</span></span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaUNC">           0 :                                 shootingCursorCache.Set(x, tileSize-1-i, cursorColor)</span></span>
 <span id="L250"><span class="lineNum">     250</span> <span class="tlaUNC">           0 :                         }</span></span>
-<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                         for y := 0; y &lt; tileSize; y++ {</span></span>
+<span id="L251"><span class="lineNum">     251</span> <span class="tlaUNC">           0 :                         for y := range tileSize {</span></span>
 <span id="L252"><span class="lineNum">     252</span> <span class="tlaUNC">           0 :                                 shootingCursorCache.Set(i, y, cursorColor)</span></span>
 <span id="L253"><span class="lineNum">     253</span> <span class="tlaUNC">           0 :                                 shootingCursorCache.Set(tileSize-1-i, y, cursorColor)</span></span>
 <span id="L254"><span class="lineNum">     254</span> <span class="tlaUNC">           0 :                         }</span></span>

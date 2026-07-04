@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span> <span class="tlaGNC">           1 :                 floorTotalTurns := 0</span></span>
 <span id="L67"><span class="lineNum">      67</span> <span class="tlaGNC">           1 :                 floorBattleCount := 0</span></span>
 <span id="L68"><span class="lineNum">      68</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; enemyCount; i++ {</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC">           2 :                 for range enemyCount {</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           1 :                         // 敵テーブルから敵を選択</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                         enemyName, err := raw.SelectEnemyByWeight(enemyTable, rng, depth)</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                         if err != nil || enemyName == &quot;&quot; {</span></span>
@@ -231,7 +231,7 @@
 <span id="L169"><span class="lineNum">     169</span>              :         // mapplanner のアイテム配置ロジック: 15 + rand(0..8)</span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC tlaBgGNC">           1 :         itemCount := 15 + rng.IntN(9)</span></span>
 <span id="L171"><span class="lineNum">     171</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; itemCount; i++ {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           2 :         for range itemCount {</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                 itemName, err := raw.SelectItemByWeight(master, itemTable, rng, depth)</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L175"><span class="lineNum">     175</span> <span class="tlaGNC">           1 :                 if err != nil || itemName == &quot;&quot; {</span></span>
@@ -275,7 +275,7 @@
 <span id="L213"><span class="lineNum">     213</span>              : // RunBattles はN回の戦闘シミュレーションを実行し、結果のスライスを返す</span>
 <span id="L214"><span class="lineNum">     214</span> <span class="tlaGNC">           1 : func RunBattles(player, enemy CombatantStats, playerWeapon, enemyWeapon WeaponStats, n int, rng *rand.Rand) []BattleResult {</span></span>
 <span id="L215"><span class="lineNum">     215</span> <span class="tlaGNC">           1 :         results := make([]BattleResult, n)</span></span>
-<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; n; i++ {</span></span>
+<span id="L216"><span class="lineNum">     216</span> <span class="tlaGNC">           2 :         for i := range n {</span></span>
 <span id="L217"><span class="lineNum">     217</span> <span class="tlaGNC">           1 :                 results[i] = SimulateBattle(player, enemy, playerWeapon, enemyWeapon, rng)</span></span>
 <span id="L218"><span class="lineNum">     218</span> <span class="tlaGNC">           1 :         }</span></span>
 <span id="L219"><span class="lineNum">     219</span> <span class="tlaGNC">           1 :         return results</span></span>
@@ -305,7 +305,7 @@
 <span id="L243"><span class="lineNum">     243</span>              : // RunSimulations はN回のランシミュレーションを実行する</span>
 <span id="L244"><span class="lineNum">     244</span> <span class="tlaGNC">           1 : func RunSimulations(master oapi.Raws, enemyTableName string, player CombatantStats, playerWeapon WeaponStats, maxDepth int, n int, seed uint64) RunStats {</span></span>
 <span id="L245"><span class="lineNum">     245</span> <span class="tlaGNC">           1 :         results := make([]RunResult, n)</span></span>
-<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           2 :         for i := 0; i &lt; n; i++ {</span></span>
+<span id="L246"><span class="lineNum">     246</span> <span class="tlaGNC">           2 :         for i := range n {</span></span>
 <span id="L247"><span class="lineNum">     247</span> <span class="tlaGNC">           1 :                 rng := rand.New(rand.NewPCG(seed+uint64(i), 0))</span></span>
 <span id="L248"><span class="lineNum">     248</span> <span class="tlaGNC">           1 :                 results[i] = SimulateRun(master, enemyTableName, player, playerWeapon, maxDepth, rng)</span></span>
 <span id="L249"><span class="lineNum">     249</span> <span class="tlaGNC">           1 :         }</span></span>

@@ -31,13 +31,13 @@
             <td class="headerValue">coverage.lcov</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">1.5&nbsp;%</td>
-            <td class="headerCovTableEntry">391</td>
+            <td class="headerCovTableEntryLo">1.6&nbsp;%</td>
+            <td class="headerCovTableEntry">386</td>
             <td class="headerCovTableEntry">6</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -440,11 +440,11 @@
 <span id="L378"><span class="lineNum">     378</span> <span class="tlaUNC">           0 :                 if spriteRender.SpriteSheetName == &quot;tile&quot; {</span></span>
 <span id="L379"><span class="lineNum">     379</span> <span class="tlaUNC">           0 :                         var number string</span></span>
 <span id="L380"><span class="lineNum">     380</span> <span class="tlaUNC">           0 :                         var prefix string</span></span>
-<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                         if strings.HasPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;) {</span></span>
-<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                                 number = strings.TrimPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;)</span></span>
+<span id="L381"><span class="lineNum">     381</span> <span class="tlaUNC">           0 :                         if after, ok := strings.CutPrefix(spriteRender.SpriteKey, &quot;dirt_&quot;); ok {</span></span>
+<span id="L382"><span class="lineNum">     382</span> <span class="tlaUNC">           0 :                                 number = after</span></span>
 <span id="L383"><span class="lineNum">     383</span> <span class="tlaUNC">           0 :                                 prefix = &quot;d&quot;</span></span>
-<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         } else if strings.HasPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;) {</span></span>
-<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                                 number = strings.TrimPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;)</span></span>
+<span id="L384"><span class="lineNum">     384</span> <span class="tlaUNC">           0 :                         } else if after, ok := strings.CutPrefix(spriteRender.SpriteKey, &quot;dwall_&quot;); ok {</span></span>
+<span id="L385"><span class="lineNum">     385</span> <span class="tlaUNC">           0 :                                 number = after</span></span>
 <span id="L386"><span class="lineNum">     386</span> <span class="tlaUNC">           0 :                                 prefix = &quot;w&quot;</span></span>
 <span id="L387"><span class="lineNum">     387</span> <span class="tlaUNC">           0 :                         }</span></span>
 <span id="L388"><span class="lineNum">     388</span>              : </span>
@@ -552,48 +552,42 @@
 <span id="L490"><span class="lineNum">     490</span> <span class="tlaUNC">           0 :                 return</span></span>
 <span id="L491"><span class="lineNum">     491</span> <span class="tlaUNC">           0 :         }</span></span>
 <span id="L492"><span class="lineNum">     492</span>              : </span>
-<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :         darknessLevel := int(math.Ceil(darkness * float64(DarknessLevels)))</span></span>
-<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 :         if darknessLevel &gt; DarknessLevels {</span></span>
-<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :                 darknessLevel = DarknessLevels</span></span>
-<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         if darknessLevel &lt; 1 {</span></span>
-<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                 darknessLevel = 1</span></span>
-<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L500"><span class="lineNum">     500</span>              : </span>
-<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :         quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)</span></span>
-<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 :         cacheKey := coloredDarknessCacheKey{</span></span>
-<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :                 R:             lightColor.R,</span></span>
-<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :                 G:             lightColor.G,</span></span>
-<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :                 B:             lightColor.B,</span></span>
-<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 :                 DarknessLevel: darknessLevel,</span></span>
-<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :         }</span></span>
-<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :         darknessImg, exists := sys.coloredDarknessCache[cacheKey]</span></span>
-<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
-<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                 alpha := uint8(quantizedDarkness * 255)</span></span>
-<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                 colorStrength := 0.1</span></span>
-<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 :                 darknessColor := color.RGBA{</span></span>
-<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :                         R: uint8(float64(lightColor.R) * colorStrength),</span></span>
-<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                         G: uint8(float64(lightColor.G) * colorStrength),</span></span>
-<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 :                         B: uint8(float64(lightColor.B) * colorStrength),</span></span>
-<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                         A: alpha,</span></span>
-<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L522"><span class="lineNum">     522</span> <span class="tlaUNC">           0 :                 darknessImg = ebiten.NewImage(tileSize, tileSize)</span></span>
-<span id="L523"><span class="lineNum">     523</span> <span class="tlaUNC">           0 :                 darknessImg.Fill(darknessColor)</span></span>
-<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 : </span></span>
-<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :                 if len(sys.coloredDarknessCache) &lt; 1000 {</span></span>
-<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :                         sys.coloredDarknessCache[cacheKey] = darknessImg</span></span>
-<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :                 }</span></span>
-<span id="L528"><span class="lineNum">     528</span>              :         }</span>
-<span id="L529"><span class="lineNum">     529</span>              : </span>
-<span id="L530"><span class="lineNum">     530</span> <span class="tlaUNC">           0 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
-<span id="L531"><span class="lineNum">     531</span> <span class="tlaUNC">           0 :         op.GeoM.Scale(scale, scale)</span></span>
-<span id="L532"><span class="lineNum">     532</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(x, y)</span></span>
-<span id="L533"><span class="lineNum">     533</span> <span class="tlaUNC">           0 :         screen.DrawImage(darknessImg, op)</span></span>
-<span id="L534"><span class="lineNum">     534</span>              : }</span>
+<span id="L493"><span class="lineNum">     493</span> <span class="tlaUNC">           0 :         darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)</span></span>
+<span id="L494"><span class="lineNum">     494</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L495"><span class="lineNum">     495</span> <span class="tlaUNC">           0 :         quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)</span></span>
+<span id="L496"><span class="lineNum">     496</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L497"><span class="lineNum">     497</span> <span class="tlaUNC">           0 :         cacheKey := coloredDarknessCacheKey{</span></span>
+<span id="L498"><span class="lineNum">     498</span> <span class="tlaUNC">           0 :                 R:             lightColor.R,</span></span>
+<span id="L499"><span class="lineNum">     499</span> <span class="tlaUNC">           0 :                 G:             lightColor.G,</span></span>
+<span id="L500"><span class="lineNum">     500</span> <span class="tlaUNC">           0 :                 B:             lightColor.B,</span></span>
+<span id="L501"><span class="lineNum">     501</span> <span class="tlaUNC">           0 :                 DarknessLevel: darknessLevel,</span></span>
+<span id="L502"><span class="lineNum">     502</span> <span class="tlaUNC">           0 :         }</span></span>
+<span id="L503"><span class="lineNum">     503</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L504"><span class="lineNum">     504</span> <span class="tlaUNC">           0 :         darknessImg, exists := sys.coloredDarknessCache[cacheKey]</span></span>
+<span id="L505"><span class="lineNum">     505</span> <span class="tlaUNC">           0 :         if !exists {</span></span>
+<span id="L506"><span class="lineNum">     506</span> <span class="tlaUNC">           0 :                 alpha := uint8(quantizedDarkness * 255)</span></span>
+<span id="L507"><span class="lineNum">     507</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L508"><span class="lineNum">     508</span> <span class="tlaUNC">           0 :                 colorStrength := 0.1</span></span>
+<span id="L509"><span class="lineNum">     509</span> <span class="tlaUNC">           0 :                 darknessColor := color.RGBA{</span></span>
+<span id="L510"><span class="lineNum">     510</span> <span class="tlaUNC">           0 :                         R: uint8(float64(lightColor.R) * colorStrength),</span></span>
+<span id="L511"><span class="lineNum">     511</span> <span class="tlaUNC">           0 :                         G: uint8(float64(lightColor.G) * colorStrength),</span></span>
+<span id="L512"><span class="lineNum">     512</span> <span class="tlaUNC">           0 :                         B: uint8(float64(lightColor.B) * colorStrength),</span></span>
+<span id="L513"><span class="lineNum">     513</span> <span class="tlaUNC">           0 :                         A: alpha,</span></span>
+<span id="L514"><span class="lineNum">     514</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L515"><span class="lineNum">     515</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L516"><span class="lineNum">     516</span> <span class="tlaUNC">           0 :                 darknessImg = ebiten.NewImage(tileSize, tileSize)</span></span>
+<span id="L517"><span class="lineNum">     517</span> <span class="tlaUNC">           0 :                 darknessImg.Fill(darknessColor)</span></span>
+<span id="L518"><span class="lineNum">     518</span> <span class="tlaUNC">           0 : </span></span>
+<span id="L519"><span class="lineNum">     519</span> <span class="tlaUNC">           0 :                 if len(sys.coloredDarknessCache) &lt; 1000 {</span></span>
+<span id="L520"><span class="lineNum">     520</span> <span class="tlaUNC">           0 :                         sys.coloredDarknessCache[cacheKey] = darknessImg</span></span>
+<span id="L521"><span class="lineNum">     521</span> <span class="tlaUNC">           0 :                 }</span></span>
+<span id="L522"><span class="lineNum">     522</span>              :         }</span>
+<span id="L523"><span class="lineNum">     523</span>              : </span>
+<span id="L524"><span class="lineNum">     524</span> <span class="tlaUNC">           0 :         op := &amp;ebiten.DrawImageOptions{}</span></span>
+<span id="L525"><span class="lineNum">     525</span> <span class="tlaUNC">           0 :         op.GeoM.Scale(scale, scale)</span></span>
+<span id="L526"><span class="lineNum">     526</span> <span class="tlaUNC">           0 :         op.GeoM.Translate(x, y)</span></span>
+<span id="L527"><span class="lineNum">     527</span> <span class="tlaUNC">           0 :         screen.DrawImage(darknessImg, op)</span></span>
+<span id="L528"><span class="lineNum">     528</span>              : }</span>
         </pre>
               </td>
             </tr>

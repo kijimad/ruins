@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -85,7 +85,7 @@
 <span id="L23"><span class="lineNum">      23</span> <span class="tlaGNC">           1 :         var lastErr error</span></span>
 <span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 : </span></span>
 <span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :         // 最大再試行回数まで繰り返す</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :         for attempt := 0; attempt &lt; MaxPlanRetries; attempt++ {</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           2 :         for attempt := range MaxPlanRetries {</span></span>
 <span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           1 :                 // 再試行時は異なるシードを使用</span></span>
 <span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :                 currentSeed := seed + uint64(attempt*1000)</span></span>
 <span id="L29"><span class="lineNum">      29</span> <span class="tlaGNC">           1 : </span></span>

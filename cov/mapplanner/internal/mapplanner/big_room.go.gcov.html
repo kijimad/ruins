@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -199,7 +199,7 @@
 <span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                 roomHeight := int(room.Y2 - room.Y1)</span></span>
 <span id="L138"><span class="lineNum">     138</span> <span class="tlaGNC">           1 :                 obstacleCount := (roomWidth * roomHeight) / 30 // 面積の1/30程度</span></span>
 <span id="L139"><span class="lineNum">     139</span> <span class="tlaGNC">           1 : </span></span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; obstacleCount; i++ {</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           2 :                 for range obstacleCount {</span></span>
 <span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                         // 部屋内のランダムな位置に障害物を配置する</span></span>
 <span id="L142"><span class="lineNum">     142</span> <span class="tlaGNC">           1 :                         // IntNの引数が正であることを保証する</span></span>
 <span id="L143"><span class="lineNum">     143</span> <span class="tlaGNC">           1 :                         maxXRange := max(1, roomWidth-2)</span></span>

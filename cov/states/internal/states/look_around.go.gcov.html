@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 09:09:14</td>
+            <td class="headerValue">2026-07-04 09:40:50</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -221,21 +221,21 @@
 <span id="L159"><span class="lineNum">     159</span> <span class="tlaGNC">           1 :                 cursorImageCache = ebiten.NewImage(tileSize, tileSize)</span></span>
 <span id="L160"><span class="lineNum">     160</span> <span class="tlaGNC">           1 :                 // 枠線を描画（太さ3px、白色で目立つように）</span></span>
 <span id="L161"><span class="lineNum">     161</span> <span class="tlaGNC">           1 :                 cursorColor := theme.CursorLook</span></span>
-<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :                 for i := 0; i &lt; 3; i++ {</span></span>
+<span id="L162"><span class="lineNum">     162</span> <span class="tlaGNC">           2 :                 for i := range 3 {</span></span>
 <span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                         // 上辺</span></span>
-<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           2 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
+<span id="L164"><span class="lineNum">     164</span> <span class="tlaGNC">           2 :                         for x := range tileSize {</span></span>
 <span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                                 cursorImageCache.Set(x, i, cursorColor)</span></span>
 <span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L167"><span class="lineNum">     167</span>              :                         // 下辺</span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :                         for x := 0; x &lt; tileSize; x++ {</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           2 :                         for x := range tileSize {</span></span>
 <span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                                 cursorImageCache.Set(x, tileSize-1-i, cursorColor)</span></span>
 <span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L171"><span class="lineNum">     171</span>              :                         // 左辺</span>
-<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           2 :                         for y := 0; y &lt; tileSize; y++ {</span></span>
+<span id="L172"><span class="lineNum">     172</span> <span class="tlaGNC">           2 :                         for y := range tileSize {</span></span>
 <span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                                 cursorImageCache.Set(i, y, cursorColor)</span></span>
 <span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L175"><span class="lineNum">     175</span>              :                         // 右辺</span>
-<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :                         for y := 0; y &lt; tileSize; y++ {</span></span>
+<span id="L176"><span class="lineNum">     176</span> <span class="tlaGNC">           2 :                         for y := range tileSize {</span></span>
 <span id="L177"><span class="lineNum">     177</span> <span class="tlaGNC">           1 :                                 cursorImageCache.Set(tileSize-1-i, y, cursorColor)</span></span>
 <span id="L178"><span class="lineNum">     178</span> <span class="tlaGNC">           1 :                         }</span></span>
 <span id="L179"><span class="lineNum">     179</span>              :                 }</span>
