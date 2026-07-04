@@ -67,46 +67,12 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 }
 
 // findNearestHostile は最寄りの敵対エンティティを探す。
-// プレイヤーとFactionAllyの両方を対象にする。
 // 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため
 func (rp *roamingPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity {
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-
-	var nearest *ecs.Entity
-	nearestDist := -1
-
-	check := func(target ecs.Entity) {
-		if !target.HasComponent(world.Components.GridElement) {
-			return
-		}
-		if target.HasComponent(world.Components.Dead) {
-			return
-		}
-		targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)
-		dist := gridDistance(grid, targetGrid)
-		if nearestDist < 0 || dist < nearestDist {
-			nearestDist = dist
-			e := target
-			nearest = &e
-		}
-	}
-
-	// プレイヤー
-	if player := findPlayer(world); player != nil {
-		check(*player)
-	}
-
-	// 味方NPC（隊員）
-	world.Manager.Join(
-		world.Components.FactionAlly,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(ally ecs.Entity) {
-		if ally.HasComponent(world.Components.Player) {
-			return
-		}
-		check(ally)
-	}))
-
+	nearest, _, _ := query.FindNearestEntity(world, grid, func(target ecs.Entity) bool {
+		return query.FactionRelation(world, entity, target) == query.RelationHostile
+	})
 	return nearest
 }
 
@@ -353,27 +319,9 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
 
 // planSwarmAction は最寄りのAIエンティティに接近するアクションを計画する
 func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	var nearestGrid *gc.GridElement
-	nearestDist := -1
-
-	world.Manager.Join(
-		world.Components.AI,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		if entity == aiEntity {
-			return
-		}
-		if entity.HasComponent(world.Components.Dead) {
-			return
-		}
-
-		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		dist := geometry.Abs(int(grid.X)-int(aiGrid.X)) + geometry.Abs(int(grid.Y)-int(aiGrid.Y))
-		if nearestDist < 0 || dist < nearestDist {
-			nearestDist = dist
-			nearestGrid = grid
-		}
-	}))
+	_, nearestGrid, nearestDist := query.FindNearestEntity(world, aiGrid, func(entity ecs.Entity) bool {
+		return entity != aiEntity && entity.HasComponent(world.Components.AI)
+	})
 
 	if nearestGrid == nil || nearestDist <= 1 {
 		return rp.planRandomMoveAction(world, aiEntity, aiGrid)

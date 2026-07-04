@@ -338,31 +338,10 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 
 // findNearestEnemy は視界内の最も近い敵を探す
 func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) {
-	var nearestEntity *ecs.Entity
-	var nearestGrid *gc.GridElement
-	nearestDist := -1
-
-	world.Manager.Join(
-		world.Components.FactionEnemy,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(enemy ecs.Entity) {
-		if enemy.HasComponent(world.Components.Dead) {
-			return
-		}
-		if !sp.visionSystem.CanSeeTarget(world, entity, enemy, ctx.AI) {
-			return
-		}
-		enemyGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
-		dist := gridDistance(ctx.Grid, enemyGrid)
-		if nearestDist < 0 || dist < nearestDist {
-			e := enemy
-			nearestEntity = &e
-			nearestGrid = enemyGrid
-			nearestDist = dist
-		}
-	}))
-
-	return nearestEntity, nearestGrid, nearestDist
+	return query.FindNearestEntity(world, ctx.Grid, func(target ecs.Entity) bool {
+		return query.FactionRelation(world, entity, target) == query.RelationHostile &&
+			sp.visionSystem.CanSeeTarget(world, entity, target, ctx.AI)
+	})
 }
 
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる

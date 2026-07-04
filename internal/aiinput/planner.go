@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -58,15 +57,6 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 			break
 		}
 	}
-}
-
-// findPlayer はプレイヤーエンティティを探す
-func findPlayer(world w.World) *ecs.Entity {
-	si := query.GetSpatialIndex(world)
-	if si == nil {
-		return nil
-	}
-	return si.PlayerEntity
 }
 
 // gridDistance は2つのGridElement間のチェビシェフ距離を返す

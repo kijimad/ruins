@@ -55,7 +55,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					}
 				}
 			case gc.MeleeInteraction:
-				if interactableEntity.HasComponent(world.Components.FactionEnemy) {
+				if query.FactionRelation(world, entity, interactableEntity) == query.RelationHostile {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}

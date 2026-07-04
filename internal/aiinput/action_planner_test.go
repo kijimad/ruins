@@ -14,13 +14,14 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
-// setupTestAI はテスト用のAIエンティティを作成する
+// setupTestAI はテスト用の敵AIエンティティを作成する
 func setupTestAI(t *testing.T, world w.World, x, y int, ai *gc.AI) ecs.Entity {
 	t.Helper()
 	entity := world.Manager.NewEntity()
 	entity.AddComponent(world.Components.Name, &gc.Name{Name: "テストAI"})
 	entity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(x), Y: consts.Tile(y)})
 	entity.AddComponent(world.Components.AI, ai)
+	entity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	entity.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
