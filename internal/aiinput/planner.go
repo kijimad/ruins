@@ -10,7 +10,6 @@ import (
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
 
-	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -58,15 +57,6 @@ func runAPLoop(world w.World, entity ecs.Entity, planner Planner, log *logger.Lo
 			break
 		}
 	}
-}
-
-// findPlayer はプレイヤーエンティティを探す
-func findPlayer(world w.World) *ecs.Entity {
-	si := query.GetSpatialIndex(world)
-	if si == nil {
-		return nil
-	}
-	return si.PlayerEntity
 }
 
 // gridDistance は2つのGridElement間のチェビシェフ距離を返す
@@ -127,12 +117,11 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
 func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, activity.ActionParams, bool) {
-	fromX, fromY := int(from.X), int(from.Y)
+	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
 	for _, c := range candidates {
-		destX := fromX + c.X
-		destY := fromY + c.Y
-		if activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
-			b, p := moveAction(entity, consts.Coord[int]{X: destX, Y: destY})
+		dest := consts.Coord[int]{X: fromPos.X + c.X, Y: fromPos.Y + c.Y}
+		if activity.CanMoveTo(world, dest, fromPos, entity) {
+			b, p := moveAction(entity, dest)
 			return b, p, true
 		}
 	}
@@ -154,11 +143,11 @@ func waitAction(aiEntity ecs.Entity, reason string) (activity.Behavior, activity
 }
 
 // shuffledEightDirections は8方向をシャッフルして返す
-func shuffledEightDirections() []consts.Coord[int] {
+func shuffledEightDirections(rng *rand.Rand) []consts.Coord[int] {
 	shuffled := make([]consts.Coord[int], len(eightDirections))
 	copy(shuffled, eightDirections)
 	for i := len(shuffled) - 1; i > 0; i-- {
-		j := rand.IntN(i + 1)
+		j := rng.IntN(i + 1)
 		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
 	}
 	return shuffled

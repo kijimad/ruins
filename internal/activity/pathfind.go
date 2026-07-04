@@ -26,7 +26,7 @@ func (g *bfsGrid) isPassable(x, y int) bool {
 		return false
 	}
 	if target, ok := g.si.Characters[key]; ok {
-		return CanPassThrough(g.world, g.mover, target)
+		return CanSwapPosition(g.world, g.mover, target)
 	}
 	return true
 }

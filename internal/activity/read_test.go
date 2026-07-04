@@ -249,11 +249,13 @@ func TestReadActivity_DoTurn_CanceledByEnemy(t *testing.T) {
 
 	world := testutil.InitTestWorld(t)
 	actor := world.Manager.NewEntity()
+	actor.AddComponent(world.Components.Player, &gc.Player{})
+	actor.AddComponent(world.Components.FactionAlly, &gc.FactionAlly)
 	actor.AddComponent(world.Components.GridElement, &gc.GridElement{X: 5, Y: 5})
 
 	// 隣に敵を配置
 	enemy := world.Manager.NewEntity()
-	enemy.AddComponent(world.Components.FactionEnemy, nil)
+	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 6, Y: 5})
 
 	bookEntity := world.Manager.NewEntity()

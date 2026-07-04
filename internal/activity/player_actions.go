@@ -55,7 +55,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 					}
 				}
 			case gc.MeleeInteraction:
-				if interactableEntity.HasComponent(world.Components.FactionEnemy) {
+				if query.FactionRelation(world, entity, interactableEntity) == query.RelationHostile {
 					_, err := ExecuteInteraction(entity, interactableEntity, interaction, world)
 					return err
 				}
@@ -66,7 +66,7 @@ func ExecuteMoveAction(world w.World, direction gc.Direction) error {
 		}
 	}
 
-	canMove := CanMoveTo(world, newX, newY, currentX, currentY, entity)
+	canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)
 	if canMove {
 		destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}
 		params := ActionParams{

@@ -7,6 +7,7 @@ import (
 	"github.com/kijimaD/ruins/internal/consts"
 	"github.com/kijimaD/ruins/internal/logger"
 	w "github.com/kijimaD/ruins/internal/world"
+	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
@@ -195,35 +196,34 @@ func progressHunger(actor ecs.Entity, world w.World) {
 	}
 }
 
-// isAreaSafe はアクターの周囲に敵がいないかチェックする
+// isAreaSafe はアクターの周囲に敵対エンティティがいないかチェックする
 func isAreaSafe(actor ecs.Entity, world w.World) bool {
 	gridElement := world.Components.GridElement.Get(actor)
 	if gridElement == nil {
 		return false
 	}
 
-	playerGrid := gridElement.(*gc.GridElement)
-	playerX, playerY := int(playerGrid.X), int(playerGrid.Y)
+	actorGrid := gridElement.(*gc.GridElement)
+	actorX, actorY := int(actorGrid.X), int(actorGrid.Y)
 
 	safeRadius := 1
-	hasEnemies := false
+	hasHostile := false
 
 	world.Manager.Join(
-		world.Components.FactionEnemy,
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
-		// 早期リターン
-		if hasEnemies {
+		if hasHostile {
 			return
 		}
-		enemyGrid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-		enemyX, enemyY := int(enemyGrid.X), int(enemyGrid.Y)
-
-		dx, dy := enemyX-playerX, enemyY-playerY
+		if query.FactionRelation(world, actor, entity) != query.RelationHostile {
+			return
+		}
+		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
+		dx, dy := int(grid.X)-actorX, int(grid.Y)-actorY
 		if dx >= -safeRadius && dx <= safeRadius && dy >= -safeRadius && dy <= safeRadius {
-			hasEnemies = true
+			hasHostile = true
 		}
 	}))
 
-	return !hasEnemies
+	return !hasHostile
 }

@@ -1,6 +1,8 @@
 package aiinput
 
 import (
+	"math/rand/v2"
+
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/consts"
@@ -25,12 +27,14 @@ const vanguardMaxDistance = 3
 type squadPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
+	rng          *rand.Rand
 }
 
-func newSquadPlanner() *squadPlanner {
+func newSquadPlanner(rng *rand.Rand) *squadPlanner {
 	return &squadPlanner{
 		visionSystem: NewVisionSystem(),
 		logger:       logger.New(logger.CategoryTurn),
+		rng:          rng,
 	}
 }
 
@@ -167,7 +171,7 @@ func (sp *squadPlanner) planAttackAction(world w.World, entity ecs.Entity, ctx *
 		return nil, activity.ActionParams{}, false
 	}
 
-	if dist <= 1 {
+	if dist == 1 {
 		target := *nearestEnemy
 		return &activity.AttackActivity{}, activity.ActionParams{
 			Actor:  entity,
@@ -338,48 +342,28 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 
 // findNearestEnemy は視界内の最も近い敵を探す
 func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) {
-	var nearestEntity *ecs.Entity
-	var nearestGrid *gc.GridElement
-	nearestDist := -1
-
-	world.Manager.Join(
-		world.Components.FactionEnemy,
-		world.Components.GridElement,
-	).Visit(ecs.Visit(func(enemy ecs.Entity) {
-		if enemy.HasComponent(world.Components.Dead) {
-			return
-		}
-		if !sp.visionSystem.CanSeeTarget(world, entity, enemy, ctx.AI) {
-			return
-		}
-		enemyGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
-		dist := gridDistance(ctx.Grid, enemyGrid)
-		if nearestDist < 0 || dist < nearestDist {
-			e := enemy
-			nearestEntity = &e
-			nearestGrid = enemyGrid
-			nearestDist = dist
-		}
-	}))
-
-	return nearestEntity, nearestGrid, nearestDist
+	return query.FindNearestEntity(world, entity, ctx.Grid, func(target ecs.Entity) bool {
+		return query.FactionRelation(world, entity, target) == query.RelationHostile &&
+			sp.visionSystem.CanSeeTarget(world, entity, target, ctx.AI)
+	})
 }
 
 // tryMoveToward はBFSで壁を迂回した最短経路でターゲットに向かう移動を試みる
 func (sp *squadPlanner) tryMoveToward(world w.World, entity ecs.Entity, from, target *gc.GridElement) (activity.Behavior, activity.ActionParams, bool) {
-	fromX, fromY := int(from.X), int(from.Y)
+	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
 	goalX, goalY := int(target.X), int(target.Y)
 
-	nextX, nextY, ok := activity.FindNextStep(world, entity, fromX, fromY, goalX, goalY)
+	nextX, nextY, ok := activity.FindNextStep(world, entity, fromPos.X, fromPos.Y, goalX, goalY)
 	if !ok {
 		return nil, activity.ActionParams{}, false
 	}
 
-	if !activity.CanMoveTo(world, nextX, nextY, fromX, fromY, entity) {
+	next := consts.Coord[int]{X: nextX, Y: nextY}
+	if !activity.CanMoveTo(world, next, fromPos, entity) {
 		return nil, activity.ActionParams{}, false
 	}
 
-	b, p := moveAction(entity, consts.Coord[int]{X: nextX, Y: nextY})
+	b, p := moveAction(entity, next)
 	return b, p, true
 }
 
@@ -395,21 +379,20 @@ func (sp *squadPlanner) tryMoveAway(world w.World, entity ecs.Entity, from, thre
 // tryRandomMove は探索済みエリア内でランダム移動を試みる
 func (sp *squadPlanner) tryRandomMove(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
 	dungeon := query.GetDungeon(world)
-	fromX, fromY := int(ctx.Grid.X), int(ctx.Grid.Y)
+	from := consts.Coord[int]{X: int(ctx.Grid.X), Y: int(ctx.Grid.Y)}
 
-	for _, d := range shuffledEightDirections() {
-		destX := fromX + d.X
-		destY := fromY + d.Y
+	for _, d := range shuffledEightDirections(sp.rng) {
+		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
 		if dungeon != nil && dungeon.ExploredTiles != nil {
-			destGrid := gc.GridElement{X: consts.Tile(destX), Y: consts.Tile(destY)}
+			destGrid := gc.GridElement{X: consts.Tile(dest.X), Y: consts.Tile(dest.Y)}
 			if !dungeon.ExploredTiles[destGrid] {
 				continue
 			}
 		}
 
-		if activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
-			b, p := moveAction(entity, consts.Coord[int]{X: destX, Y: destY})
+		if activity.CanMoveTo(world, dest, from, entity) {
+			b, p := moveAction(entity, dest)
 			return b, p, true
 		}
 	}

@@ -123,7 +123,7 @@ func TestFindNextStep(t *testing.T) {
 		assert.False(t, nextX == 1 && nextY == 0, "プレイヤーのタイルは踏まない")
 	})
 
-	t.Run("隊員同士は通過できる", func(t *testing.T) {
+	t.Run("隊員同士は迂回する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 		si := query.GetSpatialIndex(world)
@@ -141,9 +141,8 @@ func TestFindNextStep(t *testing.T) {
 		mover.AddComponent(world.Components.SquadMember, &gc.SquadMember{})
 
 		nextX, nextY, ok := FindNextStep(world, mover, 0, 0, 2, 0)
-		require.True(t, ok, "隊員のいるタイルを通過して経路が見つかるべき")
-		assert.Equal(t, 1, nextX)
-		assert.Equal(t, 0, nextY)
+		require.True(t, ok, "隊員を迂回する経路が見つかるべき")
+		assert.False(t, nextX == 1 && nextY == 0, "他の隊員のタイルは踏まない")
 	})
 
 	t.Run("BlockPassなゴールにも経路を見つける", func(t *testing.T) {
