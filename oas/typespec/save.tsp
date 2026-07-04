@@ -255,6 +255,9 @@ model ComponentsMap {
   /** 所持金 */
   Wallet?: WalletComponent;
 
+  /** 戦闘コマンドテーブル名 */
+  CommandTable?: CommandTableComponent;
+
   /** 隊員コンポーネント。リーダーへのエンティティ参照を含む */
   SquadMember?: SquadMemberComponent;
 
@@ -617,6 +620,12 @@ enum ItemPickupPolicyType {
 enum ItemHandlingPolicyType {
   keep: "keep",
   distribute: "distribute",
+}
+
+/** 戦闘コマンドテーブル名 */
+model CommandTableComponent {
+  /** コマンドテーブル名 */
+  Name: string;
 }
 
 /**

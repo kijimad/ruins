@@ -1486,6 +1486,12 @@ type SaveDataChecksum = string
 // SaveDataCombatPolicyType 戦闘ポリシー
 type SaveDataCombatPolicyType string
 
+// SaveDataCommandTableComponent 戦闘コマンドテーブル名
+type SaveDataCommandTableComponent struct {
+	// Name コマンドテーブル名
+	Name string `json:"Name"`
+}
+
 // SaveDataComponentsMap エンティティが持つコンポーネントのマップ。
 // 存在するコンポーネントのみがキーとして含まれる。
 // 保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
@@ -1498,6 +1504,9 @@ type SaveDataComponentsMap struct {
 
 	// Camera カメラ状態
 	Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
+
+	// CommandTable 戦闘コマンドテーブル名
+	CommandTable *SaveDataCommandTableComponent `json:"CommandTable,omitempty"`
 
 	// Consumable 消費可能アイテム設定
 	Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`

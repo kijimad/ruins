@@ -2750,6 +2750,15 @@ components:
         - evade
         - ignore
       description: 戦闘ポリシー
+    SaveData.CommandTableComponent:
+      type: object
+      required:
+        - Name
+      properties:
+        Name:
+          type: string
+          description: コマンドテーブル名
+      description: 戦闘コマンドテーブル名
     SaveData.ComponentsMap:
       type: object
       properties:
@@ -2861,6 +2870,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.WalletComponent'
           description: 所持金
+        CommandTable:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.CommandTableComponent'
+          description: 戦闘コマンドテーブル名
         SquadMember:
           allOf:
             - $ref: '#/components/schemas/SaveData.SquadMemberComponent'

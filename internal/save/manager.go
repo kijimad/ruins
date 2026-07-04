@@ -291,6 +291,12 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
 	}
 
+	// 戦闘コンポーネント
+	if entity.HasComponent(c.CommandTable) {
+		ct := c.CommandTable.Get(entity).(*gc.CommandTable)
+		comp.CommandTable = &oapi.SaveDataCommandTableComponent{Name: ct.Name}
+	}
+
 	// 隊員コンポーネント
 	if entity.HasComponent(c.SquadMember) {
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
@@ -412,6 +418,11 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 
 	// アイテム効果コンポーネント
 	restoreEffectComponents(entity, comp, c)
+
+	// 戦闘コンポーネント
+	if comp.CommandTable != nil {
+		entity.AddComponent(c.CommandTable, &gc.CommandTable{Name: comp.CommandTable.Name})
+	}
 
 	// 隊員コンポーネント（Leaderは第3段階で解決）
 	if comp.SquadMember != nil {

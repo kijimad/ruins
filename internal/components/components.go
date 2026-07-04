@@ -155,7 +155,7 @@ type Components struct {
 	Book *ecs.SliceComponent `save:"true"`
 
 	// battle ================
-	CommandTable *ecs.SliceComponent
+	CommandTable *ecs.SliceComponent `save:"true"`
 	DropTable    *ecs.SliceComponent
 
 	// squad ================
