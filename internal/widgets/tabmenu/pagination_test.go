@@ -48,7 +48,7 @@ func TestPagination_PageNavigation(t *testing.T) {
 	assert.True(t, tm.HasNextPage())
 
 	// 最後のアイテムまで移動して次のページへ
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		require.NoError(t, tm.DoAction(inputmapper.ActionMenuDown))
 	}
 

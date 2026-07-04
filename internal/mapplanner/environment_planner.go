@@ -42,7 +42,7 @@ func (p EnvironmentPlanner) floodFillOutdoor(mp *MetaPlan) []bool {
 	queue := []int{}
 
 	// 上端と下端
-	for x := 0; x < width; x++ {
+	for x := range width {
 		queue = append(queue, x)                  // 上端
 		queue = append(queue, (height-1)*width+x) // 下端
 	}

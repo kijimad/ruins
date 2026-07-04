@@ -366,7 +366,7 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 
 	rp := newRoamingPlanner(testRNG)
 
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 		behavior, params := rp.planTerritorialAction(world, entity, ai, grid)
@@ -403,7 +403,7 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	rp := newRoamingPlanner(testRNG)
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
-	for i := 0; i < 50; i++ {
+	for i := range 50 {
 		behavior, params := rp.planTerritorialAction(world, entity, ai, grid)
 		if behavior.Name() == gc.BehaviorMove && params.Destination != nil {
 			dx := int(params.Destination.X) - ai.OriginX
@@ -435,7 +435,7 @@ func TestPlanWanderAction(t *testing.T) {
 
 	gotMove := false
 	gotWait := false
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		behavior, _ := rp.planWanderAction(world, entity, grid)
 		switch behavior.Name() { //nolint:exhaustive
 		case gc.BehaviorMove:
@@ -471,7 +471,7 @@ func TestPlanWallHugAction(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	moved := false
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		behavior, _ := rp.planWallHugAction(world, entity, grid)
 		if behavior.Name() == gc.BehaviorMove {
 			moved = true
@@ -519,7 +519,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
 	moved := false
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		behavior, params := rp.planSwarmAction(world, entity, grid)
 		if behavior.Name() == gc.BehaviorMove && params.Destination != nil {
 			if params.Destination.X > grid.X || params.Destination.Y > grid.Y {
@@ -601,7 +601,7 @@ func TestPlanRandomMoveAction(t *testing.T) {
 
 	gotMove := false
 	gotWait := false
-	for i := 0; i < 50; i++ {
+	for range 50 {
 		behavior, _ := rp.planRandomMoveAction(world, entity, grid)
 		switch behavior.Name() { //nolint:exhaustive
 		case gc.BehaviorMove:

@@ -159,21 +159,21 @@ func (st *LookAroundState) drawCursor(world w.World, screen *ebiten.Image) {
 		cursorImageCache = ebiten.NewImage(tileSize, tileSize)
 		// 枠線を描画（太さ3px、白色で目立つように）
 		cursorColor := theme.CursorLook
-		for i := 0; i < 3; i++ {
+		for i := range 3 {
 			// 上辺
-			for x := 0; x < tileSize; x++ {
+			for x := range tileSize {
 				cursorImageCache.Set(x, i, cursorColor)
 			}
 			// 下辺
-			for x := 0; x < tileSize; x++ {
+			for x := range tileSize {
 				cursorImageCache.Set(x, tileSize-1-i, cursorColor)
 			}
 			// 左辺
-			for y := 0; y < tileSize; y++ {
+			for y := range tileSize {
 				cursorImageCache.Set(i, y, cursorColor)
 			}
 			// 右辺
-			for y := 0; y < tileSize; y++ {
+			for y := range tileSize {
 				cursorImageCache.Set(tileSize-1-i, y, cursorColor)
 			}
 		}

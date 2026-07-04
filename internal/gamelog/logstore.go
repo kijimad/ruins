@@ -106,10 +106,7 @@ func (s *SafeSlice) pushColoredEntry(entry LogEntry) {
 
 	// 最大サイズを超えた場合、古いものから削除（FIFO）
 	if len(s.coloredEntries) > s.maxSize {
-		keepCount := s.maxSize
-		if keepCount > len(s.coloredEntries) {
-			keepCount = len(s.coloredEntries)
-		}
+		keepCount := min(s.maxSize, len(s.coloredEntries))
 
 		// 新しいスライスに最新の要素をコピー
 		newEntries := make([]LogEntry, keepCount)
@@ -129,10 +126,7 @@ func (s *SafeSlice) GetRecentEntries(lines int) []LogEntry {
 	}
 
 	// 要求された行数とコンテンツの長さの小さい方を使用
-	actualLines := lines
-	if actualLines > len(s.coloredEntries) {
-		actualLines = len(s.coloredEntries)
-	}
+	actualLines := min(lines, len(s.coloredEntries))
 
 	// 最新のactualLines行を取得（表示順）
 	startIndex := len(s.coloredEntries) - actualLines

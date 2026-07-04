@@ -54,7 +54,7 @@ func (f *RetroFilter) Apply(dst, src *ebiten.Image) {
 	height := float32(bounds.Dy())
 
 	op := &ebiten.DrawRectShaderOptions{}
-	op.Uniforms = map[string]interface{}{
+	op.Uniforms = map[string]any{
 		"ScreenSize": []float32{width, height},
 	}
 	op.Images[0] = src

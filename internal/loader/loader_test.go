@@ -51,21 +51,21 @@ func TestLoadSpriteSheets(t *testing.T) {
 		require.True(t, ok, "tileスプライトシートが存在すること")
 
 		// dirt_0 から dirt_15 まで存在することを確認
-		for i := 0; i < 16; i++ {
+		for i := range 16 {
 			key := fmt.Sprintf("dirt_%d", i)
 			_, exists := tileSheet.Sprites[key]
 			assert.True(t, exists, "%s が存在すること", key)
 		}
 
 		// wall_0 から wall_15 まで存在することを確認
-		for i := 0; i < 16; i++ {
+		for i := range 16 {
 			key := fmt.Sprintf("wall_%d", i)
 			_, exists := tileSheet.Sprites[key]
 			assert.True(t, exists, "%s が存在すること", key)
 		}
 
 		// floor_0 から floor_15 まで存在することを確認
-		for i := 0; i < 16; i++ {
+		for i := range 16 {
 			key := fmt.Sprintf("floor_%d", i)
 			_, exists := tileSheet.Sprites[key]
 			assert.True(t, exists, "%s が存在すること", key)

@@ -378,11 +378,11 @@ func (sys *RenderSpriteSystem) drawImage(world w.World, screen *ebiten.Image, sp
 		if spriteRender.SpriteSheetName == "tile" {
 			var number string
 			var prefix string
-			if strings.HasPrefix(spriteRender.SpriteKey, "dirt_") {
-				number = strings.TrimPrefix(spriteRender.SpriteKey, "dirt_")
+			if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dirt_"); ok {
+				number = after
 				prefix = "d"
-			} else if strings.HasPrefix(spriteRender.SpriteKey, "dwall_") {
-				number = strings.TrimPrefix(spriteRender.SpriteKey, "dwall_")
+			} else if after, ok := strings.CutPrefix(spriteRender.SpriteKey, "dwall_"); ok {
+				number = after
 				prefix = "w"
 			}
 
@@ -490,13 +490,7 @@ func (sys *RenderSpriteSystem) drawDarknessAtLevelWithColor(screen *ebiten.Image
 		return
 	}
 
-	darknessLevel := int(math.Ceil(darkness * float64(DarknessLevels)))
-	if darknessLevel > DarknessLevels {
-		darknessLevel = DarknessLevels
-	}
-	if darknessLevel < 1 {
-		darknessLevel = 1
-	}
+	darknessLevel := max(min(int(math.Ceil(darkness*float64(DarknessLevels))), DarknessLevels), 1)
 
 	quantizedDarkness := float64(darknessLevel) / float64(DarknessLevels)
 

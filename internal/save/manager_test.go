@@ -316,11 +316,11 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	entity := world.Manager.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
 
-	oldFormatData := map[string]interface{}{
+	oldFormatData := map[string]any{
 		"version":   "1.0.0",
 		"timestamp": time.Now().Format(time.RFC3339),
-		"world": map[string]interface{}{
-			"entities": []interface{}{},
+		"world": map[string]any{
+			"entities": []any{},
 		},
 	}
 

@@ -70,7 +70,7 @@ func TestExpandWithPlacementsRecursive(t *testing.T) {
 		loader := NewTemplateLoader()
 
 		// 深すぎる階層構造を作成 (maxDepth=10を超える11階層)
-		for i := 0; i < 11; i++ {
+		for i := range 11 {
 			chunkType := "level" + string(rune('0'+i))
 			nextType := "level" + string(rune('1'+i))
 

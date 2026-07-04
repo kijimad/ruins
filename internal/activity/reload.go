@@ -66,10 +66,7 @@ func (ra *ReloadActivity) Start(comp *gc.Activity, actor ecs.Entity, world w.Wor
 	}
 
 	// 最大ターン数の見積もり（最低能力の場合）
-	maxTurns := (fire.ReloadEffort + BaseReloadEffort - 1) / BaseReloadEffort
-	if maxTurns < 1 {
-		maxTurns = 1
-	}
+	maxTurns := max((fire.ReloadEffort+BaseReloadEffort-1)/BaseReloadEffort, 1)
 	comp.TurnsTotal = maxTurns
 	comp.TurnsLeft = maxTurns
 
@@ -110,10 +107,7 @@ func (ra *ReloadActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		}
 		ammoCount := query.GetEntityCount(world, ammoEntity)
 
-		loaded := needed
-		if ammoCount < loaded {
-			loaded = ammoCount
-		}
+		loaded := min(ammoCount, needed)
 
 		// 装填した弾薬の修正値を記録する
 		ammoComp := world.Components.Ammo.Get(ammoEntity).(*gc.Ammo)

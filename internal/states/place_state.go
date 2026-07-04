@@ -233,12 +233,12 @@ func (st *PlaceState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	if placeCursorCache == nil {
 		placeCursorCache = ebiten.NewImage(tileSize, tileSize)
 		cursorColor := theme.CursorPlace
-		for i := 0; i < 3; i++ {
-			for x := 0; x < tileSize; x++ {
+		for i := range 3 {
+			for x := range tileSize {
 				placeCursorCache.Set(x, i, cursorColor)
 				placeCursorCache.Set(x, tileSize-1-i, cursorColor)
 			}
-			for y := 0; y < tileSize; y++ {
+			for y := range tileSize {
 				placeCursorCache.Set(i, y, cursorColor)
 				placeCursorCache.Set(tileSize-1-i, y, cursorColor)
 			}

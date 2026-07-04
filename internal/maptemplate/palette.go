@@ -3,6 +3,7 @@ package maptemplate
 import (
 	"fmt"
 	"io"
+	"maps"
 	"unicode/utf8"
 
 	"github.com/kijimaD/ruins/assets"
@@ -134,15 +135,9 @@ func MergePalettes(palettes ...*Palette) *Palette {
 	}
 
 	for _, p := range palettes {
-		for k, v := range p.Terrain {
-			merged.Terrain[k] = v
-		}
-		for k, v := range p.Props {
-			merged.Props[k] = v
-		}
-		for k, v := range p.NPCs {
-			merged.NPCs[k] = v
-		}
+		maps.Copy(merged.Terrain, p.Terrain)
+		maps.Copy(merged.Props, p.Props)
+		maps.Copy(merged.NPCs, p.NPCs)
 	}
 
 	return merged

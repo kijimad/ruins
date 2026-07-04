@@ -24,10 +24,7 @@ func GainExp(s *gc.Skill, abilityValue int) bool {
 // GainExpScaled はBaseExpにefficiencyPct（0-100%）を適用してから経験値を加算する。
 // 読書など、状況に応じて獲得量を調整する場合に使う。
 func GainExpScaled(s *gc.Skill, abilityValue int, efficiencyPct int) bool {
-	baseExp := growthConfig.BaseExp * efficiencyPct / 100
-	if baseExp < 1 {
-		baseExp = 1
-	}
+	baseExp := max(growthConfig.BaseExp*efficiencyPct/100, 1)
 	return gainExp(s, abilityValue, baseExp)
 }
 
@@ -40,10 +37,7 @@ func gainExp(s *gc.Skill, abilityValue int, baseExp int) bool {
 	growthSpeed := 100 + abilityValue*growthConfig.AbilBonus
 	decay := 100 + s.Value*growthConfig.DecayPerLevel
 
-	exp := baseExp * growthSpeed / 100 * 100 / decay
-	if exp < 1 {
-		exp = 1
-	}
+	exp := max(baseExp*growthSpeed/100*100/decay, 1)
 	s.Exp.Current += exp
 
 	if s.Exp.Current >= s.Exp.Max {

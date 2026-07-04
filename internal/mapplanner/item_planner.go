@@ -191,7 +191,7 @@ func resolveCollection(entries []SpawnEntry, planData *MetaPlan) []resolvedItem 
 			if isStackableItem(planData, entry.Name) {
 				result = append(result, resolvedItem{Name: entry.Name, Count: packSize})
 			} else {
-				for j := 0; j < packSize; j++ {
+				for range packSize {
 					result = append(result, resolvedItem{Name: entry.Name, Count: 1})
 				}
 			}

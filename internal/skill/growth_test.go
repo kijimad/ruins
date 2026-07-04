@@ -18,7 +18,7 @@ func TestGainExp_SkillLevelUp(t *testing.T) {
 	// 能力値0、スキル値0のとき、1回あたり10exp獲得する
 	// 100 / 10 = 10回でスキルアップ
 	leveledUp := false
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		if GainExp(s, 0) {
 			leveledUp = true
 		}
@@ -33,7 +33,7 @@ func TestGainExp_HighAbilityGrowsFaster(t *testing.T) {
 	// 能力値8のとき: 10 * 140 / 100 = 14exp
 	// 100 / 14 ≈ 8回でスキルアップ
 	s := newTestSkill(0, 0)
-	for i := 0; i < 8; i++ {
+	for range 8 {
 		GainExp(s, 8)
 	}
 	assert.Equal(t, 1, s.Value, "能力値8では8回以内にスキルアップするはず")

@@ -32,7 +32,7 @@ func inRoomSelector(room gc.Rect, maxAttempts int) positionSelector {
 // onMapSelector はマップ全体からランダムに配置位置を選択する
 func onMapSelector(maxAttempts int) positionSelector {
 	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
-		for i := 0; i < maxAttempts; i++ {
+		for range maxAttempts {
 			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
 			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 			if planData.IsSpawnableTile(world, x, y) {
@@ -53,7 +53,7 @@ func nearSelector(centerX, centerY consts.Tile, radius int, room gc.Rect, maxAtt
 // reachableSelector はマップ全体からランダムに選び、部屋内かつプレイヤーから到達可能な位置を返す
 func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts int) positionSelector {
 	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
-		for i := 0; i < maxAttempts; i++ {
+		for range maxAttempts {
 			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
 			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 			if planData.IsSpawnableTile(world, x, y) &&
@@ -70,7 +70,7 @@ func reachableSelector(pf *PathFinder, playerPos consts.Coord[int], maxAttempts 
 // 部屋内かつ全基準点から到達可能かつ最低歩数以上離れた位置を返す
 func minDistanceReachableSelector(pf *PathFinder, referencePoints []consts.Coord[int], minDist int, maxAttempts int) positionSelector {
 	return func(planData *MetaPlan, world w.World) (consts.Tile, consts.Tile, bool) {
-		for i := 0; i < maxAttempts; i++ {
+		for range maxAttempts {
 			x := consts.Tile(planData.RNG.IntN(int(planData.Level.TileWidth)))
 			y := consts.Tile(planData.RNG.IntN(int(planData.Level.TileHeight)))
 			if !planData.IsSpawnableTile(world, x, y) || !planData.isInAnyRoom(x, y) {

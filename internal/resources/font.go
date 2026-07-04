@@ -13,8 +13,8 @@ type Font struct {
 }
 
 // UnmarshalTOML fills structure fields from TOML data
-func (f *Font) UnmarshalTOML(i interface{}) error {
-	fontFile, err := assets.FS.Open(i.(map[string]interface{})["font"].(string))
+func (f *Font) UnmarshalTOML(i any) error {
+	fontFile, err := assets.FS.Open(i.(map[string]any)["font"].(string))
 	if err != nil {
 		return err
 	}

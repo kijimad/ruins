@@ -214,7 +214,7 @@ func evalPredSpec(pred Pred, specVal reflect.Value) bool {
 			return false
 		}
 		// ポインタ型のフィールドのみ nil 判定する。値型フィールドは常に「存在する」とみなす
-		if field.Kind() == reflect.Ptr || field.Kind() == reflect.Interface {
+		if field.Kind() == reflect.Pointer || field.Kind() == reflect.Interface {
 			return !field.IsNil()
 		}
 		return true

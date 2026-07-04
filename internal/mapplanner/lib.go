@@ -352,7 +352,7 @@ func (b *PlannerChain) Plan() error {
 // plannerName はMetaMapPlannerの型名を返す
 func plannerName(p MetaMapPlanner) string {
 	t := reflect.TypeOf(p)
-	if t.Kind() == reflect.Ptr {
+	if t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	return t.Name()
@@ -631,7 +631,7 @@ func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempt
 	if rw <= 0 || rh <= 0 {
 		return 0, 0, false
 	}
-	for i := 0; i < maxAttempts; i++ {
+	for range maxAttempts {
 		tx := consts.Tile(int(room.X1) + bm.RNG.IntN(rw))
 		ty := consts.Tile(int(room.Y1) + bm.RNG.IntN(rh))
 		if bm.IsSpawnableTile(world, tx, ty) {
@@ -644,7 +644,7 @@ func (bm *MetaPlan) randomPositionInRoom(room gc.Rect, world w.World, maxAttempt
 // randomPositionNear は指定座標の近く、かつ部屋内からスポーン可能なランダム座標を探す。
 // 大部屋でクラスタメンバーを密集させるために使用する
 func (bm *MetaPlan) randomPositionNear(centerX, centerY consts.Tile, radius int, room gc.Rect, world w.World, maxAttempts int) (consts.Tile, consts.Tile, bool) {
-	for i := 0; i < maxAttempts; i++ {
+	for range maxAttempts {
 		dx := bm.RNG.IntN(radius*2+1) - radius
 		dy := bm.RNG.IntN(radius*2+1) - radius
 		tx := consts.Tile(int(centerX) + dx)

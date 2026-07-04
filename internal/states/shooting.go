@@ -243,12 +243,12 @@ func (st *ShootingState) drawTargetCursor(world w.World, screen *ebiten.Image) {
 	if shootingCursorCache == nil {
 		shootingCursorCache = ebiten.NewImage(tileSize, tileSize)
 		cursorColor := theme.CursorShoot
-		for i := 0; i < 3; i++ {
-			for x := 0; x < tileSize; x++ {
+		for i := range 3 {
+			for x := range tileSize {
 				shootingCursorCache.Set(x, i, cursorColor)
 				shootingCursorCache.Set(x, tileSize-1-i, cursorColor)
 			}
-			for y := 0; y < tileSize; y++ {
+			for y := range tileSize {
 				shootingCursorCache.Set(i, y, cursorColor)
 				shootingCursorCache.Set(tileSize-1-i, y, cursorColor)
 			}

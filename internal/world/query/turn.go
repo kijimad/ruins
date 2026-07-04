@@ -80,10 +80,7 @@ func RestoreAllActionPoints(world w.World) error {
 		tb.AP.Max = maxAP
 
 		// 現在AP + Speed で上限まで回復
-		newAP := tb.AP.Current + speed
-		if newAP > maxAP {
-			newAP = maxAP
-		}
+		newAP := min(tb.AP.Current+speed, maxAP)
 		tb.AP.Current = newAP
 
 		log.Debug("アクションポイント回復",
@@ -110,11 +107,7 @@ func CalculateMaxActionPoints(world w.World, entity ecs.Entity) (int, error) {
 	agilityMultiplier := 3
 	dexterityMultiplier := 1
 
-	calculatedAP := baseAP + abils.Agility.Total*agilityMultiplier + abils.Dexterity.Total*dexterityMultiplier
-
-	if calculatedAP < 20 {
-		calculatedAP = 20
-	}
+	calculatedAP := max(baseAP+abils.Agility.Total*agilityMultiplier+abils.Dexterity.Total*dexterityMultiplier, 20)
 
 	return calculatedAP, nil
 }
@@ -138,10 +131,7 @@ func CalculateSpeed(world w.World, entity ecs.Entity) int {
 	// 100% = 変化なし、90% = 速い（走破スキル）、130% = 遅い（低体温）
 	if entity.HasComponent(world.Components.CharModifiers) {
 		effects := world.Components.CharModifiers.Get(entity).(*gc.CharModifiers)
-		moveCost := effects.MoveCost
-		if moveCost < 10 {
-			moveCost = 10
-		}
+		moveCost := max(effects.MoveCost, 10)
 		speed = speed * 100 / moveCost
 	}
 
@@ -197,10 +187,7 @@ func calculateOverweightPenalty(world w.World, entity ecs.Entity) int {
 
 	if cw.Current > cw.Max {
 		overweight := cw.Current - cw.Max
-		penalty := int((overweight * 25) / cw.Max)
-		if penalty > 75 {
-			penalty = 75
-		}
+		penalty := min(int((overweight*25)/cw.Max), 75)
 		return -penalty
 	}
 

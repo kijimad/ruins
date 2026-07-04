@@ -124,7 +124,7 @@ func TestMainGameLifecycle(t *testing.T) {
 		}, "StateMachine.Updateでパニック")
 
 		// 複数回のUpdateを実行して安定性を確認
-		for i := 0; i < 3; i++ { // 回数を減らしてテスト時間を短縮
+		for i := range 3 { // 回数を減らしてテスト時間を短縮
 			err := game.Update()
 			assert.NoError(t, err, "Update %d回目でエラーが発生", i+1)
 		}
@@ -212,7 +212,7 @@ func validateResourceLoading(t *testing.T, world ew.World) {
 	// 各リソースの存在確認
 	resources := []struct {
 		name     string
-		resource interface{}
+		resource any
 	}{
 		{"SpriteSheets", world.Resources.SpriteSheets},
 		{"Fonts", world.Resources.Fonts},

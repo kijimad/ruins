@@ -267,7 +267,7 @@ type mapGenResult struct {
 func buildMapGenChain(t *testing.T, pt mapplanner.PlannerType) *mapGenResult {
 	t.Helper()
 	world := vrt.InitVRTWorld(t)
-	for attempt := 0; attempt < mapplanner.MaxPlanRetries; attempt++ {
+	for attempt := range mapplanner.MaxPlanRetries {
 		currentSeed := mapGenSeed + uint64(attempt*1000)
 		chain, err := mapplanner.BuildChain(world, consts.MapTileWidth, consts.MapTileHeight, currentSeed, pt)
 		if err != nil {

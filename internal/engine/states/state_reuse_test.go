@@ -90,7 +90,7 @@ func TestStateNoReuse(t *testing.T) {
 		assert.NoError(t, err)
 
 		// 複数回同じStateFactory[TestWorld]でPush
-		for i := 0; i < 3; i++ {
+		for i := range 3 {
 			sm.lastTransition = Transition[TestWorld]{
 				Type:          TransPush,
 				NewStateFuncs: []StateFactory[TestWorld]{factory},

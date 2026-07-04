@@ -28,7 +28,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		}
 
 		// 壁で囲む
-		for i := 0; i < 25; i++ {
+		for i := range 25 {
 			x, y := i%5, i/5
 			if x == 0 || x == 4 || y == 0 || y == 4 {
 				mp.Tiles[i] = oapi.Tile{Name: "wall", BlockPass: true}
@@ -59,7 +59,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 			Tiles: make([]oapi.Tile, 25),
 		}
 
-		for i := 0; i < 25; i++ {
+		for i := range 25 {
 			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 
@@ -68,7 +68,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 		require.NoError(t, err)
 
 		// 全てのタイルが屋外
-		for i := 0; i < 25; i++ {
+		for i := range 25 {
 			assert.Equal(t, oapi.ShelterType(gc.ShelterNone), mp.Tiles[i].Shelter, "全て屋外であるべき")
 		}
 	})
@@ -87,7 +87,7 @@ func TestEnvironmentPlanner_PlanMeta(t *testing.T) {
 			Tiles: make([]oapi.Tile, 35),
 		}
 
-		for i := 0; i < 35; i++ {
+		for i := range 35 {
 			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 
@@ -125,7 +125,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Level: newTestLevel(3, 3),
 			Tiles: make([]oapi.Tile, 9),
 		}
-		for i := 0; i < 9; i++ {
+		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 		mp.Tiles[4] = oapi.Tile{Name: "water", BlockPass: false}
@@ -143,7 +143,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Level: newTestLevel(3, 3),
 			Tiles: make([]oapi.Tile, 9),
 		}
-		for i := 0; i < 9; i++ {
+		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 		mp.Tiles[4] = oapi.Tile{Name: "water", BlockPass: false}
@@ -164,7 +164,7 @@ func TestEnvironmentPlanner_calcWater(t *testing.T) {
 			Level: newTestLevel(3, 3),
 			Tiles: make([]oapi.Tile, 9),
 		}
-		for i := 0; i < 9; i++ {
+		for i := range 9 {
 			mp.Tiles[i] = oapi.Tile{Name: "floor", BlockPass: false}
 		}
 

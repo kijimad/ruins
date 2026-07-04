@@ -78,7 +78,7 @@ func TestItemTable_SelectByWeight_MultipleEntries(t *testing.T) {
 	iterations := 10000
 
 	rng := rand.New(rand.NewPCG(12345, 67890))
-	for i := 0; i < iterations; i++ {
+	for range iterations {
 		result, err := SelectItemByWeight(raws, table, rng, 5)
 		require.NoError(t, err)
 		results[result]++
@@ -142,7 +142,7 @@ func TestItemTable_SelectByWeight_Reproducibility(t *testing.T) {
 	rng1 := rand.New(rand.NewPCG(seed, seed+1))
 	rng2 := rand.New(rand.NewPCG(seed, seed+1))
 
-	for i := 0; i < 100; i++ {
+	for range 100 {
 		result1, err1 := SelectItemByWeight(raws, table, rng1, 5)
 		result2, err2 := SelectItemByWeight(raws, table, rng2, 5)
 		require.NoError(t, err1)

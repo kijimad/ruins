@@ -63,7 +63,7 @@ func TestSelectByWeightFunc_WeightedDistribution(t *testing.T) {
 
 	rng := rand.New(rand.NewPCG(42, 0))
 	counts := map[string]int{}
-	for i := 0; i < 1000; i++ {
+	for range 1000 {
 		result, err := SelectByWeightFunc(
 			items,
 			func(it item) float64 { return it.weight },

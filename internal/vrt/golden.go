@@ -71,7 +71,7 @@ func renderContainer(buildFn func() *widget.Container, width, height int) *image
 	screen := ebiten.NewImage(width, height)
 
 	// レイアウト確定のため数フレーム回す
-	for i := 0; i < 3; i++ {
+	for range 3 {
 		ui.Update()
 	}
 	ui.Draw(screen)

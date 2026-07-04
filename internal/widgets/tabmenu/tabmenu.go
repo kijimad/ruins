@@ -279,10 +279,7 @@ func (tm *tabMenu) navigateToNextItem() error {
 	// ページネーション対応
 	if tm.config.ItemsPerPage > 0 {
 		pageStart := tm.currentPage * tm.config.ItemsPerPage
-		pageEnd := pageStart + tm.config.ItemsPerPage
-		if pageEnd > len(currentTab.Items) {
-			pageEnd = len(currentTab.Items)
-		}
+		pageEnd := min(pageStart+tm.config.ItemsPerPage, len(currentTab.Items))
 
 		// ページ内での移動
 		if tm.currentItemIndex < 0 {
@@ -437,10 +434,7 @@ func (tm *tabMenu) UpdateTabs(tabs []TabItem) {
 
 	// 現在のインデックスが範囲外になった場合は調整
 	if tm.currentTabIndex >= len(tabs) {
-		tm.currentTabIndex = len(tabs) - 1
-		if tm.currentTabIndex < 0 {
-			tm.currentTabIndex = 0
-		}
+		tm.currentTabIndex = max(len(tabs)-1, 0)
 	}
 
 	// 現在のタブのアイテムインデックスを調整
@@ -476,10 +470,7 @@ func (tm *tabMenu) GetVisibleItems() ([]Item, []int) {
 	}
 
 	start := tm.currentPage * tm.config.ItemsPerPage
-	end := start + tm.config.ItemsPerPage
-	if end > len(currentTab.Items) {
-		end = len(currentTab.Items)
-	}
+	end := min(start+tm.config.ItemsPerPage, len(currentTab.Items))
 
 	if start >= len(currentTab.Items) {
 		return []Item{}, []int{}
