@@ -201,8 +201,7 @@ func (ma *MoveActivity) performMove(comp *gc.Activity, actor ecs.Entity, world w
 	return nil
 }
 
-// swapAllyIfNeeded は移動先に味方キャラクターがいた場合、位置を入れ替える。
-// プレイヤー→隊員、隊員→隊員の交換に対応する
+// swapAllyIfNeeded はプレイヤーが隊員のいるタイルに移動する際に位置を入れ替える
 func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY int) {
 	si := query.GetSpatialIndex(world)
 	if si == nil {
