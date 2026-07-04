@@ -2,6 +2,7 @@ package states
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -605,35 +606,21 @@ func NewAllClearEventState() es.State[w.World] {
 	return messageState
 }
 
-// NewSaveMenuState は新しいSaveMenuStateインスタンスを作成するファクトリー関数
+// NewSaveMenuState は手動セーブ画面を作成するファクトリー関数。
+// 固定4スロットで、主人公名とタイムスタンプを表示する。
 func NewSaveMenuState() es.State[w.World] {
 	messageState := &MessageState{}
-
-	// セーブマネージャーで現在のスロット状態を取得
-	saveManager := save.NewSerializationManager("./saves")
-
+	saveManager := save.NewSerializationManager()
 	messageData := messagedata.NewSystemMessage("")
 
-	// 各スロットの状態を確認して選択肢を動的に生成
-	for i := 1; i <= 3; i++ {
+	for i := 1; i <= 4; i++ {
 		slotName := fmt.Sprintf("slot%d", i)
-		var label string
-
-		if saveManager.SaveFileExists(slotName) {
-			if timestamp, err := saveManager.GetSaveFileTimestamp(slotName); err == nil {
-				label = fmt.Sprintf("スロット%d  %s", i, timestamp.Format("01/02 15:04"))
-			} else {
-				label = fmt.Sprintf("スロット%d  データあり", i)
-			}
-		} else {
-			label = fmt.Sprintf("スロット%d", i)
-		}
+		label := formatSaveSlotLabel(saveManager, slotName)
 
 		messageData = messageData.WithChoice(label, func(world w.World) error {
 			if err := saveManager.SaveWorld(world, slotName); err != nil {
 				return fmt.Errorf("save failed: %w", err)
 			}
-			// セーブ後は同じセーブメニューを再作成してメニューを維持
 			messageState.SetTransition(es.Transition[w.World]{
 				Type:          es.TransSwitch,
 				NewStateFuncs: []es.StateFactory[w.World]{NewSaveMenuState}})
@@ -650,52 +637,35 @@ func NewSaveMenuState() es.State[w.World] {
 	return messageState
 }
 
-// NewLoadMenuState は新しいLoadMenuStateインスタンスを作成するファクトリー関数
+// NewLoadMenuState はロード画面を作成するファクトリー関数。
+// 手動4スロットとオートセーブ4スロットをセクション分けで表示する。
 func NewLoadMenuState() es.State[w.World] {
 	messageState := &MessageState{}
-
-	// セーブマネージャーで現在のスロット状態を取得
-	saveManager := save.NewSerializationManager("./saves")
-
+	saveManager := save.NewSerializationManager()
 	messageData := messagedata.NewSystemMessage("")
 
-	// 各スロットの状態を確認して選択肢を動的に生成
-	hasValidSlot := false
-	for i := 1; i <= 3; i++ {
+	// 手動セーブセクション
+	messageData = messageData.WithChoice("手動セーブ", nil)
+	for i := 1; i <= 4; i++ {
 		slotName := fmt.Sprintf("slot%d", i)
-		var label string
-
-		if saveManager.SaveFileExists(slotName) {
-			hasValidSlot = true
-			if timestamp, err := saveManager.GetSaveFileTimestamp(slotName); err == nil {
-				label = fmt.Sprintf("スロット%d  %s", i, timestamp.Format("01/02 15:04"))
-			} else {
-				label = fmt.Sprintf("スロット%d  データあり", i)
-			}
-
-			messageData = messageData.WithChoice(label, func(world w.World) error {
-				// ロードを実行
-				err := saveManager.LoadWorld(world, slotName)
-				if err != nil {
-					println("Load failed:", err.Error())
-					messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
-					return err
-				}
-				// 遷移（街マップを生成してプレイヤーを配置）
-				messageState.SetTransition(es.Transition[w.World]{
-					Type:          es.TransReplace,
-					NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
-				return nil
-			})
-		}
+		addLoadSlot(messageData, messageState, saveManager, slotName)
 	}
 
-	// 有効なセーブデータが存在しない場合の処理
-	if !hasValidSlot {
-		messageData = messageData.WithChoice("セーブデータがありません", func(_ w.World) error {
-			// 何もしない（選択不可を示すためのダミー選択肢）
-			return nil
-		})
+	// オートセーブセクション
+	messageData = messageData.WithChoice("オートセーブ", nil)
+	saves, _ := saveManager.ListSaves()
+	var autoSaves []string
+	for _, name := range saves {
+		if strings.HasPrefix(name, "auto_") && len(autoSaves) < 4 {
+			autoSaves = append(autoSaves, name)
+		}
+	}
+	for i := range 4 {
+		if i < len(autoSaves) {
+			addLoadSlot(messageData, messageState, saveManager, autoSaves[i])
+		} else {
+			messageData.WithChoice("  ---", nil)
+		}
 	}
 
 	messageData = messageData.WithChoice("戻る", func(_ w.World) error {
@@ -703,10 +673,46 @@ func NewLoadMenuState() es.State[w.World] {
 		return nil
 	})
 
-	// MessageStateにMessageDataを設定
 	messageState.messageData = messageData
-
 	return messageState
+}
+
+// addLoadSlot はロードメニューにスロットを追加する。
+// データが存在するスロットは選択可能、存在しないスロットは "---" で選択不可にする。
+func addLoadSlot(messageData *messagedata.MessageData, messageState *MessageState, saveManager *save.SerializationManager, slotName string) {
+	if !saveManager.SaveFileExists(slotName) {
+		messageData.WithChoice("  ---", nil)
+		return
+	}
+
+	label := formatSaveSlotLabel(saveManager, slotName)
+	messageData.WithChoice(label, func(world w.World) error {
+		err := saveManager.LoadWorld(world, slotName)
+		if err != nil {
+			messageState.SetTransition(es.Transition[w.World]{Type: es.TransPop})
+			return err
+		}
+		messageState.SetTransition(es.Transition[w.World]{
+			Type:          es.TransReplace,
+			NewStateFuncs: []es.StateFactory[w.World]{NewTownState()}})
+		return nil
+	})
+}
+
+// formatSaveSlotLabel はセーブスロットの表示ラベルを生成する。
+// データがある場合は "プレイヤー名  日時" 、ない場合は "---" を返す。
+func formatSaveSlotLabel(saveManager *save.SerializationManager, slotName string) string {
+	if !saveManager.SaveFileExists(slotName) {
+		return "---"
+	}
+
+	playerName, nameErr := saveManager.GetSavePlayerName(slotName)
+	timestamp, tsErr := saveManager.GetSaveFileTimestamp(slotName)
+
+	if nameErr == nil && tsErr == nil {
+		return fmt.Sprintf("  %s  %s", playerName, timestamp.Format("01/02 15:04"))
+	}
+	return "  データあり"
 }
 
 // NewMessageState はメッセージデータを受け取って新しいMessageStateを作成するファクトリー関数

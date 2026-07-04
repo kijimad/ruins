@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -18,6 +19,20 @@ import (
 
 const saveDataVersion = "1.0.0"
 
+const maxAutoSaves = 4
+
+const defaultSaveDir = "./saves"
+
+// Option はSerializationManagerの設定を変更する関数
+type Option func(*SerializationManager)
+
+// WithSaveDir はセーブディレクトリを変更する
+func WithSaveDir(dir string) Option {
+	return func(sm *SerializationManager) {
+		sm.saveDirectory = dir
+	}
+}
+
 // SerializationManager は安定ID + 静的型ベースのシリアライゼーションを管理する
 type SerializationManager struct {
 	saveDirectory   string
@@ -25,10 +40,13 @@ type SerializationManager struct {
 }
 
 // NewSerializationManager は新しいSerializationManagerを作成する
-func NewSerializationManager(saveDir string) *SerializationManager {
+func NewSerializationManager(opts ...Option) *SerializationManager {
 	sm := &SerializationManager{
-		saveDirectory:   saveDir,
+		saveDirectory:   defaultSaveDir,
 		stableIDManager: NewStableIDManager(),
+	}
+	for _, opt := range opts {
+		opt(sm)
 	}
 	sm.initImpl()
 	return sm
@@ -582,6 +600,88 @@ func (sm *SerializationManager) calculateChecksum(data *oapi.SaveDataSaveData) (
 	}
 	hash := sha256.Sum256(jsonBytes)
 	return hex.EncodeToString(hash[:]), nil
+}
+
+// ListSaves はセーブデータの一覧を新しい順に返す
+func (sm *SerializationManager) ListSaves() ([]string, error) {
+	names, err := sm.listSavesImpl()
+	if err != nil {
+		return nil, err
+	}
+
+	// タイムスタンプを取得できたもののみ返す
+	var valid []string
+	timestamps := make(map[string]time.Time, len(names))
+	for _, name := range names {
+		ts, err := sm.GetSaveFileTimestamp(name)
+		if err != nil {
+			continue
+		}
+		valid = append(valid, name)
+		timestamps[name] = ts
+	}
+
+	sort.Slice(valid, func(i, j int) bool {
+		return timestamps[valid[i]].After(timestamps[valid[j]])
+	})
+	return valid, nil
+}
+
+// RotateAutoSaves はオートセーブを最大件数まで削減する。
+// 古い順に削除して maxAutoSaves 件を保持する。
+func (sm *SerializationManager) RotateAutoSaves() error {
+	saves, err := sm.ListSaves()
+	if err != nil {
+		return err
+	}
+
+	var autoSaves []string
+	for _, name := range saves {
+		if strings.HasPrefix(name, "auto_") {
+			autoSaves = append(autoSaves, name)
+		}
+	}
+
+	if len(autoSaves) <= maxAutoSaves {
+		return nil
+	}
+
+	for _, name := range autoSaves[maxAutoSaves:] {
+		if err := sm.deleteSaveImpl(name); err != nil {
+			return fmt.Errorf("failed to prune auto save %s: %w", name, err)
+		}
+	}
+	return nil
+}
+
+// GetSavePlayerName はセーブデータからプレイヤー名を取得する。
+// セーブデータ全体をデシリアライズせず、エンティティのName.Nameフィールドだけを抽出する。
+func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {
+	data, err := sm.loadDataImpl(slotName)
+	if err != nil {
+		return "", err
+	}
+	var partial struct {
+		World struct {
+			Entities []struct {
+				Components struct {
+					Player *json.RawMessage `json:"player"`
+					Name   *struct {
+						Name string `json:"name"`
+					} `json:"name"`
+				} `json:"components"`
+			} `json:"entities"`
+		} `json:"world"`
+	}
+	if err := json.Unmarshal(data, &partial); err != nil {
+		return "", fmt.Errorf("failed to parse save data: %w", err)
+	}
+	for _, entity := range partial.World.Entities {
+		if entity.Components.Player != nil && entity.Components.Name != nil {
+			return entity.Components.Name.Name, nil
+		}
+	}
+	return "", fmt.Errorf("player entity not found in save data")
 }
 
 // validateChecksum はセーブデータのチェックサムを検証する

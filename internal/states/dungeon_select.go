@@ -3,6 +3,7 @@ package states
 import (
 	"fmt"
 	"image"
+	"time"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/widget"
@@ -12,7 +13,9 @@ import (
 	es "github.com/kijimaD/ruins/internal/engine/states"
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/kijimaD/ruins/internal/logger"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -116,11 +119,20 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // DoAction はActionを実行する
-func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *DungeonSelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
+		saveManager := save.NewSerializationManager()
+		slotName := fmt.Sprintf("auto_%d", time.Now().UnixNano())
+		logger.New(logger.CategorySave).Debug("オートセーブ実行", "slot", slotName)
+		if err := saveManager.SaveWorld(world, slotName); err != nil {
+			return es.Transition[w.World]{}, fmt.Errorf("オートセーブに失敗: %w", err)
+		}
+		if err := saveManager.RotateAutoSaves(); err != nil {
+			return es.Transition[w.World]{}, fmt.Errorf("古いオートセーブの削除に失敗: %w", err)
+		}
 		return st.handleSelection()
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
 		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,

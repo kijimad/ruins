@@ -32,7 +32,7 @@ func TestSaveLoadIntegration(t *testing.T) {
 	npc.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemyData{})
 
 	// セーブマネージャーを作成
-	saveManager := NewSerializationManager(testDir)
+	saveManager := NewSerializationManager(WithSaveDir(testDir))
 
 	// セーブテスト
 	err := saveManager.SaveWorld(world, "test_slot")
@@ -71,7 +71,7 @@ func TestSaveSlotInfo(t *testing.T) {
 	testDir := t.TempDir()
 
 	// セーブマネージャーを作成
-	saveManager := NewSerializationManager(testDir)
+	saveManager := NewSerializationManager(WithSaveDir(testDir))
 
 	// テスト用のワールドを作成
 	world := testutil.InitTestWorld(t)
@@ -125,7 +125,7 @@ func TestSaveLoadInPlace(t *testing.T) {
 	// GameProgressにデータを設定
 	query.GetGameProgress(world).MarkDungeonCleared("遺跡")
 
-	sm := NewSerializationManager(tempDir)
+	sm := NewSerializationManager(WithSaveDir(tempDir))
 	err := sm.SaveWorld(world, "inplace")
 	require.NoError(t, err)
 

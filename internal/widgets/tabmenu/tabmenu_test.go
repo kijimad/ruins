@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/kijimaD/ruins/internal/inputmapper"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -275,4 +276,92 @@ func TestTabMenuSetters(t *testing.T) {
 	if tabMenu.GetCurrentItemIndex() != 1 {
 		t.Errorf("設定後のアイテムインデックスが不正: 期待 1, 実際 %d", tabMenu.GetCurrentItemIndex())
 	}
+}
+
+func TestDisabledItemSkip(t *testing.T) {
+	t.Parallel()
+
+	t.Run("スキップ対象アイテムをカーソル移動でスキップする", func(t *testing.T) {
+		t.Parallel()
+		items := []Item{
+			{ID: "header", Label: "── セクション ──"},
+			{ID: "item1", Label: "アイテム1"},
+			{ID: "item2", Label: "アイテム2"},
+		}
+		config := Config{
+			Tabs:             []TabItem{{ID: "t1", Items: items}},
+			InitialItemIndex: 0,
+			WrapNavigation:   true,
+			Skips:            [][]bool{{true, false, false}},
+		}
+		tm := newTabMenu(config, Callbacks{})
+
+		// 初期位置がスキップ対象なので、次の有効アイテムに移動している
+		assert.Equal(t, 1, tm.GetCurrentItemIndex())
+	})
+
+	t.Run("下移動でスキップ対象アイテムをスキップする", func(t *testing.T) {
+		t.Parallel()
+		items := []Item{
+			{ID: "item1", Label: "アイテム1"},
+			{ID: "header", Label: "── セクション ──"},
+			{ID: "item2", Label: "アイテム2"},
+		}
+		config := Config{
+			Tabs:             []TabItem{{ID: "t1", Items: items}},
+			InitialItemIndex: 0,
+			WrapNavigation:   true,
+			Skips:            [][]bool{{false, true, false}},
+		}
+		tm := newTabMenu(config, Callbacks{})
+
+		require.NoError(t, tm.DoAction(inputmapper.ActionMenuDown))
+		assert.Equal(t, 2, tm.GetCurrentItemIndex())
+	})
+
+	t.Run("上移動でスキップ対象アイテムをスキップする", func(t *testing.T) {
+		t.Parallel()
+		items := []Item{
+			{ID: "item1", Label: "アイテム1"},
+			{ID: "header", Label: "── セクション ──"},
+			{ID: "item2", Label: "アイテム2"},
+		}
+		config := Config{
+			Tabs:             []TabItem{{ID: "t1", Items: items}},
+			InitialItemIndex: 2,
+			WrapNavigation:   true,
+			Skips:            [][]bool{{false, true, false}},
+		}
+		tm := newTabMenu(config, Callbacks{})
+
+		require.NoError(t, tm.DoAction(inputmapper.ActionMenuUp))
+		assert.Equal(t, 0, tm.GetCurrentItemIndex())
+	})
+
+	t.Run("スキップ対象アイテムは選択できない", func(t *testing.T) {
+		t.Parallel()
+		selected := false
+		items := []Item{
+			{ID: "disabled", Label: "選択不可"},
+			{ID: "enabled", Label: "選択可能"},
+		}
+		config := Config{
+			Tabs:             []TabItem{{ID: "t1", Items: items}},
+			InitialItemIndex: 0,
+			Skips:            [][]bool{{true, false}},
+		}
+		callbacks := Callbacks{
+			OnSelectItem: func(_, _ int, _ TabItem, _ Item) error {
+				selected = true
+				return nil
+			},
+		}
+		tm := newTabMenu(config, callbacks)
+
+		// 初期位置は1(enabledにスキップされている)ので、ここでの選択はselected=true
+		// SetItemIndexで無理やりdisabledに戻してテスト
+		tm.currentItemIndex = 0
+		require.NoError(t, tm.DoAction(inputmapper.ActionMenuSelect))
+		assert.False(t, selected)
+	})
 }

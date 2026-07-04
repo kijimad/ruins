@@ -3,6 +3,7 @@ package save
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -64,7 +65,7 @@ func TestSerializationManager_SaveAndLoad(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
 
-	manager := NewSerializationManager(testDir)
+	manager := NewSerializationManager(WithSaveDir(testDir))
 	world := testutil.InitTestWorld(t)
 
 	player := world.Manager.NewEntity()
@@ -102,7 +103,7 @@ func TestSerializationManager_EmptyWorld(t *testing.T) {
 	t.Parallel()
 	testDir := t.TempDir()
 
-	manager := NewSerializationManager(testDir)
+	manager := NewSerializationManager(WithSaveDir(testDir))
 	world := testutil.InitTestWorld(t)
 
 	err := manager.SaveWorld(world, "empty_slot")
@@ -137,7 +138,7 @@ func TestValidJSONButNoChecksum(t *testing.T) {
 	err := os.WriteFile(testDir+"/valid_no_checksum.json", []byte(validJSONNoChecksum), 0644)
 	require.NoError(t, err)
 
-	manager := NewSerializationManager(testDir)
+	manager := NewSerializationManager(WithSaveDir(testDir))
 	world := testutil.InitTestWorld(t)
 
 	err = manager.LoadWorld(world, "valid_no_checksum")
@@ -151,7 +152,7 @@ func TestChecksumValidation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	tempDir := t.TempDir()
-	manager := NewSerializationManager(tempDir)
+	manager := NewSerializationManager(WithSaveDir(tempDir))
 
 	entity := world.Manager.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
@@ -190,7 +191,7 @@ func TestTamperedSaveDataLoad(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	tempDir := t.TempDir()
-	manager := NewSerializationManager(tempDir)
+	manager := NewSerializationManager(WithSaveDir(tempDir))
 
 	entity := world.Manager.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
@@ -223,7 +224,7 @@ func TestDeterministicHashCalculation(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	tempDir := t.TempDir()
-	manager := NewSerializationManager(tempDir)
+	manager := NewSerializationManager(WithSaveDir(tempDir))
 
 	entity1 := world.Manager.NewEntity()
 	world.Components.Name.Set(entity1, &gc.Name{Name: "TestEntity1"})
@@ -264,7 +265,7 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 	world := testutil.InitTestWorld(t)
 
 	tempDir := t.TempDir()
-	manager := NewSerializationManager(tempDir)
+	manager := NewSerializationManager(WithSaveDir(tempDir))
 
 	entity := world.Manager.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "ConsistencyTest"})
@@ -292,7 +293,7 @@ func TestHashConsistencyAcrossRuns(t *testing.T) {
 func TestMissingChecksumValidation(t *testing.T) {
 	t.Parallel()
 	tempDir := t.TempDir()
-	manager := NewSerializationManager(tempDir)
+	manager := NewSerializationManager(WithSaveDir(tempDir))
 
 	saveDataWithoutChecksum := oapi.SaveDataSaveData{
 		Version:   "1.0.0",
@@ -311,7 +312,7 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	tempDir := t.TempDir()
-	manager := NewSerializationManager(tempDir)
+	manager := NewSerializationManager(WithSaveDir(tempDir))
 
 	entity := world.Manager.NewEntity()
 	world.Components.Name.Set(entity, &gc.Name{Name: "TestEntity"})
@@ -334,4 +335,96 @@ func TestOldSaveDataWithoutChecksum(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "バリデーションエラー")
 	assert.Contains(t, err.Error(), "checksum")
+}
+
+func TestListSaves(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+
+	entity := world.Manager.NewEntity()
+	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
+	entity.AddComponent(world.Components.Player, &gc.Player{})
+
+	t.Run("空の場合は空リストを返す", func(t *testing.T) {
+		t.Parallel()
+		emptyDir := t.TempDir()
+		m := NewSerializationManager(WithSaveDir(emptyDir))
+		saves, err := m.ListSaves()
+		require.NoError(t, err)
+		assert.Empty(t, saves)
+	})
+
+	t.Run("手動セーブとオートセーブを区別して一覧する", func(t *testing.T) {
+		t.Parallel()
+		dir := t.TempDir()
+		m := NewSerializationManager(WithSaveDir(dir))
+		require.NoError(t, m.SaveWorld(world, "slot1"))
+		require.NoError(t, m.SaveWorld(world, "auto_20260704_1830"))
+
+		saves, err := m.ListSaves()
+		require.NoError(t, err)
+		assert.Len(t, saves, 2)
+
+		autoCount := 0
+		manualCount := 0
+		for _, name := range saves {
+			if strings.HasPrefix(name, "auto_") {
+				autoCount++
+			} else {
+				manualCount++
+			}
+		}
+		assert.Equal(t, 1, autoCount)
+		assert.Equal(t, 1, manualCount)
+	})
+}
+
+func TestRotateAutoSaves(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	tempDir := t.TempDir()
+	manager := NewSerializationManager(WithSaveDir(tempDir))
+
+	entity := world.Manager.NewEntity()
+	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
+	entity.AddComponent(world.Components.Player, &gc.Player{})
+
+	// maxAutoSaves + 2個のオートセーブを作成
+	for i := range maxAutoSaves + 2 {
+		slotName := "auto_" + time.Now().Add(time.Duration(i)*time.Minute).Format("20060102_1504")
+		require.NoError(t, manager.SaveWorld(world, slotName))
+	}
+
+	require.NoError(t, manager.RotateAutoSaves())
+
+	saves, err := manager.ListSaves()
+	require.NoError(t, err)
+
+	autoCount := 0
+	for _, name := range saves {
+		if strings.HasPrefix(name, "auto_") {
+			autoCount++
+		}
+	}
+	assert.Equal(t, maxAutoSaves, autoCount)
+}
+
+func TestGetSavePlayerName(t *testing.T) {
+	t.Parallel()
+	world := testutil.InitTestWorld(t)
+	tempDir := t.TempDir()
+	manager := NewSerializationManager(WithSaveDir(tempDir))
+
+	entity := world.Manager.NewEntity()
+	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
+	entity.AddComponent(world.Components.Player, &gc.Player{})
+
+	require.NoError(t, manager.SaveWorld(world, "slot1"))
+
+	name, err := manager.GetSavePlayerName("slot1")
+	require.NoError(t, err)
+	assert.Equal(t, "Ash", name)
+
+	_, err = manager.GetSavePlayerName("nonexistent")
+	assert.Error(t, err)
 }

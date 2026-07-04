@@ -20,8 +20,9 @@ type Config struct {
 	Tabs             []TabItem
 	InitialTabIndex  int
 	InitialItemIndex int
-	WrapNavigation   bool // タブ/アイテム両方で端循環するか
-	ItemsPerPage     int  // 1ページに表示する項目数（0=制限なし）
+	WrapNavigation   bool     // タブ/アイテム両方で端循環するか
+	ItemsPerPage     int      // 1ページに表示する項目数（0=制限なし）
+	Skips            [][]bool // 各タブのスキップ判定。trueの位置はカーソルが止まらない
 }
 
 // Callbacks はタブメニューのコールバック
@@ -63,6 +64,10 @@ func newTabMenu(config Config, callbacks Callbacks) *tabMenu {
 			tm.currentItemIndex = len(initialTab.Items) - 1
 		} else if config.InitialItemIndex < 0 {
 			tm.currentItemIndex = 0
+		}
+		// 初期位置がスキップ対象の場合、次の有効なアイテムを探す
+		if tm.currentItemIndex >= 0 && tm.currentItemIndex < len(initialTab.Items) {
+			tm.currentItemIndex = tm.findEnabledItem(initialTab.Items, tm.currentItemIndex, 1)
 		}
 	}
 
@@ -213,7 +218,8 @@ func (tm *tabMenu) navigateToNextTab() error {
 	return nil
 }
 
-// navigateToPreviousItem は前のアイテムに移動する
+// navigateToPreviousItem は前のアイテムに移動する。
+// スキップ対象のアイテムはスキップする。
 func (tm *tabMenu) navigateToPreviousItem() error {
 	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
 		return nil
@@ -255,6 +261,8 @@ func (tm *tabMenu) navigateToPreviousItem() error {
 		}
 	}
 
+	tm.currentItemIndex = tm.findEnabledItem(currentTab.Items, tm.currentItemIndex, -1)
+
 	if oldIndex != tm.currentItemIndex {
 		if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil {
 			return err
@@ -263,7 +271,8 @@ func (tm *tabMenu) navigateToPreviousItem() error {
 	return nil
 }
 
-// navigateToNextItem は次のアイテムに移動する
+// navigateToNextItem は次のアイテムに移動する。
+// スキップ対象のアイテムはスキップする。
 func (tm *tabMenu) navigateToNextItem() error {
 	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
 		return nil
@@ -306,6 +315,8 @@ func (tm *tabMenu) navigateToNextItem() error {
 		}
 	}
 
+	tm.currentItemIndex = tm.findEnabledItem(currentTab.Items, tm.currentItemIndex, 1)
+
 	if oldIndex != tm.currentItemIndex {
 		if err := tm.notifyItemChange(oldIndex, tm.currentItemIndex); err != nil {
 			return err
@@ -314,7 +325,8 @@ func (tm *tabMenu) navigateToNextItem() error {
 	return nil
 }
 
-// selectCurrentItem は現在のアイテムを選択する
+// selectCurrentItem は現在のアイテムを選択する。
+// スキップ対象のアイテムは選択できない。
 func (tm *tabMenu) selectCurrentItem() error {
 	if len(tm.config.Tabs) == 0 || tm.currentTabIndex >= len(tm.config.Tabs) {
 		return nil
@@ -325,14 +337,55 @@ func (tm *tabMenu) selectCurrentItem() error {
 		return nil
 	}
 
-	currentItem := currentTab.Items[tm.currentItemIndex]
+	if tm.isSkip(tm.currentTabIndex, tm.currentItemIndex) {
+		return nil
+	}
 
+	currentItem := currentTab.Items[tm.currentItemIndex]
 	if tm.callbacks.OnSelectItem != nil {
 		if err := tm.callbacks.OnSelectItem(tm.currentTabIndex, tm.currentItemIndex, currentTab, currentItem); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// isSkip は指定タブ・アイテムがスキップ対象かを返す
+func (tm *tabMenu) isSkip(tabIdx, itemIdx int) bool {
+	if tabIdx < 0 || tabIdx >= len(tm.config.Skips) {
+		return false
+	}
+	skips := tm.config.Skips[tabIdx]
+	if itemIdx < 0 || itemIdx >= len(skips) {
+		return false
+	}
+	return skips[itemIdx]
+}
+
+// findEnabledItem は指定方向にスキップ対象でないアイテムを探す。
+// 見つからない場合は元のインデックスを返す。
+func (tm *tabMenu) findEnabledItem(items []Item, startIndex int, direction int) int {
+	if startIndex < 0 || startIndex >= len(items) {
+		return startIndex
+	}
+	if !tm.isSkip(tm.currentTabIndex, startIndex) {
+		return startIndex
+	}
+
+	for i := 1; i < len(items); i++ {
+		next := startIndex + i*direction
+		if next < 0 || next >= len(items) {
+			if tm.config.WrapNavigation {
+				next = (next + len(items)) % len(items)
+			} else {
+				break
+			}
+		}
+		if !tm.isSkip(tm.currentTabIndex, next) {
+			return next
+		}
+	}
+	return startIndex
 }
 
 // notifyItemChange はアイテム変更を通知する

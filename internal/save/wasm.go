@@ -5,6 +5,7 @@ package save
 import (
 	"fmt"
 	"runtime"
+	"strings"
 	"syscall/js"
 )
 
@@ -68,4 +69,35 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 	key := fmt.Sprintf("ruins-savedata-%s", slotName)
 	item := localStorage.Call("getItem", key)
 	return !item.IsNull()
+}
+
+// listSavesImpl はWASM環境でセーブデータ名の一覧を返す
+func (sm *SerializationManager) listSavesImpl() ([]string, error) {
+	localStorage := js.Global().Get("localStorage")
+	if localStorage.IsUndefined() {
+		return nil, fmt.Errorf("localStorage is not available")
+	}
+
+	const prefix = "ruins-savedata-"
+	length := localStorage.Get("length").Int()
+	var names []string
+	for i := 0; i < length; i++ {
+		key := localStorage.Call("key", i).String()
+		if strings.HasPrefix(key, prefix) {
+			names = append(names, strings.TrimPrefix(key, prefix))
+		}
+	}
+	return names, nil
+}
+
+// deleteSaveImpl はWASM環境でセーブデータを削除する
+func (sm *SerializationManager) deleteSaveImpl(slotName string) error {
+	localStorage := js.Global().Get("localStorage")
+	if localStorage.IsUndefined() {
+		return fmt.Errorf("localStorage is not available")
+	}
+
+	key := fmt.Sprintf("ruins-savedata-%s", slotName)
+	localStorage.Call("removeItem", key)
+	return nil
 }

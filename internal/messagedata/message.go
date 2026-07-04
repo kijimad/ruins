@@ -30,7 +30,6 @@ type Choice struct {
 	Text        string
 	Action      func(w.World) error // 選択時に実行する
 	MessageData *MessageData        // 選択肢を選んだ時に表示するメッセージ
-	Disabled    bool
 }
 
 // ChainMessages は複数のメッセージをnextMessagesで直列連結し、先頭を返す

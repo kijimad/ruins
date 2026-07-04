@@ -516,7 +516,6 @@ func (w *Window) initChoiceMenu() {
 		items[i] = tabmenu.Item{
 			ID:       choice.Text,
 			Label:    choice.Text,
-			Disabled: false,
 			UserData: i,
 		}
 	}
@@ -532,12 +531,18 @@ func (w *Window) initChoiceMenu() {
 		},
 	}
 
+	skips := make([]bool, len(w.currentMessage.Choices))
+	for i, choice := range w.currentMessage.Choices {
+		skips[i] = choice.Action == nil
+	}
+
 	config := tabmenu.Config{
 		Tabs:             tabs,
 		InitialTabIndex:  0,
 		InitialItemIndex: 0,
 		WrapNavigation:   true,
 		ItemsPerPage:     itemsPerPage,
+		Skips:            [][]bool{skips},
 	}
 
 	callbacks := tabmenu.Callbacks{
