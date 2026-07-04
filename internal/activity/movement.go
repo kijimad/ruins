@@ -80,9 +80,7 @@ func CanPassThrough(world w.World, mover, target ecs.Entity) bool {
 	if mover.HasComponent(world.Components.Player) {
 		return target.HasComponent(world.Components.SquadMember)
 	}
-	// 隊員は他の隊員と位置交換できる。プレイヤーは押しのけられない
-	if mover.HasComponent(world.Components.SquadMember) {
-		return target.HasComponent(world.Components.SquadMember)
-	}
+	// 隊員は他のキャラクターをブロックとして扱う。
+	// 隊員同士の位置交換を許可すると、互いに交換し続けて前進できなくなる
 	return false
 }
