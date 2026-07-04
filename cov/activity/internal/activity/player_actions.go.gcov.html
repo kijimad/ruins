@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2026-07-04 02:25:06</td>
+            <td class="headerValue">2026-07-04 09:09:14</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -117,7 +117,7 @@
 <span id="L55"><span class="lineNum">      55</span>              :                                         }</span>
 <span id="L56"><span class="lineNum">      56</span>              :                                 }</span>
 <span id="L57"><span class="lineNum">      57</span> <span class="tlaGNC tlaBgGNC">           1 :                         case gc.MeleeInteraction:</span></span>
-<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :                                 if interactableEntity.HasComponent(world.Components.FactionEnemy) {</span></span>
+<span id="L58"><span class="lineNum">      58</span> <span class="tlaGNC">           2 :                                 if query.FactionRelation(world, entity, interactableEntity) == query.RelationHostile {</span></span>
 <span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                                         _, err := ExecuteInteraction(entity, interactableEntity, interaction, world)</span></span>
 <span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                                         return err</span></span>
 <span id="L61"><span class="lineNum">      61</span> <span class="tlaGNC">           1 :                                 }</span></span>
@@ -128,7 +128,7 @@
 <span id="L66"><span class="lineNum">      66</span>              :                 }</span>
 <span id="L67"><span class="lineNum">      67</span>              :         }</span>
 <span id="L68"><span class="lineNum">      68</span>              : </span>
-<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           1 :         canMove := CanMoveTo(world, newX, newY, currentX, currentY, entity)</span></span>
+<span id="L69"><span class="lineNum">      69</span> <span class="tlaGNC tlaBgGNC">           1 :         canMove := CanMoveTo(world, consts.Coord[int]{X: newX, Y: newY}, consts.Coord[int]{X: currentX, Y: currentY}, entity)</span></span>
 <span id="L70"><span class="lineNum">      70</span> <span class="tlaGNC">           2 :         if canMove {</span></span>
 <span id="L71"><span class="lineNum">      71</span> <span class="tlaGNC">           1 :                 destination := gc.GridElement{X: consts.Tile(newX), Y: consts.Tile(newY)}</span></span>
 <span id="L72"><span class="lineNum">      72</span> <span class="tlaGNC">           1 :                 params := ActionParams{</span></span>
