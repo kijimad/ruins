@@ -1,8 +1,6 @@
 package gameaction
 
 import (
-	"fmt"
-
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/gamelog"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -22,13 +20,6 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 		hp.Current = 0
 	}
 
-	// ダメージログ出力（プレイヤーまたは隊員が関与する場合のみ）
-	isRelevant := isPlayerEntity(source, world) || isPlayerEntity(target, world) ||
-		source.HasComponent(world.Components.SquadMember) || target.HasComponent(world.Components.SquadMember)
-	if isRelevant {
-		logDamageDealt(world, source, target, damage)
-	}
-
 	// 被ダメージによる態度変化
 	reactToHostileAction(world, target)
 
@@ -39,28 +30,15 @@ func ApplyDamage(world w.World, target ecs.Entity, damage int, source ecs.Entity
 	}
 }
 
-// reactToHostileAction は被ダメージ時にDispositionを変化させる。
-// Neutral は反撃のため Hostile に、Cowardly は逃亡のため Fleeing に遷移する
+// reactToHostileAction は被ダメージ時にAIの戦闘方針を変化させる。
+// CombatIgnore は反撃のため CombatAttack に遷移する
 func reactToHostileAction(world w.World, target ecs.Entity) {
-	d := world.Components.Disposition.Get(target)
-	if d == nil {
+	comp := world.Components.AI.Get(target)
+	if comp == nil {
 		return
 	}
-	disposition := d.(*gc.Disposition)
-	disposition.ReactToHostile()
-}
-
-// logDamageDealt はダメージログを出力する
-func logDamageDealt(world w.World, source ecs.Entity, target ecs.Entity, damage int) {
-	sourceName := query.GetEntityName(source, world)
-	targetName := query.GetEntityName(target, world)
-
-	logger := gamelog.New(query.GetGameLog(world))
-	logger.Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, source, sourceName, world)
-	}).Append(" は ").Build(func(l *gamelog.Logger) {
-		query.AppendNameWithColor(l, target, targetName, world)
-	}).Append(fmt.Sprintf(" に %d のダメージを与えた。", damage)).Log()
+	ai := comp.(*gc.AI)
+	ai.ReactToHostile()
 }
 
 // logDeath は死亡・破壊ログを出力する。

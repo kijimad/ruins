@@ -11,7 +11,6 @@ import (
 	gc "github.com/kijimaD/ruins/internal/components"
 	"github.com/kijimaD/ruins/internal/oapi"
 	w "github.com/kijimaD/ruins/internal/world"
-	"github.com/kijimaD/ruins/internal/world/lifecycle"
 
 	"github.com/kijimaD/ruins/internal/world/query"
 	ecs "github.com/x-hgg-x/goecs/v2"
@@ -296,9 +295,9 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.SquadMember) {
 		comp.SquadMember = &oapi.SaveDataSquadMemberComponent{}
 	}
-	if entity.HasComponent(c.SquadPolicy) {
-		sp := c.SquadPolicy.Get(entity).(*gc.SquadPolicy)
-		sd := squadPolicyToSaveData(*sp)
+	if entity.HasComponent(c.AI) {
+		ai := c.AI.Get(entity).(*gc.AI)
+		sd := aiToSaveData(*ai)
 		comp.SquadPolicy = &sd
 	}
 	// エンティティ参照コンポーネント (LocationEquipped)
@@ -418,15 +417,7 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	if comp.SquadMember != nil {
 		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
 
-		// 隊員のランタイムコンポーネントを再付与する。
-		// これらはセーブ対象外だが、AI処理・衝突判定に必要
-		entity.AddComponent(c.AIMoveFSM, &gc.AIMoveFSM{})
-		entity.AddComponent(c.AIVision, &gc.AIVision{ViewDistance: lifecycle.AIVisionDistance})
 		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
-		entity.AddComponent(c.Disposition, &gc.Disposition{
-			Default: gc.DispositionAlly,
-			Current: gc.DispositionAlly,
-		})
 		entity.AddComponent(c.HealthStatus, &gc.HealthStatus{})
 		skills := gc.NewSkills()
 		entity.AddComponent(c.Skills, skills)
@@ -438,8 +429,8 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 		}
 	}
 	if comp.SquadPolicy != nil {
-		sp := squadPolicyFromSaveData(*comp.SquadPolicy)
-		entity.AddComponent(c.SquadPolicy, &sp)
+		ai := aiFromSaveData(*comp.SquadPolicy)
+		entity.AddComponent(c.AI, &ai)
 	}
 	// LocationEquipped (Owner以外を復元。Ownerは後で解決)
 	if comp.LocationEquipped != nil {

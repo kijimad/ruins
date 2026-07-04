@@ -181,7 +181,7 @@ func TestFindNextStep(t *testing.T) {
 		si.Characters[gc.GridElement{X: consts.Tile(3), Y: consts.Tile(3)}] = player
 
 		enemy := world.Manager.NewEntity()
-		enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
+		enemy.AddComponent(world.Components.AI, &gc.AI{})
 
 		_, _, ok := FindNextStep(world, enemy, 0, 0, 3, 3)
 		require.True(t, ok, "敵はプレイヤーの方向を見つけられる")

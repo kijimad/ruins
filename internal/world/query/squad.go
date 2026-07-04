@@ -38,13 +38,14 @@ func SquadMemberAt(world w.World, x, y int) (ecs.Entity, bool) {
 	return ecs.Entity(0), false
 }
 
-// SquadPolicy は隊員の現在のポリシーを返す。
-// 隊員でない場合はデフォルト値を返す
-func SquadPolicy(world w.World, member ecs.Entity) gc.SquadPolicy {
-	if !member.HasComponent(world.Components.SquadPolicy) {
-		return gc.DefaultSquadPolicy
+// GetAI は隊員のAIコンポーネントを返す。
+// コンポーネントがない場合はnilを返す
+func GetAI(world w.World, member ecs.Entity) *gc.AI {
+	comp := world.Components.AI.Get(member)
+	if comp == nil {
+		return nil
 	}
-	return *world.Components.SquadPolicy.Get(member).(*gc.SquadPolicy)
+	return comp.(*gc.AI)
 }
 
 // IsSquadMember はエンティティが隊員かどうかを返す

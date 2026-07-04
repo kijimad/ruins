@@ -122,19 +122,17 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
-	if entitySpec.MovementPattern != nil {
-		entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
-		entitySpec.AIRoaming = &gc.AIRoaming{
-			SubState:              gc.AIRoamingWaiting,
-			StartSubStateTurn:     1,
-			DurationSubStateTurns: 2 + rand.IntN(3),
-			SpawnX:                tileX,
-			SpawnY:                tileY,
-			PatrolDirX:            initialPatrolDir(),
+	if entitySpec.AI != nil {
+		if err := validateAI(entitySpec.AI); err != nil {
+			return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", name, err)
 		}
-		entitySpec.AIVision = &gc.AIVision{
-			ViewDistance: AIVisionDistance,
-		}
+		entitySpec.AI.SubState = gc.AIStateWaiting
+		entitySpec.AI.StartSubStateTurn = 1
+		entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
+		entitySpec.AI.OriginX = tileX
+		entitySpec.AI.OriginY = tileY
+		entitySpec.AI.PatrolDirX = initialPatrolDir()
+		entitySpec.AI.ViewDistance = AIVisionDistance
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -174,26 +172,21 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	}
 
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
-	entitySpec.AIMoveFSM = &gc.AIMoveFSM{}
-	entitySpec.AIRoaming = &gc.AIRoaming{
-		SubState:              gc.AIRoamingWaiting,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 2 + rand.IntN(3),
-		SpawnX:                tileX,
-		SpawnY:                tileY,
-		PatrolDirX:            initialPatrolDir(),
+	if entitySpec.AI == nil {
+		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	entitySpec.AIVision = &gc.AIVision{
-		ViewDistance: AIVisionDistance,
+	if err := validateAI(entitySpec.AI); err != nil {
+		return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", entitySpec.Name, err)
 	}
+	entitySpec.AI.SubState = gc.AIStateWaiting
+	entitySpec.AI.StartSubStateTurn = 1
+	entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
+	entitySpec.AI.OriginX = tileX
+	entitySpec.AI.OriginY = tileY
+	entitySpec.AI.PatrolDirX = initialPatrolDir()
+	entitySpec.AI.ViewDistance = AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
-	}
-	if entitySpec.Disposition == nil {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティに態度(disposition)が指定されていません: %s", entitySpec.Name)
-	}
-	if entitySpec.MovementPattern == nil {
-		return consts.InvalidEntity, fmt.Errorf("敵エンティティに移動パターン(movementPattern)が指定されていません: %s", entitySpec.Name)
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -244,7 +237,6 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 
 	skills := gc.NewSkills()
 	charMods := gc.RecalculateCharModifiers(skills, &abilities, nil)
-	defaultPolicy := gc.DefaultSquadPolicy
 
 	entitySpec := gc.EntitySpec{
 		Name:           &gc.Name{Name: name},
@@ -256,23 +248,18 @@ func SpawnSquadMember(world w.World, leader ecs.Entity, name string, abilities g
 		WeightCapacity: &gc.WeightCapacity{},
 		HealthStatus:   &gc.HealthStatus{},
 		FactionType:    &gc.FactionAlly,
-		Disposition: &gc.Disposition{
-			Default: gc.DispositionAlly,
-			Current: gc.DispositionAlly,
-		},
+		AI: func() *gc.AI {
+			ai := gc.DefaultSquadAI()
+			return &ai
+		}(),
 		GridElement: &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)},
 		SpriteRender: &gc.SpriteRender{
 			SpriteSheetName: "field",
 			SpriteKey:       spriteKey,
 			Depth:           gc.DepthNumPlayer,
 		},
-		AIMoveFSM:    &gc.AIMoveFSM{},
 		CommandTable: &gc.CommandTable{Name: "素手"},
-		AIVision: &gc.AIVision{
-			ViewDistance: AIVisionDistance,
-		},
-		SquadMember: &gc.SquadMember{},
-		SquadPolicy: &defaultPolicy,
+		SquadMember:  &gc.SquadMember{},
 	}
 
 	componentList := entities.ComponentList[gc.EntitySpec]{}
@@ -472,4 +459,34 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
+}
+
+// validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
+func validateAI(ai *gc.AI) error {
+	switch ai.Planner {
+	case gc.PlannerRoaming:
+		switch ai.Movement {
+		case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
+			gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
+			gc.MovementSwarm:
+		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:
+			return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", ai.Movement)
+		default:
+			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
+		}
+	case gc.PlannerSquad:
+		switch ai.Movement {
+		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat,
+			gc.MovementPatrol, gc.MovementStationary:
+		case gc.MovementRandom, gc.MovementWallHug, gc.MovementWander,
+			gc.MovementTerritorial, gc.MovementSwarm:
+			return fmt.Errorf("PlannerSquad に敵用の MovementPolicy %q は使用できません", ai.Movement)
+		default:
+			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
+		}
+	default:
+		return fmt.Errorf("未知の PlannerType %q です", ai.Planner)
+	}
+
+	return nil
 }

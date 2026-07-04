@@ -375,14 +375,14 @@ enum FactionMemberType {
   FactionNeutral,
 }
 
-/** 態度タイプ。エンティティの他者に対する初期態度を定義する */
-enum DispositionType {
-  /** 敵対態度。視界内のプレイヤーを攻撃する */
-  hostile,
-  /** 中立態度。攻撃されると反撃する */
-  neutral,
-  /** 臆病な態度。攻撃されると逃亡する */
-  cowardly,
+/** 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する */
+enum CombatPolicyType {
+  /** 攻撃。視界内の敵を攻撃する */
+  attack,
+  /** 回避。敵から距離を取って逃げる */
+  evade,
+  /** 無関心。戦闘に反応しない。被ダメージで攻撃に変化する */
+  ignore,
 }
 
 /** 非戦闘時の移動パターン */

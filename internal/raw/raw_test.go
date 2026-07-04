@@ -679,18 +679,18 @@ Depth = 1
 	assert.Nil(t, entitySpec.WeightCapacity, "Storage定義のないPropにはWeightCapacityコンポーネントが設定されないべき")
 }
 
-func TestMemberDisposition(t *testing.T) {
+func TestMemberCombatPolicy(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name            string
-		disposition     string
-		expectedDefault gc.DispositionType
-		expectedCurrent gc.DispositionType
+		combatPolicy    string
+		expectedDefault gc.CombatPolicy
+		expectedCurrent gc.CombatPolicy
 	}{
-		{"hostile", "hostile", gc.DispositionHostile, gc.DispositionHostile},
-		{"neutral", "neutral", gc.DispositionNeutral, gc.DispositionNeutral},
-		{"cowardly", "cowardly", gc.DispositionCowardly, gc.DispositionCowardly},
+		{"attack", string(gc.CombatAttack), gc.CombatAttack, gc.CombatAttack},
+		{"ignore", string(gc.CombatIgnore), gc.CombatIgnore, gc.CombatIgnore},
+		{"evade", string(gc.CombatEvade), gc.CombatEvade, gc.CombatEvade},
 	}
 
 	for _, tt := range tests {
@@ -704,7 +704,7 @@ SpriteKey = "enemy"
 AnimKeys = ["enemy_0", "enemy_1"]
 CommandTableName = ""
 DropTableName = ""
-Disposition = "` + tt.disposition + `"
+CombatPolicy = "` + tt.combatPolicy + `"
 [Members.Abilities]
 Vitality = 10
 Strength = 5
@@ -718,14 +718,14 @@ Defense = 2
 
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.Disposition)
-			assert.Equal(t, tt.expectedDefault, entitySpec.Disposition.Default)
-			assert.Equal(t, tt.expectedCurrent, entitySpec.Disposition.Current)
+			require.NotNil(t, entitySpec.AI)
+			assert.Equal(t, tt.expectedDefault, entitySpec.AI.CombatDefault)
+			assert.Equal(t, tt.expectedCurrent, entitySpec.AI.CombatCurrent)
 		})
 	}
 }
 
-func TestMemberDispositionUnset(t *testing.T) {
+func TestMemberCombatPolicyUnset(t *testing.T) {
 	t.Parallel()
 
 	str := `
@@ -749,7 +749,8 @@ Defense = 2
 
 	entitySpec, err := NewMemberSpec(raws, "態度なし")
 	require.NoError(t, err)
-	assert.Nil(t, entitySpec.Disposition)
+	require.NotNil(t, entitySpec.AI)
+	assert.Equal(t, gc.CombatAttack, entitySpec.AI.CombatDefault)
 }
 
 func TestMemberMovementPattern(t *testing.T) {
@@ -758,7 +759,7 @@ func TestMemberMovementPattern(t *testing.T) {
 	tests := []struct {
 		name     string
 		strategy string
-		expected gc.MovementPattern
+		expected gc.MovementPolicy
 	}{
 		{"random", "random", gc.MovementRandom},
 		{"stationary", "stationary", gc.MovementStationary},
@@ -791,8 +792,8 @@ Defense = 2
 
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
-			require.NotNil(t, entitySpec.MovementPattern)
-			assert.Equal(t, tt.expected, *entitySpec.MovementPattern)
+			require.NotNil(t, entitySpec.AI)
+			assert.Equal(t, tt.expected, entitySpec.AI.Movement)
 		})
 	}
 }
@@ -1000,5 +1001,6 @@ Defense = 2
 
 	entitySpec, err := NewMemberSpec(raws, "パターンなし")
 	require.NoError(t, err)
-	assert.Nil(t, entitySpec.MovementPattern)
+	require.NotNil(t, entitySpec.AI)
+	assert.Empty(t, entitySpec.AI.Movement)
 }

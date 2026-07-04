@@ -580,32 +580,43 @@ enum HealingAmountType {
 
 // ================== 隊員コンポーネント ==================
 
-/** 隊員の位置ポリシー */
-enum PositionPolicyType {
-  escort: 0,
-  vanguard: 1,
-  patrol: 2,
-  hold: 3,
-  retreat: 4,
+/** 行動計画の種別 */
+enum PlannerType {
+  roaming: "roaming",
+  squad: "squad",
 }
 
-/** 隊員の戦闘ポリシー */
+/** 移動ポリシー */
+enum MovementPolicyType {
+  random: "random",
+  patrol: "patrol",
+  wallHug: "wallHug",
+  stationary: "stationary",
+  wander: "wander",
+  territorial: "territorial",
+  swarm: "swarm",
+  escort: "escort",
+  vanguard: "vanguard",
+  retreat: "retreat",
+}
+
+/** 戦闘ポリシー */
 enum CombatPolicyType {
-  attack: 0,
-  evade: 1,
+  attack: "attack",
+  evade: "evade",
+  ignore: "ignore",
 }
 
-/** 隊員のアイテム回収ポリシー */
+/** アイテム回収ポリシー */
 enum ItemPickupPolicyType {
-  pickup: 0,
-  ignore: 1,
+  pickup: "pickup",
+  ignore: "ignore",
 }
 
-/** 隊員のアイテム処理ポリシー */
+/** アイテム処理ポリシー */
 enum ItemHandlingPolicyType {
-  keep: 0,
-  distribute: 1,
-  dismantle: 2,
+  keep: "keep",
+  distribute: "distribute",
 }
 
 /**
@@ -620,10 +631,12 @@ model SquadMemberComponent {
   Active: boolean;
 }
 
-/** 隊員の自律行動ポリシー */
+/** AIの行動ポリシー */
 model SquadPolicyComponent {
-  Position: PositionPolicyType;
-  Combat: CombatPolicyType;
+  Planner: PlannerType;
+  Movement: MovementPolicyType;
+  CombatDefault: CombatPolicyType;
+  CombatCurrent: CombatPolicyType;
   ItemPickup: ItemPickupPolicyType;
   ItemHandling: ItemHandlingPolicyType;
 }

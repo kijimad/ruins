@@ -448,16 +448,34 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	// 態度タイプの処理
-	if member.Disposition != nil && string(*member.Disposition) != "" {
-		dt := gc.DispositionType(*member.Disposition)
-		entitySpec.Disposition = &gc.Disposition{Default: dt, Current: dt}
-	}
-
-	// 移動パターンの処理
-	if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
-		mp := gc.MovementPattern(*member.MovementPattern)
-		entitySpec.MovementPattern = &mp
+	// AI の組み立て
+	{
+		ai := gc.AI{
+			Planner:       gc.PlannerRoaming,
+			CombatDefault: gc.CombatAttack,
+			CombatCurrent: gc.CombatAttack,
+			ItemPickup:    gc.PolicyPickup,
+			ItemHandling:  gc.PolicyKeep,
+		}
+		if member.CombatPolicy != nil && string(*member.CombatPolicy) != "" {
+			switch gc.CombatPolicy(*member.CombatPolicy) {
+			case gc.CombatAttack:
+				ai.CombatDefault = gc.CombatAttack
+				ai.CombatCurrent = gc.CombatAttack
+			case gc.CombatIgnore:
+				ai.CombatDefault = gc.CombatIgnore
+				ai.CombatCurrent = gc.CombatIgnore
+			case gc.CombatEvade:
+				ai.CombatDefault = gc.CombatEvade
+				ai.CombatCurrent = gc.CombatEvade
+			default:
+				return gc.EntitySpec{}, fmt.Errorf("無効な戦闘ポリシー '%s': %s", string(*member.CombatPolicy), name)
+			}
+		}
+		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
+			ai.Movement = gc.MovementPolicy(*member.MovementPattern)
+		}
+		entitySpec.AI = &ai
 	}
 
 	if member.Dialog != nil {

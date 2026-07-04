@@ -596,23 +596,20 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "テスト敵"})
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
-	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
-	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
-		SubState:              gc.AIRoamingDriving, // 最初からDriving状態
+	enemy.AddComponent(world.Components.AI, &gc.AI{
+		Planner:               gc.PlannerRoaming,
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.MovementRandom,
+		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
-		DurationSubStateTurns: 100, // 十分長い持続時間
+		DurationSubStateTurns: 100,
+		ViewDistance:          5,
 	})
-	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
-	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
-		Default: gc.DispositionHostile,
-		Current: gc.DispositionHostile,
-	})
-	mp := gc.MovementRandom
-	enemy.AddComponent(world.Components.MovementPattern, &mp)
 
 	// AIターンを複数回実行して移動を確認
 	// planRandomMoveActionは30%待機なので、十分な回数試行する
@@ -658,14 +655,14 @@ func TestSpawnedEnemyMoves(t *testing.T) {
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
 	t.Logf("初期位置: (%d,%d)", initialX, initialY)
 
-	// AIRoamingの状態を確認
-	roaming := world.Components.AIRoaming.Get(enemy).(*gc.AIRoaming)
-	t.Logf("初期AIRoaming: SubState=%s, StartTurn=%d, Duration=%d",
-		roaming.SubState, roaming.StartSubStateTurn, roaming.DurationSubStateTurns)
+	// AI状態を確認
+	ai := world.Components.AI.Get(enemy).(*gc.AI)
+	t.Logf("初期AI: SubState=%s, StartTurn=%d, Duration=%d",
+		ai.SubState, ai.StartSubStateTurn, ai.DurationSubStateTurns)
 
 	// Waiting期間を飛ばしてDriving状態に設定
-	roaming.SubState = gc.AIRoamingDriving
-	roaming.DurationSubStateTurns = 100
+	ai.SubState = gc.AIStateDriving
+	ai.DurationSubStateTurns = 100
 
 	moved := false
 	for turn := 0; turn < 50; turn++ {
@@ -706,9 +703,9 @@ func TestFullTurnCycleWithAI(t *testing.T) {
 	require.NoError(t, err)
 
 	// Waiting期間をスキップ
-	roaming := world.Components.AIRoaming.Get(enemy).(*gc.AIRoaming)
-	roaming.SubState = gc.AIRoamingDriving
-	roaming.DurationSubStateTurns = 100
+	ai := world.Components.AI.Get(enemy).(*gc.AI)
+	ai.SubState = gc.AIStateDriving
+	ai.DurationSubStateTurns = 100
 
 	initialGrid := world.Components.GridElement.Get(enemy).(*gc.GridElement)
 	initialX, initialY := int(initialGrid.X), int(initialGrid.Y)
@@ -767,27 +764,24 @@ func TestPatrolMovement(t *testing.T) {
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "パトロール敵"})
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
-	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
-	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
-		SubState:              gc.AIRoamingDriving,
+	enemy.AddComponent(world.Components.AI, &gc.AI{
+		Planner:               gc.PlannerRoaming,
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.MovementPatrol,
+		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
-		SpawnX:                enemyX,
-		SpawnY:                enemyY,
+		OriginX:               enemyX,
+		OriginY:               enemyY,
 		PatrolDirX:            1,
 		PatrolDirY:            0,
+		ViewDistance:          5,
 	})
-	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
-	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
-		Default: gc.DispositionHostile,
-		Current: gc.DispositionHostile,
-	})
-	mp := gc.MovementPatrol
-	enemy.AddComponent(world.Components.MovementPattern, &mp)
 
 	// 複数ターン実行して移動を確認する
 	moved := false
@@ -830,25 +824,22 @@ func TestTerritorialMovement(t *testing.T) {
 	enemy.AddComponent(world.Components.Name, &gc.Name{Name: "縄張り敵"})
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
-	enemy.AddComponent(world.Components.AIMoveFSM, &gc.AIMoveFSM{})
-	enemy.AddComponent(world.Components.AIRoaming, &gc.AIRoaming{
-		SubState:              gc.AIRoamingDriving,
+	enemy.AddComponent(world.Components.AI, &gc.AI{
+		Planner:               gc.PlannerRoaming,
+		CombatDefault:         gc.CombatAttack,
+		CombatCurrent:         gc.CombatAttack,
+		Movement:              gc.MovementTerritorial,
+		SubState:              gc.AIStateDriving,
 		StartSubStateTurn:     1,
 		DurationSubStateTurns: 100,
-		SpawnX:                spawnX,
-		SpawnY:                spawnY,
+		OriginX:               spawnX,
+		OriginY:               spawnY,
+		ViewDistance:          5,
 	})
-	enemy.AddComponent(world.Components.AIVision, &gc.AIVision{ViewDistance: 5})
 	enemy.AddComponent(world.Components.TurnBased, &gc.TurnBased{
 		AP:    gc.IntPool{Current: 200, Max: 200},
 		Speed: 100,
 	})
-	enemy.AddComponent(world.Components.Disposition, &gc.Disposition{
-		Default: gc.DispositionHostile,
-		Current: gc.DispositionHostile,
-	})
-	mp := gc.MovementTerritorial
-	enemy.AddComponent(world.Components.MovementPattern, &mp)
 
 	// 多数のターンを実行して範囲内に留まることを検証する
 	territorialRadius := 5

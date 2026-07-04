@@ -57,48 +57,48 @@ func TestApplyHealing(t *testing.T) {
 func TestReactToHostileAction(t *testing.T) {
 	t.Parallel()
 
-	t.Run("NeutralはHostileに変化する", func(t *testing.T) {
+	t.Run("CombatIgnoreはCombatAttackに変化する", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		disposition := &gc.Disposition{Default: gc.DispositionNeutral, Current: gc.DispositionNeutral}
-		entity.AddComponent(world.Components.Disposition, disposition)
+		ai := &gc.AI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
+		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.DispositionHostile, disposition.Current)
-		assert.Equal(t, gc.DispositionNeutral, disposition.Default)
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+		assert.Equal(t, gc.CombatIgnore, ai.CombatDefault)
 	})
 
-	t.Run("CowardlyはFleeingに変化する", func(t *testing.T) {
+	t.Run("CombatEvadeは変化しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		disposition := &gc.Disposition{Default: gc.DispositionCowardly, Current: gc.DispositionCowardly}
-		entity.AddComponent(world.Components.Disposition, disposition)
+		ai := &gc.AI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.DispositionFleeing, disposition.Current)
-		assert.Equal(t, gc.DispositionCowardly, disposition.Default)
+		assert.Equal(t, gc.CombatEvade, ai.CombatCurrent)
+		assert.Equal(t, gc.CombatEvade, ai.CombatDefault)
 	})
 
-	t.Run("Hostileは変化しない", func(t *testing.T) {
+	t.Run("CombatAttackは変化しない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		disposition := &gc.Disposition{Default: gc.DispositionHostile, Current: gc.DispositionHostile}
-		entity.AddComponent(world.Components.Disposition, disposition)
+		ai := &gc.AI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
+		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.DispositionHostile, disposition.Current)
+		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
 	})
 
-	t.Run("Dispositionがないエンティティではpanicしない", func(t *testing.T) {
+	t.Run("AIがないエンティティではpanicしない", func(t *testing.T) {
 		t.Parallel()
 		world := testutil.InitTestWorld(t)
 

@@ -403,7 +403,9 @@ func growWeaponSkill(actor ecs.Entity, world w.World, attack gc.Attacker) {
 
 // logAttackResult は攻撃結果をログに出力する
 func logAttackResult(attacker, target ecs.Entity, world w.World, hit bool, critical bool, damage int, attackMethodName string) {
-	if !attacker.HasComponent(world.Components.Player) && !target.HasComponent(world.Components.Player) {
+	attackerRelevant := attacker.HasComponent(world.Components.FactionAlly)
+	targetRelevant := target.HasComponent(world.Components.FactionAlly)
+	if !attackerRelevant && !targetRelevant {
 		return
 	}
 

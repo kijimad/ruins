@@ -8,7 +8,7 @@ import (
 
 // VisionSystem はAIの視界判定システム
 type VisionSystem interface {
-	CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, vision *gc.AIVision) bool
+	CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, ai *gc.AI) bool
 }
 
 // DefaultVisionSystem は標準的な視界判定実装
@@ -20,7 +20,7 @@ func NewVisionSystem() VisionSystem {
 }
 
 // CanSeeTarget はターゲットが視界内にいるかチェック
-func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, vision *gc.AIVision) bool {
+func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, ai *gc.AI) bool {
 	aiGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
 	targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)
 
@@ -28,7 +28,7 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
 	dy := int(aiGrid.Y) - int(targetGrid.Y)
 	distSq := dx*dx + dy*dy
 
-	viewDist := float64(vision.ViewDistance)
+	viewDist := float64(ai.ViewDistance)
 
 	// ターゲットの隠密スキルによる被発見距離倍率を適用する
 	if targetEntity.HasComponent(world.Components.CharModifiers) {

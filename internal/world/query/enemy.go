@@ -113,7 +113,7 @@ func GetEntityName(entity ecs.Entity, world w.World) string {
 func AppendNameWithColor(logger *gamelog.Logger, entity ecs.Entity, name string, world w.World) {
 	if entity.HasComponent(world.Components.Player) {
 		logger.PlayerName(name)
-	} else if entity.HasComponent(world.Components.AIMoveFSM) {
+	} else if entity.HasComponent(world.Components.AI) {
 		logger.NPCName(name)
 	} else {
 		logger.Append(name)
