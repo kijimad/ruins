@@ -439,12 +439,12 @@
             }
           },
           "SquadPolicy": {
-            "CombatCurrent": 0,
-            "CombatDefault": 0,
-            "ItemHandling": 0,
-            "ItemPickup": 0,
+            "CombatCurrent": "attack",
+            "CombatDefault": "attack",
+            "ItemHandling": "keep",
+            "ItemPickup": "pickup",
             "Movement": "escort",
-            "Planner": 1
+            "Planner": "squad"
           },
           "TurnBased": {
             "AP": {

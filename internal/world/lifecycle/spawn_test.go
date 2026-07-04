@@ -506,7 +506,7 @@ func TestValidateAI(t *testing.T) {
 		},
 		{
 			"未知のPlannerTypeは無効",
-			&gc.AI{Planner: gc.PlannerType(999), Movement: gc.MovementRandom},
+			&gc.AI{Planner: gc.PlannerType("unknown"), Movement: gc.MovementRandom},
 			true,
 		},
 	}

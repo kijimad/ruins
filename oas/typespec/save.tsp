@@ -582,8 +582,8 @@ enum HealingAmountType {
 
 /** 行動計画の種別 */
 enum PlannerType {
-  roaming: 0,
-  squad: 1,
+  roaming: "roaming",
+  squad: "squad",
 }
 
 /** 移動ポリシー */
@@ -602,21 +602,21 @@ enum MovementPolicyType {
 
 /** 戦闘ポリシー */
 enum CombatPolicyType {
-  attack: 0,
-  evade: 1,
-  ignore: 2,
+  attack: "attack",
+  evade: "evade",
+  ignore: "ignore",
 }
 
 /** アイテム回収ポリシー */
 enum ItemPickupPolicyType {
-  pickup: 0,
-  ignore: 1,
+  pickup: "pickup",
+  ignore: "ignore",
 }
 
 /** アイテム処理ポリシー */
 enum ItemHandlingPolicyType {
-  keep: 0,
-  distribute: 1,
+  keep: "keep",
+  distribute: "distribute",
 }
 
 /**

@@ -454,16 +454,18 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 			Planner:       gc.PlannerRoaming,
 			CombatDefault: gc.CombatAttack,
 			CombatCurrent: gc.CombatAttack,
+			ItemPickup:    gc.PolicyPickup,
+			ItemHandling:  gc.PolicyKeep,
 		}
 		if member.CombatPolicy != nil && string(*member.CombatPolicy) != "" {
-			switch string(*member.CombatPolicy) {
-			case gc.CombatAttack.String():
+			switch gc.CombatPolicy(*member.CombatPolicy) {
+			case gc.CombatAttack:
 				ai.CombatDefault = gc.CombatAttack
 				ai.CombatCurrent = gc.CombatAttack
-			case gc.CombatIgnore.String():
+			case gc.CombatIgnore:
 				ai.CombatDefault = gc.CombatIgnore
 				ai.CombatCurrent = gc.CombatIgnore
-			case gc.CombatEvade.String():
+			case gc.CombatEvade:
 				ai.CombatDefault = gc.CombatEvade
 				ai.CombatCurrent = gc.CombatEvade
 			default:

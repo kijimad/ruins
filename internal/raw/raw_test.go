@@ -688,9 +688,9 @@ func TestMemberCombatPolicy(t *testing.T) {
 		expectedDefault gc.CombatPolicy
 		expectedCurrent gc.CombatPolicy
 	}{
-		{"attack", gc.CombatAttack.String(), gc.CombatAttack, gc.CombatAttack},
-		{"ignore", gc.CombatIgnore.String(), gc.CombatIgnore, gc.CombatIgnore},
-		{"evade", gc.CombatEvade.String(), gc.CombatEvade, gc.CombatEvade},
+		{"attack", string(gc.CombatAttack), gc.CombatAttack, gc.CombatAttack},
+		{"ignore", string(gc.CombatIgnore), gc.CombatIgnore, gc.CombatIgnore},
+		{"evade", string(gc.CombatEvade), gc.CombatEvade, gc.CombatEvade},
 	}
 
 	for _, tt := range tests {

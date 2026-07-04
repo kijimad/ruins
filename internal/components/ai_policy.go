@@ -1,57 +1,41 @@
 package components
 
-import "fmt"
-
 // PlannerType は適用する行動計画の種別を表す
-type PlannerType int
+type PlannerType string
 
 const (
 	// PlannerRoaming はAIStateのタイミングサイクルで行動する。敵・中立NPCが使用する
-	PlannerRoaming PlannerType = iota
+	PlannerRoaming PlannerType = "roaming"
 	// PlannerSquad はリーダー追従とアイテム処理を含む。隊員が使用する
-	PlannerSquad
+	PlannerSquad PlannerType = "squad"
 )
 
-// String はPlannerType名を返す
+// String は日本語表示名を返す
 func (p PlannerType) String() string {
 	switch p {
 	case PlannerRoaming:
-		return "roaming"
+		return "徘徊"
 	case PlannerSquad:
-		return "squad"
+		return "隊員"
 	default:
-		panic(fmt.Sprintf("未知のPlannerType: %d", p))
+		return string(p)
 	}
 }
 
 // CombatPolicy は戦闘時の行動方針を表す
-type CombatPolicy int
+type CombatPolicy string
 
 const (
 	// CombatAttack は敵対行動。視界内のプレイヤーまたは敵を攻撃する
-	CombatAttack CombatPolicy = iota
+	CombatAttack CombatPolicy = "attack"
 	// CombatEvade は回避行動。敵から距離を取って逃げる
-	CombatEvade
+	CombatEvade CombatPolicy = "evade"
 	// CombatIgnore は無関心。戦闘に反応しない。被ダメージで CombatAttack に変化する
-	CombatIgnore
+	CombatIgnore CombatPolicy = "ignore"
 )
 
-// String はデータ定義で使用するキー文字列を返す
+// String は日本語表示名を返す
 func (p CombatPolicy) String() string {
-	switch p {
-	case CombatAttack:
-		return "attack"
-	case CombatEvade:
-		return "evade"
-	case CombatIgnore:
-		return "ignore"
-	default:
-		panic(fmt.Sprintf("未知のCombatPolicy: %d", p))
-	}
-}
-
-// Label はUI表示名を返す
-func (p CombatPolicy) Label() string {
 	switch p {
 	case CombatAttack:
 		return "攻撃"
@@ -60,7 +44,7 @@ func (p CombatPolicy) Label() string {
 	case CombatIgnore:
 		return "無関心"
 	default:
-		panic(fmt.Sprintf("未知のCombatPolicy: %d", p))
+		return string(p)
 	}
 }
 
@@ -125,16 +109,16 @@ func AllSquadMovementPolicies() []MovementPolicy {
 }
 
 // ItemPickupPolicy はアイテム回収ポリシーを表す
-type ItemPickupPolicy int
+type ItemPickupPolicy string
 
 const (
 	// PolicyPickup は回収。探索済みエリアのアイテムを拾う
-	PolicyPickup ItemPickupPolicy = iota
+	PolicyPickup ItemPickupPolicy = "pickup"
 	// PolicyIgnore は無視。アイテムを拾わない
-	PolicyIgnore
+	PolicyIgnore ItemPickupPolicy = "ignore"
 )
 
-// String はポリシー名を返す
+// String は日本語表示名を返す
 func (p ItemPickupPolicy) String() string {
 	switch p {
 	case PolicyPickup:
@@ -142,7 +126,7 @@ func (p ItemPickupPolicy) String() string {
 	case PolicyIgnore:
 		return "無視"
 	default:
-		panic(fmt.Sprintf("未知のItemPickupPolicy: %d", p))
+		return string(p)
 	}
 }
 
@@ -152,16 +136,16 @@ func AllItemPickupPolicies() []ItemPickupPolicy {
 }
 
 // ItemHandlingPolicy はアイテム処理ポリシーを表す
-type ItemHandlingPolicy int
+type ItemHandlingPolicy string
 
 const (
 	// PolicyKeep は保持。アイテムを持ち続ける
-	PolicyKeep ItemHandlingPolicy = iota
+	PolicyKeep ItemHandlingPolicy = "keep"
 	// PolicyDistribute は分配。運搬役に渡す
-	PolicyDistribute
+	PolicyDistribute ItemHandlingPolicy = "distribute"
 )
 
-// String はポリシー名を返す
+// String は日本語表示名を返す
 func (p ItemHandlingPolicy) String() string {
 	switch p {
 	case PolicyKeep:
@@ -169,7 +153,7 @@ func (p ItemHandlingPolicy) String() string {
 	case PolicyDistribute:
 		return "分配"
 	default:
-		panic(fmt.Sprintf("未知のItemHandlingPolicy: %d", p))
+		return string(p)
 	}
 }
 

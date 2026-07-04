@@ -195,7 +195,7 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
 			Position:     ai.Movement.String(),
-			Combat:       ai.CombatCurrent.Label(),
+			Combat:       ai.CombatCurrent.String(),
 			ItemPickup:   ai.ItemPickup.String(),
 			ItemHandling: ai.ItemHandling.String(),
 		})
@@ -336,19 +336,37 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	case strings.HasPrefix(selectedAction, "戦闘"):
 		allCombat := gc.AllSquadCombatPolicies()
 		return cycleAndRefresh(func() {
-			ai.CombatCurrent = allCombat[(int(ai.CombatCurrent)+1)%len(allCombat)]
+			for i, v := range allCombat {
+				if v == ai.CombatCurrent {
+					ai.CombatCurrent = allCombat[(i+1)%len(allCombat)]
+					return
+				}
+			}
+			ai.CombatCurrent = allCombat[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "回収"):
 		all := gc.AllItemPickupPolicies()
 		return cycleAndRefresh(func() {
-			ai.ItemPickup = all[(int(ai.ItemPickup)+1)%len(all)]
+			for i, v := range all {
+				if v == ai.ItemPickup {
+					ai.ItemPickup = all[(i+1)%len(all)]
+					return
+				}
+			}
+			ai.ItemPickup = all[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "処理"):
 		all := gc.AllItemHandlingPolicies()
 		return cycleAndRefresh(func() {
-			ai.ItemHandling = all[(int(ai.ItemHandling)+1)%len(all)]
+			for i, v := range all {
+				if v == ai.ItemHandling {
+					ai.ItemHandling = all[(i+1)%len(all)]
+					return
+				}
+			}
+			ai.ItemHandling = all[0]
 		})
 
 	case selectedAction == "解雇":
@@ -378,7 +396,7 @@ func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
 			Position:     ai.Movement.String(),
-			Combat:       ai.CombatCurrent.Label(),
+			Combat:       ai.CombatCurrent.String(),
 			ItemPickup:   ai.ItemPickup.String(),
 			ItemHandling: ai.ItemHandling.String(),
 		},

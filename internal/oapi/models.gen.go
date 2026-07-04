@@ -66,19 +66,19 @@ func (e AttackCategory) Valid() bool {
 
 // Defines values for CombatPolicyType.
 const (
-	Attack CombatPolicyType = "attack"
-	Evade  CombatPolicyType = "evade"
-	Ignore CombatPolicyType = "ignore"
+	CombatPolicyTypeAttack CombatPolicyType = "attack"
+	CombatPolicyTypeEvade  CombatPolicyType = "evade"
+	CombatPolicyTypeIgnore CombatPolicyType = "ignore"
 )
 
 // Valid indicates whether the value is a known member of the CombatPolicyType enum.
 func (e CombatPolicyType) Valid() bool {
 	switch e {
-	case Attack:
+	case CombatPolicyTypeAttack:
 		return true
-	case Evade:
+	case CombatPolicyTypeEvade:
 		return true
-	case Ignore:
+	case CombatPolicyTypeIgnore:
 		return true
 	default:
 		return false
@@ -318,19 +318,19 @@ func (e SaveDataAttackRangeType) Valid() bool {
 
 // Defines values for SaveDataCombatPolicyType.
 const (
-	SaveDataCombatPolicyTypeN0 SaveDataCombatPolicyType = 0
-	SaveDataCombatPolicyTypeN1 SaveDataCombatPolicyType = 1
-	SaveDataCombatPolicyTypeN2 SaveDataCombatPolicyType = 2
+	SaveDataCombatPolicyTypeAttack SaveDataCombatPolicyType = "attack"
+	SaveDataCombatPolicyTypeEvade  SaveDataCombatPolicyType = "evade"
+	SaveDataCombatPolicyTypeIgnore SaveDataCombatPolicyType = "ignore"
 )
 
 // Valid indicates whether the value is a known member of the SaveDataCombatPolicyType enum.
 func (e SaveDataCombatPolicyType) Valid() bool {
 	switch e {
-	case SaveDataCombatPolicyTypeN0:
+	case SaveDataCombatPolicyTypeAttack:
 		return true
-	case SaveDataCombatPolicyTypeN1:
+	case SaveDataCombatPolicyTypeEvade:
 		return true
-	case SaveDataCombatPolicyTypeN2:
+	case SaveDataCombatPolicyTypeIgnore:
 		return true
 	default:
 		return false
@@ -357,16 +357,16 @@ func (e SaveDataHealingAmountType) Valid() bool {
 
 // Defines values for SaveDataItemHandlingPolicyType.
 const (
-	SaveDataItemHandlingPolicyTypeN0 SaveDataItemHandlingPolicyType = 0
-	SaveDataItemHandlingPolicyTypeN1 SaveDataItemHandlingPolicyType = 1
+	Distribute SaveDataItemHandlingPolicyType = "distribute"
+	Keep       SaveDataItemHandlingPolicyType = "keep"
 )
 
 // Valid indicates whether the value is a known member of the SaveDataItemHandlingPolicyType enum.
 func (e SaveDataItemHandlingPolicyType) Valid() bool {
 	switch e {
-	case SaveDataItemHandlingPolicyTypeN0:
+	case Distribute:
 		return true
-	case SaveDataItemHandlingPolicyTypeN1:
+	case Keep:
 		return true
 	default:
 		return false
@@ -375,16 +375,16 @@ func (e SaveDataItemHandlingPolicyType) Valid() bool {
 
 // Defines values for SaveDataItemPickupPolicyType.
 const (
-	SaveDataItemPickupPolicyTypeN0 SaveDataItemPickupPolicyType = 0
-	SaveDataItemPickupPolicyTypeN1 SaveDataItemPickupPolicyType = 1
+	Ignore SaveDataItemPickupPolicyType = "ignore"
+	Pickup SaveDataItemPickupPolicyType = "pickup"
 )
 
 // Valid indicates whether the value is a known member of the SaveDataItemPickupPolicyType enum.
 func (e SaveDataItemPickupPolicyType) Valid() bool {
 	switch e {
-	case SaveDataItemPickupPolicyTypeN0:
+	case Ignore:
 		return true
-	case SaveDataItemPickupPolicyTypeN1:
+	case Pickup:
 		return true
 	default:
 		return false
@@ -435,16 +435,16 @@ func (e SaveDataMovementPolicyType) Valid() bool {
 
 // Defines values for SaveDataPlannerType.
 const (
-	SaveDataPlannerTypeN0 SaveDataPlannerType = 0
-	SaveDataPlannerTypeN1 SaveDataPlannerType = 1
+	Roaming SaveDataPlannerType = "roaming"
+	Squad   SaveDataPlannerType = "squad"
 )
 
 // Valid indicates whether the value is a known member of the SaveDataPlannerType enum.
 func (e SaveDataPlannerType) Valid() bool {
 	switch e {
-	case SaveDataPlannerTypeN0:
+	case Roaming:
 		return true
-	case SaveDataPlannerTypeN1:
+	case Squad:
 		return true
 	default:
 		return false
@@ -1484,7 +1484,7 @@ type SaveDataCameraScale = float64
 type SaveDataChecksum = string
 
 // SaveDataCombatPolicyType 戦闘ポリシー
-type SaveDataCombatPolicyType float32
+type SaveDataCombatPolicyType string
 
 // SaveDataComponentsMap エンティティが持つコンポーネントのマップ。
 // 存在するコンポーネントのみがキーとして含まれる。
@@ -1765,10 +1765,10 @@ type SaveDataIntPool struct {
 }
 
 // SaveDataItemHandlingPolicyType アイテム処理ポリシー
-type SaveDataItemHandlingPolicyType float32
+type SaveDataItemHandlingPolicyType string
 
 // SaveDataItemPickupPolicyType アイテム回収ポリシー
-type SaveDataItemPickupPolicyType float32
+type SaveDataItemPickupPolicyType string
 
 // SaveDataLightRadius 光源の到達半径 (タイル単位)。無効時は0を許容する
 type SaveDataLightRadius = int32
@@ -1851,7 +1851,7 @@ type SaveDataNameComponent struct {
 }
 
 // SaveDataPlannerType 行動計画の種別
-type SaveDataPlannerType float32
+type SaveDataPlannerType string
 
 // SaveDataPoolCurrent プール現在値 (整数)
 type SaveDataPoolCurrent = int32

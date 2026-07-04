@@ -485,7 +485,7 @@ func validateAI(ai *gc.AI) error {
 			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
 		}
 	default:
-		return fmt.Errorf("未知の PlannerType %d です", ai.Planner)
+		return fmt.Errorf("未知の PlannerType %q です", ai.Planner)
 	}
 
 	return nil

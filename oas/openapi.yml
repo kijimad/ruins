@@ -2744,11 +2744,11 @@ components:
       type: string
       description: SHA-256チェックサム
     SaveData.CombatPolicyType:
-      type: number
+      type: string
       enum:
-        - 0
-        - 1
-        - 2
+        - attack
+        - evade
+        - ignore
       description: 戦闘ポリシー
     SaveData.ComponentsMap:
       type: object
@@ -3130,16 +3130,16 @@ components:
           $ref: '#/components/schemas/SaveData.PoolCurrent'
       description: 整数プール。最大値と現在値を持つ
     SaveData.ItemHandlingPolicyType:
-      type: number
+      type: string
       enum:
-        - 0
-        - 1
+        - keep
+        - distribute
       description: アイテム処理ポリシー
     SaveData.ItemPickupPolicyType:
-      type: number
+      type: string
       enum:
-        - 0
-        - 1
+        - pickup
+        - ignore
       description: アイテム回収ポリシー
     SaveData.LightRadius:
       type: integer
@@ -3263,10 +3263,10 @@ components:
           $ref: '#/components/schemas/SaveData.EntityName'
       description: エンティティ名
     SaveData.PlannerType:
-      type: number
+      type: string
       enum:
-        - 0
-        - 1
+        - roaming
+        - squad
       description: 行動計画の種別
     SaveData.PoolCurrent:
       type: integer
