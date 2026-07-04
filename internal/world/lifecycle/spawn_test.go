@@ -504,6 +504,11 @@ func TestValidateAI(t *testing.T) {
 			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementRandom},
 			true,
 		},
+		{
+			"未知のPlannerTypeは無効",
+			&gc.AI{Planner: gc.PlannerType(999), Movement: gc.MovementRandom},
+			true,
+		},
 	}
 
 	for _, tt := range tests {
