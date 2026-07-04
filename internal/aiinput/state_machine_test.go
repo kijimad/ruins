@@ -7,48 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestShouldChase(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name string
-		ai   *gc.AI
-		want bool
-	}{
-		{"CombatAttackは追跡する", &gc.AI{CombatCurrent: gc.CombatAttack}, true},
-		{"CombatIgnoreは追跡しない", &gc.AI{CombatCurrent: gc.CombatIgnore}, false},
-		{"CombatEvadeは追跡しない", &gc.AI{CombatCurrent: gc.CombatEvade}, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, shouldChase(tt.ai))
-		})
-	}
-}
-
-func TestShouldFlee(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name string
-		ai   *gc.AI
-		want bool
-	}{
-		{"CombatEvadeは逃亡する", &gc.AI{CombatCurrent: gc.CombatEvade}, true},
-		{"CombatAttackは逃亡しない", &gc.AI{CombatCurrent: gc.CombatAttack}, false},
-		{"CombatIgnoreは逃亡しない", &gc.AI{CombatCurrent: gc.CombatIgnore}, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			assert.Equal(t, tt.want, shouldFlee(tt.ai))
-		})
-	}
-}
-
 func TestUpdateState_UnknownState(t *testing.T) {
 	t.Parallel()
 

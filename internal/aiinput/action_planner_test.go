@@ -420,18 +420,16 @@ func TestPlanWanderAction(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 
-	ai := hostileAI(gc.MovementWander)
-	ai.SubState = gc.AIStateDriving
-	ai.StartSubStateTurn = 1
-	ai.DurationSubStateTurns = 100
-	setupTestAI(t, world, 20, 20, ai)
-
 	rp := newRoamingPlanner()
 	grid := &gc.GridElement{X: 20, Y: 20}
 
 	gotMove := false
 	gotWait := false
 	for i := 0; i < 50; i++ {
+		ai := hostileAI(gc.MovementWander)
+		ai.SubState = gc.AIStateDriving
+		ai.StartSubStateTurn = 1
+		ai.DurationSubStateTurns = 100
 		entity := setupTestAI(t, world, 20, 20, ai)
 		behavior, _ := rp.planWanderAction(world, entity, grid)
 		switch behavior.Name() { //nolint:exhaustive

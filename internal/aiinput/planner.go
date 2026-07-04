@@ -117,12 +117,11 @@ func calculateMoveCandidates(delta consts.Coord[int]) []consts.Coord[int] {
 
 // tryMoveCandidates は移動候補を順に試行し、最初に移動可能な方向へ移動するアクションを返す
 func tryMoveCandidates(world w.World, entity ecs.Entity, from *gc.GridElement, candidates []consts.Coord[int]) (activity.Behavior, activity.ActionParams, bool) {
-	fromX, fromY := int(from.X), int(from.Y)
+	fromPos := consts.Coord[int]{X: int(from.X), Y: int(from.Y)}
 	for _, c := range candidates {
-		destX := fromX + c.X
-		destY := fromY + c.Y
-		if activity.CanMoveTo(world, destX, destY, fromX, fromY, entity) {
-			b, p := moveAction(entity, consts.Coord[int]{X: destX, Y: destY})
+		dest := consts.Coord[int]{X: fromPos.X + c.X, Y: fromPos.Y + c.Y}
+		if activity.CanMoveTo(world, dest, fromPos, entity) {
+			b, p := moveAction(entity, dest)
 			return b, p, true
 		}
 	}

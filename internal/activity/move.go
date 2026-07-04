@@ -12,6 +12,50 @@ import (
 	ecs "github.com/x-hgg-x/goecs/v2"
 )
 
+// CanMoveTo は指定位置に移動可能かチェックする。
+// fromは移動元の座標で、斜め移動時の壁すり抜け防止に使用する
+func CanMoveTo(world w.World, to, from consts.Coord[int], movingEntity ecs.Entity) bool {
+	si := query.GetSpatialIndex(world)
+	if si == nil {
+		return false
+	}
+
+	if to.X < 0 || to.Y < 0 || to.X >= si.MapWidth || to.Y >= si.MapHeight {
+		return false
+	}
+
+	// 斜め移動の場合、隣接する直交2方向が両方ブロックされていれば通行不可
+	dx := to.X - from.X
+	dy := to.Y - from.Y
+	if dx != 0 && dy != 0 {
+		if si.IsBlockPass(from.X+dx, from.Y) && si.IsBlockPass(from.X, from.Y+dy) {
+			return false
+		}
+	}
+
+	if si.IsBlockPass(to.X, to.Y) {
+		return false
+	}
+
+	// キャラクターがいるタイルへは、位置交換できる相手の場合のみ移動可能
+	if target, ok := si.CharacterAt(to.X, to.Y); ok {
+		return CanSwapPosition(world, movingEntity, target)
+	}
+
+	return true
+}
+
+// CanSwapPosition はmoverがtargetと位置交換できるかを判定する。
+// プレイヤーだけが隊員と位置交換できる
+func CanSwapPosition(world w.World, mover, target ecs.Entity) bool {
+	if mover.HasComponent(world.Components.Player) {
+		return target.HasComponent(world.Components.SquadMember)
+	}
+	// 隊員は他のキャラクターをブロックとして扱う。
+	// 隊員同士の位置交換を許可すると、互いに交換し続けて前進できなくなる
+	return false
+}
+
 // MoveActivity はBehaviorの実装
 type MoveActivity struct{}
 
@@ -38,8 +82,8 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 		return ErrMoveTargetNotSet
 	}
 
-	destX, destY := int(comp.Destination.X), int(comp.Destination.Y)
-	if destX < 0 || destY < 0 {
+	dest := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
+	if dest.X < 0 || dest.Y < 0 {
 		return ErrMoveTargetCoordInvalid
 	}
 
@@ -49,7 +93,7 @@ func (ma *MoveActivity) Validate(comp *gc.Activity, actor ecs.Entity, world w.Wo
 	}
 
 	actorGrid := gridElement.(*gc.GridElement)
-	if !CanMoveTo(world, destX, destY, int(actorGrid.X), int(actorGrid.Y), actor) {
+	if !CanMoveTo(world, dest, consts.Coord[int]{X: int(actorGrid.X), Y: int(actorGrid.Y)}, actor) {
 		return ErrMoveTargetInvalid
 	}
 
@@ -93,7 +137,9 @@ func (ma *MoveActivity) DoTurn(comp *gc.Activity, actor ecs.Entity, world w.Worl
 
 	// 移動可能かチェック
 	grid := gridElement.(*gc.GridElement)
-	if !CanMoveTo(world, int(comp.Destination.X), int(comp.Destination.Y), int(grid.X), int(grid.Y), actor) {
+	to := consts.Coord[int]{X: int(comp.Destination.X), Y: int(comp.Destination.Y)}
+	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
+	if !CanMoveTo(world, to, from, actor) {
 		Cancel(comp, "移動できません")
 		return ErrMoveTargetInvalid
 	}
@@ -166,7 +212,7 @@ func swapAllyIfNeeded(world w.World, actor ecs.Entity, fromX, fromY, toX, toY in
 	if !ok {
 		return
 	}
-	if !CanPassThrough(world, actor, target) {
+	if !CanSwapPosition(world, actor, target) {
 		return
 	}
 	targetGrid := world.Components.GridElement.Get(target).(*gc.GridElement)

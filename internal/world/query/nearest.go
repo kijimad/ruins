@@ -8,9 +8,9 @@ import (
 )
 
 // FindNearestEntity は条件を満たす最寄りのエンティティを探す。
-// matchはターゲット候補を絞り込む述語で、Deadエンティティは自動的に除外する。
-// 見つからない場合はnilを返す
-func FindNearestEntity(world w.World, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {
+// selfは検索対象から除外されるエンティティで、Deadエンティティも自動的に除外する。
+// matchはターゲット候補を絞り込む述語。見つからない場合はnilを返す
+func FindNearestEntity(world w.World, self ecs.Entity, from *gc.GridElement, match func(ecs.Entity) bool) (*ecs.Entity, *gc.GridElement, int) {
 	var nearestEntity *ecs.Entity
 	var nearestGrid *gc.GridElement
 	nearestDist := -1
@@ -18,6 +18,9 @@ func FindNearestEntity(world w.World, from *gc.GridElement, match func(ecs.Entit
 	world.Manager.Join(
 		world.Components.GridElement,
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
+		if entity == self {
+			return
+		}
 		if entity.HasComponent(world.Components.Dead) {
 			return
 		}

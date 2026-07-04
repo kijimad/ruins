@@ -70,7 +70,7 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 // 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため
 func (rp *roamingPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity {
 	grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
-	nearest, _, _ := query.FindNearestEntity(world, grid, func(target ecs.Entity) bool {
+	nearest, _, _ := query.FindNearestEntity(world, entity, grid, func(target ecs.Entity) bool {
 		return query.FactionRelation(world, entity, target) == query.RelationHostile
 	})
 	return nearest
@@ -96,22 +96,14 @@ func (rp *roamingPlanner) updateState(ai *gc.AI, canSeePlayer bool, currentTurn 
 	}
 }
 
-// shouldChase はAIの方針に基づいて追跡すべきかを判定する
-func shouldChase(ai *gc.AI) bool {
-	return ai.CombatCurrent == gc.CombatAttack
-}
-
-// shouldFlee はAIの方針に基づいて逃亡すべきかを判定する
-func shouldFlee(ai *gc.AI) bool {
-	return ai.CombatCurrent == gc.CombatEvade
-}
-
 func (rp *roamingPlanner) updateFromWaiting(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if canSeePlayer {
-		if shouldFlee(ai) {
+		switch ai.CombatCurrent {
+		case gc.CombatEvade:
 			rp.transitionToFleeing(ai, currentTurn)
-		} else if shouldChase(ai) {
+		case gc.CombatAttack:
 			rp.transitionToChasing(ai, currentTurn)
+		case gc.CombatIgnore:
 		}
 	} else if elapsedTurns >= ai.DurationSubStateTurns {
 		rp.transitionToDriving(ai, currentTurn)
@@ -120,10 +112,12 @@ func (rp *roamingPlanner) updateFromWaiting(ai *gc.AI, canSeePlayer bool, elapse
 
 func (rp *roamingPlanner) updateFromDriving(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) {
 	if canSeePlayer {
-		if shouldFlee(ai) {
+		switch ai.CombatCurrent {
+		case gc.CombatEvade:
 			rp.transitionToFleeing(ai, currentTurn)
-		} else if shouldChase(ai) {
+		case gc.CombatAttack:
 			rp.transitionToChasing(ai, currentTurn)
+		case gc.CombatIgnore:
 		}
 	} else if elapsedTurns >= ai.DurationSubStateTurns {
 		rp.transitionToWaiting(ai, currentTurn)
@@ -224,12 +218,11 @@ func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entit
 		return waitAction(aiEntity, "AIランダム待機")
 	}
 
-	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
 	for _, d := range shuffledEightDirections() {
-		destX := fromX + d.X
-		destY := fromY + d.Y
-		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-			return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
+		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
+		if activity.CanMoveTo(world, dest, from, aiEntity) {
+			return moveAction(aiEntity, dest)
 		}
 	}
 
@@ -278,18 +271,17 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
 	}
 	var candidates []scoredDir
 
-	fromX, fromY := int(aiGrid.X), int(aiGrid.Y)
+	from := consts.Coord[int]{X: int(aiGrid.X), Y: int(aiGrid.Y)}
 	for _, d := range eightDirections {
-		destX := fromX + d.X
-		destY := fromY + d.Y
+		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
-		if !activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
+		if !activity.CanMoveTo(world, dest, from, aiEntity) {
 			continue
 		}
 
 		wallCount := 0
 		for _, adj := range []consts.Coord[int]{{X: 0, Y: -1}, {X: 0, Y: 1}, {X: -1, Y: 0}, {X: 1, Y: 0}} {
-			if si.IsBlockPass(destX+adj.X, destY+adj.Y) {
+			if si.IsBlockPass(dest.X+adj.X, dest.Y+adj.Y) {
 				wallCount++
 			}
 		}
@@ -314,13 +306,13 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
 	}
 	chosen := tied[rand.IntN(len(tied))]
 
-	return moveAction(aiEntity, consts.Coord[int]{X: fromX + chosen.X, Y: fromY + chosen.Y})
+	return moveAction(aiEntity, consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})
 }
 
 // planSwarmAction は最寄りのAIエンティティに接近するアクションを計画する
 func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	_, nearestGrid, nearestDist := query.FindNearestEntity(world, aiGrid, func(entity ecs.Entity) bool {
-		return entity != aiEntity && entity.HasComponent(world.Components.AI)
+	_, nearestGrid, nearestDist := query.FindNearestEntity(world, aiEntity, aiGrid, func(entity ecs.Entity) bool {
+		return entity.HasComponent(world.Components.AI)
 	})
 
 	if nearestGrid == nil || nearestDist <= 1 {
@@ -340,21 +332,19 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
 
 // planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
 func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	fromX, fromY := int(grid.X), int(grid.Y)
+	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
-	destX := fromX + ai.PatrolDirX
-	destY := fromY + ai.PatrolDirY
-	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-		return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
+	dest := consts.Coord[int]{X: from.X + ai.PatrolDirX, Y: from.Y + ai.PatrolDirY}
+	if activity.CanMoveTo(world, dest, from, aiEntity) {
+		return moveAction(aiEntity, dest)
 	}
 
 	ai.PatrolDirX = -ai.PatrolDirX
 	ai.PatrolDirY = -ai.PatrolDirY
 
-	destX = fromX + ai.PatrolDirX
-	destY = fromY + ai.PatrolDirY
-	if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-		return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
+	dest = consts.Coord[int]{X: from.X + ai.PatrolDirX, Y: from.Y + ai.PatrolDirY}
+	if activity.CanMoveTo(world, dest, from, aiEntity) {
+		return moveAction(aiEntity, dest)
 	}
 
 	return waitAction(aiEntity, "AI巡回移動失敗")
@@ -362,20 +352,19 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, a
 
 // planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
 func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
-	fromX, fromY := int(grid.X), int(grid.Y)
+	from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
 	for _, d := range shuffledEightDirections() {
-		destX := fromX + d.X
-		destY := fromY + d.Y
+		dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
-		dx := geometry.Abs(destX - ai.OriginX)
-		dy := geometry.Abs(destY - ai.OriginY)
+		dx := geometry.Abs(dest.X - ai.OriginX)
+		dy := geometry.Abs(dest.Y - ai.OriginY)
 		if dx > territorialRadius || dy > territorialRadius {
 			continue
 		}
 
-		if activity.CanMoveTo(world, destX, destY, fromX, fromY, aiEntity) {
-			return moveAction(aiEntity, consts.Coord[int]{X: destX, Y: destY})
+		if activity.CanMoveTo(world, dest, from, aiEntity) {
+			return moveAction(aiEntity, dest)
 		}
 	}
 
