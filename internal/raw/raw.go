@@ -448,34 +448,31 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	// AI の組み立て
+	// AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う
 	{
-		ai := gc.AI{
-			Planner:       gc.PlannerRoaming,
+		solo := gc.SoloAI{
 			CombatDefault: gc.CombatAttack,
 			CombatCurrent: gc.CombatAttack,
-			ItemPickup:    gc.PolicyPickup,
-			ItemHandling:  gc.PolicyKeep,
 		}
 		if member.CombatPolicy != nil && string(*member.CombatPolicy) != "" {
 			switch gc.CombatPolicy(*member.CombatPolicy) {
 			case gc.CombatAttack:
-				ai.CombatDefault = gc.CombatAttack
-				ai.CombatCurrent = gc.CombatAttack
+				solo.CombatDefault = gc.CombatAttack
+				solo.CombatCurrent = gc.CombatAttack
 			case gc.CombatIgnore:
-				ai.CombatDefault = gc.CombatIgnore
-				ai.CombatCurrent = gc.CombatIgnore
+				solo.CombatDefault = gc.CombatIgnore
+				solo.CombatCurrent = gc.CombatIgnore
 			case gc.CombatEvade:
-				ai.CombatDefault = gc.CombatEvade
-				ai.CombatCurrent = gc.CombatEvade
+				solo.CombatDefault = gc.CombatEvade
+				solo.CombatCurrent = gc.CombatEvade
 			default:
 				return gc.EntitySpec{}, fmt.Errorf("無効な戦闘ポリシー '%s': %s", string(*member.CombatPolicy), name)
 			}
 		}
 		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
-			ai.Movement = gc.MovementPolicy(*member.MovementPattern)
+			solo.Movement = gc.SoloMovement(*member.MovementPattern)
 		}
-		entitySpec.AI = &ai
+		entitySpec.AI = &gc.AI{Planner: &solo}
 	}
 
 	if member.Dialog != nil {
@@ -497,6 +494,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.FactionType = &gc.FactionAlly
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
+	entitySpec.AI = nil
 	return entitySpec, nil
 }
 

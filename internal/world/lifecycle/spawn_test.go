@@ -251,8 +251,9 @@ func TestSpawnEnemy_AI(t *testing.T) {
 
 	assert.True(t, enemy.HasComponent(world.Components.AI))
 	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	assert.Equal(t, gc.CombatAttack, ai.CombatDefault)
-	assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+	solo := ai.Planner.(*gc.SoloAI)
+	assert.Equal(t, gc.CombatAttack, solo.CombatDefault)
+	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 }
 
 func TestSpawnItem(t *testing.T) {
@@ -464,62 +465,4 @@ func TestAllItemsBelongToInventoryCategory(t *testing.T) {
 		}
 	}
 	assert.Empty(t, uncategorized, "InventoryCategoryに属していないアイテム: %v", uncategorized)
-}
-
-func TestValidateAI(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name    string
-		ai      *gc.AI
-		wantErr bool
-	}{
-		{
-			"Roaming+Random は有効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
-			false,
-		},
-		{
-			"Roaming+Patrol は有効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementPatrol},
-			false,
-		},
-		{
-			"Roaming+Escort は無効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementEscort},
-			true,
-		},
-		{
-			"Squad+Escort は有効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
-			false,
-		},
-		{
-			"Squad+Vanguard は有効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementVanguard},
-			false,
-		},
-		{
-			"Squad+Random は無効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementRandom},
-			true,
-		},
-		{
-			"未知のPlannerTypeは無効",
-			&gc.AI{Planner: gc.PlannerType("unknown"), Movement: gc.MovementRandom},
-			true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			err := validateAI(tt.ai)
-			if tt.wantErr {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-			}
-		})
-	}
 }

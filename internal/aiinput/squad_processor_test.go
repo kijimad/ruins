@@ -139,7 +139,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
@@ -167,7 +167,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemPickup: gc.PolicyIgnore, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyIgnore, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
@@ -191,7 +191,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
@@ -218,7 +218,7 @@ func TestPlanItemPickupAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemPickup: gc.PolicyPickup, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 		}
@@ -252,7 +252,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
@@ -284,7 +284,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemHandling: gc.PolicyKeep, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyKeep, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
@@ -317,7 +317,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}
@@ -342,7 +342,7 @@ func TestPlanItemHandlingAction(t *testing.T) {
 		sp := newSquadPlanner(testRNG)
 		ctx := &squadContext{
 			Grid:         memberGrid,
-			AI:           &gc.AI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
+			Squad:        &gc.SquadAI{ItemHandling: gc.PolicyDistribute, ViewDistance: 5},
 			LeaderEntity: leader,
 			LeaderGrid:   leaderGrid,
 		}

@@ -189,15 +189,19 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps {
 		if ai == nil {
 			continue
 		}
+		squad, ok := ai.Planner.(*gc.SquadAI)
+		if !ok {
+			continue
+		}
 
 		members = append(members, squadMemberData{
 			Entity:       member,
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     ai.Movement.String(),
-			Combat:       ai.CombatCurrent.String(),
-			ItemPickup:   ai.ItemPickup.String(),
-			ItemHandling: ai.ItemHandling.String(),
+			Position:     squad.Movement.String(),
+			Combat:       squad.CombatCurrent.String(),
+			ItemPickup:   squad.ItemPickup.String(),
+			ItemHandling: squad.ItemHandling.String(),
 		})
 	}
 
@@ -283,13 +287,17 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 	case "集合":
 		for _, m := range members {
 			if ai := query.GetAI(world, m); ai != nil {
-				ai.Movement = gc.MovementEscort
+				if squad, ok := ai.Planner.(*gc.SquadAI); ok {
+					squad.Movement = gc.SquadEscort
+				}
 			}
 		}
 	case "全員待機":
 		for _, m := range members {
 			if ai := query.GetAI(world, m); ai != nil {
-				ai.Movement = gc.MovementStationary
+				if squad, ok := ai.Planner.(*gc.SquadAI); ok {
+					squad.Movement = gc.SquadStationary
+				}
 			}
 		}
 	}
@@ -313,6 +321,10 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 	if ai == nil {
 		return nil
 	}
+	squad, ok := ai.Planner.(*gc.SquadAI)
+	if !ok {
+		return nil
+	}
 
 	cycleAndRefresh := func(update func()) error {
 		update()
@@ -322,51 +334,51 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 
 	switch {
 	case strings.HasPrefix(selectedAction, "位置"):
-		allPos := gc.AllSquadMovementPolicies()
+		allPos := gc.AllSquadMovements()
 		return cycleAndRefresh(func() {
 			for i, v := range allPos {
-				if v == ai.Movement {
-					ai.Movement = allPos[(i+1)%len(allPos)]
+				if v == squad.Movement {
+					squad.Movement = allPos[(i+1)%len(allPos)]
 					return
 				}
 			}
-			ai.Movement = allPos[0]
+			squad.Movement = allPos[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "戦闘"):
 		allCombat := gc.AllSquadCombatPolicies()
 		return cycleAndRefresh(func() {
 			for i, v := range allCombat {
-				if v == ai.CombatCurrent {
-					ai.CombatCurrent = allCombat[(i+1)%len(allCombat)]
+				if v == squad.CombatCurrent {
+					squad.CombatCurrent = allCombat[(i+1)%len(allCombat)]
 					return
 				}
 			}
-			ai.CombatCurrent = allCombat[0]
+			squad.CombatCurrent = allCombat[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "回収"):
 		all := gc.AllItemPickupPolicies()
 		return cycleAndRefresh(func() {
 			for i, v := range all {
-				if v == ai.ItemPickup {
-					ai.ItemPickup = all[(i+1)%len(all)]
+				if v == squad.ItemPickup {
+					squad.ItemPickup = all[(i+1)%len(all)]
 					return
 				}
 			}
-			ai.ItemPickup = all[0]
+			squad.ItemPickup = all[0]
 		})
 
 	case strings.HasPrefix(selectedAction, "処理"):
 		all := gc.AllItemHandlingPolicies()
 		return cycleAndRefresh(func() {
 			for i, v := range all {
-				if v == ai.ItemHandling {
-					ai.ItemHandling = all[(i+1)%len(all)]
+				if v == squad.ItemHandling {
+					squad.ItemHandling = all[(i+1)%len(all)]
 					return
 				}
 			}
-			ai.ItemHandling = all[0]
+			squad.ItemHandling = all[0]
 		})
 
 	case selectedAction == "解雇":
@@ -389,16 +401,20 @@ func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) {
 	if ai == nil {
 		return
 	}
+	squad, ok := ai.Planner.(*gc.SquadAI)
+	if !ok {
+		return
+	}
 
 	st.windowMount.SetProps(squadWindowProps{
 		Member: squadMemberData{
 			Entity:       member,
 			Name:         name,
 			HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-			Position:     ai.Movement.String(),
-			Combat:       ai.CombatCurrent.String(),
-			ItemPickup:   ai.ItemPickup.String(),
-			ItemHandling: ai.ItemHandling.String(),
+			Position:     squad.Movement.String(),
+			Combat:       squad.CombatCurrent.String(),
+			ItemPickup:   squad.ItemPickup.String(),
+			ItemHandling: squad.ItemHandling.String(),
 		},
 	})
 }

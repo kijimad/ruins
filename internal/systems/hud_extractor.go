@@ -165,6 +165,10 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 	).Visit(ecs.Visit(func(entity ecs.Entity) {
 		gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
 		ai := world.Components.AI.Get(entity).(*gc.AI)
+		solo, ok := ai.Planner.(*gc.SoloAI)
+		if !ok {
+			return
+		}
 
 		// グリッド座標をピクセル座標に変換
 		pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
@@ -173,7 +177,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 		screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
 
 		var stateText string
-		switch ai.SubState {
+		switch solo.SubState {
 		case gc.AIStateWaiting:
 			stateText = "WAITING"
 		case gc.AIStateDriving:
@@ -191,7 +195,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData {
 			StateText: stateText,
 		})
 
-		scaledRadius := float32(float64(ai.ViewDistance) * float64(consts.TileSize) * cameraScale)
+		scaledRadius := float32(float64(solo.ViewDistance) * float64(consts.TileSize) * cameraScale)
 		visionRanges = append(visionRanges, hud.VisionRangeInfo{
 			ScreenX:      screenX,
 			ScreenY:      screenY,

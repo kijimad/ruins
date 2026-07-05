@@ -435,14 +435,14 @@ func (e SaveDataMovementPolicyType) Valid() bool {
 
 // Defines values for SaveDataPlannerType.
 const (
-	Roaming SaveDataPlannerType = "roaming"
-	Squad   SaveDataPlannerType = "squad"
+	Solo  SaveDataPlannerType = "solo"
+	Squad SaveDataPlannerType = "squad"
 )
 
 // Valid indicates whether the value is a known member of the SaveDataPlannerType enum.
 func (e SaveDataPlannerType) Valid() bool {
 	switch e {
-	case Roaming:
+	case Solo:
 		return true
 	case Squad:
 		return true

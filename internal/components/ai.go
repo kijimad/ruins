@@ -19,68 +19,92 @@ const (
 	AIStateFleeing = AIStateSubState("FLEEING")
 )
 
-// AI はAIエンティティの全状態を保持する統合コンポーネント。
-// 行動方針、ランタイム状態、視覚情報を1つの構造体で表現する
+// AI はAIエンティティの統合コンポーネント。
+// Plannerフィールドに具体的な設定を保持する
 type AI struct {
-	// 行動方針 ================
-	// Planner は適用する行動計画の種別。スポーン時のバリデーションとセーブに使用する
-	Planner PlannerType
-	// CombatDefault は初期方針を保持する。逃亡後にこの値へ復帰する
-	CombatDefault CombatPolicy
-	// CombatCurrent は現在の方針を保持する。被ダメージなどで変化する
-	CombatCurrent CombatPolicy
-	// Movement は非戦闘時の移動方針を保持する
-	Movement MovementPolicy
-	// ItemPickup はアイテム拾得方針。隊員のみが使用する
-	ItemPickup ItemPickupPolicy
-	// ItemHandling はアイテム処理方針。隊員のみが使用する
-	ItemHandling ItemHandlingPolicy
-
-	// ランタイム状態 ================
-	SubState AIStateSubState
-	// StartSubStateTurn はサブステートの開始ターンを保持する
-	StartSubStateTurn int
-	// DurationSubStateTurns はサブステートの持続ターン数を保持する
-	DurationSubStateTurns int
-	// OriginX, OriginY はTerritorial移動の範囲基準となる座標。スポーン時に設定する
-	OriginX, OriginY int
-	// PatrolDirX, PatrolDirY は巡回方向。Patrol移動で現在の進行方向を保持する
-	PatrolDirX, PatrolDirY int
-
-	// 視覚 ================
-	// ViewDistance は視界距離（タイル単位）
-	ViewDistance consts.Tile
-	// TargetEntity は追跡対象のエンティティ
-	TargetEntity *ecs.Entity
+	Planner PlannerConfig
 }
+
+// PlannerConfig はプランナー種別ごとの設定を表すインターフェース
+type PlannerConfig interface {
+	// Type はプランナーの種別を返す
+	Type() PlannerType
+	// ReactToHostile は被ダメージ時に戦闘方針を変化させる
+	ReactToHostile()
+	// ResetCombat は戦闘方針をデフォルトに復帰させる
+	ResetCombat()
+}
+
+// SoloAI は単独行動NPC用の設定と状態を保持する
+type SoloAI struct {
+	CombatDefault CombatPolicy
+	CombatCurrent CombatPolicy
+	Movement      SoloMovement
+	ViewDistance  consts.Tile
+
+	SubState               AIStateSubState
+	StartSubStateTurn      int
+	DurationSubStateTurns  int
+	OriginX, OriginY       int
+	PatrolDirX, PatrolDirY int
+	TargetEntity           *ecs.Entity
+}
+
+// Type はPlannerSoloを返す
+func (s *SoloAI) Type() PlannerType { return PlannerSolo }
 
 // ReactToHostile は被ダメージ時に戦闘方針を変化させる。
 // CombatIgnore は反撃のため CombatAttack に遷移する
-func (ai *AI) ReactToHostile() {
-	switch ai.CombatDefault {
+func (s *SoloAI) ReactToHostile() {
+	switch s.CombatDefault {
 	case CombatIgnore:
-		ai.CombatCurrent = CombatAttack
+		s.CombatCurrent = CombatAttack
 	case CombatAttack, CombatEvade:
-		// 既に戦闘的または回避中なので変化なし
 	}
 }
 
 // ResetCombat は戦闘方針をデフォルトに復帰させる
-func (ai *AI) ResetCombat() {
-	ai.CombatCurrent = ai.CombatDefault
+func (s *SoloAI) ResetCombat() {
+	s.CombatCurrent = s.CombatDefault
 }
 
-// DefaultSquadAI は隊員のデフォルトAIを返す。
-// OriginX/Y 等のランタイム値は呼び出し元で設定する
+// SquadAI は隊員用の設定を保持する
+type SquadAI struct {
+	CombatDefault CombatPolicy
+	CombatCurrent CombatPolicy
+	Movement      SquadMovement
+	ViewDistance  consts.Tile
+	ItemPickup    ItemPickupPolicy
+	ItemHandling  ItemHandlingPolicy
+}
+
+// Type はPlannerSquadを返す
+func (s *SquadAI) Type() PlannerType { return PlannerSquad }
+
+// ReactToHostile は被ダメージ時に戦闘方針を変化させる
+func (s *SquadAI) ReactToHostile() {
+	switch s.CombatDefault {
+	case CombatIgnore:
+		s.CombatCurrent = CombatAttack
+	case CombatAttack, CombatEvade:
+	}
+}
+
+// ResetCombat は戦闘方針をデフォルトに復帰させる
+func (s *SquadAI) ResetCombat() {
+	s.CombatCurrent = s.CombatDefault
+}
+
+// DefaultSquadAI は隊員のデフォルトAIを返す
 func DefaultSquadAI() AI {
 	return AI{
-		Planner:       PlannerSquad,
-		CombatDefault: CombatAttack,
-		CombatCurrent: CombatAttack,
-		Movement:      MovementEscort,
-		ItemPickup:    PolicyPickup,
-		ItemHandling:  PolicyDistribute,
-		SubState:      AIStateWaiting,
-		ViewDistance:  5,
+		Planner: &SquadAI{
+			CombatDefault: CombatAttack,
+			CombatCurrent: CombatAttack,
+			Movement:      SquadEscort,
+			ViewDistance:  consts.AIVisionDistance,
+			ItemPickup:    PolicyPickup,
+			ItemHandling:  PolicyDistribute,
+		},
 	}
 }

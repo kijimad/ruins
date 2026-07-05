@@ -18,8 +18,6 @@ import (
 // 定数定義
 const (
 	cameraNormalScale = 0.6 // カメラの通常スケール
-	// AIVisionDistance はAIエンティティの視界距離（タイル単位）
-	AIVisionDistance = 5
 )
 
 // エラー定義
@@ -123,16 +121,17 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 	if entitySpec.AI != nil {
-		if err := validateAI(entitySpec.AI); err != nil {
-			return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", name, err)
+		solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
+		if !ok {
+			return consts.InvalidEntity, fmt.Errorf("NPC %q のPlannerがSoloAIではありません: %T", name, entitySpec.AI.Planner)
 		}
-		entitySpec.AI.SubState = gc.AIStateWaiting
-		entitySpec.AI.StartSubStateTurn = 1
-		entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
-		entitySpec.AI.OriginX = tileX
-		entitySpec.AI.OriginY = tileY
-		entitySpec.AI.PatrolDirX = initialPatrolDir()
-		entitySpec.AI.ViewDistance = AIVisionDistance
+		solo.SubState = gc.AIStateWaiting
+		solo.StartSubStateTurn = 1
+		solo.DurationSubStateTurns = 2 + rand.IntN(3)
+		solo.OriginX = tileX
+		solo.OriginY = tileY
+		solo.PatrolDirX = initialPatrolDir()
+		solo.ViewDistance = consts.AIVisionDistance
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -175,16 +174,17 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	if entitySpec.AI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	if err := validateAI(entitySpec.AI); err != nil {
-		return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", entitySpec.Name, err)
+	solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
+	if !ok {
+		return consts.InvalidEntity, fmt.Errorf("敵 %q のPlannerがSoloAIではありません: %T", entitySpec.Name, entitySpec.AI.Planner)
 	}
-	entitySpec.AI.SubState = gc.AIStateWaiting
-	entitySpec.AI.StartSubStateTurn = 1
-	entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
-	entitySpec.AI.OriginX = tileX
-	entitySpec.AI.OriginY = tileY
-	entitySpec.AI.PatrolDirX = initialPatrolDir()
-	entitySpec.AI.ViewDistance = AIVisionDistance
+	solo.SubState = gc.AIStateWaiting
+	solo.StartSubStateTurn = 1
+	solo.DurationSubStateTurns = 2 + rand.IntN(3)
+	solo.OriginX = tileX
+	solo.OriginY = tileY
+	solo.PatrolDirX = initialPatrolDir()
+	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	}
@@ -459,34 +459,4 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
-}
-
-// validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
-func validateAI(ai *gc.AI) error {
-	switch ai.Planner {
-	case gc.PlannerRoaming:
-		switch ai.Movement {
-		case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
-			gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
-			gc.MovementSwarm:
-		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:
-			return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", ai.Movement)
-		default:
-			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
-		}
-	case gc.PlannerSquad:
-		switch ai.Movement {
-		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat,
-			gc.MovementPatrol, gc.MovementStationary:
-		case gc.MovementRandom, gc.MovementWallHug, gc.MovementWander,
-			gc.MovementTerritorial, gc.MovementSwarm:
-			return fmt.Errorf("PlannerSquad に敵用の MovementPolicy %q は使用できません", ai.Movement)
-		default:
-			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
-		}
-	default:
-		return fmt.Errorf("未知の PlannerType %q です", ai.Planner)
-	}
-
-	return nil
 }

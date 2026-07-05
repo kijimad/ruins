@@ -38,7 +38,7 @@ func reactToHostileAction(world w.World, target ecs.Entity) {
 		return
 	}
 	ai := comp.(*gc.AI)
-	ai.ReactToHostile()
+	ai.Planner.ReactToHostile()
 }
 
 // logDeath は死亡・破壊ログを出力する。

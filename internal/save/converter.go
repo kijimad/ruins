@@ -384,25 +384,49 @@ func providesHealingFromSaveData(sd oapi.SaveDataProvidesHealingComponent) gc.Pr
 // ================== AIポリシー変換 ==================
 
 func aiToSaveData(ai gc.AI) oapi.SaveDataSquadPolicyComponent {
-	return oapi.SaveDataSquadPolicyComponent{
-		Planner:       oapi.SaveDataPlannerType(ai.Planner),
-		Movement:      oapi.SaveDataMovementPolicyType(ai.Movement),
-		CombatDefault: oapi.SaveDataCombatPolicyType(ai.CombatDefault),
-		CombatCurrent: oapi.SaveDataCombatPolicyType(ai.CombatCurrent),
-		ItemPickup:    oapi.SaveDataItemPickupPolicyType(ai.ItemPickup),
-		ItemHandling:  oapi.SaveDataItemHandlingPolicyType(ai.ItemHandling),
+	sd := oapi.SaveDataSquadPolicyComponent{
+		Planner: oapi.SaveDataPlannerType(string(ai.Planner.Type())),
 	}
+	switch p := ai.Planner.(type) {
+	case *gc.SoloAI:
+		sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
+		sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
+		sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
+	case *gc.SquadAI:
+		sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
+		sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
+		sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
+		sd.ItemPickup = oapi.SaveDataItemPickupPolicyType(string(p.ItemPickup))
+		sd.ItemHandling = oapi.SaveDataItemHandlingPolicyType(string(p.ItemHandling))
+	}
+	return sd
 }
 
 func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
-	ai := gc.DefaultSquadAI()
-	ai.Planner = gc.PlannerType(sd.Planner)
-	ai.CombatDefault = gc.CombatPolicy(sd.CombatDefault)
-	ai.CombatCurrent = gc.CombatPolicy(sd.CombatCurrent)
-	ai.Movement = gc.MovementPolicy(sd.Movement)
-	ai.ItemPickup = gc.ItemPickupPolicy(sd.ItemPickup)
-	ai.ItemHandling = gc.ItemHandlingPolicy(sd.ItemHandling)
-	return ai
+	switch gc.PlannerType(string(sd.Planner)) {
+	case gc.PlannerSquad:
+		return gc.AI{
+			Planner: &gc.SquadAI{
+				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
+				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
+				Movement:      gc.SquadMovement(sd.Movement),
+				ItemPickup:    gc.ItemPickupPolicy(string(sd.ItemPickup)),
+				ItemHandling:  gc.ItemHandlingPolicy(string(sd.ItemHandling)),
+				ViewDistance:  consts.AIVisionDistance,
+			},
+		}
+	case gc.PlannerSolo:
+		return gc.AI{
+			Planner: &gc.SoloAI{
+				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
+				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
+				Movement:      gc.SoloMovement(sd.Movement),
+				ViewDistance:  consts.AIVisionDistance,
+			},
+		}
+	default:
+		panic(fmt.Sprintf("未知のPlannerType: %q", sd.Planner))
+	}
 }
 
 // ================== 健康状態コンポーネント ==================

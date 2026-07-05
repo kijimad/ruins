@@ -4,8 +4,8 @@ package components
 type PlannerType string
 
 const (
-	// PlannerRoaming はAIStateのタイミングサイクルで行動する。敵・中立NPCが使用する
-	PlannerRoaming PlannerType = "roaming"
+	// PlannerSolo は単独行動NPC用。状態遷移とMovementPolicyで行動を決定する
+	PlannerSolo PlannerType = "solo"
 	// PlannerSquad はリーダー追従とアイテム処理を含む。隊員が使用する
 	PlannerSquad PlannerType = "squad"
 )
@@ -13,8 +13,8 @@ const (
 // String は日本語表示名を返す
 func (p PlannerType) String() string {
 	switch p {
-	case PlannerRoaming:
-		return "徘徊"
+	case PlannerSolo:
+		return "単独"
 	case PlannerSquad:
 		return "隊員"
 	default:
@@ -54,57 +54,87 @@ func AllSquadCombatPolicies() []CombatPolicy {
 	return []CombatPolicy{CombatAttack, CombatEvade}
 }
 
-// MovementPolicy は非戦闘時の移動方針を表す
-type MovementPolicy string
+// SoloMovement は単独行動NPC用の移動方針を表す
+type SoloMovement string
 
-// 敵・中立NPC用の移動ポリシーと、隊員用の移動ポリシーを定義する
 const (
-	MovementRandom      MovementPolicy = "random"
-	MovementPatrol      MovementPolicy = "patrol"
-	MovementWallHug     MovementPolicy = "wallHug"
-	MovementStationary  MovementPolicy = "stationary"
-	MovementWander      MovementPolicy = "wander"
-	MovementTerritorial MovementPolicy = "territorial"
-	MovementSwarm       MovementPolicy = "swarm"
-
-	MovementEscort   MovementPolicy = "escort"
-	MovementVanguard MovementPolicy = "vanguard"
-	MovementRetreat  MovementPolicy = "retreat"
+	// SoloRandom はランダムに移動する
+	SoloRandom SoloMovement = "random"
+	// SoloPatrol は決まった経路を巡回する
+	SoloPatrol SoloMovement = "patrol"
+	// SoloWallHug は壁沿いに移動する
+	SoloWallHug SoloMovement = "wallHug"
+	// SoloStationary はその場に留まる
+	SoloStationary SoloMovement = "stationary"
+	// SoloWander は緩やかにさまよう
+	SoloWander SoloMovement = "wander"
+	// SoloTerritorial はスポーン地点の周辺を守る
+	SoloTerritorial SoloMovement = "territorial"
+	// SoloSwarm は近くの同種と群れで行動する
+	SoloSwarm SoloMovement = "swarm"
 )
 
 // String は日本語表示名を返す
-func (p MovementPolicy) String() string {
+func (p SoloMovement) String() string {
 	switch p {
-	case MovementEscort:
-		return "護衛"
-	case MovementVanguard:
-		return "前衛"
-	case MovementPatrol:
-		return "巡回"
-	case MovementStationary:
-		return "固定"
-	case MovementRetreat:
-		return "後退"
-	case MovementRandom:
+	case SoloRandom:
 		return "ランダム"
-	case MovementWallHug:
+	case SoloPatrol:
+		return "巡回"
+	case SoloWallHug:
 		return "壁沿い"
-	case MovementWander:
+	case SoloStationary:
+		return "固定"
+	case SoloWander:
 		return "徘徊"
-	case MovementTerritorial:
+	case SoloTerritorial:
 		return "縄張り"
-	case MovementSwarm:
+	case SoloSwarm:
 		return "群れ"
 	default:
 		return string(p)
 	}
 }
 
-// AllSquadMovementPolicies は隊員UIで巡回可能な移動ポリシーを返す
-func AllSquadMovementPolicies() []MovementPolicy {
-	return []MovementPolicy{
-		MovementEscort, MovementVanguard, MovementPatrol,
-		MovementStationary, MovementRetreat,
+// SquadMovement は隊員用の移動方針を表す
+type SquadMovement string
+
+const (
+	// SquadEscort はリーダーに追従する
+	SquadEscort SquadMovement = "escort"
+	// SquadVanguard はリーダーの前方に位置する
+	SquadVanguard SquadMovement = "vanguard"
+	// SquadPatrol はリーダー周辺を巡回する
+	SquadPatrol SquadMovement = "patrol"
+	// SquadStationary はその場に留まる
+	SquadStationary SquadMovement = "stationary"
+	// SquadRetreat はリーダーの後方に退避する
+	SquadRetreat SquadMovement = "retreat"
+)
+
+// String は日本語表示名を返す
+func (p SquadMovement) String() string {
+	switch p {
+	case SquadEscort:
+		return "護衛"
+	case SquadVanguard:
+		return "前衛"
+	case SquadPatrol:
+		return "巡回"
+	case SquadStationary:
+		return "固定"
+	case SquadRetreat:
+		return "後退"
+	default:
+		return string(p)
+	}
+}
+
+// AllSquadMovements は隊員UIで巡回可能な移動ポリシーを返す
+func AllSquadMovements() []SquadMovement {
+	return []SquadMovement{
+		SquadEscort, SquadVanguard, SquadPatrol,
+		SquadStationary, SquadRetreat,
 	}
 }
 

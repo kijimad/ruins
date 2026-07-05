@@ -990,6 +990,15 @@ export type SaveDataAttackRangeType = typeof SaveDataAttackRangeType[keyof typeo
 
 
 /**
+ * 1つの部位の健康状態
+ */
+export interface SaveDataBodyPartHealth {
+    /**
+     * この部位に付与されている状態の配列
+     */
+    'Conditions'?: Array<SaveDataHealthCondition>;
+}
+/**
  * カメラ状態
  */
 export interface SaveDataCameraComponent {
@@ -1031,6 +1040,15 @@ export const SaveDataCombatPolicyType = {
 export type SaveDataCombatPolicyType = typeof SaveDataCombatPolicyType[keyof typeof SaveDataCombatPolicyType];
 
 
+/**
+ * 戦闘コマンドテーブル名
+ */
+export interface SaveDataCommandTableComponent {
+    /**
+     * コマンドテーブル名
+     */
+    'Name': string;
+}
 /**
  * エンティティが持つコンポーネントのマップ。 存在するコンポーネントのみがキーとして含まれる。 保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
  */
@@ -1144,6 +1162,10 @@ export interface SaveDataComponentsMap {
      */
     'Wallet'?: SaveDataWalletComponent;
     /**
+     * 戦闘コマンドテーブル名
+     */
+    'CommandTable'?: SaveDataCommandTableComponent;
+    /**
      * 隊員コンポーネント。リーダーへのエンティティ参照を含む
      */
     'SquadMember'?: SaveDataSquadMemberComponent;
@@ -1155,6 +1177,14 @@ export interface SaveDataComponentsMap {
      * 隊員の外見情報
      */
     'MemberAppearance'?: SaveDataMemberAppearanceComponent;
+    /**
+     * 部位ごとの健康状態
+     */
+    'HealthStatus'?: SaveDataHealthStatusComponent;
+    /**
+     * スキルセット
+     */
+    'Skills'?: SaveDataSkillsComponent;
 }
 /**
  * 消費可能アイテム設定
@@ -1359,6 +1389,36 @@ export type SaveDataHealingAmountType = typeof SaveDataHealingAmountType[keyof t
 
 
 /**
+ * 部位に付与される1つの状態
+ */
+export interface SaveDataHealthCondition {
+    /**
+     * 状態の種類
+     */
+    'Type': string;
+    /**
+     * 重症度
+     */
+    'Severity': number;
+    /**
+     * 進行度タイマー
+     */
+    'Timer': number;
+    /**
+     * この状態によるステータスへの影響
+     */
+    'Effects'?: Array<SaveDataStatEffect>;
+}
+/**
+ * 部位ごとの健康状態
+ */
+export interface SaveDataHealthStatusComponent {
+    /**
+     * 部位ごとの健康情報の配列
+     */
+    'Parts': Array<SaveDataBodyPartHealth>;
+}
+/**
  * ダメージ効果
  */
 export interface SaveDataInflictsDamageComponent {
@@ -1512,7 +1572,7 @@ export interface SaveDataNameComponent {
  */
 
 export const SaveDataPlannerType = {
-    Roaming: 'roaming',
+    Solo: 'solo',
     Squad: 'squad',
 } as const;
 
@@ -1603,6 +1663,32 @@ export const SaveDataSaveDataVersionEnum = {
 export type SaveDataSaveDataVersionEnum = typeof SaveDataSaveDataVersionEnum[keyof typeof SaveDataSaveDataVersionEnum];
 
 /**
+ * 個別スキルの状態
+ */
+export interface SaveDataSkillEntry {
+    /**
+     * スキル値
+     */
+    'Value': number;
+    /**
+     * 経験値の最大値
+     */
+    'ExpMax': number;
+    /**
+     * 蓄積経験値
+     */
+    'ExpCurrent': number;
+}
+/**
+ * スキルセット
+ */
+export interface SaveDataSkillsComponent {
+    /**
+     * スキルIDをキーとしたスキルデータのマップ
+     */
+    'Data': { [key: string]: SaveDataSkillEntry; };
+}
+/**
  * スプライト描画設定
  */
 export interface SaveDataSpriteRenderComponent {
@@ -1662,6 +1748,19 @@ export interface SaveDataStableID {
      * 世代番号。同一インデックスの再利用を区別する
      */
     'generation': number;
+}
+/**
+ * ステータスへの影響
+ */
+export interface SaveDataStatEffect {
+    /**
+     * 影響を受けるステータスの種類
+     */
+    'Stat': string;
+    /**
+     * 修正値
+     */
+    'Value': number;
 }
 /**
  * 対象指定

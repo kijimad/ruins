@@ -54,6 +54,11 @@ const (
 )
 
 const (
+	// AIVisionDistance はAIエンティティの視界距離（タイル単位）
+	AIVisionDistance Tile = 5
+)
+
+const (
 	// GameClearDepth はゲームクリアとなる深度
 	GameClearDepth = 100
 )

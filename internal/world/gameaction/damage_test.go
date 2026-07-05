@@ -62,13 +62,14 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		ai := &gc.AI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
+		solo := &gc.SoloAI{CombatDefault: gc.CombatIgnore, CombatCurrent: gc.CombatIgnore}
+		ai := &gc.AI{Planner: solo}
 		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
-		assert.Equal(t, gc.CombatIgnore, ai.CombatDefault)
+		assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
+		assert.Equal(t, gc.CombatIgnore, solo.CombatDefault)
 	})
 
 	t.Run("CombatEvadeは変化しない", func(t *testing.T) {
@@ -76,13 +77,14 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		ai := &gc.AI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+		solo := &gc.SoloAI{CombatDefault: gc.CombatEvade, CombatCurrent: gc.CombatEvade}
+		ai := &gc.AI{Planner: solo}
 		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.CombatEvade, ai.CombatCurrent)
-		assert.Equal(t, gc.CombatEvade, ai.CombatDefault)
+		assert.Equal(t, gc.CombatEvade, solo.CombatCurrent)
+		assert.Equal(t, gc.CombatEvade, solo.CombatDefault)
 	})
 
 	t.Run("CombatAttackは変化しない", func(t *testing.T) {
@@ -90,12 +92,13 @@ func TestReactToHostileAction(t *testing.T) {
 		world := testutil.InitTestWorld(t)
 
 		entity := world.Manager.NewEntity()
-		ai := &gc.AI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
+		solo := &gc.SoloAI{CombatDefault: gc.CombatAttack, CombatCurrent: gc.CombatAttack}
+		ai := &gc.AI{Planner: solo}
 		entity.AddComponent(world.Components.AI, ai)
 
 		reactToHostileAction(world, entity)
 
-		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+		assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 	})
 
 	t.Run("AIがないエンティティではpanicしない", func(t *testing.T) {

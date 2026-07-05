@@ -275,8 +275,8 @@ func TestSaveLoadSquadMember(t *testing.T) {
 
 		// AIの値が正しいことを確認
 		ai := newWorld.Components.AI.Get(memberEntity).(*gc.AI)
-		assert.Equal(t, gc.PlannerSquad, ai.Planner)
-		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+		assert.Equal(t, gc.PlannerSquad, ai.Planner.Type())
+		assert.Equal(t, gc.CombatAttack, ai.Planner.(*gc.SquadAI).CombatCurrent)
 	})
 
 	t.Run("隊員のリーダー参照が復元される", func(t *testing.T) {
