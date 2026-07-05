@@ -616,7 +616,6 @@ export interface Member {
     'animKeys'?: Array<string>;
     'lightSource'?: LightSource;
     'factionType'?: FactionMemberType;
-    'plannerType'?: PlannerType;
     'combatPolicy'?: CombatPolicyType;
     'movementPattern'?: MovementPatternType;
     /**
@@ -704,19 +703,6 @@ export interface PaletteList {
     'data': Array<Palette>;
     'totalCount': number;
 }
-/**
- * 行動計画の種別
- */
-
-export const PlannerType = {
-    Roaming: 'roaming',
-    Wander: 'wander',
-    Squad: 'squad',
-} as const;
-
-export type PlannerType = typeof PlannerType[keyof typeof PlannerType];
-
-
 /**
  * 職業
  */
@@ -1586,7 +1572,7 @@ export interface SaveDataNameComponent {
  */
 
 export const SaveDataPlannerType = {
-    Roaming: 'roaming',
+    Solo: 'solo',
     Squad: 'squad',
 } as const;
 
