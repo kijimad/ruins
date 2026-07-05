@@ -95,9 +95,9 @@
 				
 				<option value="file19">github.com/kijimaD/ruins/internal/aiinput/planner.go (66.7%)</option>
 				
-				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_roaming.go (92.5%)</option>
+				<option value="file20">github.com/kijimaD/ruins/internal/aiinput/planner_solo.go (92.5%)</option>
 				
-				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner_squad.go (23.8%)</option>
+				<option value="file21">github.com/kijimaD/ruins/internal/aiinput/planner_squad.go (23.9%)</option>
 				
 				<option value="file22">github.com/kijimaD/ruins/internal/aiinput/processor.go (7.7%)</option>
 				
@@ -123,9 +123,9 @@
 				
 				<option value="file33">github.com/kijimaD/ruins/internal/components/activity.go (0.0%)</option>
 				
-				<option value="file34">github.com/kijimaD/ruins/internal/components/ai.go (75.0%)</option>
+				<option value="file34">github.com/kijimaD/ruins/internal/components/ai.go (33.3%)</option>
 				
-				<option value="file35">github.com/kijimaD/ruins/internal/components/ai_policy.go (84.8%)</option>
+				<option value="file35">github.com/kijimaD/ruins/internal/components/ai_policy.go (83.8%)</option>
 				
 				<option value="file36">github.com/kijimaD/ruins/internal/components/book.go (100.0%)</option>
 				
@@ -297,7 +297,7 @@
 				
 				<option value="file120">github.com/kijimaD/ruins/internal/raw/errors.go (100.0%)</option>
 				
-				<option value="file121">github.com/kijimaD/ruins/internal/raw/raw.go (73.4%)</option>
+				<option value="file121">github.com/kijimaD/ruins/internal/raw/raw.go (73.5%)</option>
 				
 				<option value="file122">github.com/kijimaD/ruins/internal/raw/validate.go (72.2%)</option>
 				
@@ -313,7 +313,7 @@
 				
 				<option value="file128">github.com/kijimaD/ruins/internal/resources/ui.go (0.0%)</option>
 				
-				<option value="file129">github.com/kijimaD/ruins/internal/save/converter.go (85.0%)</option>
+				<option value="file129">github.com/kijimaD/ruins/internal/save/converter.go (82.0%)</option>
 				
 				<option value="file130">github.com/kijimaD/ruins/internal/save/desktop.go (83.9%)</option>
 				
@@ -379,7 +379,7 @@
 				
 				<option value="file161">github.com/kijimaD/ruins/internal/states/shop_menu.go (58.0%)</option>
 				
-				<option value="file162">github.com/kijimaD/ruins/internal/states/squad_menu.go (31.4%)</option>
+				<option value="file162">github.com/kijimaD/ruins/internal/states/squad_menu.go (30.7%)</option>
 				
 				<option value="file163">github.com/kijimaD/ruins/internal/states/status_state.go (77.5%)</option>
 				
@@ -401,7 +401,7 @@
 				
 				<option value="file172">github.com/kijimaD/ruins/internal/systems/helper.go (0.0%)</option>
 				
-				<option value="file173">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (18.9%)</option>
+				<option value="file173">github.com/kijimaD/ruins/internal/systems/hud_extractor.go (18.5%)</option>
 				
 				<option value="file174">github.com/kijimaD/ruins/internal/systems/hud_rendering.go (0.0%)</option>
 				
@@ -491,7 +491,7 @@
 				
 				<option value="file217">github.com/kijimaD/ruins/internal/world/lifecycle/location.go (88.3%)</option>
 				
-				<option value="file218">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (70.1%)</option>
+				<option value="file218">github.com/kijimaD/ruins/internal/world/lifecycle/spawn.go (69.2%)</option>
 				
 				<option value="file219">github.com/kijimaD/ruins/internal/world/lifecycle/spawn_prop.go (91.6%)</option>
 				
@@ -4463,16 +4463,16 @@ import (
 // territorialRadius はTerritorial移動パターンでスポーン地点から離れられる最大距離を定義する
 const territorialRadius = 5
 
-// roamingPlanner は敵・中立NPC用の行動計画を実装する。
-// AIStateの状態遷移とMovementPolicyによる移動を統合して行動を決定する
-type roamingPlanner struct {
+// soloPlanner は敵・中立NPC用の行動計画を実装する。
+// AIStateの状態遷移とSoloMovementによる移動を統合して行動を決定する
+type soloPlanner struct {
         visionSystem VisionSystem
         logger       *logger.Logger
         rng          *rand.Rand
 }
 
-func newRoamingPlanner(rng *rand.Rand) *roamingPlanner <span class="cov8" title="1">{
-        return &amp;roamingPlanner{
+func newSoloPlanner(rng *rand.Rand) *soloPlanner <span class="cov8" title="1">{
+        return &amp;soloPlanner{
                 visionSystem: NewVisionSystem(),
                 logger:       logger.New(logger.CategoryTurn),
                 rng:          rng,
@@ -4481,32 +4481,31 @@ func newRoamingPlanner(rng *rand.Rand) *roamingPlanner <span class="cov8" title=
 
 // Plan は状態遷移の評価とアクション決定を一体的に行う。
 // APループ内で繰り返し呼ばれ、状態遷移は同一ターン内でべき等
-func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         aiComp := world.Components.AI.Get(entity)
         if aiComp == nil </span><span class="cov0" title="0">{
                 rp.logger.Warn("AIコンポーネントなし", "entity", entity)
                 return nil, activity.ActionParams{}
         }</span>
-        <span class="cov8" title="1">ai := aiComp.(*gc.AI)
+        <span class="cov8" title="1">solo := aiComp.(*gc.AI).Planner.(*gc.SoloAI)
         grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
 
         target := rp.findNearestHostile(world, entity)
         if target == nil </span><span class="cov0" title="0">{
-                return nil, activity.ActionParams{}
+                return rp.planDrivingAction(world, entity, solo, grid)
         }</span>
 
-        <span class="cov8" title="1">canSee := rp.visionSystem.CanSeeTarget(world, entity, *target, ai)
-        turnNumber := query.GetTurnState(world).TurnNumber
+        <span class="cov8" title="1">turnNumber := query.GetTurnState(world).TurnNumber
+        canSee := rp.visionSystem.CanSeeTarget(world, entity, *target, solo.ViewDistance)
+        rp.updateState(solo, canSee, turnNumber)
 
-        rp.updateState(ai, canSee, turnNumber)
-
-        switch ai.SubState </span>{
+        switch solo.SubState </span>{
         case gc.AIStateChasing:<span class="cov8" title="1">
                 return rp.planChaseAction(world, entity, *target, grid)</span>
         case gc.AIStateFleeing:<span class="cov8" title="1">
                 return rp.planFleeAction(world, entity, *target, grid)</span>
         case gc.AIStateDriving:<span class="cov8" title="1">
-                return rp.planDrivingAction(world, entity, ai, grid)</span>
+                return rp.planDrivingAction(world, entity, solo, grid)</span>
         case gc.AIStateWaiting:<span class="cov8" title="1">
                 return waitAction(entity, "AI待機")</span>
         default:<span class="cov0" title="0">
@@ -4516,7 +4515,7 @@ func (rp *roamingPlanner) Plan(world w.World, entity ecs.Entity) (activity.Behav
 
 // findNearestHostile は最寄りの敵対エンティティを探す。
 // 視界判定は含まない。Chasing状態で視界外の対象を追い続けるため
-func (rp *roamingPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity <span class="cov8" title="1">{
+func (rp *soloPlanner) findNearestHostile(world w.World, entity ecs.Entity) *ecs.Entity <span class="cov8" title="1">{
         grid := world.Components.GridElement.Get(entity).(*gc.GridElement)
         nearest, _, _ := query.FindNearestEntity(world, entity, grid, func(target ecs.Entity) bool </span><span class="cov8" title="1">{
                 return query.FactionRelation(world, entity, target) == query.RelationHostile
@@ -4526,105 +4525,103 @@ func (rp *roamingPlanner) findNearestHostile(world w.World, entity ecs.Entity) *
 
 // ========== 状態遷移ロジック ==========
 
-// updateState はAIの状態を更新する。Plan()内で毎回呼ばれるが同一ターン内ではべき等
-func (rp *roamingPlanner) updateState(ai *gc.AI, canSeePlayer bool, currentTurn int) <span class="cov8" title="1">{
-        elapsedTurns := currentTurn - ai.StartSubStateTurn
+func (rp *soloPlanner) updateState(solo *gc.SoloAI, canSeePlayer bool, currentTurn int) <span class="cov8" title="1">{
+        elapsedTurns := currentTurn - solo.StartSubStateTurn
 
-        switch ai.SubState </span>{
+        switch solo.SubState </span>{
         case gc.AIStateWaiting:<span class="cov8" title="1">
-                rp.updateFromWaiting(ai, canSeePlayer, elapsedTurns, currentTurn)</span>
+                rp.updateFromWaiting(solo, canSeePlayer, elapsedTurns, currentTurn)</span>
         case gc.AIStateDriving:<span class="cov8" title="1">
-                rp.updateFromDriving(ai, canSeePlayer, elapsedTurns, currentTurn)</span>
+                rp.updateFromDriving(solo, canSeePlayer, elapsedTurns, currentTurn)</span>
         case gc.AIStateChasing:<span class="cov8" title="1">
-                rp.updateFromChasing(ai, canSeePlayer, elapsedTurns, currentTurn)</span>
+                rp.updateFromChasing(solo, canSeePlayer, elapsedTurns, currentTurn)</span>
         case gc.AIStateFleeing:<span class="cov8" title="1">
-                rp.updateFromFleeing(ai, canSeePlayer, elapsedTurns, currentTurn)</span>
+                rp.updateFromFleeing(solo, canSeePlayer, elapsedTurns, currentTurn)</span>
         default:<span class="cov8" title="1">
-                rp.initializeToWaiting(ai, currentTurn)</span>
+                rp.initializeToWaiting(solo, currentTurn)</span>
         }
 }
 
-func (rp *roamingPlanner) updateFromWaiting(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
+func (rp *soloPlanner) updateFromWaiting(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
         if canSeePlayer </span><span class="cov8" title="1">{
-                switch ai.CombatCurrent </span>{
+                switch solo.CombatCurrent </span>{
                 case gc.CombatEvade:<span class="cov8" title="1">
-                        rp.transitionToFleeing(ai, currentTurn)</span>
+                        rp.transitionToFleeing(solo, currentTurn)</span>
                 case gc.CombatAttack:<span class="cov8" title="1">
-                        rp.transitionToChasing(ai, currentTurn)</span>
+                        rp.transitionToChasing(solo, currentTurn)</span>
                 case gc.CombatIgnore:<span class="cov8" title="1"></span>
                 }
-        } else<span class="cov8" title="1"> if elapsedTurns &gt;= ai.DurationSubStateTurns </span><span class="cov8" title="1">{
-                rp.transitionToDriving(ai, currentTurn)
+        } else<span class="cov8" title="1"> if elapsedTurns &gt;= solo.DurationSubStateTurns </span><span class="cov8" title="1">{
+                rp.transitionToDriving(solo, currentTurn)
         }</span>
 }
 
-func (rp *roamingPlanner) updateFromDriving(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
+func (rp *soloPlanner) updateFromDriving(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
         if canSeePlayer </span><span class="cov8" title="1">{
-                switch ai.CombatCurrent </span>{
+                switch solo.CombatCurrent </span>{
                 case gc.CombatEvade:<span class="cov8" title="1">
-                        rp.transitionToFleeing(ai, currentTurn)</span>
+                        rp.transitionToFleeing(solo, currentTurn)</span>
                 case gc.CombatAttack:<span class="cov8" title="1">
-                        rp.transitionToChasing(ai, currentTurn)</span>
+                        rp.transitionToChasing(solo, currentTurn)</span>
                 case gc.CombatIgnore:<span class="cov8" title="1"></span>
                 }
-        } else<span class="cov8" title="1"> if elapsedTurns &gt;= ai.DurationSubStateTurns </span><span class="cov8" title="1">{
-                rp.transitionToWaiting(ai, currentTurn)
+        } else<span class="cov8" title="1"> if elapsedTurns &gt;= solo.DurationSubStateTurns </span><span class="cov8" title="1">{
+                rp.transitionToWaiting(solo, currentTurn)
         }</span>
 }
 
-func (rp *roamingPlanner) updateFromChasing(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
+func (rp *soloPlanner) updateFromChasing(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
         if !canSeePlayer </span><span class="cov8" title="1">{
                 if elapsedTurns &gt;= 3 </span><span class="cov8" title="1">{
-                        rp.transitionToDriving(ai, currentTurn)
+                        rp.transitionToDriving(solo, currentTurn)
                 }</span>
-        } else<span class="cov8" title="1"> if elapsedTurns &gt;= ai.DurationSubStateTurns </span><span class="cov8" title="1">{
-                rp.transitionToWaiting(ai, currentTurn)
+        } else<span class="cov8" title="1"> if elapsedTurns &gt;= solo.DurationSubStateTurns </span><span class="cov8" title="1">{
+                rp.transitionToWaiting(solo, currentTurn)
         }</span>
 }
 
-func (rp *roamingPlanner) updateFromFleeing(ai *gc.AI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
-        if !canSeePlayer &amp;&amp; elapsedTurns &gt;= ai.DurationSubStateTurns </span><span class="cov8" title="1">{
-                ai.ResetCombat()
-                rp.transitionToDriving(ai, currentTurn)
+func (rp *soloPlanner) updateFromFleeing(solo *gc.SoloAI, canSeePlayer bool, elapsedTurns, currentTurn int) <span class="cov8" title="1">{
+        if !canSeePlayer &amp;&amp; elapsedTurns &gt;= solo.DurationSubStateTurns </span><span class="cov8" title="1">{
+                solo.ResetCombat()
+                rp.transitionToDriving(solo, currentTurn)
         }</span> else<span class="cov8" title="1"> if canSeePlayer </span><span class="cov8" title="1">{
-                ai.StartSubStateTurn = currentTurn
+                solo.StartSubStateTurn = currentTurn
         }</span>
 }
 
-func (rp *roamingPlanner) transitionToWaiting(ai *gc.AI, currentTurn int) <span class="cov8" title="1">{
-        ai.SubState = gc.AIStateWaiting
-        ai.StartSubStateTurn = currentTurn
-        ai.DurationSubStateTurns = 2 + rp.rng.IntN(4)
+func (rp *soloPlanner) transitionToWaiting(solo *gc.SoloAI, currentTurn int) <span class="cov8" title="1">{
+        solo.SubState = gc.AIStateWaiting
+        solo.StartSubStateTurn = currentTurn
+        solo.DurationSubStateTurns = 2 + rp.rng.IntN(4)
 }</span>
 
-func (rp *roamingPlanner) transitionToDriving(ai *gc.AI, currentTurn int) <span class="cov8" title="1">{
-        ai.SubState = gc.AIStateDriving
-        ai.StartSubStateTurn = currentTurn
-        ai.DurationSubStateTurns = 3 + rp.rng.IntN(7)
+func (rp *soloPlanner) transitionToDriving(solo *gc.SoloAI, currentTurn int) <span class="cov8" title="1">{
+        solo.SubState = gc.AIStateDriving
+        solo.StartSubStateTurn = currentTurn
+        solo.DurationSubStateTurns = 3 + rp.rng.IntN(7)
 }</span>
 
-func (rp *roamingPlanner) transitionToChasing(ai *gc.AI, currentTurn int) <span class="cov8" title="1">{
-        ai.SubState = gc.AIStateChasing
-        ai.StartSubStateTurn = currentTurn
-        ai.DurationSubStateTurns = 10 + rp.rng.IntN(5)
+func (rp *soloPlanner) transitionToChasing(solo *gc.SoloAI, currentTurn int) <span class="cov8" title="1">{
+        solo.SubState = gc.AIStateChasing
+        solo.StartSubStateTurn = currentTurn
+        solo.DurationSubStateTurns = 10 + rp.rng.IntN(5)
 }</span>
 
-func (rp *roamingPlanner) transitionToFleeing(ai *gc.AI, currentTurn int) <span class="cov8" title="1">{
-        ai.SubState = gc.AIStateFleeing
-        ai.StartSubStateTurn = currentTurn
-        ai.DurationSubStateTurns = 5 + rp.rng.IntN(5)
+func (rp *soloPlanner) transitionToFleeing(solo *gc.SoloAI, currentTurn int) <span class="cov8" title="1">{
+        solo.SubState = gc.AIStateFleeing
+        solo.StartSubStateTurn = currentTurn
+        solo.DurationSubStateTurns = 5 + rp.rng.IntN(5)
 }</span>
 
-func (rp *roamingPlanner) initializeToWaiting(ai *gc.AI, currentTurn int) <span class="cov8" title="1">{
-        ai.SubState = gc.AIStateWaiting
-        ai.StartSubStateTurn = currentTurn
-        ai.DurationSubStateTurns = 2 + rp.rng.IntN(3)
+func (rp *soloPlanner) initializeToWaiting(solo *gc.SoloAI, currentTurn int) <span class="cov8" title="1">{
+        solo.SubState = gc.AIStateWaiting
+        solo.StartSubStateTurn = currentTurn
+        solo.DurationSubStateTurns = 2 + rp.rng.IntN(3)
 }</span>
 
 // ========== アクション計画ロジック ==========
 
-// planChaseAction はプレイヤー追跡アクションを計画する
-func (rp *roamingPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planChaseAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
         if isAdjacent(aiGrid, playerGrid) </span><span class="cov8" title="1">{
@@ -4645,8 +4642,7 @@ func (rp *roamingPlanner) planChaseAction(world w.World, aiEntity, playerEntity 
         <span class="cov0" title="0">return waitAction(aiEntity, "AI追跡失敗")</span>
 }
 
-// planFleeAction はプレイヤーから逃亡するアクションを計画する
-func (rp *roamingPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planFleeAction(world w.World, aiEntity, playerEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         playerGrid := world.Components.GridElement.Get(playerEntity).(*gc.GridElement)
 
         dx := int(aiGrid.X) - int(playerGrid.X)
@@ -4660,8 +4656,7 @@ func (rp *roamingPlanner) planFleeAction(world w.World, aiEntity, playerEntity e
         <span class="cov0" title="0">return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span>
 }
 
-// planRandomMoveAction はランダム移動アクションを計画する
-func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         if rp.rng.Float64() &lt; 0.3 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AIランダム待機")
         }</span>
@@ -4677,36 +4672,33 @@ func (rp *roamingPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entit
         <span class="cov0" title="0">return waitAction(aiEntity, "AIランダム移動失敗")</span>
 }
 
-// planDrivingAction はMovementPolicyに基づく移動アクションを計画する
-func (rp *roamingPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
-        switch ai.Movement </span>{
-        case gc.MovementStationary:<span class="cov8" title="1">
+func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+        switch solo.Movement </span>{
+        case gc.SoloStationary:<span class="cov8" title="1">
                 return waitAction(aiEntity, "AI固定待機")</span>
-        case gc.MovementWander:<span class="cov8" title="1">
+        case gc.SoloWander:<span class="cov8" title="1">
                 return rp.planWanderAction(world, aiEntity, grid)</span>
-        case gc.MovementWallHug:<span class="cov8" title="1">
+        case gc.SoloWallHug:<span class="cov8" title="1">
                 return rp.planWallHugAction(world, aiEntity, grid)</span>
-        case gc.MovementSwarm:<span class="cov8" title="1">
+        case gc.SoloSwarm:<span class="cov8" title="1">
                 return rp.planSwarmAction(world, aiEntity, grid)</span>
-        case gc.MovementPatrol:<span class="cov8" title="1">
-                return rp.planPatrolAction(world, aiEntity, ai, grid)</span>
-        case gc.MovementTerritorial:<span class="cov8" title="1">
-                return rp.planTerritorialAction(world, aiEntity, ai, grid)</span>
+        case gc.SoloPatrol:<span class="cov8" title="1">
+                return rp.planPatrolAction(world, aiEntity, solo, grid)</span>
+        case gc.SoloTerritorial:<span class="cov8" title="1">
+                return rp.planTerritorialAction(world, aiEntity, solo, grid)</span>
         default:<span class="cov8" title="1">
                 return rp.planRandomMoveAction(world, aiEntity, grid)</span>
         }
 }
 
-// planWanderAction は低頻度でランダム移動するアクションを計画する
-func (rp *roamingPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planWanderAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         if rp.rng.Float64() &lt; 0.8 </span><span class="cov8" title="1">{
                 return waitAction(aiEntity, "AI徘徊待機")
         }</span>
         <span class="cov8" title="1">return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span>
 }
 
-// planWallHugAction は壁に隣接するタイルを優先して移動するアクションを計画する
-func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         if rp.rng.Float64() &lt; 0.3 </span><span class="cov0" title="0">{
                 return waitAction(aiEntity, "AI壁沿い待機")
         }</span>
@@ -4757,8 +4749,7 @@ func (rp *roamingPlanner) planWallHugAction(world w.World, aiEntity ecs.Entity, 
         return moveAction(aiEntity, consts.Coord[int]{X: from.X + chosen.X, Y: from.Y + chosen.Y})</span>
 }
 
-// planSwarmAction は最寄りのAIエンティティに接近するアクションを計画する
-func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, aiGrid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         _, nearestGrid, nearestDist := query.FindNearestEntity(world, aiEntity, aiGrid, func(entity ecs.Entity) bool </span><span class="cov8" title="1">{
                 return entity.HasComponent(world.Components.AI)
         }</span>)
@@ -4778,19 +4769,18 @@ func (rp *roamingPlanner) planSwarmAction(world w.World, aiEntity ecs.Entity, ai
         <span class="cov0" title="0">return rp.planRandomMoveAction(world, aiEntity, aiGrid)</span>
 }
 
-// planPatrolAction は一方向に直進し、進めなくなったら反転する巡回アクションを計画する
-func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
-        dest := consts.Coord[int]{X: from.X + ai.PatrolDirX, Y: from.Y + ai.PatrolDirY}
+        dest := consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
         if activity.CanMoveTo(world, dest, from, aiEntity) </span><span class="cov8" title="1">{
                 return moveAction(aiEntity, dest)
         }</span>
 
-        <span class="cov8" title="1">ai.PatrolDirX = -ai.PatrolDirX
-        ai.PatrolDirY = -ai.PatrolDirY
+        <span class="cov8" title="1">solo.PatrolDirX = -solo.PatrolDirX
+        solo.PatrolDirY = -solo.PatrolDirY
 
-        dest = consts.Coord[int]{X: from.X + ai.PatrolDirX, Y: from.Y + ai.PatrolDirY}
+        dest = consts.Coord[int]{X: from.X + solo.PatrolDirX, Y: from.Y + solo.PatrolDirY}
         if activity.CanMoveTo(world, dest, from, aiEntity) </span><span class="cov8" title="1">{
                 return moveAction(aiEntity, dest)
         }</span>
@@ -4798,15 +4788,14 @@ func (rp *roamingPlanner) planPatrolAction(world w.World, aiEntity ecs.Entity, a
         <span class="cov8" title="1">return waitAction(aiEntity, "AI巡回移動失敗")</span>
 }
 
-// planTerritorialAction はスポーン地点から一定範囲内でランダム移動するアクションを計画する
-func (rp *roamingPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, ai *gc.AI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
+func (rp *soloPlanner) planTerritorialAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) <span class="cov8" title="1">{
         from := consts.Coord[int]{X: int(grid.X), Y: int(grid.Y)}
 
         for _, d := range shuffledEightDirections(rp.rng) </span><span class="cov8" title="1">{
                 dest := consts.Coord[int]{X: from.X + d.X, Y: from.Y + d.Y}
 
-                dx := geometry.Abs(dest.X - ai.OriginX)
-                dy := geometry.Abs(dest.Y - ai.OriginY)
+                dx := geometry.Abs(dest.X - solo.OriginX)
+                dy := geometry.Abs(dest.Y - solo.OriginY)
                 if dx &gt; territorialRadius || dy &gt; territorialRadius </span><span class="cov8" title="1">{
                         continue</span>
                 }
@@ -4863,7 +4852,7 @@ func newSquadPlanner(rng *rand.Rand) *squadPlanner <span class="cov8" title="1">
 // squadContext は隊員AIに必要な情報をまとめる
 type squadContext struct {
         Grid         *gc.GridElement
-        AI           *gc.AI
+        Squad        *gc.SquadAI
         LeaderEntity ecs.Entity
         LeaderGrid   *gc.GridElement
 }
@@ -4901,7 +4890,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
         <span class="cov0" title="0">return &amp;squadContext{
                 Grid:         grid,
-                AI:           aiComp.(*gc.AI),
+                Squad:        aiComp.(*gc.AI).Planner.(*gc.SquadAI),
                 LeaderEntity: leader,
                 LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
         }, true</span>
@@ -4973,15 +4962,14 @@ func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entit
 
 // planCombatAction は戦闘ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov0" title="0">{
-        switch ctx.AI.CombatCurrent </span>{
+        switch ctx.Squad.CombatCurrent </span>{
         case gc.CombatAttack:<span class="cov0" title="0">
                 return sp.planAttackAction(world, entity, ctx)</span>
         case gc.CombatEvade:<span class="cov0" title="0">
                 return sp.planEvadeAction(world, entity, ctx)</span>
-        case gc.CombatIgnore:<span class="cov0" title="0">
+        default:<span class="cov0" title="0">
                 return nil, activity.ActionParams{}, false</span>
         }
-        <span class="cov0" title="0">return nil, activity.ActionParams{}, false</span>
 }
 
 // planAttackAction は攻撃ポリシーに基づくアクションを計画する。
@@ -5018,16 +5006,16 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 
 // planPositionAction は位置ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) <span class="cov0" title="0">{
-        switch ctx.AI.Movement </span>{
-        case gc.MovementEscort:<span class="cov0" title="0">
+        switch ctx.Squad.Movement </span>{
+        case gc.SquadEscort:<span class="cov0" title="0">
                 return sp.planEscortAction(world, entity, ctx)</span>
-        case gc.MovementVanguard:<span class="cov0" title="0">
+        case gc.SquadVanguard:<span class="cov0" title="0">
                 return sp.planVanguardAction(world, entity, ctx)</span>
-        case gc.MovementPatrol:<span class="cov0" title="0">
+        case gc.SquadPatrol:<span class="cov0" title="0">
                 return sp.planSquadPatrolAction(world, entity, ctx)</span>
-        case gc.MovementStationary:<span class="cov0" title="0">
+        case gc.SquadStationary:<span class="cov0" title="0">
                 return waitAction(entity, "隊員待機")</span>
-        case gc.MovementRetreat:<span class="cov0" title="0">
+        case gc.SquadRetreat:<span class="cov0" title="0">
                 return sp.planEscortAction(world, entity, ctx)</span>
         default:<span class="cov0" title="0">
                 return waitAction(entity, "隊員デフォルト待機")</span>
@@ -5074,7 +5062,7 @@ func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, 
 // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。
 // PolicyIgnoreの場合は何もしない
 func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov8" title="1">{
-        if ctx.AI.ItemPickup == gc.PolicyIgnore </span><span class="cov8" title="1">{
+        if ctx.Squad.ItemPickup == gc.PolicyIgnore </span><span class="cov8" title="1">{
                 return nil, activity.ActionParams{}, false
         }</span>
 
@@ -5097,7 +5085,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
                 }</span>
 
                 <span class="cov8" title="1">dist := gridDistance(ctx.Grid, grid)
-                if dist &gt; int(ctx.AI.ViewDistance) </span><span class="cov8" title="1">{
+                if dist &gt; int(ctx.Squad.ViewDistance) </span><span class="cov8" title="1">{
                         return
                 }</span>
                 <span class="cov0" title="0">if nearestDist &lt; 0 || dist &lt; nearestDist </span><span class="cov0" title="0">{
@@ -5126,7 +5114,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。
 // PolicyDistributeの場合はリーダーにアイテムを転送する
 func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) <span class="cov8" title="1">{
-        if ctx.AI.ItemHandling != gc.PolicyDistribute </span><span class="cov8" title="1">{
+        if ctx.Squad.ItemHandling != gc.PolicyDistribute </span><span class="cov8" title="1">{
                 return nil, activity.ActionParams{}, false
         }</span>
 
@@ -5166,7 +5154,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) <span class="cov0" title="0">{
         return query.FindNearestEntity(world, entity, ctx.Grid, func(target ecs.Entity) bool </span><span class="cov0" title="0">{
                 return query.FactionRelation(world, entity, target) == query.RelationHostile &amp;&amp;
-                        sp.visionSystem.CanSeeTarget(world, entity, target, ctx.AI)
+                        sp.visionSystem.CanSeeTarget(world, entity, target, ctx.Squad.ViewDistance)
         }</span>)
 }
 
@@ -5235,7 +5223,7 @@ import (
 )
 
 // Processor はAIエンティティの行動処理を管理する。
-// AI.Plannerフィールドに基づいてroamingPlannerとsquadPlannerを使い分ける
+// AI.Plannerフィールドに基づいてsoloPlannerとsquadPlannerを使い分ける
 type Processor struct {
         logger   *logger.Logger
         planners map[gc.PlannerType]Planner
@@ -5247,16 +5235,16 @@ func NewProcessor(rng *rand.Rand) *Processor <span class="cov8" title="1">{
         return &amp;Processor{
                 logger: logger.New(logger.CategoryTurn),
                 planners: map[gc.PlannerType]Planner{
-                        gc.PlannerRoaming: newRoamingPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
-                        gc.PlannerSquad:   newSquadPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
+                        gc.PlannerSolo:  newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
+                        gc.PlannerSquad: newSquadPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
                 },
         }
 }</span>
 
 // ProcessAll は全AIエンティティを処理する。
-// Roamingを先に処理し、敵の移動結果を反映したSquadの判断を可能にする
+// Soloを先に処理し、敵の移動結果を反映したSquadの判断を可能にする
 func (p *Processor) ProcessAll(world w.World) error <span class="cov0" title="0">{
-        if err := p.processByPlanner(world, gc.PlannerRoaming); err != nil </span><span class="cov0" title="0">{
+        if err := p.processByPlanner(world, gc.PlannerSolo); err != nil </span><span class="cov0" title="0">{
                 return err
         }</span>
         <span class="cov0" title="0">return p.processByPlanner(world, gc.PlannerSquad)</span>
@@ -5271,7 +5259,7 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
                 world.Components.GridElement,
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
                 ai := world.Components.AI.Get(entity).(*gc.AI)
-                if ai.Planner != plannerType </span><span class="cov0" title="0">{
+                if ai.Planner.Type() != plannerType </span><span class="cov0" title="0">{
                         return
                 }</span>
                 <span class="cov0" title="0">if entity.HasComponent(world.Components.Dead) </span><span class="cov0" title="0">{
@@ -5288,13 +5276,14 @@ func (p *Processor) processByPlanner(world w.World, plannerType gc.PlannerType) 
 
 import (
         gc "github.com/kijimaD/ruins/internal/components"
+        "github.com/kijimaD/ruins/internal/consts"
         w "github.com/kijimaD/ruins/internal/world"
         ecs "github.com/x-hgg-x/goecs/v2"
 )
 
 // VisionSystem はAIの視界判定システム
 type VisionSystem interface {
-        CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, ai *gc.AI) bool
+        CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, viewDistance consts.Tile) bool
 }
 
 // DefaultVisionSystem は標準的な視界判定実装
@@ -5306,7 +5295,7 @@ func NewVisionSystem() VisionSystem <span class="cov8" title="1">{
 }</span>
 
 // CanSeeTarget はターゲットが視界内にいるかチェック
-func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, ai *gc.AI) bool <span class="cov8" title="1">{
+func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntity ecs.Entity, viewDistance consts.Tile) bool <span class="cov8" title="1">{
         aiGrid := world.Components.GridElement.Get(aiEntity).(*gc.GridElement)
         targetGrid := world.Components.GridElement.Get(targetEntity).(*gc.GridElement)
 
@@ -5314,9 +5303,8 @@ func (vs *DefaultVisionSystem) CanSeeTarget(world w.World, aiEntity, targetEntit
         dy := int(aiGrid.Y) - int(targetGrid.Y)
         distSq := dx*dx + dy*dy
 
-        viewDist := float64(ai.ViewDistance)
+        viewDist := float64(viewDistance)
 
-        // ターゲットの隠密スキルによる被発見距離倍率を適用する
         if targetEntity.HasComponent(world.Components.CharModifiers) </span><span class="cov8" title="1">{
                 mods := world.Components.CharModifiers.Get(targetEntity).(*gc.CharModifiers)
                 viewDist = viewDist * float64(mods.EnemyVision) / 100
@@ -6795,69 +6783,93 @@ const (
         AIStateFleeing = AIStateSubState("FLEEING")
 )
 
-// AI はAIエンティティの全状態を保持する統合コンポーネント。
-// 行動方針、ランタイム状態、視覚情報を1つの構造体で表現する
+// AI はAIエンティティの統合コンポーネント。
+// Plannerフィールドに具体的な設定を保持する
 type AI struct {
-        // 行動方針 ================
-        // Planner は適用する行動計画の種別。スポーン時のバリデーションとセーブに使用する
-        Planner PlannerType
-        // CombatDefault は初期方針を保持する。逃亡後にこの値へ復帰する
-        CombatDefault CombatPolicy
-        // CombatCurrent は現在の方針を保持する。被ダメージなどで変化する
-        CombatCurrent CombatPolicy
-        // Movement は非戦闘時の移動方針を保持する
-        Movement MovementPolicy
-        // ItemPickup はアイテム拾得方針。隊員のみが使用する
-        ItemPickup ItemPickupPolicy
-        // ItemHandling はアイテム処理方針。隊員のみが使用する
-        ItemHandling ItemHandlingPolicy
-
-        // ランタイム状態 ================
-        SubState AIStateSubState
-        // StartSubStateTurn はサブステートの開始ターンを保持する
-        StartSubStateTurn int
-        // DurationSubStateTurns はサブステートの持続ターン数を保持する
-        DurationSubStateTurns int
-        // OriginX, OriginY はTerritorial移動の範囲基準となる座標。スポーン時に設定する
-        OriginX, OriginY int
-        // PatrolDirX, PatrolDirY は巡回方向。Patrol移動で現在の進行方向を保持する
-        PatrolDirX, PatrolDirY int
-
-        // 視覚 ================
-        // ViewDistance は視界距離（タイル単位）
-        ViewDistance consts.Tile
-        // TargetEntity は追跡対象のエンティティ
-        TargetEntity *ecs.Entity
+        Planner PlannerConfig
 }
+
+// PlannerConfig はプランナー種別ごとの設定を表すインターフェース
+type PlannerConfig interface {
+        // Type はプランナーの種別を返す
+        Type() PlannerType
+        // ReactToHostile は被ダメージ時に戦闘方針を変化させる
+        ReactToHostile()
+        // ResetCombat は戦闘方針をデフォルトに復帰させる
+        ResetCombat()
+}
+
+// SoloAI は単独行動NPC用の設定と状態を保持する
+type SoloAI struct {
+        CombatDefault CombatPolicy
+        CombatCurrent CombatPolicy
+        Movement      SoloMovement
+        ViewDistance  consts.Tile
+
+        SubState               AIStateSubState
+        StartSubStateTurn      int
+        DurationSubStateTurns  int
+        OriginX, OriginY       int
+        PatrolDirX, PatrolDirY int
+        TargetEntity           *ecs.Entity
+}
+
+// Type はPlannerSoloを返す
+func (s *SoloAI) Type() PlannerType <span class="cov0" title="0">{ return PlannerSolo }</span>
 
 // ReactToHostile は被ダメージ時に戦闘方針を変化させる。
 // CombatIgnore は反撃のため CombatAttack に遷移する
-func (ai *AI) ReactToHostile() <span class="cov8" title="1">{
-        switch ai.CombatDefault </span>{
+func (s *SoloAI) ReactToHostile() <span class="cov8" title="1">{
+        switch s.CombatDefault </span>{
         case CombatIgnore:<span class="cov8" title="1">
-                ai.CombatCurrent = CombatAttack</span>
+                s.CombatCurrent = CombatAttack</span>
         case CombatAttack, CombatEvade:<span class="cov8" title="1"></span>
-                // 既に戦闘的または回避中なので変化なし
         }
 }
 
 // ResetCombat は戦闘方針をデフォルトに復帰させる
-func (ai *AI) ResetCombat() <span class="cov8" title="1">{
-        ai.CombatCurrent = ai.CombatDefault
+func (s *SoloAI) ResetCombat() <span class="cov8" title="1">{
+        s.CombatCurrent = s.CombatDefault
 }</span>
 
-// DefaultSquadAI は隊員のデフォルトAIを返す。
-// OriginX/Y 等のランタイム値は呼び出し元で設定する
+// SquadAI は隊員用の設定を保持する
+type SquadAI struct {
+        CombatDefault CombatPolicy
+        CombatCurrent CombatPolicy
+        Movement      SquadMovement
+        ViewDistance  consts.Tile
+        ItemPickup    ItemPickupPolicy
+        ItemHandling  ItemHandlingPolicy
+}
+
+// Type はPlannerSquadを返す
+func (s *SquadAI) Type() PlannerType <span class="cov0" title="0">{ return PlannerSquad }</span>
+
+// ReactToHostile は被ダメージ時に戦闘方針を変化させる
+func (s *SquadAI) ReactToHostile() <span class="cov0" title="0">{
+        switch s.CombatDefault </span>{
+        case CombatIgnore:<span class="cov0" title="0">
+                s.CombatCurrent = CombatAttack</span>
+        case CombatAttack, CombatEvade:<span class="cov0" title="0"></span>
+        }
+}
+
+// ResetCombat は戦闘方針をデフォルトに復帰させる
+func (s *SquadAI) ResetCombat() <span class="cov0" title="0">{
+        s.CombatCurrent = s.CombatDefault
+}</span>
+
+// DefaultSquadAI は隊員のデフォルトAIを返す
 func DefaultSquadAI() AI <span class="cov0" title="0">{
         return AI{
-                Planner:       PlannerSquad,
-                CombatDefault: CombatAttack,
-                CombatCurrent: CombatAttack,
-                Movement:      MovementEscort,
-                ItemPickup:    PolicyPickup,
-                ItemHandling:  PolicyDistribute,
-                SubState:      AIStateWaiting,
-                ViewDistance:  5,
+                Planner: &amp;SquadAI{
+                        CombatDefault: CombatAttack,
+                        CombatCurrent: CombatAttack,
+                        Movement:      SquadEscort,
+                        ViewDistance:  consts.AIVisionDistance,
+                        ItemPickup:    PolicyPickup,
+                        ItemHandling:  PolicyDistribute,
+                },
         }
 }</span>
 </pre>
@@ -6868,8 +6880,8 @@ func DefaultSquadAI() AI <span class="cov0" title="0">{
 type PlannerType string
 
 const (
-        // PlannerRoaming はAIStateのタイミングサイクルで行動する。敵・中立NPCが使用する
-        PlannerRoaming PlannerType = "roaming"
+        // PlannerSolo は単独行動NPC用。状態遷移とMovementPolicyで行動を決定する
+        PlannerSolo PlannerType = "solo"
         // PlannerSquad はリーダー追従とアイテム処理を含む。隊員が使用する
         PlannerSquad PlannerType = "squad"
 )
@@ -6877,8 +6889,8 @@ const (
 // String は日本語表示名を返す
 func (p PlannerType) String() string <span class="cov8" title="1">{
         switch p </span>{
-        case PlannerRoaming:<span class="cov8" title="1">
-                return "徘徊"</span>
+        case PlannerSolo:<span class="cov8" title="1">
+                return "単独"</span>
         case PlannerSquad:<span class="cov8" title="1">
                 return "隊員"</span>
         default:<span class="cov0" title="0">
@@ -6918,57 +6930,87 @@ func AllSquadCombatPolicies() []CombatPolicy <span class="cov8" title="1">{
         return []CombatPolicy{CombatAttack, CombatEvade}
 }</span>
 
-// MovementPolicy は非戦闘時の移動方針を表す
-type MovementPolicy string
+// SoloMovement は単独行動NPC用の移動方針を表す
+type SoloMovement string
 
-// 敵・中立NPC用の移動ポリシーと、隊員用の移動ポリシーを定義する
 const (
-        MovementRandom      MovementPolicy = "random"
-        MovementPatrol      MovementPolicy = "patrol"
-        MovementWallHug     MovementPolicy = "wallHug"
-        MovementStationary  MovementPolicy = "stationary"
-        MovementWander      MovementPolicy = "wander"
-        MovementTerritorial MovementPolicy = "territorial"
-        MovementSwarm       MovementPolicy = "swarm"
-
-        MovementEscort   MovementPolicy = "escort"
-        MovementVanguard MovementPolicy = "vanguard"
-        MovementRetreat  MovementPolicy = "retreat"
+        // SoloRandom はランダムに移動する
+        SoloRandom SoloMovement = "random"
+        // SoloPatrol は決まった経路を巡回する
+        SoloPatrol SoloMovement = "patrol"
+        // SoloWallHug は壁沿いに移動する
+        SoloWallHug SoloMovement = "wallHug"
+        // SoloStationary はその場に留まる
+        SoloStationary SoloMovement = "stationary"
+        // SoloWander は緩やかにさまよう
+        SoloWander SoloMovement = "wander"
+        // SoloTerritorial はスポーン地点の周辺を守る
+        SoloTerritorial SoloMovement = "territorial"
+        // SoloSwarm は近くの同種と群れで行動する
+        SoloSwarm SoloMovement = "swarm"
 )
 
 // String は日本語表示名を返す
-func (p MovementPolicy) String() string <span class="cov8" title="1">{
+func (p SoloMovement) String() string <span class="cov8" title="1">{
         switch p </span>{
-        case MovementEscort:<span class="cov8" title="1">
-                return "護衛"</span>
-        case MovementVanguard:<span class="cov8" title="1">
-                return "前衛"</span>
-        case MovementPatrol:<span class="cov8" title="1">
-                return "巡回"</span>
-        case MovementStationary:<span class="cov8" title="1">
-                return "固定"</span>
-        case MovementRetreat:<span class="cov8" title="1">
-                return "後退"</span>
-        case MovementRandom:<span class="cov8" title="1">
+        case SoloRandom:<span class="cov8" title="1">
                 return "ランダム"</span>
-        case MovementWallHug:<span class="cov8" title="1">
+        case SoloPatrol:<span class="cov8" title="1">
+                return "巡回"</span>
+        case SoloWallHug:<span class="cov8" title="1">
                 return "壁沿い"</span>
-        case MovementWander:<span class="cov8" title="1">
+        case SoloStationary:<span class="cov8" title="1">
+                return "固定"</span>
+        case SoloWander:<span class="cov8" title="1">
                 return "徘徊"</span>
-        case MovementTerritorial:<span class="cov8" title="1">
+        case SoloTerritorial:<span class="cov8" title="1">
                 return "縄張り"</span>
-        case MovementSwarm:<span class="cov8" title="1">
+        case SoloSwarm:<span class="cov8" title="1">
                 return "群れ"</span>
         default:<span class="cov0" title="0">
                 return string(p)</span>
         }
 }
 
-// AllSquadMovementPolicies は隊員UIで巡回可能な移動ポリシーを返す
-func AllSquadMovementPolicies() []MovementPolicy <span class="cov8" title="1">{
-        return []MovementPolicy{
-                MovementEscort, MovementVanguard, MovementPatrol,
-                MovementStationary, MovementRetreat,
+// SquadMovement は隊員用の移動方針を表す
+type SquadMovement string
+
+const (
+        // SquadEscort はリーダーに追従する
+        SquadEscort SquadMovement = "escort"
+        // SquadVanguard はリーダーの前方に位置する
+        SquadVanguard SquadMovement = "vanguard"
+        // SquadPatrol はリーダー周辺を巡回する
+        SquadPatrol SquadMovement = "patrol"
+        // SquadStationary はその場に留まる
+        SquadStationary SquadMovement = "stationary"
+        // SquadRetreat はリーダーの後方に退避する
+        SquadRetreat SquadMovement = "retreat"
+)
+
+// String は日本語表示名を返す
+func (p SquadMovement) String() string <span class="cov8" title="1">{
+        switch p </span>{
+        case SquadEscort:<span class="cov8" title="1">
+                return "護衛"</span>
+        case SquadVanguard:<span class="cov8" title="1">
+                return "前衛"</span>
+        case SquadPatrol:<span class="cov8" title="1">
+                return "巡回"</span>
+        case SquadStationary:<span class="cov8" title="1">
+                return "固定"</span>
+        case SquadRetreat:<span class="cov8" title="1">
+                return "後退"</span>
+        default:<span class="cov0" title="0">
+                return string(p)</span>
+        }
+}
+
+// AllSquadMovements は隊員UIで巡回可能な移動ポリシーを返す
+func AllSquadMovements() []SquadMovement <span class="cov8" title="1">{
+        return []SquadMovement{
+                SquadEscort, SquadVanguard, SquadPatrol,
+                SquadStationary, SquadRetreat,
         }
 }</span>
 
@@ -18829,14 +18871,14 @@ func (e SaveDataMovementPolicyType) Valid() bool <span class="cov0" title="0">{
 
 // Defines values for SaveDataPlannerType.
 const (
-        Roaming SaveDataPlannerType = "roaming"
-        Squad   SaveDataPlannerType = "squad"
+        Solo  SaveDataPlannerType = "solo"
+        Squad SaveDataPlannerType = "squad"
 )
 
 // Valid indicates whether the value is a known member of the SaveDataPlannerType enum.
 func (e SaveDataPlannerType) Valid() bool <span class="cov0" title="0">{
         switch e </span>{
-        case Roaming:<span class="cov0" title="0">
+        case Solo:<span class="cov0" title="0">
                 return true</span>
         case Squad:<span class="cov0" title="0">
                 return true</span>
@@ -26523,74 +26565,74 @@ var swaggerSpec = []string{
         "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",
-        "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",
-        "+AP2Zgb/4AWaEX8OqLnk525o+vCR4f8XAAD//w==",
+        "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",
+        "YG9m8A9eoBnx54CaS37uhqYPHxn+fwEAAP//",
 }
 
 // decodeSpec returns the embedded OpenAPI spec as raw JSON bytes,
@@ -27155,34 +27197,31 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span cla
                 }
         }
 
-        // AI の組み立て
+        // AI の組み立て。SoloAIとして構築し、スポーン関数がそのまま使う
         <span class="cov8" title="1">{
-                ai := gc.AI{
-                        Planner:       gc.PlannerRoaming,
+                solo := gc.SoloAI{
                         CombatDefault: gc.CombatAttack,
                         CombatCurrent: gc.CombatAttack,
-                        ItemPickup:    gc.PolicyPickup,
-                        ItemHandling:  gc.PolicyKeep,
                 }
                 if member.CombatPolicy != nil &amp;&amp; string(*member.CombatPolicy) != "" </span><span class="cov8" title="1">{
                         switch gc.CombatPolicy(*member.CombatPolicy) </span>{
                         case gc.CombatAttack:<span class="cov8" title="1">
-                                ai.CombatDefault = gc.CombatAttack
-                                ai.CombatCurrent = gc.CombatAttack</span>
+                                solo.CombatDefault = gc.CombatAttack
+                                solo.CombatCurrent = gc.CombatAttack</span>
                         case gc.CombatIgnore:<span class="cov8" title="1">
-                                ai.CombatDefault = gc.CombatIgnore
-                                ai.CombatCurrent = gc.CombatIgnore</span>
+                                solo.CombatDefault = gc.CombatIgnore
+                                solo.CombatCurrent = gc.CombatIgnore</span>
                         case gc.CombatEvade:<span class="cov8" title="1">
-                                ai.CombatDefault = gc.CombatEvade
-                                ai.CombatCurrent = gc.CombatEvade</span>
+                                solo.CombatDefault = gc.CombatEvade
+                                solo.CombatCurrent = gc.CombatEvade</span>
                         default:<span class="cov0" title="0">
                                 return gc.EntitySpec{}, fmt.Errorf("無効な戦闘ポリシー '%s': %s", string(*member.CombatPolicy), name)</span>
                         }
                 }
                 <span class="cov8" title="1">if member.MovementPattern != nil &amp;&amp; string(*member.MovementPattern) != "" </span><span class="cov8" title="1">{
-                        ai.Movement = gc.MovementPolicy(*member.MovementPattern)
+                        solo.Movement = gc.SoloMovement(*member.MovementPattern)
                 }</span>
-                <span class="cov8" title="1">entitySpec.AI = &amp;ai</span>
+                <span class="cov8" title="1">entitySpec.AI = &amp;gc.AI{Planner: &amp;solo}</span>
         }
 
         <span class="cov8" title="1">if member.Dialog != nil </span><span class="cov0" title="0">{
@@ -27204,6 +27243,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) <span cla
         <span class="cov8" title="1">entitySpec.FactionType = &amp;gc.FactionAlly
         entitySpec.Player = &amp;gc.Player{}
         entitySpec.Hunger = gc.NewHunger()
+        entitySpec.AI = nil
         return entitySpec, nil</span>
 }
 
@@ -29035,26 +29075,50 @@ func providesHealingFromSaveData(sd oapi.SaveDataProvidesHealingComponent) gc.Pr
 // ================== AIポリシー変換 ==================
 
 func aiToSaveData(ai gc.AI) oapi.SaveDataSquadPolicyComponent <span class="cov8" title="1">{
-        return oapi.SaveDataSquadPolicyComponent{
-                Planner:       oapi.SaveDataPlannerType(ai.Planner),
-                Movement:      oapi.SaveDataMovementPolicyType(ai.Movement),
-                CombatDefault: oapi.SaveDataCombatPolicyType(ai.CombatDefault),
-                CombatCurrent: oapi.SaveDataCombatPolicyType(ai.CombatCurrent),
-                ItemPickup:    oapi.SaveDataItemPickupPolicyType(ai.ItemPickup),
-                ItemHandling:  oapi.SaveDataItemHandlingPolicyType(ai.ItemHandling),
+        sd := oapi.SaveDataSquadPolicyComponent{
+                Planner: oapi.SaveDataPlannerType(string(ai.Planner.Type())),
         }
-}</span>
+        switch p := ai.Planner.(type) </span>{
+        case *gc.SoloAI:<span class="cov0" title="0">
+                sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
+                sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
+                sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))</span>
+        case *gc.SquadAI:<span class="cov8" title="1">
+                sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
+                sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
+                sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
+                sd.ItemPickup = oapi.SaveDataItemPickupPolicyType(string(p.ItemPickup))
+                sd.ItemHandling = oapi.SaveDataItemHandlingPolicyType(string(p.ItemHandling))</span>
+        }
+        <span class="cov8" title="1">return sd</span>
+}
 
 func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI <span class="cov8" title="1">{
-        ai := gc.DefaultSquadAI()
-        ai.Planner = gc.PlannerType(sd.Planner)
-        ai.CombatDefault = gc.CombatPolicy(sd.CombatDefault)
-        ai.CombatCurrent = gc.CombatPolicy(sd.CombatCurrent)
-        ai.Movement = gc.MovementPolicy(sd.Movement)
-        ai.ItemPickup = gc.ItemPickupPolicy(sd.ItemPickup)
-        ai.ItemHandling = gc.ItemHandlingPolicy(sd.ItemHandling)
-        return ai
-}</span>
+        switch gc.PlannerType(string(sd.Planner)) </span>{
+        case gc.PlannerSquad:<span class="cov8" title="1">
+                return gc.AI{
+                        Planner: &amp;gc.SquadAI{
+                                CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
+                                CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
+                                Movement:      gc.SquadMovement(sd.Movement),
+                                ItemPickup:    gc.ItemPickupPolicy(string(sd.ItemPickup)),
+                                ItemHandling:  gc.ItemHandlingPolicy(string(sd.ItemHandling)),
+                                ViewDistance:  consts.AIVisionDistance,
+                        },
+                }</span>
+        case gc.PlannerSolo:<span class="cov0" title="0">
+                return gc.AI{
+                        Planner: &amp;gc.SoloAI{
+                                CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
+                                CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
+                                Movement:      gc.SoloMovement(sd.Movement),
+                                ViewDistance:  consts.AIVisionDistance,
+                        },
+                }</span>
+        default:<span class="cov0" title="0">
+                panic(fmt.Sprintf("未知のPlannerType: %q", sd.Planner))</span>
+        }
+}
 
 // ================== 健康状態コンポーネント ==================
 
@@ -38914,15 +38978,19 @@ func (st *SquadMenuState) fetchProps(world w.World) squadProps <span class="cov8
                 if ai == nil </span><span class="cov0" title="0">{
                         continue</span>
                 }
+                <span class="cov8" title="1">squad, ok := ai.Planner.(*gc.SquadAI)
+                if !ok </span><span class="cov0" title="0">{
+                        continue</span>
+                }
 
                 <span class="cov8" title="1">members = append(members, squadMemberData{
                         Entity:       member,
                         Name:         name,
                         HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-                        Position:     ai.Movement.String(),
-                        Combat:       ai.CombatCurrent.String(),
-                        ItemPickup:   ai.ItemPickup.String(),
-                        ItemHandling: ai.ItemHandling.String(),
+                        Position:     squad.Movement.String(),
+                        Combat:       squad.CombatCurrent.String(),
+                        ItemPickup:   squad.ItemPickup.String(),
+                        ItemHandling: squad.ItemHandling.String(),
                 })</span>
         }
 
@@ -39008,14 +39076,18 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) <sp
         case "集合":<span class="cov0" title="0">
                 for _, m := range members </span><span class="cov0" title="0">{
                         if ai := query.GetAI(world, m); ai != nil </span><span class="cov0" title="0">{
-                                ai.Movement = gc.MovementEscort
-                        }</span>
+                                if squad, ok := ai.Planner.(*gc.SquadAI); ok </span><span class="cov0" title="0">{
+                                        squad.Movement = gc.SquadEscort
+                                }</span>
+                        }
                 }
         case "全員待機":<span class="cov0" title="0">
                 for _, m := range members </span><span class="cov0" title="0">{
                         if ai := query.GetAI(world, m); ai != nil </span><span class="cov0" title="0">{
-                                ai.Movement = gc.MovementStationary
-                        }</span>
+                                if squad, ok := ai.Planner.(*gc.SquadAI); ok </span><span class="cov0" title="0">{
+                                        squad.Movement = gc.SquadStationary
+                                }</span>
+                        }
                 }
         }
 }
@@ -39038,6 +39110,10 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error <span class="
         if ai == nil </span><span class="cov0" title="0">{
                 return nil
         }</span>
+        <span class="cov0" title="0">squad, ok := ai.Planner.(*gc.SquadAI)
+        if !ok </span><span class="cov0" title="0">{
+                return nil
+        }</span>
 
         <span class="cov0" title="0">cycleAndRefresh := func(update func()) error </span><span class="cov0" title="0">{
                 update()
@@ -39047,51 +39123,51 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error <span class="
 
         <span class="cov0" title="0">switch </span>{
         case strings.HasPrefix(selectedAction, "位置"):<span class="cov0" title="0">
-                allPos := gc.AllSquadMovementPolicies()
+                allPos := gc.AllSquadMovements()
                 return cycleAndRefresh(func() </span><span class="cov0" title="0">{
                         for i, v := range allPos </span><span class="cov0" title="0">{
-                                if v == ai.Movement </span><span class="cov0" title="0">{
-                                        ai.Movement = allPos[(i+1)%len(allPos)]
+                                if v == squad.Movement </span><span class="cov0" title="0">{
+                                        squad.Movement = allPos[(i+1)%len(allPos)]
                                         return
                                 }</span>
                         }
-                        <span class="cov0" title="0">ai.Movement = allPos[0]</span>
+                        <span class="cov0" title="0">squad.Movement = allPos[0]</span>
                 })
 
         case strings.HasPrefix(selectedAction, "戦闘"):<span class="cov0" title="0">
                 allCombat := gc.AllSquadCombatPolicies()
                 return cycleAndRefresh(func() </span><span class="cov0" title="0">{
                         for i, v := range allCombat </span><span class="cov0" title="0">{
-                                if v == ai.CombatCurrent </span><span class="cov0" title="0">{
-                                        ai.CombatCurrent = allCombat[(i+1)%len(allCombat)]
+                                if v == squad.CombatCurrent </span><span class="cov0" title="0">{
+                                        squad.CombatCurrent = allCombat[(i+1)%len(allCombat)]
                                         return
                                 }</span>
                         }
-                        <span class="cov0" title="0">ai.CombatCurrent = allCombat[0]</span>
+                        <span class="cov0" title="0">squad.CombatCurrent = allCombat[0]</span>
                 })
 
         case strings.HasPrefix(selectedAction, "回収"):<span class="cov0" title="0">
                 all := gc.AllItemPickupPolicies()
                 return cycleAndRefresh(func() </span><span class="cov0" title="0">{
                         for i, v := range all </span><span class="cov0" title="0">{
-                                if v == ai.ItemPickup </span><span class="cov0" title="0">{
-                                        ai.ItemPickup = all[(i+1)%len(all)]
+                                if v == squad.ItemPickup </span><span class="cov0" title="0">{
+                                        squad.ItemPickup = all[(i+1)%len(all)]
                                         return
                                 }</span>
                         }
-                        <span class="cov0" title="0">ai.ItemPickup = all[0]</span>
+                        <span class="cov0" title="0">squad.ItemPickup = all[0]</span>
                 })
 
         case strings.HasPrefix(selectedAction, "処理"):<span class="cov0" title="0">
                 all := gc.AllItemHandlingPolicies()
                 return cycleAndRefresh(func() </span><span class="cov0" title="0">{
                         for i, v := range all </span><span class="cov0" title="0">{
-                                if v == ai.ItemHandling </span><span class="cov0" title="0">{
-                                        ai.ItemHandling = all[(i+1)%len(all)]
+                                if v == squad.ItemHandling </span><span class="cov0" title="0">{
+                                        squad.ItemHandling = all[(i+1)%len(all)]
                                         return
                                 }</span>
                         }
-                        <span class="cov0" title="0">ai.ItemHandling = all[0]</span>
+                        <span class="cov0" title="0">squad.ItemHandling = all[0]</span>
                 })
 
         case selectedAction == "解雇":<span class="cov0" title="0">
@@ -39114,16 +39190,20 @@ func (st *SquadMenuState) refreshWindowProps(world w.World, member ecs.Entity) <
         if ai == nil </span><span class="cov0" title="0">{
                 return
         }</span>
+        <span class="cov0" title="0">squad, ok := ai.Planner.(*gc.SquadAI)
+        if !ok </span><span class="cov0" title="0">{
+                return
+        }</span>
 
         <span class="cov0" title="0">st.windowMount.SetProps(squadWindowProps{
                 Member: squadMemberData{
                         Entity:       member,
                         Name:         name,
                         HP:           fmt.Sprintf("%d/%d", hp.Current, hp.Max),
-                        Position:     ai.Movement.String(),
-                        Combat:       ai.CombatCurrent.String(),
-                        ItemPickup:   ai.ItemPickup.String(),
-                        ItemHandling: ai.ItemHandling.String(),
+                        Position:     squad.Movement.String(),
+                        Combat:       squad.CombatCurrent.String(),
+                        ItemPickup:   squad.ItemPickup.String(),
+                        ItemHandling: squad.ItemHandling.String(),
                 },
         })</span>
 }
@@ -41415,15 +41495,19 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData <span class="cov0" 
         ).Visit(ecs.Visit(func(entity ecs.Entity) </span><span class="cov0" title="0">{
                 gridElement := world.Components.GridElement.Get(entity).(*gc.GridElement)
                 ai := world.Components.AI.Get(entity).(*gc.AI)
+                solo, ok := ai.Planner.(*gc.SoloAI)
+                if !ok </span><span class="cov0" title="0">{
+                        return
+                }</span>
 
                 // グリッド座標をピクセル座標に変換
-                pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
+                <span class="cov0" title="0">pixelX := float64(int(gridElement.X)*int(consts.TileSize) + int(consts.TileSize)/2)
                 pixelY := float64(int(gridElement.Y)*int(consts.TileSize) + int(consts.TileSize)/2)
                 screenX := (pixelX-float64(cameraPos.X))*cameraScale + float64(screenDimensions.Width)/2
                 screenY := (pixelY-float64(cameraPos.Y))*cameraScale + float64(screenDimensions.Height)/2
 
                 var stateText string
-                switch ai.SubState </span>{
+                switch solo.SubState </span>{
                 case gc.AIStateWaiting:<span class="cov0" title="0">
                         stateText = "WAITING"</span>
                 case gc.AIStateDriving:<span class="cov0" title="0">
@@ -41441,7 +41525,7 @@ func extractDebugOverlay(world w.World) hud.DebugOverlayData <span class="cov0" 
                         StateText: stateText,
                 })
 
-                scaledRadius := float32(float64(ai.ViewDistance) * float64(consts.TileSize) * cameraScale)
+                scaledRadius := float32(float64(solo.ViewDistance) * float64(consts.TileSize) * cameraScale)
                 visionRanges = append(visionRanges, hud.VisionRangeInfo{
                         ScreenX:      screenX,
                         ScreenY:      screenY,
@@ -48219,7 +48303,7 @@ func reactToHostileAction(world w.World, target ecs.Entity) <span class="cov8" t
                 return
         }</span>
         <span class="cov8" title="1">ai := comp.(*gc.AI)
-        ai.ReactToHostile()</span>
+        ai.Planner.ReactToHostile()</span>
 }
 
 // logDeath は死亡・破壊ログを出力する。
@@ -48906,8 +48990,6 @@ import (
 // 定数定義
 const (
         cameraNormalScale = 0.6 // カメラの通常スケール
-        // AIVisionDistance はAIエンティティの視界距離（タイル単位）
-        AIVisionDistance = 5
 )
 
 // エラー定義
@@ -48920,7 +49002,7 @@ var (
 
 // initialPatrolDir はPatrol移動の初期方向をランダムに決定する。X軸方向で+1か-1を返す
 func initialPatrolDir() int <span class="cov8" title="1">{
-        if rand.IntN(2) == 0 </span><span class="cov8" title="1">{
+        if rand.IntN(2) == 0 </span><span class="cov0" title="0">{
                 return 1
         }</span>
         <span class="cov8" title="1">return -1</span>
@@ -49011,16 +49093,17 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
         <span class="cov0" title="0">entitySpec.GridElement = &amp;gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
         if entitySpec.AI != nil </span><span class="cov0" title="0">{
-                if err := validateAI(entitySpec.AI); err != nil </span><span class="cov0" title="0">{
-                        return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", name, err)
+                solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
+                if !ok </span><span class="cov0" title="0">{
+                        return consts.InvalidEntity, fmt.Errorf("NPC %q のPlannerがSoloAIではありません: %T", name, entitySpec.AI.Planner)
                 }</span>
-                <span class="cov0" title="0">entitySpec.AI.SubState = gc.AIStateWaiting
-                entitySpec.AI.StartSubStateTurn = 1
-                entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
-                entitySpec.AI.OriginX = tileX
-                entitySpec.AI.OriginY = tileY
-                entitySpec.AI.PatrolDirX = initialPatrolDir()
-                entitySpec.AI.ViewDistance = AIVisionDistance</span>
+                <span class="cov0" title="0">solo.SubState = gc.AIStateWaiting
+                solo.StartSubStateTurn = 1
+                solo.DurationSubStateTurns = 2 + rand.IntN(3)
+                solo.OriginX = tileX
+                solo.OriginY = tileY
+                solo.PatrolDirX = initialPatrolDir()
+                solo.ViewDistance = consts.AIVisionDistance</span>
         }
 
         <span class="cov0" title="0">componentList.Entities = append(componentList.Entities, entitySpec)
@@ -49063,16 +49146,17 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
         if entitySpec.AI == nil </span><span class="cov0" title="0">{
                 return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
         }</span>
-        <span class="cov8" title="1">if err := validateAI(entitySpec.AI); err != nil </span><span class="cov0" title="0">{
-                return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", entitySpec.Name, err)
+        <span class="cov8" title="1">solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
+        if !ok </span><span class="cov0" title="0">{
+                return consts.InvalidEntity, fmt.Errorf("敵 %q のPlannerがSoloAIではありません: %T", entitySpec.Name, entitySpec.AI.Planner)
         }</span>
-        <span class="cov8" title="1">entitySpec.AI.SubState = gc.AIStateWaiting
-        entitySpec.AI.StartSubStateTurn = 1
-        entitySpec.AI.DurationSubStateTurns = 2 + rand.IntN(3)
-        entitySpec.AI.OriginX = tileX
-        entitySpec.AI.OriginY = tileY
-        entitySpec.AI.PatrolDirX = initialPatrolDir()
-        entitySpec.AI.ViewDistance = AIVisionDistance
+        <span class="cov8" title="1">solo.SubState = gc.AIStateWaiting
+        solo.StartSubStateTurn = 1
+        solo.DurationSubStateTurns = 2 + rand.IntN(3)
+        solo.OriginX = tileX
+        solo.OriginY = tileY
+        solo.PatrolDirX = initialPatrolDir()
+        solo.ViewDistance = consts.AIVisionDistance
         entitySpec.Interactable = &amp;gc.Interactable{
                 Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
         }
@@ -49347,36 +49431,6 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
         effectEntity.AddComponent(world.Components.VisualEffect, &amp;gc.VisualEffects{
                 Effects: []gc.VisualEffect{effect},
         })</span>
-}
-
-// validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
-func validateAI(ai *gc.AI) error <span class="cov8" title="1">{
-        switch ai.Planner </span>{
-        case gc.PlannerRoaming:<span class="cov8" title="1">
-                switch ai.Movement </span>{
-                case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
-                        gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
-                        gc.MovementSwarm:<span class="cov8" title="1"></span>
-                case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:<span class="cov8" title="1">
-                        return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", ai.Movement)</span>
-                default:<span class="cov0" title="0">
-                        return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)</span>
-                }
-        case gc.PlannerSquad:<span class="cov8" title="1">
-                switch ai.Movement </span>{
-                case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat,
-                        gc.MovementPatrol, gc.MovementStationary:<span class="cov8" title="1"></span>
-                case gc.MovementRandom, gc.MovementWallHug, gc.MovementWander,
-                        gc.MovementTerritorial, gc.MovementSwarm:<span class="cov8" title="1">
-                        return fmt.Errorf("PlannerSquad に敵用の MovementPolicy %q は使用できません", ai.Movement)</span>
-                default:<span class="cov0" title="0">
-                        return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)</span>
-                }
-        default:<span class="cov8" title="1">
-                return fmt.Errorf("未知の PlannerType %q です", ai.Planner)</span>
-        }
-
-        <span class="cov8" title="1">return nil</span>
 }
 </pre>
 		
