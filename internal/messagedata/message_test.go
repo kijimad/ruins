@@ -130,7 +130,6 @@ func TestChoiceMethods(t *testing.T) {
 		choice := msg.Choices[0]
 		assert.Equal(t, "選択肢1", choice.Text)
 		assert.Nil(t, choice.MessageData)
-		assert.False(t, choice.Disabled)
 
 		require.NotNil(t, choice.Action)
 		err := choice.Action(w.World{})
@@ -265,13 +264,11 @@ func TestChoice(t *testing.T) {
 			Text:        "選択肢",
 			Action:      func(_ w.World) error { return nil },
 			MessageData: resultMsg,
-			Disabled:    true,
 		}
 
 		assert.Equal(t, "選択肢", choice.Text)
 		assert.NotNil(t, choice.Action)
 		assert.Equal(t, resultMsg, choice.MessageData)
-		assert.True(t, choice.Disabled)
 	})
 
 	t.Run("Choiceの初期値", func(t *testing.T) {
@@ -282,7 +279,6 @@ func TestChoice(t *testing.T) {
 		assert.Equal(t, "", choice.Text)
 		assert.Nil(t, choice.Action)
 		assert.Nil(t, choice.MessageData)
-		assert.False(t, choice.Disabled)
 	})
 }
 

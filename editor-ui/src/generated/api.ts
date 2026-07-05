@@ -110,6 +110,19 @@ export interface Book {
     'skill'?: SkillBook;
 }
 /**
+ * 戦闘ポリシー。エンティティの戦闘時の行動方針を定義する
+ */
+
+export const CombatPolicyType = {
+    Attack: 'attack',
+    Evade: 'evade',
+    Ignore: 'ignore',
+} as const;
+
+export type CombatPolicyType = typeof CombatPolicyType[keyof typeof CombatPolicyType];
+
+
+/**
  * コマンドテーブル
  */
 export interface CommandTable {
@@ -158,19 +171,6 @@ export interface Dialog {
      */
     'messageKey': string;
 }
-/**
- * 態度タイプ。エンティティの他者に対する初期態度を定義する
- */
-
-export const DispositionType = {
-    Hostile: 'hostile',
-    Neutral: 'neutral',
-    Cowardly: 'cowardly',
-} as const;
-
-export type DispositionType = typeof DispositionType[keyof typeof DispositionType];
-
-
 /**
  * ドロップテーブル
  */
@@ -447,6 +447,7 @@ export interface Item {
     'melee'?: Melee;
     'fire'?: Fire;
     'book'?: Book;
+    'material'?: boolean;
 }
 /**
  * アイテムグループ。アイテムの出現セットを定義する
@@ -615,7 +616,7 @@ export interface Member {
     'animKeys'?: Array<string>;
     'lightSource'?: LightSource;
     'factionType'?: FactionMemberType;
-    'disposition'?: DispositionType;
+    'combatPolicy'?: CombatPolicyType;
     'movementPattern'?: MovementPatternType;
     /**
      * AI視界距離（タイル単位）
@@ -819,6 +820,7 @@ export interface Prop {
      * ダンジョン選択ゲートトリガー
      */
     'dungeonGateTrigger'?: object;
+    'storage'?: StorageRaw;
 }
 /**
  * 置物一覧
@@ -1017,18 +1019,18 @@ export interface SaveDataCameraComponent {
     'TargetY': number;
 }
 /**
- * 所持重量。最大値と現在値を持つ
+ * 戦闘ポリシー
  */
-export interface SaveDataCarryWeightComponent {
-    /**
-     * プール最大値 (浮動小数点)
-     */
-    'Max': number;
-    /**
-     * プール現在値 (浮動小数点)
-     */
-    'Current': number;
-}
+
+export const SaveDataCombatPolicyType = {
+    Attack: 'attack',
+    Evade: 'evade',
+    Ignore: 'ignore',
+} as const;
+
+export type SaveDataCombatPolicyType = typeof SaveDataCombatPolicyType[keyof typeof SaveDataCombatPolicyType];
+
+
 /**
  * エンティティが持つコンポーネントのマップ。 存在するコンポーネントのみがキーとして含まれる。 保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
  */
@@ -1072,7 +1074,7 @@ export interface SaveDataComponentsMap {
     /**
      * 所持重量
      */
-    'CarryWeight'?: SaveDataCarryWeightComponent;
+    'WeightCapacity'?: SaveDataWeightCapacityComponent;
     /**
      * アクションポイントと速度
      */
@@ -1141,6 +1143,18 @@ export interface SaveDataComponentsMap {
      * 所持金
      */
     'Wallet'?: SaveDataWalletComponent;
+    /**
+     * 隊員コンポーネント。リーダーへのエンティティ参照を含む
+     */
+    'SquadMember'?: SaveDataSquadMemberComponent;
+    /**
+     * 隊員の自律行動ポリシー
+     */
+    'SquadPolicy'?: SaveDataSquadPolicyComponent;
+    /**
+     * 隊員の外見情報
+     */
+    'MemberAppearance'?: SaveDataMemberAppearanceComponent;
 }
 /**
  * 消費可能アイテム設定
@@ -1367,6 +1381,30 @@ export interface SaveDataIntPool {
     'Current': number;
 }
 /**
+ * アイテム処理ポリシー
+ */
+
+export const SaveDataItemHandlingPolicyType = {
+    Keep: 'keep',
+    Distribute: 'distribute',
+} as const;
+
+export type SaveDataItemHandlingPolicyType = typeof SaveDataItemHandlingPolicyType[keyof typeof SaveDataItemHandlingPolicyType];
+
+
+/**
+ * アイテム回収ポリシー
+ */
+
+export const SaveDataItemPickupPolicyType = {
+    Pickup: 'pickup',
+    Ignore: 'ignore',
+} as const;
+
+export type SaveDataItemPickupPolicyType = typeof SaveDataItemPickupPolicyType[keyof typeof SaveDataItemPickupPolicyType];
+
+
+/**
  * 光源設定
  */
 export interface SaveDataLightSourceComponent {
@@ -1432,6 +1470,35 @@ export interface SaveDataMeleeComponent {
 
 
 /**
+ * 隊員の外見情報
+ */
+export interface SaveDataMemberAppearanceComponent {
+    /**
+     * スプライトキー。セーブデータではパターン制約を適用しない
+     */
+    'SpriteKey': string;
+}
+/**
+ * 移動ポリシー
+ */
+
+export const SaveDataMovementPolicyType = {
+    Random: 'random',
+    Patrol: 'patrol',
+    WallHug: 'wallHug',
+    Stationary: 'stationary',
+    Wander: 'wander',
+    Territorial: 'territorial',
+    Swarm: 'swarm',
+    Escort: 'escort',
+    Vanguard: 'vanguard',
+    Retreat: 'retreat',
+} as const;
+
+export type SaveDataMovementPolicyType = typeof SaveDataMovementPolicyType[keyof typeof SaveDataMovementPolicyType];
+
+
+/**
  * エンティティ名
  */
 export interface SaveDataNameComponent {
@@ -1440,6 +1507,18 @@ export interface SaveDataNameComponent {
      */
     'Name': string;
 }
+/**
+ * 行動計画の種別
+ */
+
+export const SaveDataPlannerType = {
+    Roaming: 'roaming',
+    Squad: 'squad',
+} as const;
+
+export type SaveDataPlannerType = typeof SaveDataPlannerType[keyof typeof SaveDataPlannerType];
+
+
 /**
  * 回復効果。Amounterインターフェースを具体型に分解してシリアライズする
  */
@@ -1546,6 +1625,32 @@ export interface SaveDataSpriteRenderComponent {
     'Options'?: { [key: string]: any; };
 }
 /**
+ * 隊員コンポーネント。 Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
+ */
+export interface SaveDataSquadMemberComponent {
+    /**
+     * リーダーのStableID
+     */
+    'LeaderRef': SaveDataStableID;
+    /**
+     * 同行中かどうか
+     */
+    'Active': boolean;
+}
+/**
+ * AIの行動ポリシー
+ */
+export interface SaveDataSquadPolicyComponent {
+    'Planner': SaveDataPlannerType;
+    'Movement': SaveDataMovementPolicyType;
+    'CombatDefault': SaveDataCombatPolicyType;
+    'CombatCurrent': SaveDataCombatPolicyType;
+    'ItemPickup': SaveDataItemPickupPolicyType;
+    'ItemHandling': SaveDataItemHandlingPolicyType;
+}
+
+
+/**
  * エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
  */
 export interface SaveDataStableID {
@@ -1625,6 +1730,19 @@ export interface SaveDataWearableComponent {
 }
 
 
+/**
+ * 所持重量。最大値と現在値を持つ
+ */
+export interface SaveDataWeightCapacityComponent {
+    /**
+     * プール最大値 (浮動小数点)
+     */
+    'Max': number;
+    /**
+     * プール現在値 (浮動小数点)
+     */
+    'Current': number;
+}
 /**
  * ワールド全体のセーブデータ。プレイヤーと所持品のみを保存する
  */
@@ -1717,6 +1835,27 @@ export interface SpriteSheet {
 export interface SpriteSheetList {
     'data': Array<SpriteSheet>;
     'totalCount': number;
+}
+/**
+ * 収納ローデータ
+ */
+export interface StorageRaw {
+    /**
+     * 収納の最大格納重量（kg）
+     */
+    'maxWeight': number;
+    /**
+     * 初期アイテムの抽選に使うItemTable名
+     */
+    'lootTableName'?: string;
+    /**
+     * 初期アイテムの最小数
+     */
+    'lootCountMin'?: number;
+    /**
+     * 初期アイテムの最大数
+     */
+    'lootCountMax'?: number;
 }
 /**
  * ターゲットグループ

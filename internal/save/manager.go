@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -18,6 +19,23 @@ import (
 
 const saveDataVersion = "1.0.0"
 
+const maxAutoSaves = 4
+
+// autoSavePrefix はオートセーブスロット名の接頭辞
+const autoSavePrefix = "auto_"
+
+const defaultSaveDir = "./saves"
+
+// Option はSerializationManagerの設定を変更する関数
+type Option func(*SerializationManager)
+
+// WithSaveDir はセーブディレクトリを変更する
+func WithSaveDir(dir string) Option {
+	return func(sm *SerializationManager) {
+		sm.saveDirectory = dir
+	}
+}
+
 // SerializationManager は安定ID + 静的型ベースのシリアライゼーションを管理する
 type SerializationManager struct {
 	saveDirectory   string
@@ -25,13 +43,18 @@ type SerializationManager struct {
 }
 
 // NewSerializationManager は新しいSerializationManagerを作成する
-func NewSerializationManager(saveDir string) *SerializationManager {
+func NewSerializationManager(opts ...Option) (*SerializationManager, error) {
 	sm := &SerializationManager{
-		saveDirectory:   saveDir,
+		saveDirectory:   defaultSaveDir,
 		stableIDManager: NewStableIDManager(),
 	}
-	sm.initImpl()
-	return sm
+	for _, opt := range opts {
+		opt(sm)
+	}
+	if err := sm.initImpl(); err != nil {
+		return nil, err
+	}
+	return sm, nil
 }
 
 // GenerateWorldJSON はワールドからJSON文字列を生成する
@@ -213,6 +236,16 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 		sd := abilitiesToSaveData(*ab)
 		comp.Abilities = &sd
 	}
+	if entity.HasComponent(c.HealthStatus) {
+		hs := c.HealthStatus.Get(entity).(*gc.HealthStatus)
+		sd := healthStatusToSaveData(*hs)
+		comp.HealthStatus = &sd
+	}
+	if entity.HasComponent(c.Skills) {
+		sk := c.Skills.Get(entity).(*gc.Skills)
+		sd := skillsToSaveData(*sk)
+		comp.Skills = &sd
+	}
 
 	// 表示コンポーネント
 	if entity.HasComponent(c.Camera) {
@@ -289,6 +322,12 @@ func (sm *SerializationManager) extractEntity(entity ecs.Entity, world w.World) 
 	if entity.HasComponent(c.Wallet) {
 		wal := c.Wallet.Get(entity).(*gc.Wallet)
 		comp.Wallet = &oapi.SaveDataWalletComponent{Currency: int32(wal.Currency)}
+	}
+
+	// 戦闘コンポーネント
+	if entity.HasComponent(c.CommandTable) {
+		ct := c.CommandTable.Get(entity).(*gc.CommandTable)
+		comp.CommandTable = &oapi.SaveDataCommandTableComponent{Name: ct.Name}
 	}
 
 	// 隊員コンポーネント
@@ -368,6 +407,13 @@ func (sm *SerializationManager) restoreWorldData(world w.World, worldData oapi.S
 		}
 	}
 
+	// 第4段階: 派生コンポーネントの再計算をマークする
+	for _, entry := range entries {
+		if entry.entity.HasComponent(c.Skills) {
+			entry.entity.AddComponent(c.StatsChanged, &gc.StatsChanged{})
+		}
+	}
+
 	// GameProgressを復元
 	if gp := gameProgressFromSaveData(worldData.GameProgress); gp != nil {
 		*query.GetGameProgress(world) = *gp
@@ -413,20 +459,14 @@ func restoreComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c *gc
 	// アイテム効果コンポーネント
 	restoreEffectComponents(entity, comp, c)
 
-	// 隊員コンポーネント（Leaderは第3段階で解決）
+	// 戦闘コンポーネント
+	if comp.CommandTable != nil {
+		entity.AddComponent(c.CommandTable, &gc.CommandTable{Name: comp.CommandTable.Name})
+	}
+
+	// 隊員コンポーネント
 	if comp.SquadMember != nil {
 		entity.AddComponent(c.SquadMember, &gc.SquadMember{})
-
-		entity.AddComponent(c.BlockPass, &gc.BlockPass{})
-		entity.AddComponent(c.HealthStatus, &gc.HealthStatus{})
-		skills := gc.NewSkills()
-		entity.AddComponent(c.Skills, skills)
-		if comp.Abilities != nil {
-			ab := abilitiesFromSaveData(*comp.Abilities)
-			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, &ab, nil))
-		} else {
-			entity.AddComponent(c.CharModifiers, gc.RecalculateCharModifiers(skills, nil, nil))
-		}
 	}
 	if comp.SquadPolicy != nil {
 		ai := aiFromSaveData(*comp.SquadPolicy)
@@ -468,6 +508,14 @@ func restoreDataComponents(entity ecs.Entity, comp oapi.SaveDataComponentsMap, c
 	if comp.Abilities != nil {
 		ab := abilitiesFromSaveData(*comp.Abilities)
 		entity.AddComponent(c.Abilities, &ab)
+	}
+	if comp.HealthStatus != nil {
+		hs := healthStatusFromSaveData(*comp.HealthStatus)
+		entity.AddComponent(c.HealthStatus, &hs)
+	}
+	if comp.Skills != nil {
+		skills := skillsFromSaveData(*comp.Skills)
+		entity.AddComponent(c.Skills, skills)
 	}
 	if comp.Camera != nil {
 		cam := cameraFromSaveData(*comp.Camera)
@@ -571,6 +619,109 @@ func (sm *SerializationManager) calculateChecksum(data *oapi.SaveDataSaveData) (
 	}
 	hash := sha256.Sum256(jsonBytes)
 	return hex.EncodeToString(hash[:]), nil
+}
+
+// ListSaves はセーブデータの一覧を新しい順に返す
+func (sm *SerializationManager) ListSaves() ([]string, error) {
+	names, err := sm.listSavesImpl()
+	if err != nil {
+		return nil, err
+	}
+
+	// タイムスタンプを取得できたもののみ返す
+	var valid []string
+	timestamps := make(map[string]time.Time, len(names))
+	for _, name := range names {
+		ts, err := sm.GetSaveFileTimestamp(name)
+		if err != nil {
+			continue
+		}
+		valid = append(valid, name)
+		timestamps[name] = ts
+	}
+
+	sort.Slice(valid, func(i, j int) bool {
+		return timestamps[valid[i]].After(timestamps[valid[j]])
+	})
+	return valid, nil
+}
+
+// ListAutoSaves はオートセーブスロット名の一覧を返す。
+func (sm *SerializationManager) ListAutoSaves() ([]string, error) {
+	saves, err := sm.ListSaves()
+	if err != nil {
+		return nil, err
+	}
+	var autoSaves []string
+	for _, name := range saves {
+		if strings.HasPrefix(name, autoSavePrefix) {
+			autoSaves = append(autoSaves, name)
+		}
+	}
+	return autoSaves, nil
+}
+
+// AutoSave はオートセーブを実行する。
+// スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。
+func (sm *SerializationManager) AutoSave(world w.World) error {
+	slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
+	if err := sm.SaveWorld(world, slotName); err != nil {
+		return fmt.Errorf("オートセーブに失敗: %w", err)
+	}
+	if err := sm.rotateAutoSaves(); err != nil {
+		return fmt.Errorf("古いオートセーブの削除に失敗: %w", err)
+	}
+	return nil
+}
+
+// rotateAutoSaves はオートセーブを最大件数まで削減する。
+// 古い順に削除して maxAutoSaves 件を保持する。
+func (sm *SerializationManager) rotateAutoSaves() error {
+	autoSaves, err := sm.ListAutoSaves()
+	if err != nil {
+		return err
+	}
+
+	if len(autoSaves) <= maxAutoSaves {
+		return nil
+	}
+
+	for _, name := range autoSaves[maxAutoSaves:] {
+		if err := sm.deleteSaveImpl(name); err != nil {
+			return fmt.Errorf("failed to prune auto save %s: %w", name, err)
+		}
+	}
+	return nil
+}
+
+// GetSavePlayerName はセーブデータからプレイヤー名を取得する。
+// セーブデータ全体をデシリアライズせず、エンティティのName.Nameフィールドだけを抽出する。
+func (sm *SerializationManager) GetSavePlayerName(slotName string) (string, error) {
+	data, err := sm.loadDataImpl(slotName)
+	if err != nil {
+		return "", err
+	}
+	var partial struct {
+		World struct {
+			Entities []struct {
+				Components struct {
+					Player *json.RawMessage `json:"player"`
+					Name   *struct {
+						Name string `json:"name"`
+					} `json:"name"`
+				} `json:"components"`
+			} `json:"entities"`
+		} `json:"world"`
+	}
+	if err := json.Unmarshal(data, &partial); err != nil {
+		return "", fmt.Errorf("failed to parse save data: %w", err)
+	}
+	for _, entity := range partial.World.Entities {
+		if entity.Components.Player != nil && entity.Components.Name != nil {
+			return entity.Components.Name.Name, nil
+		}
+	}
+	return "", fmt.Errorf("player entity not found in save data")
 }
 
 // validateChecksum はセーブデータのチェックサムを検証する

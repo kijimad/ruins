@@ -13,6 +13,7 @@ import (
 	"github.com/kijimaD/ruins/internal/hooks"
 	"github.com/kijimaD/ruins/internal/inputmapper"
 	"github.com/kijimaD/ruins/internal/resources"
+	"github.com/kijimaD/ruins/internal/save"
 	"github.com/kijimaD/ruins/internal/widgets/styled"
 	"github.com/kijimaD/ruins/internal/widgets/theme"
 	w "github.com/kijimaD/ruins/internal/world"
@@ -116,11 +117,18 @@ func (st *DungeonSelectState) Draw(world w.World, screen *ebiten.Image) error {
 }
 
 // DoAction はActionを実行する
-func (st *DungeonSelectState) DoAction(_ w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
+func (st *DungeonSelectState) DoAction(world w.World, action inputmapper.ActionID) (es.Transition[w.World], error) {
 	switch action {
 	case inputmapper.ActionMenuCancel, inputmapper.ActionCloseMenu:
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
+		saveManager, err := save.NewSerializationManager()
+		if err != nil {
+			return es.Transition[w.World]{}, err
+		}
+		if err := saveManager.AutoSave(world); err != nil {
+			return es.Transition[w.World]{}, err
+		}
 		return st.handleSelection()
 	case inputmapper.ActionMenuUp, inputmapper.ActionMenuDown,
 		inputmapper.ActionMenuLeft, inputmapper.ActionMenuRight,

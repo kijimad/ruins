@@ -136,6 +136,7 @@ func (st *AutoSellState) DoAction(world w.World, action inputmapper.ActionID) (e
 		if err := gameaction.ExecuteEndRun(world, playerEntity, st.preview.Total); err != nil {
 			return es.Transition[w.World]{}, fmt.Errorf("売却実行に失敗: %w", err)
 		}
+
 		return es.Transition[w.World]{
 			Type:          es.TransReplace,
 			NewStateFuncs: []es.StateFactory[w.World]{NewTownState()},

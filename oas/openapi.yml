@@ -2709,6 +2709,15 @@ components:
     SaveData.AttackTypeLabel:
       type: string
       description: 攻撃種別の表示用ラベル
+    SaveData.BodyPartHealth:
+      type: object
+      properties:
+        Conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveData.HealthCondition'
+          description: この部位に付与されている状態の配列
+      description: 1つの部位の健康状態
     SaveData.CameraComponent:
       type: object
       required:
@@ -2750,6 +2759,15 @@ components:
         - evade
         - ignore
       description: 戦闘ポリシー
+    SaveData.CommandTableComponent:
+      type: object
+      required:
+        - Name
+      properties:
+        Name:
+          type: string
+          description: コマンドテーブル名
+      description: 戦闘コマンドテーブル名
     SaveData.ComponentsMap:
       type: object
       properties:
@@ -2861,6 +2879,10 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.WalletComponent'
           description: 所持金
+        CommandTable:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.CommandTableComponent'
+          description: 戦闘コマンドテーブル名
         SquadMember:
           allOf:
             - $ref: '#/components/schemas/SaveData.SquadMemberComponent'
@@ -2873,6 +2895,14 @@ components:
           allOf:
             - $ref: '#/components/schemas/SaveData.MemberAppearanceComponent'
           description: 隊員の外見情報
+        HealthStatus:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.HealthStatusComponent'
+          description: 部位ごとの健康状態
+        Skills:
+          allOf:
+            - $ref: '#/components/schemas/SaveData.SkillsComponent'
+          description: スキルセット
       description: |-
         エンティティが持つコンポーネントのマップ。
         存在するコンポーネントのみがキーとして含まれる。
@@ -3110,6 +3140,41 @@ components:
         - ratio
         - numeral
       description: 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する
+    SaveData.HealthCondition:
+      type: object
+      required:
+        - Type
+        - Severity
+        - Timer
+      properties:
+        Type:
+          type: string
+          description: 状態の種類
+        Severity:
+          type: integer
+          format: int32
+          description: 重症度
+        Timer:
+          type: number
+          format: double
+          description: 進行度タイマー
+        Effects:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveData.StatEffect'
+          description: この状態によるステータスへの影響
+      description: 部位に付与される1つの状態
+    SaveData.HealthStatusComponent:
+      type: object
+      required:
+        - Parts
+      properties:
+        Parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SaveData.BodyPartHealth'
+          description: 部位ごとの健康情報の配列
+      description: 部位ごとの健康状態
     SaveData.InflictsDamageComponent:
       type: object
       required:
@@ -3364,6 +3429,37 @@ components:
             - $ref: '#/components/schemas/SaveData.Checksum'
           description: データ改ざん検知用SHA-256ハッシュ値
       description: セーブデータの最上位構造。ファイルに保存されるJSON全体を表す
+    SaveData.SkillEntry:
+      type: object
+      required:
+        - Value
+        - ExpMax
+        - ExpCurrent
+      properties:
+        Value:
+          type: integer
+          format: int32
+          description: スキル値
+        ExpMax:
+          type: integer
+          format: int32
+          description: 経験値の最大値
+        ExpCurrent:
+          type: integer
+          format: int32
+          description: 蓄積経験値
+      description: 個別スキルの状態
+    SaveData.SkillsComponent:
+      type: object
+      required:
+        - Data
+      properties:
+        Data:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SaveData.SkillEntry'
+          description: スキルIDをキーとしたスキルデータのマップ
+      description: スキルセット
     SaveData.Speed:
       type: integer
       format: int32
@@ -3456,6 +3552,20 @@ components:
             - $ref: '#/components/schemas/SaveData.EntityGeneration'
           description: 世代番号。同一インデックスの再利用を区別する
       description: エンティティの安定ID。セーブ/ロード間でエンティティを一意に識別する
+    SaveData.StatEffect:
+      type: object
+      required:
+        - Stat
+        - Value
+      properties:
+        Stat:
+          type: string
+          description: 影響を受けるステータスの種類
+        Value:
+          type: integer
+          format: int32
+          description: 修正値
+      description: ステータスへの影響
     SaveData.TargetTypeData:
       type: object
       required:

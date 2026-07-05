@@ -255,6 +255,9 @@ model ComponentsMap {
   /** 所持金 */
   Wallet?: WalletComponent;
 
+  /** 戦闘コマンドテーブル名 */
+  CommandTable?: CommandTableComponent;
+
   /** 隊員コンポーネント。リーダーへのエンティティ参照を含む */
   SquadMember?: SquadMemberComponent;
 
@@ -263,6 +266,12 @@ model ComponentsMap {
 
   /** 隊員の外見情報 */
   MemberAppearance?: MemberAppearanceComponent;
+
+  /** 部位ごとの健康状態 */
+  HealthStatus?: HealthStatusComponent;
+
+  /** スキルセット */
+  Skills?: SkillsComponent;
 }
 
 // ================== マーカーコンポーネント ==================
@@ -619,6 +628,12 @@ enum ItemHandlingPolicyType {
   distribute: "distribute",
 }
 
+/** 戦闘コマンドテーブル名 */
+model CommandTableComponent {
+  /** コマンドテーブル名 */
+  Name: string;
+}
+
 /**
  * 隊員コンポーネント。
  * Leaderフィールドはエンティティ参照のため、StableIDに変換してシリアライズする
@@ -644,4 +659,62 @@ model SquadPolicyComponent {
 /** 隊員の外見情報 */
 model MemberAppearanceComponent {
   SpriteKey: SpriteKey;
+}
+
+// ================== 健康状態コンポーネント ==================
+
+/** 部位ごとの健康状態 */
+model HealthStatusComponent {
+  /** 部位ごとの健康情報の配列 */
+  Parts: BodyPartHealth[];
+}
+
+/** 1つの部位の健康状態 */
+model BodyPartHealth {
+  /** この部位に付与されている状態の配列 */
+  Conditions?: HealthCondition[];
+}
+
+/** 部位に付与される1つの状態 */
+model HealthCondition {
+  /** 状態の種類 */
+  Type: string;
+
+  /** 重症度 */
+  Severity: int32;
+
+  /** 進行度タイマー */
+  Timer: float64;
+
+  /** この状態によるステータスへの影響 */
+  Effects?: StatEffect[];
+}
+
+/** ステータスへの影響 */
+model StatEffect {
+  /** 影響を受けるステータスの種類 */
+  Stat: string;
+
+  /** 修正値 */
+  Value: int32;
+}
+
+// ================== スキルコンポーネント ==================
+
+/** スキルセット */
+model SkillsComponent {
+  /** スキルIDをキーとしたスキルデータのマップ */
+  Data: Record<SkillEntry>;
+}
+
+/** 個別スキルの状態 */
+model SkillEntry {
+  /** スキル値 */
+  Value: int32;
+
+  /** 経験値の最大値 */
+  ExpMax: int32;
+
+  /** 蓄積経験値 */
+  ExpCurrent: int32;
 }

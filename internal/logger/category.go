@@ -51,4 +51,7 @@ const (
 	CategoryPerf Category = "perf" // パフォーマンス計測
 	// CategoryDebug はデバッグ全般のログカテゴリ
 	CategoryDebug Category = "debug" // デバッグ全般
+
+	// CategorySave はセーブ処理のログカテゴリ
+	CategorySave Category = "save" // セーブ処理
 )

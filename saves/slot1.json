@@ -1,6 +1,6 @@
 {
-  "checksum": "3a41bc1d7e3051d41842dc7db9875140e3b1163ce5833e3df6deac6e4ec54f47",
-  "timestamp": "2026-06-28T19:56:04.40257254+09:00",
+  "checksum": "3ff1599903227019da44a85f0942fd330146d2bd6760da6271583e0454263177",
+  "timestamp": "2026-07-04T20:18:41.116265805+09:00",
   "version": "1.0.0",
   "world": {
     "entities": [
@@ -42,14 +42,14 @@
             "Scale": 0.8,
             "ScaleTo": 0.8,
             "TargetX": 816,
-            "TargetY": 432,
+            "TargetY": 400,
             "X": 816,
-            "Y": 432
+            "Y": 400
           },
           "FactionAllyData": {},
           "GridElement": {
             "X": 25,
-            "Y": 13
+            "Y": 12
           },
           "HP": {
             "Current": 80,
@@ -78,9 +78,17 @@
             "SpriteKey": "player_1",
             "SpriteSheetName": "field"
           },
+          "SquadPolicy": {
+            "CombatCurrent": "ignore",
+            "CombatDefault": "ignore",
+            "ItemHandling": "keep",
+            "ItemPickup": "pickup",
+            "Movement": "random",
+            "Planner": "roaming"
+          },
           "TurnBased": {
             "AP": {
-              "Current": 83,
+              "Current": 62,
               "Max": 120
             },
             "Speed": 121
@@ -513,14 +521,11 @@
           "FactionAllyData": {},
           "GridElement": {
             "X": 24,
-            "Y": 11
+            "Y": 10
           },
           "HP": {
             "Current": 107,
             "Max": 107
-          },
-          "MemberAppearance": {
-            "SpriteKey": "general"
           },
           "Name": {
             "Name": "Jim"
@@ -531,21 +536,23 @@
             "SpriteSheetName": "field"
           },
           "SquadMember": {
-            "Active": true,
+            "Active": false,
             "LeaderRef": {
               "generation": 0,
-              "index": 1
+              "index": 0
             }
           },
           "SquadPolicy": {
-            "Combat": 0,
-            "ItemHandling": 0,
-            "ItemPickup": 0,
-            "Position": 0
+            "CombatCurrent": "attack",
+            "CombatDefault": "attack",
+            "ItemHandling": "distribute",
+            "ItemPickup": "pickup",
+            "Movement": "escort",
+            "Planner": "squad"
           },
           "TurnBased": {
             "AP": {
-              "Current": 87,
+              "Current": 127,
               "Max": 127
             },
             "Speed": 120

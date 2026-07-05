@@ -8,6 +8,7 @@ bin/
 .cache/
 editor-ui/dist/
 oas/redoc/
+saves/auto_*.json
 
 wasm/game.wasm
 balance.json

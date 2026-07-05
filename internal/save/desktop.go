@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // initImpl はデスクトップ環境での初期化処理
-func (sm *SerializationManager) initImpl() {
-	// セーブディレクトリを作成（存在しない場合）
+func (sm *SerializationManager) initImpl() error {
 	if err := os.MkdirAll(sm.saveDirectory, 0755); err != nil {
-		// エラーが発生してもマネージャーは作成する（ログ出力のみ）
-		fmt.Printf("Failed to create save directory: %v\n", err)
+		return fmt.Errorf("セーブディレクトリの作成に失敗: %w", err)
 	}
+	return nil
 }
 
 // saveDataImpl はデスクトップ環境でファイルシステムにデータを保存する
@@ -44,4 +44,33 @@ func (sm *SerializationManager) saveFileExistsImpl(slotName string) bool {
 	fileName := filepath.Join(sm.saveDirectory, slotName+".json")
 	_, err := os.Stat(fileName)
 	return err == nil
+}
+
+// listSavesImpl はデスクトップ環境でセーブファイル名の一覧を返す
+func (sm *SerializationManager) listSavesImpl() ([]string, error) {
+	entries, err := os.ReadDir(sm.saveDirectory)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read save directory: %w", err)
+	}
+
+	var names []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := entry.Name()
+		if before, ok := strings.CutSuffix(name, ".json"); ok {
+			names = append(names, before)
+		}
+	}
+	return names, nil
+}
+
+// deleteSaveImpl はデスクトップ環境でセーブファイルを削除する
+func (sm *SerializationManager) deleteSaveImpl(slotName string) error {
+	fileName := filepath.Join(sm.saveDirectory, slotName+".json")
+	if err := os.Remove(fileName); err != nil {
+		return fmt.Errorf("failed to delete save file: %w", err)
+	}
+	return nil
 }

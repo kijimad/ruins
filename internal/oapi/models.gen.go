@@ -1453,6 +1453,12 @@ type SaveDataAttackTypeId = string
 // SaveDataAttackTypeLabel 攻撃種別の表示用ラベル
 type SaveDataAttackTypeLabel = string
 
+// SaveDataBodyPartHealth 1つの部位の健康状態
+type SaveDataBodyPartHealth struct {
+	// Conditions この部位に付与されている状態の配列
+	Conditions *[]SaveDataHealthCondition `json:"Conditions,omitempty"`
+}
+
 // SaveDataCameraComponent カメラ状態
 type SaveDataCameraComponent struct {
 	// Scale カメラのスケール値
@@ -1486,6 +1492,12 @@ type SaveDataChecksum = string
 // SaveDataCombatPolicyType 戦闘ポリシー
 type SaveDataCombatPolicyType string
 
+// SaveDataCommandTableComponent 戦闘コマンドテーブル名
+type SaveDataCommandTableComponent struct {
+	// Name コマンドテーブル名
+	Name string `json:"Name"`
+}
+
 // SaveDataComponentsMap エンティティが持つコンポーネントのマップ。
 // 存在するコンポーネントのみがキーとして含まれる。
 // 保存対象: プレイヤー、バックパック内アイテム、装備中アイテム
@@ -1498,6 +1510,9 @@ type SaveDataComponentsMap struct {
 
 	// Camera カメラ状態
 	Camera *SaveDataCameraComponent `json:"Camera,omitempty"`
+
+	// CommandTable 戦闘コマンドテーブル名
+	CommandTable *SaveDataCommandTableComponent `json:"CommandTable,omitempty"`
 
 	// Consumable 消費可能アイテム設定
 	Consumable *SaveDataConsumableComponent `json:"Consumable,omitempty"`
@@ -1516,6 +1531,9 @@ type SaveDataComponentsMap struct {
 
 	// HP 生命力
 	HP *SaveDataHPComponent `json:"HP,omitempty"`
+
+	// HealthStatus 部位ごとの健康状態
+	HealthStatus *SaveDataHealthStatusComponent `json:"HealthStatus,omitempty"`
 
 	// InflictsDamage ダメージ効果
 	InflictsDamage *SaveDataInflictsDamageComponent `json:"InflictsDamage,omitempty"`
@@ -1549,6 +1567,9 @@ type SaveDataComponentsMap struct {
 
 	// Recipe レシピ設定
 	Recipe *SaveDataRecipeComponent `json:"Recipe,omitempty"`
+
+	// Skills スキルセット
+	Skills *SaveDataSkillsComponent `json:"Skills,omitempty"`
 
 	// SpriteRender スプライト描画設定
 	SpriteRender *SaveDataSpriteRenderComponent `json:"SpriteRender,omitempty"`
@@ -1749,6 +1770,27 @@ type SaveDataHealingAmountData struct {
 // SaveDataHealingAmountType 回復量の計算方式。types.tspのHealingValueTypeとは値が異なるためセーブ固有で定義する
 type SaveDataHealingAmountType string
 
+// SaveDataHealthCondition 部位に付与される1つの状態
+type SaveDataHealthCondition struct {
+	// Effects この状態によるステータスへの影響
+	Effects *[]SaveDataStatEffect `json:"Effects,omitempty"`
+
+	// Severity 重症度
+	Severity int32 `json:"Severity"`
+
+	// Timer 進行度タイマー
+	Timer float64 `json:"Timer"`
+
+	// Type 状態の種類
+	Type string `json:"Type"`
+}
+
+// SaveDataHealthStatusComponent 部位ごとの健康状態
+type SaveDataHealthStatusComponent struct {
+	// Parts 部位ごとの健康情報の配列
+	Parts []SaveDataBodyPartHealth `json:"Parts"`
+}
+
 // SaveDataInflictsDamageComponent ダメージ効果
 type SaveDataInflictsDamageComponent struct {
 	// Amount ダメージ量
@@ -1924,6 +1966,24 @@ type SaveDataSaveData struct {
 // SaveDataSaveDataVersion セーブデータのバージョン。現在は "1.0.0" のみ
 type SaveDataSaveDataVersion string
 
+// SaveDataSkillEntry 個別スキルの状態
+type SaveDataSkillEntry struct {
+	// ExpCurrent 蓄積経験値
+	ExpCurrent int32 `json:"ExpCurrent"`
+
+	// ExpMax 経験値の最大値
+	ExpMax int32 `json:"ExpMax"`
+
+	// Value スキル値
+	Value int32 `json:"Value"`
+}
+
+// SaveDataSkillsComponent スキルセット
+type SaveDataSkillsComponent struct {
+	// Data スキルIDをキーとしたスキルデータのマップ
+	Data map[string]SaveDataSkillEntry `json:"Data"`
+}
+
 // SaveDataSpeed APの毎ターン回復量
 type SaveDataSpeed = int32
 
@@ -1991,6 +2051,15 @@ type SaveDataStableID struct {
 
 	// Index エンティティインデックス
 	Index SaveDataEntityIndex `json:"index"`
+}
+
+// SaveDataStatEffect ステータスへの影響
+type SaveDataStatEffect struct {
+	// Stat 影響を受けるステータスの種類
+	Stat string `json:"Stat"`
+
+	// Value 修正値
+	Value int32 `json:"Value"`
 }
 
 // SaveDataTargetTypeData 対象指定

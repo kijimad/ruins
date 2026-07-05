@@ -25,9 +25,9 @@ func TestGolden_SingleItem(t *testing.T) {
 					}},
 				},
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
+		view.SetState(tabmenu.ViewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 300, 50)
 }
@@ -45,11 +45,10 @@ func TestGolden_MultipleItems_FirstSelected(t *testing.T) {
 						{ID: "item3", Label: "聖水"},
 					}},
 				},
-				InitialItemIndex: 0,
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
+		view.SetState(tabmenu.ViewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 300, 120)
 }
@@ -69,11 +68,10 @@ func TestGolden_MultipleItems_MiddleSelected(t *testing.T) {
 						{ID: "item5", Label: "火炎瓶"},
 					}},
 				},
-				InitialItemIndex: 2,
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
+		view.SetState(tabmenu.ViewState{TabIndex: 0, ItemIndex: 2})
 		return view.BuildUI()
 	}, 300, 180)
 }
@@ -88,7 +86,6 @@ func TestGolden_EmptyItems(t *testing.T) {
 					{ID: "tab", Label: "タブ", Items: []tabmenu.Item{}},
 				},
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
 		return view.BuildUI()
@@ -111,12 +108,11 @@ func TestGolden_WithPagination(t *testing.T) {
 				Tabs: []tabmenu.TabItem{
 					{ID: "tab", Label: "タブ", Items: items},
 				},
-				ItemsPerPage:     3,
-				InitialItemIndex: 0,
+				ItemsPerPage: 3,
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
+		view.SetState(tabmenu.ViewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 300, 150)
 }
@@ -134,11 +130,10 @@ func TestGolden_WithAdditionalLabels(t *testing.T) {
 						{ID: "item3", Label: "聖水", AdditionalLabels: []string{"x1", "0.5kg"}},
 					}},
 				},
-				InitialItemIndex: 0,
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
+		view.SetState(tabmenu.ViewState{TabIndex: 0, ItemIndex: 0})
 		return view.BuildUI()
 	}, 400, 120)
 }
@@ -159,12 +154,11 @@ func TestGolden_ManyItems_LastPage(t *testing.T) {
 				Tabs: []tabmenu.TabItem{
 					{ID: "tab", Label: "タブ", Items: items},
 				},
-				ItemsPerPage:     3,
-				InitialItemIndex: 7,
+				ItemsPerPage: 3,
 			},
-			tabmenu.Callbacks{},
 			world,
 		)
+		view.SetState(tabmenu.ViewState{TabIndex: 0, ItemIndex: 7})
 		return view.BuildUI()
 	}, 300, 120)
 }

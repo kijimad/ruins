@@ -405,6 +405,89 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 	return ai
 }
 
+// ================== 健康状態コンポーネント ==================
+
+func healthStatusToSaveData(hs gc.HealthStatus) oapi.SaveDataHealthStatusComponent {
+	parts := make([]oapi.SaveDataBodyPartHealth, len(hs.Parts))
+	for i, part := range hs.Parts {
+		if len(part.Conditions) == 0 {
+			continue
+		}
+		conds := make([]oapi.SaveDataHealthCondition, len(part.Conditions))
+		for j, c := range part.Conditions {
+			conds[j] = oapi.SaveDataHealthCondition{
+				Type:     string(c.Type),
+				Severity: int32(c.Severity),
+				Timer:    c.Timer,
+			}
+			if len(c.Effects) > 0 {
+				effects := make([]oapi.SaveDataStatEffect, len(c.Effects))
+				for k, e := range c.Effects {
+					effects[k] = oapi.SaveDataStatEffect{Stat: string(e.Stat), Value: int32(e.Value)}
+				}
+				conds[j].Effects = &effects
+			}
+		}
+		parts[i].Conditions = &conds
+	}
+	return oapi.SaveDataHealthStatusComponent{Parts: parts}
+}
+
+func healthStatusFromSaveData(sd oapi.SaveDataHealthStatusComponent) gc.HealthStatus {
+	var hs gc.HealthStatus
+	for i := 0; i < len(sd.Parts) && i < len(hs.Parts); i++ {
+		if sd.Parts[i].Conditions == nil {
+			continue
+		}
+		for _, sc := range *sd.Parts[i].Conditions {
+			cond := gc.HealthCondition{
+				Type:     gc.ConditionType(sc.Type),
+				Severity: gc.Severity(sc.Severity),
+				Timer:    sc.Timer,
+			}
+			if sc.Effects != nil {
+				for _, se := range *sc.Effects {
+					cond.Effects = append(cond.Effects, gc.StatEffect{
+						Stat:  gc.StatType(se.Stat),
+						Value: int(se.Value),
+					})
+				}
+			}
+			hs.Parts[i].Conditions = append(hs.Parts[i].Conditions, cond)
+		}
+	}
+	return hs
+}
+
+// ================== スキルコンポーネント ==================
+
+func skillsToSaveData(skills gc.Skills) oapi.SaveDataSkillsComponent {
+	data := make(map[string]oapi.SaveDataSkillEntry, len(skills.Data))
+	for id, sk := range skills.Data {
+		data[string(id)] = oapi.SaveDataSkillEntry{
+			Value:      int32(sk.Value),
+			ExpMax:     int32(sk.Exp.Max),
+			ExpCurrent: int32(sk.Exp.Current),
+		}
+	}
+	return oapi.SaveDataSkillsComponent{Data: data}
+}
+
+func skillsFromSaveData(sd oapi.SaveDataSkillsComponent) *gc.Skills {
+	skills := gc.NewSkills()
+	for id, entry := range sd.Data {
+		skillID := gc.SkillID(id)
+		if !gc.HasSkillName(skillID) {
+			continue
+		}
+		sk := skills.Data[skillID]
+		sk.Value = int(entry.Value)
+		sk.Exp.Max = int(entry.ExpMax)
+		sk.Exp.Current = int(entry.ExpCurrent)
+	}
+	return skills
+}
+
 // ================== マーカーコンポーネント ==================
 
 // emptyMarker はマーカーコンポーネント用の空マップを返す

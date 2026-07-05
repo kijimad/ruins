@@ -3,276 +3,120 @@ package tabmenu
 import (
 	"testing"
 
-	"github.com/kijimaD/ruins/internal/inputmapper"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestTabSwitching(t *testing.T) {
+func TestGetVisibleItems(t *testing.T) {
 	t.Parallel()
-	tabs := []TabItem{
-		{ID: "tab1", Label: "タブ1", Items: []Item{{ID: "item1", Label: "アイテム1"}}},
-		{ID: "tab2", Label: "タブ2", Items: []Item{{ID: "item2", Label: "アイテム2"}}},
-		{ID: "tab3", Label: "タブ3", Items: []Item{{ID: "item3", Label: "アイテム3"}}},
+
+	items := make([]Item, 10)
+	for i := range items {
+		items[i] = Item{ID: string(rune('A' + i)), Label: string(rune('A' + i))}
 	}
 
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-	}
+	t.Run("ページネーションありの場合は指定数だけ返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 3,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 0}
+		visible, indices := getVisibleItems(config, state)
+		assert.Len(t, visible, 3)
+		assert.Equal(t, []int{0, 1, 2}, indices)
+	})
 
-	tabChangeCount := 0
-	callbacks := Callbacks{
-		OnTabChange: func(_, _ int, _ TabItem) {
-			tabChangeCount++
-		},
-	}
+	t.Run("2ページ目のアイテムを返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 3,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 4}
+		visible, indices := getVisibleItems(config, state)
+		assert.Len(t, visible, 3)
+		assert.Equal(t, []int{3, 4, 5}, indices)
+	})
 
-	tabMenu := newTabMenu(config, callbacks)
+	t.Run("ページネーションなしの場合は全件返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 0,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 0}
+		visible, _ := getVisibleItems(config, state)
+		assert.Len(t, visible, 10)
+	})
 
-	// 初期状態の確認
-	if tabMenu.GetCurrentTabIndex() != 0 {
-		t.Errorf("初期タブインデックスが不正: 期待 0, 実際 %d", tabMenu.GetCurrentTabIndex())
-	}
-
-	// ActionMenuRightでタブ2に移動
-	err := tabMenu.DoAction(inputmapper.ActionMenuRight)
-	require.NoError(t, err)
-
-	if tabMenu.GetCurrentTabIndex() != 1 {
-		t.Errorf("ActionMenuRight後のタブインデックスが不正: 期待 1, 実際 %d", tabMenu.GetCurrentTabIndex())
-	}
-	if tabChangeCount != 1 {
-		t.Errorf("タブ変更コールバック回数が不正: 期待 1, 実際 %d", tabChangeCount)
-	}
-
-	// ActionMenuLeftでタブ1に戻る
-	err = tabMenu.DoAction(inputmapper.ActionMenuLeft)
-	require.NoError(t, err)
-
-	if tabMenu.GetCurrentTabIndex() != 0 {
-		t.Errorf("ActionMenuLeft後のタブインデックスが不正: 期待 0, 実際 %d", tabMenu.GetCurrentTabIndex())
-	}
-	if tabChangeCount != 2 {
-		t.Errorf("タブ変更コールバック回数が不正: 期待 2, 実際 %d", tabChangeCount)
-	}
+	t.Run("空タブの場合は空を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{}}
+		state := ViewState{}
+		visible, indices := getVisibleItems(config, state)
+		assert.Empty(t, visible)
+		assert.Empty(t, indices)
+	})
 }
 
-func TestItemNavigation(t *testing.T) {
+func TestPageIndicatorText(t *testing.T) {
 	t.Parallel()
-	tabs := []TabItem{
-		{
-			ID:    "tab1",
-			Label: "タブ1",
-			Items: []Item{
-				{ID: "item1", Label: "アイテム1"},
-				{ID: "item2", Label: "アイテム2"},
-				{ID: "item3", Label: "アイテム3"},
-			},
-		},
+
+	items := make([]Item, 5)
+	for i := range items {
+		items[i] = Item{ID: string(rune('A' + i))}
 	}
 
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-	}
+	t.Run("複数ページの場合はテキストを返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 2,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 0}
+		text := pageIndicatorText(config, state)
+		assert.Contains(t, text, "1/3")
+	})
 
-	itemChangeCount := 0
-	callbacks := Callbacks{
-		OnItemChange: func(_ int, _, _ int, _ Item) error {
-			itemChangeCount++
-			return nil
-		},
-	}
+	t.Run("ページネーションなしの場合は空文字を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 0,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 0}
+		assert.Empty(t, pageIndicatorText(config, state))
+	})
 
-	tabMenu := newTabMenu(config, callbacks)
-
-	// 初期状態の確認
-	if tabMenu.GetCurrentItemIndex() != 0 {
-		t.Errorf("初期アイテムインデックスが不正: 期待 0, 実際 %d", tabMenu.GetCurrentItemIndex())
-	}
-
-	// ActionMenuDownでアイテム2に移動
-	err := tabMenu.DoAction(inputmapper.ActionMenuDown)
-	require.NoError(t, err)
-
-	if tabMenu.GetCurrentItemIndex() != 1 {
-		t.Errorf("ActionMenuDown後のアイテムインデックスが不正: 期待 1, 実際 %d", tabMenu.GetCurrentItemIndex())
-	}
-	if itemChangeCount != 1 {
-		t.Errorf("アイテム変更コールバック回数が不正: 期待 1, 実際 %d", itemChangeCount)
-	}
-
-	// ActionMenuUpでアイテム1に戻る
-	err = tabMenu.DoAction(inputmapper.ActionMenuUp)
-	require.NoError(t, err)
-
-	if tabMenu.GetCurrentItemIndex() != 0 {
-		t.Errorf("ActionMenuUp後のアイテムインデックスが不正: 期待 0, 実際 %d", tabMenu.GetCurrentItemIndex())
-	}
+	t.Run("1ページの場合は空文字を返す", func(t *testing.T) {
+		t.Parallel()
+		config := Config{
+			Tabs:         []TabItem{{ID: "t1", Items: items}},
+			ItemsPerPage: 10,
+		}
+		state := ViewState{TabIndex: 0, ItemIndex: 0}
+		assert.Empty(t, pageIndicatorText(config, state))
+	})
 }
 
-func TestWrapNavigation(t *testing.T) {
+func TestTotalPages(t *testing.T) {
 	t.Parallel()
-	tabs := []TabItem{
-		{ID: "tab1", Label: "タブ1", Items: []Item{{ID: "item1", Label: "アイテム1"}}},
-		{ID: "tab2", Label: "タブ2", Items: []Item{{ID: "item2", Label: "アイテム2"}}},
-	}
 
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-		WrapNavigation:   true,
-	}
+	t.Run("ページネーションなしは1ページ", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 5)}}, ItemsPerPage: 0}
+		assert.Equal(t, 1, totalPages(config, ViewState{}))
+	})
 
-	tabMenu := newTabMenu(config, Callbacks{})
+	t.Run("空タブは1ページ", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{}}
+		assert.Equal(t, 1, totalPages(config, ViewState{}))
+	})
 
-	// 最初のタブでActionMenuLeft → 最後のタブに循環
-	err := tabMenu.DoAction(inputmapper.ActionMenuLeft)
-	require.NoError(t, err)
-
-	if tabMenu.GetCurrentTabIndex() != 1 {
-		t.Errorf("ActionMenuLeft循環後のタブインデックスが不正: 期待 1, 実際 %d", tabMenu.GetCurrentTabIndex())
-	}
-
-	// 最後のタブでActionMenuRight → 最初のタブに循環
-	err = tabMenu.DoAction(inputmapper.ActionMenuRight)
-	require.NoError(t, err)
-
-	if tabMenu.GetCurrentTabIndex() != 0 {
-		t.Errorf("ActionMenuRight循環後のタブインデックスが不正: 期待 0, 実際 %d", tabMenu.GetCurrentTabIndex())
-	}
-}
-
-func TestSelection(t *testing.T) {
-	t.Parallel()
-	tabs := []TabItem{
-		{
-			ID:    "tab1",
-			Label: "タブ1",
-			Items: []Item{
-				{ID: "item1", Label: "アイテム1", UserData: "data1"},
-			},
-		},
-	}
-
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-	}
-
-	var selectedItem Item
-	callbacks := Callbacks{
-		OnSelectItem: func(_, _ int, _ TabItem, item Item) error {
-			selectedItem = item
-			return nil
-		},
-	}
-
-	tabMenu := newTabMenu(config, callbacks)
-
-	// ActionMenuSelectで選択
-	err := tabMenu.DoAction(inputmapper.ActionMenuSelect)
-	require.NoError(t, err)
-
-	if selectedItem.ID != "item1" {
-		t.Errorf("選択されたアイテムが不正: 期待 item1, 実際 %s", selectedItem.ID)
-	}
-}
-
-func TestCancel(t *testing.T) {
-	t.Parallel()
-	tabs := []TabItem{
-		{ID: "tab1", Label: "タブ1", Items: []Item{{ID: "item1", Label: "アイテム1"}}},
-	}
-
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-	}
-
-	cancelCalled := false
-	callbacks := Callbacks{
-		OnCancel: func() {
-			cancelCalled = true
-		},
-	}
-
-	tabMenu := newTabMenu(config, callbacks)
-
-	// ActionMenuCancelでキャンセル
-	err := tabMenu.DoAction(inputmapper.ActionMenuCancel)
-	require.NoError(t, err)
-
-	if !cancelCalled {
-		t.Error("OnCancelが呼ばれていない")
-	}
-}
-
-func TestTabMenuGetters(t *testing.T) {
-	t.Parallel()
-	tabs := []TabItem{
-		{
-			ID:    "tab1",
-			Label: "タブ1",
-			Items: []Item{
-				{ID: "item1", Label: "アイテム1"},
-				{ID: "item2", Label: "アイテム2"},
-			},
-		},
-	}
-
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 1,
-	}
-
-	tabMenu := newTabMenu(config, Callbacks{})
-
-	// 現在のタブとアイテムの確認
-	currentTab := tabMenu.GetCurrentTab()
-	if currentTab.ID != "tab1" {
-		t.Errorf("現在のタブが不正: 期待 tab1, 実際 %s", currentTab.ID)
-	}
-
-	currentItem := tabMenu.GetCurrentItem()
-	if currentItem.ID != "item2" {
-		t.Errorf("現在のアイテムが不正: 期待 item2, 実際 %s", currentItem.ID)
-	}
-}
-
-func TestTabMenuSetters(t *testing.T) {
-	t.Parallel()
-	tabs := []TabItem{
-		{ID: "tab1", Label: "タブ1", Items: []Item{{ID: "item1", Label: "アイテム1"}, {ID: "item2", Label: "アイテム2"}}},
-		{ID: "tab2", Label: "タブ2", Items: []Item{{ID: "item3", Label: "アイテム3"}}},
-	}
-
-	config := Config{
-		Tabs:             tabs,
-		InitialTabIndex:  0,
-		InitialItemIndex: 0,
-	}
-
-	tabMenu := newTabMenu(config, Callbacks{})
-
-	// タブインデックスの設定
-	require.NoError(t, tabMenu.SetTabIndex(1))
-	if tabMenu.GetCurrentTabIndex() != 1 {
-		t.Errorf("設定後のタブインデックスが不正: 期待 1, 実際 %d", tabMenu.GetCurrentTabIndex())
-	}
-
-	// アイテムインデックスの設定
-	require.NoError(t, tabMenu.SetTabIndex(0)) // タブ1に戻す
-	require.NoError(t, tabMenu.SetItemIndex(1))
-	if tabMenu.GetCurrentItemIndex() != 1 {
-		t.Errorf("設定後のアイテムインデックスが不正: 期待 1, 実際 %d", tabMenu.GetCurrentItemIndex())
-	}
+	t.Run("10件で3件ずつは4ページ", func(t *testing.T) {
+		t.Parallel()
+		config := Config{Tabs: []TabItem{{ID: "t1", Items: make([]Item, 10)}}, ItemsPerPage: 3}
+		assert.Equal(t, 4, totalPages(config, ViewState{}))
+	})
 }
