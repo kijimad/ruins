@@ -379,7 +379,7 @@ func TestListSaves(t *testing.T) {
 	})
 }
 
-func Test_rotateAutoSaves(t *testing.T) {
+func TestAutoSaveRotation(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	tempDir := t.TempDir()
@@ -389,24 +389,13 @@ func Test_rotateAutoSaves(t *testing.T) {
 	entity.AddComponent(world.Components.Name, &gc.Name{Name: "Ash"})
 	entity.AddComponent(world.Components.Player, &gc.Player{})
 
-	// maxAutoSaves + 2個のオートセーブを作成
-	for i := range maxAutoSaves + 2 {
-		slotName := autoSavePrefix + time.Now().Add(time.Duration(i)*time.Minute).Format("20060102_1504")
-		require.NoError(t, manager.SaveWorld(world, slotName))
+	for range maxAutoSaves + 2 {
+		require.NoError(t, manager.AutoSave(world))
 	}
 
-	require.NoError(t, manager.rotateAutoSaves())
-
-	saves, err := manager.ListSaves()
+	autoSaves, err := manager.ListAutoSaves()
 	require.NoError(t, err)
-
-	autoCount := 0
-	for _, name := range saves {
-		if strings.HasPrefix(name, autoSavePrefix) {
-			autoCount++
-		}
-	}
-	assert.Equal(t, maxAutoSaves, autoCount)
+	assert.Equal(t, maxAutoSaves, len(autoSaves))
 }
 
 func TestGetSavePlayerName(t *testing.T) {
