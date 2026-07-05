@@ -412,7 +412,7 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 				Movement:      gc.SquadMovement(sd.Movement),
 				ItemPickup:    gc.ItemPickupPolicy(string(sd.ItemPickup)),
 				ItemHandling:  gc.ItemHandlingPolicy(string(sd.ItemHandling)),
-				ViewDistance:  5,
+				ViewDistance:  consts.AIVisionDistance,
 			},
 		}
 	case gc.PlannerSolo:

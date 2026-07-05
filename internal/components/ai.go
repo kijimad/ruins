@@ -102,7 +102,7 @@ func DefaultSquadAI() AI {
 			CombatDefault: CombatAttack,
 			CombatCurrent: CombatAttack,
 			Movement:      SquadEscort,
-			ViewDistance:  5,
+			ViewDistance:  consts.AIVisionDistance,
 			ItemPickup:    PolicyPickup,
 			ItemHandling:  PolicyDistribute,
 		},

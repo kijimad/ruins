@@ -18,8 +18,6 @@ import (
 // 定数定義
 const (
 	cameraNormalScale = 0.6 // カメラの通常スケール
-	// AIVisionDistance はAIエンティティの視界距離（タイル単位）
-	AIVisionDistance = 5
 )
 
 // エラー定義
@@ -123,14 +121,17 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 	if entitySpec.AI != nil {
-		solo := entitySpec.AI.Planner.(*gc.SoloAI)
+		solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
+		if !ok {
+			return consts.InvalidEntity, fmt.Errorf("NPC %q のPlannerがSoloAIではありません: %T", name, entitySpec.AI.Planner)
+		}
 		solo.SubState = gc.AIStateWaiting
 		solo.StartSubStateTurn = 1
 		solo.DurationSubStateTurns = 2 + rand.IntN(3)
 		solo.OriginX = tileX
 		solo.OriginY = tileY
 		solo.PatrolDirX = initialPatrolDir()
-		solo.ViewDistance = AIVisionDistance
+		solo.ViewDistance = consts.AIVisionDistance
 	}
 
 	componentList.Entities = append(componentList.Entities, entitySpec)
@@ -173,14 +174,17 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	if entitySpec.AI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
-	solo := entitySpec.AI.Planner.(*gc.SoloAI)
+	solo, ok := entitySpec.AI.Planner.(*gc.SoloAI)
+	if !ok {
+		return consts.InvalidEntity, fmt.Errorf("敵 %q のPlannerがSoloAIではありません: %T", entitySpec.Name, entitySpec.AI.Planner)
+	}
 	solo.SubState = gc.AIStateWaiting
 	solo.StartSubStateTurn = 1
 	solo.DurationSubStateTurns = 2 + rand.IntN(3)
 	solo.OriginX = tileX
 	solo.OriginY = tileY
 	solo.PatrolDirX = initialPatrolDir()
-	solo.ViewDistance = AIVisionDistance
+	solo.ViewDistance = consts.AIVisionDistance
 	entitySpec.Interactable = &gc.Interactable{
 		Interactions: []gc.InteractionData{gc.MeleeInteraction{}},
 	}
@@ -455,12 +459,4 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	effectEntity.AddComponent(world.Components.VisualEffect, &gc.VisualEffects{
 		Effects: []gc.VisualEffect{effect},
 	})
-}
-
-// validateAI はAIのPlannerが有効かを検証する
-func validateAI(ai *gc.AI) error {
-	if ai.Planner == nil {
-		return fmt.Errorf("PlannerConfig が nil です")
-	}
-	return nil
 }

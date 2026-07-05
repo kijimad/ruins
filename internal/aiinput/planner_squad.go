@@ -156,10 +156,9 @@ func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *
 		return sp.planAttackAction(world, entity, ctx)
 	case gc.CombatEvade:
 		return sp.planEvadeAction(world, entity, ctx)
-	case gc.CombatIgnore:
+	default:
 		return nil, activity.ActionParams{}, false
 	}
-	return nil, activity.ActionParams{}, false
 }
 
 // planAttackAction は攻撃ポリシーに基づくアクションを計画する。
