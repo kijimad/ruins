@@ -21,8 +21,8 @@ const saveDataVersion = "1.0.0"
 
 const maxAutoSaves = 4
 
-// AutoSavePrefix はオートセーブスロット名の接頭辞
-const AutoSavePrefix = "auto_"
+// autoSavePrefix はオートセーブスロット名の接頭辞
+const autoSavePrefix = "auto_"
 
 const defaultSaveDir = "./saves"
 
@@ -644,10 +644,25 @@ func (sm *SerializationManager) ListSaves() ([]string, error) {
 	return valid, nil
 }
 
+// ListAutoSaves はオートセーブスロット名の一覧を返す。
+func (sm *SerializationManager) ListAutoSaves() ([]string, error) {
+	saves, err := sm.ListSaves()
+	if err != nil {
+		return nil, err
+	}
+	var autoSaves []string
+	for _, name := range saves {
+		if strings.HasPrefix(name, autoSavePrefix) {
+			autoSaves = append(autoSaves, name)
+		}
+	}
+	return autoSaves, nil
+}
+
 // AutoSave はオートセーブを実行する。
 // スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。
 func (sm *SerializationManager) AutoSave(world w.World) error {
-	slotName := fmt.Sprintf("%s%d", AutoSavePrefix, time.Now().UnixNano())
+	slotName := fmt.Sprintf("%s%d", autoSavePrefix, time.Now().UnixNano())
 	if err := sm.SaveWorld(world, slotName); err != nil {
 		return fmt.Errorf("オートセーブに失敗: %w", err)
 	}
@@ -660,16 +675,9 @@ func (sm *SerializationManager) AutoSave(world w.World) error {
 // rotateAutoSaves はオートセーブを最大件数まで削減する。
 // 古い順に削除して maxAutoSaves 件を保持する。
 func (sm *SerializationManager) rotateAutoSaves() error {
-	saves, err := sm.ListSaves()
+	autoSaves, err := sm.ListAutoSaves()
 	if err != nil {
 		return err
-	}
-
-	var autoSaves []string
-	for _, name := range saves {
-		if strings.HasPrefix(name, AutoSavePrefix) {
-			autoSaves = append(autoSaves, name)
-		}
 	}
 
 	if len(autoSaves) <= maxAutoSaves {

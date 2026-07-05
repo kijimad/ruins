@@ -368,7 +368,7 @@ func TestListSaves(t *testing.T) {
 		autoCount := 0
 		manualCount := 0
 		for _, name := range saves {
-			if strings.HasPrefix(name, AutoSavePrefix) {
+			if strings.HasPrefix(name, autoSavePrefix) {
 				autoCount++
 			} else {
 				manualCount++
@@ -391,7 +391,7 @@ func Test_rotateAutoSaves(t *testing.T) {
 
 	// maxAutoSaves + 2個のオートセーブを作成
 	for i := range maxAutoSaves + 2 {
-		slotName := AutoSavePrefix + time.Now().Add(time.Duration(i)*time.Minute).Format("20060102_1504")
+		slotName := autoSavePrefix + time.Now().Add(time.Duration(i)*time.Minute).Format("20060102_1504")
 		require.NoError(t, manager.SaveWorld(world, slotName))
 	}
 
@@ -402,7 +402,7 @@ func Test_rotateAutoSaves(t *testing.T) {
 
 	autoCount := 0
 	for _, name := range saves {
-		if strings.HasPrefix(name, AutoSavePrefix) {
+		if strings.HasPrefix(name, autoSavePrefix) {
 			autoCount++
 		}
 	}

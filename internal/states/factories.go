@@ -2,7 +2,6 @@ package states
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/kijimaD/ruins/internal/activity"
 	gc "github.com/kijimaD/ruins/internal/components"
@@ -653,15 +652,12 @@ func NewLoadMenuState() es.State[w.World] {
 
 	// オートセーブセクション
 	messageData = messageData.WithChoice("オートセーブ", nil)
-	saves, err := saveManager.ListSaves()
+	autoSaves, err := saveManager.ListAutoSaves()
 	if err != nil {
-		panic(fmt.Sprintf("セーブ一覧の取得に失敗: %v", err))
+		panic(fmt.Sprintf("オートセーブ一覧の取得に失敗: %v", err))
 	}
-	var autoSaves []string
-	for _, name := range saves {
-		if strings.HasPrefix(name, save.AutoSavePrefix) && len(autoSaves) < 4 {
-			autoSaves = append(autoSaves, name)
-		}
+	if len(autoSaves) > 4 {
+		autoSaves = autoSaves[:4]
 	}
 	for i := range 4 {
 		if i < len(autoSaves) {
