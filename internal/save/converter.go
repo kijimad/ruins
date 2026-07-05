@@ -421,6 +421,7 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
 				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
 				Movement:      gc.SoloMovement(sd.Movement),
+				ViewDistance:  consts.AIVisionDistance,
 			},
 		}
 	default:
