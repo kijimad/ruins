@@ -415,7 +415,7 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 				ViewDistance:  5,
 			},
 		}
-	default:
+	case gc.PlannerSolo:
 		return gc.AI{
 			Planner: &gc.SoloAI{
 				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
@@ -423,6 +423,8 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 				Movement:      gc.MovementPolicy(string(sd.Movement)),
 			},
 		}
+	default:
+		panic(fmt.Sprintf("未知のPlannerType: %q", sd.Planner))
 	}
 }
 
