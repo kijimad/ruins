@@ -457,32 +457,10 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 	})
 }
 
-// validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
+// validateAI はAIのPlannerが有効かを検証する
 func validateAI(ai *gc.AI) error {
-	switch p := ai.Planner.(type) {
-	case *gc.SoloAI:
-		switch p.Movement {
-		case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
-			gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
-			gc.MovementSwarm:
-		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:
-			return fmt.Errorf("SoloAI に隊員用の MovementPolicy %q は使用できません", p.Movement)
-		default:
-			return fmt.Errorf("未知の MovementPolicy %q です", p.Movement)
-		}
-	case *gc.SquadAI:
-		switch p.Movement {
-		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat,
-			gc.MovementPatrol, gc.MovementStationary:
-		case gc.MovementRandom, gc.MovementWallHug, gc.MovementWander,
-			gc.MovementTerritorial, gc.MovementSwarm:
-			return fmt.Errorf("SquadAI に敵用の MovementPolicy %q は使用できません", p.Movement)
-		default:
-			return fmt.Errorf("未知の MovementPolicy %q です", p.Movement)
-		}
-	default:
-		return fmt.Errorf("未知の PlannerConfig 型です: %T", ai.Planner)
+	if ai.Planner == nil {
+		return fmt.Errorf("PlannerConfig が nil です")
 	}
-
 	return nil
 }

@@ -39,7 +39,7 @@ type PlannerConfig interface {
 type SoloAI struct {
 	CombatDefault CombatPolicy
 	CombatCurrent CombatPolicy
-	Movement      MovementPolicy
+	Movement      SoloMovement
 	ViewDistance  consts.Tile
 
 	SubState               AIStateSubState
@@ -72,7 +72,7 @@ func (s *SoloAI) ResetCombat() {
 type SquadAI struct {
 	CombatDefault CombatPolicy
 	CombatCurrent CombatPolicy
-	Movement      MovementPolicy
+	Movement      SquadMovement
 	ViewDistance  consts.Tile
 	ItemPickup    ItemPickupPolicy
 	ItemHandling  ItemHandlingPolicy
@@ -101,7 +101,7 @@ func DefaultSquadAI() AI {
 		Planner: &SquadAI{
 			CombatDefault: CombatAttack,
 			CombatCurrent: CombatAttack,
-			Movement:      MovementEscort,
+			Movement:      SquadEscort,
 			ViewDistance:  5,
 			ItemPickup:    PolicyPickup,
 			ItemHandling:  PolicyDistribute,

@@ -600,7 +600,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 		Planner: &gc.SoloAI{
 			CombatDefault:         gc.CombatAttack,
 			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.MovementRandom,
+			Movement:              gc.SoloRandom,
 			SubState:              gc.AIStateDriving,
 			StartSubStateTurn:     1,
 			DurationSubStateTurns: 100,
@@ -771,7 +771,7 @@ func TestPatrolMovement(t *testing.T) {
 		Planner: &gc.SoloAI{
 			CombatDefault:         gc.CombatAttack,
 			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.MovementPatrol,
+			Movement:              gc.SoloPatrol,
 			SubState:              gc.AIStateDriving,
 			StartSubStateTurn:     1,
 			DurationSubStateTurns: 100,
@@ -832,7 +832,7 @@ func TestTerritorialMovement(t *testing.T) {
 		Planner: &gc.SoloAI{
 			CombatDefault:         gc.CombatAttack,
 			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.MovementTerritorial,
+			Movement:              gc.SoloTerritorial,
 			SubState:              gc.AIStateDriving,
 			StartSubStateTurn:     1,
 			DurationSubStateTurns: 100,

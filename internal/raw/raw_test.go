@@ -760,12 +760,12 @@ func TestMemberMovementPattern(t *testing.T) {
 	tests := []struct {
 		name     string
 		strategy string
-		expected gc.MovementPolicy
+		expected gc.SoloMovement
 	}{
-		{"random", "random", gc.MovementRandom},
-		{"stationary", "stationary", gc.MovementStationary},
-		{"wander", "wander", gc.MovementWander},
-		{"patrol", "patrol", gc.MovementPatrol},
+		{"random", "random", gc.SoloRandom},
+		{"stationary", "stationary", gc.SoloStationary},
+		{"wander", "wander", gc.SoloWander},
+		{"patrol", "patrol", gc.SoloPatrol},
 	}
 
 	for _, tt := range tests {

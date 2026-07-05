@@ -476,42 +476,17 @@ func TestValidateAI(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Solo+Random は有効",
-			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementRandom}},
+			"SoloAI は有効",
+			&gc.AI{Planner: &gc.SoloAI{Movement: gc.SoloRandom}},
 			false,
 		},
 		{
-			"Solo+Patrol は有効",
-			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementPatrol}},
+			"SquadAI は有効",
+			&gc.AI{Planner: &gc.SquadAI{Movement: gc.SquadEscort}},
 			false,
 		},
 		{
-			"Solo+Wander は有効",
-			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementWander}},
-			false,
-		},
-		{
-			"Solo+Escort は無効",
-			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementEscort}},
-			true,
-		},
-		{
-			"Squad+Escort は有効",
-			&gc.AI{Planner: &gc.SquadAI{Movement: gc.MovementEscort}},
-			false,
-		},
-		{
-			"Squad+Vanguard は有効",
-			&gc.AI{Planner: &gc.SquadAI{Movement: gc.MovementVanguard}},
-			false,
-		},
-		{
-			"Squad+Random は無効",
-			&gc.AI{Planner: &gc.SquadAI{Movement: gc.MovementRandom}},
-			true,
-		},
-		{
-			"未知のPlannerTypeは無効",
+			"Planner が nil は無効",
 			&gc.AI{Planner: nil},
 			true,
 		},

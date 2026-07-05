@@ -288,7 +288,7 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 		for _, m := range members {
 			if ai := query.GetAI(world, m); ai != nil {
 				if squad, ok := ai.Planner.(*gc.SquadAI); ok {
-					squad.Movement = gc.MovementEscort
+					squad.Movement = gc.SquadEscort
 				}
 			}
 		}
@@ -296,7 +296,7 @@ func (st *SquadMenuState) executeBatchCommand(world w.World, command string) {
 		for _, m := range members {
 			if ai := query.GetAI(world, m); ai != nil {
 				if squad, ok := ai.Planner.(*gc.SquadAI); ok {
-					squad.Movement = gc.MovementStationary
+					squad.Movement = gc.SquadStationary
 				}
 			}
 		}
@@ -334,7 +334,7 @@ func (st *SquadMenuState) executeWindowAction(world w.World) error {
 
 	switch {
 	case strings.HasPrefix(selectedAction, "位置"):
-		allPos := gc.AllSquadMovementPolicies()
+		allPos := gc.AllSquadMovements()
 		return cycleAndRefresh(func() {
 			for i, v := range allPos {
 				if v == squad.Movement {

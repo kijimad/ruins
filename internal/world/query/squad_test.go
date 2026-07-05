@@ -144,7 +144,7 @@ func TestGetAI(t *testing.T) {
 		require.NotNil(t, ai)
 		squadAI, ok := ai.Planner.(*gc.SquadAI)
 		require.True(t, ok)
-		assert.Equal(t, gc.MovementEscort, squadAI.Movement)
+		assert.Equal(t, gc.SquadEscort, squadAI.Movement)
 		assert.Equal(t, gc.CombatAttack, squadAI.CombatCurrent)
 	})
 

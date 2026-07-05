@@ -470,7 +470,7 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 			}
 		}
 		if member.MovementPattern != nil && string(*member.MovementPattern) != "" {
-			solo.Movement = gc.MovementPolicy(*member.MovementPattern)
+			solo.Movement = gc.SoloMovement(*member.MovementPattern)
 		}
 		entitySpec.AI = &gc.AI{Planner: &solo}
 	}

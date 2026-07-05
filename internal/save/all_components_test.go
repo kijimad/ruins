@@ -249,7 +249,7 @@ func buildAllComponentsWorld(t *testing.T) w.World {
 		Planner: &gc.SquadAI{
 			CombatDefault: gc.CombatAttack,
 			CombatCurrent: gc.CombatAttack,
-			Movement:      gc.MovementEscort,
+			Movement:      gc.SquadEscort,
 			ItemPickup:    gc.PolicyPickup,
 			ItemHandling:  gc.PolicyKeep,
 		},

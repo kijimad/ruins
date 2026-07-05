@@ -389,11 +389,11 @@ func aiToSaveData(ai gc.AI) oapi.SaveDataSquadPolicyComponent {
 	}
 	switch p := ai.Planner.(type) {
 	case *gc.SoloAI:
-		sd.Movement = oapi.SaveDataMovementPolicyType(string(p.Movement))
+		sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
 		sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
 		sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
 	case *gc.SquadAI:
-		sd.Movement = oapi.SaveDataMovementPolicyType(string(p.Movement))
+		sd.Movement = oapi.SaveDataMovementPolicyType(p.Movement)
 		sd.CombatDefault = oapi.SaveDataCombatPolicyType(string(p.CombatDefault))
 		sd.CombatCurrent = oapi.SaveDataCombatPolicyType(string(p.CombatCurrent))
 		sd.ItemPickup = oapi.SaveDataItemPickupPolicyType(string(p.ItemPickup))
@@ -409,7 +409,7 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 			Planner: &gc.SquadAI{
 				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
 				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
-				Movement:      gc.MovementPolicy(string(sd.Movement)),
+				Movement:      gc.SquadMovement(sd.Movement),
 				ItemPickup:    gc.ItemPickupPolicy(string(sd.ItemPickup)),
 				ItemHandling:  gc.ItemHandlingPolicy(string(sd.ItemHandling)),
 				ViewDistance:  5,
@@ -420,7 +420,7 @@ func aiFromSaveData(sd oapi.SaveDataSquadPolicyComponent) gc.AI {
 			Planner: &gc.SoloAI{
 				CombatDefault: gc.CombatPolicy(string(sd.CombatDefault)),
 				CombatCurrent: gc.CombatPolicy(string(sd.CombatCurrent)),
-				Movement:      gc.MovementPolicy(string(sd.Movement)),
+				Movement:      gc.SoloMovement(sd.Movement),
 			},
 		}
 	default:

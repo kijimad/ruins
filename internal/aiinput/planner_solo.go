@@ -18,7 +18,7 @@ import (
 const territorialRadius = 5
 
 // soloPlanner は敵・中立NPC用の行動計画を実装する。
-// AIStateの状態遷移とMovementPolicyによる移動を統合して行動を決定する
+// AIStateの状態遷移とSoloMovementによる移動を統合して行動を決定する
 type soloPlanner struct {
 	visionSystem VisionSystem
 	logger       *logger.Logger
@@ -228,17 +228,17 @@ func (rp *soloPlanner) planRandomMoveAction(world w.World, aiEntity ecs.Entity, 
 
 func (rp *soloPlanner) planDrivingAction(world w.World, aiEntity ecs.Entity, solo *gc.SoloAI, grid *gc.GridElement) (activity.Behavior, activity.ActionParams) {
 	switch solo.Movement {
-	case gc.MovementStationary:
+	case gc.SoloStationary:
 		return waitAction(aiEntity, "AI固定待機")
-	case gc.MovementWander:
+	case gc.SoloWander:
 		return rp.planWanderAction(world, aiEntity, grid)
-	case gc.MovementWallHug:
+	case gc.SoloWallHug:
 		return rp.planWallHugAction(world, aiEntity, grid)
-	case gc.MovementSwarm:
+	case gc.SoloSwarm:
 		return rp.planSwarmAction(world, aiEntity, grid)
-	case gc.MovementPatrol:
+	case gc.SoloPatrol:
 		return rp.planPatrolAction(world, aiEntity, solo, grid)
-	case gc.MovementTerritorial:
+	case gc.SoloTerritorial:
 		return rp.planTerritorialAction(world, aiEntity, solo, grid)
 	default:
 		return rp.planRandomMoveAction(world, aiEntity, grid)

@@ -349,7 +349,7 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 			Planner: &gc.SoloAI{
 				CombatDefault: gc.CombatAttack,
 				CombatCurrent: gc.CombatAttack,
-				Movement:      gc.MovementRandom,
+				Movement:      gc.SoloRandom,
 			},
 		})
 		enemy.AddComponent(world.Components.Interactable, &gc.Interactable{

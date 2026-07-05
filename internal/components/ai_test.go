@@ -82,23 +82,20 @@ func TestAllSquadCombatPolicies(t *testing.T) {
 	assert.NotContains(t, policies, CombatIgnore, "CombatIgnoreは隊員用ではない")
 }
 
-func TestMovementPolicy_String(t *testing.T) {
+func TestSoloMovement_String(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		p    MovementPolicy
+		p    SoloMovement
 		want string
 	}{
-		{MovementEscort, "護衛"},
-		{MovementVanguard, "前衛"},
-		{MovementPatrol, "巡回"},
-		{MovementStationary, "固定"},
-		{MovementRetreat, "後退"},
-		{MovementRandom, "ランダム"},
-		{MovementWallHug, "壁沿い"},
-		{MovementWander, "徘徊"},
-		{MovementTerritorial, "縄張り"},
-		{MovementSwarm, "群れ"},
+		{SoloRandom, "ランダム"},
+		{SoloPatrol, "巡回"},
+		{SoloWallHug, "壁沿い"},
+		{SoloStationary, "固定"},
+		{SoloWander, "徘徊"},
+		{SoloTerritorial, "縄張り"},
+		{SoloSwarm, "群れ"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.want, func(t *testing.T) {
@@ -108,16 +105,37 @@ func TestMovementPolicy_String(t *testing.T) {
 	}
 }
 
-func TestAllSquadMovementPolicies(t *testing.T) {
+func TestSquadMovement_String(t *testing.T) {
 	t.Parallel()
 
-	policies := AllSquadMovementPolicies()
+	tests := []struct {
+		p    SquadMovement
+		want string
+	}{
+		{SquadEscort, "護衛"},
+		{SquadVanguard, "前衛"},
+		{SquadPatrol, "巡回"},
+		{SquadStationary, "固定"},
+		{SquadRetreat, "後退"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.want, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tt.want, tt.p.String())
+		})
+	}
+}
+
+func TestAllSquadMovements(t *testing.T) {
+	t.Parallel()
+
+	policies := AllSquadMovements()
 	assert.Len(t, policies, 5)
-	assert.Contains(t, policies, MovementEscort)
-	assert.Contains(t, policies, MovementVanguard)
-	assert.Contains(t, policies, MovementPatrol)
-	assert.Contains(t, policies, MovementStationary)
-	assert.Contains(t, policies, MovementRetreat)
+	assert.Contains(t, policies, SquadEscort)
+	assert.Contains(t, policies, SquadVanguard)
+	assert.Contains(t, policies, SquadPatrol)
+	assert.Contains(t, policies, SquadStationary)
+	assert.Contains(t, policies, SquadRetreat)
 }
 
 func TestItemPickupPolicy_String(t *testing.T) {

@@ -197,15 +197,15 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 // planPositionAction は位置ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) {
 	switch ctx.Squad.Movement {
-	case gc.MovementEscort:
+	case gc.SquadEscort:
 		return sp.planEscortAction(world, entity, ctx)
-	case gc.MovementVanguard:
+	case gc.SquadVanguard:
 		return sp.planVanguardAction(world, entity, ctx)
-	case gc.MovementPatrol:
+	case gc.SquadPatrol:
 		return sp.planSquadPatrolAction(world, entity, ctx)
-	case gc.MovementStationary:
+	case gc.SquadStationary:
 		return waitAction(entity, "隊員待機")
-	case gc.MovementRetreat:
+	case gc.SquadRetreat:
 		return sp.planEscortAction(world, entity, ctx)
 	default:
 		return waitAction(entity, "隊員デフォルト待機")

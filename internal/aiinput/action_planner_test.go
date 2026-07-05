@@ -43,7 +43,7 @@ func TestPlanAction_WaitingState(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -71,7 +71,7 @@ func TestPlanAction_ChasingState_Adjacent(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -97,7 +97,7 @@ func TestPlanAction_ChasingState_NotAdjacent(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -123,7 +123,7 @@ func TestPlanAction_FleeingState(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -150,7 +150,7 @@ func TestPlanAction_DrivingState(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -177,7 +177,7 @@ func TestPlanAction_UnknownState(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -199,7 +199,7 @@ func TestPlanDrivingAction_Stationary(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementStationary,
+		Movement:      gc.SoloStationary,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -222,7 +222,7 @@ func TestPlanDrivingAction_Wander(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementWander,
+		Movement:      gc.SoloWander,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -246,7 +246,7 @@ func TestPlanDrivingAction_WallHug(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementWallHug,
+		Movement:      gc.SoloWallHug,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -270,7 +270,7 @@ func TestPlanDrivingAction_Swarm(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementSwarm,
+		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -294,7 +294,7 @@ func TestPlanDrivingAction_Territorial(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementTerritorial,
+		Movement:      gc.SoloTerritorial,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -319,7 +319,7 @@ func TestPlanDrivingAction_Random(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -343,7 +343,7 @@ func TestPlanDrivingAction_Patrol(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementPatrol,
+		Movement:      gc.SoloPatrol,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -376,7 +376,7 @@ func TestPlanPatrolAction_ReverseOnBlock(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementPatrol,
+		Movement:      gc.SoloPatrol,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -411,7 +411,7 @@ func TestPlanPatrolAction_BothBlocked(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementPatrol,
+		Movement:      gc.SoloPatrol,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -438,7 +438,7 @@ func TestPlanTerritorialAction_StaysInRange(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementTerritorial,
+		Movement:      gc.SoloTerritorial,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -480,7 +480,7 @@ func TestPlanTerritorialAction_AtBoundary(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementTerritorial,
+		Movement:      gc.SoloTerritorial,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -520,7 +520,7 @@ func TestPlanWanderAction(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementWander,
+		Movement:      gc.SoloWander,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -561,7 +561,7 @@ func TestPlanWallHugAction(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementWallHug,
+		Movement:      gc.SoloWallHug,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -591,7 +591,7 @@ func TestPlanSwarmAction_NoAllies(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementSwarm,
+		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -616,7 +616,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementSwarm,
+		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -628,7 +628,7 @@ func TestPlanSwarmAction_WithAlly(t *testing.T) {
 	allyAI := &gc.AI{Planner: &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementSwarm,
+		Movement:      gc.SoloSwarm,
 		ViewDistance:  5,
 	}}
 	ally := world.Manager.NewEntity()
@@ -713,7 +713,7 @@ func TestPlanRandomMoveAction(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -753,7 +753,7 @@ func TestFindNearestHostile_プレイヤーのみ(t *testing.T) {
 	ai := &gc.AI{Planner: &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}}
 	entity := setupTestAI(t, world, 6, 5, ai)
@@ -785,7 +785,7 @@ func TestFindNearestHostile_隊員が最寄り(t *testing.T) {
 	ai := &gc.AI{Planner: &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}}
 	entity := setupTestAI(t, world, 5, 5, ai)
@@ -803,7 +803,7 @@ func TestFindNearestHostile_敵対対象がいない(t *testing.T) {
 	ai := &gc.AI{Planner: &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}}
 	entity := setupTestAI(t, world, 5, 5, ai)
@@ -834,7 +834,7 @@ func TestPlanAction_ChasingState_隊員に隣接で攻撃(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}
@@ -870,7 +870,7 @@ func TestPlanAction_ChasingState_隊員に接近(t *testing.T) {
 	solo := &gc.SoloAI{
 		CombatDefault: gc.CombatAttack,
 		CombatCurrent: gc.CombatAttack,
-		Movement:      gc.MovementRandom,
+		Movement:      gc.SoloRandom,
 		ViewDistance:  5,
 	}
 	ai := &gc.AI{Planner: solo}

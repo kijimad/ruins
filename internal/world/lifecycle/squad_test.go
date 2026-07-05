@@ -60,7 +60,7 @@ func TestSpawnSquadMember(t *testing.T) {
 	ai := world.Components.AI.Get(member).(*gc.AI)
 	assert.Equal(t, gc.PlannerSquad, ai.Planner.Type(), "PlannerはSquad")
 	squad := ai.Planner.(*gc.SquadAI)
-	assert.Equal(t, gc.MovementEscort, squad.Movement, "デフォルト移動ポリシーは護衛")
+	assert.Equal(t, gc.SquadEscort, squad.Movement, "デフォルト移動ポリシーは護衛")
 	assert.Equal(t, gc.CombatAttack, squad.CombatCurrent, "デフォルト戦闘ポリシーは攻撃")
 	assert.Equal(t, gc.PolicyPickup, squad.ItemPickup, "デフォルトアイテムポリシーは回収")
 	assert.Equal(t, gc.PolicyDistribute, squad.ItemHandling, "デフォルトアイテム処理ポリシーは分配")
@@ -146,7 +146,7 @@ func TestGetAI(t *testing.T) {
 	require.NoError(t, err)
 
 	squad := ai.Planner.(*gc.SquadAI)
-	squad.Movement = gc.MovementVanguard
+	squad.Movement = gc.SquadVanguard
 	squad.CombatDefault = gc.CombatEvade
 	squad.CombatCurrent = gc.CombatEvade
 	squad.ItemPickup = gc.PolicyIgnore
@@ -154,7 +154,7 @@ func TestGetAI(t *testing.T) {
 
 	current := world.Components.AI.Get(member).(*gc.AI)
 	currentSquad := current.Planner.(*gc.SquadAI)
-	assert.Equal(t, gc.MovementVanguard, currentSquad.Movement)
+	assert.Equal(t, gc.SquadVanguard, currentSquad.Movement)
 	assert.Equal(t, gc.CombatEvade, currentSquad.CombatCurrent)
 	assert.Equal(t, gc.PolicyIgnore, currentSquad.ItemPickup)
 	assert.Equal(t, gc.PolicyDistribute, currentSquad.ItemHandling)
@@ -173,11 +173,11 @@ func TestGetAI_移動だけ変更しても他のポリシーは変わらない(t
 	ai, err := GetAI(world, member)
 	require.NoError(t, err)
 	squad := ai.Planner.(*gc.SquadAI)
-	squad.Movement = gc.MovementPatrol
+	squad.Movement = gc.SquadPatrol
 
 	current := world.Components.AI.Get(member).(*gc.AI)
 	currentSquad := current.Planner.(*gc.SquadAI)
-	assert.Equal(t, gc.MovementPatrol, currentSquad.Movement, "移動ポリシーが変更された")
+	assert.Equal(t, gc.SquadPatrol, currentSquad.Movement, "移動ポリシーが変更された")
 	assert.Equal(t, gc.CombatAttack, currentSquad.CombatCurrent, "戦闘ポリシーは変わらない")
 }
 

@@ -30,7 +30,7 @@ func TestAISystem(t *testing.T) {
 		Planner: &gc.SoloAI{
 			CombatDefault:         gc.CombatAttack,
 			CombatCurrent:         gc.CombatAttack,
-			Movement:              gc.MovementRandom,
+			Movement:              gc.SoloRandom,
 			SubState:              gc.AIStateWaiting,
 			StartSubStateTurn:     1,
 			DurationSubStateTurns: 2,
