@@ -41,7 +41,7 @@ func newSquadPlanner(rng *rand.Rand) *squadPlanner {
 // squadContext は隊員AIに必要な情報をまとめる
 type squadContext struct {
 	Grid         *gc.GridElement
-	AI           *gc.AI
+	Squad        *gc.SquadAI
 	LeaderEntity ecs.Entity
 	LeaderGrid   *gc.GridElement
 }
@@ -79,7 +79,7 @@ func (sp *squadPlanner) gatherSquadContext(world w.World, entity ecs.Entity) (*s
 
 	return &squadContext{
 		Grid:         grid,
-		AI:           aiComp.(*gc.AI),
+		Squad:        aiComp.(*gc.AI).Planner.(*gc.SquadAI),
 		LeaderEntity: leader,
 		LeaderGrid:   world.Components.GridElement.Get(leader).(*gc.GridElement),
 	}, true
@@ -151,7 +151,7 @@ func (sp *squadPlanner) planReturnToExploredArea(world w.World, entity ecs.Entit
 
 // planCombatAction は戦闘ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planCombatAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	switch ctx.AI.CombatCurrent {
+	switch ctx.Squad.CombatCurrent {
 	case gc.CombatAttack:
 		return sp.planAttackAction(world, entity, ctx)
 	case gc.CombatEvade:
@@ -196,7 +196,7 @@ func (sp *squadPlanner) planEvadeAction(world w.World, entity ecs.Entity, ctx *s
 
 // planPositionAction は位置ポリシーに基づくアクションを計画する
 func (sp *squadPlanner) planPositionAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams) {
-	switch ctx.AI.Movement {
+	switch ctx.Squad.Movement {
 	case gc.MovementEscort:
 		return sp.planEscortAction(world, entity, ctx)
 	case gc.MovementVanguard:
@@ -252,7 +252,7 @@ func (sp *squadPlanner) planSquadPatrolAction(world w.World, entity ecs.Entity, 
 // 足元にアイテムがあれば拾い、なければ視界内のアイテムに向かって移動する。
 // PolicyIgnoreの場合は何もしない
 func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	if ctx.AI.ItemPickup == gc.PolicyIgnore {
+	if ctx.Squad.ItemPickup == gc.PolicyIgnore {
 		return nil, activity.ActionParams{}, false
 	}
 
@@ -275,7 +275,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 		}
 
 		dist := gridDistance(ctx.Grid, grid)
-		if dist > int(ctx.AI.ViewDistance) {
+		if dist > int(ctx.Squad.ViewDistance) {
 			return
 		}
 		if nearestDist < 0 || dist < nearestDist {
@@ -304,7 +304,7 @@ func (sp *squadPlanner) planItemPickupAction(world w.World, entity ecs.Entity, c
 // planItemHandlingAction はバックパック内のアイテムをポリシーに基づいて処理する。
 // PolicyDistributeの場合はリーダーにアイテムを転送する
 func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity, ctx *squadContext) (activity.Behavior, activity.ActionParams, bool) {
-	if ctx.AI.ItemHandling != gc.PolicyDistribute {
+	if ctx.Squad.ItemHandling != gc.PolicyDistribute {
 		return nil, activity.ActionParams{}, false
 	}
 
@@ -344,7 +344,7 @@ func (sp *squadPlanner) planItemHandlingAction(world w.World, entity ecs.Entity,
 func (sp *squadPlanner) findNearestEnemy(world w.World, entity ecs.Entity, ctx *squadContext) (*ecs.Entity, *gc.GridElement, int) {
 	return query.FindNearestEntity(world, entity, ctx.Grid, func(target ecs.Entity) bool {
 		return query.FactionRelation(world, entity, target) == query.RelationHostile &&
-			sp.visionSystem.CanSeeTarget(world, entity, target, ctx.AI)
+			sp.visionSystem.CanSeeTarget(world, entity, target, ctx.Squad.ViewDistance)
 	})
 }
 

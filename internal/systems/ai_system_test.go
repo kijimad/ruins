@@ -27,15 +27,16 @@ func TestAISystem(t *testing.T) {
 	aiEntity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
 	aiEntity.AddComponent(world.Components.AI, &gc.AI{
-		Planner:               gc.PlannerSolo,
-		CombatDefault:         gc.CombatAttack,
-		CombatCurrent:         gc.CombatAttack,
-		Movement:              gc.MovementRandom,
-		SubState:              gc.AIStateWaiting,
-		StartSubStateTurn:     1,
-		DurationSubStateTurns: 2,
-		ViewDistance:          3,
-		TargetEntity:          &player,
+		Planner: &gc.SoloAI{
+			CombatDefault:         gc.CombatAttack,
+			CombatCurrent:         gc.CombatAttack,
+			Movement:              gc.MovementRandom,
+			SubState:              gc.AIStateWaiting,
+			StartSubStateTurn:     1,
+			DurationSubStateTurns: 2,
+			ViewDistance:          3,
+			TargetEntity:          &player,
+		},
 	})
 
 	// システム実行前の位置を記録
@@ -57,5 +58,5 @@ func TestAISystem(t *testing.T) {
 	// 状態が適切に管理されているかチェック
 	aiState := world.Components.AI.Get(aiEntity).(*gc.AI)
 	validStates := []gc.AIStateSubState{gc.AIStateWaiting, gc.AIStateDriving, gc.AIStateChasing}
-	assert.Contains(t, validStates, aiState.SubState, "AI状態が無効: %v", aiState.SubState)
+	assert.Contains(t, validStates, aiState.Planner.(*gc.SoloAI).SubState, "AI状態が無効: %v", aiState.Planner.(*gc.SoloAI).SubState)
 }

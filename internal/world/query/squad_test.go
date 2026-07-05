@@ -142,8 +142,10 @@ func TestGetAI(t *testing.T) {
 
 		ai := query.GetAI(world, member)
 		require.NotNil(t, ai)
-		assert.Equal(t, gc.MovementEscort, ai.Movement)
-		assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+		squadAI, ok := ai.Planner.(*gc.SquadAI)
+		require.True(t, ok)
+		assert.Equal(t, gc.MovementEscort, squadAI.Movement)
+		assert.Equal(t, gc.CombatAttack, squadAI.CombatCurrent)
 	})
 
 	t.Run("AIがないエンティティではnilを返す", func(t *testing.T) {

@@ -346,10 +346,11 @@ func TestGetInteractionActions_Prop(t *testing.T) {
 		enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: 11, Y: 10})
 		enemy.AddComponent(world.Components.Name, &gc.Name{Name: "ゴブリン"})
 		enemy.AddComponent(world.Components.AI, &gc.AI{
-			Planner:       gc.PlannerSolo,
-			CombatDefault: gc.CombatAttack,
-			CombatCurrent: gc.CombatAttack,
-			Movement:      gc.MovementRandom,
+			Planner: &gc.SoloAI{
+				CombatDefault: gc.CombatAttack,
+				CombatCurrent: gc.CombatAttack,
+				Movement:      gc.MovementRandom,
+			},
 		})
 		enemy.AddComponent(world.Components.Interactable, &gc.Interactable{
 			Interactions: []gc.InteractionData{gc.MeleeInteraction{}},

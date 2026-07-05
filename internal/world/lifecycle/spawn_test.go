@@ -251,8 +251,9 @@ func TestSpawnEnemy_AI(t *testing.T) {
 
 	assert.True(t, enemy.HasComponent(world.Components.AI))
 	ai := world.Components.AI.Get(enemy).(*gc.AI)
-	assert.Equal(t, gc.CombatAttack, ai.CombatDefault)
-	assert.Equal(t, gc.CombatAttack, ai.CombatCurrent)
+	solo := ai.Planner.(*gc.SoloAI)
+	assert.Equal(t, gc.CombatAttack, solo.CombatDefault)
+	assert.Equal(t, gc.CombatAttack, solo.CombatCurrent)
 }
 
 func TestSpawnItem(t *testing.T) {
@@ -476,42 +477,42 @@ func TestValidateAI(t *testing.T) {
 	}{
 		{
 			"Solo+Random は有効",
-			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementRandom},
+			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementRandom}},
 			false,
 		},
 		{
 			"Solo+Patrol は有効",
-			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementPatrol},
+			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementPatrol}},
 			false,
 		},
 		{
 			"Solo+Wander は有効",
-			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementWander},
+			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementWander}},
 			false,
 		},
 		{
 			"Solo+Escort は無効",
-			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementEscort},
+			&gc.AI{Planner: &gc.SoloAI{Movement: gc.MovementEscort}},
 			true,
 		},
 		{
 			"Squad+Escort は有効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementEscort},
+			&gc.AI{Planner: &gc.SquadAI{Movement: gc.MovementEscort}},
 			false,
 		},
 		{
 			"Squad+Vanguard は有効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementVanguard},
+			&gc.AI{Planner: &gc.SquadAI{Movement: gc.MovementVanguard}},
 			false,
 		},
 		{
 			"Squad+Random は無効",
-			&gc.AI{Planner: gc.PlannerSquad, Movement: gc.MovementRandom},
+			&gc.AI{Planner: &gc.SquadAI{Movement: gc.MovementRandom}},
 			true,
 		},
 		{
 			"未知のPlannerTypeは無効",
-			&gc.AI{Planner: gc.PlannerType("unknown"), Movement: gc.MovementRandom},
+			&gc.AI{Planner: nil},
 			true,
 		},
 	}

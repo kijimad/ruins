@@ -719,8 +719,9 @@ Defense = 2
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
 			require.NotNil(t, entitySpec.AI)
-			assert.Equal(t, tt.expectedDefault, entitySpec.AI.CombatDefault)
-			assert.Equal(t, tt.expectedCurrent, entitySpec.AI.CombatCurrent)
+			solo := entitySpec.AI.Planner.(*gc.SoloAI)
+			assert.Equal(t, tt.expectedDefault, solo.CombatDefault)
+			assert.Equal(t, tt.expectedCurrent, solo.CombatCurrent)
 		})
 	}
 }
@@ -750,7 +751,7 @@ Defense = 2
 	entitySpec, err := NewMemberSpec(raws, "態度なし")
 	require.NoError(t, err)
 	require.NotNil(t, entitySpec.AI)
-	assert.Equal(t, gc.CombatAttack, entitySpec.AI.CombatDefault)
+	assert.Equal(t, gc.CombatAttack, entitySpec.AI.Planner.(*gc.SoloAI).CombatDefault)
 }
 
 func TestMemberMovementPattern(t *testing.T) {
@@ -793,7 +794,7 @@ Defense = 2
 			entitySpec, err := NewMemberSpec(raws, "テスト敵")
 			require.NoError(t, err)
 			require.NotNil(t, entitySpec.AI)
-			assert.Equal(t, tt.expected, entitySpec.AI.Movement)
+			assert.Equal(t, tt.expected, entitySpec.AI.Planner.(*gc.SoloAI).Movement)
 		})
 	}
 }
@@ -1002,5 +1003,5 @@ Defense = 2
 	entitySpec, err := NewMemberSpec(raws, "パターンなし")
 	require.NoError(t, err)
 	require.NotNil(t, entitySpec.AI)
-	assert.Empty(t, entitySpec.AI.Movement)
+	assert.Empty(t, entitySpec.AI.Planner.(*gc.SoloAI).Movement)
 }
