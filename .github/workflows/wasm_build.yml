@@ -30,11 +30,11 @@ jobs:
           genhtml coverage.lcov -o ./wasm/cov
           go tool cover -html=coverage.out -o ./wasm/cov/gocoverage.html
           # カバレッジバッジを生成
-          percent=$(go tool cover -func=coverage.out | grep total | awk '{print $3}' | sed 's/%//')
+          percent=$(go tool cover -func=coverage.out | grep '^total:' | awk '{print $3}' | sed 's/%//')
           int=${percent%.*}
-          if [ $int -gt 90 ]; then
+          if [ "$int" -gt 90 ]; then
             curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-green"
-          elif [ $int -gt 75 ]; then
+          elif [ "$int" -gt 75 ]; then
             curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-yellow"
           else
             curl -o ./wasm/cov/coverage.svg "https://img.shields.io/badge/coverage-${percent}%25-red"
