@@ -4,7 +4,6 @@ package save
 
 import (
 	"fmt"
-	"runtime"
 	"strings"
 	"syscall/js"
 )
@@ -16,10 +15,6 @@ func (sm *SerializationManager) initImpl() {
 
 // saveDataImpl はWASM環境でローカルストレージにデータを保存する
 func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error {
-	if runtime.GOOS != "js" {
-		return fmt.Errorf("localStorage is only available in WASM environment")
-	}
-
 	// ローカルストレージにアクセス
 	localStorage := js.Global().Get("localStorage")
 	if localStorage.IsUndefined() {
@@ -37,10 +32,6 @@ func (sm *SerializationManager) saveDataImpl(slotName string, data []byte) error
 
 // loadDataImpl はWASM環境でローカルストレージからデータを読み込む
 func (sm *SerializationManager) loadDataImpl(slotName string) ([]byte, error) {
-	if runtime.GOOS != "js" {
-		return nil, fmt.Errorf("localStorage is only available in WASM environment")
-	}
-
 	// ローカルストレージにアクセス
 	localStorage := js.Global().Get("localStorage")
 	if localStorage.IsUndefined() {
