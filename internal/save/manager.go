@@ -21,6 +21,9 @@ const saveDataVersion = "1.0.0"
 
 const maxAutoSaves = 4
 
+// AutoSavePrefix はオートセーブスロット名の接頭辞
+const AutoSavePrefix = "auto_"
+
 const defaultSaveDir = "./saves"
 
 // Option はSerializationManagerの設定を変更する関数
@@ -651,7 +654,7 @@ func (sm *SerializationManager) RotateAutoSaves() error {
 
 	var autoSaves []string
 	for _, name := range saves {
-		if strings.HasPrefix(name, "auto_") {
+		if strings.HasPrefix(name, AutoSavePrefix) {
 			autoSaves = append(autoSaves, name)
 		}
 	}

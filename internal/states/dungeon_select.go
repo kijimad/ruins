@@ -125,7 +125,7 @@ func (st *DungeonSelectState) DoAction(world w.World, action inputmapper.ActionI
 		return es.Transition[w.World]{Type: es.TransPop}, nil
 	case inputmapper.ActionMenuSelect:
 		saveManager := save.NewSerializationManager()
-		slotName := fmt.Sprintf("auto_%d", time.Now().UnixNano())
+		slotName := fmt.Sprintf("%s%d", save.AutoSavePrefix, time.Now().UnixNano())
 		logger.New(logger.CategorySave).Debug("オートセーブ実行", "slot", slotName)
 		if err := saveManager.SaveWorld(world, slotName); err != nil {
 			return es.Transition[w.World]{}, fmt.Errorf("オートセーブに失敗: %w", err)

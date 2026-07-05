@@ -653,10 +653,13 @@ func NewLoadMenuState() es.State[w.World] {
 
 	// オートセーブセクション
 	messageData = messageData.WithChoice("オートセーブ", nil)
-	saves, _ := saveManager.ListSaves()
+	saves, err := saveManager.ListSaves()
+	if err != nil {
+		panic(fmt.Sprintf("セーブ一覧の取得に失敗: %v", err))
+	}
 	var autoSaves []string
 	for _, name := range saves {
-		if strings.HasPrefix(name, "auto_") && len(autoSaves) < 4 {
+		if strings.HasPrefix(name, save.AutoSavePrefix) && len(autoSaves) < 4 {
 			autoSaves = append(autoSaves, name)
 		}
 	}
