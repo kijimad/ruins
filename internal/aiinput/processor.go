@@ -11,7 +11,7 @@ import (
 )
 
 // Processor はAIエンティティの行動処理を管理する。
-// AI.Plannerフィールドに基づいてroamingPlannerとsquadPlannerを使い分ける
+// AI.Plannerフィールドに基づいてsoloPlannerとsquadPlannerを使い分ける
 type Processor struct {
 	logger   *logger.Logger
 	planners map[gc.PlannerType]Planner
@@ -23,16 +23,16 @@ func NewProcessor(rng *rand.Rand) *Processor {
 	return &Processor{
 		logger: logger.New(logger.CategoryTurn),
 		planners: map[gc.PlannerType]Planner{
-			gc.PlannerRoaming: newRoamingPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
-			gc.PlannerSquad:   newSquadPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
+			gc.PlannerSolo:  newSoloPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
+			gc.PlannerSquad: newSquadPlanner(rand.New(rand.NewPCG(rng.Uint64(), rng.Uint64()))),
 		},
 	}
 }
 
 // ProcessAll は全AIエンティティを処理する。
-// Roamingを先に処理し、敵の移動結果を反映したSquadの判断を可能にする
+// Soloを先に処理し、敵の移動結果を反映したSquadの判断を可能にする
 func (p *Processor) ProcessAll(world w.World) error {
-	if err := p.processByPlanner(world, gc.PlannerRoaming); err != nil {
+	if err := p.processByPlanner(world, gc.PlannerSolo); err != nil {
 		return err
 	}
 	return p.processByPlanner(world, gc.PlannerSquad)

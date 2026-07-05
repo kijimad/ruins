@@ -44,7 +44,7 @@ func TestPlannerType_String(t *testing.T) {
 		p    PlannerType
 		want string
 	}{
-		{PlannerRoaming, "徘徊"},
+		{PlannerSolo, "単独"},
 		{PlannerSquad, "隊員"},
 	}
 	for _, tt := range tests {

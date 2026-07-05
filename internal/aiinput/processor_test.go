@@ -10,7 +10,7 @@ import (
 func TestStateMachine_Hostile(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner(testRNG)
+	rp := newSoloPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatAttack,
@@ -36,7 +36,7 @@ func TestStateMachine_Hostile(t *testing.T) {
 func TestStateMachine_Neutral(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner(testRNG)
+	rp := newSoloPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatIgnore,
@@ -54,7 +54,7 @@ func TestStateMachine_Neutral(t *testing.T) {
 func TestStateMachine_Cowardly(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner(testRNG)
+	rp := newSoloPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
@@ -72,7 +72,7 @@ func TestStateMachine_Cowardly(t *testing.T) {
 func TestStateMachine_Fleeing_Recovery(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner(testRNG)
+	rp := newSoloPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
@@ -96,7 +96,7 @@ func TestStateMachine_Fleeing_Recovery(t *testing.T) {
 func TestStateMachine_NeutralToHostile_StartChasing(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner(testRNG)
+	rp := newSoloPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatIgnore,
@@ -121,7 +121,7 @@ func TestStateMachine_NeutralToHostile_StartChasing(t *testing.T) {
 func TestStateMachine_CowardlyToFleeing_StartFleeing(t *testing.T) {
 	t.Parallel()
 
-	rp := newRoamingPlanner(testRNG)
+	rp := newSoloPlanner(testRNG)
 
 	ai := &gc.AI{
 		CombatDefault:         gc.CombatEvade,
@@ -150,6 +150,7 @@ func TestProcessor(t *testing.T) {
 
 	processor := NewProcessor(testRNG)
 	assert.NotNil(t, processor, "Processorが作成できること")
-	assert.NotNil(t, processor.planners[gc.PlannerRoaming])
+	assert.NotNil(t, processor.planners[gc.PlannerSolo])
+	assert.NotNil(t, processor.planners[gc.PlannerSolo])
 	assert.NotNil(t, processor.planners[gc.PlannerSquad])
 }

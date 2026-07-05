@@ -591,7 +591,7 @@ enum HealingAmountType {
 
 /** 行動計画の種別 */
 enum PlannerType {
-  roaming: "roaming",
+  solo: "solo",
   squad: "squad",
 }
 

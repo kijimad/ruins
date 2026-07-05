@@ -597,7 +597,7 @@ func TestAIEntityActuallyMoves(t *testing.T) {
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
 	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner:               gc.PlannerRoaming,
+		Planner:               gc.PlannerSolo,
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
 		Movement:              gc.MovementRandom,
@@ -765,7 +765,7 @@ func TestPatrolMovement(t *testing.T) {
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(enemyX), Y: consts.Tile(enemyY)})
 	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner:               gc.PlannerRoaming,
+		Planner:               gc.PlannerSolo,
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
 		Movement:              gc.MovementPatrol,
@@ -825,7 +825,7 @@ func TestTerritorialMovement(t *testing.T) {
 	enemy.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	enemy.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(spawnX), Y: consts.Tile(spawnY)})
 	enemy.AddComponent(world.Components.AI, &gc.AI{
-		Planner:               gc.PlannerRoaming,
+		Planner:               gc.PlannerSolo,
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
 		Movement:              gc.MovementTerritorial,

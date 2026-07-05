@@ -475,18 +475,23 @@ func TestValidateAI(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"Roaming+Random は有効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementRandom},
+			"Solo+Random は有効",
+			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementRandom},
 			false,
 		},
 		{
-			"Roaming+Patrol は有効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementPatrol},
+			"Solo+Patrol は有効",
+			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementPatrol},
 			false,
 		},
 		{
-			"Roaming+Escort は無効",
-			&gc.AI{Planner: gc.PlannerRoaming, Movement: gc.MovementEscort},
+			"Solo+Wander は有効",
+			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementWander},
+			false,
+		},
+		{
+			"Solo+Escort は無効",
+			&gc.AI{Planner: gc.PlannerSolo, Movement: gc.MovementEscort},
 			true,
 		},
 		{

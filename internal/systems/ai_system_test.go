@@ -27,7 +27,7 @@ func TestAISystem(t *testing.T) {
 	aiEntity.AddComponent(world.Components.FactionEnemy, &gc.FactionEnemy)
 	aiEntity.AddComponent(world.Components.GridElement, &gc.GridElement{X: consts.Tile(5), Y: consts.Tile(5)})
 	aiEntity.AddComponent(world.Components.AI, &gc.AI{
-		Planner:               gc.PlannerRoaming,
+		Planner:               gc.PlannerSolo,
 		CombatDefault:         gc.CombatAttack,
 		CombatCurrent:         gc.CombatAttack,
 		Movement:              gc.MovementRandom,

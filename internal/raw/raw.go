@@ -448,10 +448,9 @@ func NewMemberSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 		}
 	}
 
-	// AI の組み立て
+	// AI の組み立て。PlannerTypeはスポーン時に自動判定するためここでは設定しない
 	{
 		ai := gc.AI{
-			Planner:       gc.PlannerRoaming,
 			CombatDefault: gc.CombatAttack,
 			CombatCurrent: gc.CombatAttack,
 			ItemPickup:    gc.PolicyPickup,
@@ -497,6 +496,7 @@ func NewPlayerSpec(raws oapi.Raws, name string) (gc.EntitySpec, error) {
 	entitySpec.FactionType = &gc.FactionAlly
 	entitySpec.Player = &gc.Player{}
 	entitySpec.Hunger = gc.NewHunger()
+	entitySpec.AI = nil
 	return entitySpec, nil
 }
 

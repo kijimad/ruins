@@ -123,6 +123,7 @@ func SpawnNeutralNPC(world w.World, tileX int, tileY int, name string) (ecs.Enti
 	entitySpec.GridElement = &gc.GridElement{X: consts.Tile(tileX), Y: consts.Tile(tileY)}
 
 	if entitySpec.AI != nil {
+		entitySpec.AI.Planner = gc.PlannerSolo
 		if err := validateAI(entitySpec.AI); err != nil {
 			return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", name, err)
 		}
@@ -175,6 +176,7 @@ func SpawnEnemy(world w.World, tileX int, tileY int, name string, opts ...SpawnE
 	if entitySpec.AI == nil {
 		return consts.InvalidEntity, fmt.Errorf("敵エンティティにAIが指定されていません: %s", entitySpec.Name)
 	}
+	entitySpec.AI.Planner = gc.PlannerSolo
 	if err := validateAI(entitySpec.AI); err != nil {
 		return consts.InvalidEntity, fmt.Errorf("AI検証エラー (%s): %w", entitySpec.Name, err)
 	}
@@ -464,13 +466,13 @@ func SpawnVisualEffect(target ecs.Entity, effect gc.VisualEffect, world w.World)
 // validateAI はAIのPlannerとMovementの組み合わせが有効かを検証する
 func validateAI(ai *gc.AI) error {
 	switch ai.Planner {
-	case gc.PlannerRoaming:
+	case gc.PlannerSolo:
 		switch ai.Movement {
 		case gc.MovementRandom, gc.MovementPatrol, gc.MovementWallHug,
 			gc.MovementStationary, gc.MovementWander, gc.MovementTerritorial,
 			gc.MovementSwarm:
 		case gc.MovementEscort, gc.MovementVanguard, gc.MovementRetreat:
-			return fmt.Errorf("PlannerRoaming に隊員用の MovementPolicy %q は使用できません", ai.Movement)
+			return fmt.Errorf("PlannerSolo に隊員用の MovementPolicy %q は使用できません", ai.Movement)
 		default:
 			return fmt.Errorf("未知の MovementPolicy %q です", ai.Movement)
 		}

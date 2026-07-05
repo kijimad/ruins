@@ -3330,7 +3330,7 @@ components:
     SaveData.PlannerType:
       type: string
       enum:
-        - roaming
+        - solo
         - squad
       description: 行動計画の種別
     SaveData.PoolCurrent:

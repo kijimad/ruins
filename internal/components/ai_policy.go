@@ -4,8 +4,8 @@ package components
 type PlannerType string
 
 const (
-	// PlannerRoaming はAIStateのタイミングサイクルで行動する。敵・中立NPCが使用する
-	PlannerRoaming PlannerType = "roaming"
+	// PlannerSolo は単独行動NPC用。状態遷移とMovementPolicyで行動を決定する
+	PlannerSolo PlannerType = "solo"
 	// PlannerSquad はリーダー追従とアイテム処理を含む。隊員が使用する
 	PlannerSquad PlannerType = "squad"
 )
@@ -13,8 +13,8 @@ const (
 // String は日本語表示名を返す
 func (p PlannerType) String() string {
 	switch p {
-	case PlannerRoaming:
-		return "徘徊"
+	case PlannerSolo:
+		return "単独"
 	case PlannerSquad:
 		return "隊員"
 	default:
