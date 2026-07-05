@@ -379,7 +379,7 @@ func TestListSaves(t *testing.T) {
 	})
 }
 
-func TestRotateAutoSaves(t *testing.T) {
+func Test_rotateAutoSaves(t *testing.T) {
 	t.Parallel()
 	world := testutil.InitTestWorld(t)
 	tempDir := t.TempDir()
@@ -395,7 +395,7 @@ func TestRotateAutoSaves(t *testing.T) {
 		require.NoError(t, manager.SaveWorld(world, slotName))
 	}
 
-	require.NoError(t, manager.RotateAutoSaves())
+	require.NoError(t, manager.rotateAutoSaves())
 
 	saves, err := manager.ListSaves()
 	require.NoError(t, err)

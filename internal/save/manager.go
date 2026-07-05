@@ -644,9 +644,22 @@ func (sm *SerializationManager) ListSaves() ([]string, error) {
 	return valid, nil
 }
 
-// RotateAutoSaves はオートセーブを最大件数まで削減する。
+// AutoSave はオートセーブを実行する。
+// スロット名の生成、保存、古いオートセーブのローテーションを一括で行う。
+func (sm *SerializationManager) AutoSave(world w.World) error {
+	slotName := fmt.Sprintf("%s%d", AutoSavePrefix, time.Now().UnixNano())
+	if err := sm.SaveWorld(world, slotName); err != nil {
+		return fmt.Errorf("オートセーブに失敗: %w", err)
+	}
+	if err := sm.rotateAutoSaves(); err != nil {
+		return fmt.Errorf("古いオートセーブの削除に失敗: %w", err)
+	}
+	return nil
+}
+
+// rotateAutoSaves はオートセーブを最大件数まで削減する。
 // 古い順に削除して maxAutoSaves 件を保持する。
-func (sm *SerializationManager) RotateAutoSaves() error {
+func (sm *SerializationManager) rotateAutoSaves() error {
 	saves, err := sm.ListSaves()
 	if err != nil {
 		return err
